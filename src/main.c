@@ -4,18 +4,35 @@
 
 #include "box86version.h"
 #include "debug.h"
+#include "pathcoll.h"
 
 int box86_debug = DEBUG_NONE;
+
+path_collection_t box86_path = {0};
+path_collection_t box86_ld_lib = {0};
+
+void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
+{
+    const char* p = getenv(env);
+    if(p) {
+        printf_debug(DEBUG_INFO, "%s: ", env);
+        ParseList(p, col);
+    } else {
+        printf_debug(DEBUG_INFO, "Using default %s: ", env);
+        ParseList(defpath, col);
+    }
+    if(DEBUG_INFO<=box86_debug) {
+        for(int i=0; i<col->size; i++)
+            printf("%s%s", col->paths[i], (i==col->size-1)?"\n":":");
+    }
+}
 
 int main(int argc, const char **argv) {
     printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
 
-    // check BOX86_LD_LIBRARY_PATH and load it
-    #warning TODO: BOX86_LD_LIBRARY_PATH handling
-    // check BOX86_PATH and load it
-    #warning TODO: BOX86_PATH handling
+    char *p;
     // check BOX86_DEBUG debug level
-    char* p = getenv("BOX86_DEBUG");
+    p = getenv("BOX86_DEBUG");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>=DEBUG_NONE && p[1]<=DEBUG_DEBUG)
@@ -30,6 +47,10 @@ int main(int argc, const char **argv) {
         }
         printf_debug(DEBUG_INFO, "Debug level is %d\n", box86_debug);
     }
+    // check BOX86_LD_LIBRARY_PATH and load it
+    LoadEnvPath(&box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
+    // check BOX86_PATH and load it
+    LoadEnvPath(&box86_path, ".:bin", "BOX86_PATH");
 
     // trying to open and load 1st arg
     if(argc>1) {
