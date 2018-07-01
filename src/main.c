@@ -11,6 +11,25 @@ int box86_debug = DEBUG_NONE;
 path_collection_t box86_path = {0};
 path_collection_t box86_ld_lib = {0};
 
+void LoadDebugEnv()
+{
+    const char *p = getenv("BOX86_DEBUG");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0'+DEBUG_NONE && p[1]<='0'+DEBUG_DEBUG)
+                box86_debug = p[0]-'0';
+        } else {
+            if(!strcmp(p, "NONE"))
+                box86_debug = DEBUG_NONE;
+            else if(!strcmp(p, "INFO"))
+                box86_debug = DEBUG_INFO;
+            else if(!strcmp(p, "DEBUG"))
+                box86_debug = DEBUG_DEBUG;
+        }
+        printf_debug(DEBUG_INFO, "Debug level is %d\n", box86_debug);
+    }
+}
+
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 {
     const char* p = getenv(env);
@@ -32,21 +51,7 @@ int main(int argc, const char **argv) {
 
     char *p;
     // check BOX86_DEBUG debug level
-    p = getenv("BOX86_DEBUG");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>=DEBUG_NONE && p[1]<=DEBUG_DEBUG)
-                box86_debug = p[0]-'0';
-        } else {
-            if(!strcmp(p, "NONE"))
-                box86_debug = DEBUG_NONE;
-            else if(!strcmp(p, "INFO"))
-                box86_debug = DEBUG_INFO;
-            else if(!strcmp(p, "DEBUG"))
-                box86_debug = DEBUG_DEBUG;
-        }
-        printf_debug(DEBUG_INFO, "Debug level is %d\n", box86_debug);
-    }
+    LoadDebugEnv();
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
     // check BOX86_PATH and load it
