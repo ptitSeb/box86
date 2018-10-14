@@ -46,6 +46,16 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
     }
 }
 
+void PrintHelp() {
+    printf("\n\nThis is Box86, the Linux 86 emulator with a twist\n");
+    printf("\nUsage is box86 path/to/software [args]\n");
+    printf("to launch x86 software\n");
+    printf("You can also set some env. var.:\n");
+    printf(" BOX86_PATH to set the PATH used by box86 to find w86 programs (default is '.:bin')\n");
+    printf(" BOX86_LD_LIBRARY_PATH to set the path were x86 lib are searched (default is '.:lib')\n");
+    printf(" BOX86_DEBUG with 0/1/2 or NONE/INFO/DEBUG to set printed debug info\n");
+}
+
 int main(int argc, const char **argv) {
     printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
 
@@ -60,6 +70,8 @@ int main(int argc, const char **argv) {
     // trying to open and load 1st arg
     if(argc>1) {
         printf_debug(DEBUG_INFO, "Openning %s\n", argv[1]);
+    } else {
+        PrintHelp();
     }
 
     return 0;
