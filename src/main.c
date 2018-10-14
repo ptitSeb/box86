@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "box86context.h"
 #include "fileutils.h"
+#include "elfloader.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
@@ -91,10 +92,26 @@ int main(int argc, const char **argv) {
         return -1;
     }
     if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
-        printf_debug(DEBUG_NONE, "Error, file is not found\n", context->argv[0]);
+        printf_debug(DEBUG_NONE, "Error, file %s is not found\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
+    FILE *f = fopen(context->argv[0], "rb");
+    if(!f) {
+        printf_debug(DEBUG_NONE, "Error, Cannot open %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    void *elf_header = LoadAndCheckElfHeader(f, 1);
+    if(!elf_header) {
+        printf_debug(DEBUG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
+        fclose(f);
+        FreeBox86Context(&context);
+        return -1;
+    }
+
+    fclose(f);
+    free(elf_header);
 
     // all done, free context
     FreeBox86Context(&context);
