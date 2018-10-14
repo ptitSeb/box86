@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "box86context.h"
 
-int box86_debug = DEBUG_NONE;
+int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
 void LoadDebugEnv()
 {
