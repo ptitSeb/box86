@@ -111,7 +111,7 @@ int main(int argc, const char **argv) {
     }
 
     fclose(f);
-    free(elf_header);
+    FreeElfHeader(&elf_header);
 
     // all done, free context
     FreeBox86Context(&context);
