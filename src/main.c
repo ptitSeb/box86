@@ -90,7 +90,7 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
-    if(!FileExist(context->argv[0])) {
+    if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
         printf_debug(DEBUG_NONE, "Error, file is not found\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
