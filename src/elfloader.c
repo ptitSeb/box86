@@ -105,6 +105,18 @@ int FindSection(Elf32_Shdr *s, int n, char* SHStrTab, const char* name)
     return 0;
 }
 
+void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, int* num)
+{
+    int n = FindSection(s, size, SHStrTab, name);
+    printf_debug(DEBUG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
+    if(n)
+        LoadSH(f, s+n, what, name, type);
+    if(type==SHT_SYMTAB || type==SHT_DYNSYM) {
+        if(*what && num)
+            *num = s[n].sh_size / sizeof(Elf32_Sym);
+    }
+}
+
 void* LoadAndCheckElfHeader(FILE* f, int exec)
 {
     Elf32_Ehdr header;
@@ -239,19 +251,9 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
         printf_debug(DEBUG_DEBUG, "ELF Dump Sections ====\n");
     }
 
-    int n;
-    n = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab");
-    printf_debug(DEBUG_DEBUG, "Loading SymTab Strings (idx = %d)\n", n);
-    if(n)
-        LoadSH(f, h->SHEntries+n, (void**)&h->StrTab, ".strtab", SHT_STRTAB);
+    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
+    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab, &h->numSymTab);
 
-    n = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab");
-    printf_debug(DEBUG_DEBUG, "Loading SymTab (idx = %d)\n", n);
-    if(n)
-        LoadSH(f, h->SHEntries+n, (void**)&h->SymTab, ".symtab", SHT_SYMTAB);
-    if(h->SymTab)
-        h->numSymTab = h->SHEntries[n].sh_size / sizeof(Elf32_Sym);
-    
     if(box86_debug>=DEBUG_DEBUG && h->SymTab) {
         printf_debug(DEBUG_DEBUG, "ELF Dump SymTab(%d)\n", h->numSymTab);
         for (int i=0; i<h->numSymTab; ++i)
@@ -261,17 +263,8 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
         printf_debug(DEBUG_DEBUG, "ELF Dump SymTab=====\n", h->numSymTab);
     }
 
-    n = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr");
-    printf_debug(DEBUG_DEBUG, "Loading DynSym Strings (idx = %d)\n", n);
-    if(n)
-        LoadSH(f, h->SHEntries+n, (void**)&h->DynStr, ".dynstr", SHT_STRTAB);
-
-    n = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym");
-    printf_debug(DEBUG_DEBUG, "Loading DynSym (idx = %d)\n", n);
-    if(n)
-        LoadSH(f, h->SHEntries+n, (void**)&h->DynSym, ".dynsym", SHT_DYNSYM);
-    if(h->DynSym)
-        h->numDynSym = h->SHEntries[n].sh_size / sizeof(Elf32_Sym);
+    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
+    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
 
     if(box86_debug>=DEBUG_DEBUG && h->DynSym) {
         printf_debug(DEBUG_DEBUG, "ELF Dump DynSym(%d)\n", h->numDynSym);
