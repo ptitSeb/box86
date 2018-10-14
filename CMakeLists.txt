@@ -18,6 +18,7 @@ SET(ELFLOADER_SRC
     src/main.c
     src/pathcoll.c
     src/box86context.c
+    src/fileutils.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})

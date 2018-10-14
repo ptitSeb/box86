@@ -5,6 +5,7 @@
 #include "box86version.h"
 #include "debug.h"
 #include "box86context.h"
+#include "fileutils.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
@@ -66,16 +67,34 @@ int main(int argc, const char **argv) {
     LoadDebugEnv();
     
     // Create a new context
-    box86context_t *context = NewBox86Context();
+    box86context_t *context = NewBox86Context(argc - 1);
 
-    char *p;
+    const char *p;
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
 
-    printf_debug(DEBUG_INFO, "Openning %s\n", argv[1]);
-
+    // lets build argc/argv stuff
+    p=argv[1];
+    printf_debug(DEBUG_INFO, "Looking for %s\n", p);
+    if(strchr(p, '/'))
+        context->argv[0] = strdup(p);
+    else
+        context->argv[0] = ResolveFile(p, &context->box86_path);
+    for(int i=1; i<context->argc; ++i)
+        context->argv[i] = strdup(argv[i+1]);
+    // check if file exist
+    if(!context->argv[0]) {
+        printf_debug(DEBUG_NONE, "Error, file is not found (check BOX86_PATH)\n", p);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    if(!FileExist(context->argv[0])) {
+        printf_debug(DEBUG_NONE, "Error, file is not found\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
 
     // all done, free context
     FreeBox86Context(&context);
