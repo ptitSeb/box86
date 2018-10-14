@@ -4,12 +4,9 @@
 
 #include "box86version.h"
 #include "debug.h"
-#include "pathcoll.h"
+#include "box86context.h"
 
 int box86_debug = DEBUG_NONE;
-
-path_collection_t box86_path = {0};
-path_collection_t box86_ld_lib = {0};
 
 void LoadDebugEnv()
 {
@@ -59,20 +56,29 @@ void PrintHelp() {
 int main(int argc, const char **argv) {
     printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
 
-    char *p;
+    // trying to open and load 1st arg
+    if(argc==1) {
+        PrintHelp();
+        return 1;
+    }
+
     // check BOX86_DEBUG debug level
     LoadDebugEnv();
-    // check BOX86_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
-    // check BOX86_PATH and load it
-    LoadEnvPath(&box86_path, ".:bin", "BOX86_PATH");
+    
+    // Create a new context
+    box86context_t *context = NewBox86Context();
 
-    // trying to open and load 1st arg
-    if(argc>1) {
-        printf_debug(DEBUG_INFO, "Openning %s\n", argv[1]);
-    } else {
-        PrintHelp();
-    }
+    char *p;
+    // check BOX86_LD_LIBRARY_PATH and load it
+    LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
+    // check BOX86_PATH and load it
+    LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
+
+    printf_debug(DEBUG_INFO, "Openning %s\n", argv[1]);
+
+
+    // all done, free context
+    FreeBox86Context(&context);
 
     return 0;
 }

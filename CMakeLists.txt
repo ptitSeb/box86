@@ -17,6 +17,7 @@ add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 SET(ELFLOADER_SRC
     src/main.c
     src/pathcoll.c
+    src/box86context.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})

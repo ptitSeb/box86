@@ -40,8 +40,7 @@ void ParseList(const char* List, path_collection_t* collection)
     }
     // alloc empty strings
     collection->cap = cnt;
-    collection->paths = (char**)malloc(sizeof(char*)*cnt);
-    memset(collection->paths, 0, sizeof(char*)*cnt);
+    collection->paths = (char**)calloc(cnt, sizeof(char*));
     // and now split the paths...
     char tmp[MAX_PATH];
     const char *p = List;
@@ -67,4 +66,13 @@ void ParseList(const char* List, path_collection_t* collection)
             collection->size=++idx;
         }
     }
+}
+
+void CopyCollection(path_collection_t* to, path_collection_t* from)
+{
+    to->cap = from->cap;
+    to->paths = (char**)calloc(to->cap, sizeof(char*));
+    to->size = from->size;
+    for (int i=0; i<to->size; ++i)
+        to->paths[i] = strdup(from->paths[i]);
 }
