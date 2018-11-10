@@ -18,12 +18,14 @@ void LoadDebugEnv()
             if(p[0]>='0'+DEBUG_NONE && p[1]<='0'+DEBUG_DEBUG)
                 box86_debug = p[0]-'0';
         } else {
-            if(!strcmp(p, "NONE"))
+            if(!strcasecmp(p, "NONE"))
                 box86_debug = DEBUG_NONE;
-            else if(!strcmp(p, "INFO"))
+            else if(!strcasecmp(p, "INFO"))
                 box86_debug = DEBUG_INFO;
-            else if(!strcmp(p, "DEBUG"))
+            else if(!strcasecmp(p, "DEBUG"))
                 box86_debug = DEBUG_DEBUG;
+            else if(!strcasecmp(p, "DUMP"))
+                box86_debug = DEBUG_DUMP;
         }
         printf_debug(DEBUG_INFO, "Debug level is %d\n", box86_debug);
     }
