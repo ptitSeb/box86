@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 project(box86)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
+option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
+
 
 # Pandora
 if(PANDORA)
@@ -11,6 +13,14 @@ if(PANDORA)
 endif()
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
+
+if(USE_CCACHE)
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    endif()
+endif()
 
 #include_directories(include)
 
