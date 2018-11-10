@@ -11,7 +11,7 @@
 #define PN_XNUM (0xffff)
 #endif
 
-typedef struct {
+struct elfheader_s {
     int         numPHEntries;
     Elf32_Phdr  *PHEntries;
     int         numSHEntries;
@@ -25,7 +25,7 @@ typedef struct {
     char*       DynStr;
     Elf32_Sym*  DynSym;
     int         numDynSym;
-} elfheader_t;
+};
 
 const char* DumpSection(Elf32_Shdr *s, char* SST) {
     static char buff[200];
@@ -197,7 +197,7 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
     h->SHEntries = (Elf32_Shdr*)calloc(h->numSHEntries, sizeof(Elf32_Shdr));
     fseek(f, header.e_shoff ,SEEK_SET);
     if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
-            FreeElfHeader((void**)&h);
+            FreeElfHeader(&h);
             printf_debug(DEBUG_INFO, "Cannot read all Section Header\n");
             return NULL;
     }
@@ -212,7 +212,7 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
     h->PHEntries = (Elf32_Phdr*)calloc(h->numPHEntries, sizeof(Elf32_Phdr));
     fseek(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries, sizeof(Elf32_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
-            FreeElfHeader((void**)&h);
+            FreeElfHeader(&h);
             printf_debug(DEBUG_INFO, "Cannot read all Program Header\n");
             return NULL;
     }
@@ -223,13 +223,13 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
     }
     if(h->SHIdx > h->numSHEntries) {
         printf_debug(DEBUG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
-        FreeElfHeader((void**)&h);
+        FreeElfHeader(&h);
         return NULL;
     }
     // load Section table
     printf_debug(DEBUG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
     if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
-        FreeElfHeader((void**)&h);
+        FreeElfHeader(&h);
         return NULL;
     }
 
@@ -278,9 +278,11 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
     return h;
 }
 
-void FreeElfHeader(void** head)
+void FreeElfHeader(elfheader_t** head)
 {
-    elfheader_t *h =(elfheader_t*)(*head);
+    if(!head || !*head)
+        return;
+    elfheader_t *h = *head;
     free(h->PHEntries);
     free(h->SHEntries);
     free(h->SHStrTab);

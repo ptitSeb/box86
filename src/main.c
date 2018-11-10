@@ -102,7 +102,7 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
-    void *elf_header = LoadAndCheckElfHeader(f, 1);
+    elfheader_t *elf_header = LoadAndCheckElfHeader(f, 1);
     if(!elf_header) {
         printf_debug(DEBUG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
         fclose(f);
