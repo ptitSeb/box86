@@ -112,6 +112,14 @@ int main(int argc, const char **argv) {
         return -1;
     }
 
+    if(CalcLoadAddr(elf_header)) {
+        printf_debug(DEBUG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
+        FreeElfHeader(&elf_header);
+        fclose(f);
+        FreeBox86Context(&context);
+        return -1;
+    }
+
     fclose(f);
     FreeElfHeader(&elf_header);
 

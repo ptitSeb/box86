@@ -7,28 +7,11 @@
 #include "elfloader.h"
 #include "debug.h"
 #include "elfload_dump.h"
+#include "elfloader_private.h"
 
 #ifndef PN_XNUM 
 #define PN_XNUM (0xffff)
 #endif
-
-struct elfheader_s {
-    int         numPHEntries;
-    Elf32_Phdr  *PHEntries;
-    int         numSHEntries;
-    Elf32_Shdr  *SHEntries;
-    int         SHIdx;
-    int         numSST;
-    char*       SHStrTab;
-    char*       StrTab;
-    Elf32_Sym*  SymTab;
-    int         numSymTab;
-    char*       DynStr;
-    Elf32_Sym*  DynSym;
-    int         numDynSym;
-    Elf32_Dyn*  Dynamic;
-    int         numDynamic;
-};
 
 int LoadSH(FILE *f, Elf32_Shdr *s, void** SH, const char* name, uint32_t type)
 {
@@ -189,56 +172,18 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
         FreeElfHeader(&h);
         return NULL;
     }
-
-    if(box86_debug>=DEBUG_DUMP) {
-        printf_debug(DEBUG_DUMP, "ELF Dump main header\n");
-        printf_debug(DEBUG_DUMP, "  Entry point = %p\n", header.e_entry);
-        printf_debug(DEBUG_DUMP, "  Program Header table offset = %p\n", header.e_phoff);
-        printf_debug(DEBUG_DUMP, "  Section Header table offset = %p\n", header.e_shoff);
-        printf_debug(DEBUG_DUMP, "  Flags = 0x%X\n", header.e_flags);
-        printf_debug(DEBUG_DUMP, "  ELF Header size = %d\n", header.e_ehsize);
-        printf_debug(DEBUG_DUMP, "  Program Header Entry num/size = %d(%d)/%d\n", h->numPHEntries, header.e_phnum, header.e_phentsize);
-        printf_debug(DEBUG_DUMP, "  Section Header Entry num/size = %d(%d)/%d\n", h->numSHEntries, header.e_shnum, header.e_shentsize);
-        printf_debug(DEBUG_DUMP, "  Section Header index num = %d(%d)\n", h->SHIdx, header.e_shstrndx);
-        printf_debug(DEBUG_DUMP, "ELF Dump ==========\n");
-
-        printf_debug(DEBUG_DUMP, "ELF Dump Sections (%d)\n", h->numSHEntries);
-        for (int i=0; i<h->numSHEntries; ++i)
-            printf_debug(DEBUG_DUMP, "  Section %04d : %s\n", i, DumpSection(h->SHEntries+i, h->SHStrTab));
-        printf_debug(DEBUG_DUMP, "ELF Dump Sections ====\n");
-    }
+    if(box86_debug>=DEBUG_DUMP) DumpMainHeader(&header, h);
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab, &h->numSymTab);
-
-    if(box86_debug>=DEBUG_DUMP && h->SymTab) {
-        printf_debug(DEBUG_DUMP, "ELF Dump SymTab(%d)\n", h->numSymTab);
-        for (int i=0; i<h->numSymTab; ++i)
-            printf_debug(DEBUG_DUMP, "  SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
-                i, h->StrTab+h->SymTab[i].st_name, h->SymTab[i].st_value, h->SymTab[i].st_size,
-                h->SymTab[i].st_info, h->SymTab[i].st_other, h->SymTab[i].st_shndx);
-        printf_debug(DEBUG_DUMP, "ELF Dump SymTab=====\n");
-    }
+    if(box86_debug>=DEBUG_DUMP && h->SymTab) DumpSymTab(h);
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
-    if(box86_debug>=DEBUG_DUMP && h->Dynamic) {
-        printf_debug(DEBUG_DUMP, "ELF Dump Dynamic(%d)\n", h->numDynamic);
-        for (int i=0; i<h->numDynamic; ++i)
-            printf_debug(DEBUG_DUMP, "  Dynamic %04d : %s\n", i, DumpDynamic(h->Dynamic+i));
-        printf_debug(DEBUG_DUMP, "ELF Dump Dynamic=====\n");
-    }
+    if(box86_debug>=DEBUG_DUMP && h->Dynamic) DumpDynamicSections(h);
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
-
-    if(box86_debug>=DEBUG_DUMP && h->DynSym) {
-        printf_debug(DEBUG_DUMP, "ELF Dump DynSym(%d)\n", h->numDynSym);
-        for (int i=0; i<h->numDynSym; ++i)
-            printf_debug(DEBUG_DUMP, "  DynSym[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
-                i, h->DynStr+h->DynSym[i].st_name, h->DynSym[i].st_value, h->DynSym[i].st_size,
-                h->DynSym[i].st_info, h->DynSym[i].st_other, h->DynSym[i].st_shndx);
-        printf_debug(DEBUG_DUMP, "ELF Dump DynSym=====\n");
-    }
+    if(box86_debug>=DEBUG_DUMP && h->DynSym) DumpDynSym(h);
 
     return h;
 }
@@ -258,4 +203,36 @@ void FreeElfHeader(elfheader_t** head)
     free(h);
 
     *head = NULL;
+}
+
+int CalcLoadAddr(elfheader_t* head)
+{
+    head->memsz = 0;
+    head->paddr = head->vaddr = (uintptr_t)~0;
+    head->align = 1;
+    for (int i=0; i<head->numPHEntries; ++i)
+        if(head->PHEntries[i].p_type == PT_LOAD) {
+            if(head->paddr > head->PHEntries[i].p_paddr)
+                head->paddr = head->PHEntries[i].p_paddr;
+            if(head->vaddr > head->PHEntries[i].p_vaddr)
+                head->vaddr = head->PHEntries[i].p_vaddr;
+        }
+    
+    if(head->vaddr==~0 || head->paddr==~0) {
+        printf_debug(DEBUG_NONE, "Error: v/p Addr for Elf Load not set\n");
+        return 1;
+    }
+
+    for (int i=0; i<head->numPHEntries; ++i)
+        if(head->PHEntries[i].p_type == PT_LOAD) {
+            uintptr_t phend = head->PHEntries[i].p_vaddr - head->vaddr + head->PHEntries[i].p_memsz;
+            if(phend > head->memsz)
+                head->memsz = phend;
+            if(head->PHEntries[i].p_align > head->align)
+                head->align = head->PHEntries[i].p_align;
+        }
+
+    printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=%u (align=%u)\n", head->vaddr, head->paddr, head->memsz, head->align);
+
+    return 0;
 }

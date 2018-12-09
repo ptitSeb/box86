@@ -7,6 +7,7 @@
 #include "elfloader.h"
 #include "debug.h"
 #include "elfload_dump.h"
+#include "elfloader_private.h"
 
 const char* DumpSection(Elf32_Shdr *s, char* SST) {
     static char buff[200];
@@ -139,4 +140,87 @@ const char* DumpDynamic(Elf32_Dyn *s) {
     return buff;
 }
 
+const char* DumpPHEntry(Elf32_Phdr *e)
+{
+    static char buff[500];
+    memset(buff, 0, sizeof(buff));
+    switch(e->p_type) {
+        case PT_NULL: sprintf(buff, "type: %s", "PT_NULL"); break;
+        #define GO(T) case T: sprintf(buff, "type: %s, Off=%x vaddr=%p paddr=%p filesz=%u memsz=%u flags=%x align=%u", #T, e->p_offset, e->p_vaddr, e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break
+        GO(PT_LOAD);
+        GO(PT_DYNAMIC);
+        GO(PT_INTERP);
+        GO(PT_NOTE);
+        GO(PT_SHLIB);
+        GO(PT_PHDR);
+        GO(PT_TLS);
+        GO(PT_NUM);
+        GO(PT_LOOS);
+        GO(PT_GNU_EH_FRAME);
+        GO(PT_GNU_STACK);
+        GO(PT_GNU_RELRO);
+        default: sprintf(buff, "type: %x, Off=%x vaddr=%p paddr=%p filesz=%u memsz=%u flags=%x align=%u", e->p_type, e->p_offset, e->p_vaddr, e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
+    }
+    return buff;
+}
 
+
+void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP) {
+        printf_debug(DEBUG_DUMP, "ELF Dump main header\n");
+        printf_debug(DEBUG_DUMP, "  Entry point = %p\n", header->e_entry);
+        printf_debug(DEBUG_DUMP, "  Program Header table offset = %p\n", header->e_phoff);
+        printf_debug(DEBUG_DUMP, "  Section Header table offset = %p\n", header->e_shoff);
+        printf_debug(DEBUG_DUMP, "  Flags = 0x%X\n", header->e_flags);
+        printf_debug(DEBUG_DUMP, "  ELF Header size = %d\n", header->e_ehsize);
+        printf_debug(DEBUG_DUMP, "  Program Header Entry num/size = %d(%d)/%d\n", h->numPHEntries, header->e_phnum, header->e_phentsize);
+        printf_debug(DEBUG_DUMP, "  Section Header Entry num/size = %d(%d)/%d\n", h->numSHEntries, header->e_shnum, header->e_shentsize);
+        printf_debug(DEBUG_DUMP, "  Section Header index num = %d(%d)\n", h->SHIdx, header->e_shstrndx);
+        printf_debug(DEBUG_DUMP, "ELF Dump ==========\n");
+
+        printf_debug(DEBUG_DUMP, "ELF Dump PEntries (%d)\n", h->numSHEntries);
+        for (int i=0; i<h->numPHEntries; ++i)
+            printf_debug(DEBUG_DUMP, "  PHEntry %04d : %s\n", i, DumpPHEntry(h->PHEntries+i));
+        printf_debug(DEBUG_DUMP, "ELF Dump PEntries ====\n");
+
+        printf_debug(DEBUG_DUMP, "ELF Dump Sections (%d)\n", h->numSHEntries);
+        for (int i=0; i<h->numSHEntries; ++i)
+            printf_debug(DEBUG_DUMP, "  Section %04d : %s\n", i, DumpSection(h->SHEntries+i, h->SHStrTab));
+        printf_debug(DEBUG_DUMP, "ELF Dump Sections ====\n");
+    }
+}
+
+void DumpSymTab(elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP && h->SymTab) {
+        printf_debug(DEBUG_DUMP, "ELF Dump SymTab(%d)\n", h->numSymTab);
+        for (int i=0; i<h->numSymTab; ++i)
+            printf_debug(DEBUG_DUMP, "  SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
+                i, h->StrTab+h->SymTab[i].st_name, h->SymTab[i].st_value, h->SymTab[i].st_size,
+                h->SymTab[i].st_info, h->SymTab[i].st_other, h->SymTab[i].st_shndx);
+        printf_debug(DEBUG_DUMP, "ELF Dump SymTab=====\n");
+    }
+}
+
+void DumpDynamicSections(elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP && h->Dynamic) {
+        printf_debug(DEBUG_DUMP, "ELF Dump Dynamic(%d)\n", h->numDynamic);
+        for (int i=0; i<h->numDynamic; ++i)
+            printf_debug(DEBUG_DUMP, "  Dynamic %04d : %s\n", i, DumpDynamic(h->Dynamic+i));
+        printf_debug(DEBUG_DUMP, "ELF Dump Dynamic=====\n");
+    }
+}
+
+void DumpDynSym(elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP && h->DynSym) {
+        printf_debug(DEBUG_DUMP, "ELF Dump DynSym(%d)\n", h->numDynSym);
+        for (int i=0; i<h->numDynSym; ++i)
+            printf_debug(DEBUG_DUMP, "  DynSym[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
+                i, h->DynStr+h->DynSym[i].st_name, h->DynSym[i].st_value, h->DynSym[i].st_size,
+                h->DynSym[i].st_info, h->DynSym[i].st_other, h->DynSym[i].st_shndx);
+        printf_debug(DEBUG_DUMP, "ELF Dump DynSym=====\n");
+    }
+}
