@@ -296,19 +296,28 @@ void DumpBinary(char* p, int sz)
     // dump p as 
     // PPPPPPPP XX XX XX ... XX | 0123456789ABCDEF
     unsigned char* d = (unsigned char*)p;
+    int delta = ((uintptr_t)p)&0xf;
     for (int i = 0; sz; ++i) {
-        printf("%p ", d);
-        int n = 16;
+        printf("%p ", ((uintptr_t)d)&~0xf);
+        int n = 16 - delta;
         if (n>sz) n = sz;
-        for (int j = 0; j<n; ++j) {
+        int fill = 16-sz;
+        for (int j = 0; j<delta; ++j)
+            printf("   ");
+        for (int j = 0; j<n; ++j)
             printf("%02X ", d[j]);
-        }
+        for (int j = 0; j<fill; ++j)
+            printf("   ");
         printf(" | ");
-        for (int j = 0; j<n; ++j) {
+        for (int j = 0; j<delta; ++j)
+            printf(" ");
+        for (int j = 0; j<n; ++j)
             printf("%c", (d[j]<32 || d[j]>127)?'.':d[j]);
-        }
+        for (int j = 0; j<fill; ++j)
+            printf(" ");
         printf("\n");
         d+=n;
         sz-=n;
+        delta=0;
     }
 }
