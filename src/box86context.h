@@ -3,12 +3,21 @@
 
 #include "pathcoll.h"
 
+typedef struct elfheader_s elfheader_t;
+
 typedef struct {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 
     int                 argc;
     char**              argv;
+
+    uint32_t            stacksz;
+    int                 stackalign;
+    void*               stack;          // alocated stack
+
+    elfheader_t         *elfs;          // elf headers and memory
+    int                 elfcount;       // number of elf loaded
 
 } box86context_t;
 

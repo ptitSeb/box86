@@ -119,6 +119,15 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
+    // allocate memory
+    // Load elf into memory and relocate
+    // Call librarian to load all dependant elf
+    // finalize relocations
+    // get stack size and align
+    // alloc stack
+    // init x86 emu
+    // emulate!
+
 
     fclose(f);
     FreeElfHeader(&elf_header);
