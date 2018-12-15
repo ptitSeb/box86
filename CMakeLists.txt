@@ -30,6 +30,7 @@ SET(ELFLOADER_SRC
     src/box86context.c
     src/fileutils.c
     src/elfloader.c
+    src/elfparser.c
     src/elfload_dump.c
 )
 
