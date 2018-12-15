@@ -127,6 +127,13 @@ int main(int argc, const char **argv) {
         return -1;
     }
     // Load elf into memory and relocate
+    if(LoadElfMemory(f, elf_header)) {
+        printf_debug(DEBUG_NONE, "Error, loading in memory elf %s\n", context->argv[0]);
+        fclose(f);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    // can close the file now
     fclose(f);
     // Call librarian to load all dependant elf
     // finalize relocations

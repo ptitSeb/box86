@@ -64,7 +64,7 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
     }
-    printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=%u (align=%u)\n", head->vaddr, head->paddr, head->memsz, head->align);
+    printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", head->vaddr, head->paddr, head->memsz, head->align);
     printf_debug(DEBUG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
 
     return 0;
@@ -79,7 +79,7 @@ int AllocElfMemory(elfheader_t* head)
 {
     printf_debug(DEBUG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
     if (posix_memalign((void**)&head->memory, head->align, head->memsz)) {
-        printf_debug(DEBUG_NONE, "Cannot allocate aligned memory (%u/%d) for elf \"%s\"\n", head->memsz, head->align, head->name);
+        printf_debug(DEBUG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for elf \"%s\"\n", head->memsz, head->align, head->name);
         return 1;
     }
     printf_debug(DEBUG_DEBUG, "Address is %p\n", head->memory);
@@ -89,5 +89,25 @@ int AllocElfMemory(elfheader_t* head)
         // memory protect error not fatal for now....
     }
 
+    return 0;
+}
+
+int LoadElfMemory(FILE* f, elfheader_t* head)
+{
+    for (int i=0; i<head->numPHEntries; ++i) {
+        if(head->PHEntries[i].p_type == PT_LOAD) {
+            Elf32_Phdr * e = &head->PHEntries[i];
+            char* dest = head->memory + e->p_paddr - head->paddr;
+            printf_debug(DEBUG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
+            fseek(f, e->p_offset, SEEK_SET);
+            if(fread(dest, e->p_filesz, 1, f)!=1) {
+                printf_debug(DEBUG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                return 1;
+            }
+            // zero'd difference between filesz and memsz
+            if(e->p_filesz != e->p_memsz)
+                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+        }
+    }
     return 0;
 }
