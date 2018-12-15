@@ -8,13 +8,29 @@ enum {
 	REGI_SP, REGI_BP, REGI_SI, REGI_DI
 };
 
-enum {
-    FLAG_CF = 0,
-    FLAG_PF, FLAG_AF, FLAG_ZF, FLAG_SF, FLAG_TF, FLAG_IF, FLAG_DF, FLAG_OF,
-    FLAG_IOPL1, FLAG_IOPL2, FLAG_NT, 
-    FLAG_RF = 16, FLAG_VM, FLAG_AC, FLAG_VIF, 
-    FLAG_VIP, FLAG_ID
-};
+typedef union {
+    uint32_t    x32;
+    struct {
+        int CF:1;
+        int PF:1;
+        int AF:1;
+        int ZF:1;
+        int SF:1;
+        int TF:1;
+        int IF:1;
+        int DF:1;
+        int OF:1;
+        unsigned int IOPL:2;
+        int NT:1;
+        int dummy:1;
+        int RF:1;
+        int VM:1;
+        int AC:1;
+        int VIF:1; 
+        int VIP:1;
+        int ID:1;
+    } f;
+} x86flags_t;
 
 typedef struct {
 	uint16_t    val[8];
@@ -93,7 +109,7 @@ typedef union {
 typedef struct {
     // cpu
 	reg32_t     regs[8],ip;
-	uint32_t    eflags;
+	x86flags_t  eflags;
     // segments
     x86segment_t segs[6];
     // fpu
