@@ -193,6 +193,27 @@ void CalcStack(elfheader_t* elf, uint32_t* stacksz, int* stackalign)
         *stackalign = elf->stackalign;
 }
 
+Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
+{
+    // TODO: create a hash on named to avoid this loop
+    for (int i=0; i<h->numSymTab; ++i) {
+        if(h->SymTab[i].st_info == 18) {    // TODO: this "18" is probably defined somewhere
+            const char * symname = h->StrTab+h->SymTab[i].st_name;
+            if(strcmp(symname, name)==0) {
+                return h->SymTab+i;
+            }
+        }
+    }
+    return NULL;
+}
+
+uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
+{
+    Elf32_Sym* sym = GetFunction(h, name);
+    if(sym) return sym->st_value;
+    return 0;
+}
+
 uintptr_t GetEntryPoint(elfheader_t* h)
 {
     uintptr_t ep = h->entrypoint + h->delta;
@@ -205,6 +226,21 @@ uintptr_t GetEntryPoint(elfheader_t* h)
             sz = lastbyte - ep;
         DumpBinary((char*)ep, sz);
     }
+    // but instead of regular entrypoint, lets grab "main", it will be easier to manage I guess
+    Elf32_Sym* sym = GetFunction(h, "main");
+    if(sym) {
+        ep = (uintptr_t)sym->st_value;
+        printf_debug(DEBUG_DEBUG, "Using \"main\" as Entry Point @%p\n", ep);
+        if(box86_debug>=DEBUG_DUMP) {
+            printf_debug(DEBUG_DUMP, "(short) Dump of Entry point\n");
+            int sz = 64;
+            uintptr_t lastbyte = GetLastByte(h);
+            if (ep + sz >  lastbyte)
+                sz = lastbyte - ep;
+            DumpBinary((char*)ep, sz);
+        }
+    }
+
     return ep;
 }
 
