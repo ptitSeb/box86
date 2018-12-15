@@ -167,3 +167,11 @@ int RelocateElf(elfheader_t* head)
    
     return 0;
 }
+
+void CalcStack(elfheader_t* elf, uint32_t* stacksz, int* stackalign)
+{
+    if(*stacksz < elf->stacksz)
+        *stacksz = elf->stacksz;
+    if(*stackalign < elf->stackalign)
+        *stackalign = elf->stackalign;
+}

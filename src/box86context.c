@@ -50,6 +50,8 @@ void FreeBox86Context(box86context_t** context)
     }
     free((*context)->elfs);
 
+    free((*context)->stack);
+
     free(*context);
     *context = NULL;
 }

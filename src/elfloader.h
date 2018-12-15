@@ -13,5 +13,6 @@ int CalcLoadAddr(elfheader_t* head);
 int AllocElfMemory(elfheader_t* head);
 int LoadElfMemory(FILE* f, elfheader_t* head);
 int RelocateElf(elfheader_t* head);
+void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
 
 #endif //__ELF_LOADER_H_

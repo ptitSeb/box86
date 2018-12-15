@@ -5,7 +5,7 @@
 
 typedef struct elfheader_s elfheader_t;
 
-typedef struct {
+typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 

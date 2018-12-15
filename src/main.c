@@ -7,6 +7,7 @@
 #include "box86context.h"
 #include "fileutils.h"
 #include "elfloader.h"
+#include "stack.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
@@ -143,6 +144,11 @@ int main(int argc, const char **argv) {
         return -1;
     }
     // get and alloc stack size and align
+    if(CalcStackSize(context)) {
+        printf_debug(DEBUG_NONE, "Error, allocating stack\n");
+        FreeBox86Context(&context);
+        return -1;
+    }
     // init x86 emu
     // emulate!
 
