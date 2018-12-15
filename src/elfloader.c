@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
+#include <sys/mman.h>
 
 #include "box86version.h"
 #include "elfloader.h"
@@ -57,7 +58,7 @@ void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const ch
     }
 }
 
-void* LoadAndCheckElfHeader(FILE* f, int exec)
+void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
 {
     Elf32_Ehdr header;
     if(fread(&header, sizeof(Elf32_Ehdr), 1, f)!=1) {
@@ -116,6 +117,7 @@ void* LoadAndCheckElfHeader(FILE* f, int exec)
     }
 
     elfheader_t *h = calloc(1, sizeof(elfheader_t));
+    h->name = strdup(name);
     h->numPHEntries = header.e_phnum;
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
@@ -193,6 +195,7 @@ void FreeElfHeader(elfheader_t** head)
     if(!head || !*head)
         return;
     elfheader_t *h = *head;
+    free(h->name);
     free(h->PHEntries);
     free(h->SHEntries);
     free(h->SHStrTab);
@@ -200,6 +203,7 @@ void FreeElfHeader(elfheader_t** head)
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);
+    free(h->memory);
     free(h);
 
     *head = NULL;
@@ -242,6 +246,23 @@ int CalcLoadAddr(elfheader_t* head)
     }
     printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=%u (align=%u)\n", head->vaddr, head->paddr, head->memsz, head->align);
     printf_debug(DEBUG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
+
+    return 0;
+}
+
+int AllocElfMemory(elfheader_t* head)
+{
+    printf_debug(DEBUG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
+    if (posix_memalign((void**)&head->memory, head->align, head->memsz)) {
+        printf_debug(DEBUG_NONE, "Cannot allocate aligned memory (%u/%d) for elf \"%s\"\n", head->memsz, head->align, head->name);
+        return 1;
+    }
+    printf_debug(DEBUG_DEBUG, "Address is %p\n", head->memory);
+    printf_debug(DEBUG_DEBUG, "And setting memory access to PROT_READ | PROT_WRITE | PROT_EXEC\n");
+    if (mprotect(head->memory, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+        printf_debug(DEBUG_NONE, "Cannot protect memory for elf \"%s\"\n", head->name);
+        // memory protect error not fatal for now....
+    }
 
     return 0;
 }

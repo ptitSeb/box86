@@ -1,6 +1,6 @@
 #ifndef __BOX86CONTEXT_H_
 #define __BOX86CONTEXT_H_
-
+#include <stdint.h>
 #include "pathcoll.h"
 
 typedef struct elfheader_s elfheader_t;

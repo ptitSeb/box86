@@ -2,6 +2,7 @@
 #define __ELFLOADER_PRIVATE_H_
 
 struct elfheader_s {
+    char*       name;
     int         numPHEntries;
     Elf32_Phdr  *PHEntries;
     int         numSHEntries;
@@ -24,6 +25,8 @@ struct elfheader_s {
     uint32_t    memsz;
     uint32_t    stacksz;
     int         stackalign;
+
+    char*       memory; // char* and not void* to allow math on memory pointer
 };
 
 #endif //__ELFLOADER_PRIVATE_H_
