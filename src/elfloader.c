@@ -223,7 +223,9 @@ int CalcLoadAddr(elfheader_t* head)
         return 1;
     }
 
-    for (int i=0; i<head->numPHEntries; ++i)
+    head->stacksz = 1024*1024;          //1M stack size default?
+    head->stackalign = 4;   // default align for stack
+    for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             uintptr_t phend = head->PHEntries[i].p_vaddr - head->vaddr + head->PHEntries[i].p_memsz;
             if(phend > head->memsz)
@@ -231,8 +233,15 @@ int CalcLoadAddr(elfheader_t* head)
             if(head->PHEntries[i].p_align > head->align)
                 head->align = head->PHEntries[i].p_align;
         }
-
+        if(head->PHEntries[i].p_type == PT_GNU_STACK) {
+            if(head->stacksz < head->PHEntries[i].p_memsz)
+                head->stacksz = head->PHEntries[i].p_memsz;
+            if(head->stackalign < head->PHEntries[i].p_align)
+                head->stackalign = head->PHEntries[i].p_align;
+        }
+    }
     printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=%u (align=%u)\n", head->vaddr, head->paddr, head->memsz, head->align);
+    printf_debug(DEBUG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
 
     return 0;
 }

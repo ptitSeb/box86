@@ -22,6 +22,8 @@ struct elfheader_s {
     uintptr_t   vaddr;
     int         align;
     uint32_t    memsz;
+    uint32_t    stacksz;
+    int         stackalign;
 };
 
 #endif //__ELFLOADER_PRIVATE_H_
