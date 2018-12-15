@@ -126,7 +126,7 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
-    // Load elf into memory and relocate
+    // Load elf into memory
     if(LoadElfMemory(f, elf_header)) {
         printf_debug(DEBUG_NONE, "Error, loading in memory elf %s\n", context->argv[0]);
         fclose(f);
@@ -137,8 +137,12 @@ int main(int argc, const char **argv) {
     fclose(f);
     // Call librarian to load all dependant elf
     // finalize relocations
-    // get stack size and align
-    // alloc stack
+    if(RelocateElf(elf_header)) {
+        printf_debug(DEBUG_NONE, "Error, relocating symbols in elf %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    // get and alloc stack size and align
     // init x86 emu
     // emulate!
 

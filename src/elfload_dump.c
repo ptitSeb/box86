@@ -164,6 +164,45 @@ const char* DumpPHEntry(Elf32_Phdr *e)
     return buff;
 }
 
+const char* DumpRelType(int t)
+{
+    static char buff[20];
+    memset(buff, 0, sizeof(buff));
+    switch(t) {
+        case R_386_NONE: sprintf(buff, "type: %s", "R_386_NONE"); break;
+        case R_386_32: sprintf(buff, "type: %s", "R_386_32"); break;
+        case R_386_PC32: sprintf(buff, "type: %s", "R_386_PC32"); break;
+        case R_386_GOT32: sprintf(buff, "type: %s", "R_386_GOT32"); break;
+        case R_386_PLT32: sprintf(buff, "type: %s", "R_386_PLT32"); break;
+        case R_386_COPY: sprintf(buff, "type: %s", "R_386_COPY"); break;
+        case R_386_GLOB_DAT: sprintf(buff, "type: %s", "R_386_GLOB_DAT"); break;
+        case R_386_JMP_SLOT: sprintf(buff, "type: %s", "R_386_JMP_SLOT"); break;
+        case R_386_RELATIVE: sprintf(buff, "type: %s", "R_386_RELATIVE"); break;
+        case R_386_GOTOFF: sprintf(buff, "type: %s", "R_386_GOTOFF"); break;
+        case R_386_GOTPC: sprintf(buff, "type: %s", "R_386_GOTPC"); break;
+        default: sprintf(buff, "type: 0x%x (unknown)", t); break;
+    }
+    return buff;
+}
+
+const char* DumpSym(elfheader_t *h, Elf32_Sym* sym)
+{
+    static char buff[100];
+    memset(buff, 0, sizeof(buff));
+    sprintf(buff, "\"%s\", value=%p, size=%d, info/other=%d/%d index=%d", 
+        h->DynStr+sym->st_name, sym->st_value, sym->st_size,
+        sym->st_info, sym->st_other, sym->st_shndx);
+    return buff;
+}
+
+const char* SymName(elfheader_t *h, Elf32_Sym* sym)
+{
+    return h->DynStr+sym->st_name;
+}
+const char* IdxSymName(elfheader_t *h, int sym)
+{
+    return h->DynStr+h->DynSym[sym].st_name;
+}
 
 void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h)
 {
@@ -218,9 +257,36 @@ void DumpDynSym(elfheader_t *h)
     if(box86_debug>=DEBUG_DUMP && h->DynSym) {
         printf_debug(DEBUG_DUMP, "ELF Dump DynSym(%d)\n", h->numDynSym);
         for (int i=0; i<h->numDynSym; ++i)
-            printf_debug(DEBUG_DUMP, "  DynSym[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
-                i, h->DynStr+h->DynSym[i].st_name, h->DynSym[i].st_value, h->DynSym[i].st_size,
-                h->DynSym[i].st_info, h->DynSym[i].st_other, h->DynSym[i].st_shndx);
+            printf_debug(DEBUG_DUMP, "  DynSym[%d] = %s\n", i, h->DynStr+h->DynSym[i].st_name, DumpSym(h, h->DynSym+i));
         printf_debug(DEBUG_DUMP, "ELF Dump DynSym=====\n");
+    }
+}
+
+void DumpRelTable(elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP && h->rel) {
+        int cnt = h->relsz / h->relent;
+        Elf32_Rel *rel = (Elf32_Rel *)(h->memory + h->rel - h->paddr);
+        printf_debug(DEBUG_DUMP, "ELF Dump Rel Table(%d) @%p\n", cnt, rel);
+        for (int i = 0; i<cnt; ++i)
+            printf_debug(DEBUG_DUMP, "  Rel[%d] = %p (0x%X: %s, sym=0x%0X/%s)\n", 
+                i, rel[i].r_offset, rel[i].r_info, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), 
+                ELF32_R_SYM(rel[i].r_info), IdxSymName(h, ELF32_R_SYM(rel[i].r_info)));
+        printf_debug(DEBUG_DUMP, "ELF Dump Rel Table=====\n");
+    }
+}
+
+void DumpRelATable(elfheader_t *h)
+{
+    if(box86_debug>=DEBUG_DUMP && h->rela) {
+        int cnt = h->relasz / h->relaent;
+        Elf32_Rela *rela = (Elf32_Rela *)(h->memory + h->rela - h->paddr);
+        printf_debug(DEBUG_DUMP, "ELF Dump RelA Table(%d) @%p\n", cnt, rela);
+        for (int i = 0; i<cnt; ++i)
+            printf_debug(DEBUG_DUMP, "  RelA[%d] = %p (0x%X: %s, sym=0x%X) Addend=%d\n", 
+                i, rela[i].r_offset, rela[i].r_info, DumpRelType(ELF32_R_TYPE(rela[i].r_info)), 
+                ELF32_R_SYM(rela[i].r_info), IdxSymName(h, ELF32_R_SYM(rela[i].r_info)), 
+                rela[i].r_addend);
+        printf_debug(DEBUG_DUMP, "ELF Dump RelA Table=====\n");
     }
 }

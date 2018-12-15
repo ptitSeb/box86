@@ -181,6 +181,39 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
     if(box86_debug>=DEBUG_DUMP && h->Dynamic) DumpDynamicSections(h);
+    // grab DT_REL & DT_RELA stuffs
+    {
+        for (int i=0; i<h->numDynamic; ++i) {
+            if(h->Dynamic[i].d_tag == DT_REL)
+                h->rel = h->Dynamic[i].d_un.d_ptr;
+            else if(h->Dynamic[i].d_tag == DT_RELSZ)
+                h->relsz = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_RELENT)
+                h->relent = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_RELA)
+                h->rela = h->Dynamic[i].d_un.d_ptr;
+            else if(h->Dynamic[i].d_tag == DT_RELASZ)
+                h->relasz = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_RELAENT)
+                h->relaent = h->Dynamic[i].d_un.d_val;
+        }
+        if(h->rel) {
+            if(h->relent != sizeof(Elf32_Rel)) {
+                printf_debug(DEBUG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf32_Rel));
+                FreeElfHeader(&h);
+                return NULL;
+            }
+            printf_debug(DEBUG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", h->rel, h->relsz, h->relent);
+        }
+        if(h->rela) {
+            if(h->relaent != sizeof(Elf32_Rela)) {
+                printf_debug(DEBUG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf32_Rela));
+                FreeElfHeader(&h);
+                return NULL;
+            }
+            printf_debug(DEBUG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", h->rela, h->relasz, h->relaent);
+        }
+    }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);

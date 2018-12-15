@@ -12,5 +12,6 @@ const char* ElfName(elfheader_t* head);
 int CalcLoadAddr(elfheader_t* head);
 int AllocElfMemory(elfheader_t* head);
 int LoadElfMemory(FILE* f, elfheader_t* head);
+int RelocateElf(elfheader_t* head);
 
 #endif //__ELF_LOADER_H_

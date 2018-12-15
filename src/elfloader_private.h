@@ -19,6 +19,13 @@ struct elfheader_s {
     Elf32_Dyn*  Dynamic;
     int         numDynamic;
 
+    uintptr_t   rel;
+    int         relsz;
+    int         relent;
+    uintptr_t   rela;
+    int         relasz;
+    int         relaent;
+
     uintptr_t   paddr;
     uintptr_t   vaddr;
     int         align;
@@ -28,5 +35,17 @@ struct elfheader_s {
 
     char*       memory; // char* and not void* to allow math on memory pointer
 };
+
+#define R_386_NONE	0
+#define R_386_32	1
+#define R_386_PC32	2
+#define R_386_GOT32	3
+#define R_386_PLT32	4
+#define R_386_COPY	5
+#define R_386_GLOB_DAT	6
+#define R_386_JMP_SLOT	7
+#define R_386_RELATIVE	8
+#define R_386_GOTOFF	9
+#define R_386_GOTPC	10
 
 #endif //__ELFLOADER_PRIVATE_H_
