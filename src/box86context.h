@@ -5,6 +5,8 @@
 
 typedef struct elfheader_s elfheader_t;
 
+typedef struct x86emu_s x86emu_t;
+
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -21,6 +23,8 @@ typedef struct box86context_s {
     int                 elfsize;        // number of elf loaded
 
     uintptr_t           ep;             // entry point
+
+    x86emu_t           *emu;          // CPU / FPU / MMX&SSE regs
 
 } box86context_t;
 

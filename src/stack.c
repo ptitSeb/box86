@@ -6,6 +6,7 @@
 #include "box86context.h"
 #include "elfloader.h"
 #include "debug.h"
+#include "x86emu_private.h"
 
 int CalcStackSize(box86context_t *context)
 {
@@ -21,4 +22,16 @@ int CalcStackSize(box86context_t *context)
     printf_debug(DEBUG_DEBUG, "Stack is @%p size=0x%x align=0x%x\n", context->stack, context->stacksz, context->stackalign);
 
     return 0;
+}
+
+uint32_t Pop(x86emu_t *emu)
+{
+    uint32_t* st = ((uint32_t*)_ESP(emu->regs));
+    _ESP(emu->regs) += 4;
+}
+
+void Push(x86emu_t *emu, uint32_t v)
+{
+    _ESP(emu->regs) -= 4;
+    *((uint32_t*)_ESP(emu->regs)) = v;
 }

@@ -8,6 +8,7 @@
 #include "fileutils.h"
 #include "elfloader.h"
 #include "stack.h"
+#include "x86emu.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
@@ -152,6 +153,9 @@ int main(int argc, const char **argv) {
     // set entrypoint
     context->ep = GetEntryPoint(elf_header);
     // init x86 emu
+    context->emu = NewX86Emu(context->ep, (uintptr_t)context->stack, context->stacksz);
+    SetEAX(context->emu, context->argc);
+    SetEBX(context->emu, (uint32_t)context->argv);
     // emulate!
 
 
