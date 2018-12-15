@@ -20,6 +20,8 @@ typedef struct box86context_s {
     int                 elfcap;
     int                 elfsize;        // number of elf loaded
 
+    uintptr_t           ep;             // entry point
+
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

@@ -117,6 +117,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
 
     elfheader_t *h = calloc(1, sizeof(elfheader_t));
     h->name = strdup(name);
+    h->entrypoint = header.e_entry;
     h->numPHEntries = header.e_phnum;
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;

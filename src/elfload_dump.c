@@ -290,3 +290,25 @@ void DumpRelATable(elfheader_t *h)
         printf_debug(DEBUG_DUMP, "ELF Dump RelA Table=====\n");
     }
 }
+
+void DumpBinary(char* p, int sz)
+{
+    // dump p as 
+    // PPPPPPPP XX XX XX ... XX | 0123456789ABCDEF
+    unsigned char* d = (unsigned char*)p;
+    for (int i = 0; sz; ++i) {
+        printf("%p ", d);
+        int n = 16;
+        if (n>sz) n = sz;
+        for (int j = 0; j<n; ++j) {
+            printf("%02X ", d[j]);
+        }
+        printf(" | ");
+        for (int j = 0; j<n; ++j) {
+            printf("%c", (d[j]<32 || d[j]>127)?'.':d[j]);
+        }
+        printf("\n");
+        d+=n;
+        sz-=n;
+    }
+}

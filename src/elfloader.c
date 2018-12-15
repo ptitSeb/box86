@@ -23,7 +23,7 @@ void FreeElfHeader(elfheader_t** head)
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);
-    free(h->memory);
+    FreeElfMemory(h);
     free(h);
 
     *head = NULL;
@@ -77,6 +77,7 @@ const char* ElfName(elfheader_t* head)
 
 int AllocElfMemory(elfheader_t* head)
 {
+    #if 0
     printf_debug(DEBUG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
     if (posix_memalign((void**)&head->memory, head->align, head->memsz)) {
         printf_debug(DEBUG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for elf \"%s\"\n", head->memsz, head->align, head->name);
@@ -88,8 +89,24 @@ int AllocElfMemory(elfheader_t* head)
         printf_debug(DEBUG_NONE, "Cannot protect memory for elf \"%s\"\n", head->name);
         // memory protect error not fatal for now....
     }
+    #else
+    printf_debug(DEBUG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, head->vaddr, head->name);
+    void* p = mmap((void*)head->vaddr, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    if(p==MAP_FAILED) {
+        printf_debug(DEBUG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", head->vaddr, head->memsz, head->align, head->name);
+        return 1;
+    }
+    head->memory = p;
+    head->delta = (intptr_t)p - (intptr_t)head->vaddr;
+    #endif
 
     return 0;
+}
+
+void FreeElfMemory(elfheader_t* head)
+{
+    if(head->memory)
+        munmap((void*)head->memory, head->memsz);
 }
 
 int LoadElfMemory(FILE* f, elfheader_t* head)
@@ -97,7 +114,7 @@ int LoadElfMemory(FILE* f, elfheader_t* head)
     for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf32_Phdr * e = &head->PHEntries[i];
-            char* dest = head->memory + e->p_paddr - head->paddr;
+            char* dest = (char*)e->p_paddr + head->delta;
             printf_debug(DEBUG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             fseek(f, e->p_offset, SEEK_SET);
             if(fread(dest, e->p_filesz, 1, f)!=1) {
@@ -118,10 +135,10 @@ int RelocateElf(elfheader_t* head)
         int cnt = head->relsz / head->relent;
         DumpRelTable(head);
         printf_debug(DEBUG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
-        Elf32_Rel *rel = (Elf32_Rel *)(head->memory + head->rel - head->paddr);
+        Elf32_Rel *rel = (Elf32_Rel *)(head->rel + head->delta);
         for (int i=0; i<cnt; ++i) {
             Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
-            uint32_t *p = (uint32_t*)(head->memory + rel[i].r_offset - head->paddr);
+            uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
             int t = ELF32_R_TYPE(rel[i].r_info);
             switch(t) {
                 case R_386_NONE:
@@ -150,7 +167,7 @@ int RelocateElf(elfheader_t* head)
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head);
         printf_debug(DEBUG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
-        Elf32_Rela *rela = (Elf32_Rela *)(head->memory + head->rela - head->paddr);
+        Elf32_Rela *rela = (Elf32_Rela *)(head->rela + head->delta);
         for (int i=0; i<cnt; ++i) {
             Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
             switch(ELF32_R_TYPE(rela[i].r_info)) {
@@ -174,4 +191,24 @@ void CalcStack(elfheader_t* elf, uint32_t* stacksz, int* stackalign)
         *stacksz = elf->stacksz;
     if(*stackalign < elf->stackalign)
         *stackalign = elf->stackalign;
+}
+
+uintptr_t GetEntryPoint(elfheader_t* h)
+{
+    uintptr_t ep = h->entrypoint + h->delta;
+    printf_debug(DEBUG_DEBUG, "Entry Point is %p\n", ep);
+    if(box86_debug>=DEBUG_DUMP) {
+        printf_debug(DEBUG_DUMP, "(short) Dump of Entry point\n");
+        int sz = 64;
+        uintptr_t lastbyte = GetLastByte(h);
+        if (ep + sz >  lastbyte)
+            sz = lastbyte - ep;
+        DumpBinary((char*)ep, sz);
+    }
+    return ep;
+}
+
+uintptr_t GetLastByte(elfheader_t* h)
+{
+    return (uintptr_t)h->memory + h->delta + h->memsz;
 }

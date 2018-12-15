@@ -17,4 +17,6 @@ void DumpDynSym(elfheader_t *h);
 void DumpRelTable(elfheader_t *h);
 void DumpRelATable(elfheader_t *h);
 
+void DumpBinary(char* p, int sz);
+
 #endif //ELFLOADER_DUMP_H

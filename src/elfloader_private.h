@@ -19,6 +19,10 @@ struct elfheader_s {
     Elf32_Dyn*  Dynamic;
     int         numDynamic;
 
+    intptr_t    delta;  // should be 0
+
+    uintptr_t   entrypoint;
+
     uintptr_t   rel;
     int         relsz;
     int         relent;

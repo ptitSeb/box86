@@ -149,6 +149,8 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
+    // set entrypoint
+    context->ep = GetEntryPoint(elf_header);
     // init x86 emu
     // emulate!
 
