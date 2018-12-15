@@ -250,6 +250,11 @@ int CalcLoadAddr(elfheader_t* head)
     return 0;
 }
 
+const char* ElfName(elfheader_t* head)
+{
+    return head->name;
+}
+
 int AllocElfMemory(elfheader_t* head)
 {
     printf_debug(DEBUG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);

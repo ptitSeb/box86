@@ -111,10 +111,10 @@ int main(int argc, const char **argv) {
         FreeBox86Context(&context);
         return -1;
     }
+    int mainelf = AddElfHeader(context, elf_header);
 
     if(CalcLoadAddr(elf_header)) {
         printf_debug(DEBUG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
-        FreeElfHeader(&elf_header);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
@@ -122,12 +122,12 @@ int main(int argc, const char **argv) {
     // allocate memory
     if(AllocElfMemory(elf_header)) {
         printf_debug(DEBUG_NONE, "Error, allocating memory for elf %s\n", context->argv[0]);
-        FreeElfHeader(&elf_header);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
     }
     // Load elf into memory and relocate
+    fclose(f);
     // Call librarian to load all dependant elf
     // finalize relocations
     // get stack size and align
@@ -136,8 +136,6 @@ int main(int argc, const char **argv) {
     // emulate!
 
 
-    fclose(f);
-    FreeElfHeader(&elf_header);
 
     // all done, free context
     FreeBox86Context(&context);

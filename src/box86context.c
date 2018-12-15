@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include "box86context.h"
+#include "elfloader.h"
+#include "debug.h"
 
 box86context_t *NewBox86Context(int argc)
 {
@@ -43,7 +45,24 @@ void FreeBox86Context(box86context_t** context)
         free((*context)->argv[i]);
     free((*context)->argv);
 
+    for(int i=0; i<(*context)->elfsize; ++i) {
+        FreeElfHeader(&(*context)->elfs[i]);
+    }
+    free((*context)->elfs);
+
     free(*context);
     *context = NULL;
 }
 
+int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
+    int idx = ctx->elfsize;
+    if(idx==ctx->elfcap) {
+        // resize...
+        ctx->elfcap += 16;
+        ctx->elfs = (elfheader_t**)realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+    }
+    ctx->elfs[idx] = head;
+    ctx->elfsize++;
+    printf_debug(DEBUG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
+    return idx;
+}

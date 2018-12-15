@@ -16,13 +16,16 @@ typedef struct {
     int                 stackalign;
     void*               stack;          // alocated stack
 
-    elfheader_t         *elfs;          // elf headers and memory
-    int                 elfcount;       // number of elf loaded
+    elfheader_t         **elfs;         // elf headers and memory
+    int                 elfcap;
+    int                 elfsize;        // number of elf loaded
 
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);
 box86context_t *CopyBox86Context(box86context_t* from);
 void FreeBox86Context(box86context_t** context);
+
+int AddElfHeader(box86context_t* ctx, elfheader_t* head);    // return the index of header
 
 #endif //__BOX86CONTEXT_H_

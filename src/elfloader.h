@@ -6,6 +6,7 @@ typedef struct elfheader_s elfheader_t;
 
 void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
+const char* ElfName(elfheader_t* head);
 
 int CalcLoadAddr(elfheader_t* head);    // return 0 if OK
 
