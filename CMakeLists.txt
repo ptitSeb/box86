@@ -34,6 +34,9 @@ SET(ELFLOADER_SRC
     src/elfload_dump.c
     src/stack.c
     src/x86emu.c
+    src/x86run.c
+    src/x86primop.c
+    src/x86trace.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})

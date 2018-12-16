@@ -5,6 +5,7 @@
 #include "box86context.h"
 #include "elfloader.h"
 #include "debug.h"
+#include "x86trace.h"
 
 box86context_t *NewBox86Context(int argc)
 {
@@ -40,6 +41,8 @@ void FreeBox86Context(box86context_t** context)
 
     FreeCollection(&(*context)->box86_path);
     FreeCollection(&(*context)->box86_ld_lib);
+    if((*context)->zydis)
+        DeleteX86Trace(*context);
 
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);

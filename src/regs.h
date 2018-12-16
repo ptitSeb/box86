@@ -4,38 +4,42 @@
 enum SegNames { es=0,cs,ss,ds,fs,gs};
 
 enum {
-	REGI_AX, REGI_CX, REGI_DX, REGI_BX,
-	REGI_SP, REGI_BP, REGI_SI, REGI_DI
+	_AX, _CX, _DX, _BX,
+	_SP, _BP, _SI, _DI
+};
+
+enum {
+    _CS, _DS, _SS, _ES, _FS, _GS
 };
 
 typedef union {
     uint32_t    x32;
     struct {
-        int CF:1;
-        int PF:1;
-        int AF:1;
-        int ZF:1;
-        int SF:1;
-        int TF:1;
-        int IF:1;
-        int DF:1;
-        int OF:1;
-        unsigned int IOPL:2;
-        int NT:1;
+        int F_CF:1;
+        int F_PF:1;
+        int F_AF:1;
+        int F_ZF:1;
+        int F_SF:1;
+        int F_TF:1;
+        int F_IF:1;
+        int F_DF:1;
+        int F_OF:1;
+        unsigned int F_IOPL:2;
+        int F_NT:1;
         int dummy:1;
-        int RF:1;
-        int VM:1;
-        int AC:1;
-        int VIF:1; 
-        int VIP:1;
-        int ID:1;
+        int F_RF:1;
+        int F_VM:1;
+        int F_AC:1;
+        int F_VIF:1; 
+        int F_VIP:1;
+        int F_ID:1;
     } f;
 } x86flags_t;
 
-typedef struct {
+/*typedef struct {
 	uint16_t    val[8];
 	uintptr_t   phys[8];
-} x86segment_t;
+} x86segment_t;*/
 
 typedef union {
 	uint32_t dword[1];
@@ -106,32 +110,29 @@ typedef union {
 	} sb;
 } mmx_regs_t;
 
-typedef struct {
-    // cpu
-	reg32_t     regs[8],ip;
-	x86flags_t  eflags;
-    // segments
-    x86segment_t segs[6];
-    // fpu
-	fpu_reg_t   fpu[9];
-	fpu_p_reg_t p_regs[9];
-	fpu_tag_t   tags[9];
-	uint16_t    cw,cw_mask_all;
-	uint16_t    sw;
-	uint32_t    top;
-	fpu_round_t round;
-    // mmx
-    mmx_regs_t  mmx[8];
-} x86regs_t;
+#define R_EIP emu->ip.dword[0]
+#define R_EAX emu->regs[_AX].dword[0]
+#define R_EBX emu->regs[_BX].dword[0]
+#define R_ECX emu->regs[_CX].dword[0]
+#define R_EDX emu->regs[_DX].dword[0]
+#define R_EDI emu->regs[_DI].dword[0]
+#define R_ESI emu->regs[_SI].dword[0]
+#define R_ESP emu->regs[_SP].dword[0]
+#define R_EBP emu->regs[_BP].dword[0]
+#define R_AX emu->regs[_AX].word[0]
+#define R_DX emu->regs[_DX].word[0]
+#define R_AL emu->regs[_AX].byte[0]
+#define R_AH emu->regs[_AX].byte[1]
+#define R_CS emu->segs[_CS]
+#define R_DS emu->segs[_DS]
+#define R_SS emu->segs[_SS]
+#define R_ES emu->segs[_ES]
+#define R_FS emu->segs[_FS]
+#define R_GS emu->segs[_GS]
 
-#define _EIP(reg) reg.ip.dword[0]
-#define _EAX(reg) reg.regs[REGI_AX].dword[0]
-#define _EBX(reg) reg.regs[REGI_BX].dword[0]
-#define _ECX(reg) reg.regs[REGI_CX].dword[0]
-#define _EDX(reg) reg.regs[REGI_DX].dword[0]
-#define _EDI(reg) reg.regs[REGI_DI].dword[0]
-#define _ESI(reg) reg.regs[REGI_SI].dword[0]
-#define _ESP(reg) reg.regs[REGI_SP].dword[0]
-#define _EBP(reg) reg.regs[REGI_BP].dword[0]
+#define ACCESS_FLAG(F)  emu->eflags.f.F
+#define SET_FLAG(F)     emu->eflags.f.F = 1
+#define CLEAR_FLAG(F)   emu->eflags.f.F = 0
+#define CONDITIONAL_SET_FLAG(COND, F)   emu->eflags.f.F = (COND)?1:0
 
 #endif //__REGS_H_

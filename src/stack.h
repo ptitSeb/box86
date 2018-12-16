@@ -10,5 +10,7 @@ int CalcStackSize(box86context_t *context);
 
 uint32_t Pop(x86emu_t *emu);
 void Push(x86emu_t *emu, uint32_t v);
+uint16_t Pop16(x86emu_t *emu);
+void Push16(x86emu_t *emu, uint16_t v);
 
 #endif //__STACK_H_

@@ -26,12 +26,25 @@ int CalcStackSize(box86context_t *context)
 
 uint32_t Pop(x86emu_t *emu)
 {
-    uint32_t* st = ((uint32_t*)_ESP(emu->regs));
-    _ESP(emu->regs) += 4;
+    uint32_t* st = ((uint32_t*)(R_ESP));
+    R_ESP += 4;
 }
 
 void Push(x86emu_t *emu, uint32_t v)
 {
-    _ESP(emu->regs) -= 4;
-    *((uint32_t*)_ESP(emu->regs)) = v;
+    R_ESP -= 4;
+    *((uint32_t*)R_ESP) = v;
 }
+
+uint16_t Pop16(x86emu_t *emu)
+{
+    uint16_t* st = ((uint16_t*)(R_ESP));
+    R_ESP += 2;
+}
+
+void Push16(x86emu_t *emu, uint16_t v)
+{
+    R_ESP -= 2;
+    *((uint16_t*)R_ESP) = v;
+}
+

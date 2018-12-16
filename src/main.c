@@ -9,6 +9,7 @@
 #include "elfloader.h"
 #include "stack.h"
 #include "x86emu.h"
+#include "x86trace.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
 
@@ -79,6 +80,19 @@ int main(int argc, const char **argv) {
     LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
+
+    p = getenv("BOX86_TRACE");
+    if(p) {
+        if (strcmp(p, "1")==0)
+            context->x86trace = 1;
+    }
+    if(context->x86trace) {
+        printf_debug(DEBUG_INFO, "Initializing Zydis lib\n", p);
+        if(InitX86Trace(context)) {
+            printf_debug(DEBUG_INFO, "Zydis init failed, no x86 trace activated\n", p);
+            context->x86trace = 0;
+        }
+    }
 
     // lets build argc/argv stuff
     p=argv[1];
@@ -153,15 +167,19 @@ int main(int argc, const char **argv) {
     // set entrypoint
     context->ep = GetEntryPoint(elf_header);
     // init x86 emu
-    context->emu = NewX86Emu(context->ep, (uintptr_t)context->stack, context->stacksz);
+    context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
     // emulate!
-
+    printf_debug(DEBUG_DEBUG, "Start x86emu on Main\n");
+    Run(context->emu);
+    // Get EAX
+    int ret = GetEAX(context->emu);
+    printf_debug(DEBUG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
 
     // all done, free context
     FreeBox86Context(&context);
 
-    return 0;
+    return ret;
 }
