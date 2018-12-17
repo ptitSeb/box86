@@ -12,6 +12,18 @@
 
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 
+/// maxval not inclusive
+int getrand(int maxval)
+{
+    if(maxval<1024) {
+        return ((random()&0x7fff)*maxval)/0x7fff;
+    } else {
+        uint64_t r = random();
+        r = (r*maxval) / RAND_MAX;
+        return r;
+    }
+}
+
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
 {
     printf_debug(DEBUG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", start, stack, stacksize);
@@ -32,10 +44,10 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     emu->globals = calloc(1, 256);  // arbitrary 256 byte size?
     // calc canary...
     uint8_t canary[4];
-    for (int i=0; i<4; ++i) canary[i] = 1 +  random()*254/RAND_MAX;
-    canary[random()*4/RAND_MAX] = 0;
+    for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
+    canary[getrand(4)] = 0;
     memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
-    printf_debug(DEBUG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)emu->globals);
+    printf_debug(DEBUG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
     // if trace is activated
     if(context->x86trace) {
         emu->dec = InitX86TraceDecoder(context);
@@ -85,10 +97,12 @@ const char* DumpCPURegs(x86emu_t* emu)
     static char buff[500];
     char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
     char tmp[50];
-    sprintf(buff, "EIP=%08X ", R_EIP);
+    buff[0] = '\0';
     for (int i=_AX; i<=_DI; ++i) {
         sprintf(tmp, "%s=%08X ", regname[i], emu->regs[i].dword[0]);
         strcat(buff, tmp);
     }
+    sprintf(tmp, "EIP=%08X ", R_EIP);
+    strcat(buff, tmp);
     return buff;
 }
