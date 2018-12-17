@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "box86version.h"
 #include "debug.h"
@@ -68,6 +69,9 @@ int main(int argc, const char **argv) {
         PrintHelp();
         return 1;
     }
+
+    // init random seed
+    srandom(time(NULL));
 
     // check BOX86_DEBUG debug level
     LoadDebugEnv();

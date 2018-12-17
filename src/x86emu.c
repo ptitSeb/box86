@@ -25,8 +25,17 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
+    // stack setup is much more complicated then just that!
     // push "end emu" marker address
     Push(emu, (uint32_t)&EndEmuMarker);
+    // Setup the GS segment:
+    emu->globals = calloc(1, 256);  // arbitrary 256 byte size?
+    // calc canary...
+    uint8_t canary[4];
+    for (int i=0; i<4; ++i) canary[i] = 1 +  random()*254/RAND_MAX;
+    canary[random()*4/RAND_MAX] = 0;
+    memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
+    printf_debug(DEBUG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)emu->globals);
     // if trace is activated
     if(context->x86trace) {
         emu->dec = InitX86TraceDecoder(context);
@@ -44,6 +53,8 @@ void FreeX86Emu(x86emu_t **x86emu)
     printf_debug(DEBUG_DEBUG, "Free a X86 Emu (%p)\n", *x86emu);
     if((*x86emu)->dec)
         DeleteX86TraceDecoder(&(*x86emu)->dec);
+    if((*x86emu)->globals)
+        free((*x86emu)->globals);
     free(*x86emu);
     *x86emu = NULL;
 }

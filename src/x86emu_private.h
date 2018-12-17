@@ -29,6 +29,8 @@ typedef struct x86emu_s {
     int         divby0;
     // trace
     zydis_dec_t *dec;
+    // global stuffs, pointed with GS: segment
+    void        *globals;
 } x86emu_t;
 
 #define INTR_RAISE_DIV0(emu) {emu->divby0 = 1; emu->quit=1;}
