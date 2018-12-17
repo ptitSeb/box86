@@ -14,6 +14,4 @@ void SetECX(x86emu_t *emu, uint32_t v);
 void SetEDX(x86emu_t *emu, uint32_t v);
 const char* DumpCPURegs(x86emu_t* emu);
 
-int Run(x86emu_t *emu); // 0 if run was successfull, 1 if error in x86 world
-
 #endif //__X86EMU_H_

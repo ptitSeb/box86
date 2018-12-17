@@ -5,173 +5,11 @@
 #include "debug.h"
 #include "stack.h"
 #include "x86emu.h"
+#include "x86run.h"
 #include "x86emu_private.h"
+#include "x86run_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
-
-uint8_t Fetch8(x86emu_t *emu)
-{
-    uint8_t val = *(uint8_t*)R_EIP;
-    R_EIP++;
-    return val;
-}
-int8_t Fetch8s(x86emu_t *emu)
-{
-    int8_t val = *(int8_t*)R_EIP;
-    R_EIP++;
-    return val;
-}
-uint16_t Fetch16(x86emu_t *emu)
-{
-    uint16_t val = *(uint16_t*)R_EIP;
-    R_EIP+=2;
-    return val;
-}
-uint32_t Fetch32(x86emu_t *emu)
-{
-    uint32_t val = *(uint32_t*)R_EIP;
-    R_EIP+=4;
-    return val;
-}
-int32_t Fetch32s(x86emu_t *emu)
-{
-    int32_t val = *(int32_t*)R_EIP;
-    R_EIP+=4;
-    return val;
-}
-// the op code definition can be found here: http://ref.x86asm.net/geek32.html
-
-void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
-{
-    uint32_t m = v&0xC7;    // filter Eb
-    if(m>=0xC0) {
-        int lowhigh = (m&04)>>3;
-         *op = (reg32_t *)&emu->regs[_AX+(m&0x03)].byte[lowhigh];  //?
-        return;
-    } else if (m<=7) {
-        if(m==0x4) {
-            uint8_t sib = Fetch8(emu);
-            uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            base += emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6);
-            *op = (reg32_t*)base;
-            return;
-        } else if (m==0x5) { //disp32
-            *op = ea;
-            ea->dword[0] = Fetch32(emu);
-            return;
-        }
-        *op = &emu->regs[_AX+m];
-        return;
-    } else if(m>=0x40 && m<=0x47) {
-        uintptr_t base;
-        if(m==0x44) {
-            uint8_t sib = Fetch8(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((v>>3)&7)==4)
-                idx += Fetch8(emu);*/
-            base += idx << (sib>>6);
-        } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
-        }
-        base+=Fetch8(emu);
-        *op = (reg32_t*)base;
-        return;
-    } else if(m>=0x80 && m<0x87) {
-        uintptr_t base;
-        if(m==0x84) {
-            uint8_t sib = Fetch32(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((v>>3)&7)==4)
-                idx += Fetch32(emu);*/
-            base += idx << (sib>>6);
-        } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
-        }
-        base+=Fetch32(emu);
-        *op = (reg32_t*)base;
-        return;
-    } else {
-        ea->word[0] = 0;
-        *op = ea;
-        return;
-    }
-}
-
-void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
-{
-    uint32_t m = v&0xC7;    // filter Ed
-    if(m>=0xC0) {
-         *op = &emu->regs[_AX+(m&0x07)];
-        return;
-    } else if (m<=7) {
-        if(m==0x4) {
-            uint8_t sib = Fetch8(emu);
-            uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            base += emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6);
-            *op = (reg32_t*)base;
-            return;
-        } else if (m==0x5) { //disp32
-            *op = ea;
-            ea->dword[0] = Fetch32(emu);
-            return;
-        }
-        *op = &emu->regs[_AX+m];
-        return;
-    } else if(m>=0x40 && m<=0x47) {
-        uintptr_t base;
-        if(m==0x44) {
-            uint8_t sib = Fetch8(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch8(emu);*/
-            base += idx << (sib>>6);
-        } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
-        }
-        base+=Fetch8s(emu);
-        *op = (reg32_t*)base;
-        return;
-    } else if(m>=0x80 && m<0x87) {
-        uintptr_t base;
-        if(m==0x84) {
-            uint8_t sib = Fetch32(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
-            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch32(emu);*/
-            base += idx << (sib>>6);
-        } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
-        }
-        base+=Fetch32s(emu);
-        *op = (reg32_t*)base;
-        return;
-    } else {
-        ea->word[0] = 0;
-        *op = ea;
-        return;
-    }
-}
-
-void GetG(x86emu_t *emu, reg32_t **op, uint32_t v)
-{
-    *op = &emu->regs[_AX+((v&0x38)>>3)];
-}
 
 int Run(x86emu_t *emu)
 {
@@ -204,6 +42,18 @@ int Run(x86emu_t *emu)
             case 0x04: /* ADD AL, Ib */
                 tmp8u = Fetch8(emu);
                 R_AL = add8(emu, R_AL, tmp8u);
+                break;
+            case 0x31: /* XOR Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea2, nextop);
+                GetG(emu, &op2, nextop);
+                op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x33: /* XOR Gd,Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
                 break;
             case 0x40:
             case 0x41:
@@ -248,6 +98,9 @@ int Run(x86emu_t *emu)
             case 0x5F:  /*POP Reg */
                 tmp8u = opcode&7;
                 emu->regs[tmp8u].dword[0] = Pop(emu);
+                break;
+            case 0x66: /* Prefix for changing width of intructions, so here, down to 16bits */
+                Run66(emu);
                 break;
 
             case 0x83:  /* Grpl Ed,Ix */
@@ -297,7 +150,7 @@ int Run(x86emu_t *emu)
                 op1->dword[0] = op2->dword[0];
                 break;
 
-            case 0x8B: /* MOV Gv, Ed */
+            case 0x8B: /* MOV Gd, Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
@@ -311,11 +164,29 @@ int Run(x86emu_t *emu)
                 op2->dword[0] = (uint32_t)&op1->dword[0];
                 break;
 
-            case 0xA1: /* MOV EAX, Ov */
-                tmp32u = Fetch32(emu);
-                R_EAX = *(uint32_t*)tmp32u;
+            case 0xA1: /* MOV EAX, Od */
+                R_EAX = *(uint32_t*)Fetch32(emu);
+                break;
+            case 0xA3: /* MOV Od, EAX */
+                *(uint32_t*)Fetch32(emu) = R_EAX;
+                break;
+            
+            case 0xB8: /* MOV EAX,Id */
+            case 0xB9: /* MOV ECX,Id */
+            case 0xBA: /* MOV EDX,Id */
+            case 0xBB: /* MOV EBX,Id */
+            case 0xBC: /*    ...     */
+            case 0xBD:
+            case 0xBE:
+            case 0xBF:
+                emu->regs[opcode-0xB8].dword[0] = Fetch32(emu);
                 break;
 
+            case 0xC7: /* MOV Ed,Id */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea2, nextop);
+                op1->dword[0] = Fetch32(emu);
+                break;
             case 0xFF: /* GRP 5 Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -363,7 +234,7 @@ int Run(x86emu_t *emu)
                 break;
 
             default:
-                printf("Unimplemented Opcode 0x%02X\n", opcode);
+                printf("Unimplemented Opcode %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
                 emu->quit=1;
         }
         printf("CPU Regs: %s\n", DumpCPURegs(emu));

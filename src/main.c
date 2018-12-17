@@ -10,6 +10,7 @@
 #include "elfloader.h"
 #include "stack.h"
 #include "x86emu.h"
+#include "x86run.h"
 #include "x86trace.h"
 
 int box86_debug = DEBUG_INFO;//DEBUG_NONE;
