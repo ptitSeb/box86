@@ -28,6 +28,7 @@ uint32_t Pop(x86emu_t *emu)
 {
     uint32_t* st = ((uint32_t*)(R_ESP));
     R_ESP += 4;
+    return *st;
 }
 
 void Push(x86emu_t *emu, uint32_t v)
@@ -40,6 +41,7 @@ uint16_t Pop16(x86emu_t *emu)
 {
     uint16_t* st = ((uint16_t*)(R_ESP));
     R_ESP += 2;
+    return *st;
 }
 
 void Push16(x86emu_t *emu, uint16_t v)
