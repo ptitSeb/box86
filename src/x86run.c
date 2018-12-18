@@ -123,13 +123,22 @@ int Run(x86emu_t *emu)
                 // set a new decoder...
                 opcode = Fetch8(emu);
                 switch(opcode) {
+                    case 0x33: /* XOR Gd,Ed */
+                        nextop = Fetch8(emu);
+                        GetEd(emu, &op2, &ea2, nextop);
+                    printf("Op2 = %p globals=%p ", op2, emu->globals);
+                        op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
+                    printf("=> op2 = %p\n", op2);
+                        GetG(emu, &op1, nextop);
+                        op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
+                        break;
                     case 0xA1: /* MOV EAX, Ov */
                         tmp32u = Fetch32(emu);
                         R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
                         break;
 
                     default:
-                        printf("Unimplemented Opcode 0xFF 0x%02X\n", opcode);
+                        printf("Unimplemented Opcode 0x66 0x%02X 0x%02X 0x%02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2));
                         emu->quit=1;
                 }
                 break;

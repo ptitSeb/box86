@@ -71,8 +71,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             *op = (reg32_t*)base;
             return;
         } else if (m==0x5) { //disp32
-            *op = ea;
-            ea->dword[0] = Fetch32(emu);
+            *op = (reg32_t*)Fetch32(emu);
             return;
         }
         *op = &emu->regs[_AX+m];
@@ -134,8 +133,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             *op = (reg32_t*)base;
             return;
         } else if (m==0x5) { //disp32
-            *op = ea;
-            ea->dword[0] = Fetch32(emu);
+            *op = (reg32_t*)Fetch32(emu);
             return;
         }
         *op = &emu->regs[_AX+m];
@@ -196,9 +194,8 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             base += emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6);
             *op = (reg32_t*)base;
             return;
-        } else if (m==0x5) { //disp16
-            *op = ea;
-            ea->word[0] = Fetch16(emu);
+        } else if (m==0x5) { //disp32
+            *op = (reg32_t*)Fetch32(emu);
             return;
         }
         *op = &emu->regs[_AX+m];
