@@ -37,6 +37,7 @@ SET(ELFLOADER_SRC
     src/x86run.c
     src/x86run66.c
     src/x86run_private.c
+    src/x86syscall.c
     src/x86primop.c
     src/x86trace.c
 )
