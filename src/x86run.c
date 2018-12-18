@@ -14,7 +14,7 @@
 int Run(x86emu_t *emu)
 {
     emu->quit = 0;
-    printf("Starting\nCPU Regs: %s\n", DumpCPURegs(emu));
+    printf_debug(DEBUG_DUMP, "Starting\nCPU Regs: %s\n", DumpCPURegs(emu));
     while (!emu->quit)
     {
         if(emu->dec) {
@@ -136,7 +136,7 @@ int Run(x86emu_t *emu)
                         break;
 
                     default:
-                        printf("Unimplemented Opcode 0x66 0x%02X 0x%02X 0x%02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2));
+                        printf_debug(DEBUG_NONE, "Unimplemented Opcode 0x66 0x%02X 0x%02X 0x%02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2));
                         emu->quit=1;
                 }
                 break;
@@ -202,12 +202,15 @@ int Run(x86emu_t *emu)
                 GetEd(emu, &op1, &ea2, nextop);
                 op1->dword[0] = Fetch32(emu);
                 break;
+            case 0xCC: /* INT 3 */
+                x86Int3(emu);
+                break;
             case 0xCD: /* INT Ib */
                 nextop = Fetch8(emu);
                 if(nextop == 0x80) 
                     x86Syscall(emu);
                 else {
-                    printf_debug(DEBUG_INFO, "Unsupported Int %02Xh\n", nextop);
+                    printf_debug(DEBUG_NONE, "Unsupported Int %02Xh\n", nextop);
                     emu->quit = 1;
                 }
                 break;
@@ -227,7 +230,7 @@ int Run(x86emu_t *emu)
                         break;
                     case 3: /* CALL FAR Ed */
                         if(nextop>0xc0) {
-                            printf_debug(DEBUG_INFO, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                            printf_debug(DEBUG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
                         } else {
                             Push16(emu, R_CS);
@@ -241,7 +244,7 @@ int Run(x86emu_t *emu)
                         break;
                     case 5: /* JMP FAR Ed */
                         if(nextop>0xc0) {
-                            printf_debug(DEBUG_INFO, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                            printf_debug(DEBUG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
                         } else {
                             R_EIP = op1->dword[0];
@@ -252,17 +255,15 @@ int Run(x86emu_t *emu)
                         Push(emu, op1->dword[0]);
                         break;
                     default:
-                        printf_debug(DEBUG_INFO, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                        printf_debug(DEBUG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                         emu->quit=1;
                 }
                 break;
 
             default:
-                printf_debug(DEBUG_INFO, "Unimplemented Opcode %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
+                printf_debug(DEBUG_NONE, "Unimplemented Opcode %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
                 emu->quit=1;
         }
         printf_debug(DEBUG_DUMP, "CPU Regs: %s\n", DumpCPURegs(emu));
-
-
     }
 }

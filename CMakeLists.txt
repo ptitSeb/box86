@@ -40,6 +40,7 @@ SET(ELFLOADER_SRC
     src/x86syscall.c
     src/x86primop.c
     src/x86trace.c
+    src/x86int3.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})
