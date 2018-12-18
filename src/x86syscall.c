@@ -15,6 +15,8 @@
 #include "x86primop.h"
 #include "x86trace.h"
 
+// Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
+
 void x86Syscall(x86emu_t *emu)
 {
     uint32_t s = R_EAX;
