@@ -85,7 +85,7 @@ int Run(x86emu_t *emu)
             case 0x55:
             case 0x56:
             case 0x57:  /* PUSH Reg */
-                tmp8u = opcode&7;
+                tmp8u = opcode-0x50;
                 Push(emu, emu->regs[tmp8u].dword[0]);
                 break;
             case 0x58:
@@ -96,7 +96,7 @@ int Run(x86emu_t *emu)
             case 0x5D:
             case 0x5E:
             case 0x5F:  /*POP Reg */
-                tmp8u = opcode&7;
+                tmp8u = opcode-0x58;
                 emu->regs[tmp8u].dword[0] = Pop(emu);
                 break;
             case 0x66: /* Prefix for changing width of intructions, so here, down to 16bits */
@@ -126,9 +126,7 @@ int Run(x86emu_t *emu)
                     case 0x33: /* XOR Gd,Ed */
                         nextop = Fetch8(emu);
                         GetEd(emu, &op2, &ea2, nextop);
-                    printf("Op2 = %p globals=%p ", op2, emu->globals);
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                    printf("=> op2 = %p\n", op2);
                         GetG(emu, &op1, nextop);
                         op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
                         break;
@@ -141,6 +139,11 @@ int Run(x86emu_t *emu)
                         printf("Unimplemented Opcode 0x66 0x%02X 0x%02X 0x%02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2));
                         emu->quit=1;
                 }
+                break;
+            case 0x74:  /* JZ Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_ZF))
+                    R_EIP += tmp8s;
                 break;
             
             case 0x87:  /* XCHG Ed,Gd */
@@ -189,6 +192,9 @@ int Run(x86emu_t *emu)
             case 0xBE:
             case 0xBF:
                 emu->regs[opcode-0xB8].dword[0] = Fetch32(emu);
+                break;
+            case 0xC3:  /* RET */
+                R_EIP = Pop(emu);
                 break;
 
             case 0xC7: /* MOV Ed,Id */
