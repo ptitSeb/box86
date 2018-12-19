@@ -43,7 +43,7 @@ int CalcLoadAddr(elfheader_t* head)
         }
     
     if(head->vaddr==~0 || head->paddr==~0) {
-        printf_debug(DEBUG_NONE, "Error: v/p Addr for Elf Load not set\n");
+        printf_log(LOG_NONE, "Error: v/p Addr for Elf Load not set\n");
         return 1;
     }
 
@@ -64,8 +64,8 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
     }
-    printf_debug(DEBUG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", head->vaddr, head->paddr, head->memsz, head->align);
-    printf_debug(DEBUG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
+    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", head->vaddr, head->paddr, head->memsz, head->align);
+    printf_log(LOG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
 
     return 0;
 }
@@ -78,22 +78,22 @@ const char* ElfName(elfheader_t* head)
 int AllocElfMemory(elfheader_t* head)
 {
     #if 0
-    printf_debug(DEBUG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
+    printf_log(LOG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
     if (posix_memalign((void**)&head->memory, head->align, head->memsz)) {
-        printf_debug(DEBUG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for elf \"%s\"\n", head->memsz, head->align, head->name);
+        printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for elf \"%s\"\n", head->memsz, head->align, head->name);
         return 1;
     }
-    printf_debug(DEBUG_DEBUG, "Address is %p\n", head->memory);
-    printf_debug(DEBUG_DEBUG, "And setting memory access to PROT_READ | PROT_WRITE | PROT_EXEC\n");
+    printf_log(LOG_DEBUG, "Address is %p\n", head->memory);
+    printf_log(LOG_DEBUG, "And setting memory access to PROT_READ | PROT_WRITE | PROT_EXEC\n");
     if (mprotect(head->memory, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC)) {
-        printf_debug(DEBUG_NONE, "Cannot protect memory for elf \"%s\"\n", head->name);
+        printf_log(LOG_NONE, "Cannot protect memory for elf \"%s\"\n", head->name);
         // memory protect error not fatal for now....
     }
     #else
-    printf_debug(DEBUG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, head->vaddr, head->name);
+    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, head->vaddr, head->name);
     void* p = mmap((void*)head->vaddr, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if(p==MAP_FAILED) {
-        printf_debug(DEBUG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", head->vaddr, head->memsz, head->align, head->name);
+        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", head->vaddr, head->memsz, head->align, head->name);
         return 1;
     }
     head->memory = p;
@@ -115,10 +115,10 @@ int LoadElfMemory(FILE* f, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
-            printf_debug(DEBUG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
+            printf_log(LOG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             fseek(f, e->p_offset, SEEK_SET);
             if(fread(dest, e->p_filesz, 1, f)!=1) {
-                printf_debug(DEBUG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
                 return 1;
             }
             // zero'd difference between filesz and memsz
@@ -134,7 +134,7 @@ int RelocateElf(elfheader_t* head)
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head);
-        printf_debug(DEBUG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
+        printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
         Elf32_Rel *rel = (Elf32_Rel *)(head->rel + head->delta);
         for (int i=0; i<cnt; ++i) {
             Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
@@ -144,29 +144,29 @@ int RelocateElf(elfheader_t* head)
                 case R_386_NONE:
                 case R_386_PC32:
                     // can be ignored
-                    printf_debug(DEBUG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, p?(*p):0);
+                    printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, p?(*p):0);
                     break;
                 case R_386_GLOB_DAT:
                     // I guess it can be ignored
-                    printf_debug(DEBUG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
+                    printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
                     break;
                 case R_386_RELATIVE:
-                    printf_debug(DEBUG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
+                    printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
                     *p += (uintptr_t)head->memory - head->paddr;
                     break;
                 case R_386_32:
-                    printf_debug(DEBUG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
+                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
                     return -1; //TODO!!!
                     //break;
                 default:
-                    printf_debug(DEBUG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
+                    printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
             }
         }
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head);
-        printf_debug(DEBUG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
+        printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
         Elf32_Rela *rela = (Elf32_Rela *)(head->rela + head->delta);
         for (int i=0; i<cnt; ++i) {
             Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
@@ -177,7 +177,7 @@ int RelocateElf(elfheader_t* head)
                     break;
                 
                 default:
-                    printf_debug(DEBUG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
+                    printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
             }
         }
     }
@@ -217,9 +217,9 @@ uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
 uintptr_t GetEntryPoint(elfheader_t* h)
 {
     uintptr_t ep = h->entrypoint + h->delta;
-    printf_debug(DEBUG_DEBUG, "Entry Point is %p\n", ep);
-    if(box86_debug>=DEBUG_DUMP) {
-        printf_debug(DEBUG_DUMP, "(short) Dump of Entry point\n");
+    printf_log(LOG_DEBUG, "Entry Point is %p\n", ep);
+    if(box86_log>=LOG_DUMP) {
+        printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
         int sz = 64;
         uintptr_t lastbyte = GetLastByte(h);
         if (ep + sz >  lastbyte)
@@ -230,9 +230,9 @@ uintptr_t GetEntryPoint(elfheader_t* h)
     Elf32_Sym* sym = GetFunction(h, "main");
     if(sym) {
         ep = (uintptr_t)sym->st_value;
-        printf_debug(DEBUG_DEBUG, "Using \"main\" as Entry Point @%p\n", ep);
-        if(box86_debug>=DEBUG_DUMP) {
-            printf_debug(DEBUG_DUMP, "(short) Dump of Entry point\n");
+        printf_log(LOG_DEBUG, "Using \"main\" as Entry Point @%p\n", ep);
+        if(box86_log>=LOG_DUMP) {
+            printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
             int sz = 64;
             uintptr_t lastbyte = GetLastByte(h);
             if (ep + sz >  lastbyte)

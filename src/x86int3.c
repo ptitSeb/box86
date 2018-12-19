@@ -18,14 +18,14 @@ void x86Int3(x86emu_t* emu)
         R_EIP += 2;
         uint32_t addr = Fetch32(emu);
         if(addr==0) {
-            printf_debug(DEBUG_INFO, "Exit\n");        
+            printf_log(LOG_INFO, "Exit\n");        
             emu->quit=1; // normal quit
         } else {
-            printf_debug(DEBUG_NONE, "Unsupported (yet) Native call\n");        
+            printf_log(LOG_NONE, "Unsupported (yet) Native call\n");        
             emu->quit=1;
         }
         return;
     }
-    printf_debug(DEBUG_NONE, "Unsupported Int 3 call\n");
+    printf_log(LOG_NONE, "Unsupported Int 3 call\n");
     emu->quit = 1;
 }

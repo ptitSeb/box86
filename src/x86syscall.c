@@ -29,7 +29,7 @@ void x86Syscall(x86emu_t *emu)
             R_EAX = syscall(__NR_write, R_EBX, R_ECX, R_EDX);
             break;
         default:
-            printf_debug(DEBUG_INFO, "Error: Unsupported Syscall %02Xh\n", s);
+            printf_log(LOG_INFO, "Error: Unsupported Syscall %02Xh\n", s);
             emu->quit = 1;
     }
 }

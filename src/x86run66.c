@@ -33,7 +33,7 @@ void Run66(x86emu_t *emu)
                 op1->word[0] = Fetch16(emu);
                 break;
             default:
-                printf("Unimplemented Opcode 66 %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
+                printf_log(LOG_NONE, "Unimplemented Opcode 66 %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
                 emu->quit=1;
         }
 }

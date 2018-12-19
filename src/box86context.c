@@ -68,6 +68,6 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
     }
     ctx->elfs[idx] = head;
     ctx->elfsize++;
-    printf_debug(DEBUG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
+    printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
 }

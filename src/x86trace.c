@@ -44,11 +44,11 @@ int InitX86Trace(box86context_t *context)
         return 1;
     context->zydis->lib = dlopen("libZydis.so", RTLD_LAZY);
     if(!context->zydis->lib) {
-        printf_debug(DEBUG_INFO, "Failed to open libZydis: %s\n", dlerror());
+        printf_log(LOG_INFO, "Failed to open libZydis: %s\n", dlerror());
         return 1;
     }
     #define GO(f) context->zydis->f = (PFN##f)dlsym(context->zydis->lib, #f);\
-         if(!context->zydis->f) {printf_debug(DEBUG_INFO, "Fail to load Zydis function %s\n", #f); dlclose(context->zydis->lib); context->zydis->lib=NULL; return 1;}
+         if(!context->zydis->f) {printf_log(LOG_INFO, "Fail to load Zydis function %s\n", #f); dlclose(context->zydis->lib); context->zydis->lib=NULL; return 1;}
 
     GO(ZydisDecoderInit);
     GO(ZydisFormatterInit);

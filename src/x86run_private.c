@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "debug.h"
 #include "stack.h"
 #include "x86emu.h"
 #include "x86run.h"

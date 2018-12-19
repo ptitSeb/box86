@@ -26,7 +26,7 @@ int getrand(int maxval)
 
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
 {
-    printf_debug(DEBUG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", start, stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", start, stack, stacksize);
 
     x86emu_t *emu = (x86emu_t*)calloc(1, sizeof(x86emu_t));
     // setup cpu helpers
@@ -47,12 +47,12 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
     canary[getrand(4)] = 0;
     memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
-    printf_debug(DEBUG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
+    printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
     // if trace is activated
     if(context->x86trace) {
         emu->dec = InitX86TraceDecoder(context);
         if(!emu->dec)
-            printf_debug(DEBUG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
+            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
     }
 
     return emu;
@@ -62,7 +62,7 @@ void FreeX86Emu(x86emu_t **x86emu)
 {
     if(!x86emu)
         return;
-    printf_debug(DEBUG_DEBUG, "Free a X86 Emu (%p)\n", *x86emu);
+    printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *x86emu);
     if((*x86emu)->dec)
         DeleteX86TraceDecoder(&(*x86emu)->dec);
     if((*x86emu)->globals)
