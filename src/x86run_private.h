@@ -9,6 +9,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetG(x86emu_t *emu, reg32_t **op, uint32_t v);
+void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v);
 
 void Run66(x86emu_t *emu);
 

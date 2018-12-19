@@ -246,4 +246,10 @@ void GetG(x86emu_t *emu, reg32_t **op, uint32_t v)
     *op = &emu->regs[_AX+((v&0x38)>>3)];
 }
 
+void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    *op = (reg32_t*)&emu->regs[m&3].byte[m>>2];
+}
+
 

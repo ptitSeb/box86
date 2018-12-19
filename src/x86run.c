@@ -43,9 +43,9 @@ int Run(x86emu_t *emu)
         switch(opcode) {
             case 0x00:  /* ADD Eb,Gb */
                 nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea2, nextop);
-                GetG(emu, &op2, nextop);
-                op2->byte[0] = add8(emu, op1->byte[0], op2->byte[1]);
+                GetEb(emu, &op1, &ea1, nextop);
+                GetGb(emu, &op2, nextop);
+                op2->byte[0] = add8(emu, op1->byte[0], op2->byte[0]);
                 break;
             case 0x04: /* ADD AL, Ib */
                 tmp8u = Fetch8(emu);
