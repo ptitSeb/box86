@@ -19,7 +19,14 @@ int Run(x86emu_t *emu)
     while (!emu->quit)
     {
         if(emu->dec) {
-            printf_log(LOG_NONE, "%08p: %s\n", R_EIP, DecodeX86Trace(emu->dec, R_EIP));
+            if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
+                uint32_t a = *(uint32_t*)(R_EIP+3);
+                if(a==0)
+                    printf_log(LOG_NONE, "%08p: Exit program\n", R_EIP);
+                else
+                    printf_log(LOG_NONE, "%08p: Native call to %p\n", R_EIP, a);
+            } else
+                printf_log(LOG_NONE, "%08p: %s\n", R_EIP, DecodeX86Trace(emu->dec, R_EIP));
         }
         uint8_t opcode = Fetch8(emu);
         uint8_t nextop;
