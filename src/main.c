@@ -59,7 +59,8 @@ void PrintHelp() {
     printf("You can also set some env. var.:\n");
     printf(" BOX86_PATH to set the PATH used by box86 to find w86 programs (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH to set the path were x86 lib are searched (default is '.:lib')\n");
-    printf(" BOX86_loG with 0/1/2 or NONE/INFO/DEBUG to set printed debug info\n");
+    printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set printed debug info\n");
+    printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
 }
 
 int main(int argc, const char **argv) {
