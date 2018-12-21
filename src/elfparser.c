@@ -85,16 +85,9 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         return NULL;
     }
 
-    if(exec) {
-        if(header.e_type != ET_EXEC) {
-            printf_log(LOG_INFO, "Not an Executable (%d)\n", header.e_type);
-            return NULL;
-        }
-    } else {
-        if(header.e_type != ET_DYN) {
-            printf_log(LOG_INFO, "Not an Library (%d)\n", header.e_type);
-            return NULL;
-        }
+    if(header.e_type != ET_EXEC && header.e_type != ET_DYN) {
+        printf_log(LOG_INFO, "Not an Executable (%d)\n", header.e_type);
+        return NULL;
     }
 
     if(header.e_machine != EM_386) {
