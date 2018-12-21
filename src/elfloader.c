@@ -163,8 +163,8 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 if (!offs)
                     printf_log(LOG_NONE, "Warning, Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
                 else {
-                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, offs + head->delta);
-                    *p = offs + head->delta;
+                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, offs);
+                    *p = offs;
                 }
                 break;
             default:
@@ -253,7 +253,7 @@ uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
     return 0;
 }
 
-uintptr_t GetEntryPoint(elfheader_t* h)
+uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
 {
     uintptr_t ep = h->entrypoint + h->delta;
     printf_log(LOG_DEBUG, "Entry Point is %p\n", ep);
@@ -266,9 +266,8 @@ uintptr_t GetEntryPoint(elfheader_t* h)
         DumpBinary((char*)ep, sz);
     }
     // but instead of regular entrypoint, lets grab "main", it will be easier to manage I guess
-    Elf32_Sym* sym = GetFunction(h, "main");
-    if(sym) {
-        ep = (uintptr_t)sym->st_value;
+    ep = FindSymbol(maplib, "main");
+    if(ep) {
         printf_log(LOG_DEBUG, "Using \"main\" as Entry Point @%p\n", ep);
         if(box86_log>=LOG_DUMP) {
             printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
@@ -286,4 +285,17 @@ uintptr_t GetEntryPoint(elfheader_t* h)
 uintptr_t GetLastByte(elfheader_t* h)
 {
     return (uintptr_t)h->memory + h->delta + h->memsz;
+}
+
+void AddGlobalsSymbols(lib_t* maplib, elfheader_t* h)
+{
+    for (int i=0; i<h->numSymTab; ++i) {
+        // TODO: this "17" & "18" is probably defined somewhere
+        if(((h->SymTab[i].st_info == 18) || h->SymTab[i].st_info == 17) && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
+            const char * symname = h->StrTab+h->SymTab[i].st_name;
+            uintptr_t offs = h->SymTab[i].st_value + h->delta;
+            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p\n", symname, offs);
+            AddSymbol(maplib, symname, offs);
+        }
+    }
 }

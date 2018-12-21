@@ -16,7 +16,8 @@ void FreeElfMemory(elfheader_t* head);
 int LoadElfMemory(FILE* f, elfheader_t* head);
 int RelocateElf(lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
-uintptr_t GetEntryPoint(elfheader_t* h);
+uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
+void AddGlobalsSymbols(lib_t* maplib, elfheader_t* h);
 
 #endif //__ELF_LOADER_H_

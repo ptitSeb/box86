@@ -221,6 +221,7 @@ int main(int argc, const char **argv, const char **env) {
     // can close the file now
     fclose(f);
     // Call librarian to load all dependant elf
+    AddGlobalsSymbols(context->maplib, elf_header);
     // finalize relocations
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error, relocating symbols in elf %s\n", context->argv[0]);
@@ -234,7 +235,7 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // set entrypoint
-    context->ep = GetEntryPoint(elf_header);
+    context->ep = GetEntryPoint(context->maplib, elf_header);
     // init x86 emu
     context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz);
     SetEAX(context->emu, context->argc);
