@@ -20,6 +20,7 @@ void FreeElfHeader(elfheader_t** head)
     free(h->SHEntries);
     free(h->SHStrTab);
     free(h->StrTab);
+    free(h->Dynamic);
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);

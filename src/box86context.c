@@ -6,6 +6,7 @@
 #include "elfloader.h"
 #include "debug.h"
 #include "x86trace.h"
+#include "x86emu.h"
 
 box86context_t *NewBox86Context(int argc)
 {
@@ -44,9 +45,16 @@ void FreeBox86Context(box86context_t** context)
     if((*context)->zydis)
         DeleteX86Trace(*context);
 
+    if((*context)->emu)
+        FreeX86Emu(&(*context)->emu);
+
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);
     free((*context)->argv);
+    
+    for (int i=0; i<(*context)->envc; ++i)
+        free((*context)->envv[i]);
+    free((*context)->envv);
 
     for(int i=0; i<(*context)->elfsize; ++i) {
         FreeElfHeader(&(*context)->elfs[i]);
