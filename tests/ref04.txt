@@ -1,0 +1,1 @@
+Hello, argc=2, argv[0]=./test04, argv[1]=yeah
