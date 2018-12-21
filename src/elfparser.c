@@ -190,6 +190,12 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 h->relasz = h->Dynamic[i].d_un.d_val;
             else if(h->Dynamic[i].d_tag == DT_RELAENT)
                 h->relaent = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_PLTREL)
+                h->pltrel = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)
+                h->pltsz = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_JMPREL)
+                h->jmprel = h->Dynamic[i].d_un.d_val;
         }
         if(h->rel) {
             if(h->relent != sizeof(Elf32_Rel)) {
@@ -206,6 +212,23 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 return NULL;
             }
             printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", h->rela, h->relasz, h->relaent);
+        }
+        if(h->jmprel) {
+            if(h->pltrel == DT_REL) {
+                h->pltent = sizeof(Elf32_Rel);
+            } else if(h->pltrel == DT_RELA) {
+                h->pltent = sizeof(Elf32_Rela);
+            } else {
+                printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
+                FreeElfHeader(&h);
+                return NULL;
+            }
+            if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
+                printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
+                FreeElfHeader(&h);
+                return NULL;
+            }
+            printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", h->jmprel, h->pltrel, h->pltsz, h->pltent);
         }
     }
 

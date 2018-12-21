@@ -29,6 +29,10 @@ struct elfheader_s {
     uintptr_t   rela;
     int         relasz;
     int         relaent;
+    uintptr_t   jmprel;
+    int         pltsz;
+    int         pltent;
+    uint32_t    pltrel;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;

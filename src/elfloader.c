@@ -130,57 +130,68 @@ int LoadElfMemory(FILE* f, elfheader_t* head)
     return 0;
 }
 
+int RelocateElfREL(elfheader_t* head, int cnt, Elf32_Rel *rel)
+{
+    for (int i=0; i<cnt; ++i) {
+        Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
+        uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
+        int t = ELF32_R_TYPE(rel[i].r_info);
+        switch(t) {
+            case R_386_NONE:
+            case R_386_PC32:
+                // can be ignored
+                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, p?(*p):0);
+                break;
+            case R_386_GLOB_DAT:
+                // I guess it can be ignored
+                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
+                break;
+            case R_386_RELATIVE:
+                printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
+                *p += (uintptr_t)head->memory - head->paddr;
+                break;
+            case R_386_32:
+                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
+                return -1; //TODO!!!
+                //break;
+            default:
+                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
+        }
+    }
+    return 0;
+}
+
+int RelocateElfRELA(elfheader_t* head, int cnt, Elf32_Rela *rela)
+{
+    for (int i=0; i<cnt; ++i) {
+        Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
+        switch(ELF32_R_TYPE(rela[i].r_info)) {
+            case R_386_NONE:
+            case R_386_PC32:
+                // can be ignored
+                break;
+            
+            default:
+                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
+        }
+    }
+    return 0;
+}
 int RelocateElf(elfheader_t* head)
 {
     if(head->rel) {
         int cnt = head->relsz / head->relent;
-        DumpRelTable(head);
+        DumpRelTable(head, cnt, (Elf32_Rel *)(head->rel + head->delta), "Rel");
         printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
-        Elf32_Rel *rel = (Elf32_Rel *)(head->rel + head->delta);
-        for (int i=0; i<cnt; ++i) {
-            Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
-            uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
-            int t = ELF32_R_TYPE(rel[i].r_info);
-            switch(t) {
-                case R_386_NONE:
-                case R_386_PC32:
-                    // can be ignored
-                    printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, p?(*p):0);
-                    break;
-                case R_386_GLOB_DAT:
-                    // I guess it can be ignored
-                    printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
-                    break;
-                case R_386_RELATIVE:
-                    printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
-                    *p += (uintptr_t)head->memory - head->paddr;
-                    break;
-                case R_386_32:
-                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
-                    return -1; //TODO!!!
-                    //break;
-                default:
-                    printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
-            }
-        }
+        if(RelocateElfREL(head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
+            return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
-        DumpRelATable(head);
+        DumpRelATable(head, cnt, (Elf32_Rela *)(head->rela + head->delta), "RelA");
         printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
-        Elf32_Rela *rela = (Elf32_Rela *)(head->rela + head->delta);
-        for (int i=0; i<cnt; ++i) {
-            Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
-            switch(ELF32_R_TYPE(rela[i].r_info)) {
-                case R_386_NONE:
-                case R_386_PC32:
-                    // can be ignored
-                    break;
-                
-                default:
-                    printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
-            }
-        }
+        if(RelocateElfRELA(head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
+            return -1;
     }
    
     return 0;
