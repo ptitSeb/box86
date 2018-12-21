@@ -52,6 +52,59 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
     }
 }
 
+int CountEnv(const char** env)
+{
+    // count, but remove all BOX86_* environnement
+    // also remove PATH and LD_LIBRARY_PATH
+    // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
+    const char** p = env;
+    int c = 0;
+    while(*p) {
+        if(strncmp(*p, "BOX86_", 6)!=0)
+            if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
+                ++c;
+        ++p;
+    }
+    return c+2;
+}
+int GatherEnv(char*** dest, const char** env, const char* prog)
+{
+    // Add all but BOX86_* environnement
+    // and PATH and LD_LIBRARY_PATH
+    // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
+    const char** p = env;    
+    int idx = 0;
+    int path = 0;
+    int ld_path = 0;
+    while(*p) {
+        if(strncmp(*p, "BOX86_PATH=", 11)==0) {
+            (*dest)[idx++] = strdup(*p+6);
+            path = 1;
+        } else if(strncmp(*p, "BOX86_LD_LIBRARY_PATH=", 22)==0) {
+            (*dest)[idx++] = strdup(*p+6);
+            ld_path = 1;
+        } else if(strncmp(*p, "_=", 2)==0) {
+            int l = strlen(prog);
+            char tmp[l+3];
+            strcpy(tmp, "_=");
+            strcat(tmp, prog);
+            (*dest)[idx++] = strdup(tmp);
+        } else if(strncmp(*p, "BOX86_", 6)!=0) {
+            if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
+                (*dest)[idx++] = strdup(*p);
+            }
+        }
+        ++p;
+    }
+    if(!path) {
+        (*dest)[idx++] = strdup("PATH=.:bin");
+    }
+    if(!ld_path) {
+        (*dest)[idx++] = strdup("LD_LIBRARY_PATH=.:lib");
+    }
+}
+
+
 void PrintHelp() {
     printf("\n\nThis is Box86, the Linux 86 emulator with a twist\n");
     printf("\nUsage is box86 path/to/software [args]\n");
@@ -82,10 +135,20 @@ int main(int argc, const char **argv, const char **env) {
     box86context_t *context = NewBox86Context(argc - 1);
 
     const char *p;
+    const char* prog = argv[1];
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
+    // prepare all other env. var
+    context->envc = CountEnv(env);
+    printf_log(LOG_INFO, "Counted %d Env var\n", context->envc);
+    context->envv = (char**)calloc(context->envc, sizeof(char*));
+    GatherEnv(&context->envv, env, prog);
+    if(box86_log>=LOG_DUMP) {
+        for (int i=0; i<context->envc; ++i)
+            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, context->envv[i]);
+    }
 
     p = getenv("BOX86_TRACE");
     if(p) {
@@ -101,12 +164,11 @@ int main(int argc, const char **argv, const char **env) {
     }
 
     // lets build argc/argv stuff
-    p=argv[1];
-    printf_log(LOG_INFO, "Looking for %s\n", p);
-    if(strchr(p, '/'))
-        context->argv[0] = strdup(p);
+    printf_log(LOG_INFO, "Looking for %s\n", prog);
+    if(strchr(prog, '/'))
+        context->argv[0] = strdup(prog);
     else
-        context->argv[0] = ResolveFile(p, &context->box86_path);
+        context->argv[0] = ResolveFile(prog, &context->box86_path);
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist
