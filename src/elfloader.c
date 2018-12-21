@@ -193,6 +193,20 @@ int RelocateElf(elfheader_t* head)
         if(RelocateElfRELA(head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
             return -1;
     }
+    if(head->pltrel) {
+        int cnt = head->pltsz / head->pltent;
+        if(head->pltrel==DT_REL) {
+            DumpRelTable(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta), "PLT");
+            printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
+            if(RelocateElfREL(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
+                return -1;
+        } else if(head->pltrel==DT_RELA) {
+            DumpRelATable(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta), "PLT");
+            printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
+            if(RelocateElfRELA(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
+                return -1;
+        }
+    }
    
     return 0;
 }
