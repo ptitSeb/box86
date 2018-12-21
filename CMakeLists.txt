@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(box86)
 
+enable_testing()
+
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 
@@ -45,3 +47,8 @@ SET(ELFLOADER_SRC
 
 add_executable(box86 ${ELFLOADER_SRC})
 target_link_libraries(box86 m dl rt)
+
+add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref01.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
