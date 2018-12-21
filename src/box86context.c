@@ -7,11 +7,14 @@
 #include "debug.h"
 #include "x86trace.h"
 #include "x86emu.h"
+#include "librarian.h"
 
 box86context_t *NewBox86Context(int argc)
 {
     // init and put default values
     box86context_t *context = (box86context_t*)calloc(1, sizeof(box86context_t));
+
+    context->maplib = NewLibrarian();
 
     context->argc = argc;
     context->argv = (char**)calloc(context->argc, sizeof(char*));
@@ -21,7 +24,11 @@ box86context_t *NewBox86Context(int argc)
 
 box86context_t *CopyBox86Context(box86context_t* from)
 {
+    printf("ERROR: CopyBox86Context needs more works!");
+
     box86context_t *context = (box86context_t*)malloc(sizeof(box86context_t));
+
+    context->maplib = NewLibrarian();   // todo!
 
     CopyCollection(&context->box86_path, &from->box86_path);
     CopyCollection(&context->box86_ld_lib, &context->box86_ld_lib);
@@ -31,6 +38,13 @@ box86context_t *CopyBox86Context(box86context_t* from)
     for (int i=0; i<context->argc; ++i)
         if(from->argv[i])
             context->argv[i] = strdup(from->argv[i]);
+    context->envc = from->envc;
+    context->envv = (char**)calloc(context->envc, sizeof(char*));
+    for (int i=0; i<context->envc; ++i)
+        if(from->envv[i])
+            context->envv[i] = strdup(from->envv[i]);
+
+    // x86emu TODO!
 
     return context;
 }
@@ -47,6 +61,9 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);
+
+    if((*context)->maplib)
+        FreeLibrarian(&(*context)->maplib);
 
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);

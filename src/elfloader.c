@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "elfload_dump.h"
 #include "elfloader_private.h"
+#include "librarian.h"
 
 void FreeElfHeader(elfheader_t** head)
 {
@@ -130,11 +131,13 @@ int LoadElfMemory(FILE* f, elfheader_t* head)
     return 0;
 }
 
-int RelocateElfREL(elfheader_t* head, int cnt, Elf32_Rel *rel)
+int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
+        const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
+        uintptr_t offs;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -147,6 +150,7 @@ int RelocateElfREL(elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
                 break;
             case R_386_RELATIVE:
+                // is this correct????
                 printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
                 *p += (uintptr_t)head->memory - head->paddr;
                 break;
@@ -154,6 +158,15 @@ int RelocateElfREL(elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
                 return -1; //TODO!!!
                 //break;
+            case R_386_JMP_SLOT:
+                offs = FindSymbol(maplib, symname);
+                if (!offs)
+                    printf_log(LOG_NONE, "Warning, Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
+                else {
+                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, offs + head->delta);
+                    *p = offs + head->delta;
+                }
+                break;
             default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
         }
@@ -161,7 +174,7 @@ int RelocateElfREL(elfheader_t* head, int cnt, Elf32_Rel *rel)
     return 0;
 }
 
-int RelocateElfRELA(elfheader_t* head, int cnt, Elf32_Rela *rela)
+int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
@@ -177,20 +190,20 @@ int RelocateElfRELA(elfheader_t* head, int cnt, Elf32_Rela *rela)
     }
     return 0;
 }
-int RelocateElf(elfheader_t* head)
+int RelocateElf(lib_t *maplib, elfheader_t* head)
 {
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf32_Rel *)(head->rel + head->delta), "Rel");
         printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
-        if(RelocateElfREL(head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
+        if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf32_Rela *)(head->rela + head->delta), "RelA");
         printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
-        if(RelocateElfRELA(head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
+        if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
             return -1;
     }
     if(head->pltrel) {
@@ -198,12 +211,12 @@ int RelocateElf(elfheader_t* head)
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta), "PLT");
             printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
-            if(RelocateElfREL(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
+            if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta), "PLT");
             printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
-            if(RelocateElfRELA(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
+            if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
         }
     }

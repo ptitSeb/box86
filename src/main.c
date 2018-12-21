@@ -12,6 +12,7 @@
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86trace.h"
+#include "librarian.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
 
@@ -221,7 +222,7 @@ int main(int argc, const char **argv, const char **env) {
     fclose(f);
     // Call librarian to load all dependant elf
     // finalize relocations
-    if(RelocateElf(elf_header)) {
+    if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error, relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;

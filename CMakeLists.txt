@@ -34,6 +34,7 @@ SET(ELFLOADER_SRC
     src/elfloader.c
     src/elfparser.c
     src/elfload_dump.c
+    src/librarian.c
     src/stack.c
     src/x86emu.c
     src/x86run.c
