@@ -57,17 +57,17 @@ void PrintHelp() {
     printf("\nUsage is box86 path/to/software [args]\n");
     printf("to launch x86 software\n");
     printf("You can also set some env. var.:\n");
-    printf(" BOX86_PATH to set the PATH used by box86 to find w86 programs (default is '.:bin')\n");
+    printf(" BOX86_PATH to set the PATH used by box86 to find x86 programs (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH to set the path were x86 lib are searched (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set printed debug info\n");
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
 }
 
-int main(int argc, const char **argv) {
-    printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
+int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
     if(argc==1) {
+        printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
         PrintHelp();
         return 1;
     }
