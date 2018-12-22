@@ -160,9 +160,9 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 //break;
             case R_386_JMP_SLOT:
                 offs = FindSymbol(maplib, symname);
-                if (!offs)
+                if (!offs) {
                     printf_log(LOG_NONE, "Warning, Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
-                else {
+                } else {
                     printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, offs);
                     *p = offs;
                 }
@@ -195,14 +195,14 @@ int RelocateElf(lib_t *maplib, elfheader_t* head)
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf32_Rel *)(head->rel + head->delta), "Rel");
-        printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
+        printf_log(LOG_DEBUG, "Applying %d Relocation(s)\n", cnt);
         if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf32_Rela *)(head->rela + head->delta), "RelA");
-        printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
+        printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend\n", cnt);
         if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
             return -1;
     }
@@ -210,12 +210,12 @@ int RelocateElf(lib_t *maplib, elfheader_t* head)
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d Rellocation(s)\n", cnt);
+            printf_log(LOG_DEBUG, "Applying %d Relocation(s)\n", cnt);
             if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d Rellocation(s) with Addend\n", cnt);
+            printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend\n", cnt);
             if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
         }

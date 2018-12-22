@@ -27,6 +27,12 @@ void Run66(x86emu_t *emu)
         uint64_t tmp64u;
         int64_t tmp64s;
         switch(opcode) {
+            case 0x89:  /* MOV Ew, Gw */
+                nextop = Fetch8(emu);
+                GetEw(emu, &op1, &ea2, nextop);
+                GetG(emu, &op2, nextop);
+                op1->word[0] = op2->word[0];
+                break;
             case 0xC7: /* MOV Ew,Iw */
                 nextop = Fetch8(emu);
                 GetEw(emu, &op1, &ea2, nextop);

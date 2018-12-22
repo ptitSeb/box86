@@ -56,10 +56,10 @@ add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref01.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-#add_test(test02 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
-#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test02 -D TEST_OUTPUT=tmpfile.txt 
-#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref02.txt
-#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+add_test(test02 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test02 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref02.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 #add_test(test03 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
 #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test03 -D TEST_OUTPUT=tmpfile.txt 
