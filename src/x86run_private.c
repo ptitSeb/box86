@@ -135,7 +135,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             *op = (reg32_t*)Fetch32(emu);
             return;
         }
-        *op = &emu->regs[_AX+m];
+        *op = (reg32_t*)(emu->regs[_AX+m].dword[0]);
         return;
     } else if(m>=0x40 && m<=0x47) {
         uintptr_t base;

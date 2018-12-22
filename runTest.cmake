@@ -15,7 +15,7 @@ endif( NOT TEST_REFERENCE )
 set(ENV{BOX86_LOG} 0)
 # run the test program, capture the stdout/stderr and the result var
 execute_process(
-  COMMAND ${TEST_PROGRAM} ${TEST_ARGS}
+  COMMAND ${TEST_PROGRAM} ${TEST_ARGS} ${TEST_ARGS2}
   OUTPUT_FILE ${TEST_OUTPUT}
   ERROR_VARIABLE TEST_ERROR
   RESULT_VARIABLE TEST_RESULT

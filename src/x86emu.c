@@ -33,11 +33,24 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
-
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
-    // stack setup is much more complicated then just that!
+
+    // if trace is activated
+    if(context->x86trace) {
+        emu->dec = InitX86TraceDecoder(context);
+        if(!emu->dec)
+            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
+    }
+    
+    return emu;
+}
+
+void SetupX86Emu(x86emu_t *emu)
+{
+    printf_log(LOG_DEBUG, "Setup X86 Emu\n");
+
     // push "end emu" marker address
     Push(emu, (uint32_t)&EndEmuMarker);
     // Setup the GS segment:
@@ -48,14 +61,6 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     canary[getrand(4)] = 0;
     memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
-    // if trace is activated
-    if(context->x86trace) {
-        emu->dec = InitX86TraceDecoder(context);
-        if(!emu->dec)
-            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
-    }
-
-    return emu;
 }
 
 void FreeX86Emu(x86emu_t **x86emu)

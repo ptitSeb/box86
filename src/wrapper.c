@@ -27,6 +27,8 @@ typedef void        (*vFi_t)(int32_t);
 typedef int32_t     (*iFi_t)(int32_t);
 typedef int32_t     (*iFp_t)(void*);
 typedef int32_t     (*iFpp_t)(void*, void*);
+typedef int32_t     (*iFipp_t)(int, void*, void*);
+typedef int32_t     (*iFppp_t)(void*, void*, void*);
 
 #define DEF(A) A f = (A)fnc
 
@@ -74,4 +76,19 @@ void    iFpv(x86emu_t *emu, uintptr_t fnc)
 {
     DEF(iFpp_t);
     *(int32_t*)&R_EAX = f(p(0), (void*)stack(4));
+}
+void    iF1pv(x86emu_t *emu, uintptr_t fnc)
+{
+    DEF(iFipp_t);
+    *(int32_t*)&R_EAX = f(1, p(0), (void*)stack(4));
+}
+void    iFopv(x86emu_t *emu, uintptr_t fnc)
+{
+    DEF(iFppp_t);
+    *(int32_t*)&R_EAX = f((void*)stdout, p(0), (void*)stack(4));
+}
+void    iFvopv(x86emu_t *emu, uintptr_t fnc)
+{
+    DEF(iFppp_t);
+    *(int32_t*)&R_EAX = f((void*)stdout, p(4), (void*)stack(8));
 }

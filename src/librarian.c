@@ -46,13 +46,17 @@ uintptr_t CreateSymbol(lib_t *maplib, const char* name)
     // look for symbols that can be created
     uintptr_t addr = 0;
     if(strcmp(name, "__stack_chk_fail")==0) {
-        addr = AddBridge(maplib->bridge, vFE, &my__stack_chk_fail);
+        addr = AddBridge(maplib->bridge, vFE, my__stack_chk_fail);
     } else if(strcmp(name, "__libc_start_main")==0) {
-        addr = AddBridge(maplib->bridge, vFv, &my__libc_start_main);
+        addr = AddBridge(maplib->bridge, vFv, my__libc_start_main);
     } else if(strcmp(name, "syscall")==0) {
-        addr = AddBridge(maplib->bridge, uFE, &LibSyscall);
+        addr = AddBridge(maplib->bridge, uFE, LibSyscall);
     } else if(strcmp(name, "puts")==0) {
-        addr = AddBridge(maplib->bridge, iFp, &puts);
+        addr = AddBridge(maplib->bridge, iFp, puts);
+    } else if(strcmp(name, "printf")==0) {
+        addr = AddBridge(maplib->bridge, iFopv, vfprintf);
+    } else if(strcmp(name, "__printf_chk")==0) {
+        addr = AddBridge(maplib->bridge, iFvopv, vfprintf);
     }
     if(addr)
         AddSymbol(maplib, name, addr);

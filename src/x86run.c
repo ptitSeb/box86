@@ -49,13 +49,25 @@ int Run(x86emu_t *emu)
                 GetGb(emu, &op2, nextop);
                 op2->byte[0] = add8(emu, op1->byte[0], op2->byte[0]);
                 break;
+            case 0x01: /* ADD Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->dword[0] = add32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x02: /* ADD Gd,Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = add32(emu, op1->dword[0], op2->dword[0]);
+                break;
             case 0x04: /* ADD AL, Ib */
                 tmp8u = Fetch8(emu);
                 R_AL = add8(emu, R_AL, tmp8u);
                 break;
             case 0x31: /* XOR Ed,Gd */
                 nextop = Fetch8(emu);
-                GetEd(emu, &op1, &ea2, nextop);
+                GetEd(emu, &op1, &ea1, nextop);
                 GetG(emu, &op2, nextop);
                 op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
                 break;
