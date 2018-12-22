@@ -106,3 +106,12 @@ const char* DumpCPURegs(x86emu_t* emu)
     strcat(buff, tmp);
     return buff;
 }
+
+void StopEmu(x86emu_t* emu, const char* reason)
+{
+    emu->quit = 1;
+    printf_log(LOG_NONE, reason);
+    // dump stuff...
+    printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu));
+    // TODO: stack, memory/instruction around EIP, etc..
+}

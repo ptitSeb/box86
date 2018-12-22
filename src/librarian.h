@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 typedef struct lib_s lib_t;
+typedef struct bridge_s bridge_t;
 
 lib_t *NewLibrarian();
 void FreeLibrarian(lib_t **maplib);

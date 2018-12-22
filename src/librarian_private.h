@@ -13,6 +13,8 @@ KHASH_MAP_DECLARE_STR(maplib_t, onelib_t)
 
 typedef struct lib_s {
     khash_t(maplib_t)    *maplib;
+    
+    bridge_t            *bridge;        // all x86 -> arm bridge
 } lib_t;
 
 #endif //__LIBRARIAN_PRIVATE_H_

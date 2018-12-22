@@ -27,6 +27,7 @@ endif()
 #include_directories(include)
 
 SET(ELFLOADER_SRC
+    src/bridge.c
     src/main.c
     src/pathcoll.c
     src/box86context.c
@@ -36,6 +37,7 @@ SET(ELFLOADER_SRC
     src/elfload_dump.c
     src/librarian.c
     src/stack.c
+    src/wrapper.c
     src/x86emu.c
     src/x86run.c
     src/x86run66.c

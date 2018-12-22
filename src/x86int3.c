@@ -10,6 +10,7 @@
 #include "x86run_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
+#include "wrapper.h"
 
 void x86Int3(x86emu_t* emu)
 {
@@ -21,8 +22,9 @@ void x86Int3(x86emu_t* emu)
             printf_log(LOG_INFO, "Exit\n");        
             emu->quit=1; // normal quit
         } else {
-            printf_log(LOG_NONE, "Unsupported (yet) Native call\n");        
-            emu->quit=1;
+            wrapper_t w = (wrapper_t)addr;
+            addr = Fetch32(emu);
+            w(emu, addr);
         }
         return;
     }

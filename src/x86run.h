@@ -14,5 +14,7 @@ int32_t Fetch32s(x86emu_t *emu);
 
 uint8_t Peek(x86emu_t *emu, int offset);
 
+uint32_t LibSyscall(x86emu_t *emu);
+
 
 #endif //__X86RUN_H_

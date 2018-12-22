@@ -8,6 +8,7 @@
 #include "x86trace.h"
 #include "x86emu.h"
 #include "librarian.h"
+#include "bridge.h"
 
 box86context_t *NewBox86Context(int argc)
 {
@@ -64,7 +65,7 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->maplib)
         FreeLibrarian(&(*context)->maplib);
-
+    
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);
     free((*context)->argv);
