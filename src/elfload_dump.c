@@ -233,7 +233,7 @@ void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h)
 void DumpSymTab(elfheader_t *h)
 {
     if(box86_log>=LOG_DUMP && h->SymTab) {
-        printf_log(LOG_DUMP, "ELF Dump SymTab(%d)\n", h->numSymTab);
+        printf_log(LOG_DUMP, "ELF Dump SymTab(%d)=\n", h->numSymTab);
         for (int i=0; i<h->numSymTab; ++i)
             printf_log(LOG_DUMP, "  SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
                 i, h->StrTab+h->SymTab[i].st_name, h->SymTab[i].st_value, h->SymTab[i].st_size,
@@ -245,7 +245,7 @@ void DumpSymTab(elfheader_t *h)
 void DumpDynamicSections(elfheader_t *h)
 {
     if(box86_log>=LOG_DUMP && h->Dynamic) {
-        printf_log(LOG_DUMP, "ELF Dump Dynamic(%d)\n", h->numDynamic);
+        printf_log(LOG_DUMP, "ELF Dump Dynamic(%d)=\n", h->numDynamic);
         for (int i=0; i<h->numDynamic; ++i)
             printf_log(LOG_DUMP, "  Dynamic %04d : %s\n", i, DumpDynamic(h->Dynamic+i));
         printf_log(LOG_DUMP, "ELF Dump Dynamic=====\n");
@@ -255,10 +255,22 @@ void DumpDynamicSections(elfheader_t *h)
 void DumpDynSym(elfheader_t *h)
 {
     if(box86_log>=LOG_DUMP && h->DynSym) {
-        printf_log(LOG_DUMP, "ELF Dump DynSym(%d)\n", h->numDynSym);
+        printf_log(LOG_DUMP, "ELF Dump DynSym(%d)=\n", h->numDynSym);
         for (int i=0; i<h->numDynSym; ++i)
             printf_log(LOG_DUMP, "  DynSym[%d] = %s\n", i, h->DynStr+h->DynSym[i].st_name, DumpSym(h, h->DynSym+i));
         printf_log(LOG_DUMP, "ELF Dump DynSym=====\n");
+    }
+}
+
+void DumpDynamicNeeded(elfheader_t *h)
+{
+    if(box86_log>=LOG_DUMP && h->DynStrTab) {
+        printf_log(LOG_DUMP, "ELF Dump DT_NEEDED=====\n");
+        for (int i=0; i<h->numDynamic; ++i)
+            if(h->Dynamic[i].d_tag==DT_NEEDED) {
+                printf_log(LOG_DUMP, "  Needed : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val);
+            }
+        printf_log(LOG_DUMP, "ELF Dump DT_NEEDED=====\n");
     }
 }
 

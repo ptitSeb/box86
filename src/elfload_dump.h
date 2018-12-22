@@ -13,6 +13,7 @@ const char* IdxSymName(elfheader_t *h, int sym);
 void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h);
 void DumpSymTab(elfheader_t *h);
 void DumpDynamicSections(elfheader_t *h);
+void DumpDynamicNeeded(elfheader_t *h);
 void DumpDynSym(elfheader_t *h);
 void DumpRelTable(elfheader_t *h, int cnt, Elf32_Rel *rel, const char* name);
 void DumpRelATable(elfheader_t *h, int cnt, Elf32_Rela *rela, const char* name);

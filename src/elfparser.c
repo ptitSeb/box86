@@ -176,6 +176,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
     if(box86_log>=LOG_DUMP && h->Dynamic) DumpDynamicSections(h);
     // grab DT_REL & DT_RELA stuffs
+    // also grab the DT_STRTAB string table
     {
         for (int i=0; i<h->numDynamic; ++i) {
             if(h->Dynamic[i].d_tag == DT_REL)
@@ -196,6 +197,10 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 h->pltsz = h->Dynamic[i].d_un.d_val;
             else if(h->Dynamic[i].d_tag == DT_JMPREL)
                 h->jmprel = h->Dynamic[i].d_un.d_val;
+            else if(h->Dynamic[i].d_tag == DT_STRTAB)
+                h->DynStrTab = (char*)(h->Dynamic[i].d_un.d_ptr);
+            else if(h->Dynamic[i].d_tag == DT_STRSZ)
+                h->szDynStrTab = h->Dynamic[i].d_un.d_val;
         }
         if(h->rel) {
             if(h->relent != sizeof(Elf32_Rel)) {
@@ -229,6 +234,12 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 return NULL;
             }
             printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", h->jmprel, h->pltrel, h->pltsz, h->pltent);
+        }
+        if(h->DynStrTab && h->szDynStrTab) {
+            fseek(f, (uint32_t)h->DynStrTab, SEEK_SET);
+            h->DynStrTab = (char*)calloc(h->szDynStrTab, sizeof(char));
+            fread(h->DynStrTab, sizeof(char), h->szDynStrTab, f);
+            DumpDynamicNeeded(h);
         }
     }
 

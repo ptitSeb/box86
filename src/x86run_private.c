@@ -197,7 +197,8 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             *op = (reg32_t*)Fetch32(emu);
             return;
         }
-        *op = &emu->regs[_AX+m];
+        ea->dword[0] = emu->regs[_AX+m].word[0];
+        *op = (reg32_t*)ea->dword[0];
         return;
     } else if(m>=0x40 && m<=0x47) {
         uintptr_t base;

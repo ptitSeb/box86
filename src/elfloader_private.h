@@ -18,6 +18,8 @@ struct elfheader_s {
     int         numDynSym;
     Elf32_Dyn*  Dynamic;
     int         numDynamic;
+    char*       DynStrTab;
+    int         szDynStrTab;
 
     intptr_t    delta;  // should be 0
 
