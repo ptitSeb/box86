@@ -35,10 +35,9 @@ void my__stack_chk_fail(x86emu_t* emu)
     StopEmu(emu, "Stack is corrupted, abborting");
 }
 
-void my__libc_start_main()
-{
-    // nothing here
-}
+int32_t my__libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
+    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
+    void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
 uint32_t LibSyscall(x86emu_t *emu); // implemented in x86syscall.c
 
 uintptr_t CreateSymbol(lib_t *maplib, const char* name)
@@ -48,15 +47,15 @@ uintptr_t CreateSymbol(lib_t *maplib, const char* name)
     if(strcmp(name, "__stack_chk_fail")==0) {
         addr = AddBridge(maplib->bridge, vFE, my__stack_chk_fail);
     } else if(strcmp(name, "__libc_start_main")==0) {
-        addr = AddBridge(maplib->bridge, vFv, my__libc_start_main);
+        addr = AddBridge(maplib->bridge, iFEpippppp, my__libc_start_main);
     } else if(strcmp(name, "syscall")==0) {
         addr = AddBridge(maplib->bridge, uFE, LibSyscall);
     } else if(strcmp(name, "puts")==0) {
         addr = AddBridge(maplib->bridge, iFp, puts);
     } else if(strcmp(name, "printf")==0) {
-        addr = AddBridge(maplib->bridge, iFopv, vfprintf);
+        addr = AddBridge(maplib->bridge, iFopV, vfprintf);
     } else if(strcmp(name, "__printf_chk")==0) {
-        addr = AddBridge(maplib->bridge, iFvopv, vfprintf);
+        addr = AddBridge(maplib->bridge, iFvopV, vfprintf);
     }
     if(addr)
         AddSymbol(maplib, name, addr);

@@ -29,6 +29,7 @@ typedef int32_t     (*iFp_t)(void*);
 typedef int32_t     (*iFpp_t)(void*, void*);
 typedef int32_t     (*iFipp_t)(int, void*, void*);
 typedef int32_t     (*iFppp_t)(void*, void*, void*);
+typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
 
 #define DEF(A) A f = (A)fnc
 
@@ -72,23 +73,28 @@ void    iFpp(x86emu_t *emu, uintptr_t fnc)
     DEF(iFpp_t);
     *(int32_t*)&R_EAX = f(p(0), p(4));
 }
-void    iFpv(x86emu_t *emu, uintptr_t fnc)
+void    iFpV(x86emu_t *emu, uintptr_t fnc)
 {
     DEF(iFpp_t);
     *(int32_t*)&R_EAX = f(p(0), (void*)stack(4));
 }
-void    iF1pv(x86emu_t *emu, uintptr_t fnc)
+void    iF1pV(x86emu_t *emu, uintptr_t fnc)
 {
     DEF(iFipp_t);
     *(int32_t*)&R_EAX = f(1, p(0), (void*)stack(4));
 }
-void    iFopv(x86emu_t *emu, uintptr_t fnc)
+void    iFopV(x86emu_t *emu, uintptr_t fnc)
 {
     DEF(iFppp_t);
     *(int32_t*)&R_EAX = f((void*)stdout, p(0), (void*)stack(4));
 }
-void    iFvopv(x86emu_t *emu, uintptr_t fnc)
+void    iFvopV(x86emu_t *emu, uintptr_t fnc)
 {
     DEF(iFppp_t);
     *(int32_t*)&R_EAX = f((void*)stdout, p(4), (void*)stack(8));
+}
+void    iFEpippppp(x86emu_t *emu, uintptr_t fnc)
+{
+    DEF(iFEpippppp_t);
+    *(int32_t*)&R_EAX = f(emu, p(0), i32(4), p(8), p(12), p(16), p(20), p(24));
 }

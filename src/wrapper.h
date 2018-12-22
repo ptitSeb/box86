@@ -11,7 +11,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // p = pointer
 // f = float, d = double, D = long double
-// v = vaargs, E = current x86emu struct
+// V = vaargs, E = current x86emu struct
 // 0 = constant 0, 1 = constant 1
 // o = stdout
 
@@ -24,9 +24,10 @@ void    iFi(x86emu_t *emu, uintptr_t fnc);
 void    iFp(x86emu_t *emu, uintptr_t fnc);
 void    iFpp(x86emu_t *emu, uintptr_t fnc);
 void    iFpv(x86emu_t *emu, uintptr_t fnc);
-void    iF1pv(x86emu_t *emu, uintptr_t fnc);
-void    iFopv(x86emu_t *emu, uintptr_t fnc);
-void    iFvopv(x86emu_t *emu, uintptr_t fnc);
+void    iF1pV(x86emu_t *emu, uintptr_t fnc);
+void    iFopV(x86emu_t *emu, uintptr_t fnc);
+void    iFvopV(x86emu_t *emu, uintptr_t fnc);
+void    iFEpippppp(x86emu_t *emu, uintptr_t fnc);   // this is __libc_start_main basically
 
 
 #endif //__WRAPPER_H_

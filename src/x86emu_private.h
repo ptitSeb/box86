@@ -4,6 +4,11 @@
 #include "regs.h"
 
 typedef struct zydis_dec_s zydis_dec_t;
+typedef struct box86context_s box86context_t;
+
+#define ERR_UNIMPL  1
+#define ERR_DIVBY0  2
+#define ERR_ILLEGAL 4
 
 typedef struct x86emu_s {
     // cpu
@@ -26,13 +31,15 @@ typedef struct x86emu_s {
     reg32_t     *sbiidx[8];
     // emu control
     int         quit;
-    int         divby0;
+    int         error;
     // trace
     zydis_dec_t *dec;
     // global stuffs, pointed with GS: segment
     void        *globals;
+    // parent context
+    box86context_t *context;
 } x86emu_t;
 
-#define INTR_RAISE_DIV0(emu) {emu->divby0 = 1; emu->quit=1;}
+#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
 
 #endif //__X86EMU_PRIVATE_H_

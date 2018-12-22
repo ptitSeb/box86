@@ -156,16 +156,20 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 *p += (uintptr_t)head->memory - head->paddr;
                 break;
             case R_386_32:
-                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, *p);
-                return -1; //TODO!!!
-                //break;
+                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *p, offs);
+                *p = offs;
+                break;
             case R_386_JMP_SLOT:
                 offs = FindSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Warning, Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
                 } else {
-                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, DumpSym(head, sym), *p, offs);
-                    *p = offs;
+                    if(p) {
+                        printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *p, offs);
+                        *p = offs;
+                    } else {
+                        printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+                    }
                 }
                 break;
             default:
@@ -266,9 +270,11 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
             sz = lastbyte - ep;
         DumpBinary((char*)ep, sz);
     }
+    /*
     // but instead of regular entrypoint, lets grab "main", it will be easier to manage I guess
-    ep = FindSymbol(maplib, "main");
-    if(ep) {
+    uintptr_t m = FindSymbol(maplib, "main");
+    if(m) {
+        ep = m;
         printf_log(LOG_DEBUG, "Using \"main\" as Entry Point @%p\n", ep);
         if(box86_log>=LOG_DUMP) {
             printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
@@ -279,7 +285,7 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
             DumpBinary((char*)ep, sz);
         }
     }
-
+    */
     return ep;
 }
 

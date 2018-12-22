@@ -11,7 +11,10 @@
 #include "x86trace.h"
 
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
-
+void PushExit(x86emu_t* emu)
+{
+    Push(emu, (uint32_t)&EndEmuMarker);
+}
 /// maxval not inclusive
 int getrand(int maxval)
 {
@@ -29,6 +32,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", start, stack, stacksize);
 
     x86emu_t *emu = (x86emu_t*)calloc(1, sizeof(x86emu_t));
+    emu->context = context;
     // setup cpu helpers
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
@@ -52,7 +56,7 @@ void SetupX86Emu(x86emu_t *emu)
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
 
     // push "end emu" marker address
-    Push(emu, (uint32_t)&EndEmuMarker);
+    PushExit(emu);
     // Setup the GS segment:
     emu->globals = calloc(1, 256);  // arbitrary 256 byte size?
     // calc canary...

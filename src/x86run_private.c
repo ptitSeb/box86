@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "debug.h"
 #include "stack.h"
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86run_private.h"
 #include "x86emu_private.h"
+#include "box86context.h"
 
 uint8_t Fetch8(x86emu_t *emu)
 {
@@ -95,7 +97,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
     } else if(m>=0x80 && m<0x87) {
         uintptr_t base;
         if(m==0x84) {
-            uint8_t sib = Fetch32(emu);
+            uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             if((sib&0x7)==5)
                 base = Fetch32(emu);
@@ -157,7 +159,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
     } else if(m>=0x80 && m<0x87) {
         uintptr_t base;
         if(m==0x84) {
-            uint8_t sib = Fetch32(emu);
+            uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             if((sib&0x7)==5)
                 base = Fetch32(emu);
@@ -254,3 +256,26 @@ void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
 }
 
 
+int32_t my__libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+{
+    //TODO: register rtld_fini
+    //TODO: register fini
+    if(init) {
+        Push(emu, argc);
+        PushExit(emu);
+        R_EIP=(uint32_t)*init;
+        printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
+        Run(emu);
+        if(emu->error)  // any error, don't bother with more
+            return 0;
+        emu->quit = 0;
+    }
+    // let's cheat and set all args...
+    // call main and finish
+    Push(emu, (uint32_t)emu->context->envv);
+    Push(emu, (uint32_t)emu->context->argv);
+    Push(emu, (uint32_t)emu->context->argc);
+    PushExit(emu);
+    R_EIP=(uint32_t)main;
+    printf_log(LOG_DEBUG, "Calling main(=>%p) from __libc_start_main\n", main);
+}

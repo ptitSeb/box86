@@ -41,5 +41,6 @@ void Run66(x86emu_t *emu)
             default:
                 printf_log(LOG_NONE, "Unimplemented Opcode 66 %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
                 emu->quit=1;
+                emu->error |= ERR_UNIMPL;
         }
 }

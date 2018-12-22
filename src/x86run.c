@@ -22,7 +22,7 @@ int Run(x86emu_t *emu)
             if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
                 uint32_t a = *(uint32_t*)(R_EIP+3);
                 if(a==0) {
-                    printf_log(LOG_NONE, "%08p: Exit program\n", R_EIP);
+                    printf_log(LOG_NONE, "%08p: Exit x86emu\n", R_EIP);
                 } else {
                     printf_log(LOG_NONE, "%08p: Native call to %p\n", R_EIP, a);
                 }
@@ -65,6 +65,37 @@ int Run(x86emu_t *emu)
                 tmp8u = Fetch8(emu);
                 R_AL = add8(emu, R_AL, tmp8u);
                 break;
+
+            case 0x21: /* AND Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->dword[0] = and32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x23: /* AND Gd,Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = and32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x25: /* AND EAX, Id */
+                R_EAX = and32(emu, R_EAX, Fetch32(emu));
+                break;
+            case 0x29: /* SUB Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->dword[0] = sub32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x2B: /* SUB Gd,Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = sub32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x2D: /* SUB EAX, Id */
+                R_EAX = sub32(emu, R_EAX, Fetch32(emu));
+                break;
             case 0x31: /* XOR Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);
@@ -76,6 +107,24 @@ int Run(x86emu_t *emu)
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x35: /* XOR EAX, Id */
+                op1->dword[0] = xor32(emu, R_EAX, Fetch32(emu));
+                break;
+            case 0x39: /* CMP Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                cmp32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x3B: /* CMP Gd,Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                cmp32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x3D: /* CMP EAX, Id */
+                cmp32(emu, R_EAX, Fetch32(emu));
                 break;
             case 0x40:
             case 0x41:
@@ -140,10 +189,14 @@ int Run(x86emu_t *emu)
                     default:
                         printf_log(LOG_NONE, "Unimplemented Opcode 0x66 0x%02X 0x%02X 0x%02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2));
                         emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
                 }
                 break;
             case 0x66: /* Prefix for changing width of intructions, so here, down to 16bits */
                 Run66(emu);
+                break;
+            case 0x68: /* Push Id */
+                Push(emu, Fetch32(emu));
                 break;
             case 0x6A: /* Push Ib */
                 Push(emu, Fetch8s(emu));
@@ -182,6 +235,12 @@ int Run(x86emu_t *emu)
                 }
                 break;
 
+            case 0x85:  /* TEST Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea2, nextop);
+                GetG(emu, &op2, nextop);
+                test32(emu, op1->dword[0], op2->dword[0]);
+                break;
             case 0x87:  /* XCHG Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -229,7 +288,23 @@ int Run(x86emu_t *emu)
             case 0xBF:
                 emu->regs[opcode-0xB8].dword[0] = Fetch32(emu);
                 break;
-            case 0xC3:  /* RET */
+
+            case 0xC1: /* GRP2 Eb,Ib */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea2, nextop);
+                tmp8u = Fetch8(emu) & 0x1f;
+                switch((nextop>>3)&7) {
+                    case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
+                    case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
+                    case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
+                    case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
+                    case 4:
+                    case 5: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
+                    case 6: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
+                    case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
+                }
+                break;
+            case 0xC3: /* RET */
                 R_EIP = Pop(emu);
                 break;
 
@@ -238,6 +313,12 @@ int Run(x86emu_t *emu)
                 GetEd(emu, &op1, &ea2, nextop);
                 op1->dword[0] = Fetch32(emu);
                 break;
+
+            case 0xC9: /* LEAVE */
+                R_ESP = R_EBP;
+                R_EBP = Pop(emu);
+                break;
+
             case 0xCC: /* INT 3 */
                 x86Int3(emu);
                 break;
@@ -248,13 +329,53 @@ int Run(x86emu_t *emu)
                 else {
                     printf_log(LOG_NONE, "Unsupported Int %02Xh\n", nextop);
                     emu->quit = 1;
+                    emu->error |= ERR_UNIMPL;
                 }
                 break;
+
+            case 0xD1: /* GRP2 Eb,1 */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea2, nextop);
+                tmp8u = 1;
+                switch((nextop>>3)&7) {
+                    case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
+                    case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
+                    case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
+                    case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
+                    case 4:
+                    case 5: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
+                    case 6: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
+                    case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
+                }
+                break;
+
             case 0xE8:  /* CALL Id */
                 tmp32s = Fetch32s(emu); // call is relative
                 Push(emu, R_EIP);
                 R_EIP += tmp32s;
                 break;
+            case 0xE9:  /* JMP Id */
+                tmp32s = Fetch32s(emu); // jmp is relative
+                R_EIP += tmp32s;
+                break;
+
+            case 0xEB:  /* JMP Ib */
+                tmp32s = Fetch8s(emu); // jump is relative
+                R_EIP += tmp32s;
+                break;
+            case 0xF3:  /* REPZ prefix */
+                nextop = Fetch8(emu);
+                switch(nextop) {
+                    case 0xC3:  /* repz ret... yup */
+                        R_EIP = Pop(emu);
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode F3 %02X %02X \n", nextop, Peek(emu, 0));
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
+                }
+                break;
+
             case 0xFF: /* GRP 5 Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -273,6 +394,7 @@ int Run(x86emu_t *emu)
                         if(nextop>0xc0) {
                             printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
+                            emu->error |= ERR_ILLEGAL;
                         } else {
                             Push16(emu, R_CS);
                             Push(emu, R_EIP);
@@ -287,6 +409,7 @@ int Run(x86emu_t *emu)
                         if(nextop>0xc0) {
                             printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
+                            emu->error |= ERR_ILLEGAL;
                         } else {
                             R_EIP = op1->dword[0];
                             R_CS = (op1+1)->word[0];
@@ -298,12 +421,14 @@ int Run(x86emu_t *emu)
                     default:
                         printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                         emu->quit=1;
+                        emu->error |= ERR_ILLEGAL;
                 }
                 break;
 
             default:
                 printf_log(LOG_NONE, "Unimplemented Opcode %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
                 emu->quit=1;
+                emu->error |= ERR_UNIMPL;
         }
         if(emu->dec)
             printf_log(LOG_NONE, "CPU Regs: %s\n", DumpCPURegs(emu));

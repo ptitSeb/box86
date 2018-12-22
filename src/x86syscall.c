@@ -31,6 +31,7 @@ void x86Syscall(x86emu_t *emu)
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall %02Xh\n", s);
             emu->quit = 1;
+            emu->error |= ERR_UNIMPL;
     }
 }
 
@@ -53,6 +54,7 @@ uint32_t LibSyscall(x86emu_t *emu)
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall %02Xh\n", s);
             emu->quit = 1;
+            emu->error |= ERR_UNIMPL;
     }
     return 0;
 }
