@@ -51,6 +51,8 @@ uintptr_t CreateSymbol(lib_t *maplib, const char* name)
         addr = AddBridge(maplib->bridge, vFv, &my__libc_start_main);
     } else if(strcmp(name, "syscall")==0) {
         addr = AddBridge(maplib->bridge, uFE, &LibSyscall);
+    } else if(strcmp(name, "puts")==0) {
+        addr = AddBridge(maplib->bridge, iFp, &puts);
     }
     if(addr)
         AddSymbol(maplib, name, addr);
