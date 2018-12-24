@@ -153,6 +153,7 @@ int main(int argc, const char **argv, const char **env) {
 
     p = getenv("BOX86_TRACE");
     if(p) {
+        setbuf(stdout, NULL);
         if (strcmp(p, "1")==0)
             context->x86trace = 1;
     }

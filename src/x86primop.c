@@ -2040,43 +2040,37 @@ Implements the IMUL instruction and side effects.
 ****************************************************************************/
 void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, uint32_t s)
 {
-#ifdef	__HAS3232__
 	int64_t res = (int32_t)d * (int32_t)s;
 
 	*res_lo = (uint32_t)res;
 	*res_hi = (uint32_t)(res >> 32);
-#else
-	uint32_t	d_lo,d_hi,d_sign;
-	uint32_t	s_lo,s_hi,s_sign;
-	uint32_t	rlo_lo,rlo_hi,rhi_lo;
-
-	if ((d_sign = d & 0x80000000) != 0)
-		d = -d;
-	d_lo = d & 0xFFFF;
-	d_hi = d >> 16;
-	if ((s_sign = s & 0x80000000) != 0)
-		s = -s;
-	s_lo = s & 0xFFFF;
-	s_hi = s >> 16;
-	rlo_lo = d_lo * s_lo;
-	rlo_hi = (d_hi * s_lo + d_lo * s_hi) + (rlo_lo >> 16);
-	rhi_lo = d_hi * s_hi + (rlo_hi >> 16);
-	*res_lo = (rlo_hi << 16) | (rlo_lo & 0xFFFF);
-	*res_hi = rhi_lo;
-	if (d_sign != s_sign) {
-		d = ~*res_lo;
-		s = (((d & 0xFFFF) + 1) >> 16) + (d >> 16);
-		*res_lo = ~*res_lo+1;
-		*res_hi = ~*res_hi+(s >> 16);
-		}
-#endif
 }
 
 /****************************************************************************
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-void imul32(x86emu_t *emu, uint32_t s)
+uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
+{
+	uint32_t s;
+	uint32_t r;
+	imul32_direct(&r,&s,op1,op2);
+	if (((r & 0x80000000) == 0 && s == 0x00) ||
+		((r & 0x80000000) != 0 && s == 0xFF)) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_OF);
+	} else {
+		SET_FLAG(F_CF);
+		SET_FLAG(F_OF);
+	}
+	return r;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the IMUL instruction and side effects.
+****************************************************************************/
+void imul32_eax(x86emu_t *emu, uint32_t s)
 {
 	imul32_direct(&R_EAX,&R_EDX,R_EAX,s);
 	if (((R_EAX & 0x80000000) == 0 && R_EDX == 0x00) ||
@@ -2132,27 +2126,10 @@ Implements the MUL instruction and side effects.
 ****************************************************************************/
 void mul32(x86emu_t *emu, uint32_t s)
 {
-#ifdef	__HAS3232__
 	uint64_t res = (uint32_t)R_EAX * (uint32_t)s;
 
 	R_EAX = (uint32_t)res;
 	R_EDX = (uint32_t)(res >> 32);
-#else
-	uint32_t	a,a_lo,a_hi;
-	uint32_t	s_lo,s_hi;
-	uint32_t	rlo_lo,rlo_hi,rhi_lo;
-
-	a = R_EAX;
-	a_lo = a & 0xFFFF;
-	a_hi = a >> 16;
-	s_lo = s & 0xFFFF;
-	s_hi = s >> 16;
-	rlo_lo = a_lo * s_lo;
-	rlo_hi = (a_hi * s_lo + a_lo * s_hi) + (rlo_lo >> 16);
-	rhi_lo = a_hi * s_hi + (rlo_hi >> 16);
-	R_EAX = (rlo_hi << 16) | (rlo_lo & 0xFFFF);
-	R_EDX = rhi_lo;
-#endif
 
 	if (R_EDX == 0) {
 		CLEAR_FLAG(F_CF);

@@ -12,6 +12,7 @@ void GetG(x86emu_t *emu, reg32_t **op, uint32_t v);
 void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v);
 
 void Run66(x86emu_t *emu);
+void Run0F(x86emu_t *emu);
 
 void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);

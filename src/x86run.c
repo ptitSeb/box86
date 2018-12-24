@@ -14,11 +14,10 @@
 int Run(x86emu_t *emu)
 {
     emu->quit = 0;
-    if(emu->dec)
-        printf_log(LOG_NONE, "Starting\nCPU Regs: %s\n", DumpCPURegs(emu));
     while (!emu->quit)
     {
         if(emu->dec) {
+            printf_log(LOG_NONE, "%s", DumpCPURegs(emu));
             if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
                 uint32_t a = *(uint32_t*)(R_EIP+3);
                 if(a==0) {
@@ -64,6 +63,27 @@ int Run(x86emu_t *emu)
             case 0x04: /* ADD AL, Ib */
                 tmp8u = Fetch8(emu);
                 R_AL = add8(emu, R_AL, tmp8u);
+                break;
+            case 0x05: /* ADD EAX, Id */
+                tmp32u = Fetch32(emu);
+                R_EAX = add32(emu, R_EAX, tmp32u);
+                break;
+
+            case 0x08: /* OR Eb,Gb */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->byte[0] = or8(emu, op1->byte[0], op2->byte[0]);
+                break;
+            case 0x09: /* OR Ed,Gd */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->dword[0] = or32(emu, op1->dword[0], op2->dword[0]);
+                break;
+
+            case 0x0F: /* More instructions */
+                Run0F(emu);
                 break;
 
             case 0x21: /* AND Ed,Gd */
@@ -202,6 +222,16 @@ int Run(x86emu_t *emu)
                 Push(emu, Fetch8s(emu));
                 break;
 
+            case 0x72:  /* JB Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_CF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x73:  /* JNB Ib */
+                tmp8s = Fetch8s(emu);
+                if(!ACCESS_FLAG(F_CF))
+                    R_EIP += tmp8s;
+                break;
             case 0x74:  /* JZ Ib */
                 tmp8s = Fetch8s(emu);
                 if(ACCESS_FLAG(F_ZF))
@@ -210,6 +240,26 @@ int Run(x86emu_t *emu)
             case 0x75:  /* JNZ Ib */
                 tmp8s = Fetch8s(emu);
                 if(!ACCESS_FLAG(F_ZF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7C: /* JL Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7D: /* JNL Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7E: /* JLE Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7F: /* JNLE Ib */
+                tmp8s = Fetch8s(emu);
+                if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)))
                     R_EIP += tmp8s;
                 break;
             
@@ -250,6 +300,12 @@ int Run(x86emu_t *emu)
                 op2->dword[0] = tmp32u;
                 break;
 
+            case 0x88:  /* MOV Eb, Gv */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea2, nextop);
+                GetG(emu, &op2, nextop);
+                op1->byte[0] = op2->byte[0];
+                break;
             case 0x89:  /* MOV Ed, Gv */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -299,8 +355,8 @@ int Run(x86emu_t *emu)
                     case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
                     case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
                     case 4:
-                    case 5: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
-                    case 6: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
+                    case 6: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
+                    case 5: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
                     case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
                 }
                 break;
@@ -334,17 +390,18 @@ int Run(x86emu_t *emu)
                 break;
 
             case 0xD1: /* GRP2 Eb,1 */
+            case 0xD3: /* GRP2 Eb,CL */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
-                tmp8u = 1;
+                tmp8u = (opcode==0xD1)?1:R_CL;
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
                     case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
                     case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
                     case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
-                    case 4:
-                    case 5: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
-                    case 6: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
+                    case 4: 
+                    case 6: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
+                    case 5: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
                     case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
                 }
                 break;
@@ -430,7 +487,5 @@ int Run(x86emu_t *emu)
                 emu->quit=1;
                 emu->error |= ERR_UNIMPL;
         }
-        if(emu->dec)
-            printf_log(LOG_NONE, "CPU Regs: %s\n", DumpCPURegs(emu));
     }
 }

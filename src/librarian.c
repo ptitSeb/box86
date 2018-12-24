@@ -56,6 +56,14 @@ uintptr_t CreateSymbol(lib_t *maplib, const char* name)
         addr = AddBridge(maplib->bridge, iFopV, vfprintf);
     } else if(strcmp(name, "__printf_chk")==0) {
         addr = AddBridge(maplib->bridge, iFvopV, vfprintf);
+    } else if(strcmp(name, "calloc")==0) {
+        addr = AddBridge(maplib->bridge, pFuu, calloc);
+    } else if(strcmp(name, "free")==0) {
+        addr = AddBridge(maplib->bridge, vFp, free);
+    } else if(strcmp(name, "putchar")==0) {
+        addr = AddBridge(maplib->bridge, iFi, putchar);
+    } else if(strcmp(name, "strtol")==0) {
+        addr = AddBridge(maplib->bridge, iFppi, strtol);
     }
     if(addr)
         AddSymbol(maplib, name, addr);

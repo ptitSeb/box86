@@ -173,7 +173,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 }
                 break;
             default:
-                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)));
+                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s (%p)\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), p);
         }
     }
     return 0;
