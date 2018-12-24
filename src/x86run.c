@@ -13,10 +13,13 @@
 
 int Run(x86emu_t *emu)
 {
+    printf_log(LOG_DEBUG, "Run X86, EIP=%p\n", emu, R_EIP);
     emu->quit = 0;
     while (!emu->quit)
     {
-        if(emu->dec) {
+        if(emu->dec && (
+                (emu->trace_end == 0) 
+             || ((R_EIP >= emu->trace_start) && (R_EIP < emu->trace_end))) ) {
             printf_log(LOG_NONE, "%s", DumpCPURegs(emu));
             if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
                 uint32_t a = *(uint32_t*)(R_EIP+3);
@@ -26,7 +29,7 @@ int Run(x86emu_t *emu)
                     printf_log(LOG_NONE, "%08p: Native call to %p\n", R_EIP, a);
                 }
             } else {
-                printf_log(LOG_NONE, "%08p: %s\n", R_EIP, DecodeX86Trace(emu->dec, R_EIP));
+                printf_log(LOG_NONE, "%s\n", DecodeX86Trace(emu->dec, R_EIP));
             }
         }
         uint8_t opcode = Fetch8(emu);
@@ -242,6 +245,16 @@ int Run(x86emu_t *emu)
                 if(!ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 break;
+            case 0x76:  /* JBE Ib */
+                tmp8s = Fetch8s(emu);
+                if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
+                    R_EIP += tmp8s;
+                break;
+            case 0x77:  /* JNBE Ib */
+                tmp8s = Fetch8s(emu);
+                if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
+                    R_EIP += tmp8s;
+                break;
             case 0x7C: /* JL Ib */
                 tmp8s = Fetch8s(emu);
                 if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))
@@ -325,6 +338,9 @@ int Run(x86emu_t *emu)
                 GetEd(emu, &op1, &ea2, nextop);
                 GetG(emu, &op2, nextop);
                 op2->dword[0] = (uint32_t)&op1->dword[0];
+                break;
+            
+            case 0x90: /* NOP */
                 break;
 
             case 0xA1: /* MOV EAX, Od */

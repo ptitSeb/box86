@@ -37,6 +37,7 @@ SET(ELFLOADER_SRC
     src/elfload_dump.c
     src/librarian.c
     src/stack.c
+    src/threads.c
     src/wrapper.c
     src/x86emu.c
     src/x86run.c
@@ -50,7 +51,7 @@ SET(ELFLOADER_SRC
 )
 
 add_executable(box86 ${ELFLOADER_SRC})
-target_link_libraries(box86 m dl rt)
+target_link_libraries(box86 m dl rt pthread)
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
@@ -75,4 +76,9 @@ add_test(test04 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86
 add_test(test05 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test05 -D TEST_ARGS2=7 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref05.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(test06 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test06 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref06.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )

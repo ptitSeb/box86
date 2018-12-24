@@ -5,6 +5,7 @@
 
 typedef struct {
     uintptr_t   offs;
+    uint32_t    sz;
     // need to track type of symbol?
     // need to track origin?
 } onelib_t;

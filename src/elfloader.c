@@ -301,8 +301,9 @@ void AddGlobalsSymbols(lib_t* maplib, elfheader_t* h)
         if(((h->SymTab[i].st_info == 18) || h->SymTab[i].st_info == 17) && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
-            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p\n", symname, offs);
-            AddSymbol(maplib, symname, offs);
+            uint32_t sz = h->SymTab[i].st_size;
+            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, offs, sz);
+            AddSymbol(maplib, symname, offs, sz);
         }
     }
 }

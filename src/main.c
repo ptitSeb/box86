@@ -129,7 +129,7 @@ int main(int argc, const char **argv, const char **env) {
     // init random seed
     srandom(time(NULL));
 
-    // check BOX86_loG debug level
+    // check BOX86_LOG debug level
     LoadLogEnv();
     
     // Create a new context
@@ -153,8 +153,7 @@ int main(int argc, const char **argv, const char **env) {
 
     p = getenv("BOX86_TRACE");
     if(p) {
-        setbuf(stdout, NULL);
-        if (strcmp(p, "1")==0)
+        if (strcmp(p, "0"))
             context->x86trace = 1;
     }
     if(context->x86trace) {
@@ -243,9 +242,20 @@ int main(int argc, const char **argv, const char **env) {
     // setup the stack...
     Push(context->emu, (uint32_t)context->argv);
     Push(context->emu, context->argc);
-    SetupX86Emu(context->emu);
+    SetupX86Emu(context->emu, NULL, NULL);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
+
+    p = getenv("BOX86_TRACE");
+    if(p) {
+        setbuf(stdout, NULL);
+        uintptr_t trace_start, trace_end;
+        if (strcmp(p, "1")==0)
+            SetTraceEmu(context->emu, 0, 0);
+        else if (GetSymbolStartEnd(context->maplib, p, &trace_start, &trace_end))
+            SetTraceEmu(context->emu, trace_start, trace_end);
+    }
+
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
     Run(context->emu);

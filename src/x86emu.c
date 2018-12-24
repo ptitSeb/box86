@@ -51,20 +51,34 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     return emu;
 }
 
-void SetupX86Emu(x86emu_t *emu)
+void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
 {
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
 
     // push "end emu" marker address
     PushExit(emu);
     // Setup the GS segment:
-    emu->globals = calloc(1, 256);  // arbitrary 256 byte size?
-    // calc canary...
-    uint8_t canary[4];
-    for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
-    canary[getrand(4)] = 0;
-    memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
-    printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
+    if(shared_global) {
+        emu->globals = globals;
+        emu->shared_global = shared_global;
+    } else {
+        emu->globals = calloc(1, 256);  // arbitrary 256 byte size?
+        // calc canary...
+        uint8_t canary[4];
+        for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
+        canary[getrand(4)] = 0;
+        memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
+        printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
+        emu->shared_global = (int*)calloc(1, sizeof(int));
+    }
+    (*emu->shared_global)++;
+}
+
+void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
+{
+    printf_log(LOG_INFO, "Setting trace only between %p and %p\n", trace_start, trace_end);
+    emu->trace_start = trace_start;
+    emu->trace_end = trace_end;
 }
 
 void FreeX86Emu(x86emu_t **x86emu)
@@ -74,8 +88,11 @@ void FreeX86Emu(x86emu_t **x86emu)
     printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *x86emu);
     if((*x86emu)->dec)
         DeleteX86TraceDecoder(&(*x86emu)->dec);
-    if((*x86emu)->globals)
-        free((*x86emu)->globals);
+    if((*x86emu)->shared_global && !(*(*x86emu)->shared_global)--) {
+        if((*x86emu)->globals)
+            free((*x86emu)->globals);
+        free((*x86emu)->shared_global);
+    }
     free(*x86emu);
     *x86emu = NULL;
 }

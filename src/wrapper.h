@@ -20,16 +20,24 @@ void    vFp(x86emu_t *emu, uintptr_t fnc);
 void    vFE(x86emu_t *emu, uintptr_t fnc);
 void    uFE(x86emu_t *emu, uintptr_t fnc);
 void    iFv(x86emu_t *emu, uintptr_t fnc);
+void    uFv(x86emu_t *emu, uintptr_t fnc);
+void    pFv(x86emu_t *emu, uintptr_t fnc);
 void    vFi(x86emu_t *emu, uintptr_t fnc);
 void    iFi(x86emu_t *emu, uintptr_t fnc);
 void    iFp(x86emu_t *emu, uintptr_t fnc);
+void    pFp(x86emu_t *emu, uintptr_t fnc);
 void    iFpp(x86emu_t *emu, uintptr_t fnc);
 void    iFppi(x86emu_t *emu, uintptr_t fnc);
 void    pFuu(x86emu_t *emu, uintptr_t fnc);
+void    iFii(x86emu_t *emu, uintptr_t fnc);
+void    iFip(x86emu_t *emu, uintptr_t fnc);
+void    iFuu(x86emu_t *emu, uintptr_t fnc);
+void    iFup(x86emu_t *emu, uintptr_t fnc);
 void    iFpv(x86emu_t *emu, uintptr_t fnc);
 void    iF1pV(x86emu_t *emu, uintptr_t fnc);
 void    iFopV(x86emu_t *emu, uintptr_t fnc);
 void    iFvopV(x86emu_t *emu, uintptr_t fnc);
+void	iFEpppp(x86emu_t *emu, uintptr_t fnc);
 void    iFEpippppp(x86emu_t *emu, uintptr_t fnc);   // this is __libc_start_main basically
 
 
