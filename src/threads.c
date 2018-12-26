@@ -20,14 +20,25 @@ typedef struct emuthread_s {
 	void		*stack;
 } emuthread_t;
 
-void* pthread_routine(void* p)
+static void pthread_clean_routine(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
-	Run(et->emu);
-	void* r = (void*)GetEAX(et->emu);
+
 	FreeX86Emu(&et->emu);
 	free(et->stack);
 	free(et);
+}
+
+static void* pthread_routine(void* p)
+{
+	void* r = NULL;
+	
+	pthread_cleanup_push(pthread_clean_routine, p);
+	emuthread_t *et = (emuthread_t*)p;
+	Run(et->emu);
+	r = (void*)GetEAX(et->emu);
+	pthread_cleanup_pop(1);
+
 	return r;
 }
 
