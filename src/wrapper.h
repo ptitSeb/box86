@@ -15,30 +15,46 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // 0 = constant 0, 1 = constant 1
 // o = stdout
 
+// void...
 void    vFv(x86emu_t *emu, uintptr_t fnc);
 void    vFp(x86emu_t *emu, uintptr_t fnc);
 void    vFE(x86emu_t *emu, uintptr_t fnc);
-void    uFE(x86emu_t *emu, uintptr_t fnc);
-void    iFv(x86emu_t *emu, uintptr_t fnc);
-void    uFv(x86emu_t *emu, uintptr_t fnc);
-void    pFv(x86emu_t *emu, uintptr_t fnc);
 void    vFi(x86emu_t *emu, uintptr_t fnc);
+
+// int32...
+void    iFv(x86emu_t *emu, uintptr_t fnc);
 void    iFi(x86emu_t *emu, uintptr_t fnc);
+void    iFu(x86emu_t *emu, uintptr_t fnc);
 void    iFp(x86emu_t *emu, uintptr_t fnc);
-void    pFp(x86emu_t *emu, uintptr_t fnc);
 void    iFpp(x86emu_t *emu, uintptr_t fnc);
 void    iFppi(x86emu_t *emu, uintptr_t fnc);
-void    pFuu(x86emu_t *emu, uintptr_t fnc);
+void    iFpip(x86emu_t *emu, uintptr_t fnc);
 void    iFii(x86emu_t *emu, uintptr_t fnc);
 void    iFip(x86emu_t *emu, uintptr_t fnc);
 void    iFuu(x86emu_t *emu, uintptr_t fnc);
 void    iFup(x86emu_t *emu, uintptr_t fnc);
 void    iFpv(x86emu_t *emu, uintptr_t fnc);
+void    iFppp(x86emu_t *emu, uintptr_t fnc);
 void    iF1pV(x86emu_t *emu, uintptr_t fnc);
 void    iFopV(x86emu_t *emu, uintptr_t fnc);
+void    iFuipp(x86emu_t *emu, uintptr_t fnc);
+void    iFpuup(x86emu_t *emu, uintptr_t fnc);
 void    iFvopV(x86emu_t *emu, uintptr_t fnc);
 void	iFEpppp(x86emu_t *emu, uintptr_t fnc);
 void    iFEpippppp(x86emu_t *emu, uintptr_t fnc);   // this is __libc_start_main basically
+
+// uint32
+void    uFE(x86emu_t *emu, uintptr_t fnc);
+void    uFv(x86emu_t *emu, uintptr_t fnc);
+void    uFp(x86emu_t *emu, uintptr_t fnc);
+void    uFpupp(x86emu_t *emu, uintptr_t fnc);
+
+// void*
+void    pFv(x86emu_t *emu, uintptr_t fnc);
+void    pFp(x86emu_t *emu, uintptr_t fnc);
+void    pFpp(x86emu_t *emu, uintptr_t fnc);
+void    pFuu(x86emu_t *emu, uintptr_t fnc);
+void    pFppp(x86emu_t *emu, uintptr_t fnc);
 
 
 #endif //__WRAPPER_H_

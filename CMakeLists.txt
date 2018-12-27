@@ -52,6 +52,7 @@ SET(ELFLOADER_SRC
 
     src/wrappedlibc.c
     src/wrappedlibpthread.c
+    src/wrappedlibrt.c
     src/wrappedldlinux.c
 )
 

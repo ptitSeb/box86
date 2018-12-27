@@ -42,7 +42,7 @@ int wrappedldlinux_get(library_t* lib, const char* name, uintptr_t *offs, uint32
 #define GOM(N, W) \
     if(strcmp(name, #N)==0) { \
         size = 12; \
-        addr = AddBridge(lib->priv.w.bridge, W, my##N); \
+        addr = AddBridge(lib->priv.w.bridge, W, my_##N); \
     } else
 #define GO2(N, W, O) \
     if(strcmp(name, #N)==0) { \
@@ -54,7 +54,7 @@ int wrappedldlinux_get(library_t* lib, const char* name, uintptr_t *offs, uint32
     if(strcmp(name, #N)==0) { \
         symbol=dlsym(lib->priv.w.lib, #N); \
         size = S; \
-        addr = AddBridge(lib->priv.w.bridge, W, symbol); \
+        addr = (uintptr_t)symbol; \
     } else
 #define END() {}
 

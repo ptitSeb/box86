@@ -56,7 +56,7 @@ int wrappedlibpthread_get(library_t* lib, const char* name, uintptr_t *offs, uin
     if(strcmp(name, #N)==0) { \
         symbol=dlsym(lib->priv.w.lib, #N); \
         size = S; \
-        addr = AddBridge(lib->priv.w.bridge, W, symbol); \
+        addr = (uintptr_t)symbol; \
     } else
 #define END() {}
 
