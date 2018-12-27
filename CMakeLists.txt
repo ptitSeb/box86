@@ -49,6 +49,7 @@ SET(ELFLOADER_SRC
     src/x86primop.c
     src/x86trace.c
     src/x86int3.c
+    src/x87emu_private.c
 
     src/wrappedlibc.c
     src/wrappedlibpthread.c
@@ -87,4 +88,9 @@ add_test(test05 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86
 add_test(test06 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test06 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref06.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(test07 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test07 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref07.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )

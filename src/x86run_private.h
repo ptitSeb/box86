@@ -17,4 +17,7 @@ void Run0F(x86emu_t *emu);
 void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);
 
+// fpu stuffs
+
+
 #endif //__X86RUN_PRIVATE_H_

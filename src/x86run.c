@@ -10,6 +10,7 @@
 #include "x86run_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
+#include "x87emu_private.h"
 
 int Run(x86emu_t *emu)
 {
@@ -44,6 +45,9 @@ int Run(x86emu_t *emu)
         int32_t tmp32s;
         uint64_t tmp64u;
         int64_t tmp64s;
+        float f;
+        double d;
+        long double ld;
         switch(opcode) {
             case 0x00:  /* ADD Eb,Gb */
                 nextop = Fetch8(emu);
@@ -419,6 +423,101 @@ int Run(x86emu_t *emu)
                     case 6: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
                     case 5: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
                     case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
+                }
+                break;
+            
+            case 0xD9: /* x87 */
+                nextop = Fetch8(emu);
+                switch((nextop>>3)&7) {
+                    case 0:     /* FLD ST0, Gd float */
+                        GetEd(emu, &op2, &ea2, nextop);
+                        *(uint32_t*)&f = op2->dword[0];
+                        fpu_do_push(emu);
+                        ST0.d = f;
+                        break;
+                    case 3:     /* FSTP Gd, ST0 float with partial alias on mod=3=>ST1 */
+                        GetEd(emu, &op1, &ea1, nextop);
+                        if((nextop>>6)==3)
+                            f = ST1.d;
+                        else
+                            f = ST0.d;
+                        fpu_do_pop(emu);
+                        op1->dword[0] = *(uint32_t*)&f;
+                        break;
+                    case 5:
+                        if(nextop==0xEE) {  /* FLDZ */
+                        fpu_do_push(emu);
+                        ST0.d = 0.0;
+                        } else if(nextop==0xE8) {  /* FLD1 */
+                        fpu_do_push(emu);
+                        ST0.d = 1.0;
+                        } else {
+                            printf_log(LOG_NONE, "Unimplemented Opcode D9 %02X %02X \n", nextop, Peek(emu, 0));
+                            emu->quit=1;
+                            emu->error |= ERR_UNIMPL;
+                        }
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode D9 %02X %02X \n", nextop, Peek(emu, 0));
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
+                }
+                break;
+
+            case 0xDB: /* x87 */
+                nextop = Fetch8(emu);
+                switch((nextop>>3)&7) {
+                    case 0: /* FILD ST0, Gd */
+                        GetEd(emu, &op2, &ea2, nextop);
+                        *(uint32_t*)&tmp32s = op2->dword[0];
+                        fpu_do_push(emu);
+                        ST0.d = tmp32s;
+                        break;
+                    case 7: /* FSTP float */
+                        GetEd(emu, &op1, &ea1, nextop);
+                        f = ST0.d;
+                        fpu_do_pop(emu);
+                        op1->dword[0] = *(uint32_t*)&f;
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode DB %02X %02X \n", nextop, Peek(emu, 0));
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
+                }
+                break;
+
+            case 0xDD: /* x87 */
+                nextop = Fetch8(emu);
+                switch((nextop>>3)&7) {
+                    case 3: /* FSTP double */
+                        GetEd(emu, &op1, &ea1, nextop);
+                        *(uint64_t*)&op1->dword[0] = ST0.ll;
+                        fpu_do_pop(emu);
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode DD %02X %02X \n", nextop, Peek(emu, 0));
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
+                }
+                break;
+            case 0xDE: /* x87 */
+                nextop = Fetch8(emu);
+                switch((nextop>>3)&7) {
+                    case 1: 
+                        if(nextop==0xC9) {  /* FMULP ST1, ST0 */
+                            d = ST0.d;
+                            fpu_do_pop(emu);
+                            ST0.d *= d;
+                        } else {
+                            printf_log(LOG_NONE, "Unimplemented Opcode DE %02X %02X \n", nextop, Peek(emu, 0));
+                            emu->quit=1;
+                            emu->error |= ERR_UNIMPL;
+                        }
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode DE %02X %02X \n", nextop, Peek(emu, 0));
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
                 }
                 break;
 

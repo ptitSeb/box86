@@ -40,6 +40,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
+    // setup fpu regs
 
     // if trace is activated
     if(context->x86trace) {
@@ -124,6 +125,18 @@ const char* DumpCPURegs(x86emu_t* emu)
     char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
     char tmp[50];
     buff[0] = '\0';
+    // start with FPU regs...
+    if(emu->fpu_stack) {
+        for (int i=0; i<emu->fpu_stack; i++) {
+            sprintf(tmp, "ST%d=%f", i, emu->fpu[(emu->top+i)&7].d);
+            strcat(buff, tmp);
+            int c = 10-strlen(tmp);
+            if(c<1) c=1;
+            while(c--) strcat(buff, " ");
+            if(i==3) strcat(buff, "\n");
+        }
+        strcat(buff, "\n");
+    }
     for (int i=_AX; i<=_DI; ++i) {
         sprintf(tmp, "%s=%08X ", regname[i], emu->regs[i].dword[0]);
         strcat(buff, tmp);
