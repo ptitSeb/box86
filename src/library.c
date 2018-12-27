@@ -14,11 +14,13 @@
 // create the native lib list
 #include "wrappedlibc.h"
 #include "wrappedlibpthread.h"
+#include "wrappedldlinux.h"
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini, wrapped##N##_get},
 wrappedlib_t wrappedlibs[] = {
     GO("libc.so.6", libc)
     GO("libpthread.so.0", libpthread)
+    GO("ld-linux.so.2", ldlinux)
 };
 #undef GO
 
