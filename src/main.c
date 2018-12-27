@@ -174,24 +174,24 @@ int main(int argc, const char **argv, const char **env) {
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist
     if(!context->argv[0]) {
-        printf_log(LOG_NONE, "Error, file is not found (check BOX86_PATH)\n", p);
+        printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n", p);
         FreeBox86Context(&context);
         return -1;
     }
     if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
-        printf_log(LOG_NONE, "Error, file %s is not found\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: file %s is not found\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
     FILE *f = fopen(context->argv[0], "rb");
     if(!f) {
-        printf_log(LOG_NONE, "Error, Cannot open %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, context->argv[0], 1);
     if(!elf_header) {
-        printf_log(LOG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
@@ -199,21 +199,21 @@ int main(int argc, const char **argv, const char **env) {
     int mainelf = AddElfHeader(context, elf_header);
 
     if(CalcLoadAddr(elf_header)) {
-        printf_log(LOG_NONE, "Error, reading elf header of %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
     }
     // allocate memory
     if(AllocElfMemory(elf_header)) {
-        printf_log(LOG_NONE, "Error, allocating memory for elf %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
     }
     // Load elf into memory
     if(LoadElfMemory(f, elf_header)) {
-        printf_log(LOG_NONE, "Error, loading in memory elf %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
@@ -222,20 +222,20 @@ int main(int argc, const char **argv, const char **env) {
     fclose(f);
     // Call librarian to load all dependant elf
     if(LoadNeededLib(elf_header, context->maplib)) {
-        printf_log(LOG_NONE, "Error, loading needed libs in elf %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
     // finalize relocations
     AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     if(RelocateElf(context->maplib, elf_header)) {
-        printf_log(LOG_NONE, "Error, relocating symbols in elf %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
     // get and alloc stack size and align
     if(CalcStackSize(context)) {
-        printf_log(LOG_NONE, "Error, allocating stack\n");
+        printf_log(LOG_NONE, "Error: allocating stack\n");
         FreeBox86Context(&context);
         return -1;
     }
