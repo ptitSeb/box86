@@ -6,23 +6,32 @@
 #include "debug.h"
 #include "librarian.h"
 #include "librarian_private.h"
+#include "library.h"
 #include "x86emu.h"
 
 #include "bridge.h"
 
-KHASH_MAP_IMPL_STR(maplib_t, onelib_t);
+KHASH_MAP_IMPL_STR(mapsymbols, onesymbol_t);
 
 lib_t *NewLibrarian()
 {
     lib_t *maplib = (lib_t*)calloc(1, sizeof(lib_t));
-    maplib->maplib = kh_init(maplib_t);
+    
+    maplib->mapsymbols = kh_init(mapsymbols);
     maplib->bridge = NewBridge();
 
     return maplib;
 }
 void FreeLibrarian(lib_t **maplib)
 {
-    kh_destroy(maplib_t, (*maplib)->maplib);
+    kh_destroy(mapsymbols, (*maplib)->mapsymbols);
+    // should that be in reverse order?
+    for (int i=0; i<(*maplib)->libsz; ++i) {
+        FreeLibrary(&(*maplib)->libraries[i].lib);
+    }
+    free((*maplib)->libraries);
+    (*maplib)->libraries = NULL;
+    (*maplib)->libsz = (*maplib)->libcap = 0;
 
     if((*maplib)->bridge)
         FreeBridge(&(*maplib)->bridge);
@@ -32,81 +41,80 @@ void FreeLibrarian(lib_t **maplib)
 
 }
 
-void my__stack_chk_fail(x86emu_t* emu)
+kh_mapsymbols_t* GetMapSymbol(lib_t* maplib)
 {
-    StopEmu(emu, "Stack is corrupted, abborting");
+    return maplib->mapsymbols;
 }
 
-int32_t my__libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
-    int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
-    void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
-uint32_t LibSyscall(x86emu_t *emu); // implemented in x86syscall.c
-int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg); //implemented in thread.c
-
-uintptr_t CreateSymbol(lib_t *maplib, const char* name)
+int AddNeededLib(lib_t* maplib, const char* path)
 {
-    // look for symbols that can be created
-    uintptr_t addr = 0;
-    // libc
-    if(strcmp(name, "__stack_chk_fail")==0) {
-        addr = AddBridge(maplib->bridge, vFE, my__stack_chk_fail);
-    } else if(strcmp(name, "__libc_start_main")==0) {
-        addr = AddBridge(maplib->bridge, iFEpippppp, my__libc_start_main);
-    } else if(strcmp(name, "syscall")==0) {
-        addr = AddBridge(maplib->bridge, uFE, LibSyscall);
-    } else if(strcmp(name, "puts")==0) {
-        addr = AddBridge(maplib->bridge, iFp, puts);
-    } else if(strcmp(name, "printf")==0) {
-        addr = AddBridge(maplib->bridge, iFopV, vfprintf);
-    } else if(strcmp(name, "__printf_chk")==0) {
-        addr = AddBridge(maplib->bridge, iFvopV, vfprintf);
-    } else if(strcmp(name, "calloc")==0) {
-        addr = AddBridge(maplib->bridge, pFuu, calloc);
-    } else if(strcmp(name, "free")==0) {
-        addr = AddBridge(maplib->bridge, vFp, free);
-    } else if(strcmp(name, "putchar")==0) {
-        addr = AddBridge(maplib->bridge, iFi, putchar);
-    } else if(strcmp(name, "strtol")==0) {
-        addr = AddBridge(maplib->bridge, iFppi, strtol);
-    } else if(strcmp(name, "strerror")==0) {
-        addr = AddBridge(maplib->bridge, pFv, strerror);
-    } //pthread
-    else if(strcmp(name, "pthread_self")==0) {
-        addr = AddBridge(maplib->bridge, uFv, pthread_self);
-    } else if(strcmp(name, "pthread_create")==0) {
-        addr = AddBridge(maplib->bridge, iFEpppp, my_pthread_create);
-    } else if(strcmp(name, "pthread_equal")==0) {
-        addr = AddBridge(maplib->bridge, iFuu, pthread_equal);
-    } else if(strcmp(name, "pthread_join")==0) {
-        addr = AddBridge(maplib->bridge, iFup, pthread_join);
+    printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
+    // first check if lib is already loaded
+    for(int i=0; i<maplib->libsz; ++i) {
+        onelib_t *onelib = &maplib->libraries[i];
+        if(IsSameLib(onelib->lib, path)) {
+            printf_log(LOG_DEBUG, "Already present in maplib => success\n", path);
+            return 0;
+        }
+    }
+    // load a new one
+    library_t *lib = NewLibrary(path);
+    if(!lib) {
+        printf_log(LOG_DEBUG, "Faillure to create lib => fail\n", path);
+        return 1;   //Error
     }
     
-    if(addr)
-        AddSymbol(maplib, name, addr, 12);
-    return addr;
+    // add lib now
+    if (maplib->libsz == maplib->libcap) {
+        maplib->libcap += 8;
+        maplib->libraries = (onelib_t*)realloc(maplib->libraries, maplib->libcap*sizeof(onelib_t));
+    }
+    maplib->libraries[maplib->libsz].lib = lib;
+    maplib->libraries[maplib->libsz].name = GetNameLib(lib);
+    ++maplib->libsz;
+    printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n", path);
+    
+    return 0;
 }
 
-void AddSymbol(lib_t *maplib, const char* name, uintptr_t addr, uint32_t sz)
+uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
+{
+    uintptr_t start = 0, end = 0;
+    for(int i=0; i<maplib->libsz; ++i) {
+        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end))
+            return start;
+    }
+    return 0;
+}
+
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
+{
+    for(int i=0; i<maplib->libsz; ++i) {
+        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+            return 1;
+    }
+    return 0;
+}
+
+void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
 {
     int ret;
-    khint_t k = kh_put(maplib_t, maplib->maplib, name, &ret);
-    kh_value(maplib->maplib, k).offs = addr;
-    kh_value(maplib->maplib, k).sz = sz;
+    khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
+    kh_value(mapsymbols, k).offs = addr;
+    kh_value(mapsymbols, k).sz = sz;
 }
-uintptr_t FindSymbol(lib_t *maplib, const char* name)
+uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name)
 {
-    khint_t k = kh_get(maplib_t, maplib->maplib, name);
-    if(k==kh_end(maplib->maplib))
-        return CreateSymbol(maplib, name);
-    return kh_val(maplib->maplib, k).offs;
+    khint_t k = kh_get(mapsymbols, mapsymbols, name);
+    return kh_val(mapsymbols, k).offs;
 }
 
-int GetSymbolStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr_t* end)
+int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    khint_t k = kh_get(maplib_t, maplib->maplib, name);
-    if(k==kh_end(maplib->maplib))
+    khint_t k = kh_get(mapsymbols, mapsymbols, name);
+    if(k==kh_end(mapsymbols))
         return 0;
-    *start = kh_val(maplib->maplib, k).offs;
-    *end = *start + kh_val(maplib->maplib, k).sz;
+    *start = kh_val(mapsymbols, k).offs;
+    *end = *start + kh_val(mapsymbols, k).sz;
     return 1;
 }

@@ -16,6 +16,7 @@ typedef struct box86context_s {
 
     int                 x86trace;
     zydis_t             *zydis;         // dlopen the zydis dissasembler
+    void*               box86lib;       // dlopen on box86 itself
 
     int                 argc;
     char**              argv;

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#include <dlfcn.h>
 
 #include "box86context.h"
 #include "elfloader.h"
@@ -17,6 +19,8 @@ box86context_t *NewBox86Context(int argc)
 
     context->maplib = NewLibrarian();
 
+    context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+
     context->argc = argc;
     context->argv = (char**)calloc(context->argc, sizeof(char*));
 
@@ -30,6 +34,7 @@ box86context_t *CopyBox86Context(box86context_t* from)
     box86context_t *context = (box86context_t*)malloc(sizeof(box86context_t));
 
     context->maplib = NewLibrarian();   // todo!
+    context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
 
     CopyCollection(&context->box86_path, &from->box86_path);
     CopyCollection(&context->box86_ld_lib, &context->box86_ld_lib);
@@ -59,6 +64,9 @@ void FreeBox86Context(box86context_t** context)
     FreeCollection(&(*context)->box86_ld_lib);
     if((*context)->zydis)
         DeleteX86Trace(*context);
+
+    if((*context)->box86lib)
+        dlclose((*context)->box86lib);
 
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);

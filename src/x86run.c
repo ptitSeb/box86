@@ -194,7 +194,7 @@ int Run(x86emu_t *emu)
                 emu->regs[tmp8u].dword[0] = Pop(emu);
                 break;
             case 0x65:  /* GS: */
-                // set a new decoder...
+                // TODO: set a new decoder function?
                 opcode = Fetch8(emu);
                 switch(opcode) {
                     case 0x33: /* XOR Gd,Ed */

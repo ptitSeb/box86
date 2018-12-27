@@ -236,10 +236,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
             printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", h->jmprel, h->pltrel, h->pltsz, h->pltent);
         }
         if(h->DynStrTab && h->szDynStrTab) {
-            fseek(f, (uint32_t)h->DynStrTab, SEEK_SET);
-            h->DynStrTab = (char*)calloc(h->szDynStrTab, sizeof(char));
-            fread(h->DynStrTab, sizeof(char), h->szDynStrTab, f);
-            DumpDynamicNeeded(h);
+            //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
         }
     }
 

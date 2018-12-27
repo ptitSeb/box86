@@ -221,8 +221,13 @@ int main(int argc, const char **argv, const char **env) {
     // can close the file now
     fclose(f);
     // Call librarian to load all dependant elf
-    AddGlobalsSymbols(context->maplib, elf_header);
+    if(LoadNeededLib(elf_header, context->maplib)) {
+        printf_log(LOG_NONE, "Error, loading needed libs in elf %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
     // finalize relocations
+    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error, relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
@@ -252,7 +257,7 @@ int main(int argc, const char **argv, const char **env) {
         uintptr_t trace_start, trace_end;
         if (strcmp(p, "1")==0)
             SetTraceEmu(context->emu, 0, 0);
-        else if (GetSymbolStartEnd(context->maplib, p, &trace_start, &trace_end))
+        else if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end))
             SetTraceEmu(context->emu, trace_start, trace_end);
     }
 

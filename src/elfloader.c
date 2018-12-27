@@ -25,7 +25,6 @@ void FreeElfHeader(elfheader_t** head)
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);
-    free(h->DynStrTab);
     FreeElfMemory(h);
     free(h);
 
@@ -160,7 +159,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 *p = offs;
                 break;
             case R_386_JMP_SLOT:
-                offs = FindSymbol(maplib, symname);
+                offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Warning, Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
                 } else {
@@ -294,7 +293,7 @@ uintptr_t GetLastByte(elfheader_t* h)
     return (uintptr_t)h->memory + h->delta + h->memsz;
 }
 
-void AddGlobalsSymbols(lib_t* maplib, elfheader_t* h)
+void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
     for (int i=0; i<h->numSymTab; ++i) {
         // TODO: this "17" & "18" is probably defined somewhere
@@ -303,7 +302,34 @@ void AddGlobalsSymbols(lib_t* maplib, elfheader_t* h)
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, offs, sz);
-            AddSymbol(maplib, symname, offs, sz);
+            AddSymbol(mapsymbols, symname, offs, sz);
         }
     }
+}
+
+/*
+$ORIGIN – Provides the directory the object was loaded from. This token is typical
+used for locating dependencies in unbundled packages. For more details of this
+token expansion, see “Locating Associated Dependencies”
+$OSNAME – Expands to the name of the operating system (see the uname(1) man
+page description of the -s option). For more details of this token expansion, see
+“System Specific Shared Objects”
+$OSREL – Expands to the operating system release level (see the uname(1) man
+page description of the -r option). For more details of this token expansion, see
+“System Specific Shared Objects”
+$PLATFORM – Expands to the processor type of the current machine (see the
+uname(1) man page description of the -i option). For more details of this token
+expansion, see “System Specific Shared Objects”
+*/
+int LoadNeededLib(elfheader_t* h, lib_t *maplib)
+{
+   DumpDynamicNeeded(h);
+   for (int i=0; i<h->numDynamic; ++i)
+        if(h->Dynamic[i].d_tag==DT_NEEDED) {
+            char *needed = h->DynStrTab+h->Dynamic[i].d_un.d_val;
+            // TODO: Add LD_LIBRARY_PATH and RPATH Handling
+            if(AddNeededLib(maplib, needed))
+                return 1;   //error...
+        }
+    return 0;
 }

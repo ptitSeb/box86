@@ -35,6 +35,7 @@ SET(ELFLOADER_SRC
     src/elfloader.c
     src/elfparser.c
     src/elfload_dump.c
+    src/library.c
     src/librarian.c
     src/stack.c
     src/threads.c
@@ -48,6 +49,9 @@ SET(ELFLOADER_SRC
     src/x86primop.c
     src/x86trace.c
     src/x86int3.c
+
+    src/wrappedlibc.c
+    src/wrappedlibpthread.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})
