@@ -52,6 +52,7 @@ SET(ELFLOADER_SRC
 
     src/wrappedlibc.c
     src/wrappedlibpthread.c
+    src/wrappedldlinux.c
 )
 
 add_executable(box86 ${ELFLOADER_SRC})
