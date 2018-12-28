@@ -166,7 +166,7 @@ const char* DumpPHEntry(Elf32_Phdr *e)
 
 const char* DumpRelType(int t)
 {
-    static char buff[20];
+    static char buff[50];
     memset(buff, 0, sizeof(buff));
     switch(t) {
         case R_386_NONE: sprintf(buff, "type: %s", "R_386_NONE"); break;
