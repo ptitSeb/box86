@@ -60,6 +60,8 @@ SET(ELFLOADER_SRC
 add_executable(box86 ${ELFLOADER_SRC})
 target_link_libraries(box86 m dl rt pthread)
 
+target_link_libraries(box86 -Wl,-Ttext-segment,0xA8000000)
+
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/box86 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref01.txt

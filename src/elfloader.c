@@ -327,7 +327,7 @@ int LoadNeededLib(elfheader_t* h, lib_t *maplib)
    DumpDynamicNeeded(h);
    for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
-            char *needed = h->DynStrTab+h->Dynamic[i].d_un.d_val;
+            char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
             if(AddNeededLib(maplib, needed)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
