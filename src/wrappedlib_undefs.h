@@ -16,6 +16,9 @@
 // data, Weak (type V)
 #undef DATAV
 
+// data, Uninitialized (type B)
+#undef DATAB
+
 // End marker
 #undef END
 
