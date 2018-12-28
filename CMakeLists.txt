@@ -50,6 +50,7 @@ SET(ELFLOADER_SRC
     src/x86trace.c
     src/x86int3.c
     src/x87emu_private.c
+    src/x87run.c
 
     src/wrappedlibc.c
     src/wrappedlibpthread.c

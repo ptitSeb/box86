@@ -5,6 +5,10 @@
 #include "regs.h"
 typedef struct x86emu_s x86emu_t;
 
+void RunD9(x86emu_t *emu);
+void RunDB(x86emu_t *emu);
+void RunDD(x86emu_t *emu);
+void RunDE(x86emu_t *emu);
 
 #define ST0 emu->fpu[emu->top]
 #define ST1 emu->fpu[(emu->top+1)&7]
