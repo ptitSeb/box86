@@ -58,6 +58,7 @@ typedef void*       (*pFp_t)(void*);
 typedef void*       (*pFu_t)(uint32_t);
 typedef void*       (*pFpp_t)(void*, void*);
 typedef void*       (*pFuu_t)(uint32_t, uint32_t);
+typedef void*       (*pFppu_t)(void*, void*, uint32_t);
 typedef void*       (*pFppp_t)(void*, void*, void*);
 
 // float....

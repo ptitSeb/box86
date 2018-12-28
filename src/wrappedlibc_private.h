@@ -1600,7 +1600,7 @@ DATA(stdout, 4)
 // strcasecmp_l // Weak
 // strcasestr   // Weak
 // __strcasestr
-// strcat
+GO(strcat, pFpp)
 // __strcat_chk
 // strchr
 // strchrnul    // Weak
@@ -1632,7 +1632,7 @@ GO(strftime, uFpupp)
 // strncasecmp  // Weak
 // __strncasecmp_l
 // strncasecmp_l    // Weak
-// strncat
+GO(strncat, pFppu)
 // __strncat_chk
 // strncmp
 // strncpy
