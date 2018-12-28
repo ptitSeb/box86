@@ -56,8 +56,6 @@ void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
 {
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
 
-    // push "end emu" marker address
-    PushExit(emu);
     // Setup the GS segment:
     if(shared_global) {
         emu->globals = globals;

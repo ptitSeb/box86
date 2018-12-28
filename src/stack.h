@@ -7,6 +7,7 @@ typedef struct box86context_s box86context_t;
 typedef struct x86emu_s x86emu_t;
 
 int CalcStackSize(box86context_t *context);
+void SetupInitialStack(box86context_t *context);
 
 uint32_t Pop(x86emu_t *emu);
 void Push(x86emu_t *emu, uint32_t v);

@@ -261,7 +261,6 @@ int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *
     //TODO: register rtld_fini
     //TODO: register fini
     if(init) {
-        Push(emu, argc);
         PushExit(emu);
         R_EIP=(uint32_t)*init;
         printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
