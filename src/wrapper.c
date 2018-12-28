@@ -46,6 +46,7 @@ typedef int32_t     (*iFuipp_t)(uint32_t, int32_t, void*, void*);
 typedef int32_t     (*iFEpppp_t)(x86emu_t*, void*, void*, void*, void*);
 typedef int32_t     (*iFpiuuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
+typedef int32_t     (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 
 // uint32....
 typedef uint32_t    (*uFv_t)();
@@ -63,6 +64,8 @@ typedef void*       (*pFpp_t)(void*, void*);
 typedef void*       (*pFuu_t)(uint32_t, uint32_t);
 typedef void*       (*pFppu_t)(void*, void*, uint32_t);
 typedef void*       (*pFppp_t)(void*, void*, void*);
+typedef void*       (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t);
+typedef void*       (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
 
 // float....
 typedef float       (*fFf_t)(float);

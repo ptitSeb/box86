@@ -7,6 +7,8 @@ GO(pFuu, u32(0), u32(4))
 GO(pFpp, p(0), p(4))
 GO(pFppu, p(0), p(4), u32(8))
 GO(pFppp, p(0), p(4), p(8))
+GO(pFppiiuuui, p(0), p(4), i32(8), i32(12), u32(16), u32(20), u32(24), i32(28))
+GO(pFppiiuuuipii, p(0), p(4), i32(8), i32(12), u32(16), u32(20), u32(24), i32(28), p(32), i32(36), i32(40))
 
 #else
 #error Meh

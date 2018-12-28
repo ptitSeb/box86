@@ -391,7 +391,7 @@ DATAB(_XFreeMutex_fn, 4)
 // XGetIconName
 // XGetIconSizes
 // XGetICValues
-// XGetImage
+GO(XGetImage, pFppiiuuui)
 // XGetIMValues
 // XGetInputFocus
 // XGetKeyboardControl
@@ -412,7 +412,7 @@ DATAB(_XFreeMutex_fn, 4)
 // XGetSelectionOwner
 // XGetSizeHints
 // XGetStandardColormap
-// XGetSubImage
+GO(XGetSubImage, pFppiiuuuipii)
 // XGetTextProperty
 // XGetTransientForHint
 // XGetVisualInfo
@@ -826,7 +826,7 @@ DATAB(_XLockMutex_fn, 4)
 // XProtocolVersion
 // XPutBackEvent
 // _XPutBackEvent
-// XPutImage
+GO(XPutImage, iFppppiiiiuu)
 // XPutPixel
 // XQLength
 // XQueryBestCursor
