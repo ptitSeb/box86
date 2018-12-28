@@ -186,8 +186,8 @@
 // fmin // Weak
 // fminf    // Weak
 // fminl    // Weak
-// fmod // Weak
-// fmodf    // Weak
+GOW(fmod, dFdd)
+GOW(fmodf, fFff)
 // __fmodf_finite
 // __fmod_finite
 // fmodl    // Weak

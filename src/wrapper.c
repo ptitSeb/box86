@@ -31,6 +31,7 @@ typedef int32_t     (*iFv_t)();
 typedef int32_t     (*iFi_t)(int32_t);
 typedef int32_t     (*iFp_t)(void*);
 typedef int32_t     (*iFu_t)(uint32_t);
+typedef int32_t     (*iFEp_t)(x86emu_t*, void*);
 typedef int32_t     (*iFii_t)(int32_t, int32_t);
 typedef int32_t     (*iFip_t)(int32_t, void*);
 typedef int32_t     (*iFpi_t)(void*, int32_t);
@@ -38,11 +39,14 @@ typedef int32_t     (*iFpp_t)(void*, void*);
 typedef int32_t     (*iFuu_t)(uint32_t, uint32_t);
 typedef int32_t     (*iFup_t)(uint32_t, void*);
 typedef int32_t     (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t     (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t     (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t     (*iFipp_t)(int, void*, void*);
 typedef int32_t     (*iFppp_t)(void*, void*, void*);
+typedef int32_t     (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t     (*iFpuup_t)(void*, uint32_t, uint32_t, void*);
 typedef int32_t     (*iFuipp_t)(uint32_t, int32_t, void*, void*);
+typedef int32_t     (*iFEpipp_t)(x86emu_t*, void*, int32_t, void*, void*);
 typedef int32_t     (*iFEpppp_t)(x86emu_t*, void*, void*, void*, void*);
 typedef int32_t     (*iFpiuuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
@@ -59,7 +63,9 @@ typedef uint32_t    (*uFpuppu_t)(void*, uint32_t, void*, void*, uint32_t);
 // void*....
 typedef void*       (*pFv_t)();
 typedef void*       (*pFp_t)(void*);
+typedef void*       (*pFEp_t)(x86emu_t*, void*);
 typedef void*       (*pFu_t)(uint32_t);
+typedef void*       (*pFip_t)(int32_t, void*);
 typedef void*       (*pFpp_t)(void*, void*);
 typedef void*       (*pFuu_t)(uint32_t, uint32_t);
 typedef void*       (*pFppu_t)(void*, void*, uint32_t);
@@ -69,10 +75,12 @@ typedef void*       (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t,
 
 // float....
 typedef float       (*fFf_t)(float);
+typedef float       (*fFff_t)(float, float);
 typedef float       (*fFppu_t)(void*, void*, uint32_t);
 
 // double....
 typedef double      (*dFd_t)(double);
+typedef double      (*dFdd_t)(double, double);
 typedef double      (*dFppu_t)(void*, void*, uint32_t);
 
 // long double....

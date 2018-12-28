@@ -14,17 +14,17 @@ DATAB(alsa_lisp_nil, 4)
 // alsa_lisp_seq_next
 // alsa_lisp_seq_pointer
 DATAB(alsa_lisp_t, 4)
-// snd_asoundlib_version
+GO(snd_asoundlib_version, pFv)
 // snd_async_add_ctl_handler
-// snd_async_add_handler
-// snd_async_add_pcm_handler
+GOM(snd_async_add_handler, iFEpipp)
+GOM(snd_async_add_pcm_handler, iFEp)
 // snd_async_add_timer_handler
 // snd_async_del_handler
-// snd_async_handler_get_callback_private
+GOM(snd_async_handler_get_callback_private, pFEp)
 // snd_async_handler_get_ctl
-// snd_async_handler_get_fd
+GO(snd_async_handler_get_fd, iFp)
 // snd_async_handler_get_pcm
-// snd_async_handler_get_signo
+GO(snd_async_handler_get_signo, iFp)
 // snd_async_handler_get_timer
 // snd_atomic_read_wait
 // snd_card_get_index
@@ -427,13 +427,13 @@ DATAB(__snd_hwdep_hw_open_dlsym_hwdep_001, 4)
 // snd_hwdep_read
 // snd_hwdep_type
 // snd_hwdep_write
-// snd_input_buffer_open
-// snd_input_close
+GO(snd_input_buffer_open, iFppu)
+GO(snd_input_close, iFp)
 // snd_input_getc
 // snd_input_gets
 // snd_input_scanf
-// snd_input_stdio_attach
-// snd_input_stdio_open
+GO(snd_input_stdio_attach, iFppp)
+GO(snd_input_stdio_open, iFppp)
 // snd_input_ungetc
 // snd_instr_fm_convert_from_stream
 // snd_instr_fm_convert_to_stream
@@ -474,7 +474,7 @@ DATAB(__snd_hwdep_hw_open_dlsym_hwdep_001, 4)
 // snd_instr_simple_free
 // snd_is_local
 DATA(snd_lib_error, 4)
-// snd_lib_error_set_handler
+GOM(snd_lib_error_set_handler, iFEp)
 // snd_lib_error_set_local
 // snd_midi_event_decode
 // snd_midi_event_encode
@@ -1524,10 +1524,10 @@ DATAB(__snd_seq_hw_open_dlsym_seq_001, 4)
 // snd_seq_type
 // snd_seq_unset_bit
 // snd_seq_unsubscribe_port
-// snd_shm_area_create
-// snd_shm_area_destroy
+GO(snd_shm_area_create, pFip)
+GO(snd_shm_area_destroy, iFp)
 // snd_shm_area_destructor
-// snd_shm_area_share
+GO(snd_shm_area_share, pFp)
 // snd_spcm_init
 // snd_spcm_init_duplex
 // snd_spcm_init_get_params
@@ -1639,7 +1639,8 @@ DATAB(__snd_timer_query_hw_open_dlsym_timer_query_001, 4)
 // snd_use_case_mgr_reload
 // snd_use_case_mgr_reset
 // snd_use_case_set
-// snd_user_file
+GO(snd_user_file, iFpp)
+
 END()
 
 #else

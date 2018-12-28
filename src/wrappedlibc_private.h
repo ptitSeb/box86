@@ -121,7 +121,7 @@ DATA(__check_rhosts_file, 4)
 // chown    // Weak
 // chroot
 // clearenv // Weak
-// clearerr
+GO(clearerr, vFp)
 // clearerr_unlocked
 // clnt_broadcast
 // clnt_create
@@ -291,9 +291,9 @@ DATAV(_environ, 4)
 // fdetach
 // fdopen
 // fdopendir    // Weak
-// feof // Weak
+GOW(feof, iFp)
 // feof_unlocked
-// ferror   // Weak
+GOW(ferror, iFp)
 // ferror_unlocked
 // fexecve
 // fflush   // Weak
@@ -323,7 +323,7 @@ DATAV(_environ, 4)
 // fgetws_unlocked
 // __fgetws_unlocked_chk
 // fgetxattr
-// fileno
+GO(fileno, iFp)
 // fileno_unlocked  // Weak
 // finite   // Weak
 // __finite
