@@ -12,6 +12,11 @@
 #include "x86primop.h"
 #include "x86trace.h"
 
+#define PI		3.14159265358979323846
+#define L2E		1.4426950408889634
+#define L2T		3.3219280948873623
+#define LN2		0.69314718055994531
+#define LG2		0.3010299956639812
 
 void RunD9(x86emu_t *emu)
 {
@@ -40,15 +45,32 @@ void RunD9(x86emu_t *emu)
             break;
         case 5:
             if(nextop==0xEE) {  /* FLDZ */
-            fpu_do_push(emu);
-            ST0.d = 0.0;
+                fpu_do_push(emu);
+                ST0.d = 0.0;
             } else if(nextop==0xE8) {  /* FLD1 */
-            fpu_do_push(emu);
-            ST0.d = 1.0;
-            } else {
-                printf_log(LOG_NONE, "Unimplemented Opcode D9 %02X %02X \n", nextop, Peek(emu, 0));
-                emu->quit=1;
-                emu->error |= ERR_UNIMPL;
+                fpu_do_push(emu);
+                ST0.d = 1.0;
+            } else if(nextop==0xE9) {  /* FLDL2T */
+                fpu_do_push(emu);
+                ST0.d = L2T;
+            } else if(nextop==0xEA) {  /* FLDL2E */
+                fpu_do_push(emu);
+                ST0.d = L2E;
+            } else if(nextop==0xEB) {  /* FLDPI */
+                fpu_do_push(emu);
+                ST0.d = PI;
+            } else if(nextop==0xEC) {  /* FLDLG2 */
+                fpu_do_push(emu);
+                ST0.d = LG2;
+            } else if(nextop==0xED) {  /* FLDLN2 */
+                fpu_do_push(emu);
+                ST0.d = LN2;
+            } else {    /* FLDCW */
+                GetEw(emu, &op1, &ea1, nextop);
+                emu->cw = op1->word[0];
+                // do something with cw?
+                emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
+
             }
             break;
         default:
@@ -74,6 +96,15 @@ void RunDB(x86emu_t *emu)
             *(uint32_t*)&tmp32s = op2->dword[0];
             fpu_do_push(emu);
             ST0.d = tmp32s;
+            break;
+        case 4: /* group */
+            if(nextop==0xE3) {    /* FNINIT */
+                reset_fpu(emu);
+            } else {
+                printf_log(LOG_NONE, "Unimplemented Opcode DB %02X %02X \n", nextop, Peek(emu, 0));
+                emu->quit=1;
+                emu->error |= ERR_UNIMPL;
+            }
             break;
         case 7: /* FSTP float */
             GetEd(emu, &op1, &ea1, nextop);

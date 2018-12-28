@@ -33,6 +33,11 @@ void Run66(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 op1->word[0] = op2->word[0];
                 break;
+
+            case 0xA1: /* MOV AX, Ow */
+                R_AX = *(uint16_t*)Fetch32(emu);
+                break;
+
             case 0xC7: /* MOV Ew,Iw */
                 nextop = Fetch8(emu);
                 GetEw(emu, &op1, &ea2, nextop);

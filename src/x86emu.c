@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "x86emu.h"
 #include "x86emu_private.h"
+#include "x87emu_private.h"
 #include "box86context.h"
 #include "x86trace.h"
 
@@ -41,6 +42,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     R_EIP = start;
     R_ESP = stack + stacksize;
     // setup fpu regs
+    reset_fpu(emu);
 
     // if trace is activated
     if(context->x86trace) {

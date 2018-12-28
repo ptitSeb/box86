@@ -16,4 +16,6 @@ void RunDE(x86emu_t *emu);
 void fpu_do_push(x86emu_t* emu);
 void fpu_do_pop(x86emu_t* emu);
 
+void reset_fpu(x86emu_t* emu);
+
 #endif //__X87RUN_PRIVATE_H_

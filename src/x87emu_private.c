@@ -23,9 +23,18 @@ void fpu_do_pop(x86emu_t* emu)
     emu->top = (emu->top+1)&7;
     --emu->fpu_stack;
     if(emu->fpu_stack < 0) {// underflow
-        printf_log(LOG_NONE, "Error: FPU Stack uderflow\n");    // probably better to raise something
+        printf_log(LOG_NONE, "Error: FPU Stack underflow\n");    // probably better to raise something
         emu->quit = 1;
         return;
     }
 
+}
+
+void reset_fpu(x86emu_t* emu)
+{
+    memset(emu->fpu, 0, sizeof(emu->fpu));
+    memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
+    emu->cw = 0x37F;
+    emu->top = 0;
+    emu->fpu_stack = 0;
 }
