@@ -13,7 +13,7 @@
 
 int wrappedlibm_init(library_t* lib)
 {
-    lib->priv.w.lib = dlopen("ld-linux.so.2", RTLD_NOW);
+    lib->priv.w.lib = dlopen("libm.so.6", RTLD_NOW);
     if(!lib->priv.w.lib) {
         return -1;
     }
