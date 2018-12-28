@@ -28,7 +28,7 @@
 // __aeabi_memset
 // __aeabi_memset4
 // __aeabi_memset8
-DATA(__after_morecore_hook, 4); // type V
+DATAV(__after_morecore_hook, 4)
 // alarm
 // alphasort
 // alphasort64
@@ -58,7 +58,7 @@ DATA(argp_err_exit_status, 4)
 // __argz_stringify
 // argz_stringify   // Weak
 GO(asctime, pFp)
-GO(asctime_r, pFpp) // Weak
+GOW(asctime_r, pFpp)
 // asprintf // Weak
 // __asprintf
 // __asprintf_chk
@@ -97,7 +97,7 @@ GO(asctime_r, pFpp) // Weak
 // btowc    // Weak
 // bzero    // Weak
 // __bzero
-GO(calloc, pFuu)    // Weak
+GOW(calloc, pFuu)
 // callrpc
 // canonicalize_file_name   // Weak
 // capget
@@ -168,7 +168,7 @@ GO(ctime_r, pFpp)
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
-DATA(daylight, 4)   // type V
+DATAV(daylight, 4)
 // __daylight   // type B
 // dcgettext    // Weak
 // __dcgettext
@@ -227,8 +227,8 @@ DATA(daylight, 4)   // type V
 // endusershell
 // endutent // Weak
 // endutxent
-DATA(environ, 4)    // type V
-DATA(_environ, 4)   // type V
+DATAV(environ, 4)
+DATAV(_environ, 4)
 // __environ    // type B
 // envz_add
 // envz_entry
@@ -367,7 +367,7 @@ DATA(_environ, 4)   // type V
 // __fread_unlocked_chk
 GO(free, vFp)
 // freeaddrinfo
-DATA(__free_hook, 4)    // type V
+DATAV(__free_hook, 4)
 // freeifaddrs
 // freelocale   // Weak
 // __freelocale
@@ -598,7 +598,7 @@ GO(getdate, pFp)
 // glob_pattern_p   // Weak
 GO(gmtime, pFp)
 // __gmtime_r
-GO(gmtime_r, pFpp)  // Weak
+GOW(gmtime_r, pFpp)
 // gnu_dev_major
 // gnu_dev_makedev
 // gnu_dev_minor
@@ -1003,7 +1003,7 @@ GOM(__libc_start_main, iFEpippppp)
 // loc2 // type B
 // localeconv
 GO(localtime, pFp)
-GO(localtime_r, pFpp)   //Weak
+GOW(localtime_r, pFpp)
 // lockf
 // lockf64
 // locs // type B
@@ -1025,8 +1025,8 @@ GO(localtime_r, pFpp)   //Weak
 // mallinfo // Weak
 // malloc
 // malloc_get_state // Weak
-DATA(__malloc_hook, 4)  // type V
-DATA(__malloc_initialize_hook, 4)   // type V
+DATAV(__malloc_hook, 4)
+DATAV(__malloc_initialize_hook, 4)
 // malloc_set_state // Weak
 // malloc_stats // Weak
 // malloc_trim  // Weak
@@ -1053,7 +1053,7 @@ DATA(__malloc_initialize_hook, 4)   // type V
 // mcount   // Weak
 // _mcount
 // memalign // Weak
-DATA(__memalign_hook, 4)    // type V
+DATAV(__memalign_hook, 4)
 // memccpy  // Weak
 // memchr
 // memcmp
@@ -1109,7 +1109,7 @@ DATA(__morecore, 4)
 // munlockall
 // munmap   // Weak
 // muntrace
-GO(nanosleep, iFpp) // Weak
+GOW(nanosleep, iFpp)
 // __nanosleep  // Weak
 // netname2host
 // netname2user
@@ -1250,8 +1250,8 @@ GO2(__printf_chk, iFvopV, vfprintf)
 // __profile_frequency
 DATA(__progname, 4)
 DATA(__progname_full, 4)
-DATA(program_invocation_name, 4)    // type V
-DATA(program_invocation_short_name, 4)  // type V
+DATAV(program_invocation_name, 4)
+DATAV(program_invocation_short_name, 4)
 // pselect  // Weak
 // psignal
 // pthread_attr_destroy
@@ -1298,7 +1298,7 @@ GO(putchar, iFi)
 // putmsg
 // putpmsg
 // putpwent
-GO(puts, iFp)   // Weak
+GOW(puts, iFp)
 // putspent
 // pututline    // Weak
 // pututxline
@@ -1344,7 +1344,7 @@ GO(puts, iFp)   // Weak
 // __readlink_chk
 // readv    // Weak
 // realloc
-DATA(__realloc_hook, 4) // type V
+DATAV(__realloc_hook, 4)
 // realpath
 // __realpath_chk
 // reboot
@@ -1779,7 +1779,7 @@ GO(time, uFp)
 // timerfd_gettime
 // timerfd_settime
 // times    // Weak
-DATA(timezone, 4)   // type V
+DATAV(timezone, 4)
 // __timezone   // type B
 // tmpfile
 // tmpfile64
@@ -1814,9 +1814,9 @@ DATA(timezone, 4)   // type V
 // __ttyname_r_chk
 // ttyslot
 // twalk    // Weak
-DATA(tzname, 4) // Type V
+DATAV(tzname, 4)
 DATA(__tzname, 4)
-GO(tzset, vFv)  // Weak
+GOW(tzset, vFv)
 // ualarm
 // __uflow
 // ulckpwdf // Weak
