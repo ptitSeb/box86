@@ -24,7 +24,7 @@ DATA(_edata, 4)
 // IMG_isXPM
 // IMG_isXV
 // IMG_Linked_Version
-// IMG_Load
+GO(IMG_Load, pFp)
 // IMG_LoadBMP_RW
 // IMG_LoadCUR_RW
 // IMG_LoadGIF_RW
@@ -46,7 +46,7 @@ DATA(_edata, 4)
 // IMG_LoadXCF_RW
 // IMG_LoadXPM_RW
 // IMG_LoadXV_RW
-// IMG_Quit
+GO(IMG_Quit, vFv)
 // IMG_QuitJPG
 // IMG_QuitPNG
 // IMG_QuitTIF

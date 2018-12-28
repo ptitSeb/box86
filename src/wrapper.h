@@ -25,6 +25,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // void...
 #include "wrapper_v.h"
 
+// uint8....
+#include "wrapper_u8.h"
+
 // int32...
 #include "wrapper_i.h"
 

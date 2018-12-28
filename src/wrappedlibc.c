@@ -6,6 +6,7 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "library_private.h"
@@ -18,6 +19,10 @@ uint32_t my_syscall(x86emu_t *emu); // implemented in x86syscall.c
 void my___stack_chk_fail(x86emu_t* emu)
 {
     StopEmu(emu, "Stack is corrupted, abborting");
+}
+void my___gmon_start__(x86emu_t *emu)
+{
+    printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
 
 int wrappedlibc_init(library_t* lib)

@@ -1,15 +1,15 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
 
-// dladdr
+GOM(dladdr, iFEpp)
 // dladdr1
-// dlclose
-// dlerror
+GOM(dlclose, iFEp)
+GOM(dlerror, pFE)
 DATAB(_dlfcn_hook, 4)
 // dlinfo
 // dlmopen
-// dlopen
-// dlsym
-// dlvsym   // Weak
+GOM(dlopen, pFEpi)
+GOM(dlsym, pFEpp)
+GOM(dlvsym, pFEppp)   // Weak
 
 END()
 

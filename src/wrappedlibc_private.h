@@ -2091,6 +2091,8 @@ GO(__wcsftime_l, uFpuppu)
 // __xstat
 // __xstat64
 
+// forcing a custom __gmon_start__ that does nothing
+GOM(__gmon_start__, vFE)
 
 END()
 

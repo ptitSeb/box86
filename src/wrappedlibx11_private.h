@@ -55,7 +55,7 @@ DATAB(_qfree, 4)
 // XChangeKeyboardControl
 // XChangeKeyboardMapping
 // XChangePointerControl
-// XChangeProperty
+GO(XChangeProperty, iFpppi)
 // XChangeSaveSet
 // XChangeWindowAttributes
 // XCheckIfEvent
@@ -66,8 +66,8 @@ DATAB(_qfree, 4)
 // XCirculateSubwindows
 // XCirculateSubwindowsDown
 // XCirculateSubwindowsUp
-// XClearArea
-// XClearWindow
+GO(XClearArea, iFppiiuui)
+GO(XClearWindow, iFpp)
 // XClipBox
 // XCloseDisplay
 // XCloseIM
@@ -254,7 +254,7 @@ DATAB(_Xdebug, 4)
 // XDefineCursor
 // XDeleteContext
 // XDeleteModifiermapEntry
-// XDeleteProperty
+GO(XDeleteProperty, iFppp)
 // _XDeq
 // _XDeqAsyncHandler
 // XDestroyIC
@@ -321,7 +321,7 @@ DATAB(_XErrorFunction, 4)
 // XESetWireToEvent
 // XESetWireToEventCookie
 // XEventMaskOfScreen
-// XEventsQueued
+GO(XEventsQueued, iFpi)
 // _XEventsQueued
 // _Xevent_to_mask  // type r
 // _XEventToWire
@@ -341,7 +341,7 @@ DATAB(_XErrorFunction, 4)
 // XFilterEvent
 // XFindContext
 // XFindOnExtensionList
-// XFlush
+GO(XFlush, iFp)
 // _XFlush
 // XFlushGC
 // _XFlushGCCache
@@ -418,7 +418,7 @@ GO(XGetSubImage, pFppiiuuuipii)
 // XGetVisualInfo
 // XGetWindowAttributes
 // _XGetWindowAttributes
-// XGetWindowProperty
+GO(XGetWindowProperty, iFpppiiipppppp)
 // XGetWMClientMachine
 // XGetWMColormapWindows
 // XGetWMHints
@@ -431,8 +431,8 @@ GO(XGetSubImage, pFppiiuuuipii)
 DATAB(_Xglobal_lock, 4)
 // XGrabButton
 // XGrabKey
-// XGrabKeyboard
-// XGrabPointer
+GO(XGrabKeyboard, iFppuiiu)
+GO(XGrabPointer, iFppiuiippu)
 // XGrabServer
 DATAB(_XHeadOfDisplayList, 4)
 // XHeightMMOfScreen
@@ -484,8 +484,8 @@ DATAB(_XInitDisplayLock_fn, 4)
 // XInsertModifiermapEntry
 // XInstallColormap
 // XInternalConnectionNumbers
-// XInternAtom
-// XInternAtoms
+GO(XInternAtom, pFppi)
+GO(XInternAtoms, uFppiip)
 // XIntersectRegion
 // _XIOError
 DATAB(_XIOErrorFunction, 4)
@@ -752,7 +752,7 @@ DATA(_XlcPublicMethods, 4)
 // XListHosts
 // XListInstalledColormaps
 // XListPixmapFormats
-// XListProperties
+GO(XListProperties, pFppp)
 // XLoadFont
 // XLoadQueryFont
 // xlocaledir
@@ -811,7 +811,7 @@ DATAB(_XLockMutex_fn, 4)
 // XParseGeometry
 // XPeekEvent
 // XPeekIfEvent
-// XPending
+GO(XPending, iFp)
 // Xpermalloc
 // XPlanesOfScreen
 // XPointInRegion
@@ -903,7 +903,7 @@ GO(XPutImage, iFppppiiiiuu)
 // XRootWindow
 // XRootWindowOfScreen
 // XRotateBuffers
-// XRotateWindowProperties
+GO(XRotateWindowProperties, iFpppii)
 // XSaveContext
 // XScreenCount
 // XScreenNumberOfScreen
@@ -912,11 +912,11 @@ GO(XPutImage, iFppppiiiiuu)
 // XScreenResourceString
 // XSelectInput
 // _XSend
-// XSendEvent
+GO(XSendEvent, uFppiip)
 // XServerVendor
 // XSetAccessControl
 // XSetAfterFunction
-// XSetArcMode
+GO(XSetArcMode, iFppi)
 // XSetAuthorization
 // XSetBackground
 // XSetClassHint
@@ -934,7 +934,7 @@ GO(XPutImage, iFppppiiiiuu)
 // XSetFontPath
 // XSetForeground
 // XSetFunction
-// XSetGraphicsExposures
+GO(XSetGraphicsExposures, iFppu)
 // XSetICFocus
 // XSetIconName
 // XSetIconSizes
@@ -961,7 +961,7 @@ GO(XPutImage, iFppppiiiiuu)
 // XSetStandardProperties
 // XSetState
 // XSetStipple
-// XSetSubwindowMode
+GO(XSetSubwindowMode, iFppi)
 // XSetTextProperty
 // XSetTile
 // XSetTransientForHint
@@ -995,8 +995,8 @@ GO(XPutImage, iFppppiiiiuu)
 // XSubImage
 // XSubtractRegion
 // XSupportsLocale
-// XSync
-// XSynchronize
+GO(XSync, iFpu)
+GO(XSynchronize, iFpi)
 // XTextExtents
 // XTextExtents16
 // _XTextHeight
@@ -1012,8 +1012,8 @@ DATAB(_Xthread_self_fn, 4)
 // XUndefineCursor
 // XUngrabButton
 // XUngrabKey
-// XUngrabKeyboard
-// XUngrabPointer
+GO(XUngrabKeyboard, iFpu)
+GO(XUngrabPointer, iFpu)
 // XUngrabServer
 // XUninstallColormap
 // XUnionRectWithRegion
