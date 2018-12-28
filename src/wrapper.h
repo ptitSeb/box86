@@ -10,7 +10,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // list of defined wrapper
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // p = pointer
-// f = float, d = double, D = long double
+// f = float, d = double, D = long double, L = fake long double
 // V = vaargs, E = current x86emu struct
 // 0 = constant 0, 1 = constant 1
 // o = stdout
@@ -29,6 +29,15 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 
 // void*
 #include "wrapper_p.h"
+
+// float
+#include "wrapper_f.h"
+
+// double
+#include "wrapper_d.h"
+
+// long double
+#include "wrapper_ld.h"
 
 #undef GOW
 #undef GO

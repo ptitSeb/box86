@@ -18,8 +18,8 @@ GO(iFpuup, p(0), u32(4), u32(8), p(12))
 GOW(iFopV, iFppp_t, (void*)stdout, p(0), (void*)stack(4))
 GOW(iFvopV, iFppp_t, (void*)stdout, p(4), (void*)stack(8))
 GO(iFEpppp, emu, p(0), p(4), p(8), p(12))
+GO(iFpiuuuu, p(0), i32(4), u32(8), u32(12), u32(16), u32(20))
 GO(iFEpippppp, emu, p(0), i32(4), p(8), p(12), p(16), p(20), p(24))
-
 #else
 #error Meh
 #endif

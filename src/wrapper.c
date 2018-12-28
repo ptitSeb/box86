@@ -4,6 +4,7 @@
 
 #include "wrapper.h"
 #include "x86emu_private.h"
+#include "x87emu_private.h"
 #include "regs.h"
 
 // the stack as the return address 1st thing, then the args...
@@ -41,6 +42,7 @@ typedef int32_t     (*iFppp_t)(void*, void*, void*);
 typedef int32_t     (*iFpuup_t)(void*, uint32_t, uint32_t, void*);
 typedef int32_t     (*iFuipp_t)(uint32_t, int32_t, void*, void*);
 typedef int32_t     (*iFEpppp_t)(x86emu_t*, void*, void*, void*, void*);
+typedef int32_t     (*iFpiuuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
 
 // uint32....
@@ -56,6 +58,17 @@ typedef void*       (*pFp_t)(void*);
 typedef void*       (*pFpp_t)(void*, void*);
 typedef void*       (*pFuu_t)(uint32_t, uint32_t);
 typedef void*       (*pFppp_t)(void*, void*, void*);
+
+// float....
+typedef float       (*fFf_t)(float);
+typedef float       (*fFppu_t)(void*, void*, uint32_t);
+
+// double....
+typedef double      (*dFd_t)(double);
+typedef double      (*dFppu_t)(void*, void*, uint32_t);
+
+// long double....
+typedef long double (*DFppu_t)(void*, void*, uint32_t);
 
 #define DEF(A) A f = (A)fnc
 
@@ -78,3 +91,21 @@ typedef void*       (*pFppp_t)(void*, void*, void*);
 #undef GOW
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uintptr_t)f(__VA_ARGS__); }
 #include "wrapper_p.h"
+
+// float
+#undef GOW
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); float fl=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = fl;}
+#include "wrapper_f.h"
+
+// double
+#undef GOW
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); double db=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = db;}
+#include "wrapper_d.h"
+
+// long double
+#undef GOW
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); long double ld=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = ld;}
+#include "wrapper_ld.h"
+
+#undef GOW
+#undef GO

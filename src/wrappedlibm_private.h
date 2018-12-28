@@ -309,8 +309,8 @@ DATAV(_LIB_VERSION, 4)
 // rint // Weak
 // rintf    // Weak
 // rintl    // Weak
-// round    // Weak
-// roundf   // Weak
+GOW(round, dFd)
+GOW(roundf, fFf)
 // roundl   // Weak
 // scalb    // Weak
 // scalbf   // Weak

@@ -53,10 +53,10 @@
 // pthread_condattr_init
 // pthread_condattr_setclock
 // pthread_condattr_setpshared
-// pthread_cond_broadcast
+GO(pthread_cond_broadcast, iFp)
 // pthread_cond_destroy
 // pthread_cond_init
-// pthread_cond_signal
+GO(pthread_cond_signal, iFp)
 // pthread_cond_timedwait
 // pthread_cond_wait
 GOM(pthread_create, iFEpppp)
@@ -85,7 +85,7 @@ GO(pthread_join, iFup)
 // pthread_mutexattr_getrobust_np
 // pthread_mutexattr_gettype
 // __pthread_mutexattr_init
-// pthread_mutexattr_init
+GO(pthread_mutexattr_init, iFpp)
 // pthread_mutexattr_setprioceiling
 // pthread_mutexattr_setprotocol
 // pthread_mutexattr_setpshared
@@ -94,7 +94,7 @@ GO(pthread_join, iFup)
 // pthread_mutexattr_settype
 // pthread_mutex_consistent_np
 // __pthread_mutex_destroy
-// pthread_mutex_destroy
+GO(pthread_mutex_destroy, iFp)
 // pthread_mutex_getprioceiling
 // __pthread_mutex_init
 // pthread_mutex_init

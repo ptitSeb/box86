@@ -1164,7 +1164,7 @@ DATA(obstack_exit_failure, 4)
 // obstack_vprintf  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
-// open // Weak
+GO(open, iFpiuuuu) // Weak  // open use vararg, cheating here putting arbitrary number of stuff in the stack
 // __open   // Weak
 // __open_2
 // open64   // Weak
@@ -1660,11 +1660,11 @@ GO(strptime, pFppp)
 // strtod
 // __strtod_internal
 // __strtod_l
-// strtod_l // Weak
+GOW(strtod_l, dFppu)
 // strtof
 // __strtof_internal
 // __strtof_l
-// strtof_l // Weak
+GOW(strtof_l, fFppu)
 // strtoimax
 // strtok
 // __strtok_r
@@ -1674,7 +1674,7 @@ GO(strtol, iFppi)
 // strtold
 // __strtold_internal
 // __strtold_l
-// strtold_l    // Weak
+GOW(strtold_l, DFppu)
 // __strtol_internal
 // strtoll
 // __strtol_l
