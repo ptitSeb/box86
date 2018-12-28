@@ -277,6 +277,21 @@ int Run(x86emu_t *emu)
                     R_EIP += tmp8s;
                 break;
             
+            case 0x80: /* Grp Eb, Ib */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea1, nextop);
+                tmp8u = Fetch8(emu);
+                switch((nextop>>3)&7) {
+                    case 0: op1->byte[0] = add8(emu, op1->byte[0], tmp8u); break;
+                    case 1: op1->byte[0] =  or8(emu, op1->byte[0], tmp8u); break;
+                    case 2: op1->byte[0] = adc8(emu, op1->byte[0], tmp8u); break;
+                    case 3: op1->byte[0] = sbb8(emu, op1->byte[0], tmp8u); break;
+                    case 4: op1->byte[0] = and8(emu, op1->byte[0], tmp8u); break;
+                    case 5: op1->byte[0] = sub8(emu, op1->byte[0], tmp8u); break;
+                    case 6: op1->byte[0] = xor8(emu, op1->byte[0], tmp8u); break;
+                    case 7: op1->byte[0] = cmp8(emu, op1->byte[0], tmp8u); break;
+                }
+                break;
             case 0x81: /* Grp Ed, Id */
             case 0x83:  /* Grpl Ed,Ix */
                 nextop = Fetch8(emu);
@@ -381,9 +396,14 @@ int Run(x86emu_t *emu)
                 R_EIP = Pop(emu);
                 break;
 
+            case 0xC6: /* MOV Eb,Ib */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea1, nextop);
+                op1->byte[0] = Fetch8(emu);
+                break;
             case 0xC7: /* MOV Ed,Id */
                 nextop = Fetch8(emu);
-                GetEd(emu, &op1, &ea2, nextop);
+                GetEd(emu, &op1, &ea1, nextop);
                 op1->dword[0] = Fetch32(emu);
                 break;
 
