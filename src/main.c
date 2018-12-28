@@ -157,9 +157,9 @@ int main(int argc, const char **argv, const char **env) {
             context->x86trace = 1;
     }
     if(context->x86trace) {
-        printf_log(LOG_INFO, "Initializing Zydis lib\n", p);
+        printf_log(LOG_INFO, "Initializing Zydis lib\n");
         if(InitX86Trace(context)) {
-            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n", p);
+            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
             context->x86trace = 0;
         }
     }
@@ -174,7 +174,7 @@ int main(int argc, const char **argv, const char **env) {
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist
     if(!context->argv[0]) {
-        printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n", p);
+        printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
         FreeBox86Context(&context);
         return -1;
     }

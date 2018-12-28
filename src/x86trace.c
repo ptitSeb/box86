@@ -101,7 +101,7 @@ const char* DecodeX86Trace(zydis_dec_t *dec, uint32_t p)
         dec->ZydisFormatterFormatInstruction(&dec->formatter, &dec->instruction, tmp, sizeof(tmp),p);
         strcat(buff, tmp);
     } else {
-        sprintf(buff, "Decoder failed @%p", p);
+        sprintf(buff, "Decoder failed @%p", (void*)p);
     }
     return buff;
 }

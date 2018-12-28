@@ -53,14 +53,14 @@ int AddNeededLib(lib_t* maplib, const char* path)
     for(int i=0; i<maplib->libsz; ++i) {
         onelib_t *onelib = &maplib->libraries[i];
         if(IsSameLib(onelib->lib, path)) {
-            printf_log(LOG_DEBUG, "Already present in maplib => success\n", path);
+            printf_log(LOG_DEBUG, "Already present in maplib => success\n");
             return 0;
         }
     }
     // load a new one
     library_t *lib = NewLibrary(path);
     if(!lib) {
-        printf_log(LOG_DEBUG, "Faillure to create lib => fail\n", path);
+        printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
     }
     
@@ -72,7 +72,7 @@ int AddNeededLib(lib_t* maplib, const char* path)
     maplib->libraries[maplib->libsz].lib = lib;
     maplib->libraries[maplib->libsz].name = GetNameLib(lib);
     ++maplib->libsz;
-    printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n", path);
+    printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
     
     return 0;
 }

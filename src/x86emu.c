@@ -29,7 +29,7 @@ int getrand(int maxval)
 
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", start, stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
     x86emu_t *emu = (x86emu_t*)calloc(1, sizeof(x86emu_t));
     emu->context = context;
@@ -77,7 +77,7 @@ void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
 
 void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
 {
-    printf_log(LOG_INFO, "Setting trace only between %p and %p\n", trace_start, trace_end);
+    printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)trace_start, (void*)trace_end);
     emu->trace_start = trace_start;
     emu->trace_end = trace_end;
 }
@@ -156,7 +156,7 @@ const char* DumpCPURegs(x86emu_t* emu)
 void StopEmu(x86emu_t* emu, const char* reason)
 {
     emu->quit = 1;
-    printf_log(LOG_NONE, reason);
+    printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
     printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu));
     // TODO: stack, memory/instruction around EIP, etc..

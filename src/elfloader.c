@@ -66,7 +66,7 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
     }
-    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", head->vaddr, head->paddr, head->memsz, head->align);
+    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
     printf_log(LOG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
 
     return 0;
@@ -92,10 +92,10 @@ int AllocElfMemory(elfheader_t* head)
         // memory protect error not fatal for now....
     }
     #else
-    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, head->vaddr, head->name);
+    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)head->vaddr, head->name);
     void* p = mmap((void*)head->vaddr, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if(p==MAP_FAILED) {
-        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", head->vaddr, head->memsz, head->align, head->name);
+        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->vaddr, head->memsz, head->align, head->name);
         return 1;
     }
     head->memory = p;
@@ -143,29 +143,29 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
             case R_386_NONE:
             case R_386_PC32:
                 // can be ignored
-                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, p?(*p):0);
+                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
             case R_386_GLOB_DAT:
                 // I guess it can be ignored
-                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p);
+                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
             case R_386_RELATIVE:
                 // is this correct????
-                printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *p, (*p)+(uintptr_t)head->memory - head->paddr);
+                printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *(void**)p, (void*)((*p)+(uintptr_t)head->memory - head->paddr));
                 *p += (uintptr_t)head->memory - head->paddr;
                 break;
             case R_386_32:
-                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *p, offs);
+                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
                 *p = offs;
                 break;
             case R_386_JMP_SLOT:
                 offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *p);
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
                     return -1;
                 } else {
                     if(p) {
-                        printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *p, offs);
+                        printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
                         *p = offs;
                     } else {
                         printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
@@ -261,7 +261,7 @@ uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
 {
     uintptr_t ep = h->entrypoint + h->delta;
-    printf_log(LOG_DEBUG, "Entry Point is %p\n", ep);
+    printf_log(LOG_DEBUG, "Entry Point is %p\n", (void*)ep);
     if(box86_log>=LOG_DUMP) {
         printf_log(LOG_DUMP, "(short) Dump of Entry point\n");
         int sz = 64;
@@ -302,7 +302,7 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
-            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, offs, sz);
+            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, (void*)offs, sz);
             AddSymbol(mapsymbols, symname, offs, sz);
         }
     }

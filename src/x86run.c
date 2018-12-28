@@ -14,7 +14,7 @@
 
 int Run(x86emu_t *emu)
 {
-    printf_log(LOG_DEBUG, "Run X86, EIP=%p\n", emu, R_EIP);
+    printf_log(LOG_DEBUG, "Run X86, EIP=%p\n", (void*)R_EIP);
     emu->quit = 0;
     while (!emu->quit)
     {
@@ -25,9 +25,9 @@ int Run(x86emu_t *emu)
             if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
                 uint32_t a = *(uint32_t*)(R_EIP+3);
                 if(a==0) {
-                    printf_log(LOG_NONE, "%08p: Exit x86emu\n", R_EIP);
+                    printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)R_EIP);
                 } else {
-                    printf_log(LOG_NONE, "%08p: Native call to %p\n", R_EIP, a);
+                    printf_log(LOG_NONE, "0x%p: Native call to %p\n", (void*)R_EIP, (void*)a);
                 }
             } else {
                 printf_log(LOG_NONE, "%s\n", DecodeX86Trace(emu->dec, R_EIP));

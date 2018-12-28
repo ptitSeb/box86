@@ -208,7 +208,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 FreeElfHeader(&h);
                 return NULL;
             }
-            printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", h->rel, h->relsz, h->relent);
+            printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
         }
         if(h->rela) {
             if(h->relaent != sizeof(Elf32_Rela)) {
@@ -216,7 +216,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 FreeElfHeader(&h);
                 return NULL;
             }
-            printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", h->rela, h->relasz, h->relaent);
+            printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
         }
         if(h->jmprel) {
             if(h->pltrel == DT_REL) {
@@ -233,7 +233,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
                 FreeElfHeader(&h);
                 return NULL;
             }
-            printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", h->jmprel, h->pltrel, h->pltsz, h->pltent);
+            printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
         }
         if(h->DynStrTab && h->szDynStrTab) {
             //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
