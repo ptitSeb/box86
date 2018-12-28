@@ -4,7 +4,7 @@
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
-#include "wrappedldlinux.h"
+#include "wrappedlibs.h"
 
 #include "wrapper.h"
 #include "bridge.h"
