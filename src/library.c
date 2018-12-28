@@ -12,20 +12,15 @@
 
 #include "wrappedlibs.h"
 // create the native lib list
-#include "wrappedlibc.h"
-#include "wrappedlibpthread.h"
-#include "wrappedlibrt.h"
-#include "wrappedlibgl.h"
-#include "wrappedldlinux.h"
+#define GO(P, N) int wrapped##N##_init(library_t* lib); \
+                 void wrapped##N##_fini(library_t* lib);\
+                 int wrapped##N##_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz);
+#include "library_list.h"
+#undef GO
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini, wrapped##N##_get},
 wrappedlib_t wrappedlibs[] = {
-    GO("libc.so.6", libc)
-    GO("libpthread.so.0", libpthread)
-    GO("librt.so.1", librt)
-    GO("libGL.so.1", libgl)
-
-    GO("ld-linux.so.2", ldlinux)
+#include "library_list.h"
 };
 #undef GO
 
