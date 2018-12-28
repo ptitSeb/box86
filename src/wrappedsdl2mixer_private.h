@@ -1,0 +1,87 @@
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+
+DATA(__data_start, 4)
+DATA(_edata, 4)
+// _fini
+// _init
+// Mix_AllocateChannels
+// Mix_ChannelFinished
+// Mix_CloseAudio
+// Mix_EachSoundFont
+// Mix_ExpireChannel
+// Mix_FadeInChannelTimed
+// Mix_FadeInMusic
+// Mix_FadeInMusicPos
+// Mix_FadeOutChannel
+// Mix_FadeOutGroup
+// Mix_FadeOutMusic
+// Mix_FadingChannel
+// Mix_FadingMusic
+// Mix_FreeChunk
+// Mix_FreeMusic
+// Mix_GetChunk
+// Mix_GetChunkDecoder
+// Mix_GetMusicDecoder
+// Mix_GetMusicHookData
+// Mix_GetMusicType
+// Mix_GetNumChunkDecoders
+// Mix_GetNumMusicDecoders
+// Mix_GetSoundFonts
+// Mix_GetSynchroValue
+// Mix_GroupAvailable
+// Mix_GroupChannel
+// Mix_GroupChannels
+// Mix_GroupCount
+// Mix_GroupNewer
+// Mix_GroupOldest
+// Mix_HaltChannel
+// Mix_HaltGroup
+// Mix_HaltMusic
+// Mix_HasChunkDecoder
+// Mix_HookMusic
+// Mix_HookMusicFinished
+// Mix_Init
+// Mix_Linked_Version
+// Mix_LoadMUS
+// Mix_LoadMUS_RW
+// Mix_LoadMUSType_RW
+// Mix_LoadWAV_RW
+// Mix_OpenAudio
+// Mix_OpenAudioDevice
+// Mix_Pause
+// Mix_Paused
+// Mix_PausedMusic
+// Mix_PauseMusic
+// Mix_PlayChannelTimed
+// Mix_Playing
+// Mix_PlayingMusic
+// Mix_PlayMusic
+// Mix_QuerySpec
+// Mix_QuickLoad_RAW
+// Mix_QuickLoad_WAV
+// Mix_Quit
+// Mix_RegisterEffect
+// Mix_ReserveChannels
+// Mix_Resume
+// Mix_ResumeMusic
+// Mix_RewindMusic
+// Mix_SetDistance
+// Mix_SetMusicCMD
+// Mix_SetMusicPosition
+// Mix_SetPanning
+// Mix_SetPosition
+// Mix_SetPostMix
+// Mix_SetReverseStereo
+// Mix_SetSoundFonts
+// Mix_SetSynchroValue
+// Mix_UnregisterAllEffects
+// Mix_UnregisterEffect
+// Mix_Volume
+// Mix_VolumeChunk
+// Mix_VolumeMusic
+
+END()
+
+#else
+#error Mmmm...
+#endif

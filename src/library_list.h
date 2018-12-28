@@ -9,6 +9,8 @@ GO("libasound.so.2", libasound)
 GO("libdl.so.2", libdl)
 GO("libm.so.6", libm)
 GO("libSDL2-2.0.so.0", sdl2)
+GO("libSDL2_mixer-2.0.so.0", sdl2mixer)
+GO("libSDL2_image-2.0.so.0", sdl2image)
 
 GO("ld-linux.so.2", ldlinux)
 
