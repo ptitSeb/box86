@@ -60,6 +60,7 @@ SET(ELFLOADER_SRC
     src/wrappedlibasound.c
     src/wrappedlibdl.c
     src/wrappedlibm.c
+    src/wrappedsdl2.c
     src/wrappedldlinux.c
 )
 

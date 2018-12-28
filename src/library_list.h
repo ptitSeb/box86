@@ -8,6 +8,7 @@ GO("libX11.so.6", libx11)
 GO("libasound.so.2", libasound)
 GO("libdl.so.2", libdl)
 GO("libm.so.6", libm)
+GO("libSDL2-2.0.so.0", sdl2)
 
 GO("ld-linux.so.2", ldlinux)
 
