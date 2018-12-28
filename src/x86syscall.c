@@ -40,7 +40,7 @@ void x86Syscall(x86emu_t *emu)
 #define u32(n)  *(uint32_t*)stack(n)
 #define p(n)    *(void**)stack(n)
 
-uint32_t mysyscall(x86emu_t *emu)
+uint32_t my_syscall(x86emu_t *emu)
 {
     uint32_t s = u32(0);
     switch (s) {

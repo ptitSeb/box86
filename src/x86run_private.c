@@ -256,7 +256,7 @@ void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
 }
 
 
-int32_t my__libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     //TODO: register rtld_fini
     //TODO: register fini
