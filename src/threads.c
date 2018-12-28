@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "debug.h"
 #include "box86context.h"
 #include "threads.h"
 #include "x86emu_private.h"
@@ -65,4 +66,13 @@ int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, v
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, emuthread);
+}
+
+int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
+{
+	if(!dtor)
+		return pthread_key_create((pthread_key_t*)key, NULL);
+	printf_log(LOG_NONE, "Error: pthread_key_create with destructor not implemented\n");
+	emu->quit = 1;
+	return -1;
 }

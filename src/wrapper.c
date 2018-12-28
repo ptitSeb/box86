@@ -22,6 +22,7 @@
 
 // void...
 typedef void        (*vFv_t)();
+typedef void        (*vFi_t)(int32_t);
 typedef void        (*vFp_t)(void*);
 typedef void        (*vFE_t)(x86emu_t*);
 
@@ -53,8 +54,8 @@ typedef uint32_t    (*uFpupp_t)(void*, uint32_t, void*, void*);
 
 // void*....
 typedef void*       (*pFv_t)();
-typedef void        (*vFi_t)(int32_t);
 typedef void*       (*pFp_t)(void*);
+typedef void*       (*pFu_t)(uint32_t);
 typedef void*       (*pFpp_t)(void*, void*);
 typedef void*       (*pFuu_t)(uint32_t, uint32_t);
 typedef void*       (*pFppp_t)(void*, void*, void*);

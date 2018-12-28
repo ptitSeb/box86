@@ -69,11 +69,11 @@ GO(pthread_equal, iFuu)
 // pthread_getcpuclockid
 // pthread_getschedparam
 // __pthread_getspecific
-// pthread_getspecific
+GO(pthread_getspecific, pFu)
 // __pthread_initialize_minimal
 GO(pthread_join, iFup)
 // __pthread_key_create
-// pthread_key_create
+GOM(pthread_key_create, iFpp)
 // pthread_key_delete
 // pthread_kill
 // pthread_kill_other_threads_np
@@ -136,7 +136,7 @@ GO(pthread_self, uFv)
 // pthread_setschedparam
 // pthread_setschedprio
 // __pthread_setspecific
-// pthread_setspecific
+GO(pthread_setspecific, iFup)
 // pthread_sigmask
 // pthread_spin_destroy
 // pthread_spin_init
