@@ -58,8 +58,8 @@
 // argz_replace
 // __argz_stringify
 // argz_stringify
-// asctime
-// asctime_r
+GO(asctime, pFp)
+GO(asctime_r, pFpp)
 // asprintf
 // __asprintf
 // __asprintf_chk
@@ -137,7 +137,7 @@ GO(calloc, pFuu)
 // clntudp_bufcreate
 // clntudp_create
 // clntunix_create
-// clock
+GO(clock, uFv)
 // clone
 // __clone
 // close
@@ -156,8 +156,8 @@ GO(calloc, pFuu)
 // creat64
 // create_module
 // ctermid
-// ctime
-// ctime_r
+GO(ctime, pFp)
+GO(ctime_r, pFpp)
 // __ctype_b_loc
 // __ctype_get_mb_cur_max
 // __ctype_tolower_loc
@@ -169,7 +169,7 @@ GO(calloc, pFuu)
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
-// daylight
+DATA(daylight, 4)
 // __daylight
 // dcgettext
 // __dcgettext
@@ -183,7 +183,7 @@ GO(calloc, pFuu)
 // des_setparity
 // dgettext
 // __dgettext
-// difftime
+//GO(difftime, dFuu)  // return a double. The double is in ST(0)!
 // dirfd
 // dirname
 // div
@@ -443,7 +443,7 @@ GO(free, vFp)
 // get_current_dir_name
 // getcwd
 // __getcwd_chk
-// getdate
+GO(getdate, pFp)
 // getdate_err
 // getdate_r
 // getdelim
@@ -605,9 +605,9 @@ GO(free, vFp)
 // globfree
 // globfree64
 // glob_pattern_p
-// gmtime
+GO(gmtime, pFp)
 // __gmtime_r
-// gmtime_r
+GO(gmtime_r, pFpp)
 // gnu_dev_major
 // gnu_dev_makedev
 // gnu_dev_minor
@@ -1013,8 +1013,8 @@ GOM(__libc_start_main, iFEpippppp)
 // loc1
 // loc2
 // localeconv
-// localtime
-// localtime_r
+GO(localtime, pFp)
+GO(localtime_r, pFpp)
 // lockf
 // lockf64
 // locs
@@ -1092,7 +1092,7 @@ GOM(__libc_start_main, iFEpippppp)
 // mkstemp
 // mkstemp64
 // mktemp
-// mktime
+GO(mktime, uFp)
 // mlock
 // mlockall
 // mmap
@@ -1120,7 +1120,7 @@ GOM(__libc_start_main, iFEpippppp)
 // munlockall
 // munmap
 // muntrace
-// nanosleep
+GO(nanosleep, iFpp)
 // __nanosleep
 // netname2host
 // netname2user
@@ -1638,7 +1638,7 @@ GO(strerror, pFv)
 // __strfmon_l
 // strfmon_l
 // strfry
-// strftime
+GO(strftime, uFpupp)
 // __strftime_l
 // strftime_l
 // strlen
@@ -1656,7 +1656,7 @@ GO(strerror, pFv)
 // strpbrk
 // __strpbrk_c2
 // __strpbrk_c3
-// strptime
+GO(strptime, pFppp)
 // strptime_l
 // strrchr
 // strsep
@@ -1785,14 +1785,14 @@ GOM(syscall, uFE)
 // tempnam
 // textdomain
 // tfind
-// time
+GO(time, uFp)
 // timegm
 // timelocal
 // timerfd_create
 // timerfd_gettime
 // timerfd_settime
 // times
-// timezone
+DATA(timezone, 4)
 // __timezone
          // __tls_get_addr
 // tmpfile
@@ -1828,9 +1828,9 @@ GOM(syscall, uFE)
 // __ttyname_r_chk
 // ttyslot
 // twalk
-// tzname
+DATA(tzname, 4)
 // __tzname
-// tzset
+GO(tzset, vFv)
 // ualarm
 // __uflow
 // ulckpwdf

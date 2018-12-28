@@ -3,36 +3,48 @@
 //clockid_t is uint32?
 // pid_t is uint32 too? (for clock_getcpuclockid)
 // time_t is uint32?
-GO(asctime, pFp)
-GO(asctime_r, pFpp)
-GO(clock, uFv)
+
+// aio_cancel
+// aio_cancel64
+// aio_error
+// aio_error64
+// aio_fsync
+// aio_fsync64
+// aio_init
+// aio_read
+// aio_read64
+// aio_return
+// aio_return64
+// aio_suspend
+// aio_suspend64
+// aio_write
+// aio_write64
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
 GO(clock_gettime, iFup)
 GO(clock_nanosleep, iFuipp)
 GO(clock_settime, iFup)
-GO(ctime, pFp)
-GO(ctime_r, pFpp)
-//GO(difftime, dFuu)    // return a double. The double is in ST(0)!
-GO(getdate, pFp)
-GO(gmtime, pFp)
-GO(gmtime_r, pFpp)
-GO(localtime, pFp)
-GO(localtime_r, pFpp)
-GO(mktime, uFp)
-GO(nanosleep, iFpp)
-GO(strftime, uFpupp)
-GO(strptime, pFppp)
-GO(time, uFp)
+// lio_listio
+// lio_listio64
+// mq_close
+// mq_getattr
+// mq_notify
+// mq_open
+// __mq_open_2
+// mq_receive
+// mq_send
+// mq_setattr
+// mq_timedreceive
+// mq_timedsend
+// mq_unlink
+// shm_open
+// shm_unlink
 GO(timer_create, iFpp)
 GO(timer_delete, iFu)
-GO(timer_gettime, iFup)
 GO(timer_getoverrun, iFu)
+GO(timer_gettime, iFup)
 GO(timer_settime, iFuipp)
-GO(tzset, vFv)
-DATA(daylight, 4)
-DATA(timezone, 4)
-DATA(tzname, 4)
+
 END()
 
 #else

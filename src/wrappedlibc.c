@@ -59,7 +59,7 @@ int wrappedlibc_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
         symbol=dlsym(lib->priv.w.lib, #O); \
         addr = AddBridge(lib->priv.w.bridge, W, symbol); \
     } else
-#define DATA(N, W, S) \
+#define DATA(N, S) \
     if(strcmp(name, #N)==0) { \
         symbol=dlsym(lib->priv.w.lib, #N); \
         size = S; \
