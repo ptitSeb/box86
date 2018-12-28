@@ -37,12 +37,7 @@ int wrappedlibpthread_get(library_t* lib, const char* name, uintptr_t *offs, uin
 
 #include "wrappedlib_defines.h"
 #include "wrappedlibpthread_private.h"
-
-#undef GO
-#undef GOM
-#undef GO2
-#undef DATA
-#undef END
+#include "wrappedlib_undefs.h"
 
     if(!addr)
         return 0;

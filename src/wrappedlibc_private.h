@@ -1,17 +1,16 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
-
 // a64l
 // abort
 // abs
-// accept
-// access
+// accept   // Weak
+// access   // Weak
 // acct
-// addmntent
+// addmntent    // Weak
 // addseverity
-// adjtime
-// adjtimex
+// adjtime  // Weak
+// adjtimex // Weak
 // __adjtimex
-// advance
+// advance  // Weak
 // __aeabi_assert
 // __aeabi_atexit
 // __aeabi_errno_addr
@@ -29,38 +28,38 @@
 // __aeabi_memset
 // __aeabi_memset4
 // __aeabi_memset8
-// __after_morecore_hook
+DATA(__after_morecore_hook, 4); // type V
 // alarm
 // alphasort
 // alphasort64
-// argp_err_exit_status
-// argp_error
-// argp_failure
-// argp_help
-// argp_parse
-// argp_program_bug_address
-// argp_program_version
-// argp_program_version_hook
-// argp_state_help
-// argp_usage
-// argz_add
-// argz_add_sep
-// argz_append
+DATA(argp_err_exit_status, 4)
+// argp_error   // Weak
+// argp_failure // Weak
+// argp_help    // Weak
+// argp_parse   // Weak
+// argp_program_bug_address // type B
+// argp_program_version // type B
+// argp_program_version_hook    // type B
+// argp_state_help  // Weak
+// argp_usage   // Weak
+// argz_add // Weak
+// argz_add_sep // Weak
+// argz_append  // Weak
 // __argz_count
-// argz_count
-// argz_create
-// argz_create_sep
+// argz_count   // Weak
+// argz_create  // Weak
+// argz_create_sep  // Weak
 // argz_delete
-// argz_extract
-// argz_insert
+// argz_extract // Weak
+// argz_insert  // Weak
 // __argz_next
-// argz_next
-// argz_replace
+// argz_next    // Weak
+// argz_replace // Weak
 // __argz_stringify
-// argz_stringify
+// argz_stringify   // Weak
 GO(asctime, pFp)
-GO(asctime_r, pFpp)
-// asprintf
+GO(asctime_r, pFpp) // Weak
+// asprintf // Weak
 // __asprintf
 // __asprintf_chk
 // __assert
@@ -77,30 +76,30 @@ GO(asctime_r, pFpp)
 // authnone_create
 // authunix_create
 // authunix_create_default
-// backtrace
+// backtrace    // Weak
 // __backtrace
 // __backtrace_symbols
-// backtrace_symbols
+// backtrace_symbols    // Weak
 // __backtrace_symbols_fd
-// backtrace_symbols_fd
+// backtrace_symbols_fd // Weak
 // basename
-// bcmp
+// bcmp // Weak
 // bcopy
 // bdflush
-// bind
+// bind // Weak
 // bindresvport
-// bindtextdomain
-// bind_textdomain_codeset
-// brk
+// bindtextdomain   // Weak
+// bind_textdomain_codeset  // Weak
+// brk  // Weak
 // __bsd_getpgrp
-// bsd_signal
+// bsd_signal   // Weak
 // bsearch
-// btowc
-// bzero
+// btowc    // Weak
+// bzero    // Weak
 // __bzero
-GO(calloc, pFuu)
+GO(calloc, pFuu)    // Weak
 // callrpc
-// canonicalize_file_name
+// canonicalize_file_name   // Weak
 // capget
 // capset
 // catclose
@@ -110,18 +109,18 @@ GO(calloc, pFuu)
 // cfgetispeed
 // cfgetospeed
 // cfmakeraw
-// cfree
+// cfree    // Weak
 // cfsetispeed
 // cfsetospeed
 // cfsetspeed
-// chdir
-// __check_rhosts_file
+// chdir    // Weak
+DATA(__check_rhosts_file, 4)
 // chflags
 // __chk_fail
-// chmod
-// chown
+// chmod    // Weak
+// chown    // Weak
 // chroot
-// clearenv
+// clearenv // Weak
 // clearerr
 // clearerr_unlocked
 // clnt_broadcast
@@ -138,42 +137,42 @@ GO(calloc, pFuu)
 // clntudp_create
 // clntunix_create
 GO(clock, uFv)
-// clone
+// clone    // Weak
 // __clone
-// close
-// __close
-// closedir
+// close    // Weak
+// __close  // Weak
+// closedir // Weak
 // closelog
 // __cmsg_nxthdr
 // confstr
 // __confstr_chk
-// connect
-// __connect
-// copysign
-// copysignf
-// copysignl
-// creat
+// connect  // Weak
+// __connect    // Weak
+// copysign // Weak
+// copysignf    // Weak
+// copysignl    // Weak
+// creat    // Weak
 // creat64
-// create_module
+// create_module    // Weak
 // ctermid
 GO(ctime, pFp)
 GO(ctime_r, pFpp)
 // __ctype_b_loc
-// __ctype_get_mb_cur_max
+// __ctype_get_mb_cur_max   // Weak
 // __ctype_tolower_loc
 // __ctype_toupper_loc
-// __curbrk
+// __curbrk // type B
 // cuserid
 // __cxa_atexit
 // __cxa_finalize
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
-DATA(daylight, 4)
-// __daylight
-// dcgettext
+DATA(daylight, 4)   // type V
+// __daylight   // type B
+// dcgettext    // Weak
 // __dcgettext
-// dcngettext
+// dcngettext   // Weak
 // __default_morecore
 // __default_rt_sa_restorer_v1
 // __default_rt_sa_restorer_v2
@@ -181,34 +180,33 @@ DATA(daylight, 4)
 // __default_sa_restorer_v2
 // delete_module
 // des_setparity
-// dgettext
+// dgettext // Weak
 // __dgettext
 //GO(difftime, dFuu)  // return a double. The double is in ST(0)!
 // dirfd
 // dirname
 // div
 // _dl_addr
-         // _dl_argv
-// dl_iterate_phdr
+// dl_iterate_phdr  // Weak
 // _dl_mcount_wrapper
 // _dl_mcount_wrapper_check
-// _dl_open_hook
-         // _dl_starting_up
+// _dl_open_hook    // type B
+// _dl_starting_up // Weak
 // _dl_sym
 // _dl_vsym
-// dngettext
+// dngettext    // Weak
 // dprintf
 // __dprintf_chk
 // drand48
 // drand48_r
-// dup
-// dup2
+// dup  // Weak
+// dup2 // Weak
 // __dup2
 // dup3
-// duplocale
+// duplocale    // Weak
 // __duplocale
 // dysize
-// eaccess
+// eaccess  // Weak
 // ecb_crypt
 // ecvt
 // ecvt_r
@@ -216,7 +214,7 @@ DATA(daylight, 4)
 // endfsent
 // endgrent
 // endhostent
-// endmntent
+// endmntent    // Weak
 // __endmntent
 // endnetent
 // endnetgrent
@@ -227,11 +225,11 @@ DATA(daylight, 4)
 // endspent
 // endttyent
 // endusershell
-// endutent
+// endutent // Weak
 // endutxent
-// environ
-// _environ
-// __environ
+DATA(environ, 4)    // type V
+DATA(_environ, 4)   // type V
+// __environ    // type B
 // envz_add
 // envz_entry
 // envz_get
@@ -244,15 +242,15 @@ DATA(daylight, 4)
 // epoll_pwait
 // epoll_wait
 // erand48
-// erand48_r
+// erand48_r    // Weak
 // err
-// errno
+// errno    // type B
 // __errno_location
-// error
-// error_at_line
-// error_message_count
-// error_one_per_line
-// error_print_progname
+// error    // Weak
+// error_at_line    // Weak
+// error_message_count  // type B
+// error_one_per_line   // type B
+// error_print_progname // type B
 // errx
 // ether_aton
 // ether_aton_r
@@ -261,7 +259,7 @@ DATA(daylight, 4)
 // ether_ntoa
 // ether_ntoa_r
 // ether_ntohost
-// euidaccess
+// euidaccess   // Weak
 // eventfd
 // eventfd_read
 // eventfd_write
@@ -269,99 +267,99 @@ DATA(daylight, 4)
 // execle
 // execlp
 // execv
-// execve
+// execve   // Weak
 // execvp
 // exit
 // _exit
-// _Exit
+// _Exit    // Weak
 // faccessat
 // fattach
 // __fbufsize
-// fchdir
+// fchdir   // Weak
 // fchflags
-// fchmod
+// fchmod   // Weak
 // fchmodat
-// fchown
+// fchown   // Weak
 // fchownat
 // fclose
-// fcloseall
-// fcntl
-// __fcntl
+// fcloseall    // Weak
+// fcntl    // Weak
+// __fcntl  // Weak
 // fcvt
 // fcvt_r
 // fdatasync
 // fdetach
 // fdopen
-// fdopendir
-// feof
+// fdopendir    // Weak
+// feof // Weak
 // feof_unlocked
-// ferror
+// ferror   // Weak
 // ferror_unlocked
 // fexecve
-// fflush
+// fflush   // Weak
 // fflush_unlocked
 // ffs
 // __ffs
-// ffsl
+// ffsl // Weak
 // ffsll
-// fgetc
-// fgetc_unlocked
+// fgetc    // Weak
+// fgetc_unlocked   // Weak
 // fgetgrent
-// fgetgrent_r
+// fgetgrent_r  // Weak
 // fgetpos
 // fgetpos64
 // fgetpwent
-// fgetpwent_r
-// fgets
+// fgetpwent_r  // Weak
+// fgets    // Weak
 // __fgets_chk
 // fgetspent
-// fgetspent_r
+// fgetspent_r  // Weak
 // fgets_unlocked
 // __fgets_unlocked_chk
-// fgetwc
-// fgetwc_unlocked
+// fgetwc   // Weak
+// fgetwc_unlocked  // Weak
 // fgetws
 // __fgetws_chk
 // fgetws_unlocked
 // __fgetws_unlocked_chk
 // fgetxattr
 // fileno
-// fileno_unlocked
-// finite
+// fileno_unlocked  // Weak
+// finite   // Weak
 // __finite
-// finitef
+// finitef  // Weak
 // __finitef
-// finitel
+// finitel  // Weak
 // __finitel
 // __flbf
 // flistxattr
-// flock
-// flockfile
-// _flushlbf
+// flock    // Weak
+// flockfile    // Weak
+// _flushlbf    // Weak
 // fmemopen
 // fmtmsg
 // fnmatch
 // fopen
-// fopen64
+// fopen64  // Weak
 // fopencookie
-// fork
+// fork // Weak
 // __fork
 // __fortify_fail
-// fpathconf
+// fpathconf    // Weak
 // __fpending
 // fprintf
 // __fprintf_chk
-// __fpu_control
+// __fpu_control    // type B
 // __fpurge
 // fputc
 // fputc_unlocked
-// fputs
+// fputs    // Weak
 // fputs_unlocked
 // fputwc
 // fputwc_unlocked
 // fputws
 // fputws_unlocked
-// fread
+// fread    // Weak
 // __freadable
 // __fread_chk
 // __freading
@@ -369,16 +367,16 @@ DATA(daylight, 4)
 // __fread_unlocked_chk
 GO(free, vFp)
 // freeaddrinfo
-// __free_hook
+DATA(__free_hook, 4)    // type V
 // freeifaddrs
-// freelocale
+// freelocale   // Weak
 // __freelocale
 // fremovexattr
 // freopen
 // freopen64
-// frexp
-// frexpf
-// frexpl
+// frexp    // Weak
+// frexpf   // Weak
+// frexpl   // Weak
 // fscanf
 // fseek
 // fseeko
@@ -387,19 +385,19 @@ GO(free, vFp)
 // fsetpos
 // fsetpos64
 // fsetxattr
-// fstatfs
-// fstatfs64
+// fstatfs  // Weak
+// fstatfs64    // Weak
 // fstatvfs
-// fstatvfs64
-// fsync
-// ftell
+// fstatvfs64   // Weak
+// fsync    // Weak
+// ftell    // Weak
 // ftello
 // ftello64
 // ftime
 // ftok
-// ftruncate
-// ftruncate64
-// ftrylockfile
+// ftruncate    // Weak
+// ftruncate64  // Weak
+// ftrylockfile // Weak
 // fts_children
 // fts_close
 // fts_open
@@ -407,15 +405,15 @@ GO(free, vFp)
 // fts_set
 // ftw
 // ftw64
-// funlockfile
+// funlockfile  // Weak
 // futimens
-// futimes
+// futimes  // Weak
 // futimesat
 // fwide
-// fwprintf
+// fwprintf // Weak
 // __fwprintf_chk
 // __fwritable
-// fwrite
+// fwrite   // Weak
 // fwrite_unlocked
 // __fwriting
 // fwscanf
@@ -434,32 +432,32 @@ GO(free, vFp)
 // getaliasbyname_r
 // getaliasent
 // getaliasent_r
-// get_avphys_pages
-// getc
+// get_avphys_pages // Weak
+// getc // Weak
 // getchar
 // getchar_unlocked
 // getcontext
-// getc_unlocked
+// getc_unlocked    // Weak
 // get_current_dir_name
-// getcwd
+// getcwd   // Weak
 // __getcwd_chk
 GO(getdate, pFp)
-// getdate_err
-// getdate_r
-// getdelim
-// __getdelim
+// getdate_err  // type B
+// getdate_r    // Weak
+// getdelim // Weak
+// __getdelim   // Weak
 // getdirentries
 // getdirentries64
 // getdomainname
 // __getdomainname_chk
-// getdtablesize
-// getegid
+// getdtablesize    // Weak
+// getegid  // Weak
 // getenv
-// geteuid
+// geteuid  // Weak
 // getfsent
 // getfsfile
 // getfsspec
-// getgid
+// getgid   // Weak
 // getgrent
 // getgrent_r
 // getgrgid
@@ -467,7 +465,7 @@ GO(getdate, pFp)
 // getgrnam
 // getgrnam_r
 // getgrouplist
-// getgroups
+// getgroups    // Weak
 // __getgroups_chk
 // gethostbyaddr
 // gethostbyaddr_r
@@ -478,20 +476,20 @@ GO(getdate, pFp)
 // gethostent
 // gethostent_r
 // gethostid
-// gethostname
+// gethostname  // Weak
 // __gethostname_chk
 // getifaddrs
 // getipv4sourcefilter
-// getitimer
-// get_kernel_syms
-// getline
+// getitimer    // Weak
+// get_kernel_syms  // Weak
+// getline  // Weak
 // getloadavg
 // getlogin
 // getlogin_r
 // __getlogin_r_chk
 // getmntent
 // __getmntent_r
-// getmntent_r
+// getmntent_r  // Weak
 // getmsg
 // get_myaddress
 // getnameinfo
@@ -502,25 +500,25 @@ GO(getdate, pFp)
 // getnetent
 // getnetent_r
 // getnetgrent
-// getnetgrent_r
+// getnetgrent_r    // Weak
 // getnetname
-// get_nprocs
-// get_nprocs_conf
+// get_nprocs   // Weak
+// get_nprocs_conf  // Weak
 // getopt
 // getopt_long
 // getopt_long_only
-// getpagesize
+// getpagesize  // Weak
 // __getpagesize
 // getpass
-// getpeername
-// getpgid
+// getpeername  // Weak
+// getpgid  // Weak
 // __getpgid
 // getpgrp
-// get_phys_pages
+// get_phys_pages   // Weak
 // getpid
 // __getpid
 // getpmsg
-// getppid
+// getppid  // Weak
 // getpriority
 // getprotobyname
 // getprotobyname_r
@@ -528,17 +526,17 @@ GO(getdate, pFp)
 // getprotobynumber_r
 // getprotoent
 // getprotoent_r
-// getpt
+// getpt    // Weak
 // getpublickey
-// getpw
+// getpw    // Weak
 // getpwent
 // getpwent_r
 // getpwnam
 // getpwnam_r
 // getpwuid
 // getpwuid_r
-// getresgid
-// getresuid
+// getresgid    // Weak
+// getresuid    // Weak
 // getrlimit
 // getrlimit64
 // getrpcbyname
@@ -548,8 +546,8 @@ GO(getdate, pFp)
 // getrpcent
 // getrpcent_r
 // getrpcport
-// getrusage
-// gets
+// getrusage    // Weak
+// gets // Weak
 // __gets_chk
 // getsecretkey
 // getservbyname
@@ -559,76 +557,69 @@ GO(getdate, pFp)
 // getservent
 // getservent_r
 // getsid
-// getsockname
-// getsockopt
+// getsockname  // Weak
+// getsockopt   // Weak
 // getsourcefilter
 // getspent
 // getspent_r
 // getspnam
 // getspnam_r
 // getsubopt
-// gettext
-// gettimeofday
+// gettext  // Weak
+// gettimeofday // Weak
 // __gettimeofday
 // getttyent
 // getttynam
-// getuid
+// getuid   // Weak
 // getusershell
-// getutent
-// getutent_r
-// getutid
-// getutid_r
-// getutline
-// getutline_r
+// getutent // Weak
+// getutent_r   // Weak
+// getutid  // Weak
+// getutid_r    // Weak
+// getutline    // Weak
+// getutline_r  // Weak
 // getutmp
 // getutmpx
 // getutxent
 // getutxid
 // getutxline
 // getw
-// getwc
+// getwc    // Weak
 // getwchar
 // getwchar_unlocked
-// getwc_unlocked
+// getwc_unlocked   // Weak
 // getwd
 // __getwd_chk
 // getxattr
-// GLIBC_2.4
-// GLIBC_2.5
-// GLIBC_2.6
-// GLIBC_2.7
-// GLIBC_2.8
-// GLIBC_2.9
-// GLIBC_PRIVATE
 // glob
 // glob64
 // globfree
 // globfree64
-// glob_pattern_p
+// glob_pattern_p   // Weak
 GO(gmtime, pFp)
 // __gmtime_r
-GO(gmtime_r, pFpp)
+GO(gmtime_r, pFpp)  // Weak
 // gnu_dev_major
 // gnu_dev_makedev
 // gnu_dev_minor
-// gnu_get_libc_release
-// gnu_get_libc_version
+// gnu_get_libc_release // Weak
+// gnu_get_libc_version // Weak
 // __gnu_mcount_nc
 // __gnu_Unwind_Find_exidx
 // grantpt
-// group_member
-// gsignal
+// group_member // Weak
+// gsignal  // Weak
 // gtty
-// hasmntopt
+// hasmntopt    // Weak
 // hcreate
 // hcreate_r
-// hdestroy
+// hdestroy // Weak
 // hdestroy_r
-// h_errlist
-// h_errno
+DATA(h_errlist, 4)
+// h_errno  // type B
 // __h_errno_location
 // herror
-// h_nerr
+// h_nerr   // type R
 // host2netname
 // hsearch
 // hsearch_r
@@ -642,12 +633,12 @@ GO(gmtime_r, pFpp)
 // if_indextoname
 // if_nameindex
 // if_nametoindex
-// imaxabs
-// imaxdiv
-// in6addr_any
-// in6addr_loopback
-// inb
-// index
+// imaxabs  // Weak
+// imaxdiv  // Weak
+// in6addr_any  // type R
+// in6addr_loopback // type R
+// inb  // Weak
+// index    // Weak
 // inet6_opt_append
 // inet6_opt_find
 // inet6_opt_finish
@@ -668,7 +659,7 @@ GO(gmtime_r, pFpp)
 // inet6_rth_segments
 // inet6_rth_space
 // inet_addr
-// inet_aton
+// inet_aton    // Weak
 // inet_lnaof
 // inet_makeaddr
 // inet_netof
@@ -680,9 +671,9 @@ GO(gmtime_r, pFpp)
 // inet_pton
 // initgroups
 // init_module
-// initstate
-// initstate_r
-// inl
+// initstate    // Weak
+// initstate_r  // Weak
+// inl  // Weak
 // innetgr
 // inotify_add_watch
 // inotify_init
@@ -692,13 +683,13 @@ GO(gmtime_r, pFpp)
 // __internal_endnetgrent
 // __internal_getnetgrent_r
 // __internal_setnetgrent
-// inw
-// _IO_2_1_stderr_
-// _IO_2_1_stdin_
-// _IO_2_1_stdout_
+// inw  // Weak
+DATA(_IO_2_1_stderr_, 4)
+DATA(_IO_2_1_stdin_, 4)
+DATA(_IO_2_1_stdout_, 4)
 // _IO_adjust_column
 // _IO_adjust_wcolumn
-// ioctl
+// ioctl    // Weak
 // _IO_default_doallocate
 // _IO_default_finish
 // _IO_default_pbackfail
@@ -722,7 +713,7 @@ GO(gmtime_r, pFpp)
 // _IO_file_finish
 // _IO_file_fopen
 // _IO_file_init
-// _IO_file_jumps
+DATA(_IO_file_jumps, 4)
 // _IO_file_open
 // _IO_file_overflow
 // _IO_file_read
@@ -738,7 +729,7 @@ GO(gmtime_r, pFpp)
 // _IO_flush_all
 // _IO_flush_all_linebuffered
 // _IO_fopen
-// _IO_fprintf
+// _IO_fprintf  // Weak
 // _IO_fputs
 // _IO_fread
 // _IO_free_backup_area
@@ -762,7 +753,7 @@ GO(gmtime_r, pFpp)
 // _IO_iter_next
 // _IO_least_wmarker
 // _IO_link_in
-// _IO_list_all
+DATA(_IO_list_all, 4)
 // _IO_list_lock
 // _IO_list_resetlock
 // _IO_list_unlock
@@ -770,8 +761,8 @@ GO(gmtime_r, pFpp)
 // _IO_marker_difference
 // _IO_padn
 // _IO_peekc_locked
-// ioperm
-// iopl
+// ioperm   // Weak
+// iopl // Weak
 // _IO_popen
 // _IO_printf
 // _IO_proc_close
@@ -818,7 +809,7 @@ GO(gmtime_r, pFpp)
 // _IO_wdefault_xsputn
 // _IO_wdoallocbuf
 // _IO_wdo_write
-// _IO_wfile_jumps
+DATA(_IO_wfile_jumps, 4)
 // _IO_wfile_overflow
 // _IO_wfile_seekoff
 // _IO_wfile_sync
@@ -830,43 +821,43 @@ GO(gmtime_r, pFpp)
 // iruserok_af
 // isalnum
 // __isalnum_l
-// isalnum_l
+// isalnum_l    // Weak
 // isalpha
 // __isalpha_l
-// isalpha_l
+// isalpha_l    // Weak
 // isascii
-// __isascii_l
+// __isascii_l  // Weak
 // isastream
-// isatty
+// isatty   // Weak
 // isblank
 // __isblank_l
-// isblank_l
+// isblank_l    // Weak
 // iscntrl
 // __iscntrl_l
-// iscntrl_l
-// isctype
+// iscntrl_l    // Weak
+// isctype  // Weak
 // __isctype
 // isdigit
 // __isdigit_l
-// isdigit_l
+// isdigit_l    // Weak
 // isfdtype
 // isgraph
 // __isgraph_l
-// isgraph_l
-// isinf
+// isgraph_l    // Weak
+// isinf    // Weak
 // __isinf
-// isinff
+// isinff   // Weak
 // __isinff
-// isinfl
+// isinfl   // Weak
 // __isinfl
 // islower
 // __islower_l
-// islower_l
-// isnan
+// islower_l    // Weak
+// isnan    // Weak
 // __isnan
-// isnanf
+// isnanf   // Weak
 // __isnanf
-// isnanl
+// isnanl   // Weak
 // __isnanl
 // __isoc99_fscanf
 // __isoc99_fwscanf
@@ -882,88 +873,88 @@ GO(gmtime_r, pFpp)
 // __isoc99_wscanf
 // isprint
 // __isprint_l
-// isprint_l
+// isprint_l    // Weak
 // ispunct
 // __ispunct_l
-// ispunct_l
+// ispunct_l    // Weak
 // isspace
 // __isspace_l
-// isspace_l
+// isspace_l    // Weak
 // isupper
 // __isupper_l
-// isupper_l
-// iswalnum
+// isupper_l    // Weak
+// iswalnum // Weak
 // __iswalnum_l
-// iswalnum_l
-// iswalpha
+// iswalnum_l   // Weak
+// iswalpha // Weak
 // __iswalpha_l
-// iswalpha_l
-// iswblank
+// iswalpha_l   // Weak
+// iswblank // Weak
 // __iswblank_l
-// iswblank_l
-// iswcntrl
+// iswblank_l   // Weak
+// iswcntrl // Weak
 // __iswcntrl_l
-// iswcntrl_l
-// iswctype
+// iswcntrl_l   // Weak
+// iswctype // Weak
 // __iswctype
 // __iswctype_l
-// iswctype_l
-// iswdigit
+// iswctype_l   // Weak
+// iswdigit // Weak
 // __iswdigit_l
-// iswdigit_l
-// iswgraph
+// iswdigit_l   // Weak
+// iswgraph // Weak
 // __iswgraph_l
-// iswgraph_l
-// iswlower
+// iswgraph_l   // Weak
+// iswlower // Weak
 // __iswlower_l
-// iswlower_l
-// iswprint
+// iswlower_l   // Weak
+// iswprint // Weak
 // __iswprint_l
-// iswprint_l
-// iswpunct
+// iswprint_l   // Weak
+// iswpunct // Weak
 // __iswpunct_l
-// iswpunct_l
-// iswspace
+// iswpunct_l   // Weak
+// iswspace // Weak
 // __iswspace_l
-// iswspace_l
-// iswupper
+// iswspace_l   // Weak
+// iswupper // Weak
 // __iswupper_l
-// iswupper_l
-// iswxdigit
+// iswupper_l   // Weak
+// iswxdigit    // Weak
 // __iswxdigit_l
-// iswxdigit_l
+// iswxdigit_l  // Weak
 // isxdigit
 // __isxdigit_l
-// isxdigit_l
-// _itoa_lower_digits
+// isxdigit_l   // Weak
+// _itoa_lower_digits   // type R
 // __ivaliduser
 // jrand48
-// jrand48_r
+// jrand48_r    // Weak
 // key_decryptsession
 // key_decryptsession_pk
-// __key_decryptsession_pk_LOCAL
+// __key_decryptsession_pk_LOCAL    // type B
 // key_encryptsession
 // key_encryptsession_pk
-// __key_encryptsession_pk_LOCAL
+// __key_encryptsession_pk_LOCAL    // type B
 // key_gendes
-// __key_gendes_LOCAL
+// __key_gendes_LOCAL   // type B
 // key_get_conv
 // key_secretkey_is_set
 // key_setnet
 // key_setsecret
-// kill
+// kill // Weak
 // killpg
 // klogctl
 // l64a
 // labs
 // lchmod
-// lchown
-// lckpwdf
+// lchown   // Weak
+// lckpwdf  // Weak
 // lcong48
-// lcong48_r
-// ldexp
-// ldexpf
-// ldexpl
+// lcong48_r    // Weak
+// ldexp    // Weak
+// ldexpf   // Weak
+// ldexpl   // Weak
 // ldiv
 // lfind
 // lgetxattr
@@ -979,13 +970,12 @@ GO(gmtime_r, pFpp)
 // __libc_dl_error_tsd
 // __libc_dlopen_mode
 // __libc_dlsym
-// __libc_enable_secure
 // __libc_fatal
 // __libc_fork
 // __libc_free
 // __libc_freeres
 // __libc_init_first
-// _libc_intl_domainname
+// _libc_intl_domainname    // type R
 // __libc_longjmp
 // __libc_mallinfo
 // __libc_malloc
@@ -997,62 +987,61 @@ GO(gmtime_r, pFpp)
 // __libc_realloc
 // __libc_sa_len
 // __libc_siglongjmp
-// __libc_stack_end
 GOM(__libc_start_main, iFEpippppp)
 // __libc_system
 // __libc_thread_freeres
 // __libc_valloc
-// link
+// link // Weak
 // linkat
-// listen
+// listen   // Weak
 // listxattr
 // llabs
 // lldiv
 // llistxattr
-// llseek
-// loc1
-// loc2
+// llseek   // Weak
+// loc1 // type B
+// loc2 // type B
 // localeconv
 GO(localtime, pFp)
-GO(localtime_r, pFpp)
+GO(localtime_r, pFpp)   //Weak
 // lockf
 // lockf64
-// locs
-// longjmp
-// _longjmp
+// locs // type B
+// longjmp  // Weak
+// _longjmp // Weak
 // lrand48
 // lrand48_r
 // lremovexattr
 // lsearch
-// lseek
-// __lseek
-// lseek64
+// lseek    // Weak
+// __lseek  // Weak
+// lseek64  // Weak
 // lsetxattr
 // lutimes
 // __lxstat
 // __lxstat64
 // madvise
 // makecontext
-// mallinfo
+// mallinfo // Weak
 // malloc
-// malloc_get_state
-// __malloc_hook
-// __malloc_initialize_hook
-// malloc_set_state
-// malloc_stats
-// malloc_trim
-// malloc_usable_size
-// mallopt
-// mallwatch
+// malloc_get_state // Weak
+DATA(__malloc_hook, 4)  // type V
+DATA(__malloc_initialize_hook, 4)   // type V
+// malloc_set_state // Weak
+// malloc_stats // Weak
+// malloc_trim  // Weak
+// malloc_usable_size   // Weak
+// mallopt  // Weak
+// mallwatch    // type B
 // mblen
-// mbrlen
+// mbrlen   // Weak
 // __mbrlen
-// mbrtowc
+// mbrtowc  // Weak
 // __mbrtowc
-// mbsinit
-// mbsnrtowcs
+// mbsinit  // Weak
+// mbsnrtowcs   // Weak
 // __mbsnrtowcs_chk
-// mbsrtowcs
+// mbsrtowcs    // Weak
 // __mbsrtowcs_chk
 // mbstowcs
 // __mbstowcs_chk
@@ -1061,11 +1050,11 @@ GO(localtime_r, pFpp)
 // mcheck_check_all
 // mcheck_pedantic
 // _mcleanup
-// mcount
+// mcount   // Weak
 // _mcount
-// memalign
-// __memalign_hook
-// memccpy
+// memalign // Weak
+DATA(__memalign_hook, 4)    // type V
+// memccpy  // Weak
 // memchr
 // memcmp
 // memcpy
@@ -1078,11 +1067,11 @@ GO(localtime_r, pFpp)
 // __mempcpy
 // __mempcpy_chk
 // __mempcpy_small
-// memrchr
+// memrchr  // Weak
 // memset
 // __memset_chk
 // mincore
-// mkdir
+// mkdir    // Weak
 // mkdirat
 // mkdtemp
 // mkfifo
@@ -1095,50 +1084,50 @@ GO(localtime_r, pFpp)
 GO(mktime, uFp)
 // mlock
 // mlockall
-// mmap
-// mmap64
-// modf
-// modff
-// modfl
-// moncontrol
-// monstartup
+// mmap // Weak
+// mmap64   // Weak
+// modf // Weak
+// modff    // Weak
+// modfl    // Weak
+// moncontrol   // Weak
+// monstartup   // Weak
 // __monstartup
-// __morecore
-// mount
+DATA(__morecore, 4)
+// mount    // Weak
 // mprobe
-// mprotect
+// mprotect // Weak
 // mrand48
 // mrand48_r
-// mremap
+// mremap   // Weak
 // msgctl
-// msgget
-// msgrcv
-// msgsnd
-// msync
+// msgget   // Weak
+// msgrcv   // Weak
+// msgsnd   // Weak
+// msync    // Weak
 // mtrace
 // munlock
 // munlockall
-// munmap
+// munmap   // Weak
 // muntrace
-GO(nanosleep, iFpp)
-// __nanosleep
+GO(nanosleep, iFpp) // Weak
+// __nanosleep  // Weak
 // netname2host
 // netname2user
-// newlocale
+// newlocale    // Weak
 // __newlocale
 // nfsservctl
 // nftw
 // nftw64
-// ngettext
+// ngettext // Weak
 // nice
-// _nl_default_dirname
-// _nl_domain_bindings
+// _nl_default_dirname  // type R
+// _nl_domain_bindings  // type B
 // nl_langinfo
 // __nl_langinfo_l
-// nl_langinfo_l
-// _nl_msg_cat_cntr
+// nl_langinfo_l    // Weak
+// _nl_msg_cat_cntr // type B
 // nrand48
-// nrand48_r
+// nrand48_r    // Weak
 // __nss_configure_lookup
 // __nss_database_lookup
 // __nss_disable_nscd
@@ -1156,65 +1145,65 @@ GO(nanosleep, iFpp)
 // __nss_passwd_lookup
 // __nss_passwd_lookup2
 // __nss_services_lookup2
-// ntohl
-// ntohs
-// ntp_adjtime
+// ntohl    // Weak
+// ntohs    // Weak
+// ntp_adjtime  // Weak
 // ntp_gettime
-// _null_auth
+// _null_auth   // type B
 // _obstack_allocated_p
-// obstack_alloc_failed_handler
+DATA(obstack_alloc_failed_handler, 4)
 // _obstack_begin
 // _obstack_begin_1
-// obstack_exit_failure
+DATA(obstack_exit_failure, 4)
 // _obstack_free
 // obstack_free
 // _obstack_memory_used
 // _obstack_newchunk
-// obstack_printf
+// obstack_printf   // Weak
 // __obstack_printf_chk
-// obstack_vprintf
+// obstack_vprintf  // Weak
 // __obstack_vprintf_chk
-// on_exit
-// open
-// __open
+// on_exit  // Weak
+// open // Weak
+// __open   // Weak
 // __open_2
-// open64
-// __open64
+// open64   // Weak
+// __open64 // Weak
 // __open64_2
-// openat
+// openat   // Weak
 // __openat_2
-// openat64
+// openat64 // Weak
 // __openat64_2
 // __open_catalog
-// opendir
+// opendir  // Weak
 // openlog
 // open_memstream
 // open_wmemstream
-// optarg
-// opterr
-// optind
-// optopt
-// outb
-// outl
-// outw
+// optarg   // type B
+DATA(opterr, 4)
+DATA(optind, 4)
+DATA(optopt, 4)
+// outb // Weak
+// outl // Weak
+// outw // Weak
 // __overflow
 // parse_printf_format
 // passwd2des
-// pathconf
-// pause
+// pathconf // Weak
+// pause    // Weak
 // pclose
 // perror
-// personality
-// pipe
+// personality  // Weak
+// pipe // Weak
 // __pipe
-// pipe2
+// pipe2    // Weak
 // pivot_root
 // pmap_getmaps
 // pmap_getport
 // pmap_rmtcall
 // pmap_set
 // pmap_unset
-// poll
+// poll // Weak
 // __poll
 // popen
 // posix_fadvise
@@ -1222,8 +1211,8 @@ GO(nanosleep, iFpp)
 // posix_fallocate
 // posix_fallocate64
 // posix_madvise
-// posix_memalign
-// posix_openpt
+// posix_memalign   // Weak
+// posix_openpt // Weak
 // posix_spawn
 // posix_spawnattr_destroy
 // posix_spawnattr_getflags
@@ -1246,10 +1235,10 @@ GO(nanosleep, iFpp)
 // posix_spawn_file_actions_init
 // posix_spawnp
 // ppoll
-// prctl
-// pread
-// pread64
-// __pread64
+// prctl    // Weak
+// pread    // Weak
+// pread64  // Weak
+// __pread64    // Weak
 // __pread64_chk
 // __pread_chk
 GO2(printf, iFopV, vfprintf)
@@ -1257,13 +1246,13 @@ GO2(__printf_chk, iFvopV, vfprintf)
 // __printf_fp
 // printf_size
 // printf_size_info
-// profil
+// profil   // Weak
 // __profile_frequency
-// __progname
-// __progname_full
-// program_invocation_name
-// program_invocation_short_name
-// pselect
+DATA(__progname, 4)
+DATA(__progname_full, 4)
+DATA(program_invocation_name, 4)    // type V
+DATA(program_invocation_short_name, 4)  // type V
+// pselect  // Weak
 // psignal
 // pthread_attr_destroy
 // pthread_attr_getdetachstate
@@ -1293,14 +1282,14 @@ GO2(__printf_chk, iFvopV, vfprintf)
 // pthread_mutex_lock
 // pthread_mutex_unlock
 // pthread_self
-// pthread_setcancelstate
+// pthread_setcancelstate   // Weak
 // pthread_setcanceltype
 // pthread_setschedparam
 // ptrace
 // ptsname
-// ptsname_r
+// ptsname_r    // Weak
 // __ptsname_r_chk
-// putc
+// putc // Weak
 GO(putchar, iFi)
 // putchar_unlocked
 // putc_unlocked
@@ -1309,19 +1298,19 @@ GO(putchar, iFi)
 // putmsg
 // putpmsg
 // putpwent
-GO(puts, iFp)
+GO(puts, iFp)   // Weak
 // putspent
-// pututline
+// pututline    // Weak
 // pututxline
 // putw
 // putwc
 // putwchar
 // putwchar_unlocked
 // putwc_unlocked
-// pvalloc
-// pwrite
-// pwrite64
-// __pwrite64
+// pvalloc  // Weak
+// pwrite   // Weak
+// pwrite64 // Weak
+// __pwrite64   // Weak
 // qecvt
 // qecvt_r
 // qfcvt
@@ -1329,84 +1318,84 @@ GO(puts, iFp)
 // qgcvt
 // qsort
 // qsort_r
-// query_module
+// query_module // Weak
 // quotactl
 // raise
 // rand
-// random
-// random_r
+// random   // Weak
+// random_r // Weak
 // rand_r
-// rawmemchr
+// rawmemchr    // Weak
 // __rawmemchr
 // rcmd
 // rcmd_af
-// __rcmd_errstr
-// read
-// __read
-// readahead
+// __rcmd_errstr    // type B
+// read // Weak
+// __read   // Weak
+// readahead    // Weak
 // __read_chk
-// readdir
+// readdir  // Weak
 // readdir64
 // readdir64_r
-// readdir_r
-// readlink
+// readdir_r    // Weak
+// readlink // Weak
 // readlinkat
 // __readlinkat_chk
 // __readlink_chk
-// readv
+// readv    // Weak
 // realloc
-// __realloc_hook
+DATA(__realloc_hook, 4) // type V
 // realpath
 // __realpath_chk
 // reboot
-// re_comp
-// re_compile_fastmap
-// re_compile_pattern
-// recv
+// re_comp  // Weak
+// re_compile_fastmap   // Weak
+// re_compile_pattern   // Weak
+// recv // Weak
 // __recv_chk
-// recvfrom
+// recvfrom // Weak
 // __recvfrom_chk
-// recvmsg
-// re_exec
-// regcomp
-// regerror
+// recvmsg  // Weak
+// re_exec  // Weak
+// regcomp  // Weak
+// regerror // Weak
 // regexec
-// regfree
+// regfree  // Weak
 // __register_atfork
-// register_printf_function
+// register_printf_function // Weak
 // registerrpc
-// remap_file_pages
-// re_match
-// re_match_2
+// remap_file_pages // Weak
+// re_match // Weak
+// re_match_2   // Weak
 // remove
 // removexattr
 // remque
 // rename
 // renameat
-// _res
-// re_search
-// re_search_2
-// re_set_registers
-// re_set_syntax
-// _res_hconf
+// _res // type B
+// re_search    // Weak
+// re_search_2  // Weak
+// re_set_registers // Weak
+// re_set_syntax    // Weak
+// _res_hconf   // type B
 // __res_iclose
 // __res_init
 // __res_maybe_init
 // __res_nclose
 // __res_ninit
-// __resp
+DATA(__resp, 4)
 // __res_randomid
 // __res_state
-// re_syntax_options
+// re_syntax_options    // type B
 // revoke
 // rewind
 // rewinddir
 // rexec
 // rexec_af
-// rexecoptions
-// rindex
-// rmdir
-// rpc_createerr
+// rexecoptions // type B
+// rindex   // Weak
+// rmdir    // Weak
+// rpc_createerr    // type B
 // _rpc_dtablesize
 // __rpc_thread_createerr
 // __rpc_thread_svc_fdset
@@ -1416,16 +1405,14 @@ GO(puts, iFp)
 // rresvport
 // rresvport_af
 // rtime
-         // _rtld_global
-         // _rtld_global_ro
 // ruserok
 // ruserok_af
 // ruserpass
-// sbrk
+// sbrk // Weak
 // __sbrk
-// scalbn
-// scalbnf
-// scalbnl
+// scalbn   // Weak
+// scalbnf  // Weak
+// scalbnl  // Weak
 // scandir
 // scandir64
 // scanf
@@ -1435,108 +1422,108 @@ GO(puts, iFp)
 // sched_getaffinity
 // sched_getcpu
 // __sched_getparam
-// sched_getparam
+// sched_getparam   // Weak
 // __sched_get_priority_max
-// sched_get_priority_max
+// sched_get_priority_max   // Weak
 // __sched_get_priority_min
-// sched_get_priority_min
+// sched_get_priority_min   // Weak
 // __sched_getscheduler
-// sched_getscheduler
-// sched_rr_get_interval
+// sched_getscheduler   // Weak
+// sched_rr_get_interval    // Weak
 // sched_setaffinity
-// sched_setparam
+// sched_setparam   // Weak
 // __sched_setscheduler
-// sched_setscheduler
+// sched_setscheduler   // Weak
 // __sched_yield
-// sched_yield
+// sched_yield  // Weak
 // __secure_getenv
 // seed48
-// seed48_r
+// seed48_r // Weak
 // seekdir
-// select
+// select   // Weak
 // __select
 // semctl
-// semget
-// semop
+// semget   // Weak
+// semop    // Weak
 // semtimedop
-// send
-// __send
+// send // Weak
+// __send   // Weak
 // sendfile
 // sendfile64
-// sendmsg
-// sendto
+// sendmsg  // Weak
+// sendto   // Weak
 // setaliasent
 // setbuf
-// setbuffer
+// setbuffer    // Weak
 // setcontext
 // setdomainname
 // setegid
-// setenv
+// setenv   // Weak
 // _seterr_reply
 // seteuid
 // setfsent
 // setfsgid
 // setfsuid
-// setgid
+// setgid   // Weak
 // setgrent
 // setgroups
 // sethostent
 // sethostid
 // sethostname
 // setipv4sourcefilter
-// setitimer
+// setitimer    // Weak
 // setjmp
 // _setjmp
 // setlinebuf
 // setlocale
 // setlogin
 // setlogmask
-// setmntent
+// setmntent    // Weak
 // __setmntent
 // setnetent
 // setnetgrent
-// setpgid
+// setpgid  // Weak
 // __setpgid
 // setpgrp
 // setpriority
 // setprotoent
 // setpwent
-// setregid
-// setresgid
-// setresuid
-// setreuid
+// setregid // Weak
+// setresgid    // Weak
+// setresuid    // Weak
+// setreuid // Weak
 // setrlimit
 // setrlimit64
 // setrpcent
 // setservent
-// setsid
-// setsockopt
+// setsid   // Weak
+// setsockopt   // Weak
 // setsourcefilter
 // setspent
-// setstate
-// setstate_r
-// settimeofday
+// setstate // Weak
+// setstate_r   // Weak
+// settimeofday // Weak
 // setttyent
-// setuid
+// setuid   // Weak
 // setusershell
-// setutent
+// setutent // Weak
 // setutxent
-// setvbuf
+// setvbuf  // Weak
 // setxattr
 // sgetspent
-// sgetspent_r
-// shmat
+// sgetspent_r  // Weak
+// shmat    // Weak
 // shmctl
-// shmdt
-// shmget
-// shutdown
-// sigaction
-// __sigaction
+// shmdt    // Weak
+// shmget   // Weak
+// shutdown // Weak
+// sigaction    // Weak
+// __sigaction  // Weak
 // sigaddset
 // __sigaddset
-// sigaltstack
+// sigaltstack  // Weak
 // sigandset
-// sigblock
+// sigblock // Weak
 // sigdelset
 // __sigdelset
 // sigemptyset
@@ -1548,79 +1535,79 @@ GO(puts, iFp)
 // sigisemptyset
 // sigismember
 // __sigismember
-// siglongjmp
-// signal
+// siglongjmp   // Weak
+// signal   // Weak
 // signalfd
 // __signbit
 // __signbitf
 // sigorset
-// sigpause
+// sigpause // Weak
 // __sigpause
 // sigpending
-// sigprocmask
-// sigqueue
+// sigprocmask  // Weak
+// sigqueue // Weak
 // sigrelse
-// sigreturn
+// sigreturn    // Weak
 // sigset
 // __sigsetjmp
-// sigsetmask
+// sigsetmask   // Weak
 // sigstack
-// sigsuspend
+// sigsuspend   // Weak
 // __sigsuspend
-// sigtimedwait
-// sigvec
-// sigwait
-// sigwaitinfo
-// sleep
-// snprintf
+// sigtimedwait // Weak
+// sigvec   // Weak
+// sigwait  // Weak
+// sigwaitinfo  // Weak
+// sleep    // Weak
+// snprintf // Weak
 // __snprintf_chk
 // sockatmark
-// socket
-// socketpair
+// socket   // Weak
+// socketpair   // Weak
 // splice
 // sprintf
 // __sprintf_chk
-// sprofil
-// srand
+// sprofil  // Weak
+// srand    // Weak
 // srand48
-// srand48_r
-// srandom
-// srandom_r
+// srand48_r    // Weak
+// srandom  // Weak
+// srandom_r    // Weak
 // sscanf
-// ssignal
+// ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFE)
-// statfs
+// statfs   // Weak
 // __statfs
-// statfs64
+// statfs64 // Weak
 // statvfs
-// statvfs64
-// stderr
-// stdin
-// stdout
-// step
+// statvfs64    // Weak
+DATA(stderr, 4)
+DATA(stdin, 4)
+DATA(stdout, 4)
+// step // Weak
 // stime
 // stpcpy
 // __stpcpy
 // __stpcpy_chk
 // __stpcpy_small
-// stpncpy
+// stpncpy  // Weak
 // __stpncpy
 // __stpncpy_chk
-// strcasecmp
+// strcasecmp   // Weak
 // __strcasecmp
 // __strcasecmp_l
-// strcasecmp_l
-// strcasestr
+// strcasecmp_l // Weak
+// strcasestr   // Weak
 // __strcasestr
 // strcat
 // __strcat_chk
 // strchr
-// strchrnul
+// strchrnul    // Weak
 // strcmp
 // strcoll
 // __strcoll_l
-// strcoll_l
+// strcoll_l    // Weak
 // strcpy
 // __strcpy_chk
 // __strcpy_small
@@ -1628,38 +1615,38 @@ GOM(__stack_chk_fail, vFE)
 // __strcspn_c1
 // __strcspn_c2
 // __strcspn_c3
-// strdup
+// strdup   // Weak
 // __strdup
 GO(strerror, pFv)
 // strerror_l
 // __strerror_r
-// strerror_r
+// strerror_r   // Weak
 // strfmon
 // __strfmon_l
-// strfmon_l
+// strfmon_l    // Weak
 // strfry
 GO(strftime, uFpupp)
 // __strftime_l
-// strftime_l
+// strftime_l   // Weak
 // strlen
-// strncasecmp
+// strncasecmp  // Weak
 // __strncasecmp_l
-// strncasecmp_l
+// strncasecmp_l    // Weak
 // strncat
 // __strncat_chk
 // strncmp
 // strncpy
 // __strncpy_chk
-// strndup
+// strndup  // Weak
 // __strndup
 // strnlen
 // strpbrk
 // __strpbrk_c2
 // __strpbrk_c3
 GO(strptime, pFppp)
-// strptime_l
+// strptime_l   // Weak
 // strrchr
-// strsep
+// strsep   // Weak
 // __strsep_1c
 // __strsep_2c
 // __strsep_3c
@@ -1673,46 +1660,46 @@ GO(strptime, pFppp)
 // strtod
 // __strtod_internal
 // __strtod_l
-// strtod_l
+// strtod_l // Weak
 // strtof
 // __strtof_internal
 // __strtof_l
-// strtof_l
+// strtof_l // Weak
 // strtoimax
 // strtok
 // __strtok_r
-// strtok_r
+// strtok_r // Weak
 // __strtok_r_1c
 GO(strtol, iFppi)
 // strtold
 // __strtold_internal
 // __strtold_l
-// strtold_l
+// strtold_l    // Weak
 // __strtol_internal
 // strtoll
 // __strtol_l
-// strtol_l
+// strtol_l // Weak
 // __strtoll_internal
 // __strtoll_l
-// strtoll_l
-// strtoq
+// strtoll_l    // Weak
+// strtoq   // Weak
 // strtoul
 // __strtoul_internal
 // strtoull
 // __strtoul_l
-// strtoul_l
+// strtoul_l    // Weak
 // __strtoull_internal
 // __strtoull_l
-// strtoull_l
+// strtoull_l   // Weak
 // strtoumax
-// strtouq
-// strverscmp
+// strtouq  // Weak
+// strverscmp   // Weak
 // __strverscmp
 // strxfrm
 // __strxfrm_l
-// strxfrm_l
+// strxfrm_l    // Weak
 // stty
-// svcauthdes_stats
+// svcauthdes_stats // type B
 // svcerr_auth
 // svcerr_decode
 // svcerr_noproc
@@ -1722,13 +1709,13 @@ GO(strtol, iFppi)
 // svcerr_weakauth
 // svc_exit
 // svcfd_create
-// svc_fdset
+// svc_fdset    // type B
 // svc_getreq
 // svc_getreq_common
 // svc_getreq_poll
 // svc_getreqset
-// svc_max_pollfd
-// svc_pollfd
+// svc_max_pollfd   // type B
+// svc_pollfd   // type B
 // svcraw_create
 // svc_register
 // svc_run
@@ -1742,156 +1729,155 @@ GO(strtol, iFppi)
 // svc_unregister
 // swab
 // swapcontext
-// swapoff
-// swapon
+// swapoff  // Weak
+// swapon   // Weak
 // swprintf
 // __swprintf_chk
 // swscanf
-// symlink
+// symlink  // Weak
 // symlinkat
 // sync
 // sync_file_range
 GOM(syscall, uFE)
-// sysconf
+// sysconf  // Weak
 // __sysconf
-// sysctl
+// sysctl   // Weak
 // __sysctl
-// _sys_errlist
-// sys_errlist
+DATA(_sys_errlist, 4)
+DATA(sys_errlist, 4)
 // sysinfo
 // syslog
 // __syslog_chk
-// _sys_nerr
-// sys_nerr
-// sys_sigabbrev
-// _sys_siglist
-// sys_siglist
-// system
+// _sys_nerr    // type R
+// sys_nerr // type R
+DATA(sys_sigabbrev, 4)
+DATA(_sys_siglist, 4)
+DATA(sys_siglist, 4)
+// system   // Weak
 // __sysv_signal
-// sysv_signal
-// tcdrain
+// sysv_signal  // Weak
+// tcdrain  // Weak
 // tcflow
 // tcflush
-// tcgetattr
+// tcgetattr    // Weak
 // tcgetpgrp
 // tcgetsid
 // tcsendbreak
 // tcsetattr
 // tcsetpgrp
-// tdelete
-// tdestroy
+// tdelete  // Weak
+// tdestroy // Weak
 // tee
 // telldir
 // tempnam
-// textdomain
-// tfind
+// textdomain   // Weak
+// tfind    // Weak
 GO(time, uFp)
 // timegm
-// timelocal
+// timelocal    // Weak
 // timerfd_create
 // timerfd_gettime
 // timerfd_settime
-// times
-DATA(timezone, 4)
-// __timezone
-         // __tls_get_addr
+// times    // Weak
+DATA(timezone, 4)   // type V
+// __timezone   // type B
 // tmpfile
 // tmpfile64
 // tmpnam
 // tmpnam_r
 // toascii
-// __toascii_l
+// __toascii_l  // Weak
 // tolower
 // _tolower
 // __tolower_l
-// tolower_l
+// tolower_l    // Weak
 // toupper
 // _toupper
 // __toupper_l
-// toupper_l
-// towctrans
+// toupper_l    // Weak
+// towctrans    // Weak
 // __towctrans
 // __towctrans_l
-// towctrans_l
+// towctrans_l  // Weak
 // towlower
 // __towlower_l
-// towlower_l
+// towlower_l   // Weak
 // towupper
 // __towupper_l
-// towupper_l
+// towupper_l   // Weak
 // tr_break
-// truncate
+// truncate // Weak
 // truncate64
-// tsearch
+// tsearch  // Weak
 // ttyname
-// ttyname_r
+// ttyname_r    // Weak
 // __ttyname_r_chk
 // ttyslot
-// twalk
-DATA(tzname, 4)
-// __tzname
-GO(tzset, vFv)
+// twalk    // Weak
+DATA(tzname, 4) // Type V
+DATA(__tzname, 4)
+GO(tzset, vFv)  // Weak
 // ualarm
 // __uflow
-// ulckpwdf
-// ulimit
-// umask
-// umount
-// umount2
-// uname
+// ulckpwdf // Weak
+// ulimit   // Weak
+// umask    // Weak
+// umount   // Weak
+// umount2  // Weak
+// uname    // Weak
 // __underflow
-// ungetc
+// ungetc   // Weak
 // ungetwc
-// unlink
+// unlink   // Weak
 // unlinkat
 // unlockpt
-// unsetenv
+// unsetenv // Weak
 // unshare
-// updwtmp
+// updwtmp  // Weak
 // updwtmpx
 // uselib
-// uselocale
+// uselocale    // Weak
 // __uselocale
 // user2netname
 // usleep
 // ustat
 // utime
 // utimensat
-// utimes
-// utmpname
+// utimes   // Weak
+// utmpname // Weak
 // utmpxname
-// valloc
-// vasprintf
+// valloc   // Weak
+// vasprintf    // Weak
 // __vasprintf_chk
-// vdprintf
+// vdprintf // Weak
 // __vdprintf_chk
 // verr
 // verrx
 // versionsort
 // versionsort64
-// vfork
+// vfork    // Weak
 // __vfork
 // vfprintf
 // __vfprintf_chk
-// vfscanf
+// vfscanf  // Weak
 // __vfscanf
-// vfwprintf
+// vfwprintf    // Weak
 // __vfwprintf_chk
-// vfwscanf
+// vfwscanf // Weak
 // vhangup
 // vlimit
 // vmsplice
 // vprintf
 // __vprintf_chk
-// vscanf
-// vsnprintf
-// __vsnprintf
+// vscanf   // Weak
+// vsnprintf    // Weak
+// __vsnprintf  // Weak
 // __vsnprintf_chk
-// vsprintf
+// vsprintf // Weak
 // __vsprintf_chk
-// vsscanf
-// __vsscanf
-// vswprintf
+// vsscanf  // Weak
+// __vsscanf    // Weak
+// vswprintf    // Weak
 // __vswprintf_chk
 // vswscanf
 // vsyslog
@@ -1902,114 +1888,114 @@ GO(tzset, vFv)
 // vwprintf
 // __vwprintf_chk
 // vwscanf
-// wait
-// __wait
-// wait3
-// wait4
-// waitid
-// waitpid
-// __waitpid
+// wait // Weak
+// __wait   // Weak
+// wait3    // Weak
+// wait4    // Weak
+// waitid   // Weak
+// waitpid  // Weak
+// __waitpid    // Weak
 // warn
 // warnx
-// wcpcpy
+// wcpcpy   // Weak
 // __wcpcpy_chk
-// wcpncpy
+// wcpncpy  // Weak
 // __wcpncpy_chk
-// wcrtomb
+// wcrtomb  // Weak
 // __wcrtomb_chk
-// wcscasecmp
+// wcscasecmp   // Weak
 // __wcscasecmp_l
-// wcscasecmp_l
-// wcscat
+// wcscasecmp_l // Weak
+// wcscat   // Weak
 // __wcscat_chk
 // wcschr
-// wcschrnul
+// wcschrnul    // Weak
 // wcscmp
-// wcscoll
+// wcscoll  // Weak
 // __wcscoll_l
-// wcscoll_l
+// wcscoll_l    // Weak
 // wcscpy
 // __wcscpy_chk
 // wcscspn
 // wcsdup
 // wcsftime
 // __wcsftime_l
-// wcsftime_l
-// wcslen
-// wcsncasecmp
+// wcsftime_l   // Weak
+// wcslen   // Weak
+// wcsncasecmp  // Weak
 // __wcsncasecmp_l
-// wcsncasecmp_l
+// wcsncasecmp_l    // Weak
 // wcsncat
 // __wcsncat_chk
 // wcsncmp
-// wcsncpy
+// wcsncpy  // Weak
 // __wcsncpy_chk
-// wcsnlen
-// wcsnrtombs
+// wcsnlen  // Weak
+// wcsnrtombs   // Weak
 // __wcsnrtombs_chk
 // wcspbrk
 // wcsrchr
-// wcsrtombs
+// wcsrtombs    // Weak
 // __wcsrtombs_chk
 // wcsspn
 // wcsstr
 // wcstod
 // __wcstod_internal
 // __wcstod_l
-// wcstod_l
+// wcstod_l // Weak
 // wcstof
 // __wcstof_internal
 // __wcstof_l
-// wcstof_l
+// wcstof_l // Weak
 // wcstoimax
 // wcstok
 // wcstol
 // wcstold
 // __wcstold_internal
 // __wcstold_l
-// wcstold_l
+// wcstold_l    // Weak
 // __wcstol_internal
 // wcstoll
 // __wcstol_l
-// wcstol_l
+// wcstol_l // Weak
 // __wcstoll_internal
 // __wcstoll_l
-// wcstoll_l
+// wcstoll_l    // Weak
 // wcstombs
 // __wcstombs_chk
-// wcstoq
+// wcstoq   // Weak
 // wcstoul
 // __wcstoul_internal
 // wcstoull
 // __wcstoul_l
-// wcstoul_l
+// wcstoul_l    // Weak
 // __wcstoull_internal
 // __wcstoull_l
-// wcstoull_l
+// wcstoull_l   // Weak
 // wcstoumax
-// wcstouq
-// wcswcs
+// wcstouq  // Weak
+// wcswcs   // Weak
 // wcswidth
 // wcsxfrm
 // __wcsxfrm_l
-// wcsxfrm_l
+// wcsxfrm_l    // Weak
 // wctob
 // wctomb
 // __wctomb_chk
-// wctrans
+// wctrans  // Weak
 // __wctrans_l
-// wctrans_l
-// wctype
+// wctrans_l    // Weak
+// wctype   // Weak
 // __wctype_l
-// wctype_l
+// wctype_l // Weak
 // wcwidth
 // wmemchr
 // wmemcmp
-// wmemcpy
+// wmemcpy  // Weak
 // __wmemcpy_chk
-// wmemmove
+// wmemmove // Weak
 // __wmemmove_chk
-// wmempcpy
+// wmempcpy // Weak
 // __wmempcpy_chk
 // wmemset
 // __wmemset_chk
@@ -2018,9 +2004,9 @@ GO(tzset, vFv)
 // __woverflow
 // wprintf
 // __wprintf_chk
-// write
-// __write
-// writev
+// write    // Weak
+// __write  // Weak
+// writev   // Weak
 // wscanf
 // __wuflow
 // __wunderflow
@@ -2098,12 +2084,14 @@ GO(tzset, vFv)
 // __xmknod
 // __xmknodat
 // __xpg_basename
-// __xpg_sigpause
+// __xpg_sigpause   // Weak
 // __xpg_strerror_r
 // xprt_register
 // xprt_unregister
 // __xstat
 // __xstat64
+
+
 END()
 
 #else

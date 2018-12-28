@@ -44,12 +44,8 @@ int wrappedlibc_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
 
 #include "wrappedlib_defines.h"
 #include "wrappedlibc_private.h"
+#include "wrappedlib_undefs.h"
 
-#undef GO
-#undef GOM
-#undef GO2
-#undef DATA
-#undef END
 
     if(!addr)
         return 0;
