@@ -359,7 +359,7 @@ DATAV(_environ, 4)
 // fputwc_unlocked
 // fputws
 // fputws_unlocked
-// fread    // Weak
+GOW(fread, uFpuup)
 // __freadable
 // __fread_chk
 // __freading
@@ -413,7 +413,7 @@ DATAV(__free_hook, 4)
 // fwprintf // Weak
 // __fwprintf_chk
 // __fwritable
-// fwrite   // Weak
+GOW(fwrite, uFpuup)
 // fwrite_unlocked
 // __fwriting
 // fwscanf
@@ -1918,8 +1918,8 @@ GOW(tzset, vFv)
 // __wcscpy_chk
 // wcscspn
 // wcsdup
-// wcsftime
-// __wcsftime_l
+GO(wcsftime, uFpupp)
+GO(__wcsftime_l, uFpuppu)
 // wcsftime_l   // Weak
 // wcslen   // Weak
 // wcsncasecmp  // Weak

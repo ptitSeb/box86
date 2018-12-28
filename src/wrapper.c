@@ -31,9 +31,10 @@ typedef int32_t     (*iFv_t)();
 typedef int32_t     (*iFi_t)(int32_t);
 typedef int32_t     (*iFp_t)(void*);
 typedef int32_t     (*iFu_t)(uint32_t);
-typedef int32_t     (*iFpp_t)(void*, void*);
 typedef int32_t     (*iFii_t)(int32_t, int32_t);
 typedef int32_t     (*iFip_t)(int32_t, void*);
+typedef int32_t     (*iFpi_t)(void*, int32_t);
+typedef int32_t     (*iFpp_t)(void*, void*);
 typedef int32_t     (*iFuu_t)(uint32_t, uint32_t);
 typedef int32_t     (*iFup_t)(uint32_t, void*);
 typedef int32_t     (*iFppi_t)(void*, void*, int32_t);
@@ -50,7 +51,9 @@ typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, voi
 typedef uint32_t    (*uFv_t)();
 typedef uint32_t    (*uFE_t)(x86emu_t*);
 typedef uint32_t    (*uFp_t)(void*);
+typedef uint32_t    (*uFpuup_t)(void*, uint32_t, uint32_t, void*);
 typedef uint32_t    (*uFpupp_t)(void*, uint32_t, void*, void*);
+typedef uint32_t    (*uFpuppu_t)(void*, uint32_t, void*, void*, uint32_t);
 
 // void*....
 typedef void*       (*pFv_t)();
