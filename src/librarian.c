@@ -54,6 +54,7 @@ library_t* getLib(lib_t* maplib, const char* path)
             return onelib->lib;
         }
     }
+    return NULL;
 }
 
 int AddNeededLib(lib_t* maplib, const char* path)

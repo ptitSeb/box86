@@ -104,15 +104,29 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
     //void *dlsym(void *handle, const char *symbol);
     char* rsymbol = (char*)symbol;
-    printf_log(LOG_INFO, "Error: unimplement call to dlsym(%p, \"%s\")\n", handle, rsymbol);
-    emu->quit = 1;
-    return NULL;
+    printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
+    int nlib = (int)handle;
+    --nlib;
+    dlprivate_t *dl = emu->context->dlprivate;
+    if(nlib<0 || nlib>=dl->lib_sz) 
+        return NULL;
+    uintptr_t start, end;
+    if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)) {
+        // not found
+        printf_log(LOG_DEBUG, " Symbol not found\n");
+        return NULL;
+    }
+    return (void*)start;
 }
 int my_dlclose(x86emu_t* emu, void *handle)
 {
     //int dlclose(void *handle);
-    printf_log(LOG_INFO, "Error: unimplement call to dlclose(%p)\n", handle);
-    emu->quit = 1;
+    printf_log(LOG_DEBUG, "Call to dlclose(%p)\n", handle);
+    int nlib = (int)handle;
+    --nlib;
+    dlprivate_t *dl = emu->context->dlprivate;
+    if(nlib<0 || nlib>=dl->lib_sz) 
+        return -1;
     return 0;
 }
 int my_dladdr(x86emu_t* emu, void *addr, void *info)
