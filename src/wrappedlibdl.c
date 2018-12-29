@@ -11,6 +11,18 @@
 #include "bridge.h"
 #include "library_private.h"
 #include "x86emu_private.h"
+#include "library.h"
+#include "librarian.h"
+#include "box86context.h"
+
+
+dlprivate_t *NewDLPrivate() {
+    dlprivate_t* dl =  (dlprivate_t*)calloc(1, sizeof(dlprivate_t));
+    return dl;
+}
+void FreeDLPrivate(dlprivate_t **lib) {
+    free(*lib);
+}
 
 void* my_dlopen(x86emu_t* emu, void *filename, int flag) EXPORT;
 char* my_dlerror(x86emu_t* emu) EXPORT;
@@ -33,6 +45,7 @@ void wrappedlibdl_fini(library_t* lib)
     if(lib->priv.w.lib)
         dlclose(lib->priv.w.lib);
     lib->priv.w.lib = NULL;
+    lib->priv.w.priv = NULL;
     FreeBridge(&lib->priv.w.bridge);
 }
 int wrappedlibdl_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
@@ -56,11 +69,29 @@ int wrappedlibdl_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t
 void* my_dlopen(x86emu_t* emu, void *filename, int flag)
 {
     //void *dlopen(const char *filename, int flag);
+    // TODO, handling special values for filename, like RTLD_SELF?
+    // TODO, handling flags?
     char* rfilename = (char*)filename;
-    printf_log(LOG_INFO, "Error: unimplement call to dlopen(%s/%p, %X)\n", rfilename, filename, flag);
-    emu->quit = 1;
-    return NULL;
-
+    printf_log(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+    dlprivate_t *dl = emu->context->dlprivate;
+    // check if alread dlopenned...
+    for (int i=0; i<dl->lib_sz; ++i) {
+        if(IsSameLib(dl->libs[i], rfilename))
+            return (void*)(i+1);
+    }
+    // Then open the lib
+    if(AddNeededLib(emu->context->maplib, rfilename)) {
+        printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        return NULL;
+    }
+    //get the lib and add it to the collection
+    library_t *lib = GetLib(emu->context->maplib, rfilename);
+    if(dl->lib_sz == dl->lib_cap) {
+        dl->lib_cap += 4;
+        dl->libs = (library_t**)realloc(dl->libs, sizeof(library_t*)*dl->lib_cap);
+    }
+    dl->libs[dl->lib_sz] = lib;
+    return (void*)(++dl->lib_sz);
 }
 char* my_dlerror(x86emu_t* emu)
 {

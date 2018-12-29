@@ -6,12 +6,16 @@ typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct library_s library_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
+typedef struct dlprivate_s dlprivate_t;
 
 lib_t *NewLibrarian();
 void FreeLibrarian(lib_t **maplib);
+dlprivate_t *NewDLPrivate();
+void FreeDLPrivate(dlprivate_t **lib);
 
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 int AddNeededLib(lib_t* maplib, const char* path); // 0=success, 1=error
+library_t* GetLib(lib_t* maplib, const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end);
 

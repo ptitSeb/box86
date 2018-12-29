@@ -46,16 +46,23 @@ kh_mapsymbols_t* GetMapSymbol(lib_t* maplib)
     return maplib->mapsymbols;
 }
 
+library_t* getLib(lib_t* maplib, const char* path)
+{
+    for(int i=0; i<maplib->libsz; ++i) {
+        onelib_t *onelib = &maplib->libraries[i];
+        if(IsSameLib(onelib->lib, path)) {
+            return onelib->lib;
+        }
+    }
+}
+
 int AddNeededLib(lib_t* maplib, const char* path)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
-    for(int i=0; i<maplib->libsz; ++i) {
-        onelib_t *onelib = &maplib->libraries[i];
-        if(IsSameLib(onelib->lib, path)) {
-            printf_log(LOG_DEBUG, "Already present in maplib => success\n");
-            return 0;
-        }
+    if(getLib(maplib, path)) {
+        printf_log(LOG_DEBUG, "Already present in maplib => success\n");
+        return 0;
     }
     // load a new one
     library_t *lib = NewLibrary(path);
@@ -75,6 +82,12 @@ int AddNeededLib(lib_t* maplib, const char* path)
     printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
     
     return 0;
+}
+
+library_t* GetLib(lib_t* maplib, const char* name)
+{
+    printf_log(LOG_DEBUG, "Trying to Get \"%s\" to maplib\n", name);
+    return getLib(maplib, name);
 }
 
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)

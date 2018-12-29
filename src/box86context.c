@@ -25,37 +25,10 @@ box86context_t *NewBox86Context(int argc)
     context->vsyscall = AddBridge(context->system, vFv, x86Syscall);
 
     context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+    context->dlprivate = NewDLPrivate();
 
     context->argc = argc;
     context->argv = (char**)calloc(context->argc, sizeof(char*));
-
-    return context;
-}
-
-box86context_t *CopyBox86Context(box86context_t* from)
-{
-    printf("ERROR: CopyBox86Context needs more works!");
-
-    box86context_t *context = (box86context_t*)malloc(sizeof(box86context_t));
-
-    context->maplib = NewLibrarian();   // todo!
-    context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
-
-    CopyCollection(&context->box86_path, &from->box86_path);
-    CopyCollection(&context->box86_ld_lib, &context->box86_ld_lib);
-
-    context->argc = from->argc;
-    context->argv = (char**)calloc(context->argc, sizeof(char*));
-    for (int i=0; i<context->argc; ++i)
-        if(from->argv[i])
-            context->argv[i] = strdup(from->argv[i]);
-    context->envc = from->envc;
-    context->envv = (char**)calloc(context->envc, sizeof(char*));
-    for (int i=0; i<context->envc; ++i)
-        if(from->envv[i])
-            context->envv[i] = strdup(from->envv[i]);
-
-    // x86emu TODO!
 
     return context;
 }
@@ -72,6 +45,8 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->box86lib)
         dlclose((*context)->box86lib);
+
+    FreeDLPrivate(&(*context)->dlprivate);
 
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);

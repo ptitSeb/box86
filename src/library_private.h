@@ -5,6 +5,7 @@
 #include "wrappedlibs.h"
 
 typedef struct bridge_s bridge_t;
+typedef struct kh_bridgemap_s kh_bridgemap_t;
 
 #ifndef MAX_PATH
 #define MAX_PATH 4096
@@ -12,7 +13,8 @@ typedef struct bridge_s bridge_t;
 
 typedef struct wlib_s {
     bridge_t    *bridge;
-    void*       lib;    // dlopen result
+    void*       lib;        // dlopen result
+    void*       priv;       // actual private
 } wlib_t;
 
 typedef struct library_s {
@@ -24,8 +26,14 @@ typedef struct library_s {
     union {
         wlib_t  w;     
     }                   priv;  // private lib data
-    bridge_t            *brige;   
+    bridge_t            *brige;
+    kh_bridgemap_t      *bridgemap;
 } library_t;
 
+typedef struct dlprivate_s {
+    library_t   **libs;
+    int         lib_sz;
+    int         lib_cap;
+} dlprivate_t;
 
 #endif //__LIBRARY_PRIVATE_H_

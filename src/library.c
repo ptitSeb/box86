@@ -9,6 +9,7 @@
 #include "library.h"
 #include "elfloader.h"
 #include "library_private.h"
+#include "khash.h"
 
 #include "wrappedlibs.h"
 // create the native lib list
@@ -23,6 +24,15 @@ wrappedlib_t wrappedlibs[] = {
 #include "library_list.h"
 };
 #undef GO
+
+typedef struct bridged_s {
+    char*       name;
+    uintptr_t   start;
+    uint32_t    end;
+} bridged_t;
+
+KHASH_MAP_INIT_STR(bridgemap, bridged_t)
+
 
 char* Path2Name(const char* path)
 {
@@ -87,6 +97,8 @@ library_t *NewLibrary(const char* path)
         return NULL;
     }
 
+    lib->bridgemap = kh_init(bridgemap);
+
     return lib;
 }
 void FreeLibrary(library_t **lib)
@@ -97,6 +109,12 @@ void FreeLibrary(library_t **lib)
         (*lib)->fini(*lib);
     }
     free((*lib)->name);
+
+    bridged_t *br;
+    kh_foreach_value_ref((*lib)->bridgemap, br,
+        free(br->name);
+    );
+    kh_destroy(bridgemap, (*lib)->bridgemap);
 
     free(*lib);
     *lib = NULL;
@@ -124,5 +142,25 @@ int IsSameLib(library_t* lib, const char* path)
 }
 int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    return lib->get(lib, name, start, end);
+    khint_t k;
+    // check first if already in the map
+    k = kh_get(bridgemap, lib->bridgemap, name);
+    if(k!=kh_end(lib->bridgemap)) {
+        *start = kh_value(lib->bridgemap, k).start;
+        *end = kh_value(lib->bridgemap, k).end;
+        return 1;
+    }
+    // get a new symbol
+    if(lib->get(lib, name, start, end)) {
+        *end += *start;     // lib->get(...) gives size, not end
+        char* symbol = strdup(name);
+        int ret;
+        k = kh_put(bridgemap, lib->bridgemap, symbol, &ret);
+        kh_value(lib->bridgemap, k).name = symbol;
+        kh_value(lib->bridgemap, k).start = *start;
+        kh_value(lib->bridgemap, k).end = *end;
+        return 1;
+    }
+    // nope
+    return 0;
 }

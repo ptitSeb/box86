@@ -9,6 +9,7 @@ typedef struct x86emu_s x86emu_t;
 typedef struct zydis_s zydis_t;
 typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
+typedef struct dlprivate_s dlprivate_t;
 
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
@@ -41,11 +42,11 @@ typedef struct box86context_s {
     bridge_t            *threads;       // threads
     bridge_t            *system;        // other bridges
     uintptr_t           vsyscall;       // vsyscall bridge value
+    dlprivate_t         *dlprivate;     // dlopen library map
 
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);
-box86context_t *CopyBox86Context(box86context_t* from);
 void FreeBox86Context(box86context_t** context);
 
 int AddElfHeader(box86context_t* ctx, elfheader_t* head);    // return the index of header
