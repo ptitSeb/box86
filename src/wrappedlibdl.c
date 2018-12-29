@@ -104,7 +104,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
     //void *dlsym(void *handle, const char *symbol);
     char* rsymbol = (char*)symbol;
-    printf_log(LOG_INFO, "Error: unimplement call to dlsym(%p, %s)\n", handle, rsymbol);
+    printf_log(LOG_INFO, "Error: unimplement call to dlsym(%p, \"%s\")\n", handle, rsymbol);
     emu->quit = 1;
     return NULL;
 }

@@ -617,8 +617,10 @@ int Run(x86emu_t *emu)
                         for(; tmp32u>0; --tmp32u) {
                             tmp8u = *(uint8_t*)R_EDI;
                             R_EDI += tmp8s;
-                            if((R_AL==tmp8u)==(opcode==0xF2))
+                            if((R_AL==tmp8u)==(opcode==0xF2)) {
+                                --tmp32u;
                                 break;
+                            }
                         }
                         cmp8(emu, R_AL, tmp8u);
                         break;

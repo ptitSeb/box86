@@ -301,6 +301,12 @@ void Run0F(x86emu_t *emu)
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = op2->byte[0];
                 break;
+            case 0xB7: /* MOVZX Gd, Ew */ //Move with zero extend
+                nextop = Fetch8(emu);
+                GetEw(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = op2->word[0];
+                break;
 
             default:
                 printf_log(LOG_NONE, "Unimplemented Opcode 0F %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
