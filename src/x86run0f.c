@@ -49,182 +49,107 @@ void Run0F(x86emu_t *emu)
                 GetGx(emu, &opx1, nextop);
                 memcpy(opx1, opx2, sizeof(sse_regs_t));
                 break;
+            
+            #define GOCOND(BASE, PREFIX, CONDITIONAL) \
+            case BASE+0x0:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_OF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x1:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_OF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x2:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_CF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x3:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_CF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x4:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_ZF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x5:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_ZF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x6:                          \
+                PREFIX                              \
+                if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x7:                          \
+                PREFIX                              \
+                if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x8:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_SF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x9:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_SF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xA:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_PF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xB:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_PF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xC:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xD:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xE:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xF:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
+                    CONDITIONAL                     \
+                break;
 
-            case 0x49: /* CMOVNS Gd, Ed */ // conditional move, no sign
-                nextop = Fetch8(emu);
+            GOCOND(0x40
+              , nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
-                if(!ACCESS_FLAG(F_SF))
-                    op1->dword[0] = op2->dword[0];
-                break;
-            case 0x4E: /* CMOVLE Gd, Ed */ // conditional move, no sign
-                nextop = Fetch8(emu);
-                GetEd(emu, &op2, &ea2, nextop);
-                GetG(emu, &op1, nextop);
-                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)))
-                    op1->dword[0] = op2->dword[0];
-                break;
+              , op1->dword[0] = op2->dword[0];
+            )           /* 0x40 -> 0x4F CMOVxx Gd, Ed */ // conditional move, no sign
+            GOCOND(0x80
+              , tmp32s = Fetch32s(emu);
+              , R_EIP += tmp32s;
+            )           /* 0x80 -> 0x8F Jxx */
+            GOCOND(0x90
+              , nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea1, nextop);
+              , op1->byte[0]=1; else op1->byte[0]=0;
+            )
 
-            case 0x80: /* JO */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_OF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x81: /* JNO */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_OF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x82: /* JB */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_CF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x83: /* JNB */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_CF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x84: /* JZ */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x85: /* JNZ */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x86: /* JBE */
-                tmp32s = Fetch32s(emu);
-                if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
-                    R_EIP += tmp32s;
-                break;
-            case 0x87: /* JNBE */
-                tmp32s = Fetch32s(emu);
-                if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
-                    R_EIP += tmp32s;
-                break;
-            case 0x88: /* JS */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_SF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x89: /* JNZ */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_SF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8A: /* JP */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_PF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8B: /* JNP */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_PF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8C: /* JL */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8D: /* JNL */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8E: /* JLE */
-                tmp32s = Fetch32s(emu);
-                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)))
-                    R_EIP += tmp32s;
-                break;
-            case 0x8F: /* JNLE */
-                tmp32s = Fetch32s(emu);
-                if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)))
-                    R_EIP += tmp32s;
-                break;
-            case 0x90: /* SETO Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_OF))?1:0;
-                break;
-            case 0x91: /* SETNO Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_OF))?1:0;
-                break;
-            case 0x92: /* SETB Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_CF))?1:0;
-                break;
-            case 0x93: /* SETNB Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_CF))?1:0;
-                break;
-            case 0x94: /* SETZ Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_ZF))?1:0;
-                break;
-            case 0x95: /* SETNZ Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_ZF))?1:0;
-                break;
-            case 0x96: /* SETBE Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = ((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))?1:0;
-                break;
-            case 0x97: /* SETNBE Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))?1:0;
-                break;
-            case 0x98: /* SETS Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_SF))?1:0;
-                break;
-            case 0x99: /* SETNZ Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_SF))?1:0;
-                break;
-            case 0x9A: /* SETP Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_PF))?1:0;
-                break;
-            case 0x9B: /* SETNP Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_PF))?1:0;
-                break;
-            case 0x9C: /* SETL Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))?1:0;
-                break;
-            case 0x9D: /* SETNL Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))?1:0;
-                break;
-            case 0x9E: /* SETLE Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)))?1:0;
-                break;
-            case 0x9F: /* SETNLE Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, &ea1, nextop);
-                op1->byte[0] = (!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)))?1:0;
-                break;
+            #undef GOCOND
+
             case 0xA2: /* CPUID */
                 tmp32u = R_EAX;
                 switch(tmp32u) {
@@ -306,6 +231,28 @@ void Run0F(x86emu_t *emu)
                 GetEw(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = op2->word[0];
+                break;
+
+            case 0xBE: /* MOVSX Gd, Eb */ //Move with sign extend
+                nextop = Fetch8(emu);
+                GetEb(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = (int8_t)op2->byte[0];
+                break;
+            case 0xBF: /* MOVSX Gd, Ew */ //Move with sign extend
+                nextop = Fetch8(emu);
+                GetEw(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->dword[0] = (int16_t)op2->word[0];
+                break;
+
+            case 0xC1: /* XADD Gd, Ed */ //Xchange and Add
+                nextop = Fetch8(emu);
+                GetEb(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                tmp32u = op2->dword[0];
+                op2->dword[0] = op1->dword[0];
+                op1->dword[0] = add32(emu, op1->dword[0], tmp32u);
                 break;
 
             default:

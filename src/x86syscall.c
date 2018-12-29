@@ -10,6 +10,10 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/mman.h>
+#include <sys/select.h>
+#include <sys/types.h>
+#include <asm/stat.h>
+#include <termios.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -35,9 +39,14 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_time
     { 13, __NR_time, 1 },
 #endif
-    { 54, __NR_ioctl, 3 },
+    { 33, __NR_access, 2 },
+    { 39, __NR_mkdir, 2 },
+    { 54, __NR_ioctl, 5 },
     { 85, __NR_readlink, 3 },
-    { 195, __NR_stat64, 2 },
+#ifdef __NR_select
+    { 142, __NR_select, 5 },
+#endif
+    //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
 };
 
 struct mmap_arg_struct {
@@ -49,9 +58,37 @@ struct mmap_arg_struct {
     unsigned long offset;
 };
 
+#undef st_atime
+#undef st_ctime
+#undef st_mtime
+// stat64 is packed on i386, not on arm (and possibly other structures)
+struct i386_stat64 {
+	unsigned long long	st_dev;
+	unsigned char		__pad0[4];
+	unsigned int		__st_ino;
+	unsigned int		st_mode;
+	unsigned int		st_nlink;
+	unsigned int		st_uid;
+	unsigned int		st_gid;
+	unsigned long long	st_rdev;
+	unsigned char		__pad3[4];
+	long long		st_size;
+	unsigned int		st_blksize;
+	long long		st_blocks;
+	unsigned int	st_atime;
+	unsigned int	st_atime_nsec;
+	unsigned int	st_mtime;
+	unsigned int	st_mtime_nsec;
+	unsigned int	st_ctime;
+	unsigned int	st_ctime_nsec;
+	unsigned long long	st_ino;
+} __attribute__((packed));
+
+
 void EXPORT x86Syscall(x86emu_t *emu)
 {
     uint32_t s = R_EAX;
+    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p\n", R_EIP, s, s, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
@@ -75,26 +112,64 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 1: // sys_exit
             emu->quit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
-            break;
+            return;
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
-            break;
+            return;
 #endif
+        /*case 54:    // __ioctl
+            if(R_EBX==0x5401) {
+
+            } else {
+                R_EAX = syscall(__NR_ioctl, R_EBX, R_ECX, )
+            }
+            return;*/
         case 90:    // old_mmap
             {
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
                 R_EAX = (uintptr_t)mmap((void*)st->addr, st->len, st->prot, st->flags, st->fd, st->offset);
             }
-            break;
+            return;
+#ifndef __NR_select
+        case 142:   // select
+            R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
+            return;
+#endif
         case 174: // sys_rt_sigaction
             printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = 0;
-            break;
+            return;
         case 191: // sys_getrlimit
-            //R_EAX = syscall(__NR_getrlimit, R_EBX, R_ECX);
-            R_EAX = (uint32_t)getrlimit((int32_t)R_EBX, (struct rlimit*)R_ECX);
-            break;
+            R_EAX = syscall(__NR_ugetrlimit, R_EBX, R_ECX);
+            //R_EAX = (uint32_t)getrlimit((int32_t)R_EBX, (struct rlimit*)R_ECX);
+            return;
+        case 195:
+            {   
+                struct stat64 st;
+                unsigned int r = syscall(__NR_stat64, R_EBX, &st);
+                struct i386_stat64 *i386st = (struct i386_stat64*)R_ECX;
+                i386st->st_dev      = st.st_dev;
+                i386st->__st_ino    = st.__st_ino;
+                i386st->st_mode     = st.st_mode;
+                i386st->st_nlink    = st.st_nlink;
+                i386st->st_uid      = st.st_uid;
+                i386st->st_gid      = st.st_gid;
+                i386st->st_rdev     = st.st_rdev;
+                i386st->st_size     = st.st_size;
+                i386st->st_blksize  = st.st_blksize;
+                i386st->st_blocks   = st.st_blocks;
+                i386st->st_atime    = st.st_atime;
+                i386st->st_atime_nsec   = st.st_atime_nsec;
+                i386st->st_mtime    = st.st_mtime;
+                i386st->st_mtime_nsec   = st.st_mtime_nsec;
+                i386st->st_ctime    = st.st_ctime;
+                i386st->st_ctime_nsec   = st.st_ctime_nsec;
+                i386st->st_ino      = st.st_ino;
+                
+                R_EAX = r;
+            }
+            return;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;

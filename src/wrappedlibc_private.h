@@ -1023,7 +1023,7 @@ GOW(localtime_r, pFpp)
 // madvise
 // makecontext
 // mallinfo // Weak
-// malloc
+GO(malloc, pFu)
 // malloc_get_state // Weak
 DATAV(__malloc_hook, 4)
 DATAV(__malloc_initialize_hook, 4)
@@ -1604,7 +1604,7 @@ GO(strcat, pFpp)
 // __strcat_chk
 // strchr
 // strchrnul    // Weak
-// strcmp
+GO(strcmp, iFpp)
 // strcoll
 // __strcoll_l
 // strcoll_l    // Weak
@@ -1628,7 +1628,7 @@ GO(strerror, pFv)
 GO(strftime, uFpupp)
 // __strftime_l
 // strftime_l   // Weak
-// strlen
+GO(strlen, uFp)
 // strncasecmp  // Weak
 // __strncasecmp_l
 // strncasecmp_l    // Weak

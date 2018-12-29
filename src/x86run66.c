@@ -39,6 +39,29 @@ void Run66(x86emu_t *emu)
                 R_AX = and16(emu, R_AX, Fetch16(emu));
                 break;
 
+            case 0x40:
+            case 0x41:
+            case 0x42:
+            case 0x43:
+            case 0x44:
+            case 0x45:
+            case 0x46:
+            case 0x47:  /* INC Reg */
+                tmp8u = opcode&7;
+                emu->regs[tmp8u].word[0] = inc16(emu, emu->regs[tmp8u].word[0]);
+                break;
+            case 0x48:
+            case 0x49:
+            case 0x4A:
+            case 0x4B:
+            case 0x4C:
+            case 0x4D:
+            case 0x4E:
+            case 0x4F:  /*DEC Reg */
+                tmp8u = opcode&7;
+                emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
+                break;
+
             case 0x81: /* Grp Ew, Iw */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);
@@ -53,6 +76,13 @@ void Run66(x86emu_t *emu)
                     case 6: op1->word[0] = xor16(emu, op1->word[0], tmp16u); break;
                     case 7: op1->word[0] = cmp16(emu, op1->word[0], tmp16u); break;
                 }
+                break;
+
+            case 0x85:  /* TEST Ew,Gw */
+                nextop = Fetch8(emu);
+                GetEw(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                test16(emu, op1->word[0], op2->word[0]);
                 break;
 
             case 0x89:  /* MOV Ew, Gw */

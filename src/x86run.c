@@ -177,6 +177,13 @@ int Run(x86emu_t *emu)
             case 0x6A: /* Push Ib */
                 Push(emu, Fetch8s(emu));
                 break;
+            case 0x6B: /* IMUL Gd Ed Ib */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                tmp32s = Fetch8s(emu);
+                op2->dword[0] = imul32(emu, op1->dword[0], (uint32_t)tmp32s);
+                break;
 
             case 0x72:  /* JB Ib */
                 tmp8s = Fetch8s(emu);
@@ -208,7 +215,27 @@ int Run(x86emu_t *emu)
                 if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
                     R_EIP += tmp8s;
                 break;
-            case 0x7C: /* JL Ib */
+            case 0x78:  /* JS Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_SF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x79:  /* JNS Ib */
+                tmp8s = Fetch8s(emu);
+                if(!(ACCESS_FLAG(F_SF)))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7A:  /* JP Ib */
+                tmp8s = Fetch8s(emu);
+                if(ACCESS_FLAG(F_PF))
+                    R_EIP += tmp8s;
+                break;
+            case 0x7B:  /* JNP Ib */
+                tmp8s = Fetch8s(emu);
+                if(!(ACCESS_FLAG(F_PF)))
+                    R_EIP += tmp8s;
+                break;
+             case 0x7C: /* JL Ib */
                 tmp8s = Fetch8s(emu);
                 if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))
                     R_EIP += tmp8s;
@@ -319,6 +346,19 @@ int Run(x86emu_t *emu)
                 break;
             
             case 0x90: /* NOP */
+                break;
+
+            case 0x92: /* XCHG EDX, EAX */
+                tmp32u = R_EAX;
+                R_EAX = R_EDX;
+                R_EDX = tmp32u;
+                break;
+
+            case 0x99: /* CDQ */
+                if(R_EAX & 0x80000000)
+                    R_EDX=0xFFFFFFFF;
+                else
+                    R_EDX=0x00000000;
                 break;
 
             case 0x9B: /* FWAIT */
@@ -497,6 +537,9 @@ int Run(x86emu_t *emu)
                 tmp32s = Fetch8s(emu); // jump is relative
                 R_EIP += tmp32s;
                 break;
+            case 0xF0:  /* LOCK */
+                break;
+
             case 0xF2:  /* REPNZ prefix */
             case 0xF3:  /* REPZ prefix */
                 nextop = Fetch8(emu);
