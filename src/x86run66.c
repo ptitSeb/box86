@@ -76,6 +76,17 @@ void Run66(x86emu_t *emu)
                 *(uint16_t*)Fetch32(emu) = R_AX;
                 break;
 
+            case 0xB8: /* MOV EAX,Id */
+            case 0xB9: /* MOV ECX,Id */
+            case 0xBA: /* MOV EDX,Id */
+            case 0xBB: /* MOV EBX,Id */
+            case 0xBC: /*    ...     */
+            case 0xBD:
+            case 0xBE:
+            case 0xBF:
+                emu->regs[opcode-0xB8].word[0] = Fetch16(emu);
+                break;
+
             case 0xC7: /* MOV Ew,Iw */
                 nextop = Fetch8(emu);
                 GetEw(emu, &op1, &ea2, nextop);
