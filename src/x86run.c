@@ -27,7 +27,7 @@ int Run(x86emu_t *emu)
                 if(a==0) {
                     printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)R_EIP);
                 } else {
-                    printf_log(LOG_NONE, "0x%p: Native call to %p\n", (void*)R_EIP, (void*)a);
+                    printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)R_EIP, (void*)a, GetNativeName(*(void**)(R_EIP+7)));
                 }
             } else {
                 printf_log(LOG_NONE, "%s\n", DecodeX86Trace(emu->dec, R_EIP));

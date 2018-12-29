@@ -43,7 +43,7 @@ static void* pthread_routine(void* p)
 	return r;
 }
 
-int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
+int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
 	emuthread_t *emuthread = (emuthread_t*)calloc(1, sizeof(emuthread_t));
 	emuthread->routine.CC = 0xCC;
@@ -68,7 +68,7 @@ int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, v
 		pthread_routine, emuthread);
 }
 
-int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
+int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 {
 	if(!dtor)
 		return pthread_key_create((pthread_key_t*)key, NULL);

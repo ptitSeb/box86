@@ -1,6 +1,9 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#include <dlfcn.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -243,6 +246,69 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
     }
 }
 
+void GetEx(x86emu_t *emu, sse_regs_t **op, sse_regs_t *ea, uint32_t v)
+{
+    uint32_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         *op = &emu->xmm[m&0x07];
+        return;
+    } else if (m<=7) {
+        if(m==0x4) {
+            uint8_t sib = Fetch8(emu);
+            uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
+            if((sib&0x7)==5)
+                base = Fetch32(emu);
+            base += emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6);
+            *op = (sse_regs_t*)base;
+            return;
+        } else if (m==0x5) { //disp32
+            *op = (sse_regs_t*)Fetch32(emu);
+            return;
+        }
+        *op = (sse_regs_t*)(emu->regs[_AX+m].dword[0]);
+        return;
+    } else if(m>=0x40 && m<=0x47) {
+        uintptr_t base;
+        if(m==0x44) {
+            uint8_t sib = Fetch8(emu);
+            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
+            if((sib&0x7)==5)
+                base = Fetch32(emu);
+            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
+            /*if(((sib>>3)&7)==4)
+                idx += Fetch8(emu);*/
+            base += idx << (sib>>6);
+        } else {
+            base = emu->regs[_AX+(m&0x7)].dword[0];
+        }
+        base+=Fetch8s(emu);
+        *op = (sse_regs_t*)base;
+        return;
+    } else if(m>=0x80 && m<0x87) {
+        uintptr_t base;
+        if(m==0x84) {
+            uint8_t sib = Fetch8(emu);
+            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
+            if((sib&0x7)==5)
+                base = Fetch32(emu);
+            uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
+            /*if(((sib>>3)&7)==4)
+                idx += Fetch32(emu);*/
+            base += idx << (sib>>6);
+        } else {
+            base = emu->regs[_AX+(m&0x7)].dword[0];
+        }
+        base+=Fetch32s(emu);
+        *op = (sse_regs_t*)base;
+        return;
+    } else {
+        //?
+        printf_log(LOG_NONE, "Error: decoding SSE modrm %02X\n", v);
+        emu->quit = 1;
+        return;
+    }
+}
+
 
 void GetG(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
@@ -255,8 +321,13 @@ void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
     *op = (reg32_t*)&emu->regs[m&3].byte[m>>2];
 }
 
+void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    *op = &emu->xmm[m&3];
+}
 
-int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     //TODO: register rtld_fini
     //TODO: register fini
@@ -277,4 +348,22 @@ int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *
     PushExit(emu);
     R_EIP=(uint32_t)main;
     printf_log(LOG_DEBUG, "Calling main(=>%p) from __libc_start_main\n", main);
+}
+
+const char* GetNativeName(void* p)
+{
+    static char buff[500] = {0};
+    Dl_info info;
+    if(dladdr(p, &info)==0)
+        strcpy(buff, "???");
+    else {
+        if(info.dli_sname) {
+            strcpy(buff, info.dli_sname);
+            if(info.dli_fname) {
+                strcat(buff, " ("); strcat(buff, info.dli_fname); strcat(buff, ")");
+            }
+        } else
+            strcpy(buff, "unknown");
+    }
+    return buff;
 }

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -26,7 +27,16 @@ void Run0F(x86emu_t *emu)
         int32_t tmp32s;
         uint64_t tmp64u;
         int64_t tmp64s;
+        sse_regs_t *opx1, *opx2;
+        sse_regs_t eax1;
         switch(opcode) {
+            case 0x28: /* MOVAPS Gd, Ed */
+                nextop = Fetch8(emu);
+                GetEx(emu, &opx2, &eax1, nextop);
+                GetGx(emu, &opx1, nextop);
+                memcpy(opx1, opx2, sizeof(sse_regs_t));
+                break;
+
             case 0x49: /* CMOVNS Gd, Ed */ // conditional move, no sign
                 nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);
@@ -248,7 +258,23 @@ void Run0F(x86emu_t *emu)
                 if(op1->dword[0] & (1<<(op2->dword[0]&31)))
                     SET_FLAG(F_CF);
                 break;
-
+                
+            case 0xAE: /* Grp Ed (SSE) */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                switch((nextop>>3)&7) {
+                    case 2: /* LDMXCSR Md */
+                        emu->mxcsr = op1->dword[0];
+                        break;
+                    case 3: /* SDMXCSR Md */
+                        op1->dword[0] = emu->mxcsr;
+                        break;
+                    default:
+                        printf_log(LOG_NONE, "Unimplemented Opcode 0F %02X %02X ...\n", opcode, nextop);
+                        emu->quit=1;
+                        emu->error |= ERR_UNIMPL;
+                }
+                break;
             case 0xAF: /* IMUL Gd, Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);

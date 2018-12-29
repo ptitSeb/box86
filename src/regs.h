@@ -110,6 +110,33 @@ typedef union {
 	} sb;
 } mmx_regs_t;
 
+typedef union {
+	uint64_t q[2];
+	struct {
+		uint32_t d[4];
+	} ud;
+
+	struct {
+		int32_t d[4];
+	} sd;
+
+	struct {
+		uint16_t w[8];
+	} uw;
+
+	struct {
+		int16_t w[8];
+	} sw;
+
+	struct {
+		uint8_t b[16];
+	} ub;
+
+	struct {
+		int8_t b[16];
+	} sb;
+} sse_regs_t;
+
 #define R_EIP emu->ip.dword[0]
 #define R_EAX emu->regs[_AX].dword[0]
 #define R_EBX emu->regs[_BX].dword[0]

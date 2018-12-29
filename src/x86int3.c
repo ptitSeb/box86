@@ -19,7 +19,7 @@ void x86Int3(x86emu_t* emu)
         R_EIP += 2;
         uint32_t addr = Fetch32(emu);
         if(addr==0) {
-            printf_log(LOG_INFO, "Exit\n");        
+            //printf_log(LOG_INFO, "Exit\n");        
             emu->quit=1; // normal quit
         } else {
             wrapper_t w = (wrapper_t)addr;

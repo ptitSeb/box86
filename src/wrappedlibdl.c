@@ -12,12 +12,12 @@
 #include "library_private.h"
 #include "x86emu_private.h"
 
-void* my_dlopen(x86emu_t* emu, void *filename, int flag);
-char* my_dlerror(x86emu_t* emu);
-void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
-int my_dlclose(x86emu_t* emu, void *handle);
-int my_dladdr(x86emu_t* emu, void *addr, void *info);
-void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version);
+void* my_dlopen(x86emu_t* emu, void *filename, int flag) EXPORT;
+char* my_dlerror(x86emu_t* emu) EXPORT;
+void* my_dlsym(x86emu_t* emu, void *handle, void *symbol) EXPORT;
+int my_dlclose(x86emu_t* emu, void *handle) EXPORT;
+int my_dladdr(x86emu_t* emu, void *addr, void *info) EXPORT;
+void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version) EXPORT;
 
 int wrappedlibdl_init(library_t* lib)
 {
