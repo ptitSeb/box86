@@ -58,7 +58,13 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 op1->dword[0] = add32(emu, op1->dword[0], op2->dword[0]);
                 break;
-            case 0x02: /* ADD Gd,Ed */
+            case 0x02: /* ADD Gb,Eb */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op2, &ea2, nextop);
+                GetGb(emu, &op1, nextop);
+                op1->byte[0] = add8(emu, op1->byte[0], op2->byte[0]);
+                break;
+            case 0x03: /* ADD Gd,Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
@@ -143,7 +149,7 @@ int Run(x86emu_t *emu)
                 break;
 
             case 0x35: /* XOR EAX, Id */
-                op1->dword[0] = xor32(emu, R_EAX, Fetch32(emu));
+                R_EAX = xor32(emu, R_EAX, Fetch32(emu));
                 break;
 
             case 0x39: /* CMP Ed,Gd */
@@ -159,7 +165,9 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op1, nextop);
                 cmp32(emu, op1->dword[0], op2->dword[0]);
                 break;
-
+            case 0x3C: /* CMP AL, Ib */
+                cmp8(emu, R_AL, Fetch8(emu));
+                break;
             case 0x3D: /* CMP EAX, Id */
                 cmp32(emu, R_EAX, Fetch32(emu));
                 break;
@@ -336,7 +344,6 @@ int Run(x86emu_t *emu)
                     case 7: op1->dword[0] = cmp32(emu, op1->dword[0], tmp32u); break;
                 }
                 break;
-
             case 0x84:  /* TEST Eb,Gb */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);
@@ -349,6 +356,7 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 test32(emu, op1->dword[0], op2->dword[0]);
                 break;
+
             case 0x87:  /* XCHG Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -357,7 +365,6 @@ int Run(x86emu_t *emu)
                 op1->dword[0] = op2->dword[0];
                 op2->dword[0] = tmp32u;
                 break;
-
             case 0x88: /* MOV Eb, Gv */
                 nextop = Fetch8(emu);
                 GetEb(emu, &op1, &ea2, nextop);
@@ -370,7 +377,6 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 op1->dword[0] = op2->dword[0];
                 break;
-
             case 0x8A: /* MOV Gb, Eb */
                 nextop = Fetch8(emu);
                 GetEb(emu, &op2, &ea2, nextop);
@@ -400,7 +406,7 @@ int Run(x86emu_t *emu)
                 Push(emu, emu->eflags.x32);
                 break;
             case 0x9D: /* POPF */
-                emu->eflags.x32 = Pop(emu);
+                emu->eflags.x32 = (Pop(emu) & 0x3F7FD7) | 0x2;
                 break;
 
             case 0xA0: /* MOV AL, Ob */
@@ -414,6 +420,38 @@ int Run(x86emu_t *emu)
                 break;
             case 0xA3: /* MOV Od, EAX */
                 *(uint32_t*)Fetch32(emu) = R_EAX;
+                break;
+            case 0xA4: /* movsb */
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
+                R_EDI += tmp8s;
+                R_ESI += tmp8s;
+                break;
+            case 0xA5: /* movsd */
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
+                R_EDI += tmp8s;
+                R_ESI += tmp8s;
+                break;
+            case 0xAA:  /* stosb */
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                *(uint8_t*)R_EDI = R_AL;
+                R_EDI += tmp8s;
+                break;
+            case 0xAB:  /* stosd */
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                *(uint32_t*)R_EDI = R_EAX;
+                R_EDI += tmp8s;
+                break;
+            case 0xAC: /* LODSB */
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                R_AL = *(uint8_t*)R_EDI;
+                R_EDI += tmp8s;
+                break;
+            case 0xAD: /* LODSD */
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                R_EAX = *(uint32_t*)R_EDI;
+                R_EDI += tmp8s;
                 break;
             
             case 0xB0: /* MOV AL,Ib */
@@ -453,9 +491,10 @@ int Run(x86emu_t *emu)
                     case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
                 }
                 break;
-            case 0xC2: /* RET Iw */
+            case 0xC2: /* RETN Iw */
+                tmp16u = Fetch16(emu);
                 R_EIP = Pop(emu);
-                R_ESP += Fetch16(emu);
+                R_ESP += tmp16u;
                 break;
             case 0xC3: /* RET */
                 R_EIP = Pop(emu);
@@ -540,12 +579,26 @@ int Run(x86emu_t *emu)
             case 0xF2:  /* REPNZ prefix */
             case 0xF3:  /* REPZ prefix */
                 nextop = Fetch8(emu);
-                tmp8u = 0xF3-opcode;
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 tmp32u = R_ECX;
                 switch(nextop) {
                     case 0xC3:  /* repz ret... yup */
                         R_EIP = Pop(emu);
+                        break;
+                    case 0xA4: /* rep movsb */
+                        for(; tmp32u>0; --tmp32u) {
+                            *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
+                            R_EDI += tmp8s;
+                            R_ESI += tmp8s;
+                        }
+                        break;
+                    case 0xA5: /* rep movsd */
+                        tmp8s *= 4;
+                        for(; tmp32u>0; --tmp32u) {
+                            *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
+                            R_EDI += tmp8s;
+                            R_ESI += tmp8s;
+                        }
                         break;
                     case 0xAA:  /* rep stosb */
                         for(; tmp32u>0; --tmp32u) {
@@ -560,10 +613,49 @@ int Run(x86emu_t *emu)
                             R_EDI += tmp8s;
                         }
                         break;
+                    case 0xAE:  /* rep(n)z scasb */
+                        for(; tmp32u>0; --tmp32u) {
+                            tmp8u = *(uint8_t*)R_EDI;
+                            R_EDI += tmp8s;
+                            if((R_AL==tmp8u)==(opcode==0xF2))
+                                break;
+                        }
+                        cmp8(emu, R_AL, tmp8u);
+                        break;
                     default:
                         printf_log(LOG_NONE, "Unimplemented Opcode %02X %02X %02X \n", opcode, nextop, Peek(emu, 0));
                         emu->quit=1;
                         emu->error |= ERR_UNIMPL;
+                }
+                R_ECX = tmp32u;
+                break;
+            
+            case 0xF7:  /* Grp Ed(,Id) */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                switch((nextop>>3)&7) {
+                    case 0: 
+                    case 1: /* TEST Ed, Id */
+                        test32(emu, op1->dword[0], Fetch32(emu));
+                        break;
+                    case 2: /* NOT Ed */
+                        op1->dword[0] = not32(emu, op1->dword[0]);
+                        break;
+                    case 3: /* NEG Ed */
+                        op1->dword[0] = neg32(emu, op1->dword[0]);
+                        break;
+                    case 4: /* MUL EAX Ed */
+                        mul32_eax(emu, op1->dword[0]);
+                        break;
+                    case 5: /* IMUL EAX Ed */
+                        imul32_eax(emu, op1->dword[0]);
+                        break;
+                    case 6: /* DIV Ed */
+                        div32(emu, op1->dword[0]);
+                        break;
+                    case 7: /* IDIV Ed */
+                        idiv32(emu, op1->dword[0]);
+                        break;
                 }
                 break;
 

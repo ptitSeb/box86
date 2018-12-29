@@ -39,6 +39,8 @@ typedef struct box86context_s {
     lib_t               *maplib;        // lib and symbols handling
 
     bridge_t            *threads;       // threads
+    bridge_t            *system;        // other bridges
+    uintptr_t           vsyscall;       // vsyscall bridge value
 
 } box86context_t;
 

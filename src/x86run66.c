@@ -27,6 +27,34 @@ void Run66(x86emu_t *emu)
         uint64_t tmp64u;
         int64_t tmp64s;
         switch(opcode) {
+
+            case 0x09: /* OR Ew,Gw */
+                nextop = Fetch8(emu);
+                GetEw(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                op1->word[0] = or16(emu, op1->word[0], op2->word[0]);
+                break;
+
+            case 0x25: /* AND AX, Iw */
+                R_AX = and16(emu, R_AX, Fetch16(emu));
+                break;
+
+            case 0x81: /* Grp Ew, Iw */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                tmp16u = Fetch16(emu);
+                switch((nextop>>3)&7) {
+                    case 0: op1->word[0] = add16(emu, op1->word[0], tmp16u); break;
+                    case 1: op1->word[0] =  or16(emu, op1->word[0], tmp16u); break;
+                    case 2: op1->word[0] = adc16(emu, op1->word[0], tmp16u); break;
+                    case 3: op1->word[0] = sbb16(emu, op1->word[0], tmp16u); break;
+                    case 4: op1->word[0] = and16(emu, op1->word[0], tmp16u); break;
+                    case 5: op1->word[0] = sub16(emu, op1->word[0], tmp16u); break;
+                    case 6: op1->word[0] = xor16(emu, op1->word[0], tmp16u); break;
+                    case 7: op1->word[0] = cmp16(emu, op1->word[0], tmp16u); break;
+                }
+                break;
+
             case 0x89:  /* MOV Ew, Gw */
                 nextop = Fetch8(emu);
                 GetEw(emu, &op1, &ea2, nextop);
@@ -34,8 +62,18 @@ void Run66(x86emu_t *emu)
                 op1->word[0] = op2->word[0];
                 break;
 
+            case 0x8B:  /* MOV Gw, Ew */
+                nextop = Fetch8(emu);
+                GetEw(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                op1->word[0] = op2->word[0];
+                break;
+
             case 0xA1: /* MOV AX, Ow */
                 R_AX = *(uint16_t*)Fetch32(emu);
+                break;
+            case 0xA3: /* MOV Od, AX */
+                *(uint16_t*)Fetch32(emu) = R_AX;
                 break;
 
             case 0xC7: /* MOV Ew,Iw */

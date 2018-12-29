@@ -85,11 +85,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((v>>3)&7)==4)
-                idx += Fetch8(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -102,16 +98,12 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((v>>3)&7)==4)
-                idx += Fetch32(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
         }
-        base+=Fetch32(emu);
+        base+=Fetch32s(emu);
         *op = (reg32_t*)base;
         return;
     } else {
@@ -147,8 +139,6 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
             /*if(((sib>>3)&7)==4)
                 idx += Fetch8(emu);*/
@@ -164,11 +154,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch32(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -202,7 +188,7 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             *op = (reg32_t*)Fetch32(emu);
             return;
         }
-        ea->dword[0] = emu->regs[_AX+m].word[0];
+        ea->dword[0] = emu->regs[_AX+m].dword[0];
         *op = (reg32_t*)ea->dword[0];
         return;
     } else if(m>=0x40 && m<=0x47) {
@@ -210,11 +196,7 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch16(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch8(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -225,18 +207,14 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
     } else if(m>=0x80 && m<0x87) {
         uintptr_t base;
         if(m==0x84) {
-            uint8_t sib = Fetch16(emu);
+            uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch16(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch32(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
         }
-        base+=Fetch16s(emu);
+        base+=Fetch32s(emu);
         *op = (reg32_t*)base;
         return;
     } else {
@@ -272,11 +250,7 @@ void GetEx(x86emu_t *emu, sse_regs_t **op, sse_regs_t *ea, uint32_t v)
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch8(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -289,11 +263,7 @@ void GetEx(x86emu_t *emu, sse_regs_t **op, sse_regs_t *ea, uint32_t v)
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch32(emu);*/
             base += idx << (sib>>6);
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];

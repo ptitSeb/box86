@@ -12,12 +12,17 @@
 #include "librarian.h"
 #include "bridge.h"
 
+void x86Syscall(x86emu_t *emu);
+
 box86context_t *NewBox86Context(int argc)
 {
     // init and put default values
     box86context_t *context = (box86context_t*)calloc(1, sizeof(box86context_t));
 
     context->maplib = NewLibrarian();
+    context->system = NewBridge();
+    // create vsyscall
+    context->vsyscall = AddBridge(context->system, vFv, x86Syscall);
 
     context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
 
@@ -88,6 +93,8 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->elfs);
 
     free((*context)->stack);
+
+    FreeBridge(&(*context)->system);
 
     free(*context);
     *context = NULL;

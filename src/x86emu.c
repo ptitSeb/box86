@@ -38,6 +38,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
+    emu->eflags.x32 = 0x02; // default flags?
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;

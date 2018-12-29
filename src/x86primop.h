@@ -82,7 +82,7 @@ uint32_t     imul32(x86emu_t *emu, uint32_t op1, uint32_t op2);
 void 	     imul32_direct(uint32_t *res_lo, uint32_t* res_hi, uint32_t d, uint32_t s);
 void         mul8  (x86emu_t *emu, uint8_t s);
 void         mul16 (x86emu_t *emu, uint16_t s);
-void         mul32 (x86emu_t *emu, uint32_t s);
+void         mul32_eax (x86emu_t *emu, uint32_t s);
 void         idiv8  (x86emu_t *emu, uint8_t s);
 void         idiv16 (x86emu_t *emu, uint16_t s);
 void         idiv32 (x86emu_t *emu, uint32_t s);

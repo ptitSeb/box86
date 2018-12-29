@@ -108,6 +108,7 @@ void SetupInitialStack(box86context_t *context)
     Push(emu, 1000); Push(emu, 12);     //AT_EUID(12)=1000 TODO
     Push(emu, 1000); Push(emu, 11);     //AT_UID(11)=1000 TODO
     Push(emu, R_EIP); Push(emu, 9);     //AT_ENTRY(9)=entrypoint
+    Push(emu, context->vsyscall); Push(emu, 32);      //AT_SYSINFO(32)=vsyscall
     // TODO: continue
 
     // push nil / envs / nil / args / argc

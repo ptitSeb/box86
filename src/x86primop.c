@@ -2012,6 +2012,7 @@ void imul8(x86emu_t *emu, uint8_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
 	}
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************
@@ -2032,6 +2033,7 @@ void imul16(x86emu_t *emu, uint16_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
 	}
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************
@@ -2063,6 +2065,7 @@ uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
 	}
+	CONDITIONAL_SET_FLAG(PARITY(r & 0xff), F_PF);
 	return r;
 }
 
@@ -2081,6 +2084,7 @@ void imul32_eax(x86emu_t *emu, uint32_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
 	}
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************
@@ -2099,6 +2103,7 @@ void mul8(x86emu_t *emu, uint8_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
 	}
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************
@@ -2118,13 +2123,14 @@ void mul16(x86emu_t *emu, uint16_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
     }
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************
 REMARKS:
 Implements the MUL instruction and side effects.
 ****************************************************************************/
-void mul32(x86emu_t *emu, uint32_t s)
+void mul32_eax(x86emu_t *emu, uint32_t s)
 {
 	uint64_t res = (uint32_t)R_EAX * (uint32_t)s;
 
@@ -2138,6 +2144,7 @@ void mul32(x86emu_t *emu, uint32_t s)
 		SET_FLAG(F_CF);
 		SET_FLAG(F_OF);
     }
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
 }
 
 /****************************************************************************

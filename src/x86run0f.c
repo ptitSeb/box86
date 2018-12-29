@@ -30,6 +30,19 @@ void Run0F(x86emu_t *emu)
         sse_regs_t *opx1, *opx2;
         sse_regs_t eax1;
         switch(opcode) {
+            case 0x10: /* MOVUPS Gd, Ed */
+                nextop = Fetch8(emu);
+                GetEx(emu, &opx2, &eax1, nextop);
+                GetGx(emu, &opx1, nextop);
+                memcpy(opx1, opx2, sizeof(sse_regs_t));
+                break;
+            case 0x11: /* MOVUPS Ed, Gd */
+                nextop = Fetch8(emu);
+                GetEx(emu, &opx1, &eax1, nextop);
+                GetGx(emu, &opx2, nextop);
+                memcpy(opx1, opx2, sizeof(sse_regs_t));
+                break;
+
             case 0x28: /* MOVAPS Gd, Ed */
                 nextop = Fetch8(emu);
                 GetEx(emu, &opx2, &eax1, nextop);
@@ -258,7 +271,7 @@ void Run0F(x86emu_t *emu)
                 if(op1->dword[0] & (1<<(op2->dword[0]&31)))
                     SET_FLAG(F_CF);
                 break;
-                
+
             case 0xAE: /* Grp Ed (SSE) */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);

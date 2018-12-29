@@ -28,13 +28,13 @@ void RunD9(x86emu_t *emu)
     long double ld;
     nextop = Fetch8(emu);
     switch((nextop>>3)&7) {
-        case 0:     /* FLD ST0, Gd float */
+        case 0:     /* FLD ST0, Ed float */
             GetEd(emu, &op2, &ea2, nextop);
             *(uint32_t*)&f = op2->dword[0];
             fpu_do_push(emu);
             ST0.d = f;
             break;
-        case 3:     /* FSTP Gd, ST0 float with partial alias on mod=3=>ST1 */
+        case 3:     /* FSTP Ed, ST0 float with partial alias on mod=3=>ST1 */
             GetEd(emu, &op1, &ea1, nextop);
             if((nextop>>6)==3)
                 f = ST1.d;
@@ -73,6 +73,10 @@ void RunD9(x86emu_t *emu)
 
             }
             break;
+        case 7: /* FNSTCW Ew */
+            GetEw(emu, &op1, &ea1, nextop);
+            op1->word[0] = emu->cw;
+            break;
         default:
             printf_log(LOG_NONE, "Unimplemented Opcode D9 %02X %02X \n", nextop, Peek(emu, 0));
             emu->quit=1;
@@ -98,7 +102,11 @@ void RunDB(x86emu_t *emu)
             ST0.d = tmp32s;
             break;
         case 4: /* group */
-            if(nextop==0xE3) {    /* FNINIT */
+            if(nextop==0xE2) {    /* FNCLEX */
+            //Clears the floating-point exception flags (PE, UE, OE, ZE, DE, and IE), 
+            // the exception summary status flag (ES), the stack fault flag (SF), and the busy flag (B) in the FPU status word
+                emu->sw = 0;
+            } else if(nextop==0xE3) {    /* FNINIT */
                 reset_fpu(emu);
             } else {
                 printf_log(LOG_NONE, "Unimplemented Opcode DB %02X %02X \n", nextop, Peek(emu, 0));

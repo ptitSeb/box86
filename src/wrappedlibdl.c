@@ -57,7 +57,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
 {
     //void *dlopen(const char *filename, int flag);
     char* rfilename = (char*)filename;
-    printf_log(LOG_INFO, "Error: unimplement call to dlopen(%s, %X)\n", rfilename, flag);
+    printf_log(LOG_INFO, "Error: unimplement call to dlopen(%s/%p, %X)\n", rfilename, filename, flag);
     emu->quit = 1;
     return NULL;
 
