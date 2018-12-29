@@ -87,7 +87,7 @@ int my_dlclose(x86emu_t* emu, void *handle)
 int my_dladdr(x86emu_t* emu, void *addr, void *info)
 {
     //int dladdr(void *addr, Dl_info *info);
-    printf_log(LOG_INFO, "Error: unimplement call to dladdr(%p, %p, %p)\n", addr, info);
+    printf_log(LOG_INFO, "Error: unimplement call to dladdr(%p, %p)\n", addr, info);
     emu->quit = 1;
     return 0;
 }
@@ -96,7 +96,7 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version)
     //void *dlvsym(void *handle, char *symbol, char *version);
     char* rsymbol = (char*)symbol;
     char* rversion = (char*)version;
-    printf_log(LOG_INFO, "Error: unimplement call to dlvsym(%p, %s, %s)\n", handle, rsymbol, version);
+    printf_log(LOG_INFO, "Error: unimplement call to dlvsym(%p, %s, %s)\n", handle, rsymbol, rversion);
     emu->quit = 1;
     return NULL;
 }

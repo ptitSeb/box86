@@ -32,7 +32,7 @@ void x86Syscall(x86emu_t *emu)
             R_EAX = syscall(__NR_write, R_EBX, R_ECX, R_EDX);
             break;
         case 174: // sys_rt_sigaction
-            printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(%X, %p, %p)\n", R_EBX, R_ECX, R_EDX);
+            printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(%X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = 0;
             break;
         case 191: // __NR_getrlimit sys_getrlimit

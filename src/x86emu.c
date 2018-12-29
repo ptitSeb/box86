@@ -77,7 +77,11 @@ void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
 
 void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
 {
-    printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)trace_start, (void*)trace_end);
+    if (trace_end == 0) {
+        printf_log(LOG_INFO, "Setting trace\n");
+    } else {
+        printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)trace_start, (void*)trace_end);
+    }
     emu->trace_start = trace_start;
     emu->trace_end = trace_end;
 }
