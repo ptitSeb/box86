@@ -8,160 +8,205 @@
 #include "regs.h"
 
 // the stack as the return address 1st thing, then the args...
-#define stack(n) (R_ESP+4+n)
-#define i8(n)   *(int8_t*)stack(n)
-#define i16(n)  *(int16_t*)stack(n)
-#define i32(n)  *(int32_t*)stack(n)
-#define u8(n)   *(uint8_t*)stack(n)
-#define u16(n)  *(uint16_t*)stack(n)
-#define u32(n)  *(uint32_t*)stack(n)
-#define p(n)    *(void**)stack(n)
-// to check vvvv
-#define i64(n)  *(int64_t*)stack(n)
-#define u64(n)  *(uint64_t*)stack(n)
-//          ^^^^
-#define f32(n)  *(float*)stack(n)
-#define d64(n)  *(double*)stack(n)
-#define D80(n)  *(long double*)stack(n)
+
+#define v() void
+#define i() int32_t
+#define u() uint32_t
+#define I() int64_t
+#define U() uint64_t
+#define p() void*
+#define f() float
+#define d() double
+#define D() long double
+#define E() x86emu_t*
+#define C() unsigned char
+#define c() char
+#define W() unsigned short
+#define w() short
+
+#define GOW(...)
+#define GO(ret, name, ...) typedef ret() (*name##_t)(__VA_ARGS__);
+#define GO01(ret, type01) GO(ret, ret##F##type01, type01())
+#define GO02(ret, type01, type02) GO(ret, ret##F##type01##type02, type01(), type02())
+#define GO03(ret, type01, type02, type03) GO(ret, ret##F##type01##type02##type03, type01(), type02(), type03())
+#define GO04(ret, type01, type02, type03, type04) GO(ret, ret##F##type01##type02##type03##type04, type01(), type02(), type03(), type04())
+#define GO05(ret, type01, type02, type03, type04, type05) GO(ret, ret##F##type01##type02##type03##type04##type05, type01(), type02(), type03(), type04(), type05())
+#define GO06(ret, type01, type02, type03, type04, type05, type06) GO(ret, ret##F##type01##type02##type03##type04##type05##type06, type01(), type02(), type03(), type04(), type05(), type06())
+#define GO07(ret, type01, type02, type03, type04, type05, type06, type07) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07, type01(), type02(), type03(), type04(), type05(), type06(), type07())
+#define GO08(ret, type01, type02, type03, type04, type05, type06, type07, type08) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08())
+#define GO09(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09())
+#define GO10(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10())
+#define GO11(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11())
+#define GO12(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11(), type12())
 
 // void...
-typedef void        (*vFv_t)();
-typedef void        (*vFi_t)(int32_t);
-typedef void        (*vFp_t)(void*);
-typedef void        (*vFu_t)(uint32_t);
-typedef void        (*vFE_t)(x86emu_t*);
-typedef void        (*vFpp_t)(void*, void*);
-typedef void        (*vFpii_t)(void*, int32_t, int32_t);
-
-// uint8...
-typedef uint8_t     (*CFui_t)(uint32_t, int32_t);
-
-// int32...
-typedef int32_t     (*iFv_t)();
-typedef int32_t     (*iFi_t)(int32_t);
-typedef int32_t     (*iFp_t)(void*);
-typedef int32_t     (*iFu_t)(uint32_t);
-typedef int32_t     (*iFEp_t)(x86emu_t*, void*);
-typedef int32_t     (*iFii_t)(int32_t, int32_t);
-typedef int32_t     (*iFip_t)(int32_t, void*);
-typedef int32_t     (*iFpi_t)(void*, int32_t);
-typedef int32_t     (*iFpp_t)(void*, void*);
-typedef int32_t     (*iFpu_t)(void*, uint32_t);
-typedef int32_t     (*iFui_t)(uint32_t, int32_t);
-typedef int32_t     (*iFup_t)(uint32_t, void*);
-typedef int32_t     (*iFuu_t)(uint32_t, uint32_t);
-typedef int32_t     (*iFipp_t)(int32_t, void*, void*);
-typedef int32_t     (*iFpii_t)(void*, int32_t, int32_t);
-typedef int32_t     (*iFppi_t)(void*, void*, int32_t);
-typedef int32_t     (*iFppu_t)(void*, void*, uint32_t);
-typedef int32_t     (*iFpip_t)(void*, int32_t, void*);
-typedef int32_t     (*iFppp_t)(void*, void*, void*);
-typedef int32_t     (*iFEpp_t)(x86emu_t*, void*, void*);
-typedef int32_t     (*iFipii_t)(int32_t, void*, int32_t, int32_t);
-typedef int32_t     (*iFiWii_t)(int32_t, uint16_t, int32_t, int32_t);
-typedef int32_t     (*iFpipp_t)(void*, int32_t, void*, void*);
-typedef int32_t     (*iFpppi_t)(void*, void*, void*, int32_t);
-typedef int32_t     (*iFpuup_t)(void*, uint32_t, uint32_t, void*);
-typedef int32_t     (*iFuipp_t)(uint32_t, int32_t, void*, void*);
-typedef int32_t     (*iFEpipp_t)(x86emu_t*, void*, int32_t, void*, void*);
-typedef int32_t     (*iFEpppp_t)(x86emu_t*, void*, void*, void*, void*);
-typedef int32_t     (*iFipiii_t)(int32_t, void*, int32_t, int32_t, int32_t);
-typedef int32_t     (*iFipppi_t)(int32_t, void*, void*, void*, int32_t);
-typedef int32_t     (*iFpppii_t)(void*, void*, void*, int32_t, int32_t);
-typedef int32_t     (*iFppppp_t)(void*, void*, void*, void*, void*);
-typedef int32_t     (*iFpiuuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
-typedef int32_t     (*iFppuiiu_t)(void*, void*, uint32_t, int32_t, int32_t, uint32_t);
-typedef int32_t     (*iFppiiuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, int32_t);
-typedef int32_t     (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
-typedef int32_t     (*iFppiuiippu_t)(void*, void*, int32_t, uint32_t, int32_t, int32_t, void*, void*, uint32_t);
-typedef int32_t     (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
-typedef int32_t     (*iFpppiiipppppp_t)(void*, void*, void*, int32_t, int32_t, int32_t, void*, void*, void*, void*, void*, void*);
-
-// uint32....
-typedef uint32_t    (*uFv_t)();
-typedef uint32_t    (*uFE_t)(x86emu_t*);
-typedef uint32_t    (*uFp_t)(void*);
-typedef uint32_t    (*uFpp_t)(void*, void*);
-typedef uint32_t    (*uFpuup_t)(void*, uint32_t, uint32_t, void*);
-typedef uint32_t    (*uFpupp_t)(void*, uint32_t, void*, void*);
-typedef uint32_t    (*uFppiip_t)(void*, void*, int32_t, int32_t, void*);
-typedef uint32_t    (*uFpuppu_t)(void*, uint32_t, void*, void*, uint32_t);
-
-// void*....
-typedef void*       (*pFv_t)();
-typedef void*       (*pFE_t)(x86emu_t*);
-typedef void*       (*pFp_t)(void*);
-typedef void*       (*pFEp_t)(x86emu_t*, void*);
-typedef void*       (*pFu_t)(uint32_t);
-typedef void*       (*pFip_t)(int32_t, void*);
-typedef void*       (*pFpi_t)(void*, int32_t);
-typedef void*       (*pFpp_t)(void*, void*);
-typedef void*       (*pFuu_t)(uint32_t, uint32_t);
-typedef void*       (*pFEpi_t)(x86emu_t*, void*, int32_t);
-typedef void*       (*pFEpp_t)(x86emu_t*, void*, void*);
-typedef void*       (*pFppi_t)(void*, void*, int32_t);
-typedef void*       (*pFppu_t)(void*, void*, uint32_t);
-typedef void*       (*pFppp_t)(void*, void*, void*);
-typedef void*       (*pFEppp_t)(x86emu_t*, void*, void*, void*);
-typedef void*       (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void*       (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t);
-typedef void*       (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t);
-typedef void*       (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
-
-// float....
-typedef float       (*fFf_t)(float);
-typedef float       (*fFff_t)(float, float);
-typedef float       (*fFppu_t)(void*, void*, uint32_t);
-
-// double....
-typedef double      (*dFd_t)(double);
-typedef double      (*dFdd_t)(double, double);
-typedef double      (*dFppu_t)(void*, void*, uint32_t);
-
-// long double....
-typedef long double (*DFppu_t)(void*, void*, uint32_t);
-
-#define DEF(A) A f = (A)fnc
-
-#define GO(N, ...) GOW(N, N##_t, __VA_ARGS__)
-// void...
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); f(__VA_ARGS__); }
 #include "wrapper_v.h"
 
-// uint8....
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=f(__VA_ARGS__); }
+// uint8...
 #include "wrapper_u8.h"
 
-// int32....
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uint32_t)f(__VA_ARGS__); }
+// int32...
 #include "wrapper_i.h"
 
 // uint32....
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=f(__VA_ARGS__); }
 #include "wrapper_u.h"
 
 // void*....
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uintptr_t)f(__VA_ARGS__); }
 #include "wrapper_p.h"
 
-// float
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); float fl=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = fl;}
+// float....
 #include "wrapper_f.h"
 
-// double
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); double db=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = db;}
+// double....
 #include "wrapper_d.h"
 
-// long double
-#undef GOW
-#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); long double ld=f(__VA_ARGS__); fpu_do_push(emu); ST0.d = ld;}
+// long double....
 #include "wrapper_ld.h"
 
+#undef v
+#undef i
+#undef u
+#undef I
+#undef U
+#undef p
+#undef f
+#undef d
+#undef D
+#undef E
+#undef C
+#undef c
+#undef W
+#undef w
+#undef GO12
+#undef GO11
+#undef GO10
+#undef GO09
+#undef GO08
+#undef GO07
+#undef GO06
+#undef GO05
+#undef GO04
+#undef GO03
+#undef GO02
+#undef GO01
+#undef GO
 #undef GOW
+
+#define DEF(A) A fn = (A)fnc
+
+#define vd() 4
+#define id() 4
+#define ud() 4
+#define Id() 8
+#define Ud() 8
+#define pd() 4
+#define fd() 4
+#define dd() 8
+#define Dd() 12
+#define Ed() 0
+#define Cd() 4
+#define cd() 4
+#define Wd() 4
+#define wd() 4
+
+#define stack(n) (R_ESP+4+n)
+#define v(p)
+#define c(p)    *(int8_t*)stack(p)
+#define w(p)    *(int16_t*)stack(p)
+#define i(p)    *(int32_t*)stack(p)
+#define C(p)    *(uint8_t*)stack(p)
+#define W(p)    *(uint16_t*)stack(p)
+#define u(p)    *(uint32_t*)stack(p)
+// to check vvvv
+#define I(p)    *(int64_t*)stack(p)
+#define U(p)    *(uint64_t*)stack(p)
+//          ^^^^
+#define p(p)    *(void**)stack(p)
+#define f(p)    *(float*)stack(p)
+#define d(p)    *(double*)stack(p)
+#define D(p)    *(long double*)stack(p)
+#define E(p)    emu
+
+#define GO(N, ...) GOW(N, N##_t, __VA_ARGS__)
+
+#define GO01(ret, type01) GO(ret##F##type01, type01(0))
+#define GO02(ret, type01, type02) GO(ret##F##type01##type02, type01(0), type02(type01##d()))
+#define GO03(ret, type01, type02, type03) GO(ret##F##type01##type02##type03, type01(0), type02(type01##d()), type03(type01##d() + type02##d()))
+#define GO04(ret, type01, type02, type03, type04) GO(ret##F##type01##type02##type03##type04, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()))
+#define GO05(ret, type01, type02, type03, type04, type05) GO(ret##F##type01##type02##type03##type04##type05, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()))
+#define GO06(ret, type01, type02, type03, type04, type05, type06) GO(ret##F##type01##type02##type03##type04##type05##type06, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()))
+#define GO07(ret, type01, type02, type03, type04, type05, type06, type07) GO(ret##F##type01##type02##type03##type04##type05##type06##type07, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()))
+#define GO08(ret, type01, type02, type03, type04, type05, type06, type07, type08) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()))
+#define GO09(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()))
+#define GO10(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()))
+#define GO11(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()))
+#define GO12(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()), type12(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d() + type11##d()))
+
+// void...
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); fn(__VA_ARGS__); }
+#include "wrapper_v.h"
+#undef GOW
+
+// uint8....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=fn(__VA_ARGS__); }
+#include "wrapper_u8.h"
+#undef GOW
+
+// int32....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=fn(__VA_ARGS__); }
+#include "wrapper_i.h"
+#undef GOW
+
+// uint32....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uint32_t)fn(__VA_ARGS__); }
+#include "wrapper_u.h"
+#undef GOW
+
+// void*....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uintptr_t)fn(__VA_ARGS__); }
+#include "wrapper_p.h"
+#undef GOW
+
+// float
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); float fl=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = fl;}
+#include "wrapper_f.h"
+#undef GOW
+
+// double
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); double db=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = db;}
+#include "wrapper_d.h"
+#undef GOW
+
+// long double
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); long double ld=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = ld;}
+#include "wrapper_ld.h"
+#undef GOW
+
+#undef v
+#undef i
+#undef u
+#undef I
+#undef U
+#undef p
+#undef f
+#undef d
+#undef D
+#undef E
+#undef C
+#undef c
+#undef W
+#undef w
+
+#undef GO12
+#undef GO11
+#undef GO10
+#undef GO09
+#undef GO08
+#undef GO07
+#undef GO06
+#undef GO05
+#undef GO04
+#undef GO03
+#undef GO02
+#undef GO01
 #undef GO

@@ -1,6 +1,6 @@
 #ifdef GO
 
-GO(CFui, u32(0), i32(4))
+GO02(C,u,i)
 
 #else
 #error Meh
