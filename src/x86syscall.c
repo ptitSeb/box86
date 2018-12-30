@@ -5,10 +5,7 @@
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <unistd.h>
-// for getrlimit()
 #include <time.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <sys/types.h>
@@ -46,6 +43,7 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_select
     { 142, __NR_select, 5 },
 #endif
+    { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
 };
 
@@ -88,7 +86,7 @@ struct i386_stat64 {
 void EXPORT x86Syscall(x86emu_t *emu)
 {
     uint32_t s = R_EAX;
-    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p\n", R_EIP, s, s, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); 
+    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)R_EBX, (void*)R_ECX, (void*)R_EDX, (void*)R_ESI, (void*)R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
@@ -139,10 +137,6 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 174: // sys_rt_sigaction
             printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = 0;
-            return;
-        case 191: // sys_getrlimit
-            R_EAX = syscall(__NR_ugetrlimit, R_EBX, R_ECX);
-            //R_EAX = (uint32_t)getrlimit((int32_t)R_EBX, (struct rlimit*)R_ECX);
             return;
         case 195:
             {   
