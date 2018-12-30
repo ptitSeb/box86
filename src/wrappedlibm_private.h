@@ -340,8 +340,8 @@ DATAB(signgam, 4)
 // __sinh_finite
 // sinhl    // Weak
 // sinl // Weak
-// sqrt // Weak
-// sqrtf    // Weak
+GOW(sqrt, dFd)
+GOW(sqrtf, fFf)
 // __sqrtf_finite
 // __sqrt_finite
 // sqrtl    // Weak

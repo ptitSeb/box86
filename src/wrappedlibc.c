@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <signal.h>
 typedef void (*sighandler_t)(int);
+#include <errno.h>
 
 #include "wrappedlibs.h"
 
@@ -13,6 +14,7 @@ typedef void (*sighandler_t)(int);
 #include "bridge.h"
 #include "library_private.h"
 #include "x86emu.h"
+#include "x86emu_private.h"
 
 int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
@@ -42,13 +44,28 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const struct sigaction *act, 
 int EXPORT my___sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
 __attribute__((alias("my_sigaction")));
 
-sighandler_t EXPORT my_signal(int signum, sighandler_t handler)
+sighandler_t EXPORT my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 {
     printf_log(LOG_NONE, "Warning, Ignoring signal(0x%02X, %p)\n", signum, handler);
     return SIG_ERR;
 }
-sighandler_t EXPORT my___sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
-sighandler_t EXPORT my_sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+sighandler_t EXPORT my___sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+sighandler_t EXPORT my_sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+pid_t EXPORT my_fork()
+{
+    // should be doable, but the x86emu stack has to be dedup for the child
+    printf_log(LOG_NONE, "Warning, Ignoring fork()\n");
+    return EAGAIN;
+}
+pid_t EXPORT my___fork() __attribute__((alias("my_fork")));
+
+void EXPORT my__ITM_memcpyRtWn(x86emu_t* emu, /*_ITM_transaction *,void *,const void *,size_t*/void* a,void* b,void* c, size_t d)
+{
+    printf_log(LOG_NONE, "Warning, Ignoring _ITM_memcpyRtWn(%p, %p, %p, %u)\n", a, b, c, d);
+}
+
+void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
+
 
 int wrappedlibc_init(library_t* lib)
 {
@@ -82,4 +99,10 @@ int wrappedlibc_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
     *offs = addr;
     *sz = size;
     return 1;
+}
+
+void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val)
+{
+    printf_log(LOG_NONE, "Error: longjmp used\n");
+    emu->quit = 1;
 }
