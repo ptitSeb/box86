@@ -18,37 +18,37 @@ int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
 uint32_t my_syscall(x86emu_t *emu); // implemented in x86syscall.c
-void my___stack_chk_fail(x86emu_t* emu)
+void EXPORT my___stack_chk_fail(x86emu_t* emu)
 {
     StopEmu(emu, "Stack is corrupted, abborting");
 }
-void my___gmon_start__(x86emu_t *emu)
+void EXPORT my___gmon_start__(x86emu_t *emu)
 {
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
-int my___cxa_atexit(x86emu_t* emu, void* p)
+int EXPORT my___cxa_atexit(x86emu_t* emu, void* p)
 {
     AddCleanup(emu, p);
 }
-int my_atexit(x86emu_t* emu, void *p)
+int EXPORT my_atexit(x86emu_t* emu, void *p)
 {
     AddCleanup(emu, p);
 }
-int my_sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
+int EXPORT my_sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
 {
     printf_log(LOG_NONE, "Warning, Ignoring sigaction(0x%02X, %p, %p)\n", signum, act, oldact);
     return 0;
 }
-int my___sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
+int EXPORT my___sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
 __attribute__((alias("my_sigaction")));
 
-sighandler_t my_signal(int signum, sighandler_t handler)
+sighandler_t EXPORT my_signal(int signum, sighandler_t handler)
 {
     printf_log(LOG_NONE, "Warning, Ignoring signal(0x%02X, %p)\n", signum, handler);
     return SIG_ERR;
 }
-sighandler_t my___sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
-sighandler_t my_sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+sighandler_t EXPORT my___sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+sighandler_t EXPORT my_sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 
 int wrappedlibc_init(library_t* lib)
 {
