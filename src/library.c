@@ -110,11 +110,13 @@ void FreeLibrary(library_t **lib)
     }
     free((*lib)->name);
 
-    bridged_t *br;
-    kh_foreach_value_ref((*lib)->bridgemap, br,
-        free(br->name);
-    );
-    kh_destroy(bridgemap, (*lib)->bridgemap);
+    if((*lib)->bridgemap) {
+        bridged_t *br;
+        kh_foreach_value_ref((*lib)->bridgemap, br,
+            free(br->name);
+        );
+        kh_destroy(bridgemap, (*lib)->bridgemap);
+    }
 
     free(*lib);
     *lib = NULL;
