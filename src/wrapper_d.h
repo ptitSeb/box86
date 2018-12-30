@@ -1,9 +1,5 @@
-#ifdef GO
-
-GO01(d,d)
-GO02(d,d,d)
-GO03(d,p,p,u)
+#ifdef GOW
 
 #else
-#error Meh
+#error You must not include wrapper_d.h but wrapper.h
 #endif

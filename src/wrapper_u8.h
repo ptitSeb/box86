@@ -1,7 +1,5 @@
-#ifdef GO
-
-GO02(C,u,i)
+#ifdef GOW
 
 #else
-#error Meh
+#error You must not include wrapper_u8.h but wrapper.h
 #endif

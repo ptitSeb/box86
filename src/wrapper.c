@@ -24,44 +24,65 @@
 #define W() unsigned short
 #define w() short
 
+#define __PASTER(x, y) x##y
+#define _EVALUATOR(x, y) __PASTER(x, y)
+#define PREFIX(y) _EVALUATOR(ret, _EVALUATOR(F, y))
+
 #define GOW(...)
-#define GO(ret, name, ...) typedef ret() (*name##_t)(__VA_ARGS__);
-#define GO01(ret, type01) GO(ret, ret##F##type01, type01())
-#define GO02(ret, type01, type02) GO(ret, ret##F##type01##type02, type01(), type02())
-#define GO03(ret, type01, type02, type03) GO(ret, ret##F##type01##type02##type03, type01(), type02(), type03())
-#define GO04(ret, type01, type02, type03, type04) GO(ret, ret##F##type01##type02##type03##type04, type01(), type02(), type03(), type04())
-#define GO05(ret, type01, type02, type03, type04, type05) GO(ret, ret##F##type01##type02##type03##type04##type05, type01(), type02(), type03(), type04(), type05())
-#define GO06(ret, type01, type02, type03, type04, type05, type06) GO(ret, ret##F##type01##type02##type03##type04##type05##type06, type01(), type02(), type03(), type04(), type05(), type06())
-#define GO07(ret, type01, type02, type03, type04, type05, type06, type07) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07, type01(), type02(), type03(), type04(), type05(), type06(), type07())
-#define GO08(ret, type01, type02, type03, type04, type05, type06, type07, type08) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08())
-#define GO09(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09())
-#define GO10(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10())
-#define GO11(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11())
-#define GO12(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(ret, ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12, type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11(), type12())
+#define _GO(name, ...) typedef ret() (*_EVALUATOR(name, _t))(__VA_ARGS__);
+#define GO(name, ...) _GO(name, __VA_ARGS__)
+#define GO01(type01) GO(PREFIX(type01), type01())
+#define GO02(type01, type02) GO(PREFIX(type01##type02), type01(), type02())
+#define GO03(type01, type02, type03) GO(PREFIX(type01##type02##type03), type01(), type02(), type03())
+#define GO04(type01, type02, type03, type04) GO(PREFIX(type01##type02##type03##type04), type01(), type02(), type03(), type04())
+#define GO05(type01, type02, type03, type04, type05) GO(PREFIX(type01##type02##type03##type04##type05), type01(), type02(), type03(), type04(), type05())
+#define GO06(type01, type02, type03, type04, type05, type06) GO(PREFIX(type01##type02##type03##type04##type05##type06), type01(), type02(), type03(), type04(), type05(), type06())
+#define GO07(type01, type02, type03, type04, type05, type06, type07) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07), type01(), type02(), type03(), type04(), type05(), type06(), type07())
+#define GO08(type01, type02, type03, type04, type05, type06, type07, type08) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07##type08), type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08())
+#define GO09(type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07##type08##type09), type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09())
+#define GO10(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10), type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10())
+#define GO11(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11), type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11())
+#define GO12(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(PREFIX(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12), type01(), type02(), type03(), type04(), type05(), type06(), type07(), type08(), type09(), type10(), type11(), type12())
 
 // void...
-#include "wrapper_v.h"
+#define ret v
+#include "wrappers.h"
+#undef ret
 
 // uint8...
-#include "wrapper_u8.h"
+#define ret C
+#include "wrappers.h"
+#undef ret
 
 // int32...
-#include "wrapper_i.h"
+#define ret i
+#include "wrappers.h"
+#undef ret
 
 // uint32....
-#include "wrapper_u.h"
+#define ret u
+#include "wrappers.h"
+#undef ret
 
 // void*....
-#include "wrapper_p.h"
+#define ret p
+#include "wrappers.h"
+#undef ret
 
 // float....
-#include "wrapper_f.h"
+#define ret f
+#include "wrappers.h"
+#undef ret
 
 // double....
-#include "wrapper_d.h"
+#define ret d
+#include "wrappers.h"
+#undef ret
 
 // long double....
-#include "wrapper_ld.h"
+#define ret D
+#include "wrappers.h"
+#undef ret
 
 #undef v
 #undef i
@@ -127,59 +148,83 @@
 #define D(p)    *(long double*)stack(p)
 #define E(p)    emu
 
-#define GO(N, ...) GOW(N, N##_t, __VA_ARGS__)
+#define GO(N, ...) GOW(PREFIX(N), _EVALUATOR(PREFIX(N), _t), __VA_ARGS__)
 
-#define GO01(ret, type01) GO(ret##F##type01, type01(0))
-#define GO02(ret, type01, type02) GO(ret##F##type01##type02, type01(0), type02(type01##d()))
-#define GO03(ret, type01, type02, type03) GO(ret##F##type01##type02##type03, type01(0), type02(type01##d()), type03(type01##d() + type02##d()))
-#define GO04(ret, type01, type02, type03, type04) GO(ret##F##type01##type02##type03##type04, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()))
-#define GO05(ret, type01, type02, type03, type04, type05) GO(ret##F##type01##type02##type03##type04##type05, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()))
-#define GO06(ret, type01, type02, type03, type04, type05, type06) GO(ret##F##type01##type02##type03##type04##type05##type06, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()))
-#define GO07(ret, type01, type02, type03, type04, type05, type06, type07) GO(ret##F##type01##type02##type03##type04##type05##type06##type07, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()))
-#define GO08(ret, type01, type02, type03, type04, type05, type06, type07, type08) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()))
-#define GO09(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()))
-#define GO10(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()))
-#define GO11(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()))
-#define GO12(ret, type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(ret##F##type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()), type12(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d() + type11##d()))
+#define GO01(type01) GO(type01, type01(0))
+#define GO02(type01, type02) GO(type01##type02, type01(0), type02(type01##d()))
+#define GO03(type01, type02, type03) GO(type01##type02##type03, type01(0), type02(type01##d()), type03(type01##d() + type02##d()))
+#define GO04(type01, type02, type03, type04) GO(type01##type02##type03##type04, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()))
+#define GO05(type01, type02, type03, type04, type05) GO(type01##type02##type03##type04##type05, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()))
+#define GO06(type01, type02, type03, type04, type05, type06) GO(type01##type02##type03##type04##type05##type06, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()))
+#define GO07(type01, type02, type03, type04, type05, type06, type07) GO(type01##type02##type03##type04##type05##type06##type07, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()))
+#define GO08(type01, type02, type03, type04, type05, type06, type07, type08) GO(type01##type02##type03##type04##type05##type06##type07##type08, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()))
+#define GO09(type01, type02, type03, type04, type05, type06, type07, type08, type09) GO(type01##type02##type03##type04##type05##type06##type07##type08##type09, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()))
+#define GO10(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10) GO(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()))
+#define GO11(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11) GO(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()))
+#define GO12(type01, type02, type03, type04, type05, type06, type07, type08, type09, type10, type11, type12) GO(type01##type02##type03##type04##type05##type06##type07##type08##type09##type10##type11##type12, type01(0), type02(type01##d()), type03(type01##d() + type02##d()), type04(type01##d() + type02##d() + type03##d()), type05(type01##d() + type02##d() + type03##d() + type04##d()), type06(type01##d() + type02##d() + type03##d() + type04##d() + type05##d()), type07(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d()), type08(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d()), type09(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d()), type10(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d()), type11(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d()), type12(type01##d() + type02##d() + type03##d() + type04##d() + type05##d() + type06##d() + type07##d() + type08##d() + type09##d() + type10##d() + type11##d()))
 
 // void...
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); fn(__VA_ARGS__); }
+#define ret v
+#include "wrappers.h"
 #include "wrapper_v.h"
+#undef ret
 #undef GOW
 
 // uint8....
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=fn(__VA_ARGS__); }
+#define ret C
+#include "wrappers.h"
 #include "wrapper_u8.h"
+#undef ret
 #undef GOW
 
 // int32....
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=fn(__VA_ARGS__); }
+#define ret i
+#include "wrappers.h"
 #include "wrapper_i.h"
+#undef ret
 #undef GOW
 
 // uint32....
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uint32_t)fn(__VA_ARGS__); }
+#define ret u
+#include "wrappers.h"
 #include "wrapper_u.h"
+#undef ret
 #undef GOW
 
 // void*....
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); R_EAX=(uintptr_t)fn(__VA_ARGS__); }
+#define ret p
+#include "wrappers.h"
 #include "wrapper_p.h"
+#undef ret
 #undef GOW
 
 // float
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); float fl=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = fl;}
+#define ret f
+#include "wrappers.h"
 #include "wrapper_f.h"
+#undef ret
 #undef GOW
 
 // double
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); double db=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = db;}
+#define ret d
+#include "wrappers.h"
 #include "wrapper_d.h"
+#undef ret
 #undef GOW
 
 // long double
 #define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); long double ld=fn(__VA_ARGS__); fpu_do_push(emu); ST0.d = ld;}
+#define ret D
+#include "wrappers.h"
 #include "wrapper_ld.h"
+#undef ret
 #undef GOW
 
 #undef v
@@ -197,6 +242,21 @@
 #undef W
 #undef w
 
+#undef vd
+#undef id
+#undef ud
+#undef Id
+#undef Ud
+#undef pd
+#undef fd
+#undef dd
+#undef Dd
+#undef Ed
+#undef Cd
+#undef cd
+#undef Wd
+#undef wd
+
 #undef GO12
 #undef GO11
 #undef GO10
@@ -210,3 +270,7 @@
 #undef GO02
 #undef GO01
 #undef GO
+
+#undef PREFIX
+#undef _EVALUATOR
+#undef __PASTER

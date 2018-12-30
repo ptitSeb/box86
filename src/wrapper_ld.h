@@ -1,6 +1,5 @@
-#ifdef GO
+#ifdef GOW
 
-GO03(D,p,p,u)
 #else
-#error Meh
+#error You must not include wrapper_ld.h but wrapper.h
 #endif
