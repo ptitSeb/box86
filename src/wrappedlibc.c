@@ -24,6 +24,14 @@ void my___gmon_start__(x86emu_t *emu)
 {
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
+int my___cxa_atexit(x86emu_t* emu, void* p)
+{
+    AddCleanup(emu, p);
+}
+int my_atexit(x86emu_t* emu, void *p)
+{
+    AddCleanup(emu, p);
+}
 
 int wrappedlibc_init(library_t* lib)
 {

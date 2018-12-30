@@ -10,6 +10,7 @@
 #include "x87emu_private.h"
 #include "box86context.h"
 #include "x86trace.h"
+#include "x86run.h"
 
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 void PushExit(x86emu_t* emu)
@@ -87,20 +88,37 @@ void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
     emu->trace_end = trace_end;
 }
 
-void FreeX86Emu(x86emu_t **x86emu)
+void AddCleanup(x86emu_t *emu, void *p)
 {
-    if(!x86emu)
-        return;
-    printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *x86emu);
-    if((*x86emu)->dec)
-        DeleteX86TraceDecoder(&(*x86emu)->dec);
-    if((*x86emu)->shared_global && !(*(*x86emu)->shared_global)--) {
-        if((*x86emu)->globals)
-            free((*x86emu)->globals);
-        free((*x86emu)->shared_global);
+    if(emu->clean_sz == emu->clean_cap) {
+        emu->clean_cap += 4;
+        emu->cleanups = (void**)realloc(emu->cleanups, sizeof(void*)*emu->clean_cap);
     }
-    free(*x86emu);
-    *x86emu = NULL;
+    emu->cleanups[emu->clean_sz++] = p;
+}
+
+void FreeX86Emu(x86emu_t **emu)
+{
+    if(!emu)
+        return;
+    printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *emu);
+    // call atexit and fini first!
+    for(int i=0; i<(*emu)->clean_sz; ++i) {
+        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        PushExit(*emu);
+        (*emu)->ip.dword[0] = (uintptr_t)((*emu)->cleanups[i]);
+        Run(*emu);
+    }
+    free((*emu)->cleanups);
+    if((*emu)->dec)
+        DeleteX86TraceDecoder(&(*emu)->dec);
+    if((*emu)->shared_global && !(*(*emu)->shared_global)--) {
+        if((*emu)->globals)
+            free((*emu)->globals);
+        free((*emu)->shared_global);
+    }
+    free(*emu);
+    *emu = NULL;
 }
 
 uint32_t GetEAX(x86emu_t *emu)

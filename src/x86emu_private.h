@@ -45,6 +45,10 @@ typedef struct x86emu_s {
     int         *shared_global;
     // parent context
     box86context_t *context;
+    // atexit and fini functions
+    void**      cleanups;
+    int         clean_sz;
+    int         clean_cap;
 } x86emu_t;
 
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}

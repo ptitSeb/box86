@@ -38,6 +38,9 @@ void FreeBox86Context(box86context_t** context)
     if(!context)
         return;
 
+    if((*context)->emu)
+        FreeX86Emu(&(*context)->emu);
+
     FreeCollection(&(*context)->box86_path);
     FreeCollection(&(*context)->box86_ld_lib);
     if((*context)->zydis)
@@ -47,9 +50,6 @@ void FreeBox86Context(box86context_t** context)
         dlclose((*context)->box86lib);
 
     FreeDLPrivate(&(*context)->dlprivate);
-
-    if((*context)->emu)
-        FreeX86Emu(&(*context)->emu);
 
     if((*context)->maplib)
         FreeLibrarian(&(*context)->maplib);

@@ -163,7 +163,8 @@ GO(ctime_r, pFpp)
 // __ctype_toupper_loc
 // __curbrk // type B
 // cuserid
-// __cxa_atexit
+GOM(__cxa_atexit, iFEp)
+GOM(atexit, iFEp)           // just in case
 // __cxa_finalize
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
@@ -1057,18 +1058,18 @@ DATAV(__memalign_hook, 4)
 // memccpy  // Weak
 // memchr
 // memcmp
-// memcpy
+GO(memcpy, pFppu)
 // __memcpy_chk
 // memfrob
 // memmem
-// memmove
+GO(memmove, pFppu)
 // __memmove_chk
 // mempcpy
 // __mempcpy
 // __mempcpy_chk
 // __mempcpy_small
 // memrchr  // Weak
-// memset
+GO(memset, pFpiu)
 // __memset_chk
 // mincore
 // mkdir    // Weak
