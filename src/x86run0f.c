@@ -30,20 +30,20 @@ void Run0F(x86emu_t *emu)
         sse_regs_t *opx1, *opx2;
         sse_regs_t eax1;
         switch(opcode) {
-            case 0x10: /* MOVUPS Gd, Ed */
+            case 0x10:                      /* MOVUPS Gd,Ed */
                 nextop = Fetch8(emu);
                 GetEx(emu, &opx2, &eax1, nextop);
                 GetGx(emu, &opx1, nextop);
                 memcpy(opx1, opx2, sizeof(sse_regs_t));
                 break;
-            case 0x11: /* MOVUPS Ed, Gd */
+            case 0x11:                      /* MOVUPS Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEx(emu, &opx1, &eax1, nextop);
                 GetGx(emu, &opx2, nextop);
                 memcpy(opx1, opx2, sizeof(sse_regs_t));
                 break;
 
-            case 0x28: /* MOVAPS Gd, Ed */
+            case 0x28:                      /* MOVAPS Gd,Ed */
                 nextop = Fetch8(emu);
                 GetEx(emu, &opx2, &eax1, nextop);
                 GetGx(emu, &opx1, nextop);
@@ -137,11 +137,11 @@ void Run0F(x86emu_t *emu)
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
               , op1->dword[0] = op2->dword[0];
-            )           /* 0x40 -> 0x4F CMOVxx Gd, Ed */ // conditional move, no sign
+            )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
             GOCOND(0x80
               , tmp32s = Fetch32s(emu);
               , R_EIP += tmp32s;
-            )           /* 0x80 -> 0x8F Jxx */
+            )                               /* 0x80 -> 0x8F Jxx */
             GOCOND(0x90
               , nextop = Fetch8(emu);
                 GetEb(emu, &op1, &ea1, nextop);
@@ -150,7 +150,7 @@ void Run0F(x86emu_t *emu)
 
             #undef GOCOND
 
-            case 0xA2: /* CPUID */
+            case 0xA2:                      /* CPUID */
                 tmp32u = R_EAX;
                 switch(tmp32u) {
                     case 0x0:
@@ -163,27 +163,27 @@ void Run0F(x86emu_t *emu)
                         break;
                     case 0x1:
                         R_EAX = 0x00000101; // familly and all
-                        R_EBX = 0;  // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
-                        R_EDX =   1     // fpu 
-                                | 1<<8  // cmpxchg8
-                                | 1<<11 // sep (sysenter & sysexit)
-                                | 1<<15 // cmov
-                                | 1<<19 // clflush (seems to be with SSE2)
-                                | 1<<23 // mmx
-                                | 1<<24 // fxsr (fxsave, fxrestore)
-                                | 1<<25 // SSE
-                                | 1<<26 // SSE2
+                        R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
+                        R_EDX =   1         // fpu 
+                                | 1<<8      // cmpxchg8
+                                | 1<<11     // sep (sysenter & sysexit)
+                                | 1<<15     // cmov
+                                | 1<<19     // clflush (seems to be with SSE2)
+                                | 1<<23     // mmx
+                                | 1<<24     // fxsr (fxsave, fxrestore)
+                                | 1<<25     // SSE
+                                | 1<<26     // SSE2
                                 ;
-                        R_ECX =   1<<12 // fma
-                                | 1<<13 // cx16 (cmpxchg16)
-                                ;       // also 1<<0 is SSE3 and 1<<9 is SSSE3
+                        R_ECX =   1<<12     // fma
+                                | 1<<13     // cx16 (cmpxchg16)
+                                ;           // also 1<<0 is SSE3 and 1<<9 is SSSE3
                         break;
                     default:
                         printf_log(LOG_INFO, "Warning, CPUID command %X unsupported\n", tmp32u);
                         R_EAX = 0;
                 }
                 break;
-            case 0xA3: /* BT Ed, Gd */
+            case 0xA3:                      /* BT Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);
                 GetG(emu, &op2, nextop);
@@ -197,14 +197,14 @@ void Run0F(x86emu_t *emu)
                     SET_FLAG(F_CF);
                 break;
 
-            case 0xAE: /* Grp Ed (SSE) */
+            case 0xAE:                      /* Grp Ed (SSE) */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea1, nextop);
                 switch((nextop>>3)&7) {
-                    case 2: /* LDMXCSR Md */
+                    case 2:                 /* LDMXCSR Md */
                         emu->mxcsr = op1->dword[0];
                         break;
-                    case 3: /* SDMXCSR Md */
+                    case 3:                 /* SDMXCSR Md */
                         op1->dword[0] = emu->mxcsr;
                         break;
                     default:
@@ -213,40 +213,40 @@ void Run0F(x86emu_t *emu)
                         emu->error |= ERR_UNIMPL;
                 }
                 break;
-            case 0xAF: /* IMUL Gd, Ed */
+            case 0xAF:                      /* IMUL Gd,Ed */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
                 break;
 
-            case 0xB6: /* MOVZX Gd, Eb */ //Move with zero extend
+            case 0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
                 nextop = Fetch8(emu);
                 GetEb(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = op2->byte[0];
                 break;
-            case 0xB7: /* MOVZX Gd, Ew */ //Move with zero extend
+            case 0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
                 nextop = Fetch8(emu);
                 GetEw(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = op2->word[0];
                 break;
 
-            case 0xBE: /* MOVSX Gd, Eb */ //Move with sign extend
+            case 0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
                 nextop = Fetch8(emu);
                 GetEb(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = (int8_t)op2->byte[0];
                 break;
-            case 0xBF: /* MOVSX Gd, Ew */ //Move with sign extend
+            case 0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
                 nextop = Fetch8(emu);
                 GetEw(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
                 op1->dword[0] = (int16_t)op2->word[0];
                 break;
 
-            case 0xC1: /* XADD Gd, Ed */ //Xchange and Add
+            case 0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
                 nextop = Fetch8(emu);
                 GetEb(emu, &op2, &ea2, nextop);
                 GetG(emu, &op1, nextop);
