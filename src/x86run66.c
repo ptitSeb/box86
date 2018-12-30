@@ -15,7 +15,7 @@
 void Run66(x86emu_t *emu)
 {
     uint8_t opcode = Fetch8(emu);
-    uint8_t nextop, fopcode;
+    uint8_t nextop;
     reg32_t *op1, *op2, *op3, *op4;
     reg32_t ea1, ea2, ea3, ea4;
     uint8_t tmp8u;
@@ -35,16 +35,6 @@ void Run66(x86emu_t *emu)
         op1->word[0] = or16(emu, op1->word[0], op2->word[0]);
         break;
     
-    case 0x0F:                              /* MORE OPCODE */
-        fopcode = Fetch8(emu);
-        switch(fopcode) {
-            default:
-                printf_log(LOG_NONE, "Unimplemented Opcode 66 0F %02X %02X %02X %02X %02X\n", fopcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
-                emu->quit=1;
-                emu->error |= ERR_UNIMPL;
-        }
-        break;
-
     case 0x25:                              /* AND AX,Iw */
         R_AX = and16(emu, R_AX, Fetch16(emu));
         break;
@@ -108,6 +98,9 @@ void Run66(x86emu_t *emu)
         GetG(emu, &op1, nextop);
         op1->word[0] = op2->word[0];
         break;
+    
+    case 0x90:                              /* NOP */
+        break;
 
     case 0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)Fetch32(emu);
@@ -133,8 +126,6 @@ void Run66(x86emu_t *emu)
         op1->word[0] = Fetch16(emu);
         break;
     default:
-        printf_log(LOG_NONE, "Unimplemented Opcode 66 %02X %02X %02X %02X %02X\n", opcode, Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3));
-        emu->quit=1;
-        emu->error |= ERR_UNIMPL;
+        UnimpOpcode(emu);
     }
 }

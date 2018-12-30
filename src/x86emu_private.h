@@ -14,6 +14,7 @@ typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8],ip;
 	x86flags_t  eflags;
+    uintptr_t   old_ip;
     // segments
     uint32_t    segs[6];    // only 32bits value?
     // fpu

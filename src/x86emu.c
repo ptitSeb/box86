@@ -102,6 +102,10 @@ void FreeX86Emu(x86emu_t **emu)
     if(!emu)
         return;
     printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *emu);
+    // stop trace now
+    if((*emu)->dec)
+        DeleteX86TraceDecoder(&(*emu)->dec);
+    (*emu)->dec = NULL;
     // call atexit and fini first!
     for(int i=0; i<(*emu)->clean_sz; ++i) {
         printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
@@ -110,8 +114,6 @@ void FreeX86Emu(x86emu_t **emu)
         Run(*emu);
     }
     free((*emu)->cleanups);
-    if((*emu)->dec)
-        DeleteX86TraceDecoder(&(*emu)->dec);
     if((*emu)->shared_global && !(*(*emu)->shared_global)--) {
         if((*emu)->globals)
             free((*emu)->globals);
@@ -183,4 +185,15 @@ void StopEmu(x86emu_t* emu, const char* reason)
     // dump stuff...
     printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu));
     // TODO: stack, memory/instruction around EIP, etc..
+}
+
+void UnimpOpcode(x86emu_t* emu)
+{
+    R_EIP = emu->old_ip;
+
+    printf_log(LOG_NONE, "Unimplemented Opcode %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+        Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
+        Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7));
+    emu->quit=1;
+    emu->error |= ERR_UNIMPL;
 }
