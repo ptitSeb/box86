@@ -59,10 +59,10 @@ GO(XChangeProperty, iFpppi)
 // XChangeSaveSet
 // XChangeWindowAttributes
 // XCheckIfEvent
-// XCheckMaskEvent
-// XCheckTypedEvent
-// XCheckTypedWindowEvent
-// XCheckWindowEvent
+GO(XCheckMaskEvent, iFpup)
+GO(XCheckTypedEvent, iFpip)
+GO(XCheckTypedWindowEvent, iFppip)
+GO(XCheckWindowEvent, iFppup)
 // XCirculateSubwindows
 // XCirculateSubwindowsDown
 // XCirculateSubwindowsUp
@@ -212,13 +212,13 @@ DATA(XcmsUNDEFINEDColorSpace, 4)
 // XConvertCase
 // XConvertSelection
 // XCopyArea
-// XCopyColormapAndFree
+GO(XCopyColormapAndFree, uFpu)
 // _XCopyEventCookie
 // XCopyGC
 // XCopyPlane
 // _XCopyToArg
 // XCreateBitmapFromData
-// XCreateColormap
+GO(XCreateColormap, uFpppi)
 // XCreateFontCursor
 // XCreateFontSet
 // XCreateGC
@@ -227,7 +227,7 @@ DATA(XcmsUNDEFINEDColorSpace, 4)
 // XCreateImage
 DATAB(_XCreateMutex_fn, 4)
 // XCreateOC
-// XCreatePixmap
+GO(XCreatePixmap, pFppuuu)
 // XCreatePixmapCursor
 // XCreatePixmapFromBitmapData
 // XCreateRegion
@@ -349,7 +349,7 @@ GO(XFlush, iFp)
 // XForceScreenSaver
 // XFree
 // _XFreeAtomTable
-// XFreeColormap
+GO(XFreeColormap, iFpu)
 // XFreeColors
 // XFreeCursor
 DATAB(_XFreeDisplayLock_fn, 4)
@@ -358,7 +358,7 @@ DATAB(_XFreeDisplayLock_fn, 4)
 // XFreeEventData
 // _XFreeExtData
 // XFreeExtensionList
-// XFreeFont
+GO(XFreeFont, iFpp)
 // XFreeFontInfo
 // XFreeFontNames
 // XFreeFontPath
@@ -366,7 +366,7 @@ DATAB(_XFreeDisplayLock_fn, 4)
 // XFreeGC
 // XFreeModifiermap
 DATAB(_XFreeMutex_fn, 4)
-// XFreePixmap
+GO(XFreePixmap, iFpp)
 // XFreeStringList
 // _XFreeTemp
 // _XFreeX11XCBStructure
@@ -384,7 +384,7 @@ DATAB(_XFreeMutex_fn, 4)
 // XGetErrorText
 // XGetEventData
 // XGetFontPath
-// XGetFontProperty
+GO(XGetFontProperty, iFppp)
 // XGetGCValues
 // XGetGeometry
 // _XGetHostname
@@ -753,7 +753,7 @@ DATA(_XlcPublicMethods, 4)
 // XListInstalledColormaps
 // XListPixmapFormats
 GO(XListProperties, pFppp)
-// XLoadFont
+GO(XLoadFont, pFpp)
 // XLoadQueryFont
 // xlocaledir
 // XLocaleOfFontSet
@@ -770,7 +770,7 @@ DATAB(_XLockMutex_fn, 4)
 // XMapRaised
 // XMapSubwindows
 // XMapWindow
-// XMaskEvent
+GO(XMaskEvent, iFpup)
 // XMatchVisualInfo
 // XMaxCmapsOfScreen
 // XMaxRequestSize
@@ -795,7 +795,7 @@ DATAB(_XLockMutex_fn, 4)
 // XMoveResizeWindow
 // XMoveWindow
 // XNewModifiermap
-// XNextEvent
+GO(XNextEvent, iFpp)
 // XNextRequest
 // XNoOp
 // _XNoticeCreateBitmap
@@ -809,7 +809,7 @@ DATAB(_XLockMutex_fn, 4)
 // _XParseBaseFontNameList
 // XParseColor
 // XParseGeometry
-// XPeekEvent
+GO(XPeekEvent, iFpp)
 // XPeekIfEvent
 GO(XPending, iFp)
 // Xpermalloc
@@ -836,11 +836,11 @@ GO(XPutImage, iFppppiiiiuu)
 // XQueryColor
 // XQueryColors
 // XQueryExtension
-// XQueryFont
+GO(XQueryFont, pFpp)
 // XQueryKeymap
 // XQueryPointer
-// XQueryTextExtents
-// XQueryTextExtents16
+GO(XQueryTextExtents, iFpppipppp)
+GO(XQueryTextExtents16, iFpppipppp)
 // XQueryTree
 // XRaiseWindow
 // _XRead
@@ -997,8 +997,8 @@ GO(XSetSubwindowMode, iFppi)
 // XSupportsLocale
 GO(XSync, iFpu)
 GO(XSynchronize, iFpi)
-// XTextExtents
-// XTextExtents16
+GO(XTextExtents, iFppipppp)
+GO(XTextExtents16, iFppipppp)
 // _XTextHeight
 // _XTextHeight16
 // XTextPropertyToStringList
@@ -1022,7 +1022,7 @@ GO(XUngrabPointer, iFpu)
 // _XUnknownNativeEvent
 // _XUnknownWireEvent
 // _XUnknownWireEventCookie
-// XUnloadFont
+GO(XUnloadFont, iFpp)
 // XUnlockDisplay
 DATAB(_XUnlockMutex_fn, 4)
 // XUnmapSubwindows
@@ -1077,7 +1077,7 @@ DATAB(_XUnlockMutex_fn, 4)
 // XWhitePixelOfScreen
 // XWidthMMOfScreen
 // XWidthOfScreen
-// XWindowEvent
+GO(XWindowEvent, iFppup)
 // _XWireToEvent
 // XWithdrawWindow
 // XWMGeometry

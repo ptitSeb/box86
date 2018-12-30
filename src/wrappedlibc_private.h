@@ -3,7 +3,7 @@
 // abort
 // abs
 // accept   // Weak
-// access   // Weak
+GOW(access, iFpi)
 // acct
 // addmntent    // Weak
 // addseverity
@@ -204,8 +204,8 @@ DATAV(daylight, 4)
 // dup2 // Weak
 // __dup2
 // dup3
-// duplocale    // Weak
-// __duplocale
+GOW(duplocale, pFp)
+GO(__duplocale, pFp)
 // dysize
 // eaccess  // Weak
 // ecb_crypt
@@ -303,7 +303,7 @@ GOW(ferror, iFp)
 // __ffs
 // ffsl // Weak
 // ffsll
-// fgetc    // Weak
+GOW(fgetc, iFp)
 // fgetc_unlocked   // Weak
 // fgetgrent
 // fgetgrent_r  // Weak
@@ -311,7 +311,7 @@ GOW(ferror, iFp)
 // fgetpos64
 // fgetpwent
 // fgetpwent_r  // Weak
-// fgets    // Weak
+GOW(fgets, pFpip)
 // __fgets_chk
 // fgetspent
 // fgetspent_r  // Weak
@@ -343,8 +343,8 @@ GO(fileno, iFp)
 // fopen
 // fopen64  // Weak
 // fopencookie
-// fork // Weak
-// __fork
+GOM(fork, pFE) // Weak
+GOM(__fork, pFE)
 // __fortify_fail
 // fpathconf    // Weak
 // __fpending
@@ -352,9 +352,9 @@ GO(fileno, iFp)
 // __fprintf_chk
 // __fpu_control    // type B
 // __fpurge
-// fputc
+GOW(fputc, iFip)
 // fputc_unlocked
-// fputs    // Weak
+GOW(fputs, iFpp)    // Weak
 // fputs_unlocked
 // fputwc
 // fputwc_unlocked
@@ -434,8 +434,8 @@ GOW(fwrite, uFpuup)
 // getaliasent
 // getaliasent_r
 // get_avphys_pages // Weak
-// getc // Weak
-// getchar
+GOW(getc, iFp)
+GOW(getchar, iFv)
 // getchar_unlocked
 // getcontext
 // getc_unlocked    // Weak
@@ -548,7 +548,7 @@ GO(getdate, pFp)
 // getrpcent_r
 // getrpcport
 // getrusage    // Weak
-// gets // Weak
+GOW(gets, pFp)
 // __gets_chk
 // getsecretkey
 // getservbyname
@@ -1010,6 +1010,7 @@ GOW(localtime_r, pFpp)
 // locs // type B
 // longjmp  // Weak
 // _longjmp // Weak
+GOM(__longjmp_chk, vFEpi)
 // lrand48
 // lrand48_r
 // lremovexattr
@@ -1040,7 +1041,7 @@ DATAV(__malloc_initialize_hook, 4)
 // mbrtowc  // Weak
 // __mbrtowc
 // mbsinit  // Weak
-// mbsnrtowcs   // Weak
+GOW(mbsnrtowcs, uFppuup)
 // __mbsnrtowcs_chk
 // mbsrtowcs    // Weak
 // __mbsrtowcs_chk
@@ -1072,7 +1073,7 @@ GO(__memmove_chk, pFppuu)
 GO(memset, pFpiu)
 // __memset_chk
 // mincore
-// mkdir    // Weak
+GOW(mkdir, iFpu)
 // mkdirat
 // mkdtemp
 // mkfifo
@@ -1290,7 +1291,7 @@ DATAV(program_invocation_short_name, 4)
 // ptsname
 // ptsname_r    // Weak
 // __ptsname_r_chk
-// putc // Weak
+GOW(putc, iFp)
 GO(putchar, iFi)
 // putchar_unlocked
 // putc_unlocked
@@ -1537,7 +1538,7 @@ GOM(__sigaction, iFEipp)  // Weak
 // sigismember
 // __sigismember
 // siglongjmp   // Weak
-GOM(signal, pFip)   // Weak
+GOM(signal, pFEip)   // Weak
 // signalfd
 // __signbit
 // __signbitf
@@ -1599,8 +1600,8 @@ DATA(stdout, 4)
 // __strcasecmp
 // __strcasecmp_l
 // strcasecmp_l // Weak
-// strcasestr   // Weak
-// __strcasestr
+GOW(strcasestr, pFpp)
+GO(__strcasestr, pFpp)
 GO(strcat, pFpp)
 // __strcat_chk
 // strchr
@@ -1657,7 +1658,7 @@ GO(strptime, pFppp)
 // __strspn_c1
 // __strspn_c2
 // __strspn_c3
-// strstr
+GO(strstr, pFpp)
 // strtod
 // __strtod_internal
 // __strtod_l
@@ -1827,7 +1828,7 @@ GOW(tzset, vFv)
 // umount2  // Weak
 // uname    // Weak
 // __underflow
-// ungetc   // Weak
+GOW(ungetc, iFip)
 // ungetwc
 // unlink   // Weak
 // unlinkat
@@ -1859,7 +1860,7 @@ GO(__uselocale, pFp)
 // vfork    // Weak
 // __vfork
 // vfprintf
-// __vfprintf_chk
+GO(__vfprintf_chk, iFpipp)  // TODO: check that, because last p is va_list
 // vfscanf  // Weak
 // __vfscanf
 // vfwprintf    // Weak
@@ -2094,6 +2095,9 @@ GO(__wmemcpy_chk, pFppuu)
 
 // forcing a custom __gmon_start__ that does nothing
 GOM(__gmon_start__, vFE)
+
+// not found:
+GOM(_ITM_memcpyRtWn, vFEpppu)
 
 END()
 
