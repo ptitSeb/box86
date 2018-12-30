@@ -94,7 +94,7 @@ GOW(asctime_r, pFpp)
 // __bsd_getpgrp
 // bsd_signal   // Weak
 // bsearch
-// btowc    // Weak
+GOW(btowc, iFi)
 // bzero    // Weak
 // __bzero
 GOW(calloc, pFuu)
@@ -370,8 +370,8 @@ GO(free, vFp)
 // freeaddrinfo
 DATAV(__free_hook, 4)
 // freeifaddrs
-// freelocale   // Weak
-// __freelocale
+GOW(freelocale, vFp)
+GO(__freelocale, vFp)
 // fremovexattr
 // freopen
 // freopen64
@@ -1059,11 +1059,11 @@ DATAV(__memalign_hook, 4)
 // memchr
 // memcmp
 GO(memcpy, pFppu)
-// __memcpy_chk
+GO(__memcpy_chk, pFppuu)
 // memfrob
 // memmem
 GO(memmove, pFppu)
-// __memmove_chk
+GO(__memmove_chk, pFppuu)
 // mempcpy
 // __mempcpy
 // __mempcpy_chk
@@ -1114,8 +1114,8 @@ GOW(nanosleep, iFpp)
 // __nanosleep  // Weak
 // netname2host
 // netname2user
-// newlocale    // Weak
-// __newlocale
+GOW(newlocale, pFipp)
+GO(__newlocale, pFipp)
 // nfsservctl
 // nftw
 // nftw64
@@ -1837,8 +1837,8 @@ GOW(tzset, vFv)
 // updwtmp  // Weak
 // updwtmpx
 // uselib
-// uselocale    // Weak
-// __uselocale
+GOW(uselocale, pFp)
+GO(__uselocale, pFp)
 // user2netname
 // usleep
 // ustat
@@ -1980,8 +1980,8 @@ GO(__wcsftime_l, uFpuppu)
 // wcsxfrm
 // __wcsxfrm_l
 // wcsxfrm_l    // Weak
-// wctob
-// wctomb
+GO(wctob, iFi)
+GO(wctomb, iFpi)
 // __wctomb_chk
 // wctrans  // Weak
 // __wctrans_l
@@ -1993,7 +1993,7 @@ GO(__wcsftime_l, uFpuppu)
 // wmemchr
 // wmemcmp
 // wmemcpy  // Weak
-// __wmemcpy_chk
+GO(__wmemcpy_chk, pFppuu)
 // wmemmove // Weak
 // __wmemmove_chk
 // wmempcpy // Weak

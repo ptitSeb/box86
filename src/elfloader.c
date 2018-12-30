@@ -146,8 +146,9 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
             case R_386_GLOB_DAT:
-                // I guess it can be ignored
-                printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
+                offs = FindGlobalSymbol(maplib, symname);   // Data and not symbol
+                printf_log(LOG_DEBUG, "Apply %s @%p (%p -> %p)\n", DumpRelType(t), p, (void*)(p?(*p):0), offs);
+                *p = offs;
                 break;
             case R_386_RELATIVE:
                 // is this correct????
