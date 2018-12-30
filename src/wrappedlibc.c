@@ -3,6 +3,8 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <signal.h>
+typedef void (*sighandler_t)(int);
 
 #include "wrappedlibs.h"
 
@@ -32,6 +34,21 @@ int my_atexit(x86emu_t* emu, void *p)
 {
     AddCleanup(emu, p);
 }
+int my_sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
+{
+    printf_log(LOG_NONE, "Warning, Ignoring sigaction(0x%02X, %p, %p)\n", signum, act, oldact);
+    return 0;
+}
+int my___sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
+__attribute__((alias("my_sigaction")));
+
+sighandler_t my_signal(int signum, sighandler_t handler)
+{
+    printf_log(LOG_NONE, "Warning, Ignoring signal(0x%02X, %p)\n", signum, handler);
+    return SIG_ERR;
+}
+sighandler_t my___sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
+sighandler_t my_sysv_signal(int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 
 int wrappedlibc_init(library_t* lib)
 {

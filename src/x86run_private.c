@@ -93,7 +93,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         base+=Fetch8(emu);
         *op = (reg32_t*)base;
         return;
-    } else if(m>=0x80 && m<0x87) {
+    } else if(m>=0x80 && m<=0x87) {
         uintptr_t base;
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
@@ -149,7 +149,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         base+=Fetch8s(emu);
         *op = (reg32_t*)base;
         return;
-    } else if(m>=0x80 && m<0x87) {
+    } else if(m>=0x80 && m<=0x87) {
         uintptr_t base;
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
@@ -204,7 +204,7 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
         base+=Fetch8s(emu);
         *op = (reg32_t*)base;
         return;
-    } else if(m>=0x80 && m<0x87) {
+    } else if(m>=0x80 && m<=0x87) {
         uintptr_t base;
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);

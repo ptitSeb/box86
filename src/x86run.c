@@ -140,7 +140,7 @@ int Run(x86emu_t *emu)
                 emu->regs[tmp8u].dword[0] = Pop(emu);
                 break;
 
-            case 0x65:                      /* GS */
+            case 0x65:                      /* GS: */
                 // TODO: set a new decoder function?
                 opcode = Fetch8(emu);
                 switch(opcode) {
@@ -150,6 +150,13 @@ int Run(x86emu_t *emu)
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
                         GetG(emu, &op1, nextop);
                         op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
+                        break;
+                    case 0x8B:              /* MOV Gd,Ed */
+                        nextop = Fetch8(emu);
+                        GetEd(emu, &op2, &ea2, nextop);
+                        op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
+                        GetG(emu, &op1, nextop);
+                        op1->dword[0] = op2->dword[0];
                         break;
                     case 0xA1:              /* MOV EAX,Ov */
                         tmp32u = Fetch32(emu);
@@ -343,7 +350,7 @@ int Run(x86emu_t *emu)
 
             case 0x8D:                      /* LEA Gd,M */
                 nextop = Fetch8(emu);
-                GetEd(emu, &op1, &ea2, nextop);
+                GetEd(emu, &op1, &ea1, nextop);
                 GetG(emu, &op2, nextop);
                 op2->dword[0] = (uint32_t)&op1->dword[0];
                 break;

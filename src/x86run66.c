@@ -28,16 +28,33 @@ void Run66(x86emu_t *emu)
     int64_t tmp64s;
     switch(opcode) {
 
-    case 0x09:                              /* OR Ew,Gw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
-        GetG(emu, &op2, nextop);
-        op1->word[0] = or16(emu, op1->word[0], op2->word[0]);
+    #define GO(B, OP)                       \
+    case B+1:                               \
+        nextop = Fetch8(emu);               \
+        GetEw(emu, &op1, &ea1, nextop);     \
+        GetG(emu, &op2, nextop);            \
+        op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
+        break;                              \
+    case B+3:                               \
+        nextop = Fetch8(emu);               \
+        GetEw(emu, &op2, &ea2, nextop);     \
+        GetG(emu, &op1, nextop);            \
+        op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
+        break;                              \
+    case B+5:                               \
+        R_AX = OP##16(emu, R_AX, Fetch16(emu)); \
         break;
+
+    GO(0x00, add)                   /* ADD 0x01 ~> 0x05 */
+    GO(0x08, or)                    /*  OR 0x09 ~> 0x0D */
+    GO(0x10, adc)                   /* ADC 0x11 ~> 0x15 */
+    GO(0x18, sbb)                   /* SBB 0x19 ~> 0x1D */
+    GO(0x20, and)                   /* AND 0x21 ~> 0x25 */
+    GO(0x28, sub)                   /* SUB 0x29 ~> 0x2D */
+    GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
+    GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
+    #undef GO
     
-    case 0x25:                              /* AND AX,Iw */
-        R_AX = and16(emu, R_AX, Fetch16(emu));
-        break;
 
     case 0x40:
     case 0x41:
@@ -62,10 +79,16 @@ void Run66(x86emu_t *emu)
         emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
         break;
 
-    case 0x81:                              /* GRP Ew,Iw */
+    case 0x81:                              /* GRP3 Ew,Iw */
+    case 0x83:                              /* GRP3 Ew,Ib */
         nextop = Fetch8(emu);
         GetEd(emu, &op1, &ea1, nextop);
-        tmp16u = Fetch16(emu);
+        if(opcode==0x81) 
+            tmp16u = Fetch16(emu);
+        else {
+            tmp16s = Fetch8s(emu);
+            tmp16u = *(uint16_t*)&tmp16s;
+        }
         switch((nextop>>3)&7) {
             case 0: op1->word[0] = add16(emu, op1->word[0], tmp16u); break;
             case 1: op1->word[0] =  or16(emu, op1->word[0], tmp16u); break;

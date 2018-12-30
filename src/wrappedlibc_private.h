@@ -1518,8 +1518,8 @@ DATA(__resp, 4)
 // shmdt    // Weak
 // shmget   // Weak
 // shutdown // Weak
-// sigaction    // Weak
-// __sigaction  // Weak
+GOM(sigaction, iFEipp)    // Weak
+GOM(__sigaction, iFEipp)  // Weak
 // sigaddset
 // __sigaddset
 // sigaltstack  // Weak
@@ -1537,7 +1537,7 @@ DATA(__resp, 4)
 // sigismember
 // __sigismember
 // siglongjmp   // Weak
-// signal   // Weak
+GOM(signal, pFip)   // Weak
 // signalfd
 // __signbit
 // __signbitf
@@ -1755,8 +1755,8 @@ DATA(sys_sigabbrev, 4)
 DATA(_sys_siglist, 4)
 DATA(sys_siglist, 4)
 // system   // Weak
-// __sysv_signal
-// sysv_signal  // Weak
+GOM(__sysv_signal, pFip)
+GOM(sysv_signal, pFip)  // Weak
 // tcdrain  // Weak
 // tcflow
 // tcflush
@@ -1987,8 +1987,8 @@ GO(wctomb, iFpi)
 // __wctrans_l
 // wctrans_l    // Weak
 // wctype   // Weak
-// __wctype_l
-// wctype_l // Weak
+GO(__wctype_l, uFpp)
+GOW(wctype_l, uFpp)
 // wcwidth
 // wmemchr
 // wmemcmp
