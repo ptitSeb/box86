@@ -253,9 +253,17 @@ int main(int argc, const char **argv, const char **env) {
     p = getenv("BOX86_TRACE");
     if(p) {
         setbuf(stdout, NULL);
-        uintptr_t trace_start, trace_end;
+        uintptr_t trace_start=0, trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(context->emu, 0, 0);
+        else if (strchr(p,'-')) {
+            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            }
+            if(trace_start)
+                SetTraceEmu(context->emu, trace_start, trace_end);
+        }
         else if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end))
             SetTraceEmu(context->emu, trace_start, trace_end);
     }
