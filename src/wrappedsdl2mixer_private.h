@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 DATA(__data_start, 4)
 DATA(_edata, 4)
@@ -51,7 +51,7 @@ GO(Mix_OpenAudio, iFiWii)
 GO(Mix_Pause, vFi)
 // Mix_Paused
 // Mix_PausedMusic
-GO(Mix_PauseMusic, vFv);
+GO(Mix_PauseMusic, vFv)
 GO(Mix_PlayChannelTimed, iFipii)
 GO(Mix_Playing, iFi)
 GO(Mix_PlayingMusic, iFpi)
@@ -80,8 +80,4 @@ GO(Mix_Volume, iFii)
 // Mix_VolumeChunk
 GO(Mix_VolumeMusic, iFi)
 
-END()
-
-#else
-#error Mmmm...
 #endif

@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // _fini
 GO(glAccum, vFuf)
@@ -1160,8 +1160,4 @@ GO(glAreTexturesResident, uFupp)
 GO(glXWaitX, vFv)
 // _init
 
-END()
-
-#else
-#error Mmmm...
 #endif

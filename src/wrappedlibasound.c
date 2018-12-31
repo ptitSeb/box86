@@ -17,38 +17,11 @@ int my_snd_async_add_pcm_handler(x86emu_t *emu, void *handler, void *pcm,  void*
 void* my_snd_async_handler_get_callback_private(x86emu_t *emu, void *handler);
 int my_snd_lib_error_set_handler(x86emu_t *emu, void* handler);
 
-int wrappedlibasound_init(library_t* lib)
-{
-    lib->priv.w.lib = dlopen("libasound.so.2", RTLD_NOW);
-    if(!lib->priv.w.lib) {
-        return -1;
-    }
-    lib->priv.w.bridge = NewBridge();
-    return 0;
-}
-void wrappedlibasound_fini(library_t* lib)
-{
-    if(lib->priv.w.lib)
-        dlclose(lib->priv.w.lib);
-    lib->priv.w.lib = NULL;
-    FreeBridge(&lib->priv.w.bridge);
-}
-int wrappedlibasound_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
-{
-    uintptr_t addr = 0;
-    uint32_t size = 0;
-    void* symbol = NULL;
+#define LIBNAME libasound
+const char* libasoundName = "libasound.so.2";
 
-#include "wrappedlib_defines.h"
-#include "wrappedlibasound_private.h"
-#include "wrappedlib_undefs.h"
-
-    if(!addr)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-}
+// define all standard library functions
+#include "wrappedlib_init.h"
 
 
 // Implementation

@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 DATA(__data_start, 4)
 DATA(_edata, 4)
@@ -65,8 +65,4 @@ DATA(nsvg__colors, 4)
 // nsvg__parseXML
 // nsvgRasterize
 
-END()
-
-#else
-#error Mmmm...
 #endif

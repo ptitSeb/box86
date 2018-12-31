@@ -4,7 +4,7 @@
 
 typedef struct library_s library_t;
 
-library_t *NewLibrary(const char* path);
+library_t *NewLibrary(const char* path, void* box86);
 void FreeLibrary(library_t **lib);
 
 char* GetNameLib(library_t *lib);

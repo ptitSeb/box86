@@ -9,7 +9,7 @@ typedef void (*wrappedlib_fini_t)(library_t * lib);
 typedef int (*wrappedlib_get_t)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz);
 
 typedef struct wrappedlib_s {
-    char                name[50];
+    const char*         name;
     wrappedlib_init_t   init;
     wrappedlib_fini_t   fini;
     wrappedlib_get_t    get;

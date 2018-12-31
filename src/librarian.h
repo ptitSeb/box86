@@ -14,7 +14,7 @@ dlprivate_t *NewDLPrivate();
 void FreeDLPrivate(dlprivate_t **lib);
 
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
-int AddNeededLib(lib_t* maplib, const char* path); // 0=success, 1=error
+int AddNeededLib(lib_t* maplib, const char* path, void* box86); // 0=success, 1=error
 library_t* GetLib(lib_t* maplib, const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end);

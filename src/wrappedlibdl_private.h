@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 GOM(dladdr, iFEpp)
 // dladdr1
@@ -11,8 +11,4 @@ GOM(dlopen, pFEpi)
 GOM(dlsym, pFEpp)
 GOM(dlvsym, pFEppp)   // Weak
 
-END()
-
-#else
-#error Mmmm...
 #endif

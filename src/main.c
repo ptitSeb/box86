@@ -221,7 +221,7 @@ int main(int argc, const char **argv, const char **env) {
     // can close the file now
     fclose(f);
     // Call librarian to load all dependant elf
-    if(LoadNeededLib(elf_header, context->maplib)) {
+    if(LoadNeededLib(elf_header, context->maplib, context->box86lib)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;

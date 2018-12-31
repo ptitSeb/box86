@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2)
 
 DATAB(alsa_lisp_nil, 4)
 DATAB(alsa_lisp_t, 4)
@@ -1637,8 +1637,4 @@ GO(snd_shm_area_share, pFp)
 // snd_use_case_set
 GO(snd_user_file, iFpp)
 
-END()
-
-#else
-#error Mmmm...
 #endif

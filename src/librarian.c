@@ -57,7 +57,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
-int AddNeededLib(lib_t* maplib, const char* path)
+int AddNeededLib(lib_t* maplib, const char* path, void* box86)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
@@ -66,7 +66,7 @@ int AddNeededLib(lib_t* maplib, const char* path)
         return 0;
     }
     // load a new one
-    library_t *lib = NewLibrary(path);
+    library_t *lib = NewLibrary(path, box86);
     if(!lib) {
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error

@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 //clockid_t is uint32?
 // pid_t is uint32 too? (for clock_getcpuclockid)
@@ -45,8 +45,4 @@ GO(timer_getoverrun, iFu)
 GO(timer_gettime, iFup)
 GO(timer_settime, iFuipp)
 
-END()
-
-#else
-#error Mmmm...
 #endif

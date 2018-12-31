@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // _fini
 // _init
@@ -666,8 +666,4 @@ GO(SDL_WarpMouseInWindow, vFpii)
 // SDL_WriteLE64
 // SDL_WriteU8
 
-END()
-
-#else
-#error Mmmm...
 #endif

@@ -20,6 +20,6 @@ void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h);
-int LoadNeededLib(elfheader_t* h, lib_t *maplib);
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, void* box86);
 
 #endif //__ELF_LOADER_H_

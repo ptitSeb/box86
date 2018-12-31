@@ -138,6 +138,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs;
+static int err=10;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -163,6 +164,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+if(!--err)
                     return -1;
                 } else {
                     if(p) {
@@ -323,14 +325,14 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLib(elfheader_t* h, lib_t *maplib)
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, void *box86)
 {
    DumpDynamicNeeded(h);
    for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, needed)) {
+            if(AddNeededLib(maplib, needed, box86)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 return 1;   //error...
             }

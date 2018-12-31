@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // acos // Weak
 // acosf    // Weak
@@ -373,8 +373,4 @@ GOW(sqrtf, fFf)
 // __yn_finite
 // ynl
 
-END()
-
-#else
-#error Mmmm...
 #endif

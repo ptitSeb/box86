@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // __errno_location
 // fork
@@ -167,8 +167,4 @@ GO(pthread_setspecific, iFup)
 // system
 // __vfork
 
-END()
-
-#else
-#error Mmmm...
 #endif

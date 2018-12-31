@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // _dl_allocate_tls
 // _dl_allocate_tls_init
@@ -20,8 +20,4 @@ DATA(_rtld_global_ro, 4)
 DATA(__stack_chk_guard, 4)
 // __tls_get_addr
 
-END()
-
-#else
-#error Mmmm...
 #endif

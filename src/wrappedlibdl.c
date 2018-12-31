@@ -31,39 +31,11 @@ int my_dlclose(x86emu_t* emu, void *handle) EXPORT;
 int my_dladdr(x86emu_t* emu, void *addr, void *info) EXPORT;
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version) EXPORT;
 
-int wrappedlibdl_init(library_t* lib)
-{
-    lib->priv.w.lib = dlopen("libdl.so.2", RTLD_NOW);
-    if(!lib->priv.w.lib) {
-        return -1;
-    }
-    lib->priv.w.bridge = NewBridge();
-    return 0;
-}
-void wrappedlibdl_fini(library_t* lib)
-{
-    if(lib->priv.w.lib)
-        dlclose(lib->priv.w.lib);
-    lib->priv.w.lib = NULL;
-    lib->priv.w.priv = NULL;
-    FreeBridge(&lib->priv.w.bridge);
-}
-int wrappedlibdl_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
-{
-    uintptr_t addr = 0;
-    uint32_t size = 0;
-    void* symbol = NULL;
+#define LIBNAME libdl
+const char* libdlName = "libdl.so.2";
 
-#include "wrappedlib_defines.h"
-#include "wrappedlibdl_private.h"
-#include "wrappedlib_undefs.h"
-
-    if(!addr)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-}
+// define all standard library functions
+#include "wrappedlib_init.h"
 
 // Implementation
 void* my_dlopen(x86emu_t* emu, void *filename, int flag)
@@ -80,7 +52,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             return (void*)(i+1);
     }
     // Then open the lib
-    if(AddNeededLib(emu->context->maplib, rfilename)) {
+    if(AddNeededLib(emu->context->maplib, rfilename, emu->context->box86lib)) {
         printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         return NULL;
     }

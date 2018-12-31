@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 // a64l
 // abort
 // abs
@@ -2106,8 +2106,4 @@ GOM(_ITM_memcpyRtWn, vFppu)
 GOM(_ITM_memcpyRnWt, vFppu)
 //GOM(_ITM_addUserCommitAction, vFpUp)
 
-END()
-
-#else
-#error Mmmm...
 #endif

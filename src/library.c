@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "library.h"
 #include "elfloader.h"
+#include "bridge.h"
 #include "library_private.h"
 #include "khash.h"
 
@@ -33,6 +34,9 @@ typedef struct bridged_s {
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
 
+KHASH_MAP_IMPL_STR(datamap, uint32_t)
+KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
+KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
 
 char* Path2Name(const char* path)
 {
@@ -63,7 +67,7 @@ int NbDot(const char* name)
     return ret;
 }
 
-library_t *NewLibrary(const char* path)
+library_t *NewLibrary(const char* path, void* box86)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)calloc(1, sizeof(library_t));
@@ -83,6 +87,7 @@ library_t *NewLibrary(const char* path)
                 return NULL;
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", wrappedlibs[i].name);
+            lib->priv.w.box86lib = box86;
             lib->fini = wrappedlibs[i].fini;
             lib->get = wrappedlibs[i].get;
             lib->type = 0;
@@ -117,6 +122,14 @@ void FreeLibrary(library_t **lib)
         );
         kh_destroy(bridgemap, (*lib)->bridgemap);
     }
+    if((*lib)->symbolmap)
+        kh_destroy(symbolmap, (*lib)->symbolmap);
+    if((*lib)->datamap)
+        kh_destroy(datamap, (*lib)->datamap);
+    if((*lib)->mysymbolmap)
+        kh_destroy(symbolmap, (*lib)->mysymbolmap);
+    if((*lib)->symbol2map)
+        kh_destroy(symbol2map, (*lib)->symbol2map);
 
     free(*lib);
     *lib = NULL;
@@ -164,5 +177,62 @@ int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uin
         return 1;
     }
     // nope
+    return 0;
+}
+
+int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *size)
+{
+    khint_t k;
+    int ret;
+    void* symbol;
+    // check in datamap
+    k = kh_get(datamap, lib->datamap, name);
+    if (k!=kh_end(lib->datamap)) {
+        symbol = dlsym(lib->priv.w.lib, kh_key(lib->datamap, k));
+        if(symbol) {
+            // found!
+            *addr = (uintptr_t)symbol;
+            *size = kh_value(lib->datamap, k);
+            return 1;
+        }
+    }
+    // check in mysymbolmap
+    k = kh_get(symbolmap, lib->mysymbolmap, name);
+    if (k!=kh_end(lib->mysymbolmap)) {
+        char buff[200];
+        strcpy(buff, "my_");
+        strcat(buff, name);
+        symbol = dlsym(lib->priv.w.box86lib, buff);
+        if(!symbol)
+            printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->mysymbolmap, k), symbol);
+        *size = sizeof(void*);
+        return 1;
+    }
+    // check in symbolmap
+    k = kh_get(symbolmap, lib->symbolmap, name);
+    if (k!=kh_end(lib->symbolmap)) {
+        symbol = dlsym(lib->priv.w.lib, name);
+        if(!symbol) {
+            printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
+            return 0;
+        }
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbolmap, k), symbol);
+        *size = sizeof(void*);
+        return 1;
+    }
+    // check in symbol2map
+    k = kh_get(symbol2map, lib->symbol2map, name);
+    if (k!=kh_end(lib->symbol2map)) {
+        symbol = dlsym(lib->priv.w.lib, kh_value(lib->symbol2map, k).name);
+        if(!symbol) {
+            printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->symbol2map, k).name, lib->name);
+            return 0;
+        }
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbol2map, k).w, symbol);
+        *size = sizeof(void*);
+        return 1;
+    }
+
     return 0;
 }

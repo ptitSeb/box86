@@ -1,4 +1,4 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
+#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 // all those bss stuff are suspicious
 //DATAB(__bss_end__, 4)
@@ -1083,8 +1083,5 @@ GO(XWindowEvent, iFppup)
 // XWMGeometry
 // XWriteBitmapFile
 // XXorRegion
-END()
 
-#else
-#error Mmmm...
 #endif
