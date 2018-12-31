@@ -11,6 +11,7 @@
 #include "x86emu.h"
 #include "librarian.h"
 #include "bridge.h"
+#include "library.h"
 
 void x86Syscall(x86emu_t *emu);
 
@@ -70,6 +71,9 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->stack);
 
     FreeBridge(&(*context)->system);
+
+    if((*context)->glwrappers)
+        freeGLProcWrapper(&(*context)->glwrappers);
 
     free(*context);
     *context = NULL;

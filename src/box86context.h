@@ -10,6 +10,9 @@ typedef struct zydis_s zydis_t;
 typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
+typedef struct kh_symbolmap_s kh_symbolmap_t;
+
+typedef void* (*procaddess_t)(const char* name);
 
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
@@ -43,7 +46,8 @@ typedef struct box86context_s {
     bridge_t            *system;        // other bridges
     uintptr_t           vsyscall;       // vsyscall bridge value
     dlprivate_t         *dlprivate;     // dlopen library map
-
+    kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
+    procaddess_t        glxprocaddress;
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

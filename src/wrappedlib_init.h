@@ -99,12 +99,18 @@ int FUNC(_init)(library_t* lib)
         k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
         kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
     }
+#ifdef CUSTOM_INIT
+    CUSTOM_INIT
+#endif
     
     return 0;
 }
 
 int FUNC(_fini)(library_t* lib)
 {
+#ifdef CUSTOM_FINI
+    CUSTOM_FINI
+#endif
     if(lib->priv.w.lib)
         dlclose(lib->priv.w.lib);
     lib->priv.w.lib = NULL;
@@ -116,7 +122,6 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
     uintptr_t addr = 0;
     uint32_t size = 0;
     void* symbol = NULL;
-    khint_t k;
 //PRE
     if (!getSymbolInMaps(lib, name, &addr, &size)) {
 //FAIL
