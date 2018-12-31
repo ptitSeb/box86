@@ -56,22 +56,22 @@ typedef struct dlprivate_s {
 } dlprivate_t;
 
 // type for map elements
-typedef struct onesymbol_s {
+typedef struct map_onesymbol_s {
     const char* name;
     wrapper_t   w;
     int         weak;
-} onesymbol_t;
-typedef struct onesymbol2_s {
+} map_onesymbol_t;
+typedef struct map_onesymbol2_s {
     const char* name;
     wrapper_t   w;
     int         weak;
     const char* name2;
-} onesymbol2_t;
-typedef struct onedata_s {
+} map_onesymbol2_t;
+typedef struct map_onedata_s {
     const char* name;
     uint32_t    sz;
     int         weak;
-} onedata_t;
+} map_onedata_t;
 
 int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *size);  // Add bridges to functions
 

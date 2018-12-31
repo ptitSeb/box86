@@ -25,7 +25,7 @@
 #undef GOW
 #define GO(N, W) {#N, W, 0},
 #define GOW(N, W) {#N, W, 1},
-static const onesymbol_t MAPNAME(symbolmap)[] = {
+static const map_onesymbol_t MAPNAME(symbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GO
@@ -34,14 +34,14 @@ static const onesymbol_t MAPNAME(symbolmap)[] = {
 #define GOW(N, W)
 #undef GOM
 #define GOM(N, W) {#N, W, 0},
-static const onesymbol_t MAPNAME(mysymbolmap)[] = {
+static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GOM
 #define GOM(N, W)
 #undef GO2
 #define GO2(N, W, O) {#N, W, 0, #O},
-static const onesymbol2_t MAPNAME(symbol2map)[] = {
+static const map_onesymbol2_t MAPNAME(symbol2map)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GO2
@@ -52,7 +52,7 @@ static const onesymbol2_t MAPNAME(symbol2map)[] = {
 #define DATA(N, S) {#N, S, 0},
 #define DATAV(N, S) {#N, S, 1},
 #define DATAB(N, S) {#N, S, 0},
-static const onedata_t MAPNAME(datamap)[] = {
+static const map_onedata_t MAPNAME(datamap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #include "wrappedlib_undefs.h"
@@ -78,23 +78,23 @@ int FUNC(_init)(library_t* lib)
     int cnt;
 
     // populates maps...
-    cnt = sizeof(MAPNAME(symbolmap))/sizeof(onesymbol_t);
+    cnt = sizeof(MAPNAME(symbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->symbolmap, MAPNAME(symbolmap)[i].name, &ret);
         kh_value(lib->symbolmap, k) = MAPNAME(symbolmap)[i].w;
     }
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(onesymbol_t);
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->mysymbolmap, MAPNAME(mysymbolmap)[i].name, &ret);
         kh_value(lib->mysymbolmap, k) = MAPNAME(mysymbolmap)[i].w;
     }
-    cnt = sizeof(MAPNAME(symbol2map))/sizeof(onesymbol2_t);
+    cnt = sizeof(MAPNAME(symbol2map))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbol2map, lib->symbol2map, MAPNAME(symbol2map)[i].name, &ret);
         kh_value(lib->symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
         kh_value(lib->symbol2map, k).w = MAPNAME(symbol2map)[i].w;
     }
-    cnt = sizeof(MAPNAME(datamap))/sizeof(onedata_t);
+    cnt = sizeof(MAPNAME(datamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
         kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;

@@ -38,6 +38,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 #define GO10(b, c, ...) GO09(b##c, __VA_ARGS__)
 #define GO11(b, c, ...) GO10(b##c, __VA_ARGS__)
 #define GO12(b, c, ...) GO11(b##c, __VA_ARGS__)
+#define GO13(b, c, ...) GO12(b##c, __VA_ARGS__)
+#define GO14(b, c, ...) GO13(b##c, __VA_ARGS__)
+#define GO15(b, c, ...) GO14(b##c, __VA_ARGS__)
 
 // void...
 #define ret v
@@ -87,6 +90,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 #include "wrapper_ld.h"
 #undef ret
 
+#undef GO15
+#undef GO14
+#undef GO13
 #undef GO12
 #undef GO11
 #undef GO10
