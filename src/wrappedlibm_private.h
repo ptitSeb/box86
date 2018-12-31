@@ -275,8 +275,8 @@ DATAV(_LIB_VERSION, 4)
 // lroundf  // Weak
 // lroundl  // Weak
 // matherr  // Weak
-// modf // Weak
-// modff    // Weak
+GOW(modf, dFdp)
+GOW(modff, fFfp)
 // modfl    // Weak
 // nan  // Weak
 // nanf // Weak
@@ -290,14 +290,14 @@ DATAV(_LIB_VERSION, 4)
 // nexttoward   // Weak
 // nexttowardf  // Weak
 // nexttowardl  // Weak
-// pow  // Weak
+GOW(pow, dFdd)
 // pow10    // Weak
 // pow10f   // Weak
 // pow10l   // Weak
-// powf // Weak
+GOW(powf, fFff)
 // __powf_finite
 // __pow_finite
-// powl // Weak
+//GOW(powl, DFDD)
 // remainder    // Weak
 // remainderf   // Weak
 // __remainderf_finite

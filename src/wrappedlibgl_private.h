@@ -1,12 +1,11 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(END)
 
 // _fini
-// glAccum
-// glActiveTexture
-// glActiveTextureARB
-// glAlphaFunc
-// glAlphaFuncx
-// glAreTexturesResident
+GO(glAccum, vFuf)
+GO(glActiveTexture, vFu)
+GO(glActiveTextureARB, vFu)
+GO(glAlphaFunc, vFuf)
+GO(glAreTexturesResident, uFupp)
 // glArrayElement
 // glArrayElementEXT
 // glAttachObjectARB
@@ -1158,7 +1157,7 @@
 // glXSwapIntervalSGI
 // glXUseXFont
 // glXWaitGL
-// glXWaitX
+GO(glXWaitX, vFv)
 // _init
 
 END()

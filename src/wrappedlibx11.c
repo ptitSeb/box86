@@ -6,10 +6,14 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "library_private.h"
 #include "x86emu.h"
+
+typedef int (*XErrorHandler)(void *, void *);
+XErrorHandler my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 
 int wrappedlibx11_init(library_t* lib)
 {
@@ -44,3 +48,8 @@ int wrappedlibx11_get(library_t* lib, const char* name, uintptr_t *offs, uint32_
     return 1;
 }
 
+XErrorHandler EXPORT my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
+{
+    printf_log(LOG_NONE, "Warning, ignoring XSetErrorHandler\n");
+    return NULL;
+}

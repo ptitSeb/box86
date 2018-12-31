@@ -76,11 +76,11 @@ GOW(asctime_r, pFpp)
 // authnone_create
 // authunix_create
 // authunix_create_default
-// backtrace    // Weak
-// __backtrace
-// __backtrace_symbols
-// backtrace_symbols    // Weak
-// __backtrace_symbols_fd
+GOW(backtrace, iFpi)    //TODO: probably a my_backtrace version, that use emulated stack instead
+GO(__backtrace, iFpi)
+GO(__backtrace_symbols, pFpi)
+GOW(backtrace_symbols, pFpi)
+GO(__backtrace_symbols_fd, vFpii)
 // backtrace_symbols_fd // Weak
 // basename
 // bcmp // Weak
@@ -88,7 +88,7 @@ GOW(asctime_r, pFpp)
 // bdflush
 // bind // Weak
 // bindresvport
-// bindtextdomain   // Weak
+GOW(bindtextdomain, pFpp)
 // bind_textdomain_codeset  // Weak
 // brk  // Weak
 // __bsd_getpgrp
@@ -288,7 +288,7 @@ DATAV(_environ, 4)
 // __fcntl  // Weak
 // fcvt
 // fcvt_r
-// fdatasync
+GO(fdatasync, iFi)
 // fdetach
 // fdopen
 // fdopendir    // Weak
@@ -390,7 +390,7 @@ GO(__freelocale, vFp)
 // fstatfs64    // Weak
 // fstatvfs
 // fstatvfs64   // Weak
-// fsync    // Weak
+GOW(fsync, iFi)
 // ftell    // Weak
 // ftello
 // ftello64
@@ -516,11 +516,11 @@ GO(getdate, pFp)
 // __getpgid
 // getpgrp
 // get_phys_pages   // Weak
-// getpid
-// __getpid
+GO(getpid, uFv)
+GO(__getpid, uFv)
 // getpmsg
 // getppid  // Weak
-// getpriority
+GO(getpriority, iFii)
 // getprotobyname
 // getprotobyname_r
 // getprotobynumber
@@ -1015,7 +1015,7 @@ GOM(__longjmp_chk, vFEpi)
 // lrand48_r
 // lremovexattr
 // lsearch
-// lseek    // Weak
+GOW(lseek, iFiii)
 // __lseek  // Weak
 // lseek64  // Weak
 // lsetxattr
@@ -1238,7 +1238,7 @@ DATA(optopt, 4)
 // posix_spawnp
 // ppoll
 // prctl    // Weak
-// pread    // Weak
+GOW(pread, iFipuu)
 // pread64  // Weak
 // __pread64    // Weak
 // __pread64_chk
@@ -1254,7 +1254,7 @@ DATA(__progname, 4)
 DATA(__progname_full, 4)
 DATAV(program_invocation_name, 4)
 DATAV(program_invocation_short_name, 4)
-// pselect  // Weak
+GOW(pselect, iFippppp)
 // psignal
 // pthread_attr_destroy
 // pthread_attr_getdetachstate
@@ -1332,7 +1332,7 @@ GOW(puts, iFp)
 // rcmd
 // rcmd_af
 // __rcmd_errstr    // type B
-// read // Weak
+GO(read, iFipu)
 // __read   // Weak
 // readahead    // Weak
 // __read_chk
@@ -1442,8 +1442,8 @@ DATA(__resp, 4)
 // seed48
 // seed48_r // Weak
 // seekdir
-// select   // Weak
-// __select
+GOW(select, iFipppp)
+GO(__select, iFipppp)
 // semctl
 // semget   // Weak
 // semop    // Weak
@@ -1487,7 +1487,7 @@ DATA(__resp, 4)
 // setpgid  // Weak
 // __setpgid
 // setpgrp
-// setpriority
+GO(setpriority, iFiii)
 // setprotoent
 // setpwent
 // setregid // Weak
@@ -1617,8 +1617,8 @@ GO(strcmp, iFpp)
 // __strcspn_c1
 // __strcspn_c2
 // __strcspn_c3
-// strdup   // Weak
-// __strdup
+GOW(strdup, pFp)
+GO(__strdup, pFp)
 GO(strerror, pFv)
 // strerror_l
 // __strerror_r
@@ -1631,7 +1631,7 @@ GO(strftime, uFpupp)
 // __strftime_l
 // strftime_l   // Weak
 GO(strlen, uFp)
-// strncasecmp  // Weak
+GOW(strncasecmp, iFpp)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
 GO(strncat, pFppu)
@@ -1639,8 +1639,8 @@ GO(strncat, pFppu)
 // strncmp
 // strncpy
 // __strncpy_chk
-// strndup  // Weak
-// __strndup
+GOW(strndup, pFpu)
+GO(__strndup, pFpu)
 // strnlen
 // strpbrk
 // __strpbrk_c2
@@ -1659,11 +1659,11 @@ GO(strptime, pFppp)
 // __strspn_c2
 // __strspn_c3
 GO(strstr, pFpp)
-// strtod
+GO(strtod, dFpp)
 // __strtod_internal
 // __strtod_l
 GOW(strtod_l, dFppu)
-// strtof
+GO(strtof, fFpp)
 // __strtof_internal
 // __strtof_l
 GOW(strtof_l, fFppu)
@@ -1698,8 +1698,8 @@ GOW(strtold_l, DFppu)
 // strverscmp   // Weak
 // __strverscmp
 // strxfrm
-// __strxfrm_l
-// strxfrm_l    // Weak
+GO(__strxfrm_l, uFppup)
+GO(strxfrm_l, uFppup)
 // stty
 // svcauthdes_stats // type B
 // svcerr_auth
@@ -1741,8 +1741,8 @@ GOW(strtold_l, DFppu)
 // sync
 // sync_file_range
 GOM(syscall, uFE)
-// sysconf  // Weak
-// __sysconf
+GOW(sysconf, iFi)
+GO(__sysconf, iFi)
 // sysctl   // Weak
 // __sysctl
 DATA(_sys_errlist, 4)
@@ -1829,7 +1829,7 @@ GOW(tzset, vFv)
 // uname    // Weak
 // __underflow
 GOW(ungetc, iFip)
-// ungetwc
+GO(ungetwc, iFip)
 // unlink   // Weak
 // unlinkat
 // unlockpt
@@ -1979,8 +1979,8 @@ GO(__wcsftime_l, uFpuppu)
 // wcswcs   // Weak
 // wcswidth
 // wcsxfrm
-// __wcsxfrm_l
-// wcsxfrm_l    // Weak
+GOW(wcsxfrm_l, uFppup)
+GO(__wcsxfrm_l, uFppup)
 GO(wctob, iFi)
 GO(wctomb, iFpi)
 // __wctomb_chk
@@ -1999,7 +1999,7 @@ GO(__wmemcpy_chk, pFppuu)
 // __wmemmove_chk
 // wmempcpy // Weak
 // __wmempcpy_chk
-// wmemset
+GO(wmemset, pFpiu)
 // __wmemset_chk
 // wordexp
 // wordfree
@@ -2094,10 +2094,17 @@ GO(__wmemcpy_chk, pFppuu)
 // __xstat64
 
 // forcing a custom __gmon_start__ that does nothing
-GOM(__gmon_start__, vFE)
+GOM(__gmon_start__, vFv)
 
-// not found:
-GOM(_ITM_memcpyRtWn, vFEpppu)
+// not found (libitm???), but it seems OK to declare dummies:
+GOM(_ZGTtnaX, pFu)
+GOM(_ZGTtdlPv, vFp)
+GOM(_ITM_RU1, uFp)
+GOM(_ITM_RU4, uFp)
+//GOM(_ITM_RU8, UFp)
+GOM(_ITM_memcpyRtWn, vFppu)
+GOM(_ITM_memcpyRnWt, vFppu)
+//GOM(_ITM_addUserCommitAction, vFpUp)
 
 END()
 

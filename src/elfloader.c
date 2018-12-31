@@ -138,6 +138,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs;
+static int err=10;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -163,6 +164,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+if(!--err)
                     return -1;
                 } else {
                     if(p) {

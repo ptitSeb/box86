@@ -33,7 +33,7 @@ DATAB(_qfree, 4)
 // _XAllocIDs
 // XAllocNamedColor
 // _XAllocScratch
-// XAllocSizeHints
+GO(XAllocSizeHints, pFv)
 // XAllocStandardColormap
 // _XAllocTemp
 // XAllocWMHints
@@ -355,7 +355,7 @@ GO(XFreeColormap, iFpu)
 DATAB(_XFreeDisplayLock_fn, 4)
 // _XFreeDisplayStructure
 // _XFreeEventCookies
-// XFreeEventData
+GO(XFreeEventData, vFpp)
 // _XFreeExtData
 // XFreeExtensionList
 GO(XFreeFont, iFpp)
@@ -382,7 +382,7 @@ GO(XFreePixmap, iFpp)
 // XGetDefault
 // XGetErrorDatabaseText
 // XGetErrorText
-// XGetEventData
+GO(XGetEventData, iFpp)
 // XGetFontPath
 GO(XGetFontProperty, iFppp)
 // XGetGCValues
@@ -424,9 +424,9 @@ GO(XGetWindowProperty, iFpppiiipppppp)
 // XGetWMHints
 // XGetWMIconName
 // XGetWMName
-// XGetWMNormalHints
+GO(XGetWMNormalHints, iFpppp)
 // XGetWMProtocols
-// XGetWMSizeHints
+GO(XGetWMSizeHints, iFppppu)
 // XGetZoomHints
 DATAB(_Xglobal_lock, 4)
 // XGrabButton
@@ -615,7 +615,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 // XkbInitCanonicalKeyTypes
 // _XkbInitReadBuffer
 DATA(_XkbInternAtomFunc, 4)
-// XkbKeycodeToKeysym
+GO(XkbKeycodeToKeysym, uFpuuu)
 // XkbKeysymToModifiers
 // XkbKeyTypesForCoreSymbols
 // XkbLatchGroup
@@ -759,7 +759,7 @@ GO(XLoadFont, pFpp)
 // XLocaleOfFontSet
 // XLocaleOfIM
 // XLocaleOfOM
-// XLockDisplay
+GO(XLockDisplay, vFp)
 DATAB(_XLockMutex_fn, 4)
 // XLookupColor
 // XLookupKeysym
@@ -780,7 +780,7 @@ GO(XMaskEvent, iFpup)
 // _Xmblen
 // XmbLookupString
 // XmbResetIC
-// XmbSetWMProperties
+GO(XmbSetWMProperties, vFpppppippp)
 // _Xmbstoutf8
 // _Xmbstowcs
 // XmbTextEscapement
@@ -835,13 +835,13 @@ GO(XPutImage, iFppppiiiiuu)
 // XQueryBestTile
 // XQueryColor
 // XQueryColors
-// XQueryExtension
+GO(XQueryExtension, iFppppp)
 GO(XQueryFont, pFpp)
 // XQueryKeymap
 // XQueryPointer
 GO(XQueryTextExtents, iFpppipppp)
 GO(XQueryTextExtents16, iFpppipppp)
-// XQueryTree
+GO(XQueryTree, pFpppppp)
 // XRaiseWindow
 // _XRead
 // XReadBitmapFile
@@ -927,7 +927,7 @@ GO(XSetArcMode, iFppi)
 // XSetCloseDownMode
 // XSetCommand
 // XSetDashes
-// XSetErrorHandler
+GOM(XSetErrorHandler, pFEp)
 // XSetFillRule
 // XSetFillStyle
 // XSetFont
@@ -977,10 +977,10 @@ GO(XSetSubwindowMode, iFppi)
 // XSetWMHints
 // XSetWMIconName
 // XSetWMName
-// XSetWMNormalHints
-// XSetWMProperties
+GO(XSetWMNormalHints, iFpppp)
+GO(XSetWMProperties, vFpppppippp)
 // XSetWMProtocols
-// XSetWMSizeHints
+GO(XSetWMSizeHints, vFpppu)
 // XSetZoomHints
 // XShrinkRegion
 // XStoreBuffer
@@ -1023,7 +1023,7 @@ GO(XUngrabPointer, iFpu)
 // _XUnknownWireEvent
 // _XUnknownWireEventCookie
 GO(XUnloadFont, iFpp)
-// XUnlockDisplay
+GO(XUnlockDisplay, vFp)
 DATAB(_XUnlockMutex_fn, 4)
 // XUnmapSubwindows
 // XUnmapWindow
@@ -1039,7 +1039,7 @@ DATAB(_XUnlockMutex_fn, 4)
 // Xutf8DrawText
 // Xutf8LookupString
 // Xutf8ResetIC
-// Xutf8SetWMProperties
+GO(Xutf8SetWMProperties, vFpppppippp)
 // Xutf8TextEscapement
 // Xutf8TextExtents
 // Xutf8TextListToTextProperty

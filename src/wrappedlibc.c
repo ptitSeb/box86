@@ -59,10 +59,14 @@ pid_t EXPORT my_fork()
 }
 pid_t EXPORT my___fork() __attribute__((alias("my_fork")));
 
-void EXPORT my__ITM_memcpyRtWn(x86emu_t* emu, /*_ITM_transaction *,void *,const void *,size_t*/void* a,void* b,void* c, size_t d)
-{
-    printf_log(LOG_NONE, "Warning, Ignoring _ITM_memcpyRtWn(%p, %p, %p, %u)\n", a, b, c, d);
-}
+EXPORT void* my__ZGTtnaX (size_t a) { return NULL; }
+EXPORT void my__ZGTtdlPv (void* a) { }
+EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { return 0; }
+EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { return 0; }
+EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { return 0; }
+EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { }
+EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { }
+EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c) { };
 
 void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
 
