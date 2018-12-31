@@ -83,7 +83,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     if(nlib<0 || nlib>=dl->lib_sz) 
         return NULL;
     uintptr_t start, end;
-    if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)) {
+    if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
         // not found
         printf_log(LOG_DEBUG, " Symbol not found\n");
         return NULL;
