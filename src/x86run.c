@@ -125,7 +125,7 @@ int Run(x86emu_t *emu)
             case 0x55:
             case 0x56:
             case 0x57:                      /* PUSH Reg */
-                tmp8u = opcode-0x50;
+                tmp8u = opcode&7;
                 Push(emu, emu->regs[tmp8u].dword[0]);
                 break;
             case 0x58:
@@ -136,7 +136,7 @@ int Run(x86emu_t *emu)
             case 0x5D:
             case 0x5E:
             case 0x5F:                      /* POP Reg */
-                tmp8u = opcode-0x58;
+                tmp8u = opcode&7;
                 emu->regs[tmp8u].dword[0] = Pop(emu);
                 break;
 
@@ -195,76 +195,93 @@ int Run(x86emu_t *emu)
                 op2->dword[0] = imul32(emu, op1->dword[0], (uint32_t)tmp32s);
                 break;
 
-            case 0x72:                      /* JB Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_CF))
-                    R_EIP += tmp8s;
+            #define GOCOND(BASE, PREFIX, CONDITIONAL) \
+            case BASE+0x0:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_OF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x1:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_OF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x2:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_CF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x3:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_CF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x4:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_ZF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x5:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_ZF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x6:                          \
+                PREFIX                              \
+                if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x7:                          \
+                PREFIX                              \
+                if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x8:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_SF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0x9:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_SF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xA:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_PF))               \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xB:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_PF))              \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xC:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xD:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xE:                          \
+                PREFIX                              \
+                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
+                    CONDITIONAL                     \
+                break;                              \
+            case BASE+0xF:                          \
+                PREFIX                              \
+                if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
+                    CONDITIONAL                     \
                 break;
-            case 0x73:                      /* JNB Ib */
-                tmp8s = Fetch8s(emu);
-                if(!ACCESS_FLAG(F_CF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x74:                      /* JZ Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x75:                      /* JNZ Ib */
-                tmp8s = Fetch8s(emu);
-                if(!ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x76:                      /* JBE Ib */
-                tmp8s = Fetch8s(emu);
-                if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
-                    R_EIP += tmp8s;
-                break;
-            case 0x77:                      /* JNBE Ib */
-                tmp8s = Fetch8s(emu);
-                if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))
-                    R_EIP += tmp8s;
-                break;
-            case 0x78:                      /* JS Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_SF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x79:                      /* JNS Ib */
-                tmp8s = Fetch8s(emu);
-                if(!(ACCESS_FLAG(F_SF)))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7A:                      /* JP Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_PF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7B:                      /* JNP Ib */
-                tmp8s = Fetch8s(emu);
-                if(!(ACCESS_FLAG(F_PF)))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7C:                      /* JL Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7D:                      /* JNL Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7E:                      /* JLE Ib */
-                tmp8s = Fetch8s(emu);
-                if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)))
-                    R_EIP += tmp8s;
-                break;
-            case 0x7F:                      /* JNLE Ib */
-                tmp8s = Fetch8s(emu);
-                if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)))
-                    R_EIP += tmp8s;
-                break;
+            GOCOND(0x70
+                ,   tmp8s = Fetch8s(emu);
+                ,   R_EIP += tmp8s;
+                )                           /* Jxx Ib */
+            #undef GOCOND
+
             
             case 0x80:                      /* GRP Eb,Ib */
                 nextop = Fetch8(emu);

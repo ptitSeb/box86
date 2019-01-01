@@ -131,11 +131,17 @@ void Run66(x86emu_t *emu)
     case 0xA3:                              /* MOV Od,AX */
         *(uint16_t*)Fetch32(emu) = R_AX;
         break;
+    case 0xA5:                              /* MOVSW */
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
+        R_EDI += tmp8s;
+        R_ESI += tmp8s;
+        break;
 
-    case 0xB8:                              /* MOV EAX,Id */
-    case 0xB9:                              /* MOV ECX,Id */
-    case 0xBA:                              /* MOV EDX,Id */
-    case 0xBB:                              /* MOV EBX,Id */
+    case 0xB8:                              /* MOV AX,Iw */
+    case 0xB9:                              /* MOV CX,Iw */
+    case 0xBA:                              /* MOV DX,Iw */
+    case 0xBB:                              /* MOV BX,Iw */
     case 0xBC:                              /*    ...     */
     case 0xBD:
     case 0xBE:

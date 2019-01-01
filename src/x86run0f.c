@@ -124,7 +124,7 @@ void Run0F(x86emu_t *emu)
             break;                              \
         case BASE+0xD:                          \
             PREFIX                              \
-            if(!ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF)) \
+            if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
                 CONDITIONAL                     \
             break;                              \
         case BASE+0xE:                          \
@@ -152,7 +152,7 @@ void Run0F(x86emu_t *emu)
             , nextop = Fetch8(emu);
             GetEb(emu, &op1, &ea1, nextop);
             , op1->byte[0]=1; else op1->byte[0]=0;
-        )
+        )                               /* 0x90 -> 0x9F SETxx Eb */
 
         #undef GOCOND
 
@@ -203,6 +203,15 @@ void Run0F(x86emu_t *emu)
                 SET_FLAG(F_CF);
             break;
 
+        case 0xAC:                      /* SHRD Ed,Gd,Ib */
+        case 0xAD:                      /* SHRD Ed,Gd,CL */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            tmp8u = (opcode==0xAC)?Fetch8(emu):R_CL;
+            op1->dword[0] = shrd32(emu, op1->dword[0], op2->dword[0], tmp8u);
+            break;
+
         case 0xAE:                      /* Grp Ed (SSE) */
             nextop = Fetch8(emu);
             GetEd(emu, &op1, &ea1, nextop);
@@ -214,9 +223,7 @@ void Run0F(x86emu_t *emu)
                     op1->dword[0] = emu->mxcsr;
                     break;
                 default:
-                    printf_log(LOG_NONE, "Unimplemented Opcode 0F %02X %02X ...\n", opcode, nextop);
-                    emu->quit=1;
-                    emu->error |= ERR_UNIMPL;
+                    UnimpOpcode(emu);
             }
             break;
         case 0xAF:                      /* IMUL Gd,Ed */
@@ -256,9 +263,9 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEb(emu, &op2, &ea2, nextop);
             GetG(emu, &op1, nextop);
-            tmp32u = op2->dword[0];
+            tmp32u = add32(emu, op1->dword[0], op2->dword[0]);
             op2->dword[0] = op1->dword[0];
-            op1->dword[0] = add32(emu, op1->dword[0], tmp32u);
+            op1->dword[0] = tmp32u;
             break;
 
         default:

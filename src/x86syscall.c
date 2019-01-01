@@ -40,11 +40,13 @@ scwrap_t syscallwrap[] = {
     { 39, __NR_mkdir, 2 },
     { 54, __NR_ioctl, 5 },
     { 85, __NR_readlink, 3 },
+    { 91, __NR_munmap, 2 },
 #ifdef __NR_select
     { 142, __NR_select, 5 },
 #endif
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
+    { 252, __NR_exit_group, 1 },
 };
 
 struct mmap_arg_struct {
@@ -116,13 +118,6 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = time(NULL);
             return;
 #endif
-        /*case 54:    // __ioctl
-            if(R_EBX==0x5401) {
-
-            } else {
-                R_EAX = syscall(__NR_ioctl, R_EBX, R_ECX, )
-            }
-            return;*/
         case 90:    // old_mmap
             {
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
