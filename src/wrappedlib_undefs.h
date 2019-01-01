@@ -19,6 +19,3 @@
 // data, Uninitialized (type B)
 #undef DATAB
 
-// End marker
-#undef END
-
