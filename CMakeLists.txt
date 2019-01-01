@@ -61,6 +61,7 @@ SET(ELFLOADER_SRC
     src/wrappedlibasound.c
     src/wrappedlibdl.c
     src/wrappedlibm.c
+    src/wrappedsdl1.c
     src/wrappedsdl2.c
     src/wrappedsdl2mixer.c
     src/wrappedsdl2image.c

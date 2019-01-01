@@ -90,6 +90,18 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 #include "wrapper_ld.h"
 #undef ret
 
+// int64...
+#define ret I
+#include "wrappers.h"
+#include "wrapper_i64.h"
+#undef ret
+
+// uint64
+#define ret U
+#include "wrappers.h"
+#include "wrapper_u64.h"
+#undef ret
+
 #undef GO15
 #undef GO14
 #undef GO13

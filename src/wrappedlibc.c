@@ -71,6 +71,9 @@ EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c)
 
 void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
 
+EXPORT void my_exit(x86emu_t *emu, int32_t status);
+EXPORT void my__exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
+
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
@@ -81,5 +84,11 @@ const char* libcName = "libc.so.6";
 void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val)
 {
     printf_log(LOG_NONE, "Error: longjmp used\n");
+    emu->quit = 1;
+}
+
+void my_exit(x86emu_t *emu, int32_t status)
+{
+    R_EAX = (uint32_t)status;
     emu->quit = 1;
 }

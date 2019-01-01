@@ -330,8 +330,8 @@ DATAB(signgam, 4)
 // significandf // Weak
 // significandl // Weak
 // sin  // Weak
-// sincos   // Weak
-// sincosf  // Weak
+GOW(sincos, vFdpp)
+GOW(sincosf, vFfpp)
 // sincosl  // Weak
 // sinf // Weak
 // sinh // Weak

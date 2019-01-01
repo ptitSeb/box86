@@ -270,8 +270,8 @@ DATAV(_environ, 4)
 // execv
 // execve   // Weak
 // execvp
-// exit
-// _exit
+GOM(exit, vFEi)
+GOM(_exit, vFEi)
 // _Exit    // Weak
 // faccessat
 // fattach
@@ -348,8 +348,8 @@ GOM(__fork, pFE)
 // __fortify_fail
 // fpathconf    // Weak
 // __fpending
-// fprintf
-// __fprintf_chk
+GO2(fprintf, iFppV, vfprintf)
+GO2(__fprintf_chk, iFpvpV, vfprintf)
 // __fpu_control    // type B
 // __fpurge
 GOW(fputc, iFip)
@@ -1243,8 +1243,8 @@ GOW(pread, iFipuu)
 // __pread64    // Weak
 // __pread64_chk
 // __pread_chk
-GO2(printf, iFopV, vfprintf)
-GO2(__printf_chk, iFvopV, vfprintf)
+GO2(printf, iFpV, vprintf)
+GO2(__printf_chk, iFvpV, vprintf)
 // __printf_fp
 // printf_size
 // printf_size_info
@@ -1860,7 +1860,7 @@ GO(__uselocale, pFp)
 // vfork    // Weak
 // __vfork
 // vfprintf
-GO(__vfprintf_chk, iFpipp)  // TODO: check that, because last p is va_list
+GO(__vfprintf_chk, iFpipV)
 // vfscanf  // Weak
 // __vfscanf
 // vfwprintf    // Weak
@@ -1869,8 +1869,8 @@ GO(__vfprintf_chk, iFpipp)  // TODO: check that, because last p is va_list
 // vhangup
 // vlimit
 // vmsplice
-// vprintf
-// __vprintf_chk
+GO(vprintf, iFpV)
+GO2(__vprintf_chk, iFvpV, vprintf)
 // vscanf   // Weak
 // vsnprintf    // Weak
 // __vsnprintf  // Weak

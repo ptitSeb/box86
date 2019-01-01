@@ -23,6 +23,7 @@
 #define c() char
 #define W() unsigned short
 #define w() short
+#define V() void*
 
 #define __PASTER(x, y) x##y
 #define _EVALUATOR(x, y) __PASTER(x, y)
@@ -87,6 +88,18 @@
 #include "wrappers.h"
 #undef ret
 
+// int64...
+#define ret I
+#include "wrappers.h"
+#undef ret
+
+// uint64....
+#define ret U
+#include "wrappers.h"
+#undef ret
+
+
+#undef V
 #undef v
 #undef i
 #undef u
@@ -135,6 +148,7 @@
 #define cd() 4
 #define Wd() 4
 #define wd() 4
+#define Vd() 4
 
 #define stack(n) (R_ESP+4+n)
 #define v(p)
@@ -153,6 +167,7 @@
 #define d(p)    *(double*)stack(p)
 #define D(p)    *(long double*)stack(p)
 #define E(p)    emu
+#define V(p)    *(void**)stack(p)
 
 #define GO(N, ...) GOW(PREFIX(N), _EVALUATOR(PREFIX(N), _t), __VA_ARGS__)
 
@@ -236,6 +251,27 @@
 #undef ret
 #undef GOW
 
+typedef union ui64_s {
+    int64_t     i;
+    uint64_t    u;
+    uint32_t    d[2];
+} ui64_t;
+// int64....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); ui64_t r; r.i=fn(__VA_ARGS__); R_EAX=r.d[0]; R_EDX=r.d[1];}
+#define ret I
+#include "wrappers.h"
+#include "wrapper_i64.h"
+#undef ret
+#undef GOW
+
+// uint64....
+#define GOW(N, W, ...) void N(x86emu_t *emu, uintptr_t fnc){ DEF(W); ui64_t r; r.u=(uint32_t)fn(__VA_ARGS__); R_EAX=r.d[0]; R_EDX=r.d[1];}
+#define ret U
+#include "wrappers.h"
+#include "wrapper_u64.h"
+#undef ret
+#undef GOW
+
 #undef v
 #undef i
 #undef u
@@ -250,6 +286,7 @@
 #undef c
 #undef W
 #undef w
+#undef V
 
 #undef vd
 #undef id
@@ -265,6 +302,7 @@
 #undef cd
 #undef Wd
 #undef wd
+#undef Vd
 
 #undef GO15
 #undef GO14
