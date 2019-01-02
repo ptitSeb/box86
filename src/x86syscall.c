@@ -46,7 +46,7 @@ scwrap_t syscallwrap[] = {
 #endif
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
-    //{ 252, __NR_exit_group, 1 },
+    { 252, __NR_exit_group, 1 },
 };
 
 struct mmap_arg_struct {
@@ -118,9 +118,6 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            return;
-        case 252:
-            emu->quit = 1;
             return;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
