@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "debug.h"
 #include "x86emu_private.h"
@@ -35,6 +36,28 @@ void reset_fpu(x86emu_t* emu)
     memset(emu->fpu, 0, sizeof(emu->fpu));
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
     emu->cw = 0x37F;
+    emu->sw.x16 = 0x0000;
     emu->top = 0;
     emu->fpu_stack = 0;
+}
+
+void fpu_fcom(x86emu_t* emu, double b)
+{
+    if(!isfinite(ST0.d) || !isfinite(b)) {
+        emu->sw.f.F87_C0 = 1;
+        emu->sw.f.F87_C2 = 1;
+        emu->sw.f.F87_C3 = 1;
+    } else if (ST0.d>b) {
+        emu->sw.f.F87_C0 = 0;
+        emu->sw.f.F87_C2 = 0;
+        emu->sw.f.F87_C3 = 0;
+    } else if (ST0.d<b) {
+        emu->sw.f.F87_C0 = 1;
+        emu->sw.f.F87_C2 = 0;
+        emu->sw.f.F87_C3 = 0;
+    } else {
+        emu->sw.f.F87_C0 = 0;
+        emu->sw.f.F87_C2 = 0;
+        emu->sw.f.F87_C3 = 1;
+    }
 }

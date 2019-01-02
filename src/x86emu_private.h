@@ -23,8 +23,8 @@ typedef struct x86emu_s {
 	fpu_p_reg_t p_regs[9];
 	fpu_tag_t   tags[9];
 	uint16_t    cw,cw_mask_all;
-	uint16_t    sw;
-	uint32_t    top;
+	x87flags_t  sw;
+	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
 	fpu_round_t round;
     // mmx
@@ -50,6 +50,9 @@ typedef struct x86emu_s {
     void**      cleanups;
     int         clean_sz;
     int         clean_cap;
+    // scratch stack, used for alignement of double and 64bits ints on arm
+    uint32_t    *scratch;
+
 } x86emu_t;
 
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}

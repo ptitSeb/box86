@@ -45,6 +45,9 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     R_ESP = stack + stacksize;
     // setup fpu regs
     reset_fpu(emu);
+    // that should be enough
+    emu->scratch = (uint32_t*)calloc(200, sizeof(uint32_t));
+
 
     // if trace is activated
     if(context->x86trace) {
@@ -119,6 +122,9 @@ void FreeX86Emu(x86emu_t **emu)
             free((*emu)->globals);
         free((*emu)->shared_global);
     }
+
+    free((*emu)->scratch);
+
     free(*emu);
     *emu = NULL;
 }

@@ -1243,8 +1243,8 @@ GOW(pread, iFipuu)
 // __pread64    // Weak
 // __pread64_chk
 // __pread_chk
-GO2(printf, iFpV, vprintf)
-GO2(__printf_chk, iFvpV, vprintf)
+GOM(printf, iFEp0V)
+GOM(__printf_chk, iFEvp0V)
 // __printf_fp
 // printf_size
 // printf_size_info
@@ -1859,8 +1859,8 @@ GO(__uselocale, pFp)
 // versionsort64
 // vfork    // Weak
 // __vfork
-// vfprintf
-GO(__vfprintf_chk, iFpipV)
+GOM(vfprintf, iFEpp0V)
+GOM(__vfprintf_chk, iFEpvp0V)
 // vfscanf  // Weak
 // __vfscanf
 // vfwprintf    // Weak
@@ -1869,8 +1869,8 @@ GO(__vfprintf_chk, iFpipV)
 // vhangup
 // vlimit
 // vmsplice
-GO(vprintf, iFpV)
-GO2(__vprintf_chk, iFvpV, vprintf)
+GOM(vprintf, iFEp0V)
+GOM(__vprintf_chk, iFEvp0V)
 // vscanf   // Weak
 // vsnprintf    // Weak
 // __vsnprintf  // Weak

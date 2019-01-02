@@ -84,6 +84,26 @@ typedef enum {
 } fpu_round_t;
 
 typedef union {
+    uint16_t    x16;
+    struct {
+        int F87_IE:1;
+        int F87_DE:1;
+        int F87_ZE:1;
+        int F87_OE:1;
+        int F87_UE:1;
+        int F87_PE:1;
+        int F87_SF:1;
+        int F87_ES:1;
+        int F87_C0:1;
+		int F87_C1:1;
+		int F87_C2:1;
+		int F87_TOP:3;
+		int F87_C3:1;
+		int F87_B:1;
+    } f;
+} x87flags_t;
+
+typedef union {
 	uint64_t q;
 	struct {
 		uint32_t d0,d1;

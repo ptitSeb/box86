@@ -535,6 +535,9 @@ int Run(x86emu_t *emu)
                 }
                 break;
             
+            case 0xD8:                      /* x87 */
+                RunD8(emu);
+                break;
             case 0xD9:                      /* x87 */
                 RunD9(emu);
                 break;
@@ -542,12 +545,17 @@ int Run(x86emu_t *emu)
             case 0xDB:                      /* x87 */
                 RunDB(emu);
                 break;
-
+            case 0xDC:                      /* x87 */
+                RunDC(emu);
+                break;
             case 0xDD:                      /* x87 */
                 RunDD(emu);
                 break;
             case 0xDE:                      /* x87 */
                 RunDE(emu);
+                break;
+            case 0xDF:                      /* x87 */
+                RunDF(emu);
                 break;
 
             case 0xE8:                      /* CALL Id */
