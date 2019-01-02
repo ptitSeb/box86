@@ -10,7 +10,6 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <asm/stat.h>
-#include <termios.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -20,6 +19,7 @@
 #include "x86run_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
+#include "myalign.h"
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
@@ -46,7 +46,7 @@ scwrap_t syscallwrap[] = {
 #endif
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
-    { 252, __NR_exit_group, 1 },
+    //{ 252, __NR_exit_group, 1 },
 };
 
 struct mmap_arg_struct {
@@ -61,29 +61,6 @@ struct mmap_arg_struct {
 #undef st_atime
 #undef st_ctime
 #undef st_mtime
-// stat64 is packed on i386, not on arm (and possibly other structures)
-struct i386_stat64 {
-	unsigned long long	st_dev;
-	unsigned char		__pad0[4];
-	unsigned int		__st_ino;
-	unsigned int		st_mode;
-	unsigned int		st_nlink;
-	unsigned int		st_uid;
-	unsigned int		st_gid;
-	unsigned long long	st_rdev;
-	unsigned char		__pad3[4];
-	long long		st_size;
-	unsigned int		st_blksize;
-	long long		st_blocks;
-	unsigned int	st_atime;
-	unsigned int	st_atime_nsec;
-	unsigned int	st_mtime;
-	unsigned int	st_mtime_nsec;
-	unsigned int	st_ctime;
-	unsigned int	st_ctime_nsec;
-	unsigned long long	st_ino;
-} __attribute__((packed));
-
 
 void EXPORT x86Syscall(x86emu_t *emu)
 {
@@ -137,27 +114,13 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_stat64, R_EBX, &st);
-                struct i386_stat64 *i386st = (struct i386_stat64*)R_ECX;
-                i386st->st_dev      = st.st_dev;
-                i386st->__st_ino    = st.__st_ino;
-                i386st->st_mode     = st.st_mode;
-                i386st->st_nlink    = st.st_nlink;
-                i386st->st_uid      = st.st_uid;
-                i386st->st_gid      = st.st_gid;
-                i386st->st_rdev     = st.st_rdev;
-                i386st->st_size     = st.st_size;
-                i386st->st_blksize  = st.st_blksize;
-                i386st->st_blocks   = st.st_blocks;
-                i386st->st_atime    = st.st_atime;
-                i386st->st_atime_nsec   = st.st_atime_nsec;
-                i386st->st_mtime    = st.st_mtime;
-                i386st->st_mtime_nsec   = st.st_mtime_nsec;
-                i386st->st_ctime    = st.st_ctime;
-                i386st->st_ctime_nsec   = st.st_ctime_nsec;
-                i386st->st_ino      = st.st_ino;
+                UnalignStat64(&st, (void*)R_ECX);
                 
                 R_EAX = r;
             }
+            return;
+        case 252:
+            emu->quit = 1;
             return;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
