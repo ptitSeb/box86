@@ -16,6 +16,8 @@ typedef void (*sighandler_t)(int);
 #include "library_private.h"
 #include "x86emu.h"
 #include "x86emu_private.h"
+#include "myalign.h"
+
 
 // some my_XXX declare and defines
 int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
@@ -70,7 +72,7 @@ EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { }
 EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { }
 EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c) { };
 
-void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
+EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
 
 EXPORT void my_exit(x86emu_t *emu, int32_t status);
 EXPORT void my__exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
@@ -123,101 +125,4 @@ void my_exit(x86emu_t *emu, int32_t status)
 {
     R_EAX = (uint32_t)status;
     emu->quit = 1;
-}
-
-void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
-{
-    // loop...
-    const char* p = fmt;
-    int state = 0;
-    while(*p)
-    {
-        switch(state) {
-            case 0:
-                switch(*p) {
-                    case '%': state = 1; ++p; break;
-                    default:
-                        ++p;
-                }
-                break;
-            case 1: // normal
-            case 2: // l
-            case 3: // ll
-            case 4: // L
-                switch(*p) {
-                    case '%': state = 0;  ++p; break; //%% = back to 0
-                    case 'l': ++state; if (state>3) state=3; ++p; break;
-                    case 'L': state = 4; ++p; break;
-                    case 'a':
-                    case 'A':
-                    case 'e':
-                    case 'E':
-                    case 'g':
-                    case 'G':
-                    case 'F':
-                    case 'f': state += 10; break;    //  float
-                    case 'd':
-                    case 'i':
-                    case 'o':
-                    case 'u':
-                    case 'x':
-                    case 'X': state += 20; break;   // int
-                    case 'h': ++p; break;  // ignored...
-                    case '\'':
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                    case '.': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
-                    case 'p':
-                    case 's': state = 30; break; // pointers
-                    case '$':
-                    case '*': ++p; break; // should issue a warning, it's not handled...
-                    case ' ': state=0; ++p; break;
-                    default:
-                        state=20; // other stuff, put an int...
-                }
-                break;
-            case 11:    //double
-            case 12:    //%lg, still double
-            case 13:    //%llg, still double
-            case 23:    // 64bits int
-                if((((uint32_t)mystack)&0x7)!=0)
-                    mystack++;
-                *(uint64_t*)mystack = *(uint64_t*)st;
-                st+=2; mystack+=2;
-                state = 0;
-                ++p;
-                break;
-            case 14:    //%LG long double
-                *mystack = (uint32_t)st;    // put the address of the long double
-                ++mystack;
-                st+=3;
-                state = 0;
-                ++p;
-                break;
-            case 20:    // fallback
-            case 21:
-            case 22:
-            case 24:    // normal int / pointer
-            case 30:
-                *mystack = *st;
-                ++mystack;
-                ++st;
-                state = 0;
-                ++p;
-                break;
-            default:
-                // whattt?
-                state = 0;
-        }
-    }
 }
