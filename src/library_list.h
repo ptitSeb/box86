@@ -12,6 +12,7 @@ GO("libSDL2-2.0.so.0", sdl2)
 GO("libSDL2_mixer-2.0.so.0", sdl2mixer)
 GO("libSDL2_image-2.0.so.0", sdl2image)
 GO("libSDL-1.2.so.0", sdl1)
+GO("libsmpeg2-2.0.so.0", smpeg2)
 
 GO("ld-linux.so.2", ldlinux)
 

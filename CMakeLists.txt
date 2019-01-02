@@ -52,20 +52,6 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/x86int3.c"
     "${CMAKE_HOME_DIRECTORY}/src/x87emu_private.c"
     "${CMAKE_HOME_DIRECTORY}/src/x87run.c"
-
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibc.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibpthread.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibrt.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibgl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibx11.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibasound.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibdl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibm.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 
 set(WRAPPEDS
@@ -81,13 +67,14 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsmpeg2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")
 add_custom_command(OUTPUT ${WRAPPER} COMMAND "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS})
 set_source_files_properties(${WRAPPER} PROPERTIES GENERATED TRUE)
 
-add_executable(box86 ${ELFLOADER_SRC})
+add_executable(box86 ${ELFLOADER_SRC} ${WRAPPEDS})
 target_link_libraries(box86 m dl rt pthread)
 
 target_link_libraries(box86 -Wl,-Ttext-segment,0xA8000000)
