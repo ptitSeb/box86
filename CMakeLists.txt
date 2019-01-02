@@ -26,47 +26,66 @@ endif()
 
 #include_directories(include)
 
-SET(ELFLOADER_SRC
-    src/bridge.c
-    src/main.c
-    src/pathcoll.c
-    src/box86context.c
-    src/fileutils.c
-    src/elfloader.c
-    src/elfparser.c
-    src/elfload_dump.c
-    src/library.c
-    src/librarian.c
-    src/stack.c
-    src/threads.c
-    src/wrapper.c
-    src/x86emu.c
-    src/x86run.c
-    src/x86run0f.c
-    src/x86run66.c
-    src/x86run660f.c
-    src/x86run_private.c
-    src/x86syscall.c
-    src/x86primop.c
-    src/x86trace.c
-    src/x86int3.c
-    src/x87emu_private.c
-    src/x87run.c
+set(ELFLOADER_SRC
+    "${CMAKE_HOME_DIRECTORY}/src/bridge.c"
+    "${CMAKE_HOME_DIRECTORY}/src/main.c"
+    "${CMAKE_HOME_DIRECTORY}/src/pathcoll.c"
+    "${CMAKE_HOME_DIRECTORY}/src/box86context.c"
+    "${CMAKE_HOME_DIRECTORY}/src/fileutils.c"
+    "${CMAKE_HOME_DIRECTORY}/src/elfloader.c"
+    "${CMAKE_HOME_DIRECTORY}/src/elfparser.c"
+    "${CMAKE_HOME_DIRECTORY}/src/elfload_dump.c"
+    "${CMAKE_HOME_DIRECTORY}/src/library.c"
+    "${CMAKE_HOME_DIRECTORY}/src/librarian.c"
+    "${CMAKE_HOME_DIRECTORY}/src/stack.c"
+    "${CMAKE_HOME_DIRECTORY}/src/threads.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapper.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86emu.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86run.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86run0f.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86run66.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86run660f.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86run_private.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86syscall.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86primop.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86trace.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x86int3.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x87emu_private.c"
+    "${CMAKE_HOME_DIRECTORY}/src/x87run.c"
 
-    src/wrappedlibc.c
-    src/wrappedlibpthread.c
-    src/wrappedlibrt.c
-    src/wrappedlibgl.c
-    src/wrappedlibx11.c
-    src/wrappedlibasound.c
-    src/wrappedlibdl.c
-    src/wrappedlibm.c
-    src/wrappedsdl1.c
-    src/wrappedsdl2.c
-    src/wrappedsdl2mixer.c
-    src/wrappedsdl2image.c
-    src/wrappedldlinux.c
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibc.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibpthread.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibrt.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibgl.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibx11.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibasound.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibdl.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibm.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
+
+set(WRAPPEDS
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibc.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibpthread.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibrt.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibgl.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibx11.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibasound.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibdl.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibm.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
+)
+set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")
+add_custom_command(OUTPUT ${WRAPPER} COMMAND "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS})
+set_source_files_properties(${WRAPPER} PROPERTIES GENERATED TRUE)
 
 add_executable(box86 ${ELFLOADER_SRC})
 target_link_libraries(box86 m dl rt pthread)
