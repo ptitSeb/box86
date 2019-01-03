@@ -87,9 +87,39 @@ int Run(x86emu_t *emu)
             GO(0x20, and)                   /* AND 0x20 -> 0x25 */
             GO(0x28, sub)                   /* SUB 0x28 -> 0x2D */
             GO(0x30, xor)                   /* XOR 0x30 -> 0x35 */
-            GO(0x38, cmp)                   /* CMP 0x38 -> 0x3D */
+            //GO(0x38, cmp)                   /* CMP 0x38 -> 0x3D */    avoid affectation
 
             #undef GO
+            case 0x38:
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea1, nextop);
+                GetGb(emu, &op2, nextop);
+                cmp8(emu, op1->byte[0], op2->byte[0]);
+                break;
+            case 0x39:
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                GetG(emu, &op2, nextop);
+                cmp32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x3A:
+                nextop = Fetch8(emu);
+                GetEb(emu, &op2, &ea2, nextop);
+                GetGb(emu, &op1, nextop);
+                cmp8(emu, op1->byte[0], op2->byte[0]);
+                break;
+            case 0x3B:
+                nextop = Fetch8(emu);
+                GetEd(emu, &op2, &ea2, nextop);
+                GetG(emu, &op1, nextop);
+                cmp32(emu, op1->dword[0], op2->dword[0]);
+                break;
+            case 0x3C:
+                cmp8(emu, R_AL, Fetch8(emu));
+                break;
+            case 0x3D:
+                cmp32(emu, R_EAX, Fetch32(emu));
+                break;
 
             case 0x0F:                      /* More instructions */
                 Run0F(emu);

@@ -74,12 +74,17 @@ EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c)
 
 EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
 
-EXPORT void my_exit(x86emu_t *emu, int32_t status);
+EXPORT void my_exit(x86emu_t *emu, int32_t status)
+{
+    R_EAX = (uint32_t)status;
+    emu->quit = 1;
+}
 EXPORT void my__exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
 
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
+typedef int (*iFpupp_t)(void*, uint32_t, void*, void*);
 EXPORT int my_printf(x86emu_t *emu, void* fmt, void* b, va_list V) {
     #ifdef __arm__
     // need to align on arm
@@ -107,6 +112,32 @@ EXPORT int my_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) {
 }
 EXPORT int my___vfprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_vfprintf")));
 
+EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
+    printf_log(LOG_NONE, "Error: unimplemented dl_iterate_phdr(%p, %p) used\n", F, data);
+    emu->quit = 1;
+}
+
+EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+    #ifdef __arm__
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vsnprintf;
+    return ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
+    #else
+    return vsnprintf((char*)buff, s, (char*)f, V);
+    #endif
+}
+EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
+EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
+    #ifdef __arm__
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vsprintf;
+    return ((iFppp_t)f)(buff, fmt, emu->scratch);
+    #else
+    return vsprintf((char*)buff, (char*)f, V);
+    #endif
+}
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
@@ -118,11 +149,5 @@ const char* libcName = "libc.so.6";
 void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val)
 {
     printf_log(LOG_NONE, "Error: longjmp used\n");
-    emu->quit = 1;
-}
-
-void my_exit(x86emu_t *emu, int32_t status)
-{
-    R_EAX = (uint32_t)status;
     emu->quit = 1;
 }

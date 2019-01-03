@@ -130,18 +130,18 @@
 // erfcl    // Weak
 // erff // Weak
 // erfl // Weak
-// exp  // Weak
-// exp10    // Weak
-// exp10f   // Weak
+GOW(exp, dFd)
+GOW(exp10, dFd)
+GOW(exp10f, fFf)
 // __exp10f_finite
 // __exp10_finite
 // exp10l   // Weak
-// exp2 // Weak
-// exp2f    // Weak
+GOW(exp2, dFd)
+GOW(exp2f, fFf)
 // __exp2f_finite
 // __exp2_finite
 // exp2l    // Weak
-// expf // Weak
+GOW(expf, fFf)
 // __expf_finite
 // __exp_finite
 // expl // Weak
@@ -193,8 +193,8 @@ GOW(fmodf, fFff)
 // fmodl    // Weak
 // __fpclassify
 // __fpclassifyf
-// frexp    // Weak
-// frexpf   // Weak
+GOW(frexp, dFdp)
+GOW(frexpf, fFfp)
 // frexpl   // Weak
 // gamma    // Weak
 // gammaf   // Weak
@@ -248,16 +248,16 @@ DATAV(_LIB_VERSION, 4)
 // llroundf // Weak
 // llroundl // Weak
 // log  // Weak
-// log10    // Weak
-// log10f   // Weak
+GOW(log10, dFd)
+GOW(log10f, fFf)
 // __log10f_finite
 // __log10_finite
 // log10l   // Weak
 // log1p    // Weak
 // log1pf   // Weak
 // log1pl   // Weak
-// log2 // Weak
-// log2f    // Weak
+GOW(log2, dFd)
+GOW(log2f, fFf)
 // __log2f_finite
 // __log2_finite
 // log2l    // Weak

@@ -12,6 +12,7 @@
 #include "librarian.h"
 #include "bridge.h"
 #include "library.h"
+#include "callback.h"
 
 void x86Syscall(x86emu_t *emu);
 
@@ -27,6 +28,8 @@ box86context_t *NewBox86Context(int argc)
 
     context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     context->dlprivate = NewDLPrivate();
+
+    context->callbacks = NewCallbackList();
 
     context->argc = argc;
     context->argv = (char**)calloc(context->argc, sizeof(char*));
@@ -74,6 +77,8 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->glwrappers)
         freeGLProcWrapper(&(*context)->glwrappers);
+
+    FreeCallbackList(&(*context)->callbacks);
 
     free(*context);
     *context = NULL;

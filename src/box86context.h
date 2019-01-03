@@ -11,6 +11,7 @@ typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
+typedef struct callbacklist_s callbacklist_t;
 
 typedef void* (*procaddess_t)(const char* name);
 
@@ -48,6 +49,8 @@ typedef struct box86context_s {
     dlprivate_t         *dlprivate;     // dlopen library map
     kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
     procaddess_t        glxprocaddress;
+
+    callbacklist_t      *callbacks;     // all callbacks
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

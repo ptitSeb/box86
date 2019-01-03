@@ -16,131 +16,131 @@
 // KeySymToUcs4
 DATAB(_qfree, 4)
 // _Utf8GetConvByName
-// XActivateScreenSaver
-// XAddConnectionWatch
-// XAddExtension
-// XAddHost
-// XAddHosts
-// XAddPixel
-// XAddToExtensionList
-// XAddToSaveSet
-// XAllocClassHint
-// XAllocColor
-// XAllocColorCells
-// XAllocColorPlanes
-// XAllocIconSize
+//GO(XActivateScreenSaver
+//GO(XAddConnectionWatch
+//GO(XAddExtension
+//GO(XAddHost
+//GO(XAddHosts
+//GO(XAddPixel
+//GO(XAddToExtensionList
+//GO(XAddToSaveSet
+//GO(XAllocClassHint
+//GO(XAllocColor
+//GO(XAllocColorCells
+//GO(XAllocColorPlanes
+//GO(XAllocIconSize
 // _XAllocID
 // _XAllocIDs
-// XAllocNamedColor
+//GO(XAllocNamedColor
 // _XAllocScratch
 GO(XAllocSizeHints, pFv)
-// XAllocStandardColormap
+//GO(XAllocStandardColormap
 // _XAllocTemp
-// XAllocWMHints
-// XAllowEvents
-// XAllPlanes
+//GO(XAllocWMHints
+//GO(XAllowEvents
+//GO(XAllPlanes
 // _XAsyncErrorHandler
-// XAutoRepeatOff
-// XAutoRepeatOn
-// XBaseFontNameListOfFontSet
-// XBell
-// XBitmapBitOrder
-// XBitmapPad
-// XBitmapUnit
-// XBlackPixel
-// XBlackPixelOfScreen
-// XCellsOfScreen
-// XChangeActivePointerGrab
-// XChangeGC
-// XChangeKeyboardControl
-// XChangeKeyboardMapping
-// XChangePointerControl
+//GO(XAutoRepeatOff
+//GO(XAutoRepeatOn
+//GO(XBaseFontNameListOfFontSet
+//GO(XBell
+//GO(XBitmapBitOrder
+//GO(XBitmapPad
+//GO(XBitmapUnit
+//GO(XBlackPixel
+//GO(XBlackPixelOfScreen
+//GO(XCellsOfScreen
+//GO(XChangeActivePointerGrab
+//GO(XChangeGC
+//GO(XChangeKeyboardControl
+//GO(XChangeKeyboardMapping
+//GO(XChangePointerControl
 GO(XChangeProperty, iFpppi)
-// XChangeSaveSet
-// XChangeWindowAttributes
-// XCheckIfEvent
+//GO(XChangeSaveSet
+//GO(XChangeWindowAttributes
+//GO(XCheckIfEvent
 GO(XCheckMaskEvent, iFpup)
 GO(XCheckTypedEvent, iFpip)
 GO(XCheckTypedWindowEvent, iFppip)
 GO(XCheckWindowEvent, iFppup)
-// XCirculateSubwindows
-// XCirculateSubwindowsDown
-// XCirculateSubwindowsUp
+//GO(XCirculateSubwindows
+//GO(XCirculateSubwindowsDown
+//GO(XCirculateSubwindowsUp
 GO(XClearArea, iFppiiuui)
 GO(XClearWindow, iFpp)
-// XClipBox
-// XCloseDisplay
-// XCloseIM
+//GO(XClipBox
+//GO(XCloseDisplay
+//GO(XCloseIM
 // _XCloseLC
-// XCloseOM
+//GO(XCloseOM
 // _XcmsAddCmapRec
-// XcmsAddColorSpace
-// XcmsAddFunctionSet
-// XcmsAllocColor
-// XcmsAllocNamedColor
+//GO(XcmsAddColorSpace
+//GO(XcmsAddFunctionSet
+//GO(XcmsAllocColor
+//GO(XcmsAllocNamedColor
 // _XcmsArcTangent
-// XcmsCCCOfColormap
-// XcmsCIELabClipab
-// XcmsCIELabClipL
-// XcmsCIELabClipLab
+//GO(XcmsCCCOfColormap
+//GO(XcmsCIELabClipab
+//GO(XcmsCIELabClipL
+//GO(XcmsCIELabClipLab
 DATA(XcmsCIELabColorSpace, 4)
 // _XcmsCIELab_prefix   // type r
-// XcmsCIELabQueryMaxC
-// XcmsCIELabQueryMaxL
-// XcmsCIELabQueryMaxLC
+//GO(XcmsCIELabQueryMaxC
+//GO(XcmsCIELabQueryMaxL
+//GO(XcmsCIELabQueryMaxLC
 // _XcmsCIELabQueryMaxLCRGB
-// XcmsCIELabQueryMinL
-// XcmsCIELabToCIEXYZ
-// XcmsCIELabWhiteShiftColors
-// XcmsCIELuvClipL
-// XcmsCIELuvClipLuv
-// XcmsCIELuvClipuv
+//GO(XcmsCIELabQueryMinL
+//GO(XcmsCIELabToCIEXYZ
+//GO(XcmsCIELabWhiteShiftColors
+//GO(XcmsCIELuvClipL
+//GO(XcmsCIELuvClipLuv
+//GO(XcmsCIELuvClipuv
 DATA(XcmsCIELuvColorSpace, 4)
 // _XcmsCIELuv_prefix   // type r
-// XcmsCIELuvQueryMaxC
-// XcmsCIELuvQueryMaxL
-// XcmsCIELuvQueryMaxLC
+//GO(XcmsCIELuvQueryMaxC
+//GO(XcmsCIELuvQueryMaxL
+//GO(XcmsCIELuvQueryMaxLC
 // _XcmsCIELuvQueryMaxLCRGB
-// XcmsCIELuvQueryMinL
-// XcmsCIELuvToCIEuvY
-// XcmsCIELuvWhiteShiftColors
+//GO(XcmsCIELuvQueryMinL
+//GO(XcmsCIELuvToCIEuvY
+//GO(XcmsCIELuvWhiteShiftColors
 DATA(XcmsCIEuvYColorSpace, 4)
 // _XcmsCIEuvY_prefix   // type r
-// XcmsCIEuvYToCIELuv
-// XcmsCIEuvYToCIEXYZ
-// XcmsCIEuvYToTekHVC
+//GO(XcmsCIEuvYToCIELuv
+//GO(XcmsCIEuvYToCIEXYZ
+//GO(XcmsCIEuvYToTekHVC
 // _XcmsCIEuvY_ValidSpec
 DATA(XcmsCIExyYColorSpace, 4)
 // _XcmsCIExyY_prefix   // type r
-// XcmsCIExyYToCIEXYZ
+//GO(XcmsCIExyYToCIEXYZ
 DATA(XcmsCIEXYZColorSpace, 4)
 // _XcmsCIEXYZ_prefix   // type r
-// XcmsCIEXYZToCIELab
-// XcmsCIEXYZToCIEuvY
-// XcmsCIEXYZToCIExyY
-// XcmsCIEXYZToRGBi
+//GO(XcmsCIEXYZToCIELab
+//GO(XcmsCIEXYZToCIEuvY
+//GO(XcmsCIEXYZToCIExyY
+//GO(XcmsCIEXYZToRGBi
 // _XcmsCIEXYZ_ValidSpec
-// XcmsClientWhitePointOfCCC
-// XcmsConvertColors
+//GO(XcmsClientWhitePointOfCCC
+//GO(XcmsConvertColors
 // _XcmsConvertColorsWithWhitePt
 // _XcmsCopyCmapRecAndFree
 // _XcmsCopyISOLatin1Lowered
 // _XcmsCopyPointerArray
 // _XcmsCosine
-// XcmsCreateCCC
+//GO(XcmsCreateCCC
 // _XcmsCubeRoot
 DATA(_XcmsDDColorSpaces, 4)
 DATA(_XcmsDDColorSpacesInit, 4)
 // _XcmsDDConvertColors
-// XcmsDefaultCCC
+//GO(XcmsDefaultCCC
 // _XcmsDeleteCmapRec
 DATA(_XcmsDIColorSpaces, 4)
 DATA(_XcmsDIColorSpacesInit, 4)
 // _XcmsDIConvertColors
-// XcmsDisplayOfCCC
+//GO(XcmsDisplayOfCCC
 // _XcmsEqualWhitePts
-// XcmsFormatOfPrefix
-// XcmsFreeCCC
+//GO(XcmsFormatOfPrefix
+//GO(XcmsFreeCCC
 // _XcmsFreeIntensityMaps
 // _XcmsFreePointerArray
 // _XcmsGetElement
@@ -149,17 +149,17 @@ DATA(_XcmsDIColorSpacesInit, 4)
 // _XcmsInitDefaultCCCs
 // _XcmsInitScrnInfo
 DATA(XcmsLinearRGBFunctionSet, 4)
-// XcmsLookupColor
+//GO(XcmsLookupColor
 // _XcmsLRGB_InitScrnDefault
-// XcmsPrefixOfFormat
+//GO(XcmsPrefixOfFormat
 // _XcmsPushPointerArray
-// XcmsQueryBlack
-// XcmsQueryBlue
-// XcmsQueryColor
-// XcmsQueryColors
-// XcmsQueryGreen
-// XcmsQueryRed
-// XcmsQueryWhite
+//GO(XcmsQueryBlack
+//GO(XcmsQueryBlue
+//GO(XcmsQueryColor
+//GO(XcmsQueryColors
+//GO(XcmsQueryGreen
+//GO(XcmsQueryRed
+//GO(XcmsQueryWhite
 DATA(_XcmsRegColorSpaces, 4)
 // _XcmsRegFormatOfPrefix
 // _XcmsResolveColor
@@ -167,287 +167,287 @@ DATA(_XcmsRegColorSpaces, 4)
 DATA(XcmsRGBColorSpace, 4)
 DATA(XcmsRGBiColorSpace, 4)
 // _XcmsRGBi_prefix // type r
-// XcmsRGBiToCIEXYZ
-// XcmsRGBiToRGB
+//GO(XcmsRGBiToCIEXYZ
+//GO(XcmsRGBiToRGB
 // _XcmsRGB_prefix  // type r
-// XcmsRGBToRGBi
+//GO(XcmsRGBToRGBi
 // _XcmsRGB_to_XColor
 DATA(_XcmsSCCFuncSets, 4)
 DATA(_XcmsSCCFuncSetsInit, 4)
-// XcmsScreenNumberOfCCC
-// XcmsScreenWhitePointOfCCC
-// XcmsSetCCCOfColormap
-// XcmsSetCompressionProc
+//GO(XcmsScreenNumberOfCCC
+//GO(XcmsScreenWhitePointOfCCC
+//GO(XcmsSetCCCOfColormap
+//GO(XcmsSetCompressionProc
 // _XcmsSetGetColor
 // _XcmsSetGetColors
-// XcmsSetWhiteAdjustProc
-// XcmsSetWhitePoint
+//GO(XcmsSetWhiteAdjustProc
+//GO(XcmsSetWhitePoint
 // _XcmsSine
 // _XcmsSquareRoot
-// XcmsStoreColor
-// XcmsStoreColors
+//GO(XcmsStoreColor
+//GO(XcmsStoreColors
 // _XcmsTekHVC_CheckModify
-// XcmsTekHVCClipC
-// XcmsTekHVCClipV
-// XcmsTekHVCClipVC
+//GO(XcmsTekHVCClipC
+//GO(XcmsTekHVCClipV
+//GO(XcmsTekHVCClipVC
 DATA(XcmsTekHVCColorSpace, 4)
 // _XcmsTekHVC_prefix   // type r
-// XcmsTekHVCQueryMaxC
-// XcmsTekHVCQueryMaxV
-// XcmsTekHVCQueryMaxVC
+//GO(XcmsTekHVCQueryMaxC
+//GO(XcmsTekHVCQueryMaxV
+//GO(XcmsTekHVCQueryMaxVC
 // _XcmsTekHVCQueryMaxVCRGB
-// XcmsTekHVCQueryMaxVSamples
-// XcmsTekHVCQueryMinV
-// XcmsTekHVCToCIEuvY
-// XcmsTekHVCWhiteShiftColors
+//GO(XcmsTekHVCQueryMaxVSamples
+//GO(XcmsTekHVCQueryMinV
+//GO(XcmsTekHVCToCIEuvY
+//GO(XcmsTekHVCWhiteShiftColors
 DATA(XcmsUNDEFINEDColorSpace, 4)
 // _XcmsUnresolveColor
-// XcmsVisualOfCCC
+//GO(XcmsVisualOfCCC
 // _XColor_to_XcmsRGB
-// XConfigureWindow
-// XConnectionNumber
+//GO(XConfigureWindow
+//GO(XConnectionNumber
 // _XConnectXCB
-// XContextDependentDrawing
-// XContextualDrawing
-// XConvertCase
-// XConvertSelection
-// XCopyArea
+//GO(XContextDependentDrawing
+//GO(XContextualDrawing
+//GO(XConvertCase
+//GO(XConvertSelection
+//GO(XCopyArea
 GO(XCopyColormapAndFree, uFpu)
 // _XCopyEventCookie
-// XCopyGC
-// XCopyPlane
+//GO(XCopyGC
+//GO(XCopyPlane
 // _XCopyToArg
-// XCreateBitmapFromData
+GO(XCreateBitmapFromData, pFpppuu)
 GO(XCreateColormap, uFpppi)
-// XCreateFontCursor
-// XCreateFontSet
-// XCreateGC
-// XCreateGlyphCursor
-// XCreateIC
-// XCreateImage
+//GO(XCreateFontCursor
+//GO(XCreateFontSet
+GO(XCreateGC, pFppup)
+//GO(XCreateGlyphCursor
+//GO(XCreateIC
+//GO(XCreateImage
 DATAB(_XCreateMutex_fn, 4)
-// XCreateOC
+//GO(XCreateOC
 GO(XCreatePixmap, pFppuuu)
-// XCreatePixmapCursor
-// XCreatePixmapFromBitmapData
-// XCreateRegion
-// XCreateSimpleWindow
-// XCreateWindow
+//GO(XCreatePixmapCursor
+//GO(XCreatePixmapFromBitmapData
+//GO(XCreateRegion
+//GO(XCreateSimpleWindow
+//GO(XCreateWindow
 DATAB(_Xdebug, 4)
-// XDefaultColormap
-// XDefaultColormapOfScreen
-// XDefaultDepth
-// XDefaultDepthOfScreen
+//GO(XDefaultColormap
+//GO(XDefaultColormapOfScreen
+//GO(XDefaultDepth
+//GO(XDefaultDepthOfScreen
 // _XDefaultError
-// XDefaultGC
-// XDefaultGCOfScreen
+//GO(XDefaultGC
+//GO(XDefaultGCOfScreen
 // _XDefaultIOError
 // _XDefaultOpenIM
 // _XDefaultOpenOM
-// XDefaultRootWindow
-// XDefaultScreen
-// XDefaultScreenOfDisplay
-// XDefaultString
-// XDefaultVisual
-// XDefaultVisualOfScreen
+//GO(XDefaultRootWindow
+//GO(XDefaultScreen
+//GO(XDefaultScreenOfDisplay
+//GO(XDefaultString
+//GO(XDefaultVisual
+//GO(XDefaultVisualOfScreen
 // _XDefaultWireError
-// XDefineCursor
-// XDeleteContext
-// XDeleteModifiermapEntry
+//GO(XDefineCursor
+//GO(XDeleteContext
+//GO(XDeleteModifiermapEntry
 GO(XDeleteProperty, iFppp)
 // _XDeq
 // _XDeqAsyncHandler
-// XDestroyIC
-// XDestroyImage
-// XDestroyOC
-// XDestroyRegion
-// XDestroySubwindows
-// XDestroyWindow
-// XDirectionalDependentDrawing
-// XDisableAccessControl
-// XDisplayCells
-// XDisplayHeight
-// XDisplayHeightMM
-// XDisplayKeycodes
-// XDisplayMotionBufferSize
-// XDisplayName
-// XDisplayOfIM
-// XDisplayOfOM
-// XDisplayOfScreen
-// XDisplayPlanes
-// XDisplayString
-// XDisplayWidth
-// XDisplayWidthMM
-// XDoesBackingStore
-// XDoesSaveUnders
-// XDrawArc
-// XDrawArcs
-// XDrawImageString
-// XDrawImageString16
-// XDrawLine
-// XDrawLines
-// XDrawPoint
-// XDrawPoints
-// XDrawRectangle
-// XDrawRectangles
-// XDrawSegments
-// XDrawString
-// XDrawString16
-// XDrawText
-// XDrawText16
+//GO(XDestroyIC
+//GO(XDestroyImage
+//GO(XDestroyOC
+//GO(XDestroyRegion
+//GO(XDestroySubwindows
+//GO(XDestroyWindow
+//GO(XDirectionalDependentDrawing
+//GO(XDisableAccessControl
+//GO(XDisplayCells
+//GO(XDisplayHeight
+//GO(XDisplayHeightMM
+//GO(XDisplayKeycodes
+//GO(XDisplayMotionBufferSize
+//GO(XDisplayName
+//GO(XDisplayOfIM
+//GO(XDisplayOfOM
+//GO(XDisplayOfScreen
+//GO(XDisplayPlanes
+//GO(XDisplayString
+//GO(XDisplayWidth
+//GO(XDisplayWidthMM
+//GO(XDoesBackingStore
+//GO(XDoesSaveUnders
+//GO(XDrawArc
+//GO(XDrawArcs
+//GO(XDrawImageString
+//GO(XDrawImageString16
+//GO(XDrawLine
+//GO(XDrawLines
+//GO(XDrawPoint
+//GO(XDrawPoints
+//GO(XDrawRectangle
+//GO(XDrawRectangles
+//GO(XDrawSegments
+//GO(XDrawString
+//GO(XDrawString16
+//GO(XDrawText
+//GO(XDrawText16
 // _XEatData
 // _XEatDataWords
-// XEHeadOfExtensionList
-// XEmptyRegion
-// XEnableAccessControl
+//GO(XEHeadOfExtensionList
+//GO(XEmptyRegion
+//GO(XEnableAccessControl
 // _XEnq
-// XEqualRegion
+//GO(XEqualRegion
 // _XError
 DATAB(_XErrorFunction, 4)
-// XESetBeforeFlush
-// XESetCloseDisplay
-// XESetCopyEventCookie
-// XESetCopyGC
-// XESetCreateFont
-// XESetCreateGC
-// XESetError
-// XESetErrorString
-// XESetEventToWire
-// XESetFlushGC
-// XESetFreeFont
-// XESetFreeGC
-// XESetPrintErrorValues
-// XESetWireToError
-// XESetWireToEvent
-// XESetWireToEventCookie
-// XEventMaskOfScreen
+//GO(XESetBeforeFlush
+//GO(XESetCloseDisplay
+//GO(XESetCopyEventCookie
+//GO(XESetCopyGC
+//GO(XESetCreateFont
+//GO(XESetCreateGC
+//GO(XESetError
+//GO(XESetErrorString
+//GO(XESetEventToWire
+//GO(XESetFlushGC
+//GO(XESetFreeFont
+//GO(XESetFreeGC
+//GO(XESetPrintErrorValues
+//GO(XESetWireToError
+//GO(XESetWireToEvent
+//GO(XESetWireToEventCookie
+//GO(XEventMaskOfScreen
 GO(XEventsQueued, iFpi)
 // _XEventsQueued
 // _Xevent_to_mask  // type r
 // _XEventToWire
-// XExtendedMaxRequestSize
-// XExtentsOfFontSet
+//GO(XExtendedMaxRequestSize
+//GO(XExtentsOfFontSet
 // _XF86BigfontFreeFontMetrics
 // _XF86LoadQueryLocaleFont
-// XFetchBuffer
-// XFetchBytes
+//GO(XFetchBuffer
+//GO(XFetchBytes
 // _XFetchEventCookie
-// XFetchName
-// XFillArc
-// XFillArcs
-// XFillPolygon
-// XFillRectangle
-// XFillRectangles
-// XFilterEvent
-// XFindContext
-// XFindOnExtensionList
+//GO(XFetchName
+//GO(XFillArc
+//GO(XFillArcs
+//GO(XFillPolygon
+GO(XFillRectangle, iFpppiiuu)
+GO(XFillRectangles, iFppppi)
+GO(XFilterEvent, iFpp)
+//GO(XFindContext
+//GO(XFindOnExtensionList
 GO(XFlush, iFp)
 // _XFlush
-// XFlushGC
+GO(XFlushGC, vFpp)
 // _XFlushGCCache
-// XFontsOfFontSet
-// XForceScreenSaver
-// XFree
+//GO(XFontsOfFontSet
+GO(XForceScreenSaver, iFpi)
+//GO(XFree
 // _XFreeAtomTable
 GO(XFreeColormap, iFpu)
-// XFreeColors
-// XFreeCursor
+//GO(XFreeColors
+//GO(XFreeCursor
 DATAB(_XFreeDisplayLock_fn, 4)
 // _XFreeDisplayStructure
 // _XFreeEventCookies
 GO(XFreeEventData, vFpp)
 // _XFreeExtData
-// XFreeExtensionList
+GO(XFreeExtensionList, iFp)
 GO(XFreeFont, iFpp)
-// XFreeFontInfo
-// XFreeFontNames
-// XFreeFontPath
-// XFreeFontSet
-// XFreeGC
-// XFreeModifiermap
+GO(XFreeFontInfo, iFppi)
+GO(XFreeFontNames, iFp)
+GO(XFreeFontPath, iFp)
+//GO(XFreeFontSet
+GO(XFreeGC, iFpp)
+GO(XFreeModifiermap, iFp)
 DATAB(_XFreeMutex_fn, 4)
 GO(XFreePixmap, iFpp)
-// XFreeStringList
+//GO(XFreeStringList
 // _XFreeTemp
 // _XFreeX11XCBStructure
-// XGContextFromGC
-// XGeometry
+GO(XGContextFromGC, pFp)
+GO(XGeometry, iFpippuuuiipppp)
 // _XGetAsyncData
 // _XGetAsyncReply
-// XGetAtomName
-// XGetAtomNames
+//GO(XGetAtomName
+//GO(XGetAtomNames
 // _XGetBitsPerPixel
-// XGetClassHint
-// XGetCommand
-// XGetDefault
-// XGetErrorDatabaseText
-// XGetErrorText
+//GO(XGetClassHint
+GO(XGetCommand, iFpppp)
+//GO(XGetDefault
+GO(XGetErrorDatabaseText, iFpppppi)
+GO(XGetErrorText, iFpipi)
 GO(XGetEventData, iFpp)
-// XGetFontPath
+//GO(XGetFontPath
 GO(XGetFontProperty, iFppp)
-// XGetGCValues
-// XGetGeometry
+GO(XGetGCValues, iFppup)
+GO(XGetGeometry, iFppppppppp)
 // _XGetHostname
-// XGetIconName
-// XGetIconSizes
-// XGetICValues
+GO(XGetIconName, iFppp)
+//GO(XGetIconSizes
+//GO(XGetICValues
 GO(XGetImage, pFppiiuuui)
-// XGetIMValues
-// XGetInputFocus
-// XGetKeyboardControl
-// XGetKeyboardMapping
+//GO(XGetIMValues
+GO(XGetInputFocus, iFppp)
+GO(XGetKeyboardControl, iFpp)
+//GO(XGetKeyboardMapping
 // _XGetLCValues
-// XGetModifierMapping
-// XGetMotionEvents
-// XGetNormalHints
-// XGetOCValues
-// XGetOMValues
-// XGetPixel
-// XGetPointerControl
-// XGetPointerMapping
+//GO(XGetModifierMapping
+//GO(XGetMotionEvents
+//GO(XGetNormalHints
+//GO(XGetOCValues
+//GO(XGetOMValues
+//GO(XGetPixel
+//GO(XGetPointerControl
+GO(XGetPointerMapping, iFppi)
 // _XGetRequest
-// XGetRGBColormaps
+//GO(XGetRGBColormaps
 // _XGetScanlinePad
-// XGetScreenSaver
-// XGetSelectionOwner
-// XGetSizeHints
-// XGetStandardColormap
+GO(XGetScreenSaver, iFppppp)
+//GO(XGetSelectionOwner
+//GO(XGetSizeHints
+//GO(XGetStandardColormap
 GO(XGetSubImage, pFppiiuuuipii)
-// XGetTextProperty
-// XGetTransientForHint
-// XGetVisualInfo
-// XGetWindowAttributes
+//GO(XGetTextProperty
+GO(XGetTransientForHint, iFppp)
+//GO(XGetVisualInfo
+GO(XGetWindowAttributes, iFppp)
 // _XGetWindowAttributes
 GO(XGetWindowProperty, iFpppiiipppppp)
-// XGetWMClientMachine
-// XGetWMColormapWindows
-// XGetWMHints
-// XGetWMIconName
-// XGetWMName
+//GO(XGetWMClientMachine
+GO(XGetWMColormapWindows, iFpppp)
+//GO(XGetWMHints
+//GO(XGetWMIconName
+//GO(XGetWMName
 GO(XGetWMNormalHints, iFpppp)
-// XGetWMProtocols
+//GO(XGetWMProtocols
 GO(XGetWMSizeHints, iFppppu)
-// XGetZoomHints
+//GO(XGetZoomHints
 DATAB(_Xglobal_lock, 4)
-// XGrabButton
-// XGrabKey
+GO(XGrabButton, iFpuupiuiipp)
+GO(XGrabKey, iFpiupiii)
 GO(XGrabKeyboard, iFppuiiu)
 GO(XGrabPointer, iFppiuiippu)
-// XGrabServer
+GO(XGrabServer, iFp)
 DATAB(_XHeadOfDisplayList, 4)
-// XHeightMMOfScreen
-// XHeightOfScreen
+GO(XHeightMMOfScreen, iFp)
+GO(XHeightOfScreen, iFp)
 DATAB(_Xi18n_lock, 4)
-// XIconifyWindow
-// XIfEvent
-// XImageByteOrder
+GO(XIconifyWindow, iFppi)
+GOM(XIfEvent, iFEppp)
+GO(XImageByteOrder, iFp)
 // _XIMCompileResourceList
 // _XimGetCharCode
 // _XimGetLocaleCode
 // _XimLookupMBText
 // _XimLookupUTF8Text
 // _XimLookupWCText
-// XIMOfIC
+//GO(XIMOfIC
 // _XimXTransBytesReadable
 // _XimXTransClose
 // _XimXTransCloseForCloning
@@ -476,164 +476,164 @@ DATA(_XimXTransSocketUNIXFuncs, 4)
 DATAB(_XInitDisplayLock_fn, 4)
 // _XInitDynamicIM
 // _XInitDynamicOM
-// XInitExtension
-// XInitImage
+//GO(XInitExtension
+//GO(XInitImage
 // _XInitImageFuncPtrs
 // _XInitKeysymDB
-// XInitThreads
-// XInsertModifiermapEntry
-// XInstallColormap
-// XInternalConnectionNumbers
+//GO(XInitThreads
+//GO(XInsertModifiermapEntry
+//GO(XInstallColormap
+//GO(XInternalConnectionNumbers
 GO(XInternAtom, pFppi)
 GO(XInternAtoms, uFppiip)
-// XIntersectRegion
+//GO(XIntersectRegion
 // _XIOError
 DATAB(_XIOErrorFunction, 4)
 // _XIsEventCookie
-// XkbAddDeviceLedInfo
-// XkbAddGeomColor
-// XkbAddGeomDoodad
-// XkbAddGeomKey
-// XkbAddGeomKeyAlias
-// XkbAddGeomOutline
-// XkbAddGeomOverlay
-// XkbAddGeomOverlayKey
-// XkbAddGeomOverlayRow
-// XkbAddGeomProperty
-// XkbAddGeomRow
-// XkbAddGeomSection
-// XkbAddGeomShape
-// XkbAddKeyType
-// XkbAllocClientMap
-// XkbAllocCompatMap
-// XkbAllocControls
-// XkbAllocDeviceInfo
-// XkbAllocGeomColors
-// XkbAllocGeomDoodads
-// XkbAllocGeometry
-// XkbAllocGeomKeyAliases
-// XkbAllocGeomKeys
-// XkbAllocGeomOutlines
-// XkbAllocGeomOverlayKeys
-// XkbAllocGeomOverlayRows
-// XkbAllocGeomOverlays
-// XkbAllocGeomPoints
-// XkbAllocGeomProps
-// XkbAllocGeomRows
-// XkbAllocGeomSectionDoodads
-// XkbAllocGeomSections
-// XkbAllocGeomShapes
-// XkbAllocIndicatorMaps
-// XkbAllocKeyboard
-// XkbAllocNames
-// XkbAllocServerMap
-// XkbApplyCompatMapToKey
-// XkbApplyVirtualModChanges
-// XkbBell
-// XkbBellEvent
-// XkbChangeDeviceInfo
-// XkbChangeEnabledControls
-// XkbChangeKeycodeRange
-// XkbChangeMap
-// XkbChangeNames
-// XkbChangeTypesOfKey
-// XkbComputeEffectiveMap
-// XkbComputeRowBounds
-// XkbComputeSectionBounds
-// XkbComputeShapeBounds
-// XkbComputeShapeTop
+//GO(XkbAddDeviceLedInfo
+//GO(XkbAddGeomColor
+//GO(XkbAddGeomDoodad
+//GO(XkbAddGeomKey
+//GO(XkbAddGeomKeyAlias
+//GO(XkbAddGeomOutline
+//GO(XkbAddGeomOverlay
+//GO(XkbAddGeomOverlayKey
+//GO(XkbAddGeomOverlayRow
+//GO(XkbAddGeomProperty
+//GO(XkbAddGeomRow
+//GO(XkbAddGeomSection
+//GO(XkbAddGeomShape
+//GO(XkbAddKeyType
+//GO(XkbAllocClientMap
+//GO(XkbAllocCompatMap
+//GO(XkbAllocControls
+//GO(XkbAllocDeviceInfo
+//GO(XkbAllocGeomColors
+//GO(XkbAllocGeomDoodads
+//GO(XkbAllocGeometry
+//GO(XkbAllocGeomKeyAliases
+//GO(XkbAllocGeomKeys
+//GO(XkbAllocGeomOutlines
+//GO(XkbAllocGeomOverlayKeys
+//GO(XkbAllocGeomOverlayRows
+//GO(XkbAllocGeomOverlays
+//GO(XkbAllocGeomPoints
+//GO(XkbAllocGeomProps
+//GO(XkbAllocGeomRows
+//GO(XkbAllocGeomSectionDoodads
+//GO(XkbAllocGeomSections
+//GO(XkbAllocGeomShapes
+//GO(XkbAllocIndicatorMaps
+//GO(XkbAllocKeyboard
+//GO(XkbAllocNames
+//GO(XkbAllocServerMap
+//GO(XkbApplyCompatMapToKey
+//GO(XkbApplyVirtualModChanges
+//GO(XkbBell
+//GO(XkbBellEvent
+//GO(XkbChangeDeviceInfo
+//GO(XkbChangeEnabledControls
+//GO(XkbChangeKeycodeRange
+//GO(XkbChangeMap
+//GO(XkbChangeNames
+//GO(XkbChangeTypesOfKey
+//GO(XkbComputeEffectiveMap
+//GO(XkbComputeRowBounds
+//GO(XkbComputeSectionBounds
+//GO(XkbComputeShapeBounds
+//GO(XkbComputeShapeTop
 // _XkbCopyFromReadBuffer
-// XkbCopyKeyType
-// XkbCopyKeyTypes
-// XkbDeviceBell
-// XkbDeviceBellEvent
-// XkbFindOverlayForKey
-// XkbForceBell
-// XkbForceDeviceBell
-// XkbFreeClientMap
-// XkbFreeCompatMap
-// XkbFreeComponentList
-// XkbFreeControls
-// XkbFreeDeviceInfo
-// XkbFreeGeomColors
-// XkbFreeGeomDoodads
-// XkbFreeGeometry
-// XkbFreeGeomKeyAliases
-// XkbFreeGeomKeys
-// XkbFreeGeomOutlines
-// XkbFreeGeomOverlayKeys
-// XkbFreeGeomOverlayRows
-// XkbFreeGeomOverlays
-// XkbFreeGeomPoints
-// XkbFreeGeomProperties
-// XkbFreeGeomRows
-// XkbFreeGeomSections
-// XkbFreeGeomShapes
-// XkbFreeIndicatorMaps
-// XkbFreeKeyboard
-// XkbFreeNames
+//GO(XkbCopyKeyType
+//GO(XkbCopyKeyTypes
+//GO(XkbDeviceBell
+//GO(XkbDeviceBellEvent
+//GO(XkbFindOverlayForKey
+//GO(XkbForceBell
+//GO(XkbForceDeviceBell
+//GO(XkbFreeClientMap
+//GO(XkbFreeCompatMap
+//GO(XkbFreeComponentList
+//GO(XkbFreeControls
+//GO(XkbFreeDeviceInfo
+//GO(XkbFreeGeomColors
+//GO(XkbFreeGeomDoodads
+//GO(XkbFreeGeometry
+//GO(XkbFreeGeomKeyAliases
+//GO(XkbFreeGeomKeys
+//GO(XkbFreeGeomOutlines
+//GO(XkbFreeGeomOverlayKeys
+//GO(XkbFreeGeomOverlayRows
+//GO(XkbFreeGeomOverlays
+//GO(XkbFreeGeomPoints
+//GO(XkbFreeGeomProperties
+//GO(XkbFreeGeomRows
+//GO(XkbFreeGeomSections
+//GO(XkbFreeGeomShapes
+//GO(XkbFreeIndicatorMaps
+//GO(XkbFreeKeyboard
+//GO(XkbFreeNames
 // _XkbFreeReadBuffer
-// XkbFreeServerMap
+//GO(XkbFreeServerMap
 DATA(_XkbGetAtomNameFunc, 4)
-// XkbGetAutoRepeatRate
-// XkbGetAutoResetControls
+//GO(XkbGetAutoRepeatRate
+//GO(XkbGetAutoResetControls
 // _XkbGetCharset
-// XkbGetCompatMap
-// XkbGetControls
+//GO(XkbGetCompatMap
+//GO(XkbGetControls
 // _XkbGetConverters
-// XkbGetDetectableAutoRepeat
-// XkbGetDeviceButtonActions
-// XkbGetDeviceInfo
-// XkbGetDeviceInfoChanges
-// XkbGetDeviceLedInfo
-// XkbGetGeometry
-// XkbGetIndicatorMap
-// XkbGetIndicatorState
-// XkbGetKeyActions
-// XkbGetKeyBehaviors
-// XkbGetKeyboard
-// XkbGetKeyboardByName
-// XkbGetKeyExplicitComponents
-// XkbGetKeyModifierMap
-// XkbGetKeySyms
-// XkbGetKeyTypes
-// XkbGetKeyVirtualModMap
-// XkbGetMap
-// XkbGetMapChanges
-// XkbGetNamedDeviceIndicator
-// XkbGetNamedGeometry
-// XkbGetNamedIndicator
-// XkbGetNames
-// XkbGetPerClientControls
+//GO(XkbGetDetectableAutoRepeat
+//GO(XkbGetDeviceButtonActions
+//GO(XkbGetDeviceInfo
+//GO(XkbGetDeviceInfoChanges
+//GO(XkbGetDeviceLedInfo
+//GO(XkbGetGeometry
+//GO(XkbGetIndicatorMap
+//GO(XkbGetIndicatorState
+//GO(XkbGetKeyActions
+//GO(XkbGetKeyBehaviors
+//GO(XkbGetKeyboard
+//GO(XkbGetKeyboardByName
+//GO(XkbGetKeyExplicitComponents
+//GO(XkbGetKeyModifierMap
+//GO(XkbGetKeySyms
+//GO(XkbGetKeyTypes
+//GO(XkbGetKeyVirtualModMap
+//GO(XkbGetMap
+//GO(XkbGetMapChanges
+//GO(XkbGetNamedDeviceIndicator
+//GO(XkbGetNamedGeometry
+//GO(XkbGetNamedIndicator
+//GO(XkbGetNames
+//GO(XkbGetPerClientControls
 // _XkbGetReadBufferCountedString
 // _XkbGetReadBufferPtr
-// XkbGetState
-// XkbGetUpdatedMap
-// XkbGetVirtualMods
-// XkbGetXlibControls
-// XkbIgnoreExtension
-// XkbInitCanonicalKeyTypes
+//GO(XkbGetState
+//GO(XkbGetUpdatedMap
+//GO(XkbGetVirtualMods
+//GO(XkbGetXlibControls
+//GO(XkbIgnoreExtension
+//GO(XkbInitCanonicalKeyTypes
 // _XkbInitReadBuffer
 DATA(_XkbInternAtomFunc, 4)
 GO(XkbKeycodeToKeysym, uFpuuu)
-// XkbKeysymToModifiers
-// XkbKeyTypesForCoreSymbols
-// XkbLatchGroup
-// XkbLatchModifiers
-// XkbLibraryVersion
-// XkbListComponents
-// XkbLockGroup
-// XkbLockModifiers
-// XkbLookupKeyBinding
-// XkbLookupKeySym
-// XkbNoteControlsChanges
+//GO(XkbKeysymToModifiers
+//GO(XkbKeyTypesForCoreSymbols
+//GO(XkbLatchGroup
+//GO(XkbLatchModifiers
+//GO(XkbLibraryVersion
+//GO(XkbListComponents
+//GO(XkbLockGroup
+//GO(XkbLockModifiers
+//GO(XkbLookupKeyBinding
+//GO(XkbLookupKeySym
+//GO(XkbNoteControlsChanges
 // _XkbNoteCoreMapChanges
-// XkbNoteDeviceChanges
-// XkbNoteMapChanges
-// XkbNoteNameChanges
-// XkbOpenDisplay
+//GO(XkbNoteDeviceChanges
+//GO(XkbNoteMapChanges
+//GO(XkbNoteNameChanges
+//GO(XkbOpenDisplay
 // _XkbPeekAtReadBuffer
-// XkbQueryExtension
+//GO(XkbQueryExtension
 // _XkbReadBufferCopyKeySyms
 // _XkbReadCopyKeySyms
 // _XkbReadGetCompatMapReply
@@ -641,56 +641,56 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 // _XkbReadGetIndicatorMapReply
 // _XkbReadGetMapReply
 // _XkbReadGetNamesReply
-// XkbRefreshKeyboardMapping
+//GO(XkbRefreshKeyboardMapping
 // _XkbReloadDpy
-// XkbResizeDeviceButtonActions
-// XkbResizeKeyActions
-// XkbResizeKeySyms
-// XkbResizeKeyType
-// XkbSelectEventDetails
-// XkbSelectEvents
-// XkbSetAtomFuncs
-// XkbSetAutoRepeatRate
-// XkbSetAutoResetControls
-// XkbSetCompatMap
-// XkbSetControls
-// XkbSetDebuggingFlags
-// XkbSetDetectableAutoRepeat
-// XkbSetDeviceButtonActions
-// XkbSetDeviceInfo
-// XkbSetDeviceLedInfo
-// XkbSetGeometry
-// XkbSetIgnoreLockMods
-// XkbSetIndicatorMap
-// XkbSetMap
-// XkbSetNamedDeviceIndicator
-// XkbSetNamedIndicator
-// XkbSetNames
-// XkbSetPerClientControls
-// XkbSetServerInternalMods
-// XkbSetXlibControls
+//GO(XkbResizeDeviceButtonActions
+//GO(XkbResizeKeyActions
+//GO(XkbResizeKeySyms
+//GO(XkbResizeKeyType
+//GO(XkbSelectEventDetails
+//GO(XkbSelectEvents
+//GO(XkbSetAtomFuncs
+//GO(XkbSetAutoRepeatRate
+//GO(XkbSetAutoResetControls
+//GO(XkbSetCompatMap
+//GO(XkbSetControls
+//GO(XkbSetDebuggingFlags
+//GO(XkbSetDetectableAutoRepeat
+//GO(XkbSetDeviceButtonActions
+//GO(XkbSetDeviceInfo
+//GO(XkbSetDeviceLedInfo
+//GO(XkbSetGeometry
+//GO(XkbSetIgnoreLockMods
+//GO(XkbSetIndicatorMap
+//GO(XkbSetMap
+//GO(XkbSetNamedDeviceIndicator
+//GO(XkbSetNamedIndicator
+//GO(XkbSetNames
+//GO(XkbSetPerClientControls
+//GO(XkbSetServerInternalMods
+//GO(XkbSetXlibControls
 // _XkbSkipReadBufferData
-// XkbToControl
-// XkbTranslateKey
-// XkbTranslateKeyCode
-// XkbTranslateKeySym
-// XkbUpdateActionVirtualMods
-// XkbUpdateKeyTypeVirtualMods
-// XkbUpdateMapFromCore
-// XkbUseExtension
-// XkbVirtualModsToReal
+//GO(XkbToControl
+//GO(XkbTranslateKey
+//GO(XkbTranslateKeyCode
+//GO(XkbTranslateKeySym
+//GO(XkbUpdateActionVirtualMods
+//GO(XkbUpdateKeyTypeVirtualMods
+//GO(XkbUpdateMapFromCore
+//GO(XkbUseExtension
+//GO(XkbVirtualModsToReal
 // _XkbWriteCopyKeySyms
-// XkbXlibControlsImplemented
-// XKeycodeToKeysym
+//GO(XkbXlibControlsImplemented
+//GO(XKeycodeToKeysym
 // _XKeycodeToKeysym
 // _XKeyInitialize
-// XKeysymToKeycode
+GO(XKeysymToKeycode, uFpu)
 // _XKeysymToKeycode
 // _XKeysymToModifiers
-// XKeysymToString
+//GO(XKeysymToString
 // _XkeyTable   // type r
-// XKillClient
-// XLastKnownRequestProcessed
+//GO(XKillClient
+//GO(XLastKnownRequestProcessed
 // _XlcAddCharSet
 // _XlcAddCT
 // _XlcAddGB18030LocaleConverters
@@ -745,279 +745,279 @@ DATA(_XlcPublicMethods, 4)
 // _XlcVaToArgList
 // _Xlcwcstombs
 // _Xlcwctomb
-// XListDepths
-// XListExtensions
-// XListFonts
-// XListFontsWithInfo
-// XListHosts
-// XListInstalledColormaps
-// XListPixmapFormats
+//GO(XListDepths
+//GO(XListExtensions
+//GO(XListFonts
+//GO(XListFontsWithInfo
+//GO(XListHosts
+//GO(XListInstalledColormaps
+//GO(XListPixmapFormats
 GO(XListProperties, pFppp)
 GO(XLoadFont, pFpp)
-// XLoadQueryFont
+//GO(XLoadQueryFont
 // xlocaledir
-// XLocaleOfFontSet
-// XLocaleOfIM
-// XLocaleOfOM
+//GO(XLocaleOfFontSet
+//GO(XLocaleOfIM
+//GO(XLocaleOfOM
 GO(XLockDisplay, vFp)
 DATAB(_XLockMutex_fn, 4)
-// XLookupColor
-// XLookupKeysym
+//GO(XLookupColor
+//GO(XLookupKeysym
 // _XLookupKeysym
-// XLookupString
+//GO(XLookupString
 // _XLookupString
-// XLowerWindow
-// XMapRaised
-// XMapSubwindows
-// XMapWindow
+//GO(XLowerWindow
+//GO(XMapRaised
+//GO(XMapSubwindows
+//GO(XMapWindow
 GO(XMaskEvent, iFpup)
-// XMatchVisualInfo
-// XMaxCmapsOfScreen
-// XMaxRequestSize
-// XmbDrawImageString
-// XmbDrawString
-// XmbDrawText
+//GO(XMatchVisualInfo
+//GO(XMaxCmapsOfScreen
+//GO(XMaxRequestSize
+//GO(XmbDrawImageString
+//GO(XmbDrawString
+//GO(XmbDrawText
 // _Xmblen
-// XmbLookupString
-// XmbResetIC
+GO(XmbLookupString, iFuppipp)
+//GO(XmbResetIC
 GO(XmbSetWMProperties, vFpppppippp)
 // _Xmbstoutf8
 // _Xmbstowcs
-// XmbTextEscapement
-// XmbTextExtents
-// XmbTextListToTextProperty
+//GO(XmbTextEscapement
+//GO(XmbTextExtents
+//GO(XmbTextListToTextProperty
 // _XmbTextListToTextProperty
-// XmbTextPerCharExtents
-// XmbTextPropertyToTextList
+//GO(XmbTextPerCharExtents
+//GO(XmbTextPropertyToTextList
 // _XmbTextPropertyToTextList
 // _Xmbtowc
-// XMinCmapsOfScreen
-// XMoveResizeWindow
-// XMoveWindow
-// XNewModifiermap
+//GO(XMinCmapsOfScreen
+//GO(XMoveResizeWindow
+//GO(XMoveWindow
+//GO(XNewModifiermap
 GO(XNextEvent, iFpp)
-// XNextRequest
-// XNoOp
+//GO(XNextRequest
+//GO(XNoOp
 // _XNoticeCreateBitmap
 // _XNoticePutBitmap
-// XOffsetRegion
-// XOMOfOC
-// XOpenDisplay
-// XOpenIM
+//GO(XOffsetRegion
+//GO(XOMOfOC
+//GO(XOpenDisplay
+//GO(XOpenIM
 // _XOpenLC
-// XOpenOM
+//GO(XOpenOM
 // _XParseBaseFontNameList
-// XParseColor
-// XParseGeometry
+//GO(XParseColor
+//GO(XParseGeometry
 GO(XPeekEvent, iFpp)
-// XPeekIfEvent
+//GO(XPeekIfEvent
 GO(XPending, iFp)
-// Xpermalloc
-// XPlanesOfScreen
-// XPointInRegion
+//GO(Xpermalloc
+//GO(XPlanesOfScreen
+//GO(XPointInRegion
 // _XPollfdCacheAdd
 // _XPollfdCacheDel
 // _XPollfdCacheInit
-// XPolygonRegion
-// XProcessInternalConnection
+//GO(XPolygonRegion
+//GO(XProcessInternalConnection
 // _XProcessInternalConnection
 // _XProcessWindowAttributes
-// XProtocolRevision
-// XProtocolVersion
-// XPutBackEvent
+//GO(XProtocolRevision
+//GO(XProtocolVersion
+//GO(XPutBackEvent
 // _XPutBackEvent
 GO(XPutImage, iFppppiiiiuu)
-// XPutPixel
-// XQLength
-// XQueryBestCursor
-// XQueryBestSize
-// XQueryBestStipple
-// XQueryBestTile
-// XQueryColor
-// XQueryColors
+//GO(XPutPixel
+//GO(XQLength
+//GO(XQueryBestCursor
+//GO(XQueryBestSize
+//GO(XQueryBestStipple
+//GO(XQueryBestTile
+//GO(XQueryColor
+//GO(XQueryColors
 GO(XQueryExtension, iFppppp)
 GO(XQueryFont, pFpp)
-// XQueryKeymap
-// XQueryPointer
+//GO(XQueryKeymap
+//GO(XQueryPointer
 GO(XQueryTextExtents, iFpppipppp)
 GO(XQueryTextExtents16, iFpppipppp)
 GO(XQueryTree, pFpppppp)
-// XRaiseWindow
+//GO(XRaiseWindow
 // _XRead
-// XReadBitmapFile
-// XReadBitmapFileData
+//GO(XReadBitmapFile
+//GO(XReadBitmapFileData
 // _XReadEvents
 // _XReadPad
-// XRebindKeysym
-// XRecolorCursor
-// XReconfigureWMWindow
-// XRectInRegion
-// XRefreshKeyboardMapping
+//GO(XRebindKeysym
+//GO(XRecolorCursor
+//GO(XReconfigureWMWindow
+//GO(XRectInRegion
+//GO(XRefreshKeyboardMapping
 // _XRefreshKeyboardMapping
 // _XRegisterFilterByMask
 // _XRegisterFilterByType
-// XRegisterIMInstantiateCallback
+//GO(XRegisterIMInstantiateCallback
 // _XRegisterInternalConnection
-// XRemoveConnectionWatch
-// XRemoveFromSaveSet
-// XRemoveHost
-// XRemoveHosts
-// XReparentWindow
+//GO(XRemoveConnectionWatch
+//GO(XRemoveFromSaveSet
+//GO(XRemoveHost
+//GO(XRemoveHosts
+//GO(XReparentWindow
 // _XReply
-// XResetScreenSaver
-// XResizeWindow
-// XResourceManagerString
-// XRestackWindows
+GO(XResetScreenSaver, iFp)
+GO(XResizeWindow, iFppuu)
+//GO(XResourceManagerString
+GO(XRestackWindows, iFppi)
 // _XReverse_Bytes
-// XrmCombineDatabase
-// XrmCombineFileDatabase
+//GO(XrmCombineDatabase
+//GO(XrmCombineFileDatabase
 // _XrmDefaultInitParseInfo
-// XrmDestroyDatabase
-// XrmEnumerateDatabase
-// XrmGetDatabase
-// XrmGetFileDatabase
-// XrmGetResource
-// XrmGetStringDatabase
-// XrmInitialize
+//GO(XrmDestroyDatabase
+//GO(XrmEnumerateDatabase
+//GO(XrmGetDatabase
+//GO(XrmGetFileDatabase
+//GO(XrmGetResource
+//GO(XrmGetStringDatabase
+//GO(XrmInitialize
 // _XrmInitParseInfo
 // _XrmInternalStringToQuark
-// XrmLocaleOfDatabase
-// XrmMergeDatabases
-// XrmParseCommand
-// XrmPermStringToQuark
-// XrmPutFileDatabase
-// XrmPutLineResource
-// XrmPutResource
-// XrmPutStringResource
-// XrmQGetResource
-// XrmQGetSearchList
-// XrmQGetSearchResource
-// XrmQPutResource
-// XrmQPutStringResource
-// XrmQuarkToString
-// XrmSetDatabase
-// XrmStringToBindingQuarkList
-// XrmStringToQuark
-// XrmStringToQuarkList
-// XrmUniqueQuark
-// XRootWindow
-// XRootWindowOfScreen
-// XRotateBuffers
+//GO(XrmLocaleOfDatabase
+//GO(XrmMergeDatabases
+//GO(XrmParseCommand
+//GO(XrmPermStringToQuark
+//GO(XrmPutFileDatabase
+//GO(XrmPutLineResource
+//GO(XrmPutResource
+//GO(XrmPutStringResource
+//GO(XrmQGetResource
+//GO(XrmQGetSearchList
+//GO(XrmQGetSearchResource
+//GO(XrmQPutResource
+//GO(XrmQPutStringResource
+//GO(XrmQuarkToString
+//GO(XrmSetDatabase
+//GO(XrmStringToBindingQuarkList
+//GO(XrmStringToQuark
+//GO(XrmStringToQuarkList
+//GO(XrmUniqueQuark
+//GO(XRootWindow
+//GO(XRootWindowOfScreen
+GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
-// XSaveContext
-// XScreenCount
-// XScreenNumberOfScreen
-// XScreenOfDisplay
+//GO(XSaveContext
+//GO(XScreenCount
+//GO(XScreenNumberOfScreen
+//GO(XScreenOfDisplay
 // _XScreenOfWindow
-// XScreenResourceString
-// XSelectInput
+//GO(XScreenResourceString
+GO(XSelectInput, iFppi)
 // _XSend
 GO(XSendEvent, uFppiip)
-// XServerVendor
-// XSetAccessControl
-// XSetAfterFunction
+//GO(XServerVendor
+GO(XSetAccessControl, iFpi)
+//GO(XSetAfterFunction
 GO(XSetArcMode, iFppi)
-// XSetAuthorization
-// XSetBackground
-// XSetClassHint
-// XSetClipMask
-// XSetClipOrigin
-// XSetClipRectangles
+//GO(XSetAuthorization
+GO(XSetBackground, iFppu)
+//GO(XSetClassHint
+GO(XSetClipMask, iFppp)
+GO(XSetClipOrigin, iFppii)
+GO(XSetClipRectangles, iFppiipii)
 // _XSetClipRectangles
-// XSetCloseDownMode
-// XSetCommand
-// XSetDashes
+GO(XSetCloseDownMode, iFpi)
+GO(XSetCommand, iFpppi)
+GO(XSetDashes, iFppipi)
 GOM(XSetErrorHandler, pFEp)
-// XSetFillRule
-// XSetFillStyle
-// XSetFont
-// XSetFontPath
-// XSetForeground
-// XSetFunction
+GO(XSetFillRule, iFppi)
+GO(XSetFillStyle, iFppp)
+GO(XSetFont, iFppp)
+GO(XSetFontPath, iFppi)
+GO(XSetForeground, iFppu)
+GO(XSetFunction, iFppi)
 GO(XSetGraphicsExposures, iFppu)
-// XSetICFocus
-// XSetIconName
-// XSetIconSizes
-// XSetICValues
+//GO(XSetICFocus
+//GO(XSetIconName
+//GO(XSetIconSizes
+//GO(XSetICValues
 // _XSetImage
-// XSetIMValues
-// XSetInputFocus
-// XSetIOErrorHandler
+//GO(XSetIMValues
+//GO(XSetInputFocus
+//GO(XSetIOErrorHandler
 // _XSetLastRequestRead
-// XSetLineAttributes
-// XSetLocaleModifiers
-// XSetModifierMapping
-// XSetNormalHints
-// XSetOCValues
-// XSetOMValues
-// XSetPlaneMask
-// XSetPointerMapping
-// XSetRegion
-// XSetRGBColormaps
-// XSetScreenSaver
-// XSetSelectionOwner
-// XSetSizeHints
-// XSetStandardColormap
-// XSetStandardProperties
-// XSetState
-// XSetStipple
+//GO(XSetLineAttributes
+//GO(XSetLocaleModifiers
+//GO(XSetModifierMapping
+//GO(XSetNormalHints
+//GO(XSetOCValues
+//GO(XSetOMValues
+//GO(XSetPlaneMask
+//GO(XSetPointerMapping
+//GO(XSetRegion
+//GO(XSetRGBColormaps
+//GO(XSetScreenSaver
+//GO(XSetSelectionOwner
+//GO(XSetSizeHints
+//GO(XSetStandardColormap
+//GO(XSetStandardProperties
+//GO(XSetState
+//GO(XSetStipple
 GO(XSetSubwindowMode, iFppi)
-// XSetTextProperty
-// XSetTile
-// XSetTransientForHint
-// XSetTSOrigin
-// XSetWindowBackground
-// XSetWindowBackgroundPixmap
-// XSetWindowBorder
-// XSetWindowBorderPixmap
-// XSetWindowBorderWidth
-// XSetWindowColormap
-// XSetWMClientMachine
-// XSetWMColormapWindows
-// XSetWMHints
-// XSetWMIconName
-// XSetWMName
+//GO(XSetTextProperty
+//GO(XSetTile
+//GO(XSetTransientForHint
+//GO(XSetTSOrigin
+//GO(XSetWindowBackground
+//GO(XSetWindowBackgroundPixmap
+//GO(XSetWindowBorder
+//GO(XSetWindowBorderPixmap
+//GO(XSetWindowBorderWidth
+//GO(XSetWindowColormap
+//GO(XSetWMClientMachine
+GO(XSetWMColormapWindows, iFpppi)
+//GO(XSetWMHints
+//GO(XSetWMIconName
+//GO(XSetWMName
 GO(XSetWMNormalHints, iFpppp)
 GO(XSetWMProperties, vFpppppippp)
-// XSetWMProtocols
+GO(XSetWMProtocols, iFpppi)
 GO(XSetWMSizeHints, vFpppu)
-// XSetZoomHints
-// XShrinkRegion
-// XStoreBuffer
-// XStoreBytes
-// XStoreColor
-// XStoreColors
+//GO(XSetZoomHints
+//GO(XShrinkRegion
+//GO(XStoreBuffer
+//GO(XStoreBytes
+//GO(XStoreColor
+//GO(XStoreColors
 // _XStoreEventCookie
-// XStoreName
-// XStoreNamedColor
-// XStringListToTextProperty
-// XStringToKeysym
-// XSubImage
-// XSubtractRegion
-// XSupportsLocale
+//GO(XStoreName
+//GO(XStoreNamedColor
+//GO(XStringListToTextProperty
+//GO(XStringToKeysym
+//GO(XSubImage
+//GO(XSubtractRegion
+//GO(XSupportsLocale
 GO(XSync, iFpu)
 GO(XSynchronize, iFpi)
 GO(XTextExtents, iFppipppp)
 GO(XTextExtents16, iFppipppp)
 // _XTextHeight
 // _XTextHeight16
-// XTextPropertyToStringList
-// XTextWidth
-// XTextWidth16
+//GO(XTextPropertyToStringList
+//GO(XTextWidth
+//GO(XTextWidth16
 DATAB(_Xthread_self_fn, 4)
-// XTranslateCoordinates
+//GO(XTranslateCoordinates
 // _XTranslateKey
 // _XTranslateKeySym
 // _XTryShapeBitmapCursor
-// XUndefineCursor
-// XUngrabButton
-// XUngrabKey
+//GO(XUndefineCursor
+//GO(XUngrabButton
+//GO(XUngrabKey
 GO(XUngrabKeyboard, iFpu)
 GO(XUngrabPointer, iFpu)
-// XUngrabServer
-// XUninstallColormap
-// XUnionRectWithRegion
-// XUnionRegion
+GO(XUngrabServer, iFp)
+GO(XUninstallColormap, iFpp)
+//GO(XUnionRectWithRegion
+//GO(XUnionRegion
 // _XUnknownCopyEventCookie
 // _XUnknownNativeEvent
 // _XUnknownWireEvent
@@ -1025,63 +1025,63 @@ GO(XUngrabPointer, iFpu)
 GO(XUnloadFont, iFpp)
 GO(XUnlockDisplay, vFp)
 DATAB(_XUnlockMutex_fn, 4)
-// XUnmapSubwindows
-// XUnmapWindow
+GO(XUnmapSubwindows, iFpp)
+GO(XUnmapWindow, iFpp)
 // _XUnregisterFilter
-// XUnregisterIMInstantiateCallback
+//GO(XUnregisterIMInstantiateCallback
 // _XUnregisterInternalConnection
 // _XUnresolveColor
-// XUnsetICFocus
+//GO(XUnsetICFocus
 // _XUpdateAtomCache
 // _XUpdateGCCache
-// Xutf8DrawImageString
-// Xutf8DrawString
-// Xutf8DrawText
-// Xutf8LookupString
-// Xutf8ResetIC
+//GO(Xutf8DrawImageString
+//GO(Xutf8DrawString
+//GO(Xutf8DrawText
+GO(Xutf8LookupString, iFuppipp)
+//GO(Xutf8ResetIC
 GO(Xutf8SetWMProperties, vFpppppippp)
-// Xutf8TextEscapement
-// Xutf8TextExtents
-// Xutf8TextListToTextProperty
+//GO(Xutf8TextEscapement
+//GO(Xutf8TextExtents
+//GO(Xutf8TextListToTextProperty
 // _Xutf8TextListToTextProperty
-// Xutf8TextPerCharExtents
-// Xutf8TextPropertyToTextList
+//GO(Xutf8TextPerCharExtents
+//GO(Xutf8TextPropertyToTextList
 // _Xutf8TextPropertyToTextList
-// XVaCreateNestedList
-// XVendorRelease
+//GO(XVaCreateNestedList
+//GO(XVendorRelease
 // _XVIDtoVisual
-// XVisualIDFromVisual
-// XWarpPointer
-// XwcDrawImageString
-// XwcDrawString
-// XwcDrawText
-// XwcFreeStringList
+//GO(XVisualIDFromVisual
+//GO(XWarpPointer
+//GO(XwcDrawImageString
+//GO(XwcDrawString
+//GO(XwcDrawText
+//GO(XwcFreeStringList
 // _XwcFreeStringList
-// XwcLookupString
-// XwcResetIC
+GO(XwcLookupString, iFuppipp)
+//GO(XwcResetIC
 // _Xwcscmp
 // _Xwcscpy
 // _Xwcslen
 // _Xwcsncmp
 // _Xwcsncpy
 // _Xwcstombs
-// XwcTextEscapement
-// XwcTextExtents
-// XwcTextListToTextProperty
+//GO(XwcTextEscapement
+//GO(XwcTextExtents
+//GO(XwcTextListToTextProperty
 // _XwcTextListToTextProperty
-// XwcTextPerCharExtents
-// XwcTextPropertyToTextList
+//GO(XwcTextPerCharExtents
+//GO(XwcTextPropertyToTextList
 // _XwcTextPropertyToTextList
 // _Xwctomb
-// XWhitePixel
-// XWhitePixelOfScreen
-// XWidthMMOfScreen
-// XWidthOfScreen
+//GO(XWhitePixel
+//GO(XWhitePixelOfScreen
+//GO(XWidthMMOfScreen
+//GO(XWidthOfScreen
 GO(XWindowEvent, iFppup)
 // _XWireToEvent
-// XWithdrawWindow
-// XWMGeometry
-// XWriteBitmapFile
-// XXorRegion
+GO(XWithdrawWindow, iFppi)
+//GO(XWMGeometry
+//GO(XWriteBitmapFile
+//GO(XXorRegion
 
 #endif

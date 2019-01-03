@@ -37,7 +37,7 @@ def main(root):
 						# This needs more work
 						acceptables = ['v', 'o', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
-							raise NotImplementedError("{0}".format(ln[2:]))
+							raise NotImplementedError("{0} ({1})".format(ln[2:], line))
 						# Ok, this is acceptable: there is 0, 1, stdout and void
 						ln = (ln
 							.replace("v", "")   # void   -> nothing

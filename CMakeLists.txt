@@ -53,6 +53,7 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/x87emu_private.c"
     "${CMAKE_HOME_DIRECTORY}/src/x87run.c"
     "${CMAKE_HOME_DIRECTORY}/src/myalign.c"
+    "${CMAKE_HOME_DIRECTORY}/src/callback.c"
 )
 
 set(WRAPPEDS
@@ -65,11 +66,13 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibdl.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibm.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1image.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsmpeg2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedvorbisfile.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")

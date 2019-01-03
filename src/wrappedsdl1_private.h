@@ -219,6 +219,16 @@ GO(SDL_strupr, pFp)
 GO(SDL_ulltoa, pFUpi)
 GO(SDL_ultoa, pFupi)
 GO(SDL_vsnprintf, iFpupV)
-
+GOM(SDL_OpenAudio, iFEpp)
+GO(SDL_LockAudio, vFv)
+GO(SDL_UnlockAudio, vFv)
+GO(SDL_PauseAudio, vFi)
+GO(SDL_GetAudioStatus, iFv)
+GO(SDL_LoadWAV, pFpppp)
+GO(SDL_FreeWAV, vFp)
+//GOM(SDL_BuildAudioCVT, iFpuuiuui)
+//GOM(SDL_ConvertAudio, iFp)
+GO(SDL_MixAudio, vFppui)
+GO(SDL_CloseAudio, vFv) // should free callback
 
 #endif
