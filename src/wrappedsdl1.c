@@ -59,18 +59,21 @@ int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
     PFNOPENAUDIO openaudio = (PFNOPENAUDIO)dlsym(sdllib->priv.w.lib, "SDL_OpenAudio");
     // create a callback
     void *fnc = (void*)desired->callback;
-    x86emu_t *cbemu = (desired->callback)?NULL:AddCallback(emu, (uintptr_t)fnc, 3, desired->userdata, NULL, NULL, NULL);
+    void *olduser = desired->userdata;
+    x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
+    desired->callback = sdl1Callback;
     desired->userdata = cbemu;
     int ret = openaudio(desired, (SDL_AudioSpec*)o);
     if (ret!=0) {
         // error, clean the callback...
         desired->callback = fnc;
+        desired->userdata = olduser;
         FreeCallback(cbemu);
         return ret;
     }
     // put back stuff in place?
     desired->callback = fnc;
-    ((SDL_AudioSpec*)o)->callback = fnc;
+    desired->userdata = olduser;
 
     return ret;
 }
