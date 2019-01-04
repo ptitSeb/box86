@@ -99,6 +99,7 @@ int AllocElfMemory(elfheader_t* head)
         return 1;
     }
     head->memory = p;
+    memset(p, 0, head->memsz);
     head->delta = (intptr_t)p - (intptr_t)head->vaddr;
     #endif
 

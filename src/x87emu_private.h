@@ -23,5 +23,6 @@ void fpu_do_pop(x86emu_t* emu);
 void reset_fpu(x86emu_t* emu);
 
 void fpu_fcom(x86emu_t* emu, double b);
+void fpu_fcomi(x86emu_t* emu, double b);
 
 #endif //__X87RUN_PRIVATE_H_

@@ -61,3 +61,24 @@ void fpu_fcom(x86emu_t* emu, double b)
         emu->sw.f.F87_C3 = 1;
     }
 }
+
+void fpu_fcomi(x86emu_t* emu, double b)
+{
+    if(!isfinite(ST0.d) || !isfinite(b)) {
+        emu->eflags.f.F_CF = 1;
+        emu->eflags.f.F_PF = 1;
+        emu->eflags.f.F_ZF = 1;
+    } else if (ST0.d>b) {
+        emu->eflags.f.F_CF = 0;
+        emu->eflags.f.F_PF = 0;
+        emu->eflags.f.F_ZF = 0;
+    } else if (ST0.d<b) {
+        emu->eflags.f.F_CF = 1;
+        emu->eflags.f.F_PF = 0;
+        emu->eflags.f.F_ZF = 0;
+    } else {
+        emu->eflags.f.F_CF = 0;
+        emu->eflags.f.F_PF = 0;
+        emu->eflags.f.F_ZF = 1;
+    }
+}

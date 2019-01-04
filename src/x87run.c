@@ -296,6 +296,27 @@ void RunDB(x86emu_t *emu)
     case 0xE3:      /* FNINIT */
         reset_fpu(emu);
         break;
+    case 0xE8:  /* FUCOMI ST0, STx */
+    case 0xE9:
+    case 0xEA:
+    case 0xEB:
+    case 0xEC:
+    case 0xED:
+    case 0xEE:
+    case 0xEF:
+        fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        break;
+
+    case 0xF0:  /* FCOMI ST0, STx */
+    case 0xF1:
+    case 0xF2:
+    case 0xF3:
+    case 0xF4:
+    case 0xF5:
+    case 0xF6:
+    case 0xF7:
+        fpu_fcomi(emu, ST(nextop&7).d);
+        break;
     default:
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Gd */
@@ -303,6 +324,17 @@ void RunDB(x86emu_t *emu)
                 *(uint32_t*)&tmp32s = op2->dword[0];
                 fpu_do_push(emu);
                 ST0.d = tmp32s;
+                break;
+            case 2: /* FIST Ed, ST0 */
+                GetEd(emu, &op2, &ea2, nextop);
+                tmp32s = ST0.d; // TODO: Handling of FPU Exception
+                op2->dword[0] = *(uint32_t*)&tmp32s;
+                break;
+            case 3: /* FIST Ed, ST0 */
+                GetEd(emu, &op2, &ea2, nextop);
+                tmp32s = ST0.d; // TODO: Handling of FPU Exception
+                fpu_do_pop(emu);
+                op2->dword[0] = *(uint32_t*)&tmp32s;
                 break;
             case 7: /* FSTP float */
                 GetEd(emu, &op1, &ea1, nextop);
@@ -579,7 +611,7 @@ void RunDF(x86emu_t *emu)
     nextop = Fetch8(emu);
     switch (nextop) {
 
-    case 0xE8:  /* FUCOMIP STx, ST0 */
+    case 0xE8:  /* FUCOMIP ST0, STx */
     case 0xE9:
     case 0xEA:
     case 0xEB:
@@ -587,11 +619,11 @@ void RunDF(x86emu_t *emu)
     case 0xED:
     case 0xEE:
     case 0xEF:
-        fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
         fpu_do_pop(emu);
         break;
 
-    case 0xF0:  /* FCOMIP STx, ST0 */
+    case 0xF0:  /* FCOMIP ST0, STx */
     case 0xF1:
     case 0xF2:
     case 0xF3:
@@ -599,7 +631,7 @@ void RunDF(x86emu_t *emu)
     case 0xF5:
     case 0xF6:
     case 0xF7:
-        fpu_fcom(emu, ST(nextop&7).d);
+        fpu_fcomi(emu, ST(nextop&7).d);
         fpu_do_pop(emu);
         break;
     default:
