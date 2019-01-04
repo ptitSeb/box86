@@ -124,7 +124,7 @@ EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void *
     void* f = vsnprintf;
     return ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     #else
-    return vsnprintf((char*)buff, s, (char*)f, V);
+    return vsnprintf((char*)buff, s, (char*)vsnprintf, V);
     #endif
 }
 EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
@@ -135,7 +135,7 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
     void* f = vsprintf;
     return ((iFppp_t)f)(buff, fmt, emu->scratch);
     #else
-    return vsprintf((char*)buff, (char*)f, V);
+    return vsprintf((char*)buff, (char*)vsprintf, V);
     #endif
 }
 
