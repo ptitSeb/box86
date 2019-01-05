@@ -415,6 +415,9 @@ int Run(x86emu_t *emu)
                 R_EDX = tmp32u;
                 break;
 
+            case 0x98:                      /* CWDE */
+                R_EAX = (uint32_t)(int16_t)R_AX;
+                break;
             case 0x99:                      /* CDQ */
                 if(R_EAX & 0x80000000)
                     R_EDX=0xFFFFFFFF;

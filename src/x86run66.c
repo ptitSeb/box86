@@ -149,13 +149,29 @@ void Run66(x86emu_t *emu)
         emu->regs[opcode-0xB8].word[0] = Fetch16(emu);
         break;
 
+    case 0xC1:                              /* GRP2 Ew,Ib */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op1, &ea2, nextop);
+        tmp8u = Fetch8(emu) & 0x1f;
+        switch((nextop>>3)&7) {
+            case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
+            case 1: op1->word[0] = ror16(emu, op1->word[0], tmp8u); break;
+            case 2: op1->word[0] = rcl16(emu, op1->word[0], tmp8u); break;
+            case 3: op1->word[0] = rcr16(emu, op1->word[0], tmp8u); break;
+            case 4:
+            case 6: op1->word[0] = shl16(emu, op1->word[0], tmp8u); break;
+            case 5: op1->word[0] = shr16(emu, op1->word[0], tmp8u); break;
+            case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
+        }
+        break;
+
     case 0xC7:                              /* MOV Ew,Iw */
         nextop = Fetch8(emu);
         GetEw(emu, &op1, &ea2, nextop);
         op1->word[0] = Fetch16(emu);
         break;
 
-    case 0xD1:                      /* GRP2 Eb,1 */
+    case 0xD1:                              /* GRP2 Ew,1 */
         nextop = Fetch8(emu);
         GetEw(emu, &op1, &ea2, nextop);
         switch((nextop>>3)&7) {
