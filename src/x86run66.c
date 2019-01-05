@@ -154,6 +154,22 @@ void Run66(x86emu_t *emu)
         GetEw(emu, &op1, &ea2, nextop);
         op1->word[0] = Fetch16(emu);
         break;
+
+    case 0xD1:                      /* GRP2 Eb,1 */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea2, nextop);
+        switch((nextop>>3)&7) {
+            case 0: op1->word[0] = rol16(emu, op1->word[0], 1); break;
+            case 1: op1->word[0] = ror16(emu, op1->word[0], 1); break;
+            case 2: op1->word[0] = rcl16(emu, op1->word[0], 1); break;
+            case 3: op1->word[0] = rcr16(emu, op1->word[0], 1); break;
+            case 4: 
+            case 6: op1->word[0] = shl16(emu, op1->word[0], 1); break;
+            case 5: op1->word[0] = shr16(emu, op1->word[0], 1); break;
+            case 7: op1->word[0] = sar16(emu, op1->word[0], 1); break;
+        }
+        break;
+
     default:
         UnimpOpcode(emu);
     }

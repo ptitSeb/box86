@@ -125,7 +125,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             if((sib&0x7)==5)
                 base = Fetch32(emu);
-            base += emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6);
+            base += (emu->sbiidx[(sib>>3)&7]->dword[0] << (sib>>6));
             *op = (reg32_t*)base;
             return;
         } else if (m==0x5) { //disp32

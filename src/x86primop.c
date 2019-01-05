@@ -2001,7 +2001,7 @@ Implements the IMUL instruction and side effects.
 ****************************************************************************/
 void imul8(x86emu_t *emu, uint8_t s)
 {
-	int16_t res = (int16_t)((int8_t)R_AL * (int8_t)s);
+	int16_t res = (int16_t)(int8_t)R_AL * (int8_t)s;
 
 	R_AX = res;
 	if (((R_AL & 0x80) == 0 && R_AH == 0x00) ||
@@ -2021,7 +2021,7 @@ Implements the IMUL instruction and side effects.
 ****************************************************************************/
 void imul16(x86emu_t *emu, uint16_t s)
 {
-	int32_t res = (int16_t)R_AX * (int16_t)s;
+	int32_t res = (int32_t)(int16_t)R_AX * (int16_t)s;
 
 	R_AX = (uint16_t)res;
 	R_DX = (uint16_t)(res >> 16);
@@ -2042,7 +2042,7 @@ Implements the IMUL instruction and side effects.
 ****************************************************************************/
 void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, uint32_t s)
 {
-	int64_t res = (int32_t)d * (int32_t)s;
+	int64_t res = (int64_t)(int32_t)d * (int32_t)s;
 
 	*res_lo = (uint32_t)res;
 	*res_hi = (uint32_t)(res >> 32);
@@ -2093,7 +2093,7 @@ Implements the MUL instruction and side effects.
 ****************************************************************************/
 void mul8(x86emu_t *emu, uint8_t s)
 {
-	uint16_t res = (uint16_t)(R_AL * s);
+	uint16_t res = (uint16_t)(R_AL) * s;
 
 	R_AX = res;
 	if (R_AH == 0) {
@@ -2112,7 +2112,7 @@ Implements the MUL instruction and side effects.
 ****************************************************************************/
 void mul16(x86emu_t *emu, uint16_t s)
 {
-	uint32_t res = R_AX * s;
+	uint32_t res = (uint32_t)R_AX * s;
 
 	R_AX = (uint16_t)res;
 	R_DX = (uint16_t)(res >> 16);
@@ -2132,7 +2132,7 @@ Implements the MUL instruction and side effects.
 ****************************************************************************/
 void mul32_eax(x86emu_t *emu, uint32_t s)
 {
-	uint64_t res = (uint32_t)R_EAX * (uint32_t)s;
+	uint64_t res = (uint64_t)R_EAX * s;
 
 	R_EAX = (uint32_t)res;
 	R_EDX = (uint32_t)(res >> 32);
