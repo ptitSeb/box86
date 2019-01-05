@@ -54,6 +54,7 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/x87run.c"
     "${CMAKE_HOME_DIRECTORY}/src/myalign.c"
     "${CMAKE_HOME_DIRECTORY}/src/callback.c"
+    "${CMAKE_HOME_DIRECTORY}/src/sdl1rwops.c"
 )
 
 set(WRAPPEDS

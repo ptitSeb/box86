@@ -26,10 +26,11 @@ KHASH_MAP_DECLARE_STR(datamap, uint32_t)
 #endif
 
 typedef struct wlib_s {
-    bridge_t    *bridge;
-    void*       lib;        // dlopen result
-    void*       priv;       // actual private
-    void*       box86lib;   // ref to the dlopen on box86 itself from context
+    bridge_t        *bridge;
+    void*           lib;        // dlopen result
+    void*           priv;       // actual private
+    void*           p2;         // second private
+    void*           box86lib;   // ref to the dlopen on box86 itself from context
 } wlib_t;
 
 typedef struct library_s {
@@ -41,6 +42,7 @@ typedef struct library_s {
     union {
         wlib_t  w;     
     }                   priv;  // private lib data
+    box86context_t      *context;   // parent context
     bridge_t            *brige;
     kh_bridgemap_t      *bridgemap;
     kh_symbolmap_t      *symbolmap;

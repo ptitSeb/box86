@@ -324,7 +324,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLib(elfheader_t* h, lib_t *maplib, void *box86)
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86)
 {
    DumpDynamicNeeded(h);
    for (int i=0; i<h->numDynamic; ++i)

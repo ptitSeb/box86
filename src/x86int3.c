@@ -35,7 +35,7 @@ void x86Int3(x86emu_t* emu)
                 }
             }
             w(emu, addr);
-            printf_log(LOG_DUMP, " => return %x\n", R_EAX);
+            printf_log(LOG_DUMP, " => return 0x%08X\n", R_EAX);
         }
         return;
     }
