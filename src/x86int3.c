@@ -26,11 +26,16 @@ void x86Int3(x86emu_t* emu)
         } else {
             wrapper_t w = (wrapper_t)addr;
             addr = Fetch32(emu);
-            if(box86_log>=LOG_DEBUG && !emu->context->x86trace) {
+            if(box86_log>=LOG_DEBUG/* && emu->trace_end==0 && !emu->context->x86trace*/) {
                 const char *s = GetNativeName((void*)addr);
-                printf_log(LOG_INFO, " Calling %s\n", s);
+                if(strstr(s, "SDL_RWFromFile")) {
+                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%s, %s)", R_EIP, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else {
+                    printf_log(LOG_INFO, " Calling %s", s);
+                }
             }
             w(emu, addr);
+            printf_log(LOG_DUMP, " => return %x\n", R_EAX);
         }
         return;
     }

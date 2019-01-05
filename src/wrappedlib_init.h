@@ -59,7 +59,7 @@ static const map_onedata_t MAPNAME(datamap)[] = {
 
 
 
-int FUNC(_init)(library_t* lib)
+int FUNC(_init)(library_t* lib, box86context_t* box86)
 {
 // Init first
     lib->priv.w.lib = dlopen(MAPNAME(Name), RTLD_NOW);

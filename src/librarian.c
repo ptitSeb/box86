@@ -57,7 +57,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
-int AddNeededLib(lib_t* maplib, const char* path, void* box86)
+int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded

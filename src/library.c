@@ -14,7 +14,7 @@
 
 #include "wrappedlibs.h"
 // create the native lib list
-#define GO(P, N) int wrapped##N##_init(library_t* lib); \
+#define GO(P, N) int wrapped##N##_init(library_t* lib, box86context_t *box86); \
                  void wrapped##N##_fini(library_t* lib);\
                  int wrapped##N##_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz);
 #include "library_list.h"
@@ -67,7 +67,7 @@ int NbDot(const char* name)
     return ret;
 }
 
-library_t *NewLibrary(const char* path, void* box86)
+library_t *NewLibrary(const char* path, box86context_t* box86)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)calloc(1, sizeof(library_t));
@@ -80,7 +80,7 @@ library_t *NewLibrary(const char* path, void* box86)
     int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {
-            if(wrappedlibs[i].init(lib)) {
+            if(wrappedlibs[i].init(lib, box86)) {
                 // error!
                 printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", wrappedlibs[i].name, dlerror());
                 FreeLibrary(&lib);

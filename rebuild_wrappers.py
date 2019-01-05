@@ -174,7 +174,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(double*)(R_ESP + {p}), ",      # d
 				"*(long double*)(R_ESP + {p}), ", # D
 				"*(void**)(R_ESP + {p}), ",       # p
-				"(void*)(R_ESP + {p} - 4), "      # V
+				"(void*)(R_ESP + {p}), "          # V
 			]
 			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 4, 1]
 			if len(values) != len(arg):

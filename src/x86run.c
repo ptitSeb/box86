@@ -32,7 +32,11 @@ int Run(x86emu_t *emu)
                     printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)R_EIP, (void*)a, GetNativeName(*(void**)(R_EIP+7)));
                 }
             } else {
-                printf_log(LOG_NONE, "%s\n", DecodeX86Trace(emu->dec, R_EIP));
+                printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, R_EIP));
+                if(Peek(emu, 0)==0xC3) {
+                    printf_log(LOG_NONE, " => %p", *(uint32_t*)(R_ESP));
+                }
+                printf_log(LOG_NONE, "\n");
             }
         }
         uint8_t opcode = Fetch8(emu);
@@ -424,7 +428,10 @@ int Run(x86emu_t *emu)
                 Push(emu, emu->eflags.x32);
                 break;
             case 0x9D:                      /* POPF */
-                emu->eflags.x32 = (Pop(emu) & 0x3F7FD7) | 0x2;
+                emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+                break;
+            case 0x9E:                      /* SAHF */
+                emu->regs[_AX].byte[1] = emu->eflags.x32&0xff;
                 break;
 
             case 0xA0:                      /* MOV AL,Ob */
@@ -450,6 +457,12 @@ int Run(x86emu_t *emu)
                 *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
+                break;
+            case 0xA8:                      /* TEST AL, Ib */
+                test8(emu, R_AL, Fetch8(emu));
+                break;
+            case 0xA9:                      /* TEST EAX, Id */
+                test32(emu, R_EAX, Fetch32(emu));
                 break;
             case 0xAA:                      /* STOSB */
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
@@ -588,6 +601,25 @@ int Run(x86emu_t *emu)
                 RunDF(emu);
                 break;
 
+            case 0xE0:                      /* LOOP */
+                tmp8s = Fetch8s(emu);
+                --R_ECX; // don't update flags
+                if(R_ECX)
+                    R_EIP += tmp8s;
+                break;
+            case 0xE1:                      /* LOOPZ */
+                tmp8s = Fetch8s(emu);
+                --R_ECX; // don't update flags
+                if(R_ECX && ACCESS_FLAG(F_ZF))
+                    R_EIP += tmp8s;
+                break;
+            case 0xE2:                      /* LOOPNZ */
+                tmp8s = Fetch8s(emu);
+                --R_ECX; // don't update flags
+                if(R_ECX && !ACCESS_FLAG(F_ZF))
+                    R_EIP += tmp8s;
+                break;
+
             case 0xE8:                      /* CALL Id */
                 tmp32s = Fetch32s(emu); // call is relative
                 Push(emu, R_EIP);
@@ -617,7 +649,7 @@ int Run(x86emu_t *emu)
                     case 0xC3:              /* REPZ RET... yup */
                         R_EIP = Pop(emu);
                         break;
-                    case 0xA4:              /* REP movsb */
+                    case 0xA4:              /* REP MOVSB */
                         for(; tmp32u>0; --tmp32u) {
                             *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
                             R_EDI += tmp8s;
@@ -633,15 +665,14 @@ int Run(x86emu_t *emu)
                         }
                         break;
                     case 0xA6:              /* REP(N)Z CMPSB */
-                        for(; tmp32u>0; --tmp32u) {
+                        while(tmp32u>0) {
+                            --tmp32u;
                             tmp8u  = *(uint8_t*)R_EDI;
                             tmp8u2 = *(uint8_t*)R_ESI;
                             R_EDI += tmp8s;
                             R_ESI += tmp8s;
-                            if((tmp8u==tmp8u2)==(opcode==0xF2)) {
-                                --tmp32u;
+                            if((tmp8u==tmp8u2)==(opcode==0xF2))
                                 break;
-                            }
                         }
                         cmp8(emu, tmp8u2, tmp8u);
                         break;
@@ -659,13 +690,12 @@ int Run(x86emu_t *emu)
                         }
                         break;
                     case 0xAE:              /* REP(N)Z SCASB */
-                        for(; tmp32u>0; --tmp32u) {
+                        while(tmp32u>0) {
+                            --tmp32u;
                             tmp8u = *(uint8_t*)R_EDI;
                             R_EDI += tmp8s;
-                            if((R_AL==tmp8u)==(opcode==0xF2)) {
-                                --tmp32u;
+                            if((R_AL==tmp8u)==(opcode==0xF2))
                                 break;
-                            }
                         }
                         cmp8(emu, R_AL, tmp8u);
                         break;

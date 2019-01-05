@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -336,6 +337,13 @@ void RunDB(x86emu_t *emu)
                 fpu_do_pop(emu);
                 op2->dword[0] = *(uint32_t*)&tmp32s;
                 break;
+            case 5: /* FLD ST0, Gt */
+                GetEd(emu, &op2, &ea2, nextop);
+                fpu_do_push(emu);
+                memcpy(&STld(0), &op2->dword[0], 10);
+                ST0.d = STld(0);
+                STll(0) = ST0.ll;
+                break;
             case 7: /* FSTP float */
                 GetEd(emu, &op1, &ea1, nextop);
                 f = ST0.d;
@@ -543,9 +551,8 @@ void RunDE(x86emu_t *emu)
         fpu_do_pop(emu);
         break;
     case 0xC9:  /* FMULP ST1, ST0 */
-        d = ST0.d;
+        ST1.d *= ST0.d;
         fpu_do_pop(emu);
-        ST0.d *= d;
         break;
     case 0xC8:  /* FMULP STx, ST0 */
     case 0xCA:
@@ -560,6 +567,20 @@ void RunDE(x86emu_t *emu)
     case 0xD9:  /* FCOMPP */
         fpu_fcom(emu, ST1.d);
         fpu_do_pop(emu);
+        fpu_do_pop(emu);
+        break;
+    case 0xE9:  /* FSUBP ST1, ST0 */
+        ST1.d -= ST0.d;
+        fpu_do_pop(emu);
+        break;
+    case 0xE8:  /* FSUBP STx, ST0 */
+    case 0xEA:
+    case 0xEB:
+    case 0xEC:
+    case 0xED:
+    case 0xEE:
+    case 0xEF:
+        ST(nextop&7).d -= ST0.d;
         fpu_do_pop(emu);
         break;
     case 0xF1:  /* FDIVRP ST1, ST0 */
@@ -605,11 +626,16 @@ void RunDF(x86emu_t *emu)
     uint8_t nextop;
     reg32_t *op1, *op2;
     reg32_t ea1, ea2;
+    int64_t tmp64s;
     float f;
     double d;
     long double ld;
     nextop = Fetch8(emu);
     switch (nextop) {
+    case 0xE0:  /* FNSTSW AX */
+        emu->sw.f.F87_TOP = emu->top;
+        R_AX = emu->sw.x16;
+        break;
 
     case 0xE8:  /* FUCOMIP ST0, STx */
     case 0xE9:
@@ -636,6 +662,17 @@ void RunDF(x86emu_t *emu)
         break;
     default:
         switch((nextop>>3)&7) {
+        case 5: /* FILD ST0, Gq */
+            GetEd(emu, &op2, &ea2, nextop);
+            tmp64s = *(int64_t*)&op2->dword[0];
+            fpu_do_push(emu);
+            ST0.d = tmp64s;
+            break;
+         case 7: /* FISTP i64 */
+            GetEd(emu, &op1, &ea1, nextop);
+            *(int64_t*)&op1->dword[0] = ST0.ll;
+            fpu_do_pop(emu);
+            break;
         default:
             UnimpOpcode(emu);
         }

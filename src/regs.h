@@ -16,8 +16,11 @@ typedef union {
     uint32_t    x32;
     struct {
         int F_CF:1;
+		int res1:1;
         int F_PF:1;
+		int res2:1;
         int F_AF:1;
+		int res3:1;
         int F_ZF:1;
         int F_SF:1;
         int F_TF:1;
@@ -36,10 +39,6 @@ typedef union {
     } f;
 } x86flags_t;
 
-/*typedef struct {
-	uint16_t    val[8];
-	uintptr_t   phys[8];
-} x86segment_t;*/
 
 typedef union {
 	uint32_t dword[1];
@@ -68,13 +67,6 @@ typedef struct {
     uint16_t d1;
     uint32_t d2;
 } fpu_p_reg_t;
-
-typedef enum {
-	TAG_Valid = 0,
-	TAG_Zero  = 1,
-	TAG_Weird = 2,
-	TAG_Empty = 3
-} fpu_tag_t;
 
 typedef enum {
 	ROUND_Nearest = 0,		

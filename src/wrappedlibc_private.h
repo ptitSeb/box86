@@ -348,8 +348,10 @@ GOM(__fork, pFE)
 // __fortify_fail
 // fpathconf    // Weak
 // __fpending
-GO2(fprintf, iFppV, vfprintf)
-GO2(__fprintf_chk, iFpvpV, vfprintf)
+GOM(fprintf, iFEpp0V)
+GOM(__fprintf_chk, iFEpvp0V)
+//GO2(fprintf, iFppV, vfprintf)
+//GO2(__fprintf_chk, iFpvpV, vfprintf)
 // __fpu_control    // type B
 // __fpurge
 GOW(fputc, iFip)
@@ -454,7 +456,7 @@ GO(getdate, pFp)
 // getdtablesize    // Weak
 // getegid  // Weak
 GO(getenv, pFp)
-// geteuid  // Weak
+GOW(geteuid, pFv)
 // getfsent
 // getfsfile
 // getfsspec
@@ -532,10 +534,10 @@ GO(getpriority, iFii)
 // getpw    // Weak
 // getpwent
 // getpwent_r
-// getpwnam
-// getpwnam_r
-// getpwuid
-// getpwuid_r
+GO(getpwnam, pFp)
+GO(getpwnam_r, iFpppup)
+GO(getpwuid, pFu)
+GO(getpwuid_r, iFuppup)
 // getresgid    // Weak
 // getresuid    // Weak
 // getrlimit
@@ -571,7 +573,7 @@ GOW(gets, pFp)
 // __gettimeofday
 // getttyent
 // getttynam
-// getuid   // Weak
+GOW(getuid, uPv)
 // getusershell
 // getutent // Weak
 // getutent_r   // Weak
@@ -1071,7 +1073,7 @@ GO(__memmove_chk, pFppuu)
 // __mempcpy_small
 // memrchr  // Weak
 GO(memset, pFpiu)
-// __memset_chk
+GO(__memset_chk, pFpiuu)
 // mincore
 GOW(mkdir, iFpu)
 // mkdirat
@@ -1194,7 +1196,7 @@ DATA(optopt, 4)
 // pathconf // Weak
 // pause    // Weak
 // pclose
-// perror
+GO(perror, vFp)
 // personality  // Weak
 // pipe // Weak
 // __pipe
@@ -1323,10 +1325,10 @@ GOW(puts, iFp)
 // query_module // Weak
 // quotactl
 // raise
-// rand
+GO(rand, iFv)
 // random   // Weak
 // random_r // Weak
-// rand_r
+GO(rand_r, iFp)
 // rawmemchr    // Weak
 // __rawmemchr
 // rcmd
@@ -1369,7 +1371,7 @@ GOW(recvmsg, iFipi)
 // remap_file_pages // Weak
 // re_match // Weak
 // re_match_2   // Weak
-// remove
+GO(remove, iFp)
 // removexattr
 // remque
 // rename
@@ -1570,7 +1572,7 @@ GOW(socket, iFiii)
 GOM(sprintf, iFEpp0V)
 GOM(__sprintf_chk, iFEpvup0V)
 // sprofil  // Weak
-// srand    // Weak
+GOW(srand, vFu)
 // srand48
 // srand48_r    // Weak
 // srandom  // Weak
@@ -1589,7 +1591,7 @@ DATA(stdin, 4)
 DATA(stdout, 4)
 // step // Weak
 // stime
-// stpcpy
+GO(stpcpy, pFpp)
 // __stpcpy
 GO(__stpcpy_chk, pFppu)
 // __stpcpy_small

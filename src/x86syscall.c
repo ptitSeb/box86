@@ -74,7 +74,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             switch(syscallwrap[i].nbpars) {
                 case 0: R_EAX = syscall(sc); return;
                 case 1: R_EAX = syscall(sc, R_EBX); return;
-                case 2: R_EAX = syscall(sc, R_EBX, R_ECX); return;
+                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; R_EAX = syscall(sc, R_EBX, R_ECX); return;
                 case 3: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); return;
                 case 4: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); return;
                 case 5: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); return;

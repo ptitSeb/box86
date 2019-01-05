@@ -16,6 +16,8 @@
 #include "x86emu_private.h"
 #include "box86context.h"
 
+#include "x86trace.h"
+
 const char* sdl1Name = "libSDL-1.2.so.0";
 #define LIBNAME sdl1
 
@@ -77,6 +79,9 @@ int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 
     return ret;
 }
+
+#define CUSTOM_INIT \
+    box86->sdl1lib = lib;
 
 #include "wrappedlib_init.h"
 

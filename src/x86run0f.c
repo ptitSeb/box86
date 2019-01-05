@@ -237,6 +237,8 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEb(emu, &op2, &ea2, nextop);
             GetG(emu, &op1, nextop);
+if(R_EIP==0x0804D73A+3)
+printf(" => op1=%p, op2=%p, dw[op2]=%08X, dw[ESI]=%08X\n", op1, op2, op2->dword[0], *(uint32_t*)R_ESI);
             op1->dword[0] = op2->byte[0];
             break;
         case 0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend

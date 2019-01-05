@@ -4,8 +4,9 @@
 
 typedef struct library_s       library_t;
 typedef struct kh_symbolmap_s  kh_symbolmap_t;
+typedef struct box86context_s  box86context_t;
 
-library_t *NewLibrary(const char* path, void* box86);
+library_t *NewLibrary(const char* path, box86context_t* box86);
 void FreeLibrary(library_t **lib);
 
 char* GetNameLib(library_t *lib);
