@@ -34,6 +34,8 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     void* stack = malloc(stsize);
     x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
 	SetupX86Emu(newemu, emu->shared_global, emu->globals);
+    newemu->trace_start = emu->trace_start;
+    newemu->trace_end = emu->trace_end;
 
     int ret;
     khint_t k = kh_put(callbacks, callbacks->list, (uintptr_t)newemu, &ret);

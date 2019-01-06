@@ -263,9 +263,14 @@ int main(int argc, const char **argv, const char **env) {
             }
             if(trace_start)
                 SetTraceEmu(context->emu, trace_start, trace_end);
+        } else {
+            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end))
+                SetTraceEmu(context->emu, trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, trace_start, trace_end);
+            else {
+                printf_log(LOG_NONE, "Warning, TRACE symbol not found\n");
+            }
         }
-        else if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end))
-            SetTraceEmu(context->emu, trace_start, trace_end);
     }
 
     // emulate!
