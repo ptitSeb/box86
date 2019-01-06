@@ -138,6 +138,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl:
+    		#		  E  			v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		p  			V 
 			types = ["x86emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "void*", "void*"]
 			if len(values) != len(types):
     				raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
@@ -174,9 +175,10 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(double*)(R_ESP + {p}), ",      # d
 				"*(long double*)(R_ESP + {p}), ", # D
 				"*(void**)(R_ESP + {p}), ",       # p
-				"(void*)(R_ESP + {p}), "          # V
+				"(void*)(R_ESP + {p}), "      	  # V
 			]
-			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 4, 1]
+			#		  E  v  c  w  i  I  C  W  u  U  f  d  D   p  V  
+			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 4, 0]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
 			if len(values) != len(deltas):

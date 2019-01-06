@@ -268,7 +268,8 @@ int main(int argc, const char **argv, const char **env) {
                 SetTraceEmu(context->emu, trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, trace_start, trace_end);
             else {
-                printf_log(LOG_NONE, "Warning, TRACE symbol not found\n");
+                printf_log(LOG_NONE, "Warning, symbol to Traced not found, disabling trace\n");
+                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
             }
         }
     }

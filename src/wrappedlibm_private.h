@@ -19,10 +19,10 @@
 // asinhl   // Weak
 // asinl    // Weak
 // atan
-// atan2    // Weak
-// atan2f   // Weak
-// __atan2f_finite
-// __atan2_finite
+GOW(atan2, dFdd)
+GOW(atan2f, fFff)
+GO(__atan2f_finite, fFff)
+GO(__atan2_finite, dFdd)
 // atan2l   // Weak
 // atanf    // Weak
 // atanh    // Weak
@@ -295,8 +295,8 @@ GOW(pow, dFdd)
 // pow10f   // Weak
 // pow10l   // Weak
 GOW(powf, fFff)
-// __powf_finite
-// __pow_finite
+GO(__powf_finite, fFff)
+GO(__pow_finite, dFdd)
 //GOW(powl, DFDD)
 // remainder    // Weak
 // remainderf   // Weak

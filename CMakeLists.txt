@@ -62,6 +62,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibpthread.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibrt.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibgl.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibglu.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibx11.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibasound.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibdl.c"
@@ -74,6 +75,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsmpeg2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedvorbisfile.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedpng16.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")

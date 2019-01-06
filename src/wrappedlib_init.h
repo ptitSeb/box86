@@ -114,6 +114,8 @@ int FUNC(_fini)(library_t* lib)
     if(lib->priv.w.lib)
         dlclose(lib->priv.w.lib);
     lib->priv.w.lib = NULL;
+    if(lib->priv.w.altprefix)
+        free(lib->priv.w.altprefix);
     FreeBridge(&lib->priv.w.bridge);
 }
 
@@ -124,8 +126,11 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
     void* symbol = NULL;
 //PRE
     if (!getSymbolInMaps(lib, name, &addr, &size)) {
-//FAIL
+#ifdef CUSTOM_FAIL
+    CUSTOM_FAIL
+#else
         return 0;
+#endif
     }
 //POST
     if(!addr)

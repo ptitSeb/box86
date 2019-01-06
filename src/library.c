@@ -215,6 +215,12 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
     k = kh_get(symbolmap, lib->symbolmap, name);
     if (k!=kh_end(lib->symbolmap)) {
         symbol = dlsym(lib->priv.w.lib, name);
+        if(!symbol && lib->priv.w.altprefix) {
+            char newname[200];
+            strcpy(newname, lib->priv.w.altprefix);
+            strcat(newname, name);
+            symbol = dlsym(lib->priv.w.lib, newname);
+        }
         if(!symbol) {
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
             return 0;

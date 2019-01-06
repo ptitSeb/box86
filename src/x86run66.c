@@ -52,8 +52,23 @@ void Run66(x86emu_t *emu)
     GO(0x20, and)                   /* AND 0x21 ~> 0x25 */
     GO(0x28, sub)                   /* SUB 0x29 ~> 0x2D */
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
-    GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
+    //GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
     #undef GO
+    case 0x39:
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        cmp16(emu, op1->word[0], op2->word[0]);
+        break;
+    case 0x3B:
+        nextop = Fetch8(emu);
+        GetEw(emu, &op2, &ea2, nextop);
+        GetG(emu, &op1, nextop);
+        cmp16(emu, op1->word[0], op2->word[0]);
+        break;
+    case 0x3D:
+        cmp16(emu, R_AX, Fetch16(emu));
+        break;
     
 
     case 0x40:
@@ -97,7 +112,7 @@ void Run66(x86emu_t *emu)
             case 4: op1->word[0] = and16(emu, op1->word[0], tmp16u); break;
             case 5: op1->word[0] = sub16(emu, op1->word[0], tmp16u); break;
             case 6: op1->word[0] = xor16(emu, op1->word[0], tmp16u); break;
-            case 7: op1->word[0] = cmp16(emu, op1->word[0], tmp16u); break;
+            case 7:                cmp16(emu, op1->word[0], tmp16u); break;
         }
         break;
 
@@ -186,7 +201,24 @@ void Run66(x86emu_t *emu)
         }
         break;
 
-    default:
-        UnimpOpcode(emu);
+    case 0xFF:                      /* GRP 5 Ew */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op1, &ea2, nextop);
+        switch((nextop>>3)&7) {
+            case 0:                 /* INC Ed */
+                op1->word[0] = inc16(emu, op1->word[0]);
+                break;
+            case 1:                 /* DEC Ed */
+                op1->word[0] = dec16(emu, op1->word[0]);
+                break;
+            default:
+                printf_log(LOG_NONE, "Illegal Opcode 66 %02X %02X\n", opcode, nextop);
+                emu->quit=1;
+                emu->error |= ERR_ILLEGAL;
+        }
+        break;
+                
+        default:
+            UnimpOpcode(emu);
     }
 }

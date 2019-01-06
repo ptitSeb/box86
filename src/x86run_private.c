@@ -12,13 +12,12 @@
 #include "x86run_private.h"
 #include "x86emu_private.h"
 #include "box86context.h"
-
+/*
 uint8_t Fetch8(x86emu_t *emu)
 {
-    uint8_t val = *(uint8_t*)R_EIP;
-    R_EIP++;
-    return val;
+    return *(uint8_t*)(R_EIP++);
 }
+*/
 int8_t Fetch8s(x86emu_t *emu)
 {
     int8_t val = *(int8_t*)R_EIP;
@@ -62,8 +61,8 @@ void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
-        int lowhigh = (m&04)>>3;
-         *op = (reg32_t *)&emu->regs[_AX+(m&0x03)].byte[lowhigh];  //?
+        int lowhigh = (m&04)>>2;
+         *op = (reg32_t *)(((char*)(&emu->regs[_AX+(m&0x03)]))+lowhigh);  //?
         return;
     } else if (m<=7) {
         if(m==0x4) {

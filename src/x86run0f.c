@@ -203,6 +203,15 @@ void Run0F(x86emu_t *emu)
                 SET_FLAG(F_CF);
             break;
 
+        case 0xA4:                      /* SHLD Ed,Gd,Ib */
+        case 0xA5:                      /* SHLD Ed,Gd,CL */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            tmp8u = (opcode==0xA4)?Fetch8(emu):R_CL;
+            op1->dword[0] = shld32(emu, op1->dword[0], op2->dword[0], tmp8u);
+            break;
+
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
         case 0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = Fetch8(emu);

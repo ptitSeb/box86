@@ -329,7 +329,7 @@ int Run(x86emu_t *emu)
                     case 4: op1->byte[0] = and8(emu, op1->byte[0], tmp8u); break;
                     case 5: op1->byte[0] = sub8(emu, op1->byte[0], tmp8u); break;
                     case 6: op1->byte[0] = xor8(emu, op1->byte[0], tmp8u); break;
-                    case 7: op1->byte[0] = cmp8(emu, op1->byte[0], tmp8u); break;
+                    case 7:                cmp8(emu, op1->byte[0], tmp8u); break;
                 }
                 break;
             case 0x81:                      /* GRP Ed,Id */
@@ -350,7 +350,7 @@ int Run(x86emu_t *emu)
                     case 4: op1->dword[0] = and32(emu, op1->dword[0], tmp32u); break;
                     case 5: op1->dword[0] = sub32(emu, op1->dword[0], tmp32u); break;
                     case 6: op1->dword[0] = xor32(emu, op1->dword[0], tmp32u); break;
-                    case 7: op1->dword[0] = cmp32(emu, op1->dword[0], tmp32u); break;
+                    case 7:                 cmp32(emu, op1->dword[0], tmp32u); break;
                 }
                 break;
             case 0x84:                      /* TEST Eb,Gb */
@@ -510,7 +510,22 @@ int Run(x86emu_t *emu)
                 emu->regs[opcode-0xB8].dword[0] = Fetch32(emu);
                 break;
 
-            case 0xC1:                      /* GRP2 Eb,Ib */
+            case 0xC0:                      /* GRP2 Eb,Ib */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea2, nextop);
+                tmp8u = Fetch8(emu) & 0x1f;
+                switch((nextop>>3)&7) {
+                    case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
+                    case 1: op1->byte[0] = ror8(emu, op1->byte[0], tmp8u); break;
+                    case 2: op1->byte[0] = rcl8(emu, op1->byte[0], tmp8u); break;
+                    case 3: op1->byte[0] = rcr8(emu, op1->byte[0], tmp8u); break;
+                    case 4:
+                    case 6: op1->byte[0] = shl8(emu, op1->byte[0], tmp8u); break;
+                    case 5: op1->byte[0] = shr8(emu, op1->byte[0], tmp8u); break;
+                    case 7: op1->byte[0] = sar8(emu, op1->byte[0], tmp8u); break;
+                }
+                break;
+            case 0xC1:                      /* GRP2 Ed,Ib */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
                 tmp8u = Fetch8(emu) & 0x1f;
@@ -714,25 +729,25 @@ int Run(x86emu_t *emu)
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Eb,Ib */
-                        test8(emu, op1->dword[0], Fetch8(emu));
+                        test8(emu, op1->byte[0], Fetch8(emu));
                         break;
                     case 2:                 /* NOT Eb */
-                        op1->dword[0] = not8(emu, op1->dword[0]);
+                        op1->byte[0] = not8(emu, op1->byte[0]);
                         break;
                     case 3:                 /* NEG Eb */
-                        op1->dword[0] = neg8(emu, op1->dword[0]);
+                        op1->byte[0] = neg8(emu, op1->byte[0]);
                         break;
                     case 4:                 /* MUL EAX,Eb */
-                        mul8(emu, op1->dword[0]);
+                        mul8(emu, op1->byte[0]);
                         break;
                     case 5:                 /* IMUL EAX,Eb */
-                        imul8(emu, op1->dword[0]);
+                        imul8(emu, op1->byte[0]);
                         break;
                     case 6:                 /* DIV Eb */
-                        div8(emu, op1->dword[0]);
+                        div8(emu, op1->byte[0]);
                         break;
                     case 7:                 /* IDIV Eb */
-                        idiv8(emu, op1->dword[0]);
+                        idiv8(emu, op1->byte[0]);
                         break;
                 }
                 break;

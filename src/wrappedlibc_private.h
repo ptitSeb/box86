@@ -63,12 +63,12 @@ GOW(asctime_r, pFpp)
 // __asprintf
 // __asprintf_chk
 // __assert
-// __assert_fail
-// __assert_perror_fail
-// atof
-// atoi
-// atol
-// atoll
+GO(__assert_fail, vFppup)
+GO(__assert_perror_fail, vFipup)
+GO(atof, dFp)
+GO(atoi, iFp)
+GO(atol, iFp)
+GO(atoll, IFp)
 // authdes_create
 // authdes_getucred
 // authdes_pk_create
@@ -139,7 +139,7 @@ GO(clearerr, vFp)
 GO(clock, uFv)
 // clone    // Weak
 // __clone
-// close    // Weak
+GOW(close, iFi)
 // __close  // Weak
 // closedir // Weak
 // closelog
@@ -157,9 +157,9 @@ GO(clock, uFv)
 // ctermid
 GO(ctime, pFp)
 GO(ctime_r, pFpp)
-// __ctype_b_loc
+GO(__ctype_b_loc, pFv)
 // __ctype_get_mb_cur_max   // Weak
-// __ctype_tolower_loc
+GO(__ctype_tolower_loc, pFv)
 GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
 // cuserid
@@ -348,8 +348,8 @@ GOM(__fork, pFE)
 // __fortify_fail
 // fpathconf    // Weak
 // __fpending
-GOM(fprintf, iFEpp0V)
-GOM(__fprintf_chk, iFEpvp0V)
+GOM(fprintf, iFEppVV)
+GOM(__fprintf_chk, iFEpvpVV)
 //GO2(fprintf, iFppV, vfprintf)
 //GO2(__fprintf_chk, iFpvpV, vfprintf)
 // __fpu_control    // type B
@@ -364,7 +364,7 @@ GOW(fputs, iFpp)    // Weak
 // fputws_unlocked
 GOW(fread, uFpuup)
 // __freadable
-// __fread_chk
+GO(__fread_chk, uFpuuup)
 // __freading
 // fread_unlocked
 // __fread_unlocked_chk
@@ -831,7 +831,7 @@ DATA(_IO_wfile_jumps, 4)
 // isascii
 // __isascii_l  // Weak
 // isastream
-// isatty   // Weak
+GOW(isatty, iFi)
 // isblank
 // __isblank_l
 // isblank_l    // Weak
@@ -1022,7 +1022,7 @@ GOW(lseek, iFiii)
 // lseek64  // Weak
 // lsetxattr
 // lutimes
-// __lxstat
+GO(__lxstat, iFipp)
 // __lxstat64
 // madvise
 // makecontext
@@ -1059,8 +1059,8 @@ GOW(mbsnrtowcs, uFppuup)
 // memalign // Weak
 DATAV(__memalign_hook, 4)
 // memccpy  // Weak
-// memchr
-// memcmp
+GO(memchr, pFpiu)
+GO(memcmp, iFppu)
 GO(memcpy, pFppu)
 GO(__memcpy_chk, pFppuu)
 // memfrob
@@ -1071,25 +1071,25 @@ GO(__memmove_chk, pFppuu)
 // __mempcpy
 // __mempcpy_chk
 // __mempcpy_small
-// memrchr  // Weak
+GOW(memrchr, pFpiu)
 GO(memset, pFpiu)
 GO(__memset_chk, pFpiuu)
 // mincore
 GOW(mkdir, iFpu)
 // mkdirat
-// mkdtemp
+GO(mkdtemp, pFp)
 // mkfifo
 // mkfifoat
-// mkostemp
-// mkostemp64
-// mkstemp
-// mkstemp64
+GO(mkostemp, iFpi)
+GO(mkostemp64, iFpi)
+GO(mkstemp, iFp)
+GO(mkstemp64, iFp)
 // mktemp
 GO(mktime, uFp)
 // mlock
 // mlockall
-// mmap // Weak
-// mmap64   // Weak
+GOW(mmap, pFpuiiii)
+GOW(mmap64, pFpuiiiI)
 // modf // Weak
 // modff    // Weak
 // modfl    // Weak
@@ -1111,7 +1111,7 @@ DATA(__morecore, 4)
 // mtrace
 // munlock
 // munlockall
-// munmap   // Weak
+GOW(munmap, iFpu)
 // muntrace
 GOW(nanosleep, iFpp)
 // __nanosleep  // Weak
@@ -1245,8 +1245,8 @@ GOW(pread, iFipuu)
 // __pread64    // Weak
 // __pread64_chk
 // __pread_chk
-GOM(printf, iFEp0V)
-GOM(__printf_chk, iFEvp0V)
+GOM(printf, iFEpVV)
+GOM(__printf_chk, iFEvpVV)
 // __printf_fp
 // printf_size
 // printf_size_info
@@ -1423,7 +1423,7 @@ GO2(scanf, iFpV, vscanf)
 // __sched_cpualloc
 // __sched_cpucount
 // __sched_cpufree
-// sched_getaffinity
+GO(sched_getaffinity, iFiup)
 // sched_getcpu
 // __sched_getparam
 // sched_getparam   // Weak
@@ -1434,7 +1434,7 @@ GO2(scanf, iFpV, vscanf)
 // __sched_getscheduler
 // sched_getscheduler   // Weak
 // sched_rr_get_interval    // Weak
-// sched_setaffinity
+GO(sched_setaffinity, iFiup)
 // sched_setparam   // Weak
 // __sched_setscheduler
 // sched_setscheduler   // Weak
@@ -1563,14 +1563,14 @@ GOM(signal, pFEip)   // Weak
 // sigwait  // Weak
 // sigwaitinfo  // Weak
 // sleep    // Weak
-GOM(snprintf, iFEpup0V)
-// __snprintf_chk
+GOM(snprintf, iFEpupVV)
+GOM(__snprintf_chk, iFEpuvvpVV)
 // sockatmark
 GOW(socket, iFiii)
 // socketpair   // Weak
 // splice
-GOM(sprintf, iFEpp0V)
-GOM(__sprintf_chk, iFEpvup0V)
+GOM(sprintf, iFEppVV)
+GOM(__sprintf_chk, iFEpvvpVV)
 // sprofil  // Weak
 GOW(srand, vFu)
 // srand48
@@ -1597,17 +1597,17 @@ GO(__stpcpy_chk, pFppu)
 // __stpcpy_small
 // stpncpy  // Weak
 // __stpncpy
-// __stpncpy_chk
-// strcasecmp   // Weak
-// __strcasecmp
+GO(__stpncpy_chk, pFppuu)
+GOW(strcasecmp, iFpp)
+GO(__strcasecmp, iFpp)
 // __strcasecmp_l
 // strcasecmp_l // Weak
 GOW(strcasestr, pFpp)
 GO(__strcasestr, pFpp)
 GO(strcat, pFpp)
-// __strcat_chk
-// strchr
-// strchrnul    // Weak
+GO(__strcat_chk, pFppu)
+GO(strchr, pFpi)
+GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
 // strcoll
 // __strcoll_l
@@ -1633,12 +1633,12 @@ GO(strftime, uFpupp)
 // __strftime_l
 // strftime_l   // Weak
 GO(strlen, uFp)
-GOW(strncasecmp, iFpp)
+GOW(strncasecmp, iFppu)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
 GO(strncat, pFppu)
 // __strncat_chk
-// strncmp
+GO(strncmp, iFppu)
 GO(strncpy, pFppu)
 GO(__strncpy_chk, pFppuu)
 GOW(strndup, pFpu)
@@ -1649,7 +1649,7 @@ GO(__strndup, pFpu)
 // __strpbrk_c3
 GO(strptime, pFppp)
 // strptime_l   // Weak
-// strrchr
+GO(strrchr, pFpi)
 // strsep   // Weak
 // __strsep_1c
 // __strsep_2c
@@ -1670,9 +1670,9 @@ GO(strtof, fFpp)
 // __strtof_l
 GOW(strtof_l, fFppu)
 // strtoimax
-// strtok
-// __strtok_r
-// strtok_r // Weak
+GO(strtok, pFpp)
+GO(__strtok_r, pFppp)
+GOW(strtok_r, pFppp)
 // __strtok_r_1c
 GO(strtol, iFppi)
 // strtold
@@ -1832,7 +1832,7 @@ GOW(tzset, vFv)
 // __underflow
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
-// unlink   // Weak
+GOW(unlink, iFp)
 // unlinkat
 // unlockpt
 // unsetenv // Weak
@@ -1861,8 +1861,8 @@ GO(__uselocale, pFp)
 // versionsort64
 // vfork    // Weak
 // __vfork
-GOM(vfprintf, iFEpp0V)
-GOM(__vfprintf_chk, iFEpvp0V)
+GOM(vfprintf, iFEppVV)
+GOM(__vfprintf_chk, iFEpvpVV)
 // vfscanf  // Weak
 // __vfscanf
 // vfwprintf    // Weak
@@ -1871,12 +1871,12 @@ GOM(__vfprintf_chk, iFEpvp0V)
 // vhangup
 // vlimit
 // vmsplice
-GOM(vprintf, iFEp0V)
-GOM(__vprintf_chk, iFEvp0V)
+GOM(vprintf, iFEpVV)
+GOM(__vprintf_chk, iFEvpVV)
 // vscanf   // Weak
-// vsnprintf    // Weak
-// __vsnprintf  // Weak
-// __vsnprintf_chk
+GOM(vsnprintf, iFEpupVV)    // Weak
+GOM(__vsnprintf, iFEpupVV)  // Weak
+GOM(__vsnprintf_chk, iFEpuvvpVV)
 // vsprintf // Weak
 // __vsprintf_chk
 // vsscanf  // Weak
@@ -2092,7 +2092,7 @@ GOW(__write, iFipu)
 // __xpg_strerror_r
 // xprt_register
 // xprt_unregister
-// __xstat
+GO(__xstat, iFipp)
 // __xstat64
 
 // forcing a custom __gmon_start__ that does nothing
