@@ -55,6 +55,7 @@ typedef struct x86emu_s {
 
 } x86emu_t;
 
-#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
+//#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
+#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
 
 #endif //__X86EMU_PRIVATE_H_

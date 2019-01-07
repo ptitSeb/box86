@@ -11,8 +11,8 @@
 void fpu_do_push(x86emu_t* emu)
 {
     ++emu->fpu_stack;
-    if(emu->fpu_stack == 8) {// overflow
-        printf_log(LOG_NONE, "Error: FPU Stack overflow\n");    // probably better to raise something
+    if(emu->fpu_stack == 9) {// overflow
+        printf_log(LOG_NONE, "Error: %p: FPU Stack overflow\n", emu->old_ip);    // probably better to raise something
         emu->quit = 1;
         return;
     }
@@ -24,7 +24,7 @@ void fpu_do_pop(x86emu_t* emu)
     emu->top = (emu->top+1)&7;
     --emu->fpu_stack;
     if(emu->fpu_stack < 0) {// underflow
-        printf_log(LOG_NONE, "Error: FPU Stack underflow\n");    // probably better to raise something
+        printf_log(LOG_NONE, "Error: %p: FPU Stack underflow\n", emu->old_ip);    // probably better to raise something
         emu->quit = 1;
         return;
     }

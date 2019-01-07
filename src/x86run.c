@@ -207,6 +207,9 @@ int Run(x86emu_t *emu)
                 else
                     Run66(emu);
                 break;
+            case 0x67:                      /* Prefix to change width of intructions */
+                Run67(emu); // implemented in Run66.c
+                break;
 
             case 0x68:                      /* Push Id */
                 Push(emu, Fetch32(emu));
@@ -579,8 +582,8 @@ int Run(x86emu_t *emu)
                 }
                 break;
 
-            case 0xD1:                      /* GRP2 Eb,1 */
-            case 0xD3:                      /* GRP2 Eb,CL */
+            case 0xD1:                      /* GRP2 Ed,1 */
+            case 0xD3:                      /* GRP2 Ed,CL */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
                 tmp8u = (opcode==0xD1)?1:R_CL;
@@ -595,6 +598,20 @@ int Run(x86emu_t *emu)
                     case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
                 }
                 break;
+            case 0xD2:                      /* GRP2 Eb,CL */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea2, nextop);
+                switch((nextop>>3)&7) {
+                    case 0: op1->byte[0] = rol8(emu, op1->byte[0], R_CL); break;
+                    case 1: op1->byte[0] = ror8(emu, op1->byte[0], R_CL); break;
+                    case 2: op1->byte[0] = rcl8(emu, op1->byte[0], R_CL); break;
+                    case 3: op1->byte[0] = rcr8(emu, op1->byte[0], R_CL); break;
+                    case 4: 
+                    case 6: op1->byte[0] = shl8(emu, op1->byte[0], R_CL); break;
+                    case 5: op1->byte[0] = shr8(emu, op1->byte[0], R_CL); break;
+                    case 7: op1->byte[0] = sar8(emu, op1->byte[0], R_CL); break;
+                }
+                break;
             
             case 0xD8:                      /* x87 */
                 RunD8(emu);
@@ -602,7 +619,9 @@ int Run(x86emu_t *emu)
             case 0xD9:                      /* x87 */
                 RunD9(emu);
                 break;
-
+            case 0xDA:                      /* x87 */
+                RunDA(emu);
+                break;
             case 0xDB:                      /* x87 */
                 RunDB(emu);
                 break;
@@ -619,10 +638,10 @@ int Run(x86emu_t *emu)
                 RunDF(emu);
                 break;
 
-            case 0xE0:                      /* LOOP */
+            case 0xE0:                      /* LOOPNZ */
                 tmp8s = Fetch8s(emu);
                 --R_ECX; // don't update flags
-                if(R_ECX)
+                if(R_ECX && !ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 break;
             case 0xE1:                      /* LOOPZ */
@@ -631,10 +650,15 @@ int Run(x86emu_t *emu)
                 if(R_ECX && ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 break;
-            case 0xE2:                      /* LOOPNZ */
+            case 0xE2:                      /* LOOP */
                 tmp8s = Fetch8s(emu);
                 --R_ECX; // don't update flags
-                if(R_ECX && !ACCESS_FLAG(F_ZF))
+                if(R_ECX)
+                    R_EIP += tmp8s;
+                break;
+            case 0xE3:                      /* JECXZ */
+                tmp8s = Fetch8s(emu);
+                if(!R_ECX)
                     R_EIP += tmp8s;
                 break;
 

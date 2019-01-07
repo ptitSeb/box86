@@ -1530,7 +1530,7 @@ GOM(__sigaction, iFEipp)  // Weak
 // sigblock // Weak
 // sigdelset
 // __sigdelset
-// sigemptyset
+GO(sigemptyset, iFp)
 // sigfillset
 // siggetmask
 // sighold

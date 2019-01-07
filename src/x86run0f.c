@@ -194,15 +194,9 @@ void Run0F(x86emu_t *emu)
             GetEd(emu, &op1, &ea1, nextop);
             GetG(emu, &op2, nextop);
             CLEAR_FLAG(F_CF);
-            CLEAR_FLAG(F_OF);
-            CLEAR_FLAG(F_SF);
-            CLEAR_FLAG(F_ZF);
-            CLEAR_FLAG(F_AF);
-            CLEAR_FLAG(F_PF);
             if(op1->dword[0] & (1<<(op2->dword[0]&31)))
                 SET_FLAG(F_CF);
             break;
-
         case 0xA4:                      /* SHLD Ed,Gd,Ib */
         case 0xA5:                      /* SHLD Ed,Gd,CL */
             nextop = Fetch8(emu);
@@ -212,6 +206,16 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = shld32(emu, op1->dword[0], op2->dword[0], tmp8u);
             break;
 
+        case 0xAB:                      /* BTS Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            CLEAR_FLAG(F_CF);
+            if(op1->dword[0] & (1<<(op2->dword[0]&31)))
+                SET_FLAG(F_CF);
+            else
+                op1->dword[0] |= (1<<(op2->dword[0]&31));
+            break;
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
         case 0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = Fetch8(emu);
@@ -242,6 +246,17 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
             break;
 
+        case 0xB3:                      /* BTR Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            CLEAR_FLAG(F_CF);
+            if(op1->dword[0] & (1<<(op2->dword[0]&31))) {
+                SET_FLAG(F_CF);
+                op1->dword[0] ^= (1<<(op2->dword[0]&31));
+            }
+            break;
+
         case 0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
             nextop = Fetch8(emu);
             GetEb(emu, &op2, &ea2, nextop);
@@ -255,6 +270,44 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = op2->word[0];
             break;
 
+        case 0xBB:                      /* BTC Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            CLEAR_FLAG(F_CF);
+            if(op1->dword[0] & (1<<(op2->dword[0]&31)))
+                SET_FLAG(F_CF);
+            op1->dword[0] ^= (1<<(op2->dword[0]&31));
+            break;
+
+        case 0xBC:                      /* BSF Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            tmp32u = op1->dword[0];
+            if(tmp32u) {
+                CLEAR_FLAG(F_ZF);
+                tmp8u = 0;
+                while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
+                op2->dword[0] = tmp8u;
+            } else {
+                SET_FLAG(F_ZF);
+            }
+            break;
+        case 0xBD:                      /* BSR Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            tmp32u = op1->dword[0];
+            if(tmp32u) {
+                CLEAR_FLAG(F_ZF);
+                tmp8u = 31;
+                while(!(tmp32u&(1<<tmp8u))) --tmp8u;
+                op2->dword[0] = tmp8u;
+            } else {
+                SET_FLAG(F_ZF);
+            }
+            break;
         case 0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
             nextop = Fetch8(emu);
             GetEb(emu, &op2, &ea2, nextop);

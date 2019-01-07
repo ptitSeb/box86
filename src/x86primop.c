@@ -1438,7 +1438,7 @@ uint16_t shr16(x86emu_t *emu, uint16_t d, uint8_t s)
 		CLEAR_FLAG(F_OF);
 		SET_FLAG(F_ZF);
 		CLEAR_FLAG(F_SF);
-		CLEAR_FLAG(F_PF);
+		SET_FLAG(F_PF);
     }
 	return (uint16_t)res;
 }
@@ -1490,7 +1490,7 @@ uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 	res = d;
 	sf = d & 0x80;
     cnt = s % 8;
-	if (cnt > 0 && cnt < 8) {
+	if (s < 8) {
 		mask = (1 << (8 - cnt)) - 1;
 		cf = d & (1 << (cnt - 1));
 		res = (d >> cnt) & mask;
@@ -1501,7 +1501,7 @@ uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 		CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-    } else if (cnt >= 8) {
+    } else {
         if (sf) {
             res = 0xff;
 			SET_FLAG(F_CF);
@@ -1513,7 +1513,7 @@ uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 			CLEAR_FLAG(F_CF);
 			SET_FLAG(F_ZF);
 			CLEAR_FLAG(F_SF);
-			CLEAR_FLAG(F_PF);
+			SET_FLAG(F_PF);
 		}
 	}
 	return (uint8_t)res;
@@ -1530,7 +1530,7 @@ uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
     sf = d & 0x8000;
     cnt = s % 16;
 	res = d;
-	if (cnt > 0 && cnt < 16) {
+	if (s < 16) {
         mask = (1 << (16 - cnt)) - 1;
         cf = d & (1 << (cnt - 1));
         res = (d >> cnt) & mask;
@@ -1541,7 +1541,7 @@ uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-    } else if (cnt >= 16) {
+    } else {
         if (sf) {
             res = 0xffff;
 			SET_FLAG(F_CF);
@@ -1553,7 +1553,7 @@ uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
 			CLEAR_FLAG(F_CF);
 			SET_FLAG(F_ZF);
 			CLEAR_FLAG(F_SF);
-			CLEAR_FLAG(F_PF);
+			SET_FLAG(F_PF);
         }
     }
 	return (uint16_t)res;
@@ -1570,7 +1570,7 @@ uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
     sf = d & 0x80000000;
     cnt = s % 32;
 	res = d;
-	if (cnt > 0 && cnt < 32) {
+	if (s < 32) {
         mask = (1 << (32 - cnt)) - 1;
 		cf = d & (1 << (cnt - 1));
         res = (d >> cnt) & mask;
@@ -1581,7 +1581,7 @@ uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
 		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-    } else if (cnt >= 32) {
+    } else {
         if (sf) {
             res = 0xffffffff;
 			SET_FLAG(F_CF);
@@ -1593,7 +1593,7 @@ uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
 			CLEAR_FLAG(F_CF);
 			SET_FLAG(F_ZF);
 			CLEAR_FLAG(F_SF);
-			CLEAR_FLAG(F_PF);
+			SET_FLAG(F_PF);
 		}
 	}
 	return res;
@@ -1607,8 +1607,8 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	cnt = s % 16;
 	if (s < 16) {
-		cnt = s % 16;
 		if (cnt > 0) {
 			res = (d << cnt) | (fill >> (16-cnt));
 			cf = d & (1 << (16 - cnt));
@@ -1626,12 +1626,13 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			CLEAR_FLAG(F_OF);
 		}
 	} else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x8000, F_CF);
+		res = (fill << (cnt)) | (d >> (16 - cnt));
+		cf = fill & (1 << (16 - cnt));
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
 	}
 	return (uint16_t)res;
 }
@@ -1681,8 +1682,8 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	cnt = s % 16;
 	if (s < 16) {
-		cnt = s % 16;
 		if (cnt > 0) {
 			cf = d & (1 << (cnt - 1));
 			res = (d >> cnt) | (fill << (16 - cnt));
@@ -1700,12 +1701,21 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			CLEAR_FLAG(F_OF);
         }
 	} else {
+		cf = fill & (1 << (cnt - 1));
+		res = (fill >> cnt) | (d << (16 - cnt));
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		CLEAR_FLAG(F_OF);
+	#if 0
 		res = 0;
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_OF);
 		SET_FLAG(F_ZF);
 		CLEAR_FLAG(F_SF);
 		CLEAR_FLAG(F_PF);
+	#endif
     }
 	return (uint16_t)res;
 }
@@ -2019,14 +2029,14 @@ void imul8(x86emu_t *emu, uint8_t s)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-void imul16(x86emu_t *emu, uint16_t s)
+void imul16_eax(x86emu_t *emu, uint16_t s)
 {
 	int32_t res = (int32_t)(int16_t)R_AX * (int16_t)s;
 
 	R_AX = (uint16_t)res;
 	R_DX = (uint16_t)(res >> 16);
 	if (((R_AX & 0x8000) == 0 && R_DX == 0x00) ||
-		((R_AX & 0x8000) != 0 && R_DX == 0xFF)) {
+		((R_AX & 0x8000) != 0 && R_DX == 0xFFFF)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_OF);
 	} else {
@@ -2034,6 +2044,29 @@ void imul16(x86emu_t *emu, uint16_t s)
 		SET_FLAG(F_OF);
 	}
 	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
+}
+
+/****************************************************************************
+REMARKS:
+Implements the IMUL instruction and side effects.
+****************************************************************************/
+uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
+{
+	int32_t res = (int32_t)(int16_t)op1 * (int16_t)op2;
+
+	op1 = (uint16_t)res;
+	uint16_t tmp = (uint16_t)(res >> 16);
+	if (((op1 & 0x8000) == 0 && tmp == 0x00) ||
+		((op1 & 0x8000) != 0 && tmp == 0xFFFF)) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_OF);
+	} else {
+		SET_FLAG(F_CF);
+		SET_FLAG(F_OF);
+	}
+	CONDITIONAL_SET_FLAG(PARITY(R_AL & 0xff), F_PF);
+
+	return op1;
 }
 
 /****************************************************************************
@@ -2058,7 +2091,7 @@ uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
 	uint32_t r;
 	imul32_direct(&r,&s,op1,op2);
 	if (((r & 0x80000000) == 0 && s == 0x00) ||
-		((r & 0x80000000) != 0 && s == 0xFF)) {
+		((r & 0x80000000) != 0 && s == 0xFFFFFFFF)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_OF);
 	} else {
@@ -2077,7 +2110,7 @@ void imul32_eax(x86emu_t *emu, uint32_t s)
 {
 	imul32_direct(&R_EAX,&R_EDX,R_EAX,s);
 	if (((R_EAX & 0x80000000) == 0 && R_EDX == 0x00) ||
-		((R_EAX & 0x80000000) != 0 && R_EDX == 0xFF)) {
+		((R_EAX & 0x80000000) != 0 && R_EDX == 0xFFFFFFFF)) {
 		CLEAR_FLAG(F_CF);
 		CLEAR_FLAG(F_OF);
 	} else {

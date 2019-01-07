@@ -32,6 +32,95 @@ void Run660F(x86emu_t *emu)
     sse_regs_t eax1;
     switch(opcode) {
 
+    #define GOCOND(BASE, PREFIX, CONDITIONAL) \
+    case BASE+0x0:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_OF))               \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x1:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_OF))              \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x2:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_CF))               \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x3:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_CF))              \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x4:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_ZF))               \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x5:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_ZF))              \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x6:                          \
+        PREFIX                              \
+        if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x7:                          \
+        PREFIX                              \
+        if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x8:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_SF))               \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0x9:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_SF))              \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xA:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_PF))               \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xB:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_PF))              \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xC:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xD:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xE:                          \
+        PREFIX                              \
+        if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
+            CONDITIONAL                     \
+        break;                              \
+    case BASE+0xF:                          \
+        PREFIX                              \
+        if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
+            CONDITIONAL                     \
+        break;
+
+    GOCOND(0x40
+        , nextop = Fetch8(emu);
+        GetEw(emu, &op2, &ea2, nextop);
+        GetG(emu, &op1, nextop);
+        , op1->word[0] = op2->word[0];
+    )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
+        
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, &eax1, nextop);
@@ -138,6 +227,98 @@ void Run660F(x86emu_t *emu)
         opx1->ud.d[1] ^= opx2->ud.d[1];
         opx1->ud.d[2] ^= opx2->ud.d[2];
         opx1->ud.d[3] ^= opx2->ud.d[3];
+        break;
+
+    case 0xA3:                      /* BT Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        CLEAR_FLAG(F_CF);
+        if(op1->word[0] & (1<<(op2->word[0]&15)))
+            SET_FLAG(F_CF);
+        break;
+    case 0xA4:                      /* SHLD Ew,Gw,Ib */
+    case 0xA5:                      /* SHLD Ew,Gw,CL */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp8u = (opcode==0xA4)?Fetch8(emu):R_CL;
+        op1->word[0] = shld16(emu, op1->word[0], op2->word[0], tmp8u);
+        break;
+
+    case 0xAB:                      /* BTS Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        CLEAR_FLAG(F_CF);
+        if(op1->word[0] & (1<<(op2->word[0]&15)))
+            SET_FLAG(F_CF);
+        else
+            op1->word[0] |= (1<<(op2->word[0]&15));
+        break;
+    case 0xAC:                      /* SHRD Ew,Gw,Ib */
+    case 0xAD:                      /* SHRD Ew,Gw,CL */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp8u = (opcode==0xAC)?Fetch8(emu):R_CL;
+        op1->word[0] = shrd16(emu, op1->word[0], op2->word[0], tmp8u);
+        break;
+
+    case 0xAF:                      /* IMUL Gw,Ew */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op2, &ea2, nextop);
+        GetG(emu, &op1, nextop);
+        op1->word[0] = imul16(emu, op1->word[0], op2->word[0]);
+        break;
+
+    case 0xB3:                      /* BTR Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        CLEAR_FLAG(F_CF);
+        if(op1->word[0] & (1<<(op2->word[0]&15))) {
+            SET_FLAG(F_CF);
+            op1->word[0] ^= (1<<(op2->word[0]&15));
+        }
+        break;
+
+    case 0xBB:                      /* BTC Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        CLEAR_FLAG(F_CF);
+        if(op1->word[0] & (1<<(op2->word[0]&15)))
+            SET_FLAG(F_CF);
+        op1->word[0] ^= (1<<(op2->word[0]&15));
+        break;
+    case 0xBC:                      /* BSF Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp16u = op1->word[0];
+        if(tmp16u) {
+            CLEAR_FLAG(F_ZF);
+            tmp8u = 0;
+            while(!(tmp16u&(1<<tmp8u))) ++tmp8u;
+            op2->word[0] = tmp8u;
+        } else {
+            SET_FLAG(F_ZF);
+        }
+        break;
+    case 0xBD:                      /* BSR Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp16u = op1->word[0];
+        if(tmp16u) {
+            CLEAR_FLAG(F_ZF);
+            tmp8u = 15;
+            while(!(tmp16u&(1<<tmp8u))) --tmp8u;
+            op2->word[0] = tmp8u;
+        } else {
+            SET_FLAG(F_ZF);
+        }
         break;
 
     default:

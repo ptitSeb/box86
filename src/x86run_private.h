@@ -23,6 +23,7 @@ int32_t Fetch32s(x86emu_t *emu);
 
 
 void Run66(x86emu_t *emu);
+void Run67(x86emu_t *emu);
 void Run0F(x86emu_t *emu);
 void Run660F(x86emu_t *emu);
 void RunF30F(x86emu_t *emu);

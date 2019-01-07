@@ -1,7 +1,7 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
-// acos // Weak
-// acosf    // Weak
+GOW(acos, dFd)
+GOW(acosf, fFf)
 // __acosf_finite
 // __acos_finite
 // acosh    // Weak
@@ -10,21 +10,21 @@
 // __acosh_finite
 // acoshl   // Weak
 // acosl    // Weak
-// asin // Weak
-// asinf    // Weak
+GOW(asin, dFd)
+GOW(asinf, fFf)
 // __asinf_finite
 // __asin_finite
 // asinh    // Weak
 // asinhf   // Weak
 // asinhl   // Weak
 // asinl    // Weak
-// atan
+GO(atan, dFd)
 GOW(atan2, dFdd)
 GOW(atan2f, fFff)
 GO(__atan2f_finite, fFff)
 GO(__atan2_finite, dFdd)
 // atan2l   // Weak
-// atanf    // Weak
+GOW(atanf, fFf)
 // atanh    // Weak
 // atanhf   // Weak
 // __atanhf_finite
@@ -88,8 +88,8 @@ GO(__atan2_finite, dFdd)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
-// cos  // Weak
-// cosf // Weak
+GOW(cos, dFd)
+GOW(cosf, fFf)
 // cosh // Weak
 // coshf    // Weak
 // __coshf_finite
@@ -247,7 +247,7 @@ DATAV(_LIB_VERSION, 4)
 // llround  // Weak
 // llroundf // Weak
 // llroundl // Weak
-// log  // Weak
+GOW(log, dFd)
 GOW(log10, dFd)
 GOW(log10f, fFf)
 // __log10f_finite
@@ -264,7 +264,7 @@ GOW(log2f, fFf)
 // logb // Weak
 // logbf    // Weak
 // logbl    // Weak
-// logf // Weak
+GOW(logf, fFf)
 // __logf_finite
 // __log_finite
 // logl // Weak
@@ -329,11 +329,11 @@ DATAB(signgam, 4)
 // significand  // Weak
 // significandf // Weak
 // significandl // Weak
-// sin  // Weak
+GOW(sin, dFd)
 GOW(sincos, vFdpp)
 GOW(sincosf, vFfpp)
 // sincosl  // Weak
-// sinf // Weak
+GOW(sinf, fFf)
 // sinh // Weak
 // sinhf    // Weak
 // __sinhf_finite
@@ -345,8 +345,8 @@ GOW(sqrtf, fFf)
 // __sqrtf_finite
 // __sqrt_finite
 // sqrtl    // Weak
-// tan
-// tanf // Weak
+GO(tan, dFd)
+GOW(tanf, fFf)
 // tanh // Weak
 // tanhf    // Weak
 // tanhl    // Weak

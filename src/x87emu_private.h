@@ -7,6 +7,7 @@ typedef struct x86emu_s x86emu_t;
 
 void RunD8(x86emu_t *emu);
 void RunD9(x86emu_t *emu);
+void RunDA(x86emu_t *emu);
 void RunDB(x86emu_t *emu);
 void RunDC(x86emu_t *emu);
 void RunDD(x86emu_t *emu);
