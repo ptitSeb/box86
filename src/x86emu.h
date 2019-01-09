@@ -21,4 +21,7 @@ void PushExit(x86emu_t* emu);
 void AddCleanup(x86emu_t *emu, void *p);
 void UnimpOpcode(x86emu_t* emu);
 
+void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
+void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
+
 #endif //__X86EMU_H_

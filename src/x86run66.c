@@ -20,7 +20,7 @@ void Run66(x86emu_t *emu)
     reg32_t ea1, ea2, ea3, ea4;
     uint8_t tmp8u;
     int8_t tmp8s;
-    uint16_t tmp16u;
+    uint16_t tmp16u, tmp16u2;
     int16_t tmp16s;
     uint32_t tmp32u;
     int32_t tmp32s;
@@ -139,6 +139,15 @@ void Run66(x86emu_t *emu)
         test16(emu, op1->word[0], op2->word[0]);
         break;
 
+    case 0x87:                              /* XCHG Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea2, nextop);
+        GetG(emu, &op2, nextop);
+        tmp16u = op1->word[0];
+        op1->word[0] = op2->word[0];
+        op2->word[0] = tmp16u;
+        break;
+
     case 0x89:                              /* MOV Ew,Gw */
         nextop = Fetch8(emu);
         GetEw(emu, &op1, &ea2, nextop);
@@ -156,6 +165,12 @@ void Run66(x86emu_t *emu)
     case 0x90:                              /* NOP */
         break;
 
+    case 0x92:                              /* XCHG DX,AX */
+        tmp16u = R_AX;
+        R_AX = R_DX;
+        R_DX = tmp16u;
+        break;
+
     case 0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)Fetch32(emu);
         break;
@@ -167,6 +182,30 @@ void Run66(x86emu_t *emu)
         *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
         R_EDI += tmp8s;
         R_ESI += tmp8s;
+        break;
+
+    case 0xA7:                              /* CMPSW */
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        tmp16u  = *(uint16_t*)R_EDI;
+        tmp16u2 = *(uint16_t*)R_ESI;
+        R_EDI += tmp8s;
+        R_ESI += tmp8s;
+        cmp16(emu, tmp16u2, tmp16u);
+        break;
+    case 0xAB:                              /* STOSW */
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        *(uint16_t*)R_EDI = R_AX;
+        R_EDI += tmp8s;
+        break;
+    case 0xAD:                              /* LODSW */
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        R_AX = *(uint16_t*)R_ESI;
+        R_ESI += tmp8s;
+        break;
+    case 0xAF:                              /* SCASW */
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        cmp16(emu, R_AX, *(uint16_t*)R_EDI);
+        R_EDI += tmp8s;
         break;
 
     case 0xB8:                              /* MOV AX,Iw */
@@ -218,6 +257,59 @@ void Run66(x86emu_t *emu)
             case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
         }
         break;
+
+        case 0xF2:                      /* REPNZ prefix */
+        case 0xF3:                      /* REPZ prefix */
+            nextop = Fetch8(emu);
+            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+            tmp32u = R_ECX;
+            switch(nextop) {
+                case 0xA5:              /* REP MOVSW */
+                    for(; tmp32u>0; --tmp32u) {
+                        *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
+                        R_EDI += tmp8s;
+                        R_ESI += tmp8s;
+                    }
+                    break;
+                case 0xA7:              /* REP(N)Z CMPSW */
+                    while(tmp32u>0) {
+                        --tmp32u;
+                        tmp16u  = *(uint16_t*)R_EDI;
+                        tmp16u2 = *(uint16_t*)R_ESI;
+                        R_EDI += tmp8s;
+                        R_ESI += tmp8s;
+                        if((tmp16u==tmp16u2)==(opcode==0xF2))
+                            break;
+                    }
+                    cmp16(emu, tmp16u2, tmp16u);
+                    break;
+                case 0xAB:              /* REP STOSW */
+                    for(; tmp32u>0; --tmp32u) {
+                        *(uint16_t*)R_EDI = R_AX;
+                        R_EDI += tmp8s;
+                    }
+                    break;
+                case 0xAD:              /* REP LODSW */
+                    for(; tmp32u>0; --tmp32u) {
+                        R_AX = *(uint16_t*)R_ESI;
+                        R_ESI += tmp8s;
+                    }
+                    break;
+                case 0xAF:              /* REP(N)Z SCASW */
+                    while(tmp32u>0) {
+                        --tmp32u;
+                        tmp16u = *(uint16_t*)R_EDI;
+                        R_EDI += tmp8s;
+                        if((R_AX==tmp16u)==(opcode==0xF2))
+                            break;
+                    }
+                    cmp16(emu, R_AX, tmp16u);
+                    break;
+                default:
+                    UnimpOpcode(emu);
+            }
+            R_ECX = tmp32u;
+            break;
 
     case 0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = Fetch8(emu);

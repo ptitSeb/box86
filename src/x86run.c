@@ -11,11 +11,12 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "x87emu_private.h"
+#include "box86context.h"
 
 int Run(x86emu_t *emu)
 {
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86, EIP=%p\n", (void*)R_EIP);
+    printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
     emu->quit = 0;
     while (!emu->quit)
     {
@@ -47,7 +48,7 @@ int Run(x86emu_t *emu)
         int8_t tmp8s;
         uint16_t tmp16u;
         int16_t tmp16s;
-        uint32_t tmp32u, tmp32u2;
+        uint32_t tmp32u, tmp32u2, tmp32u3;
         int32_t tmp32s;
         uint64_t tmp64u;
         int64_t tmp64s;
@@ -129,6 +130,20 @@ int Run(x86emu_t *emu)
                 Run0F(emu);
                 break;
 
+            case 0x27:                      /* DAA */
+                R_AL = daa8(emu, R_AL);
+                break;
+            case 0x2F:                      /* DAS */
+                R_AL = das8(emu, R_AL);
+                break;
+            case 0x37:                      /* AAA */
+                R_AX = aaa16(emu, R_AX);
+                break;
+            case 0x3F:                      /* AAS */
+                R_AX = aas16(emu, R_AX);
+                break;
+
+
             case 0x40:
             case 0x41:
             case 0x42:
@@ -202,8 +217,13 @@ int Run(x86emu_t *emu)
                 }
                 break;
             case 0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
-                if(Peek(emu, 0)==0x0F)
+                nextop = Peek(emu, 0);
+                if(nextop==0x0F)
                     Run660F(emu);
+                else if(nextop==0xD9)
+                    Run66D9(emu);
+                else if(nextop==0xDD)
+                    Run66DD(emu);
                 else
                     Run66(emu);
                 break;
@@ -368,7 +388,14 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 test32(emu, op1->dword[0], op2->dword[0]);
                 break;
-
+            case 0x86:                      /* XCHG Eb,Gb */
+                nextop = Fetch8(emu);
+                GetEb(emu, &op1, &ea2, nextop);
+                GetGb(emu, &op2, nextop);
+                tmp8u = op1->byte[0];
+                op1->byte[0] = op2->byte[0];
+                op2->byte[0] = tmp8u;
+                break;
             case 0x87:                      /* XCHG Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, &ea2, nextop);
@@ -408,7 +435,12 @@ int Run(x86emu_t *emu)
                 GetG(emu, &op2, nextop);
                 op2->dword[0] = (uint32_t)&op1->dword[0];
                 break;
-            
+
+            case 0x8F:                      /* POP Ed */
+                nextop = Fetch8(emu);
+                GetEd(emu, &op1, &ea1, nextop);
+                op1->dword[0] = Pop(emu);
+                break;
             case 0x90:                      /* NOP */
                 break;
 
@@ -464,6 +496,22 @@ int Run(x86emu_t *emu)
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
                 break;
+            case 0xA6:                      /* CMPSB */
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                tmp8u  = *(uint8_t*)R_EDI;
+                tmp8u2 = *(uint8_t*)R_ESI;
+                R_EDI += tmp8s;
+                R_ESI += tmp8s;
+                cmp8(emu, tmp8u2, tmp8u);
+                break;
+            case 0xA7:                      /* CMPSD */
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                tmp32u  = *(uint32_t*)R_EDI;
+                tmp32u2 = *(uint32_t*)R_ESI;
+                R_EDI += tmp8s;
+                R_ESI += tmp8s;
+                cmp32(emu, tmp32u2, tmp32u);
+                break;
             case 0xA8:                      /* TEST AL, Ib */
                 test8(emu, R_AL, Fetch8(emu));
                 break;
@@ -482,12 +530,22 @@ int Run(x86emu_t *emu)
                 break;
             case 0xAC:                      /* LODSB */
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-                R_AL = *(uint8_t*)R_EDI;
-                R_EDI += tmp8s;
+                R_AL = *(uint8_t*)R_ESI;
+                R_ESI += tmp8s;
                 break;
             case 0xAD:                      /* LODSD */
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
-                R_EAX = *(uint32_t*)R_EDI;
+                R_EAX = *(uint32_t*)R_ESI;
+                R_ESI += tmp8s;
+                break;
+            case 0xAE:                      /* SCASB */
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                cmp8(emu, R_AL, *(uint8_t*)R_EDI);
+                R_EDI += tmp8s;
+                break;
+            case 0xAF:                      /* SCASD */
+                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                cmp32(emu, R_EAX, *(uint32_t*)R_EDI);
                 R_EDI += tmp8s;
                 break;
             
@@ -612,6 +670,18 @@ int Run(x86emu_t *emu)
                     case 7: op1->byte[0] = sar8(emu, op1->byte[0], R_CL); break;
                 }
                 break;
+            case 0xD4:                      /* AAM Ib */
+                tmp8u = Fetch8(emu);
+                R_AX = aam16(emu, R_AL, tmp8u);
+                break;
+            case 0xD5:                      /* AAD Ib */
+                tmp8u = Fetch8(emu);
+                R_AX = aad16(emu, R_AX, tmp8u);
+                break;
+            
+            case 0xD7:                      /* XLAT */
+                R_AL = *(uint8_t*)(R_EBX + R_AL);
+                break;
             
             case 0xD8:                      /* x87 */
                 RunD8(emu);
@@ -718,6 +788,19 @@ int Run(x86emu_t *emu)
                         }
                         cmp8(emu, tmp8u2, tmp8u);
                         break;
+                    case 0xA7:              /* REP(N)Z CMPSD */
+                        tmp8s *= 4;
+                        while(tmp32u>0) {
+                            --tmp32u;
+                            tmp32u3 = *(uint32_t*)R_EDI;
+                            tmp32u2 = *(uint32_t*)R_ESI;
+                            R_EDI += tmp8s;
+                            R_ESI += tmp8s;
+                            if((tmp32u3==tmp32u2)==(opcode==0xF2))
+                                break;
+                        }
+                        cmp32(emu, tmp32u3, tmp32u2);
+                        break;
                     case 0xAA:              /* REP STOSB */
                         for(; tmp32u>0; --tmp32u) {
                             *(uint8_t*)R_EDI = R_AL;
@@ -731,6 +814,19 @@ int Run(x86emu_t *emu)
                             R_EDI += tmp8s;
                         }
                         break;
+                    case 0xAC:              /* REP LODSB */
+                        for(; tmp32u>0; --tmp32u) {
+                            R_AL = *(uint8_t*)R_ESI;
+                            R_ESI += tmp8s;
+                        }
+                        break;
+                    case 0xAD:              /* REP LODSD */
+                        tmp8s *= 4;
+                        for(; tmp32u>0; --tmp32u) {
+                            R_EAX = *(uint32_t*)R_ESI;
+                            R_ESI += tmp8s;
+                        }
+                        break;
                     case 0xAE:              /* REP(N)Z SCASB */
                         while(tmp32u>0) {
                             --tmp32u;
@@ -740,6 +836,17 @@ int Run(x86emu_t *emu)
                                 break;
                         }
                         cmp8(emu, R_AL, tmp8u);
+                        break;
+                    case 0xAF:              /* REP(N)Z SCASD */
+                        tmp8s *= 4;
+                        while(tmp32u>0) {
+                            --tmp32u;
+                            tmp32u2 = *(uint32_t*)R_EDI;
+                            R_EDI += tmp8s;
+                            if((R_EAX==tmp32u2)==(opcode==0xF2))
+                                break;
+                        }
+                        cmp32(emu, R_EAX, tmp32u2);
                         break;
                     default:
                         UnimpOpcode(emu);
@@ -802,6 +909,13 @@ int Run(x86emu_t *emu)
                         idiv32(emu, op1->dword[0]);
                         break;
                 }
+                break;
+
+            case 0xF8:                      /* CLC */
+                CLEAR_FLAG(F_CF);
+                break;
+            case 0xF9:                      /* STC */
+                SET_FLAG(F_CF);
                 break;
 
             case 0xFC:                      /* CLD */

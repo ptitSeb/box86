@@ -1494,13 +1494,16 @@ uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 		mask = (1 << (8 - cnt)) - 1;
 		cf = d & (1 << (cnt - 1));
 		res = (d >> cnt) & mask;
-		CONDITIONAL_SET_FLAG(cf, F_CF);
+		if(s)
+			CONDITIONAL_SET_FLAG(cf, F_CF);
 		if (sf) {
 			res |= ~mask;
 		}
-		CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
+		if(s) {
+			CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
+			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+			CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
+		}
     } else {
         if (sf) {
             res = 0xff;
@@ -1534,13 +1537,16 @@ uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
         mask = (1 << (16 - cnt)) - 1;
         cf = d & (1 << (cnt - 1));
         res = (d >> cnt) & mask;
-		CONDITIONAL_SET_FLAG(cf, F_CF);
+		if(s)
+			CONDITIONAL_SET_FLAG(cf, F_CF);
         if (sf) {
             res |= ~mask;
         }
-		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		if(s) {
+			CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
+			CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
+			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		}
     } else {
         if (sf) {
             res = 0xffff;
@@ -1574,13 +1580,16 @@ uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
         mask = (1 << (32 - cnt)) - 1;
 		cf = d & (1 << (cnt - 1));
         res = (d >> cnt) & mask;
-		CONDITIONAL_SET_FLAG(cf, F_CF);
+		if(s)
+			CONDITIONAL_SET_FLAG(cf, F_CF);
         if (sf) {
             res |= ~mask;
         }
-		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		if(s) {
+			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+		}
     } else {
         if (sf) {
             res = 0xffffffff;
@@ -1627,7 +1636,10 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		}
 	} else {
 		res = (fill << (cnt)) | (d >> (16 - cnt));
-		cf = fill & (1 << (16 - cnt));
+		if(s==16)
+			cf = d & 1;
+		else
+			cf = fill & (1 << (16 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);

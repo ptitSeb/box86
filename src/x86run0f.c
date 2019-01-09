@@ -24,6 +24,7 @@ void Run0F(x86emu_t *emu)
     uint16_t tmp16u;
     int16_t tmp16s;
     uint32_t tmp32u;
+    uint32_t tmp32u2;
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
@@ -246,6 +247,31 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
             break;
 
+        case 0xB0:                      /* CMPXCHG Eb,Gb */
+            nextop = Fetch8(emu);
+            GetEb(emu, &op1, &ea1, nextop);
+            GetGb(emu, &op2, nextop);
+            if(R_AL == op1->byte[0]) {
+                SET_FLAG(F_ZF);
+                op1->byte[0] = op2->byte[0];
+            } else {
+                CLEAR_FLAG(F_ZF);
+                R_AL = op1->byte[0];
+            }
+            break;
+        case 0xB1:                      /* CMPXCHG Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
+            if(R_EAX == op1->dword[0]) {
+                SET_FLAG(F_ZF);
+                op1->dword[0] = op2->dword[0];
+            } else {
+                CLEAR_FLAG(F_ZF);
+                R_EAX = op1->dword[0];
+            }
+            break;
+
         case 0xB3:                      /* BTR Ed,Gd */
             nextop = Fetch8(emu);
             GetEd(emu, &op1, &ea1, nextop);
@@ -321,13 +347,37 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = (int16_t)op2->word[0];
             break;
 
+        case 0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
+            nextop = Fetch8(emu);
+            GetEb(emu, &op1, &ea1, nextop);
+            GetGb(emu, &op2, nextop);
+            tmp8u = add8(emu, op1->byte[0], op2->byte[0]);
+            op2->byte[0] = op1->byte[0];
+            op1->byte[0] = tmp8u;
+            break;
         case 0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
             nextop = Fetch8(emu);
-            GetEb(emu, &op2, &ea2, nextop);
-            GetG(emu, &op1, nextop);
+            GetEd(emu, &op1, &ea1, nextop);
+            GetG(emu, &op2, nextop);
             tmp32u = add32(emu, op1->dword[0], op2->dword[0]);
             op2->dword[0] = op1->dword[0];
             op1->dword[0] = tmp32u;
+            break;
+
+        case 0xC7:                      /* CMPXCHG8B Gq */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, &ea1, nextop);
+            tmp32u = op1->dword[0];
+            tmp32u2= op1->dword[1];
+            if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                SET_FLAG(F_ZF);
+                op1->dword[0] = R_EBX;
+                op1->dword[1] = R_ECX;
+            } else {
+                CLEAR_FLAG(F_ZF);
+                R_EAX = op1->dword[0];
+                R_EDX = op1->dword[1];
+            }
             break;
 
         default:

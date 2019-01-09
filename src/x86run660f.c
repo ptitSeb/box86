@@ -283,6 +283,26 @@ void Run660F(x86emu_t *emu)
         }
         break;
 
+    case 0xB1:                      /* CMPXCHG Ew,Gw */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        if(R_AX == op1->word[0]) {
+            SET_FLAG(F_ZF);
+            op1->word[0] = op2->word[0];
+        } else {
+            CLEAR_FLAG(F_ZF);
+            R_AX = op1->word[0];
+        }
+        break;
+
+    case 0xB6:                      /* MOVZX Gw,Eb */ // Move with zero extend
+        nextop = Fetch8(emu);
+        GetEb(emu, &op2, &ea2, nextop);
+        GetG(emu, &op1, nextop);
+        op1->word[0] = op2->byte[0];
+        break;
+
     case 0xBB:                      /* BTC Ew,Gw */
         nextop = Fetch8(emu);
         GetEw(emu, &op1, &ea1, nextop);
@@ -319,6 +339,15 @@ void Run660F(x86emu_t *emu)
         } else {
             SET_FLAG(F_ZF);
         }
+        break;
+
+    case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, &ea1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp16u = add16(emu, op1->word[0], op2->word[0]);
+        op2->word[0] = op1->word[0];
+        op1->word[0] = tmp16u;
         break;
 
     default:

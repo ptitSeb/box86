@@ -12,33 +12,6 @@ enum {
     _CS, _DS, _SS, _ES, _FS, _GS
 };
 
-typedef union {
-    uint32_t    x32;
-    struct {
-        int F_CF:1;
-		int res1:1;
-        int F_PF:1;
-		int res2:1;
-        int F_AF:1;
-		int res3:1;
-        int F_ZF:1;
-        int F_SF:1;
-        int F_TF:1;
-        int F_IF:1;
-        int F_DF:1;
-        int F_OF:1;
-        unsigned int F_IOPL:2;
-        int F_NT:1;
-        int dummy:1;
-        int F_RF:1;
-        int F_VM:1;
-        int F_AC:1;
-        int F_VIF:1; 
-        int F_VIP:1;
-        int F_ID:1;
-    } f;
-} x86flags_t;
-
 
 typedef union {
 	uint32_t dword[1];
@@ -75,24 +48,54 @@ typedef enum {
 	ROUND_Chop    = 3
 } fpu_round_t;
 
+#pragma pack(push, 1)
+
 typedef union {
-    uint16_t    x16;
-    struct {
-        int F87_IE:1;
-        int F87_DE:1;
-        int F87_ZE:1;
-        int F87_OE:1;
-        int F87_UE:1;
-        int F87_PE:1;
-        int F87_SF:1;
-        int F87_ES:1;
-        int F87_C0:1;
-		int F87_C1:1;
-		int F87_C2:1;
-		int F87_TOP:3;
-		int F87_C3:1;
-		int F87_B:1;
+    struct __attribute__ ((__packed__)) {
+        unsigned int F_CF:1;
+		unsigned int res1:1;
+        unsigned int F_PF:1;
+		unsigned int res2:1;
+        unsigned int F_AF:1;
+		unsigned int res3:1;
+        unsigned int F_ZF:1;
+        unsigned int F_SF:1;
+        unsigned int F_TF:1;
+        unsigned int F_IF:1;
+        unsigned int F_DF:1;
+        unsigned int F_OF:1;
+        unsigned int F_IOPL:2;
+        unsigned int F_NT:1;
+        unsigned int dummy:1;
+        unsigned int F_RF:1;
+        unsigned int F_VM:1;
+        unsigned int F_AC:1;
+        unsigned int F_VIF:1; 
+        unsigned int F_VIP:1;
+        unsigned int F_ID:1;
     } f;
+    uint32_t    x32;
+} x86flags_t;
+
+
+typedef union {
+    struct __attribute__ ((__packed__)) {
+        unsigned int F87_IE:1;
+        unsigned int F87_DE:1;
+        unsigned int F87_ZE:1;
+        unsigned int F87_OE:1;
+        unsigned int F87_UE:1;
+        unsigned int F87_PE:1;
+        unsigned int F87_SF:1;
+        unsigned int F87_ES:1;
+        unsigned int F87_C0:1;
+		unsigned int F87_C1:1;
+		unsigned int F87_C2:1;
+		unsigned int F87_TOP:3;
+		unsigned int F87_C3:1;
+		unsigned int F87_B:1;
+    } f;
+    uint16_t    x16;
 } x87flags_t;
 
 typedef union {
@@ -148,6 +151,7 @@ typedef union {
 		int8_t b[16];
 	} sb;
 } sse_regs_t;
+#pragma pack(pop)
 
 #define R_EIP emu->ip.dword[0]
 #define R_EAX emu->regs[_AX].dword[0]
@@ -159,7 +163,13 @@ typedef union {
 #define R_ESP emu->regs[_SP].dword[0]
 #define R_EBP emu->regs[_BP].dword[0]
 #define R_AX emu->regs[_AX].word[0]
+#define R_BX emu->regs[_BX].word[0]
+#define R_CX emu->regs[_CX].word[0]
 #define R_DX emu->regs[_DX].word[0]
+#define R_DI emu->regs[_DI].word[0]
+#define R_SI emu->regs[_SI].word[0]
+#define R_SP emu->regs[_SP].word[0]
+#define R_BP emu->regs[_BP].word[0]
 #define R_AL emu->regs[_AX].byte[0]
 #define R_AH emu->regs[_AX].byte[1]
 #define R_CX emu->regs[_CX].word[0]

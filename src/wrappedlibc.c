@@ -26,7 +26,7 @@ int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *
 uint32_t my_syscall(x86emu_t *emu); // implemented in x86syscall.c
 void EXPORT my___stack_chk_fail(x86emu_t* emu)
 {
-    StopEmu(emu, "Stack is corrupted, abborting");
+    StopEmu(emu, "Stack is corrupted, abborting\n");
 }
 void EXPORT my___gmon_start__(x86emu_t *emu)
 {
