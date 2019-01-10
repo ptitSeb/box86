@@ -93,7 +93,9 @@ int AllocElfMemory(elfheader_t* head)
     }
     #else
     printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)head->vaddr, head->name);
-    void* p = mmap((void*)head->vaddr, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    void* p = mmap((void*)head->vaddr, head->memsz
+        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | ((head->vaddr)?MAP_FIXED:0)
+        , -1, 0);
     if(p==MAP_FAILED) {
         printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->vaddr, head->memsz, head->align, head->name);
         return 1;
