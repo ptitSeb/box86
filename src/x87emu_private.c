@@ -43,15 +43,15 @@ void reset_fpu(x86emu_t* emu)
 
 void fpu_fcom(x86emu_t* emu, double b)
 {
-    if(!isfinite(ST0.d) || !isfinite(b)) {
+    if(isnan(ST0.d) || isnan(b)) {
         emu->sw.f.F87_C0 = 1;
         emu->sw.f.F87_C2 = 1;
         emu->sw.f.F87_C3 = 1;
-    } else if (ST0.d>b) {
+    } else if (isgreater(ST0.d, b)) {
         emu->sw.f.F87_C0 = 0;
         emu->sw.f.F87_C2 = 0;
         emu->sw.f.F87_C3 = 0;
-    } else if (ST0.d<b) {
+    } else if (isless(ST0.d, b)) {
         emu->sw.f.F87_C0 = 1;
         emu->sw.f.F87_C2 = 0;
         emu->sw.f.F87_C3 = 0;
@@ -64,15 +64,15 @@ void fpu_fcom(x86emu_t* emu, double b)
 
 void fpu_fcomi(x86emu_t* emu, double b)
 {
-    if(!isfinite(ST0.d) || !isfinite(b)) {
+    if(isnan(ST0.d) || isnan(b)) {
         emu->eflags.f.F_CF = 1;
         emu->eflags.f.F_PF = 1;
         emu->eflags.f.F_ZF = 1;
-    } else if (ST0.d>b) {
+    } else if (isgreater(ST0.d, b)) {
         emu->eflags.f.F_CF = 0;
         emu->eflags.f.F_PF = 0;
         emu->eflags.f.F_ZF = 0;
-    } else if (ST0.d<b) {
+    } else if (isless(ST0.d, b)) {
         emu->eflags.f.F_CF = 1;
         emu->eflags.f.F_PF = 0;
         emu->eflags.f.F_ZF = 0;
@@ -170,10 +170,10 @@ void fpu_fbld(x86emu_t* emu, uint8_t* s) {
 
 #define BIAS80 16383
 #define BIAS64 1023
-// that's heavely inspired from dosbox load and save routines
 // long double (80bits) -> double (64bits)
 void LD2D(void* ld, void* d)
 {
+	fpu_reg_t result;
     #pragma pack(push, 1)
 	struct {
 		fpu_reg_t f;
@@ -181,13 +181,38 @@ void LD2D(void* ld, void* d)
 	} val;
     #pragma pack(pop)
 	val.f.l.lower = *(uint32_t*)ld;
-	val.f.l.upper = *(uint32_t*)((char*)ld+4);
+    val.f.l.upper = *(uint32_t*)(char*)(ld+4);
 	val.b  = *(int16_t*)((char*)ld+8);
+	int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
+	int32_t exp64final = exp64&0x7ff;
     // do specific value first (0, infinite...)
     // bit 63 is "intetger part"
     // bit 62 is sign
-    if(val.b&0x7fff==0 && val.f.ll==0) {
+    if((uint32_t)(val.b&0x7fff)==0x7fff) {
+        // infinity and nans
+        int t = 0; //nan
+        switch((val.f.l.upper>>30)) {
+            case 0: if((val.f.l.upper&(1<<29))==0) t = 1;
+                    break;
+            case 2: if((val.f.l.upper&(1<<29))==0) t = 1;
+                    break;
+        }
+        if(t) {    // infinite
+            result.d = HUGE_VAL;
+        } else {      // NaN
+            result.l.upper |= 0x7ff << 20;
+            result.l.lower = 0;
+        }
+        if(val.b&0x8000)
+            result.l.upper |= 0x80000000;
+        *(uint64_t*)d = result.ll;
+        return;
+    }
+    if(((uint32_t)(val.b&0x7fff)==0) || (exp64<=0)) {
+        //if(val.f.ll==0)
         // zero
+        //if(val.f.ll!=0)
+        // denormal, but that's to small value for double 
         uint64_t r = 0;
         if(val.b&0x8000)
             r |= 0x8000000000000000LL;
@@ -195,22 +220,24 @@ void LD2D(void* ld, void* d)
         return;
     }
 
-	int64_t exp64 = (((val.b&0x7fff) - BIAS80));
-	int64_t blah = ((exp64 >0)?exp64:-exp64)&0x3ff;
-	int64_t exp64final = ((exp64 >0)?blah:-blah) +BIAS64;
+    if(exp64>=0x7ff) {
+        // to big value...
+        result.d = HUGE_VAL;
+        if(val.b&0x8000)
+            result.l.upper |= 0x80000000;
+        *(uint64_t*)d = result.ll;
+        return;
+    }
 
-	int64_t mant64 = (val.f.ll >> 10) & 0xfffffffffffffLL;
-	int64_t sign = (val.b&0x8000)?1:0;
-	fpu_reg_t result;
-	result.ll = (sign <<63)|(exp64final << 52)| mant64;
+	uint64_t mant64 = (val.f.ll >> 11) & 0xfffffffffffffLL;
+	uint32_t sign = (val.b&0x8000)?1:0;
+    result.ll = mant64;
+	result.l.upper |= (sign <<31)|((exp64final&0x7ff) << 20);
 
-	if(val.f.l.lower == 0 && val.f.l.upper == 0x80000000 && (val.b&0x7fff) == 0x7fff) {
-		result.d = sign?-HUGE_VAL:HUGE_VAL;
-	}
-	memcpy(d, &result.ll, 8);
+	*(uint64_t*)d = result.ll;
 }
 
-// double (64bits) -> long double (64bits)
+// double (64bits) -> long double (80bits)
 void D2LD(void* d, void* ld)
 {
     #pragma pack(push, 1)
@@ -220,17 +247,37 @@ void D2LD(void* d, void* ld)
 	} val;
     #pragma pack(pop)
     fpu_reg_t s;
-    s.ll = *(uint64_t*)d;   // use memcpy to avoid risk of Buss Error?
+    s.ll = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
+    // do special value first
+    if(s.ll&0x7fffffffffffffffLL==0) {
+        // zero...
+        val.f.ll = 0;
+        if(s.l.upper&0x8000)
+            val.b = 0x8000;
+        else
+            val.b = 0;
+        memcpy(ld, &val, 10);
+        return;
+    }
 
-	int64_t sign80 = (s.ll&0x8000000000000000LL)?1:0;
-	int64_t exp80 =  s.ll&0x7ff0000000000000LL;
-	int64_t exp80final = (exp80>>52);
+	int32_t sign80 = (s.l.upper&0x80000000)?1:0;
+	int32_t exp80 =  s.l.upper&0x7ff00000;
+	int32_t exp80final = (exp80>>20);
 	int64_t mant80 = s.ll&0x000fffffffffffffLL;
-	int64_t mant80final = (mant80 << 10);
-	if(s.d != 0){ 
-		mant80final |= 0x8000000000000000LL;
-		exp80final += (BIAS80 - BIAS64);
-	}
+	int64_t mant80final = (mant80 << 11);
+    if(exp80final==0x7ff) {
+        // NaN and Infinite
+        exp80final = 0x7fff;
+        if(mant80==0x0)
+            mant80final = 0x8000000000000000LL; //infinity
+        else
+            mant80final = 0xc000000000000000LL; //(quiet)NaN
+    } else {
+        if(exp80!=0){ 
+            mant80final |= 0x8000000000000000LL;
+            exp80final += (BIAS80 - BIAS64);
+        }
+    }
 	val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
 	val.f.ll = mant80final;
     memcpy(ld, &val, 10);

@@ -566,11 +566,15 @@ void RunDB(x86emu_t *emu)
             case 2: /* FIST Ed, ST0 */
                 GetEd(emu, &op2, &ea2, nextop);
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
+                if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
+                    tmp32s = 0x80000000;
                 op2->dword[0] = (uint32_t)tmp32s;
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GetEd(emu, &op2, &ea2, nextop);
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
+                if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
+                    tmp32s = 0x80000000;
                 fpu_do_pop(emu);
                 op2->dword[0] = (uint32_t)tmp32s;
                 break;
@@ -1027,6 +1031,7 @@ void RunDF(x86emu_t *emu)
     reg32_t ea1, ea2;
     int64_t tmp64s;
     int16_t tmp16s;
+    int32_t tmp32s;
     float f;
     double d;
     long double ld;
@@ -1064,12 +1069,22 @@ void RunDF(x86emu_t *emu)
         switch((nextop>>3)&7) {
         case 2: /* FIST Ew, ST0 */
             GetEw(emu, &op2, &ea2, nextop);
-            tmp16s = ST0.d; // TODO: Handling of FPU Exception and rounding
+            tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
+            if((tmp32s<-32768) || (tmp32s>32767))
+                tmp16s=0x8000;
+            else
+                tmp16s = tmp32s;
             op2->word[0] = (uint16_t)tmp16s;
             break;
         case 3: /* FISTP Ew, ST0 */
             GetEw(emu, &op2, &ea2, nextop);
-            tmp16s = ST0.d; // TODO: Handling of FPU Exception and rounding
+            tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
+            if(tmp32s<-32768)
+                tmp16s=-32768;
+            else if(tmp32s>32767)
+                tmp16s=32767;
+            else
+                tmp16s = tmp32s;
             op2->word[0] = (uint16_t)tmp16s;
             fpu_do_pop(emu);
             break;
@@ -1091,7 +1106,11 @@ void RunDF(x86emu_t *emu)
             break;
         case 7: /* FISTP i64 */
             GetEd(emu, &op1, &ea1, nextop);
-            *(int64_t*)&op1->dword[0] = ST0.d;
+            if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
+                tmp64s = 0x8000000000000000LL;
+            else
+                tmp64s = (int64_t)ST0.d;
+            *(int64_t*)&op1->dword[0] = tmp64s;
             fpu_do_pop(emu);
             break;
         default:

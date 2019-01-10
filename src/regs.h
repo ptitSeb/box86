@@ -19,19 +19,6 @@ typedef union {
 	uint8_t  byte[4];
 } reg32_t;
 
-typedef union {
-    double d;
-    struct {
-        int32_t  upper;
-        uint32_t lower;
-    } l;
-    struct {
-        float upper;
-        float lower;
-    } f;
-    int64_t ll;
-} fpu_reg_t;
-
 typedef struct {
     uint32_t m1;
     uint32_t m2;
@@ -49,6 +36,20 @@ typedef enum {
 } fpu_round_t;
 
 #pragma pack(push, 1)
+
+typedef union {
+    double d;
+    struct {
+        uint32_t lower;
+        uint32_t upper;
+    } l;
+    struct {
+        float lower;
+        float upper;
+    } f;
+    int64_t ll;
+} fpu_reg_t;
+
 
 typedef union {
     struct __attribute__ ((__packed__)) {
