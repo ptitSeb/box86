@@ -46,6 +46,7 @@ scwrap_t syscallwrap[] = {
 #endif
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
+    { 220, __NR_getdents64, 3 },
     { 252, __NR_exit_group, 1 },
 };
 
