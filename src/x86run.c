@@ -177,11 +177,13 @@ int Run(x86emu_t *emu)
                 tmp8u = opcode&7;
                 Push(emu, emu->regs[tmp8u].dword[0]);
                 break;
+            case 0x5C:                      /* POP ESP */
+                R_ESP += 4;
+                break;
             case 0x58:
             case 0x59:
             case 0x5A:
             case 0x5B:
-            case 0x5C:
             case 0x5D:
             case 0x5E:
             case 0x5F:                      /* POP Reg */

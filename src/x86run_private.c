@@ -223,6 +223,35 @@ void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
     }
 }
 
+void GetEw16(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
+{
+    uint32_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         *op = &emu->regs[_AX+(m&0x07)];
+        return;
+    } else {
+        uint32_t base = 0;
+        switch(m&7) {
+            case 0: base = R_BX+R_SI; break;
+            case 1: base = R_BX+R_DI; break;
+            case 2: base = R_BP+R_SI; break;
+            case 3: base = R_BP+R_DI; break;
+            case 4: base =      R_SI; break;
+            case 5: base =      R_DI; break;
+            case 6: base =      R_BP; break;
+            case 7: base =      R_BX; break;
+        }
+        switch((m>>6)&3) {
+            case 0: if(m==6) base = Fetch16(emu); break;
+            case 1: base += Fetch8s(emu); break;
+            case 2: base += Fetch16s(emu); break;
+            // case 3 is C0..C7, already dealt with
+        }
+        *op = (reg32_t*)base;
+        return;
+    }
+}
+
 void GetEx(x86emu_t *emu, sse_regs_t **op, sse_regs_t *ea, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed

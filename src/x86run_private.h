@@ -8,6 +8,7 @@ typedef struct x86emu_s x86emu_t;
 
 void GetEb(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetEw(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
+void GetEw16(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v);
 void GetEx(x86emu_t *emu, sse_regs_t **op, sse_regs_t *ea, uint32_t v);
 void GetG(x86emu_t *emu, reg32_t **op, uint32_t v);
@@ -27,6 +28,7 @@ void Run67(x86emu_t *emu);
 void Run0F(x86emu_t *emu);
 void Run660F(x86emu_t *emu);
 void Run66D9(x86emu_t *emu);    // x87
+void Run6766(x86emu_t *emu);
 void RunF30F(x86emu_t *emu);
 
 void x86Syscall(x86emu_t *emu);
