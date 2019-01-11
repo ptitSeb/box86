@@ -1104,23 +1104,24 @@ Implements the ROL instruction and side effects.
 ****************************************************************************/
 uint8_t rol8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 8) != 0) {
-    d = (d << cnt) + ((d >> (8 - cnt)) & ((1 << cnt) - 1));
-  }
+	if((cnt = s % 8) != 0) {
+	d = (d << cnt) + ((d >> (8 - cnt)) & ((1 << cnt) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG((d + (d >> 7)) & 1, F_OF);
-  }
+	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG((d + (d >> 7)) & 1, F_OF);
+	}
 
-  /* set new CF; note that it is the LSB of the result */
-  CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
+	/* set new CF; note that it is the LSB of the result */
+	CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1129,23 +1130,24 @@ Implements the ROL instruction and side effects.
 ****************************************************************************/
 uint16_t rol16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 16) != 0) {
-    d = (d << cnt) + ((d >> (16 - cnt)) & ((1 << cnt) - 1));
-  }
+	if((cnt = s % 16) != 0) {
+	d = (d << cnt) + ((d >> (16 - cnt)) & ((1 << cnt) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG((d + (d >> 15)) & 1, F_OF);
-  }
+	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG((d + (d >> 15)) & 1, F_OF);
+	}
 
-  /* set new CF; note that it is the LSB of the result */
-  CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
+	/* set new CF; note that it is the LSB of the result */
+	CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1154,23 +1156,24 @@ Implements the ROL instruction and side effects.
 ****************************************************************************/
 uint32_t rol32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 32) != 0) {
-    d = (d << cnt) + ((d >> (32 - cnt)) & ((1 << cnt) - 1));
-  }
+	if((cnt = s % 32) != 0) {
+	d = (d << cnt) + ((d >> (32 - cnt)) & ((1 << cnt) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG((d + (d >> 31)) & 1, F_OF);
-  }
+	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG((d + (d >> 31)) & 1, F_OF);
+	}
 
-  /* set new CF; note that it is the LSB of the result */
-  CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
+	/* set new CF; note that it is the LSB of the result */
+	CONDITIONAL_SET_FLAG(d & 0x1, F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1179,23 +1182,24 @@ Implements the ROR instruction and side effects.
 ****************************************************************************/
 uint8_t ror8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 8) != 0) {
-    d = (d << (8 - cnt)) + ((d >> (cnt)) & ((1 << (8 - cnt)) - 1));
-  }
+	if((cnt = s % 8) != 0) {
+	d = (d << (8 - cnt)) + ((d >> (cnt)) & ((1 << (8 - cnt)) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG(XOR2(d >> 6), F_OF);
-  }
+	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG(XOR2(d >> 6), F_OF);
+	}
 
-  /* set new CF; note that it is the MSB of the result */
-  CONDITIONAL_SET_FLAG(d & (1 << 7), F_CF);
+	/* set new CF; note that it is the MSB of the result */
+	CONDITIONAL_SET_FLAG(d & (1 << 7), F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1204,23 +1208,24 @@ Implements the ROR instruction and side effects.
 ****************************************************************************/
 uint16_t ror16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 16) != 0) {
-    d = (d << (16 - cnt)) + ((d >> (cnt)) & ((1 << (16 - cnt)) - 1));
-  }
+	if((cnt = s % 16) != 0) {
+	d = (d << (16 - cnt)) + ((d >> (cnt)) & ((1 << (16 - cnt)) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG(XOR2(d >> 14), F_OF);
-  }
+	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG(XOR2(d >> 14), F_OF);
+	}
 
-  /* set new CF; note that it is the MSB of the result */
-  CONDITIONAL_SET_FLAG(d & (1 << 15), F_CF);
+	/* set new CF; note that it is the MSB of the result */
+	CONDITIONAL_SET_FLAG(d & (1 << 15), F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1229,23 +1234,24 @@ Implements the ROR instruction and side effects.
 ****************************************************************************/
 uint32_t ror32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
-  unsigned cnt;
+	unsigned cnt;
 
-  if(!s) return d;
+	s = s&0x1f;
+	if(!s) return d;
 
-  if((cnt = s % 32) != 0) {
-    d = (d << (32 - cnt)) + ((d >> (cnt)) & ((1 << (32 - cnt)) - 1));
-  }
+	if((cnt = s % 32) != 0) {
+	d = (d << (32 - cnt)) + ((d >> (cnt)) & ((1 << (32 - cnt)) - 1));
+	}
 
-  /* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
-  if(s == 1) {
-    CONDITIONAL_SET_FLAG(XOR2(d >> 30), F_OF);
-  }
+	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
+	if(s == 1) {
+	CONDITIONAL_SET_FLAG(XOR2(d >> 30), F_OF);
+	}
 
-  /* set new CF; note that it is the MSB of the result */
-  CONDITIONAL_SET_FLAG(d & (1 << 31), F_CF);
+	/* set new CF; note that it is the MSB of the result */
+	CONDITIONAL_SET_FLAG(d & (1 << 31), F_CF);
 
-  return d;
+	return d;
 }
 
 /****************************************************************************
@@ -1256,6 +1262,7 @@ uint8_t shl8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	if (s < 8) {
 		cnt = s % 8;
 
@@ -1300,6 +1307,7 @@ uint16_t shl16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
     unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	if (s < 16) {
 		cnt = s % 16;
 		if (cnt > 0) {
@@ -1340,31 +1348,22 @@ uint32_t shl32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
-	if (s < 32) {
-		cnt = s % 32;
-		if (cnt > 0) {
-			res = d << cnt;
-			cf = d & (1 << (32 - cnt));
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = d;
-		}
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
-								  (ACCESS_FLAG(F_CF) != 0)), F_OF);
-		} else {
-			CLEAR_FLAG(F_OF);
-		}
+	cnt = s&0x1f;
+	if (cnt > 0) {
+		res = d << cnt;
+		cf = d & (1 << (32 - cnt));
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	} else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x80000000, F_CF);
+		res = d;
+	}
+	if (cnt == 1) {
+		CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
+								(ACCESS_FLAG(F_CF) != 0)), F_OF);
+	} else {
 		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
 	}
 	return res;
 }
@@ -1377,6 +1376,7 @@ uint8_t shr8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	if (s < 8) {
 		cnt = s % 8;
 		if (cnt > 0) {
@@ -1414,6 +1414,7 @@ uint16_t shr16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	if (s < 16) {
 		cnt = s % 16;
 		if (cnt > 0) {
@@ -1451,31 +1452,22 @@ uint32_t shr32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
-	if (s < 32) {
-		cnt = s % 32;
-		if (cnt > 0) {
-			cf = d & (1 << (cnt - 1));
-			res = d >> cnt;
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-        } else {
-            res = d;
-        }
-        if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
-        } else {
-			CLEAR_FLAG(F_OF);
-        }
-    } else {
-        res = 0;
-		CLEAR_FLAG(F_CF);
+	cnt = s % 32;
+	if (cnt > 0) {
+		cf = d & (1 << (cnt - 1));
+		res = d >> cnt;
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+	} else {
+		res = d;
+	}
+	if (cnt == 1) {
+		CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
+	} else {
 		CLEAR_FLAG(F_OF);
-		SET_FLAG(F_ZF);
-		CLEAR_FLAG(F_SF);
-		CLEAR_FLAG(F_PF);
-    }
+	}
     return res;
 }
 
@@ -1487,6 +1479,7 @@ uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf, mask, sf;
 
+	s = s&0x1f;
 	res = d;
 	sf = d & 0x80;
     cnt = s % 8;
@@ -1530,6 +1523,7 @@ uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
     unsigned int cnt, res, cf, mask, sf;
 
+	s = s&0x1f;
     sf = d & 0x8000;
     cnt = s % 16;
 	res = d;
@@ -1573,37 +1567,22 @@ uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
     uint32_t cnt, res, cf, mask, sf;
 
+	s = s&0x1f;
     sf = d & 0x80000000;
     cnt = s % 32;
 	res = d;
-	if (s < 32) {
-        mask = (1 << (32 - cnt)) - 1;
-		cf = d & (1 << (cnt - 1));
-        res = (d >> cnt) & mask;
-		if(s)
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-        if (sf) {
-            res |= ~mask;
-        }
-		if(s) {
-			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		}
-    } else {
-        if (sf) {
-            res = 0xffffffff;
-			SET_FLAG(F_CF);
-			CLEAR_FLAG(F_ZF);
-			SET_FLAG(F_SF);
-			SET_FLAG(F_PF);
-		} else {
-			res = 0;
-			CLEAR_FLAG(F_CF);
-			SET_FLAG(F_ZF);
-			CLEAR_FLAG(F_SF);
-			SET_FLAG(F_PF);
-		}
+	mask = (1 << (32 - cnt)) - 1;
+	cf = d & (1 << (cnt - 1));
+	res = (d >> cnt) & mask;
+	if(s)
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+	if (sf) {
+		res |= ~mask;
+	}
+	if(s) {
+		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	}
 	return res;
 }
@@ -1616,6 +1595,7 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	cnt = s % 16;
 	if (s < 16) {
 		if (cnt > 0) {
@@ -1657,31 +1637,23 @@ uint32_t shld32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
-	if (s < 32) {
-		cnt = s % 32;
-		if (cnt > 0) {
-			res = (d << cnt) | (fill >> (32-cnt));
-			cf = d & (1 << (32 - cnt));
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = d;
-		}
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
-								  (ACCESS_FLAG(F_CF) != 0)), F_OF);
-		} else {
-			CLEAR_FLAG(F_OF);
-		}
+	s = s&0x1f;
+	cnt = s % 32;
+	if (cnt > 0) {
+		res = (d << cnt) | (fill >> (32-cnt));
+		cf = d & (1 << (32 - cnt));
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	} else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x80000000, F_CF);
+		res = d;
+	}
+	if (cnt == 1) {
+		CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
+								(ACCESS_FLAG(F_CF) != 0)), F_OF);
+	} else {
 		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
 	}
 	return res;
 }
@@ -1694,6 +1666,7 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
+	s = s&0x1f;
 	cnt = s % 16;
 	if (s < 16) {
 		if (cnt > 0) {
@@ -1740,31 +1713,23 @@ uint32_t shrd32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
 
-	if (s < 32) {
-		cnt = s % 32;
-		if (cnt > 0) {
-			cf = d & (1 << (cnt - 1));
-			res = (d >> cnt) | (fill << (32 - cnt));
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = d;
-		}
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
-        } else {
-			CLEAR_FLAG(F_OF);
-        }
+	s = s&0x1f;
+	cnt = s % 32;
+	if (cnt > 0) {
+		cf = d & (1 << (cnt - 1));
+		res = (d >> cnt) | (fill << (32 - cnt));
+		CONDITIONAL_SET_FLAG(cf, F_CF);
+		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
+		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
+		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
 	} else {
-		res = 0;
-		CLEAR_FLAG(F_CF);
+		res = d;
+	}
+	if (cnt == 1) {
+		CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
+	} else {
 		CLEAR_FLAG(F_OF);
-		SET_FLAG(F_ZF);
-		CLEAR_FLAG(F_SF);
-		CLEAR_FLAG(F_PF);
-    }
+	}
 	return res;
 }
 

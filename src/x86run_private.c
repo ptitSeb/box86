@@ -139,9 +139,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            /*if(((sib>>3)&7)==4)
-                idx += Fetch8(emu);*/
-            base += idx << (sib>>6);
+            base += (idx << (sib>>6));
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
         }
@@ -154,7 +152,7 @@ void GetEd(x86emu_t *emu, reg32_t **op, reg32_t *ea, uint32_t v)
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             uint32_t idx = emu->sbiidx[(sib>>3)&7]->dword[0];
-            base += idx << (sib>>6);
+            base += (idx << (sib>>6));
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
         }

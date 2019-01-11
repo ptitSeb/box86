@@ -358,8 +358,8 @@ void RunD9(x86emu_t *emu)
                     f = ST1.d;
                 else*/
                     f = ST0.d;
-                fpu_do_pop(emu);
                 op1->dword[0] = *(uint32_t*)&f;
+                fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
