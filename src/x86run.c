@@ -36,7 +36,7 @@ int Run(x86emu_t *emu)
                 printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, R_EIP));
                 uint8_t peek = Peek(emu, 0);
                 if(peek==0xC3 || peek==0xC2) {
-                    printf_log(LOG_NONE, " => %p", *(uint32_t*)(R_ESP));
+                    printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
                 }
                 printf_log(LOG_NONE, "\n");
             }

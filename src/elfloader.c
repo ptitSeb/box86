@@ -103,7 +103,7 @@ int AllocElfMemory(elfheader_t* head)
     head->memory = p;
     memset(p, 0, head->memsz);
     head->delta = (intptr_t)p - (intptr_t)head->vaddr;
-    printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, head->delta);
+    printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
     #endif
 
     return 0;

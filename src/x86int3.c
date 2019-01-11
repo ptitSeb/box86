@@ -29,17 +29,17 @@ void x86Int3(x86emu_t* emu)
             if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
                 const char *s = GetNativeName((void*)addr);
                 if(strstr(s, "SDL_RWFromFile")) {
-                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%s, %s)", R_EIP, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%s, %s)", (void*)R_EIP, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "glColor4f")) {
-                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%hf, %hf, %hf, %hf)", R_EIP, *(void**)(R_ESP), "glColor4f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12), *(float*)(R_ESP+16));
+                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%f, %f, %f, %f)", (void*)R_EIP, *(void**)(R_ESP), "glColor4f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12), *(float*)(R_ESP+16));
 /*                    if(emu->trace_end==0xfb00) {
                         emu->trace_start = (*(uintptr_t*)(R_ESP)) - 0x100;
                         emu->trace_end = emu->trace_start + 0x100;
                     }*/
                 } else  if(strstr(s, "glTexCoord2f")) {
-                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%f, %f)", R_EIP, *(void**)(R_ESP), "glTexCoord2f", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
+                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%f, %f)", (void*)R_EIP, *(void**)(R_ESP), "glTexCoord2f", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
                 } else  if(strstr(s, "glVertex3f")) {
-                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%f, %f, %f)", R_EIP, *(void**)(R_ESP), "glVertex3f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12));
+                    printf_log(LOG_INFO, "%p: (%p) Calling %s(%f, %f, %f)", (void*)R_EIP, *(void**)(R_ESP), "glVertex3f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12));
                 } else {
                     printf_log(LOG_INFO, " Calling %s", s);
                 }

@@ -266,7 +266,7 @@ int main(int argc, const char **argv, const char **env) {
         } else {
             if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
                 SetTraceEmu(context->emu, trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
                 SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
