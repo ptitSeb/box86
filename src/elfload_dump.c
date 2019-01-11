@@ -271,7 +271,7 @@ void DumpDynamicNeeded(elfheader_t *h)
         printf_log(LOG_DUMP, "ELF Dump DT_NEEDED=====\n");
         for (int i=0; i<h->numDynamic; ++i)
             if(h->Dynamic[i].d_tag==DT_NEEDED) {
-                printf_log(LOG_DUMP, "  Needed : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val);
+                printf_log(LOG_DUMP, "  Needed : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
             }
         printf_log(LOG_DUMP, "ELF Dump DT_NEEDED=====\n");
     }

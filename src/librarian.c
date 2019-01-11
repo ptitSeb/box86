@@ -24,7 +24,9 @@ lib_t *NewLibrarian()
 }
 void FreeLibrarian(lib_t **maplib)
 {
-    kh_destroy(mapsymbols, (*maplib)->mapsymbols);
+    if((*maplib)->mapsymbols) {
+        kh_destroy(mapsymbols, (*maplib)->mapsymbols);
+    }
     // should that be in reverse order?
     for (int i=0; i<(*maplib)->libsz; ++i) {
         FreeLibrary(&(*maplib)->libraries[i].lib);
@@ -103,6 +105,8 @@ uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
 
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
+    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))  // look in own symbols first
+        return 1;
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
             return 1;

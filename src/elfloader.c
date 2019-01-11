@@ -303,7 +303,8 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
     for (int i=0; i<h->numSymTab; ++i) {
         // TODO: this "17" & "18" is probably defined somewhere
-        if(((h->SymTab[i].st_info == 18) || h->SymTab[i].st_info == 17) && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
+        if(((h->SymTab[i].st_info == 18) || (h->SymTab[i].st_info == 17) || (h->SymTab[i].st_info == 2)) 
+            && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
