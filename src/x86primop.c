@@ -835,6 +835,7 @@ Implements the RCL instruction and side effects.
 uint8_t rcl8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
     register unsigned int res, cnt, mask, cf;
+	s = s&0x1f;
 
     /* s is the rotate distance.  It varies from 0 - 8. */
 	/* have
@@ -908,6 +909,7 @@ Implements the RCL instruction and side effects.
 uint16_t rcl16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	register unsigned int res, cnt, mask, cf;
+	s = s&0x1f;
 
 	res = d;
 	if ((cnt = s % 17) != 0) {
@@ -932,6 +934,7 @@ Implements the RCL instruction and side effects.
 uint32_t rcl32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	register uint32_t res, cnt, mask, cf;
+	s = s&0x1f;
 
 	res = d;
 	if ((cnt = s % 33) != 0) {
@@ -957,6 +960,7 @@ uint8_t rcr8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	uint32_t	res, cnt;
 	uint32_t	mask, cf, ocf = 0;
+	s = s&0x1f;
 
 	/* rotate right through carry */
     /* 
@@ -1041,6 +1045,7 @@ uint16_t rcr16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	uint32_t res, cnt;
 	uint32_t	mask, cf, ocf = 0;
+	s = s&0x1f;
 
 	/* rotate right through carry */
 	res = d;
@@ -1073,6 +1078,7 @@ uint32_t rcr32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	uint32_t res, cnt;
 	uint32_t mask, cf, ocf = 0;
+	s = s&0x1f;
 
 	/* rotate right through carry */
 	res = d;
