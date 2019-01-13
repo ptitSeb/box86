@@ -664,7 +664,7 @@ GOM(SDL_WriteBE64, uFEpU)
 GOM(SDL_WriteLE16, uFEpW)
 GOM(SDL_WriteLE32, uFEpu)
 GOM(SDL_WriteLE64, uFEpU)
-GOM(SDL_WriteU8, uFEpC)
+GOM(SDL_WriteU8, uFEpu)
 
 GO(SDL_doesntexist, IFpIi)
 

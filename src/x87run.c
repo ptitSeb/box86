@@ -279,7 +279,7 @@ void RunD9(x86emu_t *emu)
         case 0xE0:  /* FCHS */
             ST0.d = -ST0.d;
             break;
-        case 0xE1:
+        case 0xE1:  /* FABS */
             ST0.d = fabs(ST0.d);
             break;
         

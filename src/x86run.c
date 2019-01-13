@@ -167,11 +167,14 @@ int Run(x86emu_t *emu)
                 tmp8u = opcode&7;
                 emu->regs[tmp8u].dword[0] = dec32(emu, emu->regs[tmp8u].dword[0]);
                 break;
+            case 0x54:                      /* PUSH ESP */
+                tmp32u = R_ESP;
+                Push(emu, tmp32u);
+                break;
             case 0x50:
             case 0x51:
             case 0x52:
             case 0x53:
-            case 0x54:
             case 0x55:
             case 0x56:
             case 0x57:                      /* PUSH Reg */
@@ -245,7 +248,8 @@ int Run(x86emu_t *emu)
                 op2->dword[0] = imul32(emu, op1->dword[0], tmp32u);
                 break;
             case 0x6A:                      /* Push Ib */
-                Push(emu, Fetch8s(emu));
+                tmp32s = Fetch8s(emu);
+                Push(emu, (uint32_t)tmp32s);
                 break;
             case 0x6B:                      /* IMUL Gd,Ed,Ib */
                 nextop = Fetch8(emu);
@@ -359,7 +363,7 @@ int Run(x86emu_t *emu)
                 }
                 break;
             case 0x81:                      /* GRP Ed,Id */
-            case 0x83:                      /* GRPL Ed,Ix */
+            case 0x83:                      /* GRP Ed,Ib */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, nextop);
                 if(opcode==0x81) 
@@ -381,8 +385,8 @@ int Run(x86emu_t *emu)
                 break;
             case 0x84:                      /* TEST Eb,Gb */
                 nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
+                GetEb(emu, &op1, nextop);
+                GetGb(emu, &op2, nextop);
                 test8(emu, op1->byte[0], op2->byte[0]);
                 break;
             case 0x85:                      /* TEST Ed,Gd */
@@ -407,13 +411,13 @@ int Run(x86emu_t *emu)
                 op1->dword[0] = op2->dword[0];
                 op2->dword[0] = tmp32u;
                 break;
-            case 0x88:                      /* MOV Eb,Gv */
+            case 0x88:                      /* MOV Eb,Gb */
                 nextop = Fetch8(emu);
                 GetEb(emu, &op1, nextop);
                 GetGb(emu, &op2, nextop);
                 op1->byte[0] = op2->byte[0];
                 break;
-            case 0x89:                      /* MOV Ed,Gv */
+            case 0x89:                      /* MOV Ed,Gd */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, nextop);
                 GetG(emu, &op2, nextop);
@@ -454,7 +458,8 @@ int Run(x86emu_t *emu)
                 break;
 
             case 0x98:                      /* CWDE */
-                R_EAX = (uint32_t)(int16_t)R_AX;
+                emu->regs[0].word[1] = (R_AX&0x8000)?0xFFFF:0x0000;
+                //R_EAX = (uint32_t)(int16_t)R_AX;
                 break;
             case 0x99:                      /* CDQ */
                 if(R_EAX & 0x80000000)
@@ -577,7 +582,7 @@ int Run(x86emu_t *emu)
             case 0xC0:                      /* GRP2 Eb,Ib */
                 nextop = Fetch8(emu);
                 GetEb(emu, &op1, nextop);
-                tmp8u = Fetch8(emu) & 0x1f;
+                tmp8u = Fetch8(emu)/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
                     case 1: op1->byte[0] = ror8(emu, op1->byte[0], tmp8u); break;
@@ -592,7 +597,7 @@ int Run(x86emu_t *emu)
             case 0xC1:                      /* GRP2 Ed,Ib */
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, nextop);
-                tmp8u = Fetch8(emu) & 0x1f;
+                tmp8u = Fetch8(emu)/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
                     case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
@@ -759,13 +764,16 @@ int Run(x86emu_t *emu)
                 tmp32u = R_ECX;
                 switch(nextop) {
                     case 0x0F:
-                        RunF30F(emu);
+                        if(opcode==0xF3)
+                            RunF30F(emu);
+                        else
+                            RunF20F(emu);
                         break;
                     case 0xC3:              /* REPZ RET... yup */
                         R_EIP = Pop(emu);
                         break;
                     case 0xA4:              /* REP MOVSB */
-                        for(; tmp32u>0; --tmp32u) {
+                        for(; tmp32u; --tmp32u) {
                             *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
                             R_EDI += tmp8s;
                             R_ESI += tmp8s;
@@ -773,14 +781,14 @@ int Run(x86emu_t *emu)
                         break;
                     case 0xA5:              /* REP MOVSD */
                         tmp8s *= 4;
-                        for(; tmp32u>0; --tmp32u) {
+                        for(; tmp32u; --tmp32u) {
                             *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
                             R_EDI += tmp8s;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xA6:              /* REP(N)Z CMPSB */
-                        while(tmp32u>0) {
+                        while(tmp32u) {
                             --tmp32u;
                             tmp8u  = *(uint8_t*)R_EDI;
                             tmp8u2 = *(uint8_t*)R_ESI;
@@ -793,7 +801,7 @@ int Run(x86emu_t *emu)
                         break;
                     case 0xA7:              /* REP(N)Z CMPSD */
                         tmp8s *= 4;
-                        while(tmp32u>0) {
+                        while(tmp32u) {
                             --tmp32u;
                             tmp32u3 = *(uint32_t*)R_EDI;
                             tmp32u2 = *(uint32_t*)R_ESI;
@@ -802,10 +810,10 @@ int Run(x86emu_t *emu)
                             if((tmp32u3==tmp32u2)==(opcode==0xF2))
                                 break;
                         }
-                        cmp32(emu, tmp32u3, tmp32u2);
+                        cmp32(emu, tmp32u2, tmp32u3);
                         break;
                     case 0xAA:              /* REP STOSB */
-                        for(; tmp32u>0; --tmp32u) {
+                        for(; tmp32u; --tmp32u) {
                             *(uint8_t*)R_EDI = R_AL;
                             R_EDI += tmp8s;
                         }
@@ -818,20 +826,20 @@ int Run(x86emu_t *emu)
                         }
                         break;
                     case 0xAC:              /* REP LODSB */
-                        for(; tmp32u>0; --tmp32u) {
+                        for(; tmp32u; --tmp32u) {
                             R_AL = *(uint8_t*)R_ESI;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xAD:              /* REP LODSD */
                         tmp8s *= 4;
-                        for(; tmp32u>0; --tmp32u) {
+                        for(; tmp32u; --tmp32u) {
                             R_EAX = *(uint32_t*)R_ESI;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xAE:              /* REP(N)Z SCASB */
-                        while(tmp32u>0) {
+                        while(tmp32u) {
                             --tmp32u;
                             tmp8u = *(uint8_t*)R_EDI;
                             R_EDI += tmp8s;
@@ -842,7 +850,7 @@ int Run(x86emu_t *emu)
                         break;
                     case 0xAF:              /* REP(N)Z SCASD */
                         tmp8s *= 4;
-                        while(tmp32u>0) {
+                        while(tmp32u) {
                             --tmp32u;
                             tmp32u2 = *(uint32_t*)R_EDI;
                             R_EDI += tmp8s;

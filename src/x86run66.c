@@ -179,7 +179,7 @@ void Run66(x86emu_t *emu)
     case 0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)Fetch32(emu);
         break;
-    case 0xA3:                              /* MOV Od,AX */
+    case 0xA3:                              /* MOV Ow,AX */
         *(uint16_t*)Fetch32(emu) = R_AX;
         break;
     case 0xA5:                              /* MOVSW */
@@ -226,8 +226,8 @@ void Run66(x86emu_t *emu)
 
     case 0xC1:                              /* GRP2 Ew,Ib */
         nextop = Fetch8(emu);
-        GetEd(emu, &op1, nextop);
-        tmp8u = Fetch8(emu) & 0x1f;
+        GetEw(emu, &op1, nextop);
+        tmp8u = Fetch8(emu) /*& 0x1f*/;
         switch((nextop>>3)&7) {
             case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
             case 1: op1->word[0] = ror16(emu, op1->word[0], tmp8u); break;
@@ -270,14 +270,14 @@ void Run66(x86emu_t *emu)
             tmp32u = R_ECX;
             switch(nextop) {
                 case 0xA5:              /* REP MOVSW */
-                    for(; tmp32u>0; --tmp32u) {
+                    for(; tmp32u; --tmp32u) {
                         *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
                         R_EDI += tmp8s;
                         R_ESI += tmp8s;
                     }
                     break;
                 case 0xA7:              /* REP(N)Z CMPSW */
-                    while(tmp32u>0) {
+                    while(tmp32u) {
                         --tmp32u;
                         tmp16u  = *(uint16_t*)R_EDI;
                         tmp16u2 = *(uint16_t*)R_ESI;
@@ -289,19 +289,19 @@ void Run66(x86emu_t *emu)
                     cmp16(emu, tmp16u2, tmp16u);
                     break;
                 case 0xAB:              /* REP STOSW */
-                    for(; tmp32u>0; --tmp32u) {
+                    for(; tmp32u; --tmp32u) {
                         *(uint16_t*)R_EDI = R_AX;
                         R_EDI += tmp8s;
                     }
                     break;
                 case 0xAD:              /* REP LODSW */
-                    for(; tmp32u>0; --tmp32u) {
+                    for(; tmp32u; --tmp32u) {
                         R_AX = *(uint16_t*)R_ESI;
                         R_ESI += tmp8s;
                     }
                     break;
                 case 0xAF:              /* REP(N)Z SCASW */
-                    while(tmp32u>0) {
+                    while(tmp32u) {
                         --tmp32u;
                         tmp16u = *(uint16_t*)R_EDI;
                         R_EDI += tmp8s;
@@ -321,25 +321,25 @@ void Run66(x86emu_t *emu)
         GetEw(emu, &op1, nextop);
         switch((nextop>>3)&7) {
             case 0: 
-            case 1:                 /* TEST Ed,Id */
+            case 1:                 /* TEST Ew,Iw */
                 test16(emu, op1->word[0], Fetch16(emu));
                 break;
-            case 2:                 /* NOT Ed */
+            case 2:                 /* NOT Ew */
                 op1->word[0] = not16(emu, op1->word[0]);
                 break;
-            case 3:                 /* NEG Ed */
+            case 3:                 /* NEG Ew */
                 op1->word[0] = neg16(emu, op1->word[0]);
                 break;
-            case 4:                 /* MUL EAX,Ed */
+            case 4:                 /* MUL AX,Ew */
                 mul16(emu, op1->word[0]);
                 break;
-            case 5:                 /* IMUL EAX,Ed */
+            case 5:                 /* IMUL AX,Ew */
                 imul16_eax(emu, op1->word[0]);
                 break;
-            case 6:                 /* DIV Ed */
+            case 6:                 /* DIV Ew */
                 div16(emu, op1->word[0]);
                 break;
-            case 7:                 /* IDIV Ed */
+            case 7:                 /* IDIV Ew */
                 idiv16(emu, op1->word[0]);
                 break;
         }
@@ -347,7 +347,7 @@ void Run66(x86emu_t *emu)
 
     case 0xFF:                      /* GRP 5 Ew */
         nextop = Fetch8(emu);
-        GetEd(emu, &op1, nextop);
+        GetEw(emu, &op1, nextop);
         switch((nextop>>3)&7) {
             case 0:                 /* INC Ed */
                 op1->word[0] = inc16(emu, op1->word[0]);

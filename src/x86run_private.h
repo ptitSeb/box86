@@ -29,6 +29,7 @@ void Run0F(x86emu_t *emu);
 void Run660F(x86emu_t *emu);
 void Run66D9(x86emu_t *emu);    // x87
 void Run6766(x86emu_t *emu);
+void RunF20F(x86emu_t *emu);
 void RunF30F(x86emu_t *emu);
 
 void x86Syscall(x86emu_t *emu);
