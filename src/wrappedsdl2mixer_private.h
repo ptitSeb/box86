@@ -8,76 +8,77 @@ GO(Mix_AllocateChannels, iFi)
 // Mix_ChannelFinished
 GO(Mix_CloseAudio, vFv)
 // Mix_EachSoundFont
-// Mix_ExpireChannel
-GO(Mix_FadeInChannelTimed, iFipiii)
-GO(Mix_FadeInMusic, iFpii)
-// Mix_FadeInMusicPos
-// Mix_FadeOutChannel
-// Mix_FadeOutGroup
-// Mix_FadeOutMusic
-// Mix_FadingChannel
-// Mix_FadingMusic
-GO(Mix_FreeChunk, vFp)
-GO(Mix_FreeMusic, vFp)
-// Mix_GetChunk
-// Mix_GetChunkDecoder
-// Mix_GetMusicDecoder
-// Mix_GetMusicHookData
-// Mix_GetMusicType
-// Mix_GetNumChunkDecoders
-// Mix_GetNumMusicDecoders
-// Mix_GetSoundFonts
-// Mix_GetSynchroValue
-// Mix_GroupAvailable
-// Mix_GroupChannel
-// Mix_GroupChannels
-// Mix_GroupCount
-// Mix_GroupNewer
-// Mix_GroupOldest
-GO(Mix_HaltChannel, iFi)
-// Mix_HaltGroup
-GO(Mix_HaltMusic, iFv)
+GO(Mix_ExpireChannel,iFii)
+GO(Mix_FadeInChannelTimed,iFipiii)
+GO(Mix_FadeInMusic,iFpii)
+GO(Mix_FadeInMusicPos,iFpiid)
+GO(Mix_FadeOutChannel,iFii)
+GO(Mix_FadeOutGroup,iFii)
+GO(Mix_FadeOutMusic,iFi)
+GO(Mix_FadingChannel,iFi)
+GO(Mix_FadingMusic,iFv)
+GO(Mix_FreeChunk,vFp)
+GO(Mix_FreeMusic,vFp)
+GO(Mix_GetChunk,pFi)
+GO(Mix_GetChunkDecoder,pFi)
+GO(Mix_GetMusicDecoder,pFi)
+GO(Mix_GetMusicHookData,pFv)
+GO(Mix_GetMusicType,iFp)
+GO(Mix_GetNumChunkDecoders,iFv)
+GO(Mix_GetNumMusicDecoders,iFv)
+GO(Mix_GetSoundFonts,pFv)
+GO(Mix_GetSynchroValue,iFv)
+GO(Mix_GroupAvailable,iFi)
+GO(Mix_GroupChannel,iFii)
+GO(Mix_GroupChannels,iFiii)
+GO(Mix_GroupCount,iFi)
+GO(Mix_GroupNewer,iFi)
+GO(Mix_GroupOldest,iFi)
+GO(Mix_HaltChannel,iFi)
+GO(Mix_HaltGroup,iFi)
+GO(Mix_HaltMusic,iFv)
 // Mix_HasChunkDecoder
 // Mix_HookMusic
 // Mix_HookMusicFinished
-// Mix_Init
-// Mix_Linked_Version
-GO(Mix_LoadMUS, pFp)
-// Mix_LoadMUS_RW
-// Mix_LoadMUSType_RW
-GO(Mix_LoadWAV_RW, pFpi)
-GO(Mix_OpenAudio, iFiWii)
-// Mix_OpenAudioDevice
+GO(Mix_Init,iFi)
+GO(Mix_Linked_Version,pFv)
+GO(Mix_LoadMUS,pFp)
+GOM(Mix_LoadMUSType_RW,pFEpii)
+GOM(Mix_LoadMUS_RW,pFEp)
+GOM(Mix_LoadWAV_RW,pFEpi)
+GO(Mix_OpenAudio,iFiuii)
+GO(Mix_OpenAudioDevice, iFiuiipi)
+GO(Mix_Pause,vFi)
+GO(Mix_PauseMusic,vFv)
+GO(Mix_Paused,iFi)
+GO(Mix_PausedMusic,iFv)
+GO(Mix_PlayChannelTimed,iFipii)
+GO(Mix_PlayMusic,iFpi)
+GO(Mix_Playing,iFi)
+GO(Mix_PlayingMusic,iFv)
+GO(Mix_QuerySpec,iFppp)
+GO(Mix_QuickLoad_RAW,pFpu)
+GO(Mix_QuickLoad_WAV,pFp)
+GO(Mix_Quit,vFv)
 GO(Mix_Pause, vFi)
-// Mix_Paused
-// Mix_PausedMusic
-GO(Mix_PauseMusic, vFv)
-GO(Mix_PlayChannelTimed, iFipii)
-GO(Mix_Playing, iFi)
-GO(Mix_PlayingMusic, iFpi)
-GO(Mix_PlayMusic, iFpi)
-// Mix_QuerySpec
-// Mix_QuickLoad_RAW
-// Mix_QuickLoad_WAV
-GO(Mix_Quit, vFv)
 // Mix_RegisterEffect
-GO(Mix_ReserveChannels, iFi)
-GO(Mix_Resume, vFi)
-// Mix_ResumeMusic
-// Mix_RewindMusic
-// Mix_SetDistance
-// Mix_SetMusicCMD
-// Mix_SetMusicPosition
-// Mix_SetPanning
-// Mix_SetPosition
-// Mix_SetPostMix
-// Mix_SetReverseStereo
-// Mix_SetSoundFonts
-// Mix_SetSynchroValue
+GO(Mix_ReserveChannels,iFi)
+GO(Mix_Resume,vFi)
+GO(Mix_ResumeMusic,vFv)
+GO(Mix_RewindMusic,vFv)
+GO(Mix_SetDistance,iFiu)
+GO(Mix_SetMusicCMD,iFp)
+GO(Mix_SetMusicPosition,iFd)
+GO(Mix_SetPanning,iFiuu)
+GO(Mix_SetPosition,iFiiu)
+GOM(Mix_SetPostMix,vFEpp)
+GO(Mix_SetReverseStereo,iFii)
+GO(Mix_SetSoundFonts,iFp)
+GO(Mix_SetSynchroValue,iFi)
 // Mix_UnregisterAllEffects
 // Mix_UnregisterEffect
-GO(Mix_Volume, iFii)
-// Mix_VolumeChunk
-GO(Mix_VolumeMusic, iFi)
+GO(Mix_Volume,iFii)
+GO(Mix_VolumeChunk,iFpi)
+GO(Mix_VolumeMusic,iFi)
 
 #endif

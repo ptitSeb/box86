@@ -39,7 +39,7 @@ typedef struct sdl1image_my_s {
     pFpi_t      IMG_Load_RW;
 } sdl1image_my_t;
 
-void* getSDL1ImageMy(library_t* lib)
+static void* getSDL1ImageMy(library_t* lib)
 {
     sdl1image_my_t* my = (sdl1image_my_t*)calloc(1, sizeof(sdl1image_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);

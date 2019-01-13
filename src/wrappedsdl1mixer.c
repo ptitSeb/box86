@@ -30,7 +30,7 @@ typedef struct sdl1mixer_my_s {
     x86emu_t* PostCallback;
 } sdl1mixer_my_t;
 
-void* getSDL1MixerMy(library_t* lib)
+static void* getSDL1MixerMy(library_t* lib)
 {
     sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
@@ -72,7 +72,7 @@ void EXPORT *my_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
     return r;
 }
 
-void sdl1mixerPostCallback(void *userdata, uint8_t *stream, int32_t len)
+static void sdl1mixerPostCallback(void *userdata, uint8_t *stream, int32_t len)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
     SetCallbackArg(emu, 1, stream);

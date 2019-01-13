@@ -116,6 +116,7 @@ void FreeLibrary(library_t **lib)
         (*lib)->fini(*lib);
     }
     free((*lib)->name);
+    free((*lib)->altmy);
 
     if((*lib)->bridgemap) {
         bridged_t *br;
@@ -202,7 +203,10 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
     k = kh_get(symbolmap, lib->mysymbolmap, name);
     if (k!=kh_end(lib->mysymbolmap)) {
         char buff[200];
-        strcpy(buff, "my_");
+        if(lib->altmy)
+            strcpy(buff, lib->altmy);
+        else
+            strcpy(buff, "my_");
         strcat(buff, name);
         symbol = dlsym(lib->priv.w.box86lib, buff);
         if(!symbol)

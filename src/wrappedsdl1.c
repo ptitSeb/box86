@@ -53,8 +53,13 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef uint32_t (*uFpW_t)(void*, uint16_t);
+typedef uint32_t (*uFpu_t)(void*, uint32_t);
+typedef uint32_t (*uFpU_t)(void*, uint64_t);
 
 typedef struct sdl1_my_s {
+    iFpp_t     SDL_OpenAudio;
     pFpi_t     SDL_LoadBMP_RW;
     pFpi_t     SDL_RWFromConstMem;
     pFpi_t     SDL_RWFromFP;
@@ -69,12 +74,19 @@ typedef struct sdl1_my_s {
     uFp_t      SDL_ReadLE16;
     uFp_t      SDL_ReadLE32;
     UFp_t      SDL_ReadLE64;
+    uFpW_t     SDL_WriteBE16;
+    uFpu_t     SDL_WriteBE32;
+    uFpU_t     SDL_WriteBE64;
+    uFpW_t     SDL_WriteLE16;
+    uFpu_t     SDL_WriteLE32;
+    uFpU_t     SDL_WriteLE64;
 } sdl1_my_t;
 
 void* getSDL1My(library_t* lib)
 {
     sdl1_my_t* my = (sdl1_my_t*)calloc(1, sizeof(sdl1_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    GO(SDL_OpenAudio, iFpp_t)
     GO(SDL_LoadBMP_RW, pFpi_t)
     GO(SDL_RWFromConstMem, pFpi_t)
     GO(SDL_RWFromFP, pFpi_t)
@@ -89,6 +101,12 @@ void* getSDL1My(library_t* lib)
     GO(SDL_ReadLE16, uFp_t)
     GO(SDL_ReadLE32, uFp_t)
     GO(SDL_ReadLE64, UFp_t)
+    GO(SDL_WriteBE16, uFpW_t)
+    GO(SDL_WriteBE32, uFpu_t)
+    GO(SDL_WriteBE64, uFpU_t)
+    GO(SDL_WriteLE16, uFpW_t)
+    GO(SDL_WriteLE32, uFpu_t)
+    GO(SDL_WriteLE64, uFpU_t)
     #undef GO
     return my;
 }
@@ -105,15 +123,14 @@ void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
 int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
     SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
-    library_t *sdllib = GetLib(emu->context->maplib, sdl1Name);
-    PFNOPENAUDIO openaudio = (PFNOPENAUDIO)dlsym(sdllib->priv.w.lib, "SDL_OpenAudio");
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
     void *olduser = desired->userdata;
     x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
     desired->callback = sdl1Callback;
     desired->userdata = cbemu;
-    int ret = openaudio(desired, (SDL_AudioSpec*)o);
+    int ret = my->SDL_OpenAudio(desired, (SDL_AudioSpec*)o);
     if (ret!=0) {
         // error, clean the callback...
         desired->callback = fnc;
@@ -209,6 +226,60 @@ uint64_t EXPORT my_SDL_ReadLE64(x86emu_t* emu, void* a)
     SDLRWSave_t save;
     RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
     uint64_t r = my->SDL_ReadLE64(a);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteBE16(x86emu_t* emu, void* a, uint16_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteBE16(a, v);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteBE32(x86emu_t* emu, void* a, uint32_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteBE32(a, v);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteBE64(x86emu_t* emu, void* a, uint64_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteBE64(a, v);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteLE16(x86emu_t* emu, void* a, uint16_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteLE16(a, v);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteLE32(x86emu_t* emu, void* a, uint32_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteLE32(a, v);
+    RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+    return r;
+}
+uint32_t EXPORT my_SDL_WriteLE64(x86emu_t* emu, void* a, uint64_t v)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    SDLRWSave_t save;
+    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
+    uint32_t r = my->SDL_WriteLE64(a, v);
     RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
     return r;
 }
