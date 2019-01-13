@@ -1297,7 +1297,7 @@ GOW(putc, iFp)
 GO(putchar, iFi)
 // putchar_unlocked
 // putc_unlocked
-// putenv
+GO(putenv, iFp)
 // putgrent
 // putmsg
 // putpmsg

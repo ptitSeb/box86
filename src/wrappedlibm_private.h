@@ -174,8 +174,8 @@ GOW(expf, fFf)
 // __finitef
 // finitel  // Weak
 // __finitel
-// floor    // Weak
-// floorf   // Weak
+GOW(floor, dFd)
+GOW(floorf, fFf)
 // floorl   // Weak
 // fma  // Weak
 // fmaf // Weak
@@ -354,8 +354,8 @@ GOW(tanf, fFf)
 // tgamma   // Weak
 // tgammaf  // Weak
 // tgammal  // Weak
-// trunc    // Weak
-// truncf   // Weak
+GOW(trunc, dFd)
+GOW(truncf, fFf)
 // truncl   // Weak
 // y0
 // y0f
