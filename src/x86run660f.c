@@ -340,6 +340,12 @@ void Run660F(x86emu_t *emu)
             SET_FLAG(F_ZF);
         }
         break;
+    case 0xBE:                      /* MOVSX Gw,Eb */ // Move with sign extend
+        nextop = Fetch8(emu);
+        GetEb(emu, &op2, &ea2, nextop);
+        GetG(emu, &op1, nextop);
+        *(int32_t*)&op1->word[0] = (int8_t)op2->byte[0];
+        break;
 
     case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
         nextop = Fetch8(emu);
