@@ -33,6 +33,7 @@ scwrap_t syscallwrap[] = {
     { 4, __NR_write, 3 },
     { 5, __NR_open, 3 },
     { 6, __NR_close, 1 },
+    { 10, __NR_unlink, 1 },
 #ifdef __NR_time
     { 13, __NR_time, 1 },
 #endif
@@ -46,6 +47,7 @@ scwrap_t syscallwrap[] = {
 #endif
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
+    //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
     { 220, __NR_getdents64, 3 },
     { 252, __NR_exit_group, 1 },
 };
@@ -115,6 +117,15 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_stat64, R_EBX, &st);
+                UnalignStat64(&st, (void*)R_ECX);
+                
+                R_EAX = r;
+            }
+            return;
+        case 197:
+            {   
+                struct stat64 st;
+                unsigned int r = syscall(__NR_fstat64, R_EBX, &st);
                 UnalignStat64(&st, (void*)R_ECX);
                 
                 R_EAX = r;
