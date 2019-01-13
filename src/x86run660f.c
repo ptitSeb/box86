@@ -116,14 +116,14 @@ void Run660F(x86emu_t *emu)
 
     GOCOND(0x40
         , nextop = Fetch8(emu);
-        GetEw(emu, &op2, &ea2, nextop);
+        GetEw(emu, &op2, nextop);
         GetG(emu, &op1, nextop);
         , op1->word[0] = op2->word[0];
     )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
         
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for(int i=7; i>0; --i)
             opx1->ub.b[2 * i] = opx1->ub.b[i];
@@ -132,7 +132,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x61:  /* PUNPCKLWD Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for(int i=3; i>0; --i)
             opx1->uw.w[2 * i] = opx1->uw.w[i];
@@ -141,7 +141,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->ud.d[2] = opx1->ud.d[1];
         opx1->ud.d[1] = opx2->ud.d[0];
@@ -150,7 +150,7 @@ void Run660F(x86emu_t *emu)
 
     case 0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for(int i=0; i<8; ++i)
             opx1->ub.b[2 * i] = opx1->ub.b[i + 8];
@@ -159,7 +159,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x69:  /* PUNPCKHWD Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for(int i=0; i<4; ++i)
             opx1->uw.w[2 * i] = opx1->uw.w[i + 4];
@@ -168,7 +168,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->uw.w[0] = opx1->uw.w[2];
         opx1->uw.w[2] = opx1->uw.w[3];
@@ -178,13 +178,13 @@ void Run660F(x86emu_t *emu)
 
     case 0x6C:  /* PUNPCKLQDQ Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->q[1] = opx2->q[0];
         break;
     case 0x6D:  /* PUNPCKHQDQ Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->q[0] = opx1->q[1];
         opx1->q[1] = opx2->q[1];
@@ -192,28 +192,28 @@ void Run660F(x86emu_t *emu)
 
     case 0x6F:  /* MOVDQA Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         memcpy(opx1, opx2, sizeof(sse_regs_t));
         break;
 
     case 0x74:  /* PCMPEQB Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for (int i=0; i<16; ++i)
             opx1->ub.b[i] = (opx1->ub.b[i]==opx2->ub.b[i])?0xff:0;
         break;
     case 0x75:  /* PCMPEQW Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for (int i=0; i<8; ++i)
             opx1->uw.w[i] = (opx1->uw.w[i]==opx2->uw.w[i])?0xffff:0;
         break;
     case 0x76:  /* PCMPEQD Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for (int i=0; i<4; ++i)
             opx1->ud.d[i] = (opx1->ud.d[i]==opx2->ud.d[i])?0xffffffff:0;
@@ -221,7 +221,7 @@ void Run660F(x86emu_t *emu)
 
     case 0xEF:  /* PXOR Gx,Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->ud.d[0] ^= opx2->ud.d[0];
         opx1->ud.d[1] ^= opx2->ud.d[1];
@@ -231,7 +231,7 @@ void Run660F(x86emu_t *emu)
 
     case 0xA3:                      /* BT Ew,Gw */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         CLEAR_FLAG(F_CF);
         if(op1->word[0] & (1<<(op2->word[0]&15)))
@@ -240,7 +240,7 @@ void Run660F(x86emu_t *emu)
     case 0xA4:                      /* SHLD Ew,Gw,Ib */
     case 0xA5:                      /* SHLD Ew,Gw,CL */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         tmp8u = (opcode==0xA4)?Fetch8(emu):R_CL;
         op1->word[0] = shld16(emu, op1->word[0], op2->word[0], tmp8u);
@@ -248,7 +248,7 @@ void Run660F(x86emu_t *emu)
 
     case 0xAB:                      /* BTS Ew,Gw */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         CLEAR_FLAG(F_CF);
         if(op1->word[0] & (1<<(op2->word[0]&15)))
@@ -259,7 +259,7 @@ void Run660F(x86emu_t *emu)
     case 0xAC:                      /* SHRD Ew,Gw,Ib */
     case 0xAD:                      /* SHRD Ew,Gw,CL */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         tmp8u = (opcode==0xAC)?Fetch8(emu):R_CL;
         op1->word[0] = shrd16(emu, op1->word[0], op2->word[0], tmp8u);
@@ -267,14 +267,14 @@ void Run660F(x86emu_t *emu)
 
     case 0xAF:                      /* IMUL Gw,Ew */
         nextop = Fetch8(emu);
-        GetEw(emu, &op2, &ea2, nextop);
+        GetEw(emu, &op2, nextop);
         GetG(emu, &op1, nextop);
         op1->word[0] = imul16(emu, op1->word[0], op2->word[0]);
         break;
 
     case 0xB3:                      /* BTR Ew,Gw */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         CLEAR_FLAG(F_CF);
         if(op1->word[0] & (1<<(op2->word[0]&15))) {
@@ -285,7 +285,7 @@ void Run660F(x86emu_t *emu)
 
     case 0xB1:                      /* CMPXCHG Ew,Gw */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         if(R_AX == op1->word[0]) {
             SET_FLAG(F_ZF);
@@ -298,14 +298,14 @@ void Run660F(x86emu_t *emu)
 
     case 0xB6:                      /* MOVZX Gw,Eb */ // Move with zero extend
         nextop = Fetch8(emu);
-        GetEb(emu, &op2, &ea2, nextop);
+        GetEb(emu, &op2, nextop);
         GetG(emu, &op1, nextop);
         op1->word[0] = op2->byte[0];
         break;
 
     case 0xBB:                      /* BTC Ew,Gw */
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         CLEAR_FLAG(F_CF);
         if(op1->word[0] & (1<<(op2->word[0]&15)))
@@ -314,7 +314,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0xBC:                      /* BSF Ew,Gw */
         nextop = Fetch8(emu);
-        GetEd(emu, &op1, &ea1, nextop);
+        GetEd(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         tmp16u = op1->word[0];
         if(tmp16u) {
@@ -328,7 +328,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0xBD:                      /* BSR Ew,Gw */
         nextop = Fetch8(emu);
-        GetEd(emu, &op1, &ea1, nextop);
+        GetEd(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         tmp16u = op1->word[0];
         if(tmp16u) {
@@ -342,14 +342,14 @@ void Run660F(x86emu_t *emu)
         break;
     case 0xBE:                      /* MOVSX Gw,Eb */ // Move with sign extend
         nextop = Fetch8(emu);
-        GetEb(emu, &op2, &ea2, nextop);
+        GetEb(emu, &op2, nextop);
         GetG(emu, &op1, nextop);
         *(int32_t*)&op1->word[0] = (int8_t)op2->byte[0];
         break;
 
     case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
         nextop = Fetch8(emu);
-        GetEw(emu, &op1, &ea1, nextop);
+        GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
         tmp16u = add16(emu, op1->word[0], op2->word[0]);
         op2->word[0] = op1->word[0];
@@ -382,7 +382,7 @@ void RunF30F(x86emu_t *emu)
 
     case 0x10:  /* MOVSS Gx Ex */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, &eax1, nextop);
+        GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         memcpy(opx1, opx2, sizeof(uint32_t));
         if(!(opx2>=emu->xmm && opx2<=(emu->xmm+7))) {
@@ -392,7 +392,7 @@ void RunF30F(x86emu_t *emu)
         break;
     case 0x11:  /* MOVSS Ex Gx */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx1, &eax1, nextop);
+        GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
         opx1->ud.d[0] = opx2->ud.d[0];
         break;
