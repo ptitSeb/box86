@@ -458,8 +458,7 @@ int Run(x86emu_t *emu)
                 break;
 
             case 0x98:                      /* CWDE */
-                emu->regs[0].word[1] = (R_AX&0x8000)?0xFFFF:0x0000;
-                //R_EAX = (uint32_t)(int16_t)R_AX;
+                *(int32_t*)&R_EAX = (int16_t)R_AX;
                 break;
             case 0x99:                      /* CDQ */
                 if(R_EAX & 0x80000000)

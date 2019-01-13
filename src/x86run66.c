@@ -162,7 +162,7 @@ void Run66(x86emu_t *emu)
         op1->word[0] = op2->word[0];
         break;
     
-    case 0x8F:                      /* POP Ew */
+    case 0x8F:                              /* POP Ew */
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         op1->dword[0] = Pop16(emu);
@@ -174,6 +174,10 @@ void Run66(x86emu_t *emu)
         tmp16u = R_AX;
         R_AX = R_DX;
         R_DX = tmp16u;
+        break;
+
+    case 0x98:                              /* CBW */
+        *(int16_t*)&R_AX = (int8_t)R_AL;
         break;
 
     case 0xA1:                              /* MOV AX,Ow */

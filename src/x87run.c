@@ -1069,6 +1069,18 @@ void RunDF(x86emu_t *emu)
         break;
     default:
         switch((nextop>>3)&7) {
+        case 0: /* FILD ST0, Gw */
+            GetEw(emu, &op2, nextop);
+            tmp16s = (int16_t)op2->word[0];
+            fpu_do_push(emu);
+            ST0.d = tmp16s;
+            break;
+        case 1: /* FISTTP Ew, ST0 */
+            GetEw(emu, &op2, nextop);
+            tmp16s = ST0.d;
+            op2->word[0] = (uint16_t)tmp16s;
+            fpu_do_pop(emu);
+            break;
         case 2: /* FIST Ew, ST0 */
             GetEw(emu, &op2, nextop);
             tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
