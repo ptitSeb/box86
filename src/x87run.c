@@ -279,6 +279,9 @@ void RunD9(x86emu_t *emu)
         case 0xE0:  /* FCHS */
             ST0.d = -ST0.d;
             break;
+        case 0xE1:
+            ST0.d = fabs(ST0.d);
+            break;
         
         case 0xE5:  /* FXAM */
             fpu_fxam(emu);
@@ -321,7 +324,6 @@ void RunD9(x86emu_t *emu)
             ST0.d = fpu_round(emu, ST0.d);
             break;
 
-        case 0xE1:
         case 0xE4:
         case 0xF0:
         case 0xF1:
