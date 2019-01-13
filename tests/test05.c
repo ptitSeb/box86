@@ -53,5 +53,10 @@ int main(int argc, const char** argv)
 
     printf("(un)signed char = %hhd/%hhu (un)signed int = %hd/%hu total=%d\n", sc, uc, ss, us, it);
 
+    printf("%hu/5=%hu, %hu%%5=%hu\n", us, us/5, us, us%5);
+    printf("%d/5=%d, %d%%5=%d\n", it, it/5, it, it%5);
+
+    printf("%d/%hd=%d + %d", it, ss, it/ss, it%ss);
+
     return 0;
 }
