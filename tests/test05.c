@@ -44,5 +44,14 @@ int main(int argc, const char** argv)
 
     free(dels);
 
+    signed char sc = -5;
+    unsigned char uc = 83;
+    signed short int ss = -53;
+    unsigned short int us = 65500;
+
+    int it = sc+uc+ss+us;
+
+    printf("(un)signed char = %hhd/%hhu (un)signed int = %hd/%hu total=%d\n", sc, uc, ss, us, it);
+
     return 0;
 }
