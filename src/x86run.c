@@ -772,7 +772,8 @@ int Run(x86emu_t *emu)
                         R_EIP = Pop(emu);
                         break;
                     case 0xA4:              /* REP MOVSB */
-                        for(; tmp32u; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
                             R_EDI += tmp8s;
                             R_ESI += tmp8s;
@@ -780,81 +781,130 @@ int Run(x86emu_t *emu)
                         break;
                     case 0xA5:              /* REP MOVSD */
                         tmp8s *= 4;
-                        for(; tmp32u; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
                             R_EDI += tmp8s;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xA6:              /* REP(N)Z CMPSB */
-                        while(tmp32u) {
-                            --tmp32u;
-                            tmp8u  = *(uint8_t*)R_EDI;
-                            tmp8u2 = *(uint8_t*)R_ESI;
-                            R_EDI += tmp8s;
-                            R_ESI += tmp8s;
-                            if((tmp8u==tmp8u2)==(opcode==0xF2))
-                                break;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp8u  = *(uint8_t*)R_EDI;
+                                tmp8u2 = *(uint8_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp8u==tmp8u2)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp8u  = *(uint8_t*)R_EDI;
+                                tmp8u2 = *(uint8_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp8u!=tmp8u2)
+                                    break;
+                            }
                         }
                         cmp8(emu, tmp8u2, tmp8u);
                         break;
                     case 0xA7:              /* REP(N)Z CMPSD */
                         tmp8s *= 4;
-                        while(tmp32u) {
-                            --tmp32u;
-                            tmp32u3 = *(uint32_t*)R_EDI;
-                            tmp32u2 = *(uint32_t*)R_ESI;
-                            R_EDI += tmp8s;
-                            R_ESI += tmp8s;
-                            if((tmp32u3==tmp32u2)==(opcode==0xF2))
-                                break;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp32u3 = *(uint32_t*)R_EDI;
+                                tmp32u2 = *(uint32_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp32u3==tmp32u2)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp32u3 = *(uint32_t*)R_EDI;
+                                tmp32u2 = *(uint32_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp32u3!=tmp32u2)
+                                    break;
+                            }
                         }
                         cmp32(emu, tmp32u2, tmp32u3);
                         break;
                     case 0xAA:              /* REP STOSB */
-                        for(; tmp32u; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             *(uint8_t*)R_EDI = R_AL;
                             R_EDI += tmp8s;
                         }
                         break;
                     case 0xAB:              /* REP STOSD */
                         tmp8s *= 4;
-                        for(; tmp32u>0; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             *(uint32_t*)R_EDI = R_EAX;
                             R_EDI += tmp8s;
                         }
                         break;
                     case 0xAC:              /* REP LODSB */
-                        for(; tmp32u; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             R_AL = *(uint8_t*)R_ESI;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xAD:              /* REP LODSD */
                         tmp8s *= 4;
-                        for(; tmp32u; --tmp32u) {
+                        while(tmp32u) {
+                            --tmp32u;
                             R_EAX = *(uint32_t*)R_ESI;
                             R_ESI += tmp8s;
                         }
                         break;
                     case 0xAE:              /* REP(N)Z SCASB */
-                        while(tmp32u) {
-                            --tmp32u;
-                            tmp8u = *(uint8_t*)R_EDI;
-                            R_EDI += tmp8s;
-                            if((R_AL==tmp8u)==(opcode==0xF2))
-                                break;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp8u = *(uint8_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_AL==tmp8u)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp8u = *(uint8_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_AL!=tmp8u)
+                                    break;
+                            }
                         }
                         cmp8(emu, R_AL, tmp8u);
                         break;
                     case 0xAF:              /* REP(N)Z SCASD */
                         tmp8s *= 4;
-                        while(tmp32u) {
-                            --tmp32u;
-                            tmp32u2 = *(uint32_t*)R_EDI;
-                            R_EDI += tmp8s;
-                            if((R_EAX==tmp32u2)==(opcode==0xF2))
-                                break;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp32u2 = *(uint32_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_EAX==tmp32u2)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp32u2 = *(uint32_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_EAX!=tmp32u2)
+                                    break;
+                            }
                         }
                         cmp32(emu, R_EAX, tmp32u2);
                         break;

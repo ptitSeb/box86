@@ -274,7 +274,8 @@ void Run66(x86emu_t *emu)
             tmp32u = R_ECX;
             switch(nextop) {
                 case 0xA5:              /* REP MOVSW */
-                    for(; tmp32u; --tmp32u) {
+                    while(tmp32u) {
+                        --tmp32u;
                         *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
                         R_EDI += tmp8s;
                         R_ESI += tmp8s;
@@ -293,13 +294,15 @@ void Run66(x86emu_t *emu)
                     cmp16(emu, tmp16u2, tmp16u);
                     break;
                 case 0xAB:              /* REP STOSW */
-                    for(; tmp32u; --tmp32u) {
+                    while(tmp32u) {
+                        --tmp32u;
                         *(uint16_t*)R_EDI = R_AX;
                         R_EDI += tmp8s;
                     }
                     break;
                 case 0xAD:              /* REP LODSW */
-                    for(; tmp32u; --tmp32u) {
+                    while(tmp32u) {
+                        --tmp32u;
                         R_AX = *(uint16_t*)R_ESI;
                         R_ESI += tmp8s;
                     }
