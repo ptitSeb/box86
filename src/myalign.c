@@ -83,12 +83,19 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
                 ++p;
                 break;
             case 14:    //%LG long double
+                #ifdef HAVE_LD80BITS
+                if((((uint32_t)mystack)&0x7)!=0)
+                    mystack++;
+                memcpy(mystack, st, 10);
+                st+=3; mystack+=3;
+                #else
                 // there is no long double on ARM, so tranform that in a regular double
                 LD2D((void*)st, &d);
                 if((((uint32_t)mystack)&0x7)!=0)
                     mystack++;
                 *(uint64_t*)mystack = *(uint64_t*)&d;
                 st+=3; mystack+=2;
+                #endif
                 state = 0;
                 ++p;
                 break;
