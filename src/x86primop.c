@@ -524,11 +524,13 @@ uint8_t das8(x86emu_t *emu, uint8_t d)
 	if ((d & 0xf) > 9 || ACCESS_FLAG(F_AF)) {
 		d -= 6;
 		SET_FLAG(F_AF);
-	}
+	} else
+		CLEAR_FLAG(F_AF);
 	if (d > 0x9F || ACCESS_FLAG(F_CF)) {
 		d -= 0x60;
 		SET_FLAG(F_CF);
-	}
+	} else
+		CLEAR_FLAG(F_CF);
 	CONDITIONAL_SET_FLAG(d & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG(d == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(d & 0xff), F_PF);
