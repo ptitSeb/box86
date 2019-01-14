@@ -2,7 +2,7 @@
 // a64l
 // abort
 // abs
-// accept   // Weak
+GOW(accept, iFipp)
 GOW(access, iFpi)
 // acct
 // addmntent    // Weak
@@ -146,8 +146,8 @@ GOW(close, iFi)
 // __cmsg_nxthdr
 // confstr
 // __confstr_chk
-// connect  // Weak
-// __connect    // Weak
+GOW(connect, iFipu)
+GOW(__connect, iFipu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
