@@ -17,6 +17,7 @@
 #include "sdl1rwops.h"
 
 #include "x86trace.h"
+#include "khash.h"
 
 const char* sdl1Name = "libSDL-1.2.so.0";
 #define LIBNAME sdl1
@@ -43,8 +44,6 @@ typedef struct {
   void *userdata;
 } SDL_AudioSpec;
 
-typedef int (*PFNOPENAUDIO)(SDL_AudioSpec *desired, void *obtained);
-
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
@@ -53,12 +52,17 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
+typedef uint32_t (*uFu_t)(uint32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
+typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+
+KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 
 typedef struct sdl1_my_s {
+    // functions
     iFpp_t     SDL_OpenAudio;
     pFpi_t     SDL_LoadBMP_RW;
     pFpi_t     SDL_RWFromConstMem;
@@ -80,6 +84,11 @@ typedef struct sdl1_my_s {
     uFpW_t     SDL_WriteLE16;
     uFpu_t     SDL_WriteLE32;
     uFpU_t     SDL_WriteLE64;
+    uFupp_t    SDL_AddTimer;
+    uFu_t      SDL_RemoveTimer;
+    // timer map
+    kh_timercb_t    *timercb;
+    uint32_t        settimer;
 } sdl1_my_t;
 
 void* getSDL1My(library_t* lib)
@@ -107,8 +116,21 @@ void* getSDL1My(library_t* lib)
     GO(SDL_WriteLE16, uFpW_t)
     GO(SDL_WriteLE32, uFpu_t)
     GO(SDL_WriteLE64, uFpU_t)
+    GO(SDL_AddTimer, uFupp_t)
+    GO(SDL_RemoveTimer, uFu_t)
     #undef GO
+    my->timercb = kh_init(timercb);
     return my;
+}
+
+void freeSDL1My(void* lib)
+{
+    sdl1_my_t *my = (sdl1_my_t *)lib;
+    x86emu_t *x;
+    kh_foreach_value(my->timercb, x, 
+        FreeCallback(x);
+    );
+    kh_destroy(timercb, my->timercb);
 }
 
 void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
@@ -117,6 +139,13 @@ void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
     SetCallbackArg(emu, 1, stream);
     SetCallbackArg(emu, 2, (void*)len);
     RunCallback(emu);
+}
+
+uint32_t sdl1TimerCallback(void *userdata)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    RunCallback(emu);
+    return R_EAX;
 }
 
 // TODO: track the memory for those callback
@@ -321,6 +350,40 @@ void EXPORT my_SDL_FreeRW(x86emu_t* emu, void* a)
     my->SDL_FreeRW(a);
 }
 
+uint32_t EXPORT my_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    uint32_t t = my->SDL_AddTimer(a, sdl1TimerCallback, cbemu);
+    int ret;
+    khint_t k = kh_put(timercb, my->timercb, t, &ret);
+    kh_value(my->timercb, k) = cbemu;
+    return t;
+}
+
+void EXPORT my_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    my->SDL_RemoveTimer(t);
+    khint_t k = kh_get(timercb,my->timercb, t);
+    if(k!=kh_end(my->timercb))
+    {
+        FreeCallback(kh_value(my->timercb, k));
+        kh_del(timercb, my->timercb, k);
+    }
+}
+
+int32_t EXPORT my_SDL_SetTimer(x86emu_t* emu, uint32_t t, void* p)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    if(my->settimer) {
+        my_SDL_RemoveTimer(emu, my->settimer);
+        my->settimer=0;
+    }
+    if(p)
+        my->settimer = my_SDL_AddTimer(emu, t, p, NULL);
+    return 0;
+}
 
 #define CUSTOM_INIT \
     box86->sdl1lib = lib; \
@@ -329,6 +392,7 @@ void EXPORT my_SDL_FreeRW(x86emu_t* emu, void* a)
 
 #define CUSTOM_FINI \
     FreeSDL1RWops((sdl1rwops_t**)&lib->priv.w.priv); \
+    freeSDL1My(lib->priv.w.p2); \
     free(lib->priv.w.p2); \
     ((box86context_t*)(lib->context))->sdl1lib = NULL;
 

@@ -2,7 +2,7 @@
 
 // _fini
 // _init
-//GOM(SDL_AddTimer, pFEupp)
+GOM(SDL_AddTimer, pFEupp)
 GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
 GO(SDL_CDClose, vFp)
 GO(SDL_CDEject, iFp)
@@ -128,7 +128,7 @@ GOM(SDL_ReadLE16, uFEp)
 GOM(SDL_ReadLE32, uFEp)
 GOM(SDL_ReadLE64, UFEp)
 GO(SDL_RegisterApp, iFpup)
-//GOM(SDL_RemoveTimer, iFEp)
+GOM(SDL_RemoveTimer, iFEp)
 GOM(SDL_SaveBMP_RW, iFEppi)
 GO(SDL_SemPost, iFp)
 GO(SDL_SemTryWait, iFp)
@@ -147,7 +147,7 @@ GO(SDL_SetGammaRamp, iFppp)
 GO(SDL_SetModState, vFi)
 GO(SDL_SetModuleHandle, vFp)
 GO(SDL_SetPalette, iFpipii)
-//GOM(SDL_SetTimer, iFEup)
+GOM(SDL_SetTimer, iFEup)
 GO(SDL_SetVideoMode, pFiiiu)
 GO(SDL_ShowCursor, iFi)
 GO(SDL_SoftStretch, iFpppp)
@@ -229,7 +229,10 @@ GO(SDL_FreeWAV, vFp)
 GOM(SDL_LoadWAV_RW, pFEpippp)
 //GOM(SDL_BuildAudioCVT, iFpuuiuui)
 //GOM(SDL_ConvertAudio, iFp)
+GO(SDL_AudioInit, iFp)
+GO(SDL_AudioQuit, vFv) // should free callback
 GO(SDL_MixAudio, vFppui)
 GO(SDL_CloseAudio, vFv) // should free callback
+GO(SDL_AudioDriverName, pFpi)
 
 #endif

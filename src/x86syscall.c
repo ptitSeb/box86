@@ -37,15 +37,18 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_time
     { 13, __NR_time, 1 },
 #endif
+    { 20, __NR_getpid, 0 },
     { 33, __NR_access, 2 },
     { 38, __NR_rename, 2 },
     { 39, __NR_mkdir, 2 },
     { 54, __NR_ioctl, 5 },
+    { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
 #ifdef __NR_select
     { 142, __NR_select, 5 },
 #endif
+    { 183, __NR_getcwd, 2 },
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
