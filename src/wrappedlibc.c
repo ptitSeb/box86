@@ -72,7 +72,14 @@ EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { }
 EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { }
 EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c) { };
 
-EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val);
+EXPORT void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+EXPORT void my__longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
+EXPORT void my_siglongjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
+EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
+
+EXPORT int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
+EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
+EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 
 EXPORT void my_exit(x86emu_t *emu, int32_t status)
 {
@@ -186,9 +193,40 @@ const char* libcName = "libc.so.6";
 // define all standard library functions
 #include "wrappedlib_init.h"
 
-// my_XXXX Implementations
-void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int __val)
+// longjmp / setjmp
+typedef struct jump_buff_i386_s {
+ uint32_t save_ebx;
+ uint32_t save_esi;
+ uint32_t save_edi;
+ uint32_t save_ebp;
+ uint32_t save_esp;
+ uint32_t save_eip;
+} jump_buff_i386_t;
+
+int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 {
-    printf_log(LOG_NONE, "Error: longjmp used\n");
-    emu->quit = 1;
+    jump_buff_i386_t *jpbuff = (jump_buff_i386_t*)p;
+    // save the buffer
+    jpbuff->save_ebx = R_EBX;
+    jpbuff->save_esi = R_ESI;
+    jpbuff->save_edi = R_EDI;
+    jpbuff->save_ebp = R_EBP;
+    jpbuff->save_esp = R_ESP;
+    jpbuff->save_eip = *(uint32_t*)(R_ESP);
+    // and that's it.. Nothing more for now
+    return 0;
+}
+
+void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
+{
+    jump_buff_i386_t *jpbuff = (jump_buff_i386_t*)p;
+    //restore  regs
+    R_EBX = jpbuff->save_ebx;
+    R_ESI = jpbuff->save_esi;
+    R_EDI = jpbuff->save_edi;
+    R_EBP = jpbuff->save_ebp;
+    R_ESP = jpbuff->save_esp;
+    // jmp to saved location, plus restore val to eax
+    R_EAX = __val;
+    R_EIP = jpbuff->save_eip;
 }

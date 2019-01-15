@@ -347,8 +347,8 @@ GOW(sqrtf, fFf)
 // sqrtl    // Weak
 GO(tan, dFd)
 GOW(tanf, fFf)
-// tanh // Weak
-// tanhf    // Weak
+GOW(tanh, dFd)
+GOW(tanhf, fFf)
 // tanhl    // Weak
 // tanl // Weak
 // tgamma   // Weak

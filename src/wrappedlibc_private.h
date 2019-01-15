@@ -1010,8 +1010,8 @@ GOW(localtime_r, pFpp)
 // lockf
 // lockf64
 // locs // type B
-// longjmp  // Weak
-// _longjmp // Weak
+GOM(longjmp, vFEpi)
+GOM(_longjmp, vFEpi)
 GOM(__longjmp_chk, vFEpi)
 // lrand48
 // lrand48_r
@@ -1476,8 +1476,8 @@ GO(sethostent, vFi)
 GO(sethostname, iFpu)
 // setipv4sourcefilter
 // setitimer    // Weak
-// setjmp
-// _setjmp
+GOM(setjmp, iFEp)
+GOM(_setjmp, iFEp)
 GO(setlinebuf, vFp)
 GO(setlocale, pFip)
 // setlogin
@@ -1539,7 +1539,7 @@ GO(sigemptyset, iFp)
 // sigisemptyset
 // sigismember
 // __sigismember
-// siglongjmp   // Weak
+GOM(siglongjmp, pFEip)
 GOM(signal, pFEip)   // Weak
 // signalfd
 // __signbit
@@ -1553,7 +1553,7 @@ GOM(signal, pFEip)   // Weak
 // sigrelse
 // sigreturn    // Weak
 // sigset
-// __sigsetjmp
+GOM(__sigsetjmp, iFEp)
 // sigsetmask   // Weak
 // sigstack
 // sigsuspend   // Weak
@@ -1609,7 +1609,7 @@ GO(__strcat_chk, pFppu)
 GO(strchr, pFpi)
 GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
-// strcoll
+GO(strcoll, iFpp)
 // __strcoll_l
 // strcoll_l    // Weak
 GO(strcpy, pFpp)
