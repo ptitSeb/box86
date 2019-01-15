@@ -1004,7 +1004,7 @@ GOM(__libc_start_main, iFEpippppp)
 // llseek   // Weak
 // loc1 // type B
 // loc2 // type B
-// localeconv
+GOW(localeconv, pFv)
 GO(localtime, pFp)
 GOW(localtime_r, pFpp)
 // lockf
@@ -1644,7 +1644,7 @@ GO(__strncpy_chk, pFppuu)
 GOW(strndup, pFpu)
 GO(__strndup, pFpu)
 // strnlen
-// strpbrk
+GO(strpbrk, pFpp)
 // __strpbrk_c2
 // __strpbrk_c3
 GO(strptime, pFppp)
@@ -1687,9 +1687,9 @@ GOW(strtold_l, DFppu)
 // __strtoll_l
 // strtoll_l    // Weak
 // strtoq   // Weak
-// strtoul
+GO(strtoul, uFppi)
 // __strtoul_internal
-// strtoull
+GO(strtoull, UFppi)
 // __strtoul_l
 // strtoul_l    // Weak
 // __strtoull_internal

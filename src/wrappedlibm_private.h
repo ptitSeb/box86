@@ -64,8 +64,8 @@ GOW(atanf, fFf)
 // ccoshf   // Weak
 // ccoshl   // Weak
 // ccosl    // Weak
-// ceil // Weak
-// ceilf    // Weak
+GOW(ceil, dFd)
+GOW(ceilf, fFf)
 // ceill    // Weak
 // cexp // Weak
 // cexpf    // Weak
@@ -90,8 +90,8 @@ GOW(atanf, fFf)
 // copysignl    // Weak
 GOW(cos, dFd)
 GOW(cosf, fFf)
-// cosh // Weak
-// coshf    // Weak
+GOW(cosh, dFd)
+GOW(coshf, fFf)
 // __coshf_finite
 // __cosh_finite
 // coshl    // Weak
@@ -229,8 +229,8 @@ GOW(frexpf, fFfp)
 // __jnf_finite
 // __jn_finite
 // jnl
-// ldexp    // Weak
-// ldexpf   // Weak
+GOW(ldexp, dFdi)
+GOW(ldexpf, fFfi)
 // ldexpl   // Weak
 // lgamma   // Weak
 // lgammaf  // Weak
@@ -334,8 +334,8 @@ GOW(sincos, vFdpp)
 GOW(sincosf, vFfpp)
 // sincosl  // Weak
 GOW(sinf, fFf)
-// sinh // Weak
-// sinhf    // Weak
+GOW(sinh, dFd)
+GOW(sinhf, fFf)
 // __sinhf_finite
 // __sinh_finite
 // sinhl    // Weak
