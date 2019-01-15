@@ -38,6 +38,7 @@ scwrap_t syscallwrap[] = {
     { 13, __NR_time, 1 },
 #endif
     { 33, __NR_access, 2 },
+    { 38, __NR_rename, 2 },
     { 39, __NR_mkdir, 2 },
     { 54, __NR_ioctl, 5 },
     { 85, __NR_readlink, 3 },
@@ -75,12 +76,12 @@ void EXPORT x86Syscall(x86emu_t *emu)
         if(syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
             switch(syscallwrap[i].nbpars) {
-                case 0: R_EAX = syscall(sc); return;
-                case 1: R_EAX = syscall(sc, R_EBX); return;
-                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; R_EAX = syscall(sc, R_EBX, R_ECX); return;
-                case 3: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); return;
-                case 4: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); return;
-                case 5: R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); return;
+                case 0: *(int32_t*)&R_EAX = syscall(sc); return;
+                case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); return;
+                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); return;
+                case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); return;
+                case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); return;
+                case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); return;
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
