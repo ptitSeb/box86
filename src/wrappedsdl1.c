@@ -50,6 +50,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void  (*vFp_t)(void*);
+typedef void* (*pFpp_t)(void*, void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef uint32_t (*uFu_t)(uint32_t);
@@ -86,9 +87,13 @@ typedef struct sdl1_my_s {
     uFpU_t     SDL_WriteLE64;
     uFupp_t    SDL_AddTimer;
     uFu_t      SDL_RemoveTimer;
+    pFpp_t     SDL_CreateThread;
+    vFp_t      SDL_KillThread;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
+    // threads
+    kh_timercb_t    *threads;
 } sdl1_my_t;
 
 void* getSDL1My(library_t* lib)
@@ -118,8 +123,11 @@ void* getSDL1My(library_t* lib)
     GO(SDL_WriteLE64, uFpU_t)
     GO(SDL_AddTimer, uFupp_t)
     GO(SDL_RemoveTimer, uFu_t)
+    GO(SDL_CreateThread, pFpp_t)
+    GO(SDL_KillThread, vFp_t)
     #undef GO
     my->timercb = kh_init(timercb);
+    my->threads = kh_init(timercb);
     return my;
 }
 
@@ -131,6 +139,11 @@ void freeSDL1My(void* lib)
         FreeCallback(x);
     );
     kh_destroy(timercb, my->timercb);
+
+    kh_foreach_value(my->threads, x, 
+        FreeCallback(x);
+    );
+    kh_destroy(timercb, my->threads);
 }
 
 void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
@@ -146,6 +159,15 @@ uint32_t sdl1TimerCallback(void *userdata)
     x86emu_t *emu = (x86emu_t*) userdata;
     RunCallback(emu);
     return R_EAX;
+}
+
+int32_t sdl1ThreadCallback(void *userdata)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    RunCallback(emu);
+    int32_t ret = (int32_t)R_EAX;
+    FreeCallback(emu);
+    return ret;
 }
 
 // TODO: track the memory for those callback
@@ -383,6 +405,52 @@ int32_t EXPORT my_SDL_SetTimer(x86emu_t* emu, uint32_t t, void* p)
     if(p)
         my->settimer = my_SDL_AddTimer(emu, t, p, NULL);
     return 0;
+}
+
+int32_t EXPORT my_SDL_BuildAudioCVT(x86emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
+{
+    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_BuildAudioCVT\n");
+    emu->quit = 1;
+}
+
+int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
+{
+    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_ConvertAudio\n");
+    emu->quit = 1;
+}
+
+void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
+{
+    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_SetEventFilter\n");
+    emu->quit = 1;
+}
+void EXPORT *my_SDL_GetEventFilter(x86emu_t* emu)
+{
+    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_GetEventFilter\n");
+    emu->quit = 1;
+}
+
+void EXPORT *my_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    void* t = my->SDL_CreateThread(sdl1ThreadCallback, cbemu);
+    int ret;
+    khint_t k = kh_put(timercb, my->threads, (uintptr_t)t, &ret);
+    kh_value(my->threads, k) = cbemu;
+    return t;
+}
+
+void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
+{
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    my->SDL_KillThread(p);
+    khint_t k = kh_get(timercb,my->threads, (uintptr_t)p);
+    if(k!=kh_end(my->threads))
+    {
+        FreeCallback(kh_value(my->threads, k));
+        kh_del(timercb, my->threads, k);
+    }
 }
 
 #define CUSTOM_INIT \
