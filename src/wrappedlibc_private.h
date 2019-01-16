@@ -89,7 +89,7 @@ GO(__backtrace_symbols_fd, vFpii)
 GOW(bind, iFipu)
 // bindresvport
 GOW(bindtextdomain, pFpp)
-// bind_textdomain_codeset  // Weak
+GOW(bind_textdomain_codeset, pFpp)
 // brk  // Weak
 // __bsd_getpgrp
 // bsd_signal   // Weak
@@ -158,7 +158,7 @@ GOW(__connect, iFipu)
 GO(ctime, pFp)
 GO(ctime_r, pFpp)
 GO(__ctype_b_loc, pFv)
-// __ctype_get_mb_cur_max   // Weak
+GOW(__ctype_get_mb_cur_max, uFv)
 GO(__ctype_tolower_loc, pFv)
 GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
@@ -200,9 +200,9 @@ GOM(dl_iterate_phdr, iFEpp)
 // __dprintf_chk
 // drand48
 // drand48_r
-// dup  // Weak
-// dup2 // Weak
-// __dup2
+GOW(dup, iFi)
+GOW(dup2, iFii)
+GO(__dup2, iFii)
 // dup3
 GOW(duplocale, pFp)
 GO(__duplocale, pFp)
@@ -267,9 +267,9 @@ GO(__errno_location, pFv)
 // execl
 // execle
 // execlp
-// execv
+GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
 // execve   // Weak
-// execvp
+GO(execvp, iFpp)    // same remark as for execv
 GOM(exit, vFEi)
 GOM(_exit, vFEi)
 // _Exit    // Weak
@@ -900,7 +900,7 @@ GOW(isatty, iFi)
 // iswcntrl_l   // Weak
 // iswctype // Weak
 // __iswctype
-// __iswctype_l
+GO(__iswctype_l, iFiup)
 // iswctype_l   // Weak
 // iswdigit // Weak
 // __iswdigit_l
@@ -1346,7 +1346,7 @@ GOW(readdir_r, iFppp)
 // readlinkat
 // __readlinkat_chk
 // __readlink_chk
-// readv    // Weak
+GO(readv, iFipi)
 GO(realloc, pFpu)
 DATAV(__realloc_hook, 4)
 // realpath
@@ -1630,8 +1630,8 @@ GO(strerror, pFv)
 // strfmon_l    // Weak
 // strfry
 GO(strftime, uFpupp)
-// __strftime_l
-// strftime_l   // Weak
+GO(__strftime_l, uFpupp)
+GOW(strftime_l, uFpupp)
 GO(strlen, uFp)
 GOW(strncasecmp, iFppu)
 // __strncasecmp_l
@@ -1791,11 +1791,11 @@ DATAV(timezone, 4)
 // tmpnam_r
 // toascii
 // __toascii_l  // Weak
-// tolower
+GO(tolower, iFi)
 // _tolower
 // __tolower_l
 // tolower_l    // Weak
-// toupper
+GO(toupper, iFi)
 // _toupper
 // __toupper_l
 // toupper_l    // Weak
@@ -1935,7 +1935,7 @@ GO(__wcsftime_l, uFpuppu)
 // wcsncpy  // Weak
 // __wcsncpy_chk
 // wcsnlen  // Weak
-// wcsnrtombs   // Weak
+GOW(wcsnrtombs, uFppuup)
 // __wcsnrtombs_chk
 // wcspbrk
 // wcsrchr
@@ -1997,7 +1997,7 @@ GOW(wctype_l, uFpp)
 // wmemcmp
 // wmemcpy  // Weak
 GO(__wmemcpy_chk, pFppuu)
-// wmemmove // Weak
+GOW(wmemmove, pFppu)
 // __wmemmove_chk
 // wmempcpy // Weak
 // __wmempcpy_chk
@@ -2010,7 +2010,7 @@ GO(wmemset, pFpiu)
 // __wprintf_chk
 GOW(write, iFipu)
 GOW(__write, iFipu)
-// writev   // Weak
+GOW(writev, iFipi)
 // wscanf
 // __wuflow
 // __wunderflow
@@ -2106,6 +2106,6 @@ GOM(_ITM_RU4, uFp)
 //GOM(_ITM_RU8, UFp)
 GOM(_ITM_memcpyRtWn, vFppu)
 GOM(_ITM_memcpyRnWt, vFppu)
-//GOM(_ITM_addUserCommitAction, vFpUp)
+GOM(_ITM_addUserCommitAction, vFEpup)
 
 #endif

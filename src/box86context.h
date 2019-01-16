@@ -53,6 +53,7 @@ typedef struct box86context_s {
 
     callbacklist_t      *callbacks;     // all callbacks
 
+    library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)
     library_t           *sdl1mixerlib;
     library_t           *sdl1imagelib;

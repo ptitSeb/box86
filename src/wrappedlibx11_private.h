@@ -228,7 +228,7 @@ GO(XCreateGC, pFppup)
 DATAB(_XCreateMutex_fn, 4)
 //GO(XCreateOC
 GO(XCreatePixmap, pFppuuu)
-//GO(XCreatePixmapCursor
+GO(XCreatePixmapCursor, pFpppppuu)
 //GO(XCreatePixmapFromBitmapData
 //GO(XCreateRegion
 //GO(XCreateSimpleWindow
@@ -480,7 +480,7 @@ DATAB(_XInitDisplayLock_fn, 4)
 //GO(XInitImage
 // _XInitImageFuncPtrs
 // _XInitKeysymDB
-//GO(XInitThreads
+GO(XInitThreads, uFv)
 //GO(XInsertModifiermapEntry
 //GO(XInstallColormap
 //GO(XInternalConnectionNumbers

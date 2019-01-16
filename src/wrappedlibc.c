@@ -10,13 +10,44 @@ typedef void (*sighandler_t)(int);
 
 #include "wrappedlibs.h"
 
+#include "stack.h"
+#include "x86emu.h"
 #include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
+#include "callback.h"
+#include "librarian.h"
 #include "library_private.h"
-#include "x86emu.h"
 #include "x86emu_private.h"
+#include "box86context.h"
 #include "myalign.h"
+
+
+typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
+
+typedef struct libc_my_s {
+    iFpup_t         _ITM_addUserCommitAction;
+} libc_my_t;
+
+void* getLIBCMy(library_t* lib)
+{
+    libc_my_t* my = (libc_my_t*)calloc(1, sizeof(libc_my_t));
+    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    GO(_ITM_addUserCommitAction, iFpup_t)
+    #undef GO
+    return my;
+}
+
+void freeLIBCMy(void* lib)
+{
+    // empty for now
+}
+
+void libc1ArgCallback(void *userdata)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    RunCallback(emu);
+}
 
 
 // some my_XXX declare and defines
@@ -70,7 +101,6 @@ EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { return 0; }
 EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { return 0; }
 EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { }
 EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { }
-EXPORT void my__ITM_addUserCommitAction(void (*a)(void *), uint64_t b, void * c) { };
 
 EXPORT void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -187,8 +217,26 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
 EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
 
+EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, void* c)
+{
+    // quick and dirty... Should store the callback to be removed later....
+    libc_my_t *my = (libc_my_t *)emu->context->libclib->priv.w.p2;
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, c, NULL, NULL, NULL);
+    my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
+    // should keep track of cbemu to remove at some point...
+}
+
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
+
+#define CUSTOM_INIT \
+    box86->libclib = lib; \
+    lib->priv.w.p2 = getLIBCMy(lib); \
+
+#define CUSTOM_FINI \
+    freeLIBCMy(lib->priv.w.p2); \
+    free(lib->priv.w.p2); \
+
 
 // define all standard library functions
 #include "wrappedlib_init.h"

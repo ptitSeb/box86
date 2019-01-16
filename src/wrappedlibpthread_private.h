@@ -159,10 +159,10 @@ GO(pthread_setspecific, iFup)
 // sem_init
 // sem_open
 // sem_post
-// sem_timedwait
-// sem_trywait
+GO(sem_timedwait, iFpp)
+GO(sem_trywait, iFp)
 // sem_unlink
-// sem_wait
+GO(sem_wait, iFp)
 // __sigaction
 // system
 // __vfork
