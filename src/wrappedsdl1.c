@@ -89,12 +89,18 @@ typedef struct sdl1_my_s {
     uFu_t      SDL_RemoveTimer;
     pFpp_t     SDL_CreateThread;
     vFp_t      SDL_KillThread;
+    vFp_t      SDL_SetEventFilter;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
     // threads
     kh_timercb_t    *threads;
 } sdl1_my_t;
+
+// event filter. Needs to be global, but there is only one, so that's should be fine
+x86emu_t        *sdl1_evtfiler = NULL;
+void*           sdl1_evtfnc = NULL;
+
 
 void* getSDL1My(library_t* lib)
 {
@@ -125,6 +131,7 @@ void* getSDL1My(library_t* lib)
     GO(SDL_RemoveTimer, uFu_t)
     GO(SDL_CreateThread, pFpp_t)
     GO(SDL_KillThread, vFp_t)
+    GO(SDL_SetEventFilter, vFp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -144,6 +151,11 @@ void freeSDL1My(void* lib)
         FreeCallback(x);
     );
     kh_destroy(timercb, my->threads);
+    if(sdl1_evtfiler) {
+        FreeCallback(sdl1_evtfiler);
+        sdl1_evtfiler = NULL;
+        sdl1_evtfnc = NULL;
+    }
 }
 
 void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
@@ -168,6 +180,13 @@ int32_t sdl1ThreadCallback(void *userdata)
     int32_t ret = (int32_t)R_EAX;
     FreeCallback(emu);
     return ret;
+}
+
+int32_t sdl1EvtFilterCallback(void *p)
+{
+    SetCallbackArg(sdl1_evtfiler, 0, p);
+    RunCallback(sdl1_evtfiler);
+    return sdl1_evtfiler->regs[0].dword[0];
 }
 
 // TODO: track the memory for those callback
@@ -421,13 +440,22 @@ int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
 
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
 {
-    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_SetEventFilter\n");
-    emu->quit = 1;
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    if(sdl1_evtfiler) {
+        my->SDL_SetEventFilter(NULL);   // remove old one
+        FreeCallback(sdl1_evtfiler);
+        sdl1_evtfiler = NULL;
+        sdl1_evtfnc = NULL;
+    }
+    if(a) {
+        sdl1_evtfnc = a;
+        sdl1_evtfiler = AddCallback(emu, (uintptr_t)a, 1, NULL, NULL, NULL, NULL);
+        my->SDL_SetEventFilter(sdl1_evtfiler);
+    }
 }
 void EXPORT *my_SDL_GetEventFilter(x86emu_t* emu)
 {
-    printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_GetEventFilter\n");
-    emu->quit = 1;
+    return sdl1_evtfnc;
 }
 
 void EXPORT *my_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)

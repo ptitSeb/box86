@@ -604,8 +604,8 @@ void vFuuiiiiuuiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
 void iFEpvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEpvvpVV(x86emu_t *emu, uintptr_t fnc);
+void iFEpuvvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEvpVV(x86emu_t *emu, uintptr_t fnc);
 void pFEv(x86emu_t *emu, uintptr_t fnc);
-void iFEpuvvpVV(x86emu_t *emu, uintptr_t fnc);
 
 #endif //__WRAPPER_H_
