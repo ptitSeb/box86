@@ -19,7 +19,7 @@ typedef struct x86emu_s {
     uint32_t    segs[6];    // only 32bits value?
     // fpu
 	fpu_reg_t   fpu[9];
-    long double fpu_ld[9]; // for long double emulation
+    fpu_ld_t    fpu_ld[9]; // for long double emulation
     uint64_t    fpu_ld_mark[9]; // for fld fstp 80bits emulation
 	fpu_p_reg_t p_regs[9];
 	uint16_t    cw,cw_mask_all;

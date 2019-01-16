@@ -50,6 +50,13 @@ typedef union {
     int64_t ll;
 } fpu_reg_t;
 
+typedef union {
+	//long double ld;	// works only if 80bits!
+	struct {
+		uint64_t lower;
+		uint16_t upper;
+	} l;
+} fpu_ld_t;
 
 typedef union {
     struct __attribute__ ((__packed__)) {
