@@ -42,15 +42,19 @@ typedef struct {
   void *userdata;
 } SDL_AudioSpec;
 
-typedef int (*PFNOPENAUDIO)(SDL_AudioSpec *desired, void *obtained);
+KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void*  (*Fpp_t)(void*, void*);
 typedef void  (*vFp_t)(void*);
+typedef void  (*vFpp_t)(void*, void*);
+typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
+typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -85,6 +89,19 @@ typedef struct sdl2_my_s {
     uFpW_t     SDL_WriteLE16;
     uFpu_t     SDL_WriteLE32;
     uFpU_t     SDL_WriteLE64;
+    uFupp_t    SDL_AddTimer;
+    uFu_t      SDL_RemoveTimer;
+    pFpp_t     SDL_CreateThread;
+    vFp_t      SDL_KillThread;
+    vFpp_t     SDL_SetEventFilter;
+    // timer map
+    kh_timercb_t    *timercb;
+    uint32_t        settimer;
+    // threads
+    kh_timercb_t    *threads;
+    // evt filter
+    x86emu_t        *sdl2_evtfiler;
+    void*           sdl2_evtfnc;
 } sdl2_my_t;
 
 void* getSDL2My(library_t* lib)
@@ -115,9 +132,35 @@ void* getSDL2My(library_t* lib)
     GO(SDL_WriteLE16, uFpW_t)
     GO(SDL_WriteLE32, uFpu_t)
     GO(SDL_WriteLE64, uFpU_t)
+    GO(SDL_AddTimer, uFupp_t)
+    GO(SDL_RemoveTimer, uFu_t)
+    GO(SDL_CreateThread, pFpp_t)
+    GO(SDL_KillThread, vFp_t)
+    GO(SDL_SetEventFilter, vFpp_t)
     #undef GO
+    my->timercb = kh_init(timercb);
+    my->threads = kh_init(timercb);
     return my;
 }
+
+void freeSDL2My(void* lib)
+{
+    sdl2_my_t *my = (sdl2_my_t *)lib;
+    x86emu_t *x;
+    kh_foreach_value(my->timercb, x, 
+        FreeCallback(x);
+    );
+    kh_destroy(timercb, my->timercb);
+
+    kh_foreach_value(my->threads, x, 
+        FreeCallback(x);
+    );
+    kh_destroy(timercb, my->threads);
+    if(my->sdl2_evtfiler) {
+        FreeCallback(my->sdl2_evtfiler);
+    }
+}
+
 
 void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
 {
@@ -125,6 +168,29 @@ void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
     SetCallbackArg(emu, 1, stream);
     SetCallbackArg(emu, 2, (void*)len);
     RunCallback(emu);
+}
+
+uint32_t sdl2TimerCallback(void *userdata)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    RunCallback(emu);
+    return R_EAX;
+}
+
+int32_t sdl2ThreadCallback(void *userdata)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    RunCallback(emu);
+    int32_t ret = (int32_t)R_EAX;
+    FreeCallback(emu);
+    return ret;
+}
+
+int32_t sdl2EvtFilterCallback(void *p)
+{
+    x86emu_t *emu = (x86emu_t*) p;
+    RunCallback(emu);
+    return (int32_t)R_EAX;
 }
 
 // TODO: track the memory for those callback
@@ -368,6 +434,73 @@ void EXPORT my2_SDL_FreeRW(x86emu_t* emu, void* a)
     my->SDL_FreeRW(a);
 }
 
+uint32_t EXPORT my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    uint32_t t = my->SDL_AddTimer(a, sdl2TimerCallback, cbemu);
+    int ret;
+    khint_t k = kh_put(timercb, my->timercb, t, &ret);
+    kh_value(my->timercb, k) = cbemu;
+    return t;
+}
+
+void EXPORT my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    my->SDL_RemoveTimer(t);
+    khint_t k = kh_get(timercb,my->timercb, t);
+    if(k!=kh_end(my->timercb))
+    {
+        FreeCallback(kh_value(my->timercb, k));
+        kh_del(timercb, my->timercb, k);
+    }
+}
+
+void EXPORT my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    if(my->sdl2_evtfiler) {
+        my->SDL_SetEventFilter(NULL, NULL);   // remove old one
+        FreeCallback(my->sdl2_evtfiler);
+        my->sdl2_evtfiler = NULL;
+        my->sdl2_evtfnc = NULL;
+    }
+    if(a) {
+        my->sdl2_evtfnc = a;
+        my->sdl2_evtfiler = AddCallback(emu, (uintptr_t)a, 1, b, NULL, NULL, NULL);
+        my->SDL_SetEventFilter(my->sdl2_evtfiler, my->sdl2_evtfiler);
+    }
+}
+void EXPORT *my2_SDL_GetEventFilter(x86emu_t* emu)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    return my->sdl2_evtfnc;
+}
+
+void EXPORT *my2_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    void* t = my->SDL_CreateThread(sdl2ThreadCallback, cbemu);
+    int ret;
+    khint_t k = kh_put(timercb, my->threads, (uintptr_t)t, &ret);
+    kh_value(my->threads, k) = cbemu;
+    return t;
+}
+
+void EXPORT my2_SDL_KillThread(x86emu_t* emu, void* p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    my->SDL_KillThread(p);
+    khint_t k = kh_get(timercb,my->threads, (uintptr_t)p);
+    if(k!=kh_end(my->threads))
+    {
+        FreeCallback(kh_value(my->threads, k));
+        kh_del(timercb, my->threads, k);
+    }
+}
+
 
 const char* sdl2Name = "libSDL2-2.0.so";
 #define LIBNAME sdl2
@@ -380,6 +513,7 @@ const char* sdl2Name = "libSDL2-2.0.so";
 
 #define CUSTOM_FINI \
     FreeSDL2RWops((sdl2rwops_t**)&lib->priv.w.priv); \
+    freeSDL2My(lib->priv.w.p2); \
     free(lib->priv.w.p2); \
     ((box86context_t*)(lib->context))->sdl2lib = NULL;
 

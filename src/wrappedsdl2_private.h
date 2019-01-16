@@ -7,7 +7,7 @@
 // SDL_acosf
 // SDL_AddEventWatch
 // SDL_AddHintCallback
-// SDL_AddTimer
+GOM(SDL_AddTimer, pFEupp)
 // SDL_AllocFormat
 // SDL_AllocPalette
 // SDL_AllocRW
@@ -75,7 +75,7 @@
 // SDL_CreateSystemCursor
 // SDL_CreateTexture
 // SDL_CreateTextureFromSurface
-// SDL_CreateThread
+GOM(SDL_CreateThread, pFEpp)
 // SDL_CreateThreadWithStackSize
 GO(SDL_CreateWindow, pFpiiiiu)
 // SDL_CreateWindowAndRenderer
@@ -90,7 +90,7 @@ GO(SDL_Delay, vFu)
 // SDL_DestroySemaphore
 // SDL_DestroyTexture
 GO(SDL_DestroyWindow, vFp)
-// SDL_DetachThread
+GO(SDL_DetachThread, vFp)
 // SDL_DisableScreenSaver
 // SDL_DuplicateSurface
 // SDL_DYNAPI_entry
@@ -230,7 +230,7 @@ GO(SDL_GetMouseState, uFpp)
 // SDL_GetTextureAlphaMod
 // SDL_GetTextureBlendMode
 // SDL_GetTextureColorMod
-// SDL_GetThreadID
+GO(SDL_GetThreadID, uFp)
 // SDL_GetThreadName
 GO(SDL_GetTicks, uFv)
 // SDL_GetTouchDevice
@@ -459,7 +459,7 @@ GOM(SDL_ReadU8, uFp)
 // SDL_realloc
 // SDL_RecordGesture
 // SDL_RegisterEvents
-// SDL_RemoveTimer
+GOM(SDL_RemoveTimer, iFEp)
 // SDL_RenderClear
 // SDL_RenderCopy
 // SDL_RenderCopyEx
@@ -611,7 +611,7 @@ GO(SDL_StopTextInput, vFv)
 // SDL_strupr
 // SDL_tan
 // SDL_tanf
-// SDL_ThreadID
+GO(SDL_ThreadID, uFv)
 // SDL_TLSCreate
 // SDL_TLSGet
 // SDL_TLSSet
@@ -649,7 +649,7 @@ GO(SDL_StopTextInput, vFv)
 // SDL_Vulkan_UnloadLibrary
 // SDL_WaitEvent
 // SDL_WaitEventTimeout
-// SDL_WaitThread
+GO(SDL_WaitThread, vFpp)
 // SDL_WarpMouseGlobal
 GO(SDL_WarpMouseInWindow, vFpii)
 // SDL_WasInit
