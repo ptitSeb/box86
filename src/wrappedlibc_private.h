@@ -30,6 +30,7 @@ GOW(access, iFpi)
 // __aeabi_memset8
 DATAV(__after_morecore_hook, 4)
 // alarm
+GO(aligned_alloc, pFuu)
 // alphasort
 // alphasort64
 DATA(argp_err_exit_status, 4)
@@ -166,13 +167,14 @@ GO(__ctype_toupper_loc, pFv)
 GOM(__cxa_atexit, iFEp)
 GOM(atexit, iFEp)           // just in case
 // __cxa_finalize
+//__cxa_thread_atexit_impl  // need GOM
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
 DATAV(daylight, 4)
 // __daylight   // type B
-// dcgettext    // Weak
-// __dcgettext
+GOW(dcgettext, pFppi)
+GO(__dcgettext, pFppi)
 // dcngettext   // Weak
 // __default_morecore
 // __default_rt_sa_restorer_v1
@@ -181,8 +183,8 @@ DATAV(daylight, 4)
 // __default_sa_restorer_v2
 // delete_module
 // des_setparity
-// dgettext // Weak
-// __dgettext
+GOW(dgettext, pFpp)
+GO(__dgettext, pFpp)
 //GO(difftime, dFuu)  // return a double. The double is in ST(0)!
 // dirfd
 // dirname
@@ -358,7 +360,7 @@ GOW(fputc, iFip)
 // fputc_unlocked
 GOW(fputs, iFpp)    // Weak
 // fputs_unlocked
-// fputwc
+GO(fputwc, iFip)
 // fputwc_unlocked
 // fputws
 // fputws_unlocked
@@ -382,8 +384,8 @@ GO(freopen64, pFppp)
 // frexpl   // Weak
 GO2(fscanf, iFppV, vfscanf)
 GO(fseek, iFpii)
-// fseeko
-// fseeko64
+GO(fseeko, iFpii)
+GO(fseeko64, iFpIi)
 // __fsetlocking
 GO(fsetpos, iFpp)
 // fsetpos64
@@ -568,9 +570,9 @@ GOW(gets, pFp)
 // getspnam
 // getspnam_r
 // getsubopt
-// gettext  // Weak
-// gettimeofday // Weak
-// __gettimeofday
+GOW(gettext, pFp)
+GOW(gettimeofday, iFpp)
+GO(__gettimeofday, iFpp)
 // getttyent
 // getttynam
 GOW(getuid, uPv)
@@ -1040,12 +1042,12 @@ DATAV(__malloc_initialize_hook, 4)
 // mblen
 // mbrlen   // Weak
 // __mbrlen
-// mbrtowc  // Weak
-// __mbrtowc
+GOW(mbrtowc, uFppup)
+GO(__mbrtowc, uFppup)
 // mbsinit  // Weak
 GOW(mbsnrtowcs, uFppuup)
 // __mbsnrtowcs_chk
-// mbsrtowcs    // Weak
+GOW(mbsrtowcs, uFppup)
 // __mbsrtowcs_chk
 // mbstowcs
 // __mbstowcs_chk
@@ -1127,7 +1129,7 @@ GO(__newlocale, pFipp)
 // _nl_default_dirname  // type R
 // _nl_domain_bindings  // type B
 // nl_langinfo
-// __nl_langinfo_l
+GO(__nl_langinfo_l, pFup)
 // nl_langinfo_l    // Weak
 // _nl_msg_cat_cntr // type B
 // nrand48
@@ -1307,7 +1309,7 @@ GOW(puts, iFp)
 // pututline    // Weak
 // pututxline
 // putw
-// putwc
+GO(putwc, iFip)
 // putwchar
 // putwchar_unlocked
 // putwc_unlocked
@@ -1905,7 +1907,7 @@ GOM(__vsnprintf_chk, iFEpuvvpVV)
 // __wcpcpy_chk
 // wcpncpy  // Weak
 // __wcpncpy_chk
-// wcrtomb  // Weak
+GOW(wcrtomb, uFpip)
 // __wcrtomb_chk
 // wcscasecmp   // Weak
 // __wcscasecmp_l
@@ -1914,7 +1916,7 @@ GOM(__vsnprintf_chk, iFEpuvvpVV)
 // __wcscat_chk
 // wcschr
 // wcschrnul    // Weak
-// wcscmp
+GO(wcscmp, iFpp)
 // wcscoll  // Weak
 // __wcscoll_l
 // wcscoll_l    // Weak
@@ -1925,7 +1927,7 @@ GOM(__vsnprintf_chk, iFEpuvvpVV)
 GO(wcsftime, uFpupp)
 GO(__wcsftime_l, uFpuppu)
 // wcsftime_l   // Weak
-// wcslen   // Weak
+GOW(wcslen, uFp)
 // wcsncasecmp  // Weak
 // __wcsncasecmp_l
 // wcsncasecmp_l    // Weak
@@ -1993,9 +1995,9 @@ GO(wctomb, iFpi)
 GO(__wctype_l, uFpp)
 GOW(wctype_l, uFpp)
 // wcwidth
-// wmemchr
-// wmemcmp
-// wmemcpy  // Weak
+GOW(wmemchr, pFpiu)
+GO(wmemcmp, iFppu)
+GOW(wmemcpy, pFppu)
 GO(__wmemcpy_chk, pFppuu)
 GOW(wmemmove, pFppu)
 // __wmemmove_chk

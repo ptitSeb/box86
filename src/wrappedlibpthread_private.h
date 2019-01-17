@@ -54,8 +54,8 @@ GO(pthread_attr_setstacksize, iFpp)
 // pthread_condattr_setclock
 // pthread_condattr_setpshared
 GO(pthread_cond_broadcast, iFp)
-// pthread_cond_destroy
-// pthread_cond_init
+GO(pthread_cond_destroy, iFp)
+GO(pthread_cond_init, iFpp)
 GO(pthread_cond_signal, iFp)
 // pthread_cond_timedwait
 // pthread_cond_wait

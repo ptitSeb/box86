@@ -303,9 +303,10 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
     printf_log(LOG_DUMP, "Will look for Symbol to add in SymTable(%d)\n", h->numSymTab);
     for (int i=0; i<h->numSymTab; ++i) {
-        // TODO: this "17" & "18" is probably defined somewhere
+        // TODO: this "17" & "18" is probably defined somewhere. 34 seems to be Weak function
         if((    (h->SymTab[i].st_info == 18) 
              || (h->SymTab[i].st_info == 17) 
+             || (h->SymTab[i].st_info == 34) 
              || (h->SymTab[i].st_info == 2)) 
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -317,9 +318,10 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
     }
     printf_log(LOG_DUMP, "Will look for Symbol to add in DynSym (%d)\n", h->numDynSym);
     for (int i=0; i<h->numDynSym; ++i) {
-        // TODO: this "17" & "18" is probably defined somewhere
+        // TODO: this "17" & "18" is probably defined somewhere. 34 seems to be Weak function
         if((    (h->DynSym[i].st_info == 18) 
              || (h->DynSym[i].st_info == 17) 
+             || (h->DynSym[i].st_info == 34) 
              || (h->DynSym[i].st_info == 2)) 
             && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
             const char * symname = h->DynStr+h->DynSym[i].st_name;
