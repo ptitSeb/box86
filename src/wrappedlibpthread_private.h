@@ -41,7 +41,7 @@ GO(pthread_attr_setstacksize, iFpp)
 // pthread_barrier_destroy
 // pthread_barrier_init
 // pthread_barrier_wait
-// pthread_cancel
+GO(pthread_cancel, iFi)
 // _pthread_cleanup_pop
 // _pthread_cleanup_pop_restore
 // _pthread_cleanup_push

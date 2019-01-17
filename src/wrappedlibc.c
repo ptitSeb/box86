@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <signal.h>
@@ -198,7 +199,7 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
     void* f = vsprintf;
     return ((iFppp_t)f)(buff, fmt, emu->scratch);
     #else
-    return vsprintf((char*)buff, (char*)vsprintf, V);
+    return vsprintf((char*)buff, (char*)fmt, V);
     #endif
 }
 EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
@@ -211,11 +212,25 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
     return r;
     #else
-    return vsprintf((char*)buff, (char*)vsprintf, V);
+    return vsprintf((char*)buff, (char*)fmt, V);
     #endif
 }
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
 EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
+
+EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vswprintf;
+    int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
+    return r;
+    #else
+    return vswprintf((char*)buff, (char*)fmt, V);
+    #endif
+}
+EXPORT int my___vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
+EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
 
 EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, void* c)
 {

@@ -29,7 +29,7 @@ GOW(access, iFpi)
 // __aeabi_memset4
 // __aeabi_memset8
 DATAV(__after_morecore_hook, 4)
-// alarm
+GO(alarm, iFu)
 GO(aligned_alloc, pFuu)
 // alphasort
 // alphasort64
@@ -83,7 +83,7 @@ GO(__backtrace_symbols, pFpi)
 GOW(backtrace_symbols, pFpi)
 GO(__backtrace_symbols_fd, vFpii)
 // backtrace_symbols_fd // Weak
-// basename
+GO(basename, pFp)
 // bcmp // Weak
 // bcopy
 // bdflush
@@ -118,7 +118,7 @@ GOW(calloc, pFuu)
 DATA(__check_rhosts_file, 4)
 // chflags
 // __chk_fail
-// chmod    // Weak
+GOW(chmod, iFpu)
 // chown    // Weak
 // chroot
 // clearenv // Weak
@@ -187,7 +187,7 @@ GOW(dgettext, pFpp)
 GO(__dgettext, pFpp)
 //GO(difftime, dFuu)  // return a double. The double is in ST(0)!
 // dirfd
-// dirname
+GO(dirname, pFp)
 // div
 // _dl_addr
 GOM(dl_iterate_phdr, iFEpp)
@@ -268,7 +268,7 @@ GO(__errno_location, pFv)
 // eventfd_write
 // execl
 // execle
-// execlp
+GO2(execlp, iFppV, execvp)  // is that correct?
 GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
 // execve   // Weak
 GO(execvp, iFpp)    // same remark as for execv
@@ -280,14 +280,14 @@ GOM(_exit, vFEi)
 // __fbufsize
 // fchdir   // Weak
 // fchflags
-// fchmod   // Weak
+GOW(fchmod, iFiu)
 // fchmodat
 // fchown   // Weak
 // fchownat
 GO(fclose, iFp)
 // fcloseall    // Weak
-// fcntl    // Weak
-// __fcntl  // Weak
+GOW(fcntl, iFiiu)
+GOW(__fcntl, iFiiu)
 // fcvt
 // fcvt_r
 GO(fdatasync, iFi)
@@ -397,7 +397,7 @@ GO(fsetpos, iFpp)
 GOW(fsync, iFi)
 GOW(ftell, iFp)
 // ftello
-// ftello64
+GO(ftello64, Ifp)
 // ftime
 // ftok
 // ftruncate    // Weak
@@ -443,8 +443,8 @@ GOW(getchar, iFv)
 // getchar_unlocked
 // getcontext
 // getc_unlocked    // Weak
-// get_current_dir_name
-// getcwd   // Weak
+GO(get_current_dir_name, pFv)
+GOW(getcwd, pFpu)
 // __getcwd_chk
 GO(getdate, pFp)
 // getdate_err  // type B
@@ -462,7 +462,7 @@ GOW(geteuid, pFv)
 // getfsent
 // getfsfile
 // getfsspec
-// getgid   // Weak
+GOW(getgid, iFv)
 // getgrent
 // getgrent_r
 // getgrgid
@@ -512,8 +512,8 @@ GOW(gethostname, iFpu)
 // getopt
 // getopt_long
 // getopt_long_only
-// getpagesize  // Weak
-// __getpagesize
+GOW(getpagesize, iFv)
+GO(__getpagesize, iFv)
 // getpass
 // getpeername  // Weak
 // getpgid  // Weak
@@ -562,8 +562,8 @@ GOW(gets, pFp)
 // getservent
 // getservent_r
 // getsid
-// getsockname  // Weak
-// getsockopt   // Weak
+GOW(getsockname, iFipp)
+GOW(getsockopt, iFiiipp)
 // getsourcefilter
 // getspent
 // getspent_r
@@ -593,7 +593,7 @@ GOW(getuid, uPv)
 // getwchar
 // getwchar_unlocked
 // getwc_unlocked   // Weak
-// getwd
+GO(getwd, pFp)
 // __getwd_chk
 // getxattr
 // glob
@@ -671,7 +671,7 @@ GOW(inet_aton, iFpp)
 GO(inet_network, iFp)
 // inet_nsap_addr
 // inet_nsap_ntoa
-// inet_ntoa
+GO(inet_ntoa, pFi)
 // inet_ntop
 // inet_pton
 // initgroups
@@ -824,29 +824,29 @@ DATA(_IO_wfile_jumps, 4)
 // _IO_wsetb
 // iruserok
 // iruserok_af
-// isalnum
+GO(isalnum, iFi)
 // __isalnum_l
 // isalnum_l    // Weak
-// isalpha
+GO(isalpha, iFi)
 // __isalpha_l
 // isalpha_l    // Weak
 // isascii
 // __isascii_l  // Weak
 // isastream
 GOW(isatty, iFi)
-// isblank
+GO(isblank, iFi)
 // __isblank_l
 // isblank_l    // Weak
-// iscntrl
+GO(iscntrl, iFi)
 // __iscntrl_l
 // iscntrl_l    // Weak
 // isctype  // Weak
 // __isctype
-// isdigit
+GO(isdigit, iFi)
 // __isdigit_l
 // isdigit_l    // Weak
 // isfdtype
-// isgraph
+GO(isgraph, iFi)
 // __isgraph_l
 // isgraph_l    // Weak
 // isinf    // Weak
@@ -855,7 +855,7 @@ GOW(isatty, iFi)
 // __isinff
 // isinfl   // Weak
 // __isinfl
-// islower
+GO(islower, iFi)
 // __islower_l
 // islower_l    // Weak
 // isnan    // Weak
@@ -867,7 +867,7 @@ GOW(isatty, iFi)
 // __isoc99_fscanf
 // __isoc99_fwscanf
 // __isoc99_scanf
-// __isoc99_sscanf
+GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
 // __isoc99_swscanf
 // __isoc99_vfscanf
 // __isoc99_vfwscanf
@@ -879,13 +879,13 @@ GOW(isatty, iFi)
 // isprint
 // __isprint_l
 // isprint_l    // Weak
-// ispunct
+GO(ispunct, iFi)
 // __ispunct_l
 // ispunct_l    // Weak
-// isspace
+GO(isspace, iFi)
 // __isspace_l
 // isspace_l    // Weak
-// isupper
+GO(isupper, iFi)
 // __isupper_l
 // isupper_l    // Weak
 // iswalnum // Weak
@@ -928,7 +928,7 @@ GO(__iswctype_l, iFiup)
 // iswxdigit    // Weak
 // __iswxdigit_l
 // iswxdigit_l  // Weak
-// isxdigit
+GO(isxdigit, iFi)
 // __isxdigit_l
 // isxdigit_l   // Weak
 // _itoa_lower_digits   // type R
@@ -998,7 +998,7 @@ GOM(__libc_start_main, iFEpippppp)
 // __libc_valloc
 // link // Weak
 // linkat
-// listen   // Weak
+GOW(listen, iFii)
 // listxattr
 // llabs
 // lldiv
@@ -1021,7 +1021,7 @@ GOM(__longjmp_chk, vFEpi)
 // lsearch
 GOW(lseek, iFiii)
 // __lseek  // Weak
-// lseek64  // Weak
+GOW(lseek64, IFiIi)
 // lsetxattr
 // lutimes
 GO(__lxstat, iFipp)
@@ -1173,7 +1173,7 @@ DATA(obstack_exit_failure, 4)
 GOW(open, iFpiuuuu)  // open use vararg, cheating here putting arbitrary number of stuff in the stack
 // __open   // Weak
 // __open_2
-// open64   // Weak
+GOW(open64, iFpiuuuu)  // open use vararg, cheating here putting arbitrary number of stuff in the stack
 // __open64 // Weak
 // __open64_2
 // openat   // Weak
@@ -1464,7 +1464,7 @@ GOW(setbuffer, vFppu)
 // setcontext
 // setdomainname
 // setegid
-// setenv   // Weak
+GOW(setenv, iFppi)
 // _seterr_reply
 // seteuid
 // setfsent
@@ -1503,7 +1503,7 @@ GO(setpriority, iFiii)
 // setrpcent
 // setservent
 // setsid   // Weak
-// setsockopt   // Weak
+GOW(setsockopt, iFiiipu)
 // setsourcefilter
 // setspent
 // setstate // Weak
@@ -1837,7 +1837,7 @@ GO(ungetwc, iFip)
 GOW(unlink, iFp)
 // unlinkat
 // unlockpt
-// unsetenv // Weak
+GOW(unsetenv, iFp)
 // unshare
 // updwtmp  // Weak
 // updwtmpx
@@ -1883,8 +1883,8 @@ GOM(__vsnprintf_chk, iFEpuvvpVV)
 // __vsprintf_chk
 // vsscanf  // Weak
 // __vsscanf    // Weak
-// vswprintf    // Weak
-// __vswprintf_chk
+GOM(vswprintf, iFEpupVV)    // Weak
+GOM(__vswprintf_chk, iFEpuvvpVV)    // Weak
 // vswscanf
 // vsyslog
 // __vsyslog_chk
@@ -1894,13 +1894,13 @@ GOM(__vsnprintf_chk, iFEpuvvpVV)
 // vwprintf
 // __vwprintf_chk
 // vwscanf
-// wait // Weak
-// __wait   // Weak
+GOW(wait, iFp)
+GOW(__wait, iFp)
 // wait3    // Weak
 // wait4    // Weak
-// waitid   // Weak
-// waitpid  // Weak
-// __waitpid    // Weak
+GOW(waitid, iFiipi)
+GOW(waitpid, iFipi)
+GOW(__waitpid, iFip)
 // warn
 // warnx
 // wcpcpy   // Weak
@@ -2089,9 +2089,9 @@ GOW(writev, iFipi)
 // xencrypt
 // __xmknod
 // __xmknodat
-// __xpg_basename
+GO(__xpg_basename, pFp)
 // __xpg_sigpause   // Weak
-// __xpg_strerror_r
+GO(__xpg_strerror_r, pFipu)
 // xprt_register
 // xprt_unregister
 GO(__xstat, iFipp)

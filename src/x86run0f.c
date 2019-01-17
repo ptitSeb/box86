@@ -309,6 +309,21 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] ^= (1<<(op2->dword[0]&31));
             break;
 
+        case 0xBA:                      
+            nextop = Fetch8(emu);
+            switch((nextop>>3)&7) {
+                case 4:                 /* BT Ed,Ib */
+                    GetEd(emu, &op1, nextop);
+                    tmp8u = Fetch8(emu);
+                    if(op1->dword[0] & (1<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                    break;
+                default:
+                    UnimpOpcode(emu);
+            }
+            break;
         case 0xBC:                      /* BSF Ed,Gd */
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);

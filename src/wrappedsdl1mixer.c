@@ -19,13 +19,15 @@
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
+typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 
 typedef struct sdl1mixer_my_s {
     pFpii_t Mix_LoadMUSType_RW;
-    pFp_t Mix_LoadMUS_RW;
-    pFpi_t Mix_LoadWAV_RW;
-    vFpp_t Mix_SetPostMix;
+    pFp_t   Mix_LoadMUS_RW;
+    pFpi_t  Mix_LoadWAV_RW;
+    vFpp_t  Mix_SetPostMix;
+    vFp_t   Mix_ChannelFinished;
 
     x86emu_t* PostCallback;
 } sdl1mixer_my_t;
@@ -38,6 +40,7 @@ static void* getSDL1MixerMy(library_t* lib)
     GO(Mix_LoadMUS_RW,pFp_t)
     GO(Mix_LoadWAV_RW,pFpi_t)
     GO(Mix_SetPostMix,vFpp_t)
+    GO(Mix_ChannelFinished,vFp_t)
     #undef GO
     return my;
 }
@@ -95,6 +98,28 @@ void EXPORT my_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
         FreeCallback(my->PostCallback);
         my->PostCallback = NULL;
     }
+}
+
+x86emu_t* sdl1channelfinished_emu = NULL;
+static void sdl1ChannelFinishedCallback(int channel)
+{
+    if(!sdl1channelfinished_emu)
+        return;
+    SetCallbackArg(sdl1channelfinished_emu, 0, (void*)channel);
+    RunCallback(sdl1channelfinished_emu);
+}
+void EXPORT my_Mix_ChannelFinished(x86emu_t* emu, void* cb)
+{
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
+    if(sdl1channelfinished_emu) {
+        FreeCallback(sdl1channelfinished_emu);
+        sdl1channelfinished_emu = NULL;
+    }
+    if(cb) {
+        sdl1channelfinished_emu = AddCallback(emu, (uintptr_t)cb, 1, NULL, NULL, NULL, NULL);
+        my->Mix_ChannelFinished(sdl1ChannelFinishedCallback);
+    } else
+        my->Mix_ChannelFinished(NULL);
 }
 
 const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
