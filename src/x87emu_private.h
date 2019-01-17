@@ -21,7 +21,7 @@ void RunDF(x86emu_t *emu);
 #define ST(a) emu->fpu[(emu->top+(a))&7]
 
 #define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
-#define STll(a)  emu->fpu_ld_mark[(emu->top+(a))&7]
+#define STll(a)  emu->fpu_ll[(emu->top+(a))&7]
 
 void fpu_do_push(x86emu_t* emu);
 void fpu_do_pop(x86emu_t* emu);

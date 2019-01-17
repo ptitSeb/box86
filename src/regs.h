@@ -57,7 +57,21 @@ typedef union {
 		uint64_t lower;
 		uint16_t upper;
 	} l;
+} longdouble_t;
+
+typedef struct {
+	#ifdef HAVE_LD80BITS
+	long double 	ld;
+	#else
+	longdouble_t 	ld;
+	#endif
+	uint64_t		ref;
 } fpu_ld_t;
+
+typedef struct {
+	uint64_t		ll;
+	uint64_t		ref;
+} fpu_ll_t;
 
 typedef union {
     struct __attribute__ ((__packed__)) {

@@ -114,17 +114,17 @@ void RunD8(x86emu_t *emu)
             break;
         default:
         switch((nextop>>3)&7) {
-            case 0:         /* FADD */
+            case 0:         /* FADD ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d += f;
                 break;
-            case 1:         /* FMUL */
+            case 1:         /* FMUL ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d *= f;
                 break;
-            case 2:      /* FCOM */
+            case 2:      /* FCOM ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 fpu_fcom(emu, f);
@@ -135,22 +135,22 @@ void RunD8(x86emu_t *emu)
                 fpu_fcom(emu, f);
                 fpu_do_pop(emu);
                 break;
-            case 4:         /* FSUB */
+            case 4:         /* FSUB ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d -= f;
                 break;
-            case 5:         /* FSUBR */
+            case 5:         /* FSUBR ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d = f - ST0.d;
                 break;
-            case 6:         /* FDIV */
+            case 6:         /* FDIV ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d /= f;
                 break;
-            case 7:         /* FDIVR */
+            case 7:         /* FDIVR ST0, float */
                 GetEd(emu, &op2, nextop);
                 *(uint32_t*)&f = op2->dword[0];
                 ST0.d = f / ST0.d;
@@ -259,7 +259,6 @@ void RunD9(x86emu_t *emu)
             ll = ST(nextop&7).ll;
             fpu_do_push(emu);
             ST0.ll = ll;
-            STll(0) = ~ST0.ll;
             break;
         case 0xC8:
         case 0xC9:
@@ -268,11 +267,10 @@ void RunD9(x86emu_t *emu)
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF:  /* FXCH */
+        case 0xCF:  /* FXCH STx */
             ll = ST(nextop&7).ll;
             ST(nextop&7).ll = ST0.ll;
             ST0.ll = ll;
-            STll(0) = ~ST0.ll;
             break;
 
         case 0xD0:  /* FNOP */
@@ -292,37 +290,30 @@ void RunD9(x86emu_t *emu)
         case 0xE8:  /* FLD1 */
             fpu_do_push(emu);
             ST0.d = 1.0;
-            STll(0) = ~ST0.ll;
             break;
         case 0xE9:  /* FLDL2T */
             fpu_do_push(emu);
             ST0.d = L2T;
-            STll(0) = ~ST0.ll;
             break;
         case 0xEA:  /* FLDL2E */
             fpu_do_push(emu);
             ST0.d = L2E;
-            STll(0) = ~ST0.ll;
             break;
         case 0xEB:  /* FLDPI */
             fpu_do_push(emu);
             ST0.d = PI;
-            STll(0) = ~ST0.ll;
             break;
         case 0xEC:  /* FLDLG2 */
             fpu_do_push(emu);
             ST0.d = LG2;
-            STll(0) = ~ST0.ll;
             break;
         case 0xED:  /* FLDLN2 */
             fpu_do_push(emu);
             ST0.d = LN2;
-            STll(0) = ~ST0.ll;
             break;
         case 0xEE:  /* FLDZ */
             fpu_do_push(emu);
             ST0.d = 0.0;
-            STll(0) = ~ST0.ll;
             break;
         
         case 0xFA:  /* FSQRT */
@@ -573,7 +564,6 @@ void RunDB(x86emu_t *emu)
                 *(uint32_t*)&tmp32s = op2->dword[0];
                 fpu_do_push(emu);
                 ST0.d = tmp32s;
-                STll(0) = ~ST0.ll;
                 break;
             case 2: /* FIST Ed, ST0 */
                 GetEd(emu, &op2, nextop);
@@ -593,16 +583,16 @@ void RunDB(x86emu_t *emu)
             case 5: /* FLD ST0, Gt */
                 GetEd(emu, &op2, nextop);
                 fpu_do_push(emu);
-                memcpy(&STld(0), &op2->dword[0], 10);
+                memcpy(&STld(0).ld, &op2->dword[0], 10);
                 LD2D(&STld(0), &ST(0).d);
-                STll(0) = ST0.ll;
+                STld(0).ref = ST0.ll;
                 break;
             case 7: /* FSTP tbyte */
                 GetEd(emu, &op1, nextop);
-                if(ST0.ll!=STll(0))
+                if(ST0.ll!=STld(0).ref)
                     D2LD(&ST0.d, op1);
                 else
-                    memcpy(op1, &STld(0), 10);
+                    memcpy(op1, &STld(0).ld, 10);
                 fpu_do_pop(emu);
                 break;
             default:
@@ -705,43 +695,43 @@ void RunDC(x86emu_t *emu)
             break;
         default:
         switch((nextop>>3)&7) {
-        case 0:         /* FADD */
+        case 0:         /* FADD ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d += d;
             break;
-        case 1:         /* FMUL */
+        case 1:         /* FMUL ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d *= d;
             break;
-        case 2:      /* FCOM */
+        case 2:      /* FCOM ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             fpu_fcom(emu, d);
             break;
-        case 3:     /* FCOMP */
+        case 3:     /* FCOMP ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             fpu_fcom(emu, d);
             fpu_do_pop(emu);
             break;
-        case 4:         /* FSUB */
+        case 4:         /* FSUB ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d -= d;
             break;
-        case 5:         /* FSUBR */
+        case 5:         /* FSUBR ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d = d - ST0.d;
             break;
-        case 6:         /* FDIV */
+        case 6:         /* FDIV ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d /= d;
             break;
-        case 7:         /* FDIVR */
+        case 7:         /* FDIVR ST0, double */
             GetEd(emu, &op2, nextop);
             memcpy(&d, &op2->dword[0], 8);
             ST0.d = d / ST0.d;
@@ -812,7 +802,6 @@ void RunDD(x86emu_t *emu)
                 GetEd(emu, &op1, nextop);
                 fpu_do_push(emu);
                 ST0.ll = *(int64_t*)&op1->dword[0];
-                STll(0) = ~ ST0.ll;
                 break;
             case 2: /* FST double */
                 GetEd(emu, &op1, nextop);
@@ -1085,7 +1074,6 @@ void RunDF(x86emu_t *emu)
             tmp16s = (int16_t)op2->word[0];
             fpu_do_push(emu);
             ST0.d = tmp16s;
-            STll(0) = ~ ST0.ll;
             break;
         case 1: /* FISTTP Ew, ST0 */
             GetEw(emu, &op2, nextop);
@@ -1124,9 +1112,8 @@ void RunDF(x86emu_t *emu)
             tmp64s = *(int64_t*)&op2->dword[0];
             fpu_do_push(emu);
             ST0.d = tmp64s;
-            STld(0).l.upper = 0;
-            STld(0).l.lower = tmp64s;
-            STll(0) = ST0.ll;
+            STll(0).ll = tmp64s;
+            STll(0).ref = ST0.ll;
             break;
         case 6: /* FBSTP tbytes, ST0 */
             GetEd(emu, &op2, nextop);
@@ -1135,8 +1122,8 @@ void RunDF(x86emu_t *emu)
             break;
         case 7: /* FISTP i64 */
             GetEd(emu, &op1, nextop);
-            if(STll(0)==ST(0).ll) {
-                tmp64s = STld(0).l.lower;
+            if(STll(0).ref==ST(0).ll) {
+                tmp64s = STll(0).ll;
             } else {
                 if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
                     tmp64s = 0x8000000000000000LL;
