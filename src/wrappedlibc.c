@@ -219,11 +219,14 @@ EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt,
 
 EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, void* c)
 {
+    // disabled for now... Are all this _ITM_ stuff really mendatory?
+    #if 0
     // quick and dirty... Should store the callback to be removed later....
     libc_my_t *my = (libc_my_t *)emu->context->libclib->priv.w.p2;
     x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, c, NULL, NULL, NULL);
     my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
     // should keep track of cbemu to remove at some point...
+    #endif
 }
 
 #define LIBNAME libc
