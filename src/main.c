@@ -220,6 +220,8 @@ int main(int argc, const char **argv, const char **env) {
     }
     // can close the file now
     fclose(f);
+    // export symbols
+    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
     if(LoadNeededLib(elf_header, context->maplib, context)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
@@ -227,7 +229,6 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // finalize relocations
-    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);

@@ -64,6 +64,10 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 // Init first
     lib->priv.w.lib = dlopen(MAPNAME(Name), RTLD_NOW);
     if(!lib->priv.w.lib) {
+#ifdef ALTNAME
+    lib->priv.w.lib = dlopen(ALTNAME, RTLD_NOW);
+    if(!lib->priv.w.lib)
+#endif
         return -1;
     }
     lib->priv.w.bridge = NewBridge();
@@ -116,6 +120,11 @@ int FUNC(_fini)(library_t* lib)
     lib->priv.w.lib = NULL;
     if(lib->priv.w.altprefix)
         free(lib->priv.w.altprefix);
+    if(lib->priv.w.neededlibs) {
+        for(int i=0; i<lib->priv.w.needed; ++i)
+            free(lib->priv.w.neededlibs[i]);
+        free(lib->priv.w.neededlibs);
+    }
     FreeBridge(&lib->priv.w.bridge);
 }
 

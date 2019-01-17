@@ -14,6 +14,7 @@
 
 const char* ldlinuxName = "ld-linux.so.3";
 #define LIBNAME ldlinux
+#define ALTNAME "ld-linux.so.2"
 
 // define all standard library functions
 #include "wrappedlib_init.h"

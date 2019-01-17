@@ -1,6 +1,6 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 // a64l
-// abort
+GO(abort, vFv)      // Should be GOM once signal are handled properly
 // abs
 GOW(accept, iFipp)
 GOW(access, iFpi)

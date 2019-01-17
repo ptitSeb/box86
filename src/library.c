@@ -4,6 +4,9 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "debug.h"
 #include "library.h"
@@ -12,6 +15,9 @@
 #include "library_private.h"
 #include "khash.h"
 #include "box86context.h"
+#include "fileutils.h"
+#include "librarian.h"
+#include "librarian_private.h"
 
 #include "wrappedlibs.h"
 // create the native lib list
@@ -68,6 +74,22 @@ int NbDot(const char* name)
     return ret;
 }
 
+void EmuLib_Fini(library_t* lib)
+{
+    kh_destroy(mapsymbols, lib->priv.n.mapsymbols);
+}
+
+int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
+{
+    khint_t k;
+    k = kh_get(mapsymbols, lib->priv.n.mapsymbols, name);
+    if(k==kh_end(lib->priv.n.mapsymbols))
+        return 0;
+    *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
+    *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
+    return *offs;
+}
+
 library_t *NewLibrary(const char* path, box86context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
@@ -93,10 +115,72 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             lib->fini = wrappedlibs[i].fini;
             lib->get = wrappedlibs[i].get;
             lib->type = 0;
+            // Call librarian to load all dependant elf
+            for(int i=0; i<lib->priv.w.needed; ++i)
+                if(AddNeededLib(context->maplib, lib->priv.w.neededlibs[i], context)) {
+                    printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
+                    return NULL;
+                }
             break;
         }
     }
     // then look for a native one
+    if(lib->type==-1)
+    {
+        char libname[MAX_PATH];
+        strcpy(libname, path);
+        int found = FileExist(libname, IS_FILE);
+        if(!found && strchr(path, '/'))
+            for(int i=0; i<context->box86_ld_lib.size; ++i)
+            {
+                strcpy(libname, context->box86_ld_lib.paths[i]);
+                strcat(libname, path);
+                if(FileExist(libname, IS_FILE))
+                    break;
+            }
+        if(FileExist(libname, IS_FILE))
+        {
+            FILE *f = fopen(libname, "rb");
+            if(!f) {
+                printf_log(LOG_NONE, "Error: Cannot open %s\n", libname);
+                return NULL;
+            }
+            elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 1);
+            if(!elf_header) {
+                printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+                fclose(f);
+                return NULL;
+            }
+            int mainelf = AddElfHeader(context, elf_header);
+
+            if(CalcLoadAddr(elf_header)) {
+                printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+                fclose(f);
+                return NULL;
+            }
+            // allocate memory
+            if(AllocElfMemory(elf_header)) {
+                printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+                fclose(f);
+                return NULL;
+            }
+            // Load elf into memory
+            if(LoadElfMemory(f, elf_header)) {
+                printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
+                fclose(f);
+                return NULL;
+            }
+            // can close the file now
+            fclose(f);
+
+            lib->type = 1;
+            lib->context = context;
+            lib->fini = EmuLib_Fini;
+            lib->get = EmuLib_Get;
+            lib->priv.n.elf_index = mainelf;
+            lib->priv.n.mapsymbols = kh_init(mapsymbols);
+        }
+    }
     // not implemented yet, so error...
     if(lib->type==-1)
     {
@@ -108,6 +192,26 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 
     return lib;
 }
+int FinalizeLibrary(library_t* lib)
+{
+    if(lib->type==1) {
+        elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
+        // add symbols
+        AddGlobalsSymbols(lib->priv.n.mapsymbols, elf_header);
+        // Call librarian to load all dependant elf
+        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context)) {
+            printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
+            return 1;
+        }
+        // finalize relocations
+        if(RelocateElf(lib->context->maplib, elf_header)) {
+            printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void FreeLibrary(library_t **lib)
 {
     if(!(*lib)) return;

@@ -10,6 +10,7 @@
 #include "x86run.h"
 #include "x86emu.h"
 #include "stack.h"
+#include "callback.h"
 
 // memory handling to be perfected...
 // keep a hash thread_t -> emu to set emu->quit to 1 on pthread_cancel
@@ -75,4 +76,20 @@ int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 	printf_log(LOG_NONE, "Error: pthread_key_create with destructor not implemented\n");
 	emu->quit = 1;
 	return -1;
+}
+
+static x86emu_t *once_emu = NULL;
+void thread_once_callback()
+{
+	if(once_emu) {
+		RunCallback(once_emu);
+		FreeCallback(once_emu);
+		once_emu = NULL;
+	}
+}
+
+int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
+{
+	once_emu = AddCallback(emu, (uintptr_t)cb, 0, NULL, NULL, NULL, NULL);
+	return pthread_once(once, thread_once_callback);
 }

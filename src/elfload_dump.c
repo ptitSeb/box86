@@ -10,7 +10,7 @@
 #include "elfloader_private.h"
 
 const char* DumpSection(Elf32_Shdr *s, char* SST) {
-    static char buff[200];
+    static char buff[400];
     switch (s->sh_type) {
         case SHT_NULL:
             return "SHT_NULL";
@@ -190,7 +190,7 @@ const char* DumpRelType(int t)
 
 const char* DumpSym(elfheader_t *h, Elf32_Sym* sym)
 {
-    static char buff[100];
+    static char buff[4096];
     memset(buff, 0, sizeof(buff));
     sprintf(buff, "\"%s\", value=%p, size=%d, info/other=%d/%d index=%d", 
         h->DynStr+sym->st_name, (void*)sym->st_value, sym->st_size,

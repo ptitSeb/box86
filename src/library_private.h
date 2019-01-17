@@ -7,6 +7,7 @@
 
 typedef struct bridge_s bridge_t;
 typedef struct kh_bridgemap_s kh_bridgemap_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 
 typedef struct x86emu_s x86emu_t;
 typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
@@ -32,7 +33,14 @@ typedef struct wlib_s {
     void*           p2;         // second private
     void*           box86lib;   // ref to the dlopen on box86 itself from context
     char*           altprefix;  // if function names are mangled..
+    int             needed;
+    char**          neededlibs;
 } wlib_t;
+
+typedef struct nlib_s {
+    int             elf_index;
+    kh_mapsymbols_t *mapsymbols;
+} nlib_t;
 
 typedef struct library_s {
     char*               name;   // <> path
@@ -42,6 +50,7 @@ typedef struct library_s {
     wrappedlib_get_t    get;
     union {
         wlib_t  w;     
+        nlib_t  n;
     }                   priv;  // private lib data
     box86context_t      *context;   // parent context
     bridge_t            *brige;

@@ -141,7 +141,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
-        uintptr_t offs;
+        uintptr_t offs = 0;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -167,7 +167,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
-                    return -1;
+//                    return -1;
                 } else {
                     if(p) {
                         printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
@@ -301,13 +301,30 @@ uintptr_t GetLastByte(elfheader_t* h)
 
 void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
+    printf_log(LOG_DUMP, "Will look for Symbol to add in SymTable(%d)\n", h->numSymTab);
     for (int i=0; i<h->numSymTab; ++i) {
         // TODO: this "17" & "18" is probably defined somewhere
-        if(((h->SymTab[i].st_info == 18) || (h->SymTab[i].st_info == 17) || (h->SymTab[i].st_info == 2)) 
+        if((    (h->SymTab[i].st_info == 18) 
+             || (h->SymTab[i].st_info == 17) 
+             || (h->SymTab[i].st_info == 2)) 
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
+            printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, (void*)offs, sz);
+            AddSymbol(mapsymbols, symname, offs, sz);
+        }
+    }
+    printf_log(LOG_DUMP, "Will look for Symbol to add in DynSym (%d)\n", h->numDynSym);
+    for (int i=0; i<h->numDynSym; ++i) {
+        // TODO: this "17" & "18" is probably defined somewhere
+        if((    (h->DynSym[i].st_info == 18) 
+             || (h->DynSym[i].st_info == 17) 
+             || (h->DynSym[i].st_info == 2)) 
+            && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
+            const char * symname = h->DynStr+h->DynSym[i].st_name;
+            uintptr_t offs = h->DynSym[i].st_value + h->delta;
+            uint32_t sz = h->DynSym[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, (void*)offs, sz);
             AddSymbol(mapsymbols, symname, offs, sz);
         }
@@ -331,7 +348,8 @@ expansion, see “System Specific Shared Objects”
 int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86)
 {
    DumpDynamicNeeded(h);
-   for (int i=0; i<h->numDynamic; ++i)
+   // reverse order on needed libs
+   for (int i=h->numDynamic-1; i>=0; --i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling

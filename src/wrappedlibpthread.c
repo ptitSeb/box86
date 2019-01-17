@@ -13,6 +13,7 @@
 
 int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg); //implemented in thread.c
 int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor);
+int my_pthread_once(x86emu_t* emu, void* once, void* cb);
 
 const char* libpthreadName = "libpthread.so.0";
 #define LIBNAME libpthread

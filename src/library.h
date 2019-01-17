@@ -7,6 +7,7 @@ typedef struct kh_symbolmap_s  kh_symbolmap_t;
 typedef struct box86context_s  box86context_t;
 
 library_t *NewLibrary(const char* path, box86context_t* box86);
+int FinalizeLibrary(library_t* lib);
 void FreeLibrary(library_t **lib);
 
 char* GetNameLib(library_t *lib);
