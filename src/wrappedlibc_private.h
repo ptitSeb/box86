@@ -142,7 +142,7 @@ GO(clock, uFv)
 // __clone
 GOW(close, iFi)
 // __close  // Weak
-// closedir // Weak
+GOW(closedir, iFp)
 // closelog
 // __cmsg_nxthdr
 // confstr
@@ -293,7 +293,7 @@ GOW(__fcntl, iFiiu)
 GO(fdatasync, iFi)
 // fdetach
 GO(fdopen, pFip)
-// fdopendir    // Weak
+GOW(fdopendir, pFi)
 GOW(feof, iFp)
 // feof_unlocked
 GOW(ferror, iFp)
@@ -319,7 +319,7 @@ GOW(fgets, pFpip)
 // fgetspent_r  // Weak
 // fgets_unlocked
 // __fgets_unlocked_chk
-// fgetwc   // Weak
+GOW(fgetwc, iFp)
 // fgetwc_unlocked  // Weak
 // fgetws
 // __fgetws_chk
@@ -371,9 +371,9 @@ GO(__fread_chk, uFpuuup)
 // fread_unlocked
 // __fread_unlocked_chk
 GO(free, vFp)
-// freeaddrinfo
+GO(freeaddrinfo, vFp)
 DATAV(__free_hook, 4)
-// freeifaddrs
+GO(freeifaddrs, vFp)
 GOW(freelocale, vFp)
 GO(__freelocale, vFp)
 // fremovexattr
@@ -423,16 +423,16 @@ GOW(fwrite, uFpuup)
 // __fwriting
 // fwscanf
 GO(__fxstat, iFiip)
-// __fxstat64
+GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
 // __fxstatat
 // __fxstatat64
 // __gai_sigqueue
-// gai_strerror
+GO(gai_strerror, pFi)
 // __gconv_get_alias_db
 // __gconv_get_cache
 // __gconv_get_modules_db
 // gcvt
-// getaddrinfo
+GO(getaddrinfo, iFpppp)
 // getaliasbyname
 // getaliasbyname_r
 // getaliasent
@@ -456,7 +456,7 @@ GO(getdate, pFp)
 // getdomainname
 // __getdomainname_chk
 // getdtablesize    // Weak
-// getegid  // Weak
+GOW(getegid, iFv)
 GO(getenv, pFp)
 GOW(geteuid, pFv)
 // getfsent
@@ -483,7 +483,7 @@ GO(gethostent_r, iFppupp)
 // gethostid
 GOW(gethostname, iFpu)
 // __gethostname_chk
-// getifaddrs
+GO(getifaddrs, iFp)
 // getipv4sourcefilter
 // getitimer    // Weak
 // get_kernel_syms  // Weak
@@ -497,7 +497,7 @@ GOW(gethostname, iFpu)
 // getmntent_r  // Weak
 // getmsg
 // get_myaddress
-// getnameinfo
+GO(getnameinfo, iFpupupui)
 // getnetbyaddr
 // getnetbyaddr_r
 // getnetbyname
@@ -589,7 +589,7 @@ GOW(getuid, uPv)
 // getutxid
 // getutxline
 // getw
-// getwc    // Weak
+GO2(getwc, iFp, fgetwc)
 // getwchar
 // getwchar_unlocked
 // getwc_unlocked   // Weak
@@ -904,28 +904,28 @@ GO(isupper, iFi)
 // __iswctype
 GO(__iswctype_l, iFiup)
 // iswctype_l   // Weak
-// iswdigit // Weak
+GOW(iswdigit, iFi)
 // __iswdigit_l
 // iswdigit_l   // Weak
-// iswgraph // Weak
+GOW(iswgraph, iFi)
 // __iswgraph_l
 // iswgraph_l   // Weak
-// iswlower // Weak
+GOW(iswlower, iFi)
 // __iswlower_l
 // iswlower_l   // Weak
-// iswprint // Weak
+GOW(iswprint, iFi)
 // __iswprint_l
 // iswprint_l   // Weak
-// iswpunct // Weak
+GOW(iswpunct, iFi)
 // __iswpunct_l
 // iswpunct_l   // Weak
-// iswspace // Weak
+GOW(iswspace, iFi)
 // __iswspace_l
 // iswspace_l   // Weak
-// iswupper // Weak
+GOW(iswupper, iFi)
 // __iswupper_l
 // iswupper_l   // Weak
-// iswxdigit    // Weak
+GOW(iswxdigit, iFi)
 // __iswxdigit_l
 // iswxdigit_l  // Weak
 GO(isxdigit, iFi)
@@ -947,7 +947,7 @@ GO(isxdigit, iFi)
 // key_secretkey_is_set
 // key_setnet
 // key_setsecret
-// kill // Weak
+GOW(kill, iFii)
 // killpg
 // klogctl
 // l64a
@@ -1181,7 +1181,7 @@ GOW(open64, iFpiuuuu)  // open use vararg, cheating here putting arbitrary numbe
 // openat64 // Weak
 // __openat64_2
 // __open_catalog
-// opendir  // Weak
+GOW(opendir, pFp)
 // openlog
 // open_memstream
 // open_wmemstream
@@ -1209,8 +1209,8 @@ GO(perror, vFp)
 // pmap_rmtcall
 // pmap_set
 // pmap_unset
-// poll // Weak
-// __poll
+GOW(poll, iFpii)
+GO(__poll, iFpii)
 // popen
 // posix_fadvise
 // posix_fadvise64
@@ -1260,37 +1260,6 @@ DATAV(program_invocation_name, 4)
 DATAV(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
-// pthread_attr_destroy
-// pthread_attr_getdetachstate
-// pthread_attr_getinheritsched
-// pthread_attr_getschedparam
-// pthread_attr_getschedpolicy
-// pthread_attr_getscope
-// pthread_attr_init
-// pthread_attr_setdetachstate
-// pthread_attr_setinheritsched
-// pthread_attr_setschedparam
-// pthread_attr_setschedpolicy
-// pthread_attr_setscope
-// pthread_condattr_destroy
-// pthread_condattr_init
-// pthread_cond_broadcast
-// pthread_cond_destroy
-// pthread_cond_init
-// pthread_cond_signal
-// pthread_cond_timedwait
-// pthread_cond_wait
-// pthread_equal
-// pthread_exit
-// pthread_getschedparam
-// pthread_mutex_destroy
-// pthread_mutex_init
-// pthread_mutex_lock
-// pthread_mutex_unlock
-// pthread_self
-// pthread_setcancelstate   // Weak
-// pthread_setcanceltype
-// pthread_setschedparam
 // ptrace
 // ptsname
 // ptsname_r    // Weak
@@ -1322,8 +1291,8 @@ GO(putwc, iFip)
 // qfcvt
 // qfcvt_r
 // qgcvt
-// qsort
-// qsort_r
+GOM(qsort, vFEpuup)
+GOM(qsort_r, vFEpuupp)
 // query_module // Weak
 // quotactl
 // raise
@@ -1332,7 +1301,7 @@ GO(rand, iFv)
 // random_r // Weak
 GO(rand_r, iFp)
 // rawmemchr    // Weak
-// __rawmemchr
+GO(__rawmemchr, pFpi)
 // rcmd
 // rcmd_af
 // __rcmd_errstr    // type B
@@ -1522,7 +1491,7 @@ GOW(setvbuf, iFppiu)
 // shmctl
 // shmdt    // Weak
 // shmget   // Weak
-// shutdown // Weak
+GOW(shutdown, iFii)
 GOM(sigaction, iFEipp)    // Weak
 GOM(__sigaction, iFEipp)  // Weak
 // sigaddset
@@ -1612,7 +1581,7 @@ GO(strchr, pFpi)
 GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
 GO(strcoll, iFpp)
-// __strcoll_l
+GO(__strcoll_l, iFppp)
 // strcoll_l    // Weak
 GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppu)
@@ -1664,12 +1633,12 @@ GO(strrchr, pFpi)
 // __strspn_c3
 GO(strstr, pFpp)
 GO(strtod, dFpp)
-// __strtod_internal
-// __strtod_l
+GO(__strtod_internal, dFppp)
+GO(__strtod_l, dFppp)
 GOW(strtod_l, dFppu)
 GO(strtof, fFpp)
-// __strtof_internal
-// __strtof_l
+GO(__strtof_internal, fFppp)
+GO(__strtof_l, fFppp)
 GOW(strtof_l, fFppu)
 // strtoimax
 GO(strtok, pFpp)
@@ -1681,8 +1650,8 @@ GO(strtol, iFppi)
 // __strtold_internal
 // __strtold_l
 GOW(strtold_l, DFppu)
-// __strtol_internal
-// strtoll
+GO(__strtol_internal, iFppi)
+GO(strtoll, IFppi)
 // __strtol_l
 // strtol_l // Weak
 // __strtoll_internal
@@ -1776,7 +1745,7 @@ GOM(sysv_signal, pFip)  // Weak
 // tee
 // telldir
 // tempnam
-// textdomain   // Weak
+GOW(textdomain, pFp)
 // tfind    // Weak
 GO(time, uFp)
 // timegm
@@ -1806,11 +1775,11 @@ GO(toupper, iFi)
 // __towctrans_l
 // towctrans_l  // Weak
 // towlower
-// __towlower_l
+GO(__towlower_l, iFip)
 // towlower_l   // Weak
-// towupper
-// __towupper_l
-// towupper_l   // Weak
+GO(towupper, iFi)
+GO(__towupper_l, iFip)
+GOW(towupper_l, iFip)
 // tr_break
 // truncate // Weak
 // truncate64
@@ -1917,9 +1886,9 @@ GOW(wcrtomb, uFpip)
 // wcschr
 // wcschrnul    // Weak
 GO(wcscmp, iFpp)
-// wcscoll  // Weak
-// __wcscoll_l
-// wcscoll_l    // Weak
+GOW(wcscoll, iFpp)
+GO(__wcscoll_l, iFppp)
+GOW(wcscoll_l, iFppp)
 // wcscpy
 // __wcscpy_chk
 // wcscspn
@@ -2095,7 +2064,7 @@ GO(__xpg_strerror_r, pFipu)
 // xprt_register
 // xprt_unregister
 GO(__xstat, iFipp)
-// __xstat64
+GOM(__xstat64, iFEipp)
 
 // forcing a custom __gmon_start__ that does nothing
 GOM(__gmon_start__, vFv)
@@ -2109,5 +2078,9 @@ GOM(_ITM_RU4, uFp)
 GOM(_ITM_memcpyRtWn, vFppu)
 GOM(_ITM_memcpyRnWt, vFppu)
 GOM(_ITM_addUserCommitAction, vFEpup)
+
+// defini dans glibc/sysdeps/i386/dl-tls.h
+//___tls_get_addr       the parameter tls_index is in a register (EAX?)
+//__tls_get_addr        same, but the parameter is in the stack
 
 #endif

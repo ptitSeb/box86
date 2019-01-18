@@ -10,7 +10,6 @@
 // __libc_allocate_rtsig
 // __libc_current_sigrtmax
 // __libc_current_sigrtmin
-// longjmp
 // pthread_atfork
 GO(pthread_attr_destroy, iFp)
 // pthread_attr_getaffinity_np
@@ -57,8 +56,8 @@ GO(pthread_cond_broadcast, iFp)
 GO(pthread_cond_destroy, iFp)
 GO(pthread_cond_init, iFpp)
 GO(pthread_cond_signal, iFp)
-// pthread_cond_timedwait
-// pthread_cond_wait
+GO(pthread_cond_timedwait, iFppp)
+GO(pthread_cond_wait, iFpp)
 GOM(pthread_create, iFEpppp)
 // pthread_detach
 GO(pthread_equal, iFuu)

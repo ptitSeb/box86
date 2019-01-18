@@ -1,13 +1,18 @@
-#include <stdio.h>
+#define _LARGEFILE_SOURCE 1
+#define _FILE_OFFSET_BITS 64
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <wchar.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <signal.h>
 typedef void (*sighandler_t)(int);
 #include <errno.h>
 #include <stdarg.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "wrappedlibs.h"
 
@@ -243,6 +248,47 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
     // should keep track of cbemu to remove at some point...
     #endif
 }
+
+EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
+{
+    struct stat64 st;
+    int r = fstat64(fd, &st);
+    //int r = syscall(__NR_stat64, fd, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my___xstat64(x86emu_t* emu, int v, void* path, void* buf)
+{
+    struct stat64 st;
+    int r = stat64((const char*)path, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+static int qsort_cmp(const void* a, const void* b, void* e)
+{
+    x86emu_t* emu = (x86emu_t*)e;
+    SetCallbackArg(emu, 0, (void*)a);
+    SetCallbackArg(emu, 1, (void*)b);
+    RunCallback(emu);
+}
+
+EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
+{
+    // use a temporary callback
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, NULL, NULL);
+    qsort_r(base, nmemb, size, qsort_cmp, cbemu);
+    FreeCallback(cbemu);
+}
+EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* arg)
+{
+    // use a temporary callback
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
+    qsort_r(base, nmemb, size, qsort_cmp, cbemu);
+    FreeCallback(cbemu);
+}
+
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
