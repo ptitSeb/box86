@@ -1623,7 +1623,7 @@ GO(__strcpy_chk, pFppu)
 // __strcspn_c3
 GOW(strdup, pFp)
 GO(__strdup, pFp)
-GO(strerror, pFv)
+GO(strerror, pFi)
 // strerror_l
 // __strerror_r
 // strerror_r   // Weak
