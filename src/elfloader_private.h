@@ -35,6 +35,8 @@ struct elfheader_s {
     int         pltsz;
     int         pltent;
     uint32_t    pltrel;
+    uintptr_t   gotplt;
+    uintptr_t   got;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;

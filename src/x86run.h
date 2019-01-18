@@ -8,6 +8,8 @@ int Run(x86emu_t *emu); // 0 if run was successfull, 1 if error in x86 world
 uint8_t Peek(x86emu_t *emu, int offset);
 
 uint32_t LibSyscall(x86emu_t *emu);
+void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs);
+extern uintptr_t pltResolver;
 
 
 #endif //__X86RUN_H_

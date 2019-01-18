@@ -10,6 +10,10 @@
 #include "elfload_dump.h"
 #include "elfloader_private.h"
 #include "librarian.h"
+#include "x86run.h"
+#include "bridge.h"
+#include "wrapper.h"
+#include "box86context.h"
 
 void FreeElfHeader(elfheader_t** head)
 {
@@ -220,20 +224,27 @@ int RelocateElf(lib_t *maplib, elfheader_t* head)
     return 0;
 }
 
-int RelocateElfPlt(lib_t *maplib, elfheader_t* head)
+int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head)
 {
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d Relocation(s)\n", cnt);
+            printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s)\n", cnt);
             if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta), "PLT");
-            printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend\n", cnt);
+            printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend\n", cnt);
             if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
+        }
+        if(head->gotplt) {
+            if(pltResolver==~0) {
+                pltResolver = AddBridge(context->system, vFEpp, PltResolver);   // should be vFEuu
+            }
+            *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
+            printf_log(LOG_DEBUG, "PLT Resolver injected at %p\n", (void*)(head->gotplt+head->delta+8));
         }
     }
    

@@ -236,7 +236,7 @@ int main(int argc, const char **argv, const char **env) {
     }
     // and handle PLT for all loaded Elf... (ignore error here)
     for(int i=0; i<context->elfsize; ++i)
-        RelocateElfPlt(context->maplib, context->elfs[i]);
+        RelocateElfPlt(context, context->maplib, context->elfs[i]);
 
     // get and alloc stack size and align
     if(CalcStackSize(context)) {

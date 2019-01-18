@@ -28,6 +28,9 @@ void x86Int3(x86emu_t* emu)
             addr = Fetch32(emu);
             if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
                 const char *s = GetNativeName((void*)addr);
+                if(addr==(uintptr_t)PltResolver) {
+                    printf(" ... ");
+                } else
                 if(strstr(s, "SDL_RWFromFile")) {
                     printf_log(LOG_INFO, "%p: (%p) Calling %s(%s, %s)", (void*)R_EIP, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "glColor4f")) {

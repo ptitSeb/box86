@@ -209,7 +209,7 @@ int FinalizeLibrary(library_t* lib, int pltNow)
             return 1;
         }
         if(pltNow)
-            RelocateElfPlt(lib->context->maplib, elf_header);
+            RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
     }
     return 0;
 }

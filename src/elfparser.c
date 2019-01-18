@@ -239,6 +239,17 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
             //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
         }
     }
+    // look for PLT Offset
+    int ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got.plt");
+    if(ii) {
+        h->gotplt = h->SHEntries[ii].sh_addr;
+        printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
+    }
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
+    if(ii) {
+        h->got = h->SHEntries[ii].sh_addr;
+        printf_log(LOG_DEBUG, "The GOT Table is at address %p\n", (void*)h->got);
+    }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
