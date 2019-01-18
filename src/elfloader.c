@@ -216,6 +216,12 @@ int RelocateElf(lib_t *maplib, elfheader_t* head)
         if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
             return -1;
     }
+   
+    return 0;
+}
+
+int RelocateElfPlt(lib_t *maplib, elfheader_t* head)
+{
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
@@ -347,7 +353,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86)
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86, int pltNow)
 {
    DumpDynamicNeeded(h);
    // reverse order on needed libs
@@ -355,7 +361,7 @@ int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, needed, box86)) {
+            if(AddNeededLib(maplib, needed, box86, pltNow)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 return 1;   //error...
             }

@@ -117,7 +117,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             lib->type = 0;
             // Call librarian to load all dependant elf
             for(int i=0; i<lib->priv.w.needed; ++i)
-                if(AddNeededLib(context->maplib, lib->priv.w.neededlibs[i], context)) {
+                if(AddNeededLib(context->maplib, lib->priv.w.neededlibs[i], context, 0)) {  // probably all native, not emulated, so that's fine
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
                     return NULL;
                 }
@@ -192,14 +192,14 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 
     return lib;
 }
-int FinalizeLibrary(library_t* lib)
+int FinalizeLibrary(library_t* lib, int pltNow)
 {
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
         // add symbols
         AddGlobalsSymbols(lib->priv.n.mapsymbols, elf_header);
         // Call librarian to load all dependant elf
-        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context)) {
+        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context, pltNow)) {
             printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
             return 1;
         }
@@ -208,6 +208,8 @@ int FinalizeLibrary(library_t* lib)
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
+        if(pltNow)
+            RelocateElfPlt(lib->context->maplib, elf_header);
     }
     return 0;
 }

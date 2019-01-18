@@ -59,7 +59,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
-int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86)
+int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, int pltNow)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
@@ -82,7 +82,7 @@ int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86)
     maplib->libraries[maplib->libsz].lib = lib;
     maplib->libraries[maplib->libsz].name = GetNameLib(lib);
     ++maplib->libsz;
-    if(FinalizeLibrary(lib)) {
+    if(FinalizeLibrary(lib, pltNow)) {
         printf_log(LOG_DEBUG, "Faillure to finalizing lib => fail\n");
         return 1;   //Error
     }

@@ -223,7 +223,7 @@ int main(int argc, const char **argv, const char **env) {
     // export symbols
     AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
-    if(LoadNeededLib(elf_header, context->maplib, context)) {
+    if(LoadNeededLib(elf_header, context->maplib, context, 0)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
@@ -234,6 +234,10 @@ int main(int argc, const char **argv, const char **env) {
         FreeBox86Context(&context);
         return -1;
     }
+    // and handle PLT for all loaded Elf... (ignore error here)
+    for(int i=0; i<context->elfsize; ++i)
+        RelocateElfPlt(context->maplib, context->elfs[i]);
+
     // get and alloc stack size and align
     if(CalcStackSize(context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");

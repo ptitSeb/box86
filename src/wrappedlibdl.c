@@ -52,7 +52,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             return (void*)(i+1);
     }
     // Then open the lib
-    if(AddNeededLib(emu->context->maplib, rfilename, emu->context)) {
+    if(AddNeededLib(emu->context->maplib, rfilename, emu->context, 1)) {
         printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         return NULL;
     }

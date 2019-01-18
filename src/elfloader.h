@@ -17,10 +17,11 @@ int AllocElfMemory(elfheader_t* head);
 void FreeElfMemory(elfheader_t* head);
 int LoadElfMemory(FILE* f, elfheader_t* head);
 int RelocateElf(lib_t *maplib, elfheader_t* head);
+int RelocateElfPlt(lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h);
-int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t* box86);
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t* box86, int pltNow);
 
 #endif //__ELF_LOADER_H_
