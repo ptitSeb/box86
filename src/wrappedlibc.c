@@ -92,13 +92,17 @@ sighandler_t EXPORT my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 }
 sighandler_t EXPORT my___sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 sighandler_t EXPORT my_sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
-pid_t EXPORT my_fork()
+pid_t EXPORT my_fork(x86emu_t* emu)
 {
-    // should be doable, but the x86emu stack has to be dedup for the child
-    printf_log(LOG_NONE, "Warning, Ignoring fork()\n");
-    return EAGAIN;
+    #if 1
+    emu->quit = 1;
+    emu->fork = 1;
+    return 0;
+    #else
+    return 0;
+    #endif
 }
-pid_t EXPORT my___fork() __attribute__((alias("my_fork")));
+pid_t EXPORT my___fork(x86emu_t* emu) __attribute__((alias("my_fork")));
 
 EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
 EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
@@ -290,6 +294,13 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
     qsort_r(base, nmemb, size, qsort_cmp, cbemu);
     FreeCallback(cbemu);
 }
+
+EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
+{
+    printf("execvp(%s, %p)\n", (const char*)a, b);
+    return execvp(a, b);
+}
+EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute__((alias("my_execvp")));
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";

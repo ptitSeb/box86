@@ -60,6 +60,8 @@ typedef struct box86context_s {
     library_t           *sdl2lib;       // shortcut to SDL2 library (if loaded)
     library_t           *sdl2mixerlib;
     library_t           *sdl2imagelib;
+
+    int                 forked;         //  how many forks... cleanup only when < 0
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

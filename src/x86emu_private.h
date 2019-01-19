@@ -38,6 +38,7 @@ typedef struct x86emu_s {
     // emu control
     int         quit;
     int         error;
+    int         fork;   // quit because need to fork
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;
@@ -52,6 +53,8 @@ typedef struct x86emu_s {
     int         clean_cap;
     // scratch stack, used for alignement of double and 64bits ints on arm
     uint32_t    *scratch;
+    // local stack, do be deleted when emu is freed
+    void*       stack;
 
 } x86emu_t;
 

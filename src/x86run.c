@@ -17,6 +17,7 @@ int Run(x86emu_t *emu)
 {
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
+x86emurun:
     emu->quit = 0;
     while (!emu->quit)
     {
@@ -1056,5 +1057,10 @@ int Run(x86emu_t *emu)
             default:
                 UnimpOpcode(emu);
         }
+    }
+    if(emu->fork) {
+        emu->fork = 0;
+        emu = x86emu_fork(emu);
+        goto x86emurun;
     }
 }

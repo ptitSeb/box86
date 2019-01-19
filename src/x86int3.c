@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h> 
 
 #include "debug.h"
 #include "stack.h"
@@ -13,6 +15,31 @@
 #include "x86trace.h"
 #include "wrapper.h"
 #include "box86context.h"
+
+x86emu_t* x86emu_fork(x86emu_t* e)
+{
+    x86emu_t *emu = e;
+    // lets duplicate the emu
+    void* newstack = 0;
+    posix_memalign(&newstack, emu->context->stackalign, emu->context->stacksz);
+    memcpy(newstack, emu->context->stack, emu->context->stacksz);
+    x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz);
+    SetupX86Emu(newemu, emu->shared_global, emu->globals);
+    CloneEmu(newemu, emu);
+    emu->stack = newstack;
+    // ready to fork
+    ++emu->context->forked;
+    int v = fork();
+    if(!v) {  
+        emu = newemu;
+    }
+    if(v==EAGAIN || v==ENOMEM) {
+        --emu->context->forked;
+        FreeX86Emu(&newemu);    // fork failed, free the new emu
+    }
+    R_EAX = v;
+    return emu;
+}
 
 void x86Int3(x86emu_t* emu)
 {

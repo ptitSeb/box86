@@ -125,8 +125,40 @@ void FreeX86Emu(x86emu_t **emu)
 
     free((*emu)->scratch);
 
+    free((*emu)->stack);
+
     free(*emu);
     *emu = NULL;
+}
+
+void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
+{
+	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
+    memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
+	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+    newemu->old_ip = emu->old_ip;
+    memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
+	memcpy(newemu->fpu, emu->fpu, sizeof(emu->fpu));
+    memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
+    memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
+	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
+	newemu->cw = emu->cw;
+    newemu->cw_mask_all = emu->cw_mask_all;
+	memcpy(&newemu->sw, &emu->sw, sizeof(emu->sw));
+	newemu->top = emu->top;
+    newemu->fpu_stack = emu->fpu_stack;
+	memcpy(&newemu->round, &emu->round, sizeof(emu->round));
+    memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
+    memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
+    newemu->mxcsr = emu->mxcsr;
+    memcpy(&newemu->zero, &emu->zero, sizeof(emu->zero));
+    memcpy(newemu->sbiidx, emu->sbiidx, sizeof(emu->sbiidx));
+    newemu->quit = emu->quit;
+    newemu->error = emu->error;
+    // addapt R_ESP to new stack frame
+    uintptr_t oldst = (uintptr_t)((emu->stack)?emu->stack:emu->context->stack);
+    uintptr_t newst = (uintptr_t)((newemu->stack)?newemu->stack:newemu->context->stack);
+    newemu->regs[_SP].dword[0] = emu->regs[_SP].dword[0] + (intptr_t)(newst - oldst);
 }
 
 uint32_t GetEAX(x86emu_t *emu)

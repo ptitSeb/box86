@@ -169,6 +169,8 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
                 *p = offs;
                 break;
+            //case R_386_TLS_DTPMOD32:
+            // try to use _dl_next_tls_modid() ?
             case R_386_TLS_DTPOFF32:
             case R_386_JMP_SLOT:
                 offs = FindGlobalSymbol(maplib, symname);
@@ -350,6 +352,7 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
         if((    (h->SymTab[i].st_info == 18) 
              || (h->SymTab[i].st_info == 17) 
              || (h->SymTab[i].st_info == 34) 
+             || (h->SymTab[i].st_info == 22) 
              || (h->SymTab[i].st_info == 2)) 
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -365,6 +368,7 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
         if((    (h->DynSym[i].st_info == 18) 
              || (h->DynSym[i].st_info == 17) 
              || (h->DynSym[i].st_info == 34) 
+             || (h->DynSym[i].st_info == 22) 
              || (h->DynSym[i].st_info == 2)) 
             && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
             const char * symname = h->DynStr+h->DynSym[i].st_name;

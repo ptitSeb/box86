@@ -4,7 +4,7 @@ import os
 import glob
 import sys
 
-values = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'L', 'p', 'V']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'L', 'p', 'V']
 def splitchar(s):
 	ret = [len(s)]
 	i = 0
@@ -105,7 +105,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // p = pointer, P = callback
 // f = float, d = double, D = long double, L = fake long double
-// V = vaargs, E = current x86emu struct
+// V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
 // 0 = constant 0, 1 = constant 1
 // o = stdout
 // C = unsigned byte c = char
@@ -139,8 +139,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl:
-    		#		  E  			v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		L			p  			V 
-			types = ["x86emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*"]
+    		#		  E  		    e	 		   v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		L			p  			V 
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*"]
 			if len(values) != len(types):
     				raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -163,6 +163,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			
 			arg = [
 				"emu, ",                          # E
+				"&emu, ",						  # e
 				"",                               # v
 				"*(int8_t*)(R_ESP + {p}), ",      # c
 				"*(int16_t*)(R_ESP + {p}), ",     # w
@@ -179,8 +180,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(void**)(R_ESP + {p}), ",       # p
 				"(void*)(R_ESP + {p}), "      	  # V
 			]
-			#		  E  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  
-			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0]
+			#		  E  e  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  
+			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
 			if len(values) != len(deltas):
@@ -191,6 +192,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			f.write("void {0}(x86emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
 			vals = [
 				"\n#error Invalid return type: emulator\n",                     # E
+				"\n#error Invalid return type: &emulator\n",                    # e
 				"fn({0});",                                                     # v
 				"R_EAX=fn({0});",                                               # c
 				"R_EAX=fn({0});",                                               # w

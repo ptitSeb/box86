@@ -14,7 +14,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // p = pointer, P = callback
 // f = float, d = double, D = long double, L = fake long double
-// V = vaargs, E = current x86emu struct
+// V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
 // 0 = constant 0, 1 = constant 1
 // o = stdout
 // C = unsigned byte c = char
@@ -29,6 +29,7 @@ void vFu(x86emu_t *emu, uintptr_t fnc);
 void vFf(x86emu_t *emu, uintptr_t fnc);
 void vFd(x86emu_t *emu, uintptr_t fnc);
 void vFp(x86emu_t *emu, uintptr_t fnc);
+void iFE(x86emu_t *emu, uintptr_t fnc);
 void iFv(x86emu_t *emu, uintptr_t fnc);
 void iFi(x86emu_t *emu, uintptr_t fnc);
 void iFu(x86emu_t *emu, uintptr_t fnc);
@@ -620,10 +621,11 @@ void vFuffiiffiiffiip(x86emu_t *emu, uintptr_t fnc);
 void vFuddiiddiiddiip(x86emu_t *emu, uintptr_t fnc);
 void vFuuiiiiuuiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
-void iFEpvpVV(x86emu_t *emu, uintptr_t fnc);
-void iFEpvvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEvpVV(x86emu_t *emu, uintptr_t fnc);
+void iFEv(x86emu_t *emu, uintptr_t fnc);
 void pFEv(x86emu_t *emu, uintptr_t fnc);
 void iFEpuvvpVV(x86emu_t *emu, uintptr_t fnc);
+void iFEpvpVV(x86emu_t *emu, uintptr_t fnc);
+void iFEpvvpVV(x86emu_t *emu, uintptr_t fnc);
 
 #endif //__WRAPPER_H_

@@ -8,6 +8,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
 void SetupX86Emu(x86emu_t *emu, int* shared_gloabl, void* globals);
 void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end);
 void FreeX86Emu(x86emu_t **x86emu);
+void CloneEmu(x86emu_t *newemu, const x86emu_t* emu);
 
 uint32_t GetEAX(x86emu_t *emu);
 void SetEAX(x86emu_t *emu, uint32_t v);

@@ -41,6 +41,9 @@ void FreeBox86Context(box86context_t** context)
 {
     if(!context)
         return;
+    
+    if(--(*context)->forked >= 0)
+        return;
 
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);

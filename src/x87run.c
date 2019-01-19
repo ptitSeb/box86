@@ -316,29 +316,47 @@ void RunD9(x86emu_t *emu)
             ST0.d = 0.0;
             break;
         
+        case 0xF2:  /* FTAN */
+            ST0.d = tan(ST0.d);
+            fpu_do_push(emu);
+            ST0.d = 1.0;
+            break;
+        case 0xF3:  /* FPATAN */
+            ST(1).d = atan2(ST(1).d, ST0.d);
+            fpu_do_pop(emu);
+            break;
+
         case 0xFA:  /* FSQRT */
             ST0.d = sqrt(ST0.d);
             break;
-
+        case 0xFB:  /* FSINCOS */
+            d = ST0.d;
+            ST0.d = sin(d);
+            fpu_do_push(emu);
+            ST0.d = cos(d);
+            break;
         case 0xFC:  /* FRNDINT */
             ST0.d = fpu_round(emu, ST0.d);
             break;
 
+        case 0xFE:  /* FSIN */
+            ST0.d = sin(ST0.d);
+            break;
+        case 0xFF:  /* FCOS */
+            ST0.d = cos(ST0.d);
+            break;
+
+
         case 0xE4:
         case 0xF0:
         case 0xF1:
-        case 0xF2:
-        case 0xF3:
         case 0xF4:
         case 0xF5:
         case 0xF6:
         case 0xF7:
         case 0xF8:
         case 0xF9:
-        case 0xFB:
         case 0xFD:
-        case 0xFE:
-        case 0xFF:
             UnimpOpcode(emu);
             break;
         default:

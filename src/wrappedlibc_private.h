@@ -268,10 +268,10 @@ GO(__errno_location, pFv)
 // eventfd_write
 // execl
 // execle
-GO2(execlp, iFppV, execvp)  // is that correct?
+GOM(execlp, iFEpVV)
 GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
 // execve   // Weak
-GO(execvp, iFpp)    // same remark as for execv
+GOM(execvp, iFEpVV)
 GOM(exit, vFEi)
 GOM(_exit, vFEi)
 // _Exit    // Weak
@@ -345,8 +345,8 @@ GO(fileno, iFp)
 GO(fopen, pFpp)
 GOW(fopen64, pFpp)
 // fopencookie
-GOM(fork, pFE) // Weak
-GOM(__fork, pFE)
+GOM(fork, iFEv) // Weak
+GOM(__fork, iFEv)
 // __fortify_fail
 // fpathconf    // Weak
 // __fpending
