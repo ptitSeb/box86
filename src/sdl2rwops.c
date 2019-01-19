@@ -87,6 +87,8 @@ void FreeSDL2RWops(sdl2rwops_t **rw)
 
 void AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
 {
+    if(!ops)
+        return;
     uintptr_t fnc;
     sdl2rwops_t* rw = (sdl2rwops_t*)emu->context->sdl2lib->priv.w.priv;
     bridge_t* system = emu->context->system;
@@ -126,6 +128,8 @@ static int isAnyEmulated(sdl2rwops_t* rw, SDL2_RWops_t *ops)
 // put Native RW function, wrapping emulated (callback style) ones if needed
 void RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
 {
+    if(!ops)
+        return;
     sdl2rwops_t* rw = (sdl2rwops_t*)emu->context->sdl2lib->priv.w.priv;
     
     save->anyEmu = isAnyEmulated(rw, ops);
@@ -158,6 +162,8 @@ void RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
 // put back emulated function back in place
 void RWNativeEnd2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
 {
+    if(!ops)
+        return;
     sdl2rwops_t* rw = (sdl2rwops_t*)emu->context->sdl2lib->priv.w.priv;
 
     ops->size = save->size;

@@ -157,7 +157,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 break;
             case R_386_GLOB_DAT:
                 offs = FindGlobalSymbol(maplib, symname);   // Data and not symbol
-                printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p)\n", p, (void*)(p?(*p):0), (void*)offs);
+                printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p) on sym=%d\n", p, (void*)(p?(*p):0), (void*)offs, symname);
                 *p = offs;
                 break;
             case R_386_RELATIVE:
@@ -227,7 +227,7 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
                 }
                 break;
             default:
-                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
+                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s on %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)), symname);
         }
     }
     return 0;
@@ -352,6 +352,7 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
         if((    (h->SymTab[i].st_info == 18) 
              || (h->SymTab[i].st_info == 17) 
              || (h->SymTab[i].st_info == 34) 
+             || (h->SymTab[i].st_info == 33) 
              || (h->SymTab[i].st_info == 22) 
              || (h->SymTab[i].st_info == 2)) 
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
@@ -368,6 +369,7 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
         if((    (h->DynSym[i].st_info == 18) 
              || (h->DynSym[i].st_info == 17) 
              || (h->DynSym[i].st_info == 34) 
+             || (h->DynSym[i].st_info == 33) 
              || (h->DynSym[i].st_info == 22) 
              || (h->DynSym[i].st_info == 2)) 
             && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {

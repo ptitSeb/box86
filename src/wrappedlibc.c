@@ -297,7 +297,6 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
 
 EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
 {
-    printf("execvp(%s, %p)\n", (const char*)a, b);
     return execvp(a, b);
 }
 EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute__((alias("my_execvp")));
