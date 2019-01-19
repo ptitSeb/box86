@@ -4,7 +4,7 @@ import os
 import glob
 import sys
 
-values = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'p', 'V']
+values = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'L', 'p', 'V']
 def splitchar(s):
 	ret = [len(s)]
 	i = 0
@@ -80,6 +80,7 @@ def main(root):
 #include "x86emu_private.h"
 #include "x87emu_private.h"
 #include "regs.h"
+#include "x86emu.h"
 
 typedef union ui64_s {
     int64_t     i;
@@ -138,8 +139,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl:
-    		#		  E  			v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		p  			V 
-			types = ["x86emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "void*", "void*"]
+    		#		  E  			v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		L			p  			V 
+			types = ["x86emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*"]
 			if len(values) != len(types):
     				raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -174,11 +175,12 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(float*)(R_ESP + {p}), ",       # f
 				"*(double*)(R_ESP + {p}), ",      # d
 				"*(long double*)(R_ESP + {p}), ", # D
+				"FromLD((void*)(R_ESP + {p})), ", # L
 				"*(void**)(R_ESP + {p}), ",       # p
 				"(void*)(R_ESP + {p}), "      	  # V
 			]
-			#		  E  v  c  w  i  I  C  W  u  U  f  d  D   p  V  
-			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 4, 0]
+			#		  E  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  
+			deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
 			if len(values) != len(deltas):
@@ -201,6 +203,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"float fl=fn({0}); fpu_do_push(emu); ST0.d = fl;",              # f
 				"double db=fn({0}); fpu_do_push(emu); ST0.d = db;",             # d
 				"long double ld=fn({0}); fpu_do_push(emu); ST0.d = ld;",        # D
+				"double db=fn({0}); fpu_do_push(emu); ST0.d = db;",             # L
 				"R_EAX=(uintptr_t)fn({0});",                                    # p
 				"\n#error Invalid return type: va_list\n",                      # V
 			]

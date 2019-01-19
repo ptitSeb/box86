@@ -285,6 +285,13 @@ void D2LD(void* d, void* ld)
     memcpy((char*)ld + 8, &val.b, 2);*/
 }
 
+double FromLD(void* ld)
+{
+    double ret;
+    LD2D(ld, &ret);
+    return ret;
+}
+
 
 void fpu_loadenv(x86emu_t* emu, char* p, int b16)
 {

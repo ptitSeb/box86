@@ -59,7 +59,7 @@ GO(pthread_cond_signal, iFp)
 GO(pthread_cond_timedwait, iFppp)
 GO(pthread_cond_wait, iFpp)
 GOM(pthread_create, iFEpppp)
-// pthread_detach
+GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
 // pthread_exit
 // pthread_getaffinity_np
@@ -72,8 +72,8 @@ GO(pthread_getspecific, pFu)
 // __pthread_initialize_minimal
 GO(pthread_join, iFup)
 // __pthread_key_create
-GOM(pthread_key_create, iFpp)
-// pthread_key_delete
+GOM(pthread_key_create, iFEpp)
+GO(pthread_key_delete, iFu)
 // pthread_kill
 // pthread_kill_other_threads_np
 // __pthread_mutexattr_destroy

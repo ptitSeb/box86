@@ -100,13 +100,13 @@ pid_t EXPORT my_fork()
 }
 pid_t EXPORT my___fork() __attribute__((alias("my_fork")));
 
-EXPORT void* my__ZGTtnaX (size_t a) { return NULL; }
-EXPORT void my__ZGTtdlPv (void* a) { }
-EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { return 0; }
-EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { return 0; }
-EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { return 0; }
-EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { }
-EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { }
+EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
+EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
+EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
+EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 called\n"); return 0; }
+EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
+EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
+EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
 
 EXPORT void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -214,7 +214,7 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     // need to align on arm
     myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
     void* f = vsnprintf;
-    int r = ((iFppp_t)f)(buff, n, fmt, emu->scratch);
+    int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
     return vsnprintf((char*)buff, s, (char*)fmt, V);
@@ -246,6 +246,8 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
     x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, c, NULL, NULL, NULL);
     my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
     // should keep track of cbemu to remove at some point...
+    #else
+    printf("warning _ITM_addUserCommitAction called\n");
     #endif
 }
 
@@ -288,7 +290,6 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
     qsort_r(base, nmemb, size, qsort_cmp, cbemu);
     FreeCallback(cbemu);
 }
-
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";

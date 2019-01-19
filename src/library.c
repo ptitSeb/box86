@@ -179,6 +179,9 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             lib->get = EmuLib_Get;
             lib->priv.n.elf_index = mainelf;
             lib->priv.n.mapsymbols = kh_init(mapsymbols);
+
+            printf_log(LOG_INFO, "Using emulated %s\n", libname);
+
         }
     }
     // not implemented yet, so error...

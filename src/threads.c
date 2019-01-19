@@ -11,6 +11,7 @@
 #include "x86emu.h"
 #include "stack.h"
 #include "callback.h"
+#include "khash.h"
 
 // memory handling to be perfected...
 // keep a hash thread_t -> emu to set emu->quit to 1 on pthread_cancel
@@ -78,18 +79,66 @@ int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 	return -1;
 }
 
-static x86emu_t *once_emu = NULL;
-void thread_once_callback()
-{
-	if(once_emu) {
-		RunCallback(once_emu);
-		FreeCallback(once_emu);
-		once_emu = NULL;
-	}
+KHASH_MAP_INIT_INT(once, int)
+
+#define nb_once	16
+typedef void(*thread_once)(void);
+static x86emu_t *once_emu[nb_once] = {0};
+#define GO(N) \
+void thread_once_callback_##N() \
+{ \
+	if(once_emu[N]) { \
+		RunCallback(once_emu[N]); \
+		FreeCallback(once_emu[N]); \
+		once_emu[N] = NULL; \
+	} \
 }
+GO(0)
+GO(1)
+GO(2)
+GO(3)
+GO(4)
+GO(5)
+GO(6)
+GO(7)
+GO(8)
+GO(9)
+GO(10)
+GO(11)
+GO(12)
+GO(13)
+GO(14)
+GO(15)
+#undef GO
+thread_once once_cb[nb_once] = {
+	 thread_once_callback_0, thread_once_callback_1, thread_once_callback_2, thread_once_callback_3
+	,thread_once_callback_4, thread_once_callback_5, thread_once_callback_6, thread_once_callback_7
+	,thread_once_callback_8, thread_once_callback_9, thread_once_callback_10,thread_once_callback_11
+	,thread_once_callback_12,thread_once_callback_13,thread_once_callback_14,thread_once_callback_15
+};
+kh_once_t 	*once_map = NULL;
+// TODO: put all this in libpthread private stuff...
 
 int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 {
-	once_emu = AddCallback(emu, (uintptr_t)cb, 0, NULL, NULL, NULL, NULL);
-	return pthread_once(once, thread_once_callback);
+	// look if that once already is in map
+	if(!once_map) {
+		once_map = kh_init(once);
+	}
+	khint_t k;
+	k = kh_get(once, once_map, (uintptr_t)once);
+	if(k!=kh_end(once_map)) {
+			return pthread_once(once, once_cb[kh_value(once_map, k)]);
+	}
+	// look for a free slot
+	for(int i=0; i<nb_once; ++i)
+		if(!once_emu[i]) {
+			once_emu[i] = AddCallback(emu, (uintptr_t)cb, 0, NULL, NULL, NULL, NULL);
+			int ret;
+			k = kh_put(once, once_map, (uintptr_t)once, &ret);	// add to map
+			kh_value(once_map, k) = i;
+			return pthread_once(once, once_cb[i]);
+		}
+	printf_log(LOG_NONE, "Warning, no more slot on pthread_once");
+	return 0;
 }

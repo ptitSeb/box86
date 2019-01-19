@@ -195,7 +195,7 @@ GOW(fmodf, fFff)
 // __fpclassifyf
 GOW(frexp, dFdp)
 GOW(frexpf, fFfp)
-// frexpl   // Weak
+GO2(frexpl, LFLp, frexp)
 // gamma    // Weak
 // gammaf   // Weak
 // __gammaf_r_finite

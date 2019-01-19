@@ -182,6 +182,10 @@ const char* DumpRelType(int t)
         GO(R_386_RELATIVE);
         GO(R_386_GOTOFF);
         GO(R_386_GOTPC);
+        GO(R_386_PC8);
+        GO(R_386_TLS_GD_32);
+        GO(R_386_TLS_DTPMOD32);
+        GO(R_386_TLS_DTPOFF32);
         #undef GO
         default: sprintf(buff, "type: 0x%x (unknown)", t); break;
     }

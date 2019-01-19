@@ -30,7 +30,7 @@ GOW(access, iFpi)
 // __aeabi_memset8
 DATAV(__after_morecore_hook, 4)
 GO(alarm, iFu)
-GO(aligned_alloc, pFuu)
+GO2(aligned_alloc, pFuu, memalign)
 // alphasort
 // alphasort64
 DATA(argp_err_exit_status, 4)
@@ -507,8 +507,8 @@ GO(getnameinfo, iFpupupui)
 // getnetgrent
 // getnetgrent_r    // Weak
 // getnetname
-// get_nprocs   // Weak
-// get_nprocs_conf  // Weak
+GOW(get_nprocs, iFv)
+GOW(get_nprocs_conf, iFv)
 // getopt
 // getopt_long
 // getopt_long_only
@@ -1533,7 +1533,7 @@ GOM(__sigsetjmp, iFEp)
 // sigvec   // Weak
 // sigwait  // Weak
 // sigwaitinfo  // Weak
-// sleep    // Weak
+GOW(sleep, uFu)
 GOM(snprintf, iFEpupVV)
 GOM(__snprintf_chk, iFEpuvvpVV)
 // sockatmark
@@ -1814,7 +1814,7 @@ GOW(unsetenv, iFp)
 GOW(uselocale, pFp)
 GO(__uselocale, pFp)
 // user2netname
-// usleep
+GO(usleep, iFu)
 // ustat
 // utime
 // utimensat
@@ -2070,6 +2070,7 @@ GOM(__xstat64, iFEipp)
 GOM(__gmon_start__, vFv)
 
 // not found (libitm???), but it seems OK to declare dummies:
+/*
 GOM(_ZGTtnaX, pFu)
 GOM(_ZGTtdlPv, vFp)
 GOM(_ITM_RU1, uFp)
@@ -2078,9 +2079,6 @@ GOM(_ITM_RU4, uFp)
 GOM(_ITM_memcpyRtWn, vFppu)
 GOM(_ITM_memcpyRnWt, vFppu)
 GOM(_ITM_addUserCommitAction, vFEpup)
-
-// defini dans glibc/sysdeps/i386/dl-tls.h
-//___tls_get_addr       the parameter tls_index is in a register (EAX?)
-//__tls_get_addr        same, but the parameter is in the stack
+*/
 
 #endif

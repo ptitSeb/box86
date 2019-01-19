@@ -146,6 +146,8 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
+        uint32_t sz = 0;
+        uintptr_t end = 0;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -167,6 +169,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
                 *p = offs;
                 break;
+            case R_386_TLS_DTPOFF32:
             case R_386_JMP_SLOT:
                 offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
@@ -181,6 +184,15 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     }
                 }
                 break;
+            case R_386_COPY:
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+                if(offs) {
+                    printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
+                    memcpy(p, (void*)offs, sym->st_size);
+                } else {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
+                }
+                break;
             default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s (%p)\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), p);
         }
@@ -192,12 +204,26 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
+        const char* symname = SymName(head, sym);
+        uint32_t *p = (uint32_t*)(rela[i].r_offset + head->delta);
+        uintptr_t offs = 0;
+        uint32_t sz = 0;
+        uintptr_t end = 0;
         switch(ELF32_R_TYPE(rela[i].r_info)) {
             case R_386_NONE:
             case R_386_PC32:
                 // can be ignored
                 break;
-            
+            case R_386_COPY:
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+                if(offs) {
+                    // add r_addend to p?
+                    printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
+                    memcpy(p, (void*)offs, sym->st_size);
+                } else {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
+                }
+                break;
             default:
                 printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s\n", i, DumpRelType(ELF32_R_TYPE(rela[i].r_info)));
         }
