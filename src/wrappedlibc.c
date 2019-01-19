@@ -230,7 +230,7 @@ EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt,
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
     void* f = vswprintf;
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;

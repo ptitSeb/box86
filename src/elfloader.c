@@ -157,7 +157,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 break;
             case R_386_GLOB_DAT:
                 offs = FindGlobalSymbol(maplib, symname);   // Data and not symbol
-                printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p) on sym=%d\n", p, (void*)(p?(*p):0), (void*)offs, symname);
+                printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p) on sym=%s\n", p, (void*)(p?(*p):0), (void*)offs, symname);
                 *p = offs;
                 break;
             case R_386_RELATIVE:
@@ -190,7 +190,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
                 if(offs) {
                     printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
-                    memcpy(p, (void*)offs, sym->st_size);
+                    memmove(p, (void*)offs, sym->st_size);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
                 }
