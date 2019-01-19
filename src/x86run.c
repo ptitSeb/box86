@@ -37,6 +37,8 @@ int Run(x86emu_t *emu)
                 uint8_t peek = Peek(emu, 0);
                 if(peek==0xC3 || peek==0xC2) {
                     printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
+                } else if(peek==0x55) {
+                    printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
                 }
                 printf_log(LOG_NONE, "\n");
             }

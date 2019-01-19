@@ -1,7 +1,7 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 GO(Mix_AllocateChannels,iFi)
-GOM(Mix_ChannelFinished,vFp)
+GOM(Mix_ChannelFinished,vFEp)
 GO(Mix_CloseAudio,vFv)
 //GO(Mix_EachSoundFont,iFBp)
 GO(Mix_ExpireChannel,iFii)

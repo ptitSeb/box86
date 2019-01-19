@@ -100,6 +100,8 @@ library_t* GetLib(lib_t* maplib, const char* name)
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
 {
     uintptr_t start = 0, end = 0;
+    if(GetSymbolStartEnd(maplib->mapsymbols, name, &start, &end))  // look in own symbols first
+        return start;
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end))
             return start;
