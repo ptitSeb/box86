@@ -238,7 +238,7 @@ int32_t EXPORT my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t isca
     desired->callback = sdl2Callback;
     desired->userdata = cbemu;
     int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL_AudioSpec*)o, allowed);
-    if (ret!=0) {
+    if (ret<=0) {
         // error, clean the callback...
         desired->callback = fnc;
         desired->userdata = olduser;
