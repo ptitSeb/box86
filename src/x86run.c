@@ -769,7 +769,7 @@ x86emurun:
                 switch(nextop) {
                     case 0x0F:
                         if(opcode==0xF3)
-                            RunF30F(emu);
+                            RunF30F(emu);   // defined is run660f.c
                         else
                             RunF20F(emu);
                         break;

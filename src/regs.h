@@ -150,6 +150,10 @@ typedef union {
 
 typedef union {
 	uint64_t q[2];
+	double d[2];
+	struct {
+		float f[4];
+	};
 	struct {
 		uint32_t d[4];
 	} ud;

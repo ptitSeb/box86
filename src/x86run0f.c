@@ -43,6 +43,31 @@ void Run0F(x86emu_t *emu)
             GetGx(emu, &opx2, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t));
             break;
+        case 0x12:                      /* MOVLPS Gd,Ed */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->q[0] = opx2->q[0];
+            break;
+        case 0x13:                      /* MOVLPS Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx1, nextop);
+            GetGx(emu, &opx2, nextop);
+            opx1->q[0] = opx2->q[0];
+            break;
+
+        case 0x16:                      /* MOVHPS Gd,Ed */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->q[0] = opx2->q[1];
+            break;
+        case 0x17:                      /* MOVHPS Ed,Gd */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx1, nextop);
+            GetGx(emu, &opx2, nextop);
+            opx1->q[1] = opx2->q[0];
+            break;
 
         case 0x28:                      /* MOVAPS Gd,Ed */
             nextop = Fetch8(emu);
@@ -156,6 +181,14 @@ void Run0F(x86emu_t *emu)
         )                               /* 0x90 -> 0x9F SETxx Eb */
 
         #undef GOCOND
+
+        case 0x57:                      /* XORPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->ud.d[i] ^= opx2->ud.d[i];
+            break;
 
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
@@ -382,6 +415,19 @@ void Run0F(x86emu_t *emu)
             op1->dword[0] = tmp32u;
             break;
 
+        case 0xC6:                      /* SHUFPS Gx, Ex, Ib */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            tmp8u = Fetch8(emu);
+            for(int i=0; i<2; ++i) {
+                eax1.ud.d[i] = opx1->ud.d[(tmp8u>>(i*2))&3];
+            }
+            for(int i=2; i<4; ++i) {
+                eax1.ud.d[i] = opx2->ud.d[(tmp8u>>(i*2))&3];
+            }
+            memcpy(opx1, &eax1, sizeof(eax1));
+            break;
         case 0xC7:                      /* CMPXCHG8B Gq */
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);

@@ -189,12 +189,32 @@ void Run660F(x86emu_t *emu)
         opx1->q[0] = opx1->q[1];
         opx1->q[1] = opx2->q[1];
         break;
-
+    case 0x6E:  /* MOVD Gx, Ed */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] = op2->dword[0];
+        opx1->q[1] = 0;
+        break;
     case 0x6F:  /* MOVDQA Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         memcpy(opx1, opx2, sizeof(sse_regs_t));
+        break;
+    case 0x70:  /* PSHUFD Gx,Ex,Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        if(opx1!=opx2)
+            for (int i=0; i<4; ++i)
+                opx1->ud.d[i] = opx2->ud.d[(tmp8u>>(i*2))&3];
+        else {
+            for (int i=0; i<4; ++i)
+                eax1.ud.d[i] = opx2->ud.d[(tmp8u>>(i*2))&3];
+            memcpy(opx1, &eax1, sizeof(eax1));
+        }
         break;
 
     case 0x74:  /* PCMPEQB Gx,Ex */
@@ -217,6 +237,13 @@ void Run660F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         for (int i=0; i<4; ++i)
             opx1->ud.d[i] = (opx1->ud.d[i]==opx2->ud.d[i])?0xffffffff:0;
+        break;
+
+    case 0x7F:  /* MOVDQA Ex,Gx */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        memcpy(opx1, opx2, sizeof(sse_regs_t));
         break;
 
     case 0xEF:  /* PXOR Gx,Ex */
@@ -359,6 +386,14 @@ void Run660F(x86emu_t *emu)
         op1->word[0] = tmp16u;
         break;
 
+    case 0xD6:  /* MOVDQA Gx,Ed */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op2, nextop);
+        GetGx(emu, &opx1, nextop);
+        memcpy(opx1, opx2, sizeof(uint64_t));
+        opx1->q[1] = 0;
+        break;
+
     default:
         UnimpOpcode(emu);
     }
@@ -438,6 +473,13 @@ void RunF30F(x86emu_t *emu)
         GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
         opx1->ud.d[0] = opx2->ud.d[0];
+        break;
+
+    case 0x2C:  /* CVTTSS2SI Gd, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetG(emu, &op1, nextop);
+        op1->dword[0] = opx2->f[0];
         break;
 
     default:
