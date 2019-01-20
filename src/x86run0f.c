@@ -56,17 +56,17 @@ void Run0F(x86emu_t *emu)
             opx1->q[0] = opx2->q[0];
             break;
 
-        case 0x16:                      /* MOVHPS Gd,Ed */
-            nextop = Fetch8(emu);
-            GetEx(emu, &opx2, nextop);
-            GetGx(emu, &opx1, nextop);
-            opx1->q[0] = opx2->q[1];
-            break;
-        case 0x17:                      /* MOVHPS Ed,Gd */
+        case 0x16:                      /* MOVHPS Ed,Gd */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
-            opx1->q[1] = opx2->q[0];
+            opx2->q[1] = opx1->q[0];
+            break;
+        case 0x17:                      /* MOVHPS Gd,Ed */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx2->q[0] = opx1->q[1];
             break;
 
         case 0x28:                      /* MOVAPS Gd,Ed */
