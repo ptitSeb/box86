@@ -24,6 +24,8 @@ struct elfheader_s {
     intptr_t    delta;  // should be 0
 
     uintptr_t   entrypoint;
+    uintptr_t   initentry;
+    uintptr_t   finientry;
 
     uintptr_t   rel;
     int         relsz;
@@ -44,6 +46,9 @@ struct elfheader_s {
     uint32_t    memsz;
     uint32_t    stacksz;
     int         stackalign;
+
+    int         init_done;
+    int         fini_done;
 
     char*       memory; // char* and not void* to allow math on memory pointer
 };

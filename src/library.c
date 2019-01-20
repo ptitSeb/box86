@@ -195,14 +195,14 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 
     return lib;
 }
-int FinalizeLibrary(library_t* lib, int pltNow)
+int FinalizeLibrary(library_t* lib, x86emu_t* emu)
 {
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
         // add symbols
         AddGlobalsSymbols(lib->priv.n.mapsymbols, elf_header);
         // Call librarian to load all dependant elf
-        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context, pltNow)) {
+        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context, emu)) {
             printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
             return 1;
         }
@@ -211,8 +211,8 @@ int FinalizeLibrary(library_t* lib, int pltNow)
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        if(pltNow)
-            RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
+        RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
+        RunElfInit(elf_header, emu);
     }
     return 0;
 }
@@ -238,6 +238,8 @@ void FreeLibrary(library_t **lib)
         kh_destroy(symbolmap, (*lib)->symbolmap);
     if((*lib)->datamap)
         kh_destroy(datamap, (*lib)->datamap);
+    if((*lib)->mydatamap)
+        kh_destroy(datamap, (*lib)->mydatamap);
     if((*lib)->mysymbolmap)
         kh_destroy(symbolmap, (*lib)->mysymbolmap);
     if((*lib)->symbol2map)
@@ -292,6 +294,13 @@ int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uin
     return 0;
 }
 
+int GetElfIndex(library_t* lib)
+{
+    if(!lib || lib->type!=1)
+        return -1;
+    return lib->priv.n.elf_index;
+}
+
 int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *size)
 {
     khint_t k;
@@ -305,6 +314,25 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
             // found!
             *addr = (uintptr_t)symbol;
             *size = kh_value(lib->datamap, k);
+            return 1;
+        }
+    }
+    // check in mydatamap
+    k = kh_get(datamap, lib->mydatamap, name);
+    if (k!=kh_end(lib->mydatamap)) {
+        char buff[200];
+        if(lib->altmy)
+            strcpy(buff, lib->altmy);
+        else
+            strcpy(buff, "my_");
+        strcat(buff, name);
+        symbol = dlsym(lib->priv.w.box86lib, buff);
+        if(!symbol)
+            printf_log(LOG_NONE, "Warning, data %s not found\n", buff);
+        if(symbol) {
+            // found!
+            *addr = (uintptr_t)symbol;
+            *size = kh_value(lib->mydatamap, k);
             return 1;
         }
     }

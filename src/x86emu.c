@@ -100,6 +100,34 @@ void AddCleanup(x86emu_t *emu, void *p)
     emu->cleanups[emu->clean_sz++] = p;
 }
 
+void CallCleanup(x86emu_t *emu, void* p)
+{
+    for(int i=0; i<emu->clean_sz; ++i) {
+        if(p==emu->cleanups[i]) {
+            printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+            PushExit(emu);
+            emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i]);
+            Run(emu);
+            // now remove the cleanup
+            if(i!=emu->clean_sz-1)
+                memmove(emu->cleanups+i, emu->cleanups+i+1, (emu->clean_sz-i-1)*sizeof(void*));
+            --emu->clean_sz;
+            return;
+        }
+    }
+}
+
+void CallAllCleanup(x86emu_t *emu)
+{
+    for(int i=0; i<emu->clean_sz; ++i) {
+        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        PushExit(emu);
+        emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i]);
+        Run(emu);
+    }
+    emu->clean_sz = 0;
+}
+
 void FreeX86Emu(x86emu_t **emu)
 {
     if(!emu)
@@ -110,12 +138,7 @@ void FreeX86Emu(x86emu_t **emu)
         DeleteX86TraceDecoder(&(*emu)->dec);
     (*emu)->dec = NULL;
     // call atexit and fini first!
-    for(int i=0; i<(*emu)->clean_sz; ++i) {
-        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-        PushExit(*emu);
-        (*emu)->ip.dword[0] = (uintptr_t)((*emu)->cleanups[i]);
-        Run(*emu);
-    }
+    CallAllCleanup(*emu);
     free((*emu)->cleanups);
     if((*emu)->shared_global && !(*(*emu)->shared_global)--) {
         if((*emu)->globals)
@@ -235,4 +258,11 @@ void UnimpOpcode(x86emu_t* emu)
         Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7));
     emu->quit=1;
     emu->error |= ERR_UNIMPL;
+}
+
+void EmuCall(x86emu_t* emu, uintptr_t addr)
+{
+    PushExit(emu);
+    R_EIP = addr;
+    Run(emu);
 }

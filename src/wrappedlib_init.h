@@ -19,6 +19,7 @@
 #define DATA(N, S)
 #define DATAV(N, S)
 #define DATAB(N, S)
+#define DATAM(N, S)
 
 // #define the 4 maps first
 #undef GO
@@ -55,6 +56,17 @@ static const map_onesymbol2_t MAPNAME(symbol2map)[] = {
 static const map_onedata_t MAPNAME(datamap)[] = {
     #include PRIVATE(LIBNAME)
 };
+#undef DATA
+#undef DATAV
+#undef DATAB
+#define DATA(N, S)
+#define DATAV(N, S)
+#define DATAB(N, S)
+#undef DATAM
+#define DATAM(N, S) {#N, S, 0},
+static const map_onedata_t MAPNAME(mydatamap)[] = {
+    #include PRIVATE(LIBNAME)
+};
 #include "wrappedlib_undefs.h"
 
 
@@ -76,6 +88,7 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     lib->mysymbolmap = kh_init(symbolmap);
     lib->symbol2map = kh_init(symbol2map);
     lib->datamap = kh_init(datamap);
+    lib->mydatamap = kh_init(datamap);
 
     khint_t k;
     int ret;
@@ -102,6 +115,11 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     for (int i=0; i<cnt; ++i) {
         k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
         kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
+    }
+    cnt = sizeof(MAPNAME(mydatamap))/sizeof(map_onedata_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(datamap, lib->mydatamap, MAPNAME(datamap)[i].name, &ret);
+        kh_value(lib->mydatamap, k) = MAPNAME(mydatamap)[i].sz;
     }
 #ifdef CUSTOM_INIT
     CUSTOM_INIT

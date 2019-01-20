@@ -78,6 +78,8 @@ int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 	emu->quit = 1;
 	return -1;
 }
+EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
+
 
 KHASH_MAP_INIT_INT(once, int)
 

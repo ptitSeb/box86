@@ -170,8 +170,8 @@ GOW(expf, fFf)
 // feupdateenv
 // finite   // Weak
 // __finite
-// finitef  // Weak
-// __finitef
+GOW(finitef, iFf)
+GO(__finitef, iFf)
 // finitel  // Weak
 // __finitel
 GOW(floor, dFd)

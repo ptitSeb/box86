@@ -3,6 +3,7 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <stdarg.h>
 
 #include "wrappedlibs.h"
 
@@ -15,6 +16,7 @@
 #include "x86emu_private.h"
 #include "box86context.h"
 #include "sdl2rwops.h"
+#include "myalign.h"
 
 static int sdl_Yes() { return 1;}
 static int sdl_No() { return 0;}
@@ -48,6 +50,8 @@ KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void*  (*Fpp_t)(void*, void*);
 typedef void  (*vFp_t)(void*);
@@ -65,6 +69,7 @@ typedef uint32_t (*uFpU_t)(void*, uint64_t);
 
 typedef struct sdl2_my_s {
     iFpp_t     SDL_OpenAudio;
+    iFpippi_t  SDL_OpenAudioDevice;
     pFpi_t     SDL_LoadFile_RW;
     pFpi_t     SDL_LoadBMP_RW;
     pFpi_t     SDL_RWFromConstMem;
@@ -109,6 +114,7 @@ void* getSDL2My(library_t* lib)
     sdl2_my_t* my = (sdl2_my_t*)calloc(1, sizeof(sdl2_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     GO(SDL_OpenAudio, iFpp_t)
+    GO(SDL_OpenAudioDevice, iFpippi_t)
     GO(SDL_LoadBMP_RW, pFpi_t)
     GO(SDL_RWFromConstMem, pFpi_t)
     GO(SDL_RWFromFP, pFpi_t)
@@ -194,7 +200,7 @@ int32_t sdl2EvtFilterCallback(void *p)
 }
 
 // TODO: track the memory for those callback
-int EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
+int32_t EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
     SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
 
@@ -206,6 +212,32 @@ int EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
     desired->callback = sdl2Callback;
     desired->userdata = cbemu;
     int ret = my->SDL_OpenAudio(desired, (SDL_AudioSpec*)o);
+    if (ret!=0) {
+        // error, clean the callback...
+        desired->callback = fnc;
+        desired->userdata = olduser;
+        FreeCallback(cbemu);
+        return ret;
+    }
+    // put back stuff in place?
+    desired->callback = fnc;
+    desired->userdata = olduser;
+
+    return ret;
+}
+
+int32_t EXPORT my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
+{
+    SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
+
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // create a callback
+    void *fnc = (void*)desired->callback;
+    void *olduser = desired->userdata;
+    x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
+    desired->callback = sdl2Callback;
+    desired->userdata = cbemu;
+    int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL_AudioSpec*)o, allowed);
     if (ret!=0) {
         // error, clean the callback...
         desired->callback = fnc;
@@ -501,6 +533,16 @@ void EXPORT my2_SDL_KillThread(x86emu_t* emu, void* p)
     }
 }
 
+int EXPORT my2_SDL_snprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vsprintf;
+    return ((iFppp_t)f)(buff, fmt, emu->scratch);
+    #else
+    return vsprintf((char*)buff, (char*)fmt, V);
+    #endif
+}
 
 const char* sdl2Name = "libSDL2-2.0.so";
 #define LIBNAME sdl2

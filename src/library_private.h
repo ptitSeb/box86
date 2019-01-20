@@ -59,6 +59,7 @@ typedef struct library_s {
     kh_symbolmap_t      *mysymbolmap;
     kh_symbol2map_t     *symbol2map;
     kh_datamap_t        *datamap;
+    kh_datamap_t        *mydatamap;
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } library_t;
 

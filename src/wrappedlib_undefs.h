@@ -19,3 +19,5 @@
 // data, Uninitialized (type B)
 #undef DATAB
 
+// data, "my_" type
+#undef DATAM

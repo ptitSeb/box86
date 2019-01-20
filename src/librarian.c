@@ -59,7 +59,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
-int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, int pltNow)
+int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
@@ -82,7 +82,7 @@ int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, int plt
     maplib->libraries[maplib->libsz].lib = lib;
     maplib->libraries[maplib->libsz].name = GetNameLib(lib);
     ++maplib->libsz;
-    if(FinalizeLibrary(lib, pltNow)) {
+    if(FinalizeLibrary(lib, emu)) {
         printf_log(LOG_DEBUG, "Faillure to finalizing lib => fail\n");
         return 1;   //Error
     }
@@ -100,23 +100,34 @@ library_t* GetLib(lib_t* maplib, const char* name)
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
 {
     uintptr_t start = 0, end = 0;
-    if(GetSymbolStartEnd(maplib->mapsymbols, name, &start, &end))  // look in own symbols first
+    if(GetGlobalSymbolStartEnd(maplib, name, &start, &end, 0))
         return start;
-    for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end))
-            return start;
-    }
     return 0;
 }
 
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int self)
 {
-    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))  // look in own symbols first
-        return 1;
+    if(!self)
+    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
+        if(*start)
+            return 1;
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
-            return 1;
+            if(*start)
+                return 1;
     }
+    if(self)
+    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
+        if(*start)
+            return 1;
+    return 0;
+}
+
+int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
+{
+    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
+        if(*start)
+            return 1;
     return 0;
 }
 
@@ -130,6 +141,8 @@ void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, ui
 uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name)
 {
     khint_t k = kh_get(mapsymbols, mapsymbols, name);
+    if(k==kh_end(mapsymbols))
+        return 0;
     return kh_val(mapsymbols, k).offs;
 }
 

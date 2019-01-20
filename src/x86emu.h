@@ -19,7 +19,10 @@ const char* DumpCPURegs(x86emu_t* emu);
 
 void StopEmu(x86emu_t* emu, const char* reason);
 void PushExit(x86emu_t* emu);
+void EmuCall(x86emu_t* emu, uintptr_t addr);
 void AddCleanup(x86emu_t *emu, void *p);
+void CallCleanup(x86emu_t *emu, void* p);
+void CallAllCleanup(x86emu_t *emu);
 void UnimpOpcode(x86emu_t* emu);
 
 double FromLD(void* ld);        // long double (80bits pointer) -> double

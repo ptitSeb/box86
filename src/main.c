@@ -222,30 +222,12 @@ int main(int argc, const char **argv, const char **env) {
     fclose(f);
     // export symbols
     AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
-    // Call librarian to load all dependant elf
-    if(LoadNeededLib(elf_header, context->maplib, context, 0)) {
-        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
-        FreeBox86Context(&context);
-        return -1;
-    }
-    // finalize relocations
-    if(RelocateElf(context->maplib, elf_header)) {
-        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
-        FreeBox86Context(&context);
-        return -1;
-    }
-    // and handle PLT for all loaded Elf... (ignore error here)
-    for(int i=0; i<context->elfsize; ++i)
-        RelocateElfPlt(context, context->maplib, context->elfs[i]);
-
     // get and alloc stack size and align
     if(CalcStackSize(context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
         FreeBox86Context(&context);
         return -1;
     }
-    // set entrypoint
-    context->ep = GetEntryPoint(context->maplib, elf_header);
     // init x86 emu
     context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz);
     // stack setup is much more complicated then just that!
@@ -254,7 +236,6 @@ int main(int argc, const char **argv, const char **env) {
     SetupX86Emu(context->emu, NULL, NULL);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
-
     p = getenv("BOX86_TRACE");
     if(p) {
         setbuf(stdout, NULL);
@@ -279,9 +260,28 @@ int main(int argc, const char **argv, const char **env) {
         }
     }
 
+    // Call librarian to load all dependant elf
+    if(LoadNeededLib(elf_header, context->maplib, context, context->emu)) {
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    if(RelocateElf(context->maplib, elf_header)) {
+        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    // and handle PLT
+    RelocateElfPlt(context, context->maplib, elf_header);
+    // init...
+    RunElfInit(elf_header, context->emu);
+
+    // get entrypoint
+    context->ep = GetEntryPoint(context->maplib, elf_header);
+
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
-    Run(context->emu);
+    EmuCall(context->emu, context->ep);
     // Get EAX
     int ret = GetEAX(context->emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);

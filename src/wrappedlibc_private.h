@@ -114,7 +114,7 @@ GOW(calloc, pFuu)
 // cfsetispeed
 // cfsetospeed
 // cfsetspeed
-// chdir    // Weak
+GOW(chdir, iFp)
 DATA(__check_rhosts_file, 4)
 // chflags
 // __chk_fail
@@ -166,7 +166,8 @@ GO(__ctype_toupper_loc, pFv)
 // cuserid
 GOM(__cxa_atexit, iFEp)
 GOM(atexit, iFEp)           // just in case
-// __cxa_finalize
+GOM(__cxa_finalize, vFEp)
+DATAM(__cpu_model, 16)
 //__cxa_thread_atexit_impl  // need GOM
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
@@ -337,7 +338,7 @@ GO(fileno, iFp)
 // __flbf
 // flistxattr
 // flock    // Weak
-// flockfile    // Weak
+GOW(flockfile, vFp)
 // _flushlbf    // Weak
 // fmemopen
 // fmtmsg
@@ -402,7 +403,7 @@ GO(ftello64, Ifp)
 // ftok
 // ftruncate    // Weak
 // ftruncate64  // Weak
-// ftrylockfile // Weak
+GOW(ftrylockfile, iFp)
 // fts_children
 // fts_close
 // fts_open
@@ -410,7 +411,7 @@ GO(ftello64, Ifp)
 // fts_set
 // ftw
 // ftw64
-// funlockfile  // Weak
+GOW(funlockfile, vFp)
 // futimens
 // futimes  // Weak
 // futimesat
@@ -1310,7 +1311,7 @@ GO(read, iFipu)
 // readahead    // Weak
 // __read_chk
 GOW(readdir, pFp)
-// readdir64
+GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOW(readdir_r, iFppp)
 // readlink // Weak
@@ -1345,7 +1346,7 @@ GOW(recvmsg, iFipi)
 GO(remove, iFp)
 // removexattr
 // remque
-// rename
+GO(rename, iFpp)
 // renameat
 // _res // type B
 // re_search    // Weak
@@ -1398,10 +1399,10 @@ GO(sched_getaffinity, iFiup)
 // sched_getcpu
 // __sched_getparam
 // sched_getparam   // Weak
-// __sched_get_priority_max
-// sched_get_priority_max   // Weak
-// __sched_get_priority_min
-// sched_get_priority_min   // Weak
+GO(__sched_get_priority_max, iFi)
+GOW(sched_get_priority_max, iFi)
+GO(__sched_get_priority_min, iFi)
+GOW(sched_get_priority_min, iFi)
 // __sched_getscheduler
 // sched_getscheduler   // Weak
 // sched_rr_get_interval    // Weak
@@ -1409,8 +1410,8 @@ GO(sched_setaffinity, iFiup)
 // sched_setparam   // Weak
 // __sched_setscheduler
 // sched_setscheduler   // Weak
-// __sched_yield
-// sched_yield  // Weak
+GO(__sched_yield, iFv)
+GOW(sched_yield, iFv)
 // __secure_getenv
 // seed48
 // seed48_r // Weak
@@ -1848,8 +1849,8 @@ GOM(__vprintf_chk, iFEvpVV)
 GOM(vsnprintf, iFEpupVV)    // Weak
 GOM(__vsnprintf, iFEpupVV)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvpVV)
-// vsprintf // Weak
-// __vsprintf_chk
+GOM(vsprintf, iFEppVV) // Weak
+GOM(__vsprintf_chk, iFEpvvpp)
 // vsscanf  // Weak
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpupVV)    // Weak
@@ -1936,7 +1937,7 @@ GOW(wcsnrtombs, uFppuup)
 // __wcstoll_internal
 // __wcstoll_l
 // wcstoll_l    // Weak
-// wcstombs
+GO(wcstombs, uFppu)
 // __wcstombs_chk
 // wcstoq   // Weak
 // wcstoul
@@ -2069,16 +2070,18 @@ GOM(__xstat64, iFEipp)
 // forcing a custom __gmon_start__ that does nothing
 GOM(__gmon_start__, vFv)
 
+GOM(_Jv_RegisterClasses, vFv)   // dummy
+
 // not found (libitm???), but it seems OK to declare dummies:
-/*
-GOM(_ZGTtnaX, pFu)
-GOM(_ZGTtdlPv, vFp)
+
 GOM(_ITM_RU1, uFp)
 GOM(_ITM_RU4, uFp)
 //GOM(_ITM_RU8, UFp)
-GOM(_ITM_memcpyRtWn, vFppu)
-GOM(_ITM_memcpyRnWt, vFppu)
+GOM(_ITM_memcpyRtWn, vFppu) // register(2)
+GOM(_ITM_memcpyRnWt, vFppu) // register(2)
 GOM(_ITM_addUserCommitAction, vFEpup)
-*/
+GOM(_ITM_registerTMCloneTable, vFEpu)
+GOM(_ITM_deregisterTMCloneTable, vFEp)
+
 
 #endif

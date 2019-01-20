@@ -250,6 +250,18 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         h->got = h->SHEntries[ii].sh_addr;
         printf_log(LOG_DEBUG, "The GOT Table is at address %p\n", (void*)h->got);
     }
+    // look for .init entry point
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init");
+    if(ii) {
+        h->initentry = h->SHEntries[ii].sh_addr;
+        printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
+    }
+    // look for .fini entry point
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
+    if(ii) {
+        h->finientry = h->SHEntries[ii].sh_addr;
+        printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
+    }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);

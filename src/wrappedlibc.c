@@ -73,6 +73,15 @@ int EXPORT my___cxa_atexit(x86emu_t* emu, void* p)
 {
     AddCleanup(emu, p);
 }
+void EXPORT my___cxa_finalize(x86emu_t* emu, void* p)
+{
+    if(!p) {
+        // p is null, call (and remove) all Cleanup functions
+        CallAllCleanup(emu);
+    } else {
+        CallCleanup(emu, p);
+    }
+}
 int EXPORT my_atexit(x86emu_t* emu, void *p)
 {
     AddCleanup(emu, p);
@@ -213,6 +222,19 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
 }
 EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
 
+EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vsprintf;
+    int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
+    return r;
+    #else
+    return vsprintf((char*)buff, (char*)fmt, V);
+    #endif
+}
+EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
+
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -254,6 +276,9 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
     printf("warning _ITM_addUserCommitAction called\n");
     #endif
 }
+EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) {}
+EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) {}
+
 
 EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
 {
@@ -301,10 +326,13 @@ EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
 }
 EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute__((alias("my_execvp")));
 
+EXPORT void my__Jv_RegisterClasses() {}
+
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
 #define CUSTOM_INIT \
+    InitCpuModel(); \
     box86->libclib = lib; \
     lib->priv.w.p2 = getLIBCMy(lib); \
     lib->priv.w.needed = 1; \
@@ -314,6 +342,29 @@ const char* libcName = "libc.so.6";
 #define CUSTOM_FINI \
     freeLIBCMy(lib->priv.w.p2); \
     free(lib->priv.w.p2);
+
+EXPORT struct __processor_model
+{
+  unsigned int __cpu_vendor;
+  unsigned int __cpu_type;
+  unsigned int __cpu_subtype;
+  unsigned int __cpu_features[1];
+} my___cpu_model;
+
+#include "cpu_info.h"
+void InitCpuModel()
+{
+    // some pseudo random cpu info...
+    my___cpu_model.__cpu_vendor = VENDOR_INTEL;
+    my___cpu_model.__cpu_type = INTEL_PENTIUM_M;
+    my___cpu_model.__cpu_subtype = 0; // N/A
+    my___cpu_model.__cpu_features[0] = (1<<FEATURE_CMOV) 
+                                     | (1<<FEATURE_MMX) 
+                                     | (1<<FEATURE_SSE) 
+                                     | (1<<FEATURE_SSE2) 
+                                     | (1<<FEATURE_MOVBE)
+                                     | (1<<FEATURE_ADX);
+}
 
 
 // define all standard library functions

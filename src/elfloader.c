@@ -14,6 +14,8 @@
 #include "bridge.h"
 #include "wrapper.h"
 #include "box86context.h"
+#include "library.h"
+#include "x86emu.h"
 
 void FreeElfHeader(elfheader_t** head)
 {
@@ -148,32 +150,45 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         uintptr_t offs = 0;
         uint32_t sz = 0;
         uintptr_t end = 0;
+        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, 0);
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
-            case R_386_PC32:
                 // can be ignored
                 printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
+            case R_386_PC32:
+                    offs = (*p) + (offs - (uintptr_t)p);
+                    printf_log(LOG_DEBUG, "Apply R_386_PC32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
+                    *p += offs;
+                break;
             case R_386_GLOB_DAT:
-                offs = FindGlobalSymbol(maplib, symname);   // Data and not symbol
-                printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p) on sym=%s\n", p, (void*)(p?(*p):0), (void*)offs, symname);
-                *p = offs;
+                
+                if (!offs) {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p)\n", symname, p, *(void**)p);
+//                    return -1;
+                } else {
+                    printf_log(LOG_DEBUG, "Apply R_386_GLOB_DAT @%p (%p -> %p) on sym=%s\n", p, (void*)(p?(*p):0), (void*)offs, symname);
+                    *p = offs;
+                }
                 break;
             case R_386_RELATIVE:
-                // is this correct????
-                printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *(void**)p, (void*)((*p)+(uintptr_t)head->memory - head->paddr));
-                *p += (uintptr_t)head->memory - head->paddr;
+                printf_log(LOG_DEBUG, "Apply R_386_RELATIVE @%p (%p -> %p)\n", p, *(void**)p, (void*)((*p)+head->delta));
+                *p += head->delta;
                 break;
             case R_386_32:
-                printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
-                *p = offs;
+                if (!offs) {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_32 @%p (%p)\n", symname, p, *(void**)p);
+//                    return -1;
+                } else {
+                    printf_log(LOG_DEBUG, "Apply R_386_32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
+                    *p += offs;
+                }
                 break;
             //case R_386_TLS_DTPMOD32:
             // try to use _dl_next_tls_modid() ?
             case R_386_TLS_DTPOFF32:
             case R_386_JMP_SLOT:
-                offs = FindGlobalSymbol(maplib, symname);
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
 //                    return -1;
@@ -187,10 +202,16 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 }
                 break;
             case R_386_COPY:
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
                 if(offs) {
-                    printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, 1);   // get original copy if any
+                    printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d (", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
+                    if(LOG_DEBUG<=box86_log) {
+                        uint32_t*k = (uint32_t*)p;
+                        for (int i=0; i<sym->st_size; i+=4, ++k)
+                            printf("%s0x%08X", i?" ":"", *k);
+                        printf_log(LOG_DEBUG, ")\n");
+                    }
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
                 }
@@ -217,11 +238,11 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
                 // can be ignored
                 break;
             case R_386_COPY:
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end,1);
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
-                    memcpy(p, (void*)offs, sym->st_size);
+                    memcpy(p, (void*)(offs+rela[i].r_addend), sym->st_size);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
                 }
@@ -348,38 +369,34 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
     printf_log(LOG_DUMP, "Will look for Symbol to add in SymTable(%d)\n", h->numSymTab);
     for (int i=0; i<h->numSymTab; ++i) {
-        // TODO: this "17" & "18" is probably defined somewhere. 34 seems to be Weak function
-        if((    (h->SymTab[i].st_info == 18) 
-             || (h->SymTab[i].st_info == 17) 
-             || (h->SymTab[i].st_info == 34) 
-             || (h->SymTab[i].st_info == 33) 
-             || (h->SymTab[i].st_info == 22) 
-             || (h->SymTab[i].st_info == 2)) 
+        const char * symname = h->StrTab+h->SymTab[i].st_name;
+        if(((h->SymTab[i].st_info & 2) || (h->SymTab[i].st_info == 33)  || (h->SymTab[i].st_info == 17)
+             || (h->SymTab[i].st_info == 161 && !FindSymbol(mapsymbols, symname)) )
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
-            const char * symname = h->StrTab+h->SymTab[i].st_name;
+            if(!h->SymTab[i].st_value && FindSymbol(mapsymbols, symname))
+                break;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, (void*)offs, sz);
             AddSymbol(mapsymbols, symname, offs, sz);
         }
     }
+    
     printf_log(LOG_DUMP, "Will look for Symbol to add in DynSym (%d)\n", h->numDynSym);
     for (int i=0; i<h->numDynSym; ++i) {
-        // TODO: this "17" & "18" is probably defined somewhere. 34 seems to be Weak function
-        if((    (h->DynSym[i].st_info == 18) 
-             || (h->DynSym[i].st_info == 17) 
-             || (h->DynSym[i].st_info == 34) 
-             || (h->DynSym[i].st_info == 33) 
-             || (h->DynSym[i].st_info == 22) 
-             || (h->DynSym[i].st_info == 2)) 
+        const char * symname = h->DynStr+h->DynSym[i].st_name;
+        if(((h->DynSym[i].st_info & 2) || (h->DynSym[i].st_info == 33) || (h->DynSym[i].st_info == 17)
+             || (h->DynSym[i].st_info == 161  && !FindSymbol(mapsymbols, symname)))
             && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
-            const char * symname = h->DynStr+h->DynSym[i].st_name;
+            if(!h->DynSym[i].st_value && FindSymbol(mapsymbols, symname))
+                break;
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             uint32_t sz = h->DynSym[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol \"%s\" with offset=%p sz=%d\n", symname, (void*)offs, sz);
             AddSymbol(mapsymbols, symname, offs, sz);
         }
     }
+    
 }
 
 /*
@@ -396,7 +413,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86, int pltNow)
+int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86, x86emu_t* emu)
 {
    DumpDynamicNeeded(h);
    // reverse order on needed libs
@@ -404,10 +421,40 @@ int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86, int pltN
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, needed, box86, pltNow)) {
+            if(AddNeededLib(maplib, needed, box86, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 return 1;   //error...
             }
         }
     return 0;
+}
+
+void RunElfInit(elfheader_t* h, x86emu_t *emu)
+{
+    if(h->init_done || !h->initentry)
+        return;
+    uintptr_t p = h->initentry + h->delta;
+    printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
+    EmuCall(emu, p);
+    h->init_done = 1;
+    return;
+}
+void RunElfFini(elfheader_t* h, x86emu_t *emu)
+{
+    if(h->fini_done || !h->finientry)
+        return;
+    uintptr_t p = h->finientry + h->delta;
+    printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
+    EmuCall(emu, p);
+    h->fini_done = 1;
+    return;
+}
+
+uintptr_t GetElfInit(elfheader_t* h)
+{
+    return h->initentry + h->delta;
+}
+uintptr_t GetElfFini(elfheader_t* h)
+{
+    return h->finientry + h->delta;
 }
