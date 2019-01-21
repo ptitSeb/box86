@@ -45,9 +45,11 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
+    { 140,__NR__llseek, 5 },
 #ifdef __NR_select
     { 142, __NR_select, 5 },
 #endif
+    { 143, __NR_flock,  2 },
     { 183, __NR_getcwd, 2 },
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
