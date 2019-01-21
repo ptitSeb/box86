@@ -15,8 +15,8 @@
 #include "box86context.h"
 #include "librarian.h"
 
-void* my_glXGetProcAddress(x86emu_t* emu, void* name) EXPORT;
-void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) EXPORT;
+void* my_glXGetProcAddress(x86emu_t* emu, void* name);
+void* my_glXGetProcAddressARB(x86emu_t* emu, void* name);
 
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
@@ -47,7 +47,7 @@ void freeGLProcWrapper(kh_symbolmap_t** symbolmap)
     *symbolmap = NULL;
 }
 
-void* my_glXGetProcAddress(x86emu_t* emu, void* name) 
+EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name) 
 {
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling glXGetProcAddress(%s)\n", rname);
@@ -78,4 +78,4 @@ void* my_glXGetProcAddress(x86emu_t* emu, void* name)
     }
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol);
 }
-void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
+EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
