@@ -53,6 +53,7 @@ scwrap_t syscallwrap[] = {
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
     { 220, __NR_getdents64, 3 },
+    { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
 };
 
@@ -85,6 +86,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); return;
                 case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); return;
                 case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); return;
+                case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); return;
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
@@ -162,6 +164,7 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 case 3: return syscall(sc, u32(4), u32(8), u32(12));
                 case 4: return syscall(sc, u32(4), u32(8), u32(12), u32(16));
                 case 5: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20));
+                case 6: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20), u32(24));
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
