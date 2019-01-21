@@ -220,8 +220,6 @@ int main(int argc, const char **argv, const char **env) {
     }
     // can close the file now
     fclose(f);
-    // export symbols
-    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     // get and alloc stack size and align
     if(CalcStackSize(context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
@@ -266,6 +264,10 @@ int main(int argc, const char **argv, const char **env) {
         FreeBox86Context(&context);
         return -1;
     }
+    printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
+    // export symbols
+    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
+    // reloc...
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);

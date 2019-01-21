@@ -199,13 +199,13 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
 {
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
-        // add symbols
-        AddGlobalsSymbols(lib->priv.n.mapsymbols, elf_header);
         // Call librarian to load all dependant elf
         if(LoadNeededLib(elf_header, lib->context->maplib, lib->context, emu)) {
             printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
             return 1;
         }
+        // add symbols
+        AddGlobalsSymbols(lib->priv.n.mapsymbols, elf_header);
         // finalize relocations
         if(RelocateElf(lib->context->maplib, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
