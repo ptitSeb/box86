@@ -130,7 +130,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
         char libname[MAX_PATH];
         strcpy(libname, path);
         int found = FileExist(libname, IS_FILE);
-        if(!found && strchr(path, '/'))
+        if(!found && !strchr(path, '/'))
             for(int i=0; i<context->box86_ld_lib.size; ++i)
             {
                 strcpy(libname, context->box86_ld_lib.paths[i]);
