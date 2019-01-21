@@ -227,7 +227,8 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            if(op1->dword[0] & (1<<(op2->dword[0]&31)))
+            tmp8u = op2->byte[0];       // there is no modulo 32 on this one (test against realy i386)
+            if(tmp8u<32 && op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
@@ -245,10 +246,11 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            if(op1->dword[0] & (1<<(op2->dword[0]&31)))
+            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
-                op1->dword[0] |= (1<<(op2->dword[0]&31));
+                op1->dword[0] |= (1<<tmp8u);
                 CLEAR_FLAG(F_CF);
             }
             break;
@@ -311,9 +313,10 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            if(op1->dword[0] & (1<<(op2->dword[0]&31))) {
+            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            if(op1->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
-                op1->dword[0] ^= (1<<(op2->dword[0]&31));
+                op1->dword[0] ^= (1<<tmp8u);
             } else
                 CLEAR_FLAG(F_CF);
             break;
@@ -335,11 +338,12 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            if(op1->dword[0] & (1<<(op2->dword[0]&31)))
+            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
-            op1->dword[0] ^= (1<<(op2->dword[0]&31));
+            op1->dword[0] ^= (1<<tmp8u);
             break;
 
         case 0xBA:                      
@@ -347,7 +351,7 @@ void Run0F(x86emu_t *emu)
             switch((nextop>>3)&7) {
                 case 4:                 /* BT Ed,Ib */
                     GetEd(emu, &op1, nextop);
-                    tmp8u = Fetch8(emu);
+                    tmp8u = Fetch8(emu);    //TODO: check modulo stuff
                     if(op1->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
                     else
