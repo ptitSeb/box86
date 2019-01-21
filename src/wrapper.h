@@ -77,6 +77,7 @@ void vFpp(x86emu_t *emu, uintptr_t fnc);
 void iFEp(x86emu_t *emu, uintptr_t fnc);
 void iFii(x86emu_t *emu, uintptr_t fnc);
 void iFiu(x86emu_t *emu, uintptr_t fnc);
+void iFiU(x86emu_t *emu, uintptr_t fnc);
 void iFip(x86emu_t *emu, uintptr_t fnc);
 void iFui(x86emu_t *emu, uintptr_t fnc);
 void iFuu(x86emu_t *emu, uintptr_t fnc);

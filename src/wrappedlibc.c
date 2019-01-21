@@ -297,6 +297,14 @@ EXPORT int my___xstat64(x86emu_t* emu, int v, void* path, void* buf)
     return r;
 }
 
+EXPORT int my___lxstat64(x86emu_t* emu, int v, void* name, void* buf)
+{
+    struct stat64 st;
+    int r = lstat64((const char*)name, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
 static int qsort_cmp(const void* a, const void* b, void* e)
 {
     x86emu_t* emu = (x86emu_t*)e;

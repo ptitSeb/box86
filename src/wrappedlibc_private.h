@@ -110,7 +110,7 @@ GOW(calloc, pFuu)
 // cfgetispeed
 // cfgetospeed
 // cfmakeraw
-// cfree    // Weak
+GOW(cfree, vFp)
 // cfsetispeed
 // cfsetospeed
 // cfsetspeed
@@ -349,7 +349,7 @@ GOW(fopen64, pFpp)
 GOM(fork, iFEv) // Weak
 GOM(__fork, iFEv)
 // __fortify_fail
-// fpathconf    // Weak
+GOW(fpathconf, iFii)
 // __fpending
 GOM(fprintf, iFEppVV)
 GOM(__fprintf_chk, iFEpvpVV)
@@ -402,7 +402,7 @@ GO(ftello64, Ifp)
 // ftime
 // ftok
 // ftruncate    // Weak
-// ftruncate64  // Weak
+GOW(ftruncate64, iFiU)
 GOW(ftrylockfile, iFp)
 // fts_children
 // fts_close
@@ -997,7 +997,7 @@ GOM(__libc_start_main, iFEpippppp)
 // __libc_system
 // __libc_thread_freeres
 // __libc_valloc
-// link // Weak
+GOW(link, iFpp)
 // linkat
 GOW(listen, iFii)
 // listxattr
@@ -1026,7 +1026,7 @@ GOW(lseek64, IFiIi)
 // lsetxattr
 // lutimes
 GO(__lxstat, iFipp)
-// __lxstat64
+GOM(__lxstat64, iFEipp)
 // madvise
 // makecontext
 // mallinfo // Weak
@@ -1196,7 +1196,7 @@ DATA(optopt, 4)
 // __overflow
 // parse_printf_format
 // passwd2des
-// pathconf // Weak
+GOW(pathconf, iFpi)
 // pause    // Weak
 // pclose
 GO(perror, vFp)
@@ -1314,7 +1314,7 @@ GOW(readdir, pFp)
 GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOW(readdir_r, iFppp)
-// readlink // Weak
+GOW(readlink, iFppu)
 // readlinkat
 // __readlinkat_chk
 // __readlink_chk
@@ -1370,7 +1370,8 @@ GO(rewind, vFp)
 // rexec_af
 // rexecoptions // type B
 // rindex   // Weak
-// rmdir    // Weak
+GOW(rmdir, iFp)
+GO(readdir64_r, iFppp)  // is this present?
 // rpc_createerr    // type B
 // _rpc_dtablesize
 // __rpc_thread_createerr
@@ -1556,8 +1557,8 @@ GOM(__stack_chk_fail, vFE)
 // statfs   // Weak
 // __statfs
 // statfs64 // Weak
-// statvfs
-// statvfs64    // Weak
+GO(statvfs, iFpp)
+GOW(statvfs64, iFpp)    // is alignment ok?
 DATA(stderr, 4)
 DATA(stdin, 4)
 DATA(stdout, 4)
@@ -1595,8 +1596,8 @@ GOW(strdup, pFp)
 GO(__strdup, pFp)
 GO(strerror, pFi)
 // strerror_l
-// __strerror_r
-// strerror_r   // Weak
+GO(__strerror_r, pFipu)
+GOW(strerror_r, pFipu)
 // strfmon
 // __strfmon_l
 // strfmon_l    // Weak
@@ -1710,7 +1711,7 @@ GO(strxfrm_l, uFppup)
 // swprintf
 // __swprintf_chk
 // swscanf
-// symlink  // Weak
+GOW(symlink, iFpp)
 // symlinkat
 // sync
 // sync_file_range
@@ -1783,7 +1784,7 @@ GO(__towupper_l, iFip)
 GOW(towupper_l, iFip)
 // tr_break
 // truncate // Weak
-// truncate64
+GO(truncate64, iFpU)
 // tsearch  // Weak
 // ttyname
 // ttyname_r    // Weak
@@ -1817,7 +1818,7 @@ GO(__uselocale, pFp)
 // user2netname
 GO(usleep, iFu)
 // ustat
-// utime
+GO(utime, iFpp)
 // utimensat
 // utimes   // Weak
 // utmpname // Weak
