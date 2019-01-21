@@ -156,6 +156,11 @@ int main(int argc, const char **argv, const char **env) {
         if (strcmp(p, "0"))
             context->x86trace = 1;
     }
+    p = getenv("BOX86_TRACE_NOINIT");
+    if(p) {
+        if (strcmp(p, "0"))
+            context->x86trace = 1;
+    }
     if(context->x86trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
         if(InitX86Trace(context)) {
@@ -277,6 +282,30 @@ int main(int argc, const char **argv, const char **env) {
     RelocateElfPlt(context, context->maplib, elf_header);
     // init...
     RunElfInit(elf_header, context->emu);
+
+    p = getenv("BOX86_TRACE_NOINIT");
+    if(p) {
+        setbuf(stdout, NULL);
+        uintptr_t trace_start=0, trace_end=0;
+        if (strcmp(p, "1")==0)
+            SetTraceEmu(context->emu, 0, 0);
+        else if (strchr(p,'-')) {
+            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            }
+            if(trace_start)
+                SetTraceEmu(context->emu, trace_start, trace_end);
+        } else {
+            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
+                SetTraceEmu(context->emu, trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            } else {
+                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
+            }
+        }
+    }
 
     // get entrypoint
     context->ep = GetEntryPoint(context->maplib, elf_header);
