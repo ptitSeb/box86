@@ -281,7 +281,10 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
-    EmuCall(context->emu, context->ep);
+    SetEAX(context->emu, context->argc);
+    SetEBX(context->emu, (uint32_t)context->argv);
+    SetEIP(context->emu, context->ep);
+    Run(context->emu);
     // Get EAX
     int ret = GetEAX(context->emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);

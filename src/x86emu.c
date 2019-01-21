@@ -204,6 +204,10 @@ void SetEDX(x86emu_t *emu, uint32_t v)
 {
     R_EDX = v;
 }
+void SetEIP(x86emu_t *emu, uint32_t v)
+{
+    R_EIP = v;
+}
 
 const char* DumpCPURegs(x86emu_t* emu)
 {
