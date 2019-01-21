@@ -61,12 +61,12 @@ GO(pthread_cond_wait, iFpp)
 GOM(pthread_create, iFEpppp)
 GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
-// pthread_exit
+GO(pthread_exit, vFp)
 // pthread_getaffinity_np
 // pthread_getattr_np
 // pthread_getconcurrency
 // pthread_getcpuclockid
-// pthread_getschedparam
+GO(pthread_getschedparam, iFppp)
 // __pthread_getspecific
 GO(pthread_getspecific, pFu)
 GOM(pthread_getname_np, iFEppu)  //not present on Pandora
@@ -101,7 +101,7 @@ GO(pthread_mutex_init, iFpp)
 GO(__pthread_mutex_lock, iFp)
 GO(pthread_mutex_lock, iFp)
 // pthread_mutex_setprioceiling
-// pthread_mutex_timedlock
+GO(pthread_mutex_timedlock, iFpp)
 GO(__pthread_mutex_trylock, iFp)
 GO(pthread_mutex_trylock, iFp)
 GO(__pthread_mutex_unlock, iFp)
@@ -135,7 +135,7 @@ GO(pthread_self, uFv)
 // pthread_setcanceltype
 // pthread_setconcurrency
 GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
-// pthread_setschedparam
+GO(pthread_setschedparam, iFpip)
 // pthread_setschedprio
 // __pthread_setspecific
 GO(pthread_setspecific, iFup)

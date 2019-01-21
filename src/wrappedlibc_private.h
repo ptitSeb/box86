@@ -543,7 +543,7 @@ GO(getpwuid, pFu)
 GO(getpwuid_r, iFuppup)
 // getresgid    // Weak
 // getresuid    // Weak
-// getrlimit
+GO(getrlimit, iFip)
 // getrlimit64
 // getrpcbyname
 // getrpcbyname_r
@@ -682,8 +682,8 @@ GO(inet_ntoa, pFi)
 // inl  // Weak
 // innetgr
 GO(inotify_add_watch, iFipu)
-// inotify_init
-// inotify_init1
+GO(inotify_init, iFv)
+GO(inotify_init1, iFi)
 // inotify_rm_watch
 // insque
 // __internal_endnetgrent
@@ -1201,7 +1201,7 @@ GOW(pathconf, iFpi)
 // pclose
 GO(perror, vFp)
 // personality  // Weak
-// pipe // Weak
+GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x86 and arm (and x86_64 too)
 // __pipe
 // pipe2    // Weak
 // pivot_root
@@ -1309,7 +1309,7 @@ GO(__rawmemchr, pFpi)
 GO(read, iFipu)
 // __read   // Weak
 // readahead    // Weak
-// __read_chk
+GO(__read_chk, iFipuu)
 GOW(readdir, pFp)
 GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
@@ -1469,7 +1469,7 @@ GO(setpriority, iFiii)
 // setresgid    // Weak
 // setresuid    // Weak
 // setreuid // Weak
-// setrlimit
+GO(setrlimit, iFip)
 // setrlimit64
 // setrpcent
 // setservent
@@ -1588,7 +1588,7 @@ GO(__strcoll_l, iFppp)
 GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppu)
 // __strcpy_small
-// strcspn
+GO(strcspn, uFpp)
 // __strcspn_c1
 // __strcspn_c2
 // __strcspn_c3
@@ -1628,8 +1628,8 @@ GO(strrchr, pFpi)
 // __strsep_2c
 // __strsep_3c
 // __strsep_g
-// strsignal
-// strspn
+GO(strsignal, pFi)
+GO(strspn, uFpp)
 // __strspn_c1
 // __strspn_c2
 // __strspn_c3
@@ -2072,6 +2072,8 @@ GOM(__xstat64, iFEipp)
 GOM(__gmon_start__, vFv)
 
 GOM(_Jv_RegisterClasses, vFv)   // dummy
+
+GO(__fdelt_chk, iFi)    // not sure it exist everywhere... Maybe it will need to be coded in wrappedlibc.c
 
 // not found (libitm???), but it seems OK to declare dummies:
 
