@@ -100,6 +100,8 @@ void Run0F(x86emu_t *emu)
             memcpy(opx1, opx2, sizeof(sse_regs_t));
             break;
 
+        case 0x2E:                      /* UCOMISS Gx, Ex */
+            // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);

@@ -453,11 +453,16 @@ x86emurun:
                 break;
             case 0x90:                      /* NOP */
                 break;
-
-            case 0x92:                      /* XCHG EDX,EAX */
+            case 0x91:                      
+            case 0x92:                      
+            case 0x93:                      
+            case 0x94:                      
+            case 0x95:                      
+            case 0x96:                      
+            case 0x97:                      /* XCHG reg,EAX */
                 tmp32u = R_EAX;
-                R_EAX = R_EDX;
-                R_EDX = tmp32u;
+                R_EAX = emu->regs[opcode&7].dword[0];
+                emu->regs[opcode&7].dword[0] = tmp32u;
                 break;
 
             case 0x98:                      /* CWDE */
