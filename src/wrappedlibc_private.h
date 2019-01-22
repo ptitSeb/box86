@@ -1171,10 +1171,10 @@ DATA(obstack_exit_failure, 4)
 // obstack_vprintf  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
-GOW(open, iFpiuuuu)  // open use vararg, cheating here putting arbitrary number of stuff in the stack
-// __open   // Weak
+GOW(open, iFpiu) 
+GOW(__open, iFpi)
 // __open_2
-GOW(open64, iFpiuuuu)  // open use vararg, cheating here putting arbitrary number of stuff in the stack
+GOW(open64, iFpiu)
 // __open64 // Weak
 // __open64_2
 // openat   // Weak
