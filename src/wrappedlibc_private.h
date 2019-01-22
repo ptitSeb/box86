@@ -164,7 +164,7 @@ GO(__ctype_tolower_loc, pFv)
 GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
 // cuserid
-GOM(__cxa_atexit, iFEp)
+GOM(__cxa_atexit, iFEppp)
 GOM(atexit, iFEp)           // just in case
 GOM(__cxa_finalize, vFEp)
 DATAM(__cpu_model, 16)

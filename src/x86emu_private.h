@@ -10,6 +10,8 @@ typedef struct box86context_s box86context_t;
 #define ERR_DIVBY0  2
 #define ERR_ILLEGAL 4
 
+typedef struct cleanup_s cleanup_t;
+
 typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8],ip;
@@ -48,7 +50,7 @@ typedef struct x86emu_s {
     // parent context
     box86context_t *context;
     // atexit and fini functions
-    void**      cleanups;
+    cleanup_t   *cleanups;
     int         clean_sz;
     int         clean_cap;
     // scratch stack, used for alignement of double and 64bits ints on arm

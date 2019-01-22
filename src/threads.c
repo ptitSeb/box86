@@ -86,14 +86,18 @@ KHASH_MAP_INIT_INT(once, int)
 #define nb_once	16
 typedef void(*thread_once)(void);
 static x86emu_t *once_emu[nb_once] = {0};
+static void thread_once_callback_N(int n)
+{
+	if(once_emu[n]) {
+		RunCallback(once_emu[n]);
+		FreeCallback(once_emu[n]);
+		once_emu[n] = NULL;
+	}
+}
 #define GO(N) \
 void thread_once_callback_##N() \
 { \
-	if(once_emu[N]) { \
-		RunCallback(once_emu[N]); \
-		FreeCallback(once_emu[N]); \
-		once_emu[N] = NULL; \
-	} \
+	thread_once_callback_N(N); \
 }
 GO(0)
 GO(1)

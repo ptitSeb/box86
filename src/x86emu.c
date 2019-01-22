@@ -12,6 +12,12 @@
 #include "x86trace.h"
 #include "x86run.h"
 
+typedef struct cleanup_s {
+    void*       f;
+    int         arg;
+    void*       a;
+} cleanup_t;
+
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 void PushExit(x86emu_t* emu)
 {
@@ -95,22 +101,36 @@ void AddCleanup(x86emu_t *emu, void *p)
 {
     if(emu->clean_sz == emu->clean_cap) {
         emu->clean_cap += 4;
-        emu->cleanups = (void**)realloc(emu->cleanups, sizeof(void*)*emu->clean_cap);
+        emu->cleanups = (cleanup_t*)realloc(emu->cleanups, sizeof(cleanup_t)*emu->clean_cap);
     }
-    emu->cleanups[emu->clean_sz++] = p;
+    emu->cleanups[emu->clean_sz].arg = 0;
+    emu->cleanups[emu->clean_sz++].f = p;
+}
+
+void AddCleanup1Arg(x86emu_t *emu, void *p, void* a)
+{
+    if(emu->clean_sz == emu->clean_cap) {
+        emu->clean_cap += 4;
+        emu->cleanups = (cleanup_t*)realloc(emu->cleanups, sizeof(cleanup_t)*emu->clean_cap);
+    }
+    emu->cleanups[emu->clean_sz].arg = 1;
+    emu->cleanups[emu->clean_sz].a = a;
+    emu->cleanups[emu->clean_sz++].f = p;
 }
 
 void CallCleanup(x86emu_t *emu, void* p)
 {
-    for(int i=0; i<emu->clean_sz; ++i) {
-        if(p==emu->cleanups[i]) {
+    for(int i=emu->clean_sz-1; i>=0; --i) {
+        if(p==emu->cleanups[i].f) {
             printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+            if(emu->cleanups[i].arg)
+                Push(emu, (uintptr_t)emu->cleanups[i].a);
             PushExit(emu);
-            emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i]);
+            emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
             Run(emu);
             // now remove the cleanup
             if(i!=emu->clean_sz-1)
-                memmove(emu->cleanups+i, emu->cleanups+i+1, (emu->clean_sz-i-1)*sizeof(void*));
+                memmove(emu->cleanups+i, emu->cleanups+i+1, (emu->clean_sz-i-1)*sizeof(cleanup_t));
             --emu->clean_sz;
             return;
         }
@@ -119,10 +139,12 @@ void CallCleanup(x86emu_t *emu, void* p)
 
 void CallAllCleanup(x86emu_t *emu)
 {
-    for(int i=0; i<emu->clean_sz; ++i) {
+    for(int i=emu->clean_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        if(emu->cleanups[i].arg)
+            Push(emu, (uintptr_t)emu->cleanups[i].a);
         PushExit(emu);
-        emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i]);
+        emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
         Run(emu);
     }
     emu->clean_sz = 0;
