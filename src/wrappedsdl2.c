@@ -501,7 +501,7 @@ void EXPORT my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
     if(a) {
         my->sdl2_evtfnc = a;
         my->sdl2_evtfiler = AddCallback(emu, (uintptr_t)a, 1, b, NULL, NULL, NULL);
-        my->SDL_SetEventFilter(my->sdl2_evtfiler, my->sdl2_evtfiler);
+        my->SDL_SetEventFilter(sdl2EvtFilterCallback, my->sdl2_evtfiler);
     }
 }
 void EXPORT *my2_SDL_GetEventFilter(x86emu_t* emu)
