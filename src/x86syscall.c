@@ -50,6 +50,7 @@ scwrap_t syscallwrap[] = {
     { 142, __NR_select, 5 },
 #endif
     { 143, __NR_flock,  2 },
+    { 162, __NR_nanosleep, 2 },
     { 183, __NR_getcwd, 2 },
     { 191, __NR_ugetrlimit, 2 },
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
