@@ -150,33 +150,15 @@ typedef union {
 
 typedef union {
 	uint64_t q[2];
+	int64_t sq[2];
 	double d[2];
-	struct {
-		float f[4];
-	};
-	struct {
-		uint32_t d[4];
-	} ud;
-
-	struct {
-		int32_t d[4];
-	} sd;
-
-	struct {
-		uint16_t w[8];
-	} uw;
-
-	struct {
-		int16_t w[8];
-	} sw;
-
-	struct {
-		uint8_t b[16];
-	} ub;
-
-	struct {
-		int8_t b[16];
-	} sb;
+	float f[4];
+	uint32_t ud[4];
+	int32_t sd[4];
+	uint16_t uw[8];
+	int16_t sw[8];
+	uint8_t ub[16];
+	int8_t sb[16];
 } sse_regs_t;
 #pragma pack(pop)
 

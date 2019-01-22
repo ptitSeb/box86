@@ -71,8 +71,9 @@ void x86Int3(x86emu_t* emu)
                 } else  if(strstr(s, "glVertex3f")) {
                     printf_log(LOG_INFO, "%p: Calling %s(%f, %f, %f)", *(void**)(R_ESP), "glVertex3f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12));
                 } else {
-                    printf_log(LOG_INFO, "%p: Calling %s", *(void**)(R_ESP), s);
+                    printf_log(LOG_INFO, "%p: Calling %s (%08X, %08X, %08X...)", *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
+                fflush(stdout);
             }
             w(emu, addr);
             printf_log(LOG_DEBUG, " => return 0x%08X\n", R_EAX);

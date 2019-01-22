@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -80,6 +81,21 @@ void Run0F(x86emu_t *emu)
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t));
+            break;
+
+        case 0x2F:                      /* COMISS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx1, nextop);
+            GetGx(emu, &opx2, nextop);
+            if(isnan(opx1->f[0]) || isnan(opx2->f[0])) {
+                SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
+            } else if(isgreater(opx2->f[0], opx1->f[1])) {
+                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+            } else if(isless(opx2->f[0], opx1->f[1])) {
+                CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
+            } else {
+                SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+            }
             break;
         
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
@@ -187,7 +203,7 @@ void Run0F(x86emu_t *emu)
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
-                opx1->ud.d[i] ^= opx2->ud.d[i];
+                opx1->ud[i] ^= opx2->ud[i];
             break;
 
         case 0xA2:                      /* CPUID */
@@ -425,10 +441,10 @@ void Run0F(x86emu_t *emu)
             GetGx(emu, &opx1, nextop);
             tmp8u = Fetch8(emu);
             for(int i=0; i<2; ++i) {
-                eax1.ud.d[i] = opx1->ud.d[(tmp8u>>(i*2))&3];
+                eax1.ud[i] = opx1->ud[(tmp8u>>(i*2))&3];
             }
             for(int i=2; i<4; ++i) {
-                eax1.ud.d[i] = opx2->ud.d[(tmp8u>>(i*2))&3];
+                eax1.ud[i] = opx2->ud[(tmp8u>>(i*2))&3];
             }
             memcpy(opx1, &eax1, sizeof(eax1));
             break;
