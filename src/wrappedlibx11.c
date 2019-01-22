@@ -42,9 +42,11 @@ typedef void* (*pFp_t)(void*);
 XErrorHandler EXPORT my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 {
     library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    if(errorhandlercb) { FreeCallback(errorhandlercb); errorhandlercb=NULL;}
     x86emu_t *cb = NULL;
     if (handler!=NULL)
         cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
+    errorhandlercb = cb;
     pFp_t fnc = (pFp_t)dlsym(lib->priv.w.lib, "XSetErrorHandler");
     XErrorHandler old = (XErrorHandler)fnc(cb);
     return (old)?((XErrorHandler)AddBridge(lib->priv.w.bridge, iFpp, old)):NULL;
