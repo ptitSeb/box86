@@ -57,7 +57,7 @@ GO(XAllocSizeHints, pFv)
 //GO(XChangeKeyboardControl
 //GO(XChangeKeyboardMapping
 //GO(XChangePointerControl
-GO(XChangeProperty, iFpppi)
+GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet
 //GO(XChangeWindowAttributes
 //GO(XCheckIfEvent
@@ -441,7 +441,7 @@ GO(XHeightMMOfScreen, iFp)
 GO(XHeightOfScreen, iFp)
 DATAB(_Xi18n_lock, 4)
 GO(XIconifyWindow, iFppi)
-GOM(XIfEvent, iFEppp)
+GOM(XIfEvent, iFEpppp)
 GO(XImageByteOrder, iFp)
 // _XIMCompileResourceList
 // _XimGetCharCode

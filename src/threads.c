@@ -137,14 +137,17 @@ int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 			return pthread_once(once, once_cb[kh_value(once_map, k)]);
 	}
 	// look for a free slot
+	pthread_mutex_lock(&emu->context->mutex_once);
 	for(int i=0; i<nb_once; ++i)
 		if(!once_emu[i]) {
 			once_emu[i] = AddCallback(emu, (uintptr_t)cb, 0, NULL, NULL, NULL, NULL);
 			int ret;
 			k = kh_put(once, once_map, (uintptr_t)once, &ret);	// add to map
 			kh_value(once_map, k) = i;
+			pthread_mutex_unlock(&emu->context->mutex_once);
 			return pthread_once(once, once_cb[i]);
 		}
 	printf_log(LOG_NONE, "Warning, no more slot on pthread_once");
+	pthread_mutex_unlock(&emu->context->mutex_once);
 	return 0;
 }

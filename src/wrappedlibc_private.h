@@ -695,7 +695,7 @@ DATA(_IO_2_1_stdin_, 4)
 DATA(_IO_2_1_stdout_, 4)
 // _IO_adjust_column
 // _IO_adjust_wcolumn
-GOW(ioctl, iFiup)   //the va_list is just to have args of various type, but only 1 arg
+GOW(ioctl, iFiupuuuu)   //the va_list is just to have args of various type, but only 1 arg
 // _IO_default_doallocate
 // _IO_default_finish
 // _IO_default_pbackfail

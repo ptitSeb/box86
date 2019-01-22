@@ -1,6 +1,7 @@
 #ifndef __BOX86CONTEXT_H_
 #define __BOX86CONTEXT_H_
 #include <stdint.h>
+#include <pthread.h>
 #include "pathcoll.h"
 
 typedef struct elfheader_s elfheader_t;
@@ -52,6 +53,8 @@ typedef struct box86context_s {
     procaddess_t        glxprocaddress;
 
     callbacklist_t      *callbacks;     // all callbacks
+
+    pthread_mutex_t     mutex_once;
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)

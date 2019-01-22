@@ -52,8 +52,22 @@ XErrorHandler EXPORT my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
     return (old)?((XErrorHandler)AddBridge(lib->priv.w.bridge, iFpp, old)):NULL;
 }
 
+int32_t xifevent_callback(void* dpy, void *event, void* arg)
+{
+    x86emu_t *emu = (x86emu_t*)arg;
+    SetCallbackArg(emu, 0, dpy);
+    SetCallbackArg(emu, 1, event);
+    return (int32_t)RunCallback(emu);
+}
+
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 int32_t EXPORT my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    printf_log(LOG_NONE, "Error: call unimplemented XIfEvent(%p, %p, %p, %p)\n", d, ev, h, arg);
-    emu->quit = 1;
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x86emu_t *cb = NULL;
+    cb = AddCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
+    iFpppp_t fnc = (iFpppp_t)dlsym(lib->priv.w.lib, "XIfEvent");
+    int32_t ret = fnc(d, ev, xifevent_callback, (void*)cb);
+    FreeCallback(cb);
+    return ret;
 }

@@ -34,6 +34,8 @@ box86context_t *NewBox86Context(int argc)
     context->argc = argc;
     context->argv = (char**)calloc(context->argc, sizeof(char*));
 
+    pthread_mutex_init(&context->mutex_once, NULL);
+
     return context;
 }
 
@@ -82,6 +84,8 @@ void FreeBox86Context(box86context_t** context)
         freeGLProcWrapper(&(*context)->glwrappers);
 
     FreeCallbackList(&(*context)->callbacks);
+
+    pthread_mutex_destroy(&(*context)->mutex_once);
 
     free(*context);
     *context = NULL;
