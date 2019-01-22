@@ -328,7 +328,12 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0]&31;
+            tmp8u = op2->byte[0];
+            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            {
+                op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+            }
+            tmp8u&=31;
             if(tmp8u<32 && op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
@@ -347,7 +352,12 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0]&31;
+            tmp8u = op2->byte[0];
+            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            {
+                op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+            }
+            tmp8u&=31;
             if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
@@ -414,7 +424,12 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0]&31;
+            tmp8u = op2->byte[0];
+            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            {
+                op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+            }
+            tmp8u&=31;
             if(op1->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
                 op1->dword[0] ^= (1<<tmp8u);
@@ -439,7 +454,12 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0]&31;
+            tmp8u = op2->byte[0];
+            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            {
+                op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+            }
+            tmp8u&=31;
             if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
@@ -452,7 +472,12 @@ void Run0F(x86emu_t *emu)
             switch((nextop>>3)&7) {
                 case 4:                 /* BT Ed,Ib */
                     GetEd(emu, &op1, nextop);
-                    tmp8u = Fetch8(emu)&31;
+                    tmp8u = Fetch8(emu);
+                    if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+                    {
+                        op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+                    }
+                    tmp8u&=31;
                     if(op1->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
                     else
@@ -466,7 +491,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp32u = op1->dword[0]&31;
+            tmp32u = op1->dword[0];
             if(tmp32u) {
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 0;
