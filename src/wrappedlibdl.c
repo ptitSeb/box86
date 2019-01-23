@@ -75,14 +75,20 @@ char* my_dlerror(x86emu_t* emu)
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
     //void *dlsym(void *handle, const char *symbol);
+    uintptr_t start, end;
     char* rsymbol = (char*)symbol;
     printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
+    if(handle==NULL) {
+        // special case, look globably
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, 0))
+            return (void*)start;
+        return NULL;
+    }
     int nlib = (int)handle;
     --nlib;
     dlprivate_t *dl = emu->context->dlprivate;
     if(nlib<0 || nlib>=dl->lib_sz) 
         return NULL;
-    uintptr_t start, end;
     if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
         // not found
         printf_log(LOG_DEBUG, " Symbol not found\n");
