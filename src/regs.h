@@ -122,30 +122,13 @@ typedef union {
 } x87flags_t;
 
 typedef union {
-	uint64_t q;
-	struct {
-		uint32_t d0,d1;
-	} ud;
-
-	struct {
-		int32_t d0,d1;
-	} sd;
-
-	struct {
-		uint16_t w0,w1,w2,w3;
-	} uw;
-
-	struct {
-		int16_t w0,w1,w2,w3;
-	} sw;
-
-	struct {
-		uint8_t b0,b1,b2,b3,b4,b5,b6,b7;
-	} ub;
-
-	struct {
-		int8_t b0,b1,b2,b3,b4,b5,b6,b7;
-	} sb;
+	uint64_t	q;
+	uint32_t	ud[2];
+	int32_t 	sd[2];
+	uint16_t 	uw[4];
+	int16_t 	sw[4];
+	uint8_t 	ub[8];
+	int8_t 		sb[8];
 } mmx_regs_t;
 
 typedef union {

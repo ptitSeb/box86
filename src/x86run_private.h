@@ -10,10 +10,13 @@ void GetEb(x86emu_t *emu, reg32_t **op, uint32_t v);
 void GetEw(x86emu_t *emu, reg32_t **op, uint32_t v);
 void GetEw16(x86emu_t *emu, reg32_t **op, uint32_t v);
 void GetEd(x86emu_t *emu, reg32_t **op, uint32_t v);
+void GetEm(x86emu_t *emu, mmx_regs_t **op, uint32_t v);
 void GetEx(x86emu_t *emu, sse_regs_t **op, uint32_t v);
 void GetG(x86emu_t *emu, reg32_t **op, uint32_t v);
 void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v);
+void GetGm(x86emu_t *emu, mmx_regs_t **op, uint32_t v);
 void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v);
+
 
 inline uint8_t Fetch8(x86emu_t *emu) {return *(uint8_t*)(R_EIP++);}
 int8_t Fetch8s(x86emu_t *emu);

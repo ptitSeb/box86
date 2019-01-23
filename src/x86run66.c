@@ -179,6 +179,12 @@ void Run66(x86emu_t *emu)
     case 0x98:                              /* CBW */
         *(int16_t*)&R_AX = (int8_t)R_AL;
         break;
+    case 0x99:                              /* CWD */
+        if(R_AX & 0x8000)
+            R_DX=0xFFFF;
+        else
+            R_DX=0x0000;
+        break;
 
     case 0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)Fetch32(emu);

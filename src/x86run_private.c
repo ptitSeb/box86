@@ -153,6 +153,15 @@ void GetEw16(x86emu_t *emu, reg32_t **op, uint32_t v)
     }
 }
 
+void GetEm(x86emu_t *emu, mmx_regs_t **op, uint32_t v)
+{
+    uint32_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         *op = &emu->mmx[m&0x07];
+        return;
+    } else GetECommon(emu, (reg32_t**)op, m);
+}
+
 void GetEx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
@@ -172,6 +181,12 @@ void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
     *op = (reg32_t*)&emu->regs[m&3].byte[m>>2];
+}
+
+void GetGm(x86emu_t *emu, mmx_regs_t **op, uint32_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    *op = &emu->mmx[m&3];
 }
 
 void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v)

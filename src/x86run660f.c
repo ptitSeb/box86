@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -121,6 +122,64 @@ void Run660F(x86emu_t *emu)
         , op1->word[0] = op2->word[0];
     )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
         
+    case 0x14:                      /* UNPCKLPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[1] = opx2->q[0];
+        break;
+    case 0x15:                      /* UNPCKHPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] = opx1->q[1];
+        opx1->q[1] = opx2->q[1];
+        break;
+
+    case 0x2F:                      /* COMISD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        if(isnan(opx1->d[0]) || isnan(opx2->d[0])) {
+            SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
+        } else if(isgreater(opx2->d[0], opx1->d[1])) {
+            CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+        } else if(isless(opx2->d[0], opx1->d[1])) {
+            CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
+        } else {
+            SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
+        }
+        break;
+
+    case 0x54:                      /* ANDPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] &= opx2->q[0];
+        opx1->q[1] &= opx2->q[1];
+        break;
+    case 0x55:                      /* ANDNPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] = (~opx1->q[0]) & opx2->q[0];
+        opx1->q[1] = (~opx1->q[1]) & opx2->q[1];
+        break;
+    case 0x56:                      /* ORPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] |= opx2->q[0];
+        opx1->q[1] |= opx2->q[1];
+        break;
+    case 0x57:                      /* XORPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] ^= opx2->q[0];
+        opx1->q[1] ^= opx2->q[1];
+        break;
+
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -216,18 +275,75 @@ void Run660F(x86emu_t *emu)
             memcpy(opx1, &eax1, sizeof(eax1));
         }
         break;
-
+    case 0x71:  /* GRP */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        switch((nextop>>3)&7) {
+            case 2:                 /* PSRLW Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>15)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else
+                    for (int i=0; i<8; ++i) opx1->uw[i] >>= tmp8u;
+                break;
+            case 4:                 /* PSRAW Gx, Ib */
+                tmp8u = Fetch8(emu);
+                for (int i=0; i<8; ++i) opx1->sw[i] >>= tmp8u;
+                break;
+            case 6:                 /* PSLLW Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>15)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else
+                    for (int i=0; i<8; ++i) opx1->uw[i] <<= tmp8u;
+                break;
+            default:
+                UnimpOpcode(emu);
+        }
+        break;
+    case 0x72:  /* GRP */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        switch((nextop>>3)&7) {
+            case 2:                 /* PSRLD Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>31)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else
+                    for (int i=0; i<4; ++i) opx1->ud[i] >>= tmp8u;
+                break;
+            case 4:                 /* PSRAD Gx, Ib */
+                tmp8u = Fetch8(emu);
+                for (int i=0; i<4; ++i) opx1->sd[i] >>= tmp8u;
+                break;
+            case 6:                 /* PSLLD Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>31)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else
+                    for (int i=0; i<4; ++i) opx1->ud[i] <<= tmp8u;
+                break;
+            default:
+                UnimpOpcode(emu);
+        }
+        break;
     case 0x73:  /* GRP */
         nextop = Fetch8(emu);
-        GetEd(emu, &op1, nextop);
+        GetEx(emu, &opx1, nextop);
         switch((nextop>>3)&7) {
             case 2:                 /* PSRLQ Gx, Ib */
-                GetGx(emu, &opx1, nextop);
                 tmp8u = Fetch8(emu);
                 if(tmp8u>63)
-                    { opx1->q[0] = opx1->q[1] = 0; }
+                    {opx1->q[0] = opx1->q[1] = 0;}
                 else
-                    { opx1->q[0] >>= tmp8u; opx1->q[1] >>= tmp8u; }
+                    {opx1->q[0] >>= tmp8u; opx1->q[1] >>= tmp8u;}
+                break;
+            case 6:                 /* PSLLQ Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>63)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else
+                    {opx1->q[0] <<= tmp8u; opx1->q[1] <<= tmp8u;}
                 break;
             default:
                 UnimpOpcode(emu);
@@ -266,16 +382,6 @@ void Run660F(x86emu_t *emu)
         GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
         memcpy(opx1, opx2, sizeof(sse_regs_t));
-        break;
-
-    case 0xEF:  /* PXOR Gx,Ex */
-        nextop = Fetch8(emu);
-        GetEx(emu, &opx2, nextop);
-        GetGx(emu, &opx1, nextop);
-        opx1->ud[0] ^= opx2->ud[0];
-        opx1->ud[1] ^= opx2->ud[1];
-        opx1->ud[2] ^= opx2->ud[2];
-        opx1->ud[3] ^= opx2->ud[3];
         break;
 
     case 0xA3:                      /* BT Ew,Gw */
@@ -408,6 +514,51 @@ void Run660F(x86emu_t *emu)
         op1->word[0] = tmp16u;
         break;
 
+    case 0xC6:                      /* SHUFPD Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        eax1.q[0] = opx1->q[tmp8u&1];
+        eax1.q[1] = opx2->q[(tmp8u>>1)&1];
+        memcpy(opx1, &eax1, sizeof(eax1));
+        break;
+
+    case 0xD1:  /* PSRLW Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>15)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<8; ++i) opx1->uw[i] >>= tmp8u;}
+        break;
+    case 0xD2:  /* PSRLD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>31)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<4; ++i) opx1->ud[i] >>= tmp8u;}
+        break;
+    case 0xD3:  /* PSRLQ Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>63)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<2; ++i) opx1->q[i] >>= tmp8u;}
+        break;
+    case 0xD4:  /* PADDQ Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] += opx2->q[0];
+        opx1->q[1] += opx2->q[1];
+        break;
+
     case 0xD6:  /* MOVQ Ex,Gx */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -415,6 +566,66 @@ void Run660F(x86emu_t *emu)
         *(uint64_t*)opx2 = opx1->q[0];
         if((nextop&0xc7)>=0xc0 && (nextop&0xc7)<=0xc7)
             opx2->q[1] = 0;
+        break;
+
+    case 0xE1:  /* PSRAW Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u=opx2->q[0];
+        for (int i=0; i<8; ++i) opx1->sw[i] >>= tmp8u;
+        break;
+    case 0xE2:  /* PSRAD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u=opx2->q[0]; for (int i=0; i<4; ++i) opx1->sd[i] >>= tmp8u;
+        break;
+
+    case 0xEF:  /* PXOR Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->ud[0] ^= opx2->ud[0];
+        opx1->ud[1] ^= opx2->ud[1];
+        opx1->ud[2] ^= opx2->ud[2];
+        opx1->ud[3] ^= opx2->ud[3];
+        break;
+
+    case 0xF1:  /* PSLLW Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>15)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<8; ++i) opx1->uw[i] <<= tmp8u;}
+        break;
+    case 0xF2:  /* PSLLD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>31)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<4; ++i) opx1->ud[i] <<= tmp8u;}
+        break;
+    case 0xF3:  /* PSLLQ Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(opx2->q[0]>63)
+            {opx1->q[0] = opx1->q[1] = 0;}
+        else 
+            {tmp8u=opx2->q[0]; for (int i=0; i<2; ++i) opx1->q[i] <<= tmp8u;}
+        break;
+
+    case 0xFB:  /* PSUBQ Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] -= opx2->q[0];
+        opx1->q[1] -= opx2->q[1];
         break;
 
     default:
@@ -492,6 +703,22 @@ void RunF20F(x86emu_t *emu)
         opx1->d[0] /= opx2->d[0];
         break;
 
+    case 0x70:  /* PSHUFLW Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        if(opx1==opx2) {
+            for (int i=0; i<4; ++i)
+                eax1.uw[i] = opx2->uw[(tmp8u>>(i*2))&3];
+            opx1->q[0] = eax1.q[0];
+        } else {
+            for (int i=0; i<4; ++i)
+                opx1->uw[i] = opx2->uw[(tmp8u>>(i*2))&3];
+            opx1->q[1] = opx2->q[1];
+        }
+        break;
+
     default:
         UnimpOpcode(emu);
     }
@@ -558,6 +785,12 @@ void RunF30F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         opx1->f[0] *= opx2->f[0];
         break;
+    case 0x5A:  /* CVTSS2SD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] = opx2->f[0];
+        break;
 
     case 0x5C:  /* SUBSS Gx, Ex */
         nextop = Fetch8(emu);
@@ -573,12 +806,40 @@ void RunF30F(x86emu_t *emu)
         opx1->f[0] /= opx2->f[0];
         break;
 
+    case 0x6F:  /* MOVDQU Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        memcpy(opx2, opx1, 16);
+        break;
+    case 0x70:  /* PSHUFHW Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        if(opx1==opx2) {
+            for (int i=0; i<4; ++i)
+                eax1.uw[4+i] = opx2->uw[4+((tmp8u>>(i*2))&3)];
+            opx1->q[1] = eax1.q[1];
+        } else {
+            for (int i=0; i<4; ++i)
+                opx1->uw[4+i] = opx2->uw[4+((tmp8u>>(i*2))&3)];
+            opx1->q[0] = opx2->q[0];
+        }
+        break;
+
     case 0x7E:  /* MOVQ Gx, Eq */
         nextop = Fetch8(emu);
         GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
         opx2->q[0] = *(uint64_t*)opx1;
         opx2->q[1] = 0;
+        break;
+    case 0x7F:  /* MOVDQU Ex, Gx */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        memcpy(opx2, opx1, 16);
         break;
 
 

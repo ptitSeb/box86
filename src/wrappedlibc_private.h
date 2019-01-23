@@ -2073,7 +2073,7 @@ GOM(__gmon_start__, vFv)
 
 GOM(_Jv_RegisterClasses, vFv)   // dummy
 
-GO(__fdelt_chk, iFi)    // not sure it exist everywhere... Maybe it will need to be coded in wrappedlibc.c
+GOM(__fdelt_chk, iFi)
 
 // not found (libitm???), but it seems OK to declare dummies:
 

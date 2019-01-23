@@ -29,6 +29,7 @@ void Run0F(x86emu_t *emu)
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
+    mmx_regs_t *opm1, *opm2;
     sse_regs_t *opx1, *opx2;
     sse_regs_t eax1;
     switch(opcode) {
@@ -56,7 +57,23 @@ void Run0F(x86emu_t *emu)
             GetGx(emu, &opx2, nextop);
             opx1->q[0] = opx2->q[0];
             break;
-
+        case 0x14:                      /* UNPCKLPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->ud[2] = opx1->ud[1];
+            opx1->ud[1] = opx2->ud[0];
+            opx1->ud[3] = opx2->ud[1];
+            break;
+        case 0x15:                      /* UNPCKHPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->ud[0] = opx1->ud[2];
+            opx1->ud[2] = opx1->ud[3];
+            opx1->ud[1] = opx2->ud[2];
+            opx1->ud[3] = opx2->ud[3];
+            break;
         case 0x16:                      /* MOVHPS Ed,Gd */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
@@ -198,12 +215,78 @@ void Run0F(x86emu_t *emu)
 
         #undef GOCOND
 
+        case 0x54:                      /* ANDPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->ud[i] &= opx2->ud[i];
+            break;
+        case 0x55:                      /* ANDNPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->ud[i] = (~opx1->ud[i]) & opx2->ud[i];
+            break;
+        case 0x56:                      /* ORPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->ud[i] |= opx2->ud[i];
+            break;
         case 0x57:                      /* XORPS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] ^= opx2->ud[i];
+            break;
+
+        case 0x60:                      /* PUNPCKLBW Gm, Em */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm2, nextop);
+            GetGm(emu, &opm1, nextop);
+            opm1->ub[6] = opm1->ub[3];
+            opm1->ub[4] = opm1->ub[2];
+            opm1->ub[2] = opm1->ub[1];
+            opm1->ub[1] = opm2->ub[0];
+            opm1->ub[3] = opm2->ub[1];
+            opm1->ub[5] = opm2->ub[2];
+            opm1->ub[7] = opm2->ub[3];
+            break;
+        case 0x61:                      /* PUNPCKLWD Gm, Em */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm2, nextop);
+            GetGm(emu, &opm1, nextop);
+            opm1->uw[2] = opm1->uw[1];
+            opm1->uw[1] = opm2->uw[0];
+            opm1->uw[3] = opm2->uw[1];
+            break;
+        case 0x62:                      /* PUNPCKLDQ Gm, Em */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm2, nextop);
+            GetGm(emu, &opm1, nextop);
+            opm1->ud[1] = opm2->ud[0];
+            break;
+
+        case 0x6F:                      /* MOVQ Gm, Em */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm2, nextop);
+            GetGm(emu, &opm1, nextop);
+            opm1->q = opm2->q;
+            break;
+
+        case 0x77:                      /* EMMS */
+            // empty MMX, FPU now usable
+            break;
+
+        case 0x7F:                      /* MOVQ Em, Gm */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm1, nextop);
+            GetGm(emu, &opm2, nextop);
+            opm1->q = opm2->q;
             break;
 
         case 0xA2:                      /* CPUID */
@@ -243,7 +326,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0];       // there is no modulo 32 on this one (test against realy i386)
+            tmp8u = op2->byte[0]&31;
             if(tmp8u<32 && op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
@@ -262,7 +345,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            tmp8u = op2->byte[0]&31;
             if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
@@ -329,7 +412,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            tmp8u = op2->byte[0]&31;
             if(op1->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
                 op1->dword[0] ^= (1<<tmp8u);
@@ -354,7 +437,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp8u = op2->byte[0];       // TODO: check the modulo stuff, like with BT
+            tmp8u = op2->byte[0]&31;
             if(op1->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
@@ -367,7 +450,7 @@ void Run0F(x86emu_t *emu)
             switch((nextop>>3)&7) {
                 case 4:                 /* BT Ed,Ib */
                     GetEd(emu, &op1, nextop);
-                    tmp8u = Fetch8(emu);    //TODO: check modulo stuff
+                    tmp8u = Fetch8(emu)&31;
                     if(op1->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
                     else
@@ -381,7 +464,7 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
-            tmp32u = op1->dword[0];
+            tmp32u = op1->dword[0]&31;
             if(tmp32u) {
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 0;
@@ -462,6 +545,22 @@ void Run0F(x86emu_t *emu)
                 R_EAX = op1->dword[0];
                 R_EDX = op1->dword[1];
             }
+            break;
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            tmp8s = opcode&7;
+            tmp8u = emu->regs[tmp8s].byte[0];
+            emu->regs[tmp8s].byte[0] = emu->regs[tmp8s].byte[3];
+            emu->regs[tmp8s].byte[3] = tmp8u;
+            tmp8u = emu->regs[tmp8s].byte[1];
+            emu->regs[tmp8s].byte[1] = emu->regs[tmp8s].byte[2];
+            emu->regs[tmp8s].byte[2] = tmp8u;
             break;
 
         default:

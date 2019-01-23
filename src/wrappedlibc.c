@@ -12,6 +12,7 @@ typedef void (*sighandler_t)(int);
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include "wrappedlibs.h"
@@ -338,6 +339,15 @@ EXPORT void my__Jv_RegisterClasses() {}
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
+
+extern void __chk_fail();
+EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
+{
+  if (d >= FD_SETSIZE)
+    __chk_fail ();
+
+  return d / __NFDBITS;
+}
 
 #define CUSTOM_INIT \
     InitCpuModel(); \
