@@ -60,7 +60,7 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
             printf_log(LOG_NONE, "Warning, libGL not found in librarian?!\n");
             return NULL;
         }
-        emu->context->glxprocaddress = lib->priv.w.lib;
+        emu->context->glxprocaddress = lib->priv.w.priv;
     }
     // get proc adress using actual glXGetProcAddress
     void* symbol = emu->context->glxprocaddress(rname);
