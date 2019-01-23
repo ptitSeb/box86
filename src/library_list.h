@@ -18,6 +18,8 @@ GO("libSDL_image-1.2.so.0", sdl1image)
 GO("libsmpeg2-2.0.so.0", smpeg2)
 GO("libvorbisfile.so.3", vorbisfile)
 GO("libpng16.so.16", png16)
+GO("libXxf86vm.so.1", libxxf86vm)
+GO("libXrandr.so.2", libxrandr)
 
 GO("ld-linux.so.2", ldlinux)
 
