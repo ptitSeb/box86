@@ -26,6 +26,7 @@ void Run66(x86emu_t *emu)
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
+    sse_regs_t *opx1;
     switch(opcode) {
 
     #define GO(B, OP)                       \
@@ -54,6 +55,9 @@ void Run66(x86emu_t *emu)
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
     //GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
     #undef GO
+    case 0x2E:                      /* CS: */
+        // ignored
+        break;
     case 0x39:
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);

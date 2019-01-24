@@ -569,6 +569,20 @@ void Run660F(x86emu_t *emu)
         op1->word[0] = tmp16u;
         break;
 
+    case 0xC4:                              /* PINSRW Gx,Ed,Ib */
+        nextop = Fetch8(emu);
+        GetEw(emu, &op1, nextop);
+        GetGx(emu, &opx2, nextop);
+        tmp8u = Fetch8(emu);
+        opx2->uw[tmp8u&7] = op1->word[0];
+        break;
+    case 0xC5:                              /* PEXTRW Gd,Ex,Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetG(emu, &op2, nextop);
+        tmp8u = Fetch8(emu);
+        op2->dword[0] = opx1->uw[tmp8u&7];
+        break;
     case 0xC6:                      /* SHUFPD Gx, Ex, Ib */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -721,6 +735,15 @@ void Run660F(x86emu_t *emu)
             {tmp8u=opx2->q[0]; for (int i=0; i<2; ++i) opx1->q[i] <<= tmp8u;}
         break;
 
+    case 0xFA:  /* PSUBD Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->ud[0] -= opx2->ud[0];
+        opx1->ud[1] -= opx2->ud[1];
+        opx1->ud[2] -= opx2->ud[2];
+        opx1->ud[3] -= opx2->ud[3];
+        break;
     case 0xFB:  /* PSUBQ Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -734,6 +757,16 @@ void Run660F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         for(int i=0; i<16; ++i)
             opx1->ub[i] += opx2->ub[i];
+        break;
+
+    case 0xFE:  /* PADDD Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->ud[0] += opx2->ud[0];
+        opx1->ud[1] += opx2->ud[1];
+        opx1->ud[2] += opx2->ud[2];
+        opx1->ud[3] += opx2->ud[3];
         break;
 
 

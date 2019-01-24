@@ -339,6 +339,11 @@ EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute
 
 EXPORT void my__Jv_RegisterClasses() {}
 
+EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj, void* dso)
+{
+    printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
+}
+
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 

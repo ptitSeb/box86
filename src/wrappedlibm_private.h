@@ -306,8 +306,8 @@ GO(__pow_finite, dFdd)
 // remquo   // Weak
 // remquof  // Weak
 // remquol  // Weak
-// rint // Weak
-// rintf    // Weak
+GOW(rint, dFd)
+GOW(rintf, fFf)
 // rintl    // Weak
 GOW(round, dFd)
 GOW(roundf, fFf)

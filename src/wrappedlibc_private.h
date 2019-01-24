@@ -168,7 +168,7 @@ GOM(__cxa_atexit, iFEppp)
 GOM(atexit, iFEp)           // just in case
 GOM(__cxa_finalize, vFEp)
 DATAM(__cpu_model, 16)
-//__cxa_thread_atexit_impl  // need GOM
+GOM(__cxa_thread_atexit_impl, iFEppp)
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
@@ -322,7 +322,7 @@ GOW(fgets, pFpip)
 // __fgets_unlocked_chk
 GOW(fgetwc, iFp)
 // fgetwc_unlocked  // Weak
-// fgetws
+GO(fgetws, pFpip)
 // __fgetws_chk
 // fgetws_unlocked
 // __fgetws_unlocked_chk
@@ -850,19 +850,19 @@ GO(isdigit, iFi)
 GO(isgraph, iFi)
 // __isgraph_l
 // isgraph_l    // Weak
-// isinf    // Weak
-// __isinf
-// isinff   // Weak
-// __isinff
+GOW(isinf, iFd)
+GO(__isinf, iFd)
+GOW(isinff, iFf)
+GO(__isinff, iFf)
 // isinfl   // Weak
 // __isinfl
 GO(islower, iFi)
 // __islower_l
 // islower_l    // Weak
-// isnan    // Weak
-// __isnan
-// isnanf   // Weak
-// __isnanf
+GOW(isnan, iFd)
+GO(__isnan, iFd)
+GOW(isnanf, iFf)
+GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
 // __isoc99_fscanf
@@ -1059,7 +1059,7 @@ GOW(mbsrtowcs, uFppup)
 // _mcleanup
 // mcount   // Weak
 // _mcount
-// memalign // Weak
+GOW(memalign, pFuu)
 DATAV(__memalign_hook, 4)
 // memccpy  // Weak
 GO(memchr, pFpiu)
@@ -1321,7 +1321,7 @@ GOW(readlink, iFppu)
 GO(readv, iFipi)
 GO(realloc, pFpu)
 DATAV(__realloc_hook, 4)
-// realpath
+GO(realpath, pFpp)
 // __realpath_chk
 // reboot
 // re_comp  // Weak

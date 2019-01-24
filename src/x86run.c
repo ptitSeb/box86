@@ -233,6 +233,8 @@ x86emurun:
                     Run66D9(emu);
                 else if(nextop==0xDD)
                     Run66DD(emu);
+                else if(nextop==0x66)
+                    break;  // 0x66 0x66 => can remove one 0x66
                 else
                     Run66(emu);
                 break;

@@ -87,6 +87,11 @@ void Run0F(x86emu_t *emu)
             opx2->q[0] = opx1->q[1];
             break;
 
+        case 0x1F:                      /* NOP (multi-byte) */
+            nextop = Fetch8(emu);
+            GetEd(emu, &op1, nextop);
+            break;
+
         case 0x28:                      /* MOVAPS Gd,Ed */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
