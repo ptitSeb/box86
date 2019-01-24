@@ -100,6 +100,14 @@ void SetCallbackArg(x86emu_t* emu, int arg, void* val)
     }
 }
 
+void SetCallbackNArg(x86emu_t* emu, int narg)
+{
+    onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        cb->nb_args = narg;
+    }
+}
+
 
 callbacklist_t* NewCallbackList()
 {

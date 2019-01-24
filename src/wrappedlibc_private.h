@@ -163,7 +163,7 @@ GOW(__ctype_get_mb_cur_max, uFv)
 GO(__ctype_tolower_loc, pFv)
 GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
-// cuserid
+GO(cuserid, pFp)
 GOM(__cxa_atexit, iFEppp)
 GOM(atexit, iFEp)           // just in case
 GOM(__cxa_finalize, vFEp)
@@ -490,8 +490,8 @@ GO(getifaddrs, iFp)
 // get_kernel_syms  // Weak
 // getline  // Weak
 // getloadavg
-// getlogin
-// getlogin_r
+GO(getlogin, pFv)
+GO(getlogin_r, iFpu)
 // __getlogin_r_chk
 // getmntent
 // __getmntent_r
@@ -1298,7 +1298,7 @@ GOM(qsort_r, vFEpuupp)
 // quotactl
 // raise
 GO(rand, iFv)
-// random   // Weak
+GOW(random, iFv)
 // random_r // Weak
 GO(rand_r, iFp)
 // rawmemchr    // Weak
@@ -1548,7 +1548,7 @@ GOM(__sprintf_chk, iFEpvvpVV)
 GOW(srand, vFu)
 // srand48
 // srand48_r    // Weak
-// srandom  // Weak
+GOW(srandom, vFu)
 // srandom_r    // Weak
 GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
 // ssignal  // Weak

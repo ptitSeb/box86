@@ -61,7 +61,7 @@ GO(Mix_QuickLoad_RAW,pFpu)
 GO(Mix_QuickLoad_WAV,pFp)
 GO(Mix_Quit,vFv)
 GO(Mix_Pause, vFi)
-// Mix_RegisterEffect
+GOM(Mix_RegisterEffect, iFEippp)
 GO(Mix_ReserveChannels,iFi)
 GO(Mix_Resume,vFi)
 GO(Mix_ResumeMusic,vFv)

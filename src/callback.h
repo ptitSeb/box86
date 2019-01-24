@@ -13,5 +13,6 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
 void FreeCallback(x86emu_t* emu);
 uint32_t RunCallback(x86emu_t* emu);
 void SetCallbackArg(x86emu_t* emu, int arg, void* val);
+void SetCallbackNArg(x86emu_t* emu, int narg);
 
 #endif //__CALLBACK_H__

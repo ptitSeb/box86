@@ -53,9 +53,11 @@ typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void*  (*Fpp_t)(void*, void*);
+typedef void*  (*pFpp_t)(void*, void*);
+typedef void*  (*pFppp_t)(void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
+typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
@@ -96,9 +98,10 @@ typedef struct sdl2_my_s {
     uFpU_t     SDL_WriteLE64;
     uFupp_t    SDL_AddTimer;
     uFu_t      SDL_RemoveTimer;
-    pFpp_t     SDL_CreateThread;
+    pFppp_t    SDL_CreateThread;
     vFp_t      SDL_KillThread;
     vFpp_t     SDL_SetEventFilter;
+    vFpp_t     SDL_LogSetOutputFunction;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -107,6 +110,8 @@ typedef struct sdl2_my_s {
     // evt filter
     x86emu_t        *sdl2_evtfiler;
     void*           sdl2_evtfnc;
+    // log output
+    x86emu_t        *sdl2_logouput;
 } sdl2_my_t;
 
 void* getSDL2My(library_t* lib)
@@ -140,9 +145,10 @@ void* getSDL2My(library_t* lib)
     GO(SDL_WriteLE64, uFpU_t)
     GO(SDL_AddTimer, uFupp_t)
     GO(SDL_RemoveTimer, uFu_t)
-    GO(SDL_CreateThread, pFpp_t)
+    GO(SDL_CreateThread, pFppp_t)
     GO(SDL_KillThread, vFp_t)
     GO(SDL_SetEventFilter, vFpp_t)
+    GO(SDL_LogSetOutputFunction, vFpp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -197,6 +203,15 @@ int32_t sdl2EvtFilterCallback(void *p)
     x86emu_t *emu = (x86emu_t*) p;
     RunCallback(emu);
     return (int32_t)R_EAX;
+}
+
+void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, const char* message)
+{
+    x86emu_t *emu = (x86emu_t*) userdata;
+    SetCallbackArg(emu, 1, (void*)category);
+    SetCallbackArg(emu, 2, (void*)priority);
+    SetCallbackArg(emu, 3, (void*)message);
+    RunCallback(emu);
 }
 
 // TODO: track the memory for those callback
@@ -510,11 +525,39 @@ void EXPORT *my2_SDL_GetEventFilter(x86emu_t* emu)
     return my->sdl2_evtfnc;
 }
 
-void EXPORT *my2_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)
+EXPORT void my2_SDL_LogSetOutputFunction(x86emu_t* emu, void* cb, void* arg)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    if(my->sdl2_logouput) {
+        my->SDL_LogSetOutputFunction(NULL, NULL);   // remove old one
+        FreeCallback(my->sdl2_logouput);
+        my->sdl2_logouput = NULL;
+        my->sdl2_evtfnc = NULL;
+    }
+    if(cb) {
+        my->sdl2_logouput = AddCallback(emu, (uintptr_t)cb, 4, arg, NULL, NULL, NULL);
+        my->SDL_LogSetOutputFunction(sdl2EvtFilterCallback, my->sdl2_logouput);
+    }
+}
+
+EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vsnprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
+    return r;
+    #else
+    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    #endif
+}
+
+
+void EXPORT *my2_SDL_CreateThread(x86emu_t* emu, void* cb, void* n, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
-    void* t = my->SDL_CreateThread(sdl2ThreadCallback, cbemu);
+    void* t = my->SDL_CreateThread(sdl2ThreadCallback, n, cbemu);
     int ret;
     khint_t k = kh_put(timercb, my->threads, (uintptr_t)t, &ret);
     kh_value(my->threads, k) = cbemu;
