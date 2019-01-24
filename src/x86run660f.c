@@ -135,7 +135,37 @@ void Run660F(x86emu_t *emu)
         opx1->q[0] = opx1->q[1];
         opx1->q[1] = opx2->q[1];
         break;
+    case 0x16:                      /* MOVHPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[1] = opx2->q[0];
+        break;
+    case 0x17:                      /* MOVHPD Ex, Gx */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        opx1->q[0] = opx2->q[1];
+        break;
+    
+    case 0x28:                      /* MOVAPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] = opx2->q[0];
+        opx1->q[1] = opx2->q[1];
+        break;
+    case 0x29:                      /* MOVAPD Ex, Gx */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        opx1->q[0] = opx2->q[0];
+        opx1->q[1] = opx2->q[1];
+        break;
 
+
+    case 0x2E:                      /* UCOMISD Gx, Ex */
+        // no special check...
     case 0x2F:                      /* COMISD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx1, nextop);
@@ -180,6 +210,22 @@ void Run660F(x86emu_t *emu)
         opx1->q[1] ^= opx2->q[1];
         break;
 
+    case 0x5A:                      /* CVTPD2PS Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->f[0] = opx2->d[0];
+        opx1->f[1] = opx2->d[1];
+        break;
+
+    case 0x5C:                      /* SUBPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] -= opx2->d[0];
+        opx1->d[1] -= opx2->d[1];
+        break;
+
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -207,6 +253,15 @@ void Run660F(x86emu_t *emu)
         opx1->ud[3] = opx2->ud[1];
         break;
 
+    case 0x67:  /* PACKUSWB */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<4; ++i)
+            opx1->ub[i] = (opx1->sw[i]<0)?0:((opx1->sw[i]>0xff)?0xff:opx1->sw[i]);
+        for(int i=0; i<4; ++i)
+            opx1->ub[4+i] = (opx2->sw[i]<0)?0:((opx2->sw[i]>0xff)?0xff:opx2->sw[i]);
+        break;
     case 0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -568,6 +623,22 @@ void Run660F(x86emu_t *emu)
             opx2->q[1] = 0;
         break;
 
+    case 0xDB:  /* PAND Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] &= opx2->q[0];
+        opx1->q[1] &= opx2->q[1];
+        break;
+
+    case 0xDF:  /* PANDN Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->q[0] = (~opx1->q[0]) & opx2->q[0];
+        opx1->q[1] = (~opx1->q[1]) & opx2->q[1];
+        break;
+
     case 0xE1:  /* PSRAW Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -582,6 +653,36 @@ void Run660F(x86emu_t *emu)
         tmp8u=opx2->q[0]; for (int i=0; i<4; ++i) opx1->sd[i] >>= tmp8u;
         break;
 
+    case 0xEB:  /* POR Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->ud[0] |= opx2->ud[0];
+        opx1->ud[1] |= opx2->ud[1];
+        opx1->ud[2] |= opx2->ud[2];
+        opx1->ud[3] |= opx2->ud[3];
+        break;
+    case 0xEC:  /* PADDSB Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<16; ++i)
+            opx1->sb[i] += opx2->sb[i];
+        break;
+    case 0xED:  /* PADDSW Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<8; ++i)
+            opx1->sw[i] += opx2->sw[i];
+        break;
+    case 0xEE:  /* PMAXSW Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<8; ++i)
+            opx1->sw[i] = (opx1->sw[i]>opx2->sw[i])?opx1->sw[i]:opx2->sw[i];
+        break;
     case 0xEF:  /* PXOR Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -627,6 +728,14 @@ void Run660F(x86emu_t *emu)
         opx1->q[0] -= opx2->q[0];
         opx1->q[1] -= opx2->q[1];
         break;
+    case 0xFC:  /* PADDB Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<16; ++i)
+            opx1->ub[i] += opx2->ub[i];
+        break;
+
 
     default:
         UnimpOpcode(emu);
@@ -676,6 +785,13 @@ void RunF20F(x86emu_t *emu)
         opx1->d[0] = opx2->sd[0];
         break;
 
+    case 0x2C:  /* CVTTSD2SI Gd, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetG(emu, &op1, nextop);
+        op1->dword[0] = opx2->d[0];
+        break;
+
     case 0x58:  /* ADDSD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -687,6 +803,13 @@ void RunF20F(x86emu_t *emu)
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] *= opx2->d[0];
+        break;
+
+    case 0x5A:  /* CVTSD2SS Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->f[0] = opx2->d[0];
         break;
 
     case 0x5C:  /* SUBSD Gx, Ex */
@@ -717,6 +840,28 @@ void RunF20F(x86emu_t *emu)
                 opx1->uw[i] = opx2->uw[(tmp8u>>(i*2))&3];
             opx1->q[1] = opx2->q[1];
         }
+        break;
+
+    case 0xC2:  /* CMPSD Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        tmp8s = 0;
+        switch(tmp8u&7) {
+            case 0: tmp8s=(opx1->d[0] == opx2->d[0]); break;
+            case 1: tmp8s=isless(opx1->d[0], opx2->d[0]); break;
+            case 2: tmp8s=islessequal(opx1->d[0], opx2->d[0]); break;
+            case 3: tmp8s=isunordered(opx1->d[0], opx2->d[0]); break;
+            case 4: tmp8s=(opx1->d[0] != opx2->d[0]); break;
+            case 5: tmp8s=isgreaterequal(opx1->d[0], opx2->d[0]); break;
+            case 6: tmp8s=isgreater(opx1->d[0], opx2->d[0]); break;
+            case 7: tmp8s=!isunordered(opx1->d[0], opx2->d[0]); break;
+        }
+        if(tmp8s)
+            opx1->q[0] = 0xffffffffffffffffLL;
+        else
+            opx1->q[0] = 0;
         break;
 
     default:
@@ -798,7 +943,13 @@ void RunF30F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         opx1->f[0] -= opx2->f[0];
         break;
-
+    case 0x5D:  /* MINSS Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if(isnan(opx1->f[0]) || isnan(opx2->f[0]) || isless(opx2->f[0], opx1->f[0]))
+            opx1->f[0] = opx2->f[0];
+        break;
     case 0x5E:  /* DIVSS Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -842,6 +993,27 @@ void RunF30F(x86emu_t *emu)
         memcpy(opx2, opx1, 16);
         break;
 
+    case 0xC2:  /* CMPSS Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        tmp8s = 0;
+        switch(tmp8u&7) {
+            case 0: tmp8s=(opx1->f[0] == opx2->f[0]); break;
+            case 1: tmp8s=isless(opx1->f[0], opx2->f[0]); break;
+            case 2: tmp8s=islessequal(opx1->f[0], opx2->f[0]); break;
+            case 3: tmp8s=isunordered(opx1->f[0], opx2->f[0]); break;
+            case 4: tmp8s=(opx1->f[0] != opx2->f[0]); break;
+            case 5: tmp8s=isgreaterequal(opx1->f[0], opx2->f[0]); break;
+            case 6: tmp8s=isgreater(opx1->f[0], opx2->f[0]); break;
+            case 7: tmp8s=!isunordered(opx1->f[0], opx2->f[0]); break;
+        }
+        if(tmp8s)
+            opx1->ud[0] = 0xffffffff;
+        else
+            opx1->ud[0] = 0;
+        break;
 
     default:
         UnimpOpcode(emu);

@@ -245,6 +245,28 @@ void Run0F(x86emu_t *emu)
             for(int i=0; i<4; ++i)
                 opx1->ud[i] ^= opx2->ud[i];
             break;
+        case 0x58:                      /* ADDPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->f[i] += opx2->f[i];
+            break;
+        case 0x59:                      /* MULPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->f[i] *= opx2->f[i];
+            break;
+
+        case 0x5E:                      /* DIVPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->f[i] /= opx2->f[i];
+            break;
 
         case 0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = Fetch8(emu);
