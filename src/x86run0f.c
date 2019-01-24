@@ -105,6 +105,15 @@ void Run0F(x86emu_t *emu)
             memcpy(opx1, opx2, sizeof(sse_regs_t));
             break;
 
+        case 0x2C:                      /* CVTTPS2PI Gm, Ex */
+        case 0x2D:                      /* CVTPS2PI Gm, Ex */
+            // rounding should be done
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGm(emu, &opm1, nextop);
+            opm1->sd[1] = opx2->f[1];
+            opm1->sd[0] = opx2->f[0];
+            break;
         case 0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
@@ -113,9 +122,9 @@ void Run0F(x86emu_t *emu)
             GetGx(emu, &opx2, nextop);
             if(isnan(opx1->f[0]) || isnan(opx2->f[0])) {
                 SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
-            } else if(isgreater(opx2->f[0], opx1->f[1])) {
+            } else if(isgreater(opx2->f[0], opx1->f[0])) {
                 CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-            } else if(isless(opx2->f[0], opx1->f[1])) {
+            } else if(isless(opx2->f[0], opx1->f[0])) {
                 CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
             } else {
                 SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
@@ -222,6 +231,22 @@ void Run0F(x86emu_t *emu)
 
         #undef GOCOND
 
+        case 0x50:                      /* MOVMSKPS Gd, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetG(emu, &op1, nextop);
+            op1->dword[0] = 0;
+            for(int i=0; i<4; ++i)
+                op1->dword[0] |= ((opx2->ud[i]>>31)&1)<<i;
+            break;
+        case 0x51:                      /* SQRTPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->f[i] = sqrtf(opx2->f[i]);
+            break;
+
         case 0x54:                      /* ANDPS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
@@ -264,7 +289,30 @@ void Run0F(x86emu_t *emu)
             for(int i=0; i<4; ++i)
                 opx1->f[i] *= opx2->f[i];
             break;
+        case 0x5A:                      /* CVTPS2PD Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->d[1] = opx2->f[1];
+            opx1->d[0] = opx2->f[0];
+            break;
 
+        case 0x5C:                      /* SUBPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i)
+                opx1->f[i] -= opx2->f[i];
+            break;
+        case 0x5D:                      /* MINPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i) {
+                if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isless(opx2->f[i], opx1->f[i]))
+                    opx1->f[i] = opx2->f[i];
+            }
+            break;
         case 0x5E:                      /* DIVPS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
@@ -272,7 +320,15 @@ void Run0F(x86emu_t *emu)
             for(int i=0; i<4; ++i)
                 opx1->f[i] /= opx2->f[i];
             break;
-
+        case 0x5F:                      /* MAXPS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            for(int i=0; i<4; ++i) {
+                if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreater(opx2->f[i], opx1->f[i]))
+                    opx1->f[i] = opx2->f[i];
+            }
+            break;
         case 0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
@@ -570,6 +626,29 @@ void Run0F(x86emu_t *emu)
             tmp32u = add32(emu, op1->dword[0], op2->dword[0]);
             op2->dword[0] = op1->dword[0];
             op1->dword[0] = tmp32u;
+            break;
+        case 0xC2:                      /* CMPPS Gx, Ex, Ib */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            tmp8u = Fetch8(emu);
+            for(int i=0; i<4; ++i) {
+                tmp8s = 0;
+                switch(tmp8u&7) {
+                    case 0: tmp8s=(opx1->f[i] == opx2->f[i]); break;
+                    case 1: tmp8s=isless(opx1->f[i], opx2->f[i]); break;
+                    case 2: tmp8s=islessequal(opx1->f[i], opx2->f[i]); break;
+                    case 3: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]); break;
+                    case 4: tmp8s=(opx1->f[i] != opx2->f[i]); break;
+                    case 5: tmp8s=isgreaterequal(opx1->f[i], opx2->f[i]); break;
+                    case 6: tmp8s=isgreater(opx1->f[i], opx2->f[i]); break;
+                    case 7: tmp8s=!isnan(opx1->f[i]) && !isnan(opx2->f[i]); break;
+                }
+                if(tmp8s)
+                    opx1->ud[i] = 0xffffffff;
+                else
+                    opx1->ud[i] = 0;
+            }
             break;
 
         case 0xC6:                      /* SHUFPS Gx, Ex, Ib */

@@ -172,13 +172,29 @@ void Run660F(x86emu_t *emu)
         GetGx(emu, &opx2, nextop);
         if(isnan(opx1->d[0]) || isnan(opx2->d[0])) {
             SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
-        } else if(isgreater(opx2->d[0], opx1->d[1])) {
+        } else if(isgreater(opx2->d[0], opx1->d[0])) {
             CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-        } else if(isless(opx2->d[0], opx1->d[1])) {
+        } else if(isless(opx2->d[0], opx1->d[0])) {
             CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
         } else {
             SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
         }
+        break;
+
+    case 0x50:                      /* MOVMSKPD Gd, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetG(emu, &op1, nextop);
+        op1->dword[0] = 0;
+        for(int i=0; i<2; ++i)
+            op1->dword[0] |= ((opx2->q[i]>>63)&1)<<i;
+        break;
+    case 0x51:                      /* SQRTPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] = sqrt(opx2->d[0]);
+        opx1->d[1] = sqrt(opx2->d[1]);
         break;
 
     case 0x54:                      /* ANDPD Gx, Ex */
@@ -209,7 +225,20 @@ void Run660F(x86emu_t *emu)
         opx1->q[0] ^= opx2->q[0];
         opx1->q[1] ^= opx2->q[1];
         break;
-
+    case 0x58:                      /* ADDPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] += opx2->d[0];
+        opx1->d[1] += opx2->d[1];
+        break;
+    case 0x59:                      /* MULPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] *= opx2->d[0];
+        opx1->d[1] *= opx2->d[1];
+        break;
     case 0x5A:                      /* CVTPD2PS Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -224,6 +253,31 @@ void Run660F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         opx1->d[0] -= opx2->d[0];
         opx1->d[1] -= opx2->d[1];
+        break;
+    case 0x5D:                      /* MINPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isless(opx2->d[0], opx1->d[0]))
+            opx1->d[0] = opx2->d[0];
+        if (isnan(opx1->d[1]) || isnan(opx2->d[1]) || isless(opx2->d[1], opx1->d[1]))
+            opx1->d[1] = opx2->d[1];
+        break;
+    case 0x5E:                      /* DIVPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] /= opx2->d[0];
+        opx1->d[1] /= opx2->d[1];
+        break;
+    case 0x5F:                      /* MAXPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isgreater(opx2->d[0], opx1->d[0]))
+            opx1->d[0] = opx2->d[0];
+        if (isnan(opx1->d[1]) || isnan(opx2->d[1]) || isgreater(opx2->d[1], opx1->d[1]))
+            opx1->d[1] = opx2->d[1];
         break;
 
     case 0x60:  /* PUNPCKLBW Gx,Ex */
@@ -393,12 +447,34 @@ void Run660F(x86emu_t *emu)
                 else
                     {opx1->q[0] >>= tmp8u; opx1->q[1] >>= tmp8u;}
                 break;
+            case 3:                 /* PSRLDQ Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>15)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else {
+                    for (int i=tmp8u; i<16; ++i)
+                        opx1->ub[i-tmp8u] = opx1->ub[i];
+                    for (int i=16-tmp8u; i<16; ++i)
+                        opx1->ub[i] = 0;
+                }
+                break;
             case 6:                 /* PSLLQ Gx, Ib */
                 tmp8u = Fetch8(emu);
                 if(tmp8u>63)
                     {opx1->q[0] = opx1->q[1] = 0;}
                 else
                     {opx1->q[0] <<= tmp8u; opx1->q[1] <<= tmp8u;}
+                break;
+            case 7:                 /* PSLLDQ Gx, Ib */
+                tmp8u = Fetch8(emu);
+                if(tmp8u>15)
+                    {opx1->q[0] = opx1->q[1] = 0;}
+                else {
+                    for (int i=16-tmp8u; i>=0; --i)
+                        opx1->ub[i+tmp8u] = opx1->ub[i];
+                    for (int i=0; i<tmp8u; ++i)
+                        opx1->ub[i] = 0;
+                }
                 break;
             default:
                 UnimpOpcode(emu);
@@ -567,6 +643,29 @@ void Run660F(x86emu_t *emu)
         tmp16u = add16(emu, op1->word[0], op2->word[0]);
         op2->word[0] = op1->word[0];
         op1->word[0] = tmp16u;
+        break;
+    case 0xC2:                      /* CMPPD Gx, Ex, Ib */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        tmp8u = Fetch8(emu);
+        for(int i=0; i<2; ++i) {
+            tmp8s = 0;
+            switch(tmp8u&7) {
+                case 0: tmp8s=(opx1->d[i] == opx2->d[i]); break;
+                case 1: tmp8s=isless(opx1->d[i], opx2->d[i]); break;
+                case 2: tmp8s=islessequal(opx1->d[i], opx2->d[i]); break;
+                case 3: tmp8s=isnan(opx1->d[i]) || isnan(opx2->d[i]); break;
+                case 4: tmp8s=(opx1->d[i] != opx2->d[i]); break;
+                case 5: tmp8s=isgreaterequal(opx1->d[i], opx2->d[i]); break;
+                case 6: tmp8s=isgreater(opx1->d[i], opx2->d[i]); break;
+                case 7: tmp8s=!isnan(opx1->d[i]) && !isnan(opx2->d[i]); break;
+            }
+            if(tmp8s)
+                opx1->q[i] = 0xffffffffffffffffLL;
+            else
+                opx1->q[i] = 0;
+        }
         break;
 
     case 0xC4:                              /* PINSRW Gx,Ed,Ib */
@@ -825,6 +924,13 @@ void RunF20F(x86emu_t *emu)
         op1->dword[0] = opx2->d[0];
         break;
 
+    case 0x51:  /* SQRTSD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->d[0] = sqrt(opx2->d[0]);
+        break;
+
     case 0x58:  /* ADDSD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -851,12 +957,25 @@ void RunF20F(x86emu_t *emu)
         GetGx(emu, &opx1, nextop);
         opx1->d[0] -= opx2->d[0];
         break;
-
+    case 0x5D:  /* MINSD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isless(opx2->d[0], opx1->d[0]))
+            opx1->d[0] = opx2->d[0];
+        break;
     case 0x5E:  /* DIVSD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] /= opx2->d[0];
+        break;
+    case 0x5F:  /* MAXSD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isgreater(opx2->d[0], opx1->d[0]))
+            opx1->d[0] = opx2->d[0];
         break;
 
     case 0x70:  /* PSHUFLW Gx, Ex, Ib */
@@ -885,11 +1004,11 @@ void RunF20F(x86emu_t *emu)
             case 0: tmp8s=(opx1->d[0] == opx2->d[0]); break;
             case 1: tmp8s=isless(opx1->d[0], opx2->d[0]); break;
             case 2: tmp8s=islessequal(opx1->d[0], opx2->d[0]); break;
-            case 3: tmp8s=isunordered(opx1->d[0], opx2->d[0]); break;
+            case 3: tmp8s=isnan(opx1->d[0]) || isnan(opx2->d[0]); break;
             case 4: tmp8s=(opx1->d[0] != opx2->d[0]); break;
             case 5: tmp8s=isgreaterequal(opx1->d[0], opx2->d[0]); break;
             case 6: tmp8s=isgreater(opx1->d[0], opx2->d[0]); break;
-            case 7: tmp8s=!isunordered(opx1->d[0], opx2->d[0]); break;
+            case 7: tmp8s=!isnan(opx1->d[0]) && !isnan(opx2->d[0]); break;
         }
         if(tmp8s)
             opx1->q[0] = 0xffffffffffffffffLL;
@@ -951,6 +1070,13 @@ void RunF30F(x86emu_t *emu)
         op1->dword[0] = opx2->f[0];
         break;
 
+    case 0x51:  /* SQRTSS Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->f[0] = sqrtf(opx2->f[0]);
+        break;
+
     case 0x58:  /* ADDSS Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -988,6 +1114,13 @@ void RunF30F(x86emu_t *emu)
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->f[0] /= opx2->f[0];
+        break;
+    case 0x5F:  /* MAXSS Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        if (isnan(opx1->f[0]) || isnan(opx2->f[0]) || isgreater(opx2->f[0], opx1->f[0]))
+            opx1->f[0] = opx2->f[0];
         break;
 
     case 0x6F:  /* MOVDQU Gx, Ex */
@@ -1036,11 +1169,11 @@ void RunF30F(x86emu_t *emu)
             case 0: tmp8s=(opx1->f[0] == opx2->f[0]); break;
             case 1: tmp8s=isless(opx1->f[0], opx2->f[0]); break;
             case 2: tmp8s=islessequal(opx1->f[0], opx2->f[0]); break;
-            case 3: tmp8s=isunordered(opx1->f[0], opx2->f[0]); break;
+            case 3: tmp8s=isnan(opx1->f[0]) || isnan(opx2->f[0]); break;
             case 4: tmp8s=(opx1->f[0] != opx2->f[0]); break;
             case 5: tmp8s=isgreaterequal(opx1->f[0], opx2->f[0]); break;
             case 6: tmp8s=isgreater(opx1->f[0], opx2->f[0]); break;
-            case 7: tmp8s=!isunordered(opx1->f[0], opx2->f[0]); break;
+            case 7: tmp8s=!isnan(opx1->f[0]) && !isnan(opx2->f[0]); break;
         }
         if(tmp8s)
             opx1->ud[0] = 0xffffffff;
