@@ -918,6 +918,7 @@ void RunF20F(x86emu_t *emu)
         break;
 
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
+    case 0x2D:  /* CVTSD2SI Gd, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetG(emu, &op1, nextop);
@@ -1064,6 +1065,7 @@ void RunF30F(x86emu_t *emu)
         break;
 
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
+    case 0x2D:  /* CVTSS2SI Gd, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetG(emu, &op1, nextop);
