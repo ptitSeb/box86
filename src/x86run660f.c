@@ -147,6 +147,11 @@ void Run660F(x86emu_t *emu)
         GetGx(emu, &opx2, nextop);
         opx1->q[0] = opx2->q[1];
         break;
+
+    case 0x1F:                      /* NOP (multi-byte) */
+        nextop = Fetch8(emu);
+        GetEd(emu, &op1, nextop);
+        break;
     
     case 0x28:                      /* MOVAPD Gx, Ex */
         nextop = Fetch8(emu);
@@ -307,6 +312,13 @@ void Run660F(x86emu_t *emu)
         opx1->ud[3] = opx2->ud[1];
         break;
 
+    case 0x66:  /* PCMPGTD */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<4; ++i)
+            opx1->sd[i] = (opx1->sd[i]>opx1->sd[i])?-1:0;
+        break;
     case 0x67:  /* PACKUSWB */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
