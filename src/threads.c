@@ -18,7 +18,6 @@
 
 typedef struct emuthread_s {
 	x86emu_t 	*emu;
-	onebridge_t	routine;
 	int			stacksize;
 	void		*stack;
 } emuthread_t;
@@ -48,11 +47,6 @@ static void* pthread_routine(void* p)
 int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
 	emuthread_t *emuthread = (emuthread_t*)calloc(1, sizeof(emuthread_t));
-	emuthread->routine.CC = 0xCC;
-	emuthread->routine.S = 'S'; emuthread->routine.C = 'C';
-	emuthread->routine.w = pFp;
-	emuthread->routine.f = (uintptr_t)start_routine;
-	emuthread->routine.C3 = 0xC3;
 
 	emuthread->stacksize = 2*1024*1024;	//default stack size is 2Mo
 	// TODO: get stack size inside attr
@@ -86,7 +80,7 @@ KHASH_MAP_INIT_INT(once, int)
 #define nb_once	16
 typedef void(*thread_once)(void);
 static x86emu_t *once_emu[nb_once] = {0};
-static void thread_once_callback_N(int n)
+static void thread_once_callback(int n)
 {
 	if(once_emu[n]) {
 		RunCallback(once_emu[n]);
@@ -97,7 +91,7 @@ static void thread_once_callback_N(int n)
 #define GO(N) \
 void thread_once_callback_##N() \
 { \
-	thread_once_callback_N(N); \
+	thread_once_callback(N); \
 }
 GO(0)
 GO(1)
@@ -128,16 +122,17 @@ kh_once_t 	*once_map = NULL;
 int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 {
 	// look if that once already is in map
+	pthread_mutex_lock(&emu->context->mutex_once);
 	if(!once_map) {
 		once_map = kh_init(once);
 	}
 	khint_t k;
 	k = kh_get(once, once_map, (uintptr_t)once);
 	if(k!=kh_end(once_map)) {
+			pthread_mutex_unlock(&emu->context->mutex_once);
 			return pthread_once(once, once_cb[kh_value(once_map, k)]);
 	}
 	// look for a free slot
-	pthread_mutex_lock(&emu->context->mutex_once);
 	for(int i=0; i<nb_once; ++i)
 		if(!once_emu[i]) {
 			once_emu[i] = AddCallback(emu, (uintptr_t)cb, 0, NULL, NULL, NULL, NULL);

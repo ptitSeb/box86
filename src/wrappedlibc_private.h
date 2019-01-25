@@ -1243,7 +1243,7 @@ GO(__poll, iFpii)
 // posix_spawnp
 // ppoll
 // prctl    // Weak
-GOW(pread, iFipuu)
+GOW(pread, iFipui)
 // pread64  // Weak
 // __pread64    // Weak
 // __pread64_chk
