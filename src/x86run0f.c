@@ -33,25 +33,28 @@ void Run0F(x86emu_t *emu)
     sse_regs_t *opx1, *opx2;
     sse_regs_t eax1;
     switch(opcode) {
-        case 0x10:                      /* MOVUPS Gd,Ed */
+        case 0x10:                      /* MOVUPS Gx,Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
-            memcpy(opx1, opx2, sizeof(sse_regs_t));
+            memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
             break;
-        case 0x11:                      /* MOVUPS Ed,Gd */
+        case 0x11:                      /* MOVUPS Ex,Gx */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
-            memcpy(opx1, opx2, sizeof(sse_regs_t));
+            memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
             break;
-        case 0x12:                      /* MOVLPS Gd,Ed */
+        case 0x12:                      
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
-            opx1->q[0] = opx2->q[0];
+            if((nextop&0xf8)==0xc0)     /* MOVHLPS Gx,Ex */
+                opx1->q[0] = opx2->q[1];
+            else
+                opx1->q[0] = opx2->q[0];/* MOVLPS Gx,Ex */
             break;
-        case 0x13:                      /* MOVLPS Ed,Gd */
+        case 0x13:                      /* MOVLPS Ex,Gx */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
@@ -61,26 +64,26 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
+            opx1->ud[3] = opx2->ud[1];
             opx1->ud[2] = opx1->ud[1];
             opx1->ud[1] = opx2->ud[0];
-            opx1->ud[3] = opx2->ud[1];
             break;
         case 0x15:                      /* UNPCKHPS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->ud[0] = opx1->ud[2];
-            opx1->ud[2] = opx1->ud[3];
             opx1->ud[1] = opx2->ud[2];
+            opx1->ud[2] = opx1->ud[3];
             opx1->ud[3] = opx2->ud[3];
             break;
-        case 0x16:                      /* MOVHPS Ed,Gd */
-            nextop = Fetch8(emu);
+        case 0x16:                      /* MOVHPS Ex,Gx */
+            nextop = Fetch8(emu);       /* MOVLHPS Ex,Gx */
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             opx2->q[1] = opx1->q[0];
             break;
-        case 0x17:                      /* MOVHPS Gd,Ed */
+        case 0x17:                      /* MOVHPS Gx,Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
@@ -96,13 +99,15 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
-            memcpy(opx1, opx2, sizeof(sse_regs_t));
+            opx1->q[0] = opx2->q[0];
+            opx1->q[1] = opx2->q[1];
             break;
-        case 0x29:                      /* MOVAPS Ex,Gd */
+        case 0x29:                      /* MOVAPS Ex,Gx */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
-            memcpy(opx1, opx2, sizeof(sse_regs_t));
+            opx1->q[0] = opx2->q[0];
+            opx1->q[1] = opx2->q[1];
             break;
         case 0x2A:  /* CVTPI2PS Gx, Em */
             nextop = Fetch8(emu);
@@ -617,13 +622,13 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEb(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
-            *(int32_t*)&op1->dword[0] = (int8_t)op2->byte[0];
+            op1->sdword[0] = op2->sbyte[0];
             break;
         case 0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
             nextop = Fetch8(emu);
             GetEw(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
-            *(int32_t*)&op1->dword[0] = (int16_t)op2->word[0];
+            op1->sdword[0] = op2->sword[0];
             break;
 
         case 0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
@@ -677,7 +682,8 @@ void Run0F(x86emu_t *emu)
             for(int i=2; i<4; ++i) {
                 eax1.ud[i] = opx2->ud[(tmp8u>>(i*2))&3];
             }
-            memcpy(opx1, &eax1, sizeof(eax1));
+            opx1->q[0] = eax1.q[0];
+            opx1->q[1] = eax1.q[1];
             break;
         case 0xC7:                      /* CMPXCHG8B Gq */
             nextop = Fetch8(emu);
