@@ -976,7 +976,7 @@ void RunF20F(x86emu_t *emu)
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetG(emu, &op1, nextop);
-        op1->dword[0] = opx2->d[0];
+        op1->sdword[0] = opx2->d[0];
         break;
 
     case 0x51:  /* SQRTSD Gx, Ex */

@@ -348,21 +348,21 @@ void Run0F(x86emu_t *emu)
             nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
+            opm1->ub[7] = opm2->ub[3];
             opm1->ub[6] = opm1->ub[3];
+            opm1->ub[5] = opm2->ub[2];
             opm1->ub[4] = opm1->ub[2];
+            opm1->ub[3] = opm2->ub[1];
             opm1->ub[2] = opm1->ub[1];
             opm1->ub[1] = opm2->ub[0];
-            opm1->ub[3] = opm2->ub[1];
-            opm1->ub[5] = opm2->ub[2];
-            opm1->ub[7] = opm2->ub[3];
             break;
         case 0x61:                      /* PUNPCKLWD Gm, Em */
             nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
+            opm1->uw[3] = opm2->uw[1];
             opm1->uw[2] = opm1->uw[1];
             opm1->uw[1] = opm2->uw[0];
-            opm1->uw[3] = opm2->uw[1];
             break;
         case 0x62:                      /* PUNPCKLDQ Gm, Em */
             nextop = Fetch8(emu);
