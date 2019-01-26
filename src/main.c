@@ -15,6 +15,7 @@
 #include "librarian.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
+int trace_xmm = 0;
 
 void LoadLogEnv()
 {
@@ -34,6 +35,13 @@ void LoadLogEnv()
                 box86_log = LOG_DUMP;
         }
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
+    }
+    p = getenv("BOX86_TRACE_XMM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                trace_xmm = p[0]-'0';
+        }
     }
 }
 

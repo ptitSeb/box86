@@ -14,7 +14,7 @@ enum {
 
 
 typedef union {
-	int32_t  sword[1];
+	int32_t  sdword[1];
 	uint32_t dword[1];
 	uint16_t word[2];
 	uint8_t  byte[4];

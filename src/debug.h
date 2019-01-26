@@ -2,6 +2,7 @@
 #define __DEBUG_H_
 
 extern int box86_log;    // log level
+extern int trace_xmm;    // include XMM reg in trace?
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

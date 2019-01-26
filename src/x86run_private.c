@@ -65,7 +65,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
             uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
             if((sib&0x7)==5)
                 base = Fetch32(emu);
-            base += (emu->sbiidx[(sib>>3)&7]->sword[0] << (sib>>6));
+            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
             *op = (reg32_t*)base;
             return;
         } else if (m==0x5) { //disp32
@@ -79,7 +79,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            int32_t idx = emu->sbiidx[(sib>>3)&7]->sword[0];
+            int32_t idx = emu->sbiidx[(sib>>3)&7]->sdword[0];
             base += (idx << (sib>>6));
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -92,7 +92,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
         if(m==0x84) {
             uint8_t sib = Fetch8(emu);
             base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            int32_t idx = emu->sbiidx[(sib>>3)&7]->sword[0];
+            int32_t idx = emu->sbiidx[(sib>>3)&7]->sdword[0];
             base += (idx << (sib>>6));
         } else {
             base = emu->regs[_AX+(m&0x7)].dword[0];
@@ -107,7 +107,7 @@ void GetEb(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
-        int lowhigh = (m&04)>>2;
+        int lowhigh = (m&4)>>2;
          *op = (reg32_t *)(((char*)(&emu->regs[_AX+(m&0x03)]))+lowhigh);  //?
         return;
     } else GetECommon(emu, op, m);
@@ -186,13 +186,13 @@ void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
 void GetGm(x86emu_t *emu, mmx_regs_t **op, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    *op = &emu->mmx[m&3];
+    *op = &emu->mmx[m&7];
 }
 
 void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    *op = &emu->xmm[m&3];
+    *op = &emu->xmm[m&7];
 }
 
 int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))

@@ -233,10 +233,18 @@ void SetEIP(x86emu_t *emu, uint32_t v)
 
 const char* DumpCPURegs(x86emu_t* emu)
 {
-    static char buff[500];
+    static char buff[800];
     char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
-    char tmp[50];
+    char tmp[80];
     buff[0] = '\0';
+    if(trace_xmm) {
+        // do xmm reg is needed
+        for(int i=0; i<8; ++i) {
+            sprintf(tmp, "%d:%016llX%016llX", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+            strcat(buff, tmp);
+            if (i&3==3) strcat(buff, "\n"); else strcat(buff, " ");
+        }
+    }
     // start with FPU regs...
     if(emu->fpu_stack) {
         for (int i=0; i<emu->fpu_stack; i++) {

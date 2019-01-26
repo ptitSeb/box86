@@ -92,13 +92,13 @@ void Run0F(x86emu_t *emu)
             GetEd(emu, &op1, nextop);
             break;
 
-        case 0x28:                      /* MOVAPS Gd,Ed */
+        case 0x28:                      /* MOVAPS Gx,Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t));
             break;
-        case 0x29:                      /* MOVAPS Ed,Gd */
+        case 0x29:                      /* MOVAPS Ex,Gd */
             nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);

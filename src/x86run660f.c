@@ -251,7 +251,13 @@ void Run660F(x86emu_t *emu)
         opx1->f[0] = opx2->d[0];
         opx1->f[1] = opx2->d[1];
         break;
-
+    case 0x5B:                      /* CVTPS2DQ Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->sd[0] = opx2->d[0];
+        opx1->sd[1] = opx2->d[1];
+        break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -778,6 +784,14 @@ void Run660F(x86emu_t *emu)
         tmp8u=opx2->q[0]; for (int i=0; i<4; ++i) opx1->sd[i] >>= tmp8u;
         break;
 
+    case 0xE6:  /* CVTTPS2DQ Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        opx1->sd[0] = opx2->d[0];
+        opx1->sd[1] = opx2->d[1];
+        break;
+
     case 0xEB:  /* POR Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -922,11 +936,11 @@ void RunF20F(x86emu_t *emu)
         opx1->q[0] = opx2->q[0];
         break;
 
-    case 0x2A:  /* CVTSI2SD Gx, Ex */
+    case 0x2A:  /* CVTSI2SD Gx, Ed */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, nextop);
+        GetEd(emu, &op2, nextop);
         GetGx(emu, &opx1, nextop);
-        opx1->d[0] = opx2->sd[0];
+        opx1->d[0] = op2->sdword[0];
         break;
 
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
@@ -1069,11 +1083,11 @@ void RunF30F(x86emu_t *emu)
         opx1->ud[0] = opx2->ud[0];
         break;
 
-    case 0x2A:  /* CVTSI2SS Gx, Ex */
+    case 0x2A:  /* CVTSI2SS Gx, Ed */
         nextop = Fetch8(emu);
-        GetEx(emu, &opx2, nextop);
+        GetEd(emu, &op2, nextop);
         GetGx(emu, &opx1, nextop);
-        opx1->f[0] = opx2->sd[0];
+        opx1->f[0] = op2->sdword[0];
         break;
 
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
@@ -1081,7 +1095,7 @@ void RunF30F(x86emu_t *emu)
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetG(emu, &op1, nextop);
-        op1->dword[0] = opx2->f[0];
+        op1->sdword[0] = opx2->f[0];
         break;
 
     case 0x51:  /* SQRTSS Gx, Ex */
