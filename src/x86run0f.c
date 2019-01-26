@@ -104,6 +104,13 @@ void Run0F(x86emu_t *emu)
             GetGx(emu, &opx2, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t));
             break;
+        case 0x2A:  /* CVTPI2PS Gx, Em */
+            nextop = Fetch8(emu);
+            GetEm(emu, &opm2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->f[0] = opm2->sd[0];
+            opx1->f[1] = opm2->sd[1];
+            break;
 
         case 0x2C:                      /* CVTTPS2PI Gm, Ex */
         case 0x2D:                      /* CVTPS2PI Gm, Ex */
@@ -296,7 +303,15 @@ void Run0F(x86emu_t *emu)
             opx1->d[1] = opx2->f[1];
             opx1->d[0] = opx2->f[0];
             break;
-
+        case 0x5B:                      /* CVTDQ2PS Gx, Ex */
+            nextop = Fetch8(emu);
+            GetEx(emu, &opx2, nextop);
+            GetGx(emu, &opx1, nextop);
+            opx1->f[0] = opx2->sd[0];
+            opx1->f[1] = opx2->sd[1];
+            opx1->f[2] = opx2->sd[2];
+            opx1->f[3] = opx2->sd[3];
+            break;
         case 0x5C:                      /* SUBPS Gx, Ex */
             nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
