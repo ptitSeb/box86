@@ -107,13 +107,13 @@ GOW(calloc, pFuu)
 // catgets
 // catopen
 // cbc_crypt
-// cfgetispeed
-// cfgetospeed
+GO(cfgetispeed, iFp)
+GO(cfgetospeed, iFp)
 // cfmakeraw
 GOW(cfree, vFp)
-// cfsetispeed
-// cfsetospeed
-// cfsetspeed
+GO(cfsetispeed, iFpi)
+GO(cfsetospeed, iFpi)
+GO(cfsetspeed, iFpi)
 GOW(chdir, iFp)
 DATA(__check_rhosts_file, 4)
 // chflags
@@ -510,9 +510,9 @@ GO(getnameinfo, iFpupupui)
 // getnetname
 GOW(get_nprocs, iFv)
 GOW(get_nprocs_conf, iFv)
-// getopt
-// getopt_long
-// getopt_long_only
+GO(getopt, iFipp)
+GO(getopt_long, iFipppp)
+GO(getopt_long_only, iFipppp)
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
 // getpass
@@ -773,7 +773,7 @@ DATA(_IO_list_all, 4)
 // _IO_printf
 // _IO_proc_close
 // _IO_proc_open
-// _IO_putc
+GO(_IO_putc, iFip)
 // _IO_puts
 // _IO_remove_marker
 // _IO_seekmark
@@ -1186,7 +1186,7 @@ GOW(opendir, pFp)
 // openlog
 // open_memstream
 // open_wmemstream
-// optarg   // type B
+DATAB(optarg, 4)
 DATA(opterr, 4)
 DATA(optind, 4)
 DATA(optopt, 4)
@@ -1733,14 +1733,14 @@ DATA(sys_siglist, 4)
 // system   // Weak
 GOM(__sysv_signal, pFip)
 GOM(sysv_signal, pFip)  // Weak
-// tcdrain  // Weak
-// tcflow
-// tcflush
-// tcgetattr    // Weak
+GOW(tcdrain, iFi)
+GO(tcflow, iFii)
+GO(tcflush, iFii)
+GOW(tcgetattr, iFip)
 // tcgetpgrp
 // tcgetsid
-// tcsendbreak
-// tcsetattr
+GO(tcsendbreak, iFii)
+GO(tcsetattr, iFiip)
 // tcsetpgrp
 // tdelete  // Weak
 // tdestroy // Weak

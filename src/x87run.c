@@ -476,9 +476,28 @@ void RunDA(x86emu_t *emu)
         fpu_do_pop(emu);
         break;
 
-
-    default:
+/*    case 0xE4:
+    case 0xF0:
+    case 0xF1:
+    case 0xF4:
+    case 0xF5:
+    case 0xF6:
+    case 0xF7:
+    case 0xF8:
+    case 0xF9:
+    case 0xFD:
         UnimpOpcode(emu);
+        break;*/
+    default:
+        switch((nextop>>3)&7) {
+            case 1:     /* FIMUL ST0, Ed int */
+                GetEd(emu, &op2, nextop);
+                fpu_do_push(emu);
+                ST0.d *= op2->sword[0];
+                break;
+            default:
+                UnimpOpcode(emu);
+        }
     }
 }
 
@@ -579,16 +598,15 @@ void RunDB(x86emu_t *emu)
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Gd */
                 GetEd(emu, &op2, nextop);
-                *(uint32_t*)&tmp32s = op2->dword[0];
                 fpu_do_push(emu);
-                ST0.d = tmp32s;
+                ST0.d = op2->sdword[0];
                 break;
             case 2: /* FIST Ed, ST0 */
                 GetEd(emu, &op2, nextop);
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
-                op2->dword[0] = (uint32_t)tmp32s;
+                op2->sdword[0] = tmp32s;
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GetEd(emu, &op2, nextop);
@@ -596,12 +614,12 @@ void RunDB(x86emu_t *emu)
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
                 fpu_do_pop(emu);
-                op2->dword[0] = (uint32_t)tmp32s;
+                op2->sdword[0] = tmp32s;
                 break;
             case 5: /* FLD ST0, Gt */
                 GetEd(emu, &op2, nextop);
                 fpu_do_push(emu);
-                memcpy(&STld(0).ld, &op2->dword[0], 10);
+                memcpy(&STld(0).ld, op2, 10);
                 LD2D(&STld(0), &ST(0).d);
                 STld(0).ref = ST0.ll;
                 break;
