@@ -2,7 +2,7 @@
 
 GOW(acos, dFd)
 GOW(acosf, fFf)
-// __acosf_finite
+GO(__acosf_finite, fFf)
 // __acos_finite
 // acosh    // Weak
 // acoshf   // Weak
@@ -143,7 +143,7 @@ GOW(exp2f, fFf)
 // exp2l    // Weak
 GOW(expf, fFf)
 // __expf_finite
-// __exp_finite
+GO(__exp_finite, dFd)
 // expl // Weak
 // expm1    // Weak
 // expm1f   // Weak
@@ -266,7 +266,7 @@ GOW(log2f, fFf)
 // logbl    // Weak
 GOW(logf, fFf)
 // __logf_finite
-// __log_finite
+GO(__log_finite, dFd)
 // logl // Weak
 // lrint    // Weak
 // lrintf   // Weak
