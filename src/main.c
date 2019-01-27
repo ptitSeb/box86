@@ -271,6 +271,8 @@ int main(int argc, const char **argv, const char **env) {
         }
     }
 
+    // export symbols
+    AddGlobalsSymbols(context->maplib, GetMapSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
     if(LoadNeededLib(elf_header, context->maplib, context, context->emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
@@ -278,8 +280,6 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
-    // export symbols
-    AddGlobalsSymbols(GetMapSymbol(context->maplib), elf_header);
     // reloc...
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);

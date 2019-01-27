@@ -240,9 +240,10 @@ void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h)
 void DumpSymTab(elfheader_t *h)
 {
     if(box86_log>=LOG_DUMP && h->SymTab) {
+        const char* name = ElfName(h);
         printf_log(LOG_DUMP, "ELF Dump SymTab(%d)=\n", h->numSymTab);
         for (int i=0; i<h->numSymTab; ++i)
-            printf_log(LOG_DUMP, "  SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", 
+            printf_log(LOG_DUMP, "  %s:SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", name, 
                 i, h->StrTab+h->SymTab[i].st_name, (void*)h->SymTab[i].st_value, h->SymTab[i].st_size,
                 h->SymTab[i].st_info, h->SymTab[i].st_other, h->SymTab[i].st_shndx);
         printf_log(LOG_DUMP, "ELF Dump SymTab=====\n");
@@ -262,9 +263,10 @@ void DumpDynamicSections(elfheader_t *h)
 void DumpDynSym(elfheader_t *h)
 {
     if(box86_log>=LOG_DUMP && h->DynSym) {
+        const char* name = ElfName(h);
         printf_log(LOG_DUMP, "ELF Dump DynSym(%d)=\n", h->numDynSym);
         for (int i=0; i<h->numDynSym; ++i)
-            printf_log(LOG_DUMP, "  DynSym[%d] = %s\n", i, DumpSym(h, h->DynSym+i));
+            printf_log(LOG_DUMP, "  %s:DynSym[%d] = %s\n", name, i, DumpSym(h, h->DynSym+i));
         printf_log(LOG_DUMP, "ELF Dump DynSym=====\n");
     }
 }
@@ -284,9 +286,10 @@ void DumpDynamicNeeded(elfheader_t *h)
 void DumpRelTable(elfheader_t *h, int cnt, Elf32_Rel *rel, const char* name)
 {
     if(box86_log>=LOG_DUMP) {
+        const char* elfname = ElfName(h);
         printf_log(LOG_DUMP, "ELF Dump %s Table(%d) @%p\n", name, cnt, rel);
         for (int i = 0; i<cnt; ++i)
-            printf_log(LOG_DUMP, "  Rel[%d] = %p (0x%X: %s, sym=0x%0X/%s)\n", 
+            printf_log(LOG_DUMP, "  %s:Rel[%d] = %p (0x%X: %s, sym=0x%0X/%s)\n", elfname,
                 i, (void*)rel[i].r_offset, rel[i].r_info, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), 
                 ELF32_R_SYM(rel[i].r_info), IdxSymName(h, ELF32_R_SYM(rel[i].r_info)));
         printf_log(LOG_DUMP, "ELF Dump Rel Table=====\n");
@@ -296,9 +299,10 @@ void DumpRelTable(elfheader_t *h, int cnt, Elf32_Rel *rel, const char* name)
 void DumpRelATable(elfheader_t *h, int cnt, Elf32_Rela *rela, const char* name)
 {
     if(box86_log>=LOG_DUMP && h->rela) {
+        const char* elfname = ElfName(h);
         printf_log(LOG_DUMP, "ELF Dump %s Table(%d) @%p\n", name, cnt, rela);
         for (int i = 0; i<cnt; ++i)
-            printf_log(LOG_DUMP, "  RelA[%d] = %p (0x%X: %s, sym=0x%X/%s) Addend=%d\n", 
+            printf_log(LOG_DUMP, "  %s:RelA[%d] = %p (0x%X: %s, sym=0x%X/%s) Addend=%d\n", elfname,
                 i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType(ELF32_R_TYPE(rela[i].r_info)), 
                 ELF32_R_SYM(rela[i].r_info), IdxSymName(h, ELF32_R_SYM(rela[i].r_info)), 
                 rela[i].r_addend);

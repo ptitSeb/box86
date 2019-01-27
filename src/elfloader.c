@@ -151,6 +151,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         uint32_t sz = 0;
         uintptr_t end = 0;
         GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, 0);
+        uintptr_t globoffs, globend;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
@@ -163,7 +164,11 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     *p += offs;
                 break;
             case R_386_GLOB_DAT:
-                
+                // Look for same symbol already loaded but not in self
+                if (GetGlobalSymbolStartEnd(maplib, symname, &globoffs, &globend, 1)) {
+                    offs = globoffs;
+                    end = globend;
+                }
                 if (!offs) {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p)\n", symname, p, *(void**)p);
 //                    return -1;
@@ -365,15 +370,19 @@ uintptr_t GetLastByte(elfheader_t* h)
     return (uintptr_t)h->memory + h->delta + h->memsz;
 }
 
-void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
+void AddGlobalsSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, elfheader_t* h)
 {
+    // info == 161 => OBJECT UNIQUE
+    // info == 33  => OBJECT WEAK
     printf_log(LOG_DUMP, "Will look for Symbol to add in SymTable(%d)\n", h->numSymTab);
     for (int i=0; i<h->numSymTab; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
-        if(((h->SymTab[i].st_info & 2) || (h->SymTab[i].st_info == 33)  || (h->SymTab[i].st_info == 17)
-             || (h->SymTab[i].st_info == 161 && !FindSymbol(mapsymbols, symname)) )
+        if(((h->SymTab[i].st_info & 2) || (h->SymTab[i].st_info == 17)
+             || (h->SymTab[i].st_info == 161 && !FindGlobalSymbol(maplib, symname)) 
+             || (h->SymTab[i].st_info == 33)
+            )
             && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
-            if(!h->SymTab[i].st_value && FindSymbol(mapsymbols, symname))
+            if(!h->SymTab[i].st_value && FindGlobalSymbol(maplib, symname))
                 break;
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
@@ -385,10 +394,12 @@ void AddGlobalsSymbols(kh_mapsymbols_t* mapsymbols, elfheader_t* h)
     printf_log(LOG_DUMP, "Will look for Symbol to add in DynSym (%d)\n", h->numDynSym);
     for (int i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
-        if(((h->DynSym[i].st_info & 2) || (h->DynSym[i].st_info == 33) || (h->DynSym[i].st_info == 17)
-             || (h->DynSym[i].st_info == 161  && !FindSymbol(mapsymbols, symname)))
+        if(((h->DynSym[i].st_info & 2) || (h->DynSym[i].st_info == 17)
+             || (h->DynSym[i].st_info == 161 && !FindGlobalSymbol(maplib, symname))
+             || (h->DynSym[i].st_info == 33) 
+            )
             && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
-            if(!h->DynSym[i].st_value && FindSymbol(mapsymbols, symname))
+            if(!h->DynSym[i].st_value && FindGlobalSymbol(maplib, symname))
                 break;
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             uint32_t sz = h->DynSym[i].st_size;
