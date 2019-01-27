@@ -123,6 +123,19 @@ void Run660F(x86emu_t *emu)
         , op1->word[0] = op2->word[0];
     )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
         
+    case 0x10:                      /* MOVUPD Gx, Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        memcpy(opx1, opx2, 16); // unaligned...
+        break;
+    case 0x11:                      /* MOVUPD Ex, Gx */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx1, nextop);
+        GetGx(emu, &opx2, nextop);
+        memcpy(opx1, opx2, 16); // unaligned...
+        break;
+
     case 0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
@@ -337,12 +350,26 @@ void Run660F(x86emu_t *emu)
         opx1->ud[1] = opx2->ud[0];
         break;
 
-    case 0x66:  /* PCMPGTD Gx,E x*/
+    case 0x64:  /* PCMPGTB Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<16; ++i)
+            opx1->sb[i] = (opx1->sb[i]>opx2->sb[i])?0xFF:0x00;
+        break;
+    case 0x65:  /* PCMPGTW Gx,Ex */
+        nextop = Fetch8(emu);
+        GetEx(emu, &opx2, nextop);
+        GetGx(emu, &opx1, nextop);
+        for(int i=0; i<8; ++i)
+            opx1->sw[i] = (opx1->sw[i]>opx2->sw[i])?0xFFFF:0x0000;
+        break;
+    case 0x66:  /* PCMPGTD Gx,Ex */
         nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         for(int i=0; i<4; ++i)
-            opx1->sd[i] = (opx1->sd[i]>opx1->sd[i])?0xFFFFFFFF:0x00000000;
+            opx1->sd[i] = (opx1->sd[i]>opx2->sd[i])?0xFFFFFFFF:0x00000000;
         break;
     case 0x67:  /* PACKUSWB */
         nextop = Fetch8(emu);
