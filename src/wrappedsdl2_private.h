@@ -154,7 +154,7 @@ GO(SDL_GetAudioDeviceName, pFii)
 // SDL_GetAudioDeviceStatus
 // SDL_GetAudioDriver
 // SDL_GetAudioStatus
-GO(SDL_GetBasePath, pFv)
+GOM(SDL_GetBasePath, pFv)
 // SDL_GetClipboardText
 // SDL_GetClipRect
 // SDL_GetClosestDisplayMode

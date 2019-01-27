@@ -31,6 +31,8 @@ typedef struct box86context_s {
     int                 envc;
     char**              envv;
 
+    char*               fullpath;
+
     uint32_t            stacksz;
     int                 stackalign;
     void*               stack;          // alocated stack

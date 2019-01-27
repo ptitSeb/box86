@@ -587,6 +587,14 @@ int EXPORT my2_SDL_snprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_
     #endif
 }
 
+char EXPORT *my2_SDL_GetBasePath(x86emu_t* emu) {
+    char* p = strdup(emu->context->fullpath);
+    char* b = strrchr(p, '/');
+    if(b)
+        *(b+1) = '\0';
+    return p;
+}
+
 const char* sdl2Name = "libSDL2-2.0.so";
 #define LIBNAME sdl2
 

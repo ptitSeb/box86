@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 
 #include "box86version.h"
 #include "debug.h"
@@ -183,6 +184,9 @@ int main(int argc, const char **argv, const char **env) {
         context->argv[0] = strdup(prog);
     else
         context->argv[0] = ResolveFile(prog, &context->box86_path);
+
+    context->fullpath = (char*)calloc(PATH_MAX, 1);
+    realpath(context->argv[0], context->fullpath);
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist
