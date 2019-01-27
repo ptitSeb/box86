@@ -72,7 +72,9 @@ void x86Int3(x86emu_t* emu)
                 } else  if(strstr(s, "__open")==s) {
                     printf_log(LOG_INFO, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), "open", *(char**)(R_ESP+4), *(int*)(R_ESP+8));
                 } else  if(strstr(s, "fopen")==s) {
-                    printf_log(LOG_INFO, "%04d|%p: Calling %s(\"%s\", %s)", tid, *(void**)(R_ESP), "fopen", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                    printf_log(LOG_INFO, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "fopen", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "chdir")==s) {
+                    printf_log(LOG_INFO, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), "chdir", *(char**)(R_ESP+4));
                 } else  if(strstr(s, "pread")==s) {
                     printf_log(LOG_INFO, "%04d|%p: Calling %s(%d, %p, %u, %i)", tid, *(void**)(R_ESP), "pread", *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12), *(int32_t*)(R_ESP+16));
                 } else {
