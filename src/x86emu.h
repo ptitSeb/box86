@@ -16,6 +16,7 @@ void SetEBX(x86emu_t *emu, uint32_t v);
 void SetECX(x86emu_t *emu, uint32_t v);
 void SetEDX(x86emu_t *emu, uint32_t v);
 void SetEIP(x86emu_t *emu, uint32_t v);
+void ResetFlags(x86emu_t *emu);
 const char* DumpCPURegs(x86emu_t* emu);
 
 void StopEmu(x86emu_t* emu, const char* reason);

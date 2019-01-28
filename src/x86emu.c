@@ -232,6 +232,11 @@ void SetEIP(x86emu_t *emu, uint32_t v)
     R_EIP = v;
 }
 
+void ResetFlags(x86emu_t *emu)
+{
+    emu->df = d_none;
+}
+
 const char* DumpCPURegs(x86emu_t* emu)
 {
     static char buff[800];
@@ -303,5 +308,6 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
 {
     PushExit(emu);
     R_EIP = addr;
+    emu->df = d_none;
     Run(emu);
 }

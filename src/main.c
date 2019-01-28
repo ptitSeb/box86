@@ -328,6 +328,7 @@ int main(int argc, const char **argv, const char **env) {
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
     SetEIP(context->emu, context->ep);
+    ResetFlags(context->emu);
     Run(context->emu);
     // Get EAX
     int ret = GetEAX(context->emu);

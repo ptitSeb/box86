@@ -83,9 +83,7 @@ uint32_t RunCallback(x86emu_t* emu)
     if(cb) {
         for (int i=cb->nb_args-1; i>=0; --i)    // reverse order
             Push(emu, (uint32_t)cb->arg[i]);
-        PushExit(emu);
-        R_EIP = cb->fnc;
-        Run(emu);
+        EmuCall(emu, cb->fnc);
         return R_EAX;
     }
     printf_log(LOG_INFO, "Warning, Callback not found?!\n");
