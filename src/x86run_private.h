@@ -174,6 +174,10 @@ static inline void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
     *op = &emu->xmm[m&7];
 }
 
+void UpdateFlags(x86emu_t *emu);
+
+#define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
+#define RESET_FLAGS(emu) emu->df = d_none
 
 void Run66(x86emu_t *emu);
 void Run67(x86emu_t *emu);

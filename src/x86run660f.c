@@ -118,6 +118,7 @@ void Run660F(x86emu_t *emu)
 
     GOCOND(0x40
         , nextop = Fetch8(emu);
+        CHECK_FLAGS(emu);
         GetEw(emu, &op2, nextop);
         GetG(emu, &op1, nextop);
         , op1->word[0] = op2->word[0];
@@ -201,6 +202,7 @@ void Run660F(x86emu_t *emu)
     case 0x2E:                      /* UCOMISD Gx, Ex */
         // no special check...
     case 0x2F:                      /* COMISD Gx, Ex */
+        RESET_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
@@ -582,6 +584,7 @@ void Run660F(x86emu_t *emu)
         break;
 
     case 0xA3:                      /* BT Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
@@ -600,6 +603,7 @@ void Run660F(x86emu_t *emu)
         break;
 
     case 0xAB:                      /* BTS Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
@@ -630,6 +634,7 @@ void Run660F(x86emu_t *emu)
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
+        cmp16(emu, R_AX, op1->word[0]);
         if(R_AX == op1->word[0]) {
             SET_FLAG(F_ZF);
             op1->word[0] = op2->word[0];
@@ -640,6 +645,7 @@ void Run660F(x86emu_t *emu)
         break;
 
     case 0xB3:                      /* BTR Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
@@ -658,6 +664,7 @@ void Run660F(x86emu_t *emu)
         break;
 
     case 0xBB:                      /* BTC Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEw(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
@@ -668,6 +675,7 @@ void Run660F(x86emu_t *emu)
         op1->word[0] ^= (1<<(op2->word[0]&15));
         break;
     case 0xBC:                      /* BSF Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEd(emu, &op1, nextop);
         GetG(emu, &op2, nextop);
@@ -682,6 +690,7 @@ void Run660F(x86emu_t *emu)
         }
         break;
     case 0xBD:                      /* BSR Ew,Gw */
+        CHECK_FLAGS(emu);
         nextop = Fetch8(emu);
         GetEd(emu, &op1, nextop);
         GetG(emu, &op2, nextop);

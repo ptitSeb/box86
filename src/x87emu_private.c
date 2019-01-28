@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "x86emu_private.h"
 #include "x87emu_private.h"
+#include "x86run_private.h"
 
 void fpu_do_push(x86emu_t* emu)
 {
@@ -64,6 +65,7 @@ void fpu_fcom(x86emu_t* emu, double b)
 
 void fpu_fcomi(x86emu_t* emu, double b)
 {
+    RESET_FLAGS(emu);
     if(isnan(ST0.d) || isnan(b)) {
         emu->eflags.f.F_CF = 1;
         emu->eflags.f.F_PF = 1;

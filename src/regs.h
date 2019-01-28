@@ -38,6 +38,34 @@ typedef enum {
 	ROUND_Chop    = 3
 } fpu_round_t;
 
+typedef enum {
+	d_none = 0,
+	d_add8,
+	d_add16,
+	d_add32,
+	d_and8,
+	d_and16,
+	d_and32,
+	d_dec8,
+	d_dec16,
+	d_dec32,
+	d_inc8,
+	d_inc16,
+	d_inc32,
+	d_or8,
+	d_or16,
+	d_or32,
+	d_neg8,
+	d_neg16,
+	d_neg32,
+	d_sub8,
+	d_sub16, 
+	d_sub32,
+	d_xor8,
+	d_xor16,
+	d_xor32
+} defered_flags_t;
+
 #pragma pack(push, 1)
 
 typedef union {

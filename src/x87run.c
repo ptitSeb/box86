@@ -13,6 +13,7 @@
 #include "x87emu_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
+#include "x86run.h"
 
 #define PI		3.14159265358979323846
 #define L2E		1.4426950408889634
@@ -433,6 +434,7 @@ void RunDA(x86emu_t *emu)
     case 0xC5:
     case 0xC6:
     case 0xC7:
+        CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF))
             ST0.ll = ST(nextop&7).ll;
         break;
@@ -444,6 +446,7 @@ void RunDA(x86emu_t *emu)
     case 0xCD:
     case 0xCE:
     case 0xCF:
+        CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_ZF))
             ST0.ll = ST(nextop&7).ll;
         break;
@@ -455,6 +458,7 @@ void RunDA(x86emu_t *emu)
     case 0xD5:
     case 0xD6:
     case 0xD7:
+        CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF))
             ST0.ll = ST(nextop&7).ll;
         break;
@@ -466,6 +470,7 @@ void RunDA(x86emu_t *emu)
     case 0xDD:
     case 0xDE:
     case 0xDF:
+        CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_PF))
             ST0.ll = ST(nextop&7).ll;
         break;
@@ -520,6 +525,7 @@ void RunDB(x86emu_t *emu)
     case 0xC5:
     case 0xC6:
     case 0xC7:
+        CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_CF))
             ST0.d = ST(nextop&7).d;
         break;
@@ -531,6 +537,7 @@ void RunDB(x86emu_t *emu)
     case 0xCD:
     case 0xCE:
     case 0xCF:
+        CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_ZF))
             ST0.d = ST(nextop&7).d;
         break;
@@ -542,6 +549,7 @@ void RunDB(x86emu_t *emu)
     case 0xD5:
     case 0xD6:
     case 0xD7:
+        CHECK_FLAGS(emu);
         if(!(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF)))
             ST0.d = ST(nextop&7).d;
         break;
@@ -553,6 +561,7 @@ void RunDB(x86emu_t *emu)
     case 0xDD:
     case 0xDE:
     case 0xDF:
+        CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_PF))
             ST0.d = ST(nextop&7).d;
         break;

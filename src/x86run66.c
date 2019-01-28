@@ -434,12 +434,14 @@ void Run67(x86emu_t *emu)
         break;
 
     case 0xE0:                      /* LOOPNZ */
+        CHECK_FLAGS(emu);
         tmp8s = Fetch8s(emu);
         --R_CX; // don't update flags
         if(R_CX && !ACCESS_FLAG(F_ZF))
             R_EIP += tmp8s;
         break;
     case 0xE1:                      /* LOOPZ */
+        CHECK_FLAGS(emu);
         tmp8s = Fetch8s(emu);
         --R_CX; // don't update flags
         if(R_CX && ACCESS_FLAG(F_ZF))

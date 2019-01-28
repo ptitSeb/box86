@@ -263,10 +263,14 @@ const char* DumpCPURegs(x86emu_t* emu)
         strcat(buff, tmp);
 
         if (i==3) {
+            if(emu->df) {
+                strcat(buff, "FLAGS=??????\n");
+            } else {
 #define FLAG_CHAR(f) (ACCESS_FLAG(F_##f##F)) ? #f : "-"
-            sprintf(tmp, "FLAGS=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));
-            strcat(buff, tmp);
+                sprintf(tmp, "FLAGS=%s%s%s%s%s%s\n", FLAG_CHAR(O), FLAG_CHAR(C), FLAG_CHAR(P), FLAG_CHAR(A), FLAG_CHAR(Z), FLAG_CHAR(S));
+                strcat(buff, tmp);
 #undef FLAG_CHAR
+            }
         }
     }
     sprintf(tmp, "EIP=%08X ", R_EIP);

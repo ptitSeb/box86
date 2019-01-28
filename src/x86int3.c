@@ -56,6 +56,7 @@ void x86Int3(x86emu_t* emu)
             //printf_log(LOG_INFO, "Exit\n");
             emu->quit=1; // normal quit
         } else {
+            RESET_FLAGS(emu);
             wrapper_t w = (wrapper_t)addr;
             int tid = syscall(SYS_gettid);
             addr = Fetch32(emu);

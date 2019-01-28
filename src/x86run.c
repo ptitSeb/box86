@@ -346,7 +346,7 @@ x86emurun:
                     CONDITIONAL                     \
                 break;
             GOCOND(0x70
-                ,   tmp8s = Fetch8s(emu);
+                ,   tmp8s = Fetch8s(emu); CHECK_FLAGS(emu);
                 ,   R_EIP += tmp8s;
                 )                           /* Jxx Ib */
             #undef GOCOND
@@ -480,12 +480,15 @@ x86emurun:
             case 0x9B:                      /* FWAIT */
                 break;
             case 0x9C:                      /* PUSHF */
+                CHECK_FLAGS(emu);
                 Push(emu, emu->eflags.x32);
                 break;
             case 0x9D:                      /* POPF */
                 emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+                RESET_FLAGS(emu);
                 break;
             case 0x9E:                      /* SAHF */
+                CHECK_FLAGS(emu);
                 emu->regs[_AX].byte[1] = emu->eflags.x32&0xff;
                 break;
 
@@ -728,12 +731,14 @@ x86emurun:
                 break;
 
             case 0xE0:                      /* LOOPNZ */
+                CHECK_FLAGS(emu);
                 tmp8s = Fetch8s(emu);
                 --R_ECX; // don't update flags
                 if(R_ECX && !ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 break;
             case 0xE1:                      /* LOOPZ */
+                CHECK_FLAGS(emu);
                 tmp8s = Fetch8s(emu);
                 --R_ECX; // don't update flags
                 if(R_ECX && ACCESS_FLAG(F_ZF))
@@ -985,9 +990,11 @@ x86emurun:
                 break;
 
             case 0xF8:                      /* CLC */
+                CHECK_FLAGS(emu);
                 CLEAR_FLAG(F_CF);
                 break;
             case 0xF9:                      /* STC */
+                CHECK_FLAGS(emu);
                 SET_FLAG(F_CF);
                 break;
 

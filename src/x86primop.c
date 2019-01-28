@@ -101,6 +101,7 @@
 #include <string.h>
 
 #include "x86emu_private.h"
+#include "x86run_private.h"
 
 /*------------------------- Global Variables ------------------------------*/
 
@@ -128,6 +129,7 @@ Implements the AAA instruction and side effects.
 uint16_t aaa16(x86emu_t *emu, uint16_t d)
 {
 	uint16_t	res;
+	CHECK_FLAGS(emu);
 	if ((d & 0xf) > 0x9 || ACCESS_FLAG(F_AF)) {
 		d += 0x6;
 		d += 0x100;
@@ -151,6 +153,7 @@ Implements the AAA instruction and side effects.
 uint16_t aas16(x86emu_t *emu, uint16_t d)
 {
 	uint16_t	res;
+	CHECK_FLAGS(emu);
 	if ((d & 0xf) > 0x9 || ACCESS_FLAG(F_AF)) {
 		d -= 0x6;
 		d -= 0x100;
@@ -176,6 +179,8 @@ uint16_t aad16(x86emu_t *emu, uint16_t d, uint8_t base)
 	uint16_t l;
 	uint8_t hb, lb;
 
+	RESET_FLAGS(emu);
+
 	hb = (uint8_t)((d >> 8) & 0xff);
 	lb = (uint8_t)((d & 0xff));
 	l = (uint16_t)((lb + base * hb) & 0xFF);
@@ -196,6 +201,8 @@ Implements the AAM instruction and side effects.
 uint16_t aam16(x86emu_t *emu, uint8_t d, uint8_t base)
 {
     uint16_t h, l;
+
+	RESET_FLAGS(emu);
 
 	h = (uint16_t)(d / base);
 	l = (uint16_t)(d % base);
@@ -218,6 +225,8 @@ uint8_t adc8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t cc;
+
+	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
 		res = 1 + d + s;
@@ -244,6 +253,8 @@ uint16_t adc16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t cc;
+
+	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
 		res = 1 + d + s;
@@ -273,6 +284,8 @@ uint32_t adc32(x86emu_t *emu, uint32_t d, uint32_t s)
 	register uint32_t res;
 	register uint32_t cc;
 
+	CHECK_FLAGS(emu);
+
 	if (ACCESS_FLAG(F_CF)) {
 		lo = 1 + (d & 0xFFFF) + (s & 0xFFFF);
 		res = 1 + d + s;
@@ -301,20 +314,11 @@ Implements the ADD instruction and side effects.
 ****************************************************************************/
 uint8_t add8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t cc;
-
-	res = d + s;
-	CONDITIONAL_SET_FLAG(res & 0x100, F_CF);
-	CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the carry chain  SEE NOTE AT TOP. */
-	cc = (s & d) | ((~res) & (s | d));
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 6), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-	return (uint8_t)res;
+	emu->res = d + s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_add8;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -323,20 +327,11 @@ Implements the ADD instruction and side effects.
 ****************************************************************************/
 uint16_t add16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t cc;
-
-	res = d + s;
-	CONDITIONAL_SET_FLAG(res & 0x10000, F_CF);
-	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the carry chain  SEE NOTE AT TOP. */
-	cc = (s & d) | ((~res) & (s | d));
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 14), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-	return (uint16_t)res;
+	emu->res = d + s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_add16;
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -345,26 +340,11 @@ Implements the ADD instruction and side effects.
 ****************************************************************************/
 uint32_t add32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
-	register uint32_t lo;	/* all operands in native machine order */
-	register uint32_t hi;
-	register uint32_t res;
-	register uint32_t cc;
-
-	lo = (d & 0xFFFF) + (s & 0xFFFF);
-	res = d + s;
-	hi = (lo >> 16) + (d >> 16) + (s >> 16);
-
-	CONDITIONAL_SET_FLAG(hi & 0x10000, F_CF);
-	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-    /* calculate the carry chain  SEE NOTE AT TOP. */
-    cc = (s & d) | ((~res) & (s | d));
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 30), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-
-    return res;
+	emu->res = d + s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_add32;
+    return emu->res;
 }
 
 /****************************************************************************
@@ -373,18 +353,10 @@ Implements the AND instruction and side effects.
 ****************************************************************************/
 uint8_t and8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	register uint8_t res;    /* all operands in native machine order */
+	emu->res = d & s;
+	emu->df = d_and8;
 
-	res = d & s;
-
-	/* set the flags  */
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res), F_PF);
-	return res;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -393,18 +365,10 @@ Implements the AND instruction and side effects.
 ****************************************************************************/
 uint16_t and16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-    register uint16_t res;   /* all operands in native machine order */
+    emu->res = d & s;
+	emu->df = d_and16;
 
-    res = d & s;
-
-    /* set the flags  */
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-    return res;
+    return emu->res;
 }
 
 /****************************************************************************
@@ -415,16 +379,10 @@ uint32_t and32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
 
-	res = d & s;
+	emu->res = d & s;
+	emu->df = d_and32;
 
-	/* set the flags  */
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	return res;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -435,6 +393,8 @@ uint8_t cmp8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t bc;
+
+	RESET_FLAGS(emu);
 
 	res = d - s;
 	CLEAR_FLAG(F_CF);
@@ -459,6 +419,8 @@ uint16_t cmp16(x86emu_t *emu, uint16_t d, uint16_t s)
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t bc;
 
+	RESET_FLAGS(emu);
+
 	res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
@@ -481,6 +443,8 @@ uint32_t cmp32(x86emu_t *emu, uint32_t d, uint32_t s)
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t bc;
 
+	RESET_FLAGS(emu);
+
 	res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
@@ -501,6 +465,7 @@ Implements the DAA instruction and side effects.
 uint8_t daa8(x86emu_t *emu, uint8_t d)
 {
 	uint32_t res = d;
+	CHECK_FLAGS(emu);
 	if ((d & 0xf) > 9 || ACCESS_FLAG(F_AF)) {
 		res += 6;
 		SET_FLAG(F_AF);
@@ -521,6 +486,7 @@ Implements the DAS instruction and side effects.
 ****************************************************************************/
 uint8_t das8(x86emu_t *emu, uint8_t d)
 {
+	CHECK_FLAGS(emu);
 	if ((d & 0xf) > 9 || ACCESS_FLAG(F_AF)) {
 		d -= 6;
 		SET_FLAG(F_AF);
@@ -543,21 +509,10 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 uint8_t dec8(x86emu_t *emu, uint8_t d)
 {
-    register uint32_t res;   /* all operands in native machine order */
-    register uint32_t bc;
-
-    res = d - 1;
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain.  See note at top */
-	/* based on sub8, uses s==1.  */
-	bc = (res & (~d | 1)) | (~d & 1);
-	/* carry flag unchanged */
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return (uint8_t)res;
+    emu->res = d - 1;
+	emu->op1 = d;
+	emu->df = d_dec8;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -566,21 +521,11 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 uint16_t dec16(x86emu_t *emu, uint16_t d)
 {
-    register uint32_t res;   /* all operands in native machine order */
-    register uint32_t bc;
+    emu->res = d - 1;
+	emu->op1 = d;
+	emu->df = d_dec16;
+	return (uint16_t)emu->res;
 
-    res = d - 1;
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-    /* calculate the borrow chain.  See note at top */
-    /* based on the sub8 routine, with s==1 */
-    bc = (res & (~d | 1)) | (~d & 1);
-    /* carry flag unchanged */
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 14), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return (uint16_t)res;
 }
 
 /****************************************************************************
@@ -589,21 +534,11 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 uint32_t dec32(x86emu_t *emu, uint32_t d)
 {
-    register uint32_t res;   /* all operands in native machine order */
-    register uint32_t bc;
+    emu->res = d - 1;
+	emu->op1 = d;
+	emu->df = d_dec32;
 
-    res = d - 1;
-
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-    /* calculate the borrow chain.  See note at top */
-	bc = (res & (~d | 1)) | (~d & 1);
-	/* carry flag unchanged */
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return res;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -612,19 +547,10 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 uint8_t inc8(x86emu_t *emu, uint8_t d)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t cc;
-
-	res = d + 1;
-	CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the carry chain  SEE NOTE AT TOP. */
-	cc = ((1 & d) | (~res)) & (1 | d);
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 6), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-	return (uint8_t)res;
+	emu->res = d + 1;
+	emu->op1 = d;
+	emu->df = d_inc8;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -633,19 +559,10 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 uint16_t inc16(x86emu_t *emu, uint16_t d)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t cc;
-
-	res = d + 1;
-	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the carry chain  SEE NOTE AT TOP. */
-	cc = (1 & d) | ((~res) & (1 | d));
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 14), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-	return (uint16_t)res;
+	emu->res = d + 1;
+	emu->op1 = d;
+	emu->df = d_inc16;
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -654,19 +571,10 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 uint32_t inc32(x86emu_t *emu, uint32_t d)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t cc;
-
-	res = d + 1;
-	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the carry chain  SEE NOTE AT TOP. */
-	cc = (1 & d) | ((~res) & (1 | d));
-	CONDITIONAL_SET_FLAG(XOR2(cc >> 30), F_OF);
-	CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
-	return res;
+	emu->res = d + 1;
+	emu->op1 = d;
+	emu->df = d_inc32;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -675,16 +583,9 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint8_t or8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	register uint8_t res;    /* all operands in native machine order */
-
-	res = d | s;
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res), F_PF);
-	return res;
+	emu->res = d | s;
+	emu->df = d_or8;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -693,17 +594,10 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint16_t or16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-	register uint16_t res;   /* all operands in native machine order */
-
-	res = d | s;
+	emu->res = d | s;
+	emu->df = d_or16;
 	/* set the carry flag to be bit 8 */
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	return res;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -712,18 +606,9 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint32_t or32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-
-	res = d | s;
-
-	/* set the carry flag to be bit 8 */
-	CLEAR_FLAG(F_OF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	return res;
+	emu->res = d | s;
+	emu->df = d_or32;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -732,23 +617,10 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint8_t neg8(x86emu_t *emu, uint8_t s)
 {
-    register uint8_t res;
-    register uint8_t bc;
-
-	CONDITIONAL_SET_FLAG(s != 0, F_CF);
-	res = (uint8_t)-s;
-	CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res), F_PF);
-	/* calculate the borrow chain --- modified such that d=0.
-	   substitutiing d=0 into     bc= res&(~d|s)|(~d&s);
-	   (the one used for sub) and simplifying, since ~d=0xff...,
-	   ~d|s == 0xffff..., and res&0xfff... == res.  Similarly
-	   ~d&s == s.  So the simplified result is: */
-	bc = res | s;
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return res;
+	emu->res = (uint8_t)-s;
+	emu->op1 = s;
+	emu->df = d_neg8;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -757,24 +629,10 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint16_t neg16(x86emu_t *emu, uint16_t s)
 {
-	register uint16_t res;
-	register uint16_t bc;
-
-	CONDITIONAL_SET_FLAG(s != 0, F_CF);
-	res = (uint16_t)-s;
-	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain --- modified such that d=0.
-	   substitutiing d=0 into     bc= res&(~d|s)|(~d&s);
-	   (the one used for sub) and simplifying, since ~d=0xff...,
-	   ~d|s == 0xffff..., and res&0xfff... == res.  Similarly
-	   ~d&s == s.  So the simplified result is: */
-	bc = res | s;
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 14), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return res;
+	emu->res = (uint16_t)-s;
+	emu->op1 = s;
+	emu->df = d_neg16;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -783,24 +641,10 @@ Implements the OR instruction and side effects.
 ****************************************************************************/
 uint32_t neg32(x86emu_t *emu, uint32_t s)
 {
-	register uint32_t res;
-	register uint32_t bc;
-
-	CONDITIONAL_SET_FLAG(s != 0, F_CF);
-	res = (uint32_t)-s;
-	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain --- modified such that d=0.
-	   substitutiing d=0 into     bc= res&(~d|s)|(~d&s);
-	   (the one used for sub) and simplifying, since ~d=0xff...,
-	   ~d|s == 0xffff..., and res&0xfff... == res.  Similarly
-	   ~d&s == s.  So the simplified result is: */
-	bc = res | s;
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return res;
+	emu->res = (uint32_t)-s;
+	emu->op1 = s;
+	emu->df = d_neg32;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -837,6 +681,7 @@ Implements the RCL instruction and side effects.
 uint8_t rcl8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
     register unsigned int res, cnt, mask, cf;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
     /* s is the rotate distance.  It varies from 0 - 8. */
@@ -911,6 +756,7 @@ Implements the RCL instruction and side effects.
 uint16_t rcl16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	register unsigned int res, cnt, mask, cf;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
 	res = d;
@@ -936,6 +782,7 @@ Implements the RCL instruction and side effects.
 uint32_t rcl32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	register uint32_t res, cnt, mask, cf;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
 	res = d;
@@ -962,6 +809,7 @@ uint8_t rcr8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	uint32_t	res, cnt;
 	uint32_t	mask, cf, ocf = 0;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
 	/* rotate right through carry */
@@ -1047,6 +895,7 @@ uint16_t rcr16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	uint32_t res, cnt;
 	uint32_t	mask, cf, ocf = 0;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
 	/* rotate right through carry */
@@ -1080,6 +929,7 @@ uint32_t rcr32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	uint32_t res, cnt;
 	uint32_t mask, cf, ocf = 0;
+	CHECK_FLAGS(emu);
 	s = s&0x1f;
 
 	/* rotate right through carry */
@@ -1120,6 +970,7 @@ uint8_t rol8(x86emu_t *emu, uint8_t d, uint8_t s)
 	if((cnt = s % 8) != 0) {
 	d = (d << cnt) + ((d >> (8 - cnt)) & ((1 << cnt) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -1146,6 +997,7 @@ uint16_t rol16(x86emu_t *emu, uint16_t d, uint8_t s)
 	if((cnt = s % 16) != 0) {
 	d = (d << cnt) + ((d >> (16 - cnt)) & ((1 << cnt) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -1172,6 +1024,7 @@ uint32_t rol32(x86emu_t *emu, uint32_t d, uint8_t s)
 	if((cnt = s % 32) != 0) {
 	d = (d << cnt) + ((d >> (32 - cnt)) & ((1 << cnt) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -1198,6 +1051,7 @@ uint8_t ror8(x86emu_t *emu, uint8_t d, uint8_t s)
 	if((cnt = s % 8) != 0) {
 	d = (d << (8 - cnt)) + ((d >> (cnt)) & ((1 << (8 - cnt)) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
@@ -1224,6 +1078,7 @@ uint16_t ror16(x86emu_t *emu, uint16_t d, uint8_t s)
 	if((cnt = s % 16) != 0) {
 	d = (d << (16 - cnt)) + ((d >> (cnt)) & ((1 << (16 - cnt)) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
@@ -1250,6 +1105,7 @@ uint32_t ror32(x86emu_t *emu, uint32_t d, uint8_t s)
 	if((cnt = s % 32) != 0) {
 	d = (d << (32 - cnt)) + ((d >> (cnt)) & ((1 << (32 - cnt)) - 1));
 	}
+	CHECK_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
@@ -1269,6 +1125,7 @@ Implements the SHL instruction and side effects.
 uint8_t shl8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
 	if (s < 8) {
@@ -1314,6 +1171,7 @@ Implements the SHL instruction and side effects.
 uint16_t shl16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
     unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
 	if (s < 16) {
@@ -1355,6 +1213,7 @@ Implements the SHL instruction and side effects.
 uint32_t shl32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	cnt = s&0x1f;
 	if (cnt > 0) {
@@ -1383,6 +1242,7 @@ Implements the SHR instruction and side effects.
 uint8_t shr8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
 	if (s < 8) {
@@ -1421,6 +1281,7 @@ Implements the SHR instruction and side effects.
 uint16_t shr16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
 	if (s < 16) {
@@ -1459,6 +1320,7 @@ Implements the SHR instruction and side effects.
 uint32_t shr32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	cnt = s % 32;
 	if (cnt > 0) {
@@ -1486,6 +1348,7 @@ Implements the SAR instruction and side effects.
 uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
 	unsigned int cnt, res, cf, mask, sf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
 	res = d;
@@ -1530,6 +1393,7 @@ Implements the SAR instruction and side effects.
 uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
     unsigned int cnt, res, cf, mask, sf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
     sf = d & 0x8000;
@@ -1574,6 +1438,7 @@ Implements the SAR instruction and side effects.
 uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
     uint32_t cnt, res, cf, mask, sf;
+	RESET_FLAGS(emu);	// TODO: Defered this one?
 
 	s = s&0x1f;
     sf = d & 0x80000000;
@@ -1602,6 +1467,7 @@ Implements the SHLD instruction and side effects.
 uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);
 
 	s = s&0x1f;
 	cnt = s % 16;
@@ -1644,6 +1510,7 @@ Implements the SHLD instruction and side effects.
 uint32_t shld32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);
 
 	s = s&0x1f;
 	cnt = s % 32;
@@ -1673,6 +1540,7 @@ Implements the SHRD instruction and side effects.
 uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);
 
 	s = s&0x1f;
 	cnt = s % 16;
@@ -1720,6 +1588,7 @@ Implements the SHRD instruction and side effects.
 uint32_t shrd32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
+	RESET_FLAGS(emu);
 
 	s = s&0x1f;
 	cnt = s % 32;
@@ -1749,6 +1618,7 @@ uint8_t sbb8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
     register uint32_t res;   /* all operands in native machine order */
     register uint32_t bc;
+	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
 		res = d - s - 1;
@@ -1774,6 +1644,7 @@ uint16_t sbb16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
     register uint32_t res;   /* all operands in native machine order */
     register uint32_t bc;
+	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
         res = d - s - 1;
@@ -1799,6 +1670,7 @@ uint32_t sbb32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
 	register uint32_t bc;
+	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
         res = d - s - 1;
@@ -1822,20 +1694,11 @@ Implements the SUB instruction and side effects.
 ****************************************************************************/
 uint8_t sub8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t bc;
-
-	res = d - s;
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain.  See note at top */
-	bc = (res & (~d | s)) | (~d & s);
-	CONDITIONAL_SET_FLAG(bc & 0x80, F_CF);
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return (uint8_t)res;
+	emu->res = d - s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_sub8;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -1844,20 +1707,11 @@ Implements the SUB instruction and side effects.
 ****************************************************************************/
 uint16_t sub16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-    register uint32_t res;   /* all operands in native machine order */
-    register uint32_t bc;
-
-    res = d - s;
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain.  See note at top */
-	bc = (res & (~d | s)) | (~d & s);
-	CONDITIONAL_SET_FLAG(bc & 0x8000, F_CF);
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 14), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return (uint16_t)res;
+    emu->res = d - s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_sub16;
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -1866,20 +1720,11 @@ Implements the SUB instruction and side effects.
 ****************************************************************************/
 uint32_t sub32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-	register uint32_t bc;
-
-	res = d - s;
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-
-	/* calculate the borrow chain.  See note at top */
-	bc = (res & (~d | s)) | (~d & s);
-	CONDITIONAL_SET_FLAG(bc & 0x80000000, F_CF);
-	CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
-	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
-	return res;
+	emu->res = d - s;
+	emu->op1 = d;
+	emu->op2 = s;
+	emu->df = d_sub32;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -1889,6 +1734,7 @@ Implements the TEST instruction and side effects.
 void test8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
     register uint32_t res;   /* all operands in native machine order */
+	RESET_FLAGS(emu);
 
     res = d & s;
 
@@ -1907,6 +1753,7 @@ Implements the TEST instruction and side effects.
 void test16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
+	RESET_FLAGS(emu);
 
 	res = d & s;
 
@@ -1925,6 +1772,7 @@ Implements the TEST instruction and side effects.
 void test32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
 	register uint32_t res;   /* all operands in native machine order */
+	RESET_FLAGS(emu);
 
 	res = d & s;
 
@@ -1942,16 +1790,9 @@ Implements the XOR instruction and side effects.
 ****************************************************************************/
 uint8_t xor8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	register uint8_t res;    /* all operands in native machine order */
-
-	res = d ^ s;
-	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res), F_PF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	return res;
+	emu->res = d ^ s;
+	emu->df = d_xor8;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -1960,16 +1801,9 @@ Implements the XOR instruction and side effects.
 ****************************************************************************/
 uint16_t xor16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-	register uint16_t res;   /* all operands in native machine order */
-
-	res = d ^ s;
-	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	return res;
+	emu->res = d ^ s;
+	emu->df = d_xor16;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -1978,16 +1812,9 @@ Implements the XOR instruction and side effects.
 ****************************************************************************/
 uint32_t xor32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-
-	res = d ^ s;
-	CLEAR_FLAG(F_OF);
-	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	return res;
+	emu->res = d ^ s;
+	emu->df = d_xor32;
+	return emu->res;
 }
 
 /****************************************************************************
@@ -1997,6 +1824,7 @@ Implements the IMUL instruction and side effects.
 void imul8(x86emu_t *emu, uint8_t s)
 {
 	int16_t res = (int16_t)(int8_t)R_AL * (int8_t)s;
+	RESET_FLAGS(emu);
 
 	R_AX = res;
 	if (((R_AL & 0x80) == 0 && R_AH == 0x00) ||
@@ -2017,6 +1845,7 @@ Implements the IMUL instruction and side effects.
 void imul16_eax(x86emu_t *emu, uint16_t s)
 {
 	int32_t res = (int32_t)(int16_t)R_AX * (int16_t)s;
+	RESET_FLAGS(emu);
 
 	R_AX = (uint16_t)res;
 	R_DX = (uint16_t)(res >> 16);
@@ -2038,6 +1867,7 @@ Implements the IMUL instruction and side effects.
 uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
 {
 	int32_t res = (int32_t)(int16_t)op1 * (int16_t)op2;
+	RESET_FLAGS(emu);
 
 	op1 = (uint16_t)res;
 	uint16_t tmp = (uint16_t)(res >> 16);
@@ -2074,6 +1904,7 @@ uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
 {
 	uint32_t s;
 	uint32_t r;
+	RESET_FLAGS(emu);
 	imul32_direct(&r,&s,op1,op2);
 	if (((r & 0x80000000) == 0 && s == 0x00) ||
 		((r & 0x80000000) != 0 && s == 0xFFFFFFFF)) {
@@ -2093,6 +1924,7 @@ Implements the IMUL instruction and side effects.
 ****************************************************************************/
 void imul32_eax(x86emu_t *emu, uint32_t s)
 {
+	RESET_FLAGS(emu);
 	imul32_direct(&R_EAX,&R_EDX,R_EAX,s);
 	if (((R_EAX & 0x80000000) == 0 && R_EDX == 0x00) ||
 		((R_EAX & 0x80000000) != 0 && R_EDX == 0xFFFFFFFF)) {
@@ -2112,6 +1944,7 @@ Implements the MUL instruction and side effects.
 void mul8(x86emu_t *emu, uint8_t s)
 {
 	uint16_t res = (uint16_t)(R_AL) * s;
+	RESET_FLAGS(emu);
 
 	R_AX = res;
 	if (R_AH == 0) {
@@ -2131,6 +1964,7 @@ Implements the MUL instruction and side effects.
 void mul16(x86emu_t *emu, uint16_t s)
 {
 	uint32_t res = (uint32_t)R_AX * s;
+	RESET_FLAGS(emu);
 
 	R_AX = (uint16_t)res;
 	R_DX = (uint16_t)(res >> 16);
@@ -2151,6 +1985,7 @@ Implements the MUL instruction and side effects.
 void mul32_eax(x86emu_t *emu, uint32_t s)
 {
 	uint64_t res = (uint64_t)R_EAX * s;
+	RESET_FLAGS(emu);
 
 	R_EAX = (uint32_t)res;
 	R_EDX = (uint32_t)(res >> 32);
@@ -2172,6 +2007,7 @@ Implements the IDIV instruction and side effects.
 void idiv8(x86emu_t *emu, uint8_t s)
 {
     int32_t dvd, div, mod;
+	RESET_FLAGS(emu);
 
 	dvd = (int16_t)R_AX;
 	if (s == 0) {
@@ -2223,6 +2059,7 @@ Implements the IDIV instruction and side effects.
 void idiv32(x86emu_t *emu, uint32_t s)
 {
 	int64_t dvd, div, mod;
+	RESET_FLAGS(emu);
 
 	dvd = (((int64_t)R_EDX) << 32) | R_EAX;
 	if (s == 0) {
@@ -2252,6 +2089,7 @@ Implements the DIV instruction and side effects.
 void div8(x86emu_t *emu, uint8_t s)
 {
 	uint32_t dvd, div, mod;
+	RESET_FLAGS(emu);
 
 	dvd = R_AX;
     if (s == 0) {
@@ -2275,6 +2113,7 @@ Implements the DIV instruction and side effects.
 void div16(x86emu_t *emu, uint16_t s)
 {
 	uint32_t dvd, div, mod;
+	RESET_FLAGS(emu);
 
 	dvd = (((uint32_t)R_DX) << 16) | R_AX;
 	if (s == 0) {
@@ -2303,6 +2142,7 @@ Implements the DIV instruction and side effects.
 void div32(x86emu_t *emu, uint32_t s)
 {
 	uint64_t dvd, div, mod;
+	RESET_FLAGS(emu);
 
 	dvd = (((uint64_t)R_EDX) << 32) | R_EAX;
 	if (s == 0) {

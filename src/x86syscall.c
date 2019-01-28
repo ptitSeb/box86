@@ -75,6 +75,7 @@ struct mmap_arg_struct {
 
 void EXPORT x86Syscall(x86emu_t *emu)
 {
+    RESET_FLAGS(emu);
     uint32_t s = R_EAX;
     printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)R_EBX, (void*)R_ECX, (void*)R_EDX, (void*)R_ESI, (void*)R_EDI); 
     // check wrapper first
