@@ -165,7 +165,8 @@ EXPORT int my_vprintf(x86emu_t *emu, void* fmt, void* b, va_list V) {
     return ((iFpp_t)f)(fmt, emu->scratch);
     #else
     // other platform don't need that
-    return vprintf((const char*)fmt, V);
+    void* f = vprintf;
+    return ((iFpp_t)f)(fmt, *(uint32_t**)b);
     #endif
 }
 EXPORT int my___vprintf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_vprintf")));
@@ -178,7 +179,8 @@ EXPORT int my_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) {
     return ((iFppp_t)f)(F, fmt, emu->scratch);
     #else
     // other platform don't need that
-    return vfprintf((FILE*)F, (const char*)fmt, V);
+    void* f = vfprintf;
+    return ((iFppp_t)f)(F, fmt, *(uint32_t**)b);
     #endif
 }
 EXPORT int my___vfprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_vfprintf")));
@@ -208,7 +210,7 @@ EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void *
     void* f = vsnprintf;
     return ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     #else
-    return vsnprintf((char*)buff, s, (char*)vsnprintf, V);
+    return vsnprintf((char*)buff, s, (char*)fmt, V);
     #endif
 }
 EXPORT int my___snprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
@@ -233,7 +235,8 @@ EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list
     int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
     return r;
     #else
-    return vsprintf((char*)buff, (char*)fmt, V);
+    void* f = vsprintf;
+    int r = ((iFppp_t)f)(buff, fmt, *(uint32_t**)b);
     #endif
 }
 EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
@@ -246,7 +249,9 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    void* f = vsnprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    return r;
     #endif
 }
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
@@ -260,7 +265,9 @@ EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
-    return vswprintf((wchar_t*)buff, s, (wchar_t*)fmt, V);
+    void* f = vswprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    return r;
     #endif
 }
 EXPORT int my___vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
