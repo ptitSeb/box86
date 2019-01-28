@@ -186,7 +186,8 @@ int main(int argc, const char **argv, const char **env) {
         context->argv[0] = ResolveFile(prog, &context->box86_path);
 
     context->fullpath = (char*)calloc(PATH_MAX, 1);
-    realpath(context->argv[0], context->fullpath);
+    if(!realpath(context->argv[0], context->fullpath))
+        strcpy(context->fullpath, context->argv[0]);
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist

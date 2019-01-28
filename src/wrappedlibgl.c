@@ -71,16 +71,18 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
     if(ret)
         return (void*)ret; // already bridged
     // get wrapper    
-    khint_t k = kh_get(symbolmap, emu->context->glwrappers, name);
-    if(k==kh_end(emu->context->glwrappers) && strstr(name, "ARB")==0) {
+    khint_t k = kh_get(symbolmap, emu->context->glwrappers, rname);
+    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
+        // try again, adding ARB at the end if not present
         char tmp[200];
-        strcpy(tmp, name);
+        strcpy(tmp, rname);
         strcat(tmp, "ARB");
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }
-    if(k==kh_end(emu->context->glwrappers) && strstr(name, "EXT")==0) {
+    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
+        // try again, adding EXT at the end if not present
         char tmp[200];
-        strcpy(tmp, name);
+        strcpy(tmp, rname);
         strcat(tmp, "EXT");
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }

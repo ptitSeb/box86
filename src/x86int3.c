@@ -23,7 +23,10 @@ x86emu_t* x86emu_fork(x86emu_t* e)
     x86emu_t *emu = e;
     // lets duplicate the emu
     void* newstack = 0;
-    posix_memalign(&newstack, emu->context->stackalign, emu->context->stacksz);
+    if(!posix_memalign(&newstack, emu->context->stackalign, emu->context->stacksz)) {
+        printf_log(LOG_NONE, "Warnin, posix_memalign failed, using regular malloc...\n");
+        newstack = malloc(emu->context->stacksz);
+    }
     memcpy(newstack, emu->context->stack, emu->context->stacksz);
     x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz);
     SetupX86Emu(newemu, emu->shared_global, emu->globals);
