@@ -11,6 +11,7 @@
 #include "box86context.h"
 #include "x86trace.h"
 #include "x86run.h"
+#include "x86run_private.h"
 
 typedef struct cleanup_s {
     void*       f;
