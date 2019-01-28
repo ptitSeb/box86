@@ -185,9 +185,6 @@ int main(int argc, const char **argv, const char **env) {
     else
         context->argv[0] = ResolveFile(prog, &context->box86_path);
 
-    context->fullpath = (char*)calloc(PATH_MAX, 1);
-    if(!realpath(context->argv[0], context->fullpath))
-        strcpy(context->fullpath, context->argv[0]);
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);
     // check if file exist
@@ -201,6 +198,9 @@ int main(int argc, const char **argv, const char **env) {
         FreeBox86Context(&context);
         return -1;
     }
+    context->fullpath = (char*)calloc(PATH_MAX, 1);
+    if(!realpath(context->argv[0], context->fullpath))
+        strcpy(context->fullpath, context->argv[0]);
     FILE *f = fopen(context->argv[0], "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
