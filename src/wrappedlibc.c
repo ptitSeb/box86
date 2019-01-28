@@ -367,10 +367,11 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
     InitCpuModel(); \
     box86->libclib = lib; \
     lib->priv.w.p2 = getLIBCMy(lib); \
-    lib->priv.w.needed = 2; \
+    lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2"); \
-    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0");
+    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0"); \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
 
 #define CUSTOM_FINI \
     freeLIBCMy(lib->priv.w.p2); \
