@@ -42,7 +42,7 @@ typedef struct {
   uint32_t size;
   void (*callback)(void *userdata, uint8_t *stream, int32_t len);
   void *userdata;
-} SDL_AudioSpec;
+} SDL2_AudioSpec;
 
 KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 
@@ -217,16 +217,18 @@ void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, 
 // TODO: track the memory for those callback
 int32_t EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
-    SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
+    SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
     void *olduser = desired->userdata;
-    x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
-    desired->callback = sdl2Callback;
-    desired->userdata = cbemu;
-    int ret = my->SDL_OpenAudio(desired, (SDL_AudioSpec*)o);
+    x86emu_t *cbemu = (fnc)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
+    if(fnc) {
+        desired->callback = sdl2Callback;
+        desired->userdata = cbemu;
+    }
+    int ret = my->SDL_OpenAudio(desired, (SDL2_AudioSpec*)o);
     if (ret!=0) {
         // error, clean the callback...
         desired->callback = fnc;
@@ -243,16 +245,18 @@ int32_t EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 
 int32_t EXPORT my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
 {
-    SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
+    SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
     void *olduser = desired->userdata;
-    x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
-    desired->callback = sdl2Callback;
-    desired->userdata = cbemu;
-    int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL_AudioSpec*)o, allowed);
+    x86emu_t *cbemu = (fnc)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
+    if(fnc) {
+        desired->callback = sdl2Callback;
+        desired->userdata = cbemu;
+    }
+    int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL2_AudioSpec*)o, allowed);
     if (ret<=0) {
         // error, clean the callback...
         desired->callback = fnc;
@@ -548,7 +552,9 @@ EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, 
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    void* f = vsnprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    return r;
     #endif
 }
 

@@ -37,9 +37,10 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     newemu->trace_start = emu->trace_start;
     newemu->trace_end = emu->trace_end;
 
+    onecallback_t * cb;
     int ret;
     khint_t k = kh_put(callbacks, callbacks->list, (uintptr_t)newemu, &ret);
-    onecallback_t * cb = kh_value(callbacks->list, k) = (onecallback_t*)calloc(1, sizeof(onecallback_t));
+    cb = kh_value(callbacks->list, k) = (onecallback_t*)calloc(1, sizeof(onecallback_t));
 
     cb->stack = stack;
     cb->emu = newemu;
