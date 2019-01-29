@@ -102,7 +102,7 @@ static inline double fpu_round(x86emu_t* emu, double d) {
 }
 
 static inline void fpu_fxam(x86emu_t* emu) {
-    emu->sw.f.F87_C1 = (ST0.l.upper<0)?1:0;
+    emu->sw.f.F87_C1 = (ST0.l.upper&0x80000000)?1:0;
     if(!emu->fpu_stack) {
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 0;

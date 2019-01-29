@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -332,9 +333,8 @@ void RunD9(x86emu_t *emu)
             break;
         case 0xFB:  /* FSINCOS */
             d = ST0.d;
-            ST0.d = sin(d);
             fpu_do_push(emu);
-            ST0.d = cos(d);
+            sincos(d, &ST(1).d, &ST0.d);
             break;
         case 0xFC:  /* FRNDINT */
             ST0.d = fpu_round(emu, ST0.d);
@@ -497,7 +497,6 @@ void RunDA(x86emu_t *emu)
         switch((nextop>>3)&7) {
             case 1:     /* FIMUL ST0, Ed int */
                 GetEd(emu, &op2, nextop);
-                fpu_do_push(emu);
                 ST0.d *= op2->sword[0];
                 break;
             default:
@@ -527,7 +526,7 @@ void RunDB(x86emu_t *emu)
     case 0xC7:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_CF))
-            ST0.d = ST(nextop&7).d;
+            ST0.ll = ST(nextop&7).ll;
         break;
     case 0xC8:      /* FCMOVNE ST(0), ST(i) */
     case 0xC9:
@@ -539,7 +538,7 @@ void RunDB(x86emu_t *emu)
     case 0xCF:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_ZF))
-            ST0.d = ST(nextop&7).d;
+            ST0.ll = ST(nextop&7).ll;
         break;
     case 0xD0:      /* FCMOVNBE ST(0), ST(i) */
     case 0xD1:
@@ -551,7 +550,7 @@ void RunDB(x86emu_t *emu)
     case 0xD7:
         CHECK_FLAGS(emu);
         if(!(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF)))
-            ST0.d = ST(nextop&7).d;
+            ST0.ll = ST(nextop&7).ll;
         break;
     case 0xD8:      /* FCMOVNU ST(0), ST(i) */
     case 0xD9:
@@ -563,7 +562,7 @@ void RunDB(x86emu_t *emu)
     case 0xDF:
         CHECK_FLAGS(emu);
         if(!ACCESS_FLAG(F_PF))
-            ST0.d = ST(nextop&7).d;
+            ST0.ll = ST(nextop&7).ll;
         break;
 
     case 0xE2:      /* FNCLEX */
@@ -970,9 +969,8 @@ void RunDE(x86emu_t *emu)
     nextop = Fetch8(emu);
     switch (nextop) {
     case 0xC1:  /* FADDP ST1, ST0 */
-        d = ST0.d;
+        ST(1).d += ST0.d;
         fpu_do_pop(emu);
-        ST0.d += d;
         break;
     case 0xC0:  /* FADDP STx, ST0 */
     case 0xC2:
@@ -1004,12 +1002,11 @@ void RunDE(x86emu_t *emu)
         fpu_do_pop(emu);
         break;
 
-    case 0xE1:  /* FSUBRP ST1, ST0 */
-        d = ST0.d;
+        /*ST(1).d = ST0.d - ST(1).d;
         fpu_do_pop(emu);
-        ST0.d = d - ST0.d;
-        break;
+        break;*/
     case 0xE0:  /* FSUBRP STx, ST0 */
+    case 0xE1:  /* FSUBRP ST1, ST0 */
     case 0xE2:
     case 0xE3:
     case 0xE4:
@@ -1033,12 +1030,11 @@ void RunDE(x86emu_t *emu)
         ST(nextop&7).d -= ST0.d;
         fpu_do_pop(emu);
         break;
-    case 0xF1:  /* FDIVRP ST1, ST0 */
-        d = ST0.d;
+        /*ST(1).d = ST0.d / ST(1).d;
         fpu_do_pop(emu);
-        ST0.d = d / ST0.d;
-        break;
+        break;*/
     case 0xF0:  /* FDIVRP STx, ST0 */
+    case 0xF1:  /* FDIVRP ST1, ST0 */
     case 0xF2:
     case 0xF3:
     case 0xF4:
@@ -1048,12 +1044,12 @@ void RunDE(x86emu_t *emu)
         ST(nextop&7).d = ST0.d / ST(nextop&7).d;
         fpu_do_pop(emu);
         break;
-    case 0xF9:  /* FDIVP ST1, ST0 */
-        d = ST0.d;
+        /*d = ST0.d;
         fpu_do_pop(emu);
         ST0.d /= d;
-        break;
+        break;*/
     case 0xF8:  /* FDIVP STx, ST0 */
+    case 0xF9:  /* FDIVP ST1, ST0 */
     case 0xFA:
     case 0xFB:
     case 0xFC:
