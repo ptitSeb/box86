@@ -19,7 +19,7 @@ int Run(x86emu_t *emu)
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
 x86emurun:
     emu->quit = 0;
-    while (!emu->quit)
+    while (1)
     {
         emu->old_ip = R_EIP;
         if(emu->dec && (
@@ -223,6 +223,7 @@ x86emurun:
 
                     default:
                         UnimpOpcode(emu);
+                        goto fini;
                 }
                 break;
             case 0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
@@ -237,9 +238,11 @@ x86emurun:
                     break;  // 0x66 0x66 => can remove one 0x66
                 else
                     Run66(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0x67:                      /* Prefix to change width of intructions */
                 Run67(emu); // implemented in Run66.c
+                if(emu->quit) goto fini;
                 break;
 
             case 0x68:                      /* Push Id */
@@ -648,15 +651,18 @@ x86emurun:
 
             case 0xCC:                      /* INT 3 */
                 x86Int3(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xCD:                      /* INT Ib */
                 nextop = Fetch8(emu);
-                if(nextop == 0x80) 
+                if(nextop == 0x80) {
                     x86Syscall(emu);
-                else {
+                    if(emu->quit) goto fini;
+                } else {
                     printf_log(LOG_NONE, "Unsupported Int %02Xh\n", nextop);
                     emu->quit = 1;
                     emu->error |= ERR_UNIMPL;
+                    goto fini;
                 }
                 break;
 
@@ -707,27 +713,35 @@ x86emurun:
             
             case 0xD8:                      /* x87 */
                 RunD8(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xD9:                      /* x87 */
                 RunD9(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDA:                      /* x87 */
                 RunDA(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDB:                      /* x87 */
                 RunDB(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDC:                      /* x87 */
                 RunDC(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDD:                      /* x87 */
                 RunDD(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDE:                      /* x87 */
                 RunDE(emu);
+                if(emu->quit) goto fini;
                 break;
             case 0xDF:                      /* x87 */
                 RunDF(emu);
+                if(emu->quit) goto fini;
                 break;
 
             case 0xE0:                      /* LOOPNZ */
@@ -781,6 +795,7 @@ x86emurun:
                         RunF30F(emu);   // defined is run660f.c
                     else
                         RunF20F(emu);
+                    if(emu->quit) goto fini;
                 } else {
                     tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                     tmp32u = R_ECX;
@@ -927,6 +942,7 @@ x86emurun:
                             break;
                         default:
                             UnimpOpcode(emu);
+                            goto fini;
                     }
                     R_ECX = tmp32u;
                 }   // else(nextop==0x0F)
@@ -1018,6 +1034,7 @@ x86emurun:
                         printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
+                        goto fini;
                 }
                 break;
             case 0xFF:                      /* GRP 5 Ed */
@@ -1039,6 +1056,7 @@ x86emurun:
                             printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                             emu->quit=1;
                             emu->error |= ERR_ILLEGAL;
+                            goto fini;
                         } else {
                             Push16(emu, R_CS);
                             Push(emu, R_EIP);
@@ -1054,6 +1072,7 @@ x86emurun:
                             printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
                             emu->error |= ERR_ILLEGAL;
+                            goto fini;
                         } else {
                             R_EIP = op1->dword[0];
                             R_CS = (op1+1)->word[0];
@@ -1066,13 +1085,16 @@ x86emurun:
                         printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
+                        goto fini;
                 }
                 break;
 
             default:
                 UnimpOpcode(emu);
+                goto fini;
         }
     }
+fini:
     if(emu->fork) {
         emu->fork = 0;
         emu = x86emu_fork(emu);
