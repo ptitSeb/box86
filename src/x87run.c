@@ -364,8 +364,8 @@ void RunD9(x86emu_t *emu)
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
                 GetEd(emu, &op2, nextop);
-                *(uint32_t*)&f = op2->dword[0];
                 fpu_do_push(emu);
+                *(uint32_t*)&f = op2->dword[0];
                 ST0.d = f;
                 break;
             case 2:     /* FST Ed, ST0 */
@@ -373,12 +373,9 @@ void RunD9(x86emu_t *emu)
                 f = ST0.d;
                 op1->dword[0] = *(uint32_t*)&f;
                 break;
-            case 3:     /* FSTP Ed, ST0 float with partial alias on mod=3=>ST1 */
+            case 3:     /* FSTP Ed, ST0 */
                 GetEd(emu, &op1, nextop);
-                /*if((nextop>>6)==3)    => TODO: to check
-                    f = ST1.d;
-                else*/
-                    f = ST0.d;
+                f = ST0.d;
                 op1->dword[0] = *(uint32_t*)&f;
                 fpu_do_pop(emu);
                 break;
