@@ -7,6 +7,7 @@
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86emu_private.h"
+#include "x86run_private.h"
 #include "box86context.h"
 #include "stack.h"
 #include "khash.h"

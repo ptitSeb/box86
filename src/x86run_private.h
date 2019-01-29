@@ -34,6 +34,20 @@ inline int32_t Fetch32s(x86emu_t *emu)
 }
 inline uint8_t Peek(x86emu_t *emu, int offset){return *(uint8_t*)(R_EIP + offset);}
 
+inline uint32_t Pop(x86emu_t *emu)
+{
+    uint32_t* st = ((uint32_t*)(R_ESP));
+    R_ESP += 4;
+    return *st;
+}
+
+inline void Push(x86emu_t *emu, uint32_t v)
+{
+    R_ESP -= 4;
+    *((uint32_t*)R_ESP) = v;
+}
+
+
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
 static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
