@@ -8,7 +8,12 @@
 #include "debug.h"
 typedef struct x86emu_s x86emu_t;
 
-void RunD8(x86emu_t *emu);
+#define PI		3.14159265358979323846
+#define L2E		1.4426950408889634
+#define L2T		3.3219280948873623
+#define LN2		0.69314718055994531
+#define LG2		0.3010299956639812
+
 void RunD9(x86emu_t *emu);
 void Run66D9(x86emu_t *emu);
 void RunDA(x86emu_t *emu);

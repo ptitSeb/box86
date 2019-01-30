@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -58,6 +60,11 @@ x86emurun:
         int32_t tmp32s;
         uint64_t tmp64u;
         int64_t tmp64s;
+        double d;
+        float f;
+        int64_t ll;
+        sse_regs_t *opx1, *opx2, eax1;
+        mmx_regs_t *opm1, opm2;
         switch(opcode) {
             #define GO(B, OP)                       \
             case B+0:                               \
@@ -716,12 +723,10 @@ x86emurun:
                 break;
             
             case 0xD8:                      /* x87 */
-                RunD8(emu);
-                if(emu->quit) goto fini;
+                #include "rund8.h"
                 break;
             case 0xD9:                      /* x87 */
-                RunD9(emu);
-                if(emu->quit) goto fini;
+                #include "rund9.h"
                 break;
             case 0xDA:                      /* x87 */
                 RunDA(emu);
