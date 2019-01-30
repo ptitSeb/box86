@@ -52,7 +52,6 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/wrapper.c"
     "${CMAKE_HOME_DIRECTORY}/src/x86emu.c"
     "${CMAKE_HOME_DIRECTORY}/src/x86run.c"
-    "${CMAKE_HOME_DIRECTORY}/src/x86run0f.c"
     "${CMAKE_HOME_DIRECTORY}/src/x86run66.c"
     "${CMAKE_HOME_DIRECTORY}/src/x86run660f.c"
     "${CMAKE_HOME_DIRECTORY}/src/x86run_private.c"

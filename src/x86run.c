@@ -65,7 +65,7 @@ x86emurun:
         float f;
         int64_t ll;
         sse_regs_t *opx1, *opx2, eax1;
-        mmx_regs_t *opm1, opm2;
+        mmx_regs_t *opm1, *opm2;
         switch(opcode) {
             #define GO(B, OP)                       \
             case B+0:                               \
@@ -141,7 +141,7 @@ x86emurun:
                 break;
 
             case 0x0F:                      /* More instructions */
-                Run0F(emu);
+                #include "run0f.h"
                 break;
 
             case 0x27:                      /* DAA */
