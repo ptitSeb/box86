@@ -239,9 +239,10 @@ x86emurun:
                 }
                 break;
             case 0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
-                if(nextop==0x0F)
-                    Run660F(emu);
-                else if(nextop==0xD9)
+                if(nextop==0x0F) {
+                    #include "run660f.h"
+                    break;
+                } else if(nextop==0xD9)
                     Run66D9(emu);
                 else if(nextop==0xDD)
                     Run66DD(emu);
@@ -799,11 +800,11 @@ x86emurun:
             case 0xF3:                      /* REPZ prefix */
                 R_EIP++;
                 if(nextop==0x0F) {
-                    if(opcode==0xF3)
-                        RunF30F(emu);   // defined is run660f.c
-                    else
-                        RunF20F(emu);
-                    if(emu->quit) goto fini;
+                    if(opcode==0xF3) {
+                        #include "runf30f.h"
+                    } else {
+                        #include "runf20f.h"
+                    }
                 } else {
                     tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                     tmp32u = R_ECX;
