@@ -55,7 +55,7 @@ x86emurun:
         reg32_t ea1, ea2, ea3, ea4;
         uint8_t tmp8u, tmp8u2;
         int8_t tmp8s;
-        uint16_t tmp16u;
+        uint16_t tmp16u, tmp16u2;
         int16_t tmp16s;
         uint32_t tmp32u, tmp32u2, tmp32u3;
         int32_t tmp32s;
@@ -248,8 +248,10 @@ x86emurun:
                     Run66DD(emu);
                 else if(nextop==0x66)
                     break;  // 0x66 0x66 => can remove one 0x66
-                else
-                    Run66(emu);
+                else {
+                    #include "run66.h"
+                    break;
+                }
                 if(emu->quit) goto fini;
                 break;
             case 0x67:                      /* Prefix to change width of intructions */
