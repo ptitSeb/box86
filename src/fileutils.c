@@ -28,7 +28,7 @@ int FileExist(const char* filename, int flags)
             return 0;
     }
     if(flags&IS_EXECUTABLE) {
-        if(sb.st_mode&S_IXUSR!=S_IXUSR)
+        if((sb.st_mode&S_IXUSR)!=S_IXUSR)
             return 0;   // nope
     }
     return 1;

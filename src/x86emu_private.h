@@ -15,7 +15,8 @@ typedef struct cleanup_s cleanup_t;
 typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8],ip;
-	x86flags_t  eflags;
+    int         flags[F_LAST];
+	x86flags_t  packed_eflags;
     uintptr_t   old_ip;
     // segments
     uint32_t    segs[6];    // only 32bits value?

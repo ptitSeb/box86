@@ -498,15 +498,18 @@ x86emurun:
                 break;
             case 0x9C:                      /* PUSHF */
                 CHECK_FLAGS(emu);
-                Push(emu, emu->eflags.x32);
+                PackFlags(emu);
+                Push(emu, emu->packed_eflags.x32);
                 break;
             case 0x9D:                      /* POPF */
-                emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+                emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+                UnpackFlags(emu);
                 RESET_FLAGS(emu);
                 break;
             case 0x9E:                      /* SAHF */
                 CHECK_FLAGS(emu);
-                emu->regs[_AX].byte[1] = emu->eflags.x32&0xff;
+                PackFlags(emu);
+                emu->regs[_AX].byte[1] = emu->packed_eflags.x32&0xff;
                 break;
 
             case 0xA0:                      /* MOV AL,Ob */
@@ -1111,4 +1114,5 @@ fini:
         emu = x86emu_fork(emu);
         goto x86emurun;
     }
+    return 0;
 }

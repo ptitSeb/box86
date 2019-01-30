@@ -24,7 +24,7 @@ if(NOALIGN)
     add_definitions(-DNOALIGN)
 endif()
 
-add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden -no-pie)
+add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden -no-pie -fjump-tables)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)

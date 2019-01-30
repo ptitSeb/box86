@@ -1748,7 +1748,7 @@ void idiv32(x86emu_t *emu, uint32_t s)
 	}
 	div = dvd / (int32_t)s;
 	mod = dvd % (int32_t)s;
-	if (abs(div) > 0x7fffffff) {
+	if (llabs(div) > 0x7fffffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1778,7 +1778,7 @@ void div8(x86emu_t *emu, uint8_t s)
     }
 	div = dvd / (uint8_t)s;
 	mod = dvd % (uint8_t)s;
-	if (abs(div) > 0xff) {
+	if (div > 0xff) {
 		INTR_RAISE_DIV0(emu);
         return;
 	}
@@ -1802,7 +1802,7 @@ void div16(x86emu_t *emu, uint16_t s)
     }
 	div = dvd / (uint16_t)s;
 	mod = dvd % (uint16_t)s;
-	if (abs(div) > 0xffff) {
+	if (div > 0xffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1831,7 +1831,7 @@ void div32(x86emu_t *emu, uint32_t s)
 	}
 	div = dvd / (uint32_t)s;
 	mod = dvd % (uint32_t)s;
-	if (abs(div) > 0xffffffff) {
+	if (div > 0xffffffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}

@@ -50,6 +50,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     PushExit(emu);
     R_EIP=(uint32_t)main;
     printf_log(LOG_DEBUG, "Calling main(=>%p) from __libc_start_main\n", main);
+    return 0;
 }
 
 const char* GetNativeName(void* p)
@@ -292,4 +293,58 @@ void UpdateFlags(x86emu_t *emu)
             break;
     }
     RESET_FLAGS(emu);
+}
+
+
+void PackFlags(x86emu_t* emu)
+{
+    #define GO(A) emu->packed_eflags.f.F__##A = emu->flags[F_##A];
+    GO(CF);
+    GO(res1);
+    GO(PF);
+    GO(res2);
+    GO(AF);
+    GO(res3);
+    GO(ZF);
+    GO(SF);
+    GO(TF);
+    GO(IF);
+    GO(DF);
+    GO(OF);
+    GO(IOPL);
+    GO(NT);
+    GO(dummy);
+    GO(RF);
+    GO(VM);
+    GO(AC);
+    GO(VIF);
+    GO(VIP);
+    GO(ID);
+    #undef GO
+}
+void UnpackFlags(x86emu_t* emu)
+{
+    #define GO(A) emu->flags[F_##A] = emu->packed_eflags.f.F__##A;
+    GO(CF);
+    GO(res1);
+    GO(PF);
+    GO(res2);
+    GO(AF);
+    GO(res3);
+    GO(ZF);
+    GO(SF);
+    GO(TF);
+    GO(IF);
+    GO(DF);
+    GO(OF);
+    GO(IOPL);
+    GO(NT);
+    GO(dummy);
+    GO(RF);
+    GO(VM);
+    GO(AC);
+    GO(VIF);
+    GO(VIP);
+    GO(ID);
+    #undef GO
 }

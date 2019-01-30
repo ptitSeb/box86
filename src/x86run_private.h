@@ -203,6 +203,9 @@ void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);
 x86emu_t* x86emu_fork(x86emu_t* e);
 
+void PackFlags(x86emu_t* emu);
+void UnpackFlags(x86emu_t* emu);
+
 const char* GetNativeName(void* p);
 
 

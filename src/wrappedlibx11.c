@@ -35,7 +35,7 @@ static int my_errorhandle_callback(void* display, void* errorevent)
         return 0;
     SetCallbackArg(errorhandlercb, 0, display);
     SetCallbackArg(errorhandlercb, 1, errorevent);
-    RunCallback(errorhandlercb);
+    return (int)RunCallback(errorhandlercb);
 }
 
 typedef void* (*pFp_t)(void*);

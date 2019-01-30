@@ -46,7 +46,8 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
-    emu->eflags.x32 = 0x02; // default flags?
+    emu->packed_eflags.x32 = 0x02; // default flags?
+    UnpackFlags(emu);
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
@@ -181,7 +182,8 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
 {
 	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
     memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
-	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+	memcpy(&newemu->packed_eflags, &emu->packed_eflags, sizeof(emu->packed_eflags));
+    memcpy(&newemu->flags, &emu->flags, sizeof(emu->flags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
 	memcpy(newemu->fpu, emu->fpu, sizeof(emu->fpu));
@@ -248,7 +250,7 @@ const char* DumpCPURegs(x86emu_t* emu)
         for(int i=0; i<8; ++i) {
             sprintf(tmp, "%d:%016llX%016llX", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             strcat(buff, tmp);
-            if (i&3==3) strcat(buff, "\n"); else strcat(buff, " ");
+            if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
     }
     // start with FPU regs...

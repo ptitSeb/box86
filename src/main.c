@@ -112,6 +112,7 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
     if(!ld_path) {
         (*dest)[idx++] = strdup("LD_LIBRARY_PATH=.:lib");
     }
+    return 0;
 }
 
 

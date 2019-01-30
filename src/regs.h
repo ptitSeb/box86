@@ -105,30 +105,55 @@ typedef struct {
 
 typedef union {
     struct __attribute__ ((__packed__)) {
-        unsigned int F_CF:1;
-		unsigned int res1:1;
-        unsigned int F_PF:1;
-		unsigned int res2:1;
-        unsigned int F_AF:1;
-		unsigned int res3:1;
-        unsigned int F_ZF:1;
-        unsigned int F_SF:1;
-        unsigned int F_TF:1;
-        unsigned int F_IF:1;
-        unsigned int F_DF:1;
-        unsigned int F_OF:1;
-        unsigned int F_IOPL:2;
-        unsigned int F_NT:1;
-        unsigned int dummy:1;
-        unsigned int F_RF:1;
-        unsigned int F_VM:1;
-        unsigned int F_AC:1;
-        unsigned int F_VIF:1; 
-        unsigned int F_VIP:1;
-        unsigned int F_ID:1;
+        unsigned int F__CF:1;
+		unsigned int F__res1:1;
+        unsigned int F__PF:1;
+		unsigned int F__res2:1;
+        unsigned int F__AF:1;
+		unsigned int F__res3:1;
+        unsigned int F__ZF:1;
+        unsigned int F__SF:1;
+        unsigned int F__TF:1;
+        unsigned int F__IF:1;
+        unsigned int F__DF:1;
+        unsigned int F__OF:1;
+        unsigned int F__IOPL:2;
+        unsigned int F__NT:1;
+        unsigned int F__dummy:1;
+        unsigned int F__RF:1;
+        unsigned int F__VM:1;
+        unsigned int F__AC:1;
+        unsigned int F__VIF:1; 
+        unsigned int F__VIP:1;
+        unsigned int F__ID:1;
     } f;
     uint32_t    x32;
 } x86flags_t;
+
+typedef enum {
+    F_CF = 0,
+	F_res1,
+    F_PF,
+	F_res2,
+    F_AF,
+	F_res3,
+    F_ZF,
+    F_SF,
+    F_TF,
+    F_IF,
+    F_DF,
+    F_OF,
+    F_IOPL, // double
+    F_NT = 14,
+    F_dummy,
+    F_RF,
+    F_VM,
+    F_AC,
+    F_VIF,
+    F_VIP,
+    F_ID,
+	F_LAST
+} flags_names_t;
 
 
 typedef union {
@@ -203,9 +228,16 @@ typedef union {
 #define R_FS emu->segs[_FS]
 #define R_GS emu->segs[_GS]
 
+#if 0
 #define ACCESS_FLAG(F)  emu->eflags.f.F
 #define SET_FLAG(F)     emu->eflags.f.F = 1
 #define CLEAR_FLAG(F)   emu->eflags.f.F = 0
 #define CONDITIONAL_SET_FLAG(COND, F)   emu->eflags.f.F = (COND)?1:0
+#else
+#define ACCESS_FLAG(F)  emu->flags[F]
+#define SET_FLAG(F)     emu->flags[F] = 1
+#define CLEAR_FLAG(F)   emu->flags[F] = 0
+#define CONDITIONAL_SET_FLAG(COND, F)   emu->flags[F] = (COND)?1:0
+#endif
 
 #endif //__REGS_H_

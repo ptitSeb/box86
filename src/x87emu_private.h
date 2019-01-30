@@ -75,21 +75,21 @@ static inline void fpu_fcomi(x86emu_t* emu, double b)
 {
     RESET_FLAGS(emu);
     if(isnan(ST0.d) || isnan(b)) {
-        emu->eflags.f.F_CF = 1;
-        emu->eflags.f.F_PF = 1;
-        emu->eflags.f.F_ZF = 1;
+        emu->flags[F_CF] = 1;
+        emu->flags[F_PF] = 1;
+        emu->flags[F_ZF] = 1;
     } else if (isgreater(ST0.d, b)) {
-        emu->eflags.f.F_CF = 0;
-        emu->eflags.f.F_PF = 0;
-        emu->eflags.f.F_ZF = 0;
+        emu->flags[F_CF] = 0;
+        emu->flags[F_PF] = 0;
+        emu->flags[F_ZF] = 0;
     } else if (isless(ST0.d, b)) {
-        emu->eflags.f.F_CF = 1;
-        emu->eflags.f.F_PF = 0;
-        emu->eflags.f.F_ZF = 0;
+        emu->flags[F_CF] = 1;
+        emu->flags[F_PF] = 0;
+        emu->flags[F_ZF] = 0;
     } else {
-        emu->eflags.f.F_CF = 0;
-        emu->eflags.f.F_PF = 0;
-        emu->eflags.f.F_ZF = 1;
+        emu->flags[F_CF] = 0;
+        emu->flags[F_PF] = 0;
+        emu->flags[F_ZF] = 1;
     }
 }
 

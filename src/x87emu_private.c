@@ -145,7 +145,7 @@ void D2LD(void* d, void* ld)
     fpu_reg_t s;
     s.ll = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
     // do special value first
-    if(s.ll&0x7fffffffffffffffLL==0) {
+    if((s.ll&0x7fffffffffffffffLL)==0) {
         // zero...
         val.f.ll = 0;
         if(s.l.upper&0x8000)
