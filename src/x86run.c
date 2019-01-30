@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -729,28 +730,22 @@ x86emurun:
                 #include "rund9.h"
                 break;
             case 0xDA:                      /* x87 */
-                RunDA(emu);
-                if(emu->quit) goto fini;
+                #include "runda.h"
                 break;
             case 0xDB:                      /* x87 */
-                RunDB(emu);
-                if(emu->quit) goto fini;
+                #include "rundb.h"
                 break;
             case 0xDC:                      /* x87 */
-                RunDC(emu);
-                if(emu->quit) goto fini;
+                #include "rundc.h"
                 break;
             case 0xDD:                      /* x87 */
-                RunDD(emu);
-                if(emu->quit) goto fini;
+                #include "rundd.h"
                 break;
             case 0xDE:                      /* x87 */
-                RunDE(emu);
-                if(emu->quit) goto fini;
+                #include "runde.h"
                 break;
             case 0xDF:                      /* x87 */
-                RunDF(emu);
-                if(emu->quit) goto fini;
+                #include "rundf.h"
                 break;
 
             case 0xE0:                      /* LOOPNZ */
