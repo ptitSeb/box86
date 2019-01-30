@@ -75,6 +75,7 @@ void EXPORT my___gmon_start__(x86emu_t *emu)
 int EXPORT my___cxa_atexit(x86emu_t* emu, void* p, void* a, void* d)
 {
     AddCleanup1Arg(emu, p, a);
+    return 0;
 }
 void EXPORT my___cxa_finalize(x86emu_t* emu, void* p)
 {
@@ -88,6 +89,7 @@ void EXPORT my___cxa_finalize(x86emu_t* emu, void* p)
 int EXPORT my_atexit(x86emu_t* emu, void *p)
 {
     AddCleanup(emu, p);
+    return 0;
 }
 int EXPORT my_sigaction(x86emu_t* emu, int signum, const struct sigaction *act, struct sigaction *oldact)
 {
@@ -201,6 +203,7 @@ EXPORT int my___fprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list 
 EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     printf_log(LOG_NONE, "Error: unimplemented dl_iterate_phdr(%p, %p) used\n", F, data);
     emu->quit = 1;
+    return 0;
 }
 
 EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
@@ -320,7 +323,7 @@ static int qsort_cmp(const void* a, const void* b, void* e)
     x86emu_t* emu = (x86emu_t*)e;
     SetCallbackArg(emu, 0, (void*)a);
     SetCallbackArg(emu, 1, (void*)b);
-    RunCallback(emu);
+    return (int)RunCallback(emu);
 }
 
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
@@ -349,6 +352,7 @@ EXPORT void my__Jv_RegisterClasses() {}
 EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj, void* dso)
 {
     printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
+    return 0;
 }
 
 #define LIBNAME libc

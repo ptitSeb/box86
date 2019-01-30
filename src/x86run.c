@@ -363,8 +363,8 @@ x86emurun:
                     CONDITIONAL                     \
                 break;
             GOCOND(0x70
-                ,   tmp8s = (int8_t)nextop; R_EIP++; CHECK_FLAGS(emu);
-                ,   R_EIP += tmp8s;
+                ,   R_EIP++; CHECK_FLAGS(emu);
+                ,   R_EIP += (int8_t)nextop;
                 )                           /* Jxx Ib */
             #undef GOCOND
 

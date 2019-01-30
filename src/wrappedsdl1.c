@@ -430,12 +430,14 @@ int32_t EXPORT my_SDL_BuildAudioCVT(x86emu_t* emu, void* a, uint32_t b, uint32_t
 {
     printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_BuildAudioCVT\n");
     emu->quit = 1;
+    return 0;
 }
 
 int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
 {
     printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_ConvertAudio\n");
     emu->quit = 1;
+    return 0;
 }
 
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)

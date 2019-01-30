@@ -113,7 +113,7 @@ void AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
 }
 
 // check if one of the function is a pure emulated one (i.e. not present in dictionnary)
-static int isAnyEmulated(sdl2rwops_t* rw, SDL2_RWops_t *ops)
+static int isAnyEmulated2(sdl2rwops_t* rw, SDL2_RWops_t *ops)
 {
     #define GO(A) if((kh_get(sdl2##A##map, rw->A##map, (uintptr_t)ops->A))==(kh_end(rw->A##map))) return 1
     GO(size);
@@ -132,7 +132,7 @@ void RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
         return;
     sdl2rwops_t* rw = (sdl2rwops_t*)emu->context->sdl2lib->priv.w.priv;
     
-    save->anyEmu = isAnyEmulated(rw, ops);
+    save->anyEmu = isAnyEmulated2(rw, ops);
     save->size = ops->size;
     save->seek = ops->seek;
     save->read = ops->read;

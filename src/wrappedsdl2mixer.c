@@ -155,7 +155,9 @@ printf("Warning: Mix_RegisterEffect(%d, %p, %p, %p) Ignored\n", channel, cb_effe
         }
         cb2 = EffectDoneCallback;
     }
-    my->Mix_RegisterEffect(channel, cb1, cb2, )
+    return my->Mix_RegisterEffect(channel, cb1, cb2, )
+    #else
+    return 0;
     #endif
 }
 
