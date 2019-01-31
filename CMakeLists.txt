@@ -8,6 +8,7 @@ option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
+option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 
 
 # Pandora
@@ -22,6 +23,10 @@ endif()
 
 if(NOALIGN)
     add_definitions(-DNOALIGN)
+endif()
+
+if(HAVE_TRACE)
+    add_definitions(-DHAVE_TRACE)
 endif()
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden -no-pie -fjump-tables)

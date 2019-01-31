@@ -37,6 +37,7 @@ void LoadLogEnv()
         }
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
+#ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE_XMM");
     if(p) {
         if(strlen(p)==1) {
@@ -44,6 +45,7 @@ void LoadLogEnv()
                 trace_xmm = p[0]-'0';
         }
     }
+#endif
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
@@ -124,7 +126,9 @@ void PrintHelp() {
     printf(" BOX86_PATH to set the PATH used by box86 to find x86 programs (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH to set the path were x86 lib are searched (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set printed debug info\n");
+#ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
+#endif
 }
 
 int main(int argc, const char **argv, const char **env) {
@@ -160,7 +164,7 @@ int main(int argc, const char **argv, const char **env) {
         for (int i=0; i<context->envc; ++i)
             printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, context->envv[i]);
     }
-
+#ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE");
     if(p) {
         if (strcmp(p, "0"))
@@ -178,7 +182,7 @@ int main(int argc, const char **argv, const char **env) {
             context->x86trace = 0;
         }
     }
-
+#endif
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     if(strchr(prog, '/'))
@@ -253,6 +257,7 @@ int main(int argc, const char **argv, const char **env) {
     SetupX86Emu(context->emu, NULL, NULL);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
+#ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE");
     if(p) {
         setbuf(stdout, NULL);
@@ -276,7 +281,7 @@ int main(int argc, const char **argv, const char **env) {
             }
         }
     }
-
+#endif
     // export symbols
     AddGlobalsSymbols(context->maplib, GetMapSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
@@ -296,7 +301,7 @@ int main(int argc, const char **argv, const char **env) {
     RelocateElfPlt(context, context->maplib, elf_header);
     // init...
     RunElfInit(elf_header, context->emu);
-
+#ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE_NOINIT");
     if(p) {
         setbuf(stdout, NULL);
@@ -320,7 +325,7 @@ int main(int argc, const char **argv, const char **env) {
             }
         }
     }
-
+#endif
     // get entrypoint
     context->ep = GetEntryPoint(context->maplib, elf_header);
 

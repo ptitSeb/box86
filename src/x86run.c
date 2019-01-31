@@ -25,6 +25,7 @@ x86emurun:
     while (1)
     {
         emu->old_ip = R_EIP;
+#ifdef HAVE_TRACE
         if(emu->dec && (
                 (emu->trace_end == 0) 
              || ((R_EIP >= emu->trace_start) && (R_EIP < emu->trace_end))) ) {
@@ -47,6 +48,7 @@ x86emurun:
                 printf_log(LOG_NONE, "\n");
             }
         }
+#endif
         uint32_t fetched = *(uint32_t*)(R_EIP); // get a char or a uint32 should be roughly the same on arm
         uint8_t opcode = fetched&0xff;
         R_EIP++;
