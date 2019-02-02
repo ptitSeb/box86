@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -84,43 +84,43 @@
         default:
         switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d += f;
                 break;
             case 1:         /* FMUL ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d *= f;
                 break;
             case 2:      /* FCOM ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 fpu_fcom(emu, f);
                 break;
             case 3:     /* FCOMP */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 fpu_fcom(emu, f);
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d -= f;
                 break;
             case 5:         /* FSUBR ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d = f - ST0.d;
                 break;
             case 6:         /* FDIV ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d /= f;
                 break;
             case 7:         /* FDIVR ST0, float */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 f = *(float*)op2;
                 ST0.d = f / ST0.d;
                 break;

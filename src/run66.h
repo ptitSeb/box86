@@ -1,21 +1,21 @@
-    opcode = Fetch8(emu);
+    opcode = F8;
     switch(opcode) {
 
     #define GO(B, OP)                       \
     case B+1:                               \
-        nextop = Fetch8(emu);               \
-        GetEw(emu, &op1, nextop);     \
-        GetG(emu, &op2, nextop);            \
+        nextop = F8;               \
+        op1=GetEw(emu, nextop);     \
+        op2=GetG(emu, nextop);            \
         op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
         break;                              \
     case B+3:                               \
-        nextop = Fetch8(emu);               \
-        GetEw(emu, &op2, nextop);     \
-        GetG(emu, &op1, nextop);            \
+        nextop = F8;               \
+        op2=GetEw(emu, nextop);     \
+        op1=GetG(emu, nextop);            \
         op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
         break;                              \
     case B+5:                               \
-        R_AX = OP##16(emu, R_AX, Fetch16(emu)); \
+        R_AX = OP##16(emu, R_AX, F16); \
         break;
 
     GO(0x00, add)                   /* ADD 0x01 ~> 0x05 */
@@ -31,22 +31,21 @@
         // ignored
         break;
     case 0x39:
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
         cmp16(emu, op1->word[0], op2->word[0]);
         break;
     case 0x3B:
-        nextop = Fetch8(emu);
-        GetEw(emu, &op2, nextop);
-        GetG(emu, &op1, nextop);
+        nextop = F8;
+        op2=GetEw(emu, nextop);
+        op1=GetG(emu, nextop);
         cmp16(emu, op1->word[0], op2->word[0]);
         break;
     case 0x3D:
-        cmp16(emu, R_AX, Fetch16(emu));
+        cmp16(emu, R_AX, F16);
         break;
     
-
     case 0x40:
     case 0x41:
     case 0x42:
@@ -71,29 +70,29 @@
         break;
 
     case 0x69:                      /* IMUL Gw,Ew,Iw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
-        tmp16u = Fetch16(emu);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
+        tmp16u = F16;
         op2->word[0] = imul16(emu, op1->word[0], tmp16u);
         break;
 
     case 0x6B:                      /* IMUL Gw,Ew,Ib */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
-        tmp16s = Fetch8s(emu);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
+        tmp16s = F8S;
         op2->word[0] = imul16(emu, op1->word[0], (uint16_t)tmp16s);
         break;
 
     case 0x81:                              /* GRP3 Ew,Iw */
     case 0x83:                              /* GRP3 Ew,Ib */
-        nextop = Fetch8(emu);
-        GetEd(emu, &op1, nextop);
+        nextop = F8;
+        op1=GetEd(emu, nextop);
         if(opcode==0x81) 
-            tmp16u = Fetch16(emu);
+            tmp16u = F16;
         else {
-            tmp16s = Fetch8s(emu);
+            tmp16s = F8S;
             tmp16u = *(uint16_t*)&tmp16s;
         }
         switch((nextop>>3)&7) {
@@ -109,38 +108,38 @@
         break;
 
     case 0x85:                              /* TEST Ew,Gw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
         test16(emu, op1->word[0], op2->word[0]);
         break;
 
     case 0x87:                              /* XCHG Ew,Gw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
         tmp16u = op1->word[0];
         op1->word[0] = op2->word[0];
         op2->word[0] = tmp16u;
         break;
 
     case 0x89:                              /* MOV Ew,Gw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op2=GetG(emu, nextop);
         op1->word[0] = op2->word[0];
         break;
 
     case 0x8B:                              /* MOV Gw,Ew */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op2, nextop);
-        GetG(emu, &op1, nextop);
+        nextop = F8;
+        op2=GetEw(emu, nextop);
+        op1=GetG(emu, nextop);
         op1->word[0] = op2->word[0];
         break;
     
     case 0x8F:                              /* POP Ew */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
         op1->dword[0] = Pop16(emu);
         break;
     case 0x90:                              /* NOP */
@@ -207,13 +206,13 @@
     case 0xBD:
     case 0xBE:
     case 0xBF:
-        emu->regs[opcode-0xB8].word[0] = Fetch16(emu);
+        emu->regs[opcode-0xB8].word[0] = F16;
         break;
 
     case 0xC1:                              /* GRP2 Ew,Ib */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        tmp8u = Fetch8(emu) /*& 0x1f*/;
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        tmp8u = F8 /*& 0x1f*/;
         switch((nextop>>3)&7) {
             case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
             case 1: op1->word[0] = ror16(emu, op1->word[0], tmp8u); break;
@@ -227,15 +226,15 @@
         break;
 
     case 0xC7:                              /* MOV Ew,Iw */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
-        op1->word[0] = Fetch16(emu);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
+        op1->word[0] = F16;
         break;
 
     case 0xD1:                              /* GRP2 Ew,1  */
     case 0xD3:                              /* GRP2 Ew,CL */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
         tmp8u=(opcode==0xD3)?R_CL:1;
         switch((nextop>>3)&7) {
             case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
@@ -251,7 +250,7 @@
 
         case 0xF2:                      /* REPNZ prefix */
         case 0xF3:                      /* REPZ prefix */
-            nextop = Fetch8(emu);
+            nextop = F8;
             tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
             tmp32u = R_ECX;
             switch(nextop) {
@@ -307,12 +306,12 @@
             break;
 
     case 0xF7:                      /* GRP3 Ew(,Iw) */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
         switch((nextop>>3)&7) {
             case 0: 
             case 1:                 /* TEST Ew,Iw */
-                test16(emu, op1->word[0], Fetch16(emu));
+                test16(emu, op1->word[0], F16);
                 break;
             case 2:                 /* NOT Ew */
                 op1->word[0] = not16(emu, op1->word[0]);
@@ -336,8 +335,8 @@
         break;
 
     case 0xFF:                      /* GRP 5 Ew */
-        nextop = Fetch8(emu);
-        GetEw(emu, &op1, nextop);
+        nextop = F8;
+        op1=GetEw(emu, nextop);
         switch((nextop>>3)&7) {
             case 0:                 /* INC Ed */
                 op1->word[0] = inc16(emu, op1->word[0]);

@@ -50,21 +50,18 @@ inline void Push(x86emu_t *emu, uint32_t v)
 
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
-static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
+static inline reg32_t* GetECommon(x86emu_t* emu, uint32_t m)
 {
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = Fetch8(emu);
             uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[(sib&0x7)].dword[0]); // base
             base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
-            *op = (reg32_t*)base;
-            return;
+            return (reg32_t*)base;
         } else if (m==0x5) { //disp32
-            *op = (reg32_t*)Fetch32(emu);
-            return;
+            return (reg32_t*)Fetch32(emu);
         }
-        *op = (reg32_t*)(emu->regs[m].dword[0]);
-        return;
+        return (reg32_t*)(emu->regs[m].dword[0]);
     } else {
         uintptr_t base;
         if((m&7)==4) {
@@ -75,38 +72,34 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
             base = emu->regs[(m&0x7)].dword[0];
         }
         base+=(m&0x80)?Fetch32s(emu):Fetch8s(emu);
-        *op = (reg32_t*)base;
-        return;
+        return (reg32_t*)base;
     }
 }
 
-static inline void GetEb(x86emu_t *emu, reg32_t **op, uint32_t v)
+static inline reg32_t* GetEb(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
         int lowhigh = (m&4)>>2;
-         *op = (reg32_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
-        return;
-    } else GetECommon(emu, op, m);
+         return (reg32_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
+    } else return GetECommon(emu, m);
 }
 
-static inline void GetEd(x86emu_t *emu, reg32_t **op, uint32_t v)
+static inline reg32_t* GetEd(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->regs[(m&0x07)];
-        return;
-    } else GetECommon(emu, op, m);
+         return &emu->regs[(m&0x07)];
+    } else return GetECommon(emu, m);
 }
 
 #define GetEw GetEd
 
-static inline void GetEw16(x86emu_t *emu, reg32_t **op, uint32_t v)
+static inline reg32_t* GetEw16(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->regs[(m&0x07)];
-        return;
+         return &emu->regs[(m&0x07)];
     } else {
         uint32_t base = 0;
         switch(m&7) {
@@ -125,51 +118,48 @@ static inline void GetEw16(x86emu_t *emu, reg32_t **op, uint32_t v)
             case 2: base += Fetch16s(emu); break;
             // case 3 is C0..C7, already dealt with
         }
-        *op = (reg32_t*)base;
-        return;
+        return (reg32_t*)base;
     }
 }
 
-static inline void GetEm(x86emu_t *emu, mmx_regs_t **op, uint32_t v)
+static inline mmx_regs_t* GetEm(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->mmx[m&0x07];
-        return;
-    } else GetECommon(emu, (reg32_t**)op, m);
+         return &emu->mmx[m&0x07];
+    } else return (mmx_regs_t*)GetECommon(emu, m);
 }
 
-static inline void GetEx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
+static inline sse_regs_t* GetEx(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->xmm[m&0x07];
-        return;
-    } else GetECommon(emu, (reg32_t**)op, m);
+         return &emu->xmm[m&0x07];
+    } else return (sse_regs_t*)GetECommon(emu, m);
 }
 
 
-static inline void GetG(x86emu_t *emu, reg32_t **op, uint32_t v)
+static inline reg32_t* GetG(x86emu_t *emu, uint32_t v)
 {
-    *op = &emu->regs[((v&0x38)>>3)];
+    return &emu->regs[((v&0x38)>>3)];
 }
 
-static inline void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)
-{
-    uint8_t m = (v&0x38)>>3;
-    *op = (reg32_t*)&emu->regs[m&3].byte[m>>2];
-}
-
-static inline void GetGm(x86emu_t *emu, mmx_regs_t **op, uint32_t v)
+static inline reg32_t* GetGb(x86emu_t *emu, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    *op = &emu->mmx[m&7];
+    return (reg32_t*)&emu->regs[m&3].byte[m>>2];
 }
 
-static inline void GetGx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
+static inline mmx_regs_t* GetGm(x86emu_t *emu, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    *op = &emu->xmm[m&7];
+    return &emu->mmx[m&7];
+}
+
+static inline sse_regs_t* GetGx(x86emu_t *emu, uint32_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    return &emu->xmm[m&7];
 }
 
 void UpdateFlags(x86emu_t *emu);

@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -84,44 +84,44 @@
         default:
         switch((nextop>>3)&7) {
         case 0:         /* FADD ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d += d;
             break;
         case 1:         /* FMUL ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d *= d;
             break;
         case 2:      /* FCOM ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             fpu_fcom(emu, d);
             break;
         case 3:     /* FCOMP ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             fpu_fcom(emu, d);
             fpu_do_pop(emu);
             break;
         case 4:         /* FSUB ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d -= d;
             break;
         case 5:         /* FSUBR ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d = d - ST0.d;
             break;
         case 6:         /* FDIV ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d /= d;
             break;
         case 7:         /* FDIVR ST0, double */
-            GetEd(emu, &op2, nextop);
-            memcpy(&d, &op2->dword[0], 8);
+            op2=GetEd(emu, nextop);
+            memcpy(&d, op2, 8);
             ST0.d = d / ST0.d;
             break;
         default:

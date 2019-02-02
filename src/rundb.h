@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch(nextop) {
     case 0xC0:      /* FCMOVNB ST(0), ST(i) */
     case 0xC1:
@@ -89,19 +89,19 @@
     default:
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Gd */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 fpu_do_push(emu);
                 ST0.d = op2->sdword[0];
                 break;
             case 2: /* FIST Ed, ST0 */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
                 op2->sdword[0] = tmp32s;
                 break;
             case 3: /* FISTP Ed, ST0 */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
@@ -109,14 +109,14 @@
                 op2->sdword[0] = tmp32s;
                 break;
             case 5: /* FLD ST0, Gt */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, op2, 10);
                 LD2D(&STld(0), &ST(0).d);
                 STld(0).ref = ST0.ll;
                 break;
             case 7: /* FSTP tbyte */
-                GetEd(emu, &op1, nextop);
+                op1=GetEd(emu, nextop);
                 if(ST0.ll!=STld(0).ref)
                     D2LD(&ST0.d, op1);
                 else

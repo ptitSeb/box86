@@ -30,8 +30,8 @@ void Run6766(x86emu_t *emu)
 
     case 0x8D:                              /* LEA Gw,Ew */
         nextop = Fetch8(emu);
-        GetEw16(emu, &op1, nextop);
-        GetG(emu, &op2, nextop);
+        op1=GetEw16(emu, nextop);
+        op2=GetG(emu, nextop);
         op2->word[0] = (uint16_t)(uintptr_t)&op1->word[0];
         break;
     

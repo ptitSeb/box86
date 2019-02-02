@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch(nextop) {
 
     case 0xC0:      /* FCMOVB ST(0), ST(i) */
@@ -71,7 +71,7 @@
     default:
         switch((nextop>>3)&7) {
             case 1:     /* FIMUL ST0, Ed int */
-                GetEd(emu, &op2, nextop);
+                op2=GetEd(emu, nextop);
                 ST0.d *= op2->sword[0];
                 break;
             default:

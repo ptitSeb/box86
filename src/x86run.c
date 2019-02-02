@@ -37,6 +37,12 @@ int Run(x86emu_t *emu)
     mmx_regs_t *opm1, *opm2;
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
+#define F8      Fetch8(emu)
+#define F8S     Fetch8s(emu)
+#define F16     Fetch16(emu)
+#define F32     Fetch32(emu)
+#define F32S    Fetch32s(emu)
+
 x86emurun:
     emu->quit = 0;
     static void* baseopcodes[256] ={
@@ -76,9 +82,9 @@ x86emurun:
 
     while (1)
     {
-        emu->old_ip = R_EIP;
 #ifdef HAVE_TRACE
 _trace:
+        emu->old_ip = R_EIP;
         if(emu->dec && (
                 (emu->trace_end == 0) 
              || ((R_EIP >= emu->trace_start) && (R_EIP < emu->trace_end))) ) {
@@ -101,43 +107,41 @@ _trace:
                 printf_log(LOG_NONE, "\n");
             }
         }
-    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto _trace;
+    #define NEXT    __builtin_prefetch((void*)R_EIP, 0, 2); goto _trace;
 #else
-    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=Fetch8(emu))];
+    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=F8)];
 #endif
-        opcode = Fetch8(emu);
+        opcode = F8;
         goto *baseopcodes[opcode];
 
             #define GO(B, OP)                      \
             _##B##_0: \
-                nextop = Fetch8(emu);               \
-                GetEb(emu, &op1, nextop);     \
-                GetGb(emu, &op2, nextop);           \
-                op1->byte[0] = OP##8(emu, op1->byte[0], op2->byte[0]);  \
+                nextop = F8;               \
+                op1=GetEb(emu, nextop);             \
+                op1->byte[0] = OP##8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);  \
                 NEXT;                              \
             _##B##_1: \
-                nextop = Fetch8(emu);               \
-                GetEd(emu, &op1, nextop);     \
-                GetG(emu, &op2, nextop);            \
-                op1->dword[0] = OP##32(emu, op1->dword[0], op2->dword[0]); \
+                nextop = F8;               \
+                op1=GetEd(emu, nextop);             \
+                op1->dword[0] = OP##32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]); \
                 NEXT;                              \
             _##B##_2: \
-                nextop = Fetch8(emu);               \
-                GetEb(emu, &op2, nextop);     \
-                GetGb(emu, &op1, nextop);           \
+                nextop = F8;               \
+                op2=GetEb(emu, nextop);             \
+                op1=GetGb(emu, nextop);             \
                 op1->byte[0] = OP##8(emu, op1->byte[0], op2->byte[0]); \
                 NEXT;                              \
             _##B##_3: \
-                nextop = Fetch8(emu);               \
-                GetEd(emu, &op2, nextop);     \
-                GetG(emu, &op1, nextop);            \
+                nextop = F8;               \
+                op2=GetEd(emu, nextop);     \
+                op1=GetG(emu, nextop);            \
                 op1->dword[0] = OP##32(emu, op1->dword[0], op2->dword[0]); \
                 NEXT;                              \
             _##B##_4: \
-                R_AL = OP##8(emu, R_AL, Fetch8(emu)); \
+                R_AL = OP##8(emu, R_AL, F8); \
                 NEXT;                              \
             _##B##_5: \
-                R_EAX = OP##32(emu, R_EAX, Fetch32(emu)); \
+                R_EAX = OP##32(emu, R_EAX, F32); \
                 NEXT;
 
 
@@ -152,34 +156,32 @@ _trace:
 
             #undef GO
             _0x38:
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                GetGb(emu, &op2, nextop);
-                cmp8(emu, op1->byte[0], op2->byte[0]);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                cmp8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);
                 NEXT;
             _0x39:
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
-                cmp32(emu, op1->dword[0], op2->dword[0]);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                cmp32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]);
                 NEXT;
             _0x3A:
-                nextop = Fetch8(emu);
-                GetEb(emu, &op2, nextop);
-                GetGb(emu, &op1, nextop);
+                nextop = F8;
+                op2=GetEb(emu, nextop);
+                op1=GetGb(emu, nextop);
                 cmp8(emu, op1->byte[0], op2->byte[0]);
                 NEXT;
             _0x3B:
-                nextop = Fetch8(emu);
-                GetEd(emu, &op2, nextop);
-                GetG(emu, &op1, nextop);
+                nextop = F8;
+                op2=GetEd(emu, nextop);
+                op1=GetG(emu, nextop);
                 cmp32(emu, op1->dword[0], op2->dword[0]);
                 NEXT;
             _0x3C:
-                cmp8(emu, R_AL, Fetch8(emu));
+                cmp8(emu, R_AL, F8);
                 NEXT;
             _0x3D:
-                cmp32(emu, R_EAX, Fetch32(emu));
+                cmp32(emu, R_EAX, F32);
                 NEXT;
 
             _0x0F:                      /* More instructions */
@@ -252,24 +254,24 @@ _trace:
 
             _0x65:                      /* GS: */
                 // TODO: set a new decoder function?
-                opcode = Fetch8(emu);
+                opcode = F8;
                 switch(opcode) {
                     case 0x33:              /* XOR Gd,Ed */
-                        nextop = Fetch8(emu);
-                        GetEd(emu, &op2, nextop);
+                        nextop = F8;
+                        op2=GetEd(emu, nextop);
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        GetG(emu, &op1, nextop);
+                        op1 = GetG(emu, nextop);
                         op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
                         break;
                     case 0x8B:              /* MOV Gd,Ed */
-                        nextop = Fetch8(emu);
-                        GetEd(emu, &op2, nextop);
+                        nextop = F8;
+                        op2=GetEd(emu, nextop);
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        GetG(emu, &op1, nextop);
+                        op1=GetG(emu, nextop);
                         op1->dword[0] = op2->dword[0];
                         break;
                     case 0xA1:              /* MOV EAX,Ov */
-                        tmp32u = Fetch32(emu);
+                        tmp32u = F32;
                         R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
                         break;
 
@@ -301,25 +303,23 @@ _trace:
                 NEXT;
 
             _0x68:                      /* Push Id */
-                Push(emu, Fetch32(emu));
+                Push(emu, F32);
                 NEXT;
             _0x69:                      /* IMUL Gd,Ed,Id */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
-                tmp32u = Fetch32(emu);
-                op2->dword[0] = imul32(emu, op1->dword[0], tmp32u);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                tmp32u = F32;
+                GetG(emu, nextop)->dword[0] = imul32(emu, op1->dword[0], tmp32u);
                 NEXT;
             _0x6A:                      /* Push Ib */
-                tmp32s = Fetch8s(emu);
+                tmp32s = F8S;
                 Push(emu, (uint32_t)tmp32s);
                 NEXT;
             _0x6B:                      /* IMUL Gd,Ed,Ib */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
-                tmp32s = Fetch8s(emu);
-                op2->dword[0] = imul32(emu, op1->dword[0], (uint32_t)tmp32s);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                tmp32s = F8S;
+                GetG(emu, nextop)->dword[0] = imul32(emu, op1->dword[0], (uint32_t)tmp32s);
                 NEXT;
 
             #define GOCOND(BASE, PREFIX, CONDITIONAL) \
@@ -404,16 +404,16 @@ _trace:
                     CONDITIONAL                     \
                 NEXT;
             GOCOND(0x70
-                ,   tmp8s = Fetch8s(emu); CHECK_FLAGS(emu);
+                ,   tmp8s = F8S; CHECK_FLAGS(emu);
                 ,   R_EIP += (int8_t)tmp8s;
                 )                           /* Jxx Ib */
             #undef GOCOND
 
             
             _0x80:                      /* GRP Eb,Ib */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                tmp8u = Fetch8(emu);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                tmp8u = F8;
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = add8(emu, op1->byte[0], tmp8u); break;
                     case 1: op1->byte[0] =  or8(emu, op1->byte[0], tmp8u); break;
@@ -427,12 +427,12 @@ _trace:
                 NEXT;
             _0x81:                      /* GRP Ed,Id */
             _0x83:                      /* GRP Ed,Ib */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
                 if(opcode==0x81) 
-                    tmp32u = Fetch32(emu);
+                    tmp32u = F32;
                 else {
-                    tmp32s = Fetch8s(emu);
+                    tmp32s = F8S;
                     tmp32u = *(uint32_t*)&tmp32s;
                 }
                 switch((nextop>>3)&7) {
@@ -447,78 +447,76 @@ _trace:
                 }
                 NEXT;
             _0x84:                      /* TEST Eb,Gb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                GetGb(emu, &op2, nextop);
-                test8(emu, op1->byte[0], op2->byte[0]);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                test8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);
                 NEXT;
             _0x85:                      /* TEST Ed,Gd */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
-                test32(emu, op1->dword[0], op2->dword[0]);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                test32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]);
                 NEXT;
             _0x86:                      /* XCHG Eb,Gb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                GetGb(emu, &op2, nextop);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                op2=GetGb(emu, nextop);
                 tmp8u = op1->byte[0];
                 op1->byte[0] = op2->byte[0];
                 op2->byte[0] = tmp8u;
                 NEXT;
             _0x87:                      /* XCHG Ed,Gd */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                op2=GetG(emu, nextop);
                 tmp32u = op1->dword[0];
                 op1->dword[0] = op2->dword[0];
                 op2->dword[0] = tmp32u;
                 NEXT;
             _0x88:                      /* MOV Eb,Gb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                GetGb(emu, &op2, nextop);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                op2=GetGb(emu, nextop);
                 op1->byte[0] = op2->byte[0];
                 NEXT;
             _0x89:                      /* MOV Ed,Gd */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                op2=GetG(emu, nextop);
                 op1->dword[0] = op2->dword[0];
                 NEXT;
             _0x8A:                      /* MOV Gb,Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op2, nextop);
-                GetGb(emu, &op1, nextop);
+                nextop = F8;
+                op2=GetEb(emu, nextop);
+                op1=GetGb(emu, nextop);
                 op1->byte[0] = op2->byte[0];
                 NEXT;
             _0x8B:                      /* MOV Gd,Ed */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op2, nextop);
-                GetG(emu, &op1, nextop);
+                nextop = F8;
+                op2=GetEd(emu, nextop);
+                op1=GetG(emu, nextop);
                 op1->dword[0] = op2->dword[0];
                 NEXT;
 
             _0x8D:                      /* LEA Gd,M */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                GetG(emu, &op2, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                op2=GetG(emu, nextop);
                 op2->dword[0] = (uint32_t)op1;
                 NEXT;
 
             _0x8F:                      /* POP Ed */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
                 op1->dword[0] = Pop(emu);
                 NEXT;
             _0x90:                      /* NOP */
                 NEXT;
-            _0x91:                      
-            _0x92:                      
-            _0x93:                      
-            _0x94:                      
-            _0x95:                      
-            _0x96:                      
+            _0x91:
+            _0x92:
+            _0x93:
+            _0x94:
+            _0x95:
+            _0x96:
             _0x97:                      /* XCHG reg,EAX */
                 tmp32u = R_EAX;
                 R_EAX = emu->regs[opcode&7].dword[0];
@@ -554,16 +552,16 @@ _trace:
                 NEXT;
 
             _0xA0:                      /* MOV AL,Ob */
-                R_AL = *(uint8_t*)Fetch32(emu);
+                R_AL = *(uint8_t*)F32;
                 NEXT;
             _0xA1:                      /* MOV EAX,Od */
-                R_EAX = *(uint32_t*)Fetch32(emu);
+                R_EAX = *(uint32_t*)F32;
                 NEXT;
             _0xA2:                      /* MOV Ob,AL */
-                *(uint8_t*)Fetch32(emu) = R_AL;
+                *(uint8_t*)F32 = R_AL;
                 NEXT;
             _0xA3:                      /* MOV Od,EAX */
-                *(uint32_t*)Fetch32(emu) = R_EAX;
+                *(uint32_t*)F32 = R_EAX;
                 NEXT;
             _0xA4:                      /* MOVSB */
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
@@ -594,10 +592,10 @@ _trace:
                 cmp32(emu, tmp32u2, tmp32u);
                 NEXT;
             _0xA8:                      /* TEST AL, Ib */
-                test8(emu, R_AL, Fetch8(emu));
+                test8(emu, R_AL, F8);
                 NEXT;
             _0xA9:                      /* TEST EAX, Id */
-                test32(emu, R_EAX, Fetch32(emu));
+                test32(emu, R_EAX, F32);
                 NEXT;
             _0xAA:                      /* STOSB */
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
@@ -639,7 +637,7 @@ _trace:
             _0xB6:
             _0xB7:
                 tmp8u = opcode&0x07;
-                emu->regs[tmp8u&3].byte[tmp8u>>2] = Fetch8(emu);
+                emu->regs[tmp8u&3].byte[tmp8u>>2] = F8;
                 NEXT;
             _0xB8:                      /* MOV EAX,Id */
             _0xB9:                      /* MOV ECX,Id */
@@ -649,13 +647,13 @@ _trace:
             _0xBD:
             _0xBE:
             _0xBF:
-                emu->regs[opcode-0xB8].dword[0] = Fetch32(emu);
+                emu->regs[opcode-0xB8].dword[0] = F32;
                 NEXT;
 
             _0xC0:                      /* GRP2 Eb,Ib */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                tmp8u = Fetch8(emu)/* & 0x1f*/; // masking done in each functions
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
                     case 1: op1->byte[0] = ror8(emu, op1->byte[0], tmp8u); break;
@@ -668,9 +666,9 @@ _trace:
                 }
                 NEXT;
             _0xC1:                      /* GRP2 Ed,Ib */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                tmp8u = Fetch8(emu)/* & 0x1f*/; // masking done in each functions
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
                     case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
@@ -683,7 +681,7 @@ _trace:
                 }
                 NEXT;
             _0xC2:                      /* RETN Iw */
-                tmp16u = Fetch16(emu);
+                tmp16u = F16;
                 R_EIP = Pop(emu);
                 R_ESP += tmp16u;
                 NEXT;
@@ -692,14 +690,14 @@ _trace:
                 NEXT;
 
             _0xC6:                      /* MOV Eb,Ib */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
-                op1->byte[0] = Fetch8(emu);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
+                op1->byte[0] = F8;
                 NEXT;
             _0xC7:                      /* MOV Ed,Id */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
-                op1->dword[0] = Fetch32(emu);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
+                op1->dword[0] = F32;
                 NEXT;
 
             _0xC9:                      /* LEAVE */
@@ -712,7 +710,7 @@ _trace:
                 if(emu->quit) goto fini;
                 NEXT;
             _0xCD:                      /* INT Ib */
-                nextop = Fetch8(emu);
+                nextop = F8;
                 if(nextop == 0x80) {
                     x86Syscall(emu);
                     if(emu->quit) goto fini;
@@ -726,8 +724,8 @@ _trace:
 
             _0xD1:                      /* GRP2 Ed,1 */
             _0xD3:                      /* GRP2 Ed,CL */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
                 tmp8u = (opcode==0xD1)?1:R_CL;
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
@@ -742,8 +740,8 @@ _trace:
                 NEXT;
             _0xD0:                      /* GRP2 Eb,1 */
             _0xD2:                      /* GRP2 Eb,CL */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
                 tmp8u = (opcode==0xD0)?1:R_CL;
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
@@ -757,11 +755,11 @@ _trace:
                 }
                 NEXT;
             _0xD4:                      /* AAM Ib */
-                nextop = Fetch8(emu);
+                nextop = F8;
                 R_AX = aam16(emu, R_AL, nextop);
                 NEXT;
             _0xD5:                      /* AAD Ib */
-                nextop = Fetch8(emu);
+                nextop = F8;
                 R_AX = aad16(emu, R_AX, nextop);
                 NEXT;
             
@@ -796,42 +794,42 @@ _trace:
 
             _0xE0:                      /* LOOPNZ */
                 CHECK_FLAGS(emu);
-                tmp8s = Fetch8s(emu);
+                tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX && !ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 NEXT;
             _0xE1:                      /* LOOPZ */
                 CHECK_FLAGS(emu);
-                tmp8s = Fetch8s(emu);
+                tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX && ACCESS_FLAG(F_ZF))
                     R_EIP += tmp8s;
                 NEXT;
             _0xE2:                      /* LOOP */
-                tmp8s = Fetch8s(emu);
+                tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX)
                     R_EIP += tmp8s;
                 NEXT;
             _0xE3:                      /* JECXZ */
-                tmp8s = Fetch8s(emu);
+                tmp8s = F8S;
                 if(!R_ECX)
                     R_EIP += tmp8s;
                 NEXT;
 
             _0xE8:                      /* CALL Id */
-                tmp32s = Fetch32s(emu); // call is relative
+                tmp32s = F32S; // call is relative
                 Push(emu, R_EIP);
                 R_EIP += tmp32s;
                 NEXT;
             _0xE9:                      /* JMP Id */
-                tmp32s = Fetch32s(emu); // jmp is relative
+                tmp32s = F32S; // jmp is relative
                 R_EIP += tmp32s;
                 NEXT;
 
             _0xEB:                      /* JMP Ib */
-                tmp32s = Fetch8s(emu); // jump is relative
+                tmp32s = F8S; // jump is relative
                 R_EIP += tmp32s;
                 NEXT;
 
@@ -840,7 +838,7 @@ _trace:
 
             _0xF2:                      /* REPNZ prefix */
             _0xF3:                      /* REPZ prefix */
-                nextop = Fetch8(emu);
+                nextop = F8;
                 if(nextop==0x0F) {
                     if(opcode==0xF3) {
                         #include "runf30f.h"
@@ -1001,12 +999,12 @@ _trace:
                 NEXT;
             
             _0xF6:                      /* GRP3 Eb(,Ib) */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Eb,Ib */
-                        test8(emu, op1->byte[0], Fetch8(emu));
+                        test8(emu, op1->byte[0], F8);
                         break;
                     case 2:                 /* NOT Eb */
                         op1->byte[0] = not8(emu, op1->byte[0]);
@@ -1029,12 +1027,12 @@ _trace:
                 }
                 NEXT;
             _0xF7:                      /* GRP3 Ed(,Id) */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Ed,Id */
-                        test32(emu, op1->dword[0], Fetch32(emu));
+                        test32(emu, op1->dword[0], F32);
                         break;
                     case 2:                 /* NOT Ed */
                         op1->dword[0] = not32(emu, op1->dword[0]);
@@ -1073,8 +1071,8 @@ _trace:
                 SET_FLAG(F_DF);
                 NEXT;
             _0xFE:                      /* GRP 5 Eb */
-                nextop = Fetch8(emu);
-                GetEb(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEb(emu, nextop);
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Eb */
                         op1->byte[0] = inc8(emu, op1->byte[0]);
@@ -1090,8 +1088,8 @@ _trace:
                 }
                 NEXT;
             _0xFF:                      /* GRP 5 Ed */
-                nextop = Fetch8(emu);
-                GetEd(emu, &op1, nextop);
+                nextop = F8;
+                op1=GetEd(emu, nextop);
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Ed */
                         op1->dword[0] = inc32(emu, op1->dword[0]);

@@ -78,13 +78,13 @@ void Run66D9(x86emu_t *emu)
         switch((nextop>>3)&7) {
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                GetEw(emu, &op1,nextop);
-                fpu_loadenv(emu, (char*)&op1->dword[0], 1);
+                op1=GetEw(emu, nextop);
+                fpu_loadenv(emu, (char*)op1, 1);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                GetEw(emu, &op1,nextop);
-                fpu_savenv(emu, (char*)&op1->dword[0], 1);
+                op1=GetEw(emu, nextop);
+                fpu_savenv(emu, (char*)op1, 1);
                 break;
             default:
                 UnimpOpcode(emu);
@@ -126,11 +126,11 @@ void Run66DD(x86emu_t *emu)
     default:
         switch((nextop>>3)&7) {
             case 4: /* FRSTOR m94byte */
-                GetEw(emu, &op1, nextop);
-                fpu_loadenv(emu, (char*)&op1->dword[0], 1);
+                op1=GetEw(emu, nextop);
+                fpu_loadenv(emu, (char*)op1, 1);
                 // get the STx
                 {
-                    char* p =(char*)&op1->dword[0];
+                    char* p =(char*)op1;
                     p += 14;
                     for (int i=0; i<8; ++i) {
                         LD2D(p, &ST(i).d);
@@ -139,7 +139,7 @@ void Run66DD(x86emu_t *emu)
                 }
                 break;
             case 6: /* FNSAVE m94byte */
-                GetEw(emu, &op1, nextop);
+                op1=GetEw(emu, nextop);
                 // ENV first...
                 fpu_savenv(emu, (char*)op1, 1);
                 // save the STx

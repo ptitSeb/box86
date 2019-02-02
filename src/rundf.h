@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch (nextop) {
     case 0xE0:  /* FNSTSW AX */
         emu->sw.f.F87_TOP = emu->top&7;
@@ -31,28 +31,28 @@
     default:
         switch((nextop>>3)&7) {
         case 0: /* FILD ST0, Gw */
-            GetEw(emu, &op2, nextop);
-            tmp16s = (int16_t)op2->word[0];
+            op2=GetEw(emu, nextop);
+            tmp16s = op2->sword[0];
             fpu_do_push(emu);
             ST0.d = tmp16s;
             break;
         case 1: /* FISTTP Ew, ST0 */
-            GetEw(emu, &op2, nextop);
+            op2=GetEw(emu, nextop);
             tmp16s = ST0.d;
-            op2->word[0] = (uint16_t)tmp16s;
+            op2->sword[0] = tmp16s;
             fpu_do_pop(emu);
             break;
         case 2: /* FIST Ew, ST0 */
-            GetEw(emu, &op2, nextop);
+            op2=GetEw(emu, nextop);
             tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
             if((tmp32s<-32768) || (tmp32s>32767))
                 tmp16s=0x8000;
             else
                 tmp16s = tmp32s;
-            op2->word[0] = (uint16_t)tmp16s;
+            op2->sword[0] = tmp16s;
             break;
         case 3: /* FISTP Ew, ST0 */
-            GetEw(emu, &op2, nextop);
+            op2=GetEw(emu, nextop);
             tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
             if(tmp32s<-32768)
                 tmp16s=-32768;
@@ -60,29 +60,29 @@
                 tmp16s=32767;
             else
                 tmp16s = tmp32s;
-            op2->word[0] = (uint16_t)tmp16s;
+            op2->sword[0] = tmp16s;
             fpu_do_pop(emu);
             break;
         case 4: /* FBLD ST0, tbytes */
-            GetEd(emu, &op2, nextop);
+            op2=GetEd(emu, nextop);
             fpu_do_push(emu);
             fpu_fbld(emu, (uint8_t*)op2);
             break;
         case 5: /* FILD ST0, Gq */
-            GetEd(emu, &op2, nextop);
-            tmp64s = *(int64_t*)&op2->dword[0];
+            op2=GetEd(emu, nextop);
+            tmp64s = *(int64_t*)op2;
             fpu_do_push(emu);
             ST0.d = tmp64s;
             STll(0).ll = tmp64s;
             STll(0).ref = ST0.ll;
             break;
         case 6: /* FBSTP tbytes, ST0 */
-            GetEd(emu, &op2, nextop);
+            op2=GetEd(emu, nextop);
             fpu_fbst(emu, (uint8_t*)op2);
             fpu_do_pop(emu);
             break;
         case 7: /* FISTP i64 */
-            GetEd(emu, &op1, nextop);
+            op1=GetEd(emu, nextop);
             if(STll(0).ref==ST(0).ll) {
                 tmp64s = STll(0).ll;
             } else {
@@ -91,7 +91,7 @@
                 else
                     tmp64s = (int64_t)ST0.d;
             }
-            *(int64_t*)&op1->dword[0] = tmp64s;
+            *(int64_t*)op1 = tmp64s;
             fpu_do_pop(emu);
             break;
         default:

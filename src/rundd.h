@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch(nextop) {
     
     case 0xD0:  /* FST ST0, STx */
@@ -47,25 +47,25 @@
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
-                GetEd(emu, &op1, nextop);
+                op1=GetEd(emu, nextop);
                 fpu_do_push(emu);
-                ST0.ll = *(int64_t*)&op1->dword[0];
+                ST0.ll = *(int64_t*)op1;
                 break;
             case 2: /* FST double */
-                GetEd(emu, &op1, nextop);
-                *(int64_t*)&op1->dword[0] = ST0.ll;
+                op1=GetEd(emu, nextop);
+                *(int64_t*)op1 = ST0.ll;
                 break;
             case 3: /* FSTP double */
-                GetEd(emu, &op1, nextop);
-                *(int64_t*)&op1->dword[0] = ST0.ll;
+                op1=GetEd(emu, nextop);
+                *(int64_t*)op1 = ST0.ll;
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
-                GetEd(emu, &op1, nextop);
-                fpu_loadenv(emu, (char*)&op1->dword[0], 0);
+                op1=GetEd(emu, nextop);
+                fpu_loadenv(emu, (char*)op1, 0);
                 // get the STx
                 {
-                    char* p =(char*)&op1->dword[0];
+                    char* p =(char*)op1;
                     p += 28;
                     for (int i=0; i<8; ++i) {
                         LD2D(p, &ST(i).d);
@@ -74,7 +74,7 @@
                 }
                 break;
             case 6: /* FNSAVE m108byte */
-                GetEd(emu, &op1, nextop);
+                op1=GetEd(emu, nextop);
                 // ENV first...
                 // warning, incomplete
                 fpu_savenv(emu, (char*)op1, 0);

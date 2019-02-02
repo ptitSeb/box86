@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch (nextop) {
     case 0xC1:  /* FADDP ST1, ST0 */
         ST(1).d += ST0.d;
