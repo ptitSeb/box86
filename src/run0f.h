@@ -1,20 +1,19 @@
-    opcode = nextop; R_EIP++;
-    nextop = (fetched>>16)&0xff;
+    opcode = Fetch8(emu);
     switch(opcode) {
         case 0x10:                      /* MOVUPS Gx,Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
             break;
         case 0x11:                      /* MOVUPS Ex,Gx */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
             break;
         case 0x12:                      
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             if((nextop&0xf8)==0xc0)     /* MOVHLPS Gx,Ex */
@@ -23,13 +22,13 @@
                 opx1->q[0] = opx2->q[0];/* MOVLPS Gx,Ex */
             break;
         case 0x13:                      /* MOVLPS Ex,Gx */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             opx1->q[0] = opx2->q[0];
             break;
         case 0x14:                      /* UNPCKLPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->ud[3] = opx2->ud[1];
@@ -37,7 +36,7 @@
             opx1->ud[1] = opx2->ud[0];
             break;
         case 0x15:                      /* UNPCKHPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->ud[0] = opx1->ud[2];
@@ -46,39 +45,39 @@
             opx1->ud[3] = opx2->ud[3];
             break;
         case 0x16:                      /* MOVHPS Ex,Gx */
-            R_EIP++;       /* MOVLHPS Ex,Gx */
+            nextop = Fetch8(emu);       /* MOVLHPS Ex,Gx */
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             opx2->q[1] = opx1->q[0];
             break;
         case 0x17:                      /* MOVHPS Gx,Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx2->q[0] = opx1->q[1];
             break;
 
         case 0x1F:                      /* NOP (multi-byte) */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             break;
 
         case 0x28:                      /* MOVAPS Gx,Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->q[0] = opx2->q[0];
             opx1->q[1] = opx2->q[1];
             break;
         case 0x29:                      /* MOVAPS Ex,Gx */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             opx1->q[0] = opx2->q[0];
             opx1->q[1] = opx2->q[1];
             break;
         case 0x2A:  /* CVTPI2PS Gx, Em */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->f[0] = opm2->sd[0];
@@ -88,7 +87,7 @@
         case 0x2C:                      /* CVTTPS2PI Gm, Ex */
         case 0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGm(emu, &opm1, nextop);
             opm1->sd[1] = opx2->f[1];
@@ -98,7 +97,7 @@
             // same for now
         case 0x2F:                      /* COMISS Gx, Ex */
             RESET_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx1, nextop);
             GetGx(emu, &opx2, nextop);
             if(isnan(opx1->f[0]) || isnan(opx2->f[0])) {
@@ -195,7 +194,7 @@
             break;
 
         GOCOND(0x40
-            , R_EIP++;
+            , nextop = Fetch8(emu);
             GetEd(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             CHECK_FLAGS(emu);
@@ -206,7 +205,7 @@
             , R_EIP += tmp32s;
         )                               /* 0x80 -> 0x8F Jxx */
         GOCOND(0x90
-            , R_EIP++; CHECK_FLAGS(emu);
+            , nextop = Fetch8(emu); CHECK_FLAGS(emu);
             GetEb(emu, &op1, nextop);
             , op1->byte[0]=1; else op1->byte[0]=0;
         )                               /* 0x90 -> 0x9F SETxx Eb */
@@ -214,7 +213,7 @@
         #undef GOCOND
 
         case 0x50:                      /* MOVMSKPS Gd, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetG(emu, &op1, nextop);
             op1->dword[0] = 0;
@@ -222,7 +221,7 @@
                 op1->dword[0] |= ((opx2->ud[i]>>31)&1)<<i;
             break;
         case 0x51:                      /* SQRTPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
@@ -230,56 +229,56 @@
             break;
 
         case 0x54:                      /* ANDPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] &= opx2->ud[i];
             break;
         case 0x55:                      /* ANDNPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] = (~opx1->ud[i]) & opx2->ud[i];
             break;
         case 0x56:                      /* ORPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] |= opx2->ud[i];
             break;
         case 0x57:                      /* XORPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] ^= opx2->ud[i];
             break;
         case 0x58:                      /* ADDPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] += opx2->f[i];
             break;
         case 0x59:                      /* MULPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] *= opx2->f[i];
             break;
         case 0x5A:                      /* CVTPS2PD Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->d[1] = opx2->f[1];
             opx1->d[0] = opx2->f[0];
             break;
         case 0x5B:                      /* CVTDQ2PS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             opx1->f[0] = opx2->sd[0];
@@ -288,14 +287,14 @@
             opx1->f[3] = opx2->sd[3];
             break;
         case 0x5C:                      /* SUBPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] -= opx2->f[i];
             break;
         case 0x5D:                      /* MINPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i) {
@@ -304,14 +303,14 @@
             }
             break;
         case 0x5E:                      /* DIVPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] /= opx2->f[i];
             break;
         case 0x5F:                      /* MAXPS Gx, Ex */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             for(int i=0; i<4; ++i) {
@@ -320,7 +319,7 @@
             }
             break;
         case 0x60:                      /* PUNPCKLBW Gm, Em */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
             opm1->ub[7] = opm2->ub[3];
@@ -332,7 +331,7 @@
             opm1->ub[1] = opm2->ub[0];
             break;
         case 0x61:                      /* PUNPCKLWD Gm, Em */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
             opm1->uw[3] = opm2->uw[1];
@@ -340,14 +339,14 @@
             opm1->uw[1] = opm2->uw[0];
             break;
         case 0x62:                      /* PUNPCKLDQ Gm, Em */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
             opm1->ud[1] = opm2->ud[0];
             break;
 
         case 0x6F:                      /* MOVQ Gm, Em */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm2, nextop);
             GetGm(emu, &opm1, nextop);
             opm1->q = opm2->q;
@@ -358,7 +357,7 @@
             break;
 
         case 0x7F:                      /* MOVQ Em, Gm */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEm(emu, &opm1, nextop);
             GetGm(emu, &opm2, nextop);
             opm1->q = opm2->q;
@@ -399,7 +398,7 @@
             break;
         case 0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = op2->byte[0];
@@ -415,7 +414,7 @@
             break;
         case 0xA4:                      /* SHLD Ed,Gd,Ib */
         case 0xA5:                      /* SHLD Ed,Gd,CL */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = (opcode==0xA4)?Fetch8(emu):R_CL;
@@ -424,7 +423,7 @@
 
         case 0xAB:                      /* BTS Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = op2->byte[0];
@@ -442,7 +441,7 @@
             break;
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
         case 0xAD:                      /* SHRD Ed,Gd,CL */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = (opcode==0xAC)?Fetch8(emu):R_CL;
@@ -450,7 +449,7 @@
             break;
 
         case 0xAE:                      /* Grp Ed (SSE) */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             switch((nextop>>3)&7) {
                 case 2:                 /* LDMXCSR Md */
@@ -464,7 +463,7 @@
             }
             break;
         case 0xAF:                      /* IMUL Gd,Ed */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
@@ -472,7 +471,7 @@
 
         case 0xB0:                      /* CMPXCHG Eb,Gb */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEb(emu, &op1, nextop);
             GetGb(emu, &op2, nextop);
             cmp8(emu, R_AL, op1->byte[0]);
@@ -485,7 +484,7 @@
             }
             break;
         case 0xB1:                      /* CMPXCHG Ed,Gd */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             cmp32(emu, R_EAX, op1->dword[0]);
@@ -500,7 +499,7 @@
 
         case 0xB3:                      /* BTR Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = op2->byte[0];
@@ -517,13 +516,13 @@
             break;
 
         case 0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEb(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             op1->dword[0] = op2->byte[0];
             break;
         case 0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEw(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             op1->dword[0] = op2->word[0];
@@ -531,7 +530,7 @@
 
         case 0xBB:                      /* BTC Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp8u = op2->byte[0];
@@ -548,7 +547,7 @@
             break;
 
         case 0xBA:                      
-            R_EIP++;
+            nextop = Fetch8(emu);
             switch((nextop>>3)&7) {
                 case 4:                 /* BT Ed,Ib */
                     CHECK_FLAGS(emu);
@@ -570,7 +569,7 @@
             break;
         case 0xBC:                      /* BSF Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp32u = op1->dword[0];
@@ -585,7 +584,7 @@
             break;
         case 0xBD:                      /* BSR Ed,Gd */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp32u = op1->dword[0];
@@ -599,20 +598,20 @@
             }
             break;
         case 0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEb(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             op1->sdword[0] = op2->sbyte[0];
             break;
         case 0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEw(emu, &op2, nextop);
             GetG(emu, &op1, nextop);
             op1->sdword[0] = op2->sword[0];
             break;
 
         case 0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEb(emu, &op1, nextop);
             GetGb(emu, &op2, nextop);
             tmp8u = add8(emu, op1->byte[0], op2->byte[0]);
@@ -620,7 +619,7 @@
             op1->byte[0] = tmp8u;
             break;
         case 0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             GetG(emu, &op2, nextop);
             tmp32u = add32(emu, op1->dword[0], op2->dword[0]);
@@ -628,7 +627,7 @@
             op1->dword[0] = tmp32u;
             break;
         case 0xC2:                      /* CMPPS Gx, Ex, Ib */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             tmp8u = Fetch8(emu);
@@ -652,7 +651,7 @@
             break;
 
         case 0xC6:                      /* SHUFPS Gx, Ex, Ib */
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEx(emu, &opx2, nextop);
             GetGx(emu, &opx1, nextop);
             tmp8u = Fetch8(emu);
@@ -667,7 +666,7 @@
             break;
         case 0xC7:                      /* CMPXCHG8B Gq */
             CHECK_FLAGS(emu);
-            R_EIP++;
+            nextop = Fetch8(emu);
             GetEd(emu, &op1, nextop);
             tmp32u = op1->dword[0];
             tmp32u2= op1->dword[1];

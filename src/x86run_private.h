@@ -55,9 +55,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = Fetch8(emu);
-            uintptr_t base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            if((sib&0x7)==5)
-                base = Fetch32(emu);
+            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[_AX+(sib&0x7)].dword[0]); // base
             base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
             *op = (reg32_t*)base;
             return;
@@ -67,7 +65,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
         }
         *op = (reg32_t*)(emu->regs[_AX+m].dword[0]);
         return;
-    } else if(m>=0x40 && m<=0x47) {
+    } else if(/*m>=0x40 &&*/ m<=0x47) {
         uintptr_t base;
         if(m==0x44) {
             uint8_t sib = Fetch8(emu);

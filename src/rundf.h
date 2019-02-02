@@ -1,4 +1,4 @@
-    R_EIP++;
+    nextop = Fetch8(emu);
     switch (nextop) {
     case 0xE0:  /* FNSTSW AX */
         emu->sw.f.F87_TOP = emu->top&7;

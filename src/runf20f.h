@@ -1,11 +1,8 @@
-    
-    opcode = (fetched>>16)&0xff;
-    R_EIP++;
-    nextop = (fetched>>24)&0xff;
+    opcode = Fetch8(emu);
     switch(opcode) {
 
     case 0x10:  /* MOVSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->q[0] = opx2->q[0];
@@ -15,14 +12,14 @@
         }
         break;
     case 0x11:  /* MOVSQ Ex, Gx */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx1, nextop);
         GetGx(emu, &opx2, nextop);
         opx1->q[0] = opx2->q[0];
         break;
 
     case 0x2A:  /* CVTSI2SD Gx, Ed */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEd(emu, &op2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] = op2->sdword[0];
@@ -30,60 +27,60 @@
 
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
     case 0x2D:  /* CVTSD2SI Gd, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetG(emu, &op1, nextop);
         op1->sdword[0] = opx2->d[0];
         break;
 
     case 0x51:  /* SQRTSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] = sqrt(opx2->d[0]);
         break;
 
     case 0x58:  /* ADDSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] += opx2->d[0];
         break;
     case 0x59:  /* MULSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] *= opx2->d[0];
         break;
 
     case 0x5A:  /* CVTSD2SS Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->f[0] = opx2->d[0];
         break;
 
     case 0x5C:  /* SUBSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] -= opx2->d[0];
         break;
     case 0x5D:  /* MINSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isless(opx2->d[0], opx1->d[0]))
             opx1->d[0] = opx2->d[0];
         break;
     case 0x5E:  /* DIVSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->d[0] /= opx2->d[0];
         break;
     case 0x5F:  /* MAXSD Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         if (isnan(opx1->d[0]) || isnan(opx2->d[0]) || isgreater(opx2->d[0], opx1->d[0]))
@@ -91,7 +88,7 @@
         break;
 
     case 0x70:  /* PSHUFLW Gx, Ex, Ib */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         tmp8u = Fetch8(emu);
@@ -107,7 +104,7 @@
         break;
 
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         tmp8u = Fetch8(emu);
@@ -129,14 +126,14 @@
         break;
 
     case 0xD6:  /* MOVDQ2Q Gm, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGm(emu, &opm1, nextop);
         opm1->q = opx2->q[0];
         break;
 
     case 0xE6:  /* CVTPD2DQ Gx, Ex */
-        R_EIP++;
+        nextop = Fetch8(emu);
         GetEx(emu, &opx2, nextop);
         GetGx(emu, &opx1, nextop);
         opx1->sd[0] = opx2->d[0];

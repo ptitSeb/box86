@@ -1,4 +1,4 @@
-    R_EIP++;
+    nextop = Fetch8(emu);
     switch (nextop) {
         case 0xC0:
         case 0xC1:
@@ -116,8 +116,7 @@
             case 0:     /* FLD ST0, Ed float */
                 GetEd(emu, &op2, nextop);
                 fpu_do_push(emu);
-                *(uint32_t*)&f = op2->dword[0];
-                ST0.d = f;
+                ST0.d = *(float*)op2;
                 break;
             case 2:     /* FST Ed, ST0 */
                 GetEd(emu, &op1, nextop);

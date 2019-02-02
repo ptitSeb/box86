@@ -1,4 +1,4 @@
-    R_EIP++;
+    nextop = Fetch8(emu);
     switch (nextop) {
     case 0xC1:  /* FADDP ST1, ST0 */
         ST(1).d += ST0.d;
