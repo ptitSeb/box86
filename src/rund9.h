@@ -74,7 +74,7 @@
             ST0.d = 1.0;
             break;
         case 0xF3:  /* FPATAN */
-            ST(1).d = atan2(ST(1).d, ST0.d);
+            ST1.d = atan2(ST1.d, ST0.d);
             fpu_do_pop(emu);
             break;
 
@@ -82,9 +82,8 @@
             ST0.d = sqrt(ST0.d);
             break;
         case 0xFB:  /* FSINCOS */
-            d = ST0.d;
             fpu_do_push(emu);
-            sincos(d, &ST(1).d, &ST0.d);
+            sincos(ST1.d, &ST1.d, &ST0.d);
             break;
         case 0xFC:  /* FRNDINT */
             ST0.d = fpu_round(emu, ST0.d);
