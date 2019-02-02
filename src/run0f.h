@@ -689,12 +689,7 @@
         case 0xCE:
         case 0xCF:                  /* BSWAP reg */
             tmp8s = opcode&7;
-            tmp8u = emu->regs[tmp8s].byte[0];
-            emu->regs[tmp8s].byte[0] = emu->regs[tmp8s].byte[3];
-            emu->regs[tmp8s].byte[3] = tmp8u;
-            tmp8u = emu->regs[tmp8s].byte[1];
-            emu->regs[tmp8s].byte[1] = emu->regs[tmp8s].byte[2];
-            emu->regs[tmp8s].byte[2] = tmp8u;
+            emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             break;
 
         default:

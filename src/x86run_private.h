@@ -55,7 +55,7 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
     if (m<=7) {
         if(m==0x4) {
             uint8_t sib = Fetch8(emu);
-            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[_AX+(sib&0x7)].dword[0]); // base
+            uintptr_t base = ((sib&0x7)==5)?Fetch32(emu):(emu->regs[(sib&0x7)].dword[0]); // base
             base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
             *op = (reg32_t*)base;
             return;
@@ -63,32 +63,18 @@ static inline void GetECommon(x86emu_t* emu, reg32_t **op, uint32_t m)
             *op = (reg32_t*)Fetch32(emu);
             return;
         }
-        *op = (reg32_t*)(emu->regs[_AX+m].dword[0]);
+        *op = (reg32_t*)(emu->regs[m].dword[0]);
         return;
-    } else if(/*m>=0x40 &&*/ m<=0x47) {
+    } else {
         uintptr_t base;
-        if(m==0x44) {
+        if((m&7)==4) {
             uint8_t sib = Fetch8(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            int32_t idx = emu->sbiidx[(sib>>3)&7]->sdword[0];
-            base += (idx << (sib>>6));
+            base = emu->regs[(sib&0x7)].dword[0]; // base
+            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
         } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
+            base = emu->regs[(m&0x7)].dword[0];
         }
-        base+=Fetch8s(emu);
-        *op = (reg32_t*)base;
-        return;
-    } else /*if(m>=0x80 && m<=0x87)*/ {
-        uintptr_t base;
-        if(m==0x84) {
-            uint8_t sib = Fetch8(emu);
-            base = emu->regs[_AX+(sib&0x7)].dword[0]; // base
-            int32_t idx = emu->sbiidx[(sib>>3)&7]->sdword[0];
-            base += (idx << (sib>>6));
-        } else {
-            base = emu->regs[_AX+(m&0x7)].dword[0];
-        }
-        base+=Fetch32s(emu);
+        base+=(m&0x80)?Fetch32s(emu):Fetch8s(emu);
         *op = (reg32_t*)base;
         return;
     }
@@ -99,7 +85,7 @@ static inline void GetEb(x86emu_t *emu, reg32_t **op, uint32_t v)
     uint32_t m = v&0xC7;    // filter Eb
     if(m>=0xC0) {
         int lowhigh = (m&4)>>2;
-         *op = (reg32_t *)(((char*)(&emu->regs[_AX+(m&0x03)]))+lowhigh);  //?
+         *op = (reg32_t *)(((char*)(&emu->regs[(m&0x03)]))+lowhigh);  //?
         return;
     } else GetECommon(emu, op, m);
 }
@@ -108,7 +94,7 @@ static inline void GetEd(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->regs[_AX+(m&0x07)];
+         *op = &emu->regs[(m&0x07)];
         return;
     } else GetECommon(emu, op, m);
 }
@@ -119,7 +105,7 @@ static inline void GetEw16(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         *op = &emu->regs[_AX+(m&0x07)];
+         *op = &emu->regs[(m&0x07)];
         return;
     } else {
         uint32_t base = 0;
@@ -165,7 +151,7 @@ static inline void GetEx(x86emu_t *emu, sse_regs_t **op, uint32_t v)
 
 static inline void GetG(x86emu_t *emu, reg32_t **op, uint32_t v)
 {
-    *op = &emu->regs[_AX+((v&0x38)>>3)];
+    *op = &emu->regs[((v&0x38)>>3)];
 }
 
 static inline void GetGb(x86emu_t *emu, reg32_t **op, uint32_t v)

@@ -101,9 +101,9 @@ _trace:
                 printf_log(LOG_NONE, "\n");
             }
         }
-    #define NEXT    emu->old_ip = R_EIP; goto _trace;
+    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto _trace;
 #else
-    #define NEXT    emu->old_ip = R_EIP; goto *baseopcodes[(opcode=Fetch8(emu))];
+    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=Fetch8(emu))];
 #endif
         opcode = Fetch8(emu);
         goto *baseopcodes[opcode];
@@ -503,7 +503,7 @@ _trace:
                 nextop = Fetch8(emu);
                 GetEd(emu, &op1, nextop);
                 GetG(emu, &op2, nextop);
-                op2->dword[0] = (uint32_t)&op1->dword[0];
+                op2->dword[0] = (uint32_t)op1;
                 NEXT;
 
             _0x8F:                      /* POP Ed */
