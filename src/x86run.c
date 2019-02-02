@@ -45,7 +45,7 @@ int Run(x86emu_t *emu)
 
 x86emurun:
     emu->quit = 0;
-    static void* baseopcodes[256] ={
+    static const void* baseopcodes[256] ={
     &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_default, &&_default,   //0x00-0x07
     &&_0x08_0,  &&_0x08_1,  &&_0x08_2,  &&_0x08_3,  &&_0x08_4,  &&_0x08_5,  &&_default, &&_0x0F,      //0x08-0x0F
     &&_0x10_0,  &&_0x10_1,  &&_0x10_2,  &&_0x10_3,  &&_0x10_4,  &&_0x10_5,  &&_default, &&_default,   //0x10-0x17
@@ -78,6 +78,41 @@ x86emurun:
     &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_default, &&_default, &&_default,
     &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_default, &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_default, &&_default, &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
+    };
+
+    static const void* opcodes0f[256] = {
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x00-0x07
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x08-0x0F
+    &&_0f_0x10, &&_0f_0x11, &&_0f_0x12, &&_0f_0x13, &&_0f_0x14, &&_0f_0x15, &&_0f_0x16, &&_0f_0x17, //0x10-0x17 
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x1F, //0x18-0x1F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x20-0x27
+    &&_0f_0x28, &&_0f_0x29, &&_0f_0x2A, &&_default, &&_0f_0x2C, &&_0f_0x2D, &&_0f_0x2E, &&_0f_0x2F, 
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x30-0x37
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x38-0x3F
+    &&_0f_0x40_0, &&_0f_0x40_1, &&_0f_0x40_2, &&_0f_0x40_3, &&_0f_0x40_4, &&_0f_0x40_5, &&_0f_0x40_6, &&_0f_0x40_7,
+    &&_0f_0x40_8, &&_0f_0x40_9, &&_0f_0x40_A, &&_0f_0x40_B, &&_0f_0x40_C, &&_0f_0x40_D, &&_0f_0x40_E, &&_0f_0x40_F,
+    &&_0f_0x50, &&_0f_0x51, &&_default, &&_default, &&_0f_0x54, &&_0f_0x55, &&_0f_0x56, &&_0f_0x57, //0x50-0x57
+    &&_0f_0x58, &&_0f_0x59, &&_0f_0x5A, &&_0f_0x5B, &&_0f_0x5C, &&_0f_0x5D, &&_0f_0x5E, &&_0f_0x5F, 
+    &&_0f_0x60, &&_0f_0x61, &&_0f_0x62, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x60-0x67
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x6F, //0x68-0x6F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x77, //0x70-0x77
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x7F, //0x78-0x7F
+    &&_0f_0x80_0, &&_0f_0x80_1, &&_0f_0x80_2, &&_0f_0x80_3, &&_0f_0x80_4, &&_0f_0x80_5, &&_0f_0x80_6, &&_0f_0x80_7,
+    &&_0f_0x80_8, &&_0f_0x80_9, &&_0f_0x80_A, &&_0f_0x80_B, &&_0f_0x80_C, &&_0f_0x80_D, &&_0f_0x80_E, &&_0f_0x80_F,
+    &&_0f_0x90_0, &&_0f_0x90_1, &&_0f_0x90_2, &&_0f_0x90_3, &&_0f_0x90_4, &&_0f_0x90_5, &&_0f_0x90_6, &&_0f_0x90_7,
+    &&_0f_0x90_8, &&_0f_0x90_9, &&_0f_0x90_A, &&_0f_0x90_B, &&_0f_0x90_C, &&_0f_0x90_D, &&_0f_0x90_E, &&_0f_0x90_F,
+    &&_default, &&_default, &&_0f_0xA2, &&_0f_0xA3, &&_0f_0xA4, &&_0f_0xA5, &&_default, &&_default, //0xA0-0xA7
+    &&_default, &&_default, &&_default, &&_0f_0xAB, &&_0f_0xAC, &&_0f_0xAD, &&_0f_0xAE, &&_0f_0xAF, 
+    &&_0f_0xB0, &&_0f_0xB1, &&_default, &&_0f_0xB3, &&_default, &&_default, &&_0f_0xB6, &&_0f_0xB7, 
+    &&_default, &&_default, &&_0f_0xBA, &&_0f_0xBB, &&_0f_0xBC, &&_0f_0xBD, &&_0f_0xBE, &&_0f_0xBF, 
+    &&_0f_0xC0, &&_0f_0xC1, &&_0f_0xC2, &&_default, &&_default, &&_default, &&_0f_0xC6, &&_0f_0xC7, 
+    &&_0f_0xC8, &&_0f_0xC9, &&_0f_0xCA, &&_0f_0xCB, &&_0f_0xCC, &&_0f_0xCD, &&_0f_0xCE, &&_0f_0xCF, //0xC8-0xCF
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD0-0xD7
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD8-0xDF
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xF0-0xF7
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default  //0xF8-0xFF
     };
 
     while (1)

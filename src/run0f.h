@@ -1,18 +1,19 @@
     opcode = F8;
-    switch(opcode) {
-        case 0x10:                      /* MOVUPS Gx,Ex */
+    goto *opcodes0f[opcode];
+
+        _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
-            break;
-        case 0x11:                      /* MOVUPS Ex,Gx */
+            NEXT;
+        _0f_0x11:                      /* MOVUPS Ex,Gx */
             nextop = F8;
             opx1=GetEx(emu, nextop);
             opx2=GetGx(emu, nextop);
             memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
-            break;
-        case 0x12:                      
+            NEXT;
+        _0f_0x12:                      
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -20,22 +21,22 @@
                 opx1->q[0] = opx2->q[1];
             else
                 opx1->q[0] = opx2->q[0];/* MOVLPS Gx,Ex */
-            break;
-        case 0x13:                      /* MOVLPS Ex,Gx */
+            NEXT;
+        _0f_0x13:                      /* MOVLPS Ex,Gx */
             nextop = F8;
             opx1=GetEx(emu, nextop);
             opx2=GetGx(emu, nextop);
             opx1->q[0] = opx2->q[0];
-            break;
-        case 0x14:                      /* UNPCKLPS Gx, Ex */
+            NEXT;
+        _0f_0x14:                      /* UNPCKLPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             opx1->ud[3] = opx2->ud[1];
             opx1->ud[2] = opx1->ud[1];
             opx1->ud[1] = opx2->ud[0];
-            break;
-        case 0x15:                      /* UNPCKHPS Gx, Ex */
+            NEXT;
+        _0f_0x15:                      /* UNPCKHPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -43,59 +44,59 @@
             opx1->ud[1] = opx2->ud[2];
             opx1->ud[2] = opx1->ud[3];
             opx1->ud[3] = opx2->ud[3];
-            break;
-        case 0x16:                      /* MOVHPS Ex,Gx */
+            NEXT;
+        _0f_0x16:                      /* MOVHPS Ex,Gx */
             nextop = F8;       /* MOVLHPS Ex,Gx */
             opx1=GetEx(emu, nextop);
             opx2=GetGx(emu, nextop);
             opx2->q[1] = opx1->q[0];
-            break;
-        case 0x17:                      /* MOVHPS Gx,Ex */
+            NEXT;
+        _0f_0x17:                      /* MOVHPS Gx,Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             opx2->q[0] = opx1->q[1];
-            break;
+            NEXT;
 
-        case 0x1F:                      /* NOP (multi-byte) */
+        _0f_0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             op1=GetEd(emu, nextop);
-            break;
+            NEXT;
 
-        case 0x28:                      /* MOVAPS Gx,Ex */
+        _0f_0x28:                      /* MOVAPS Gx,Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             opx1->q[0] = opx2->q[0];
             opx1->q[1] = opx2->q[1];
-            break;
-        case 0x29:                      /* MOVAPS Ex,Gx */
+            NEXT;
+        _0f_0x29:                      /* MOVAPS Ex,Gx */
             nextop = F8;
             opx1=GetEx(emu, nextop);
             opx2=GetGx(emu, nextop);
             opx1->q[0] = opx2->q[0];
             opx1->q[1] = opx2->q[1];
-            break;
-        case 0x2A:  /* CVTPI2PS Gx, Em */
+            NEXT;
+        _0f_0x2A:  /* CVTPI2PS Gx, Em */
             nextop = F8;
             opm2=GetEm(emu, nextop);
             opx1=GetGx(emu, nextop);
             opx1->f[0] = opm2->sd[0];
             opx1->f[1] = opm2->sd[1];
-            break;
+            NEXT;
 
-        case 0x2C:                      /* CVTTPS2PI Gm, Ex */
-        case 0x2D:                      /* CVTPS2PI Gm, Ex */
+        _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
+        _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opm1=GetGm(emu, nextop);
             opm1->sd[1] = opx2->f[1];
             opm1->sd[0] = opx2->f[0];
-            break;
-        case 0x2E:                      /* UCOMISS Gx, Ex */
+            NEXT;
+        _0f_0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
-        case 0x2F:                      /* COMISS Gx, Ex */
+        _0f_0x2F:                      /* COMISS Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
             opx1=GetEx(emu, nextop);
@@ -109,89 +110,89 @@
             } else {
                 SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
             }
-            break;
+            NEXT;
         
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
-        case BASE+0x0:                          \
+        _0f_##BASE##_0:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_OF))               \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x1:                          \
+            NEXT;                              \
+        _0f_##BASE##_1:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_OF))              \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x2:                          \
+            NEXT;                              \
+        _0f_##BASE##_2:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_CF))               \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x3:                          \
+            NEXT;                              \
+        _0f_##BASE##_3:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_CF))              \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x4:                          \
+            NEXT;                              \
+        _0f_##BASE##_4:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_ZF))               \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x5:                          \
+            NEXT;                              \
+        _0f_##BASE##_5:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_ZF))              \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x6:                          \
+            NEXT;                              \
+        _0f_##BASE##_6:                          \
             PREFIX                              \
             if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x7:                          \
+            NEXT;                              \
+        _0f_##BASE##_7:                          \
             PREFIX                              \
             if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x8:                          \
+            NEXT;                              \
+        _0f_##BASE##_8:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_SF))               \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0x9:                          \
+            NEXT;                              \
+        _0f_##BASE##_9:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_SF))              \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xA:                          \
+            NEXT;                              \
+        _0f_##BASE##_A:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_PF))               \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xB:                          \
+            NEXT;                              \
+        _0f_##BASE##_B:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_PF))              \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xC:                          \
+            NEXT;                              \
+        _0f_##BASE##_C:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xD:                          \
+            NEXT;                              \
+        _0f_##BASE##_D:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xE:                          \
+            NEXT;                              \
+        _0f_##BASE##_E:                          \
             PREFIX                              \
             if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
                 CONDITIONAL                     \
-            break;                              \
-        case BASE+0xF:                          \
+            NEXT;                              \
+        _0f_##BASE##_F:                          \
             PREFIX                              \
             if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
                 CONDITIONAL                     \
-            break;
+            NEXT;
 
         GOCOND(0x40
             , nextop = F8;
@@ -212,72 +213,72 @@
 
         #undef GOCOND
 
-        case 0x50:                      /* MOVMSKPS Gd, Ex */
+        _0f_0x50:                      /* MOVMSKPS Gd, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             op1=GetG(emu, nextop);
             op1->dword[0] = 0;
             for(int i=0; i<4; ++i)
                 op1->dword[0] |= ((opx2->ud[i]>>31)&1)<<i;
-            break;
-        case 0x51:                      /* SQRTPS Gx, Ex */
+            NEXT;
+        _0f_0x51:                      /* SQRTPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] = sqrtf(opx2->f[i]);
-            break;
+            NEXT;
 
-        case 0x54:                      /* ANDPS Gx, Ex */
+        _0f_0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] &= opx2->ud[i];
-            break;
-        case 0x55:                      /* ANDNPS Gx, Ex */
+            NEXT;
+        _0f_0x55:                      /* ANDNPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] = (~opx1->ud[i]) & opx2->ud[i];
-            break;
-        case 0x56:                      /* ORPS Gx, Ex */
+            NEXT;
+        _0f_0x56:                      /* ORPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] |= opx2->ud[i];
-            break;
-        case 0x57:                      /* XORPS Gx, Ex */
+            NEXT;
+        _0f_0x57:                      /* XORPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->ud[i] ^= opx2->ud[i];
-            break;
-        case 0x58:                      /* ADDPS Gx, Ex */
+            NEXT;
+        _0f_0x58:                      /* ADDPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] += opx2->f[i];
-            break;
-        case 0x59:                      /* MULPS Gx, Ex */
+            NEXT;
+        _0f_0x59:                      /* MULPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] *= opx2->f[i];
-            break;
-        case 0x5A:                      /* CVTPS2PD Gx, Ex */
+            NEXT;
+        _0f_0x5A:                      /* CVTPS2PD Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             opx1->d[1] = opx2->f[1];
             opx1->d[0] = opx2->f[0];
-            break;
-        case 0x5B:                      /* CVTDQ2PS Gx, Ex */
+            NEXT;
+        _0f_0x5B:                      /* CVTDQ2PS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -285,15 +286,15 @@
             opx1->f[1] = opx2->sd[1];
             opx1->f[2] = opx2->sd[2];
             opx1->f[3] = opx2->sd[3];
-            break;
-        case 0x5C:                      /* SUBPS Gx, Ex */
+            NEXT;
+        _0f_0x5C:                      /* SUBPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] -= opx2->f[i];
-            break;
-        case 0x5D:                      /* MINPS Gx, Ex */
+            NEXT;
+        _0f_0x5D:                      /* MINPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -301,15 +302,15 @@
                 if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isless(opx2->f[i], opx1->f[i]))
                     opx1->f[i] = opx2->f[i];
             }
-            break;
-        case 0x5E:                      /* DIVPS Gx, Ex */
+            NEXT;
+        _0f_0x5E:                      /* DIVPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
             for(int i=0; i<4; ++i)
                 opx1->f[i] /= opx2->f[i];
-            break;
-        case 0x5F:                      /* MAXPS Gx, Ex */
+            NEXT;
+        _0f_0x5F:                      /* MAXPS Gx, Ex */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -317,8 +318,8 @@
                 if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreater(opx2->f[i], opx1->f[i]))
                     opx1->f[i] = opx2->f[i];
             }
-            break;
-        case 0x60:                      /* PUNPCKLBW Gm, Em */
+            NEXT;
+        _0f_0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = F8;
             opm2=GetEm(emu, nextop);
             opm1=GetGm(emu, nextop);
@@ -329,41 +330,41 @@
             opm1->ub[3] = opm2->ub[1];
             opm1->ub[2] = opm1->ub[1];
             opm1->ub[1] = opm2->ub[0];
-            break;
-        case 0x61:                      /* PUNPCKLWD Gm, Em */
+            NEXT;
+        _0f_0x61:                      /* PUNPCKLWD Gm, Em */
             nextop = F8;
             opm2=GetEm(emu, nextop);
             opm1=GetGm(emu, nextop);
             opm1->uw[3] = opm2->uw[1];
             opm1->uw[2] = opm1->uw[1];
             opm1->uw[1] = opm2->uw[0];
-            break;
-        case 0x62:                      /* PUNPCKLDQ Gm, Em */
+            NEXT;
+        _0f_0x62:                      /* PUNPCKLDQ Gm, Em */
             nextop = F8;
             opm2=GetEm(emu, nextop);
             opm1=GetGm(emu, nextop);
             opm1->ud[1] = opm2->ud[0];
-            break;
+            NEXT;
 
-        case 0x6F:                      /* MOVQ Gm, Em */
+        _0f_0x6F:                      /* MOVQ Gm, Em */
             nextop = F8;
             opm2=GetEm(emu, nextop);
             opm1=GetGm(emu, nextop);
             opm1->q = opm2->q;
-            break;
+            NEXT;
 
-        case 0x77:                      /* EMMS */
+        _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable
-            break;
+            NEXT;
 
-        case 0x7F:                      /* MOVQ Em, Gm */
+        _0f_0x7F:                      /* MOVQ Em, Gm */
             nextop = F8;
             opm1=GetEm(emu, nextop);
             opm2=GetGm(emu, nextop);
             opm1->q = opm2->q;
-            break;
+            NEXT;
 
-        case 0xA2:                      /* CPUID */
+        _0f_0xA2:                      /* CPUID */
             tmp32u = R_EAX;
             switch(tmp32u) {
                 case 0x0:
@@ -395,8 +396,8 @@
                     printf_log(LOG_INFO, "Warning, CPUID command %X unsupported\n", tmp32u);
                     R_EAX = 0;
             }
-            break;
-        case 0xA3:                      /* BT Ed,Gd */
+            NEXT;
+        _0f_0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -411,17 +412,17 @@
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
-            break;
-        case 0xA4:                      /* SHLD Ed,Gd,Ib */
-        case 0xA5:                      /* SHLD Ed,Gd,CL */
+            NEXT;
+        _0f_0xA4:                      /* SHLD Ed,Gd,Ib */
+        _0f_0xA5:                      /* SHLD Ed,Gd,CL */
             nextop = F8;
             op1=GetEd(emu, nextop);
             op2=GetG(emu, nextop);
             tmp8u = (opcode==0xA4)?F8:R_CL;
             op1->dword[0] = shld32(emu, op1->dword[0], op2->dword[0], tmp8u);
-            break;
+            NEXT;
 
-        case 0xAB:                      /* BTS Ed,Gd */
+        _0f_0xAB:                      /* BTS Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -438,17 +439,17 @@
                 op1->dword[0] |= (1<<tmp8u);
                 CLEAR_FLAG(F_CF);
             }
-            break;
-        case 0xAC:                      /* SHRD Ed,Gd,Ib */
-        case 0xAD:                      /* SHRD Ed,Gd,CL */
+            NEXT;
+        _0f_0xAC:                      /* SHRD Ed,Gd,Ib */
+        _0f_0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = F8;
             op1=GetEd(emu, nextop);
             op2=GetG(emu, nextop);
             tmp8u = (opcode==0xAC)?F8:R_CL;
             op1->dword[0] = shrd32(emu, op1->dword[0], op2->dword[0], tmp8u);
-            break;
+            NEXT;
 
-        case 0xAE:                      /* Grp Ed (SSE) */
+        _0f_0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
             op1=GetEd(emu, nextop);
             switch((nextop>>3)&7) {
@@ -461,15 +462,15 @@
                 default:
                     UnimpOpcode(emu);
             }
-            break;
-        case 0xAF:                      /* IMUL Gd,Ed */
+            NEXT;
+        _0f_0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
             op2=GetEd(emu, nextop);
             op1=GetG(emu, nextop);
             op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
-            break;
+            NEXT;
 
-        case 0xB0:                      /* CMPXCHG Eb,Gb */
+        _0f_0xB0:                      /* CMPXCHG Eb,Gb */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEb(emu, nextop);
@@ -482,8 +483,8 @@
                 CLEAR_FLAG(F_ZF);
                 R_AL = op1->byte[0];
             }
-            break;
-        case 0xB1:                      /* CMPXCHG Ed,Gd */
+            NEXT;
+        _0f_0xB1:                      /* CMPXCHG Ed,Gd */
             nextop = F8;
             op1=GetEd(emu, nextop);
             op2=GetG(emu, nextop);
@@ -495,9 +496,9 @@
                 CLEAR_FLAG(F_ZF);
                 R_EAX = op1->dword[0];
             }
-            break;
+            NEXT;
 
-        case 0xB3:                      /* BTR Ed,Gd */
+        _0f_0xB3:                      /* BTR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -513,22 +514,22 @@
                 op1->dword[0] ^= (1<<tmp8u);
             } else
                 CLEAR_FLAG(F_CF);
-            break;
+            NEXT;
 
-        case 0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
+        _0f_0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
             nextop = F8;
             op2=GetEb(emu, nextop);
             op1=GetG(emu, nextop);
             op1->dword[0] = op2->byte[0];
-            break;
-        case 0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
+            NEXT;
+        _0f_0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
             nextop = F8;
             op2=GetEw(emu, nextop);
             op1=GetG(emu, nextop);
             op1->dword[0] = op2->word[0];
-            break;
+            NEXT;
 
-        case 0xBB:                      /* BTC Ed,Gd */
+        _0f_0xBB:                      /* BTC Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -544,9 +545,9 @@
             else
                 CLEAR_FLAG(F_CF);
             op1->dword[0] ^= (1<<tmp8u);
-            break;
+            NEXT;
 
-        case 0xBA:                      
+        _0f_0xBA:                      
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 4:                 /* BT Ed,Ib */
@@ -562,12 +563,12 @@
                         SET_FLAG(F_CF);
                     else
                         CLEAR_FLAG(F_CF);
-                    break;
+                    break;;
                 default:
                     UnimpOpcode(emu);
             }
-            break;
-        case 0xBC:                      /* BSF Ed,Gd */
+            NEXT;
+        _0f_0xBC:                      /* BSF Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -581,8 +582,8 @@
             } else {
                 SET_FLAG(F_ZF);
             }
-            break;
-        case 0xBD:                      /* BSR Ed,Gd */
+            NEXT;
+        _0f_0xBD:                      /* BSR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -596,37 +597,37 @@
             } else {
                 SET_FLAG(F_ZF);
             }
-            break;
-        case 0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
+            NEXT;
+        _0f_0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
             nextop = F8;
             op2=GetEb(emu, nextop);
             op1=GetG(emu, nextop);
             op1->sdword[0] = op2->sbyte[0];
-            break;
-        case 0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
+            NEXT;
+        _0f_0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
             nextop = F8;
             op2=GetEw(emu, nextop);
             op1=GetG(emu, nextop);
             op1->sdword[0] = op2->sword[0];
-            break;
+            NEXT;
 
-        case 0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
+        _0f_0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
             nextop = F8;
             op1=GetEb(emu, nextop);
             op2=GetGb(emu, nextop);
             tmp8u = add8(emu, op1->byte[0], op2->byte[0]);
             op2->byte[0] = op1->byte[0];
             op1->byte[0] = tmp8u;
-            break;
-        case 0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
+            NEXT;
+        _0f_0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
             nextop = F8;
             op1=GetEd(emu, nextop);
             op2=GetG(emu, nextop);
             tmp32u = add32(emu, op1->dword[0], op2->dword[0]);
             op2->dword[0] = op1->dword[0];
             op1->dword[0] = tmp32u;
-            break;
-        case 0xC2:                      /* CMPPS Gx, Ex, Ib */
+            NEXT;
+        _0f_0xC2:                      /* CMPPS Gx, Ex, Ib */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -648,9 +649,9 @@
                 else
                     opx1->ud[i] = 0;
             }
-            break;
+            NEXT;
 
-        case 0xC6:                      /* SHUFPS Gx, Ex, Ib */
+        _0f_0xC6:                      /* SHUFPS Gx, Ex, Ib */
             nextop = F8;
             opx2=GetEx(emu, nextop);
             opx1=GetGx(emu, nextop);
@@ -663,8 +664,8 @@
             }
             opx1->q[0] = eax1.q[0];
             opx1->q[1] = eax1.q[1];
-            break;
-        case 0xC7:                      /* CMPXCHG8B Gq */
+            NEXT;
+        _0f_0xC7:                      /* CMPXCHG8B Gq */
             CHECK_FLAGS(emu);
             nextop = F8;
             op1=GetEd(emu, nextop);
@@ -679,20 +680,16 @@
                 R_EAX = op1->dword[0];
                 R_EDX = op1->dword[1];
             }
-            break;
-        case 0xC8:
-        case 0xC9:
-        case 0xCA:
-        case 0xCB:
-        case 0xCC:
-        case 0xCD:
-        case 0xCE:
-        case 0xCF:                  /* BSWAP reg */
+            NEXT;
+        _0f_0xC8:
+        _0f_0xC9:
+        _0f_0xCA:
+        _0f_0xCB:
+        _0f_0xCC:
+        _0f_0xCD:
+        _0f_0xCE:
+        _0f_0xCF:                  /* BSWAP reg */
             tmp8s = opcode&7;
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
-            break;
+            NEXT;
 
-        default:
-            UnimpOpcode(emu);
-            goto fini;
-    }
