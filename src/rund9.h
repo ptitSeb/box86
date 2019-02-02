@@ -1,4 +1,4 @@
-    nextop = Fetch8(emu);
+    nextop = F8;
     switch (nextop) {
         case 0xC0:
         case 0xC1:
