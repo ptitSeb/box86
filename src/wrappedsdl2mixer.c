@@ -66,7 +66,7 @@ void EffectDoneCallback(int chan, void *udata)
     RunCallback(emu);
 }
 
-void EXPORT *my2_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
+EXPORT void* my2_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -76,7 +76,7 @@ void EXPORT *my2_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-void EXPORT *my2_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
+EXPORT void* my2_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
 {
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl1lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -85,7 +85,7 @@ void EXPORT *my2_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);  // this one never free the RWops
     return r;
 }
-void EXPORT *my2_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
+EXPORT void* my2_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
 {
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     SDL2RWSave_t save;
@@ -104,7 +104,7 @@ static void sdl2mixerPostCallback(void *userdata, uint8_t *stream, int32_t len)
     RunCallback(emu);
 }
 
-void EXPORT my2_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
+EXPORT void my2_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 {
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     // create a callback
