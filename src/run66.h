@@ -1,4 +1,4 @@
-    opcode = F8;
+    opcode = nextop;
     goto *opcodes66[opcode];
 
     #define GO(B, OP)                       \

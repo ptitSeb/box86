@@ -25,7 +25,6 @@ void Run66D9(x86emu_t *emu)
     double d;
     long double ld;
     int64_t ll;
-    ++R_EIP;    // eat the "D9"
     nextop = Fetch8(emu);
     switch (nextop) {
         case 0xC0:
@@ -100,7 +99,6 @@ void Run66DD(x86emu_t *emu)
     float f;
     double d;
     long double ld;
-    ++R_EIP;
     nextop = Fetch8(emu);
     switch(nextop) {
     
