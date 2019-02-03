@@ -218,20 +218,26 @@ _trace:
     #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=F8)];
 #endif
 
+// ModRM utilities macros
+#define getgb(A)    A = (reg32_t*)&emu->regs[((nextop&0x18)>>3)].byte[((nextop&0x20)>>5)]
+#define getgd(A)    A = &emu->regs[((nextop&0x38)>>3)]
+#define getgw(A)    getgd(A)
+#define getgm(A)    A = &emu->mmx[((nextop&0x38)>>3)]
+#define getgx(A)    A = &emu->xmm[((nextop&0x38)>>3)]
 // Macros for ModR/M gets
 #define GET_EB      op1=GetEb(emu, nextop)
 #define GET_ED      op1=GetEd(emu, nextop)
 #define GET_EM      opm1=GetEm(emu, nextop)
 #define GET_EX      opx1=GetEx(emu, nextop)
-#define GET_GBEB    op1=GetGb(emu, nextop); op2=GetEb(emu, nextop)
-#define GET_GDED    op1=GetG(emu, nextop); op2=GetEd(emu, nextop)
-#define GET_GDEB    op1=GetG(emu, nextop); op2=GetEb(emu, nextop)
-#define GET_GMEM    opm1=GetGm(emu, nextop); opm2=GetEm(emu, nextop)
-#define GET_GXEX    opx1=GetGx(emu, nextop); opx2=GetEx(emu, nextop)
-#define GET_GXEM    opx1=GetGx(emu, nextop); opm2=GetEm(emu, nextop)
-#define GET_GXED    opx1=GetGx(emu, nextop); op2=GetEd(emu, nextop)
-#define GET_GMEX    opm1=GetGm(emu, nextop); opx2=GetEx(emu, nextop)
-#define GET_GDEX    op1=GetG(emu, nextop); opx2=GetEx(emu, nextop)
+#define GET_GBEB    getgb(op1); op2=GetEb(emu, nextop)
+#define GET_GDED    getgd(op1); op2=GetEd(emu, nextop)
+#define GET_GDEB    getgd(op1); op2=GetEb(emu, nextop)
+#define GET_GMEM    getgm(opm1); opm2=GetEm(emu, nextop)
+#define GET_GXEX    getgx(opx1); opx2=GetEx(emu, nextop)
+#define GET_GXEM    getgx(opx1); opm2=GetEm(emu, nextop)
+#define GET_GXED    getgx(opx1); op2=GetEd(emu, nextop)
+#define GET_GMEX    getgm(opm1); opx2=GetEx(emu, nextop)
+#define GET_GDEX    getgd(op1); opx2=GetEx(emu, nextop)
 
 // Alias
 #define GET_EW      GET_ED
