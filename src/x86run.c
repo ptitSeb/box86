@@ -224,20 +224,60 @@ _trace:
 #define getgw(A)    getgd(A)
 #define getgm(A)    A = &emu->mmx[((nextop&0x38)>>3)]
 #define getgx(A)    A = &emu->xmm[((nextop&0x38)>>3)]
+#define getecommon(A, T) \
+    if(!(nextop&0xC0)) { \
+        if((nextop&7)==4) { \
+            uint8_t sib = F8; \
+            uintptr_t base = ((sib&0x7)==5)?F32:(emu->regs[(sib&0x7)].dword[0]); \
+            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6)); \
+            A = (T*)base; \
+        } else if((nextop&7)==5) { \
+            A = (T*)F32; \
+        } else { \
+            A = (T*)emu->regs[nextop&7].dword[0]; \
+        } \
+    } else { \
+        uintptr_t base; \
+        if((nextop&7)==4) { \
+            uint8_t sib = F8;   \
+            base = emu->regs[(sib&0x7)].dword[0]; \
+            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));   \
+        } else { \
+            base = emu->regs[(nextop&0x7)].dword[0];    \
+        } \
+        base+=(nextop&0x80)?F32S:F8S; \
+        A = (T*)base; \
+    }
+#define geteb(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
+    } else getecommon(A, reg32_t)
+#define geted(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->regs[(nextop&7)]; \
+    } else getecommon(A, reg32_t)
+#define getem(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->mmx[(nextop&7)]; \
+    } else getecommon(A, mmx_regs_t)
+#define getex(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->xmm[(nextop&7)]; \
+    } else getecommon(A, sse_regs_t)
 // Macros for ModR/M gets
-#define GET_EB      op1=GetEb(emu, nextop)
-#define GET_ED      op1=GetEd(emu, nextop)
-#define GET_EM      opm1=GetEm(emu, nextop)
-#define GET_EX      opx1=GetEx(emu, nextop)
-#define GET_GBEB    getgb(op1); op2=GetEb(emu, nextop)
-#define GET_GDED    getgd(op1); op2=GetEd(emu, nextop)
-#define GET_GDEB    getgd(op1); op2=GetEb(emu, nextop)
-#define GET_GMEM    getgm(opm1); opm2=GetEm(emu, nextop)
-#define GET_GXEX    getgx(opx1); opx2=GetEx(emu, nextop)
-#define GET_GXEM    getgx(opx1); opm2=GetEm(emu, nextop)
-#define GET_GXED    getgx(opx1); op2=GetEd(emu, nextop)
-#define GET_GMEX    getgm(opm1); opx2=GetEx(emu, nextop)
-#define GET_GDEX    getgd(op1); opx2=GetEx(emu, nextop)
+#define GET_EB      geteb(op1)
+#define GET_ED      geted(op1)
+#define GET_EM      getem(opm1)
+#define GET_EX      getex(opx1)
+#define GET_GBEB    getgb(op1); geteb(op2)
+#define GET_GDED    getgd(op1); geted(op2)
+#define GET_GDEB    getgd(op1); geteb(op2)
+#define GET_GMEM    getgm(opm1); getem(opm2)
+#define GET_GXEX    getgx(opx1); getex(opx2)
+#define GET_GXEM    getgx(opx1); getem(opm2)
+#define GET_GXED    getgx(opx1); geted(op2)
+#define GET_GMEX    getgm(opm1); getex(opx2)
+#define GET_GDEX    getgd(op1); getex(opx2)
 
 // Alias
 #define GET_EW      GET_ED
