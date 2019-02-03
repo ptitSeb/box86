@@ -47,21 +47,21 @@
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 fpu_do_push(emu);
                 ST0.ll = *(int64_t*)op1;
                 break;
             case 2: /* FST double */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 *(int64_t*)op1 = ST0.ll;
                 break;
             case 3: /* FSTP double */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 *(int64_t*)op1 = ST0.ll;
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 fpu_loadenv(emu, (char*)op1, 0);
                 // get the STx
                 {
@@ -74,7 +74,7 @@
                 }
                 break;
             case 6: /* FNSAVE m108byte */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 // ENV first...
                 // warning, incomplete
                 fpu_savenv(emu, (char*)op1, 0);
@@ -90,7 +90,6 @@
                 reset_fpu(emu);
                 break;
             default:
-                UnimpOpcode(emu);
-                goto fini;
+                goto _default;
         }
     }

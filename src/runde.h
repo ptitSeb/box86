@@ -94,7 +94,6 @@
     default:
         switch((nextop>>3)&7) {
         default:
-            UnimpOpcode(emu);
-            goto fini;
+            goto _default;
         }
     }

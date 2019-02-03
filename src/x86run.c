@@ -217,30 +217,53 @@ _trace:
 #else
     #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=F8)];
 #endif
+
+// Macros for ModR/M gets
+#define GET_EB      op1=GetEb(emu, nextop)
+#define GET_ED      op1=GetEd(emu, nextop)
+#define GET_EM      opm1=GetEm(emu, nextop)
+#define GET_EX      opx1=GetEx(emu, nextop)
+#define GET_GBEB    op1=GetGb(emu, nextop); op2=GetEb(emu, nextop)
+#define GET_GDED    op1=GetG(emu, nextop); op2=GetEd(emu, nextop)
+#define GET_GDEB    op1=GetG(emu, nextop); op2=GetEb(emu, nextop)
+#define GET_GMEM    opm1=GetGm(emu, nextop); opm2=GetEm(emu, nextop)
+#define GET_GXEX    opx1=GetGx(emu, nextop); opx2=GetEx(emu, nextop)
+#define GET_GXEM    opx1=GetGx(emu, nextop); opm2=GetEm(emu, nextop)
+#define GET_GXED    opx1=GetGx(emu, nextop); op2=GetEd(emu, nextop)
+#define GET_GMEX    opm1=GetGm(emu, nextop); opx2=GetEx(emu, nextop)
+#define GET_GDEX    op1=GetG(emu, nextop); opx2=GetEx(emu, nextop)
+
+// Alias
+#define GET_EW      GET_ED
+#define GET_GDEW    GET_GDED
+#define GET_GWEW    GET_GDED
+#define GET_GWEB    GET_GDEB
+#define GET_GWEX    GET_GDEX
+#define GET_GXEW    GET_GXED
+
+
         opcode = F8;
         goto *baseopcodes[opcode];
 
             #define GO(B, OP)                      \
             _##B##_0: \
                 nextop = F8;               \
-                op1=GetEb(emu, nextop);             \
-                op1->byte[0] = OP##8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);  \
+                GET_GBEB;             \
+                op2->byte[0] = OP##8(emu, op2->byte[0], op1->byte[0]);  \
                 NEXT;                              \
             _##B##_1: \
                 nextop = F8;               \
-                op1=GetEd(emu, nextop);             \
-                op1->dword[0] = OP##32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]); \
+                GET_GDED;             \
+                op2->dword[0] = OP##32(emu, op2->dword[0], op1->dword[0]); \
                 NEXT;                              \
             _##B##_2: \
                 nextop = F8;               \
-                op2=GetEb(emu, nextop);             \
-                op1=GetGb(emu, nextop);             \
+                GET_GBEB;                   \
                 op1->byte[0] = OP##8(emu, op1->byte[0], op2->byte[0]); \
                 NEXT;                              \
             _##B##_3: \
                 nextop = F8;               \
-                op2=GetEd(emu, nextop);     \
-                op1=GetG(emu, nextop);            \
+                GET_GDED;         \
                 op1->dword[0] = OP##32(emu, op1->dword[0], op2->dword[0]); \
                 NEXT;                              \
             _##B##_4: \
@@ -263,24 +286,22 @@ _trace:
             #undef GO
             _0x38:
                 nextop = F8;
-                op1=GetEb(emu, nextop);
-                cmp8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);
+                GET_GBEB;
+                cmp8(emu, op2->byte[0], op1->byte[0]);
                 NEXT;
             _0x39:
                 nextop = F8;
-                op1=GetEd(emu, nextop);
-                cmp32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]);
+                GET_GDED;
+                cmp32(emu, op2->dword[0], op1->dword[0]);
                 NEXT;
             _0x3A:
                 nextop = F8;
-                op2=GetEb(emu, nextop);
-                op1=GetGb(emu, nextop);
+                GET_GBEB;
                 cmp8(emu, op1->byte[0], op2->byte[0]);
                 NEXT;
             _0x3B:
                 nextop = F8;
-                op2=GetEd(emu, nextop);
-                op1=GetG(emu, nextop);
+                GET_GDED;
                 cmp32(emu, op1->dword[0], op2->dword[0]);
                 NEXT;
             _0x3C:
@@ -364,16 +385,14 @@ _trace:
                 switch(opcode) {
                     case 0x33:              /* XOR Gd,Ed */
                         nextop = F8;
-                        op2=GetEd(emu, nextop);
+                        GET_GDED;
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        op1 = GetG(emu, nextop);
                         op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
                         break;
                     case 0x8B:              /* MOV Gd,Ed */
                         nextop = F8;
-                        op2=GetEd(emu, nextop);
+                        GET_GDED;
                         op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        op1=GetG(emu, nextop);
                         op1->dword[0] = op2->dword[0];
                         break;
                     case 0xA1:              /* MOV EAX,Ov */
@@ -390,11 +409,11 @@ _trace:
                 nextop = F8;
                 if(nextop==0x0F) {
                     #include "run660f.h"
-                } else if(nextop==0xD9)
+                } else if(nextop==0xD9) {
                     Run66D9(emu);
-                else if(nextop==0xDD)
+                } else if(nextop==0xDD) {
                     Run66DD(emu);
-                else if(nextop==0x66) {
+                } else if(nextop==0x66) {
                     goto _0x66; // 0x66 0x66 => can remove one 0x66
                 } else {
                     #include "run66.h"
@@ -411,9 +430,9 @@ _trace:
                 NEXT;
             _0x69:                      /* IMUL Gd,Ed,Id */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_GDED;
                 tmp32u = F32;
-                GetG(emu, nextop)->dword[0] = imul32(emu, op1->dword[0], tmp32u);
+                op1->dword[0] = imul32(emu, op2->dword[0], tmp32u);
                 NEXT;
             _0x6A:                      /* Push Ib */
                 tmp32s = F8S;
@@ -421,9 +440,9 @@ _trace:
                 NEXT;
             _0x6B:                      /* IMUL Gd,Ed,Ib */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_GDED;
                 tmp32s = F8S;
-                GetG(emu, nextop)->dword[0] = imul32(emu, op1->dword[0], (uint32_t)tmp32s);
+                op1->dword[0] = imul32(emu, op2->dword[0], (uint32_t)tmp32s);
                 NEXT;
 
             #define GOCOND(BASE, PREFIX, CONDITIONAL) \
@@ -516,7 +535,7 @@ _trace:
             
             _0x80:                      /* GRP Eb,Ib */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 tmp8u = F8;
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = add8(emu, op1->byte[0], tmp8u); break;
@@ -532,7 +551,7 @@ _trace:
             _0x81:                      /* GRP Ed,Id */
             _0x83:                      /* GRP Ed,Ib */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 if(opcode==0x81) 
                     tmp32u = F32;
                 else {
@@ -552,65 +571,58 @@ _trace:
                 NEXT;
             _0x84:                      /* TEST Eb,Gb */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
-                test8(emu, op1->byte[0], GetGb(emu, nextop)->byte[0]);
+                GET_GBEB;
+                test8(emu, op2->byte[0], op1->byte[0]);
                 NEXT;
             _0x85:                      /* TEST Ed,Gd */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
-                test32(emu, op1->dword[0], GetG(emu, nextop)->dword[0]);
+                GET_GDED;
+                test32(emu, op2->dword[0], op1->dword[0]);
                 NEXT;
             _0x86:                      /* XCHG Eb,Gb */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
-                op2=GetGb(emu, nextop);
+                GET_GBEB;
                 tmp8u = op1->byte[0];
                 op1->byte[0] = op2->byte[0];
                 op2->byte[0] = tmp8u;
                 NEXT;
             _0x87:                      /* XCHG Ed,Gd */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
-                op2=GetG(emu, nextop);
+                GET_GDED;
                 tmp32u = op1->dword[0];
                 op1->dword[0] = op2->dword[0];
                 op2->dword[0] = tmp32u;
                 NEXT;
             _0x88:                      /* MOV Eb,Gb */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
-                op2=GetGb(emu, nextop);
-                op1->byte[0] = op2->byte[0];
+                GET_GBEB;
+                op2->byte[0] = op1->byte[0];
                 NEXT;
             _0x89:                      /* MOV Ed,Gd */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
-                op2=GetG(emu, nextop);
-                op1->dword[0] = op2->dword[0];
+                GET_GDED;
+                op2->dword[0] = op1->dword[0];
                 NEXT;
             _0x8A:                      /* MOV Gb,Eb */
                 nextop = F8;
-                op2=GetEb(emu, nextop);
-                op1=GetGb(emu, nextop);
+                GET_GBEB;
                 op1->byte[0] = op2->byte[0];
                 NEXT;
             _0x8B:                      /* MOV Gd,Ed */
                 nextop = F8;
-                op2=GetEd(emu, nextop);
-                op1=GetG(emu, nextop);
+                GET_GDED;
                 op1->dword[0] = op2->dword[0];
                 NEXT;
 
             _0x8D:                      /* LEA Gd,M */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
-                op2=GetG(emu, nextop);
-                op2->dword[0] = (uint32_t)op1;
+                GET_GDED;
+                op1->dword[0] = (uint32_t)op2;
                 NEXT;
 
             _0x8F:                      /* POP Ed */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 op1->dword[0] = Pop(emu);
                 NEXT;
             _0x90:                      /* NOP */
@@ -751,12 +763,12 @@ _trace:
             _0xBD:
             _0xBE:
             _0xBF:
-                emu->regs[opcode-0xB8].dword[0] = F32;
+                emu->regs[opcode&7].dword[0] = F32;
                 NEXT;
 
             _0xC0:                      /* GRP2 Eb,Ib */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
@@ -771,7 +783,7 @@ _trace:
                 NEXT;
             _0xC1:                      /* GRP2 Ed,Ib */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
@@ -795,12 +807,12 @@ _trace:
 
             _0xC6:                      /* MOV Eb,Ib */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 op1->byte[0] = F8;
                 NEXT;
             _0xC7:                      /* MOV Ed,Id */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 op1->dword[0] = F32;
                 NEXT;
 
@@ -829,7 +841,7 @@ _trace:
             _0xD1:                      /* GRP2 Ed,1 */
             _0xD3:                      /* GRP2 Ed,CL */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 tmp8u = (opcode==0xD1)?1:R_CL;
                 switch((nextop>>3)&7) {
                     case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
@@ -845,7 +857,7 @@ _trace:
             _0xD0:                      /* GRP2 Eb,1 */
             _0xD2:                      /* GRP2 Eb,CL */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 tmp8u = (opcode==0xD0)?1:R_CL;
                 switch((nextop>>3)&7) {
                     case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
@@ -1095,8 +1107,7 @@ _trace:
                             cmp32(emu, R_EAX, tmp32u2);
                             break;
                         default:
-                            UnimpOpcode(emu);
-                            goto fini;
+                            goto _default;
                     }
                     R_ECX = tmp32u;
                 }   // else(nextop==0x0F)
@@ -1104,7 +1115,7 @@ _trace:
             
             _0xF6:                      /* GRP3 Eb(,Ib) */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Eb,Ib */
@@ -1132,7 +1143,7 @@ _trace:
                 NEXT;
             _0xF7:                      /* GRP3 Ed(,Id) */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Ed,Id */
@@ -1176,7 +1187,7 @@ _trace:
                 NEXT;
             _0xFE:                      /* GRP 5 Eb */
                 nextop = F8;
-                op1=GetEb(emu, nextop);
+                GET_EB;
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Eb */
                         op1->byte[0] = inc8(emu, op1->byte[0]);
@@ -1193,7 +1204,7 @@ _trace:
                 NEXT;
             _0xFF:                      /* GRP 5 Ed */
                 nextop = F8;
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Ed */
                         op1->dword[0] = inc32(emu, op1->dword[0]);

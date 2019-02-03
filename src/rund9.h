@@ -113,35 +113,35 @@
         default:
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
-                op2=GetEd(emu, nextop);
+                GET_ED;
                 fpu_do_push(emu);
-                ST0.d = *(float*)op2;
+                ST0.d = *(float*)op1;
                 break;
             case 2:     /* FST Ed, ST0 */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 f = ST0.d;
                 op1->dword[0] = *(uint32_t*)&f;
                 break;
             case 3:     /* FSTP Ed, ST0 */
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 f = ST0.d;
                 op1->dword[0] = *(uint32_t*)&f;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 fpu_loadenv(emu, (char*)&op1->dword[0], 0);
                 break;
             case 5:     /* FLDCW Ew */
-                op1=GetEw(emu, nextop);
+                GET_EW;
                 emu->cw = op1->word[0];
                 // do something with cw?
                 emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                op1=GetEd(emu, nextop);
+                GET_ED;
                 fpu_savenv(emu, (char*)&op1->dword[0], 0);
                 op1->dword[0] = emu->cw;
                 op1->dword[1] = emu->sw.x16;
@@ -151,11 +151,10 @@
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
                 break;
             case 7: /* FNSTCW Ew */
-                op1=GetEw(emu, nextop);
+                GET_EW;
                 op1->word[0] = emu->cw;
                 break;
             default:
-                UnimpOpcode(emu);
-                goto fini;
+                goto _default;
         }
     }

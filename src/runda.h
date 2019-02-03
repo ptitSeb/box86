@@ -71,11 +71,10 @@
     default:
         switch((nextop>>3)&7) {
             case 1:     /* FIMUL ST0, Ed int */
-                op2=GetEd(emu, nextop);
-                ST0.d *= op2->sword[0];
+                GET_ED;
+                ST0.d *= op1->sword[0];
                 break;
             default:
-                UnimpOpcode(emu);
-                goto fini;
+                goto _default;
         }
     }

@@ -84,44 +84,44 @@
         default:
         switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d += f;
                 break;
             case 1:         /* FMUL ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d *= f;
                 break;
             case 2:      /* FCOM ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 fpu_fcom(emu, f);
                 break;
             case 3:     /* FCOMP */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 fpu_fcom(emu, f);
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d -= f;
                 break;
             case 5:         /* FSUBR ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d = f - ST0.d;
                 break;
             case 6:         /* FDIV ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d /= f;
                 break;
             case 7:         /* FDIVR ST0, float */
-                op2=GetEd(emu, nextop);
-                *(uint32_t*)&f = op2->dword[0];
+                GET_ED;
+                *(uint32_t*)&f = op1->dword[0];
                 ST0.d = f / ST0.d;
                 break;
             default:
