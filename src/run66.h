@@ -334,6 +334,8 @@
                 op1->word[0] = dec16(emu, op1->word[0]);
                 break;
             default:
+                emu->old_ip = old_ip;
+                R_EIP = ip;
                 printf_log(LOG_NONE, "Illegal Opcode 66 %02X %02X\n", opcode, nextop);
                 emu->quit=1;
                 emu->error |= ERR_ILLEGAL;

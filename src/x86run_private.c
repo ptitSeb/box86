@@ -49,7 +49,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     Push(emu, (uint32_t)emu->context->argc);
     PushExit(emu);
     R_EIP=(uint32_t)main;
-    printf_log(LOG_DEBUG, "Calling main(=>%p) from __libc_start_main\n", main);
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
     return 0;
 }
 

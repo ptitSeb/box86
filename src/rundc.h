@@ -85,44 +85,76 @@
         switch((nextop>>3)&7) {
         case 0:         /* FADD ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d += d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d += *(double*)op1;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d += d;
+            }
             break;
         case 1:         /* FMUL ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d *= d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d *= *(double*)op1;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d *= d;
+            }
             break;
         case 2:      /* FCOM ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            fpu_fcom(emu, d);
+            if(!(((uintptr_t)op1)&7))
+                fpu_fcom(emu, *(double*)op1);
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                fpu_fcom(emu, d);
+            }
             break;
         case 3:     /* FCOMP ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            fpu_fcom(emu, d);
+            if(!(((uintptr_t)op1)&7))
+                fpu_fcom(emu, *(double*)op1);
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                fpu_fcom(emu, d);
+            }
             fpu_do_pop(emu);
             break;
         case 4:         /* FSUB ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d -= d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d -= *(double*)op1;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d -= d;
+            }
             break;
         case 5:         /* FSUBR ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d = d - ST0.d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d = *(double*)op1 - ST0.d;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d = d - ST0.d;
+            }
             break;
         case 6:         /* FDIV ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d /= d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d /= *(double*)op1;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d /= d;
+            }
             break;
         case 7:         /* FDIVR ST0, double */
             GET_ED;
-            *(uint64_t*)&d = *(uint64_t*)op1;
-            ST0.d = d / ST0.d;
+            if(!(((uintptr_t)op1)&7))
+                ST0.d = *(double*)op1 / ST0.d;
+            else {
+                *(uint64_t*)&d = *(uint64_t*)op1;
+                ST0.d = d / ST0.d;
+            }
             break;
         default:
             goto _default;

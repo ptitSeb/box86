@@ -107,9 +107,7 @@
         case 0xF8:
         case 0xF9:
         case 0xFD:
-            UnimpOpcode(emu);
-            goto fini;
-            break;
+            goto _default;
         default:
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
@@ -119,13 +117,11 @@
                 break;
             case 2:     /* FST Ed, ST0 */
                 GET_ED;
-                f = ST0.d;
-                op1->dword[0] = *(uint32_t*)&f;
+                *(float*)op1 = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GET_ED;
-                f = ST0.d;
-                op1->dword[0] = *(uint32_t*)&f;
+                *(float*)op1 = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */

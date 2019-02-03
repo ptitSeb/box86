@@ -189,7 +189,7 @@
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
-            , R_EIP += tmp32s;
+            , ip += tmp32s;
         )                               /* 0x80 -> 0x8F Jxx */
         GOCOND(0x90
             , nextop = F8; CHECK_FLAGS(emu);

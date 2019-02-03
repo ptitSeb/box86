@@ -30,6 +30,7 @@ int Run(x86emu_t *emu)
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
+    uintptr_t ip, old_ip;
     double d;
     float f;
     int64_t ll;
@@ -37,15 +38,13 @@ int Run(x86emu_t *emu)
     mmx_regs_t *opm1, *opm2;
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
-#define F8      Fetch8(emu)
-#define F8S     Fetch8s(emu)
-#define F16     Fetch16(emu)
-#define F32     Fetch32(emu)
-#define F32S    Fetch32s(emu)
-#define PK(a)   (*(uint8_t*(R_EIP+a)))
+#define F8      *(uint8_t*)(ip++)
+#define F8S     *(int8_t*)(ip++)
+#define F16     *(uint16_t*)(ip+=2, ip-2)
+#define F32     *(uint32_t*)(ip+=4, ip-4)
+#define F32S    *(int32_t*)(ip+=4, ip-4)
+#define PK(a)   *(uint8_t*)(ip+a)
 
-x86emurun:
-    emu->quit = 0;
     static const void* baseopcodes[256] ={
     &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_default, &&_default,   //0x00-0x07
     &&_0x08_0,  &&_0x08_1,  &&_0x08_2,  &&_0x08_3,  &&_0x08_4,  &&_0x08_5,  &&_default, &&_0x0F,      //0x08-0x0F
@@ -186,24 +185,27 @@ x86emurun:
     &&_default, &&_default, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_default, &&_6f_0xFE, &&_default
     };
 
+x86emurun:
+    emu->quit = 0;
+    ip = R_EIP;
     while (1)
     {
 #ifdef HAVE_TRACE
 _trace:
-        emu->old_ip = R_EIP;
+        old_ip = ip;
         if(emu->dec && (
                 (emu->trace_end == 0) 
-             || ((R_EIP >= emu->trace_start) && (R_EIP < emu->trace_end))) ) {
-            printf_log(LOG_NONE, "%s", DumpCPURegs(emu));
+             || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
+            printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
             if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
-                uint32_t a = *(uint32_t*)(R_EIP+3);
+                uint32_t a = *(uint32_t*)(ip+3);
                 if(a==0) {
-                    printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)R_EIP);
+                    printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
                 } else {
-                    printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)R_EIP, (void*)a, GetNativeName(*(void**)(R_EIP+7)));
+                    printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+7)));
                 }
             } else {
-                printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, R_EIP));
+                printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
                 uint8_t peek = PK(0);
                 if(peek==0xC3 || peek==0xC2) {
                     printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
@@ -213,9 +215,9 @@ _trace:
                 printf_log(LOG_NONE, "\n");
             }
         }
-    #define NEXT    __builtin_prefetch((void*)R_EIP, 0, 2); goto _trace;
+    #define NEXT    __builtin_prefetch((void*)ip, 0, 2); goto _trace;
 #else
-    #define NEXT    emu->old_ip = R_EIP; __builtin_prefetch((void*)R_EIP, 0, 2); goto *baseopcodes[(opcode=F8)];
+    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 2); goto *baseopcodes[(opcode=F8)];
 #endif
 
 // ModRM utilities macros
@@ -447,8 +449,7 @@ _trace:
                         break;
 
                     default:
-                        UnimpOpcode(emu);
-                        goto fini;
+                        goto _default;
                 }
                 NEXT;
             _0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
@@ -456,9 +457,15 @@ _trace:
                 if(nextop==0x0F) {
                     #include "run660f.h"
                 } else if(nextop==0xD9) {
+                    emu->old_ip = old_ip;
+                    R_EIP = ip;
                     Run66D9(emu);
+                    ip = R_EIP;
                 } else if(nextop==0xDD) {
+                    emu->old_ip = old_ip;
+                    R_EIP = ip;
                     Run66DD(emu);
+                    ip = R_EIP;
                 } else if(nextop==0x66) {
                     goto _0x66; // 0x66 0x66 => can remove one 0x66
                 } else {
@@ -467,7 +474,10 @@ _trace:
                 if(emu->quit) goto fini;
                 NEXT;
             _0x67:                      /* Prefix to change width of intructions */
+                emu->old_ip = old_ip;
+                R_EIP = ip;
                 Run67(emu); // implemented in Run66.c
+                ip = R_EIP;
                 if(emu->quit) goto fini;
                 NEXT;
 
@@ -574,7 +584,7 @@ _trace:
                 NEXT;
             GOCOND(0x70
                 ,   tmp8s = F8S; CHECK_FLAGS(emu);
-                ,   R_EIP += (int8_t)tmp8s;
+                ,   ip += (int8_t)tmp8s;
                 )                           /* Jxx Ib */
             #undef GOCOND
 
@@ -598,9 +608,9 @@ _trace:
             _0x83:                      /* GRP Ed,Ib */
                 nextop = F8;
                 GET_ED;
-                if(opcode==0x81) 
+                if(opcode==0x81) {
                     tmp32u = F32;
-                else {
+                } else {
                     tmp32s = F8S;
                     tmp32u = *(uint32_t*)&tmp32s;
                 }
@@ -844,11 +854,11 @@ _trace:
                 NEXT;
             _0xC2:                      /* RETN Iw */
                 tmp16u = F16;
-                R_EIP = Pop(emu);
+                ip = Pop(emu);
                 R_ESP += tmp16u;
                 NEXT;
             _0xC3:                      /* RET */
-                R_EIP = Pop(emu);
+                ip = Pop(emu);
                 NEXT;
 
             _0xC6:                      /* MOV Eb,Ib */
@@ -868,16 +878,24 @@ _trace:
                 NEXT;
 
             _0xCC:                      /* INT 3 */
+                emu->old_ip = old_ip;
+                R_EIP = ip;
                 x86Int3(emu);
+                ip = R_EIP;
                 if(emu->quit) goto fini;
                 NEXT;
             _0xCD:                      /* INT Ib */
                 nextop = F8;
                 if(nextop == 0x80) {
+                    emu->old_ip = old_ip;
+                    R_EIP = ip;
                     x86Syscall(emu);
+                    ip = R_EIP;
                     if(emu->quit) goto fini;
                 } else {
                     printf_log(LOG_NONE, "Unsupported Int %02Xh\n", nextop);
+                    emu->old_ip = old_ip;
+                    R_EIP = ip;
                     emu->quit = 1;
                     emu->error |= ERR_UNIMPL;
                     goto fini;
@@ -959,40 +977,40 @@ _trace:
                 tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX && !ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp8s;
+                    ip += tmp8s;
                 NEXT;
             _0xE1:                      /* LOOPZ */
                 CHECK_FLAGS(emu);
                 tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX && ACCESS_FLAG(F_ZF))
-                    R_EIP += tmp8s;
+                    ip += tmp8s;
                 NEXT;
             _0xE2:                      /* LOOP */
                 tmp8s = F8S;
                 --R_ECX; // don't update flags
                 if(R_ECX)
-                    R_EIP += tmp8s;
+                    ip += tmp8s;
                 NEXT;
             _0xE3:                      /* JECXZ */
                 tmp8s = F8S;
                 if(!R_ECX)
-                    R_EIP += tmp8s;
+                    ip += tmp8s;
                 NEXT;
 
             _0xE8:                      /* CALL Id */
                 tmp32s = F32S; // call is relative
-                Push(emu, R_EIP);
-                R_EIP += tmp32s;
+                Push(emu, ip);
+                ip += tmp32s;
                 NEXT;
             _0xE9:                      /* JMP Id */
                 tmp32s = F32S; // jmp is relative
-                R_EIP += tmp32s;
+                ip += tmp32s;
                 NEXT;
 
             _0xEB:                      /* JMP Ib */
                 tmp32s = F8S; // jump is relative
-                R_EIP += tmp32s;
+                ip += tmp32s;
                 NEXT;
 
             _0xF0:                      /* LOCK */
@@ -1013,7 +1031,7 @@ _trace:
                     tmp32u = R_ECX;
                     switch(nextop) {
                         case 0xC3:              /* REPZ RET... yup */
-                            R_EIP = Pop(emu);
+                            ip = Pop(emu);
                             break;
                         case 0xA4:              /* REP MOVSB */
                             while(tmp32u) {
@@ -1242,6 +1260,8 @@ _trace:
                         op1->byte[0] = dec8(emu, op1->byte[0]);
                         break;
                     default:
+                        emu->old_ip = old_ip;
+                        R_EIP = ip;
                         printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
@@ -1259,33 +1279,37 @@ _trace:
                         op1->dword[0] = dec32(emu, op1->dword[0]);
                         break;
                     case 2:                 /* CALL NEAR Ed */
-                        Push(emu, R_EIP);
-                        R_EIP = op1->dword[0];
+                        Push(emu, ip);
+                        ip = op1->dword[0];
                         break;
                     case 3:                 /* CALL FAR Ed */
                         if(nextop>0xc0) {
+                            emu->old_ip = old_ip;
+                            R_EIP = ip;
                             printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                             emu->quit=1;
                             emu->error |= ERR_ILLEGAL;
                             goto fini;
                         } else {
                             Push16(emu, R_CS);
-                            Push(emu, R_EIP);
-                            R_EIP = op1->dword[0];
+                            Push(emu, ip);
+                            ip = op1->dword[0];
                             R_CS = (op1+1)->word[0];
                         }
                         break;
                     case 4:                 /* JMP NEAR Ed */
-                        R_EIP = op1->dword[0];
+                        ip = op1->dword[0];
                         break;
                     case 5:                 /* JMP FAR Ed */
                         if(nextop>0xc0) {
+                            emu->old_ip = old_ip;
+                            R_EIP = ip;
                             printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                             emu->quit=1;
                             emu->error |= ERR_ILLEGAL;
                             goto fini;
                         } else {
-                            R_EIP = op1->dword[0];
+                            ip = op1->dword[0];
                             R_CS = (op1+1)->word[0];
                         }
                         break;
@@ -1293,6 +1317,8 @@ _trace:
                         Push(emu, op1->dword[0]);
                         break;
                     default:
+                        emu->old_ip = old_ip;
+                        R_EIP = ip;
                         printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
@@ -1301,6 +1327,8 @@ _trace:
                 NEXT;
 
             _default:
+                emu->old_ip = old_ip;
+                R_EIP = ip;
                 UnimpOpcode(emu);
                 goto fini;
         }

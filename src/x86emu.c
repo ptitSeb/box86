@@ -239,7 +239,7 @@ void ResetFlags(x86emu_t *emu)
     emu->df = d_none;
 }
 
-const char* DumpCPURegs(x86emu_t* emu)
+const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
 {
     static char buff[800];
     char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
@@ -280,7 +280,7 @@ const char* DumpCPURegs(x86emu_t* emu)
             }
         }
     }
-    sprintf(tmp, "EIP=%08X ", R_EIP);
+    sprintf(tmp, "EIP=%08X ", ip);
     strcat(buff, tmp);
     return buff;
 }
@@ -290,7 +290,7 @@ void StopEmu(x86emu_t* emu, const char* reason)
     emu->quit = 1;
     printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
-    printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu));
+    printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu, R_EIP));
     // TODO: stack, memory/instruction around EIP, etc..
 }
 
