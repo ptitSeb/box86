@@ -115,6 +115,39 @@ x86emurun:
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default  //0xF8-0xFF
     };
 
+    static const void* opcodes66[256] = {
+    &&_default, &&_66_0x00_1, &&_default, &&_66_0x00_3, &&_default ,&&_66_0x00_5, &&_default, &&_default, //0x00-0x07
+    &&_default, &&_66_0x08_1, &&_default, &&_66_0x08_3, &&_default ,&&_66_0x08_5, &&_default, &&_default, //0x08-0x0F
+    &&_default, &&_66_0x10_1, &&_default, &&_66_0x10_3, &&_default ,&&_66_0x10_5, &&_default, &&_default, //0x10-0x17
+    &&_default, &&_66_0x18_1, &&_default, &&_66_0x18_3, &&_default ,&&_66_0x18_5, &&_default, &&_default, //0x18-0x1F
+    &&_default, &&_66_0x20_1, &&_default, &&_66_0x20_3, &&_default ,&&_66_0x20_5, &&_default, &&_default, //0x20-0x27
+    &&_default, &&_66_0x28_1, &&_default, &&_66_0x28_3, &&_default ,&&_66_0x28_5, &&_66_0x2E, &&_default, //0x28-0x2F
+    &&_default, &&_66_0x30_1, &&_default, &&_66_0x30_3, &&_default ,&&_66_0x30_5, &&_default, &&_default, //0x30-0x37
+    &&_default, &&_66_0x39, &&_default, &&_66_0x3B, &&_default, &&_66_0x3D, &&_default, &&_default, //0x38-0x3F
+    &&_66_0x40, &&_66_0x41, &&_66_0x42, &&_66_0x43, &&_66_0x44, &&_66_0x45, &&_66_0x46, &&_66_0x47, 
+    &&_66_0x48, &&_66_0x49, &&_66_0x4A, &&_66_0x4B, &&_66_0x4C, &&_66_0x4D, &&_66_0x4E, &&_66_0x4F, 
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x50-0x57
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x58-0x5F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x60-0x67
+    &&_default, &&_66_0x69, &&_default, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x70-0x77
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x78-0x7F
+    &&_default, &&_66_0x81, &&_default, &&_66_0x83, &&_default, &&_66_0x85, &&_default, &&_66_0x87, 
+    &&_default, &&_66_0x89, &&_default, &&_66_0x8B, &&_default, &&_default, &&_default, &&_66_0x8F, 
+    &&_66_0x90, &&_default, &&_66_0x92, &&_default, &&_default, &&_default, &&_default, &&_default, 
+    &&_66_0x98, &&_66_0x99, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, //0x98-0x9F
+    &&_default, &&_66_0xA1, &&_default, &&_66_0xA3, &&_default, &&_66_0xA5, &&_default, &&_66_0xA7, 
+    &&_default, &&_default, &&_default, &&_66_0xAB, &&_default, &&_66_0xAD, &&_default, &&_66_0xAF, //0xA8-0xAF
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xB0-0xB7
+    &&_66_0xB8, &&_66_0xB9, &&_66_0xBA, &&_66_0xBB, &&_66_0xBC, &&_66_0xBD, &&_66_0xBE, &&_66_0xBF, 
+    &&_default, &&_66_0xC1, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xC7, 
+    &&_default, &&_66_0xD1, &&_default, &&_66_0xD3, &&_default, &&_default, &&_default, &&_default, //0xD0-0xD8
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
+    &&_default, &&_default, &&_66_0xF2, &&_66_0xF3, &&_default, &&_default, &&_default, &&_66_0xF7, 
+    &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xFF
+    };
+
     while (1)
     {
 #ifdef HAVE_TRACE

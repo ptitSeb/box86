@@ -1,22 +1,22 @@
     opcode = F8;
-    switch(opcode) {
+    goto *opcodes66[opcode];
 
     #define GO(B, OP)                       \
-    case B+1:                               \
+    _66_##B##_1:                               \
         nextop = F8;               \
         op1=GetEw(emu, nextop);     \
         op2=GetG(emu, nextop);            \
         op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
-        break;                              \
-    case B+3:                               \
+        NEXT;                              \
+    _66_##B##_3:                               \
         nextop = F8;               \
         op2=GetEw(emu, nextop);     \
         op1=GetG(emu, nextop);            \
         op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
-        break;                              \
-    case B+5:                               \
+        NEXT;                              \
+    _66_##B##_5:                               \
         R_AX = OP##16(emu, R_AX, F16); \
-        break;
+        NEXT;
 
     GO(0x00, add)                   /* ADD 0x01 ~> 0x05 */
     GO(0x08, or)                    /*  OR 0x09 ~> 0x0D */
@@ -27,66 +27,66 @@
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
     //GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
     #undef GO
-    case 0x2E:                      /* CS: */
+    _66_0x2E:                      /* CS: */
         // ignored
-        break;
-    case 0x39:
+        NEXT;
+    _66_0x39:
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         cmp16(emu, op1->word[0], op2->word[0]);
-        break;
-    case 0x3B:
+        NEXT;
+    _66_0x3B:
         nextop = F8;
         op2=GetEw(emu, nextop);
         op1=GetG(emu, nextop);
         cmp16(emu, op1->word[0], op2->word[0]);
-        break;
-    case 0x3D:
+        NEXT;
+    _66_0x3D:
         cmp16(emu, R_AX, F16);
-        break;
+        NEXT;
     
-    case 0x40:
-    case 0x41:
-    case 0x42:
-    case 0x43:
-    case 0x44:
-    case 0x45:
-    case 0x46:
-    case 0x47:                              /* INC Reg */
+    _66_0x40:
+    _66_0x41:
+    _66_0x42:
+    _66_0x43:
+    _66_0x44:
+    _66_0x45:
+    _66_0x46:
+    _66_0x47:                              /* INC Reg */
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = inc16(emu, emu->regs[tmp8u].word[0]);
-        break;
-    case 0x48:
-    case 0x49:
-    case 0x4A:
-    case 0x4B:
-    case 0x4C:
-    case 0x4D:
-    case 0x4E:
-    case 0x4F:                              /* DEC Reg */
+        NEXT;
+    _66_0x48:
+    _66_0x49:
+    _66_0x4A:
+    _66_0x4B:
+    _66_0x4C:
+    _66_0x4D:
+    _66_0x4E:
+    _66_0x4F:                              /* DEC Reg */
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
-        break;
+        NEXT;
 
-    case 0x69:                      /* IMUL Gw,Ew,Iw */
+    _66_0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         tmp16u = F16;
         op2->word[0] = imul16(emu, op1->word[0], tmp16u);
-        break;
+        NEXT;
 
-    case 0x6B:                      /* IMUL Gw,Ew,Ib */
+    _66_0x6B:                      /* IMUL Gw,Ew,Ib */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         tmp16s = F8S;
         op2->word[0] = imul16(emu, op1->word[0], (uint16_t)tmp16s);
-        break;
+        NEXT;
 
-    case 0x81:                              /* GRP3 Ew,Iw */
-    case 0x83:                              /* GRP3 Ew,Ib */
+    _66_0x81:                              /* GRP3 Ew,Iw */
+    _66_0x83:                              /* GRP3 Ew,Ib */
         nextop = F8;
         op1=GetEd(emu, nextop);
         if(opcode==0x81) 
@@ -105,111 +105,111 @@
             case 6: op1->word[0] = xor16(emu, op1->word[0], tmp16u); break;
             case 7:                cmp16(emu, op1->word[0], tmp16u); break;
         }
-        break;
+        NEXT;
 
-    case 0x85:                              /* TEST Ew,Gw */
+    _66_0x85:                              /* TEST Ew,Gw */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         test16(emu, op1->word[0], op2->word[0]);
-        break;
+        NEXT;
 
-    case 0x87:                              /* XCHG Ew,Gw */
+    _66_0x87:                              /* XCHG Ew,Gw */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         tmp16u = op1->word[0];
         op1->word[0] = op2->word[0];
         op2->word[0] = tmp16u;
-        break;
+        NEXT;
 
-    case 0x89:                              /* MOV Ew,Gw */
+    _66_0x89:                              /* MOV Ew,Gw */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op2=GetG(emu, nextop);
         op1->word[0] = op2->word[0];
-        break;
+        NEXT;
 
-    case 0x8B:                              /* MOV Gw,Ew */
+    _66_0x8B:                              /* MOV Gw,Ew */
         nextop = F8;
         op2=GetEw(emu, nextop);
         op1=GetG(emu, nextop);
         op1->word[0] = op2->word[0];
-        break;
+        NEXT;
     
-    case 0x8F:                              /* POP Ew */
+    _66_0x8F:                              /* POP Ew */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op1->dword[0] = Pop16(emu);
-        break;
-    case 0x90:                              /* NOP */
-        break;
+        NEXT;
+    _66_0x90:                              /* NOP */
+        NEXT;
 
-    case 0x92:                              /* XCHG DX,AX */
+    _66_0x92:                              /* XCHG DX,AX */
         tmp16u = R_AX;
         R_AX = R_DX;
         R_DX = tmp16u;
-        break;
+        NEXT;
 
-    case 0x98:                              /* CBW */
+    _66_0x98:                              /* CBW */
         *(int16_t*)&R_AX = (int8_t)R_AL;
-        break;
-    case 0x99:                              /* CWD */
+        NEXT;
+    _66_0x99:                              /* CWD */
         if(R_AX & 0x8000)
             R_DX=0xFFFF;
         else
             R_DX=0x0000;
-        break;
+        NEXT;
 
-    case 0xA1:                              /* MOV AX,Ow */
+    _66_0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)Fetch32(emu);
-        break;
-    case 0xA3:                              /* MOV Ow,AX */
+        NEXT;
+    _66_0xA3:                              /* MOV Ow,AX */
         *(uint16_t*)Fetch32(emu) = R_AX;
-        break;
-    case 0xA5:                              /* MOVSW */
+        NEXT;
+    _66_0xA5:                              /* MOVSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
         R_EDI += tmp8s;
         R_ESI += tmp8s;
-        break;
+        NEXT;
 
-    case 0xA7:                              /* CMPSW */
+    _66_0xA7:                              /* CMPSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         tmp16u  = *(uint16_t*)R_EDI;
         tmp16u2 = *(uint16_t*)R_ESI;
         R_EDI += tmp8s;
         R_ESI += tmp8s;
         cmp16(emu, tmp16u2, tmp16u);
-        break;
-    case 0xAB:                              /* STOSW */
+        NEXT;
+    _66_0xAB:                              /* STOSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         *(uint16_t*)R_EDI = R_AX;
         R_EDI += tmp8s;
-        break;
-    case 0xAD:                              /* LODSW */
+        NEXT;
+    _66_0xAD:                              /* LODSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         R_AX = *(uint16_t*)R_ESI;
         R_ESI += tmp8s;
-        break;
-    case 0xAF:                              /* SCASW */
+        NEXT;
+    _66_0xAF:                              /* SCASW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         cmp16(emu, R_AX, *(uint16_t*)R_EDI);
         R_EDI += tmp8s;
-        break;
+        NEXT;
 
-    case 0xB8:                              /* MOV AX,Iw */
-    case 0xB9:                              /* MOV CX,Iw */
-    case 0xBA:                              /* MOV DX,Iw */
-    case 0xBB:                              /* MOV BX,Iw */
-    case 0xBC:                              /*    ...     */
-    case 0xBD:
-    case 0xBE:
-    case 0xBF:
+    _66_0xB8:                              /* MOV AX,Iw */
+    _66_0xB9:                              /* MOV CX,Iw */
+    _66_0xBA:                              /* MOV DX,Iw */
+    _66_0xBB:                              /* MOV BX,Iw */
+    _66_0xBC:                              /*    ...     */
+    _66_0xBD:
+    _66_0xBE:
+    _66_0xBF:
         emu->regs[opcode-0xB8].word[0] = F16;
-        break;
+        NEXT;
 
-    case 0xC1:                              /* GRP2 Ew,Ib */
+    _66_0xC1:                              /* GRP2 Ew,Ib */
         nextop = F8;
         op1=GetEw(emu, nextop);
         tmp8u = F8 /*& 0x1f*/;
@@ -223,16 +223,16 @@
             case 5: op1->word[0] = shr16(emu, op1->word[0], tmp8u); break;
             case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
         }
-        break;
+        NEXT;
 
-    case 0xC7:                              /* MOV Ew,Iw */
+    _66_0xC7:                              /* MOV Ew,Iw */
         nextop = F8;
         op1=GetEw(emu, nextop);
         op1->word[0] = F16;
-        break;
+        NEXT;
 
-    case 0xD1:                              /* GRP2 Ew,1  */
-    case 0xD3:                              /* GRP2 Ew,CL */
+    _66_0xD1:                              /* GRP2 Ew,1  */
+    _66_0xD3:                              /* GRP2 Ew,CL */
         nextop = F8;
         op1=GetEw(emu, nextop);
         tmp8u=(opcode==0xD3)?R_CL:1;
@@ -246,10 +246,10 @@
             case 5: op1->word[0] = shr16(emu, op1->word[0], tmp8u); break;
             case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
         }
-        break;
+        NEXT;
 
-        case 0xF2:                      /* REPNZ prefix */
-        case 0xF3:                      /* REPZ prefix */
+        _66_0xF2:                      /* REPNZ prefix */
+        _66_0xF3:                      /* REPZ prefix */
             nextop = F8;
             tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
             tmp32u = R_ECX;
@@ -299,13 +299,12 @@
                     cmp16(emu, R_AX, tmp16u);
                     break;
                 default:
-                    UnimpOpcode(emu);
-                    goto fini;
+                    goto _default;
             }
             R_ECX = tmp32u;
-            break;
+            NEXT;
 
-    case 0xF7:                      /* GRP3 Ew(,Iw) */
+    _66_0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
         op1=GetEw(emu, nextop);
         switch((nextop>>3)&7) {
@@ -332,9 +331,9 @@
                 idiv16(emu, op1->word[0]);
                 break;
         }
-        break;
+        NEXT;
 
-    case 0xFF:                      /* GRP 5 Ew */
+    _66_0xFF:                      /* GRP 5 Ew */
         nextop = F8;
         op1=GetEw(emu, nextop);
         switch((nextop>>3)&7) {
@@ -350,11 +349,7 @@
                 emu->error |= ERR_ILLEGAL;
                 goto fini;
         }
-        break;
+        NEXT;
                 
-    default:
-        UnimpOpcode(emu);
-        goto fini;
-    }
 
 
