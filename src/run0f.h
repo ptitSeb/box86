@@ -460,7 +460,7 @@
                     op1->dword[0] = emu->mxcsr;
                     break;
                 default:
-                    UnimpOpcode(emu);
+                    goto _default;
             }
             NEXT;
         _0f_0xAF:                      /* IMUL Gd,Ed */
@@ -565,7 +565,7 @@
                         CLEAR_FLAG(F_CF);
                     break;;
                 default:
-                    UnimpOpcode(emu);
+                    goto _default;
             }
             NEXT;
         _0f_0xBC:                      /* BSF Ed,Gd */
@@ -640,8 +640,8 @@
                     case 2: tmp8s=islessequal(opx1->f[i], opx2->f[i]); break;
                     case 3: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]); break;
                     case 4: tmp8s=(opx1->f[i] != opx2->f[i]); break;
-                    case 5: tmp8s=isgreaterequal(opx1->f[i], opx2->f[i]); break;
-                    case 6: tmp8s=isgreater(opx1->f[i], opx2->f[i]); break;
+                    case 5: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreaterequal(opx1->f[i], opx2->f[i]); break;
+                    case 6: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreater(opx1->f[i], opx2->f[i]); break;
                     case 7: tmp8s=!isnan(opx1->f[i]) && !isnan(opx2->f[i]); break;
                 }
                 if(tmp8s)

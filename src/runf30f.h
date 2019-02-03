@@ -144,8 +144,8 @@
             case 2: tmp8s=islessequal(opx1->f[0], opx2->f[0]); break;
             case 3: tmp8s=isnan(opx1->f[0]) || isnan(opx2->f[0]); break;
             case 4: tmp8s=(opx1->f[0] != opx2->f[0]); break;
-            case 5: tmp8s=isgreaterequal(opx1->f[0], opx2->f[0]); break;
-            case 6: tmp8s=isgreater(opx1->f[0], opx2->f[0]); break;
+            case 5: tmp8s=isnan(opx1->f[0]) || isnan(opx2->f[0]) || isgreaterequal(opx1->f[0], opx2->f[0]); break;
+            case 6: tmp8s=isnan(opx1->f[0]) || isnan(opx2->f[0]) || isgreater(opx1->f[0], opx2->f[0]); break;
             case 7: tmp8s=!isnan(opx1->f[0]) && !isnan(opx2->f[0]); break;
         }
         if(tmp8s)

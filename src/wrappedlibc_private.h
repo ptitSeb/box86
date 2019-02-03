@@ -644,7 +644,7 @@ GO(hstrerror, pFi)
 // in6addr_any  // type R
 // in6addr_loopback // type R
 // inb  // Weak
-// index    // Weak
+GOW(index, pFpi)
 // inet6_opt_append
 // inet6_opt_find
 // inet6_opt_finish
@@ -1369,7 +1369,7 @@ GO(rewind, vFp)
 // rexec
 // rexec_af
 // rexecoptions // type B
-// rindex   // Weak
+GOW(rindex, pFpi)
 GOW(rmdir, iFp)
 GO(readdir64_r, iFppp)  // is this present?
 // rpc_createerr    // type B
