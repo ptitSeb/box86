@@ -42,6 +42,7 @@ int Run(x86emu_t *emu)
 #define F16     Fetch16(emu)
 #define F32     Fetch32(emu)
 #define F32S    Fetch32s(emu)
+#define PK(a)   (*(uint8_t*(R_EIP+a)))
 
 x86emurun:
     emu->quit = 0;
@@ -194,7 +195,7 @@ _trace:
                 (emu->trace_end == 0) 
              || ((R_EIP >= emu->trace_start) && (R_EIP < emu->trace_end))) ) {
             printf_log(LOG_NONE, "%s", DumpCPURegs(emu));
-            if(Peek(emu, 0)==0xcc && Peek(emu, 1)=='S' && Peek(emu, 2)=='C') {
+            if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
                 uint32_t a = *(uint32_t*)(R_EIP+3);
                 if(a==0) {
                     printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)R_EIP);
@@ -203,7 +204,7 @@ _trace:
                 }
             } else {
                 printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, R_EIP));
-                uint8_t peek = Peek(emu, 0);
+                uint8_t peek = PK(0);
                 if(peek==0xC3 || peek==0xC2) {
                     printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
                 } else if(peek==0x55) {
