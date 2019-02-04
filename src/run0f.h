@@ -3,51 +3,51 @@
 
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
-            GET_GXEX;
-            memcpy(opx1, opx2, sizeof(sse_regs_t)); // unaligned, so carreful
+            GET_EX;
+            memcpy(&GX, EX, sizeof(sse_regs_t)); // unaligned, so carreful
             NEXT;
         _0f_0x11:                      /* MOVUPS Ex,Gx */
             nextop = F8;
-            GET_GXEX;
-            memcpy(opx2, opx1, sizeof(sse_regs_t)); // unaligned, so carreful
+            GET_EX;
+            memcpy(EX, &GX, sizeof(sse_regs_t)); // unaligned, so carreful
             NEXT;
         _0f_0x12:                      
             nextop = F8;
-            GET_GXEX;
-            if((nextop&0xf8)==0xc0)     /* MOVHLPS Gx,Ex */
-                opx1->q[0] = opx2->q[1];
+            GET_EX;
+            if((nextop&0xC0)==0xC0)     /* MOVHLPS Gx,Ex */
+                GX.q[0] = EX->q[1];
             else
-                opx1->q[0] = opx2->q[0];/* MOVLPS Gx,Ex */
+                GX.q[0] = EX->q[0];/* MOVLPS Gx,Ex */
             NEXT;
         _0f_0x13:                      /* MOVLPS Ex,Gx */
             nextop = F8;
-            GET_GXEX;
-            opx2->q[0] = opx1->q[0];
+            GET_EX;
+            EX->q[0] = GX.q[0];
             NEXT;
         _0f_0x14:                      /* UNPCKLPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
-            opx1->ud[3] = opx2->ud[1];
-            opx1->ud[2] = opx1->ud[1];
-            opx1->ud[1] = opx2->ud[0];
+            GET_EX;
+            GX.ud[3] = EX->ud[1];
+            GX.ud[2] = GX.ud[1];
+            GX.ud[1] = EX->ud[0];
             NEXT;
         _0f_0x15:                      /* UNPCKHPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
-            opx1->ud[0] = opx1->ud[2];
-            opx1->ud[1] = opx2->ud[2];
-            opx1->ud[2] = opx1->ud[3];
-            opx1->ud[3] = opx2->ud[3];
+            GET_EX;
+            GX.ud[0] = GX.ud[2];
+            GX.ud[1] = EX->ud[2];
+            GX.ud[2] = GX.ud[3];
+            GX.ud[3] = EX->ud[3];
             NEXT;
         _0f_0x16:                      /* MOVHPS Ex,Gx */
             nextop = F8;       /* MOVLHPS Ex,Gx */
-            GET_GXEX;
-            opx1->q[1] = opx2->q[0];
+            GET_EX;
+            GX.q[1] = EX->q[0];
             NEXT;
         _0f_0x17:                      /* MOVHPS Gx,Ex */
             nextop = F8;
-            GET_GXEX;
-            opx2->q[0] = opx1->q[1];
+            GET_EX;
+            EX->q[0] = GX.q[1];
             NEXT;
 
         _0f_0x1F:                      /* NOP (multi-byte) */
@@ -57,42 +57,42 @@
 
         _0f_0x28:                      /* MOVAPS Gx,Ex */
             nextop = F8;
-            GET_GXEX;
-            opx1->q[0] = opx2->q[0];
-            opx1->q[1] = opx2->q[1];
+            GET_EX;
+            GX.q[0] = EX->q[0];
+            GX.q[1] = EX->q[1];
             NEXT;
         _0f_0x29:                      /* MOVAPS Ex,Gx */
             nextop = F8;
-            GET_GXEX;
-            opx2->q[0] = opx1->q[0];
-            opx2->q[1] = opx1->q[1];
+            GET_EX;
+            EX->q[0] = GX.q[0];
+            EX->q[1] = GX.q[1];
             NEXT;
         _0f_0x2A:  /* CVTPI2PS Gx, Em */
             nextop = F8;
-            GET_GXEM;
-            opx1->f[0] = opm2->sd[0];
-            opx1->f[1] = opm2->sd[1];
+            GET_EM;
+            GX.f[0] = EM->sd[0];
+            GX.f[1] = EM->sd[1];
             NEXT;
 
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
         _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done
             nextop = F8;
-            GET_GMEX;
-            opm1->sd[1] = opx2->f[1];
-            opm1->sd[0] = opx2->f[0];
+            GET_EX;
+            GM.sd[1] = EX->f[1];
+            GM.sd[0] = EX->f[0];
             NEXT;
         _0f_0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
         _0f_0x2F:                      /* COMISS Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
-            GET_GXEX;
-            if(isnan(opx1->f[0]) || isnan(opx2->f[0])) {
+            GET_EX;
+            if(isnan(GX.f[0]) || isnan(EX->f[0])) {
                 SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
-            } else if(isgreater(opx1->f[0], opx2->f[0])) {
+            } else if(isgreater(GX.f[0], EX->f[0])) {
                 CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-            } else if(isless(opx1->f[0], opx2->f[0])) {
+            } else if(isless(GX.f[0], EX->f[0])) {
                 CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
             } else {
                 SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
@@ -183,9 +183,9 @@
 
         GOCOND(0x40
             , nextop = F8;
-            GET_GDED;
+            GET_ED;
             CHECK_FLAGS(emu);
-            , op1->dword[0] = op2->dword[0];
+            , GD.dword[0] = ED->dword[0];
         )                               /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
@@ -194,131 +194,131 @@
         GOCOND(0x90
             , nextop = F8; CHECK_FLAGS(emu);
             GET_EB;
-            , op1->byte[0]=1; else op1->byte[0]=0;
+            , EB->byte[0]=1; else EB->byte[0]=0;
         )                               /* 0x90 -> 0x9F SETxx Eb */
 
         #undef GOCOND
 
         _0f_0x50:                      /* MOVMSKPS Gd, Ex */
             nextop = F8;
-            GET_GDEX;
-            op1->dword[0] = 0;
+            GET_EX;
+            GD.dword[0] = 0;
             for(int i=0; i<4; ++i)
-                op1->dword[0] |= ((opx2->ud[i]>>31)&1)<<i;
+                GD.dword[0] |= ((EX->ud[i]>>31)&1)<<i;
             NEXT;
         _0f_0x51:                      /* SQRTPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->f[i] = sqrtf(opx2->f[i]);
+                GX.f[i] = sqrtf(EX->f[i]);
             NEXT;
 
         _0f_0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->ud[i] &= opx2->ud[i];
+                GX.ud[i] &= EX->ud[i];
             NEXT;
         _0f_0x55:                      /* ANDNPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->ud[i] = (~opx1->ud[i]) & opx2->ud[i];
+                GX.ud[i] = (~GX.ud[i]) & EX->ud[i];
             NEXT;
         _0f_0x56:                      /* ORPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->ud[i] |= opx2->ud[i];
+                GX.ud[i] |= EX->ud[i];
             NEXT;
         _0f_0x57:                      /* XORPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->ud[i] ^= opx2->ud[i];
+                GX.ud[i] ^= EX->ud[i];
             NEXT;
         _0f_0x58:                      /* ADDPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->f[i] += opx2->f[i];
+                GX.f[i] += EX->f[i];
             NEXT;
         _0f_0x59:                      /* MULPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->f[i] *= opx2->f[i];
+                GX.f[i] *= EX->f[i];
             NEXT;
         _0f_0x5A:                      /* CVTPS2PD Gx, Ex */
             nextop = F8;
-            GET_GXEX;
-            opx1->d[1] = opx2->f[1];
-            opx1->d[0] = opx2->f[0];
+            GET_EX;
+            GX.d[1] = EX->f[1];
+            GX.d[0] = EX->f[0];
             NEXT;
         _0f_0x5B:                      /* CVTDQ2PS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
-            opx1->f[0] = opx2->sd[0];
-            opx1->f[1] = opx2->sd[1];
-            opx1->f[2] = opx2->sd[2];
-            opx1->f[3] = opx2->sd[3];
+            GET_EX;
+            GX.f[0] = EX->sd[0];
+            GX.f[1] = EX->sd[1];
+            GX.f[2] = EX->sd[2];
+            GX.f[3] = EX->sd[3];
             NEXT;
         _0f_0x5C:                      /* SUBPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->f[i] -= opx2->f[i];
+                GX.f[i] -= EX->f[i];
             NEXT;
         _0f_0x5D:                      /* MINPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i) {
-                if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isless(opx2->f[i], opx1->f[i]))
-                    opx1->f[i] = opx2->f[i];
+                if (isnan(GX.f[i]) || isnan(EX->f[i]) || isless(EX->f[i], GX.f[i]))
+                    GX.f[i] = EX->f[i];
             }
             NEXT;
         _0f_0x5E:                      /* DIVPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i)
-                opx1->f[i] /= opx2->f[i];
+                GX.f[i] /= EX->f[i];
             NEXT;
         _0f_0x5F:                      /* MAXPS Gx, Ex */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             for(int i=0; i<4; ++i) {
-                if (isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreater(opx2->f[i], opx1->f[i]))
-                    opx1->f[i] = opx2->f[i];
+                if (isnan(GX.f[i]) || isnan(EX->f[i]) || isgreater(EX->f[i], GX.f[i]))
+                    GX.f[i] = EX->f[i];
             }
             NEXT;
         _0f_0x60:                      /* PUNPCKLBW Gm, Em */
             nextop = F8;
-            GET_GMEM;
-            opm1->ub[7] = opm2->ub[3];
-            opm1->ub[6] = opm1->ub[3];
-            opm1->ub[5] = opm2->ub[2];
-            opm1->ub[4] = opm1->ub[2];
-            opm1->ub[3] = opm2->ub[1];
-            opm1->ub[2] = opm1->ub[1];
-            opm1->ub[1] = opm2->ub[0];
+            GET_EM;
+            GM.ub[7] = EM->ub[3];
+            GM.ub[6] = GM.ub[3];
+            GM.ub[5] = EM->ub[2];
+            GM.ub[4] = GM.ub[2];
+            GM.ub[3] = EM->ub[1];
+            GM.ub[2] = GM.ub[1];
+            GM.ub[1] = EM->ub[0];
             NEXT;
         _0f_0x61:                      /* PUNPCKLWD Gm, Em */
             nextop = F8;
-            GET_GMEM;
-            opm1->uw[3] = opm2->uw[1];
-            opm1->uw[2] = opm1->uw[1];
-            opm1->uw[1] = opm2->uw[0];
+            GET_EM;
+            GM.uw[3] = EM->uw[1];
+            GM.uw[2] = GM.uw[1];
+            GM.uw[1] = EM->uw[0];
             NEXT;
         _0f_0x62:                      /* PUNPCKLDQ Gm, Em */
             nextop = F8;
-            GET_GMEM;
-            opm1->ud[1] = opm2->ud[0];
+            GET_EM;
+            GM.ud[1] = EM->ud[0];
             NEXT;
 
         _0f_0x6F:                      /* MOVQ Gm, Em */
             nextop = F8;
-            GET_GMEM;
-            opm1->q = opm2->q;
+            GET_EM;
+            GM.q = EM->q;
             NEXT;
 
         _0f_0x77:                      /* EMMS */
@@ -327,8 +327,8 @@
 
         _0f_0x7F:                      /* MOVQ Em, Gm */
             nextop = F8;
-            GET_GMEM;
-            opm2->q = opm1->q;
+            GET_EM;
+            EM->q = GM.q;
             NEXT;
 
         _0f_0xA2:                      /* CPUID */
@@ -367,14 +367,14 @@
         _0f_0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp8u = op1->byte[0];
-            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            GET_ED;
+            tmp8u = GD.byte[0];
+            if((nextop&0xC0)!=0xC0)
             {
-                op2=(reg32_t*)(((uint32_t*)(op2))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
             }
             tmp8u&=31;
-            if(tmp8u<32 && op2->dword[0] & (1<<tmp8u))
+            if(tmp8u<32 && ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
@@ -382,34 +382,34 @@
         _0f_0xA4:                      /* SHLD Ed,Gd,Ib */
         _0f_0xA5:                      /* SHLD Ed,Gd,CL */
             nextop = F8;
-            GET_GDED;
+            GET_ED;
             tmp8u = (opcode==0xA4)?F8:R_CL;
-            op2->dword[0] = shld32(emu, op2->dword[0], op1->dword[0], tmp8u);
+            ED->dword[0] = shld32(emu, ED->dword[0], GD.dword[0], tmp8u);
             NEXT;
 
         _0f_0xAB:                      /* BTS Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp8u = op1->byte[0];
-            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            GET_ED;
+            tmp8u = GD.byte[0];
+            if((nextop&0xC0)!=0xC0)
             {
-                op2=(reg32_t*)(((uint32_t*)(op2))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
             }
             tmp8u&=31;
-            if(op2->dword[0] & (1<<tmp8u))
+            if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
-                op2->dword[0] |= (1<<tmp8u);
+                ED->dword[0] |= (1<<tmp8u);
                 CLEAR_FLAG(F_CF);
             }
             NEXT;
         _0f_0xAC:                      /* SHRD Ed,Gd,Ib */
         _0f_0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = F8;
-            GET_GDED;
+            GET_ED;
             tmp8u = (opcode==0xAC)?F8:R_CL;
-            op2->dword[0] = shrd32(emu, op2->dword[0], op1->dword[0], tmp8u);
+            ED->dword[0] = shrd32(emu, ED->dword[0], GD.dword[0], tmp8u);
             NEXT;
 
         _0f_0xAE:                      /* Grp Ed (SSE) */
@@ -417,10 +417,10 @@
             GET_ED;
             switch((nextop>>3)&7) {
                 case 2:                 /* LDMXCSR Md */
-                    emu->mxcsr = op1->dword[0];
+                    emu->mxcsr = ED->dword[0];
                     break;
                 case 3:                 /* SDMXCSR Md */
-                    op1->dword[0] = emu->mxcsr;
+                    ED->dword[0] = emu->mxcsr;
                     break;
                 default:
                     goto _default;
@@ -428,79 +428,79 @@
             NEXT;
         _0f_0xAF:                      /* IMUL Gd,Ed */
             nextop = F8;
-            GET_GDED;
-            op1->dword[0] = imul32(emu, op1->dword[0], op2->dword[0]);
+            GET_ED;
+            GD.dword[0] = imul32(emu, GD.dword[0], ED->dword[0]);
             NEXT;
 
         _0f_0xB0:                      /* CMPXCHG Eb,Gb */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GBEB;
-            cmp8(emu, R_AL, op2->byte[0]);
-            if(R_AL == op2->byte[0]) {
+            GET_EB;
+            cmp8(emu, R_AL, EB->byte[0]);
+            if(R_AL == EB->byte[0]) {
                 SET_FLAG(F_ZF);
-                op2->byte[0] = op1->byte[0];
+                EB->byte[0] = GB;
             } else {
                 CLEAR_FLAG(F_ZF);
-                R_AL = op2->byte[0];
+                R_AL = EB->byte[0];
             }
             NEXT;
         _0f_0xB1:                      /* CMPXCHG Ed,Gd */
             nextop = F8;
-            GET_GDED;
-            cmp32(emu, R_EAX, op2->dword[0]);
-            if(R_EAX == op2->dword[0]) {
+            GET_ED;
+            cmp32(emu, R_EAX, ED->dword[0]);
+            if(R_EAX == ED->dword[0]) {
                 SET_FLAG(F_ZF);
-                op2->dword[0] = op1->dword[0];
+                ED->dword[0] = GD.dword[0];
             } else {
                 CLEAR_FLAG(F_ZF);
-                R_EAX = op2->dword[0];
+                R_EAX = ED->dword[0];
             }
             NEXT;
 
         _0f_0xB3:                      /* BTR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp8u = op1->byte[0];
-            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            GET_ED;
+            tmp8u = GD.byte[0];
+            if((nextop&0xC0)!=0xC0)
             {
-                op2=(reg32_t*)(((uint32_t*)(op2))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
             }
             tmp8u&=31;
-            if(op2->dword[0] & (1<<tmp8u)) {
+            if(ED->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
-                op2->dword[0] ^= (1<<tmp8u);
+                ED->dword[0] ^= (1<<tmp8u);
             } else
                 CLEAR_FLAG(F_CF);
             NEXT;
 
         _0f_0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
             nextop = F8;
-            GET_GDEB;
-            op1->dword[0] = op2->byte[0];
+            GET_EB;
+            GD.dword[0] = EB->byte[0];
             NEXT;
         _0f_0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
             nextop = F8;
-            GET_GDEW;
-            op1->dword[0] = op2->word[0];
+            GET_EW;
+            GD.dword[0] = EW->word[0];
             NEXT;
 
         _0f_0xBB:                      /* BTC Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp8u = op1->byte[0];
-            if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+            GET_ED;
+            tmp8u = GD.byte[0];
+            if((nextop&0xC0)!=0xC0)
             {
-                op2=(reg32_t*)(((uint32_t*)(op2))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
             }
             tmp8u&=31;
-            if(op2->dword[0] & (1<<tmp8u))
+            if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
-            op2->dword[0] ^= (1<<tmp8u);
+            ED->dword[0] ^= (1<<tmp8u);
             NEXT;
 
         _0f_0xBA:                      
@@ -510,12 +510,12 @@
                     CHECK_FLAGS(emu);
                     GET_ED;
                     tmp8u = F8;
-                    if((nextop&0xc7)<0xc0 || (nextop&0xc7)>0xc7)
+                    if((nextop&0xC0)!=0xC0)
                     {
-                        op1=(reg32_t*)(((uint32_t*)(op1))+(tmp8u>>5));
+                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                     }
                     tmp8u&=31;
-                    if(op1->dword[0] & (1<<tmp8u))
+                    if(ED->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
                     else
                         CLEAR_FLAG(F_CF);
@@ -527,13 +527,13 @@
         _0f_0xBC:                      /* BSF Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp32u = op2->dword[0];
+            GET_ED;
+            tmp32u = ED->dword[0];
             if(tmp32u) {
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 0;
                 while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
-                op1->dword[0] = tmp8u;
+                GD.dword[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
@@ -541,92 +541,92 @@
         _0f_0xBD:                      /* BSR Ed,Gd */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GET_GDED;
-            tmp32u = op2->dword[0];
+            GET_ED;
+            tmp32u = ED->dword[0];
             if(tmp32u) {
                 CLEAR_FLAG(F_ZF);
                 tmp8u = 31;
                 while(!(tmp32u&(1<<tmp8u))) --tmp8u;
-                op1->dword[0] = tmp8u;
+                GD.dword[0] = tmp8u;
             } else {
                 SET_FLAG(F_ZF);
             }
             NEXT;
         _0f_0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
             nextop = F8;
-            GET_GDEB;
-            op1->sdword[0] = op2->sbyte[0];
+            GET_EB;
+            GD.sdword[0] = ED->sbyte[0];
             NEXT;
         _0f_0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
             nextop = F8;
-            GET_GDEW;
-            op1->sdword[0] = op2->sword[0];
+            GET_EW;
+            GD.sdword[0] = EW->sword[0];
             NEXT;
 
         _0f_0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
             nextop = F8;
-            GET_GBEB;
-            tmp8u = add8(emu, op2->byte[0], op1->byte[0]);
-            op1->byte[0] = op2->byte[0];
-            op2->byte[0] = tmp8u;
+            GET_EB;
+            tmp8u = add8(emu, EB->byte[0], GB);
+            GB = EB->byte[0];
+            EB->byte[0] = tmp8u;
             NEXT;
         _0f_0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
             nextop = F8;
-            GET_GDED;
-            tmp32u = add32(emu, op2->dword[0], op1->dword[0]);
-            op1->dword[0] = op2->dword[0];
-            op2->dword[0] = tmp32u;
+            GET_ED;
+            tmp32u = add32(emu, ED->dword[0], GD.dword[0]);
+            GD.dword[0] = ED->dword[0];
+            ED->dword[0] = tmp32u;
             NEXT;
         _0f_0xC2:                      /* CMPPS Gx, Ex, Ib */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             tmp8u = F8;
             for(int i=0; i<4; ++i) {
                 tmp8s = 0;
                 switch(tmp8u&7) {
-                    case 0: tmp8s=(opx1->f[i] == opx2->f[i]); break;
-                    case 1: tmp8s=isless(opx1->f[i], opx2->f[i]); break;
-                    case 2: tmp8s=islessequal(opx1->f[i], opx2->f[i]); break;
-                    case 3: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]); break;
-                    case 4: tmp8s=(opx1->f[i] != opx2->f[i]); break;
-                    case 5: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreaterequal(opx1->f[i], opx2->f[i]); break;
-                    case 6: tmp8s=isnan(opx1->f[i]) || isnan(opx2->f[i]) || isgreater(opx1->f[i], opx2->f[i]); break;
-                    case 7: tmp8s=!isnan(opx1->f[i]) && !isnan(opx2->f[i]); break;
+                    case 0: tmp8s=(GX.f[i] == EX->f[i]); break;
+                    case 1: tmp8s=isless(GX.f[i], EX->f[i]); break;
+                    case 2: tmp8s=islessequal(GX.f[i], EX->f[i]); break;
+                    case 3: tmp8s=isnan(GX.f[i]) || isnan(EX->f[i]); break;
+                    case 4: tmp8s=(GX.f[i] != EX->f[i]); break;
+                    case 5: tmp8s=isnan(GX.f[i]) || isnan(EX->f[i]) || isgreaterequal(GX.f[i], EX->f[i]); break;
+                    case 6: tmp8s=isnan(GX.f[i]) || isnan(EX->f[i]) || isgreater(GX.f[i], EX->f[i]); break;
+                    case 7: tmp8s=!isnan(GX.f[i]) && !isnan(EX->f[i]); break;
                 }
                 if(tmp8s)
-                    opx1->ud[i] = 0xffffffff;
+                    GX.ud[i] = 0xffffffff;
                 else
-                    opx1->ud[i] = 0;
+                    GX.ud[i] = 0;
             }
             NEXT;
 
         _0f_0xC6:                      /* SHUFPS Gx, Ex, Ib */
             nextop = F8;
-            GET_GXEX;
+            GET_EX;
             tmp8u = F8;
             for(int i=0; i<2; ++i) {
-                eax1.ud[i] = opx1->ud[(tmp8u>>(i*2))&3];
+                eax1.ud[i] = GX.ud[(tmp8u>>(i*2))&3];
             }
             for(int i=2; i<4; ++i) {
-                eax1.ud[i] = opx2->ud[(tmp8u>>(i*2))&3];
+                eax1.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
             }
-            opx1->q[0] = eax1.q[0];
-            opx1->q[1] = eax1.q[1];
+            GX.q[0] = eax1.q[0];
+            GX.q[1] = eax1.q[1];
             NEXT;
         _0f_0xC7:                      /* CMPXCHG8B Gq */
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp32u = op1->dword[0];
-            tmp32u2= op1->dword[1];
+            tmp32u = ED->dword[0];
+            tmp32u2= ED->dword[1];
             if(R_EAX == tmp32u && R_EDX == tmp32u2) {
                 SET_FLAG(F_ZF);
-                op1->dword[0] = R_EBX;
-                op1->dword[1] = R_ECX;
+                ED->dword[0] = R_EBX;
+                ED->dword[1] = R_ECX;
             } else {
                 CLEAR_FLAG(F_ZF);
-                R_EAX = op1->dword[0];
-                R_EDX = op1->dword[1];
+                R_EAX = ED->dword[0];
+                R_EDX = ED->dword[1];
             }
             NEXT;
         _0f_0xC8:

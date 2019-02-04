@@ -4,13 +4,13 @@
     #define GO(B, OP)                       \
     _66_##B##_1:                               \
         nextop = F8;                \
-        GET_GWEW;                   \
-        op2->word[0] = OP##16(emu, op2->word[0], op1->word[0]); \
+        GET_EW;                   \
+        EW->word[0] = OP##16(emu, EW->word[0], GW.word[0]); \
         NEXT;                              \
     _66_##B##_3:                               \
         nextop = F8;                \
-        GET_GWEW;                   \
-        op1->word[0] = OP##16(emu, op1->word[0], op2->word[0]); \
+        GET_EW;                   \
+        GW.word[0] = OP##16(emu, GW.word[0], EW->word[0]); \
         NEXT;                              \
     _66_##B##_5:                               \
         R_AX = OP##16(emu, R_AX, F16); \
@@ -30,13 +30,13 @@
         NEXT;
     _66_0x39:
         nextop = F8;
-        GET_GWEW;
-        cmp16(emu, op2->word[0], op1->word[0]);
+        GET_EW;
+        cmp16(emu, EW->word[0], GW.word[0]);
         NEXT;
     _66_0x3B:
         nextop = F8;
-        GET_GWEW;
-        cmp16(emu, op1->word[0], op2->word[0]);
+        GET_EW;
+        cmp16(emu, GW.word[0], EW->word[0]);
         NEXT;
     _66_0x3D:
         cmp16(emu, R_AX, F16);
@@ -67,16 +67,16 @@
 
     _66_0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
-        GET_GWEW;
+        GET_EW;
         tmp16u = F16;
-        op1->word[0] = imul16(emu, op2->word[0], tmp16u);
+        GW.word[0] = imul16(emu, EW->word[0], tmp16u);
         NEXT;
 
     _66_0x6B:                      /* IMUL Gw,Ew,Ib */
         nextop = F8;
-        GET_GWEW;
+        GET_EW;
         tmp16s = F8S;
-        op1->word[0] = imul16(emu, op2->word[0], (uint16_t)tmp16s);
+        GW.word[0] = imul16(emu, EW->word[0], (uint16_t)tmp16s);
         NEXT;
 
     _66_0x81:                              /* GRP3 Ew,Iw */
@@ -87,50 +87,50 @@
             tmp16u = F16;
         else {
             tmp16s = F8S;
-            tmp16u = *(uint16_t*)&tmp16s;
+            tmp16u = (uint16_t)tmp16s;
         }
         switch((nextop>>3)&7) {
-            case 0: op1->word[0] = add16(emu, op1->word[0], tmp16u); break;
-            case 1: op1->word[0] =  or16(emu, op1->word[0], tmp16u); break;
-            case 2: op1->word[0] = adc16(emu, op1->word[0], tmp16u); break;
-            case 3: op1->word[0] = sbb16(emu, op1->word[0], tmp16u); break;
-            case 4: op1->word[0] = and16(emu, op1->word[0], tmp16u); break;
-            case 5: op1->word[0] = sub16(emu, op1->word[0], tmp16u); break;
-            case 6: op1->word[0] = xor16(emu, op1->word[0], tmp16u); break;
-            case 7:                cmp16(emu, op1->word[0], tmp16u); break;
+            case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
+            case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
+            case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
+            case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
+            case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
+            case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
+            case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
+            case 7:                cmp16(emu, EW->word[0], tmp16u); break;
         }
         NEXT;
 
     _66_0x85:                              /* TEST Ew,Gw */
         nextop = F8;
-        GET_GWEW;
-        test16(emu, op2->word[0], op1->word[0]);
+        GET_EW;
+        test16(emu, EW->word[0], GW.word[0]);
         NEXT;
 
     _66_0x87:                              /* XCHG Ew,Gw */
         nextop = F8;
-        GET_GWEW;
-        tmp16u = op1->word[0];
-        op1->word[0] = op2->word[0];
-        op2->word[0] = tmp16u;
+        GET_EW;
+        tmp16u = GW.word[0];
+        GW.word[0] = EW->word[0];
+        EW->word[0] = tmp16u;
         NEXT;
 
     _66_0x89:                              /* MOV Ew,Gw */
         nextop = F8;
-        GET_GWEW;
-        op2->word[0] = op1->word[0];
+        GET_EW;
+        EW->word[0] = GW.word[0];
         NEXT;
 
     _66_0x8B:                              /* MOV Gw,Ew */
         nextop = F8;
-        GET_GWEW;
-        op1->word[0] = op2->word[0];
+        GET_EW;
+        GW.word[0] = EW->word[0];
         NEXT;
     
     _66_0x8F:                              /* POP Ew */
         nextop = F8;
         GET_EW;
-        op1->dword[0] = Pop16(emu);
+        EW->dword[0] = Pop16(emu);
         NEXT;
     _66_0x90:                              /* NOP */
         NEXT;
@@ -152,10 +152,10 @@
         NEXT;
 
     _66_0xA1:                              /* MOV AX,Ow */
-        R_AX = *(uint16_t*)Fetch32(emu);
+        R_AX = *(uint16_t*)F32;
         NEXT;
     _66_0xA3:                              /* MOV Ow,AX */
-        *(uint16_t*)Fetch32(emu) = R_AX;
+        *(uint16_t*)F32 = R_AX;
         NEXT;
     _66_0xA5:                              /* MOVSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
@@ -204,21 +204,21 @@
         GET_EW;
         tmp8u = F8 /*& 0x1f*/;
         switch((nextop>>3)&7) {
-            case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
-            case 1: op1->word[0] = ror16(emu, op1->word[0], tmp8u); break;
-            case 2: op1->word[0] = rcl16(emu, op1->word[0], tmp8u); break;
-            case 3: op1->word[0] = rcr16(emu, op1->word[0], tmp8u); break;
+            case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
+            case 1: EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
+            case 2: EW->word[0] = rcl16(emu, EW->word[0], tmp8u); break;
+            case 3: EW->word[0] = rcr16(emu, EW->word[0], tmp8u); break;
             case 4:
-            case 6: op1->word[0] = shl16(emu, op1->word[0], tmp8u); break;
-            case 5: op1->word[0] = shr16(emu, op1->word[0], tmp8u); break;
-            case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
+            case 6: EW->word[0] = shl16(emu, EW->word[0], tmp8u); break;
+            case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
+            case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
         }
         NEXT;
 
     _66_0xC7:                              /* MOV Ew,Iw */
         nextop = F8;
         GET_EW;
-        op1->word[0] = F16;
+        EW->word[0] = F16;
         NEXT;
 
     _66_0xD1:                              /* GRP2 Ew,1  */
@@ -227,14 +227,14 @@
         GET_EW;
         tmp8u=(opcode==0xD3)?R_CL:1;
         switch((nextop>>3)&7) {
-            case 0: op1->word[0] = rol16(emu, op1->word[0], tmp8u); break;
-            case 1: op1->word[0] = ror16(emu, op1->word[0], tmp8u); break;
-            case 2: op1->word[0] = rcl16(emu, op1->word[0], tmp8u); break;
-            case 3: op1->word[0] = rcr16(emu, op1->word[0], tmp8u); break;
+            case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
+            case 1: EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
+            case 2: EW->word[0] = rcl16(emu, EW->word[0], tmp8u); break;
+            case 3: EW->word[0] = rcr16(emu, EW->word[0], tmp8u); break;
             case 4: 
-            case 6: op1->word[0] = shl16(emu, op1->word[0], tmp8u); break;
-            case 5: op1->word[0] = shr16(emu, op1->word[0], tmp8u); break;
-            case 7: op1->word[0] = sar16(emu, op1->word[0], tmp8u); break;
+            case 6: EW->word[0] = shl16(emu, EW->word[0], tmp8u); break;
+            case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
+            case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
         }
         NEXT;
 
@@ -300,25 +300,25 @@
         switch((nextop>>3)&7) {
             case 0: 
             case 1:                 /* TEST Ew,Iw */
-                test16(emu, op1->word[0], F16);
+                test16(emu, EW->word[0], F16);
                 break;
             case 2:                 /* NOT Ew */
-                op1->word[0] = not16(emu, op1->word[0]);
+                EW->word[0] = not16(emu, EW->word[0]);
                 break;
             case 3:                 /* NEG Ew */
-                op1->word[0] = neg16(emu, op1->word[0]);
+                EW->word[0] = neg16(emu, EW->word[0]);
                 break;
             case 4:                 /* MUL AX,Ew */
-                mul16(emu, op1->word[0]);
+                mul16(emu, EW->word[0]);
                 break;
             case 5:                 /* IMUL AX,Ew */
-                imul16_eax(emu, op1->word[0]);
+                imul16_eax(emu, EW->word[0]);
                 break;
             case 6:                 /* DIV Ew */
-                div16(emu, op1->word[0]);
+                div16(emu, EW->word[0]);
                 break;
             case 7:                 /* IDIV Ew */
-                idiv16(emu, op1->word[0]);
+                idiv16(emu, EW->word[0]);
                 break;
         }
         NEXT;
@@ -328,10 +328,10 @@
         GET_EW;
         switch((nextop>>3)&7) {
             case 0:                 /* INC Ed */
-                op1->word[0] = inc16(emu, op1->word[0]);
+                EW->word[0] = inc16(emu, EW->word[0]);
                 break;
             case 1:                 /* DEC Ed */
-                op1->word[0] = dec16(emu, op1->word[0]);
+                EW->word[0] = dec16(emu, EW->word[0]);
                 break;
             default:
                 emu->old_ip = old_ip;

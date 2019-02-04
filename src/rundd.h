@@ -49,23 +49,23 @@
             case 0: /* FLD double */
                 GET_ED;
                 fpu_do_push(emu);
-                ST0.ll = *(int64_t*)op1;
+                ST0.ll = *(int64_t*)ED;
                 break;
             case 2: /* FST double */
                 GET_ED;
-                *(int64_t*)op1 = ST0.ll;
+                *(int64_t*)ED = ST0.ll;
                 break;
             case 3: /* FSTP double */
                 GET_ED;
-                *(int64_t*)op1 = ST0.ll;
+                *(int64_t*)ED = ST0.ll;
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
                 GET_ED;
-                fpu_loadenv(emu, (char*)op1, 0);
+                fpu_loadenv(emu, (char*)ED, 0);
                 // get the STx
                 {
-                    char* p =(char*)op1;
+                    char* p =(char*)ED;
                     p += 28;
                     for (int i=0; i<8; ++i) {
                         LD2D(p, &ST(i).d);
@@ -77,10 +77,10 @@
                 GET_ED;
                 // ENV first...
                 // warning, incomplete
-                fpu_savenv(emu, (char*)op1, 0);
+                fpu_savenv(emu, (char*)ED, 0);
                 // save the STx
                 {
-                    char* p =(char*)op1;
+                    char* p =(char*)ED;
                     p += 28;
                     for (int i=0; i<8; ++i) {
                         D2LD(&ST(i).d, p);

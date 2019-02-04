@@ -72,7 +72,7 @@
         switch((nextop>>3)&7) {
             case 1:     /* FIMUL ST0, Ed int */
                 GET_ED;
-                ST0.d *= op1->sword[0];
+                ST0.d *= ED->sdword[0];
                 break;
             default:
                 goto _default;

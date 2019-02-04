@@ -91,14 +91,14 @@
             case 0: /* FILD ST0, Gd */
                 GET_ED;
                 fpu_do_push(emu);
-                ST0.d = op1->sdword[0];
+                ST0.d = ED->sdword[0];
                 break;
             case 2: /* FIST Ed, ST0 */
                 GET_ED;
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
-                op1->sdword[0] = tmp32s;
+                ED->sdword[0] = tmp32s;
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GET_ED;
@@ -106,21 +106,21 @@
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
                 fpu_do_pop(emu);
-                op1->sdword[0] = tmp32s;
+                ED->sdword[0] = tmp32s;
                 break;
             case 5: /* FLD ST0, Gt */
                 GET_ED;
                 fpu_do_push(emu);
-                memcpy(&STld(0).ld, op1, 10);
+                memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0), &ST(0).d);
                 STld(0).ref = ST0.ll;
                 break;
             case 7: /* FSTP tbyte */
                 GET_ED;
                 if(ST0.ll!=STld(0).ref)
-                    D2LD(&ST0.d, op1);
+                    D2LD(&ST0.d, ED);
                 else
-                    memcpy(op1, &STld(0).ld, 10);
+                    memcpy(ED, &STld(0).ld, 10);
                 fpu_do_pop(emu);
                 break;
             default:

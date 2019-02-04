@@ -85,74 +85,74 @@
         switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d += *(float*)op1;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d += *(float*)ED;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d += f;
                 }
                 break;
             case 1:         /* FMUL ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d *= *(float*)op1;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d *= *(float*)ED;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d *= f;
                 }
                 break;
             case 2:      /* FCOM ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    fpu_fcom(emu, *(float*)op1);
+                if(!(((uintptr_t)ED)&3))
+                    fpu_fcom(emu, *(float*)ED);
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     fpu_fcom(emu, f);
                 }
                 break;
             case 3:     /* FCOMP */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    fpu_fcom(emu, *(float*)op1);
+                if(!(((uintptr_t)ED)&3))
+                    fpu_fcom(emu, *(float*)ED);
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     fpu_fcom(emu, f);
                 }
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d -= *(float*)op1;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d -= *(float*)ED;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d -= f;
                 }
                 break;
             case 5:         /* FSUBR ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d = *(float*)op1 - ST0.d;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d = *(float*)ED - ST0.d;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d = f - ST0.d;
                 }
                 break;
             case 6:         /* FDIV ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d /= *(float*)op1;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d /= *(float*)ED;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d /= f;
                 }
                 break;
             case 7:         /* FDIVR ST0, float */
                 GET_ED;
-                if(!(((uintptr_t)op1)&3))
-                    ST0.d = *(float*)op1 / ST0.d;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d = *(float*)ED / ST0.d;
                 else {
-                    *(uint32_t*)&f = op1->dword[0];
+                    *(uint32_t*)&f = ED->dword[0];
                     ST0.d = f / ST0.d;
                 }
                 break;

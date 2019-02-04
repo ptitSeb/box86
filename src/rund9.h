@@ -113,34 +113,34 @@
             case 0:     /* FLD ST0, Ed float */
                 GET_ED;
                 fpu_do_push(emu);
-                ST0.d = *(float*)op1;
+                ST0.d = *(float*)ED;
                 break;
             case 2:     /* FST Ed, ST0 */
                 GET_ED;
-                *(float*)op1 = ST0.d;
+                *(float*)ED = ST0.d;
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GET_ED;
-                *(float*)op1 = ST0.d;
+                *(float*)ED = ST0.d;
                 fpu_do_pop(emu);
                 break;
             case 4:     /* FLDENV m */
                 // warning, incomplete
                 GET_ED;
-                fpu_loadenv(emu, (char*)&op1->dword[0], 0);
+                fpu_loadenv(emu, (char*)ED, 0);
                 break;
             case 5:     /* FLDCW Ew */
                 GET_EW;
-                emu->cw = op1->word[0];
+                emu->cw = EW->word[0];
                 // do something with cw?
                 emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
                 GET_ED;
-                fpu_savenv(emu, (char*)&op1->dword[0], 0);
-                op1->dword[0] = emu->cw;
-                op1->dword[1] = emu->sw.x16;
+                fpu_savenv(emu, (char*)ED, 0);
+                ED->dword[0] = emu->cw;
+                ED->dword[1] = emu->sw.x16;
                 // tagword: 2bits*8
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
@@ -148,7 +148,7 @@
                 break;
             case 7: /* FNSTCW Ew */
                 GET_EW;
-                op1->word[0] = emu->cw;
+                EW->word[0] = emu->cw;
                 break;
             default:
                 goto _default;

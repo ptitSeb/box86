@@ -20,8 +20,8 @@ int Run(x86emu_t *emu)
 {
     uint8_t opcode;
     uint8_t nextop;
-    reg32_t *op1, *op2, *op3, *op4;
-    reg32_t ea1, ea2, ea3, ea4;
+    reg32_t *oped;
+    reg32_t ea1;
     uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
     uint16_t tmp16u, tmp16u2;
@@ -34,8 +34,8 @@ int Run(x86emu_t *emu)
     double d;
     float f;
     int64_t ll;
-    sse_regs_t *opx1, *opx2, eax1;
-    mmx_regs_t *opm1, *opm2;
+    sse_regs_t *opex, eax1;
+    mmx_regs_t *opem;
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
 #define F8      *(uint8_t*)(ip++)
@@ -221,11 +221,6 @@ _trace:
 #endif
 
 // ModRM utilities macros
-#define getgb(A)    A = (reg32_t*)&emu->regs[((nextop&0x18)>>3)].byte[((nextop&0x20)>>5)]
-#define getgd(A)    A = &emu->regs[((nextop&0x38)>>3)]
-#define getgw(A)    getgd(A)
-#define getgm(A)    A = &emu->mmx[((nextop&0x38)>>3)]
-#define getgx(A)    A = &emu->xmm[((nextop&0x38)>>3)]
 #define getecommon(A, T) \
     if(!(nextop&0xC0)) { \
         if((nextop&7)==4) { \
@@ -267,28 +262,23 @@ _trace:
         A = &emu->xmm[(nextop&7)]; \
     } else getecommon(A, sse_regs_t)
 // Macros for ModR/M gets
-#define GET_EB      geteb(op1)
-#define GET_ED      geted(op1)
-#define GET_EM      getem(opm1)
-#define GET_EX      getex(opx1)
-#define GET_GBEB    getgb(op1); geteb(op2)
-#define GET_GDED    getgd(op1); geted(op2)
-#define GET_GDEB    getgd(op1); geteb(op2)
-#define GET_GMEM    getgm(opm1); getem(opm2)
-#define GET_GXEX    getgx(opx1); getex(opx2)
-#define GET_GXEM    getgx(opx1); getem(opm2)
-#define GET_GXED    getgx(opx1); geted(op2)
-#define GET_GMEX    getgm(opm1); getex(opx2)
-#define GET_GDEX    getgd(op1); getex(opx2)
+#define GET_EB      geteb(oped)
+#define GET_ED      geted(oped)
+#define GET_EM      getem(opem)
+#define GET_EX      getex(opex)
+#define EB          oped
+#define ED          oped
+#define EM          opem
+#define EX          opex
+#define GB          emu->regs[(nextop>>3)&3].byte[(nextop>>5)&0x1]
+#define GD          emu->regs[((nextop&0x38)>>3)]
+#define GM          emu->mmx[((nextop&0x38)>>3)]
+#define GX          emu->xmm[((nextop&0x38)>>3)]
 
 // Alias
 #define GET_EW      GET_ED
-#define GET_GDEW    GET_GDED
-#define GET_GWEW    GET_GDED
-#define GET_GWEB    GET_GDEB
-#define GET_GWEX    GET_GDEX
-#define GET_GXEW    GET_GXED
-
+#define EW          ED
+#define GW          GD
 
         opcode = F8;
         goto *baseopcodes[opcode];
@@ -296,23 +286,23 @@ _trace:
             #define GO(B, OP)                      \
             _##B##_0: \
                 nextop = F8;               \
-                GET_GBEB;             \
-                op2->byte[0] = OP##8(emu, op2->byte[0], op1->byte[0]);  \
+                GET_EB;             \
+                EB->byte[0] = OP##8(emu, EB->byte[0], GB);  \
                 NEXT;                              \
             _##B##_1: \
                 nextop = F8;               \
-                GET_GDED;             \
-                op2->dword[0] = OP##32(emu, op2->dword[0], op1->dword[0]); \
+                GET_ED;             \
+                ED->dword[0] = OP##32(emu, ED->dword[0], GD.dword[0]); \
                 NEXT;                              \
             _##B##_2: \
                 nextop = F8;               \
-                GET_GBEB;                   \
-                op1->byte[0] = OP##8(emu, op1->byte[0], op2->byte[0]); \
+                GET_EB;                   \
+                GB = OP##8(emu, GB, EB->byte[0]); \
                 NEXT;                              \
             _##B##_3: \
                 nextop = F8;               \
-                GET_GDED;         \
-                op1->dword[0] = OP##32(emu, op1->dword[0], op2->dword[0]); \
+                GET_ED;         \
+                GD.dword[0] = OP##32(emu, GD.dword[0], ED->dword[0]); \
                 NEXT;                              \
             _##B##_4: \
                 R_AL = OP##8(emu, R_AL, F8); \
@@ -334,23 +324,23 @@ _trace:
             #undef GO
             _0x38:
                 nextop = F8;
-                GET_GBEB;
-                cmp8(emu, op2->byte[0], op1->byte[0]);
+                GET_EB;
+                cmp8(emu, EB->byte[0], GB);
                 NEXT;
             _0x39:
                 nextop = F8;
-                GET_GDED;
-                cmp32(emu, op2->dword[0], op1->dword[0]);
+                GET_ED;
+                cmp32(emu, ED->dword[0], GD.dword[0]);
                 NEXT;
             _0x3A:
                 nextop = F8;
-                GET_GBEB;
-                cmp8(emu, op1->byte[0], op2->byte[0]);
+                GET_EB;
+                cmp8(emu, GB, EB->byte[0]);
                 NEXT;
             _0x3B:
                 nextop = F8;
-                GET_GDED;
-                cmp32(emu, op1->dword[0], op2->dword[0]);
+                GET_ED;
+                cmp32(emu, GD.dword[0], ED->dword[0]);
                 NEXT;
             _0x3C:
                 cmp8(emu, R_AL, F8);
@@ -433,15 +423,15 @@ _trace:
                 switch(opcode) {
                     case 0x33:              /* XOR Gd,Ed */
                         nextop = F8;
-                        GET_GDED;
-                        op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        op1->dword[0] = xor32(emu, op1->dword[0], op2->dword[0]);
+                        GET_ED;
+                        ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                        GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
                         break;
                     case 0x8B:              /* MOV Gd,Ed */
                         nextop = F8;
-                        GET_GDED;
-                        op2 = (reg32_t*)(((char*)op2) + (uintptr_t)emu->globals);
-                        op1->dword[0] = op2->dword[0];
+                        GET_ED;
+                        ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                        GD.dword[0] = ED->dword[0];
                         break;
                     case 0xA1:              /* MOV EAX,Ov */
                         tmp32u = F32;
@@ -486,9 +476,9 @@ _trace:
                 NEXT;
             _0x69:                      /* IMUL Gd,Ed,Id */
                 nextop = F8;
-                GET_GDED;
+                GET_ED;
                 tmp32u = F32;
-                op1->dword[0] = imul32(emu, op2->dword[0], tmp32u);
+                GD.dword[0] = imul32(emu, ED->dword[0], tmp32u);
                 NEXT;
             _0x6A:                      /* Push Ib */
                 tmp32s = F8S;
@@ -496,9 +486,9 @@ _trace:
                 NEXT;
             _0x6B:                      /* IMUL Gd,Ed,Ib */
                 nextop = F8;
-                GET_GDED;
+                GET_ED;
                 tmp32s = F8S;
-                op1->dword[0] = imul32(emu, op2->dword[0], (uint32_t)tmp32s);
+                GD.dword[0] = imul32(emu, ED->dword[0], (uint32_t)tmp32s);
                 NEXT;
 
             #define GOCOND(BASE, PREFIX, CONDITIONAL) \
@@ -594,14 +584,14 @@ _trace:
                 GET_EB;
                 tmp8u = F8;
                 switch((nextop>>3)&7) {
-                    case 0: op1->byte[0] = add8(emu, op1->byte[0], tmp8u); break;
-                    case 1: op1->byte[0] =  or8(emu, op1->byte[0], tmp8u); break;
-                    case 2: op1->byte[0] = adc8(emu, op1->byte[0], tmp8u); break;
-                    case 3: op1->byte[0] = sbb8(emu, op1->byte[0], tmp8u); break;
-                    case 4: op1->byte[0] = and8(emu, op1->byte[0], tmp8u); break;
-                    case 5: op1->byte[0] = sub8(emu, op1->byte[0], tmp8u); break;
-                    case 6: op1->byte[0] = xor8(emu, op1->byte[0], tmp8u); break;
-                    case 7:                cmp8(emu, op1->byte[0], tmp8u); break;
+                    case 0: EB->byte[0] = add8(emu, EB->byte[0], tmp8u); break;
+                    case 1: EB->byte[0] =  or8(emu, EB->byte[0], tmp8u); break;
+                    case 2: EB->byte[0] = adc8(emu, EB->byte[0], tmp8u); break;
+                    case 3: EB->byte[0] = sbb8(emu, EB->byte[0], tmp8u); break;
+                    case 4: EB->byte[0] = and8(emu, EB->byte[0], tmp8u); break;
+                    case 5: EB->byte[0] = sub8(emu, EB->byte[0], tmp8u); break;
+                    case 6: EB->byte[0] = xor8(emu, EB->byte[0], tmp8u); break;
+                    case 7:                cmp8(emu, EB->byte[0], tmp8u); break;
                 }
                 NEXT;
             _0x81:                      /* GRP Ed,Id */
@@ -615,71 +605,71 @@ _trace:
                     tmp32u = *(uint32_t*)&tmp32s;
                 }
                 switch((nextop>>3)&7) {
-                    case 0: op1->dword[0] = add32(emu, op1->dword[0], tmp32u); break;
-                    case 1: op1->dword[0] =  or32(emu, op1->dword[0], tmp32u); break;
-                    case 2: op1->dword[0] = adc32(emu, op1->dword[0], tmp32u); break;
-                    case 3: op1->dword[0] = sbb32(emu, op1->dword[0], tmp32u); break;
-                    case 4: op1->dword[0] = and32(emu, op1->dword[0], tmp32u); break;
-                    case 5: op1->dword[0] = sub32(emu, op1->dword[0], tmp32u); break;
-                    case 6: op1->dword[0] = xor32(emu, op1->dword[0], tmp32u); break;
-                    case 7:                 cmp32(emu, op1->dword[0], tmp32u); break;
+                    case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
+                    case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
+                    case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
+                    case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
+                    case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
+                    case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
+                    case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
+                    case 7:                 cmp32(emu, ED->dword[0], tmp32u); break;
                 }
                 NEXT;
             _0x84:                      /* TEST Eb,Gb */
                 nextop = F8;
-                GET_GBEB;
-                test8(emu, op2->byte[0], op1->byte[0]);
+                GET_EB;
+                test8(emu, EB->byte[0], GB);
                 NEXT;
             _0x85:                      /* TEST Ed,Gd */
                 nextop = F8;
-                GET_GDED;
-                test32(emu, op2->dword[0], op1->dword[0]);
+                GET_ED;
+                test32(emu, ED->dword[0], GD.dword[0]);
                 NEXT;
             _0x86:                      /* XCHG Eb,Gb */
                 nextop = F8;
-                GET_GBEB;
-                tmp8u = op1->byte[0];
-                op1->byte[0] = op2->byte[0];
-                op2->byte[0] = tmp8u;
+                GET_EB;
+                tmp8u = GB;
+                GB = EB->byte[0];
+                EB->byte[0] = tmp8u;
                 NEXT;
             _0x87:                      /* XCHG Ed,Gd */
                 nextop = F8;
-                GET_GDED;
-                tmp32u = op1->dword[0];
-                op1->dword[0] = op2->dword[0];
-                op2->dword[0] = tmp32u;
+                GET_ED;
+                tmp32u = GD.dword[0];
+                GD.dword[0] = ED->dword[0];
+                ED->dword[0] = tmp32u;
                 NEXT;
             _0x88:                      /* MOV Eb,Gb */
                 nextop = F8;
-                GET_GBEB;
-                op2->byte[0] = op1->byte[0];
+                GET_EB;
+                EB->byte[0] = GB;
                 NEXT;
             _0x89:                      /* MOV Ed,Gd */
                 nextop = F8;
-                GET_GDED;
-                op2->dword[0] = op1->dword[0];
+                GET_ED;
+                ED->dword[0] = GD.dword[0];
                 NEXT;
             _0x8A:                      /* MOV Gb,Eb */
                 nextop = F8;
-                GET_GBEB;
-                op1->byte[0] = op2->byte[0];
+                GET_EB;
+                GB = EB->byte[0];
                 NEXT;
             _0x8B:                      /* MOV Gd,Ed */
                 nextop = F8;
-                GET_GDED;
-                op1->dword[0] = op2->dword[0];
+                GET_ED;
+                GD.dword[0] = ED->dword[0];
                 NEXT;
 
             _0x8D:                      /* LEA Gd,M */
                 nextop = F8;
-                GET_GDED;
-                op1->dword[0] = (uint32_t)op2;
+                GET_ED;
+                GD.dword[0] = (uint32_t)ED;
                 NEXT;
 
             _0x8F:                      /* POP Ed */
                 nextop = F8;
                 GET_ED;
-                op1->dword[0] = Pop(emu);
+                ED->dword[0] = Pop(emu);
                 NEXT;
             _0x90:                      /* NOP */
                 NEXT;
@@ -804,12 +794,13 @@ _trace:
             _0xB1:                      /* MOV CL,Ib */
             _0xB2:                      /* MOV DL,Ib */
             _0xB3:                      /* MOV BL,Ib */
+                emu->regs[opcode&3].byte[0] = F8;
+                NEXT;
             _0xB4:                      /* MOV AH,Ib */
             _0xB5:                      /*    ...    */
             _0xB6:
             _0xB7:
-                tmp8u = opcode&0x07;
-                emu->regs[tmp8u&3].byte[tmp8u>>2] = F8;
+                emu->regs[opcode&3].byte[1] = F8;
                 NEXT;
             _0xB8:                      /* MOV EAX,Id */
             _0xB9:                      /* MOV ECX,Id */
@@ -827,14 +818,14 @@ _trace:
                 GET_EB;
                 tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
-                    case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
-                    case 1: op1->byte[0] = ror8(emu, op1->byte[0], tmp8u); break;
-                    case 2: op1->byte[0] = rcl8(emu, op1->byte[0], tmp8u); break;
-                    case 3: op1->byte[0] = rcr8(emu, op1->byte[0], tmp8u); break;
+                    case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                    case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                    case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                    case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
                     case 4:
-                    case 6: op1->byte[0] = shl8(emu, op1->byte[0], tmp8u); break;
-                    case 5: op1->byte[0] = shr8(emu, op1->byte[0], tmp8u); break;
-                    case 7: op1->byte[0] = sar8(emu, op1->byte[0], tmp8u); break;
+                    case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                    case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                    case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
                 }
                 NEXT;
             _0xC1:                      /* GRP2 Ed,Ib */
@@ -842,14 +833,14 @@ _trace:
                 GET_ED;
                 tmp8u = F8/* & 0x1f*/; // masking done in each functions
                 switch((nextop>>3)&7) {
-                    case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
-                    case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
-                    case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
-                    case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
+                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
                     case 4:
-                    case 6: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
-                    case 5: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
-                    case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
+                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
                 }
                 NEXT;
             _0xC2:                      /* RETN Iw */
@@ -864,12 +855,12 @@ _trace:
             _0xC6:                      /* MOV Eb,Ib */
                 nextop = F8;
                 GET_EB;
-                op1->byte[0] = F8;
+                EB->byte[0] = F8;
                 NEXT;
             _0xC7:                      /* MOV Ed,Id */
                 nextop = F8;
                 GET_ED;
-                op1->dword[0] = F32;
+                ED->dword[0] = F32;
                 NEXT;
 
             _0xC9:                      /* LEAVE */
@@ -902,36 +893,36 @@ _trace:
                 }
                 NEXT;
 
-            _0xD1:                      /* GRP2 Ed,1 */
-            _0xD3:                      /* GRP2 Ed,CL */
-                nextop = F8;
-                GET_ED;
-                tmp8u = (opcode==0xD1)?1:R_CL;
-                switch((nextop>>3)&7) {
-                    case 0: op1->dword[0] = rol32(emu, op1->dword[0], tmp8u); break;
-                    case 1: op1->dword[0] = ror32(emu, op1->dword[0], tmp8u); break;
-                    case 2: op1->dword[0] = rcl32(emu, op1->dword[0], tmp8u); break;
-                    case 3: op1->dword[0] = rcr32(emu, op1->dword[0], tmp8u); break;
-                    case 4: 
-                    case 6: op1->dword[0] = shl32(emu, op1->dword[0], tmp8u); break;
-                    case 5: op1->dword[0] = shr32(emu, op1->dword[0], tmp8u); break;
-                    case 7: op1->dword[0] = sar32(emu, op1->dword[0], tmp8u); break;
-                }
-                NEXT;
             _0xD0:                      /* GRP2 Eb,1 */
             _0xD2:                      /* GRP2 Eb,CL */
                 nextop = F8;
                 GET_EB;
                 tmp8u = (opcode==0xD0)?1:R_CL;
                 switch((nextop>>3)&7) {
-                    case 0: op1->byte[0] = rol8(emu, op1->byte[0], tmp8u); break;
-                    case 1: op1->byte[0] = ror8(emu, op1->byte[0], tmp8u); break;
-                    case 2: op1->byte[0] = rcl8(emu, op1->byte[0], tmp8u); break;
-                    case 3: op1->byte[0] = rcr8(emu, op1->byte[0], tmp8u); break;
+                    case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                    case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                    case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                    case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
                     case 4: 
-                    case 6: op1->byte[0] = shl8(emu, op1->byte[0], tmp8u); break;
-                    case 5: op1->byte[0] = shr8(emu, op1->byte[0], tmp8u); break;
-                    case 7: op1->byte[0] = sar8(emu, op1->byte[0], tmp8u); break;
+                    case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                    case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                    case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
+                }
+                NEXT;
+            _0xD1:                      /* GRP2 Ed,1 */
+            _0xD3:                      /* GRP2 Ed,CL */
+                nextop = F8;
+                GET_ED;
+                tmp8u = (opcode==0xD1)?1:R_CL;
+                switch((nextop>>3)&7) {
+                    case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                    case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                    case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                    case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                    case 4: 
+                    case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                    case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                    case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
                 }
                 NEXT;
             _0xD4:                      /* AAM Ib */
@@ -1183,25 +1174,25 @@ _trace:
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Eb,Ib */
-                        test8(emu, op1->byte[0], F8);
+                        test8(emu, EB->byte[0], F8);
                         break;
                     case 2:                 /* NOT Eb */
-                        op1->byte[0] = not8(emu, op1->byte[0]);
+                        EB->byte[0] = not8(emu, EB->byte[0]);
                         break;
                     case 3:                 /* NEG Eb */
-                        op1->byte[0] = neg8(emu, op1->byte[0]);
+                        EB->byte[0] = neg8(emu, EB->byte[0]);
                         break;
                     case 4:                 /* MUL EAX,Eb */
-                        mul8(emu, op1->byte[0]);
+                        mul8(emu, EB->byte[0]);
                         break;
                     case 5:                 /* IMUL EAX,Eb */
-                        imul8(emu, op1->byte[0]);
+                        imul8(emu, EB->byte[0]);
                         break;
                     case 6:                 /* DIV Eb */
-                        div8(emu, op1->byte[0]);
+                        div8(emu, EB->byte[0]);
                         break;
                     case 7:                 /* IDIV Eb */
-                        idiv8(emu, op1->byte[0]);
+                        idiv8(emu, EB->byte[0]);
                         break;
                 }
                 NEXT;
@@ -1211,25 +1202,25 @@ _trace:
                 switch((nextop>>3)&7) {
                     case 0: 
                     case 1:                 /* TEST Ed,Id */
-                        test32(emu, op1->dword[0], F32);
+                        test32(emu, ED->dword[0], F32);
                         break;
                     case 2:                 /* NOT Ed */
-                        op1->dword[0] = not32(emu, op1->dword[0]);
+                        ED->dword[0] = not32(emu, ED->dword[0]);
                         break;
                     case 3:                 /* NEG Ed */
-                        op1->dword[0] = neg32(emu, op1->dword[0]);
+                        ED->dword[0] = neg32(emu, ED->dword[0]);
                         break;
                     case 4:                 /* MUL EAX,Ed */
-                        mul32_eax(emu, op1->dword[0]);
+                        mul32_eax(emu, ED->dword[0]);
                         break;
                     case 5:                 /* IMUL EAX,Ed */
-                        imul32_eax(emu, op1->dword[0]);
+                        imul32_eax(emu, ED->dword[0]);
                         break;
                     case 6:                 /* DIV Ed */
-                        div32(emu, op1->dword[0]);
+                        div32(emu, ED->dword[0]);
                         break;
                     case 7:                 /* IDIV Ed */
-                        idiv32(emu, op1->dword[0]);
+                        idiv32(emu, ED->dword[0]);
                         break;
                 }
                 NEXT;
@@ -1254,10 +1245,10 @@ _trace:
                 GET_EB;
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Eb */
-                        op1->byte[0] = inc8(emu, op1->byte[0]);
+                        EB->byte[0] = inc8(emu, EB->byte[0]);
                         break;
-                    case 1:                 /* DEC Ed */
-                        op1->byte[0] = dec8(emu, op1->byte[0]);
+                    case 1:                 /* DEC Eb */
+                        EB->byte[0] = dec8(emu, EB->byte[0]);
                         break;
                     default:
                         emu->old_ip = old_ip;
@@ -1273,14 +1264,14 @@ _trace:
                 GET_ED;
                 switch((nextop>>3)&7) {
                     case 0:                 /* INC Ed */
-                        op1->dword[0] = inc32(emu, op1->dword[0]);
+                        ED->dword[0] = inc32(emu, ED->dword[0]);
                         break;
                     case 1:                 /* DEC Ed */
-                        op1->dword[0] = dec32(emu, op1->dword[0]);
+                        ED->dword[0] = dec32(emu, ED->dword[0]);
                         break;
                     case 2:                 /* CALL NEAR Ed */
                         Push(emu, ip);
-                        ip = op1->dword[0];
+                        ip = ED->dword[0];
                         break;
                     case 3:                 /* CALL FAR Ed */
                         if(nextop>0xc0) {
@@ -1293,12 +1284,12 @@ _trace:
                         } else {
                             Push16(emu, R_CS);
                             Push(emu, ip);
-                            ip = op1->dword[0];
-                            R_CS = (op1+1)->word[0];
+                            ip = ED->dword[0];
+                            R_CS = (ED+1)->word[0];
                         }
                         break;
                     case 4:                 /* JMP NEAR Ed */
-                        ip = op1->dword[0];
+                        ip = ED->dword[0];
                         break;
                     case 5:                 /* JMP FAR Ed */
                         if(nextop>0xc0) {
@@ -1309,12 +1300,12 @@ _trace:
                             emu->error |= ERR_ILLEGAL;
                             goto fini;
                         } else {
-                            ip = op1->dword[0];
-                            R_CS = (op1+1)->word[0];
+                            ip = ED->dword[0];
+                            R_CS = (ED+1)->word[0];
                         }
                         break;
                     case 6:                 /* Push Ed */
-                        Push(emu, op1->dword[0]);
+                        Push(emu, ED->dword[0]);
                         break;
                     default:
                         emu->old_ip = old_ip;
