@@ -416,6 +416,7 @@ void InitCpuModel()
 #undef fopen
 #undef freopen
 #undef truncate
+#undef tmpfile
 #undef lockf
 #undef fscanf
 #undef scanf
@@ -425,6 +426,10 @@ void InitCpuModel()
 #undef vsscanf
 #undef getc
 #undef putc
+#undef mkstemp
+#undef mkstemps
+#undef mkostemp
+#undef mkostemps
 
 // define all standard library functions
 #include "wrappedlib_init.h"
