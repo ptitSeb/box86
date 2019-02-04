@@ -405,6 +405,27 @@ void InitCpuModel()
 }
 
 
+// need to undef all read / read64 stuffs!
+#undef pread
+#undef pwrite
+#undef lseek
+#undef fseeko
+#undef ftello
+#undef fseekpos
+#undef fsetpos
+#undef fopen
+#undef freopen
+#undef truncate
+#undef lockf
+#undef fscanf
+#undef scanf
+#undef sscanf
+#undef vfscanf
+#undef vscanf
+#undef vsscanf
+#undef getc
+#undef putc
+
 // define all standard library functions
 #include "wrappedlib_init.h"
 
