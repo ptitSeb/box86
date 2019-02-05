@@ -10,10 +10,10 @@
             GX.q[1] = 0;
         }
         break;
-    case 0x11:  /* MOVSQ Ex, Gx */
+    case 0x11:  /* MOVSD Ex, Gx */
         nextop = F8;
         GET_EX;
-        GX.q[0] = EX->q[0];
+        EX->q[0] = GX.q[0];
         break;
 
     case 0x2A:  /* CVTSI2SD Gx, Ed */
