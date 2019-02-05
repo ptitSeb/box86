@@ -501,8 +501,8 @@
     _6f_0x7F:  /* MOVDQA Ex,Gx */
         nextop = F8;
         GET_EX;
-        GX.q[0] = EX->q[0];
-        GX.q[1] = EX->q[1];
+        EX->q[0] = GX.q[0];
+        EX->q[1] = GX.q[1];
         NEXT;
 
     _6f_0xA3:                      /* BT Ew,Gw */
