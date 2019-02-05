@@ -4,12 +4,12 @@
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
             GET_EX;
-            memcpy(&GX, EX, sizeof(sse_regs_t)); // unaligned, so carreful
+            memcpy(&GX, EX, 16); // unaligned, so carreful
             NEXT;
         _0f_0x11:                      /* MOVUPS Ex,Gx */
             nextop = F8;
             GET_EX;
-            memcpy(EX, &GX, sizeof(sse_regs_t)); // unaligned, so carreful
+            memcpy(EX, &GX, 16); // unaligned, so carreful
             NEXT;
         _0f_0x12:                      
             nextop = F8;
