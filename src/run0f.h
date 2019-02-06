@@ -76,7 +76,7 @@
 
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
         _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
-            // rounding should be done
+            // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GET_EX;
             GM.sd[1] = EX->f[1];

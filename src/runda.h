@@ -56,7 +56,7 @@
         fpu_do_pop(emu);
         break;
 
-/*    case 0xE4:
+    case 0xE4:
     case 0xF0:
     case 0xF1:
     case 0xF4:
@@ -67,7 +67,7 @@
     case 0xF9:
     case 0xFD:
         UnimpOpcode(emu);
-        break;*/
+        break;
     default:
         switch((nextop>>3)&7) {
             case 1:     /* FIMUL ST0, Ed int */

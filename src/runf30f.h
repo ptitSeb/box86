@@ -129,10 +129,7 @@
             case 6: tmp8s=isnan(GX.f[0]) || isnan(EX->f[0]) || isgreater(GX.f[0], EX->f[0]); break;
             case 7: tmp8s=!isnan(GX.f[0]) && !isnan(EX->f[0]); break;
         }
-        if(tmp8s)
-            GX.ud[0] = 0xffffffff;
-        else
-            GX.ud[0] = 0;
+        GX.ud[0]=(tmp8s)?0xffffffff:0;
         break;
 
     case 0xD6:  /* MOVQ2DQ Gx, Em */

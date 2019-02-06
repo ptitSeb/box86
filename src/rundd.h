@@ -44,6 +44,40 @@
         fpu_do_pop(emu);
         break;
 
+    case 0xC0:
+    case 0xC1:
+    case 0xC2:
+    case 0xC3:
+    case 0xC4:
+    case 0xC5:
+    case 0xC6:
+    case 0xC7:
+    case 0xC8:
+    case 0xC9:
+    case 0xCA:
+    case 0xCB:
+    case 0xCC:
+    case 0xCD:
+    case 0xCE:
+    case 0xCF:
+    case 0xF0:
+    case 0xF1:
+    case 0xF2:
+    case 0xF3:
+    case 0xF4:
+    case 0xF5:
+    case 0xF6:
+    case 0xF7:
+    case 0xF8:
+    case 0xF9:
+    case 0xFA:
+    case 0xFB:
+    case 0xFC:
+    case 0xFD:
+    case 0xFE:
+    case 0xFF:
+        goto _default;
+
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */

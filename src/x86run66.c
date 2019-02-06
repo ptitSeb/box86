@@ -32,7 +32,7 @@ void Run6766(x86emu_t *emu)
         nextop = Fetch8(emu);
         op1=GetEw16(emu, nextop);
         op2=GetG(emu, nextop);
-        op2->word[0] = (uint16_t)(uintptr_t)&op1->word[0];
+        op2->word[0] = (uint16_t)(uintptr_t)op1;
         break;
     
                 
@@ -57,7 +57,7 @@ void Run67(x86emu_t *emu)
     int64_t tmp64s;
     switch(opcode) {
 
-    case 0x66:                      /* MOARE */
+    case 0x66:                      /* MoooRE opcodes */
         Run6766(emu);
         break;
 

@@ -91,6 +91,24 @@
         ST(nextop&7).d /= ST0.d;
         fpu_do_pop(emu);
         break;
+
+    case 0xD0:
+    case 0xD1:
+    case 0xD2:
+    case 0xD3:
+    case 0xD4:
+    case 0xD5:
+    case 0xD6:
+    case 0xD7:
+    case 0xD8:
+    case 0xDA:
+    case 0xDB:
+    case 0xDC:
+    case 0xDD:
+    case 0xDE:
+    case 0xDF:
+        goto _default;
+    
     default:
         switch((nextop>>3)&7) {
         default:

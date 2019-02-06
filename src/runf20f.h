@@ -6,7 +6,7 @@
         GET_EX;
         GX.q[0] = EX->q[0];
         if((nextop&0xC0)!=0xC0) {
-            // op2 is not a register
+            // EX is not a register
             GX.q[1] = 0;
         }
         break;
@@ -105,10 +105,7 @@
             case 6: tmp8s=isnan(GX.d[0]) || isnan(EX->d[0]) || isgreater(GX.d[0], EX->d[0]); break;
             case 7: tmp8s=!isnan(GX.d[0]) && !isnan(EX->d[0]); break;
         }
-        if(tmp8s)
-            GX.q[0] = 0xffffffffffffffffLL;
-        else
-            GX.q[0] = 0;
+        GX.q[0]=(tmp8s)?0xffffffffffffffffLL:0LL;
         break;
 
     case 0xD6:  /* MOVDQ2Q Gm, Ex */

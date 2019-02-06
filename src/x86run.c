@@ -463,7 +463,7 @@ _trace:
                 }
                 if(emu->quit) goto fini;
                 NEXT;
-            _0x67:                      /* Prefix to change width of intructions */
+            _0x67:                      /* Prefix to change width of registers */
                 emu->old_ip = old_ip;
                 R_EIP = ip;
                 Run67(emu); // implemented in Run66.c

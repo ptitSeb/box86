@@ -86,6 +86,13 @@
     case 0xF7:
         fpu_fcomi(emu, ST(nextop&7).d);
         break;
+    case 0xE0:
+    case 0xE1:
+    case 0xE4:
+    case 0xE5:
+    case 0xE6:
+    case 0xE7:
+        goto _default;
     default:
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Gd */

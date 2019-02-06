@@ -28,6 +28,56 @@
         fpu_fcomi(emu, ST(nextop&7).d);
         fpu_do_pop(emu);
         break;
+
+    case 0xC0:
+    case 0xC1:
+    case 0xC2:
+    case 0xC3:
+    case 0xC4:
+    case 0xC5:
+    case 0xC6:
+    case 0xC7:
+    case 0xC8:
+    case 0xC9:
+    case 0xCA:
+    case 0xCB:
+    case 0xCC:
+    case 0xCD:
+    case 0xCE:
+    case 0xCF:
+    case 0xD0:
+    case 0xD1:
+    case 0xD2:
+    case 0xD3:
+    case 0xD4:
+    case 0xD5:
+    case 0xD6:
+    case 0xD7:
+    case 0xD8:
+    case 0xD9:
+    case 0xDA:
+    case 0xDB:
+    case 0xDC:
+    case 0xDD:
+    case 0xDE:
+    case 0xDF:
+    case 0xE1:
+    case 0xE2:
+    case 0xE3:
+    case 0xE4:
+    case 0xE5:
+    case 0xE6:
+    case 0xE7:
+    case 0xF8:
+    case 0xF9:
+    case 0xFA:
+    case 0xFB:
+    case 0xFC:
+    case 0xFD:
+    case 0xFE:
+    case 0xFF:
+        goto _default;
+
     default:
         switch((nextop>>3)&7) {
         case 0: /* FILD ST0, Gw */
@@ -44,7 +94,7 @@
             break;
         case 2: /* FIST Ew, ST0 */
             GET_EW;
-            tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
+            tmp32s = ST0.d;
             if((tmp32s<-32768) || (tmp32s>32767))
                 tmp16s=0x8000;
             else
@@ -53,11 +103,9 @@
             break;
         case 3: /* FISTP Ew, ST0 */
             GET_EW;
-            tmp32s = ST0.d; // Converting directly to short don't work correctly => it doesn't "saturate"
-            if(tmp32s<-32768)
-                tmp16s=-32768;
-            else if(tmp32s>32767)
-                tmp16s=32767;
+            tmp32s = ST0.d;
+            if((tmp32s<-32768) || (tmp32s>32767))
+                tmp16s=0x8000;
             else
                 tmp16s = tmp32s;
             EW->sword[0] = tmp16s;
