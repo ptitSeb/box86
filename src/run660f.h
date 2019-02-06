@@ -356,7 +356,7 @@
     _6f_0x6E:  /* MOVD Gx, Ed */
         nextop = F8;
         GET_ED;
-        GX.q[0] = ED->dword[0];
+        GX.q[0] = ED->dword[0]; // zero extend, so ud[1] <- 0
         GX.q[1] = 0;
         NEXT;
     _6f_0x6F:  /* MOVDQA Gx,Ex */
@@ -518,7 +518,7 @@
     _6f_0xA5:                      /* SHLD Ew,Gw,CL */
         nextop = F8;
         GET_EW;
-        tmp8u = (opcode==0xA4)?F8:R_CL;
+        tmp8u = (opcode==0xA4)?(F8):R_CL;
         EW->word[0] = shld16(emu, EW->word[0], GW.word[0], tmp8u);
         NEXT;
 
@@ -537,7 +537,7 @@
     _6f_0xAD:                      /* SHRD Ew,Gw,CL */
         nextop = F8;
         GET_EW;
-        tmp8u = (opcode==0xAC)?F8:R_CL;
+        tmp8u = (opcode==0xAC)?(F8):R_CL;
         EW->word[0] = shrd16(emu, EW->word[0], GW.word[0], tmp8u);
         NEXT;
 
@@ -551,11 +551,9 @@
         nextop = F8;
         GET_EW;
         cmp16(emu, R_AX, EW->word[0]);
-        if(R_AX == EW->word[0]) {
-            SET_FLAG(F_ZF);
+        if(ACCESS_FLAG(F_ZF)) {
             EW->word[0] = GW.word[0];
         } else {
-            CLEAR_FLAG(F_ZF);
             R_AX = EW->word[0];
         }
         NEXT;
@@ -618,7 +616,7 @@
     _6f_0xBE:                      /* MOVSX Gw,Eb */
         nextop = F8;
         GET_EB;
-        GW.sword[0] = (int8_t)EB->byte[0];
+        GW.sword[0] = EB->sbyte[0];
         NEXT;
 
     _6f_0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
@@ -639,15 +637,12 @@
                 case 1: tmp8s=isless(GX.d[i], EX->d[i]); break;
                 case 2: tmp8s=islessequal(GX.d[i], EX->d[i]); break;
                 case 3: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]); break;
-                case 4: tmp8s=(GX.d[i] != EX->d[i]); break;
-                case 5: tmp8s=isgreaterequal(GX.d[i], EX->d[i]); break;
-                case 6: tmp8s=isgreater(GX.d[i], EX->d[i]); break;
+                case 4: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || (GX.d[i] != EX->d[i]); break;
+                case 5: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || isgreaterequal(GX.d[i], EX->d[i]); break;
+                case 6: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || isgreater(GX.d[i], EX->d[i]); break;
                 case 7: tmp8s=!isnan(GX.d[i]) && !isnan(EX->d[i]); break;
             }
-            if(tmp8s)
-                GX.q[i] = 0xffffffffffffffffLL;
-            else
-                GX.q[i] = 0;
+            GX.q[i]=(tmp8s)?0xffffffffffffffffLL:0LL;
         }
         NEXT;
 
@@ -757,14 +752,18 @@
     _6f_0xEC:  /* PADDSB Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<16; ++i)
-            GX.sb[i] += EX->sb[i];
+        for(int i=0; i<16; ++i) {
+            tmp16s = GX.sb[i] + EX->sb[i];
+            GX.sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
+        }
         NEXT;
     _6f_0xED:  /* PADDSW Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<8; ++i)
-            GX.sw[i] += EX->sw[i];
+        for(int i=0; i<8; ++i) {
+            tmp32s = GX.sw[i] + EX->sw[i];
+            GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+        }
         NEXT;
     _6f_0xEE:  /* PMAXSW Gx,Ex */
         nextop = F8;

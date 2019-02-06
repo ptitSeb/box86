@@ -574,7 +574,7 @@ _trace:
                 NEXT;
             GOCOND(0x70
                 ,   tmp8s = F8S; CHECK_FLAGS(emu);
-                ,   ip += (int8_t)tmp8s;
+                ,   ip += tmp8s;
                 )                           /* Jxx Ib */
             #undef GOCOND
 
@@ -591,7 +591,7 @@ _trace:
                     case 4: EB->byte[0] = and8(emu, EB->byte[0], tmp8u); break;
                     case 5: EB->byte[0] = sub8(emu, EB->byte[0], tmp8u); break;
                     case 6: EB->byte[0] = xor8(emu, EB->byte[0], tmp8u); break;
-                    case 7:                cmp8(emu, EB->byte[0], tmp8u); break;
+                    case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
                 }
                 NEXT;
             _0x81:                      /* GRP Ed,Id */
@@ -602,7 +602,7 @@ _trace:
                     tmp32u = F32;
                 } else {
                     tmp32s = F8S;
-                    tmp32u = *(uint32_t*)&tmp32s;
+                    tmp32u = (uint32_t)tmp32s;
                 }
                 switch((nextop>>3)&7) {
                     case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
@@ -612,7 +612,7 @@ _trace:
                     case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
                     case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
                     case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
-                    case 7:                 cmp32(emu, ED->dword[0], tmp32u); break;
+                    case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
                 }
                 NEXT;
             _0x84:                      /* TEST Eb,Gb */
@@ -686,13 +686,10 @@ _trace:
                 NEXT;
 
             _0x98:                      /* CWDE */
-                *(int32_t*)&R_EAX = (int16_t)R_AX;
+                emu->regs[_AX].sdword[0] = emu->regs[_AX].sword[0];
                 NEXT;
             _0x99:                      /* CDQ */
-                if(R_EAX & 0x80000000)
-                    R_EDX=0xFFFFFFFF;
-                else
-                    R_EDX=0x00000000;
+                R_EDX=(R_EAX & 0x80000000)?0xFFFFFFFF:0x00000000;
                 NEXT;
 
             _0x9B:                      /* FWAIT */
@@ -926,12 +923,10 @@ _trace:
                 }
                 NEXT;
             _0xD4:                      /* AAM Ib */
-                nextop = F8;
-                R_AX = aam16(emu, R_AL, nextop);
+                R_AX = aam16(emu, R_AL, F8);
                 NEXT;
             _0xD5:                      /* AAD Ib */
-                nextop = F8;
-                R_AX = aad16(emu, R_AX, nextop);
+                R_AX = aad16(emu, R_AX, F8);
                 NEXT;
             
             _0xD7:                      /* XLAT */
@@ -1063,7 +1058,7 @@ _trace:
                                         break;
                                 }
                             }
-                            cmp8(emu, tmp8u2, tmp8u);
+                            if(R_ECX) cmp8(emu, tmp8u2, tmp8u);
                             break;
                         case 0xA7:              /* REP(N)Z CMPSD */
                             tmp8s *= 4;
@@ -1088,7 +1083,7 @@ _trace:
                                         break;
                                 }
                             }
-                            cmp32(emu, tmp32u2, tmp32u3);
+                            if(R_ECX) cmp32(emu, tmp32u2, tmp32u3);
                             break;
                         case 0xAA:              /* REP STOSB */
                             while(tmp32u) {
@@ -1138,7 +1133,7 @@ _trace:
                                         break;
                                 }
                             }
-                            cmp8(emu, R_AL, tmp8u);
+                            if(R_ECX) cmp8(emu, R_AL, tmp8u);
                             break;
                         case 0xAF:              /* REP(N)Z SCASD */
                             tmp8s *= 4;
@@ -1159,7 +1154,7 @@ _trace:
                                         break;
                                 }
                             }
-                            cmp32(emu, R_EAX, tmp32u2);
+                            if(R_ECX) cmp32(emu, R_EAX, tmp32u2);
                             break;
                         default:
                             goto _default;
@@ -1182,10 +1177,10 @@ _trace:
                     case 3:                 /* NEG Eb */
                         EB->byte[0] = neg8(emu, EB->byte[0]);
                         break;
-                    case 4:                 /* MUL EAX,Eb */
+                    case 4:                 /* MUL AL,Eb */
                         mul8(emu, EB->byte[0]);
                         break;
-                    case 5:                 /* IMUL EAX,Eb */
+                    case 5:                 /* IMUL AL,Eb */
                         imul8(emu, EB->byte[0]);
                         break;
                     case 6:                 /* DIV Eb */
@@ -1271,7 +1266,7 @@ _trace:
                         break;
                     case 2:                 /* CALL NEAR Ed */
                         Push(emu, ip);
-                        ip = ED->dword[0];
+                        ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
                         break;
                     case 3:                 /* CALL FAR Ed */
                         if(nextop>0xc0) {

@@ -97,7 +97,7 @@
             case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
             case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
             case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
-            case 7:                cmp16(emu, EW->word[0], tmp16u); break;
+            case 7:               cmp16(emu, EW->word[0], tmp16u); break;
         }
         NEXT;
 
@@ -141,14 +141,11 @@
         R_DX = tmp16u;
         NEXT;
 
-    _66_0x98:                              /* CBW */
-        *(int16_t*)&R_AX = (int8_t)R_AL;
+    _66_0x98:                               /* CBW */
+        emu->regs[_AX].sword[0] = emu->regs[_AX].sbyte[0];
         NEXT;
     _66_0x99:                              /* CWD */
-        if(R_AX & 0x8000)
-            R_DX=0xFFFF;
-        else
-            R_DX=0x0000;
+        R_DX=(R_AX & 0x8000)?0xFFFF:0x0000;
         NEXT;
 
     _66_0xA1:                              /* MOV AX,Ow */
@@ -262,7 +259,7 @@
                         if((tmp16u==tmp16u2)==(opcode==0xF2))
                             break;
                     }
-                    cmp16(emu, tmp16u2, tmp16u);
+                    if(R_ECX) cmp16(emu, tmp16u2, tmp16u);
                     break;
                 case 0xAB:              /* REP STOSW */
                     while(tmp32u) {
@@ -286,7 +283,7 @@
                         if((R_AX==tmp16u)==(opcode==0xF2))
                             break;
                     }
-                    cmp16(emu, R_AX, tmp16u);
+                    if(R_ECX) cmp16(emu, R_AX, tmp16u);
                     break;
                 default:
                     goto _default;

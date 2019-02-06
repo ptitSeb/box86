@@ -14,10 +14,10 @@
         _0f_0x12:                      
             nextop = F8;
             GET_EX;
-            if((nextop&0xC0)==0xC0)     /* MOVHLPS Gx,Ex */
+            if((nextop&0xC0)==0xC0)    /* MOVHLPS Gx,Ex */
                 GX.q[0] = EX->q[1];
             else
-                GX.q[0] = EX->q[0];/* MOVLPS Gx,Ex */
+                GX.q[0] = EX->q[0];    /* MOVLPS Gx,Ex */
             NEXT;
         _0f_0x13:                      /* MOVLPS Ex,Gx */
             nextop = F8;
@@ -39,12 +39,12 @@
             GX.ud[2] = GX.ud[3];
             GX.ud[3] = EX->ud[3];
             NEXT;
-        _0f_0x16:                      /* MOVHPS Ex,Gx */
-            nextop = F8;       /* MOVLHPS Ex,Gx */
+        _0f_0x16:                      /* MOVHPS Gx,Ex */
+            nextop = F8;               /* MOVLHPS Gx,Ex (Ex==reg) */
             GET_EX;
             GX.q[1] = EX->q[0];
             NEXT;
-        _0f_0x17:                      /* MOVHPS Gx,Ex */
+        _0f_0x17:                      /* MOVHPS Ex,Gx */
             nextop = F8;
             GET_EX;
             EX->q[0] = GX.q[1];
@@ -67,7 +67,7 @@
             EX->q[0] = GX.q[0];
             EX->q[1] = GX.q[1];
             NEXT;
-        _0f_0x2A:  /* CVTPI2PS Gx, Em */
+        _0f_0x2A:                      /* CVTPI2PS Gx, Em */
             nextop = F8;
             GET_EM;
             GX.f[0] = EM->sd[0];
@@ -374,7 +374,7 @@
                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
             }
             tmp8u&=31;
-            if(tmp8u<32 && ED->dword[0] & (1<<tmp8u))
+            if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
                 CLEAR_FLAG(F_CF);
@@ -383,7 +383,7 @@
         _0f_0xA5:                      /* SHLD Ed,Gd,CL */
             nextop = F8;
             GET_ED;
-            tmp8u = (opcode==0xA4)?F8:R_CL;
+            tmp8u = (opcode==0xA4)?(F8):R_CL;
             ED->dword[0] = shld32(emu, ED->dword[0], GD.dword[0], tmp8u);
             NEXT;
 
@@ -408,7 +408,7 @@
         _0f_0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = F8;
             GET_ED;
-            tmp8u = (opcode==0xAC)?F8:R_CL;
+            tmp8u = (opcode==0xAC)?(F8):R_CL;
             ED->dword[0] = shrd32(emu, ED->dword[0], GD.dword[0], tmp8u);
             NEXT;
 
@@ -437,11 +437,9 @@
             nextop = F8;
             GET_EB;
             cmp8(emu, R_AL, EB->byte[0]);
-            if(R_AL == EB->byte[0]) {
-                SET_FLAG(F_ZF);
+            if(ACCESS_FLAG(F_ZF)) {
                 EB->byte[0] = GB;
             } else {
-                CLEAR_FLAG(F_ZF);
                 R_AL = EB->byte[0];
             }
             NEXT;
@@ -449,11 +447,9 @@
             nextop = F8;
             GET_ED;
             cmp32(emu, R_EAX, ED->dword[0]);
-            if(R_EAX == ED->dword[0]) {
-                SET_FLAG(F_ZF);
+            if(ACCESS_FLAG(F_ZF)) {
                 ED->dword[0] = GD.dword[0];
             } else {
-                CLEAR_FLAG(F_ZF);
                 R_EAX = ED->dword[0];
             }
             NEXT;
@@ -475,12 +471,12 @@
                 CLEAR_FLAG(F_CF);
             NEXT;
 
-        _0f_0xB6:                      /* MOVZX Gd,Eb */ // Move with zero extend
+        _0f_0xB6:                      /* MOVZX Gd,Eb */
             nextop = F8;
             GET_EB;
             GD.dword[0] = EB->byte[0];
             NEXT;
-        _0f_0xB7:                      /* MOVZX Gd,Ew */ // Move with zero extend
+        _0f_0xB7:                      /* MOVZX Gd,Ew */
             nextop = F8;
             GET_EW;
             GD.dword[0] = EW->word[0];
@@ -552,25 +548,25 @@
                 SET_FLAG(F_ZF);
             }
             NEXT;
-        _0f_0xBE:                      /* MOVSX Gd,Eb */ // Move with sign extend
+        _0f_0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
             GET_EB;
             GD.sdword[0] = ED->sbyte[0];
             NEXT;
-        _0f_0xBF:                      /* MOVSX Gd,Ew */ // Move with sign extend
+        _0f_0xBF:                      /* MOVSX Gd,Ew */
             nextop = F8;
             GET_EW;
             GD.sdword[0] = EW->sword[0];
             NEXT;
 
-        _0f_0xC0:                      /* XADD Gb,Eb */ // Xchange and Add
+        _0f_0xC0:                      /* XADD Gb,Eb */
             nextop = F8;
             GET_EB;
             tmp8u = add8(emu, EB->byte[0], GB);
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
             NEXT;
-        _0f_0xC1:                      /* XADD Gd,Ed */ // Xchange and Add
+        _0f_0xC1:                      /* XADD Gd,Ed */
             nextop = F8;
             GET_ED;
             tmp32u = add32(emu, ED->dword[0], GD.dword[0]);
@@ -593,10 +589,7 @@
                     case 6: tmp8s=isnan(GX.f[i]) || isnan(EX->f[i]) || isgreater(GX.f[i], EX->f[i]); break;
                     case 7: tmp8s=!isnan(GX.f[i]) && !isnan(EX->f[i]); break;
                 }
-                if(tmp8s)
-                    GX.ud[i] = 0xffffffff;
-                else
-                    GX.ud[i] = 0;
+                GX.ud[i]=(tmp8s)?0xffffffff:0;
             }
             NEXT;
 
@@ -625,8 +618,8 @@
                 ED->dword[1] = R_ECX;
             } else {
                 CLEAR_FLAG(F_ZF);
-                R_EAX = ED->dword[0];
-                R_EDX = ED->dword[1];
+                R_EAX = tmp32u;
+                R_EDX = tmp32u2;
             }
             NEXT;
         _0f_0xC8:
