@@ -275,7 +275,7 @@ void UpdateFlags(x86emu_t *emu)
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
                 }
                 if (cnt == 1) {
-                    CONDITIONAL_SET_FLAG((((emu->res & 0x8000) == 0x8000) ^(ACCESS_FLAG(F_CF) != 0)), F_OF);
+                    CONDITIONAL_SET_FLAG(((!!(emu->res & 0x8000)) ^(ACCESS_FLAG(F_CF) != 0)), F_OF);
                 } else {
                     CLEAR_FLAG(F_OF);
                 }
@@ -295,17 +295,17 @@ void UpdateFlags(x86emu_t *emu)
                 CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             }
-            if (cnt == 1) {
-                CONDITIONAL_SET_FLAG((((emu->res & 0x80000000) == 0x80000000) ^
+            if (emu->op2 == 1) {
+                CONDITIONAL_SET_FLAG(((!!(emu->res & 0x80000000)) ^
                                         (ACCESS_FLAG(F_CF) != 0)), F_OF);
             } else {
                 CLEAR_FLAG(F_OF);
             }
             break;
         case d_sar8:
-            if (emu->op1 < 8) {
-                cc = emu->op1 & (1 << (emu->op2 - 1));
+            if (emu->op2 < 8) {
                 if(emu->op2) {
+                    cc = emu->op1 & (1 << (emu->op2 - 1));
                     CONDITIONAL_SET_FLAG(cc, F_CF);
                     CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
@@ -327,8 +327,8 @@ void UpdateFlags(x86emu_t *emu)
             break;
         case d_sar16:
             if (emu->op2 < 16) {
-                cc = emu->op2 & (1 << (emu->op1 - 1));
-                if(emu->op1) {
+                if(emu->op2) {
+                    cc = emu->op1 & (1 << (emu->op2 - 1));
                     CONDITIONAL_SET_FLAG(cc, F_CF);
                     CONDITIONAL_SET_FLAG((emu->res & 0xffff) == 0, F_ZF);
                     CONDITIONAL_SET_FLAG(emu->res & 0x8000, F_SF);

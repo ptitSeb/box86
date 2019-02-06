@@ -276,15 +276,6 @@ uint32_t     rol32 (x86emu_t *emu, uint32_t d, uint8_t s);
 uint8_t      ror8  (x86emu_t *emu, uint8_t d, uint8_t s);
 uint16_t     ror16 (x86emu_t *emu, uint16_t d, uint8_t s);
 uint32_t     ror32 (x86emu_t *emu, uint32_t d, uint8_t s);
-uint8_t      shl8  (x86emu_t *emu, uint8_t d, uint8_t s);
-uint16_t     shl16 (x86emu_t *emu, uint16_t d, uint8_t s);
-uint32_t     shl32 (x86emu_t *emu, uint32_t d, uint8_t s);
-uint8_t      shr8  (x86emu_t *emu, uint8_t d, uint8_t s);
-uint16_t     shr16 (x86emu_t *emu, uint16_t d, uint8_t s);
-uint32_t     shr32 (x86emu_t *emu, uint32_t d, uint8_t s);
-uint8_t      sar8  (x86emu_t *emu, uint8_t d, uint8_t s);
-uint16_t     sar16 (x86emu_t *emu, uint16_t d, uint8_t s);
-uint32_t     sar32 (x86emu_t *emu, uint32_t d, uint8_t s);
 uint16_t     shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s);
 uint32_t     shld32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s);
 uint16_t     shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s);
@@ -292,6 +283,151 @@ uint32_t     shrd32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s);
 uint8_t      sbb8  (x86emu_t *emu, uint8_t d, uint8_t s);
 uint16_t     sbb16 (x86emu_t *emu, uint16_t d, uint16_t s);
 uint32_t     sbb32 (x86emu_t *emu, uint32_t d, uint32_t s);
+/****************************************************************************
+REMARKS:
+Implements the SHL instruction and side effects.
+****************************************************************************/
+static inline uint8_t shl8(x86emu_t *emu, uint8_t d, uint8_t s)
+{
+	emu->df = d_shl8;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
+
+	return (uint8_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SHL instruction and side effects.
+****************************************************************************/
+static inline uint16_t shl16(x86emu_t *emu, uint16_t d, uint8_t s)
+{
+	emu->df = d_shl16;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
+	return (uint16_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SHL instruction and side effects.
+****************************************************************************/
+static inline uint32_t shl32(x86emu_t *emu, uint32_t d, uint8_t s)
+{
+	emu->df = d_shl32;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
+
+	return emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SHR instruction and side effects.
+****************************************************************************/
+static inline uint8_t shr8(x86emu_t *emu, uint8_t d, uint8_t s)
+{
+	emu->df = d_shr8;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
+
+	return (uint8_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SHR instruction and side effects.
+****************************************************************************/
+static inline uint16_t shr16(x86emu_t *emu, uint16_t d, uint8_t s)
+{
+	emu->df = d_shr16;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
+
+	return (uint16_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SHR instruction and side effects.
+****************************************************************************/
+static inline uint32_t shr32(x86emu_t *emu, uint32_t d, uint8_t s)
+{
+	RESET_FLAGS(emu);	// TODO: Defered this one?
+
+	emu->df = d_shr32;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
+
+    return emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SAR instruction and side effects.
+****************************************************************************/
+static inline uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
+{
+	emu->df = d_sar8;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint8_t)(((int8_t)d)>>s);
+
+	return (uint8_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SAR instruction and side effects.
+****************************************************************************/
+static inline uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
+{
+	emu->df = d_sar16;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint16_t)(((int16_t)d)>>s);
+
+	return (uint16_t)emu->res;
+}
+
+/****************************************************************************
+REMARKS:
+Implements the SAR instruction and side effects.
+****************************************************************************/
+static inline uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
+{
+	emu->df = d_sar32;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint32_t)(((int32_t)d)>>s);
+
+	return emu->res;
+}
+
 /****************************************************************************
 REMARKS:
 Implements the SUB instruction and side effects.
@@ -382,12 +518,5 @@ void         idiv32 (x86emu_t *emu, uint32_t s);
 void         div8  (x86emu_t *emu, uint8_t s);
 void         div16 (x86emu_t *emu, uint16_t s);
 void         div32 (x86emu_t *emu, uint32_t s);
-//void         ins (x86emu_t *emu, int size);
-//void         outs (x86emu_t *emu, int size);
-/*void         push16 (x86emu_t *emu, uint16_t w);
-void         push32 (x86emu_t *emu, uint32_t w);
-uint16_t     pop16 (x86emu_t *emu);
-uint32_t     pop32 (x86emu_t *emu);*/
-int eval_condition(x86emu_t *emu, unsigned type);
 
 #endif //__X86PRIMOP_H_
