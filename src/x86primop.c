@@ -876,44 +876,14 @@ Implements the SHL instruction and side effects.
 ****************************************************************************/
 uint8_t shl8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_shl8;
+	emu->op1 = d;
 
-	s = s&0x1f;
-	if (s < 8) {
-		cnt = s % 8;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
 
-		/* last bit shifted out goes into carry flag */
-		if (cnt > 0) {
-			res = d << cnt;
-			cf = d & (1 << (8 - cnt));
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = (uint8_t) d;
-		}
-
-		if (cnt == 1) {
-			/* Needs simplification. */
-			CONDITIONAL_SET_FLAG(
-									(((res & 0x80) == 0x80) ^
-									 (ACCESS_FLAG(F_CF) != 0)),
-			/* was (emu->x86.R_FLG&F_CF)==F_CF)), */
-									F_OF);
-		} else {
-			CLEAR_FLAG(F_OF);
-		}
-	} else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x80, F_CF);
-		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
-    }
-	return (uint8_t)res;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -922,40 +892,13 @@ Implements the SHL instruction and side effects.
 ****************************************************************************/
 uint16_t shl16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
-    unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_shl16;
+	emu->op1 = d;
 
-	s = s&0x1f;
-	if (s < 16) {
-		cnt = s % 16;
-		if (cnt > 0) {
-			res = d << cnt;
-			cf = d & (1 << (16 - cnt));
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = (uint16_t) d;
-		}
-
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(
-									(((res & 0x8000) == 0x8000) ^
-									 (ACCESS_FLAG(F_CF) != 0)),
-									F_OF);
-        } else {
-			CLEAR_FLAG(F_OF);
-        }
-    } else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d << (s-1)) & 0x8000, F_CF);
-		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
-	}
-	return (uint16_t)res;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -964,27 +907,14 @@ Implements the SHL instruction and side effects.
 ****************************************************************************/
 uint32_t shl32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_shl32;
+	emu->op1 = d;
 
-	cnt = s&0x1f;
-	if (cnt > 0) {
-		res = d << cnt;
-		cf = d & (1 << (32 - cnt));
-		CONDITIONAL_SET_FLAG(cf, F_CF);
-		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	} else {
-		res = d;
-	}
-	if (cnt == 1) {
-		CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
-								(ACCESS_FLAG(F_CF) != 0)), F_OF);
-	} else {
-		CLEAR_FLAG(F_OF);
-	}
-	return res;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d << s;
+
+	return emu->res;
 }
 
 /****************************************************************************
@@ -993,37 +923,14 @@ Implements the SHR instruction and side effects.
 ****************************************************************************/
 uint8_t shr8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_shr8;
+	emu->op1 = d;
 
-	s = s&0x1f;
-	if (s < 8) {
-		cnt = s % 8;
-		if (cnt > 0) {
-			cf = d & (1 << (cnt - 1));
-			res = d >> cnt;
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = (uint8_t) d;
-		}
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
 
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(XOR2(res >> 6), F_OF);
-		} else {
-			CLEAR_FLAG(F_OF);
-		}
-	} else {
-		res = 0;
-		CONDITIONAL_SET_FLAG((d >> (s-1)) & 0x1, F_CF);
-		CLEAR_FLAG(F_OF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-		SET_FLAG(F_ZF);
-	}
-	return (uint8_t)res;
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -1032,37 +939,14 @@ Implements the SHR instruction and side effects.
 ****************************************************************************/
 uint16_t shr16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_shr16;
+	emu->op1 = d;
 
-	s = s&0x1f;
-	if (s < 16) {
-		cnt = s % 16;
-		if (cnt > 0) {
-			cf = d & (1 << (cnt - 1));
-			res = d >> cnt;
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-			CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		} else {
-			res = d;
-		}
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
 
-		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(XOR2(res >> 14), F_OF);
-        } else {
-			CLEAR_FLAG(F_OF);
-        }
-	} else {
-		res = 0;
-		CLEAR_FLAG(F_CF);
-		CLEAR_FLAG(F_OF);
-		SET_FLAG(F_ZF);
-		CLEAR_FLAG(F_SF);
-		SET_FLAG(F_PF);
-    }
-	return (uint16_t)res;
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -1071,26 +955,16 @@ Implements the SHR instruction and side effects.
 ****************************************************************************/
 uint32_t shr32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf;
 	RESET_FLAGS(emu);	// TODO: Defered this one?
 
-	cnt = s % 32;
-	if (cnt > 0) {
-		cf = d & (1 << (cnt - 1));
-		res = d >> cnt;
-		CONDITIONAL_SET_FLAG(cf, F_CF);
-		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	} else {
-		res = d;
-	}
-	if (cnt == 1) {
-		CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
-	} else {
-		CLEAR_FLAG(F_OF);
-	}
-    return res;
+	emu->df = d_shr32;
+	emu->op1 = d;
+
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = d >> s;
+
+    return emu->res;
 }
 
 /****************************************************************************
@@ -1099,43 +973,14 @@ Implements the SAR instruction and side effects.
 ****************************************************************************/
 uint8_t sar8(x86emu_t *emu, uint8_t d, uint8_t s)
 {
-	unsigned int cnt, res, cf, mask, sf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_sar8;
+	emu->op1 = d;
 
-	s = s&0x1f;
-	res = d;
-	sf = d & 0x80;
-    cnt = s % 8;
-	if (s < 8) {
-		mask = (1 << (8 - cnt)) - 1;
-		cf = d & (1 << (cnt - 1));
-		res = (d >> cnt) & mask;
-		if(s)
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-		if (sf) {
-			res |= ~mask;
-		}
-		if(s) {
-			CONDITIONAL_SET_FLAG((res & 0xff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-			CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
-		}
-    } else {
-        if (sf) {
-            res = 0xff;
-			SET_FLAG(F_CF);
-			CLEAR_FLAG(F_ZF);
-			SET_FLAG(F_SF);
-			SET_FLAG(F_PF);
-		} else {
-			res = 0;
-			CLEAR_FLAG(F_CF);
-			SET_FLAG(F_ZF);
-			CLEAR_FLAG(F_SF);
-			SET_FLAG(F_PF);
-		}
-	}
-	return (uint8_t)res;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint8_t)(((int8_t)d)>>s);
+
+	return (uint8_t)emu->res;
 }
 
 /****************************************************************************
@@ -1144,43 +989,14 @@ Implements the SAR instruction and side effects.
 ****************************************************************************/
 uint16_t sar16(x86emu_t *emu, uint16_t d, uint8_t s)
 {
-    unsigned int cnt, res, cf, mask, sf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_sar16;
+	emu->op1 = d;
 
-	s = s&0x1f;
-    sf = d & 0x8000;
-    cnt = s % 16;
-	res = d;
-	if (s < 16) {
-        mask = (1 << (16 - cnt)) - 1;
-        cf = d & (1 << (cnt - 1));
-        res = (d >> cnt) & mask;
-		if(s)
-			CONDITIONAL_SET_FLAG(cf, F_CF);
-        if (sf) {
-            res |= ~mask;
-        }
-		if(s) {
-			CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
-			CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
-			CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-		}
-    } else {
-        if (sf) {
-            res = 0xffff;
-			SET_FLAG(F_CF);
-			CLEAR_FLAG(F_ZF);
-			SET_FLAG(F_SF);
-			SET_FLAG(F_PF);
-        } else {
-            res = 0;
-			CLEAR_FLAG(F_CF);
-			SET_FLAG(F_ZF);
-			CLEAR_FLAG(F_SF);
-			SET_FLAG(F_PF);
-        }
-    }
-	return (uint16_t)res;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint16_t)(((int16_t)d)>>s);
+
+	return (uint16_t)emu->res;
 }
 
 /****************************************************************************
@@ -1189,27 +1005,14 @@ Implements the SAR instruction and side effects.
 ****************************************************************************/
 uint32_t sar32(x86emu_t *emu, uint32_t d, uint8_t s)
 {
-    uint32_t cnt, res, cf, mask, sf;
-	RESET_FLAGS(emu);	// TODO: Defered this one?
+	emu->df = d_sar32;
+	emu->op1 = d;
 
-	s = s&0x1f;
-    sf = d & 0x80000000;
-    cnt = s % 32;
-	res = d;
-	mask = (1 << (32 - cnt)) - 1;
-	cf = d & (1 << (cnt - 1));
-	res = (d >> cnt) & mask;
-	if(s)
-		CONDITIONAL_SET_FLAG(cf, F_CF);
-	if (sf) {
-		res |= ~mask;
-	}
-	if(s) {
-		CONDITIONAL_SET_FLAG((res & 0xffffffff) == 0, F_ZF);
-		CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
-		CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	}
-	return res;
+	s &= 0x1f;
+	emu->op2 = s;
+	emu->res = (uint32_t)(((int32_t)d)>>s);
+
+	return emu->res;
 }
 
 /****************************************************************************
