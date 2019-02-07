@@ -312,4 +312,5 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     R_EIP = addr;
     emu->df = d_none;
     Run(emu);
+    emu->quit = 0;  // reset Quit flags...
 }
