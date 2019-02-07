@@ -419,7 +419,7 @@
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr = ED->dword[0];
                     break;
-                case 3:                 /* SDMXCSR Md */
+                case 3:                 /* STMXCSR Md */
                     ED->dword[0] = emu->mxcsr;
                     break;
                 default:

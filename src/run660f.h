@@ -341,7 +341,14 @@
         GX.uw[1] = EX->uw[2];
         GX.uw[3] = EX->uw[3];
         NEXT;
-
+    _6f_0x6B:  /* PACKSSDW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<4; ++i)
+            GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
+        for(int i=0; i<4; ++i)
+            GX.sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
+        NEXT;
     _6f_0x6C:  /* PUNPCKLQDQ Gx,Ex */
         nextop = F8;
         GET_EX;
