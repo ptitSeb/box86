@@ -336,10 +336,10 @@
     _6f_0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.uw[0] = GX.uw[2];
-        GX.uw[2] = GX.uw[3];
-        GX.uw[1] = EX->uw[2];
-        GX.uw[3] = EX->uw[3];
+        GX.ud[0] = GX.ud[2];
+        GX.ud[2] = GX.ud[3];
+        GX.ud[1] = EX->ud[2];
+        GX.ud[3] = EX->ud[3];
         NEXT;
     _6f_0x6B:  /* PACKSSDW Gx,Ex */
         nextop = F8;
