@@ -130,6 +130,7 @@ void CallCleanup(x86emu_t *emu, void* p)
             PushExit(emu);
             emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
             Run(emu);
+            emu->quit = 0;
             // now remove the cleanup
             if(i!=emu->clean_sz-1)
                 memmove(emu->cleanups+i, emu->cleanups+i+1, (emu->clean_sz-i-1)*sizeof(cleanup_t));
@@ -148,6 +149,7 @@ void CallAllCleanup(x86emu_t *emu)
         PushExit(emu);
         emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
         Run(emu);
+        emu->quit = 0;
     }
     emu->clean_sz = 0;
 }
@@ -309,8 +311,10 @@ void UnimpOpcode(x86emu_t* emu)
 void EmuCall(x86emu_t* emu, uintptr_t addr)
 {
     PushExit(emu);
+    uintptr_t oldip = R_EIP;
     R_EIP = addr;
     emu->df = d_none;
     Run(emu);
     emu->quit = 0;  // reset Quit flags...
+    R_EIP = oldip;  // and set back instruction pointer
 }
