@@ -11,6 +11,8 @@
 #include "library_private.h"
 #include "x86emu.h"
 
+#undef clock_gettime
+
 const char* librtName = "librt.so.1";
 #define LIBNAME librt
 
