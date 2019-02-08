@@ -117,7 +117,7 @@ int Run(x86emu_t *emu)
 
     static const void* opcodes66[256] = {
     &&_default, &&_66_0x00_1, &&_default, &&_66_0x00_3, &&_default ,&&_66_0x00_5, &&_default, &&_default, //0x00-0x07
-    &&_default, &&_66_0x08_1, &&_default, &&_66_0x08_3, &&_default ,&&_66_0x08_5, &&_default, &&_default, //0x08-0x0F
+    &&_default, &&_66_0x08_1, &&_default, &&_66_0x08_3, &&_default ,&&_66_0x08_5, &&_default, &&_66_0x0F, //0x08-0x0F
     &&_default, &&_66_0x10_1, &&_default, &&_66_0x10_3, &&_default ,&&_66_0x10_5, &&_default, &&_default, //0x10-0x17
     &&_default, &&_66_0x18_1, &&_default, &&_66_0x18_3, &&_default ,&&_66_0x18_5, &&_default, &&_default, //0x18-0x1F
     &&_default, &&_66_0x20_1, &&_default, &&_66_0x20_3, &&_default ,&&_66_0x20_5, &&_default, &&_default, //0x20-0x27
@@ -128,7 +128,7 @@ int Run(x86emu_t *emu)
     &&_66_0x48, &&_66_0x49, &&_66_0x4A, &&_66_0x4B, &&_66_0x4C, &&_66_0x4D, &&_66_0x4E, &&_66_0x4F, 
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x50-0x57
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x58-0x5F
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x60-0x67
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_66_0x66, &&_default, //0x60-0x67
     &&_default, &&_66_0x69, &&_default, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x70-0x77
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x78-0x7F
@@ -142,8 +142,8 @@ int Run(x86emu_t *emu)
     &&_66_0xB8, &&_66_0xB9, &&_66_0xBA, &&_66_0xBB, &&_66_0xBC, &&_66_0xBD, &&_66_0xBE, &&_66_0xBF, 
     &&_default, &&_66_0xC1, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xC7, 
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xC8-0xCF
-    &&_default, &&_66_0xD1, &&_default, &&_66_0xD3, &&_default, &&_default, &&_default, &&_default, //0xD0-0xD8
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD8-0xDF
+    &&_default, &&_66_0xD1, &&_default, &&_66_0xD3, &&_default, &&_default, &&_default, &&_default, //0xD0-0xD7
+    &&_default, &&_66_0xD9, &&_default, &&_default, &&_default ,&&_66_0xDD, &&_default, &&_default, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
     &&_default, &&_default, &&_66_0xF2, &&_66_0xF3, &&_default, &&_default, &&_default, &&_66_0xF7, 
@@ -242,7 +242,7 @@ _trace:
         } else { \
             base = emu->regs[(nextop&0x7)].dword[0];    \
         } \
-        base+=(nextop&0x80)?F32S:F8S; \
+        base+=(nextop&0x80)?(F32S):(F8S); \
         A = (T*)base; \
     }
 #define geteb(A) \
@@ -443,26 +443,7 @@ _trace:
                 }
                 NEXT;
             _0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
-                nextop = F8;
-                if(nextop==0x0F) {
-                    #include "run660f.h"
-                } else if(nextop==0xD9) {
-                    emu->old_ip = old_ip;
-                    R_EIP = ip;
-                    Run66D9(emu);
-                    ip = R_EIP;
-                } else if(nextop==0xDD) {
-                    emu->old_ip = old_ip;
-                    R_EIP = ip;
-                    Run66DD(emu);
-                    ip = R_EIP;
-                } else if(nextop==0x66) {
-                    goto _0x66; // 0x66 0x66 => can remove one 0x66
-                } else {
-                    #include "run66.h"
-                }
-                if(emu->quit) goto fini;
-                NEXT;
+                #include "run66.h"
             _0x67:                      /* Prefix to change width of registers */
                 emu->old_ip = old_ip;
                 R_EIP = ip;

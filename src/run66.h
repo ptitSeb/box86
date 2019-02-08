@@ -1,4 +1,4 @@
-    opcode = nextop;
+    opcode = F8;
     goto *opcodes66[opcode];
 
     #define GO(B, OP)                       \
@@ -25,6 +25,8 @@
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
     //GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
     #undef GO
+    _66_0x0F:                      /* 66 0f prefix */
+        #include "run660f.h"
     _66_0x2E:                      /* CS: */
         // ignored
         NEXT;
@@ -64,6 +66,9 @@
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
         NEXT;
+
+    _66_0x66:
+        goto _0x66; // 0x66 0x66 => can remove one 0x66
 
     _66_0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
@@ -234,62 +239,79 @@
             case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
         }
         NEXT;
+    
+    _66_0xD9:
+        emu->old_ip = old_ip;
+        R_EIP = ip;
+        Run66D9(emu);
+        ip = R_EIP;
+        if(emu->quit) goto fini;
+        NEXT;
 
-        _66_0xF2:                      /* REPNZ prefix */
-        _66_0xF3:                      /* REPZ prefix */
-            nextop = F8;
-            tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
-            tmp32u = R_ECX;
-            switch(nextop) {
-                case 0xA5:              /* REP MOVSW */
-                    while(tmp32u) {
-                        --tmp32u;
-                        *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
-                        R_EDI += tmp8s;
-                        R_ESI += tmp8s;
-                    }
-                    break;
-                case 0xA7:              /* REP(N)Z CMPSW */
-                    while(tmp32u) {
-                        --tmp32u;
-                        tmp16u  = *(uint16_t*)R_EDI;
-                        tmp16u2 = *(uint16_t*)R_ESI;
-                        R_EDI += tmp8s;
-                        R_ESI += tmp8s;
-                        if((tmp16u==tmp16u2)==(opcode==0xF2))
-                            break;
-                    }
-                    if(R_ECX) cmp16(emu, tmp16u2, tmp16u);
-                    break;
-                case 0xAB:              /* REP STOSW */
-                    while(tmp32u) {
-                        --tmp32u;
-                        *(uint16_t*)R_EDI = R_AX;
-                        R_EDI += tmp8s;
-                    }
-                    break;
-                case 0xAD:              /* REP LODSW */
-                    while(tmp32u) {
-                        --tmp32u;
-                        R_AX = *(uint16_t*)R_ESI;
-                        R_ESI += tmp8s;
-                    }
-                    break;
-                case 0xAF:              /* REP(N)Z SCASW */
-                    while(tmp32u) {
-                        --tmp32u;
-                        tmp16u = *(uint16_t*)R_EDI;
-                        R_EDI += tmp8s;
-                        if((R_AX==tmp16u)==(opcode==0xF2))
-                            break;
-                    }
-                    if(R_ECX) cmp16(emu, R_AX, tmp16u);
-                    break;
-                default:
-                    goto _default;
-            }
-            R_ECX = tmp32u;
-            NEXT;
+    _66_0xDD:
+        emu->old_ip = old_ip;
+        R_EIP = ip;
+        Run66DD(emu);
+        ip = R_EIP;
+        if(emu->quit) goto fini;
+        NEXT;
+
+
+    _66_0xF2:                      /* REPNZ prefix */
+    _66_0xF3:                      /* REPZ prefix */
+        nextop = F8;
+        tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
+        tmp32u = R_ECX;
+        switch(nextop) {
+            case 0xA5:              /* REP MOVSW */
+                while(tmp32u) {
+                    --tmp32u;
+                    *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
+                    R_EDI += tmp8s;
+                    R_ESI += tmp8s;
+                }
+                break;
+            case 0xA7:              /* REP(N)Z CMPSW */
+                while(tmp32u) {
+                    --tmp32u;
+                    tmp16u  = *(uint16_t*)R_EDI;
+                    tmp16u2 = *(uint16_t*)R_ESI;
+                    R_EDI += tmp8s;
+                    R_ESI += tmp8s;
+                    if((tmp16u==tmp16u2)==(opcode==0xF2))
+                        break;
+                }
+                if(R_ECX) cmp16(emu, tmp16u2, tmp16u);
+                break;
+            case 0xAB:              /* REP STOSW */
+                while(tmp32u) {
+                    --tmp32u;
+                    *(uint16_t*)R_EDI = R_AX;
+                    R_EDI += tmp8s;
+                }
+                break;
+            case 0xAD:              /* REP LODSW */
+                while(tmp32u) {
+                    --tmp32u;
+                    R_AX = *(uint16_t*)R_ESI;
+                    R_ESI += tmp8s;
+                }
+                break;
+            case 0xAF:              /* REP(N)Z SCASW */
+                while(tmp32u) {
+                    --tmp32u;
+                    tmp16u = *(uint16_t*)R_EDI;
+                    R_EDI += tmp8s;
+                    if((R_AX==tmp16u)==(opcode==0xF2))
+                        break;
+                }
+                if(R_ECX) cmp16(emu, R_AX, tmp16u);
+                break;
+            default:
+                goto _default;
+        }
+        R_ECX = tmp32u;
+        NEXT;
 
     _66_0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
