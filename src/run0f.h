@@ -551,7 +551,7 @@
         _0f_0xBE:                      /* MOVSX Gd,Eb */
             nextop = F8;
             GET_EB;
-            GD.sdword[0] = ED->sbyte[0];
+            GD.sdword[0] = EB->sbyte[0];
             NEXT;
         _0f_0xBF:                      /* MOVSX Gd,Ew */
             nextop = F8;
