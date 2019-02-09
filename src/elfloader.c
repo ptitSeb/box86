@@ -214,7 +214,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     if(LOG_DEBUG<=box86_log) {
                         uint32_t*k = (uint32_t*)p;
                         for (int i=0; i<sym->st_size; i+=4, ++k)
-                            printf("%s0x%08X", i?" ":"", *k);
+                            printf_log(LOG_DEBUG, "%s0x%08X", i?" ":"", *k);
                         printf_log(LOG_DEBUG, ")\n");
                     }
                 } else {

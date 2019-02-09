@@ -74,7 +74,7 @@ const char* GetNativeName(void* p)
 uintptr_t pltResolver = ~0;
 void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs)
 {
-    printf("PltResolver: Ofs=%p, Id=%d (IP=%p)", (void*)ofs, id, *(void**)(R_ESP));
+    printf_log(LOG_INFO, "PltResolver: Ofs=%p, Id=%d (IP=%p)", (void*)ofs, id, *(void**)(R_ESP));
     emu->quit=1;
 }
 

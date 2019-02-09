@@ -13,6 +13,7 @@
 #include "callback.h"
 #include "khash.h"
 #include "x86run_private.h"
+#include "x86trace.h"
 
 // memory handling to be perfected...
 // keep a hash thread_t -> emu to set emu->quit to 1 on pthread_cancel

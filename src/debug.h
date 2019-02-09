@@ -8,7 +8,9 @@ extern int trace_xmm;    // include XMM reg in trace?
 #define LOG_DEBUG 2
 #define LOG_DUMP 3
 
-#define printf_log(L, ...) if(L<=box86_log) printf(__VA_ARGS__)
+extern FILE* ftrace;
+
+#define printf_log(L, ...) if(L<=box86_log) fprintf(ftrace, __VA_ARGS__)
 
 #define EXPORT __attribute__((visibility("default")))
 

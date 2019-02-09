@@ -317,24 +317,24 @@ void DumpBinary(char* p, int sz)
     unsigned char* d = (unsigned char*)p;
     int delta = ((uintptr_t)p)&0xf;
     for (int i = 0; sz; ++i) {
-        printf("%p ", (void*)(((uintptr_t)d)&~0xf));
+        printf_log(LOG_DUMP, "%p ", (void*)(((uintptr_t)d)&~0xf));
         int n = 16 - delta;
         if (n>sz) n = sz;
         int fill = 16-sz;
         for (int j = 0; j<delta; ++j)
-            printf("   ");
+            printf_log(LOG_DUMP, "   ");
         for (int j = 0; j<n; ++j)
-            printf("%02X ", d[j]);
+            printf_log(LOG_DUMP, "%02X ", d[j]);
         for (int j = 0; j<fill; ++j)
-            printf("   ");
-        printf(" | ");
+            printf_log(LOG_DUMP, "   ");
+        printf_log(LOG_DUMP, " | ");
         for (int j = 0; j<delta; ++j)
-            printf(" ");
+            printf_log(LOG_DUMP, " ");
         for (int j = 0; j<n; ++j)
-            printf("%c", (d[j]<32 || d[j]>127)?'.':d[j]);
+            printf_log(LOG_DUMP, "%c", (d[j]<32 || d[j]>127)?'.':d[j]);
         for (int j = 0; j<fill; ++j)
-            printf(" ");
-        printf("\n");
+            printf_log(LOG_DUMP, " ");
+        printf_log(LOG_DUMP, "\n");
         d+=n;
         sz-=n;
         delta=0;

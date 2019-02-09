@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#include <errno.h>
 
 #include "box86version.h"
 #include "debug.h"
@@ -17,6 +18,8 @@
 
 int box86_log = LOG_INFO;//LOG_NONE;
 int trace_xmm = 0;
+
+FILE* ftrace = NULL;
 
 void LoadLogEnv()
 {
@@ -45,6 +48,16 @@ void LoadLogEnv()
                 trace_xmm = p[0]-'0';
         }
     }
+    p = getenv("BOX86_TRACE_FILE");
+    if(p) {
+        ftrace = fopen(p, "w");
+        if(!ftrace) {
+            ftrace = stdout;
+            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
+        } else {
+            printf("BOX86 Trace redirected to \"%s\"\n", p);
+        }
+    }
 #endif
 }
 
@@ -60,7 +73,7 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
     }
     if(LOG_INFO<=box86_log) {
         for(int i=0; i<col->size; i++)
-            printf("%s%s", col->paths[i], (i==col->size-1)?"\n":":");
+            printf_log(LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"\n":":");
     }
 }
 
@@ -139,6 +152,7 @@ int main(int argc, const char **argv, const char **env) {
         PrintHelp();
         return 1;
     }
+    ftrace = stdout;
 
     // init random seed
     srandom(time(NULL));
