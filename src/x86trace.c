@@ -90,7 +90,7 @@ void DeleteX86TraceDecoder(zydis_dec_t **dec)
 const char* DecodeX86Trace(zydis_dec_t *dec, uint32_t p)
 {
     static char buff[256];
-    if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 10,
+    if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
         &dec->instruction))) {
         char tmp[255];
         buff[0]='\0';
