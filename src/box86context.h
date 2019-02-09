@@ -53,6 +53,7 @@ typedef struct box86context_s {
     dlprivate_t         *dlprivate;     // dlopen library map
     kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
     procaddess_t        glxprocaddress;
+    kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
 
     callbacklist_t      *callbacks;     // all callbacks
 

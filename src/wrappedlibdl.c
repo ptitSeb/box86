@@ -25,6 +25,7 @@ void FreeDLPrivate(dlprivate_t **lib) {
 }
 
 void* my_dlopen(x86emu_t* emu, void *filename, int flag) EXPORT;
+void* my_dlmopen(x86emu_t* emu, void* mlid, void *filename, int flag) EXPORT;
 char* my_dlerror(x86emu_t* emu) EXPORT;
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol) EXPORT;
 int my_dlclose(x86emu_t* emu, void *handle) EXPORT;
@@ -64,6 +65,11 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     }
     dl->libs[dl->lib_sz] = lib;
     return (void*)(++dl->lib_sz);
+}
+void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
+{
+    // lmid is ignored for now...
+    return my_dlopen(emu, filename, flag);
 }
 char* my_dlerror(x86emu_t* emu)
 {

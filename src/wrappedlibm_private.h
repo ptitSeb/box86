@@ -268,8 +268,8 @@ GOW(logf, fFf)
 // __logf_finite
 GO(__log_finite, dFd)
 // logl // Weak
-// lrint    // Weak
-// lrintf   // Weak
+GOW(lrint, iFd)
+GOW(lrintf, iFf)
 // lrintl   // Weak
 // lround   // Weak
 // lroundf  // Weak

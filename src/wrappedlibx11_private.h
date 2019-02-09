@@ -376,7 +376,7 @@ GO(XGContextFromGC, pFp)
 GO(XGeometry, iFpippuuuiipppp)
 // _XGetAsyncData
 // _XGetAsyncReply
-//GO(XGetAtomName
+GO(XGetAtomName, pFpp)
 //GO(XGetAtomNames
 // _XGetBitsPerPixel
 //GO(XGetClassHint
@@ -960,7 +960,7 @@ GO(XSetLocaleModifiers, pFp)
 //GO(XSetSelectionOwner
 //GO(XSetSizeHints
 //GO(XSetStandardColormap
-//GO(XSetStandardProperties
+GO(XSetStandardProperties, iFpppppppp)
 //GO(XSetState
 //GO(XSetStipple
 GO(XSetSubwindowMode, iFppi)

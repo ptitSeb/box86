@@ -6,7 +6,7 @@ GOM(dlclose, iFEp)
 GOM(dlerror, pFE)
 DATAB(_dlfcn_hook, 4)
 // dlinfo
-// dlmopen
+GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)
 GOM(dlsym, pFEpp)
 GOM(dlvsym, pFEppp)   // Weak

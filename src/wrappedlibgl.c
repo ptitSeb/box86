@@ -37,7 +37,7 @@ kh_symbolmap_t * fillGLProcWrapper()
     }
     return symbolmap;
 }
-void freeGLProcWrapper(kh_symbolmap_t** symbolmap)
+void freeProcWrapper(kh_symbolmap_t** symbolmap)
 {
     if(!symbolmap)
         return;

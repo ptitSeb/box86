@@ -22,6 +22,8 @@ GO("libpng16.so.16", png16)
 GO("libXxf86vm.so.1", libxxf86vm)
 GO("libXrandr.so.2", libxrandr)
 GO("libz.so.1", libz)
+GO("libopenal.so.1", openal)
+GO("libalut.so.0", alut)
 
 GO("ld-linux.so.2", ldlinux)
 

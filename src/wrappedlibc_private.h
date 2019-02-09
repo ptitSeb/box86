@@ -1730,7 +1730,7 @@ DATA(sys_errlist, 4)
 DATA(sys_sigabbrev, 4)
 DATA(_sys_siglist, 4)
 DATA(sys_siglist, 4)
-// system   // Weak
+GOW(system, iFp)
 GOM(__sysv_signal, pFip)
 GOM(sysv_signal, pFip)  // Weak
 GOW(tcdrain, iFi)
@@ -1885,14 +1885,14 @@ GOW(wcrtomb, uFpip)
 // wcscasecmp_l // Weak
 // wcscat   // Weak
 // __wcscat_chk
-// wcschr
+GO(wcschr, pFpi)
 // wcschrnul    // Weak
 GO(wcscmp, iFpp)
 GOW(wcscoll, iFpp)
 GO(__wcscoll_l, iFppp)
 GOW(wcscoll_l, iFppp)
 // wcscpy
-// __wcscpy_chk
+GO(__wcscpy_chk, pFppu)
 // wcscspn
 // wcsdup
 GO(wcsftime, uFpupp)
@@ -1905,7 +1905,7 @@ GOW(wcslen, uFp)
 // wcsncat
 // __wcsncat_chk
 // wcsncmp
-// wcsncpy  // Weak
+GOW(wcsncpy, pFppu)
 // __wcsncpy_chk
 // wcsnlen  // Weak
 GOW(wcsnrtombs, uFppuup)
