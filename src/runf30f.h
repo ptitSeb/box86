@@ -111,7 +111,7 @@
     case 0x7F:  /* MOVDQU Ex, Gx */
         nextop = F8;
         GET_EX;
-        memcpy(EX, &GD, 16);    // unaligned...
+        memcpy(EX, &GX, 16);    // unaligned...
         break;
 
     case 0xC2:  /* CMPSS Gx, Ex, Ib */
