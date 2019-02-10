@@ -414,6 +414,15 @@
 
         _0f_0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
+            if((nextop&0xF8)==0xE8) {
+                NEXT;                   /* LFENCE */
+            }
+            if((nextop&0xF8)==0xF0) {
+                NEXT;                   /* MFENCE */
+            }
+            if((nextop&0xF8)==0xF8) {
+                NEXT;                   /* SFENCE */
+            }
             GET_ED;
             switch((nextop>>3)&7) {
                 case 2:                 /* LDMXCSR Md */
