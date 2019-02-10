@@ -28,8 +28,10 @@ typedef struct sdl1mixer_my_s {
     pFpi_t  Mix_LoadWAV_RW;
     vFpp_t  Mix_SetPostMix;
     vFp_t   Mix_ChannelFinished;
+    vFpp_t  Mix_HookMusic;
 
     x86emu_t* PostCallback;
+    x86emu_t* hookMusicCB;
 } sdl1mixer_my_t;
 
 static void* getSDL1MixerMy(library_t* lib)
@@ -41,8 +43,18 @@ static void* getSDL1MixerMy(library_t* lib)
     GO(Mix_LoadWAV_RW,pFpi_t)
     GO(Mix_SetPostMix,vFpp_t)
     GO(Mix_ChannelFinished,vFp_t)
+    GO(Mix_HookMusic, vFpp_t)
     #undef GO
     return my;
+}
+
+static void freeSDL1MixerMy(library_t* lib)
+{
+    sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
+    if(my->PostCallback)
+        FreeCallback(my->PostCallback);
+    if(my->hookMusicCB)
+        FreeCallback(my->hookMusicCB);
 }
 
 void EXPORT *my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
@@ -121,6 +133,29 @@ void EXPORT my_Mix_ChannelFinished(x86emu_t* emu, void* cb)
     } else
         my->Mix_ChannelFinished(NULL);
 }
+static void sdl1mixer_hookMusicCallback(void* udata, uint8_t* stream, int32_t len)
+{
+    x86emu_t *emu = (x86emu_t*)udata;
+    SetCallbackArg(emu, 1, (void*)stream);
+    SetCallbackArg(emu, 2, (void*)len);
+    RunCallback(emu);
+}
+
+EXPORT void my_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
+{
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
+    if(my->hookMusicCB) {
+        my->Mix_HookMusic(NULL, NULL);
+        FreeCallback(my->hookMusicCB);
+        my->hookMusicCB = NULL;
+    }
+    if(!f)
+        return;
+    x86emu_t *cb = NULL;
+    cb =  AddCallback(emu, (uintptr_t)f, 3, arg, NULL, NULL, NULL);
+    my->hookMusicCB = cb;
+    my->Mix_HookMusic(sdl1mixer_hookMusicCallback, cb);
+}
 
 const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
 #define LIBNAME sdl1mixer
@@ -130,6 +165,7 @@ const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
     lib->priv.w.p2 = getSDL1MixerMy(lib);
 
 #define CUSTOM_FINI \
+    freeSDL1MixerMy(lib); \
     free(lib->priv.w.p2); \
     ((box86context_t*)(lib->context))->sdl1mixerlib = NULL;
 

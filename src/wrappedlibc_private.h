@@ -1465,10 +1465,10 @@ GO(setlocale, pFip)
 GO(setpriority, iFiii)
 // setprotoent
 // setpwent
-// setregid // Weak
-// setresgid    // Weak
+GOW(setregid, iFuu)
+GOW(setresgid, iFuu)
 // setresuid    // Weak
-// setreuid // Weak
+GOW(setreuid, iFuu)
 GO(setrlimit, iFip)
 // setrlimit64
 // setrpcent
