@@ -1198,7 +1198,7 @@ DATA(optopt, 4)
 // passwd2des
 GOW(pathconf, iFpi)
 // pause    // Weak
-// pclose
+GO(pclose, iFp)
 GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x86 and arm (and x86_64 too)
@@ -1212,7 +1212,7 @@ GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x
 // pmap_unset
 GOW(poll, iFpii)
 GO(__poll, iFpii)
-// popen
+GO(popen, pFpp)
 // posix_fadvise
 // posix_fadvise64
 // posix_fallocate
