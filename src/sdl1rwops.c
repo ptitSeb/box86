@@ -45,56 +45,17 @@ typedef struct SDL1_RWops_s {
     } hidden;
 } SDL1_RWops_t;
 
-KHASH_MAP_INIT_INT(sdl1seekmap, sdl1_seek)
-KHASH_MAP_INIT_INT(sdl1readmap, sdl1_read)
-KHASH_MAP_INIT_INT(sdl1writemap, sdl1_write)
-KHASH_MAP_INIT_INT(sdl1closemap, sdl1_close)
-
-
-typedef struct sdl1rwops_s {
-    khash_t(sdl1seekmap)        *seekmap;
-    khash_t(sdl1readmap)        *readmap;
-    khash_t(sdl1writemap)       *writemap;
-    khash_t(sdl1closemap)       *closemap;
-} sdl1rwops_t;
-
-sdl1rwops_t* NewSDL1RWops()
-{
-    sdl1rwops_t* rw = (sdl1rwops_t*)calloc(1, sizeof(sdl1rwops_t));
-    rw->seekmap = kh_init(sdl1seekmap);
-    rw->readmap = kh_init(sdl1readmap);
-    rw->writemap = kh_init(sdl1writemap);
-    rw->closemap = kh_init(sdl1closemap);
-    return rw;
-}
-
-void FreeSDL1RWops(sdl1rwops_t **rw)
-{
-    // no cleaning of bridges, as they can be used multiple time?
-    kh_destroy(sdl1seekmap, (*rw)->seekmap);
-    kh_destroy(sdl1readmap, (*rw)->readmap);
-    kh_destroy(sdl1writemap, (*rw)->writemap);
-    kh_destroy(sdl1closemap, (*rw)->closemap);
-    free(*rw);
-    *rw = NULL;
-}
-
 void AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops)
 {
     if(!ops)
         return;
     uintptr_t fnc;
-    sdl1rwops_t* rw = (sdl1rwops_t*)emu->context->sdl1lib->priv.w.priv;
     bridge_t* system = emu->context->system;
-    khint_t k;
-    int ret;
 
     // get or create wrapper, add it to map and change to the emulated one if rw
     #define GO(A, W) \
     fnc = CheckBridged(system, ops->A); \
     if(!fnc) fnc = AddBridge(system, W, ops->A); \
-    k = kh_put(sdl1##A##map, rw->A##map, fnc, &ret); \
-    kh_value(rw->A##map, k) = ops->A; \
     ops->A = (sdl1_##A)fnc;
 
     GO(seek, iFpii)
@@ -106,9 +67,9 @@ void AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops)
 }
 
 // check if one of the function is a pure emulated one (i.e. not present in dictionnary)
-static int isAnyEmulated(sdl1rwops_t* rw, SDL1_RWops_t *ops)
+static int isAnyEmulated(SDL1_RWops_t *ops)
 {
-    #define GO(A) if((kh_get(sdl1##A##map, rw->A##map, (uintptr_t)ops->A))==(kh_end(rw->A##map))) return 1
+    #define GO(A) if(!GetNativeFnc((uintptr_t)ops->A)) return 1
     GO(seek);
     GO(read);
     GO(write);
@@ -122,9 +83,8 @@ void RWNativeStart(x86emu_t* emu, SDL1_RWops_t* ops, SDLRWSave_t* save)
 {
     if(!ops)
         return;
-    sdl1rwops_t* rw = (sdl1rwops_t*)emu->context->sdl1lib->priv.w.priv;
     
-    save->anyEmu = isAnyEmulated(rw, ops);
+    save->anyEmu = isAnyEmulated(ops);
     save->seek = ops->seek;
     save->read = ops->read;
     save->write = ops->write;
@@ -139,8 +99,7 @@ void RWNativeStart(x86emu_t* emu, SDL1_RWops_t* ops, SDLRWSave_t* save)
         // don't wrap, get back normal functions
         khint_t k;
         #define GO(A) \
-        k = kh_get(sdl1##A##map, rw->A##map, (uintptr_t)ops->A); \
-        ops->A = kh_value(rw->A##map, k);
+        ops->A = GetNativeFnc((uintptr_t)ops->A);
         GO(seek)
         GO(read)
         GO(write)
@@ -154,7 +113,6 @@ void RWNativeEnd(x86emu_t* emu, SDL1_RWops_t* ops, SDLRWSave_t* save)
 {
     if(!ops)
         return;
-    sdl1rwops_t* rw = (sdl1rwops_t*)emu->context->sdl1lib->priv.w.priv;
 
     ops->seek = save->seek;
     ops->read = save->read;

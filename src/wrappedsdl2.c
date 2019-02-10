@@ -57,6 +57,7 @@ typedef void*  (*pFpp_t)(void*, void*);
 typedef void*  (*pFppp_t)(void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
+typedef void  (*vFiupp_t)(int32_t, uint32_t, void*, void*);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
@@ -102,6 +103,7 @@ typedef struct sdl2_my_s {
     vFp_t      SDL_KillThread;
     vFpp_t     SDL_SetEventFilter;
     vFpp_t     SDL_LogSetOutputFunction;
+    vFiupp_t   SDL_LogMessageV;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -149,6 +151,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_KillThread, vFp_t)
     GO(SDL_SetEventFilter, vFpp_t)
     GO(SDL_LogSetOutputFunction, vFpp_t)
+    GO(SDL_LogMessageV, vFiupp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -215,7 +218,7 @@ void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, 
 }
 
 // TODO: track the memory for those callback
-int32_t EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
+EXPORT int32_t my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
@@ -243,7 +246,7 @@ int32_t EXPORT my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
     return ret;
 }
 
-int32_t EXPORT my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
+EXPORT int32_t my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
 {
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
@@ -271,7 +274,7 @@ int32_t EXPORT my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t isca
     return ret;
 }
 
-void EXPORT *my2_SDL_LoadFile_RW(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_LoadFile_RW(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -281,7 +284,7 @@ void EXPORT *my2_SDL_LoadFile_RW(x86emu_t* emu, void* a, int b)
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-void EXPORT *my2_SDL_LoadBMP_RW(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_LoadBMP_RW(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -291,7 +294,7 @@ void EXPORT *my2_SDL_LoadBMP_RW(x86emu_t* emu, void* a, int b)
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-int32_t EXPORT my2_SDL_SaveBMP_RW(x86emu_t* emu, void* a, void* b, int c)
+EXPORT int32_t my2_SDL_SaveBMP_RW(x86emu_t* emu, void* a, void* b, int c)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -301,7 +304,7 @@ int32_t EXPORT my2_SDL_SaveBMP_RW(x86emu_t* emu, void* a, void* b, int c)
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-void EXPORT *my2_SDL_LoadWAV_RW(x86emu_t* emu, void* a, int b, void* c, void* d, void* e)
+EXPORT void *my2_SDL_LoadWAV_RW(x86emu_t* emu, void* a, int b, void* c, void* d, void* e)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -311,7 +314,7 @@ void EXPORT *my2_SDL_LoadWAV_RW(x86emu_t* emu, void* a, int b, void* c, void* d,
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-int32_t EXPORT my2_SDL_GameControllerAddMappingsFromRW(x86emu_t* emu, void* a, int b)
+EXPORT int32_t my2_SDL_GameControllerAddMappingsFromRW(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -321,7 +324,7 @@ int32_t EXPORT my2_SDL_GameControllerAddMappingsFromRW(x86emu_t* emu, void* a, i
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_ReadU8(x86emu_t* emu, void* a)
+EXPORT uint32_t my2_SDL_ReadU8(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -330,7 +333,7 @@ uint32_t EXPORT my2_SDL_ReadU8(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_ReadBE16(x86emu_t* emu, void* a)
+EXPORT uint32_t my2_SDL_ReadBE16(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -339,7 +342,7 @@ uint32_t EXPORT my2_SDL_ReadBE16(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_ReadBE32(x86emu_t* emu, void* a)
+EXPORT uint32_t my2_SDL_ReadBE32(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -348,7 +351,7 @@ uint32_t EXPORT my2_SDL_ReadBE32(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint64_t EXPORT my2_SDL_ReadBE64(x86emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadBE64(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -357,7 +360,7 @@ uint64_t EXPORT my2_SDL_ReadBE64(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_ReadLE16(x86emu_t* emu, void* a)
+EXPORT uint32_t my2_SDL_ReadLE16(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -366,7 +369,7 @@ uint32_t EXPORT my2_SDL_ReadLE16(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_ReadLE32(x86emu_t* emu, void* a)
+EXPORT uint32_t my2_SDL_ReadLE32(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -375,7 +378,7 @@ uint32_t EXPORT my2_SDL_ReadLE32(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint64_t EXPORT my2_SDL_ReadLE64(x86emu_t* emu, void* a)
+EXPORT uint64_t my2_SDL_ReadLE64(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -384,7 +387,7 @@ uint64_t EXPORT my2_SDL_ReadLE64(x86emu_t* emu, void* a)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteU8(x86emu_t* emu, void* a, uint8_t v)
+EXPORT uint32_t my2_SDL_WriteU8(x86emu_t* emu, void* a, uint8_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -393,7 +396,7 @@ uint32_t EXPORT my2_SDL_WriteU8(x86emu_t* emu, void* a, uint8_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteBE16(x86emu_t* emu, void* a, uint16_t v)
+EXPORT uint32_t my2_SDL_WriteBE16(x86emu_t* emu, void* a, uint16_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -402,7 +405,7 @@ uint32_t EXPORT my2_SDL_WriteBE16(x86emu_t* emu, void* a, uint16_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteBE32(x86emu_t* emu, void* a, uint32_t v)
+EXPORT uint32_t my2_SDL_WriteBE32(x86emu_t* emu, void* a, uint32_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -411,7 +414,7 @@ uint32_t EXPORT my2_SDL_WriteBE32(x86emu_t* emu, void* a, uint32_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteBE64(x86emu_t* emu, void* a, uint64_t v)
+EXPORT uint32_t my2_SDL_WriteBE64(x86emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -420,7 +423,7 @@ uint32_t EXPORT my2_SDL_WriteBE64(x86emu_t* emu, void* a, uint64_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteLE16(x86emu_t* emu, void* a, uint16_t v)
+EXPORT uint32_t my2_SDL_WriteLE16(x86emu_t* emu, void* a, uint16_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -429,7 +432,7 @@ uint32_t EXPORT my2_SDL_WriteLE16(x86emu_t* emu, void* a, uint16_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteLE32(x86emu_t* emu, void* a, uint32_t v)
+EXPORT uint32_t my2_SDL_WriteLE32(x86emu_t* emu, void* a, uint32_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -438,7 +441,7 @@ uint32_t EXPORT my2_SDL_WriteLE32(x86emu_t* emu, void* a, uint32_t v)
     RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-uint32_t EXPORT my2_SDL_WriteLE64(x86emu_t* emu, void* a, uint64_t v)
+EXPORT uint32_t my2_SDL_WriteLE64(x86emu_t* emu, void* a, uint64_t v)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -448,28 +451,28 @@ uint32_t EXPORT my2_SDL_WriteLE64(x86emu_t* emu, void* a, uint64_t v)
     return r;
 }
 
-void EXPORT *my2_SDL_RWFromConstMem(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_RWFromConstMem(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromConstMem(a, b);
     AddNativeRW2(emu, (SDL2_RWops_t*)r);
     return r;
 }
-void EXPORT *my2_SDL_RWFromFP(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_RWFromFP(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromFP(a, b);
     AddNativeRW2(emu, (SDL2_RWops_t*)r);
     return r;
 }
-void EXPORT *my2_SDL_RWFromFile(x86emu_t* emu, void* a, void* b)
+EXPORT void *my2_SDL_RWFromFile(x86emu_t* emu, void* a, void* b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromFile(a, b);
     AddNativeRW2(emu, (SDL2_RWops_t*)r);
     return r;
 }
-void EXPORT *my2_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromMem(a, b);
@@ -477,7 +480,7 @@ void EXPORT *my2_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
     return r;
 }
 
-void EXPORT my2_SDL_FreeRW(x86emu_t* emu, void* a)
+EXPORT void my2_SDL_FreeRW(x86emu_t* emu, void* a)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2RWSave_t save;
@@ -485,7 +488,7 @@ void EXPORT my2_SDL_FreeRW(x86emu_t* emu, void* a)
     my->SDL_FreeRW(a);
 }
 
-uint32_t EXPORT my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
+EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
@@ -496,7 +499,7 @@ uint32_t EXPORT my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
     return t;
 }
 
-void EXPORT my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
+EXPORT void my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     my->SDL_RemoveTimer(t);
@@ -508,7 +511,7 @@ void EXPORT my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
     }
 }
 
-void EXPORT my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
+EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     if(my->sdl2_evtfiler) {
@@ -523,7 +526,7 @@ void EXPORT my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
         my->SDL_SetEventFilter(sdl2EvtFilterCallback, my->sdl2_evtfiler);
     }
 }
-void EXPORT *my2_SDL_GetEventFilter(x86emu_t* emu)
+EXPORT void *my2_SDL_GetEventFilter(x86emu_t* emu)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     return my->sdl2_evtfnc;
@@ -601,17 +604,95 @@ char EXPORT *my2_SDL_GetBasePath(x86emu_t* emu) {
     return p;
 }
 
+EXPORT void my2_SDL_LogCritical(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_CRITICAL == 6
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 6, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 6, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_LogError(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_ERROR == 5
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 5, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 5, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_LogWarn(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_WARN == 4
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 4, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 4, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_LogInfo(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_INFO == 3
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 3, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 3, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_LogDebug(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_DEBUG == 2
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 2, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 2, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_LogVerbose(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_VERBOSE == 1
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(cat, 1, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(cat, 1, fmt, b);
+    #endif
+}
+
+EXPORT void my2_SDL_Log(x86emu_t* emu, void* fmt, void *b) {
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    // SDL_LOG_PRIORITY_INFO == 3
+    // SDL_LOG_CATEGORY_APPLICATION == 0
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    my->SDL_LogMessageV(0, 3, fmt, emu->scratch);
+    #else
+    my->SDL_LogMessageV(0, 3, fmt, b);
+    #endif
+}
+
+
+
 const char* sdl2Name = "libSDL2-2.0.so";
 #define LIBNAME sdl2
 
 #define CUSTOM_INIT \
     box86->sdl2lib = lib; \
-    lib->priv.w.priv = NewSDL2RWops(); \
     lib->priv.w.p2 = getSDL2My(lib); \
     lib->altmy = strdup("my2_");
 
 #define CUSTOM_FINI \
-    FreeSDL2RWops((sdl2rwops_t**)&lib->priv.w.priv); \
     freeSDL2My(lib->priv.w.p2); \
     free(lib->priv.w.p2); \
     ((box86context_t*)(lib->context))->sdl2lib = NULL;

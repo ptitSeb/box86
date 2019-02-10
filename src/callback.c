@@ -16,7 +16,7 @@ typedef struct onecallback_s {
     x86emu_t    *emu;
     uintptr_t   fnc;
     int         nb_args;
-    void*       arg[4];
+    void*       arg[8];
     void*       stack;
 } onecallback_t;
 

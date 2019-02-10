@@ -5,7 +5,7 @@ DATA(_edata, 4)
 // _fini
 // _init
 GO(Mix_AllocateChannels, iFi)
-// Mix_ChannelFinished
+GOM(Mix_ChannelFinished, vFEp)
 GO(Mix_CloseAudio, vFv)
 // Mix_EachSoundFont
 GO(Mix_ExpireChannel,iFii)
@@ -38,13 +38,13 @@ GO(Mix_HaltChannel,iFi)
 GO(Mix_HaltGroup,iFi)
 GO(Mix_HaltMusic,iFv)
 // Mix_HasChunkDecoder
-// Mix_HookMusic
+GOM(Mix_HookMusic, vFEpp)
 // Mix_HookMusicFinished
 GO(Mix_Init,iFi)
 GO(Mix_Linked_Version,pFv)
 GO(Mix_LoadMUS,pFp)
 GOM(Mix_LoadMUSType_RW,pFEpii)
-GOM(Mix_LoadMUS_RW,pFEp)
+GOM(Mix_LoadMUS_RW,pFEpi)
 GOM(Mix_LoadWAV_RW,pFEpi)
 GO(Mix_OpenAudio,iFiuii)
 GO(Mix_OpenAudioDevice, iFiuiipi)

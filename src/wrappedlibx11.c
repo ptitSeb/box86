@@ -186,7 +186,7 @@ void UnbridgeImageFunc(x86emu_t *emu, XImage *img)
     bridge_t* system = emu->context->system;
 
     #define GO(A, W) \
-    fnc = GetNativeFnc(system, (uintptr_t)img->f.A); \
+    fnc = GetNativeFnc((uintptr_t)img->f.A); \
     if(fnc) \
         img->f.A = (W##_t)fnc;
 

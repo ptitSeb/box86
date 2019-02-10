@@ -485,11 +485,9 @@ void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
 
 #define CUSTOM_INIT \
     box86->sdl1lib = lib; \
-    lib->priv.w.priv = NewSDL1RWops(); \
     lib->priv.w.p2 = getSDL1My(lib);
 
 #define CUSTOM_FINI \
-    FreeSDL1RWops((sdl1rwops_t**)&lib->priv.w.priv); \
     freeSDL1My(lib->priv.w.p2); \
     free(lib->priv.w.p2); \
     ((box86context_t*)(lib->context))->sdl1lib = NULL;

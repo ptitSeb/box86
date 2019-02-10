@@ -50,7 +50,7 @@ static void* getSDL1MixerMy(library_t* lib)
 
 static void freeSDL1MixerMy(library_t* lib)
 {
-    sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
+    sdl1mixer_my_t *my = lib->priv.w.p2;
     if(my->PostCallback)
         FreeCallback(my->PostCallback);
     if(my->hookMusicCB)
