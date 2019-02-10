@@ -78,6 +78,15 @@
             fpu_do_pop(emu);
             break;
 
+        case 0xF8:  /* FPREM */
+            tmp32s = ST0.d / ST1.d;
+            ST0.d -= ST1.d * tmp32s;
+            emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C0 = (tmp32s&1);
+            emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
+            emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+            break;
+
         case 0xFA:  /* FSQRT */
             ST0.d = sqrt(ST0.d);
             break;
@@ -122,7 +131,6 @@
         case 0xF5:
         case 0xF6:
         case 0xF7:
-        case 0xF8:
         case 0xF9:
         case 0xFD:
             goto _default;
