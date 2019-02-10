@@ -75,3 +75,11 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
         return 0;
     return kh_value(bridge->bridgemap, k);
 }
+
+void* GetNativeFnc(bridge_t* bridge, uintptr_t fnc)
+{
+    onebridge_t *b = (onebridge_t*)fnc;
+    if(b->CC != 0xCC || b->S!='S' || b->C!='C' || b->C3!=0xC3)
+        return NULL;    // not a bridge?!
+    return (void*)b->f;
+}

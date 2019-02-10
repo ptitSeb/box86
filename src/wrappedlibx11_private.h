@@ -27,7 +27,7 @@ DATAB(_qfree, 4)
 //GO(XAddToExtensionList
 //GO(XAddToSaveSet
 //GO(XAllocClassHint
-//GO(XAllocColor
+GO(XAllocColor, iFppp)
 //GO(XAllocColorCells
 //GO(XAllocColorPlanes
 //GO(XAllocIconSize
@@ -38,7 +38,7 @@ DATAB(_qfree, 4)
 GO(XAllocSizeHints, pFv)
 //GO(XAllocStandardColormap
 // _XAllocTemp
-//GO(XAllocWMHints
+GO(XAllocWMHints, pFv)
 //GO(XAllowEvents
 //GO(XAllPlanes
 // _XAsyncErrorHandler
@@ -226,19 +226,20 @@ GO(XCreateColormap, uFpppi)
 GO(XCreateGC, pFppup)
 //GO(XCreateGlyphCursor
 GO(XCreateIC, uFpppppp)     // use vararg, so putting an arbitrary number of args
-//GO(XCreateImage
+GOM(XCreateImage, pFEppuiipuuii)
+GO(dummy_XCreateImage, pFppuiipuuii)    // to have the wrapper
 DATAB(_XCreateMutex_fn, 4)
 //GO(XCreateOC
 GO(XCreatePixmap, pFppuuu)
 GO(XCreatePixmapCursor, pFpppppuu)
-//GO(XCreatePixmapFromBitmapData
+GO(XCreatePixmapFromBitmapData, pFpppuuuuu)
 //GO(XCreateRegion
 GO(XCreateSimpleWindow, pFppiiuuuuu)
 GO(XCreateWindow, pFppiiuuuiupup)
 DATAB(_Xdebug, 4)
-//GO(XDefaultColormap
+GO(XDefaultColormap, pFpi)
 //GO(XDefaultColormapOfScreen
-//GO(XDefaultDepth
+GO(XDefaultDepth, iFpi)
 //GO(XDefaultDepthOfScreen
 // _XDefaultError
 //GO(XDefaultGC
@@ -247,10 +248,10 @@ DATAB(_Xdebug, 4)
 // _XDefaultOpenIM
 // _XDefaultOpenOM
 //GO(XDefaultRootWindow
-//GO(XDefaultScreen
+GO(XDefaultScreen, pFp)
 //GO(XDefaultScreenOfDisplay
 //GO(XDefaultString
-//GO(XDefaultVisual
+GO(XDefaultVisual, pFpi)
 //GO(XDefaultVisualOfScreen
 // _XDefaultWireError
 GO(XDefineCursor, iFppp)
@@ -260,7 +261,7 @@ GO(XDeleteProperty, iFppp)
 // _XDeq
 // _XDeqAsyncHandler
 GO(XDestroyIC, vFu)
-//GO(XDestroyImage
+//GOM(XDestroyImage, iFEp)  //need to unbridge
 //GO(XDestroyOC
 //GO(XDestroyRegion
 GO(XDestroySubwindows, iFpp)
@@ -268,7 +269,7 @@ GO(XDestroyWindow, iFpp)
 //GO(XDirectionalDependentDrawing
 //GO(XDisableAccessControl
 //GO(XDisplayCells
-//GO(XDisplayHeight
+GO(XDisplayHeight, iFpi)
 //GO(XDisplayHeightMM
 //GO(XDisplayKeycodes
 //GO(XDisplayMotionBufferSize
@@ -278,7 +279,7 @@ GO(XDestroyWindow, iFpp)
 //GO(XDisplayOfScreen
 //GO(XDisplayPlanes
 //GO(XDisplayString
-//GO(XDisplayWidth
+GO(XDisplayWidth, iFpi)
 //GO(XDisplayWidthMM
 //GO(XDoesBackingStore
 //GO(XDoesSaveUnders
@@ -352,7 +353,7 @@ GO(XForceScreenSaver, iFpi)
 GO(XFree, iFp)
 // _XFreeAtomTable
 GO(XFreeColormap, iFpu)
-//GO(XFreeColors
+GO(XFreeColors, iFpppiu)
 GO(XFreeCursor, iFpp)
 DATAB(_XFreeDisplayLock_fn, 4)
 // _XFreeDisplayStructure
@@ -404,7 +405,8 @@ GO(XGetKeyboardControl, iFpp)
 //GO(XGetNormalHints
 //GO(XGetOCValues
 //GO(XGetOMValues
-//GO(XGetPixel
+//GOM(XGetPixel, uFEpii)  // need unbridging
+GO(dummy_XGetPixel, uFpii)     // for the wrapper
 //GO(XGetPointerControl
 GO(XGetPointerMapping, iFppi)
 // _XGetRequest
@@ -683,13 +685,13 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 //GO(XkbVirtualModsToReal
 // _XkbWriteCopyKeySyms
 //GO(XkbXlibControlsImplemented
-//GO(XKeycodeToKeysym
+GO(XKeycodeToKeysym, pFppi)
 // _XKeycodeToKeysym
 // _XKeyInitialize
 GO(XKeysymToKeycode, uFpu)
 // _XKeysymToKeycode
 // _XKeysymToModifiers
-//GO(XKeysymToString
+GO(XKeysymToString, pFp)
 // _XkeyTable   // type r
 //GO(XKillClient
 //GO(XLastKnownRequestProcessed
@@ -763,12 +765,12 @@ GO(XLoadQueryFont, pFpp)
 //GO(XLocaleOfOM
 GO(XLockDisplay, vFp)
 DATAB(_XLockMutex_fn, 4)
-//GO(XLookupColor
+GO(XLookupColor, iFppppp)
 GO(XLookupKeysym, uFpi)
 // _XLookupKeysym
 GO(XLookupString, iFppipp)
 // _XLookupString
-//GO(XLowerWindow
+GO(XLowerWindow, iFpp)
 GO(XMapRaised, iFpp)
 GO(XMapSubwindows, iFpp)
 GO(XMapWindow, iFpp)
@@ -809,7 +811,7 @@ GO(XOpenIM, uFpppp)
 // _XOpenLC
 //GO(XOpenOM
 // _XParseBaseFontNameList
-//GO(XParseColor
+GO(XParseColor, iFpppp)
 //GO(XParseGeometry
 GO(XPeekEvent, iFpp)
 //GO(XPeekIfEvent
@@ -835,8 +837,8 @@ GO(XQueryBestCursor, iFppuupp)
 //GO(XQueryBestSize
 //GO(XQueryBestStipple
 //GO(XQueryBestTile
-//GO(XQueryColor
-//GO(XQueryColors
+GO(XQueryColor, iFppp)
+GO(XQueryColors, iFpppi)
 GO(XQueryExtension, iFppppp)
 GO(XQueryFont, pFpp)
 //GO(XQueryKeymap
@@ -976,7 +978,7 @@ GO(XSetWindowBorderWidth, iFppu)
 //GO(XSetWindowColormap
 //GO(XSetWMClientMachine
 GO(XSetWMColormapWindows, iFpppi)
-//GO(XSetWMHints
+GO(XSetWMHints, iFppp)
 //GO(XSetWMIconName
 //GO(XSetWMName
 GO(XSetWMNormalHints, iFpppp)
@@ -990,11 +992,12 @@ GO(XSetWMSizeHints, vFpppu)
 //GO(XStoreColor
 //GO(XStoreColors
 // _XStoreEventCookie
-//GO(XStoreName
+GO(XStoreName, iFppp)
 //GO(XStoreNamedColor
 //GO(XStringListToTextProperty
 //GO(XStringToKeysym
-//GO(XSubImage
+//GOM(XSubImage, pFEpiiuu)    // need unbridging
+GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
 //GO(XSubtractRegion
 GO(XSupportsLocale, iFv)
 GO(XSync, iFpu)

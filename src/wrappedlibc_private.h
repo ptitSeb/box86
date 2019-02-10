@@ -186,7 +186,7 @@ GO(__dcgettext, pFppi)
 // des_setparity
 GOW(dgettext, pFpp)
 GO(__dgettext, pFpp)
-//GO(difftime, dFuu)  // return a double. The double is in ST(0)!
+GO(difftime, dFuu)
 // dirfd
 GO(dirname, pFp)
 // div
@@ -865,7 +865,7 @@ GOW(isnanf, iFf)
 GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
-// __isoc99_fscanf
+GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
@@ -1218,7 +1218,7 @@ GO(__poll, iFpii)
 // posix_fallocate
 // posix_fallocate64
 // posix_madvise
-// posix_memalign   // Weak
+GOW(posix_memalign, iFpuu)
 // posix_openpt // Weak
 // posix_spawn
 // posix_spawnattr_destroy
@@ -1610,7 +1610,7 @@ GOW(strncasecmp, iFppu)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
 GO(strncat, pFppu)
-// __strncat_chk
+GO(__strncat_chk, pFppuu)
 GO(strncmp, iFppu)
 GO(strncpy, pFppu)
 GO(__strncpy_chk, pFppuu)
@@ -1758,9 +1758,9 @@ GO(time, uFp)
 // times    // Weak
 DATAV(timezone, 4)
 // __timezone   // type B
-// tmpfile
+GO(tmpfile, pFv)
 // tmpfile64
-// tmpnam
+GO(tmpnam, pFp)
 // tmpnam_r
 // toascii
 // __toascii_l  // Weak
