@@ -67,6 +67,11 @@ typedef struct box86context_s {
     library_t           *sdl2mixerlib;
     library_t           *sdl2imagelib;
 
+    int                 deferedInit;
+    elfheader_t         **deferedInitList;
+    int                 deferedInitSz;
+    int                 deferedInitCap;
+
     int                 forked;         //  how many forks... cleanup only when < 0
 } box86context_t;
 

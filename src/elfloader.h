@@ -28,5 +28,6 @@ uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x86emu_t *emu);
 void RunElfFini(elfheader_t* h, x86emu_t *emu);
+void RunDeferedElfInit(x86emu_t *emu);
 
 #endif //__ELF_LOADER_H_

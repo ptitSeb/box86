@@ -10,6 +10,8 @@ void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end);
 void FreeX86Emu(x86emu_t **x86emu);
 void CloneEmu(x86emu_t *newemu, const x86emu_t* emu);
 
+box86context_t* GetEmuContext(x86emu_t* emu);
+
 uint32_t GetEAX(x86emu_t *emu);
 void SetEAX(x86emu_t *emu, uint32_t v);
 void SetEBX(x86emu_t *emu, uint32_t v);

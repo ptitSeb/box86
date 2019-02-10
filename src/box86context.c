@@ -21,6 +21,8 @@ box86context_t *NewBox86Context(int argc)
     // init and put default values
     box86context_t *context = (box86context_t*)calloc(1, sizeof(box86context_t));
 
+    context->deferedInit = 1;
+
     context->maplib = NewLibrarian();
     context->system = NewBridge();
     // create vsyscall
@@ -54,6 +56,9 @@ void FreeBox86Context(box86context_t** context)
     FreeCollection(&(*context)->box86_ld_lib);
     if((*context)->zydis)
         DeleteX86Trace(*context);
+
+    if((*context)->deferedInitList)
+        free((*context)->deferedInitList);
 
     if((*context)->box86lib)
         dlclose((*context)->box86lib);

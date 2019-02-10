@@ -313,6 +313,8 @@ int main(int argc, const char **argv, const char **env) {
     }
     // and handle PLT
     RelocateElfPlt(context, context->maplib, elf_header);
+    // defered init
+    RunDeferedElfInit(context->emu);
     // init...
     RunElfInit(elf_header, context->emu);
 #ifdef HAVE_TRACE

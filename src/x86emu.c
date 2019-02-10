@@ -211,6 +211,11 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     newemu->regs[_SP].dword[0] = emu->regs[_SP].dword[0] + (intptr_t)(newst - oldst);
 }
 
+box86context_t* GetEmuContext(x86emu_t* emu)
+{
+    return emu->context;
+}
+
 uint32_t GetEAX(x86emu_t *emu)
 {
     return R_EAX;

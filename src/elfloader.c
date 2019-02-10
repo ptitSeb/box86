@@ -445,10 +445,33 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     if(h->init_done || !h->initentry)
         return;
     uintptr_t p = h->initentry + h->delta;
+    box86context_t* context = GetEmuContext(emu);
+    if(context->deferedInit) {
+        if(context->deferedInitSz==context->deferedInitCap) {
+            context->deferedInitCap += 4;
+            context->deferedInitList = (elfheader_t**)realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
+        }
+        context->deferedInitList[context->deferedInitSz++] = h;
+        return;
+    }
     printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     EmuCall(emu, p);
     h->init_done = 1;
     return;
+}
+void RunDeferedElfInit(x86emu_t *emu)
+{
+    box86context_t* context = GetEmuContext(emu);
+    if(!context->deferedInit)
+        return;
+    context->deferedInit = 0;
+    if(!context->deferedInitList)
+        return;
+    for (int i=0; i<context->deferedInitSz; ++i)
+        RunElfFini(context->deferedInitList[i], emu);
+    free(context->deferedInitList);
+    context->deferedInitList = NULL;
+    context->deferedInitCap = context->deferedInitSz = 0;
 }
 void RunElfFini(elfheader_t* h, x86emu_t *emu)
 {
