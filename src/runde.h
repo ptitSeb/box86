@@ -111,6 +111,26 @@
     
     default:
         switch((nextop>>3)&7) {
+            case 0:     /* FIADD ST0, Ew int */
+                GET_EW;
+                ST0.d += EW->sword[0];
+                break;
+            case 1:     /* FIMUL ST0, Ew int */
+                GET_EW;
+                ST0.d *= EW->sword[0];
+                break;
+            case 4:     /* FISUB ST0, Ew int */
+                GET_EW;
+                ST0.d -= EW->sword[0];
+                break;
+            case 5:     /* FISUBR ST0, Ew int */
+                GET_EW;
+                ST0.d = EW->sword[0] - ST0.d;
+                break;
+            case 7:     /* FIDIVR ST0, Ew int */
+                GET_EW;
+                ST0.d = EW->sword[0] / ST0.d;
+                break;
         default:
             goto _default;
         }
