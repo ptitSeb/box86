@@ -468,7 +468,7 @@ void RunDeferedElfInit(x86emu_t *emu)
     if(!context->deferedInitList)
         return;
     for (int i=0; i<context->deferedInitSz; ++i)
-        RunElfFini(context->deferedInitList[i], emu);
+        RunElfInit(context->deferedInitList[i], emu);
     free(context->deferedInitList);
     context->deferedInitList = NULL;
     context->deferedInitCap = context->deferedInitSz = 0;
