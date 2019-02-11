@@ -74,9 +74,10 @@ void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
 char* my_dlerror(x86emu_t* emu)
 {
     //char *dlerror(void);
-    printf_log(LOG_INFO, "Error: unimplement call to dlerror()\n");
-    emu->quit = 1;
-    return "";
+    /*printf_log(LOG_INFO, "Error: unimplement call to dlerror()\n");
+    emu->quit = 1;*/
+    static char* generror = "Generic libdl error";
+    return generror;
 }
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
