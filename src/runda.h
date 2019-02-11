@@ -86,6 +86,10 @@
                 GET_ED;
                 ST0.d = ED->sdword[0] - ST0.d;
                 break;
+            case 6:     /* FIDIV ST0, Ed int */
+                GET_ED;
+                ST0.d /= ED->sdword[0];
+                break;
             case 7:     /* FIDIVR ST0, Ed int */
                 GET_ED;
                 ST0.d = ED->sdword[0] / ST0.d;
