@@ -221,7 +221,7 @@ GO(XCopyColormapAndFree, uFpu)
 // _XCopyToArg
 GO(XCreateBitmapFromData, pFpppuu)
 GO(XCreateColormap, uFpppi)
-//GO(XCreateFontCursor
+GO(XCreateFontCursor, pFpu)
 //GO(XCreateFontSet
 GO(XCreateGC, pFppup)
 //GO(XCreateGlyphCursor
@@ -270,7 +270,7 @@ GO(XDestroyWindow, iFpp)
 //GO(XDisableAccessControl
 //GO(XDisplayCells
 GO(XDisplayHeight, iFpi)
-//GO(XDisplayHeightMM
+GO(XDisplayHeightMM, iFpi)
 //GO(XDisplayKeycodes
 //GO(XDisplayMotionBufferSize
 //GO(XDisplayName
@@ -280,20 +280,20 @@ GO(XDisplayHeight, iFpi)
 //GO(XDisplayPlanes
 //GO(XDisplayString
 GO(XDisplayWidth, iFpi)
-//GO(XDisplayWidthMM
+GO(XDisplayWidthMM, iFpi)
 //GO(XDoesBackingStore
 //GO(XDoesSaveUnders
 //GO(XDrawArc
 //GO(XDrawArcs
 //GO(XDrawImageString
 //GO(XDrawImageString16
-//GO(XDrawLine
-//GO(XDrawLines
+GO(XDrawLine, iFpppiiii)
+GO(XDrawLines, iFppppii)
 //GO(XDrawPoint
 //GO(XDrawPoints
-//GO(XDrawRectangle
-//GO(XDrawRectangles
-//GO(XDrawSegments
+GO(XDrawRectangle, iFpppiiuu)
+GO(XDrawRectangles, iFppppi)
+GO(XDrawSegments, iFppppi)
 GO(XDrawString, iFpppiipi)
 GO(XDrawString16, iFpppiipi)
 //GO(XDrawText
@@ -945,7 +945,7 @@ GO(XSetICFocus, vFu)
 GO(XSetICValues, pFpppppp)          // use vargarg
 // _XSetImage
 //GO(XSetIMValues
-//GO(XSetInputFocus
+GO(XSetInputFocus, iFppii)
 //GO(XSetIOErrorHandler
 // _XSetLastRequestRead
 //GO(XSetLineAttributes
@@ -970,8 +970,8 @@ GO(XSetSubwindowMode, iFppi)
 //GO(XSetTile
 GO(XSetTransientForHint, iFppp)
 //GO(XSetTSOrigin
-//GO(XSetWindowBackground
-//GO(XSetWindowBackgroundPixmap
+GO(XSetWindowBackground, iFppu)
+GO(XSetWindowBackgroundPixmap, iFppp)
 //GO(XSetWindowBorder
 //GO(XSetWindowBorderPixmap
 GO(XSetWindowBorderWidth, iFppu)
@@ -980,7 +980,7 @@ GO(XSetWindowBorderWidth, iFppu)
 GO(XSetWMColormapWindows, iFpppi)
 GO(XSetWMHints, iFppp)
 //GO(XSetWMIconName
-//GO(XSetWMName
+GO(XSetWMName, vFppp)
 GO(XSetWMNormalHints, iFpppp)
 GO(XSetWMProperties, vFpppppippp)
 GO(XSetWMProtocols, iFpppi)
@@ -994,7 +994,7 @@ GO(XSetWMSizeHints, vFpppu)
 // _XStoreEventCookie
 GO(XStoreName, iFppp)
 //GO(XStoreNamedColor
-//GO(XStringListToTextProperty
+GO(XStringListToTextProperty, iFpip)
 //GO(XStringToKeysym
 //GOM(XSubImage, pFEpiiuu)    // need unbridging
 GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
@@ -1007,8 +1007,8 @@ GO(XTextExtents16, iFppipppp)
 // _XTextHeight
 // _XTextHeight16
 //GO(XTextPropertyToStringList
-//GO(XTextWidth
-//GO(XTextWidth16
+GO(XTextWidth, iFppi)
+GO(XTextWidth16, iFppi)
 DATAB(_Xthread_self_fn, 4)
 GO(XTranslateCoordinates, iFpppiippp)
 // _XTranslateKey

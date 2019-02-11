@@ -14,6 +14,7 @@ typedef void (*sighandler_t)(int);
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <glob.h>
 
 #include "wrappedlibs.h"
 
@@ -260,6 +261,21 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
 EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
 
+EXPORT int my_vasprintf(x86emu_t* emu, void* strp, void* fmt, void* b, va_list V)
+{
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vasprintf;
+    int r = ((iFppp_t)f)(strp, fmt, emu->scratch);
+    return r;
+    #else
+    void* f = vasprintf;
+    int r = ((iFppp_t)f)(strp, fmt, *(uint32_t**)b);
+    return r;
+    #endif
+}
+
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -339,6 +355,28 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
     x86emu_t *cbemu = AddCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
     qsort_r(base, nmemb, size, qsort_cmp, cbemu);
     FreeCallback(cbemu);
+}
+
+x86emu_t *globemu = NULL;   // issue with multi threads...
+static int glob_errfnccallback(const char* epath, int no)
+{
+    if(globemu) {
+        SetCallbackArg(globemu, 0, (void*)epath);
+        SetCallbackArg(globemu, 1, (void*)no);
+        return (int32_t)RunCallback(globemu);
+    }
+    return 0;
+}
+EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pblog)
+{
+    if(errfnc)
+        globemu = AddCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
+    int32_t r = glob((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob_t*)pblog);
+    if(globemu) {
+        FreeCallback(globemu);
+        globemu = NULL;
+    }
+    return r;
 }
 
 EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)

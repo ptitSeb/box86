@@ -21,9 +21,12 @@ GO("libvorbisfile.so.3", vorbisfile)
 GO("libpng16.so.16", png16)
 GO("libXxf86vm.so.1", libxxf86vm)
 GO("libXrandr.so.2", libxrandr)
+GO("libXext.so.6", libxext)
 GO("libz.so.1", libz)
 GO("libopenal.so.1", openal)
 GO("libalut.so.0", alut)
+GO("libjpeg.so.8", libjpeg)
+GO("libcurl.so.4", curl)
 
 GO("ld-linux.so.2", ldlinux)
 

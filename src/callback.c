@@ -108,6 +108,22 @@ void SetCallbackNArg(x86emu_t* emu, int narg)
     }
 }
 
+void* GetCallbackArg(x86emu_t* emu, int arg)
+{
+    onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        return cb->arg[arg];
+    }
+    return NULL;
+}
+
+void SetCallbackAddress(x86emu_t* emu, uintptr_t address)
+{
+    onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        cb->fnc = address;
+    }
+}
 
 callbacklist_t* NewCallbackList()
 {

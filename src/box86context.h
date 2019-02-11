@@ -66,6 +66,7 @@ typedef struct box86context_s {
     library_t           *sdl2lib;       // shortcut to SDL2 library (if loaded)
     library_t           *sdl2mixerlib;
     library_t           *sdl2imagelib;
+    library_t           *zlib;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

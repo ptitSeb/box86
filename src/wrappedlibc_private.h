@@ -1,7 +1,7 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 // a64l
 GO(abort, vFv)      // Should be GOM once signal are handled properly
-// abs
+GO(abs, iFi)
 GOW(accept, iFipp)
 GOW(access, iFpi)
 // acct
@@ -143,7 +143,7 @@ GO(clock, uFv)
 GOW(close, iFi)
 // __close  // Weak
 GOW(closedir, iFp)
-// closelog
+GO(closelog, vFv)
 // __cmsg_nxthdr
 // confstr
 // __confstr_chk
@@ -397,7 +397,7 @@ GO(fsetpos, iFpp)
 // fstatvfs64   // Weak
 GOW(fsync, iFi)
 GOW(ftell, iFp)
-// ftello
+GO(ftello, uFp)
 GO(ftello64, Ifp)
 // ftime
 // ftok
@@ -516,7 +516,7 @@ GO(getopt_long_only, iFipppp)
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
 // getpass
-// getpeername  // Weak
+GOW(getpeername, iFipp)
 // getpgid  // Weak
 // __getpgid
 // getpgrp
@@ -556,7 +556,7 @@ GO(getrlimit, iFip)
 GOW(gets, pFp)
 // __gets_chk
 // getsecretkey
-// getservbyname
+GO(getservbyname, pFpp)
 // getservbyname_r
 // getservbyport
 // getservbyport_r
@@ -597,9 +597,9 @@ GO2(getwc, iFp, fgetwc)
 GO(getwd, pFp)
 // __getwd_chk
 // getxattr
-// glob
+GOM(glob, iFEpipp)
 // glob64
-// globfree
+GO(globfree, vFp)
 // globfree64
 // glob_pattern_p   // Weak
 GO(gmtime, pFp)
@@ -630,11 +630,11 @@ GO(herror, vFp)
 // hsearch
 // hsearch_r
 GO(hstrerror, pFi)
-// htonl
-// htons
-// iconv
-// iconv_close
-// iconv_open
+GO(htonl, uFu)
+GO(htons, uFu)
+GO(iconv, uFupppp)
+GO(iconv_close, iFu)
+GO(iconv_open, uFpp)
 // if_freenameindex
 // if_indextoname
 // if_nameindex
@@ -952,7 +952,7 @@ GOW(kill, iFii)
 // killpg
 // klogctl
 // l64a
-// labs
+GO(labs, iFi)
 // lchmod
 // lchown   // Weak
 // lckpwdf  // Weak
@@ -961,7 +961,7 @@ GOW(kill, iFii)
 // ldexp    // Weak
 // ldexpf   // Weak
 // ldexpl   // Weak
-// ldiv
+GO(ldiv, pFii)
 // lfind
 // lgetxattr
 // __libc_allocate_rtsig
@@ -1029,7 +1029,7 @@ GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
 // madvise
 // makecontext
-// mallinfo // Weak
+GOW(mallinfo, pFv)
 GO(malloc, pFu)
 // malloc_get_state // Weak
 DATAV(__malloc_hook, 4)
@@ -1152,8 +1152,8 @@ GO(__nl_langinfo_l, pFup)
 // __nss_passwd_lookup
 // __nss_passwd_lookup2
 // __nss_services_lookup2
-// ntohl    // Weak
-// ntohs    // Weak
+GOW(ntohl, uFu)
+GOW(ntohs, uFu)
 // ntp_adjtime  // Weak
 // ntp_gettime
 // _null_auth   // type B
@@ -1183,7 +1183,7 @@ GOW(open64, iFpiu)
 // __openat64_2
 // __open_catalog
 GOW(opendir, pFp)
-// openlog
+GO(openlog, vFpii)
 // open_memstream
 // open_wmemstream
 DATAB(optarg, 4)
@@ -1413,7 +1413,7 @@ GO(sched_setaffinity, iFiup)
 // sched_setscheduler   // Weak
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
-// __secure_getenv
+GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
 // seed48
 // seed48_r // Weak
 // seekdir
@@ -1723,8 +1723,8 @@ GO(__sysconf, iFi)
 DATA(_sys_errlist, 4)
 DATA(sys_errlist, 4)
 // sysinfo
-// syslog
-// __syslog_chk
+GO2(syslog, vFiV, vsyslog)
+GO2(__syslog_chk, vFiipV, __vsyslog_chk)
 // _sys_nerr    // type R
 // sys_nerr // type R
 DATA(sys_sigabbrev, 4)
@@ -1750,7 +1750,7 @@ GO(tcsetattr, iFiip)
 GOW(textdomain, pFp)
 // tfind    // Weak
 GO(time, uFp)
-// timegm
+GO(timegm, uFp)
 // timelocal    // Weak
 // timerfd_create
 // timerfd_gettime
@@ -1776,7 +1776,7 @@ GO(toupper, iFi)
 // __towctrans
 // __towctrans_l
 // towctrans_l  // Weak
-// towlower
+GO(towlower, iFi)
 GO(__towlower_l, iFip)
 // towlower_l   // Weak
 GO(towupper, iFi)
@@ -1824,7 +1824,7 @@ GO(utime, iFpp)
 // utmpname // Weak
 // utmpxname
 // valloc   // Weak
-// vasprintf    // Weak
+GOM(vasprintf, iFEppVV)
 // __vasprintf_chk
 // vdprintf // Weak
 // __vdprintf_chk
@@ -1857,8 +1857,8 @@ GOM(__vsprintf_chk, iFEpvvpp)
 GOM(vswprintf, iFEpupVV)    // Weak
 GOM(__vswprintf_chk, iFEpuvvpVV)    // Weak
 // vswscanf
-// vsyslog
-// __vsyslog_chk
+GO(vsyslog, vFipV)
+GO(__vsyslog_chk, vFiipV)
 // vtimes
 // vwarn
 // vwarnx

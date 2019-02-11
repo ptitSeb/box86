@@ -92,9 +92,12 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedpng16.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxxf86vm.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxrandr.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxext.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibz.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedopenal.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedalut.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibjpeg.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedcurl.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")
