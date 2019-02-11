@@ -1265,7 +1265,7 @@ GOW(pselect, iFippppp)
 // ptsname
 // ptsname_r    // Weak
 // __ptsname_r_chk
-GOW(putc, iFp)
+GOW(putc, iFip)
 GO(putchar, iFi)
 // putchar_unlocked
 // putc_unlocked
@@ -1801,7 +1801,7 @@ GOW(tzset, vFv)
 // umask    // Weak
 // umount   // Weak
 // umount2  // Weak
-// uname    // Weak
+GOW(uname, iFp)
 // __underflow
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)

@@ -157,6 +157,7 @@ void vFuud(x86emu_t *emu, uintptr_t fnc);
 void vFuup(x86emu_t *emu, uintptr_t fnc);
 void vFuff(x86emu_t *emu, uintptr_t fnc);
 void vFudd(x86emu_t *emu, uintptr_t fnc);
+void vFupi(x86emu_t *emu, uintptr_t fnc);
 void vFfff(x86emu_t *emu, uintptr_t fnc);
 void vFfpp(x86emu_t *emu, uintptr_t fnc);
 void vFddd(x86emu_t *emu, uintptr_t fnc);

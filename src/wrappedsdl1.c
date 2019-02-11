@@ -46,6 +46,7 @@ typedef struct {
 
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFpi_t)(void*, int32_t);
+typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
@@ -90,6 +91,7 @@ typedef struct sdl1_my_s {
     pFpp_t     SDL_CreateThread;
     vFp_t      SDL_KillThread;
     vFp_t      SDL_SetEventFilter;
+    pFp_t      SDL_GL_GetProcAddress;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -132,6 +134,7 @@ void* getSDL1My(library_t* lib)
     GO(SDL_CreateThread, pFpp_t)
     GO(SDL_KillThread, vFp_t)
     GO(SDL_SetEventFilter, vFp_t)
+    GO(SDL_GL_GetProcAddress, pFp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -481,6 +484,46 @@ void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
         FreeCallback(kh_value(my->threads, k));
         kh_del(timercb, my->threads, k);
     }
+}
+
+kh_symbolmap_t * fillGLProcWrapper();
+EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
+{
+    const char* rname = (const char*)name;
+    printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    // check if glxprocaddress is filled, and search for lib and fill it if needed
+    if(!emu->context->glwrappers)
+        emu->context->glwrappers = fillGLProcWrapper();
+    // get proc adress using actual glXGetProcAddress
+    void* symbol = my->SDL_GL_GetProcAddress(name);
+    if(!symbol)
+        return NULL;    // easy
+    // check if alread bridged
+    uintptr_t ret = CheckBridged(emu->context->system, symbol);
+    if(ret)
+        return (void*)ret; // already bridged
+    // get wrapper    
+    khint_t k = kh_get(symbolmap, emu->context->glwrappers, rname);
+    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
+        // try again, adding ARB at the end if not present
+        char tmp[200];
+        strcpy(tmp, rname);
+        strcat(tmp, "ARB");
+        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
+    }
+    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
+        // try again, adding EXT at the end if not present
+        char tmp[200];
+        strcpy(tmp, rname);
+        strcat(tmp, "EXT");
+        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
+    }
+    if(k==kh_end(emu->context->glwrappers)) {
+        printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
+        return NULL;
+    }
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol);
 }
 
 #define CUSTOM_INIT \

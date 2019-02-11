@@ -48,7 +48,7 @@ GO(SDL_ClearError, vFv)
 // SDL_CloseAudio
 GO(SDL_CloseAudioDevice, vFi)
 // SDL_ComposeCustomBlendMode
-// SDL_CondBroadcast
+GO(SDL_CondBroadcast, iFp)
 GO(SDL_CondSignal, iFp)
 GO(SDL_CondWait, iFpp)
 GO(SDL_CondWaitTimeout, iFppu)
@@ -155,7 +155,7 @@ GO(SDL_GetAudioDeviceName, pFii)
 // SDL_GetAudioDriver
 // SDL_GetAudioStatus
 GOM(SDL_GetBasePath, pFv)
-// SDL_GetClipboardText
+GO(SDL_GetClipboardText, pFv)
 // SDL_GetClipRect
 // SDL_GetClosestDisplayMode
 GO(SDL_GetColorKey, iFpp)
@@ -247,7 +247,7 @@ GO(SDL_GetWindowFlags, uFp)
 // SDL_GetWindowFromID
 // SDL_GetWindowGammaRamp
 GO(SDL_GetWindowGrab, iFp)
-// SDL_GetWindowID
+GO(SDL_GetWindowID, uFp)
 // SDL_GetWindowMaximumSize
 // SDL_GetWindowMinimumSize
 // SDL_GetWindowOpacity
@@ -262,13 +262,13 @@ GO(SDL_GetWindowWMInfo, iFpp)
 // SDL_GL_BindTexture
 GO(SDL_GL_CreateContext, pFp)
 GO(SDL_GL_DeleteContext, vFp)
-// SDL_GL_ExtensionSupported
+GO(SDL_GL_ExtensionSupported, iFp)
 // SDL_GL_GetAttribute
 // SDL_GL_GetCurrentContext
 // SDL_GL_GetCurrentWindow
 GO(SDL_GL_GetDrawableSize, vFppp)
-// SDL_GL_GetProcAddress
-// SDL_GL_GetSwapInterval
+GOM(SDL_GL_GetProcAddress, pFEp)
+GO(SDL_GL_GetSwapInterval, iFv)
 GO(SDL_GL_LoadLibrary, iFp)
 GO(SDL_GL_MakeCurrent, iFpp)
 // SDL_GL_ResetAttributes
@@ -279,7 +279,7 @@ GO(SDL_GL_SwapWindow, vFp)
 // SDL_GL_UnloadLibrary
 GO(SDL_HapticClose, vFp)
 GO(SDL_HapticDestroyEffect, vFpi)
-// SDL_HapticEffectSupported
+GO(SDL_HapticEffectSupported, iFpp)
 // SDL_HapticGetEffectStatus
 // SDL_HapticIndex
 // SDL_HapticName
@@ -346,10 +346,10 @@ GO(SDL_JoystickClose, vFp)
 GO(SDL_JoystickEventState, iFi)
 // SDL_JoystickFromInstanceID
 // SDL_JoystickGetAttached
-// SDL_JoystickGetAxis
+GO(SDL_JoystickGetAxis, iFpi)
 // SDL_JoystickGetAxisInitialState
 // SDL_JoystickGetBall
-// SDL_JoystickGetButton
+GO(SDL_JoystickGetButton, CFpi)
 GO(SDL_JoystickGetDeviceGUID, pFpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
 // SDL_JoystickGetDeviceInstanceID
 // SDL_JoystickGetDevicePlayerIndex
@@ -357,9 +357,9 @@ GO(SDL_JoystickGetDeviceGUID, pFpi)  // return a struct that is "uint8_t data[16
 // SDL_JoystickGetDeviceProductVersion
 // SDL_JoystickGetDeviceType
 // SDL_JoystickGetDeviceVendor
-// SDL_JoystickGetGUID
+GO(SDL_JoystickGetGUID, uFp)
 // SDL_JoystickGetGUIDFromString
-// SDL_JoystickGetGUIDString
+GO(SDL_JoystickGetGUIDString, vFupi)
 GO(SDL_JoystickGetHat, CFpi)
 // SDL_JoystickGetPlayerIndex
 // SDL_JoystickGetProduct
@@ -368,12 +368,12 @@ GO(SDL_JoystickGetHat, CFpi)
 // SDL_JoystickGetVendor
 GO(SDL_JoystickInstanceID, iFp)
 GO(SDL_JoystickIsHaptic, iFp)
-// SDL_JoystickName
+GO(SDL_JoystickName, pFp)
 GO(SDL_JoystickNameForIndex, pFi)
 // SDL_JoystickNumAxes
 // SDL_JoystickNumBalls
 GO(SDL_JoystickNumButtons, iFp)
-// SDL_JoystickNumHats
+GO(SDL_JoystickNumHats, iFp)
 GO(SDL_JoystickOpen, pFi)
 // SDL_JoystickRumble
 GO(SDL_JoystickUpdate, vFv)
@@ -424,7 +424,7 @@ GO(SDL_MapRGBA, uFpCCCC)
 // SDL_MemoryBarrierAcquireFunction
 // SDL_MemoryBarrierReleaseFunction
 GO(SDL_memset, pFpiu)
-// SDL_MinimizeWindow
+GO(SDL_MinimizeWindow, vFp)
 // SDL_MixAudio
 // SDL_MixAudioFormat
 // SDL_MouseIsHaptic
@@ -500,7 +500,7 @@ GO(SDL_RenderSetViewport, iFpp)
 // SDL_RenderTargetSupported
 GO(SDL_ReportAssertion, uFpppi)
 // SDL_ResetAssertionReport
-// SDL_RestoreWindow
+GO(SDL_RestoreWindow, vFp)
 GOM(SDL_RWFromConstMem, pFEpi)
 GOM(SDL_RWFromFP, pFEpi)
 GOM(SDL_RWFromFile, pFEpp)
