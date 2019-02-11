@@ -91,7 +91,7 @@ static void* my_zlib_alloc(void* opaque, uint32_t items, uint32_t size)
 static void my_zlib_free(void* opaque, void* address)
 {
     x86emu_t *emu = (x86emu_t*)opaque;
-    SetCallbackNArg(emu, 1);
+    SetCallbackNArg(emu, 2);
     SetCallbackArg(emu, 1, address);
     SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
     RunCallback(emu);
@@ -132,8 +132,10 @@ EXPORT int32_t my_inflateEnd(x86emu_t* emu, void* str)
     // check if function need changing...
     x86emu_t *cb = (x86emu_t*)stream->opaque;
     int32_t r = my->inflateEnd(str);
-    if(cb)
+    if(cb) {
+        stream->opaque = GetCallbackArg(cb, 0);
         FreeCallback(cb);   // will do nothing if cb is not a callback emu
+    }
     return r;
 }
 
