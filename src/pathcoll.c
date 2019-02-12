@@ -76,3 +76,20 @@ void CopyCollection(path_collection_t* to, path_collection_t* from)
     for (int i=0; i<to->size; ++i)
         to->paths[i] = strdup(from->paths[i]);
 }
+
+void AddPath(const char* path, path_collection_t* collection)
+{
+    char tmp[MAX_PATH];
+    strcpy(tmp, path);
+    int l = strlen(tmp);
+    // skip empty strings
+    if(l) {
+        if(tmp[l-1]!='/')
+            strcat(tmp, "/");
+        if(collection->size==collection->cap) {
+            collection->cap += 4;
+            collection->paths = (char**)realloc(collection->paths, collection->cap*sizeof(char*));
+        }
+        collection->paths[collection->size++]=strdup(tmp);
+    }
+}

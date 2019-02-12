@@ -14,5 +14,6 @@ typedef struct path_collection_t
 void ParseList(const char* List, path_collection_t* collection);
 void FreeCollection(path_collection_t* collection);
 void CopyCollection(path_collection_t* to, path_collection_t* from);
+void AddPath(const char* path, path_collection_t* collection);
 
 #endif //__PATHCOLL_H_
