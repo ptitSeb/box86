@@ -168,16 +168,16 @@ int main(int argc, const char **argv, const char **env) {
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA
-    if(FileExist("/mnt/utmp/codeblocks/lib/i386-gnu-linux", 0))
-        AddPath("/mnt/utmp/codeblocks/lib/i386-gnu-linux", &context->box86_ld_lib);
-    if(FileExist("/mnt/utmp/box86/lib/i386-gnu-linux", 0))
-        AddPath("/mnt/utmp/box86/lib/i386-gnu-linux", &context->box86_ld_lib);
+    if(FileExist("/mnt/utmp/codeblocks/lib/i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/codeblocks/lib/i386-linux-gnu", &context->box86_ld_lib);
+    if(FileExist("/mnt/utmp/box86/lib/i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib);
     //TODO: add relative path to box86 location
 #else
-    if(FileExist("/lib/i386-gnu-linux", 0))
-        AddPath("/lib/i386-gnu-linux", &context->box86_ld_lib);
-    if(FileExist("/usr/lib/i386-gnu-linux", 0))
-        AddPath("/usr/lib/i386-gnu-linux", &context->box86_ld_lib);
+    if(FileExist("/lib/i386-linux-gnu", 0))
+        AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib);
+    if(FileExist("/usr/lib/i386-linux-gnu", 0))
+        AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib);
 #endif
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
