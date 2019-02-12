@@ -106,7 +106,7 @@
         GET_ED;
         GX.q[0] = *(uint64_t*)ED;
         NEXT;
-    _6f_0x13:                      /* MOVUPD Eq, Gx */
+    _6f_0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
         GET_ED;
         *(uint64_t*)ED = GX.q[0];
