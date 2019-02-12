@@ -26,7 +26,7 @@ box86context_t *NewBox86Context(int argc)
     context->maplib = NewLibrarian();
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFv, x86Syscall);
+    context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
 
     context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
     context->dlprivate = NewDLPrivate();

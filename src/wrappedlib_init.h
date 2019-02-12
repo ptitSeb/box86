@@ -15,6 +15,7 @@
 #define GO(N, W)
 #define GOW(N, W)
 #define GOM(N, W)
+#define GOS(N, W)
 #define GO2(N, W, O)
 #define DATA(N, S)
 #define DATAV(N, S)
@@ -40,6 +41,13 @@ static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
 };
 #undef GOM
 #define GOM(N, W)
+#undef GOS
+#define GOS(N, W) {#N, W, 0},
+static const map_onesymbol2_t MAPNAME(stsymbolmap)[] = {
+    #include PRIVATE(LIBNAME)
+};
+#undef GOS
+#define GOS(N, W)
 #undef GO2
 #define GO2(N, W, O) {#N, W, 0, #O},
 static const map_onesymbol2_t MAPNAME(symbol2map)[] = {
@@ -86,6 +94,7 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 // Create maps
     lib->symbolmap = kh_init(symbolmap);
     lib->mysymbolmap = kh_init(symbolmap);
+    lib->stsymbolmap = kh_init(symbolmap);
     lib->symbol2map = kh_init(symbol2map);
     lib->datamap = kh_init(datamap);
     lib->mydatamap = kh_init(datamap);
@@ -104,6 +113,11 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->mysymbolmap, MAPNAME(mysymbolmap)[i].name, &ret);
         kh_value(lib->mysymbolmap, k) = MAPNAME(mysymbolmap)[i].w;
+    }
+    cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, lib->stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
+        kh_value(lib->stsymbolmap, k) = MAPNAME(stsymbolmap)[i].w;
     }
     cnt = sizeof(MAPNAME(symbol2map))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {

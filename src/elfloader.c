@@ -295,7 +295,7 @@ int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head)
         }
         if(head->gotplt) {
             if(pltResolver==~0) {
-                pltResolver = AddBridge(context->system, vFEpp, PltResolver);   // should be vFEuu
+                pltResolver = AddBridge(context->system, vFEpp, PltResolver, 0);   // should be vFEuu
             }
             *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
             printf_log(LOG_DEBUG, "PLT Resolver injected at %p\n", (void*)(head->gotplt+head->delta+8));

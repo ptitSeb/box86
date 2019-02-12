@@ -242,6 +242,8 @@ void FreeLibrary(library_t **lib)
         kh_destroy(datamap, (*lib)->mydatamap);
     if((*lib)->mysymbolmap)
         kh_destroy(symbolmap, (*lib)->mysymbolmap);
+    if((*lib)->stsymbolmap)
+        kh_destroy(symbolmap, (*lib)->stsymbolmap);
     if((*lib)->symbol2map)
         kh_destroy(symbol2map, (*lib)->symbol2map);
 
@@ -348,7 +350,23 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
         symbol = dlsym(lib->priv.w.box86lib, buff);
         if(!symbol)
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->mysymbolmap, k), symbol);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->mysymbolmap, k), symbol, 0);
+        *size = sizeof(void*);
+        return 1;
+    }
+    // check in stsymbolmap (return struct...)
+    k = kh_get(symbolmap, lib->stsymbolmap, name);
+    if (k!=kh_end(lib->stsymbolmap)) {
+        char buff[200];
+        if(lib->altmy)
+            strcpy(buff, lib->altmy);
+        else
+            strcpy(buff, "my_");
+        strcat(buff, name);
+        symbol = dlsym(lib->priv.w.box86lib, buff);
+        if(!symbol)
+            printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->stsymbolmap, k), symbol, 4);    // all of this for this little "4"
         *size = sizeof(void*);
         return 1;
     }
@@ -366,7 +384,7 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
             return 0;
         }
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbolmap, k), symbol);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbolmap, k), symbol, 0);
         *size = sizeof(void*);
         return 1;
     }
@@ -378,7 +396,7 @@ int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->symbol2map, k).name, lib->name);
             return 0;
         }
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbol2map, k).w, symbol);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbol2map, k).w, symbol, 0);
         *size = sizeof(void*);
         return 1;
     }

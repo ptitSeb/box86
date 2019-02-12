@@ -139,7 +139,7 @@ EXPORT XErrorHandler my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
         cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
     errorhandlercb = cb;
     XErrorHandler old = (XErrorHandler)my->XSetErrorHandler(cb);
-    return (old)?((XErrorHandler)AddBridge(lib->priv.w.bridge, iFpp, old)):NULL;
+    return (old)?((XErrorHandler)AddBridge(lib->priv.w.bridge, iFpp, old, 0)):NULL;
 }
 
 int32_t xifevent_callback(void* dpy, void *event, void* arg)
@@ -167,7 +167,7 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
 
     #define GO(A, W) \
     fnc = CheckBridged(system, img->f.A); \
-    if(!fnc) fnc = AddBridge(system, W, img->f.A); \
+    if(!fnc) fnc = AddBridge(system, W, img->f.A, 0); \
     img->f.A = (W##_t)fnc;
 
     uintptr_t fnc;

@@ -725,7 +725,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 
 #define nb_once	16

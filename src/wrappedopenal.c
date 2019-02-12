@@ -58,5 +58,5 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
 }

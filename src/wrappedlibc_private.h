@@ -1,4 +1,7 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(GOS))
+#error Meh...
+#endif
+
 // a64l
 GO(abort, vFv)      // Should be GOM once signal are handled properly
 GO(abs, iFi)
@@ -961,7 +964,7 @@ GO(labs, iFi)
 // ldexp    // Weak
 // ldexpf   // Weak
 // ldexpl   // Weak
-GOM(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
+GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 // lfind
 // lgetxattr
 // __libc_allocate_rtsig
@@ -2085,6 +2088,3 @@ GOM(_ITM_memcpyRnWt, vFppu) // register(2)
 GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)
 GOM(_ITM_deregisterTMCloneTable, vFEp)
-
-
-#endif

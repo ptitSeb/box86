@@ -10,7 +10,7 @@ typedef struct bridge_s bridge_t;
 bridge_t *NewBridge();
 void FreeBridge(bridge_t** bridge);
 
-uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc);
+uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N);
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc);
 void* GetNativeFnc(uintptr_t fnc);
 

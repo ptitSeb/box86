@@ -90,6 +90,6 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));

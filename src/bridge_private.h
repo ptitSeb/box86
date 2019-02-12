@@ -10,7 +10,8 @@ typedef struct onebridge_s {
     uint8_t S, C;   // 'S' 'C', just a signature
     wrapper_t w;    // wrapper
     uintptr_t f;    // the function for the wrapper
-    uint8_t C3;     // C3 ret
+    uint8_t C3;     // C2 or C3 ret
+    uint16_t N;     // N in case of C2 ret
 } onebridge_t;
 #pragma pack(pop)
 

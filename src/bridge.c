@@ -46,7 +46,7 @@ void FreeBridge(bridge_t** bridge)
     *bridge = NULL;
 }
 
-uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc)
+uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
     brick_t *b = bridge->last;
     if(b->sz == NBRICK) {
@@ -58,7 +58,8 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc)
     b->b[b->sz].S = 'S'; b->b[b->sz].C='C';
     b->b[b->sz].w = w;
     b->b[b->sz].f = (uintptr_t)fnc;
-    b->b[b->sz].C3 = 0xC3;
+    b->b[b->sz].C3 = N?0xC2:0xC3;
+    b->b[b->sz].N = N;
     // add bridge to map, for fast recovery
     int ret;
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
@@ -79,7 +80,7 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 void* GetNativeFnc(uintptr_t fnc)
 {
     onebridge_t *b = (onebridge_t*)fnc;
-    if(b->CC != 0xCC || b->S!='S' || b->C!='C' || b->C3!=0xC3)
+    if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
         return NULL;    // not a bridge?!
     return (void*)b->f;
 }
