@@ -379,7 +379,7 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
 {
     if(strcmp((const char*)path, "/proc/self/exe")==0) {
         // special case for self...
-        return readlink(emu->context->fullpath, (char*)buf, sz);
+        return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
