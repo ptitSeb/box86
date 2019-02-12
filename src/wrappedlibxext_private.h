@@ -34,12 +34,12 @@ GO(DPMSSetTimeouts, iFpuuu)
 //GO(XeviGetVisualInfo, 
 //GO(XeviQueryExtension, 
 //GO(XeviQueryVersion, 
-//GO(XextAddDisplay, 
-//GO(XextCreateExtension, 
+GO(XextAddDisplay, pFppppip)
+GO(XextCreateExtension, pFv)
 //GO(XextDestroyExtension, 
 DATAB(_XExtensionErrorFunction, 4)
-//GO(XextFindDisplay, 
-//GO(XextRemoveDisplay, 
+GO(XextFindDisplay, pFpp)
+GO(XextRemoveDisplay, iFpp)
 //GO(XGEQueryExtension, 
 //GO(XGEQueryVersion, 
 //GO(XLbxGetEventBase, 
@@ -57,7 +57,7 @@ DATAB(_XExtensionErrorFunction, 4)
 //GO(XmbufGetVersion, 
 //GO(XmbufGetWindowAttributes, 
 //GO(XmbufQueryExtension, 
-//GO(XMissingExtension, 
+GO(XMissingExtension, iFpp)
 //GO(XMITMiscGetBugMode, 
 //GO(XMITMiscQueryExtension, 
 //GO(XMITMiscSetBugMode, 

@@ -247,7 +247,7 @@ GO(XDefaultDepth, iFpi)
 // _XDefaultIOError
 // _XDefaultOpenIM
 // _XDefaultOpenOM
-//GO(XDefaultRootWindow
+GO(XDefaultRootWindow, pFp)
 GO(XDefaultScreen, pFp)
 //GO(XDefaultScreenOfDisplay
 //GO(XDefaultString
@@ -299,7 +299,7 @@ GO(XDrawString16, iFpppiipi)
 //GO(XDrawText
 //GO(XDrawText16
 // _XEatData
-// _XEatDataWords
+GO(_XEatDataWords, vFpu)
 //GO(XEHeadOfExtensionList
 //GO(XEmptyRegion
 //GO(XEnableAccessControl
@@ -409,7 +409,7 @@ GO(XGetKeyboardControl, iFpp)
 GO(dummy_XGetPixel, uFpii)     // for the wrapper
 //GO(XGetPointerControl
 GO(XGetPointerMapping, iFppi)
-// _XGetRequest
+GO(_XGetRequest, pFpuu)
 //GO(XGetRGBColormaps
 // _XGetScanlinePad
 GO(XGetScreenSaver, iFppppp)
@@ -419,7 +419,7 @@ GO(XGetScreenSaver, iFppppp)
 GO(XGetSubImage, pFppiiuuuipii)
 //GO(XGetTextProperty
 GO(XGetTransientForHint, iFppp)
-//GO(XGetVisualInfo
+GO(XGetVisualInfo, pFpipp)
 GO(XGetWindowAttributes, iFppp)
 // _XGetWindowAttributes
 GO(XGetWindowProperty, iFpppiiipppppp)
@@ -818,7 +818,7 @@ GO(XPeekEvent, iFpp)
 GO(XPending, iFp)
 //GO(Xpermalloc
 //GO(XPlanesOfScreen
-//GO(XPointInRegion
+GO(XPointInRegion, iFpp)
 // _XPollfdCacheAdd
 // _XPollfdCacheDel
 // _XPollfdCacheInit
@@ -846,8 +846,8 @@ GO(XQueryPointer, iFppppppppp)
 GO(XQueryTextExtents, iFpppipppp)
 GO(XQueryTextExtents16, iFpppipppp)
 GO(XQueryTree, pFpppppp)
-//GO(XRaiseWindow
-// _XRead
+GO(XRaiseWindow, iFpp)
+GO(_XRead, iFppi)
 //GO(XReadBitmapFile
 //GO(XReadBitmapFileData
 // _XReadEvents
@@ -855,7 +855,7 @@ GO(XQueryTree, pFpppppp)
 GO(XRebindKeysym, iFpupipi)
 GO(XRecolorCursor, iFpppp)
 //GO(XReconfigureWMWindow
-//GO(XRectInRegion
+GO(XRectInRegion, iFpiiuu)
 GO(XRefreshKeyboardMapping, iFp)
 // _XRefreshKeyboardMapping
 // _XRegisterFilterByMask
@@ -867,7 +867,7 @@ GO(XRefreshKeyboardMapping, iFp)
 //GO(XRemoveHost
 //GO(XRemoveHosts
 //GO(XReparentWindow
-// _XReply
+GO(_XReply, iFppii)
 GO(XResetScreenSaver, iFp)
 GO(XResizeWindow, iFppuu)
 //GO(XResourceManagerString
@@ -1022,7 +1022,7 @@ GO(XUngrabPointer, iFpu)
 GO(XUngrabServer, iFp)
 GO(XUninstallColormap, iFpp)
 //GO(XUnionRectWithRegion
-//GO(XUnionRegion
+GO(XUnionRegion, iFppp)
 // _XUnknownCopyEventCookie
 // _XUnknownNativeEvent
 // _XUnknownWireEvent

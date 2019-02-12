@@ -1352,8 +1352,8 @@ GO(remove, iFp)
 GO(rename, iFpp)
 // renameat
 // _res // type B
-// re_search    // Weak
-// re_search_2  // Weak
+GOW(re_search, iFppiiip)
+GOW(re_search_2, iFppipiiipi)
 // re_set_registers // Weak
 // re_set_syntax    // Weak
 // _res_hconf   // type B
@@ -1476,7 +1476,7 @@ GO(setrlimit, iFip)
 // setrlimit64
 // setrpcent
 // setservent
-// setsid   // Weak
+GOW(setsid, iFv)
 GOW(setsockopt, iFiiipu)
 // setsourcefilter
 // setspent
@@ -1915,7 +1915,7 @@ GOW(wcsnrtombs, uFppuup)
 // __wcsnrtombs_chk
 // wcspbrk
 // wcsrchr
-// wcsrtombs    // Weak
+GOW(wcsrtombs, uFppup)
 // __wcsrtombs_chk
 // wcsspn
 // wcsstr

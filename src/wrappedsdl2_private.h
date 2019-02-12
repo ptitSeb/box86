@@ -36,7 +36,7 @@ GO(SDL_atoi, iFp)
 // SDL_AudioStreamFlush
 // SDL_AudioStreamGet
 // SDL_AudioStreamPut
-// SDL_BuildAudioCVT
+GO(SDL_BuildAudioCVT, iFpuuiuui)
 // SDL_CalculateGammaRamp
 // SDL_calloc
 // SDL_CaptureMouse
@@ -45,7 +45,7 @@ GO(SDL_ceilf, fFf)
 GO(SDL_ClearError, vFv)
 // SDL_ClearHints
 // SDL_ClearQueuedAudio
-// SDL_CloseAudio
+GO(SDL_CloseAudio, vFv)
 GO(SDL_CloseAudioDevice, vFi)
 // SDL_ComposeCustomBlendMode
 GO(SDL_CondBroadcast, iFp)
@@ -60,7 +60,7 @@ GO(SDL_ConvertSurface, pFppu)
 // SDL_copysignf
 // SDL_cos
 // SDL_cosf
-// SDL_CreateColorCursor
+GO(SDL_CreateColorCursor, pFpii)
 GO(SDL_CreateCond, pFv)
 // SDL_CreateCursor
 GO(SDL_CreateMutex, pFv)
@@ -127,7 +127,7 @@ GO(SDL_GameControllerEventState, iFi)
 GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
 // SDL_GameControllerGetAxisFromString
-// SDL_GameControllerGetBindForAxis
+//GOS(SDL_GameControllerGetBindForAxis, 
 // SDL_GameControllerGetBindForButton
 GO(SDL_GameControllerGetButton, uFpi)
 // SDL_GameControllerGetButtonFromString
@@ -370,8 +370,8 @@ GO(SDL_JoystickInstanceID, iFp)
 GO(SDL_JoystickIsHaptic, iFp)
 GO(SDL_JoystickName, pFp)
 GO(SDL_JoystickNameForIndex, pFi)
-// SDL_JoystickNumAxes
-// SDL_JoystickNumBalls
+GO(SDL_JoystickNumAxes, iFp)
+GO(SDL_JoystickNumBalls, iFp)
 GO(SDL_JoystickNumButtons, iFp)
 GO(SDL_JoystickNumHats, iFp)
 GO(SDL_JoystickOpen, pFi)
@@ -434,7 +434,7 @@ GO(SDL_NumJoysticks, iFv)
 // SDL_NumSensors
 GOM(SDL_OpenAudio, iFEpp)
 GOM(SDL_OpenAudioDevice, iFEpippi)
-// SDL_PauseAudio
+GO(SDL_PauseAudio, vFi)
 GO(SDL_PauseAudioDevice, vFii)
 // SDL_PeepEvents
 // SDL_PixelFormatEnumToMasks
