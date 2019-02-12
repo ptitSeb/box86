@@ -174,6 +174,11 @@
         R_ESI += tmp8s;
         cmp16(emu, tmp16u2, tmp16u);
         NEXT;
+
+    _66_0xA9:                             /* TEST AX,Iw */
+        test16(emu, R_AX, F16);
+        NEXT;
+
     _66_0xAB:                              /* STOSW */
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         *(uint16_t*)R_EDI = R_AX;

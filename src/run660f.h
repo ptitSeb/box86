@@ -101,7 +101,16 @@
         GET_EX;
         memcpy(EX, &GX, 16); // unaligned...
         NEXT;
-
+    _6f_0x12:                      /* MOVLPD Gx, Eq */
+        nextop = F8;
+        GET_ED;
+        GX.q[0] = *(uint64_t*)ED;
+        NEXT;
+    _6f_0x13:                      /* MOVUPD Eq, Gx */
+        nextop = F8;
+        GET_ED;
+        *(uint64_t*)ED = GX.q[0];
+        NEXT;
     _6f_0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = F8;
         GET_EX;

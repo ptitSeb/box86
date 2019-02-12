@@ -137,7 +137,7 @@ int Run(x86emu_t *emu)
     &&_66_0x90, &&_default, &&_66_0x92, &&_default, &&_default, &&_default, &&_default, &&_default, 
     &&_66_0x98, &&_66_0x99, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, //0x98-0x9F
     &&_default, &&_66_0xA1, &&_default, &&_66_0xA3, &&_default, &&_66_0xA5, &&_default, &&_66_0xA7, 
-    &&_default, &&_default, &&_default, &&_66_0xAB, &&_default, &&_66_0xAD, &&_default, &&_66_0xAF, //0xA8-0xAF
+    &&_default, &&_66_0xA9, &&_default, &&_66_0xAB, &&_default, &&_66_0xAD, &&_default, &&_66_0xAF, //0xA8-0xAF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xB0-0xB7
     &&_66_0xB8, &&_66_0xB9, &&_66_0xBA, &&_66_0xBB, &&_66_0xBC, &&_66_0xBD, &&_66_0xBE, &&_66_0xBF, 
     &&_default, &&_66_0xC1, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xC7, 
@@ -153,7 +153,7 @@ int Run(x86emu_t *emu)
     static const void* opcodes660f[256] = {
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x00-0x07
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x08-0x0F
-    &&_6f_0x10, &&_6f_0x11, &&_default, &&_default, &&_6f_0x14, &&_6f_0x15, &&_6f_0x16, &&_6f_0x17, 
+    &&_6f_0x10, &&_6f_0x11, &&_6f_0x12, &&_6f_0x13, &&_6f_0x14, &&_6f_0x15, &&_6f_0x16, &&_6f_0x17, 
     &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_6f_0x1F, 
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x20-0x27
     &&_6f_0x28, &&_6f_0x29, &&_6f_0x2A, &&_default, &&_6f_0x2C, &&_6f_0x2D, &&_6f_0x2E, &&_6f_0x2F, 
