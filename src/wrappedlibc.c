@@ -375,6 +375,15 @@ EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size
     return ret;
 }
 
+EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
+{
+    if(strcmp((const char*)path, "/proc/self/exe")==0) {
+        // special case for self...
+        return readlink(emu->context->fullpath, (char*)buf, sz);
+    }
+    return readlink((const char*)path, (char*)buf, sz);
+}
+
 
 x86emu_t *globemu = NULL;   // issue with multi threads...
 static int glob_errfnccallback(const char* epath, int no)

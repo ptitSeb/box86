@@ -88,6 +88,9 @@ void x86Int3(x86emu_t* emu)
                     perr = 1;
                 } else  if(strstr(s, "chdir")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), "chdir", *(char**)(R_ESP+4));
+                } else  if(strstr(s, "getenv")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), "getenv", *(char**)(R_ESP+4));
+                    post = 2;
                 } else  if(strstr(s, "pread")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %u, %i)", tid, *(void**)(R_ESP), "pread", *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12), *(int32_t*)(R_ESP+16));
                 } else  if(strstr(s, "sem_timedwait")==s) {
@@ -105,6 +108,8 @@ void x86Int3(x86emu_t* emu)
                 if(post)
                     switch(post) {
                     case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                            break;
+                    case 2: snprintf(buff2, 63, "(%s)", R_EAX?((char*)R_EAX):"nil");
                             break;
                     
                 }

@@ -1314,7 +1314,7 @@ GOW(readdir, pFp)
 GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOW(readdir_r, iFppp)
-GOW(readlink, iFppu)
+GOM(readlink, iFEppu)
 // readlinkat
 // __readlinkat_chk
 // __readlink_chk
