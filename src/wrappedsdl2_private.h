@@ -350,7 +350,7 @@ GO(SDL_JoystickGetAxis, iFpi)
 // SDL_JoystickGetAxisInitialState
 // SDL_JoystickGetBall
 GO(SDL_JoystickGetButton, CFpi)
-GO(SDL_JoystickGetDeviceGUID, pFpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
+GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
 // SDL_JoystickGetDeviceInstanceID
 // SDL_JoystickGetDevicePlayerIndex
 // SDL_JoystickGetDeviceProduct

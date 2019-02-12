@@ -46,6 +46,10 @@ typedef struct {
 
 KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 
+typedef struct {
+    uint8_t data[16];
+} SDL_JoystickGUID;
+
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
@@ -71,6 +75,7 @@ typedef uint32_t (*uFpC_t)(void*, uint8_t);
 typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
+typedef SDL_JoystickGUID (*SFi_t)(int32_t);
 
 typedef struct sdl2_my_s {
     iFpp_t     SDL_OpenAudio;
@@ -108,6 +113,7 @@ typedef struct sdl2_my_s {
     vFiupp_t   SDL_LogMessageV;
     pFp_t      SDL_GL_GetProcAddress;
     iFupp_t    SDL_TLSSet;
+    SFi_t      SDL_JoystickGetDeviceGUID;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -158,6 +164,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_LogMessageV, vFiupp_t)
     GO(SDL_GL_GetProcAddress, pFp_t)
     GO(SDL_TLSSet, iFupp_t)
+    GO(SDL_JoystickGetDeviceGUID, SFi_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -787,6 +794,12 @@ EXPORT int32_t my2_SDL_TLSSet(x86emu_t* emu, uint32_t id, void* value, void* dto
 	return -1;
 }
 
+EXPORT void* my2_SDL_JoystickGetDeviceGUID(x86emu_t* emu, void* p, int32_t idx)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    *(SDL_JoystickGUID*)p = my->SDL_JoystickGetDeviceGUID(idx);
+    return p;
+}
 
 const char* sdl2Name = "libSDL2-2.0.so";
 #define LIBNAME sdl2
