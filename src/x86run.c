@@ -576,15 +576,16 @@ _trace:
                 }
                 NEXT;
             _0x81:                      /* GRP Ed,Id */
+                nextop = F8;
+                GET_ED;
+                tmp32u = F32;
+                goto _0x81_common;
             _0x83:                      /* GRP Ed,Ib */
                 nextop = F8;
                 GET_ED;
-                if(opcode==0x81) {
-                    tmp32u = F32;
-                } else {
-                    tmp32s = F8S;
-                    tmp32u = (uint32_t)tmp32s;
-                }
+                tmp32s = F8S;
+                tmp32u = (uint32_t)tmp32s;
+            _0x81_common:
                 switch((nextop>>3)&7) {
                     case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
                     case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
