@@ -365,13 +365,14 @@ static int bsearch_cmp(const void* a, const void* b)
     return (int)RunCallback(bsearch_emu);
 }
 
-EXPORT void my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
+EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     // use a temporary callback, but global because there is no bsearch_r...
     bsearch_emu = AddCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    bsearch(key, base, nmemb, size, bsearch_cmp);
+    void* ret = bsearch(key, base, nmemb, size, bsearch_cmp);
     FreeCallback(bsearch_emu);
     bsearch_emu = NULL;
+    return ret;
 }
 
 
