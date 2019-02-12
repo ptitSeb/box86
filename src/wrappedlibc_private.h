@@ -84,7 +84,7 @@ GOW(backtrace_symbols, pFpi)
 GO(__backtrace_symbols_fd, vFpii)
 // backtrace_symbols_fd // Weak
 GO(basename, pFp)
-// bcmp // Weak
+GOW(bcmp, iFppu)
 // bcopy
 // bdflush
 GOW(bind, iFipu)
@@ -94,7 +94,7 @@ GOW(bind_textdomain_codeset, pFpp)
 // brk  // Weak
 // __bsd_getpgrp
 // bsd_signal   // Weak
-// bsearch
+GOM(bsearch, pFEppuup)
 GOW(btowc, iFi)
 // bzero    // Weak
 // __bzero
@@ -223,7 +223,7 @@ GO(endhostent, vFv)
 // endnetent
 // endnetgrent
 // endprotoent
-// endpwent
+GO(endpwent, vFv)
 // endrpcent
 // endservent
 // endspent
@@ -267,7 +267,7 @@ GO(__errno_location, pFv)
 // eventfd
 // eventfd_read
 // eventfd_write
-// execl
+GOM(execl, iFEpVV)
 // execle
 GOM(execlp, iFEpVV)
 GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
@@ -515,7 +515,7 @@ GO(getopt_long, iFipppp)
 GO(getopt_long_only, iFipppp)
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
-// getpass
+GO(getpass, pFp)
 GOW(getpeername, iFipp)
 // getpgid  // Weak
 // __getpgid
@@ -552,7 +552,7 @@ GO(getrlimit, iFip)
 // getrpcent
 // getrpcent_r
 // getrpcport
-// getrusage    // Weak
+GOW(getrusage, iFip)
 GOW(gets, pFp)
 // __gets_chk
 // getsecretkey
@@ -673,8 +673,8 @@ GO(inet_network, iFp)
 // inet_nsap_addr
 // inet_nsap_ntoa
 GO(inet_ntoa, pFi)
-// inet_ntop
-// inet_pton
+GO(inet_ntop, pFippu)
+GO(inet_pton, iFipp)
 // initgroups
 // init_module
 // initstate    // Weak
@@ -684,7 +684,7 @@ GO(inet_ntoa, pFi)
 GO(inotify_add_watch, iFipu)
 GO(inotify_init, iFv)
 GO(inotify_init1, iFi)
-// inotify_rm_watch
+GO(inotify_rm_watch, iFii)
 // insque
 // __internal_endnetgrent
 // __internal_getnetgrent_r
@@ -1392,7 +1392,7 @@ GO(readdir64_r, iFppp)  // is this present?
 // scalbnl  // Weak
 // scandir
 // scandir64
-GO2(scanf, iFpV, vscanf)
+GO2(scanf, iFpp, vscanf)
 // __sched_cpualloc
 // __sched_cpucount
 // __sched_cpufree
@@ -1489,14 +1489,14 @@ GOW(setvbuf, iFppiu)
 // setxattr
 // sgetspent
 // sgetspent_r  // Weak
-// shmat    // Weak
-// shmctl
-// shmdt    // Weak
-// shmget   // Weak
+GOW(shmat, pFipi)
+GOW(shmctl, iFiip)
+GOW(shmdt, iFp)
+GOW(shmget, iFuui)
 GOW(shutdown, iFii)
 GOM(sigaction, iFEipp)    // Weak
 GOM(__sigaction, iFEipp)  // Weak
-// sigaddset
+GO(sigaddset, iFpi)
 // __sigaddset
 // sigaltstack  // Weak
 // sigandset
@@ -1504,7 +1504,7 @@ GOM(__sigaction, iFEipp)  // Weak
 // sigdelset
 // __sigdelset
 GO(sigemptyset, iFp)
-// sigfillset
+GO(sigfillset, iFp)
 // siggetmask
 // sighold
 // sigignore
@@ -1540,7 +1540,7 @@ GOM(snprintf, iFEpupVV)
 GOM(__snprintf_chk, iFEpuvvpVV)
 // sockatmark
 GOW(socket, iFiii)
-// socketpair   // Weak
+GOW(socketpair, iFiiip)
 // splice
 GOM(sprintf, iFEppVV)
 GOM(__sprintf_chk, iFEpvvpVV)
@@ -1852,7 +1852,7 @@ GOM(__vsnprintf, iFEpupVV)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvpVV)
 GOM(vsprintf, iFEppVV) // Weak
 GOM(__vsprintf_chk, iFEpvvpp)
-// vsscanf  // Weak
+GO(vsscanf, iFpV)
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpupVV)    // Weak
 GOM(__vswprintf_chk, iFEpuvvpVV)    // Weak
@@ -1916,23 +1916,23 @@ GOW(wcsnrtombs, uFppuup)
 // __wcsrtombs_chk
 // wcsspn
 // wcsstr
-// wcstod
+GO(wcstod, dFpp)
 // __wcstod_internal
 // __wcstod_l
 // wcstod_l // Weak
-// wcstof
+GO(wcstof, fFpp)
 // __wcstof_internal
 // __wcstof_l
 // wcstof_l // Weak
 // wcstoimax
 // wcstok
-// wcstol
+GO(wcstol, iFppi)
 // wcstold
 // __wcstold_internal
 // __wcstold_l
 // wcstold_l    // Weak
 // __wcstol_internal
-// wcstoll
+GO(wcstoll, IFppi)
 // __wcstol_l
 // wcstol_l // Weak
 // __wcstoll_internal

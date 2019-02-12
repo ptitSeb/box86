@@ -87,6 +87,11 @@
                 fpu_do_push(emu);
                 ST0.ll = *(int64_t*)ED;
                 break;
+            case 1: /* FISTTP ED qword */
+                GET_ED;
+                *(int64_t*)ED = ST0.d;
+                fpu_do_pop(emu);
+                break;
             case 2: /* FST double */
                 GET_ED;
                 *(int64_t*)ED = ST0.ll;

@@ -317,11 +317,11 @@ GOW(roundf, fFf)
 // __scalbf_finite
 // __scalb_finite
 // scalbl   // Weak
-// scalbln  // Weak
-// scalblnf // Weak
+GOW(scalbln, dFdi)
+GOW(scalblnf, fFfi)
 // scalblnl // Weak
-// scalbn   // Weak
-// scalbnf  // Weak
+GOW(scalbn, dFdi)
+GOW(scalbnf, fFfi)
 // scalbnl  // Weak
 // __signbit
 // __signbitf

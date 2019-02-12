@@ -125,6 +125,15 @@ void SetCallbackAddress(x86emu_t* emu, uintptr_t address)
     }
 }
 
+uintptr_t GetCallbackAddress(x86emu_t* emu)
+{
+    onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        return cb->fnc;
+    }
+    return 0;
+}
+
 callbacklist_t* NewCallbackList()
 {
     callbacklist_t* callbacks = (callbacklist_t*)calloc(1, sizeof(callbacklist_t));

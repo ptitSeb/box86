@@ -66,6 +66,7 @@ typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
 typedef uint32_t (*uFpC_t)(void*, uint8_t);
 typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
@@ -106,6 +107,7 @@ typedef struct sdl2_my_s {
     vFpp_t     SDL_LogSetOutputFunction;
     vFiupp_t   SDL_LogMessageV;
     pFp_t      SDL_GL_GetProcAddress;
+    iFupp_t    SDL_TLSSet;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -155,6 +157,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_LogSetOutputFunction, vFpp_t)
     GO(SDL_LogMessageV, vFiupp_t)
     GO(SDL_GL_GetProcAddress, pFp_t)
+    GO(SDL_TLSSet, iFupp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -725,6 +728,64 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol);
 }
 
+#define nb_once	16
+typedef void(*sdl2_tls_dtor)(void*);
+static x86emu_t *dtor_emu[nb_once] = {0};
+static void tls_dtor_callback(int n, void* a)
+{
+	if(dtor_emu[n]) {
+		SetCallbackArg(dtor_emu[n], 0, a);
+		RunCallback(dtor_emu[n]);
+	}
+}
+#define GO(N) \
+void tls_dtor_callback_##N(void* a) \
+{ \
+	tls_dtor_callback(N, a); \
+}
+
+GO(0)
+GO(1)
+GO(2)
+GO(3)
+GO(4)
+GO(5)
+GO(6)
+GO(7)
+GO(8)
+GO(9)
+GO(10)
+GO(11)
+GO(12)
+GO(13)
+GO(14)
+GO(15)
+#undef GO
+static const sdl2_tls_dtor dtor_cb[nb_once] = {
+	 tls_dtor_callback_0, tls_dtor_callback_1, tls_dtor_callback_2, tls_dtor_callback_3
+	,tls_dtor_callback_4, tls_dtor_callback_5, tls_dtor_callback_6, tls_dtor_callback_7
+	,tls_dtor_callback_8, tls_dtor_callback_9, tls_dtor_callback_10,tls_dtor_callback_11
+	,tls_dtor_callback_12,tls_dtor_callback_13,tls_dtor_callback_14,tls_dtor_callback_15
+};
+EXPORT int32_t my2_SDL_TLSSet(x86emu_t* emu, uint32_t id, void* value, void* dtor)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+	if(!dtor)
+		return my->SDL_TLSSet(id, value, NULL);
+	int n = 0;
+	while (n<nb_once) {
+		if(!dtor_emu[n] || GetCallbackAddress(dtor_emu[n])==((uintptr_t)dtor)) {
+			if(!dtor_emu[n]) 
+				dtor_emu[n] = AddCallback(emu, (uintptr_t)dtor, 1, NULL, NULL, NULL, NULL);
+			return my->SDL_TLSSet(id, value, dtor_cb[n]);
+		}
+		++n;
+	}
+	printf_log(LOG_NONE, "Error: SDL2 SDL_TLSSet with destructor: no more slot!\n");
+	//emu->quit = 1;
+	return -1;
+}
 
 
 const char* sdl2Name = "libSDL2-2.0.so";

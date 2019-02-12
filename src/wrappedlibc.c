@@ -357,6 +357,24 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
     FreeCallback(cbemu);
 }
 
+static x86emu_t *bsearch_emu = NULL;
+static int bsearch_cmp(const void* a, const void* b)
+{
+    SetCallbackArg(bsearch_emu, 0, (void*)a);
+    SetCallbackArg(bsearch_emu, 1, (void*)b);
+    return (int)RunCallback(bsearch_emu);
+}
+
+EXPORT void my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
+{
+    // use a temporary callback, but global because there is no bsearch_r...
+    bsearch_emu = AddCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
+    bsearch(key, base, nmemb, size, bsearch_cmp);
+    FreeCallback(bsearch_emu);
+    bsearch_emu = NULL;
+}
+
+
 x86emu_t *globemu = NULL;   // issue with multi threads...
 static int glob_errfnccallback(const char* epath, int no)
 {
@@ -384,6 +402,22 @@ EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
     return execvp(a, b);
 }
 EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute__((alias("my_execvp")));
+
+EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
+{
+    int n=1;
+    if(b) {
+        ++n;
+        void** cnt = (void**)c;
+        while(cnt[n]) ++n;
+    }
+    void** params = (void**)calloc(n, sizeof(void*));
+    params[0] = b;
+    memcpy(params+4, c, n*sizeof(void*));
+    int32_t r = execv(a, (char* const*)params);
+    free(params);
+    return r;
+}
 
 EXPORT void my__Jv_RegisterClasses() {}
 

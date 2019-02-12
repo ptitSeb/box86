@@ -100,6 +100,14 @@
                 fpu_do_push(emu);
                 ST0.d = ED->sdword[0];
                 break;
+            case 1: /* FISTTP Ed, ST0 */
+                GET_ED;
+                tmp32s = ST0.d; // TODO: Handling of FPU Exception
+                if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
+                    tmp32s = 0x80000000;
+                fpu_do_pop(emu);
+                ED->sdword[0] = tmp32s;
+                break;
             case 2: /* FIST Ed, ST0 */
                 GET_ED;
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception and rounding

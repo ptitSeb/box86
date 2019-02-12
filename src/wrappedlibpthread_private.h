@@ -132,14 +132,14 @@ GOM(pthread_once, iFEpp)
 GO(pthread_self, uFv)
 // pthread_setaffinity_np
 // pthread_setcancelstate
-// pthread_setcanceltype
+GO(pthread_setcanceltype, iFip)
 // pthread_setconcurrency
 GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
 GO(pthread_setschedparam, iFpip)
 // pthread_setschedprio
 // __pthread_setspecific
 GO(pthread_setspecific, iFup)
-// pthread_sigmask
+GO(pthread_sigmask, iFipp)
 // pthread_spin_destroy
 // pthread_spin_init
 // pthread_spin_lock
