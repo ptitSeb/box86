@@ -384,6 +384,12 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 
+EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
+{
+    *((ldiv_t*)p) = ldiv(num, den);
+    return p;
+}
+
 
 x86emu_t *globemu = NULL;   // issue with multi threads...
 static int glob_errfnccallback(const char* epath, int no)

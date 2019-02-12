@@ -961,7 +961,7 @@ GO(labs, iFi)
 // ldexp    // Weak
 // ldexpf   // Weak
 // ldexpl   // Weak
-GO(ldiv, pFii)
+GOM(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 // lfind
 // lgetxattr
 // __libc_allocate_rtsig
