@@ -145,6 +145,7 @@ void CallCleanup(x86emu_t *emu, void* p)
 
 void CallAllCleanup(x86emu_t *emu)
 {
+    /* disabling for now...
     for(int i=emu->clean_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
         if(emu->cleanups[i].arg)
@@ -154,6 +155,7 @@ void CallAllCleanup(x86emu_t *emu)
         Run(emu);
         emu->quit = 0;
     }
+    */
     emu->clean_sz = 0;
 }
 
