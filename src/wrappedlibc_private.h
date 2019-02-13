@@ -124,7 +124,7 @@ DATA(__check_rhosts_file, 4)
 GOW(chmod, iFpu)
 GOW(chown, iFpuu)
 // chroot
-// clearenv // Weak
+GOW(clearenv, iFv)
 GO(clearerr, vFp)
 // clearerr_unlocked
 // clnt_broadcast
@@ -397,7 +397,7 @@ GO(fsetpos64, iFpp)
 // fstatfs  // Weak
 // fstatfs64    // Weak
 // fstatvfs
-// fstatvfs64   // Weak
+GOW(fstatvfs64, iFip)   // allignment?
 GOW(fsync, iFi)
 GOW(ftell, iFp)
 GO(ftello, uFp)
@@ -453,8 +453,8 @@ GOW(getcwd, pFpu)
 GO(getdate, pFp)
 // getdate_err  // type B
 // getdate_r    // Weak
-// getdelim // Weak
-// __getdelim   // Weak
+GOW(getdelim, iFppip)
+GOW(__getdelim, iFppip)
 // getdirentries
 // getdirentries64
 // getdomainname
@@ -491,7 +491,7 @@ GO(getifaddrs, iFp)
 // getipv4sourcefilter
 // getitimer    // Weak
 // get_kernel_syms  // Weak
-// getline  // Weak
+GOW(getline, iFppp)
 // getloadavg
 GO(getlogin, pFv)
 GO(getlogin_r, iFpu)
@@ -527,8 +527,9 @@ GOW(getpeername, iFipp)
 GO(getpid, uFv)
 GO(__getpid, uFv)
 // getpmsg
-// getppid  // Weak
+GOW(getppid, uFv)
 GO(getpriority, iFii)
+GOM(getrandom, iFEpuu)
 // getprotobyname
 // getprotobyname_r
 // getprotobynumber
@@ -937,7 +938,7 @@ GO(isxdigit, iFi)
 // isxdigit_l   // Weak
 // _itoa_lower_digits   // type R
 // __ivaliduser
-// jrand48
+GO(jrand48, iFp)
 // jrand48_r    // Weak
 // key_decryptsession
 // key_decryptsession_pk
@@ -1247,7 +1248,7 @@ GOW(posix_memalign, iFpuu)
 // ppoll
 // prctl    // Weak
 GOW(pread, iFipui)
-// pread64  // Weak
+GOW(pread64, iFipuI)
 // __pread64    // Weak
 // __pread64_chk
 // __pread_chk
@@ -1288,7 +1289,7 @@ GO(putwc, iFip)
 // putwc_unlocked
 // pvalloc  // Weak
 // pwrite   // Weak
-// pwrite64 // Weak
+GOW(pwrite64, iFiuI)
 // __pwrite64   // Weak
 // qecvt
 // qecvt_r
@@ -1299,7 +1300,7 @@ GOM(qsort, vFEpuup)
 GOM(qsort_r, vFEpuupp)
 // query_module // Weak
 // quotactl
-// raise
+GO(raise, iFi)  // will need a GOM version once signal are implemented probably
 GO(rand, iFv)
 GOW(random, iFv)
 // random_r // Weak
@@ -1523,8 +1524,8 @@ GOM(signal, pFEip)   // Weak
 // sigorset
 // sigpause // Weak
 // __sigpause
-// sigpending
-// sigprocmask  // Weak
+GO(sigpending, iFp)
+GOW(sigprocmask, iFipp)
 // sigqueue // Weak
 // sigrelse
 // sigreturn    // Weak
@@ -1645,7 +1646,7 @@ GO(strtof, fFpp)
 GO(__strtof_internal, fFppp)
 GO(__strtof_l, fFppp)
 GOW(strtof_l, fFppu)
-// strtoimax
+GO(strtoimax, IFppi)
 GO(strtok, pFpp)
 GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
@@ -1671,7 +1672,7 @@ GO(strtoull, UFppi)
 // __strtoull_internal
 // __strtoull_l
 // strtoull_l   // Weak
-// strtoumax
+GO(strtoumax, UFppi)
 // strtouq  // Weak
 // strverscmp   // Weak
 // __strverscmp
@@ -1831,7 +1832,7 @@ GOM(vasprintf, iFEppVV)
 // __vasprintf_chk
 // vdprintf // Weak
 // __vdprintf_chk
-// verr
+GOM(verr, vFEpV)
 // verrx
 // versionsort
 // versionsort64

@@ -49,14 +49,14 @@ GO(XBell, iFpi)
 //GO(XBitmapBitOrder
 //GO(XBitmapPad
 //GO(XBitmapUnit
-//GO(XBlackPixel
+GO(XBlackPixel, uFpi)
 //GO(XBlackPixelOfScreen
 //GO(XCellsOfScreen
 //GO(XChangeActivePointerGrab
 //GO(XChangeGC
 GO(XChangeKeyboardControl, iFpup)
 //GO(XChangeKeyboardMapping
-//GO(XChangePointerControl
+GO(XChangePointerControl, iFpiiiii)
 GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet
 //GO(XChangeWindowAttributes
@@ -271,9 +271,9 @@ GO(XDestroyWindow, iFpp)
 //GO(XDisplayCells
 GO(XDisplayHeight, iFpi)
 GO(XDisplayHeightMM, iFpi)
-//GO(XDisplayKeycodes
+GO(XDisplayKeycodes, iFppp)
 //GO(XDisplayMotionBufferSize
-//GO(XDisplayName
+GO(XDisplayName, pFp)
 //GO(XDisplayOfIM
 //GO(XDisplayOfOM
 //GO(XDisplayOfScreen
@@ -395,10 +395,10 @@ GO(XGetIconName, iFppp)
 //GO(XGetIconSizes
 GO(XGetICValues, pFpppppp)      // use varargs...
 GO(XGetImage, pFppiiuuui)
-//GO(XGetIMValues
+GO(XGetIMValues, pFppppppp)     // use varargs
 GO(XGetInputFocus, iFppp)
 GO(XGetKeyboardControl, iFpp)
-//GO(XGetKeyboardMapping
+GO(XGetKeyboardMapping, pFppip)
 // _XGetLCValues
 GO(XGetModifierMapping, pFp)
 //GO(XGetMotionEvents
@@ -407,7 +407,7 @@ GO(XGetModifierMapping, pFp)
 //GO(XGetOMValues
 //GOM(XGetPixel, uFEpii)  // need unbridging
 GO(dummy_XGetPixel, uFpii)     // for the wrapper
-//GO(XGetPointerControl
+GO(XGetPointerControl, iFpppp)
 GO(XGetPointerMapping, iFppi)
 GO(_XGetRequest, pFpuu)
 //GO(XGetRGBColormaps
@@ -486,7 +486,7 @@ DATAB(_XInitDisplayLock_fn, 4)
 // _XInitKeysymDB
 GO(XInitThreads, uFv)
 //GO(XInsertModifiermapEntry
-//GO(XInstallColormap
+GO(XInstallColormap, iFpp)
 //GO(XInternalConnectionNumbers
 GO(XInternAtom, pFppi)
 GO(XInternAtoms, uFppiip)
@@ -866,7 +866,7 @@ GO(XRefreshKeyboardMapping, iFp)
 //GO(XRemoveFromSaveSet
 //GO(XRemoveHost
 //GO(XRemoveHosts
-//GO(XReparentWindow
+GO(XReparentWindow, iFpppii)
 GO(_XReply, iFppii)
 GO(XResetScreenSaver, iFp)
 GO(XResizeWindow, iFppuu)
@@ -923,7 +923,7 @@ GO(XSetAccessControl, iFpi)
 GO(XSetArcMode, iFppi)
 //GO(XSetAuthorization
 GO(XSetBackground, iFppu)
-//GO(XSetClassHint
+GO(XSetClassHint, iFppp)
 GO(XSetClipMask, iFppp)
 GO(XSetClipOrigin, iFppii)
 GO(XSetClipRectangles, iFppiipii)
@@ -975,7 +975,7 @@ GO(XSetWindowBackgroundPixmap, iFppp)
 //GO(XSetWindowBorder
 //GO(XSetWindowBorderPixmap
 GO(XSetWindowBorderWidth, iFppu)
-//GO(XSetWindowColormap
+GO(XSetWindowColormap, iFppp)
 //GO(XSetWMClientMachine
 GO(XSetWMColormapWindows, iFpppi)
 GO(XSetWMHints, iFppp)
@@ -989,8 +989,8 @@ GO(XSetWMSizeHints, vFpppu)
 GO(XShrinkRegion, iFpii)
 //GO(XStoreBuffer
 //GO(XStoreBytes
-//GO(XStoreColor
-//GO(XStoreColors
+GO(XStoreColor, iFppp)
+GO(XStoreColors, iFpppi)
 // _XStoreEventCookie
 GO(XStoreName, iFppp)
 //GO(XStoreNamedColor

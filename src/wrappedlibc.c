@@ -9,6 +9,7 @@
 #include <signal.h>
 typedef void (*sighandler_t)(int);
 #include <errno.h>
+#include <err.h>
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,7 +32,12 @@ typedef void (*sighandler_t)(int);
 #include "myalign.h"
 
 
+#define LIBNAME libc
+const char* libcName = "libc.so.6";
+
+typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
+typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
 
 typedef struct libc_my_s {
     iFpup_t         _ITM_addUserCommitAction;
@@ -292,6 +298,18 @@ EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
 EXPORT int my___vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
 EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
 
+EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = verr;
+    ((vFipp_t)f)(eval, fmt, emu->scratch);
+    #else
+    void* f = verr;
+    ((vFipp_t)f)(eval, fmt, *(uint32_t**)b);
+    #endif
+}
+
 EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
@@ -443,9 +461,6 @@ EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj,
     return 0;
 }
 
-#define LIBNAME libc
-const char* libcName = "libc.so.6";
-
 extern void __chk_fail();
 EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 {
@@ -453,6 +468,21 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
     __chk_fail ();
 
   return d / __NFDBITS;
+}
+
+EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
+{
+    // not always implemented on old linux version...
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "getrandom");
+    if(f)
+        return ((iFpuu_t)f)(buf, buflen, flags);
+    // do what should not be done, but it's better then nothing....
+    FILE * rnd = fopen("/dev/random", "rb");
+    uint32_t r = fread(buf, 1, buflen, rnd);
+    fclose(rnd);
+    return r;
 }
 
 #define CUSTOM_INIT \
@@ -521,6 +551,8 @@ void InitCpuModel()
 #undef mkstemps
 #undef mkostemp
 #undef mkostemps
+#undef pread
+#undef pwrite
 
 // define all standard library functions
 #include "wrappedlib_init.h"

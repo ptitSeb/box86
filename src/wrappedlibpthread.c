@@ -15,6 +15,10 @@
 #include "box86context.h"
 #include "librarian.h"
 
+const char* libpthreadName = "libpthread.so.0";
+#define LIBNAME libpthread
+
+
 int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg); //implemented in thread.c
 int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor);
 int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor);
@@ -24,7 +28,7 @@ typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
 EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 {
-    library_t* lib = GetLib(emu->context->maplib, "libpthread.so.0");
+    library_t* lib = GetLib(emu->context->maplib, libpthreadName);
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "pthread_setname_np");
     if(f)
@@ -33,7 +37,7 @@ EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 }
 EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
 {
-    library_t* lib = GetLib(emu->context->maplib, "libpthread.so.0");
+    library_t* lib = GetLib(emu->context->maplib, libpthreadName);
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "pthread_getname_np");
     if(f)
@@ -42,8 +46,5 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
         strncpy((char*)n, "dummy", s);
     return 0;
 }
-
-const char* libpthreadName = "libpthread.so.0";
-#define LIBNAME libpthread
 
 #include "wrappedlib_init.h"
