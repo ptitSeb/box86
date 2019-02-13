@@ -57,8 +57,8 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     return newemu;
 }
 
-x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
-{
+x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4) __attribute__((alias("AddCallback")));
+/*{
     callbacklist_t *callbacks = emu->context->callbacks;
     x86emu_t * newemu = emu;
 
@@ -78,7 +78,7 @@ x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg
     cb->shared = 1;
 
     return newemu;
-}
+}*/
 
 onecallback_t* FindCallback(x86emu_t* emu)
 {

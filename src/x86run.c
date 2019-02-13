@@ -58,7 +58,7 @@ int Run(x86emu_t *emu)
     &&_0x48,    &&_0x49,    &&_0x4A,    &&_0x4B,    &&_0x4C,    &&_0x4D,    &&_0x4E,    &&_0x4F,     
     &&_0x50,    &&_0x51,    &&_0x52,    &&_0x53,    &&_0x54,    &&_0x55,    &&_0x56,    &&_0x57, 
     &&_0x58,    &&_0x59,    &&_0x5A,    &&_0x5B,    &&_0x5C,    &&_0x5D,    &&_0x5E,    &&_0x5F, 
-    &&_default, &&_default, &&_default, &&_default, &&_default, &&_0x65,    &&_0x66,    &&_0x67,
+    &&_0x60,    &&_0x61,    &&_default, &&_default, &&_default, &&_0x65,    &&_0x66,    &&_0x67,
     &&_0x68,    &&_0x69,    &&_0x6A,    &&_0x6B,    &&_default, &&_default, &&_default, &&_default,   //0x68-0x6F
     &&_0x70_0,  &&_0x70_1,  &&_0x70_2,  &&_0x70_3,  &&_0x70_4,  &&_0x70_5,  &&_0x70_6,  &&_0x70_7,    //0x70-0x77
     &&_0x70_8,  &&_0x70_9,  &&_0x70_A,  &&_0x70_B,  &&_0x70_C,  &&_0x70_D,  &&_0x70_E,  &&_0x70_F,    //0x78-0x7F
@@ -416,6 +416,27 @@ _trace:
                 tmp8u = opcode&7;
                 emu->regs[tmp8u].dword[0] = Pop(emu);
                 NEXT;
+            _0x60:                      /* PUSHAD */
+                tmp32u = R_ESP;
+                Push(emu, R_EAX);
+                Push(emu, R_ECX);
+                Push(emu, R_EDX);
+                Push(emu, R_EBX);
+                Push(emu, tmp32u);
+                Push(emu, R_EBP);
+                Push(emu, R_ESI);
+                Push(emu, R_EDI);
+                NEXT;
+            _0x61:                      /* POPAD */
+                R_EDI = Pop(emu);
+                R_ESI = Pop(emu);
+                R_EBP = Pop(emu);
+                R_ESP+=4;   // POP ESP
+                R_EBX = Pop(emu);
+                R_EDX = Pop(emu);
+                R_ECX = Pop(emu);
+                R_EAX = Pop(emu);
+                NEXT;
 
             _0x65:                      /* GS: */
                 // TODO: set a new decoder function?
@@ -426,6 +447,23 @@ _trace:
                         GET_ED;
                         ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
                         GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
+                        break;
+                    case 0x83:              /* GRP Ed,Ib */
+                        nextop = F8;
+                        GET_ED;
+                        ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                        tmp32s = F8S;
+                        tmp32u = (uint32_t)tmp32s;
+                        switch((nextop>>3)&7) {
+                            case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
+                            case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
+                            case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
+                            case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
+                            case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
+                            case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
+                            case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
+                            case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+                        }
                         break;
                     case 0x8B:              /* MOV Gd,Ed */
                         nextop = F8;
@@ -438,6 +476,64 @@ _trace:
                         R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
                         break;
 
+                    case 0xFF:              /* GRP 5 Ed */
+                        nextop = F8;
+                        GET_ED;
+                        ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                        switch((nextop>>3)&7) {
+                            case 0:                 /* INC Ed */
+                                ED->dword[0] = inc32(emu, ED->dword[0]);
+                                break;
+                            case 1:                 /* DEC Ed */
+                                ED->dword[0] = dec32(emu, ED->dword[0]);
+                                break;
+                            case 2:                 /* CALL NEAR Ed */
+                                Push(emu, ip);
+                                ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                                break;
+                            case 3:                 /* CALL FAR Ed */
+                                if(nextop>0xc0) {
+                                    emu->old_ip = old_ip;
+                                    R_EIP = ip;
+                                    printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
+                                    emu->quit=1;
+                                    emu->error |= ERR_ILLEGAL;
+                                    goto fini;
+                                } else {
+                                    Push16(emu, R_CS);
+                                    Push(emu, ip);
+                                    ip = ED->dword[0];
+                                    R_CS = (ED+1)->word[0];
+                                }
+                                break;
+                            case 4:                 /* JMP NEAR Ed */
+                                ip = ED->dword[0];
+                                break;
+                            case 5:                 /* JMP FAR Ed */
+                                if(nextop>0xc0) {
+                                    emu->old_ip = old_ip;
+                                    R_EIP = ip;
+                                    printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                                    emu->quit=1;
+                                    emu->error |= ERR_ILLEGAL;
+                                    goto fini;
+                                } else {
+                                    ip = ED->dword[0];
+                                    R_CS = (ED+1)->word[0];
+                                }
+                                break;
+                            case 6:                 /* Push Ed */
+                                Push(emu, ED->dword[0]);
+                                break;
+                            default:
+                                emu->old_ip = old_ip;
+                                R_EIP = ip;
+                                printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                                emu->quit=1;
+                                emu->error |= ERR_ILLEGAL;
+                                goto fini;
+                        }
+                        break;
                     default:
                         goto _default;
                 }
