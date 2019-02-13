@@ -352,7 +352,7 @@ EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void*
 EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* arg)
 {
     // use a temporary callback
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
+    x86emu_t *cbemu = AddSharedCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
     qsort_r(base, nmemb, size, qsort_cmp, cbemu);
     FreeCallback(cbemu);
 }
@@ -368,7 +368,7 @@ static int bsearch_cmp(const void* a, const void* b)
 EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     // use a temporary callback, but global because there is no bsearch_r...
-    bsearch_emu = AddCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
+    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     void* ret = bsearch(key, base, nmemb, size, bsearch_cmp);
     FreeCallback(bsearch_emu);
     bsearch_emu = NULL;

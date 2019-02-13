@@ -10,6 +10,7 @@ callbacklist_t* NewCallbackList();
 void FreeCallbackList(callbacklist_t** callbacks);
 
 x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4);
+x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4);
 void FreeCallback(x86emu_t* emu);
 uint32_t RunCallback(x86emu_t* emu);
 void SetCallbackArg(x86emu_t* emu, int arg, void* val);

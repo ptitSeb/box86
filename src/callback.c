@@ -15,6 +15,7 @@
 typedef struct onecallback_s {
     x86emu_t    *emu;
     uintptr_t   fnc;
+    int         shared;
     int         nb_args;
     void*       arg[8];
     void*       stack;
@@ -51,6 +52,30 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     cb->arg[1] = arg2;
     cb->arg[2] = arg3;
     cb->arg[3] = arg4;
+    cb->shared = 0;
+
+    return newemu;
+}
+
+x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
+{
+    callbacklist_t *callbacks = emu->context->callbacks;
+    x86emu_t * newemu = emu;
+
+    onecallback_t * cb;
+    int ret;
+    khint_t k = kh_put(callbacks, callbacks->list, (uintptr_t)newemu, &ret);
+    cb = kh_value(callbacks->list, k) = (onecallback_t*)calloc(1, sizeof(onecallback_t));
+
+    cb->stack = NULL;
+    cb->emu = newemu;
+    cb->fnc = fnc;
+    cb->nb_args = nb_args;
+    cb->arg[0] = arg1;
+    cb->arg[1] = arg2;
+    cb->arg[2] = arg3;
+    cb->arg[3] = arg4;
+    cb->shared = 1;
 
     return newemu;
 }
@@ -73,8 +98,10 @@ void FreeCallback(x86emu_t* emu)
     if(k==kh_end(callbacks->list))
         return;
     onecallback_t* cb = kh_value(callbacks->list, k);
-    FreeX86Emu(&cb->emu);
-    free(cb->stack);
+    if(!cb->shared) {
+        FreeX86Emu(&cb->emu);
+        free(cb->stack);
+    }
     free(cb);
     kh_del(callbacks, callbacks->list, k);
 }
