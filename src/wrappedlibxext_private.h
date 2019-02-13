@@ -67,17 +67,17 @@ GO(XMissingExtension, iFpp)
 //GO(XSecurityQueryExtension, 
 //GO(XSecurityRevokeAuthorization, 
 //GO(XSetExtensionErrorHandler, 
-//GO(XShapeCombineMask, 
-//GO(XShapeCombineRectangles, 
-//GO(XShapeCombineRegion, 
-//GO(XShapeCombineShape, 
-//GO(XShapeGetRectangles, 
-//GO(XShapeInputSelected, 
-//GO(XShapeOffsetShape, 
-//GO(XShapeQueryExtension, 
-//GO(XShapeQueryExtents, 
-//GO(XShapeQueryVersion, 
-//GO(XShapeSelectInput, 
+GO(XShapeCombineMask, vFppiiipi)
+GO(XShapeCombineRectangles, vFppiiipiii)
+GO(XShapeCombineRegion, vFppiiipi)
+GO(XShapeCombineShape, vFppiiipii)
+GO(XShapeGetRectangles, pFppipp)
+GO(XShapeInputSelected, uFpp)
+GO(XShapeOffsetShape, vFppiii)
+GO(XShapeQueryExtension, iFppp)
+GO(XShapeQueryExtents, iFpppppppppppp)
+GO(XShapeQueryVersion, iFppp)
+GO(XShapeSelectInput, vFppu)
 //GO(XShmAttach, 
 //GO(XShmCreateImage, 
 //GO(XShmCreatePixmap, 

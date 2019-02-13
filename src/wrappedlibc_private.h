@@ -314,7 +314,7 @@ GOW(fgetc, iFp)
 // fgetgrent
 // fgetgrent_r  // Weak
 GO(fgetpos, iFpp)
-// fgetpos64
+GO(fgetpos64, iFpp)
 // fgetpwent
 // fgetpwent_r  // Weak
 GOW(fgets, pFpip)
@@ -392,7 +392,7 @@ GO(fseeko, iFpii)
 GO(fseeko64, iFpIi)
 // __fsetlocking
 GO(fsetpos, iFpp)
-// fsetpos64
+GO(fsetpos64, iFpp)
 // fsetxattr
 // fstatfs  // Weak
 // fstatfs64    // Weak
@@ -560,11 +560,11 @@ GOW(gets, pFp)
 // __gets_chk
 // getsecretkey
 GO(getservbyname, pFpp)
-// getservbyname_r
+GO(getservbyname_r, iFppppup)
 // getservbyport
-// getservbyport_r
+GO(getservbyport_r, iFipppup)
 // getservent
-// getservent_r
+GO(getservent_r, iFppup)
 // getsid
 GOW(getsockname, iFipp)
 GOW(getsockopt, iFiiipp)
@@ -880,7 +880,7 @@ GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
-// isprint
+GO(isprint, iFi)
 // __isprint_l
 // isprint_l    // Weak
 GO(ispunct, iFi)
@@ -1132,7 +1132,7 @@ GO(__newlocale, pFipp)
 // nice
 // _nl_default_dirname  // type R
 // _nl_domain_bindings  // type B
-// nl_langinfo
+GO(nl_langinfo, pFu)
 GO(__nl_langinfo_l, pFup)
 // nl_langinfo_l    // Weak
 // _nl_msg_cat_cntr // type B
@@ -1336,10 +1336,10 @@ GOW(recvfrom, iFipuipp)
 // __recvfrom_chk
 GOW(recvmsg, iFipi)
 // re_exec  // Weak
-// regcomp  // Weak
-// regerror // Weak
-// regexec
-// regfree  // Weak
+GOW(regcomp, iFppi)
+GOW(regerror, uFippu)
+GO(regexec, iFppupi)
+GOW(regfree, vFp)
 // __register_atfork
 // register_printf_function // Weak
 // registerrpc
@@ -1368,7 +1368,7 @@ DATA(__resp, 4)
 // re_syntax_options    // type B
 // revoke
 GO(rewind, vFp)
-// rewinddir
+GO(rewinddir, vFp)
 // rexec
 // rexec_af
 // rexecoptions // type B
@@ -1557,9 +1557,9 @@ GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to
 // ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFE)
-// statfs   // Weak
+GOW(statfs, iFpp)
 // __statfs
-// statfs64 // Weak
+GOW(statfs64, iFpp)     // is alignment ok?
 GO(statvfs, iFpp)
 GOW(statvfs64, iFpp)    // is alignment ok?
 DATA(stderr, 4)
@@ -1762,7 +1762,7 @@ GO(timegm, uFp)
 DATAV(timezone, 4)
 // __timezone   // type B
 GO(tmpfile, pFv)
-// tmpfile64
+GO(tmpfile64, pFv)
 GO(tmpnam, pFp)
 // tmpnam_r
 // toascii
@@ -1801,7 +1801,7 @@ GOW(tzset, vFv)
 // __uflow
 // ulckpwdf // Weak
 // ulimit   // Weak
-// umask    // Weak
+GOW(umask, uFu)
 // umount   // Weak
 // umount2  // Weak
 GOW(uname, iFp)

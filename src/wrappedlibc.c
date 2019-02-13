@@ -501,7 +501,10 @@ void InitCpuModel()
 #undef ftello
 #undef fseekpos
 #undef fsetpos
+#undef fgetpos
 #undef fopen
+#undef statfs
+#undef fstatfs
 #undef freopen
 #undef truncate
 #undef tmpfile

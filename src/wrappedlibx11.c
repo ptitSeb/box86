@@ -87,6 +87,8 @@ typedef struct x11_my_s {
     // functions
     pFp_t           XSetErrorHandler;
     iFpppp_t        XIfEvent;
+    iFpppp_t        XCheckIfEvent;
+    iFpppp_t        XPeekIfEvent;
     pFppuiipuuii_t  XCreateImage;
 } x11_my_t;
 
@@ -96,6 +98,8 @@ void* getX11My(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     GO(XSetErrorHandler, pFp_t)
     GO(XIfEvent, iFpppp_t)
+    GO(XCheckIfEvent, iFpppp_t)
+    GO(XPeekIfEvent, iFpppp_t)
     GO(XCreateImage, pFppuiipuuii_t)
     #undef GO
     return my;
@@ -157,6 +161,28 @@ EXPORT int32_t my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void
     x86emu_t *cb = NULL;
     cb = AddCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
     int32_t ret = my->XIfEvent(d, ev, xifevent_callback, (void*)cb);
+    FreeCallback(cb);
+    return ret;
+}
+
+EXPORT int32_t my_XCheckIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    x86emu_t *cb = NULL;
+    cb = AddCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
+    int32_t ret = my->XCheckIfEvent(d, ev, xifevent_callback, (void*)cb);
+    FreeCallback(cb);
+    return ret;
+}
+
+EXPORT int32_t my_XPeekIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    x86emu_t *cb = NULL;
+    cb = AddCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
+    int32_t ret = my->XPeekIfEvent(d, ev, xifevent_callback, (void*)cb);
     FreeCallback(cb);
     return ret;
 }

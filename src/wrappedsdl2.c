@@ -50,6 +50,21 @@ typedef struct {
     uint8_t data[16];
 } SDL_JoystickGUID;
 
+typedef struct
+{
+    int32_t bindType;   // enum
+    union
+    {
+        int button;
+        int axis;
+        struct {
+            int hat;
+            int hat_mask;
+        } hat;
+    } value;
+} SDL_GameControllerButtonBind;
+
+
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
@@ -76,6 +91,7 @@ typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef SDL_JoystickGUID (*SFi_t)(int32_t);
+typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
 
 typedef struct sdl2_my_s {
     iFpp_t     SDL_OpenAudio;
@@ -114,6 +130,7 @@ typedef struct sdl2_my_s {
     pFp_t      SDL_GL_GetProcAddress;
     iFupp_t    SDL_TLSSet;
     SFi_t      SDL_JoystickGetDeviceGUID;
+    SFpi_t     SDL_GameControllerGetBindForAxis;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -165,6 +182,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_GL_GetProcAddress, pFp_t)
     GO(SDL_TLSSet, iFupp_t)
     GO(SDL_JoystickGetDeviceGUID, SFi_t)
+    GO(SDL_GameControllerGetBindForAxis, SFpi_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -798,6 +816,13 @@ EXPORT void* my2_SDL_JoystickGetDeviceGUID(x86emu_t* emu, void* p, int32_t idx)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     *(SDL_JoystickGUID*)p = my->SDL_JoystickGetDeviceGUID(idx);
+    return p;
+}
+
+EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* controller, int32_t axis)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForAxis(controller, axis);
     return p;
 }
 

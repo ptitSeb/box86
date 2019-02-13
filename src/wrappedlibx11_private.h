@@ -42,10 +42,10 @@ GO(XAllocWMHints, pFv)
 //GO(XAllowEvents
 //GO(XAllPlanes
 // _XAsyncErrorHandler
-//GO(XAutoRepeatOff
-//GO(XAutoRepeatOn
+GO(XAutoRepeatOff, iFp)
+GO(XAutoRepeatOn, iFp)
 //GO(XBaseFontNameListOfFontSet
-//GO(XBell
+GO(XBell, iFpi)
 //GO(XBitmapBitOrder
 //GO(XBitmapPad
 //GO(XBitmapUnit
@@ -54,13 +54,13 @@ GO(XAllocWMHints, pFv)
 //GO(XCellsOfScreen
 //GO(XChangeActivePointerGrab
 //GO(XChangeGC
-//GO(XChangeKeyboardControl
+GO(XChangeKeyboardControl, iFpup)
 //GO(XChangeKeyboardMapping
 //GO(XChangePointerControl
 GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet
 //GO(XChangeWindowAttributes
-//GO(XCheckIfEvent
+GOM(XCheckIfEvent, iFEpppp)
 GO(XCheckMaskEvent, iFpup)
 GO(XCheckTypedEvent, iFpip)
 GO(XCheckTypedWindowEvent, iFppip)
@@ -70,7 +70,7 @@ GO(XCheckWindowEvent, iFppup)
 //GO(XCirculateSubwindowsUp
 GO(XClearArea, iFppiiuui)
 GO(XClearWindow, iFpp)
-//GO(XClipBox
+GO(XClipBox, iFpp)
 GO(XCloseDisplay, iFp)
 GO(XCloseIM, iFu)
 // _XCloseLC
@@ -213,11 +213,11 @@ GO(XConfigureWindow, iFppup)
 //GO(XContextualDrawing
 //GO(XConvertCase
 //GO(XConvertSelection
-//GO(XCopyArea
+GO(XCopyArea, iFppppiiuuii)
 GO(XCopyColormapAndFree, uFpu)
 // _XCopyEventCookie
 //GO(XCopyGC
-//GO(XCopyPlane
+GO(XCopyPlane, iFppppiiuuiiu)
 // _XCopyToArg
 GO(XCreateBitmapFromData, pFpppuu)
 GO(XCreateColormap, uFpppi)
@@ -233,7 +233,7 @@ DATAB(_XCreateMutex_fn, 4)
 GO(XCreatePixmap, pFppuuu)
 GO(XCreatePixmapCursor, pFpppppuu)
 GO(XCreatePixmapFromBitmapData, pFpppuuuuu)
-//GO(XCreateRegion
+GO(XCreateRegion, pFv)
 GO(XCreateSimpleWindow, pFppiiuuuuu)
 GO(XCreateWindow, pFppiiuuuiupup)
 DATAB(_Xdebug, 4)
@@ -263,7 +263,7 @@ GO(XDeleteProperty, iFppp)
 GO(XDestroyIC, vFu)
 //GOM(XDestroyImage, iFEp)  //need to unbridge
 //GO(XDestroyOC
-//GO(XDestroyRegion
+GO(XDestroyRegion, iFp)
 GO(XDestroySubwindows, iFpp)
 GO(XDestroyWindow, iFpp)
 //GO(XDirectionalDependentDrawing
@@ -283,13 +283,13 @@ GO(XDisplayWidth, iFpi)
 GO(XDisplayWidthMM, iFpi)
 //GO(XDoesBackingStore
 //GO(XDoesSaveUnders
-//GO(XDrawArc
+GO(XDrawArc, iFpppiiuuii)
 //GO(XDrawArcs
 //GO(XDrawImageString
 //GO(XDrawImageString16
 GO(XDrawLine, iFpppiiii)
 GO(XDrawLines, iFppppii)
-//GO(XDrawPoint
+GO(XDrawPoint, iFpppii)
 //GO(XDrawPoints
 GO(XDrawRectangle, iFpppiiuu)
 GO(XDrawRectangles, iFppppi)
@@ -301,10 +301,10 @@ GO(XDrawString16, iFpppiipi)
 // _XEatData
 GO(_XEatDataWords, vFpu)
 //GO(XEHeadOfExtensionList
-//GO(XEmptyRegion
+GO(XEmptyRegion, iFp)
 //GO(XEnableAccessControl
 // _XEnq
-//GO(XEqualRegion
+GO(XEqualRegion, iFpp)
 // _XError
 DATAB(_XErrorFunction, 4)
 //GO(XESetBeforeFlush
@@ -336,9 +336,9 @@ GO(XEventsQueued, iFpi)
 //GO(XFetchBytes
 // _XFetchEventCookie
 //GO(XFetchName
-//GO(XFillArc
+GO(XFillArc, iFpppiiuuii)
 //GO(XFillArcs
-//GO(XFillPolygon
+GO(XFillPolygon, iFppppiii)
 GO(XFillRectangle, iFpppiiuu)
 GO(XFillRectangles, iFppppi)
 GO(XFilterEvent, iFpp)
@@ -400,7 +400,7 @@ GO(XGetInputFocus, iFppp)
 GO(XGetKeyboardControl, iFpp)
 //GO(XGetKeyboardMapping
 // _XGetLCValues
-//GO(XGetModifierMapping
+GO(XGetModifierMapping, pFp)
 //GO(XGetMotionEvents
 //GO(XGetNormalHints
 //GO(XGetOCValues
@@ -490,7 +490,7 @@ GO(XInitThreads, uFv)
 //GO(XInternalConnectionNumbers
 GO(XInternAtom, pFppi)
 GO(XInternAtoms, uFppiip)
-//GO(XIntersectRegion
+GO(XIntersectRegion, iFppp)
 // _XIOError
 DATAB(_XIOErrorFunction, 4)
 // _XIsEventCookie
@@ -751,8 +751,8 @@ DATA(_XlcPublicMethods, 4)
 // _Xlcwctomb
 //GO(XListDepths
 GO(XListExtensions, pFpp)
-//GO(XListFonts
-//GO(XListFontsWithInfo
+GO(XListFonts, pFppip)
+GO(XListFontsWithInfo, pFppipp)
 //GO(XListHosts
 //GO(XListInstalledColormaps
 //GO(XListPixmapFormats
@@ -777,7 +777,7 @@ GO(XMapWindow, iFpp)
 GO(XMaskEvent, iFpup)
 //GO(XMatchVisualInfo
 //GO(XMaxCmapsOfScreen
-//GO(XMaxRequestSize
+GO(XMaxRequestSize, iFp)
 //GO(XmbDrawImageString
 //GO(XmbDrawString
 //GO(XmbDrawText
@@ -804,7 +804,7 @@ GO(XNextEvent, iFpp)
 //GO(XNoOp
 // _XNoticeCreateBitmap
 // _XNoticePutBitmap
-//GO(XOffsetRegion
+GO(XOffsetRegion, iFpii)
 //GO(XOMOfOC
 GO(XOpenDisplay, pFp)
 GO(XOpenIM, uFpppp)
@@ -814,7 +814,7 @@ GO(XOpenIM, uFpppp)
 GO(XParseColor, iFpppp)
 //GO(XParseGeometry
 GO(XPeekEvent, iFpp)
-//GO(XPeekIfEvent
+GOM(XPeekIfEvent, iFEpppp)
 GO(XPending, iFp)
 //GO(Xpermalloc
 //GO(XPlanesOfScreen
@@ -841,7 +841,7 @@ GO(XQueryColor, iFppp)
 GO(XQueryColors, iFpppi)
 GO(XQueryExtension, iFppppp)
 GO(XQueryFont, pFpp)
-//GO(XQueryKeymap
+GO(XQueryKeymap, iFpp)
 GO(XQueryPointer, iFppppppppp)
 GO(XQueryTextExtents, iFpppipppp)
 GO(XQueryTextExtents16, iFpppipppp)
@@ -911,7 +911,7 @@ GO(XRotateWindowProperties, iFpppii)
 //GO(XSaveContext
 //GO(XScreenCount
 //GO(XScreenNumberOfScreen
-//GO(XScreenOfDisplay
+GO(XScreenOfDisplay, pFpi)
 // _XScreenOfWindow
 //GO(XScreenResourceString
 GO(XSelectInput, iFppi)
@@ -940,7 +940,7 @@ GO(XSetForeground, iFppu)
 GO(XSetFunction, iFppi)
 GO(XSetGraphicsExposures, iFppu)
 GO(XSetICFocus, vFu)
-//GO(XSetIconName
+GO(XSetIconName, iFppp)
 //GO(XSetIconSizes
 GO(XSetICValues, pFpppppp)          // use vargarg
 // _XSetImage
@@ -948,7 +948,7 @@ GO(XSetICValues, pFpppppp)          // use vargarg
 GO(XSetInputFocus, iFppii)
 //GO(XSetIOErrorHandler
 // _XSetLastRequestRead
-//GO(XSetLineAttributes
+GO(XSetLineAttributes, iFppuiii)
 GO(XSetLocaleModifiers, pFp)
 //GO(XSetModifierMapping
 //GO(XSetNormalHints
@@ -956,7 +956,7 @@ GO(XSetLocaleModifiers, pFp)
 //GO(XSetOMValues
 //GO(XSetPlaneMask
 //GO(XSetPointerMapping
-//GO(XSetRegion
+GO(XSetRegion, iFppp)
 //GO(XSetRGBColormaps
 //GO(XSetScreenSaver
 //GO(XSetSelectionOwner
@@ -964,12 +964,12 @@ GO(XSetLocaleModifiers, pFp)
 //GO(XSetStandardColormap
 GO(XSetStandardProperties, iFpppppppp)
 //GO(XSetState
-//GO(XSetStipple
+GO(XSetStipple, iFppp)
 GO(XSetSubwindowMode, iFppi)
 //GO(XSetTextProperty
-//GO(XSetTile
+GO(XSetTile, iFppp)
 GO(XSetTransientForHint, iFppp)
-//GO(XSetTSOrigin
+GO(XSetTSOrigin, iFppii)
 GO(XSetWindowBackground, iFppu)
 GO(XSetWindowBackgroundPixmap, iFppp)
 //GO(XSetWindowBorder
@@ -986,7 +986,7 @@ GO(XSetWMProperties, vFpppppippp)
 GO(XSetWMProtocols, iFpppi)
 GO(XSetWMSizeHints, vFpppu)
 //GO(XSetZoomHints
-//GO(XShrinkRegion
+GO(XShrinkRegion, iFpii)
 //GO(XStoreBuffer
 //GO(XStoreBytes
 //GO(XStoreColor
@@ -998,7 +998,7 @@ GO(XStringListToTextProperty, iFpip)
 //GO(XStringToKeysym
 //GOM(XSubImage, pFEpiiuu)    // need unbridging
 GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
-//GO(XSubtractRegion
+GO(XSubtractRegion, iFppp)
 GO(XSupportsLocale, iFv)
 GO(XSync, iFpu)
 GO(XSynchronize, iFpi)
@@ -1021,7 +1021,7 @@ GO(XUngrabKeyboard, iFpu)
 GO(XUngrabPointer, iFpu)
 GO(XUngrabServer, iFp)
 GO(XUninstallColormap, iFpp)
-//GO(XUnionRectWithRegion
+GO(XUnionRectWithRegion, iFppp)
 GO(XUnionRegion, iFppp)
 // _XUnknownCopyEventCookie
 // _XUnknownNativeEvent
@@ -1055,7 +1055,7 @@ GO(Xutf8SetWMProperties, vFpppppippp)
 //GO(XVaCreateNestedList
 //GO(XVendorRelease
 // _XVIDtoVisual
-//GO(XVisualIDFromVisual
+GO(XVisualIDFromVisual, uFp)
 GO(XWarpPointer, iFpppiiuuii)
 //GO(XwcDrawImageString
 //GO(XwcDrawString
@@ -1087,4 +1087,4 @@ GO(XWindowEvent, iFppup)
 GO(XWithdrawWindow, iFppi)
 //GO(XWMGeometry
 //GO(XWriteBitmapFile
-//GO(XXorRegion
+GO(XXorRegion, iFppp)
