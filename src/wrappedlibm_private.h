@@ -202,8 +202,8 @@ GO2(frexpl, LFLp, frexp)
 // gammal   // Weak
 // __gamma_r_finite
 // __gmon_start__  // Weak
-// hypot    // Weak
-// hypotf   // Weak
+GOW(hypot, dFdd)
+GOW(hypotf, fFff)
 // __hypotf_finite
 // __hypot_finite
 // hypotl   // Weak
@@ -271,8 +271,8 @@ GO(__log_finite, dFd)
 GOW(lrint, iFd)
 GOW(lrintf, iFf)
 // lrintl   // Weak
-// lround   // Weak
-// lroundf  // Weak
+GOW(lround, iFd)
+GOW(lroundf, iFf)
 // lroundl  // Weak
 // matherr  // Weak
 GOW(modf, dFdp)

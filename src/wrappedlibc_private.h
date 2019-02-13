@@ -85,7 +85,7 @@ GO(__backtrace, iFpi)
 GO(__backtrace_symbols, pFpi)
 GOW(backtrace_symbols, pFpi)
 GO(__backtrace_symbols_fd, vFpii)
-// backtrace_symbols_fd // Weak
+GOW(backtrace_symbols_fd, vFpii)
 GO(basename, pFp)
 GOW(bcmp, iFppu)
 // bcopy
@@ -122,7 +122,7 @@ DATA(__check_rhosts_file, 4)
 // chflags
 // __chk_fail
 GOW(chmod, iFpu)
-// chown    // Weak
+GOW(chown, iFpuu)
 // chroot
 // clearenv // Weak
 GO(clearerr, vFp)
@@ -190,7 +190,7 @@ GO(__dcgettext, pFppi)
 GOW(dgettext, pFpp)
 GO(__dgettext, pFpp)
 GO(difftime, dFuu)
-// dirfd
+GO(dirfd, iFp)
 GO(dirname, pFp)
 // div
 // _dl_addr
@@ -282,7 +282,7 @@ GOM(_exit, vFEi)
 // faccessat
 // fattach
 // __fbufsize
-// fchdir   // Weak
+GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
 // fchmodat
@@ -340,7 +340,7 @@ GO(fileno, iFp)
 // __finitel
 // __flbf
 // flistxattr
-// flock    // Weak
+GOW(flock, pFi)
 GOW(flockfile, vFp)
 // _flushlbf    // Weak
 // fmemopen
@@ -469,10 +469,10 @@ GOW(geteuid, pFv)
 GOW(getgid, iFv)
 // getgrent
 // getgrent_r
-// getgrgid
-// getgrgid_r
-// getgrnam
-// getgrnam_r
+GO(getgrgid, pFu)
+GO(getgrgid_r, iFuppup)
+GO(getgrnam, pFp)
+GO(getgrnam_r, iFpppup)
 // getgrouplist
 // getgroups    // Weak
 // __getgroups_chk
@@ -538,7 +538,7 @@ GO(getpriority, iFii)
 // getpt    // Weak
 // getpublickey
 // getpw    // Weak
-// getpwent
+GO(getpwent, pFv)
 // getpwent_r
 GO(getpwnam, pFp)
 GO(getpwnam_r, iFpppup)
@@ -1053,7 +1053,7 @@ GOW(mbsnrtowcs, uFppuup)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, uFppup)
 // __mbsrtowcs_chk
-// mbstowcs
+GO(mbstowcs, uFppu)
 // __mbstowcs_chk
 // mbtowc
 // mcheck
@@ -1467,7 +1467,7 @@ GO(setlocale, pFip)
 // setpgrp
 GO(setpriority, iFiii)
 // setprotoent
-// setpwent
+GO(setpwent, vFv)
 GOW(setregid, iFuu)
 GOW(setresgid, iFuu)
 // setresuid    // Weak

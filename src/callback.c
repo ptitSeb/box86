@@ -17,7 +17,7 @@ typedef struct onecallback_s {
     uintptr_t   fnc;
     int         shared;
     int         nb_args;
-    void*       arg[8];
+    void*       arg[10];
     void*       stack;
 } onecallback_t;
 

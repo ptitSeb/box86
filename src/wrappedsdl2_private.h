@@ -255,7 +255,7 @@ GO(SDL_GetWindowID, uFp)
 GO(SDL_GetWindowPosition, vFppp)
 GO(SDL_GetWindowSize, vFppp)
 GO(SDL_GetWindowSurface, pFp)
-// SDL_GetWindowTitle
+GO(SDL_GetWindowTitl, pFp)
 GO(SDL_GetWindowWMInfo, iFpp)
 // SDL_GetYUVConversionMode
 // SDL_GetYUVConversionModeForResolution
