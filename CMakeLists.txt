@@ -89,6 +89,8 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsmpeg2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedvorbisfile.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibvorbis.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibogg.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedpng16.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxxf86vm.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxrandr.c"
