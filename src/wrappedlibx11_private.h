@@ -298,7 +298,7 @@ GO(XDrawString, iFpppiipi)
 GO(XDrawString16, iFpppiipi)
 //GO(XDrawText
 //GO(XDrawText16
-// _XEatData
+GO(_XEatData, vFpu)
 GO(_XEatDataWords, vFpu)
 //GO(XEHeadOfExtensionList
 GO(XEmptyRegion, iFp)
@@ -491,7 +491,7 @@ GO(XInitThreads, uFv)
 GO(XInternAtom, pFppi)
 GO(XInternAtoms, uFppiip)
 GO(XIntersectRegion, iFppp)
-// _XIOError
+GO(_XIOError, iFp)
 DATAB(_XIOErrorFunction, 4)
 // _XIsEventCookie
 //GO(XkbAddDeviceLedInfo
