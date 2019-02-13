@@ -126,8 +126,8 @@ GO(SDL_GameControllerEventState, iFi)
 // SDL_GameControllerFromInstanceID
 GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
-GOS(SDL_GameControllerGetAxisFromString, pFEppi)
-//GOS(SDL_GameControllerGetBindForAxis, 
+GOS(SDL_GameControllerGetAxisFromString, uFp)
+GOS(SDL_GameControllerGetBindForAxis, pFEppi)
 // SDL_GameControllerGetBindForButton
 GO(SDL_GameControllerGetButton, uFpi)
 // SDL_GameControllerGetButtonFromString
