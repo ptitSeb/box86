@@ -155,7 +155,7 @@ GOW(__connect, iFipu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
-// creat    // Weak
+GOW(creat, iFpu)
 // creat64
 // create_module    // Weak
 // ctermid
@@ -286,7 +286,7 @@ GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
 // fchmodat
-// fchown   // Weak
+GOW(fchown, iFiuu)
 // fchownat
 GO(fclose, iFp)
 // fcloseall    // Weak
@@ -348,7 +348,7 @@ GOW(flockfile, vFp)
 // fnmatch
 GO(fopen, pFpp)
 GOW(fopen64, pFpp)
-// fopencookie
+//GOM(fopencookie, pFppp)   // last p are 4 callbacks...
 GOM(fork, iFEv) // Weak
 GOM(__fork, iFEv)
 // __fortify_fail
@@ -395,7 +395,7 @@ GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 // fsetxattr
 // fstatfs  // Weak
-// fstatfs64    // Weak
+GOW(fstatfs64, iFip)
 // fstatvfs
 GOW(fstatvfs64, iFip)   // allignment?
 GOW(fsync, iFi)
@@ -520,7 +520,7 @@ GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
 GO(getpass, pFp)
 GOW(getpeername, iFipp)
-// getpgid  // Weak
+GOW(getpgid, uFu)
 // __getpgid
 // getpgrp
 // get_phys_pages   // Weak
@@ -566,7 +566,7 @@ GO(getservbyname_r, iFppppup)
 GO(getservbyport_r, iFipppup)
 // getservent
 GO(getservent_r, iFppup)
-// getsid
+GO(getsid, uFu)
 GOW(getsockname, iFipp)
 GOW(getsockopt, iFiiipp)
 // getsourcefilter
@@ -2078,6 +2078,8 @@ GOM(__gmon_start__, vFv)
 GOM(_Jv_RegisterClasses, vFv)   // dummy
 
 GOM(__fdelt_chk, iFi)
+
+//GOM(getauxval, uFEu)  // implemented since glibc 2.16
 
 // not found (libitm???), but it seems OK to declare dummies:
 

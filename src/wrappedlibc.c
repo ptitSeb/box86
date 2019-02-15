@@ -553,6 +553,7 @@ void InitCpuModel()
 #undef mkostemps
 #undef pread
 #undef pwrite
+#undef creat
 
 // define all standard library functions
 #include "wrappedlib_init.h"
