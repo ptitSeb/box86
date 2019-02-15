@@ -36,6 +36,10 @@ int Run(x86emu_t *emu)
     int64_t ll;
     sse_regs_t *opex, eax1;
     mmx_regs_t *opem;
+
+    if(emu->quit)
+        return 0;
+
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
 #define F8      *(uint8_t*)(ip++)
@@ -184,9 +188,7 @@ int Run(x86emu_t *emu)
     &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_default, &&_default, &&_default, 
     &&_default, &&_default, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_default, &&_6f_0xFE, &&_default
     };
-
 x86emurun:
-    emu->quit = 0;
     ip = R_EIP;
     while (1)
     {

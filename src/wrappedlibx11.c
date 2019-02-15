@@ -51,7 +51,7 @@ typedef struct ximage_s {
     int32_t (*destroy_image)        (void*);
     uint32_t (*get_pixel)           (void*, int32_t, int32_t);
     int32_t (*put_pixel)            (void*, int32_t, int32_t, uint32_t);
-    void*(*sub_image)    (void*, int32_t, int32_t, uint32_t, uint32_t);
+    void*(*sub_image)    (void*, int32_t, int32_t, uint32_t, uint32_t); //sub_image return a new XImage that need bridging => custom wrapper
     int32_t (*add_pixel)            (void*, int32_t);
 } ximage_t;
 
@@ -81,7 +81,10 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uint32_t (*uFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiu_t)(void*, int32_t, int32_t, uint32_t);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
+typedef void* (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t);
 typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
+typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
+typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 
 typedef struct x11_my_s {
     // functions
@@ -90,6 +93,9 @@ typedef struct x11_my_s {
     iFpppp_t        XCheckIfEvent;
     iFpppp_t        XPeekIfEvent;
     pFppuiipuuii_t  XCreateImage;
+    pFppiiuuui_t    XGetImage;
+    iFppppiiiiuu_t  XPutImage;
+    pFppiiuuuipii_t XGetSubImage;
 } x11_my_t;
 
 void* getX11My(library_t* lib)
@@ -101,6 +107,9 @@ void* getX11My(library_t* lib)
     GO(XCheckIfEvent, iFpppp_t)
     GO(XPeekIfEvent, iFpppp_t)
     GO(XCreateImage, pFppuiipuuii_t)
+    GO(XGetImage, pFppiiuuui_t)
+    GO(XPutImage, iFppppiiiiuu_t)
+    GO(XGetSubImage, pFppiiuuuipii_t)
     #undef GO
     return my;
 }
@@ -113,6 +122,18 @@ void freeX11My(void* lib)
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
+
+void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
+                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt);
+
+int32_t my_XPutImage(x86emu_t* emu, void* disp, void* drawable, void* gc, void* image
+                    , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
+                    , uint32_t w, uint32_t h);
+
+void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
+                    , int32_t x, int32_t y
+                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
+                    , void* image, int32_t dst_x, int32_t dst_y);
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getX11My(lib);
@@ -187,6 +208,10 @@ EXPORT int32_t my_XPeekIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, 
     return ret;
 }
 
+void sub_image_wrapper(x86emu_t *emu, uintptr_t fnc);
+typedef void* (*sub_image_wrapper_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
+
+
 void BridgeImageFunc(x86emu_t *emu, XImage *img)
 {
     bridge_t* system = emu->context->system;
@@ -202,7 +227,7 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
     GO(destroy_image, iFp)
     GO(get_pixel, uFpii)
     GO(put_pixel, iFpiiu)
-    GO(sub_image, pFpiiuu)
+    GO(sub_image, sub_image_wrapper)
     GO(add_pixel, iFpi)
     #undef GO
 }
@@ -222,10 +247,19 @@ void UnbridgeImageFunc(x86emu_t *emu, XImage *img)
     GO(destroy_image, iFp)
     GO(get_pixel, uFpii)
     GO(put_pixel, iFpiiu)
-    GO(sub_image, pFpiiuu)
+    GO(sub_image, sub_image_wrapper)
     GO(add_pixel, iFpi)
     #undef GO
 }
+
+void sub_image_wrapper(x86emu_t *emu, uintptr_t fnc)
+{
+    pFpiiuu_t fn = (pFpiiuu_t)fnc; 
+    void* img = fn(*(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(uint32_t*)(R_ESP + 20));
+    BridgeImageFunc(emu, (XImage*)img);
+    R_EAX=(uintptr_t)img;
+}
+
 
 EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl)
@@ -238,5 +272,50 @@ EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t dept
         return img;
     // bridge all access functions...
     BridgeImageFunc(emu, img);
+    return img;
+}
+
+EXPORT void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
+                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    XImage *img = my->XGetImage(disp, drawable, x, y, w, h, plane, fmt);
+    if(!img)
+        return img;
+    // bridge all access functions...
+    BridgeImageFunc(emu, img);
+    return img;
+}
+
+EXPORT int32_t my_XPutImage(x86emu_t* emu, void* disp, void* drawable, void* gc, void* image
+                    , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
+                    , uint32_t w, uint32_t h)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    UnbridgeImageFunc(emu, (XImage*)image);
+    int32_t r = my->XPutImage(disp, drawable, gc, image, src_x, src_y, dst_x, dst_y, w, h);
+    // bridge all access functions...
+    BridgeImageFunc(emu, (XImage*)image);
+    return r;
+}
+
+EXPORT void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
+                    , int32_t x, int32_t y
+                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
+                    , void* image, int32_t dst_x, int32_t dst_y)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    UnbridgeImageFunc(emu, (XImage*)image);
+    XImage *img = my->XGetSubImage(disp, drawable, x, y, w, h, plane, fmt, image, dst_x, dst_y);
+    if(img)
+        BridgeImageFunc(emu, img);
+
+    BridgeImageFunc(emu, (XImage*)image);
     return img;
 }

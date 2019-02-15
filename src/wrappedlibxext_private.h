@@ -79,13 +79,13 @@ GO(XShapeQueryExtents, iFpppppppppppp)
 GO(XShapeQueryVersion, iFppp)
 GO(XShapeSelectInput, vFppu)
 GO(XShmAttach, iFpp)
-GO(XShmCreateImage, iFppuippuu)
+//GO(XShmCreateImage, iFppuippuu)       //need brige/unbridge...
 GO(XShmCreatePixmap, pFppppuuu)
 GO(XShmDetach, iFpp)
 GO(XShmGetEventBase, iFp)
-GO(XShmGetImage, iFpppiiu)
+//GO(XShmGetImage, iFpppiiu)        //need brige/unbridge...
 GO(XShmPixmapFormat, iFp)
-GO(XShmPutImage, iFppppiiiiuui)
+//GO(XShmPutImage, iFppppiiiiuui)       //need brige/unbridge...
 GO(XShmQueryExtension, iFp)
 GO(XShmQueryVersion, iFpppp)
 //GO(XSyncAwait, 

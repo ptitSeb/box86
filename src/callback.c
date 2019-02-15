@@ -32,7 +32,7 @@ typedef struct callbacklist_s {
 x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
 {
     callbacklist_t *callbacks = emu->context->callbacks;
-    int stsize = 1024*1024;
+    int stsize = 2*1024*1024;   // 2MB stack (1MB is not enough for Xenonauts)
     void* stack = malloc(stsize);
     x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
 	SetupX86Emu(newemu, emu->shared_global, emu->globals);

@@ -394,7 +394,7 @@ GO(XGetGeometry, iFppppppppp)
 GO(XGetIconName, iFppp)
 //GO(XGetIconSizes
 GO(XGetICValues, pFpppppp)      // use varargs...
-GO(XGetImage, pFppiiuuui)
+GOM(XGetImage, pFEppiiuuui)     // return an XImage with callbacks that needs wrapping
 GO(XGetIMValues, pFppppppp)     // use varargs
 GO(XGetInputFocus, iFppp)
 GO(XGetKeyboardControl, iFpp)
@@ -416,7 +416,7 @@ GO(XGetScreenSaver, iFppppp)
 //GO(XGetSelectionOwner
 //GO(XGetSizeHints
 //GO(XGetStandardColormap
-GO(XGetSubImage, pFppiiuuuipii)
+GOM(XGetSubImage, pFEppiiuuuipii)
 //GO(XGetTextProperty
 GO(XGetTransientForHint, iFppp)
 GO(XGetVisualInfo, pFpipp)
@@ -830,7 +830,7 @@ GO(XPointInRegion, iFpp)
 //GO(XProtocolVersion
 //GO(XPutBackEvent
 // _XPutBackEvent
-GO(XPutImage, iFppppiiiiuu)
+GOM(XPutImage, iFEppppiiiiuu)
 //GO(XPutPixel
 //GO(XQLength
 GO(XQueryBestCursor, iFppuupp)
