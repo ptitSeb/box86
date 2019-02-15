@@ -97,6 +97,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxext.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedxinerama.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxfixes.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxcursor.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxrender.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibz.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedopenal.c"
