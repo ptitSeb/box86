@@ -123,8 +123,8 @@ EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, v
     x86emu_t* cbemu = AddCallback(emu, (uintptr_t)read, 3, NULL, NULL, NULL, datasource);
     SetCallbackArg(emu, 5, read);
     SetCallbackArg(emu, 6, seek);
-    SetCallbackArg(emu, 5, close);
-    SetCallbackArg(emu, 5, tell);
+    SetCallbackArg(emu, 7, close);
+    SetCallbackArg(emu, 8, tell);
     cbs.read_func = my_read_func;
     if(seek) cbs.seek_func = my_seek_func;
     cbs.close_func = my_close_func;
