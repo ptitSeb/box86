@@ -168,7 +168,7 @@ GO(__exp_finite, dFd)
 // fesetround
 // fetestexcept
 // feupdateenv
-// finite   // Weak
+GOW(finite, iFd)
 // __finite
 GOW(finitef, iFf)
 GO(__finitef, iFf)

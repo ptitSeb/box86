@@ -332,9 +332,9 @@ GO(fgetws, pFpip)
 // fgetxattr
 GO(fileno, iFp)
 // fileno_unlocked  // Weak
-// finite   // Weak
+GOW(finite, iFd)
 // __finite
-// finitef  // Weak
+GOW(finitef, iFf)
 // __finitef
 // finitel  // Weak
 // __finitel
@@ -402,7 +402,7 @@ GOW(fsync, iFi)
 GOW(ftell, iFp)
 GO(ftello, uFp)
 GO(ftello64, Ifp)
-// ftime
+GO(ftime, iFp)
 // ftok
 // ftruncate    // Weak
 GOW(ftruncate64, iFiU)
