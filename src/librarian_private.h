@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "khash.h"
 
+typedef struct box86context_s box86context_t;
+
 typedef struct onesymbol_s {
     uintptr_t   offs;
     uint32_t    sz;
@@ -22,6 +24,8 @@ typedef struct lib_s {
     onelib_t              *libraries;
     int                   libsz;
     int                   libcap;
+
+    box86context_t*       context;
     
     bridge_t                *bridge;        // all x86 -> arm bridge
 } lib_t;

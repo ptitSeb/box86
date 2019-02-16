@@ -150,7 +150,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         uintptr_t offs = 0;
         uint32_t sz = 0;
         uintptr_t end = 0;
-        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, 0);
+        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, NULL);
         uintptr_t globoffs, globend;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
@@ -165,7 +165,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 break;
             case R_386_GLOB_DAT:
                 // Look for same symbol already loaded but not in self
-                if (GetGlobalSymbolStartEnd(maplib, symname, &globoffs, &globend, 1)) {
+                if (GetGlobalSymbolStartEnd(maplib, symname, &globoffs, &globend, head)) {
                     offs = globoffs;
                     end = globend;
                 }
@@ -208,7 +208,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 break;
             case R_386_COPY:
                 if(offs) {
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, 1);   // get original copy if any
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
                     printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d (", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
                     if(LOG_DEBUG<=box86_log) {
@@ -243,7 +243,7 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
                 // can be ignored
                 break;
             case R_386_COPY:
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end,1);
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head);
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);

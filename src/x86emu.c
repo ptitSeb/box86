@@ -260,7 +260,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     if(trace_xmm) {
         // do xmm reg is needed
         for(int i=0; i<8; ++i) {
-            sprintf(tmp, "%d:%016llX%016llX", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
+            sprintf(tmp, "%d:%016llx%016llx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
@@ -278,7 +278,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
         strcat(buff, "\n");
     }
     for (int i=_AX; i<=_DI; ++i) {
-        sprintf(tmp, "%s=%08X ", regname[i], emu->regs[i].dword[0]);
+        sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
         strcat(buff, tmp);
 
         if (i==3) {
@@ -292,7 +292,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
             }
         }
     }
-    sprintf(tmp, "EIP=%08X ", ip);
+    sprintf(tmp, "EIP=%08x ", ip);
     strcat(buff, tmp);
     return buff;
 }

@@ -8,17 +8,20 @@
 #include "librarian_private.h"
 #include "library.h"
 #include "x86emu.h"
+#include "box86context.h"
 
 #include "bridge.h"
 
 KHASH_MAP_IMPL_STR(mapsymbols, onesymbol_t);
 
-lib_t *NewLibrarian()
+lib_t *NewLibrarian(box86context_t* context)
 {
     lib_t *maplib = (lib_t*)calloc(1, sizeof(lib_t));
     
     maplib->mapsymbols = kh_init(mapsymbols);
     maplib->bridge = NewBridge();
+
+    maplib->context = context;
 
     return maplib;
 }
@@ -105,21 +108,33 @@ uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
     return 0;
 }
 
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int self)
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self)
 {
-    if(!self)
-    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
-        if(*start)
-            return 1;
-    for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+    //excude self if defined
+    if(maplib->context->elfs[0]!=self)
+        if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
             if(*start)
                 return 1;
+    for(int i=0; i<maplib->libsz; ++i) {
+        if(GetElfIndex(maplib->libraries[i].lib)==-1 || (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]!=self))
+            if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+                if(*start)
+                    return 1;
     }
-    if(self)
-    if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
-        if(*start)
-            return 1;
+    // if self defined, give it another chance with self...
+    if(self) {
+        if(maplib->context->elfs[0]==self)
+            if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
+                if(*start)
+                    return 1;
+        for(int i=0; i<maplib->libsz; ++i) {
+            if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
+                if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+                    if(*start)
+                        return 1;
+        }
+    }
+    // nope, not found
     return 0;
 }
 

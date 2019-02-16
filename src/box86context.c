@@ -23,7 +23,7 @@ box86context_t *NewBox86Context(int argc)
 
     context->deferedInit = 1;
 
-    context->maplib = NewLibrarian();
+    context->maplib = NewLibrarian(context);
     context->system = NewBridge();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);

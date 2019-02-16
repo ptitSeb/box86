@@ -212,6 +212,7 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
             return 1;
         }
         RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
+        // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
     }
     return 0;
