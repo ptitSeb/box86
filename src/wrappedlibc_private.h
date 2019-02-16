@@ -1627,7 +1627,7 @@ GO(strpbrk, pFpp)
 GO(strptime, pFppp)
 // strptime_l   // Weak
 GO(strrchr, pFpi)
-// strsep   // Weak
+GOW(strsep, pFpp)
 // __strsep_1c
 // __strsep_2c
 // __strsep_3c
@@ -1713,7 +1713,7 @@ GO(strxfrm_l, uFppup)
 // swapoff  // Weak
 // swapon   // Weak
 // swprintf
-// __swprintf_chk
+GOM(__swprintf_chk, iFEpuiupV)
 // swscanf
 GOW(symlink, iFpp)
 // symlinkat

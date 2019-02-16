@@ -310,6 +310,19 @@ EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     #endif
 }
 
+EXPORT int my___swprintf_chk(x86emu_t* emu, void* s, uint32_t n, int32_t flag, uint32_t slen, void* fmt, void * b)
+{
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vswprintf;
+    int r = ((iFpupp_t)f)(s, n, fmt, emu->scratch);
+    #else
+    void* f = vswprintf;
+    ((iFpupp_t)f)(s, n, fmt, b);
+    #endif
+}
+
 EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
