@@ -225,7 +225,7 @@ GO(XCreateFontCursor, pFpu)
 //GO(XCreateFontSet
 GO(XCreateGC, pFppup)
 //GO(XCreateGlyphCursor
-GO(XCreateIC, uFpppppp)     // use vararg, so putting an arbitrary number of args
+GO(XCreateIC, uFpppppppppppppppp)     // use vararg, so putting an arbitrary number of args, also can have Callbacks ?! Allegro have 7 args and no callback
 GOM(XCreateImage, pFEppuiipuuii)
 GO(dummy_XCreateImage, pFppuiipuuii)    // to have the wrapper
 DATAB(_XCreateMutex_fn, 4)

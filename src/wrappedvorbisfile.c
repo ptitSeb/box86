@@ -27,18 +27,18 @@ typedef struct {
 } ov_callbacks;
 
 
-typedef int32_t (*iFpppip_t)(void*, void*, void*, int32_t, void*);
+typedef int32_t (*iFpppiC_t)(void*, void*, void*, int32_t, ov_callbacks);
 
 typedef struct vorbisfile_my_s {
     // functions
-    iFpppip_t       ov_open_callbacks;
+    iFpppiC_t       ov_open_callbacks;
 } vorbisfile_my_t;
 
 void* getVorbisfileMy(library_t* lib)
 {
     vorbisfile_my_t* my = (vorbisfile_my_t*)calloc(1, sizeof(vorbisfile_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(ov_open_callbacks, iFpppip_t)
+    GO(ov_open_callbacks, iFpppiC_t)
     #undef GO
     return my;
 }
@@ -48,7 +48,7 @@ void freeVorbisfileMy(void* lib)
     vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
 }
 
-int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* callbacks);
+int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read, void* seek, void* close, void* tell);
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getVorbisfileMy(lib);
@@ -114,20 +114,20 @@ long my_tell_func(void *datasource)
     return RunCallback(emu);
 }
 
-EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* callbacks)
+EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read, void* seek, void* close, void* tell)
 {
     library_t * lib = GetLib(emu->context->maplib, vorbisfileName);
     vorbisfile_my_t *my = (vorbisfile_my_t*)lib->priv.w.p2;
     // wrap all callbacks, add close if not there to free the callbackemu
-    ov_callbacks* cbs = (ov_callbacks*)callbacks;
-    x86emu_t* cbemu = AddCallback(emu, (uintptr_t)cbs->read_func, 3, NULL, NULL, NULL, datasource);
-    SetCallbackArg(emu, 5, (void*)cbs->read_func);
-    SetCallbackArg(emu, 6, (void*)cbs->seek_func);
-    SetCallbackArg(emu, 5, (void*)cbs->close_func);
-    SetCallbackArg(emu, 5, (void*)cbs->tell_func);
-    cbs->read_func = my_read_func;
-    if(cbs->seek_func) cbs->seek_func = my_seek_func;
-    cbs->close_func = my_close_func;
-    if(cbs->tell_func) cbs->tell_func = my_tell_func;
-    return my->ov_open_callbacks(cbemu, vf, initial, ibytes, callbacks);
+    ov_callbacks cbs = {0};
+    x86emu_t* cbemu = AddCallback(emu, (uintptr_t)read, 3, NULL, NULL, NULL, datasource);
+    SetCallbackArg(emu, 5, read);
+    SetCallbackArg(emu, 6, seek);
+    SetCallbackArg(emu, 5, close);
+    SetCallbackArg(emu, 5, tell);
+    cbs.read_func = my_read_func;
+    if(seek) cbs.seek_func = my_seek_func;
+    cbs.close_func = my_close_func;
+    if(tell) cbs.tell_func = my_tell_func;
+    return my->ov_open_callbacks(cbemu, vf, initial, ibytes, cbs);
 }

@@ -10,7 +10,7 @@ GO(ov_halfrate,iFpi)
 GO(ov_halfrate_p,iFp)
 GO(ov_info,pFpi)
 GO(ov_open,iFpppi)
-GOM(ov_open_callbacks,iFEpppip)
+GOM(ov_open_callbacks,iFEpppipppp)  // ov_callbaks are not "by ref", so all 4 values are just on the stack
 GO(ov_pcm_seek,iFpU)
 GO(ov_pcm_seek_lap,iFpU)
 GO(ov_pcm_seek_page,iFpU)
