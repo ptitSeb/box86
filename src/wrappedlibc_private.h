@@ -292,7 +292,7 @@ GO(fclose, iFp)
 // fcloseall    // Weak
 GOW(fcntl, iFiiu)
 GOW(__fcntl, iFiiu)
-// fcvt
+GO(fcvt, pFdipp)
 // fcvt_r
 GO(fdatasync, iFi)
 // fdetach
@@ -404,7 +404,7 @@ GO(ftello, uFp)
 GO(ftello64, Ifp)
 GO(ftime, iFp)
 // ftok
-// ftruncate    // Weak
+GOW(ftruncate, iFiu)
 GOW(ftruncate64, iFiU)
 GOW(ftrylockfile, iFp)
 // fts_children
@@ -1014,7 +1014,7 @@ GOW(listen, iFii)
 GOW(localeconv, pFv)
 GO(localtime, pFp)
 GOW(localtime_r, pFpp)
-// lockf
+GO(lockf, iFiiu)
 // lockf64
 // locs // type B
 GOM(longjmp, vFEpi)
@@ -1665,7 +1665,7 @@ GO(strtoll, IFppi)
 // strtoll_l    // Weak
 // strtoq   // Weak
 GO(strtoul, uFppi)
-// __strtoul_internal
+GO(__strtoul_internal, uFppii)
 GO(strtoull, UFppi)
 // __strtoul_l
 // strtoul_l    // Weak
@@ -1726,7 +1726,7 @@ GO(__sysconf, iFi)
 // __sysctl
 DATA(_sys_errlist, 4)
 DATA(sys_errlist, 4)
-// sysinfo
+GO(sysinfo, iFp)
 GO2(syslog, vFiV, vsyslog)
 GO2(__syslog_chk, vFiipV, __vsyslog_chk)
 // _sys_nerr    // type R

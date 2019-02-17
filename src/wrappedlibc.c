@@ -550,6 +550,7 @@ void InitCpuModel()
 #undef fstatfs
 #undef freopen
 #undef truncate
+#undef ftruncate
 #undef tmpfile
 #undef lockf
 #undef fscanf
