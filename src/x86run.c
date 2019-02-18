@@ -1400,6 +1400,7 @@ _trace:
         }
 fini:
     if(emu->fork) {
+        emu->quit = 0;
         emu->fork = 0;
         emu = x86emu_fork(emu);
         goto x86emurun;
