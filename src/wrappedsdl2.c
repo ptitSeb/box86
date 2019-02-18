@@ -826,7 +826,7 @@ EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* 
     return p;
 }
 
-const char* sdl2Name = "libSDL2-2.0.so";
+const char* sdl2Name = "libSDL2-2.0.so.0";
 #define LIBNAME sdl2
 
 #define CUSTOM_INIT \
