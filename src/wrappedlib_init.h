@@ -24,15 +24,18 @@
 
 // #define the 4 maps first
 #undef GO
-#undef GOW
 #define GO(N, W) {#N, W, 0},
-#define GOW(N, W) {#N, W, 1},
 static const map_onesymbol_t MAPNAME(symbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GO
-#undef GOW
 #define GO(N, W)
+#undef GOW
+#define GOW(N, W) {#N, W, 1},
+static const map_onesymbol_t MAPNAME(wsymbolmap)[] = {
+    #include PRIVATE(LIBNAME)
+};
+#undef GOW
 #define GOW(N, W)
 #undef GOM
 #define GOM(N, W) {#N, W, 0},
@@ -93,10 +96,12 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     lib->priv.w.bridge = NewBridge();
 // Create maps
     lib->symbolmap = kh_init(symbolmap);
+    lib->wsymbolmap = kh_init(symbolmap);
     lib->mysymbolmap = kh_init(symbolmap);
     lib->stsymbolmap = kh_init(symbolmap);
     lib->symbol2map = kh_init(symbol2map);
     lib->datamap = kh_init(datamap);
+    lib->wdatamap = kh_init(datamap);
     lib->mydatamap = kh_init(datamap);
 
     khint_t k;
@@ -108,6 +113,11 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->symbolmap, MAPNAME(symbolmap)[i].name, &ret);
         kh_value(lib->symbolmap, k) = MAPNAME(symbolmap)[i].w;
+    }
+    cnt = sizeof(MAPNAME(wsymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, lib->wsymbolmap, MAPNAME(wsymbolmap)[i].name, &ret);
+        kh_value(lib->wsymbolmap, k) = MAPNAME(wsymbolmap)[i].w;
     }
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
@@ -124,11 +134,17 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
         k = kh_put(symbol2map, lib->symbol2map, MAPNAME(symbol2map)[i].name, &ret);
         kh_value(lib->symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
         kh_value(lib->symbol2map, k).w = MAPNAME(symbol2map)[i].w;
+        kh_value(lib->symbol2map, k).weak = MAPNAME(symbol2map)[i].weak;
     }
     cnt = sizeof(MAPNAME(datamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
-        k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
-        kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
+        if(MAPNAME(datamap)[i].weak) {
+            k = kh_put(datamap, lib->wdatamap, MAPNAME(datamap)[i].name, &ret);
+            kh_value(lib->wdatamap, k) = MAPNAME(datamap)[i].sz;
+        } else {
+            k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
+            kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
+        }
     }
     cnt = sizeof(MAPNAME(mydatamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
@@ -167,7 +183,28 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
     uint32_t size = 0;
     void* symbol = NULL;
 //PRE
-    if (!getSymbolInMaps(lib, name, &addr, &size)) {
+    if (!getSymbolInMaps(lib, name, 0, &addr, &size)) {
+#ifdef CUSTOM_FAIL
+    CUSTOM_FAIL
+#else
+        return 0;
+#endif
+    }
+//POST
+    if(!addr)
+        return 0;
+    *offs = addr;
+    *sz = size;
+    return 1;
+}
+
+int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
+{
+    uintptr_t addr = 0;
+    uint32_t size = 0;
+    void* symbol = NULL;
+//PRE
+    if (!getSymbolInMaps(lib, name, 1, &addr, &size)) {
 #ifdef CUSTOM_FAIL
     CUSTOM_FAIL
 #else

@@ -15,6 +15,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 typedef struct symbol2_s {
     wrapper_t    w;
     const char*  name;
+    int          weak;
 } symbol2_t;
 
 KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
@@ -40,6 +41,8 @@ typedef struct wlib_s {
 typedef struct nlib_s {
     int             elf_index;
     kh_mapsymbols_t *mapsymbols;
+    kh_mapsymbols_t *weaksymbols;
+    kh_mapsymbols_t *localsymbols;
 } nlib_t;
 
 typedef struct library_s {
@@ -47,7 +50,9 @@ typedef struct library_s {
     int                 nbdot;  // nombre of "." after .so
     int                 type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
     wrappedlib_fini_t   fini;
-    wrappedlib_get_t    get;
+    wrappedlib_get_t    get;    // get weak and no weak
+    wrappedlib_get_t    getnoweak;  // get only global symbol
+    wrappedlib_get_t    getlocal;
     union {
         wlib_t  w;     
         nlib_t  n;
@@ -56,10 +61,12 @@ typedef struct library_s {
     bridge_t            *brige;
     kh_bridgemap_t      *bridgemap;
     kh_symbolmap_t      *symbolmap;
+    kh_symbolmap_t      *wsymbolmap;
     kh_symbolmap_t      *mysymbolmap;
     kh_symbolmap_t      *stsymbolmap;
     kh_symbol2map_t     *symbol2map;
     kh_datamap_t        *datamap;
+    kh_datamap_t        *wdatamap;
     kh_datamap_t        *mydatamap;
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } library_t;
@@ -88,6 +95,6 @@ typedef struct map_onedata_s {
     int         weak;
 } map_onedata_t;
 
-int getSymbolInMaps(library_t*lib, const char* name, uintptr_t *addr, uint32_t *size);  // Add bridges to functions
+int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size);  // Add bridges to functions
 
 #endif //__LIBRARY_PRIVATE_H_

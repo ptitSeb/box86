@@ -87,7 +87,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, 0))
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end))
             return (void*)start;
         return NULL;
     }

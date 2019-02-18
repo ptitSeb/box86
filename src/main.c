@@ -309,7 +309,7 @@ int main(int argc, const char **argv, const char **env) {
     }
 #endif
     // export symbols
-    AddGlobalsSymbols(context->maplib, GetMapSymbol(context->maplib), elf_header);
+    AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
     if(LoadNeededLib(elf_header, context->maplib, context, context->emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);

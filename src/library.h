@@ -14,6 +14,8 @@ void FreeLibrary(library_t **lib);
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
 int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
+int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
 kh_symbolmap_t * fillGLProcWrapper();
 void freeProcWrapper(kh_symbolmap_t** symbolmap);
 

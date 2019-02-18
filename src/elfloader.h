@@ -22,7 +22,7 @@ int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
-void AddGlobalsSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, elfheader_t* h);
+void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);
 int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t* box86, x86emu_t* emu);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);

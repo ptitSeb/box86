@@ -21,13 +21,15 @@ KHASH_MAP_DECLARE_STR(mapsymbols, onesymbol_t)
 
 typedef struct lib_s {
     khash_t(mapsymbols)   *mapsymbols;
+    khash_t(mapsymbols)   *weaksymbols;
+    khash_t(mapsymbols)   *localsymbols;
     onelib_t              *libraries;
     int                   libsz;
     int                   libcap;
 
     box86context_t*       context;
     
-    bridge_t                *bridge;        // all x86 -> arm bridge
+    bridge_t              *bridge;        // all x86 -> arm bridge
 } lib_t;
 
 #endif //__LIBRARIAN_PRIVATE_H_
