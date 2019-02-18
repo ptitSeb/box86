@@ -75,12 +75,33 @@
             NEXT;
 
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
-        _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
-            // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GET_EX;
             GM.sd[1] = EX->f[1];
             GM.sd[0] = EX->f[0];
+            NEXT;
+        _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
+            // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
+            nextop = F8;
+            GET_EX;
+            switch(emu->round) {
+                case ROUND_Nearest:
+                    GM.sd[1] = floor(EX->f[1]+0.5);
+                    GM.sd[0] = floor(EX->f[0]+0.5);
+                    break;
+                case ROUND_Down:
+                    GM.sd[1] = floor(EX->f[1]);
+                    GM.sd[0] = floor(EX->f[0]);
+                    break;
+                case ROUND_Up:
+                    GM.sd[1] = ceil(EX->f[1]);
+                    GM.sd[0] = ceil(EX->f[0]);
+                    break;
+                case ROUND_Chop:
+                    GM.sd[1] = EX->f[1];
+                    GM.sd[0] = EX->f[0];
+                    break;
+            }
             NEXT;
         _0f_0x2E:                      /* UCOMISS Gx, Ex */
             // same for now

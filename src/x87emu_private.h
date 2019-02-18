@@ -52,6 +52,7 @@ void reset_fpu(x86emu_t* emu);
 
 static inline void fpu_fcom(x86emu_t* emu, double b)
 {
+    emu->sw.f.F87_C1 = 0;
     if(isnan(ST0.d) || isnan(b)) {
         emu->sw.f.F87_C0 = 1;
         emu->sw.f.F87_C2 = 1;
@@ -74,6 +75,7 @@ static inline void fpu_fcom(x86emu_t* emu, double b)
 static inline void fpu_fcomi(x86emu_t* emu, double b)
 {
     RESET_FLAGS(emu);
+    emu->sw.f.F87_C1 = 0;
     if(isnan(ST0.d) || isnan(b)) {
         emu->flags[F_CF] = 1;
         emu->flags[F_PF] = 1;
@@ -96,8 +98,16 @@ static inline void fpu_fcomi(x86emu_t* emu, double b)
 static inline double fpu_round(x86emu_t* emu, double d) {
     if (!isfinite(d))
         return d;
-    //switch(emu->cw)   // TODO: implement Rounding...
-    return round(d);
+    switch(emu->round) {
+        case ROUND_Nearest:
+            return floor(d+0.5);
+        case ROUND_Down:
+            return floor(d);
+        case ROUND_Up:
+            return ceil(d);
+        case ROUND_Chop:
+            return round(d);
+    }
 }
 
 static inline void fpu_fxam(x86emu_t* emu) {

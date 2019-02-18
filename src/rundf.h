@@ -94,21 +94,45 @@
             break;
         case 2: /* FIST Ew, ST0 */
             GET_EW;
-            tmp32s = ST0.d;
-            if((tmp32s<-32768) || (tmp32s>32767))
-                tmp16s=0x8000;
-            else
-                tmp16s = tmp32s;
-            EW->sword[0] = tmp16s;
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
+                EW->sword[0] = 0x8000;
+            else {
+                switch(emu->round) {
+                    case ROUND_Nearest:
+                        EW->sword[0] = floor(ST0.d+0.5);
+                        break;
+                    case ROUND_Down:
+                        EW->sword[0] = floor(ST0.d);
+                        break;
+                    case ROUND_Up:
+                        EW->sword[0] = ceil(ST0.d);
+                        break;
+                    case ROUND_Chop:
+                        EW->sword[0] = ST0.d;
+                        break;
+                }
+            }
             break;
         case 3: /* FISTP Ew, ST0 */
             GET_EW;
-            tmp32s = ST0.d;
-            if((tmp32s<-32768) || (tmp32s>32767))
-                tmp16s=0x8000;
-            else
-                tmp16s = tmp32s;
-            EW->sword[0] = tmp16s;
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
+                EW->sword[0] = 0x8000;
+            else {
+                switch(emu->round) {
+                    case ROUND_Nearest:
+                        EW->sword[0] = floor(ST0.d+0.5);
+                        break;
+                    case ROUND_Down:
+                        EW->sword[0] = floor(ST0.d);
+                        break;
+                    case ROUND_Up:
+                        EW->sword[0] = ceil(ST0.d);
+                        break;
+                    case ROUND_Chop:
+                        EW->sword[0] = ST0.d;
+                        break;
+                }
+            }
             fpu_do_pop(emu);
             break;
         case 4: /* FBLD ST0, tbytes */

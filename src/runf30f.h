@@ -23,10 +23,27 @@
         break;
 
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
-    case 0x2D:  /* CVTSS2SI Gd, Ex */
         nextop = F8;
         GET_EX;
         GD.sdword[0] = EX->f[0];
+        break;
+    case 0x2D:  /* CVTSS2SI Gd, Ex */
+        nextop = F8;
+        GET_EX;
+        switch(emu->round) {
+            case ROUND_Nearest:
+                GD.sdword[0] = floor(EX->f[0]+0.5);
+                break;
+            case ROUND_Down:
+                GD.sdword[0] = floor(EX->f[0]);
+                break;
+            case ROUND_Up:
+                GD.sdword[0] = ceil(EX->f[0]);
+                break;
+            case ROUND_Chop:
+                GD.sdword[0] = EX->f[0];
+                break;
+        }
         break;
 
     case 0x51:  /* SQRTSS Gx, Ex */
