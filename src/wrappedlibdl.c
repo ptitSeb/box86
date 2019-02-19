@@ -98,6 +98,9 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         return NULL;
     if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
         // not found
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", GetNameLib(dl->libs[nlib]), rsymbol);
+        }
         printf_log(LOG_DEBUG, " Symbol not found\n");
         return NULL;
     }

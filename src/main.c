@@ -17,6 +17,7 @@
 #include "librarian.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
+int dlsym_error = 0;
 int trace_xmm = 0;
 
 FILE* ftrace = NULL;
@@ -59,6 +60,13 @@ void LoadLogEnv()
         }
     }
 #endif
+    p = getenv("BOX86_DLSYM_ERROR");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                dlsym_error = p[0]-'0';
+        }
+    }
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
