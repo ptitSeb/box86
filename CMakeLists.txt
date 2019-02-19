@@ -99,6 +99,8 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxfixes.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxcursor.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxrender.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxi.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibxss.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibz.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedopenal.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedalut.c"

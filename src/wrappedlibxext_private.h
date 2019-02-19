@@ -22,21 +22,21 @@ GO(DPMSSetTimeouts, iFpuuu)
 //GO(XcupGetReservedColormapEntries, 
 //GO(XcupQueryVersion, 
 //GO(XcupStoreColors, 
-//GO(XdbeAllocateBackBufferName, 
-//GO(XdbeBeginIdiom, 
-//GO(XdbeDeallocateBackBufferName, 
-//GO(XdbeEndIdiom, 
-//GO(XdbeFreeVisualInfo, 
-//GO(XdbeGetBackBufferAttributes, 
-//GO(XdbeGetVisualInfo, 
-//GO(XdbeQueryExtension, 
-//GO(XdbeSwapBuffers, 
+GO(XdbeAllocateBackBufferName, pFppu)
+GO(XdbeBeginIdiom, iFp)
+GO(XdbeDeallocateBackBufferName, iFpp)
+GO(XdbeEndIdiom, iFp)
+GO(XdbeFreeVisualInfo, vFp)
+GO(XdbeGetBackBufferAttributes, pFpp)
+GO(XdbeGetVisualInfo, pFppp)
+GO(XdbeQueryExtension, iFppp)
+GO(XdbeSwapBuffers, iFppi)
 //GO(XeviGetVisualInfo, 
 //GO(XeviQueryExtension, 
 //GO(XeviQueryVersion, 
 GO(XextAddDisplay, pFppppip)
 GO(XextCreateExtension, pFv)
-//GO(XextDestroyExtension, 
+GO(XextDestroyExtension, vFp)
 DATAB(_XExtensionErrorFunction, 4)
 GO(XextFindDisplay, pFpp)
 GO(XextRemoveDisplay, iFpp)

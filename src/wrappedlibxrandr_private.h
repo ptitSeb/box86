@@ -5,7 +5,7 @@
 GO(XRRQueryVersion,iFppp)
 GO(XRRFreeScreenConfigInfo,vFp)
 GO(XRRGetCrtcInfo, pFppu)
-//GO(XRRListOutputProperties
+GO(XRRListOutputProperties, pFpup)
 GO(XRRQueryExtension, iFppp)
 //GO(XRRAllocModeInfo
 //GO(XRRGetProviderProperty
@@ -30,7 +30,7 @@ GO(XRRSetScreenConfig,iFpppiuu)
 GO(XRRSetScreenSize, vFppiiii)
 GO(XRRSetScreenConfigAndRate,iFpppiuwu)
 GO(XRRFreeScreenResources, vFp)
-//GO(XRRGetOutputPrimary
+GO(XRRGetOutputPrimary, uFpp)
 //GO(XRRCreateMode
 GO(XRRConfigCurrentRate,wFp)
 //GO(XRRDestroyMode
@@ -51,8 +51,8 @@ GO(XRRGetScreenSizeRange, iFpppppp)
 GO(XRRRates,pFpiip)
 //GO(XRRFreeProviderInfo
 GO(XRRConfigRates,pFpip)
-//GO(XRRQueryOutputProperty
-//GO(XRRGetOutputProperty
+GO(XRRQueryOutputProperty, pFpup)
+GO(XRRGetOutputProperty, iFpupiiiipppppp)
 //GO(XRRFreeGamma
 GO(XRRRootToScreen,iFp)
 GO(XRRGetScreenInfo,pFpp)

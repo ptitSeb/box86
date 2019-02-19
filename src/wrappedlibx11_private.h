@@ -26,7 +26,7 @@ DATAB(_qfree, 4)
 //GO(XAddPixel
 //GO(XAddToExtensionList
 //GO(XAddToSaveSet
-//GO(XAllocClassHint
+GO(XAllocClassHint, pFv)
 GO(XAllocColor, iFppp)
 //GO(XAllocColorCells
 //GO(XAllocColorPlanes
@@ -212,7 +212,7 @@ GO(XConfigureWindow, iFppup)
 //GO(XContextDependentDrawing
 //GO(XContextualDrawing
 //GO(XConvertCase
-//GO(XConvertSelection
+GO(XConvertSelection, iFpppppu)
 GO(XCopyArea, iFppppiiuuii)
 GO(XCopyColormapAndFree, uFpu)
 // _XCopyEventCookie
@@ -222,7 +222,7 @@ GO(XCopyPlane, iFppppiiuuiiu)
 GO(XCreateBitmapFromData, pFpppuu)
 GO(XCreateColormap, uFpppi)
 GO(XCreateFontCursor, pFpu)
-//GO(XCreateFontSet
+GO(XCreateFontSet, pFppppp)
 GO(XCreateGC, pFppup)
 //GO(XCreateGlyphCursor
 GO(XCreateIC, uFpppppppppppppppp)     // use vararg, so putting an arbitrary number of args, also can have Callbacks ?! Allegro have 7 args and no callback
@@ -278,7 +278,7 @@ GO(XDisplayName, pFp)
 //GO(XDisplayOfOM
 //GO(XDisplayOfScreen
 //GO(XDisplayPlanes
-//GO(XDisplayString
+GO(XDisplayString, pFp)
 GO(XDisplayWidth, iFpi)
 GO(XDisplayWidthMM, iFpi)
 //GO(XDoesBackingStore
@@ -315,13 +315,13 @@ DATAB(_XErrorFunction, 4)
 //GO(XESetCreateGC
 //GO(XESetError
 //GO(XESetErrorString
-//GO(XESetEventToWire
+GOM(XESetEventToWire, pFEpip)
 //GO(XESetFlushGC
 //GO(XESetFreeFont
 //GO(XESetFreeGC
 //GO(XESetPrintErrorValues
 //GO(XESetWireToError
-//GO(XESetWireToEvent
+GOM(XESetWireToEvent, pFEpip)
 //GO(XESetWireToEventCookie
 //GO(XEventMaskOfScreen
 GO(XEventsQueued, iFpi)
@@ -345,9 +345,9 @@ GO(XFilterEvent, iFpp)
 //GO(XFindContext
 //GO(XFindOnExtensionList
 GO(XFlush, iFp)
-// _XFlush
+GO(_XFlush, vFp)
 GO(XFlushGC, vFpp)
-// _XFlushGCCache
+GO(_XFlushGCCache, vFpp)
 //GO(XFontsOfFontSet
 GO(XForceScreenSaver, iFpi)
 GO(XFree, iFp)
@@ -365,12 +365,12 @@ GO(XFreeFont, iFpp)
 GO(XFreeFontInfo, iFppi)
 GO(XFreeFontNames, iFp)
 GO(XFreeFontPath, iFp)
-//GO(XFreeFontSet
+GO(XFreeFontSet, vFpp)
 GO(XFreeGC, iFpp)
 GO(XFreeModifiermap, iFp)
 DATAB(_XFreeMutex_fn, 4)
 GO(XFreePixmap, iFpp)
-//GO(XFreeStringList
+GO(XFreeStringList, vFp)
 // _XFreeTemp
 // _XFreeX11XCBStructure
 GO(XGContextFromGC, pFp)
@@ -413,7 +413,7 @@ GO(_XGetRequest, pFpuu)
 //GO(XGetRGBColormaps
 // _XGetScanlinePad
 GO(XGetScreenSaver, iFppppp)
-//GO(XGetSelectionOwner
+GO(XGetSelectionOwner, pFpp)
 //GO(XGetSizeHints
 //GO(XGetStandardColormap
 GOM(XGetSubImage, pFEppiiuuuipii)
@@ -425,7 +425,7 @@ GO(XGetWindowAttributes, iFppp)
 GO(XGetWindowProperty, iFpppiiipppppp)
 //GO(XGetWMClientMachine
 GO(XGetWMColormapWindows, iFpppp)
-//GO(XGetWMHints
+GO(XGetWMHints, pFpp)
 //GO(XGetWMIconName
 //GO(XGetWMName
 GO(XGetWMNormalHints, iFpppp)
@@ -611,7 +611,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 //GO(XkbGetPerClientControls
 // _XkbGetReadBufferCountedString
 // _XkbGetReadBufferPtr
-//GO(XkbGetState
+GO(XkbGetState, iFpup)
 //GO(XkbGetUpdatedMap
 //GO(XkbGetVirtualMods
 //GO(XkbGetXlibControls
@@ -755,7 +755,7 @@ GO(XListFonts, pFppip)
 GO(XListFontsWithInfo, pFppipp)
 //GO(XListHosts
 //GO(XListInstalledColormaps
-//GO(XListPixmapFormats
+GO(XListPixmapFormats, pFpp)
 GO(XListProperties, pFppp)
 GO(XLoadFont, pFpp)
 GO(XLoadQueryFont, pFpp)
@@ -775,7 +775,7 @@ GO(XMapRaised, iFpp)
 GO(XMapSubwindows, iFpp)
 GO(XMapWindow, iFpp)
 GO(XMaskEvent, iFpup)
-//GO(XMatchVisualInfo
+GO(XMatchVisualInfo, iFpiiip)
 //GO(XMaxCmapsOfScreen
 GO(XMaxRequestSize, iFp)
 //GO(XmbDrawImageString
@@ -851,7 +851,7 @@ GO(_XRead, iFppi)
 //GO(XReadBitmapFile
 //GO(XReadBitmapFileData
 // _XReadEvents
-// _XReadPad
+GO(_XReadPad, vFppi)
 GO(XRebindKeysym, iFpupipi)
 GO(XRecolorCursor, iFpppp)
 //GO(XReconfigureWMWindow
@@ -915,7 +915,7 @@ GO(XScreenOfDisplay, pFpi)
 // _XScreenOfWindow
 //GO(XScreenResourceString
 GO(XSelectInput, iFppi)
-// _XSend
+GO(_XSend, vFppi)
 GO(XSendEvent, uFppiip)
 //GO(XServerVendor
 GO(XSetAccessControl, iFpi)
@@ -946,8 +946,8 @@ GO(XSetICValues, pFpppppp)          // use vargarg
 // _XSetImage
 //GO(XSetIMValues
 GO(XSetInputFocus, iFppii)
-//GO(XSetIOErrorHandler
-// _XSetLastRequestRead
+GOM(XSetIOErrorHandler, pFEp)
+GO(_XSetLastRequestRead, uFpp)
 GO(XSetLineAttributes, iFppuiii)
 GO(XSetLocaleModifiers, pFp)
 //GO(XSetModifierMapping
@@ -959,14 +959,14 @@ GO(XSetLocaleModifiers, pFp)
 GO(XSetRegion, iFppp)
 //GO(XSetRGBColormaps
 //GO(XSetScreenSaver
-//GO(XSetSelectionOwner
+GO(XSetSelectionOwner, iFpppu)
 //GO(XSetSizeHints
 //GO(XSetStandardColormap
 GO(XSetStandardProperties, iFpppppppp)
 //GO(XSetState
 GO(XSetStipple, iFppp)
 GO(XSetSubwindowMode, iFppi)
-//GO(XSetTextProperty
+GO(XSetTextProperty, vFpppp)
 GO(XSetTile, iFppp)
 GO(XSetTransientForHint, iFppp)
 GO(XSetTSOrigin, iFppii)
@@ -1040,14 +1040,14 @@ GO(XUnsetICFocus, vFu)
 // _XUpdateAtomCache
 // _XUpdateGCCache
 //GO(Xutf8DrawImageString
-//GO(Xutf8DrawString
+GO(Xutf8DrawString, vFppppiipi)
 //GO(Xutf8DrawText
 GO(Xutf8LookupString, iFuppipp)
 //GO(Xutf8ResetIC
 GO(Xutf8SetWMProperties, vFpppppippp)
 //GO(Xutf8TextEscapement
-//GO(Xutf8TextExtents
-//GO(Xutf8TextListToTextProperty
+GO(Xutf8TextExtents, iFppipp)
+GO(Xutf8TextListToTextProperty, iFppiup)
 // _Xutf8TextListToTextProperty
 //GO(Xutf8TextPerCharExtents
 //GO(Xutf8TextPropertyToTextList
