@@ -58,6 +58,7 @@ scwrap_t syscallwrap[] = {
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
     { 220, __NR_getdents64, 3 },
+    { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
 };
