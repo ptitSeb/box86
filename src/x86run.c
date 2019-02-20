@@ -16,6 +16,10 @@
 #include "x87emu_private.h"
 #include "box86context.h"
 
+#ifdef HAVE_TRACE
+extern uint64_t start_cnt;
+#endif
+
 int Run(x86emu_t *emu)
 {
     uint8_t opcode;
@@ -188,16 +192,18 @@ int Run(x86emu_t *emu)
     &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_default, &&_default, &&_default, 
     &&_default, &&_default, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_default, &&_6f_0xFE, &&_default
     };
+
 x86emurun:
     ip = R_EIP;
     while (1)
     {
 #ifdef HAVE_TRACE
 _trace:
+        if(start_cnt) --start_cnt;
         emu->prev2_ip = emu->prev_ip;
         emu->prev_ip = old_ip;
         old_ip = ip;
-        if(emu->dec && (
+        if(!start_cnt && emu->dec && (
                 (emu->trace_end == 0) 
              || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
             printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));

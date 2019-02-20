@@ -19,6 +19,9 @@
 int box86_log = LOG_INFO;//LOG_NONE;
 int dlsym_error = 0;
 int trace_xmm = 0;
+#ifdef HAVE_TRACE
+uint64_t start_cnt = 0;
+#endif
 
 FILE* ftrace = NULL;
 
@@ -49,6 +52,13 @@ void LoadLogEnv()
                 trace_xmm = p[0]-'0';
         }
     }
+    p = getenv("BOX86_TRACE_START");
+    if(p) {
+        char* p2;
+        start_cnt = strtoll(p, &p2, 10);
+        printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
+    }
+#endif
     p = getenv("BOX86_TRACE_FILE");
     if(p) {
         ftrace = fopen(p, "w");
@@ -59,7 +69,6 @@ void LoadLogEnv()
             printf("BOX86 Trace redirected to \"%s\"\n", p);
         }
     }
-#endif
     p = getenv("BOX86_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {
@@ -149,7 +158,14 @@ void PrintHelp() {
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set printed debug info\n");
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
+    printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
+    printf("    or with FunctionName to enable x86 execution trace only in one specific function\n");
+    printf("  use BOX86_TRACE_NOINIT instead of BOX_TRACE to start trace after init of Libs and main program\n");
+    printf(" BOX86_TRACE_XMM with 1 to enable dump of SSE/SSE2 register along with regular registers\n");
+    printf(" BOX86_TRACE_START with N to enable trace after N instructions\n");
 #endif
+    printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
+    printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
 }
 
 int main(int argc, const char **argv, const char **env) {
