@@ -380,6 +380,8 @@
                             | 1<<13     // cx16 (cmpxchg16)
                             ;           // also 1<<0 is SSE3 and 1<<9 is SSSE3
                     break;
+                case 0x80000000:        // max extended
+                    break;              // no extended, so return same value as beeing the max value!
                 default:
                     printf_log(LOG_INFO, "Warning, CPUID command %X unsupported\n", tmp32u);
                     R_EAX = 0;
