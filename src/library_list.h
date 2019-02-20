@@ -35,6 +35,7 @@ GO("libopenal.so.1", openal)
 GO("libalut.so.0", alut)
 GO("libjpeg.so.8", libjpeg)
 GO("libcurl.so.4", curl)
+GO("libudev.so.0", udev0)
 
 GO("ld-linux.so.2", ldlinux)
 
