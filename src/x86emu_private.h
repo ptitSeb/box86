@@ -18,6 +18,9 @@ typedef struct x86emu_s {
     int         flags[F_LAST];
 	x86flags_t  packed_eflags;
     uintptr_t   old_ip;
+    #ifdef HAVE_TRACE
+    uintptr_t   prev2_ip, prev_ip;
+    #endif
     // segments
     uint32_t    segs[6];    // only 32bits value?
     // fpu

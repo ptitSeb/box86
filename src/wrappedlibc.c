@@ -72,7 +72,11 @@ uint32_t my_syscall(x86emu_t *emu); // implemented in x86syscall.c
 void EXPORT my___stack_chk_fail(x86emu_t* emu)
 {
     char buff[200];
-    sprintf(buff, "%p: Stack is corrupted, abborting\n", (void*)emu->old_ip);
+    #ifdef HAVE_TRACE
+    sprintf(buff, "%p: Stack is corrupted, aborting (prev IP=%p->%p)\n", (void*)emu->old_ip, (void*)emu->prev2_ip, (void*)emu->prev_ip);
+    #else
+    sprintf(buff, "%p: Stack is corrupted, aborting\n", (void*)emu->old_ip);
+    #endif
     StopEmu(emu, buff);
 }
 void EXPORT my___gmon_start__(x86emu_t *emu)

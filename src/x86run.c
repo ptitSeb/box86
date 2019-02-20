@@ -194,6 +194,8 @@ x86emurun:
     {
 #ifdef HAVE_TRACE
 _trace:
+        emu->prev2_ip = emu->prev_ip;
+        emu->prev_ip = old_ip;
         old_ip = ip;
         if(emu->dec && (
                 (emu->trace_end == 0) 
