@@ -594,8 +594,8 @@ int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
     jpbuff->save_esi = R_ESI;
     jpbuff->save_edi = R_EDI;
     jpbuff->save_ebp = R_EBP;
-    jpbuff->save_esp = R_ESP;
-    jpbuff->save_eip = *(uint32_t*)(R_ESP);
+    jpbuff->save_esp = R_ESP+4; // include "return address"
+     jpbuff->save_eip = *(uint32_t*)(R_ESP);
     // and that's it.. Nothing more for now
     return 0;
 }
