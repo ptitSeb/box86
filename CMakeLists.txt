@@ -107,6 +107,8 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibjpeg.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedcurl.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedudev0.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappeddbus.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappediconv.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")

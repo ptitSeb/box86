@@ -25,13 +25,13 @@ void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
 void* my_XSetIOErrorHandler(x86emu_t* t, XIOErrorHandler handler);
 
-void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
+EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
     printf_log(LOG_NONE, "BOX86: Error, called unimplemented XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
     emu->quit = 1;
     return NULL;
 }
-void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
+EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
     printf_log(LOG_NONE, "BOX86: Error, called unimplemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
     emu->quit = 1;

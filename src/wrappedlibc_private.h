@@ -639,6 +639,7 @@ GO(htons, uFu)
 GO(iconv, uFupppp)
 GO(iconv_close, iFu)
 GO(iconv_open, uFpp)
+GO(iconv_canonicalize, pFp)
 // if_freenameindex
 // if_indextoname
 // if_nameindex
