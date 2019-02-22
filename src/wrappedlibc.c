@@ -416,6 +416,15 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
         // special case for self...
         return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
     }
+    if(strncmp((const char*)path, "/proc/", 6)==0) {
+        // check if self checking....
+        pid_t pid = getpid();
+        char tmp[64];
+        sprintf(tmp, "/proc/%d/exe", pid);
+        if(strcmp((const char*)path, tmp)==0) {
+            return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
+        }
+    }
     return readlink((const char*)path, (char*)buf, sz);
 }
 
