@@ -160,7 +160,7 @@ void PrintHelp() {
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
     printf("    or with FunctionName to enable x86 execution trace only in one specific function\n");
-    printf("  use BOX86_TRACE_NOINIT instead of BOX_TRACE to start trace after init of Libs and main program\n");
+    printf("  use BOX86_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
     printf(" BOX86_TRACE_XMM with 1 to enable dump of SSE/SSE2 register along with regular registers\n");
     printf(" BOX86_TRACE_START with N to enable trace after N instructions\n");
 #endif
@@ -220,7 +220,7 @@ int main(int argc, const char **argv, const char **env) {
         if (strcmp(p, "0"))
             context->x86trace = 1;
     }
-    p = getenv("BOX86_TRACE_NOINIT");
+    p = getenv("BOX86_TRACE_INIT");
     if(p) {
         if (strcmp(p, "0"))
             context->x86trace = 1;
@@ -308,7 +308,7 @@ int main(int argc, const char **argv, const char **env) {
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
 #ifdef HAVE_TRACE
-    p = getenv("BOX86_TRACE");
+    p = getenv("BOX86_TRACE_INIT");
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
@@ -330,6 +330,11 @@ int main(int argc, const char **argv, const char **env) {
                 SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
             }
         }
+    } else {
+        p = getenv("BOX86_TRACE");
+        if(p)
+            if (strcmp(p, "0"))
+                SetTraceEmu(context->emu, 0, 1);
     }
 #endif
     // export symbols
@@ -354,7 +359,7 @@ int main(int argc, const char **argv, const char **env) {
     // init...
     RunElfInit(elf_header, context->emu);
 #ifdef HAVE_TRACE
-    p = getenv("BOX86_TRACE_NOINIT");
+    p = getenv("BOX86_TRACE");
     if(p) {
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
@@ -368,7 +373,7 @@ int main(int argc, const char **argv, const char **env) {
             if(trace_start)
                 SetTraceEmu(context->emu, trace_start, trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
+            if (GetGlobalSymbolStartEnd(context->maplib, p, &trace_start, &trace_end)) {
                 SetTraceEmu(context->emu, trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
