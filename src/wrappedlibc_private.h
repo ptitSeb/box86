@@ -8,7 +8,7 @@ GO(abs, iFi)
 GOW(accept, iFipp)
 GOW(access, iFpi)
 // acct
-// addmntent    // Weak
+GOW(addmntent, iFpp)
 // addseverity
 // adjtime  // Weak
 // adjtimex // Weak
@@ -221,7 +221,7 @@ GO(__duplocale, pFp)
 // endfsent
 // endgrent
 GO(endhostent, vFv)
-// endmntent    // Weak
+GOW(endmntent, iFp)
 // __endmntent
 // endnetent
 // endnetgrent
@@ -496,9 +496,9 @@ GOW(getline, iFppp)
 GO(getlogin, pFv)
 GO(getlogin_r, iFpu)
 // __getlogin_r_chk
-// getmntent
+GO(getmntent, pFp)
 // __getmntent_r
-// getmntent_r  // Weak
+GOW(getmntent_r, pFpppi)
 // getmsg
 // get_myaddress
 GO(getnameinfo, iFpupupui)
@@ -620,7 +620,7 @@ GOW(gmtime_r, pFpp)
 // group_member // Weak
 // gsignal  // Weak
 // gtty
-// hasmntopt    // Weak
+GOW(hasmntopt, pFpp)
 // hcreate
 // hcreate_r
 // hdestroy // Weak
@@ -1460,7 +1460,7 @@ GO(setlinebuf, vFp)
 GO(setlocale, pFip)
 // setlogin
 // setlogmask
-// setmntent    // Weak
+GOW(setmntent, pFpp)
 // __setmntent
 // setnetent
 // setnetgrent

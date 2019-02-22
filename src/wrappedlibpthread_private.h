@@ -75,7 +75,7 @@ GO(pthread_join, iFup)
 GOM(__pthread_key_create, iFEpp)
 GOM(pthread_key_create, iFEpp)
 GO(pthread_key_delete, iFu)
-// pthread_kill
+GO(pthread_kill, iFpi)
 // pthread_kill_other_threads_np
 GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)
