@@ -274,3 +274,240 @@ void UnalignStat64(void* source, void* dest)
     i386st->st_ctime_nsec   = st->st_ctime_nsec;
     i386st->st_ino      = st->st_ino;
 }
+
+
+typedef struct __attribute__((packed)) {
+  unsigned char   *body_data;
+  long    body_storage;
+  long    body_fill;
+  long    body_returned;
+
+
+  int     *lacing_vals;
+  int64_t *granule_vals;
+  long    lacing_storage;
+  long    lacing_fill;
+  long    lacing_packet;
+  long    lacing_returned;
+
+  unsigned char    header[282];
+  unsigned char     dummy_align[2]; // not in the actual structure....
+  int              header_fill;
+
+  int     e_o_s;
+  int     b_o_s;
+  long    serialno;
+  long    pageno;
+  int64_t  packetno;
+  int64_t   granulepos;
+
+} ogg_stream_state_x86;
+
+typedef struct __attribute__((packed)) vorbis_dsp_state_x86 {
+  int analysisp;
+  void *vi; //vorbis_info
+
+  float **pcm;
+  float **pcmret;
+  int      pcm_storage;
+  int      pcm_current;
+  int      pcm_returned;
+
+  int  preextrapolate;
+  int  eofflag;
+
+  long lW;
+  long W;
+  long nW;
+  long centerW;
+
+  int64_t granulepos;
+  int64_t sequence;
+
+  int64_t glue_bits;
+  int64_t time_bits;
+  int64_t floor_bits;
+  int64_t res_bits;
+
+  void       *backend_state;
+} vorbis_dsp_state_x86;
+
+typedef struct {
+  long endbyte;
+  int  endbit;
+
+  unsigned char *buffer;
+  unsigned char *ptr;
+  long storage;
+} oggpack_buffer_x86;
+
+typedef struct __attribute__((packed)) vorbis_block_x86 {
+
+  float  **pcm;
+  oggpack_buffer_x86 opb;
+
+  long  lW;
+  long  W;
+  long  nW;
+  int   pcmend;
+  int   mode;
+
+  int         eofflag;
+  int64_t granulepos;
+  int64_t sequence;
+  void *vd;
+  
+  void               *localstore;
+  long                localtop;
+  long                localalloc;
+  long                totaluse;
+  void *reap;
+
+  long glue_bits;
+  long time_bits;
+  long floor_bits;
+  long res_bits;
+
+  void *internal;
+
+} vorbis_block_x86;
+
+typedef struct __attribute__((packed)) OggVorbis_x86  {
+  void            *datasource; /* Pointer to a FILE *, etc. */
+  int              seekable;
+  int64_t      offset;
+  int64_t      end;
+  ogg_sync_state   oy;
+
+  /* If the FILE handle isn't seekable (eg, a pipe), only the current
+     stream appears */
+  int              links;
+  int64_t     *offsets;
+  int64_t     *dataoffsets;
+  long            *serialnos;
+  int64_t     *pcmlengths; /* overloaded to maintain binary
+                                  compatibility; x2 size, stores both
+                                  beginning and end values */
+  void     *vi; //vorbis_info
+  void  *vc;    //vorbis_comment
+
+  /* Decoding working state local storage */
+  int64_t      pcm_offset;
+  int              ready_state;
+  long             current_serialno;
+  int              current_link;
+
+  double           bittrack;
+  double           samptrack;
+
+  ogg_stream_state_x86 os; /* take physical pages, weld into a logical
+                          stream of packets */
+  vorbis_dsp_state_x86 vd; /* central working state for the packet->PCM decoder */
+  vorbis_block_x86     vb; /* local working space for packet->PCM decode */
+
+  ov_callbacks callbacks;
+
+} OggVorbis_x86;
+
+#define TRANSFERT \
+GO(datasource) \
+GO(seekable) \
+GO(offset) \
+GO(end) \
+GO(oy) \
+GO(links) \
+GO(offsets) \
+GO(dataoffsets) \
+GO(serialnos) \
+GO(pcmlengths) \
+GO(vi) \
+GO(vc) \
+GO(pcm_offset) \
+GO(ready_state) \
+GO(current_serialno) \
+GO(current_link) \
+GOM(bittrack, 16) \
+GO(os.body_data) \
+GO(os.body_storage) \
+GO(os.body_fill) \
+GO(os.body_returned) \
+GO(os.lacing_vals) \
+GO(os.granule_vals) \
+GO(os.lacing_storage) \
+GO(os.lacing_fill) \
+GO(os.lacing_packet) \
+GO(os.lacing_returned) \
+GOM(os.header, 282) \
+GO(os.header_fill) \
+GO(os.e_o_s) \
+GO(os.b_o_s) \
+GO(os.serialno) \
+GO(os.pageno) \
+GO(os.packetno) \
+GO(os.granulepos) \
+GO(vd.analysisp) \
+GO(vd.vi) \
+GO(vd.pcm) \
+GO(vd.pcmret) \
+GO(vd.pcm_storage) \
+GO(vd.pcm_current) \
+GO(vd.pcm_returned) \
+GO(vd.preextrapolate) \
+GO(vd.eofflag) \
+GO(vd.lW) \
+GO(vd.W) \
+GO(vd.nW) \
+GO(vd.centerW) \
+GO(vd.granulepos) \
+GO(vd.sequence) \
+GO(vd.glue_bits) \
+GO(vd.time_bits) \
+GO(vd.floor_bits) \
+GO(vd.res_bits) \
+GO(vd.backend_state) \
+GO(vb.pcm) \
+GO(vb.opb.endbyte) \
+GO(vb.opb.endbit) \
+GO(vb.opb.buffer) \
+GO(vb.opb.ptr) \
+GO(vb.opb.storage) \
+GO(vb.lW) \
+GO(vb.W) \
+GO(vb.nW) \
+GO(vb.pcmend) \
+GO(vb.mode) \
+GO(vb.eofflag) \
+GO(vb.granulepos) \
+GO(vb.sequence) \
+GO(vb.vd) \
+GO(vb.localstore) \
+GO(vb.localtop) \
+GO(vb.localalloc) \
+GO(vb.totaluse) \
+GO(vb.reap) \
+GO(vb.glue_bits) \
+GO(vb.time_bits) \
+GO(vb.floor_bits) \
+GO(vb.res_bits) \
+GO(vb.internal) \
+GO(callbacks)
+
+void AlignOggVorbis(void* dest, void* source)
+{
+     // Arm -> x86
+     #define GO(A) ((OggVorbis*)dest)->A = ((OggVorbis_x86*)source)->A;
+     #define GOM(A, S) memcpy(&((OggVorbis*)dest)->A, &((OggVorbis_x86*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+void UnalignOggVorbis(void* dest, void* source)
+{
+    // x86 -> Arm
+     #define GO(A) ((OggVorbis_x86*)dest)->A = ((OggVorbis*)source)->A;
+     #define GOM(A, S) memcpy(&((OggVorbis_x86*)dest)->A, &((OggVorbis*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+#undef TRANSFERT
