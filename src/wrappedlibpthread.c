@@ -23,6 +23,13 @@ int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, v
 int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor);
 int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor);
 int my_pthread_once(x86emu_t* emu, void* once, void* cb);
+int my_pthread_cond_broadcast(x86emu_t* emu, void* cond);
+int my_pthread_cond_destroy(x86emu_t* emu, void* cond);
+int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr);
+int my_pthread_cond_signal(x86emu_t* emu, void* cond);
+int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime);
+int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex);
+
 
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
@@ -46,5 +53,7 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
         strncpy((char*)n, "dummy", s);
     return 0;
 }
+
+
 
 #include "wrappedlib_init.h"

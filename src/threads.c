@@ -18,19 +18,11 @@
 // memory handling to be perfected...
 // keep a hash thread_t -> emu to set emu->quit to 1 on pthread_cancel
 
-typedef struct emuthread_s {
-	x86emu_t 	*emu;
-	int			stacksize;
-	void		*stack;
-} emuthread_t;
-
 static void pthread_clean_routine(void* p)
 {
-	emuthread_t *et = (emuthread_t*)p;
+	x86emu_t *emu = (x86emu_t*)p;
 
-	FreeX86Emu(&et->emu);
-	free(et->stack);
-	free(et);
+	FreeX86Emu(&emu);
 }
 
 static void* pthread_routine(void* p)
@@ -38,9 +30,9 @@ static void* pthread_routine(void* p)
 	void* r = NULL;
 	
 	pthread_cleanup_push(pthread_clean_routine, p);
-	emuthread_t *et = (emuthread_t*)p;
-	Run(et->emu);
-	r = (void*)GetEAX(et->emu);
+	x86emu_t *emu = (x86emu_t*)p;
+	Run(emu);
+	r = (void*)GetEAX(emu);
 	pthread_cleanup_pop(1);
 
 	return r;
@@ -48,19 +40,16 @@ static void* pthread_routine(void* p)
 
 int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
-	emuthread_t *emuthread = (emuthread_t*)calloc(1, sizeof(emuthread_t));
-
-	emuthread->stacksize = 2*1024*1024;	//default stack size is 2Mo
+	int stacksize = 2*1024*1024;	//default stack size is 2Mo
 	// TODO: get stack size inside attr
-	emuthread->stack = calloc(1, emuthread->stacksize);
-	emuthread->emu = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)emuthread->stack, 
-		emuthread->stacksize);
-	SetupX86Emu(emuthread->emu, emu->shared_global, emu->globals);
-	emuthread->emu->trace_start = emu->trace_start;
-	emuthread->emu->trace_end = emu->trace_end;
-	Push(emuthread->emu, (uintptr_t)arg);
-	PushExit(emuthread->emu);
-
+	void* stack = calloc(1, stacksize);
+	x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, 
+		stacksize);
+	SetupX86Emu(emuthread, emu->shared_global, emu->globals);
+	emuthread->trace_start = emu->trace_start;
+	emuthread->trace_end = emu->trace_end;
+	Push(emuthread, (uintptr_t)arg);
+	PushExit(emuthread);
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, emuthread);
@@ -160,7 +149,7 @@ int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 	return 0;
 }
 
-int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
+EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 {
 	if(!dtor)
 		return pthread_key_create((pthread_key_t*)key, NULL);
@@ -179,3 +168,38 @@ int EXPORT my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 }
 EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
+// phtread_cond_init with null attr seems to only take 1 dword on x86, while it 48 bytes on ARM. 
+// Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
+
+EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	return pthread_cond_broadcast(c);
+}
+EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	int ret = pthread_cond_destroy(c);
+	free(c);
+	return ret;
+}
+EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));
+	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
+}
+EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	return pthread_cond_signal(c);
+}
+EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	return pthread_cond_timedwait(c, (pthread_mutex_t*)mutex, (const struct timespec*)abstime);
+}
+EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
+{
+	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	return pthread_cond_wait(c, (pthread_mutex_t*)mutex);
+}
