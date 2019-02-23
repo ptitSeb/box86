@@ -164,7 +164,11 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
                 break;
             case R_386_PC32:
+                    if (!offs) {
+                        printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_PC32 @%p (%p)\n", symname, p, *(void**)p);
+                    }
                     offs = (offs - (uintptr_t)p);
+                    if(!offs)
                     printf_log(LOG_DEBUG, "Apply R_386_PC32 @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
                     *p += offs;
                 break;
