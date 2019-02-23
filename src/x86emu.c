@@ -51,6 +51,11 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
+    // fake init of segments...
+    emu->segs[_CS] = 0x73;
+    emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x7b;
+    emu->segs[_FS] = 0;
+    emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);
     // that should be enough

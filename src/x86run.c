@@ -54,10 +54,10 @@ int Run(x86emu_t *emu)
 #define PK(a)   *(uint8_t*)(ip+a)
 
     static const void* baseopcodes[256] ={
-    &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_default, &&_default,   //0x00-0x07
+    &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_0x06,    &&_0x07,      //0x00-0x07
     &&_0x08_0,  &&_0x08_1,  &&_0x08_2,  &&_0x08_3,  &&_0x08_4,  &&_0x08_5,  &&_default, &&_0x0F,      //0x08-0x0F
     &&_0x10_0,  &&_0x10_1,  &&_0x10_2,  &&_0x10_3,  &&_0x10_4,  &&_0x10_5,  &&_default, &&_default,   //0x10-0x17
-    &&_0x18_0,  &&_0x18_1,  &&_0x18_2,  &&_0x18_3,  &&_0x18_4,  &&_0x18_5,  &&_default, &&_default,   //0x18-0x1F
+    &&_0x18_0,  &&_0x18_1,  &&_0x18_2,  &&_0x18_3,  &&_0x18_4,  &&_0x18_5,  &&_0x1E,    &&_0x1F,      //0x18-0x1F
     &&_0x20_0,  &&_0x20_1,  &&_0x20_2,  &&_0x20_3,  &&_0x20_4,  &&_0x20_5,  &&_default, &&_0x27,      //0x20-0x27
     &&_0x28_0,  &&_0x28_1,  &&_0x28_2,  &&_0x28_3,  &&_0x28_4,  &&_0x28_5,  &&_default, &&_0x2F,      //0x28-0x2F
     &&_0x30_0,  &&_0x30_1,  &&_0x30_2,  &&_0x30_3,  &&_0x30_4,  &&_0x30_5,  &&_default, &&_0x37,      //0x30-0x37
@@ -359,8 +359,22 @@ _trace:
                 cmp32(emu, R_EAX, F32);
                 NEXT;
 
+            _0x06:                      /* PUSH ES */
+                Push16(emu, emu->segs[_ES]);
+                NEXT;
+            _0x07:                      /* POP ES */
+                emu->segs[_ES] = Pop16(emu);    // no check, no use....
+                NEXT;
+
             _0x0F:                      /* More instructions */
                 #include "run0f.h"
+                NEXT;
+
+            _0x1E:                      /* PUSH DS */
+                Push16(emu, emu->segs[_DS]);
+                NEXT;
+            _0x1F:                      /* POP DS */
+                emu->segs[_DS] = Pop16(emu);    // no check, no use....
                 NEXT;
 
             _0x27:                      /* DAA */

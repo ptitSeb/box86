@@ -1,8 +1,6 @@
 #ifndef __REGS_H_
 #define __REGS_H_
 
-enum SegNames { es=0,cs,ss,ds,fs,gs};
-
 enum {
 	_AX, _CX, _DX, _BX,
 	_SP, _BP, _SI, _DI
