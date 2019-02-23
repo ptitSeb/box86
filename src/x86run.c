@@ -225,9 +225,9 @@ _trace:
                 printf_log(LOG_NONE, "\n");
             }
         }
-    #define NEXT    __builtin_prefetch((void*)ip, 0, 2); goto _trace;
+    #define NEXT    __builtin_prefetch((void*)ip, 0, 3); goto _trace;
 #else
-    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 2); goto *baseopcodes[(opcode=F8)];
+    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 3); goto *baseopcodes[(opcode=F8)];
 #endif
 
 // ModRM utilities macros
