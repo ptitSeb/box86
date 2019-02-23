@@ -16,6 +16,7 @@ typedef void (*sighandler_t)(int);
 #include <sys/select.h>
 #include <unistd.h>
 #include <glob.h>
+#include <ctype.h>
 
 #include "wrappedlibs.h"
 
@@ -513,6 +514,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
 
 #define CUSTOM_INIT \
     InitCpuModel(); \
+    ctSetup(); \
     box86->libclib = lib; \
     lib->priv.w.p2 = getLIBCMy(lib); \
     lib->priv.w.needed = 3; \
@@ -548,6 +550,16 @@ void InitCpuModel()
                                      | (1<<FEATURE_ADX);
 }
 
+EXPORT const unsigned short int *my___ctype_b;
+EXPORT const int32_t *my___ctype_tolower;
+EXPORT const int32_t *my___ctype_toupper;
+
+void ctSetup()
+{
+    my___ctype_b = *(__ctype_b_loc());
+    my___ctype_toupper = *(__ctype_toupper_loc());
+    my___ctype_tolower = *(__ctype_tolower_loc());
+}
 
 // need to undef all read / read64 stuffs!
 #undef pread

@@ -161,9 +161,12 @@ GOW(creat, iFpu)
 // ctermid
 GO(ctime, pFp)
 GO(ctime_r, pFpp)
+DATAM(__ctype_b, 4)
 GO(__ctype_b_loc, pFv)
 GOW(__ctype_get_mb_cur_max, uFv)
+DATAM(__ctype_tolower, 4)
 GO(__ctype_tolower_loc, pFv)
+DATAM(__ctype_toupper, 4)
 GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
 GO(cuserid, pFp)
