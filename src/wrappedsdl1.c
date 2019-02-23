@@ -528,7 +528,12 @@ EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
 
 #define CUSTOM_INIT \
     box86->sdl1lib = lib; \
-    lib->priv.w.p2 = getSDL1My(lib);
+    lib->priv.w.p2 = getSDL1My(lib); \
+    lib->priv.w.needed = 3; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libm.so.6"); \
+    lib->priv.w.neededlibs[1] = strdup("libdl.so.2"); \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
 
 #define CUSTOM_FINI \
     freeSDL1My(lib->priv.w.p2); \
