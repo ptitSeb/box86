@@ -152,9 +152,13 @@ typedef struct wrapped_cond_s {
 static pthread_cond_t* get_cond(void* cond)
 {
 	wrapped_cond_t *wcond = (wrapped_cond_t*)cond;
-	if(wcond->sign == COND_SIGN)
-		return wcond->cond;
-	return (pthread_cond_t*)cond;
+	if(wcond->sign != COND_SIGN) {
+		// else, lets consider this is a statically initialized condition, so lets create a wrapped one
+		wcond->cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));	// yep, that will leak...
+		wcond->sign = COND_SIGN;
+		pthread_cond_init(wcond->cond, NULL);
+	}
+	return wcond->cond;
 }
 
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
@@ -176,7 +180,7 @@ EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
 EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
 {
 	wrapped_cond_t* wcond = (wrapped_cond_t *)cond;
-	wcond->cond = (pthread_cond_t *)calloc(1, sizeof(wrapped_cond_t));
+	wcond->cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));
 	wcond->sign = COND_SIGN;
 	return pthread_cond_init(wcond->cond, (const pthread_condattr_t*)attr);
 }
