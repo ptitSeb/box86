@@ -45,7 +45,7 @@ int Run(x86emu_t *emu)
         return 0;
 
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86, EIP=%p, Stack=%p\n", (void*)R_EIP, emu->context->stack);
+    printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, emu->context->stack);
 #define F8      *(uint8_t*)(ip++)
 #define F8S     *(int8_t*)(ip++)
 #define F16     *(uint16_t*)(ip+=2, ip-2)
@@ -59,7 +59,7 @@ int Run(x86emu_t *emu)
     &&_0x10_0,  &&_0x10_1,  &&_0x10_2,  &&_0x10_3,  &&_0x10_4,  &&_0x10_5,  &&_default, &&_default,   //0x10-0x17
     &&_0x18_0,  &&_0x18_1,  &&_0x18_2,  &&_0x18_3,  &&_0x18_4,  &&_0x18_5,  &&_0x1E,    &&_0x1F,      //0x18-0x1F
     &&_0x20_0,  &&_0x20_1,  &&_0x20_2,  &&_0x20_3,  &&_0x20_4,  &&_0x20_5,  &&_default, &&_0x27,      //0x20-0x27
-    &&_0x28_0,  &&_0x28_1,  &&_0x28_2,  &&_0x28_3,  &&_0x28_4,  &&_0x28_5,  &&_default, &&_0x2F,      //0x28-0x2F
+    &&_0x28_0,  &&_0x28_1,  &&_0x28_2,  &&_0x28_3,  &&_0x28_4,  &&_0x28_5,  &&_0x2E,    &&_0x2F,      //0x28-0x2F
     &&_0x30_0,  &&_0x30_1,  &&_0x30_2,  &&_0x30_3,  &&_0x30_4,  &&_0x30_5,  &&_default, &&_0x37,      //0x30-0x37
     &&_0x38,    &&_0x39,    &&_0x3A,    &&_0x3B,    &&_0x3C,    &&_0x3D,    &&_default, &&_0x3F,      //0x38-0x3F
     &&_0x40,    &&_0x41,    &&_0x42,    &&_0x43,    &&_0x44,    &&_0x45,    &&_0x46,    &&_0x47, 
@@ -134,10 +134,10 @@ int Run(x86emu_t *emu)
     &&_default, &&_66_0x39, &&_default, &&_66_0x3B, &&_default, &&_66_0x3D, &&_default, &&_default, //0x38-0x3F
     &&_66_0x40, &&_66_0x41, &&_66_0x42, &&_66_0x43, &&_66_0x44, &&_66_0x45, &&_66_0x46, &&_66_0x47, 
     &&_66_0x48, &&_66_0x49, &&_66_0x4A, &&_66_0x4B, &&_66_0x4C, &&_66_0x4D, &&_66_0x4E, &&_66_0x4F, 
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x50-0x57
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x58-0x5F
+    &&_66_0x50, &&_66_0x51, &&_66_0x52, &&_66_0x53, &&_66_0x54, &&_66_0x55, &&_66_0x56, &&_66_0x57, //0x50-0x57
+    &&_66_0x58, &&_66_0x59, &&_66_0x5A, &&_66_0x5B, &&_66_0x5C, &&_66_0x5D, &&_66_0x5E, &&_66_0x5F, //0x58-0x5F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_66_0x66, &&_default, //0x60-0x67
-    &&_default, &&_66_0x69, &&_default, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
+    &&_default, &&_66_0x69, &&_66_0x6A, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x70-0x77
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x78-0x7F
     &&_default, &&_66_0x81, &&_default, &&_66_0x83, &&_default, &&_66_0x85, &&_default, &&_66_0x87, 
@@ -380,6 +380,9 @@ _trace:
             _0x27:                      /* DAA */
                 R_AL = daa8(emu, R_AL);
                 NEXT;
+
+            _0x2E:                      /* CS: */
+                NEXT;  //ignored...
             _0x2F:                      /* DAS */
                 R_AL = das8(emu, R_AL);
                 NEXT;

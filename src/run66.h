@@ -66,6 +66,28 @@
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = dec16(emu, emu->regs[tmp8u].word[0]);
         NEXT;
+    _66_0x50:
+    _66_0x51:
+    _66_0x52:
+    _66_0x53:
+    _66_0x54:
+    _66_0x55:
+    _66_0x56:
+    _66_0x57:                              /* PUSH Reg */
+        tmp8u = opcode&7;
+        Push16(emu, emu->regs[tmp8u].word[0]);
+        NEXT;
+    _66_0x58:
+    _66_0x59:
+    _66_0x5A:
+    _66_0x5B:
+    _66_0x5C:                      
+    _66_0x5D:
+    _66_0x5E:
+    _66_0x5F:                              /* POP Reg */
+        tmp8u = opcode&7;
+        emu->regs[tmp8u].word[0] = Pop16(emu);
+        NEXT;
 
     _66_0x66:
         goto _0x66; // 0x66 0x66 => can remove one 0x66
@@ -76,7 +98,9 @@
         tmp16u = F16;
         GW.word[0] = imul16(emu, EW->word[0], tmp16u);
         NEXT;
-
+    _66_0x6A:                      /* PUSH Ib (as word) */
+        Push16(emu, F8);
+        NEXT;
     _66_0x6B:                      /* IMUL Gw,Ew,Ib */
         nextop = F8;
         GET_EW;
