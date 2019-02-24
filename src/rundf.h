@@ -13,7 +13,11 @@
     case 0xED:
     case 0xEE:
     case 0xEF:
+        #ifdef USE_FLOAT
+        fpu_fcomi(emu, ST(nextop&7).f);
+        #else
         fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        #endif
         fpu_do_pop(emu);
         break;
 
@@ -25,7 +29,11 @@
     case 0xF5:
     case 0xF6:
     case 0xF7:
+        #ifdef USE_FLOAT
+        fpu_fcomi(emu, ST(nextop&7).f);
+        #else
         fpu_fcomi(emu, ST(nextop&7).d);
+        #endif
         fpu_do_pop(emu);
         break;
 
@@ -84,16 +92,44 @@
             GET_EW;
             tmp16s = EW->sword[0];
             fpu_do_push(emu);
+            #ifdef USE_FLOAT
+            ST0.f = tmp16s;
+            #else
             ST0.d = tmp16s;
+            #endif
             break;
         case 1: /* FISTTP Ew, ST0 */
             GET_EW;
+            #ifdef USE_FLOAT
+            tmp16s = ST0.f;
+            #else
             tmp16s = ST0.d;
+            #endif
             EW->sword[0] = tmp16s;
             fpu_do_pop(emu);
             break;
         case 2: /* FIST Ew, ST0 */
             GET_EW;
+            #ifdef USE_FLOAT
+            if(isgreater(ST0.f, (float)(int32_t)0x7fff) || isless(ST0.f, -(float)(int32_t)0x7fff))
+                EW->sword[0] = 0x8000;
+            else {
+                switch(emu->round) {
+                    case ROUND_Nearest:
+                        EW->sword[0] = floorf(ST0.f+0.5);
+                        break;
+                    case ROUND_Down:
+                        EW->sword[0] = floorf(ST0.f);
+                        break;
+                    case ROUND_Up:
+                        EW->sword[0] = ceilf(ST0.f);
+                        break;
+                    case ROUND_Chop:
+                        EW->sword[0] = ST0.f;
+                        break;
+                }
+            }
+            #else
             if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
                 EW->sword[0] = 0x8000;
             else {
@@ -112,9 +148,30 @@
                         break;
                 }
             }
+            #endif
             break;
         case 3: /* FISTP Ew, ST0 */
             GET_EW;
+            #ifdef USE_FLOAT
+            if(isgreater(ST0.f, (float)(int32_t)0x7fff) || isless(ST0.f, -(float)(int32_t)0x7fff))
+                EW->sword[0] = 0x8000;
+            else {
+                switch(emu->round) {
+                    case ROUND_Nearest:
+                        EW->sword[0] = floorf(ST0.f+0.5);
+                        break;
+                    case ROUND_Down:
+                        EW->sword[0] = floorf(ST0.f);
+                        break;
+                    case ROUND_Up:
+                        EW->sword[0] = ceilf(ST0.f);
+                        break;
+                    case ROUND_Chop:
+                        EW->sword[0] = ST0.f;
+                        break;
+                }
+            }
+            #else
             if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
                 EW->sword[0] = 0x8000;
             else {
@@ -133,6 +190,7 @@
                         break;
                 }
             }
+            #endif
             fpu_do_pop(emu);
             break;
         case 4: /* FBLD ST0, tbytes */
@@ -144,7 +202,11 @@
             GET_ED;
             tmp64s = *(int64_t*)ED;
             fpu_do_push(emu);
+            #ifdef USE_FLOAT
+            ST0.f = tmp64s;
+            #else
             ST0.d = tmp64s;
+            #endif
             STll(0).ll = tmp64s;
             STll(0).ref = ST0.ll;
             break;
@@ -158,10 +220,17 @@
             if(STll(0).ref==ST(0).ll) {
                 *(int64_t*)ED = STll(0).ll;
             } else {
+                #ifdef USE_FLOAT
+                if(isgreater(ST0.f, (float)(int64_t)0x7fffffffffffffffLL) || isless(ST0.f, (float)(int64_t)0x8000000000000000LL))
+                    *(int64_t*)ED = 0x8000000000000000LL;
+                else
+                    *(int64_t*)ED = (int64_t)ST0.f;
+                #else
                 if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
                     *(int64_t*)ED = 0x8000000000000000LL;
                 else
                     *(int64_t*)ED = (int64_t)ST0.d;
+                #endif
             }
             fpu_do_pop(emu);
             break;

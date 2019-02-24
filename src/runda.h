@@ -51,7 +51,11 @@
         break;
     
     case 0xE9:      /* FUCOMPP */
+        #ifdef USE_FLOAT
+        fpu_fcom(emu, ST1.f);
+        #else
         fpu_fcom(emu, ST1.d);   // bad, should handle QNaN and IA interrupt
+        #endif
         fpu_do_pop(emu);
         fpu_do_pop(emu);
         break;
@@ -72,27 +76,51 @@
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f += ED->sdword[0];
+                #else
                 ST0.d += ED->sdword[0];
+                #endif
                 break;
             case 1:     /* FIMUL ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f *= ED->sdword[0];
+                #else
                 ST0.d *= ED->sdword[0];
+                #endif
                 break;
             case 4:     /* FISUB ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f -= ED->sdword[0];
+                #else
                 ST0.d -= ED->sdword[0];
+                #endif
                 break;
             case 5:     /* FISUBR ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f = ED->sdword[0] - ST0.f;
+                #else
                 ST0.d = ED->sdword[0] - ST0.d;
+                #endif
                 break;
             case 6:     /* FIDIV ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f /= ED->sdword[0];
+                #else
                 ST0.d /= ED->sdword[0];
+                #endif
                 break;
             case 7:     /* FIDIVR ST0, Ed int */
                 GET_ED;
+                #ifdef USE_FLOAT
+                ST0.f = ED->sdword[0] / ST0.f;
+                #else
                 ST0.d = ED->sdword[0] / ST0.d;
+                #endif
                 break;
             default:
                 goto _default;

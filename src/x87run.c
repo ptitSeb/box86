@@ -159,7 +159,12 @@ void Run66DD(x86emu_t *emu)
                     char* p =(char*)op1;
                     p += 14;
                     for (int i=0; i<8; ++i) {
+                        #ifdef USE_FLOAT
+                        LD2D(p, &d);
+                        ST(i).f = d;
+                        #else
                         LD2D(p, &ST(i).d);
+                        #endif
                         p+=10;
                     }
                 }
@@ -173,7 +178,12 @@ void Run66DD(x86emu_t *emu)
                     char* p =(char*)op1;
                     p += 14;
                     for (int i=0; i<8; ++i) {
+                        #ifdef USE_FLOAT
+                        d = ST(i).f;
+                        D2LD(&d, p);
+                        #else
                         D2LD(&ST(i).d, p);
+                        #endif
                         p+=10;
                     }
                 }

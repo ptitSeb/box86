@@ -23,8 +23,14 @@ void fpu_fbst(x86emu_t* emu, uint8_t* d) {
     // very aproximative... but should not be much used...
     uint8_t p;
     uint8_t sign = 0x00;
+    #ifdef USE_FLOAT
+    double tmp, v = ST0.f;
+    if(ST0.f<0.0f) 
+    #else
     double tmp, v = ST0.d;
-    if(ST0.d<0.0) {
+    if(ST0.d<0.0) 
+    #endif
+    {
         sign = 0x80;
         v = -v;
     }
@@ -56,23 +62,47 @@ void fpu_fbld(x86emu_t* emu, uint8_t* s) {
         tmp += m * ((p>>4)&0x0f);
         m *= 10;
     }
+    #ifdef USE_FLOAT
+    ST0.f = tmp;
+    p =*(s++);
+    ST0.f += m * (p&0x0f);
+    if(p&0x80)
+        ST0.f = -ST0.f;
+    #else
     ST0.d = tmp;
     p =*(s++);
     ST0.d += m * (p&0x0f);
     if(p&0x80)
         ST0.d = -ST0.d;
+    #endif
 }
 
 
+#ifdef USE_FLOAT
+typedef union {
+    double d;
+    struct {
+        uint32_t lower;
+        uint32_t upper;
+    } l;
+    struct {
+        float lower;
+        float upper;
+    } f;
+    int64_t ll;
+} FPU_t;
+#else
+#define fpu_reg_t FPU_t
+#endif
 #define BIAS80 16383
 #define BIAS64 1023
 // long double (80bits) -> double (64bits)
 void LD2D(void* ld, void* d)
 {
-	fpu_reg_t result;
+	FPU_t result;
     #pragma pack(push, 1)
 	struct {
-		fpu_reg_t f;
+		FPU_t f;
 		int16_t b;
 	} val;
     #pragma pack(pop)
@@ -138,11 +168,11 @@ void D2LD(void* d, void* ld)
 {
     #pragma pack(push, 1)
 	struct {
-		fpu_reg_t f;
+		FPU_t f;
 		int16_t b;
 	} val;
     #pragma pack(pop)
-    fpu_reg_t s;
+    FPU_t s;
     s.ll = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
     // do special value first
     if((s.ll&0x7fffffffffffffffLL)==0) {
@@ -187,7 +217,6 @@ double FromLD(void* ld)
     LD2D(ld, &ret);
     return ret;
 }
-
 
 void fpu_loadenv(x86emu_t* emu, char* p, int b16)
 {

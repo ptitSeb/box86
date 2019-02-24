@@ -40,7 +40,11 @@
     case 0xE5:
     case 0xE6:
     case 0xE7:
+        #ifdef USE_FLOAT
+        fpu_fcom(emu, ST(nextop&7).f);
+        #else
         fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        #endif
         break;
     case 0xE8:  /* FUCOMP ST0, STx */
     case 0xE9:
@@ -50,7 +54,11 @@
     case 0xED:
     case 0xEE:
     case 0xEF:
+        #ifdef USE_FLOAT
+        fpu_fcom(emu, ST(nextop&7).f);
+        #else
         fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        #endif
         fpu_do_pop(emu);
         break;
 
@@ -85,20 +93,39 @@
             case 0: /* FLD double */
                 GET_ED;
                 fpu_do_push(emu);
+                #ifdef USE_FLOAT
+                *(uint64_t*)&d = *(int64_t*)ED;
+                ST0.f = d;
+                #else
                 ST0.ll = *(int64_t*)ED;
+                #endif
                 break;
             case 1: /* FISTTP ED qword */
                 GET_ED;
+                #ifdef USE_FLOAT
+                *(int64_t*)ED = ST0.f;
+                #else
                 *(int64_t*)ED = ST0.d;
+                #endif
                 fpu_do_pop(emu);
                 break;
             case 2: /* FST double */
                 GET_ED;
+                #ifdef USE_FLOAT
+                d = ST0.f;
+                *(int64_t*)ED = *(uint64_t*)&d;
+                #else
                 *(int64_t*)ED = ST0.ll;
+                #endif
                 break;
             case 3: /* FSTP double */
                 GET_ED;
+                #ifdef USE_FLOAT
+                d = ST0.f;
+                *(int64_t*)ED = *(uint64_t*)&d;
+                #else
                 *(int64_t*)ED = ST0.ll;
+                #endif
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
@@ -109,7 +136,12 @@
                     char* p =(char*)ED;
                     p += 28;
                     for (int i=0; i<8; ++i) {
+                        #ifdef USE_FLOAT
+                        d = ST(i).f;
+                        LD2D(p, &d);
+                        #else
                         LD2D(p, &ST(i).d);
+                        #endif
                         p+=10;
                     }
                 }
@@ -124,7 +156,12 @@
                     char* p =(char*)ED;
                     p += 28;
                     for (int i=0; i<8; ++i) {
+                        #ifdef USE_FLOAT
+                        D2LD(&d, p);
+                        ST(i).f = d;
+                        #else
                         D2LD(&ST(i).d, p);
+                        #endif
                         p+=10;
                     }
                 }

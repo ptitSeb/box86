@@ -172,7 +172,13 @@ int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
     if(argc==1) {
-        printf("Box86 v%d.%d.%d\n", BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
+        printf("Box86%s v%d.%d.%d\n", 
+        #ifdef USE_FLOAT
+            " (float only)",
+        #else
+            "",
+        #endif
+            BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
         PrintHelp();
         return 1;
     }
