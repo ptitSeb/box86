@@ -175,8 +175,8 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
                     case 'p':
                     case 'S':
                     case 's': state = 30; break; // pointers
-                    case '$':
-                    case '*': ++p; break; // should issue a warning, it's not handled...
+                    case '$': ++p; break; // should issue a warning, it's not handled...
+                    case '*': *(mystack++) = *(st++); ++p; break; //fetch an int in the stack
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
