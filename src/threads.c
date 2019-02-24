@@ -140,38 +140,58 @@ EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 }
 EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
-// phtread_cond_init with null attr seems to only take 1 dword on x86, while it 48 bytes on ARM. 
+// phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it 48 bytes on ARM. 
 // Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
+// What about cond that are statically initialized?
+#define COND_SIGN 0x513248F8		// random stuff...
+typedef struct wrapped_cond_s {
+	uint32_t 			sign;
+	pthread_cond_t 		*cond;
+} wrapped_cond_t;
+
+static pthread_cond_t* get_cond(void* cond)
+{
+	wrapped_cond_t *wcond = (wrapped_cond_t*)cond;
+	if(wcond->sign == COND_SIGN)
+		return wcond->cond;
+	return (pthread_cond_t*)cond;
+}
 
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_broadcast(c);
 }
 EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
-	free(c);
+	wrapped_cond_t* wcond = (wrapped_cond_t*)cond;
+	if(wcond->sign == COND_SIGN) {
+		free(wcond->cond);
+		wcond->sign = 0;
+	}
 	return ret;
 }
 EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));
-	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
+	wrapped_cond_t* wcond = (wrapped_cond_t *)cond;
+	wcond->cond = (pthread_cond_t *)calloc(1, sizeof(wrapped_cond_t));
+	wcond->sign = COND_SIGN;
+	return pthread_cond_init(wcond->cond, (const pthread_condattr_t*)attr);
 }
 EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_signal(c);
 }
 EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_timedwait(c, (pthread_mutex_t*)mutex, (const struct timespec*)abstime);
 }
 EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
 {
-	pthread_cond_t * c = *(pthread_cond_t **)cond;
+	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, (pthread_mutex_t*)mutex);
 }
