@@ -92,7 +92,7 @@ typedef union {
     int64_t ll;
 } FPU_t;
 #else
-#define fpu_reg_t FPU_t
+#define FPU_t fpu_reg_t
 #endif
 #define BIAS80 16383
 #define BIAS64 1023
