@@ -73,7 +73,7 @@ GOW(ceilf, fFf)
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
-// clog // Weak
+GOS(clog, pFpdd)   // return a double complex, that is a struct
 // clog10   // Weak
 // __clog10
 // clog10f  // Weak
@@ -111,7 +111,7 @@ GOW(coshf, fFf)
 // csinhf   // Weak
 // csinhl   // Weak
 // csinl    // Weak
-// csqrt    // Weak
+GOS(csqrt, pFpdd)
 // csqrtf   // Weak
 // csqrtl   // Weak
 // ctan // Weak

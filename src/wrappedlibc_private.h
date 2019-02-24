@@ -909,7 +909,7 @@ GO(isupper, iFi)
 // iswcntrl // Weak
 // __iswcntrl_l
 // iswcntrl_l   // Weak
-// iswctype // Weak
+GOW(iswctype, iFiu)
 // __iswctype
 GO(__iswctype_l, iFiup)
 // iswctype_l   // Weak
@@ -1680,7 +1680,7 @@ GO(strtoumax, UFppi)
 // strtouq  // Weak
 // strverscmp   // Weak
 // __strverscmp
-// strxfrm
+GO(strxfrm, uFppu)
 GO(__strxfrm_l, uFppup)
 GO(strxfrm_l, uFppup)
 // stty
@@ -1961,7 +1961,7 @@ GO(wcstombs, uFppu)
 // wcstouq  // Weak
 // wcswcs   // Weak
 // wcswidth
-// wcsxfrm
+GO(wcsxfrm, uFppu)
 GOW(wcsxfrm_l, uFppup)
 GO(__wcsxfrm_l, uFppup)
 GO(wctob, iFi)
@@ -1970,7 +1970,7 @@ GO(wctomb, iFpi)
 // wctrans  // Weak
 // __wctrans_l
 // wctrans_l    // Weak
-// wctype   // Weak
+GOW(wctype, uFp)
 GO(__wctype_l, uFpp)
 GOW(wctype_l, uFpp)
 // wcwidth
