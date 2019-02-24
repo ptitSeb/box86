@@ -17,6 +17,7 @@ typedef struct onecallback_s {
     uintptr_t   fnc;
     int         nb_args;
     void*       arg[10];
+    int         shared;
 } onecallback_t;
 
 KHASH_MAP_INIT_INT(callbacks, onecallback_t*)
@@ -32,6 +33,7 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     callbacklist_t *callbacks = emu->context->callbacks;
     int stsize = 2*1024*1024;   // 2MB stack (1MB is not enough for Xenonauts)
     void* stack = malloc(stsize);
+    if(!stack) {printf_log(LOG_NONE, "BOX86: Error, cannot allocate 2MB Stack for callback\n");}
     x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
 	SetupX86Emu(newemu, emu->shared_global, emu->globals);
     newemu->trace_start = emu->trace_start;
@@ -50,12 +52,42 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     cb->arg[2] = arg3;
     cb->arg[3] = arg4;
 
+    cb->shared = 0;
+
     return newemu;
 }
 
-x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4) __attribute__((alias("AddCallback")));
-/*{
-    // doesn't work for now
+x86emu_t* AddSmallCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
+{
+    callbacklist_t *callbacks = emu->context->callbacks;
+    int stsize = 64*1024;   // 64KB stack
+    void* stack = malloc(stsize);
+    if(!stack) {printf_log(LOG_NONE, "BOX86: Error, cannot allocate 64KB Stack for small callback\n");}
+    x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
+	SetupX86Emu(newemu, emu->shared_global, emu->globals);
+    newemu->trace_start = emu->trace_start;
+    newemu->trace_end = emu->trace_end;
+
+    onecallback_t * cb;
+    int ret;
+    khint_t k = kh_put(callbacks, callbacks->list, (uintptr_t)newemu, &ret);
+    cb = kh_value(callbacks->list, k) = (onecallback_t*)calloc(1, sizeof(onecallback_t));
+
+    cb->emu = newemu;
+    cb->fnc = fnc;
+    cb->nb_args = nb_args;
+    cb->arg[0] = arg1;
+    cb->arg[1] = arg2;
+    cb->arg[2] = arg3;
+    cb->arg[3] = arg4;
+
+    cb->shared = 0;
+
+    return newemu;
+}
+
+x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4) //__attribute__((alias("AddCallback")));
+{
     callbacklist_t *callbacks = emu->context->callbacks;
     x86emu_t * newemu = emu;
 
@@ -71,9 +103,10 @@ x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg
     cb->arg[1] = arg2;
     cb->arg[2] = arg3;
     cb->arg[3] = arg4;
+    cb->shared = 1;
 
     return newemu;
-}*/
+}
 
 onecallback_t* FindCallback(x86emu_t* emu)
 {
@@ -93,7 +126,8 @@ void FreeCallback(x86emu_t* emu)
     if(k==kh_end(callbacks->list))
         return;
     onecallback_t* cb = kh_value(callbacks->list, k);
-    FreeX86Emu(&cb->emu);
+    if(!cb->shared)
+        FreeX86Emu(&cb->emu);
     free(cb);
     kh_del(callbacks, callbacks->list, k);
 }
@@ -105,6 +139,7 @@ uint32_t RunCallback(x86emu_t* emu)
         for (int i=cb->nb_args-1; i>=0; --i)    // reverse order
             Push(emu, (uint32_t)cb->arg[i]);
         EmuCall(emu, cb->fnc);
+        R_ESP+=(cb->nb_args*4);
         return R_EAX;
     }
     printf_log(LOG_INFO, "Warning, Callback not found?!\n");

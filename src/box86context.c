@@ -37,6 +37,7 @@ box86context_t *NewBox86Context(int argc)
     context->argv = (char**)calloc(context->argc, sizeof(char*));
 
     pthread_mutex_init(&context->mutex_once, NULL);
+    pthread_mutex_init(&context->mutex_once2, NULL);
 
     return context;
 }
@@ -93,6 +94,7 @@ void FreeBox86Context(box86context_t** context)
     FreeCallbackList(&(*context)->callbacks);
 
     pthread_mutex_destroy(&(*context)->mutex_once);
+    pthread_mutex_destroy(&(*context)->mutex_once2);
 
     free(*context);
     *context = NULL;

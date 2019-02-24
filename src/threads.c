@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -107,18 +108,36 @@ static void my_thread_once_callback()
 		return;
 	EmuCall(once_emu, once_fnc);
 }
+static x86emu_t *once2_emu = NULL;
+static uintptr_t once2_fnc = 0;
+static void my_thread_once2_callback()
+{
+	if(!once2_emu)
+		return;
+	EmuCall(once2_emu, once2_fnc);
+}
 
 int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 {
-	pthread_mutex_lock(&emu->context->mutex_once);	// what if it deadlock here?
+	if(pthread_mutex_trylock(&emu->context->mutex_once)==EBUSY)
+	{
+		// 2nd level...
+		pthread_mutex_lock(&emu->context->mutex_once2);
+		once2_emu = emu;
+		once2_fnc = (uintptr_t)cb;
+		int ret = pthread_once(once, my_thread_once2_callback);
+		once_emu = NULL;
+		pthread_mutex_unlock(&emu->context->mutex_once2);
+		return ret;
+	} else {
+		once_emu = emu;
+		once_fnc = (uintptr_t)cb;
+		int ret = pthread_once(once, my_thread_once_callback);
+		once_emu = NULL;
 
-	once_emu = emu;
-	once_fnc = (uintptr_t)cb;
-	int ret = pthread_once(once, my_thread_once_callback);
-	once_emu = NULL;
-
-	pthread_mutex_unlock(&emu->context->mutex_once);
-	return ret;
+		pthread_mutex_unlock(&emu->context->mutex_once);
+		return ret;
+	}
 }
 
 EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
@@ -129,7 +148,7 @@ EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 	while (n<nb_dtor) {
 		if(!dtor_emu[n] || GetCallbackAddress(dtor_emu[n])==((uintptr_t)dtor)) {
 			if(!dtor_emu[n]) 
-				dtor_emu[n] = AddCallback(emu, (uintptr_t)dtor, 1, NULL, NULL, NULL, NULL);
+				dtor_emu[n] = AddSmallCallback(emu, (uintptr_t)dtor, 1, NULL, NULL, NULL, NULL);
 			return pthread_key_create((pthread_key_t*)key, dtor_cb[n]);
 		}
 		++n;

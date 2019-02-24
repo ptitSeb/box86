@@ -381,7 +381,7 @@ static int qsort_cmp(const void* a, const void* b, void* e)
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
     // use a temporary callback
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, NULL, NULL);
+    x86emu_t *cbemu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     qsort_r(base, nmemb, size, qsort_cmp, cbemu);
     FreeCallback(cbemu);
 }
@@ -449,7 +449,7 @@ static int glob_errfnccallback(const char* epath, int no)
 EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pblog)
 {
     if(errfnc)
-        globemu = AddCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
+        globemu = AddSharedCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
     int32_t r = glob((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob_t*)pblog);
     if(globemu) {
         FreeCallback(globemu);
