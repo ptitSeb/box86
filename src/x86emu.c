@@ -327,11 +327,20 @@ void UnimpOpcode(x86emu_t* emu)
 
 void EmuCall(x86emu_t* emu, uintptr_t addr)
 {
+    uint32_t old_ebx = R_EBX;
+    uint32_t old_edi = R_EDI;
+    uint32_t old_esi = R_ESI;
+    uint32_t old_ebp = R_EBP;
+    uint32_t old_eip = R_EIP;
     PushExit(emu);
-    uintptr_t oldip = R_EIP;
     R_EIP = addr;
     emu->df = d_none;
     Run(emu);
     emu->quit = 0;  // reset Quit flags...
-    R_EIP = oldip;  // and set back instruction pointer
+    emu->df = d_none;
+    R_EBX = old_ebx;
+    R_EDI = old_edi;
+    R_ESI = old_esi;
+    R_EBP = old_ebp;
+    R_EIP = old_eip;  // and set back instruction pointer
 }
