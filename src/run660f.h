@@ -159,11 +159,32 @@
 
 
     _6f_0x2C:                      /* CVTTPD2PI Gm, Ex */
-    _6f_0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
         GM.sd[0] = EX->d[0];
         GM.sd[1] = EX->d[1];
+        NEXT;
+    _6f_0x2D:                      /* CVTPD2PI Gm, Ex */
+        nextop = F8;
+        GET_EX;
+        switch(emu->round) {
+            case ROUND_Nearest:
+                GM.sd[0] = floor(EX->d[0]+0.5);
+                GM.sd[1] = floor(EX->d[1]+0.5);
+                break;
+            case ROUND_Down:
+                GM.sd[0] = floor(EX->d[0]);
+                GM.sd[1] = floor(EX->d[1]);
+                break;
+            case ROUND_Up:
+                GM.sd[0] = ceil(EX->d[0]);
+                GM.sd[1] = ceil(EX->d[1]);
+                break;
+            case ROUND_Chop:
+                GM.sd[0] = EX->d[0];
+                GM.sd[1] = EX->d[1];
+                break;
+        }
         NEXT;
     _6f_0x2E:                      /* UCOMISD Gx, Ex */
         // no special check...
@@ -180,6 +201,7 @@
         } else {
             SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
         }
+        CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         NEXT;
 
     _6f_0x50:                      /* MOVMSKPD Gd, Ex */

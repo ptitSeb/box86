@@ -86,16 +86,16 @@
             GET_EX;
             switch(emu->round) {
                 case ROUND_Nearest:
-                    GM.sd[1] = floor(EX->f[1]+0.5);
-                    GM.sd[0] = floor(EX->f[0]+0.5);
+                    GM.sd[1] = floorf(EX->f[1]+0.5f);
+                    GM.sd[0] = floorf(EX->f[0]+0.5f);
                     break;
                 case ROUND_Down:
-                    GM.sd[1] = floor(EX->f[1]);
-                    GM.sd[0] = floor(EX->f[0]);
+                    GM.sd[1] = floorf(EX->f[1]);
+                    GM.sd[0] = floorf(EX->f[0]);
                     break;
                 case ROUND_Up:
-                    GM.sd[1] = ceil(EX->f[1]);
-                    GM.sd[0] = ceil(EX->f[0]);
+                    GM.sd[1] = ceilf(EX->f[1]);
+                    GM.sd[0] = ceilf(EX->f[0]);
                     break;
                 case ROUND_Chop:
                     GM.sd[1] = EX->f[1];
@@ -118,6 +118,7 @@
             } else {
                 SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
             }
+            CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             NEXT;
         
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
