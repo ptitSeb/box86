@@ -33,7 +33,7 @@ if(USE_FLOAT)
     add_definitions(-DUSE_FLOAT)
 endif()
 
-add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden -no-pie -fjump-tables)
+add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -128,7 +128,7 @@ endif()
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
 target_link_libraries(${BOX86} m dl rt pthread)
 
-target_link_libraries(${BOX86} -no-pie -Wl,-Ttext-segment,0xA8000000)
+target_link_libraries(${BOX86} -Wl,-Ttext-segment,0xA8000000)
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
