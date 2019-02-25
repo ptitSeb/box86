@@ -190,6 +190,77 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(XOR2(cc >> 30), F_OF);
             CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
             break;
+        case d_imul8:
+            lo = emu->res & 0xff;
+            hi = (emu->res>>8)&0xff;
+            if (((lo & 0x80) == 0 && hi == 0x00) ||
+                ((lo & 0x80) != 0 && hi == 0xFF)) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(lo & 0xff), F_PF);
+            break;
+        case d_imul16:
+            lo = (uint16_t)emu->res;
+            hi = (uint16_t)(emu->res >> 16);
+            if (((lo & 0x8000) == 0 && hi == 0x00) ||
+                ((lo & 0x8000) != 0 && hi == 0xFFFF)) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(lo & 0xff), F_PF);
+            break;
+        case d_imul32:
+            if (((emu->res & 0x80000000) == 0 && emu->op1 == 0x00) ||
+                ((emu->res & 0x80000000) != 0 && emu->op1 == 0xFFFFFFFF)) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+            break;
+        case d_mul8:
+            lo = emu->res & 0xff;
+            hi = (emu->res>>8)&0xff;
+            if (hi == 0) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(lo & 0xff), F_PF);
+            break;
+        case d_mul16:
+            lo = (uint16_t)emu->res;
+            hi = (uint16_t)(emu->res >> 16);
+            if (hi == 0) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(lo & 0xff), F_PF);
+            break;
+        case d_mul32:
+            if (emu->op1 == 0) {
+                CLEAR_FLAG(F_CF);
+                CLEAR_FLAG(F_OF);
+            } else {
+                SET_FLAG(F_CF);
+                SET_FLAG(F_OF);
+            }
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+            break;
         case d_or8:
             CLEAR_FLAG(F_OF);
             CLEAR_FLAG(F_CF);
