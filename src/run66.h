@@ -98,8 +98,9 @@
         tmp16u = F16;
         GW.word[0] = imul16(emu, EW->word[0], tmp16u);
         NEXT;
-    _66_0x6A:                      /* PUSH Ib (as word) */
-        Push16(emu, F8);
+    _66_0x6A:                      /* PUSH Ib (as signed word) */
+        tmp16s = F8S;
+        Push16(emu, (uint16_t)tmp16s);
         NEXT;
     _66_0x6B:                      /* IMUL Gw,Ew,Ib */
         nextop = F8;
@@ -159,7 +160,7 @@
     _66_0x8F:                              /* POP Ew */
         nextop = F8;
         GET_EW;
-        EW->dword[0] = Pop16(emu);
+        EW->word[0] = Pop16(emu);
         NEXT;
     _66_0x90:                              /* NOP */
         NEXT;
@@ -174,7 +175,7 @@
         emu->regs[_AX].sword[0] = emu->regs[_AX].sbyte[0];
         NEXT;
     _66_0x99:                              /* CWD */
-        R_DX=(R_AX & 0x8000)?0xFFFF:0x0000;
+        R_DX=((R_AX & 0x8000)?0xFFFF:0x0000);
         NEXT;
 
     _66_0xA1:                              /* MOV AX,Ow */
