@@ -21,4 +21,4 @@ Change log is accessible [here](CHANGELOG.md)
 
 Here is a video of "Airline Tycoon Deluxe" running on an gigahertz OpenPandora
 
-[![Play on Youtube](https://www.youtube.com/watch?v=bLt0hMoFDLk/2.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk)
+[![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/2.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk)
