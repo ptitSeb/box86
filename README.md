@@ -18,3 +18,7 @@ To have the TRACE enabled (i.e. dumping to stdout all individual x86 instruction
 Some x86 internal opcode use parts of "Realmode X86 Emulator Library", see [x86primop.c](src/x86primop.c) for copyright details
 
 Change log is accessible [here](CHANGELOG.md)
+
+Here is a video of "Airline Tycoon Deluxe" running on an gigahertz OpenPandora
+
+[![Play on Youtube](https://www.youtube.com/watch?v=bLt0hMoFDLk/2.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk)
