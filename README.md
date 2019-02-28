@@ -19,6 +19,6 @@ Some x86 internal opcode use parts of "Realmode X86 Emulator Library", see [x86p
 
 Change log is accessible [here](CHANGELOG.md)
 
-Here is a video of "Airline Tycoon Deluxe" running on an gigahertz OpenPandora
+Here are 2 videos, one of "Airline Tycoon Deluxe" running on an gigahertz OpenPandora, and the other of "Bit.Trip.Runner" running on an ODroid XU4.
 
-[![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/0.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk)
+[![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg)
