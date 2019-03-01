@@ -744,6 +744,14 @@
         if((nextop&0xC0)==0xC0)
             EX->q[1] = 0;
         NEXT;
+    _6f_0xD7:  /* PMOVMSKB Gd,Ex */
+        nextop = F8;
+        GET_EX;
+        GD.dword[0] = 0;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]&0x80)
+                GD.dword[0] |= (1<<i);
+        NEXT;
 
     _6f_0xDB:  /* PAND Gx,Ex */
         nextop = F8;

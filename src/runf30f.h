@@ -131,6 +131,25 @@
         memcpy(EX, &GX, 16);    // unaligned...
         break;
 
+    case 0xBC:  /* TZCNT Ew,Gw */
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GET_ED;
+        tmp32u = ED->dword[0];
+        if(tmp32u) {
+            CLEAR_FLAG(F_ZF);
+            tmp8u = 0;
+            while(!(tmp32u&(1<<tmp8u))) ++tmp8u;
+            GD.dword[0] = tmp8u;
+            CONDITIONAL_SET_FLAG(tmp8u, F_ZF);
+            CLEAR_FLAG(F_CF);
+        } else {
+            CLEAR_FLAG(F_ZF);
+            SET_FLAG(F_CF);
+            GD.dword[0] = 32;
+        }
+        break;
+
     case 0xC2:  /* CMPSS Gx, Ex, Ib */
         nextop = F8;
         GET_EX;
