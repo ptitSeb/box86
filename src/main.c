@@ -56,7 +56,7 @@ void LoadLogEnv()
     if(p) {
         char* p2;
         start_cnt = strtoll(p, &p2, 10);
-        printf_log(LOG_INFO, "Will start trace only after %lu instructions\n", start_cnt);
+        printf_log(LOG_INFO, "Will start trace only after %llu instructions\n", start_cnt);
     }
 #endif
     p = getenv("BOX86_TRACE_FILE");
