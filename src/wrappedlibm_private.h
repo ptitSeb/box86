@@ -161,7 +161,7 @@ GO(__exp_finite, dFd)
 // fegetexcept
 // fegetexceptflag
 // fegetround
-// feholdexcept
+GO(feholdexcept, iFp)
 // feraiseexcept
 // fesetenv
 // fesetexceptflag
