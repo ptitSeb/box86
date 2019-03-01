@@ -272,7 +272,7 @@ GO(__errno_location, pFv)
 // euidaccess   // Weak
 // eventfd
 // eventfd_read
-// eventfd_write
+GO(eventfd_write, iFiU)
 GOM(execl, iFEpVV)
 // execle
 GOM(execlp, iFEpVV)
@@ -1765,7 +1765,7 @@ GO(timegm, uFp)
 // timerfd_settime
 // times    // Weak
 DATAV(timezone, 4)
-// __timezone   // type B
+DATAB(__timezone, 4)   // type B
 GO(tmpfile, pFv)
 GO(tmpfile64, pFv)
 GO(tmpnam, pFp)

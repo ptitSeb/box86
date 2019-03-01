@@ -85,8 +85,8 @@ GOS(clog, pFpdd)   // return a double complex, that is a struct
 // conj // Weak
 // conjf    // Weak
 // conjl    // Weak
-// copysign // Weak
-// copysignf    // Weak
+GOW(copysign, dFdd)
+GOW(copysignf, fFff)
 // copysignl    // Weak
 GOW(cos, dFd)
 GOW(cosf, fFf)

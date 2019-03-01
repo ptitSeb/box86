@@ -134,7 +134,7 @@ GO(dbus_connection_set_exit_on_disconnect, vFpi)
 //GO(dbus_message_iter_get_fixed_array, 
 //GO(dbus_message_iter_get_signature, 
 //GO(dbus_message_iter_has_next, 
-//GO(dbus_message_iter_init, 
+GO(dbus_message_iter_init, iFpp)
 //GO(dbus_message_iter_init_append, 
 //GO(dbus_message_iter_next, 
 //GO(dbus_message_iter_open_container, 

@@ -244,7 +244,7 @@ GO(XDefaultDepth, iFpi)
 // _XDefaultError
 //GO(XDefaultGC
 //GO(XDefaultGCOfScreen
-// _XDefaultIOError
+GO(_XDefaultIOError, iFp)
 // _XDefaultOpenIM
 // _XDefaultOpenOM
 GO(XDefaultRootWindow, pFp)
@@ -313,7 +313,7 @@ DATAB(_XErrorFunction, 4)
 //GO(XESetCopyGC
 //GO(XESetCreateFont
 //GO(XESetCreateGC
-//GO(XESetError
+GOM(XESetError, pFEpip)
 //GO(XESetErrorString
 GOM(XESetEventToWire, pFEpip)
 //GO(XESetFlushGC
