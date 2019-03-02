@@ -810,9 +810,13 @@ _trace:
                 RESET_FLAGS(emu);
                 NEXT;
             _0x9E:                      /* SAHF */
-                CHECK_FLAGS(emu);
-                PackFlags(emu);
-                emu->regs[_AX].byte[1] = emu->packed_eflags.x32&0xff;
+                tmp8u = emu->regs[_AX].byte[1];
+                CONDITIONAL_SET_FLAG(tmp8u&0x01, F_CF);
+                CONDITIONAL_SET_FLAG(tmp8u&0x04, F_PF);
+                CONDITIONAL_SET_FLAG(tmp8u&0x10, F_AF);
+                CONDITIONAL_SET_FLAG(tmp8u&0x40, F_ZF);
+                CONDITIONAL_SET_FLAG(tmp8u&0x80, F_SF);
+                RESET_FLAGS(emu);
                 NEXT;
 
             _0xA0:                      /* MOV AL,Ob */
