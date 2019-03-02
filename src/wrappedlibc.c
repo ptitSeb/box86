@@ -494,7 +494,7 @@ static int scandir64_selcb(const struct dirent64* dir)
 #ifdef PANDORA
 static int scandir64_compcb(const void* a, const void* b)
 #else
-static int scandir64_compcb(const void* a, const void* b)
+static int scandir64_compcb(const struct dirent64** a, const struct dirent64** b)
 #endif
 {
     if(scandir64compemu) {
@@ -528,7 +528,7 @@ static int scandir_selcb(const struct dirent* dir)
 #ifdef PANDORA
 static int scandir_compcb(const void* a, const void* b)
 #else
-static int scandir_compcb(const dirent** a, const dirent** b)
+static int scandir_compcb(const struct dirent** a, const struct dirent** b)
 #endif
 {
     if(scandircompemu) {
