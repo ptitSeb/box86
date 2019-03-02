@@ -78,6 +78,8 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f, %f, %f)", tid, *(void**)(R_ESP), "glColor4f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12), *(float*)(R_ESP+16));
                 } else  if(strstr(s, "glTexCoord2f")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "glTexCoord2f", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
+                } else  if(strstr(s, "glVertex2f")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "glVertex2f", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
                 } else  if(strstr(s, "glVertex3f")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f, %f)", tid, *(void**)(R_ESP), "glVertex3f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12));
                 } else  if(strstr(s, "__open")==s) {
