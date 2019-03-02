@@ -464,8 +464,7 @@ expansion, see “System Specific Shared Objects”
 int LoadNeededLib(elfheader_t* h, lib_t *maplib, box86context_t *box86, x86emu_t* emu)
 {
    DumpDynamicNeeded(h);
-   // reverse order on needed libs
-   for (int i=h->numDynamic-1; i>=0; --i)
+   for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
