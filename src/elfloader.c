@@ -206,7 +206,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
             case R_386_TLS_DTPOFF32:
             case R_386_JMP_SLOT:
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply %s @%p (%p)\n", (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", symname, p, *(void**)p);
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
 //                    return -1;
                 } else {
                     if(p) {
@@ -567,6 +567,6 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         *start = s;
     if(sz)
         *sz = size;
-        
+
     return ret;
 }
