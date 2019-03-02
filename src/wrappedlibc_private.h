@@ -448,7 +448,7 @@ GO(getaddrinfo, iFpppp)
 GOW(getc, iFp)
 GOW(getchar, iFv)
 // getchar_unlocked
-// getcontext
+GO(getcontext, iFp) // should probably do a my_ version, because context is platform dependant!
 // getc_unlocked    // Weak
 GO(get_current_dir_name, pFv)
 GOW(getcwd, pFpu)
@@ -962,7 +962,7 @@ GOW(kill, iFii)
 // l64a
 GO(labs, iFi)
 // lchmod
-// lchown   // Weak
+GOW(lchown, iFpuu)
 // lckpwdf  // Weak
 // lcong48
 // lcong48_r    // Weak
@@ -1108,7 +1108,7 @@ GOW(mmap64, pFpuiiiI)
 // monstartup   // Weak
 // __monstartup
 DATA(__morecore, 4)
-// mount    // Weak
+GOW(mount, iFpppup)
 // mprobe
 // mprotect // Weak
 // mrand48
@@ -1398,7 +1398,7 @@ GO(readdir64_r, iFppp)  // is this present?
 // scalbn   // Weak
 // scalbnf  // Weak
 // scalbnl  // Weak
-// scandir
+GOM(scandir, iFEpppp)
 GOM(scandir64, iFEpppp)
 GO2(scanf, iFpp, vscanf)
 // __sched_cpualloc
@@ -1828,7 +1828,7 @@ GO(usleep, iFu)
 // ustat
 GO(utime, iFpp)
 // utimensat
-// utimes   // Weak
+GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 // utmpname // Weak
 // utmpxname
 // valloc   // Weak
@@ -1840,7 +1840,7 @@ GOM(verr, vFEpV)
 // verrx
 // versionsort
 // versionsort64
-// vfork    // Weak
+GOM(vfork, iFEv) // Weak
 // __vfork
 GOM(vfprintf, iFEppVV)
 GOM(__vfprintf_chk, iFEpvpVV)
@@ -2066,7 +2066,7 @@ GOW(writev, iFipi)
 // xdr_void
 // xdr_wrapstring
 // xencrypt
-// __xmknod
+GO(__xmknod, iFipup)
 // __xmknodat
 GO(__xpg_basename, pFp)
 // __xpg_sigpause   // Weak

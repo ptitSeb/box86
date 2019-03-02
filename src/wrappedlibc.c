@@ -130,6 +130,17 @@ pid_t EXPORT my_fork(x86emu_t* emu)
     #endif
 }
 pid_t EXPORT my___fork(x86emu_t* emu) __attribute__((alias("my_fork")));
+pid_t EXPORT my_vfork(x86emu_t* emu)
+{
+    #if 1
+    emu->quit = 1;
+    emu->fork = 1;  // use regular fork...
+    return 0;
+    #else
+    return 0;
+    #endif
+}
+
 
 EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
 EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
@@ -470,8 +481,8 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     return r;
 }
 
-x86emu_t *scandir64selemu = NULL;   // issue with multi threads...
-x86emu_t *scandir64compemu = NULL;   // issue with multi threads...
+x86emu_t *scandir64selemu = NULL;
+x86emu_t *scandir64compemu = NULL;
 static int scandir64_selcb(const struct dirent64* dir)
 {
     if(scandir64selemu) {
@@ -498,6 +509,36 @@ EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, voi
     FreeCallback(scandir64compemu);
     scandir64selemu = NULL;
     scandir64compemu = NULL;
+    return ret;
+}
+x86emu_t *scandirselemu = NULL;
+x86emu_t *scandircompemu = NULL;
+static int scandir_selcb(const struct dirent* dir)
+{
+    if(scandirselemu) {
+        SetCallbackArg(scandirselemu, 0, (void*)dir);
+        return (int32_t)RunCallback(scandirselemu);
+    }
+    return 0;
+}
+static int scandir_compcb(const void* a, const void* b)
+{
+    if(scandircompemu) {
+        SetCallbackArg(scandircompemu, 0, (void*)a);
+        SetCallbackArg(scandircompemu, 1, (void*)b);
+        return (int32_t)RunCallback(scandircompemu);
+    }
+    return 0;
+}
+EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
+{
+    scandirselemu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+    scandircompemu = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
+    int ret = scandir(dir, namelist, scandir_selcb, scandir_compcb);
+    FreeCallback(scandirselemu);
+    FreeCallback(scandircompemu);
+    scandirselemu = NULL;
+    scandircompemu = NULL;
     return ret;
 }
 
@@ -636,6 +677,7 @@ void ctSetup()
 #undef pread
 #undef pwrite
 #undef creat
+#undef scandir
 
 // define all standard library functions
 #include "wrappedlib_init.h"
