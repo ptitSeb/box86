@@ -43,6 +43,9 @@
             #endif
             break;
         
+        case 0xE4:  /* FTST */
+            fpu_ftst(emu);
+            break;
         case 0xE5:  /* FXAM */
             fpu_fxam(emu);
             break;
@@ -103,6 +106,14 @@
             ST0.d = 0.0;
             #endif
             break;
+
+        case 0xF0:  /* F2XM1 */
+            #ifdef USE_FLOAT
+            ST0.f = exp2f(ST0.f) - 1.0f;
+            #else
+            ST0.d = exp2(ST0.d) - 1.0;
+            #endif
+            break;
         
         case 0xF2:  /* FTAN */
             #ifdef USE_FLOAT
@@ -122,6 +133,21 @@
             ST1.d = atan2(ST1.d, ST0.d);
             #endif
             fpu_do_pop(emu);
+            break;
+        case 0xF4:  /* FXTRACT */
+            #ifdef USE_FLOAT
+            tmp32s = (ST0.ll&0x7f700000)>>23;
+            tmp32s -= 127;
+            ST0.f /= exp2f(tmp32s);
+            fpu_do_push(emu);
+            ST0.f = tmp32s;
+            #else
+            tmp32s = (ST0.ll&0x7ff0000000000000LL)>>52;
+            tmp32s -= 1023;
+            ST0.d /= exp2(tmp32s);
+            fpu_do_push(emu);
+            ST0.d = tmp32s;
+            #endif
             break;
 
         case 0xF8:  /* FPREM */
@@ -160,7 +186,14 @@
             ST0.d = fpu_round(emu, ST0.d);
             #endif
             break;
-
+        case 0xFD:  /* FSCALE */
+            // this could probably be done by just altering the exponant part of the float...
+            #ifdef USE_FLOAT
+            ST0.f *= exp2f(truncf(ST1.f));
+            #else
+            ST0.d *= exp2(trunc(ST1.d));
+            #endif
+            break;
         case 0xFE:  /* FSIN */
             #ifdef USE_FLOAT
             ST0.f = sinf(ST0.f);
@@ -192,18 +225,14 @@
         case 0xDF:
         case 0xE2:
         case 0xE3:
-        case 0xE4:
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF0:
         case 0xF1:
-        case 0xF4:
         case 0xF5:
         case 0xF6:
         case 0xF7:
         case 0xF9:
-        case 0xFD:
             goto _default;
         default:
         switch((nextop>>3)&7) {

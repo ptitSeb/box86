@@ -221,6 +221,40 @@ static inline void fpu_fxam(x86emu_t* emu) {
 
 }
 
+static inline void fpu_ftst(x86emu_t* emu) {
+    emu->sw.f.F87_C1 = 0;
+    #ifdef USE_FLOAT
+    if(isinf(ST0.f) || isnan(ST0.f))
+    #else
+    if(isinf(ST0.d) || isnan(ST0.d)) 
+    #endif
+    {  // TODO: Unsuported and denormal not analysed...
+        emu->sw.f.F87_C3 = 1;
+        emu->sw.f.F87_C2 = 1;
+        emu->sw.f.F87_C0 = 1;
+        return;
+    }
+    #ifdef USE_FLOAT
+    if(ST0.f==0.0f)
+    #else
+    if(ST0.d==0.0)
+    #endif
+    {
+        emu->sw.f.F87_C3 = 1;
+        emu->sw.f.F87_C2 = 0;
+        emu->sw.f.F87_C0 = 0;
+        return;
+    }
+    // normal...
+    emu->sw.f.F87_C3 = 0;
+    emu->sw.f.F87_C2 = 0;
+    #ifdef USE_FLOAT
+    emu->sw.f.F87_C0 = (ST0.ll&0x8000)?1:0;
+    #else
+    emu->sw.f.F87_C0 = (ST0.l.upper&0x80000000)?1:0;
+    #endif
+}
+
 void fpu_fbst(x86emu_t* emu, uint8_t* d);
 void fpu_fbld(x86emu_t* emu, uint8_t* s);
 
