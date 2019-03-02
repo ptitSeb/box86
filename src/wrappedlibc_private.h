@@ -35,7 +35,7 @@ DATAV(__after_morecore_hook, 4)
 GO(alarm, iFu)
 GO2(aligned_alloc, pFuu, memalign)
 // alphasort
-// alphasort64
+GO(alphasort64, iFpp)
 DATA(argp_err_exit_status, 4)
 // argp_error   // Weak
 // argp_failure // Weak
@@ -246,9 +246,9 @@ DATAV(_environ, 4)
 // envz_merge
 // envz_remove
 // envz_strip
-// epoll_create
-// epoll_create1
-// epoll_ctl
+GO(epoll_create, iFi)
+GO(epoll_create1, iFi)
+GO(epoll_ctl, iFiiip)
 // epoll_pwait
 // epoll_wait
 // erand48
@@ -270,7 +270,7 @@ GO(__errno_location, pFv)
 // ether_ntoa_r
 // ether_ntohost
 // euidaccess   // Weak
-// eventfd
+GO(eventfd, iFui)
 // eventfd_read
 GO(eventfd_write, iFiU)
 GOM(execl, iFEpVV)
@@ -348,7 +348,7 @@ GOW(flockfile, vFp)
 // _flushlbf    // Weak
 // fmemopen
 // fmtmsg
-// fnmatch
+GO(fnmatch, iFppi)
 GO(fopen, pFpp)
 GOW(fopen64, pFpp)
 //GOM(fopencookie, pFppp)   // last p are 4 callbacks...
@@ -419,7 +419,7 @@ GOW(ftrylockfile, iFp)
 // ftw64
 GOW(funlockfile, vFp)
 // futimens
-// futimes  // Weak
+GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
 // futimesat
 // fwide
 // fwprintf // Weak
@@ -1045,7 +1045,7 @@ DATAV(__malloc_initialize_hook, 4)
 // malloc_set_state // Weak
 // malloc_stats // Weak
 // malloc_trim  // Weak
-// malloc_usable_size   // Weak
+GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B
 // mblen
@@ -1089,7 +1089,7 @@ GO(__memset_chk, pFpiuu)
 GOW(mkdir, iFpu)
 // mkdirat
 GO(mkdtemp, pFp)
-// mkfifo
+GO(mkfifo, iFpu)
 // mkfifoat
 GO(mkostemp, iFpi)
 GO(mkostemp64, iFpi)
@@ -1134,7 +1134,7 @@ GO(__newlocale, pFipp)
 // nftw
 // nftw64
 // ngettext // Weak
-// nice
+GO(nice, iFi)
 // _nl_default_dirname  // type R
 // _nl_domain_bindings  // type B
 GO(nl_langinfo, pFu)
@@ -1221,7 +1221,7 @@ GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x
 GOW(poll, iFpii)
 GO(__poll, iFpii)
 GO(popen, pFpp)
-// posix_fadvise
+GO(posix_fadvise, iFiuui)
 // posix_fadvise64
 // posix_fallocate
 // posix_fallocate64
@@ -1330,7 +1330,7 @@ GO(readv, iFipi)
 GO(realloc, pFpu)
 DATAV(__realloc_hook, 4)
 GO(realpath, pFpp)
-// __realpath_chk
+GO(__realpath_chk, pFppu)
 // reboot
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
@@ -1399,7 +1399,7 @@ GO(readdir64_r, iFppp)  // is this present?
 // scalbnf  // Weak
 // scalbnl  // Weak
 // scandir
-// scandir64
+GOM(scandir64, iFEpppp)
 GO2(scanf, iFpp, vscanf)
 // __sched_cpualloc
 // __sched_cpucount
@@ -1427,14 +1427,14 @@ GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
 // seekdir
 GOW(select, iFipppp)
 GO(__select, iFipppp)
-// semctl
-// semget   // Weak
-// semop    // Weak
-// semtimedop
+GO(semctl, iFiiippppp)  // use vararg after the 3 i
+GOW(semget, iFuii)
+GOW(semop, iFipu)
+GO(semtimedop, iFipup)
 GOW(send, iFipui)
 // __send   // Weak
 // sendfile
-// sendfile64
+GO(sendfile64, iFiipu)
 GOW(sendmsg, iFipi)
 GOW(sendto, iFipuipu)
 // setaliasent
@@ -1445,7 +1445,7 @@ GOW(setbuffer, vFppu)
 // setegid
 GOW(setenv, iFppi)
 // _seterr_reply
-// seteuid
+GO(seteuid, iFu)
 // setfsent
 // setfsgid
 // setfsuid
@@ -1833,7 +1833,7 @@ GO(utime, iFpp)
 // utmpxname
 // valloc   // Weak
 GOM(vasprintf, iFEppVV)
-// __vasprintf_chk
+GOM(__vasprintf_chk, iFEpipVV)
 // vdprintf // Weak
 // __vdprintf_chk
 GOM(verr, vFEpV)
@@ -1899,7 +1899,7 @@ GO(wcscmp, iFpp)
 GOW(wcscoll, iFpp)
 GO(__wcscoll_l, iFppp)
 GOW(wcscoll_l, iFppp)
-// wcscpy
+GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppu)
 // wcscspn
 // wcsdup
@@ -1949,9 +1949,9 @@ GO(wcstoll, IFppi)
 GO(wcstombs, uFppu)
 // __wcstombs_chk
 // wcstoq   // Weak
-// wcstoul
+GO(wcstoul, iFppi)
 // __wcstoul_internal
-// wcstoull
+GO(wcstoull, UFppi)
 // __wcstoul_l
 // wcstoul_l    // Weak
 // __wcstoull_internal

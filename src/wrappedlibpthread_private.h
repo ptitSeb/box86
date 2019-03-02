@@ -47,10 +47,10 @@ GO(pthread_cancel, iFi)
 // _pthread_cleanup_push_defer
 // __pthread_cleanup_routine
 GO(pthread_condattr_destroy, iFp)
-// pthread_condattr_getclock
+GO(pthread_condattr_getclock, iFpp)
 // pthread_condattr_getpshared
 GO(pthread_condattr_init, iFp)
-// pthread_condattr_setclock
+GO(pthread_condattr_setclock, iFpp)
 // pthread_condattr_setpshared
 GOM(pthread_cond_broadcast, iFEp)
 GOM(pthread_cond_destroy, iFEp)

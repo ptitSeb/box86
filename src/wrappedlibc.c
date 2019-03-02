@@ -17,6 +17,7 @@ typedef void (*sighandler_t)(int);
 #include <unistd.h>
 #include <glob.h>
 #include <ctype.h>
+#include <dirent.h>
 
 #include "wrappedlibs.h"
 
@@ -283,6 +284,20 @@ EXPORT int my_vasprintf(x86emu_t* emu, void* strp, void* fmt, void* b, va_list V
     return r;
     #endif
 }
+EXPORT int my___vasprintf_chk(x86emu_t* emu, void* strp, int flags, void* fmt, void* b, va_list V)
+{
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vasprintf;
+    int r = ((iFppp_t)f)(strp, fmt, emu->scratch);
+    return r;
+    #else
+    void* f = vasprintf;
+    int r = ((iFppp_t)f)(strp, fmt, *(uint32_t**)b);
+    return r;
+    #endif
+}
 
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -453,6 +468,37 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
         globemu = NULL;
     }
     return r;
+}
+
+x86emu_t *scandir64selemu = NULL;   // issue with multi threads...
+x86emu_t *scandir64compemu = NULL;   // issue with multi threads...
+static int scandir64_selcb(const struct dirent64* dir)
+{
+    if(scandir64selemu) {
+        SetCallbackArg(scandir64selemu, 0, (void*)dir);
+        return (int32_t)RunCallback(scandir64selemu);
+    }
+    return 0;
+}
+static int scandir64_compcb(const void* a, const void* b)
+{
+    if(scandir64compemu) {
+        SetCallbackArg(scandir64compemu, 0, (void*)a);
+        SetCallbackArg(scandir64compemu, 1, (void*)b);
+        return (int32_t)RunCallback(scandir64compemu);
+    }
+    return 0;
+}
+EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
+{
+    scandir64selemu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+    scandir64compemu = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
+    int ret = scandir64(dir, namelist, scandir64_selcb, scandir64_compcb);
+    FreeCallback(scandir64selemu);
+    FreeCallback(scandir64compemu);
+    scandir64selemu = NULL;
+    scandir64compemu = NULL;
+    return ret;
 }
 
 EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
