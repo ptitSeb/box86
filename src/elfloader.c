@@ -199,16 +199,18 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     *p += offs;
                 }
                 break;
-            //case R_386_TLS_DTPMOD32:
-            // try to use _dl_next_tls_modid() ?
+            case R_386_TLS_DTPMOD32:
+                // try to use _dl_next_tls_modid() ?
+                // keeping 0 there should work, as a "current module" information?
+                break;
             case R_386_TLS_DTPOFF32:
             case R_386_JMP_SLOT:
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply %s @%p (%p)\n", (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", symname, p, *(void**)p);
 //                    return -1;
                 } else {
                     if(p) {
-                        printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
+                        printf_log(LOG_DEBUG, "Apply %s @%p with sym=%s (%p -> %p)\n", (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, symname, *(void**)p, (void*)offs);
                         *p = offs;
                     } else {
                         printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
@@ -526,4 +528,45 @@ uintptr_t GetElfInit(elfheader_t* h)
 uintptr_t GetElfFini(elfheader_t* h)
 {
     return h->finientry + h->delta;
+}
+
+void* GetBaseAddress(elfheader_t* h)
+{
+    return h->memory;
+}
+
+uint32_t GetBaseSize(elfheader_t* h)
+{
+    return h->memsz;
+}
+
+const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz)
+{
+    uintptr_t addr = (uintptr_t)p;
+
+    uint32_t distance = 0x7fffffff;
+    const char* ret = NULL;
+    uintptr_t s = 0;
+    uint32_t size = 0;
+
+    for (int i=0; i<h->numSymTab && distance!=0; ++i) {   
+        const char * symname = h->StrTab+h->SymTab[i].st_name;
+        uintptr_t offs = h->SymTab[i].st_value + h->delta;
+
+        if(offs<addr) {
+            if(distance>addr-offs) {
+                distance = addr-offs;
+                ret = symname;
+                s = offs;
+                size = h->SymTab[i].st_size;
+            }
+        }
+    }
+
+    if(start)
+        *start = s;
+    if(sz)
+        *sz = size;
+        
+    return ret;
 }

@@ -9,6 +9,7 @@
 #include "library.h"
 #include "x86emu.h"
 #include "box86context.h"
+#include "elfloader.h"
 
 #include "bridge.h"
 
@@ -234,4 +235,48 @@ int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* 
     *start = kh_val(mapsymbols, k).offs;
     *end = *start + kh_val(mapsymbols, k).sz;
     return 1;
+}
+
+const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* start, uint32_t* sz)
+{
+    uintptr_t addr = (uintptr_t)p;
+    onesymbol_t *one;
+    kh_foreach_value_ref(mapsymbols, one, 
+        if((one->offs >= addr) && (one->offs+one->sz<addr)) {
+            *start  = one->offs;
+            *sz = one->sz;
+            return kh_key(mapsymbols, __i);
+        }
+    );
+    return NULL;
+}
+
+const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base)
+{
+    // first, search in self...
+    const char* ret = NULL;
+    uintptr_t offs = 0;
+    uint32_t size = 0;
+    uintptr_t elf_start = 0;
+    uintptr_t elf_end = 0;
+    // loop the elfs...
+    for(int i=0; i<maplib->context->elfsize && !ret; ++i) {
+        elf_start = (uintptr_t)GetBaseAddress(maplib->context->elfs[i]);
+        elf_end = elf_start + GetBaseSize(maplib->context->elfs[i]);
+        if((uintptr_t)p>=elf_start && (uintptr_t)p<elf_end)
+            ret = FindNearestSymbolName(maplib->context->elfs[i], p, &offs, &size);
+    }
+    if(ret) {
+        if(start)
+            *start = (void*)offs;
+        if(sz)
+            *sz = size;
+        if(libname)
+            *libname = maplib->context->fullpath;
+        if(base)
+            *base = (void*)elf_start;
+        return ret;
+    }
+    // TODO: then search in the other libs...
+    return NULL;
 }

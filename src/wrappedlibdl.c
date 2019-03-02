@@ -1,7 +1,7 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -117,12 +117,16 @@ int my_dlclose(x86emu_t* emu, void *handle)
         return -1;
     return 0;
 }
-int my_dladdr(x86emu_t* emu, void *addr, void *info)
+int my_dladdr(x86emu_t* emu, void *addr, void *i)
 {
     //int dladdr(void *addr, Dl_info *info);
-    printf_log(LOG_INFO, "Error: unimplement call to dladdr(%p, %p)\n", addr, info);
-    emu->quit = 1;
-    return 0;
+    Dl_info *info = (Dl_info*)i;
+    printf_log(LOG_INFO, "Warning: partially unimplement call to dladdr(%p, %p)\n", addr, info);
+    
+    //emu->quit = 1;
+    info->dli_saddr = NULL;
+    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase);
+    return (info->dli_sname)?0:-1;
 }
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version)
 {
