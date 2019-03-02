@@ -491,7 +491,11 @@ static int scandir64_selcb(const struct dirent64* dir)
     }
     return 0;
 }
+#ifdef PANDORA
 static int scandir64_compcb(const void* a, const void* b)
+#else
+static int scandir64_compcb(const void* a, const void* b)
+#endif
 {
     if(scandir64compemu) {
         SetCallbackArg(scandir64compemu, 0, (void*)a);
@@ -521,7 +525,11 @@ static int scandir_selcb(const struct dirent* dir)
     }
     return 0;
 }
+#ifdef PANDORA
 static int scandir_compcb(const void* a, const void* b)
+#else
+static int scandir_compcb(const dirent** a, const dirent** b)
+#endif
 {
     if(scandircompemu) {
         SetCallbackArg(scandircompemu, 0, (void*)a);
