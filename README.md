@@ -35,6 +35,7 @@ Usage
 There are a few environnement variable to control Box86 behavour.
 
 See [here](USAGE.md) for all variables and what they do.
+
 ----
 
 Version history
