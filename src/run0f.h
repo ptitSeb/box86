@@ -381,6 +381,13 @@
                             | 1<<13     // cx16 (cmpxchg16)
                             ;           // also 1<<0 is SSE3 and 1<<9 is SSSE3
                     break;
+                case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
+                    R_EAX = 0x665B5001;
+                    R_EBX = 0x00000000;
+                    R_ECX = 0x00000000;
+                    R_EDX = 0x007A7000;
+                    break;
+
                 case 0x80000000:        // max extended
                     break;              // no extended, so return same value as beeing the max value!
                 default:
