@@ -255,6 +255,15 @@ void SetEIP(x86emu_t *emu, uint32_t v)
 {
     R_EIP = v;
 }
+void SetESP(x86emu_t *emu, uint32_t v)
+{
+    R_ESP = v;
+}
+uint32_t GetESP(x86emu_t *emu)
+{
+    return R_ESP;
+}
+
 
 void ResetFlags(x86emu_t *emu)
 {

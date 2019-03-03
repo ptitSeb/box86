@@ -363,7 +363,7 @@ int main(int argc, const char **argv, const char **env) {
     // defered init
     RunDeferedElfInit(context->emu);
     // init...
-    RunElfInit(elf_header, context->emu);
+//    RunElfInit(elf_header, context->emu); //=> this seems to be done in the startup code itself
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE");
     if(p) {

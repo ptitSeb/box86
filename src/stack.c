@@ -38,6 +38,18 @@ void Push16(x86emu_t *emu, uint16_t v)
     R_ESP -= 2;
     *((uint16_t*)R_ESP) = v;
 }
+uint32_t Pop32(x86emu_t *emu)
+{
+    uint32_t* st = ((uint32_t*)(R_ESP));
+    R_ESP += 4;
+    return *st;
+}
+
+void Push32(x86emu_t *emu, uint32_t v)
+{
+    R_ESP -= 4;
+    *((uint32_t*)R_ESP) = v;
+}
 
 void PushString(x86emu_t *emu, const char* s)
 {

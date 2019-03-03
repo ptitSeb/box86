@@ -16,6 +16,7 @@
 #include "box86context.h"
 #include "library.h"
 #include "x86emu.h"
+#include "stack.h"
 
 void FreeElfHeader(elfheader_t** head)
 {
@@ -491,7 +492,13 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         return;
     }
     printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
-    EmuCall(emu, p);
+    EmuCall(emu, p);    // should be sure that argc, argv and env are pushed to the stack!
+    // and check init array now
+    Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
+    for (int i=0; i<h->initarray_sz; ++i) {
+        printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+        EmuCall(emu, (uintptr_t)addr[i]);
+    }
     h->init_done = 1;
     return;
 }
@@ -515,7 +522,18 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
         return;
     uintptr_t p = h->finientry + h->delta;
     printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
+    uint32_t sESP = GetESP(emu);
+    Push32(emu, (uintptr_t)GetEmuContext(emu)->envv);
+    Push32(emu, (uintptr_t)GetEmuContext(emu)->argv);
+    Push32(emu, GetEmuContext(emu)->argc);
     EmuCall(emu, p);
+    // and check fini array now
+    Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
+    for (int i=0; i<h->finiarray_sz; ++i) {
+        printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+        EmuCall(emu, (uintptr_t)addr[i]);
+    }
+    SetESP(emu, sESP);
     h->fini_done = 1;
     return;
 }

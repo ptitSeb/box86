@@ -256,11 +256,25 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         h->initentry = h->SHEntries[ii].sh_addr;
         printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
     }
+    // and .init_array
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init_array");
+    if(ii) {
+        h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
+        h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
+        printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %d elements\n", (void*)h->initarray, h->initarray_sz);
+    }
     // look for .fini entry point
     ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
     if(ii) {
         h->finientry = h->SHEntries[ii].sh_addr;
         printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
+    }
+    // and .fini_array
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini_array");
+    if(ii) {
+        h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
+        h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
+        printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
     }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);

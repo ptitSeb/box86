@@ -25,7 +25,11 @@ struct elfheader_s {
 
     uintptr_t   entrypoint;
     uintptr_t   initentry;
+    uintptr_t   initarray;
+    int         initarray_sz;
     uintptr_t   finientry;
+    uintptr_t   finiarray;
+    int         finiarray_sz;
 
     uintptr_t   rel;
     int         relsz;

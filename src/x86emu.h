@@ -17,7 +17,9 @@ void SetEAX(x86emu_t *emu, uint32_t v);
 void SetEBX(x86emu_t *emu, uint32_t v);
 void SetECX(x86emu_t *emu, uint32_t v);
 void SetEDX(x86emu_t *emu, uint32_t v);
+void SetESP(x86emu_t *emu, uint32_t v);
 void SetEIP(x86emu_t *emu, uint32_t v);
+uint32_t GetESP(x86emu_t *emu);
 void ResetFlags(x86emu_t *emu);
 const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip);
 
