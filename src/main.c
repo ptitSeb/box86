@@ -306,7 +306,7 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // init x86 emu
-    context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz);
+    context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz, 0);
     // stack setup is much more complicated then just that!
     SetupInitialStack(context);
     // this is probably useless

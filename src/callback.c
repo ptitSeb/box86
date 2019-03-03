@@ -33,8 +33,10 @@ x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, voi
     callbacklist_t *callbacks = emu->context->callbacks;
     int stsize = 2*1024*1024;   // 2MB stack (1MB is not enough for Xenonauts)
     void* stack = malloc(stsize);
-    if(!stack) {printf_log(LOG_NONE, "BOX86: Error, cannot allocate 2MB Stack for callback\n");}
-    x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
+    if(!stack) {
+        printf_log(LOG_NONE, "BOX86: Error, cannot allocate 2MB Stack for callback\n");
+    }
+    x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize, 1);
 	SetupX86Emu(newemu, emu->shared_global, emu->globals);
     newemu->trace_start = emu->trace_start;
     newemu->trace_end = emu->trace_end;
@@ -62,8 +64,10 @@ x86emu_t* AddSmallCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1
     callbacklist_t *callbacks = emu->context->callbacks;
     int stsize = 64*1024;   // 64KB stack
     void* stack = malloc(stsize);
-    if(!stack) {printf_log(LOG_NONE, "BOX86: Error, cannot allocate 64KB Stack for small callback\n");}
-    x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize);
+    if(!stack) {
+        printf_log(LOG_NONE, "BOX86: Error, cannot allocate 64KB Stack for small callback\n");
+    }
+    x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize, 1);
 	SetupX86Emu(newemu, emu->shared_global, emu->globals);
     newemu->trace_start = emu->trace_start;
     newemu->trace_end = emu->trace_end;

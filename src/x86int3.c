@@ -28,10 +28,9 @@ x86emu_t* x86emu_fork(x86emu_t* e)
         newstack = malloc(emu->context->stacksz);
     }
     memcpy(newstack, emu->context->stack, emu->context->stacksz);
-    x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz);
+    x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz, 1);
     SetupX86Emu(newemu, emu->shared_global, emu->globals);
     CloneEmu(newemu, emu);
-    emu->stack = newstack;
     // ready to fork
     ++emu->context->forked;
     int v = fork();

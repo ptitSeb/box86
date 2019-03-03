@@ -45,7 +45,7 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	// TODO: get stack size inside attr
 	void* stack = calloc(1, stacksize);
 	x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, 
-		stacksize);
+		stacksize, 1);
 	SetupX86Emu(emuthread, emu->shared_global, emu->globals);
 	emuthread->trace_start = emu->trace_start;
 	emuthread->trace_end = emu->trace_end;

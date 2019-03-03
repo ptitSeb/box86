@@ -36,7 +36,7 @@ int getrand(int maxval)
     }
 }
 
-x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize)
+x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
 
@@ -48,6 +48,9 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     emu->sbiidx[4] = &emu->zero;
     emu->packed_eflags.x32 = 0x02; // default flags?
     UnpackFlags(emu);
+    // own stack?
+    if(ownstack)
+        emu->stack = (void*)stack;
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;
