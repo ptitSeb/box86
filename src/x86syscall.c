@@ -10,6 +10,7 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <asm/stat.h>
+#include <errno.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -52,7 +53,9 @@ scwrap_t syscallwrap[] = {
 #endif
     { 143, __NR_flock,  2 },
     { 162, __NR_nanosleep, 2 },
+    { 172, __NR_prctl, 5 },
     { 183, __NR_getcwd, 2 },
+    { 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     { 191, __NR_ugetrlimit, 2 },
     { 192, __NR_mmap2, 6},
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
@@ -61,6 +64,7 @@ scwrap_t syscallwrap[] = {
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
+    { 270, __NR_tgkill, 3 },
 };
 
 struct mmap_arg_struct {
@@ -183,7 +187,6 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
         case 1: // __NR_exit
             emu->quit = 1;
             return u32(4); // faking the syscall here, we don't want to really terminate the program now
-            break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
