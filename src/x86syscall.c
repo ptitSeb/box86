@@ -64,7 +64,7 @@ scwrap_t syscallwrap[] = {
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
-    { 270, __NR_tgkill, 3 },
+    //{ 270, __NR_tgkill, 3 },
 };
 
 struct mmap_arg_struct {
@@ -148,6 +148,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = r;
             }
             return;
+        case 270:
+            R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
+            return;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -163,6 +166,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
 uint32_t EXPORT my_syscall(x86emu_t *emu)
 {
     uint32_t s = u32(0);
+    printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)u32(4), (void*)u32(8), (void*)u32(12), (void*)u32(16), (void*)u32(20)); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
@@ -187,6 +191,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
         case 1: // __NR_exit
             emu->quit = 1;
             return u32(4); // faking the syscall here, we don't want to really terminate the program now
+        case 270: //_NR_tgkill
+            printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));
+            //return (uint32_t)syscall(__NR_tgkill, u32(4), u32(8), u32(12));
+            return 0;
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
