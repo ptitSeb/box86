@@ -1366,7 +1366,7 @@ GO(glNormalPointervINTEL,vFup)
 GO(glTexCoordPointervINTEL,vFiup)
 GO(glVertexPointervINTEL,vFiup)
 //KHR_debug
-// GOM(glDebugMessageCallback,vFE?p)
+GOM(glDebugMessageCallback,vFEpp)   // not ideal, because the my_ version will always exist, even if glDebugMessageCallback doesn't
 GO(glDebugMessageControl,vFuuuipi)
 GO(glDebugMessageInsert,vFuuuuip)
 GO(glGetDebugMessageLog,uFuipppppp)
@@ -2825,6 +2825,15 @@ GO(glBlendEquationi,vFuu)
 GO(glBlendFuncSeparatei,vFuuuuu)
 GO(glBlendFunci,vFuuu)
 GO(glMinSampleShading,vFf)
+//VERSION_4_3
+GO(glInvalidateNamedFramebuffer, vFiup)
+//VERSION_4_5
+GO(glBindTextureUnit, vFuu)
+GO(glCreateFramebuffers, vFip)
+GO(glCreateProgramPipelines, vFip)
+GO(glCreateRenderbuffers, vFip)
+GO(glCreateTextures, vFuip)
+GO(glInvalidateNamedFramebufferData, vFuip)
 
 //GL_KTX_buffer_region
 GO(glBufferRegionEnabled,uFv)

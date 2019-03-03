@@ -14,9 +14,11 @@
 #include "x86emu_private.h"
 #include "box86context.h"
 #include "librarian.h"
+#include "callback.h"
 
 void* my_glXGetProcAddress(x86emu_t* emu, void* name);
 void* my_glXGetProcAddressARB(x86emu_t* emu, void* name);
+void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param);
 
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
@@ -93,3 +95,38 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
+
+typedef void (*vFpp_t)(void*, void*);
+typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
+static x86emu_t *debug_cb = NULL;
+static void debug_callback(int32_t source, int32_t type, uint32_t id, int32_t severity, int32_t length, const char* message, const void* param)
+{
+    if(!debug_cb)
+        return;
+    SetCallbackArg(debug_cb, 0, (void*)source);
+    SetCallbackArg(debug_cb, 1, (void*)type);
+    SetCallbackArg(debug_cb, 2, (void*)id);
+    SetCallbackArg(debug_cb, 3, (void*)severity);
+    SetCallbackArg(debug_cb, 4, (void*)length);
+    SetCallbackArg(debug_cb, 5, (void*)message);
+    SetCallbackArg(debug_cb, 6, (void*)param);
+    RunCallback(debug_cb);
+}
+EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
+{
+    static vFpp_t DebugMessageCallback = NULL;
+    static int init = 1;
+    if(init) {
+        DebugMessageCallback = my_glXGetProcAddress(emu, "glDebugMessageCallback");
+        init = 0;
+    }
+    if(!DebugMessageCallback)
+        return;
+    if(debug_cb) {
+        FreeCallback(debug_cb);
+        debug_cb = NULL;
+    }
+    if(prod)
+        debug_cb = AddCallback(emu, (uintptr_t)prod, 7, NULL, NULL, NULL, NULL);
+    DebugMessageCallback(prod?debug_callback:NULL, param);
+}
