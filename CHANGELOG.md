@@ -1,6 +1,14 @@
 Current version
 =======
 
+v0.0.4
+=======
+* Improved the Init of dependant Libs. More things work now.
+* Added a lot of wrapped functions.
+* Added a few wrapped libs (like libz or some other x11 related libs)
+* For trace enabled build, Trace can be enabled only after a certain amount of opcodes (still, a debugger would be better)
+* Some fixes in a few opcodes, and implemented x87 rounding (SuperMeatBoy behaves better now)
+* FTL 1.6.9 stiil sounds bad, but older 1.5.13 seems fine (different set of libs)
 
 v0.0.2
 =======
