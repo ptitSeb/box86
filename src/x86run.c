@@ -195,6 +195,7 @@ int Run(x86emu_t *emu)
 
 x86emurun:
     ip = R_EIP;
+    UnpackFlags(emu);
     while (1)
     {
 #ifdef HAVE_TRACE
@@ -1428,6 +1429,7 @@ _trace:
                 goto fini;
         }
 fini:
+    PackFlags(emu);
     if(emu->fork) {
         emu->quit = 0;
         emu->fork = 0;
