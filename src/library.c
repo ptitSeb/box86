@@ -234,14 +234,29 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 
     return lib;
 }
-int FinalizeLibrary(library_t* lib, x86emu_t* emu)
+int AddSymbolsLibrary(library_t* lib, x86emu_t* emu)
 {
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
         // add symbols
         AddSymbols(lib->context->maplib, lib->priv.n.mapsymbols, lib->priv.n.weaksymbols, lib->priv.n.localsymbols, elf_header);
         // Call librarian to load all dependant elf
-        if(LoadNeededLib(elf_header, lib->context->maplib, lib->context, emu)) {
+        if(LoadNeededLibs(elf_header, lib->context->maplib, lib->context, emu)) {
+            printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
+            return 1;
+        }
+    }
+    return 0;
+}
+int FinalizeLibrary(library_t* lib, x86emu_t* emu)
+{
+    if(lib->type==1) {
+        if(lib->priv.n.finalized)
+            return 0;
+        lib->priv.n.finalized = 1;
+        elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
+        // Call librarian to load all dependant elf
+        if(FinalizeNeededLibs(elf_header, lib->context->maplib, lib->context, emu)) {
             printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
             return 1;
         }

@@ -57,6 +57,11 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         return NULL;
     }
+    if(FinalizeNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
+        printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        return NULL;
+    }
+    
     //get the lib and add it to the collection
     library_t *lib = GetLib(emu->context->maplib, rfilename);
     if(dl->lib_sz == dl->lib_cap) {

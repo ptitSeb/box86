@@ -40,6 +40,7 @@ typedef struct wlib_s {
 
 typedef struct nlib_s {
     int             elf_index;
+    int             finalized;
     kh_mapsymbols_t *mapsymbols;
     kh_mapsymbols_t *weaksymbols;
     kh_mapsymbols_t *localsymbols;

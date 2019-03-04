@@ -104,13 +104,20 @@ int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_
     maplib->libraries[maplib->libsz].lib = lib;
     maplib->libraries[maplib->libsz].name = GetNameLib(lib);
     ++maplib->libsz;
-    if(FinalizeLibrary(lib, emu)) {
-        printf_log(LOG_DEBUG, "Faillure to finalizing lib => fail\n");
-        return 1;   //Error
+    if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
+        printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
+        return 1;
     }
     printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
     
     return 0;
+}
+int FinalizeNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu)
+{
+    if(FinalizeLibrary(GetLib(maplib, path), emu)) {
+        printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
+        return 1;
+    }
 }
 
 library_t* GetLib(lib_t* maplib, const char* name)

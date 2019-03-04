@@ -8,6 +8,7 @@ typedef struct box86context_s  box86context_t;
 typedef struct x86emu_s        x86emu_t;
 
 library_t *NewLibrary(const char* path, box86context_t* box86);
+int AddSymbolsLibrary(library_t* lib, x86emu_t* emu);
 int FinalizeLibrary(library_t* lib, x86emu_t* emu);
 void FreeLibrary(library_t **lib);
 

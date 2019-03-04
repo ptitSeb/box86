@@ -346,8 +346,13 @@ int main(int argc, const char **argv, const char **env) {
     // export symbols
     AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
     // Call librarian to load all dependant elf
-    if(LoadNeededLib(elf_header, context->maplib, context, context->emu)) {
+    if(LoadNeededLibs(elf_header, context->maplib, context, context->emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
+        FreeBox86Context(&context);
+        return -1;
+    }
+    if(FinalizeNeededLibs(elf_header, context->maplib, context, context->emu)) {
+        printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
