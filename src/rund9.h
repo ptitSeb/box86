@@ -240,9 +240,14 @@
                 GET_ED;
                 fpu_do_push(emu);
                 #ifdef USE_FLOAT
-                ST0.f = *(float*)ED;
+                ST0.ll = ED->dword[0];
                 #else
-                ST0.d = *(float*)ED;
+                if(!(((uintptr_t)ED)&3))
+                    ST0.d = *(float*)ED;
+                else {
+                    *(uint32_t*)&f = ED->dword[0];
+                    ST0.d = f;
+                }
                 #endif
                 break;
             case 2:     /* FST Ed, ST0 */
@@ -250,15 +255,25 @@
                 #ifdef USE_FLOAT
                 *(float*)ED = ST0.f;
                 #else
-                *(float*)ED = ST0.d;
+                if(!(((uintptr_t)ED)&3))
+                    *(float*)ED = ST0.d;
+                else {
+                    f = ST0.d;
+                    ED->dword[0] = *(uint32_t*)&f;
+                }
                 #endif
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GET_ED;
                 #ifdef USE_FLOAT
-                *(float*)ED = ST0.f;
+                ED->dword[0] = ST0.ll;
                 #else
-                *(float*)ED = ST0.d;
+                if(!(((uintptr_t)ED)&3))
+                    *(float*)ED = ST0.d;
+                else {
+                    f = ST0.d;
+                    ED->dword[0] = *(uint32_t*)&f;
+                }
                 #endif
                 fpu_do_pop(emu);
                 break;
