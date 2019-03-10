@@ -114,7 +114,14 @@
             ST0.d = exp2(ST0.d) - 1.0;
             #endif
             break;
-        
+        case 0xF1:  /* FYL2X */
+            #ifdef USE_FLOAT
+            ST(1).f = log2f(ST0.f)*ST(1).f;
+            #else
+            ST(1).d = log2(ST0.d)*ST(1).d;
+            #endif
+            fpu_do_pop(emu);
+            break;
         case 0xF2:  /* FTAN */
             #ifdef USE_FLOAT
             ST0.f = tanf(ST0.f);
@@ -163,7 +170,14 @@
             emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
             emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
             break;
-
+        case 0xF9:  /* FYL2XP1 */
+            #ifdef USE_FLOAT
+            ST(1).f = log2f(ST0.f + 1.0f)*ST(1).f;
+            #else
+            ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
+            #endif
+            fpu_do_pop(emu);
+            break;
         case 0xFA:  /* FSQRT */
             #ifdef USE_FLOAT
             ST0.f = sqrtf(ST0.f);
@@ -228,11 +242,9 @@
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF1:
         case 0xF5:
         case 0xF6:
         case 0xF7:
-        case 0xF9:
             goto _default;
         default:
         switch((nextop>>3)&7) {

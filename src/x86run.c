@@ -508,6 +508,11 @@ _trace:
                     R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
                     break;
 
+                case 0xA3:             /* MOV Od,EAX */
+                    tmp32u = F32;
+                    *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u) = R_EAX;
+                    break;
+
                 case 0xC7:              /* MOV Ed,Id */
                     nextop = F8;
                     GET_ED;
