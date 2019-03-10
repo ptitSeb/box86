@@ -84,7 +84,7 @@ void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
         emu->globals = globals;
         emu->shared_global = shared_global;
     } else {
-        emu->globals = calloc(1, 1024);  // arbitrary 1024 byte size?
+        emu->globals = (void*)((char*)calloc(1, 1024)+128);  // arbitrary 1024 byte size, with a small shift to enable negative offset
         // calc canary...
         uint8_t canary[4];
         for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
@@ -183,7 +183,7 @@ void FreeX86Emu(x86emu_t **emu)
     free((*emu)->cleanups);
     if((*emu)->shared_global && !(*(*emu)->shared_global)--) {
         if((*emu)->globals)
-            free((*emu)->globals);
+            free(((char*)(*emu)->globals-128));
         free((*emu)->shared_global);
     }
 

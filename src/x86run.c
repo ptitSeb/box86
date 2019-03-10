@@ -491,6 +491,12 @@ _trace:
                         case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
                     }
                     break;
+                case 0x89:              /* MOV Ed,Gd */
+                    nextop = F8;
+                    GET_ED;
+                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                    ED->dword[0] = GD.dword[0];
+                    break;
                 case 0x8B:              /* MOV Gd,Ed */
                     nextop = F8;
                     GET_ED;
@@ -500,6 +506,13 @@ _trace:
                 case 0xA1:              /* MOV EAX,Ov */
                     tmp32u = F32;
                     R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
+                    break;
+
+                case 0xC7:              /* MOV Ed,Id */
+                    nextop = F8;
+                    GET_ED;
+                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+                    ED->dword[0] = F32;
                     break;
 
                 case 0xFF:              /* GRP 5 Ed */
