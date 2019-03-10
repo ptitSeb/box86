@@ -112,6 +112,21 @@ x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg
     return newemu;
 }
 
+x86emu_t* GetCallback1Arg(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1)
+{
+    callbacklist_t *callbacks = emu->context->callbacks;
+    x86emu_t * newemu = emu;
+
+    onecallback_t * cb;
+    int ret;
+    kh_foreach_value(callbacks->list, cb, 
+        if(cb->fnc==fnc && cb->nb_args==nb_args && cb->arg[0]==arg1) {
+            return cb->emu;
+        }
+    );
+    return NULL;
+}
+
 onecallback_t* FindCallback(x86emu_t* emu)
 {
     // find the callback first

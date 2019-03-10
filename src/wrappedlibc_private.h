@@ -1716,7 +1716,7 @@ GO(strxfrm_l, uFppup)
 // swapcontext
 // swapoff  // Weak
 // swapon   // Weak
-// swprintf
+GOM(swprintf, iFEpupV)
 GOM(__swprintf_chk, iFEpuiupV)
 // swscanf
 GOW(symlink, iFpp)

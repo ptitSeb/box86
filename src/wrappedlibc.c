@@ -328,7 +328,6 @@ EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt,
 
 EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN
-    // need to align on arm
     myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
     void* f = verr;
     ((vFipp_t)f)(eval, fmt, emu->scratch);
@@ -341,7 +340,17 @@ EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
 EXPORT int my___swprintf_chk(x86emu_t* emu, void* s, uint32_t n, int32_t flag, uint32_t slen, void* fmt, void * b)
 {
     #ifndef NOALIGN
-    // need to align on arm
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vswprintf;
+    int r = ((iFpupp_t)f)(s, n, fmt, emu->scratch);
+    #else
+    void* f = vswprintf;
+    ((iFpupp_t)f)(s, n, fmt, b);
+    #endif
+}
+EXPORT int my_swprintf(x86emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
+{
+    #ifndef NOALIGN
     myStackAlignW((const char*)fmt, b, emu->scratch);
     void* f = vswprintf;
     int r = ((iFpupp_t)f)(s, n, fmt, emu->scratch);

@@ -131,6 +131,8 @@ typedef struct sdl2_my_s {
     iFupp_t    SDL_TLSSet;
     SFi_t      SDL_JoystickGetDeviceGUID;
     SFpi_t     SDL_GameControllerGetBindForAxis;
+    vFpp_t     SDL_AddEventWatch;
+    vFpp_t     SDL_DelEventWatch;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -183,6 +185,8 @@ void* getSDL2My(library_t* lib)
     GO(SDL_TLSSet, iFupp_t)
     GO(SDL_JoystickGetDeviceGUID, SFi_t)
     GO(SDL_GameControllerGetBindForAxis, SFpi_t)
+    GO(SDL_AddEventWatch, vFpp_t)
+    GO(SDL_DelEventWatch, vFpp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -824,6 +828,33 @@ EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* 
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForAxis(controller, axis);
     return p;
+}
+
+int my2_eventfilter(void* userdata, void* event)
+{
+    x86emu_t *emu = (x86emu_t*)userdata;
+    if(emu) {
+        SetCallbackArg(emu, 1, event);
+        return (int)RunCallback(emu);
+    }
+    return 0;
+}
+EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    x86emu_t *cb = NULL;
+    if(p)
+        cb = AddCallback(emu, (uintptr_t)p, 2, userdata, NULL, NULL, NULL);
+    my->SDL_AddEventWatch(cb?my2_eventfilter:NULL, cb);
+}
+EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    x86emu_t *cb = NULL;
+    // find callbacks that have function and userdata...    
+    if(p)
+        cb = GetCallback1Arg(emu, (uintptr_t)p, 2, userdata);
+    my->SDL_AddEventWatch(cb?my2_eventfilter:NULL, cb);
 }
 
 const char* sdl2Name = "libSDL2-2.0.so.0";

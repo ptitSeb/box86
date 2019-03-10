@@ -5,7 +5,7 @@
 GO(SDL_abs, iFi)
 GO(SDL_acos, dFd)
 GO(SDL_acosf, fFf)
-// SDL_AddEventWatch
+GOM(SDL_AddEventWatch, vFEpp)
 // SDL_AddHintCallback
 GOM(SDL_AddTimer, pFEupp)
 // SDL_AllocFormat
@@ -78,10 +78,10 @@ GO(SDL_CreateTextureFromSurface, pFpp)
 GOM(SDL_CreateThread, pFEppp)
 // SDL_CreateThreadWithStackSize
 GO(SDL_CreateWindow, pFpiiiiu)
-// SDL_CreateWindowAndRenderer
-// SDL_CreateWindowFrom
+GO(SDL_CreateWindowAndRenderer, iFiiupp)
+GO(SDL_CreateWindowFrom, pFp)
 GO(SDL_Delay, vFu)
-// SDL_DelEventWatch
+GOM(SDL_DelEventWatch, vFEpp)
 // SDL_DelHintCallback
 // SDL_DequeueAudio
 GO(SDL_DestroyCond, vFp)
@@ -157,7 +157,7 @@ GO(SDL_GetAudioDeviceName, pFii)
 GOM(SDL_GetBasePath, pFE)
 GO(SDL_GetClipboardText, pFv)
 // SDL_GetClipRect
-// SDL_GetClosestDisplayMode
+GO(SDL_GetClosestDisplayMode, pFipp)
 GO(SDL_GetColorKey, iFpp)
 // SDL_GetCPUCacheLineSize
 // SDL_GetCPUCount
@@ -184,7 +184,7 @@ GO(SDL_GetError, pFv)
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, pFp)
-// SDL_GetKeyFromScancode
+GO(SDL_GetKeyFromScancode, uFu)
 GO(SDL_GetKeyName, pFu)
 // SDL_GetMemoryFunctions
 GO(SDL_GetModState, pFv)
@@ -335,7 +335,7 @@ GO(SDL_InitSubSystem, iFu)
 // SDL_isdigit
 GO(SDL_IsGameController, iFi)
 GO(SDL_IsScreenKeyboardShown, iFp)
-// SDL_IsScreenSaverEnabled
+GO(SDL_IsScreenSaverEnabled, iFv)
 // SDL_IsShapedWindow
 // SDL_isspace
 // SDL_IsTablet
@@ -345,7 +345,7 @@ GO(SDL_JoystickClose, vFp)
 // SDL_JoystickCurrentPowerLevel
 GO(SDL_JoystickEventState, iFi)
 // SDL_JoystickFromInstanceID
-// SDL_JoystickGetAttached
+GO(SDL_JoystickGetAttached, iFp)
 GO(SDL_JoystickGetAxis, iFpi)
 // SDL_JoystickGetAxisInitialState
 // SDL_JoystickGetBall
@@ -417,7 +417,7 @@ GO(SDL_malloc, pFu)
 GO(SDL_MapRGB, uFpCCC)
 GO(SDL_MapRGBA, uFpCCCC)
 // SDL_MasksToPixelFormatEnum
-// SDL_MaximizeWindow
+GO(SDL_MaximizeWindow, vFp)
 // SDL_memcmp
 GO(SDL_memcpy, pFppu)
 GO(SDL_memmove, pFppu)
@@ -448,7 +448,7 @@ GO(SDL_PushEvent, iFp)
 // SDL_QueueAudio
 GO(SDL_Quit, vFv)
 GO(SDL_QuitSubSystem, vFu)
-// SDL_RaiseWindow
+GO(SDL_RaiseWindow, vFp)
 GOM(SDL_ReadBE16, uFp)
 GOM(SDL_ReadBE32, uFp)
 GOM(SDL_ReadBE64, UFp)
