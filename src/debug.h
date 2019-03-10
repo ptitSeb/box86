@@ -11,7 +11,7 @@ extern int trace_xmm;    // include XMM reg in trace?
 
 extern FILE* ftrace;
 
-#define printf_log(L, ...) if(L<=box86_log) fprintf(ftrace, __VA_ARGS__)
+#define printf_log(L, ...) if(L<=box86_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}
 
 #define EXPORT __attribute__((visibility("default")))
 
