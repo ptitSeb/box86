@@ -71,7 +71,7 @@ void x86Int3(x86emu_t* emu)
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
                 } else
-                if(strstr(s, "SDL_RWFromFile")==s) {
+                if(strstr(s, "my_SDL_RWFromFile")==s || strstr(s, "my2_SDL_RWFromFile")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%s, %s)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "glColor4f")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f, %f, %f)", tid, *(void**)(R_ESP), "glColor4f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12), *(float*)(R_ESP+16));
