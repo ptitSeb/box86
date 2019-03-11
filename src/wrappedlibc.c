@@ -267,6 +267,12 @@ EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list
 }
 EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
 
+EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
+{
+    void* f = vfscanf;
+    return ((iFppp_t)f)(stream, fmt, *(uint32_t**)b);
+}
+
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm

@@ -40,7 +40,7 @@ GO(XAllocSizeHints, pFv)
 // _XAllocTemp
 GO(XAllocWMHints, pFv)
 //GO(XAllowEvents
-//GO(XAllPlanes
+GO(XAllPlanes, uFv)
 // _XAsyncErrorHandler
 GO(XAutoRepeatOff, iFp)
 GO(XAutoRepeatOn, iFp)
@@ -53,7 +53,7 @@ GO(XBlackPixel, uFpi)
 //GO(XBlackPixelOfScreen
 //GO(XCellsOfScreen
 //GO(XChangeActivePointerGrab
-//GO(XChangeGC
+GO(XChangeGC, iFppup)
 GO(XChangeKeyboardControl, iFpup)
 //GO(XChangeKeyboardMapping
 GO(XChangePointerControl, iFpiiiii)
@@ -216,7 +216,7 @@ GO(XConvertSelection, iFpppppu)
 GO(XCopyArea, iFppppiiuuii)
 GO(XCopyColormapAndFree, uFpu)
 // _XCopyEventCookie
-//GO(XCopyGC
+GO(XCopyGC, iFpppu)
 GO(XCopyPlane, iFppppiiuuiiu)
 // _XCopyToArg
 GO(XCreateBitmapFromData, pFpppuu)
@@ -242,7 +242,7 @@ GO(XDefaultColormap, pFpi)
 GO(XDefaultDepth, iFpi)
 //GO(XDefaultDepthOfScreen
 // _XDefaultError
-//GO(XDefaultGC
+GO(XDefaultGC, pFpi)
 //GO(XDefaultGCOfScreen
 GO(_XDefaultIOError, iFp)
 // _XDefaultOpenIM
@@ -958,7 +958,7 @@ GO(XSetLocaleModifiers, pFp)
 //GO(XSetPointerMapping
 GO(XSetRegion, iFppp)
 //GO(XSetRGBColormaps
-//GO(XSetScreenSaver
+GO(XSetScreenSaver, iFpiiii)
 GO(XSetSelectionOwner, iFpppu)
 //GO(XSetSizeHints
 //GO(XSetStandardColormap

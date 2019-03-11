@@ -207,7 +207,7 @@ GOM(dl_iterate_phdr, iFEpp)
 // dngettext    // Weak
 // dprintf
 // __dprintf_chk
-// drand48
+GO(drand48, dFv)
 // drand48_r
 GOW(dup, iFi)
 GOW(dup2, iFii)
@@ -630,7 +630,7 @@ GOW(hasmntopt, pFpp)
 // hdestroy_r
 DATA(h_errlist, 4)
 // h_errno  // type B
-// __h_errno_location
+GO(__h_errno_location, pFv)
 GO(herror, vFp)
 // h_nerr   // type R
 // host2netname
@@ -978,7 +978,7 @@ GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, a
 // __libc_clntudp_bufcreate
 // __libc_current_sigrtmax
 // __libc_current_sigrtmax_private
-// __libc_current_sigrtmin
+GO(__libc_current_sigrtmin, iFv)
 // __libc_current_sigrtmin_private
 // __libc_dlclose
 // __libc_dl_error_tsd
@@ -1554,7 +1554,7 @@ GOM(sprintf, iFEppVV)
 GOM(__sprintf_chk, iFEpvvpVV)
 // sprofil  // Weak
 GOW(srand, vFu)
-// srand48
+GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
 // srandom_r    // Weak
@@ -1844,7 +1844,7 @@ GOM(vfork, iFEv) // Weak
 // __vfork
 GOM(vfprintf, iFEppVV)
 GOM(__vfprintf_chk, iFEpvpVV)
-// vfscanf  // Weak
+GOM(vfscanf, iFEppV)  // Weak
 // __vfscanf
 // vfwprintf    // Weak
 // __vfwprintf_chk
