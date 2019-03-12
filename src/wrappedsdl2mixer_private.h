@@ -39,7 +39,7 @@ GO(Mix_HaltGroup,iFi)
 GO(Mix_HaltMusic,iFv)
 // Mix_HasChunkDecoder
 GOM(Mix_HookMusic, vFEpp)
-// Mix_HookMusicFinished
+GOM(Mix_HookMusicFinished, vFEp)
 GO(Mix_Init,iFi)
 GO(Mix_Linked_Version,pFv)
 GO(Mix_LoadMUS,pFp)

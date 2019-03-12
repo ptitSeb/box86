@@ -33,12 +33,15 @@ typedef struct sdl2mixer_my_s {
     iFippp_t    Mix_RegisterEffect;
     vFp_t       Mix_ChannelFinished;
     vFpp_t      Mix_HookMusic;
+    vFp_t       Mix_HookMusicFinished;
 
     x86emu_t* PostCallback;
     x86emu_t* hookMusicCB;
     // timer map
     kh_effectcb_t    *effectcb;
 } sdl2mixer_my_t;
+
+static x86emu_t* hookMusicFinitCB = NULL;
 
 static void* getSDL2MixerMy(library_t* lib)
 {
@@ -51,6 +54,7 @@ static void* getSDL2MixerMy(library_t* lib)
     GO(Mix_RegisterEffect, iFippp_t)
     GO(Mix_ChannelFinished,vFp_t)
     GO(Mix_HookMusic, vFpp_t)
+    GO(Mix_HookMusicFinished, vFp_t)
     #undef GO
     my->effectcb = kh_init(effectcb);
     return my;
@@ -63,6 +67,9 @@ static void freeSDL2MixerMy(library_t* lib)
         FreeCallback(my->PostCallback);
     if(my->hookMusicCB)
         FreeCallback(my->hookMusicCB);
+    if(hookMusicFinitCB)
+        FreeCallback(hookMusicFinitCB);
+    hookMusicFinitCB = NULL;
 }
 
 void EffectFuncCallback(int chan, void *stream, int len, void *udata)
@@ -221,6 +228,26 @@ EXPORT void my2_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
     my->Mix_HookMusic(sdl2mixer_hookMusicCallback, cb);
 }
 
+static void sdl2mixer_hookMusicFinitCallback()
+{
+    x86emu_t *emu = hookMusicFinitCB;
+    if(emu)
+        RunCallback(emu);
+}
+
+EXPORT void my2_Mix_HookMusicFinished(x86emu_t* emu, void* f)
+{
+    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
+    if(hookMusicFinitCB) {
+        my->Mix_HookMusicFinished(NULL);
+        FreeCallback(hookMusicFinitCB);
+        hookMusicFinitCB = NULL;
+    }
+    if(!f)
+        return;
+    hookMusicFinitCB =  AddCallback(emu, (uintptr_t)f, 0, NULL, NULL, NULL, NULL);
+    my->Mix_HookMusicFinished(sdl2mixer_hookMusicFinitCallback);
+}
 
 const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";
 #define LIBNAME sdl2mixer
