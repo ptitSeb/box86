@@ -118,6 +118,7 @@ void x86Int3(x86emu_t* emu)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
+                printf_log(LOG_DEBUG, "%s =>", buff);
                 w(emu, addr);
                 if(post)
                     switch(post) {
@@ -131,7 +132,7 @@ void x86Int3(x86emu_t* emu)
                 }
                 if(perr && errno)
                     snprintf(buff3, 63, " (errno=%d)", errno);
-                printf_log(LOG_DEBUG, "%s => return 0x%08X%s%s\n", buff, R_EAX, buff2, buff3);
+                printf_log(LOG_DEBUG, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
             } else
                 w(emu, addr);
         }
