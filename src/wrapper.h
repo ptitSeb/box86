@@ -200,6 +200,7 @@ void iFuui(x86emu_t *emu, uintptr_t fnc);
 void iFuuu(x86emu_t *emu, uintptr_t fnc);
 void iFuup(x86emu_t *emu, uintptr_t fnc);
 void iFuff(x86emu_t *emu, uintptr_t fnc);
+void iFupp(x86emu_t *emu, uintptr_t fnc);
 void iFfff(x86emu_t *emu, uintptr_t fnc);
 void iFpii(x86emu_t *emu, uintptr_t fnc);
 void iFpiu(x86emu_t *emu, uintptr_t fnc);

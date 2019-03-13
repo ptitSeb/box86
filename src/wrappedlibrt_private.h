@@ -39,7 +39,7 @@ GO(clock_settime, iFup)
 // mq_unlink
 // shm_open
 // shm_unlink
-GO(timer_create, iFpp)
+GO(timer_create, iFupp) // first pointer is a struct sigevent * so will need some work with signal handling maybe
 GO(timer_delete, iFu)
 GO(timer_getoverrun, iFu)
 GO(timer_gettime, iFup)
