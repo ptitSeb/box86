@@ -65,9 +65,9 @@ static void* getSDL2ImageMy(library_t* lib)
 }
 
 #define GO(A) \
-void EXPORT *my2_##A(x86emu_t* emu, void* a) \
+EXPORT void *my2_##A(x86emu_t* emu, void* a) \
 { \
-    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2lib->priv.w.p2; \
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2; \
     SDL2RWSave_t save; \
     RWNativeStart2(emu, (SDL2_RWops_t*)a, &save); \
     void* r = my->A(a); \
@@ -91,9 +91,9 @@ GO(IMG_LoadXPM_RW)
 GO(IMG_LoadXV_RW)
 #undef GO
 
-void EXPORT *my2_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
+ EXPORT void *my2_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
 {
-    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2lib->priv.w.p2;
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
     SDL2RWSave_t save;
     RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
     void* r = my->IMG_LoadTyped_RW(a, b, c);
@@ -101,9 +101,9 @@ void EXPORT *my2_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
-void EXPORT *my2_IMG_Load_RW(x86emu_t* emu, void* a, int32_t b)
+EXPORT void *my2_IMG_Load_RW(x86emu_t* emu, void* a, int32_t b)
 {
-    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2lib->priv.w.p2;
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
     SDL2RWSave_t save;
     RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
     void* r = my->IMG_Load_RW(a, b);

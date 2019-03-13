@@ -59,7 +59,7 @@ static void freeSDL1MixerMy(library_t* lib)
 
 void EXPORT *my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1lib->priv.w.p2;
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDLRWSave_t save;
     RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
     void* r = my->Mix_LoadMUSType_RW(a, b, c);
@@ -69,7 +69,7 @@ void EXPORT *my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 }
 void EXPORT *my_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
 {
-    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1lib->priv.w.p2;
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDLRWSave_t save;
     RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
     void* r = my->Mix_LoadMUS_RW(a);
