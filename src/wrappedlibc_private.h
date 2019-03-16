@@ -1218,8 +1218,8 @@ GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x
 // pmap_rmtcall
 // pmap_set
 // pmap_unset
-GOW(poll, iFpii)    // poll have an array of struct as 1st argument
-GO(__poll, iFpii)
+GOW(poll, iFEpui)    // poll have an array of struct as 1st argument
+GO(__poll, iFEpui)
 GO(popen, pFpp)
 GO(posix_fadvise, iFiuui)
 // posix_fadvise64
