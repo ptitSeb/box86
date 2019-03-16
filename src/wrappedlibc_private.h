@@ -1335,7 +1335,7 @@ GO(__realpath_chk, pFppu)
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
 // re_compile_pattern   // Weak
-GO(recv, iFipui)
+GO(recv, iFipii)
 // __recv_chk
 GOW(recvfrom, iFipuipp)
 // __recvfrom_chk
@@ -1345,7 +1345,7 @@ GOW(regcomp, iFppi)
 GOW(regerror, uFippu)
 GO(regexec, iFppupi)
 GOW(regfree, vFp)
-// __register_atfork
+GOM(__register_atfork, iFEppp)
 // register_printf_function // Weak
 // registerrpc
 // remap_file_pages // Weak

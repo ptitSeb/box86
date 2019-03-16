@@ -96,6 +96,12 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_once);
     pthread_mutex_destroy(&(*context)->mutex_once2);
 
+    if((*context)->atfork_sz) {
+        free((*context)->atforks);
+        (*context)->atforks = NULL;
+        (*context)->atfork_sz = (*context)->atfork_cap = 0;
+    }
+
     free(*context);
     *context = NULL;
 }

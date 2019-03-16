@@ -14,6 +14,11 @@ typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct callbacklist_s callbacklist_t;
 typedef struct library_s library_t;
+typedef struct atfork_fnc_s {
+    uintptr_t prepare;
+    uintptr_t parent;
+    uintptr_t child;
+} atfork_fnc_t;
 
 typedef void* (*procaddess_t)(const char* name);
 
@@ -76,6 +81,10 @@ typedef struct box86context_s {
     int                 deferedInitCap;
 
     int                 forked;         //  how many forks... cleanup only when < 0
+
+    atfork_fnc_t        *atforks;       // fnc for atfork...
+    int                 atfork_sz;
+    int                 atfork_cap;
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

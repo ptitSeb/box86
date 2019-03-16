@@ -20,6 +20,9 @@
 
 x86emu_t* x86emu_fork(x86emu_t* e)
 {
+    // execute atforks prepare functions, in reverse order
+    for (int i=e->context->atfork_sz-1; i>=0; --i)
+        EmuCall(e, e->context->atforks[i].prepare);
     x86emu_t *emu = e;
     // lets duplicate the emu
     void* newstack = 0;
@@ -34,12 +37,19 @@ x86emu_t* x86emu_fork(x86emu_t* e)
     // ready to fork
     ++emu->context->forked;
     int v = fork();
-    if(!v) {  
-        emu = newemu;
-    }
     if(v==EAGAIN || v==ENOMEM) {
         --emu->context->forked;
         FreeX86Emu(&newemu);    // fork failed, free the new emu
+    } else if(!v) {  
+        // execute atforks parent functions
+        for (int i=0; i<emu->context->atfork_sz; --i)
+            EmuCall(emu, emu->context->atforks[i].parent);
+
+    } else if(v==0) {
+        emu = newemu;
+        // execute atforks child functions
+        for (int i=0; i<emu->context->atfork_sz; --i)
+            EmuCall(emu, emu->context->atforks[i].child);
     }
     R_EAX = v;
     return emu;

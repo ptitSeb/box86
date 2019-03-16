@@ -619,6 +619,19 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     return r;
 }
 
+EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
+{
+    // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
+    if(emu->context->atfork_sz==emu->context->atfork_cap) {
+        emu->context->atfork_cap += 4;
+        emu->context->atforks = (atfork_fnc_t*)realloc(emu->context->atforks, emu->context->atfork_sz*sizeof(atfork_fnc_t));
+    }
+    emu->context->atforks[emu->context->atfork_sz].prepare = (uintptr_t)prepare;
+    emu->context->atforks[emu->context->atfork_sz].parent = (uintptr_t)parent;
+    emu->context->atforks[emu->context->atfork_sz++].child = (uintptr_t)child;
+    return 0;
+}
+
 #define CUSTOM_INIT \
     InitCpuModel(); \
     ctSetup(); \
