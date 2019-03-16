@@ -195,7 +195,7 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             if(!u32(12)) {
                 printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
                 uint32_t ret = (uint32_t)syscall(__NR_tgkill, u32(4), u32(8), u32(12));
-                printf("%u\n", ret);
+                printf("%u (errno=%d)\n", ret, (ret==(uint32_t)-1)?errno:0);
                 return ret;
             } else {
                 printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));

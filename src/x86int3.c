@@ -105,6 +105,12 @@ void x86Int3(x86emu_t* emu)
                     post = 2;
                 } else  if(strstr(s, "pread")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %u, %i)", tid, *(void**)(R_ESP), "pread", *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12), *(int32_t*)(R_ESP+16));
+                } else  if(strstr(s, "index")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), "index", *(char***)(R_ESP+4), *(char***)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
+                } else  if(strstr(s, "rindex")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), "rindex", *(char***)(R_ESP+4), *(char***)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
+                } else  if(strstr(s, "my___xstat64")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), "__xstat64", *(int32_t*)(R_ESP+4), *(char***)(R_ESP+8), *(char***)(R_ESP+8), *(void**)(R_ESP+12));
                 } else  if(strstr(s, "sem_timedwait")==s) {
                     pu32 = *(uint32_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, *(void**)(R_ESP), "sem_timedwait", *(void**)(R_ESP+4), *(void**)(R_ESP+8), pu32?pu32[0]:-1, pu32?pu32[1]:-1);
@@ -119,6 +125,8 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %u)", tid, *(void**)(R_ESP), "strcasecmp", *(char**)(R_ESP+4), *(char**)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 } else  if(strstr(s, "strcmp")==s || strstr(s, "__strcmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "strcmp", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "strstr")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "strstr", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "strlen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), "strlen", ((R_ESP+4))?(*(char**)(R_ESP+4)):"nil");
                 } else  if(strstr(s, "my_vsnprintf")==s) {

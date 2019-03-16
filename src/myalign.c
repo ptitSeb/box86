@@ -241,7 +241,7 @@ struct i386_stat64 {
 	unsigned char		__pad3[4];
 	long long		st_size;
 	unsigned int		st_blksize;
-	long long		st_blocks;
+	unsigned long long		st_blocks;
 	unsigned int	st_atime;
 	unsigned int	st_atime_nsec;
 	unsigned int	st_mtime;
@@ -256,6 +256,8 @@ void UnalignStat64(void* source, void* dest)
     struct i386_stat64 *i386st = (struct i386_stat64*)dest;
     struct stat64 *st = (struct stat64*) source;
     
+    memset(i386st->__pad0, 0, sizeof(i386st->__pad0));
+	memset(i386st->__pad3, 0, sizeof(i386st->__pad3));
     i386st->st_dev      = st->st_dev;
     i386st->__st_ino    = st->__st_ino;
     i386st->st_mode     = st->st_mode;
