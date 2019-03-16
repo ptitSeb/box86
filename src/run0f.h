@@ -359,7 +359,7 @@
                 case 0x0:
                     // emulate a P4
                     R_EAX = 0x80000004;
-                    // return GuenuineIntel
+                    // return GenuineIntel
                     R_EBX = 0x756E6547;
                     R_EDX = 0x49656E69;
                     R_ECX = 0x6C65746E;
@@ -387,11 +387,55 @@
                     R_ECX = 0x00000000;
                     R_EDX = 0x007A7000;
                     break;
+                
+                case 0x4:   // Cache info
+                    switch (R_ECX) {
+                        case 0: // L1 data cache
+                            R_EAX = (1 | (1<<5) | (1<<8));   //type
+                            R_EBX = (63 | (7<<22)); // size
+                            R_ECX = 63;
+                            R_EDX = 1;
+                            break;
+                        case 1: // L1 inst cache
+                            R_EAX = (2 | (1<<5) | (1<<8)); //type
+                            R_EBX = (63 | (7<<22)); // size
+                            R_ECX = 63;
+                            R_EDX = 1;
+                            break;
+                        case 2: // L2 cache
+                            R_EAX = (3 | (2<<5) | (1<<8)); //type
+                            R_EBX = (63 | (15<<22));    // size
+                            R_ECX = 4095;
+                            R_EDX = 1;
+                            break;
+
+                        default:
+                            R_EAX = 0x00000000;
+                            R_EBX = 0x00000000;
+                            R_ECX = 0x00000000;
+                            R_EDX = 0x00000000;
+                            break;
+                    }
+                    break;
+                case 0x5:   //mwait info
+                    R_EAX = 0;
+                    R_EBX = 0;
+                    R_ECX = 1 | 2;
+                    R_EDX = 0;
+                    break;
+                case 0x6:   // thermal
+                case 0x9:   // direct cache access
+                case 0xA:   // Architecture performance monitor
+                    R_EAX = 0;
+                    R_EBX = 0;
+                    R_ECX = 0;
+                    R_EDX = 0;
+                    break;
 
                 case 0x80000000:        // max extended
                     break;              // no extended, so return same value as beeing the max value!
                 default:
-                    printf_log(LOG_INFO, "Warning, CPUID command %X unsupported\n", tmp32u);
+                    printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
                     R_EAX = 0;
             }
             NEXT;
