@@ -269,7 +269,9 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
-    return vsnprintf(buff, s, fmt, V);
+    void* f = vsnprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    return r;
     #endif
 }
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
