@@ -3,6 +3,7 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <signal.h>
 
 #include "box86context.h"
 #include "elfloader.h"
@@ -101,6 +102,14 @@ void FreeBox86Context(box86context_t** context)
         (*context)->atforks = NULL;
         (*context)->atfork_sz = (*context)->atfork_cap = 0;
     }
+
+    for(int i=0; i<MAX_SIGNAL; ++i)
+        if((*context)->signals[i]!=0 && (*context)->signals[i]!=1) {
+            signal(i, SIG_DFL);
+        }
+    if((*context)->signal_emu)
+        FreeX86Emu(&(*context)->signal_emu);
+
 
     free(*context);
     *context = NULL;

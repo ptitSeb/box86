@@ -73,6 +73,7 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/callback.c"
     "${CMAKE_HOME_DIRECTORY}/src/sdl1rwops.c"
     "${CMAKE_HOME_DIRECTORY}/src/sdl2rwops.c"
+    "${CMAKE_HOME_DIRECTORY}/src/signals.c"
 )
 
 set(WRAPPEDS

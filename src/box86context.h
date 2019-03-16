@@ -22,6 +22,8 @@ typedef struct atfork_fnc_s {
 
 typedef void* (*procaddess_t)(const char* name);
 
+#define MAX_SIGNAL 64
+
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -85,6 +87,10 @@ typedef struct box86context_s {
     atfork_fnc_t        *atforks;       // fnc for atfork...
     int                 atfork_sz;
     int                 atfork_cap;
+
+    uintptr_t           signals[MAX_SIGNAL];
+    x86emu_t            *signal_emu;
+
 } box86context_t;
 
 box86context_t *NewBox86Context(int argc);

@@ -1345,7 +1345,7 @@ GOW(regcomp, iFppi)
 GOW(regerror, uFippu)
 GO(regexec, iFppupi)
 GOW(regfree, vFp)
-GOM(__register_atfork, iFEppp)
+GOM(__register_atfork, iFEppp)  // ignoring last pointer parameter (dso_handle)
 // register_printf_function // Weak
 // registerrpc
 // remap_file_pages // Weak
