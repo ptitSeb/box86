@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <glob.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -452,6 +453,43 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
         }
     }
     return readlink((const char*)path, (char*)buf, sz);
+}
+
+EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+        // special case for self command line...
+        char tmpcmdline[200] = {0};
+        char tmpbuff[100] = {0};
+        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
+        int tmp = mkstemp(tmpbuff);
+        if(tmp<0) return open(pathname, flags, mode);
+        write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        for (int i=1; i<emu->context->argc; ++i)
+            write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
+    return open(pathname, flags, mode);
+}
+EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
+
+EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+        // special case for self command line...
+        char tmpcmdline[200] = {0};
+        char tmpbuff[100] = {0};
+        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
+        int tmp = mkstemp64(tmpbuff);
+        if(tmp<0) return open64(pathname, flags, mode);
+        write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        for (int i=1; i<emu->context->argc; ++i)
+            write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek64(tmp, 0, SEEK_SET);
+        return tmp;
+    }
+    return open64(pathname, flags, mode);
 }
 
 EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)

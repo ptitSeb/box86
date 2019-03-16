@@ -1179,10 +1179,10 @@ DATA(obstack_exit_failure, 4)
 // obstack_vprintf  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
-GOW(open, iFpiu) 
-GOW(__open, iFpi)
+GOM(open, iFEpiu)    //Weak
+GOM(__open, iFEpiu) //Weak
 // __open_2
-GOW(open64, iFpiu)
+GOM(open64, iFEpiu) //Weak
 // __open64 // Weak
 // __open64_2
 // openat   // Weak
