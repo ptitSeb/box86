@@ -108,6 +108,8 @@ void x86Int3(x86emu_t* emu)
                     post = 2;
                 } else  if(strstr(s, "pread")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %u, %i)", tid, *(void**)(R_ESP), "pread", *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12), *(int32_t*)(R_ESP+16));
+                } else  if(strstr(s, "statvfs64")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %p)", tid, *(void**)(R_ESP), "statvfs64", *(void**)(R_ESP+4), *(char**)(R_ESP+4), *(void**)(R_ESP+8));
                 } else  if(strstr(s, "index")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), "index", *(char**)(R_ESP+4), *(char**)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
                 } else  if(strstr(s, "rindex")==s) {
