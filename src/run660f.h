@@ -413,7 +413,8 @@
         else {
             for (int i=0; i<4; ++i)
                 eax1.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
-            memcpy(&GX, &eax1, sizeof(eax1));
+            GX.q[0] = eax1.q[0];
+            GX.q[1] = eax1.q[1];
         }
         NEXT;
     _6f_0x71:  /* GRP */
