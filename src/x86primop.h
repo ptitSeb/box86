@@ -510,7 +510,7 @@ Implements the IMUL instruction and side effects.
 static void imul8(x86emu_t *emu, uint8_t s)
 {
 	emu->df = d_imul8;
-	R_EAX = emu->res = (int16_t)(int8_t)R_AL * (int8_t)s;
+	R_AX = emu->res = (int16_t)(int8_t)R_AL * (int8_t)s;
 }
 /****************************************************************************
 REMARKS:
@@ -531,8 +531,7 @@ static uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
 {
 	emu->df = d_imul16;
 	emu->res = (int32_t)(int16_t)op1 * (int16_t)op2;
-	op1 = (uint16_t)emu->res;
-	uint16_t tmp = (uint16_t)(emu->res >> 16);
+	return (uint16_t)emu->res;
 }
 /****************************************************************************
 REMARKS:
@@ -592,6 +591,7 @@ Implements the MUL instruction and side effects.
 ****************************************************************************/
 static void mul32_eax(x86emu_t *emu, uint32_t s)
 {
+	emu->df = d_mul32;
 	uint64_t res = (uint64_t)R_EAX * s;
 	emu->res = R_EAX = (uint32_t)res;
 	emu->op1 = R_EDX = (uint32_t)(res >> 32);

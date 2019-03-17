@@ -12,10 +12,10 @@
 #include "library_private.h"
 #include "x86emu_private.h"
 
-int my_snd_async_add_handler(x86emu_t *emu, void *handler, int fd, void* callback, void *private_data);
-int my_snd_async_add_pcm_handler(x86emu_t *emu, void *handler, void *pcm,  void* callback, void *private_data);
-void* my_snd_async_handler_get_callback_private(x86emu_t *emu, void *handler);
-int my_snd_lib_error_set_handler(x86emu_t *emu, void* handler);
+int my_snd_async_add_handler(x86emu_t *emu, void *handler, int fd, void* callback, void *private_data) EXPORT;
+int my_snd_async_add_pcm_handler(x86emu_t *emu, void *handler, void *pcm,  void* callback, void *private_data) EXPORT;
+void* my_snd_async_handler_get_callback_private(x86emu_t *emu, void *handler) EXPORT;
+int my_snd_lib_error_set_handler(x86emu_t *emu, void* handler) EXPORT;
 
 #define LIBNAME libasound
 const char* libasoundName = "libasound.so.2";

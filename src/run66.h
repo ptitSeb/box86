@@ -178,6 +178,12 @@
         R_DX=((R_AX & 0x8000)?0xFFFF:0x0000);
         NEXT;
 
+    _66_0x9C:                              /* PUSHFW */
+        CHECK_FLAGS(emu);
+        PackFlags(emu);
+        Push16(emu, (uint16_t)emu->packed_eflags.x32);
+        NEXT;
+
     _66_0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)F32;
         NEXT;
