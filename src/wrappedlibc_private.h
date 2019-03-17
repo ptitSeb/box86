@@ -293,8 +293,8 @@ GOW(fchown, iFiuu)
 // fchownat
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
-GOW(fcntl, iFiiu)
-GOW(__fcntl, iFiiu)
+GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
+GOW(__fcntl, iFiiuuuuuu)
 GO(fcvt, pFdipp)
 // fcvt_r
 GO(fdatasync, iFi)
@@ -703,7 +703,7 @@ DATA(_IO_2_1_stdin_, 4)
 DATA(_IO_2_1_stdout_, 4)
 // _IO_adjust_column
 // _IO_adjust_wcolumn
-GOW(ioctl, iFiupuuuu)   //the va_list is just to have args of various type, but only 1 arg
+GO(ioctl, iFiuppppp)   //the vararg is just to have args of various type, but only 1 arg
 // _IO_default_doallocate
 // _IO_default_finish
 // _IO_default_pbackfail
@@ -1335,7 +1335,7 @@ GO(__realpath_chk, pFppu)
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
 // re_compile_pattern   // Weak
-GO(recv, iFipii)
+GO(recv, iFipui)
 // __recv_chk
 GOW(recvfrom, iFipuipp)
 // __recvfrom_chk
