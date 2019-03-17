@@ -393,10 +393,11 @@ uint8_t daa8(x86emu_t *emu, uint8_t d)
 		res += 6;
 		SET_FLAG(F_AF);
 	}
-	if (res > 0x9F || ACCESS_FLAG(F_CF)) {
+	if (d > 0x99 || ACCESS_FLAG(F_CF)) {
 		res += 0x60;
 		SET_FLAG(F_CF);
-	}
+	} else
+		CLEAR_FLAG(F_CF);
 	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xFF) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -409,21 +410,24 @@ Implements the DAS instruction and side effects.
 ****************************************************************************/
 uint8_t das8(x86emu_t *emu, uint8_t d)
 {
+	uint32_t res = d;
 	CHECK_FLAGS(emu);
+	uint32_t newcf = 0;
 	if ((d & 0xf) > 9 || ACCESS_FLAG(F_AF)) {
-		d -= 6;
+		res -= 6;
+		newcf = (d < 6);
 		SET_FLAG(F_AF);
 	} else
 		CLEAR_FLAG(F_AF);
-	if (d > 0x9F || ACCESS_FLAG(F_CF)) {
-		d -= 0x60;
-		SET_FLAG(F_CF);
-	} else
-		CLEAR_FLAG(F_CF);
-	CONDITIONAL_SET_FLAG(d & 0x80, F_SF);
-	CONDITIONAL_SET_FLAG(d == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(d & 0xff), F_PF);
-	return d;
+	if (d > 0x99 || ACCESS_FLAG(F_CF)) {
+		res -= 0x60;
+		newcf = 1;
+	}
+	CONDITIONAL_SET_FLAG(newcf, F_CF);
+	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
+	CONDITIONAL_SET_FLAG((res & 0xFF) == 0, F_ZF);
+	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
+	return res;
 }
 
 /****************************************************************************
@@ -899,7 +903,7 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			CLEAR_FLAG(F_OF);
 		}
 	} else {
-		res = (fill << (cnt)) | (d >> (16 - cnt));
+		res = (fill << (cnt)) | (fill >> (16 - cnt));
 		if(s==16)
 			cf = d & 1;
 		else
@@ -973,7 +977,7 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
         }
 	} else {
 		cf = fill & (1 << (cnt - 1));
-		res = (fill >> cnt) | (d << (16 - cnt));
+		res = (fill >> cnt) | (fill << (16 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
