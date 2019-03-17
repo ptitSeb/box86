@@ -42,6 +42,7 @@ scwrap_t syscallwrap[] = {
     { 33, __NR_access, 2 },
     { 38, __NR_rename, 2 },
     { 39, __NR_mkdir, 2 },
+    { 42, __NR_pipe, 1 },
     { 54, __NR_ioctl, 5 },
     { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
