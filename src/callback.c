@@ -12,12 +12,15 @@
 #include "stack.h"
 #include "khash.h"
 
+typedef struct onecallback_s onecallback_t;
+
 typedef struct onecallback_s {
     x86emu_t    *emu;
     uintptr_t   fnc;
     int         nb_args;
     void*       arg[10];
     int         shared;
+    onecallback_t *chain;
 } onecallback_t;
 
 KHASH_MAP_INIT_INT(callbacks, onecallback_t*)
@@ -27,6 +30,16 @@ typedef struct callbacklist_s {
     int                 cap;
     int                 sz;
 } callbacklist_t;
+
+onecallback_t* FindCallback(x86emu_t* emu)
+{
+    // find the callback first
+    callbacklist_t *callbacks = emu->context->callbacks;
+    khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)emu);
+    if(k==kh_end(callbacks->list))
+        return NULL;
+    return kh_value(callbacks->list, k);
+}
 
 x86emu_t* AddCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
 {
@@ -96,6 +109,9 @@ x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg
     x86emu_t * newemu = emu;
 
     onecallback_t * cb;
+
+    onecallback_t * old = FindCallback(emu);
+    
     int ret;
     khint_t k = kh_put(callbacks, callbacks->list, (uintptr_t)newemu, &ret);
     cb = kh_value(callbacks->list, k) = (onecallback_t*)calloc(1, sizeof(onecallback_t));
@@ -108,6 +124,7 @@ x86emu_t* AddSharedCallback(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg
     cb->arg[2] = arg3;
     cb->arg[3] = arg4;
     cb->shared = 1;
+    cb->chain = old;
 
     return newemu;
 }
@@ -127,16 +144,6 @@ x86emu_t* GetCallback1Arg(x86emu_t* emu, uintptr_t fnc, int nb_args, void* arg1)
     return NULL;
 }
 
-onecallback_t* FindCallback(x86emu_t* emu)
-{
-    // find the callback first
-    callbacklist_t *callbacks = emu->context->callbacks;
-    khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)emu);
-    if(k==kh_end(callbacks->list))
-        return NULL;
-    return kh_value(callbacks->list, k);
-}
-
 void FreeCallback(x86emu_t* emu)
 {
     // find the callback first
@@ -147,8 +154,12 @@ void FreeCallback(x86emu_t* emu)
     onecallback_t* cb = kh_value(callbacks->list, k);
     if(!cb->shared)
         FreeX86Emu(&cb->emu);
+    if(cb->chain) {
+        kh_value(callbacks->list, k) = cb->chain;   // unchain, in case of shared callback inside callback
+    } else {
+        kh_del(callbacks, callbacks->list, k);
+    }
     free(cb);
-    kh_del(callbacks, callbacks->list, k);
 }
 
 uint32_t RunCallback(x86emu_t* emu)
