@@ -120,6 +120,12 @@
             }
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
             NEXT;
+
+        _0f_0x31:                   /* RDTSC */
+            tmp64u = ReadTSC(emu);
+            R_EDX = tmp64u>>32;
+            R_EAX = tmp64u&0xFFFFFFFF;
+            NEXT;
         
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
         _0f_##BASE##_0:                          \

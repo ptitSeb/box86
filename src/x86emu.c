@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -361,4 +362,35 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     R_ESI = old_esi;
     R_EBP = old_ebp;
     R_EIP = old_eip;  // and set back instruction pointer
+}
+
+uint64_t ReadTSC(x86emu_t* emu)
+{
+    // Read the TimeStamp Counter as 64bits.
+    // this is supposed to be the number of instrunctions executed since last reset
+#if defined(__i386__)
+  uint64_t ret;
+  __asm__ volatile("rdtsc" : "=A"(ret));
+  return ret;
+#elif defined(__ARM_ARCH)
+#if (__ARM_ARCH >= 6)
+  uint32_t pmccntr;
+  uint32_t pmuseren;
+  uint32_t pmcntenset;
+  // Read the user mode perf monitor counter access permissions.
+  asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
+  if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
+    asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
+    if (pmcntenset & 0x80000000ul) {  // Is it counting?
+      asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
+      // The counter is set up to count every 64th cycle, but it's x86 we want...,so *64 is probably too much
+      return (uint64_t)(pmccntr) * 32;
+    }
+  }
+#endif
+#endif
+// fall back to gettime...
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
 }

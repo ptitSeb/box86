@@ -32,6 +32,8 @@ void CallCleanup(x86emu_t *emu, void* p);
 void CallAllCleanup(x86emu_t *emu);
 void UnimpOpcode(x86emu_t* emu);
 
+uint64_t ReadTSC(x86emu_t* emu);
+
 double FromLD(void* ld);        // long double (80bits pointer) -> double
 void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
 void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
