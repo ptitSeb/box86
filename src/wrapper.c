@@ -707,7 +707,6 @@ typedef void (*vFpippiiuu_t)(void*, int32_t, void*, void*, int32_t, int32_t, uin
 typedef void (*vFppiiipii_t)(void*, void*, int32_t, int32_t, int32_t, void*, int32_t, int32_t);
 typedef void (*vFppppiipi_t)(void*, void*, void*, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
-typedef int32_t (*iFEpuuiuui_t)(x86emu_t*, void*, uint32_t, uint32_t, int32_t, uint32_t, uint32_t, int32_t);
 typedef int32_t (*iFEppiiiip_t)(x86emu_t*, void*, void*, int32_t, int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFiiiiiiip_t)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFiiippppp_t)(int32_t, int32_t, int32_t, void*, void*, void*, void*, void*);
@@ -1500,7 +1499,6 @@ void vFpippiiuu(x86emu_t *emu, uintptr_t fcn) { vFpippiiuu_t fn = (vFpippiiuu_t)
 void vFppiiipii(x86emu_t *emu, uintptr_t fcn) { vFppiiipii_t fn = (vFppiiipii_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(void**)(R_ESP + 24), *(int32_t*)(R_ESP + 28), *(int32_t*)(R_ESP + 32)); }
 void vFppppiipi(x86emu_t *emu, uintptr_t fcn) { vFppppiipi_t fn = (vFppppiipi_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(int32_t*)(R_ESP + 24), *(void**)(R_ESP + 28), *(int32_t*)(R_ESP + 32)); }
 void iFEpippppp(x86emu_t *emu, uintptr_t fcn) { iFEpippppp_t fn = (iFEpippppp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
-void iFEpuuiuui(x86emu_t *emu, uintptr_t fcn) { iFEpuuiuui_t fn = (iFEpuuiuui_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(uint32_t*)(R_ESP + 20), *(uint32_t*)(R_ESP + 24), *(int32_t*)(R_ESP + 28)); }
 void iFEppiiiip(x86emu_t *emu, uintptr_t fcn) { iFEppiiiip_t fn = (iFEppiiiip_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(int32_t*)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 void iFiiiiiiip(x86emu_t *emu, uintptr_t fcn) { iFiiiiiiip_t fn = (iFiiiiiiip_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(int32_t*)(R_ESP + 24), *(int32_t*)(R_ESP + 28), *(void**)(R_ESP + 32)); }
 void iFiiippppp(x86emu_t *emu, uintptr_t fcn) { iFiiippppp_t fn = (iFiiippppp_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28), *(void**)(R_ESP + 32)); }

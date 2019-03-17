@@ -428,7 +428,7 @@ int32_t EXPORT my_SDL_SetTimer(x86emu_t* emu, uint32_t t, void* p)
         my->settimer = my_SDL_AddTimer(emu, t, p, NULL);
     return 0;
 }
-
+#if 0
 int32_t EXPORT my_SDL_BuildAudioCVT(x86emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
 {
     printf_log(LOG_NONE, "Error, using Unimplemented SDL1 SDL_BuildAudioCVT\n");
@@ -442,7 +442,7 @@ int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
     emu->quit = 1;
     return 0;
 }
-
+#endif
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
