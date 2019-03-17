@@ -79,12 +79,12 @@ int Run(x86emu_t *emu)
     &&_0xB0,    &&_0xB1,    &&_0xB2,    &&_0xB3,    &&_0xB4,    &&_0xB5,    &&_0xB6,    &&_0xB7, 
     &&_0xB8,    &&_0xB9,    &&_0xBA,    &&_0xBB,    &&_0xBC,    &&_0xBD,    &&_0xBE,    &&_0xBF, 
     &&_0xC0,    &&_0xC1,    &&_0xC2,    &&_0xC3,    &&_default, &&_default, &&_0xC6,    &&_0xC7, 
-    &&_default, &&_0xC9,    &&_default, &&_default, &&_0xCC,    &&_0xCD,    &&_default, &&_default,  //0xC8-0xCF
+    &&_0xC8,    &&_0xC9,    &&_default, &&_default, &&_0xCC,    &&_0xCD,    &&_default, &&_default,  //0xC8-0xCF
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_default, &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
     &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_default, &&_default, &&_default, &&_default,
     &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_default, &&_default, &&_default,
-    &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_default, &&_0xF6,    &&_0xF7, 
+    &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_0xF5,    &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_default, &&_default, &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
     };
 
@@ -143,7 +143,7 @@ int Run(x86emu_t *emu)
     &&_default, &&_66_0x81, &&_default, &&_66_0x83, &&_default, &&_66_0x85, &&_default, &&_66_0x87, 
     &&_default, &&_66_0x89, &&_default, &&_66_0x8B, &&_default, &&_default, &&_default, &&_66_0x8F, 
     &&_66_0x90, &&_default, &&_66_0x92, &&_default, &&_default, &&_default, &&_default, &&_default, 
-    &&_66_0x98, &&_66_0x99, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, //0x98-0x9F
+    &&_66_0x98, &&_66_0x99, &&_default, &&_default, &&_66_0x9C, &&_default, &&_default, &&_default, //0x98-0x9F
     &&_default, &&_66_0xA1, &&_default, &&_66_0xA3, &&_default, &&_66_0xA5, &&_default, &&_66_0xA7, 
     &&_default, &&_66_0xA9, &&_default, &&_66_0xAB, &&_default, &&_66_0xAD, &&_default, &&_66_0xAF, //0xA8-0xAF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xB0-0xB7
@@ -986,6 +986,22 @@ _trace:
             ED->dword[0] = F32;
             NEXT;
 
+        _0xC8:                      /* ENTER Iw,Ib */
+            tmp16u = F16;
+            tmp8u = (F8) & 0x1f;
+            tmp32u = R_EBP;
+            Push(emu, R_EBP);
+            R_EBP = R_ESP;
+            if (tmp8u) {
+                for (tmp8u2 = 1; tmp8u2 < tmp8u; tmp8u2++) {
+                    tmp32u -= 4;
+                    Push(emu, *((uint32_t*)tmp32u));
+                }
+                Push(emu, R_EBP);
+            }
+            R_ESP -= tmp16u;
+            NEXT;
+
         _0xC9:                      /* LEAVE */
             R_ESP = R_EBP;
             R_EBP = Pop(emu);
@@ -1288,7 +1304,12 @@ _trace:
                 R_ECX = tmp32u;
             }   // else(nextop==0x0F)
             NEXT;
-        
+
+        _0xF5:                      /* CMC */
+            CHECK_FLAGS(emu);
+            CONDITIONAL_SET_FLAG(!ACCESS_FLAG(F_CF), F_CF);
+            NEXT;
+
         _0xF6:                      /* GRP3 Eb(,Ib) */
             nextop = F8;
             GET_EB;
