@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <asm/stat.h>
 #include <errno.h>
+#include <sched.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -21,6 +22,8 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "myalign.h"
+#include "box86context.h"
+#include "callback.h"
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
@@ -47,6 +50,7 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
+    //{120, __NR_clone, 1 },    // need works, args is struct pt_regs...
     { 125,__NR_mprotect, 3 },
     { 140,__NR__llseek, 5 },
 #ifdef __NR_select
@@ -80,6 +84,34 @@ struct mmap_arg_struct {
 #undef st_atime
 #undef st_ctime
 #undef st_mtime
+
+struct x86_pt_regs {
+	long ebx;
+	long ecx;
+	long edx;
+	long esi;
+	long edi;
+	long ebp;
+	long eax;
+	int  xds;
+	int  xes;
+	int  xfs;
+	int  xgs;
+	long orig_eax;
+	long eip;
+	int  xcs;
+	long eflags;
+	long esp;
+	int  xss;
+};
+
+int clone_fn(void* arg)
+{
+    x86emu_t *emu = (x86emu_t*)arg;
+    int ret = (int)RunCallback(emu);
+    FreeCallback(emu);
+    return ret;
+}
 
 void EXPORT x86Syscall(x86emu_t *emu)
 {
@@ -120,6 +152,28 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
                 R_EAX = (uintptr_t)mmap((void*)st->addr, st->len, st->prot, st->flags, st->fd, st->offset);
+            }
+            return;
+        case 120:   // clone
+            {
+                struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EBX;
+                // lets duplicate the emu
+                x86emu_t* newemu = AddSmallCallback(emu, regs->eip, 0, NULL, NULL, NULL, NULL);
+                SetEAX(newemu, regs->eax);
+                SetEBX(newemu, regs->ebx);
+                SetECX(newemu, regs->ecx);
+                SetEDX(newemu, regs->edx);
+                SetEDI(newemu, regs->edi);
+                SetESI(newemu, regs->esi);
+                SetEBP(newemu, regs->ebp);
+                SetESP(newemu, regs->ecx?regs->ecx:regs->esp);
+                //TODO: how to clean that child-stack ??? The child process cannot free it's own stack :S
+                void* newstack = NULL;
+                if(posix_memalign(&newstack, emu->context->stackalign, 1024*1024)) {
+                    printf_log(LOG_NONE, "Warning, posix_memalign failed, using regular malloc...\n");
+                    newstack = malloc(1024*1024);
+                }
+                R_EAX = (uint32_t)clone(clone_fn, (void*)((uintptr_t)newstack+1024*1024), regs->ebx, newemu, regs->edx, 0, regs->edi);
             }
             return;
 #ifndef __NR_select

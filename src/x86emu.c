@@ -258,6 +258,18 @@ void SetEIP(x86emu_t *emu, uint32_t v)
 {
     R_EIP = v;
 }
+void SetESI(x86emu_t *emu, uint32_t v)
+{
+    R_ESI = v;
+}
+void SetEDI(x86emu_t *emu, uint32_t v)
+{
+    R_EDI = v;
+}
+void SetEBP(x86emu_t *emu, uint32_t v)
+{
+    R_EBP = v;
+}
 void SetESP(x86emu_t *emu, uint32_t v)
 {
     R_ESP = v;
