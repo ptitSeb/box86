@@ -2,7 +2,7 @@
 #error Meh....
 #endif
 
-GO(curl_easy_cleanup, vFp)
+GOM(curl_easy_cleanup, vFEp)
 //GO(curl_easy_duphandle, 
 //GO(curl_easy_escape, 
 GO(curl_easy_getinfo, uFpppppp) //vararg
@@ -12,7 +12,7 @@ GO(curl_easy_init, pFv)
 //GO(curl_easy_recv, 
 //GO(curl_easy_reset, 
 //GO(curl_easy_send, 
-//GOM(curl_easy_setopt, uFEpup)   // can set many callbacks!
+GOM(curl_easy_setopt, uFEpup)   // can set many callbacks!
 //GO(curl_easy_strerror, 
 //GO(curl_easy_unescape, 
 //GO(curl_escape, 
