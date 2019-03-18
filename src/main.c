@@ -166,6 +166,7 @@ void PrintHelp() {
 #endif
     printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
+    printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binaray (if binary is a PIE)\n");
 }
 
 int main(int argc, const char **argv, const char **env) {
@@ -284,7 +285,7 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // allocate memory
-    if(AllocElfMemory(elf_header)) {
+    if(AllocElfMemory(elf_header, 1)) {
         printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);

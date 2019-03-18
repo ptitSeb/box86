@@ -84,34 +84,29 @@ const char* ElfName(elfheader_t* head)
     return head->name;
 }
 
-int AllocElfMemory(elfheader_t* head)
+int AllocElfMemory(elfheader_t* head, int mainbin)
 {
-    #if 0
-    printf_log(LOG_DEBUG, "Allocating memory for Elf \"%s\"\n", head->name);
-    if (posix_memalign((void**)&head->memory, head->align, head->memsz)) {
-        printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for elf \"%s\"\n", head->memsz, head->align, head->name);
-        return 1;
+    uintptr_t offs = 0;
+    if(mainbin && head->vaddr==0) {
+        char* load_addr = getenv("BOX86_LOAD_ADDR");
+        if(load_addr)
+            if(sscanf(load_addr, "0x%x", &offs)!=1)
+                offs = 0;
     }
-    printf_log(LOG_DEBUG, "Address is %p\n", head->memory);
-    printf_log(LOG_DEBUG, "And setting memory access to PROT_READ | PROT_WRITE | PROT_EXEC\n");
-    if (mprotect(head->memory, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC)) {
-        printf_log(LOG_NONE, "Cannot protect memory for elf \"%s\"\n", head->name);
-        // memory protect error not fatal for now....
-    }
-    #else
-    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)head->vaddr, head->name);
-    void* p = mmap((void*)head->vaddr, head->memsz
-        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | ((head->vaddr)?MAP_FIXED:0)
+    if(!offs)
+        offs = head->vaddr;
+    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+    void* p = mmap((void*)offs, head->memsz
+        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | ((offs)?MAP_FIXED:0)
         , -1, 0);
     if(p==MAP_FAILED) {
-        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->vaddr, head->memsz, head->align, head->name);
+        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
         return 1;
     }
     head->memory = p;
     memset(p, 0, head->memsz);
     head->delta = (intptr_t)p - (intptr_t)head->vaddr;
     printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
-    #endif
 
     return 0;
 }

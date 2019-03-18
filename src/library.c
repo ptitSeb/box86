@@ -194,7 +194,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
                 return NULL;
             }
             // allocate memory
-            if(AllocElfMemory(elf_header)) {
+            if(AllocElfMemory(elf_header, 0)) {
                 printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
                 fclose(f);
                 return NULL;

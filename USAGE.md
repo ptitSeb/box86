@@ -44,3 +44,6 @@ Only on build with trace enabled.
 * 0 : Default, the XMM (i.e. SSE/SSE2) register will not be logged with the general and x87 registers
 * 1 : Dump the XMM registers
 
+#### BOX86_LOAD_ADDR
+Try to load at 0xXXXXXX main binaray (if binary is a PIE)
+* 0xXXXXXXXX the load address (only active on PIE programs)
