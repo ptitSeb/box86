@@ -369,7 +369,7 @@ GOW(fputs, iFpp)    // Weak
 // fputs_unlocked
 GO(fputwc, iFip)
 // fputwc_unlocked
-// fputws
+GO(fputws, iFpp)
 // fputws_unlocked
 GOW(fread, uFpuup)
 // __freadable
@@ -897,7 +897,7 @@ GO(isspace, iFi)
 GO(isupper, iFi)
 // __isupper_l
 // isupper_l    // Weak
-// iswalnum // Weak
+GOW(iswalnum, iFi)
 // __iswalnum_l
 // iswalnum_l   // Weak
 // iswalpha // Weak
@@ -1888,7 +1888,7 @@ GOW(__waitpid, iFip)
 // __wcpncpy_chk
 GOW(wcrtomb, uFpip)
 // __wcrtomb_chk
-// wcscasecmp   // Weak
+GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
 // wcscasecmp_l // Weak
 // wcscat   // Weak
@@ -1907,23 +1907,23 @@ GO(wcsftime, uFpupp)
 GO(__wcsftime_l, uFpuppu)
 // wcsftime_l   // Weak
 GOW(wcslen, uFp)
-// wcsncasecmp  // Weak
+GOW(wcsncasecmp, iFppu)
 // __wcsncasecmp_l
 // wcsncasecmp_l    // Weak
 // wcsncat
 // __wcsncat_chk
-// wcsncmp
+GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
 // __wcsncpy_chk
 // wcsnlen  // Weak
 GOW(wcsnrtombs, uFppuup)
 // __wcsnrtombs_chk
-// wcspbrk
-// wcsrchr
+GO(wcspbrk, pFpp)
+GO(wcsrchr, pFpi)
 GOW(wcsrtombs, uFppup)
 // __wcsrtombs_chk
 // wcsspn
-// wcsstr
+GO(wcsstr, pFpp)
 GO(wcstod, dFpp)
 // __wcstod_internal
 // __wcstod_l
@@ -1939,7 +1939,7 @@ GO(wcstol, iFppi)
 // __wcstold_internal
 // __wcstold_l
 // wcstold_l    // Weak
-// __wcstol_internal
+GO(__wcstol_internal, iFppii)
 GO(wcstoll, IFppi)
 // __wcstol_l
 // wcstol_l // Weak
