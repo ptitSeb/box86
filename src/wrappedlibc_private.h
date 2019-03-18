@@ -279,9 +279,9 @@ GOM(execlp, iFEpVV)
 GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
 // execve   // Weak
 GOM(execvp, iFEpVV)
-GOM(exit, vFEi)
-GOM(_exit, vFEi)
-// _Exit    // Weak
+GO(exit, vFi)
+GO(_exit, vFi)
+GO(_Exit, vFi)    // Weak
 // faccessat
 // fattach
 // __fbufsize
@@ -1113,7 +1113,7 @@ GOW(mount, iFpppup)
 // mprotect // Weak
 // mrand48
 // mrand48_r
-// mremap   // Weak
+GOW(mremap, pFpuui)
 // msgctl
 // msgget   // Weak
 // msgrcv   // Weak
@@ -1269,7 +1269,7 @@ DATAV(program_invocation_name, 4)
 DATAV(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
-// ptrace
+GO(ptrace, iFiupp)  // will that work???
 // ptsname
 // ptsname_r    // Weak
 // __ptsname_r_chk

@@ -143,7 +143,7 @@ GO(SDL_GameControllerMapping, pFp)
 // SDL_GameControllerMappingForGUID
 // SDL_GameControllerMappingForIndex
 GO(SDL_GameControllerName, pFp)
-// SDL_GameControllerNameForIndex
+GO(SDL_GameControllerNameForIndex, pFi)
 // SDL_GameControllerNumMappings
 GO(SDL_GameControllerOpen, pFi)
 // SDL_GameControllerRumble
@@ -207,7 +207,7 @@ GO(SDL_GetPowerInfo, iFpp)
 GO(SDL_GetPrefPath, pFpp)
 // SDL_GetQueuedAudioSize
 // SDL_GetRelativeMouseMode
-// SDL_GetRelativeMouseState
+GO(SDL_GetRelativeMouseState, uFpp)
 GO(SDL_GetRenderDrawBlendMode, iFpp)
 // SDL_GetRenderDrawColor
 // SDL_GetRenderDriverInfo

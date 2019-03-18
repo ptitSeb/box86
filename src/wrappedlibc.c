@@ -146,14 +146,15 @@ EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 EXPORT int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
 EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
-
+#if 0
 EXPORT void my_exit(x86emu_t *emu, int32_t status)
 {
     R_EAX = (uint32_t)status;
     emu->quit = 1;
 }
 EXPORT void my__exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
-
+EXPORT void my__Exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
+#endif
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppp_t)(void*, void*, void*);

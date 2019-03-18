@@ -180,11 +180,11 @@ GOW(floorf, fFf)
 // fma  // Weak
 // fmaf // Weak
 // fmal // Weak
-// fmax // Weak
-// fmaxf    // Weak
+GOW(fmax, dFdd)
+GOW(fmaxf, fFff)
 // fmaxl    // Weak
-// fmin // Weak
-// fminf    // Weak
+GOW(fmin, dFdd)
+GOW(fminf, fFff)
 // fminl    // Weak
 GOW(fmod, dFdd)
 GOW(fmodf, fFff)
