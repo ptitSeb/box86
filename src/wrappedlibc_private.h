@@ -1075,7 +1075,7 @@ GO(memcmp, iFppu)
 GO(memcpy, pFppu)
 GO(__memcpy_chk, pFppuu)
 // memfrob
-// memmem
+GO(memmem, pFpupu)
 GO(memmove, pFppu)
 GO(__memmove_chk, pFppuu)
 // mempcpy
@@ -1712,7 +1712,7 @@ GO(strxfrm_l, uFppup)
 // svcunix_create
 // svcunixfd_create
 // svc_unregister
-// swab
+GO(swab, vFppi)
 // swapcontext
 // swapoff  // Weak
 // swapon   // Weak
@@ -1803,7 +1803,7 @@ DATAV(tzname, 4)
 DATA(__tzname, 4)
 GOW(tzset, vFv)
 // ualarm
-// __uflow
+GO(__uflow, iFp)
 // ulckpwdf // Weak
 // ulimit   // Weak
 GOW(umask, uFu)

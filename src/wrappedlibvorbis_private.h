@@ -74,14 +74,14 @@ GO(vorbis_comment_init, vFp)
 //GO(vorbis_comment_query_count, 
 GO(vorbis_dsp_clear, vFp)
 //GO(vorbis_granule_time, 
-//GO(vorbis_info_blocksize, 
+GO(vorbis_info_blocksize, iFpi)
 GO(vorbis_info_clear, vFp)
 GO(vorbis_info_init, vFp)
 //GO(vorbis_lpc_from_data, 
 //GO(vorbis_lpc_predict, 
 //GO(vorbis_lpc_to_lsp, 
 //GO(vorbis_lsp_to_curve, 
-//GO(vorbis_packet_blocksize, 
+GO(vorbis_packet_blocksize, iFpp)
 //GO(vorbis_staticbook_destroy, 
 //GO(vorbis_staticbook_pack, 
 //GO(vorbis_staticbook_unpack, 
@@ -95,8 +95,8 @@ GO(vorbis_synthesis_init, iFpp)
 //GO(vorbis_synthesis_lapout, 
 GO(vorbis_synthesis_pcmout, iFpp)
 GO(vorbis_synthesis_read, iFpi)
-//GO(vorbis_synthesis_restart, 
-//GO(vorbis_synthesis_trackonly, 
+GO(vorbis_synthesis_restart, iFp)
+GO(vorbis_synthesis_trackonly, iFpp)
 //GO(vorbis_version_string, 
 //GO(vorbis_window, 
 //GO(_vorbis_window_get, 

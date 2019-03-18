@@ -427,7 +427,7 @@ GO(XGetWindowProperty, iFpppiiipppppp)
 GO(XGetWMColormapWindows, iFpppp)
 GO(XGetWMHints, pFpp)
 //GO(XGetWMIconName
-//GO(XGetWMName
+GO(XGetWMName, iFppp)
 GO(XGetWMNormalHints, iFpppp)
 //GO(XGetWMProtocols
 GO(XGetWMSizeHints, iFppppu)
@@ -812,7 +812,7 @@ GO(XOpenIM, uFpppp)
 //GO(XOpenOM
 // _XParseBaseFontNameList
 GO(XParseColor, iFpppp)
-//GO(XParseGeometry
+GO(XParseGeometry, iFppppp)
 GO(XPeekEvent, iFpp)
 GOM(XPeekIfEvent, iFEpppp)
 GO(XPending, iFp)
@@ -828,7 +828,7 @@ GO(XPointInRegion, iFpp)
 // _XProcessWindowAttributes
 //GO(XProtocolRevision
 //GO(XProtocolVersion
-//GO(XPutBackEvent
+GO(XPutBackEvent, iFpp)
 // _XPutBackEvent
 GOM(XPutImage, iFEppppiiiiuu)
 //GO(XPutPixel
@@ -979,7 +979,7 @@ GO(XSetWindowColormap, iFppp)
 //GO(XSetWMClientMachine
 GO(XSetWMColormapWindows, iFpppi)
 GO(XSetWMHints, iFppp)
-//GO(XSetWMIconName
+GO(XSetWMIconName, vFppp)
 GO(XSetWMName, vFppp)
 GO(XSetWMNormalHints, iFpppp)
 GO(XSetWMProperties, vFpppppippp)

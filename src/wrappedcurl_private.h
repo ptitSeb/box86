@@ -8,7 +8,7 @@ GOM(curl_easy_cleanup, vFEp)
 GO(curl_easy_getinfo, uFpppppp) //vararg
 GO(curl_easy_init, pFv)
 //GO(curl_easy_pause, 
-//GO(curl_easy_perform, 
+GO(curl_easy_perform, uFp)
 //GO(curl_easy_recv, 
 //GO(curl_easy_reset, 
 //GO(curl_easy_send, 
