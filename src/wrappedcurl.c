@@ -30,6 +30,8 @@ typedef struct curldata_s {
     void*       iodata;
     x86emu_t*   seekfnc;
     void*       seekdata;
+    x86emu_t*   headerfnc;
+    void*       headerdata;
 } curldata_t;
 
 KHASH_MAP_INIT_INT(curldata, curldata_t)
@@ -57,6 +59,7 @@ static void clean_cdata(curl_my_t *my, void* handle)
         GO(readfnc);
         GO(iofnc);
         GO(seekfnc);
+        GO(headerfnc);
         #undef GO
         kh_del(curldata, my->curldata, k);
     }
@@ -393,7 +396,7 @@ static size_t my_ioctl_callback(void* handle, int32_t fnc, void* userdata)
     return RunCallback(emu);
 }
 
-static size_t my_seek_callback(void* userdata, int64_t off, int32_t origin)
+static int32_t my_seek_callback(void* userdata, int64_t off, int32_t origin)
 {
     x86emu_t *emu = (x86emu_t*)userdata;
     uint32_t poff;
@@ -402,8 +405,18 @@ static size_t my_seek_callback(void* userdata, int64_t off, int32_t origin)
     poff = ((off>>32)&0xffffffff);
     SetCallbackArg(emu, 2, (void*)poff);
     SetCallbackArg(emu, 3, (void*)origin);
+    return (int32_t)RunCallback(emu);
+}
+
+static size_t my_header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
+{
+    x86emu_t *emu = (x86emu_t*)userdata;
+    SetCallbackArg(emu, 0, buffer);
+    SetCallbackArg(emu, 1, (void*)size);
+    SetCallbackArg(emu, 2, (void*)nitems);
     return RunCallback(emu);
 }
+
 
 EXPORT void my_curl_easy_cleanup(x86emu_t* emu, void* handle)
 {
@@ -509,6 +522,25 @@ EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option
             cdata->seekfnc = AddCallback(emu, (uintptr_t)param, 4, cdata->seekdata, NULL, NULL, NULL); // because offset if 64bits
             my->curl_easy_setopt(handle, CURLOPT_SEEKDATA, cdata->iofnc);
             return my->curl_easy_setopt(handle, option, my_seek_callback);
+        case CURLOPT_HEADERDATA:
+            cdata->headerdata = param;
+            if(cdata->headerfnc) {
+                SetCallbackArg(cdata->headerfnc, 3, param);
+                return 0;
+            }
+            return my->curl_easy_setopt(handle, option, param);
+        case CURLOPT_HEADERFUNCTION:
+            if(!param) {
+                if(cdata->headerfnc) {
+                    my->curl_easy_setopt(handle, CURLOPT_HEADERDATA, cdata->headerdata);
+                    FreeCallback(cdata->headerfnc);
+                }
+                cdata->headerfnc = NULL;
+                return my->curl_easy_setopt(handle, option, param);
+            }
+            cdata->headerfnc = AddCallback(emu, (uintptr_t)param, 4, NULL, NULL, NULL, cdata->headerdata);
+            my->curl_easy_setopt(handle, CURLOPT_HEADERDATA, cdata->headerfnc);
+            return my->curl_easy_setopt(handle, option, my_read_callback);
         case CURLOPT_SOCKOPTFUNCTION:
         case CURLOPT_SOCKOPTDATA:
         case CURLOPT_OPENSOCKETFUNCTION:
@@ -519,8 +551,6 @@ EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option
         case CURLOPT_PROGRESSDATA:
         case CURLOPT_XFERINFOFUNCTION:
         //case CURLOPT_XFERINFODATA:
-        case CURLOPT_HEADERFUNCTION:
-        case CURLOPT_HEADERDATA:
         case CURLOPT_DEBUGFUNCTION:
         case CURLOPT_DEBUGDATA:
         case CURLOPT_SSL_CTX_FUNCTION:
