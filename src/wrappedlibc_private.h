@@ -106,9 +106,9 @@ GOW(calloc, pFuu)
 // canonicalize_file_name   // Weak
 // capget
 // capset
-// catclose
-// catgets
-// catopen
+GO(catclose, iFp)
+GO(catgets, pFpiip)
+GO(catopen, pFpi)
 // cbc_crypt
 GO(cfgetispeed, iFp)
 GO(cfgetospeed, iFp)
@@ -336,7 +336,7 @@ GO(fgetws, pFpip)
 GO(fileno, iFp)
 // fileno_unlocked  // Weak
 GOW(finite, iFd)
-// __finite
+GO(__finite, iFd)
 GOW(finitef, iFf)
 // __finitef
 // finitel  // Weak
@@ -899,44 +899,44 @@ GO(isupper, iFi)
 // isupper_l    // Weak
 GOW(iswalnum, iFi)
 // __iswalnum_l
-// iswalnum_l   // Weak
-// iswalpha // Weak
+GOW(iswalnum_l, iFip)
+GOW(iswalpha, iFi)
 // __iswalpha_l
-// iswalpha_l   // Weak
-// iswblank // Weak
+GOW(iswalpha_l, iFip)
+GOW(iswblank, iFi)
 // __iswblank_l
-// iswblank_l   // Weak
-// iswcntrl // Weak
+GOW(iswblank_l, iFip)
+GOW(iswcntrl, iFi)
 // __iswcntrl_l
-// iswcntrl_l   // Weak
+GOW(iswcntrl_l, iFip)
 GOW(iswctype, iFiu)
 // __iswctype
 GO(__iswctype_l, iFiup)
 // iswctype_l   // Weak
 GOW(iswdigit, iFi)
 // __iswdigit_l
-// iswdigit_l   // Weak
+GOW(iswdigit_l, iFip)
 GOW(iswgraph, iFi)
 // __iswgraph_l
-// iswgraph_l   // Weak
+GOW(iswgraph_l, iFip)
 GOW(iswlower, iFi)
 // __iswlower_l
-// iswlower_l   // Weak
+GOW(iswlower_l, iFip)
 GOW(iswprint, iFi)
 // __iswprint_l
-// iswprint_l   // Weak
+GOW(iswprint_l, iFip)
 GOW(iswpunct, iFi)
 // __iswpunct_l
-// iswpunct_l   // Weak
+GOW(iswpunct_l, iFip)
 GOW(iswspace, iFi)
 // __iswspace_l
-// iswspace_l   // Weak
+GOW(iswspace_l, iFip)
 GOW(iswupper, iFi)
 // __iswupper_l
-// iswupper_l   // Weak
+GOW(iswupper_l, iFip)
 GOW(iswxdigit, iFi)
 // __iswxdigit_l
-// iswxdigit_l  // Weak
+GOW(iswxdigit_l, iFip)
 GO(isxdigit, iFi)
 // __isxdigit_l
 // isxdigit_l   // Weak
@@ -1049,7 +1049,7 @@ GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B
 // mblen
-// mbrlen   // Weak
+GOW(mbrlen, uFpupp)
 // __mbrlen
 GOW(mbrtowc, uFppup)
 GO(__mbrtowc, uFppup)
@@ -1060,7 +1060,7 @@ GOW(mbsrtowcs, uFppup)
 // __mbsrtowcs_chk
 GO(mbstowcs, uFppu)
 // __mbstowcs_chk
-// mbtowc
+GO(mbtowc, iFppu)
 // mcheck
 // mcheck_check_all
 // mcheck_pedantic
@@ -1110,7 +1110,7 @@ GOW(mmap64, pFpuiiiI)
 DATA(__morecore, 4)
 GOW(mount, iFpppup)
 // mprobe
-// mprotect // Weak
+GOW(mprotect, iFpui)
 // mrand48
 // mrand48_r
 GOW(mremap, pFpuui)
@@ -1592,7 +1592,7 @@ GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
 GO(strcoll, iFpp)
 GO(__strcoll_l, iFppp)
-// strcoll_l    // Weak
+GOW(strcoll_l, iFppp)
 GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppu)
 // __strcpy_small
@@ -1656,7 +1656,7 @@ GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
 // __strtok_r_1c
 GO(strtol, iFppi)
-// strtold
+GO(strtold, DFpp)
 // __strtold_internal
 // __strtold_l
 GOW(strtold_l, DFppu)
@@ -1666,7 +1666,7 @@ GO(strtoll, IFppi)
 // strtol_l // Weak
 // __strtoll_internal
 // __strtoll_l
-// strtoll_l    // Weak
+GOW(strtoll_l, IFppip)
 // strtoq   // Weak
 GO(strtoul, uFppi)
 GO(__strtoul_internal, uFppii)
@@ -1675,7 +1675,7 @@ GO(strtoull, UFppi)
 // strtoul_l    // Weak
 // __strtoull_internal
 // __strtoull_l
-// strtoull_l   // Weak
+GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
 // strtouq  // Weak
 // strverscmp   // Weak
@@ -1775,18 +1775,18 @@ GO(tmpnam, pFp)
 GO(tolower, iFi)
 // _tolower
 // __tolower_l
-// tolower_l    // Weak
+GOW(tolower_l, iFip)
 GO(toupper, iFi)
 // _toupper
 // __toupper_l
-// toupper_l    // Weak
+GOW(toupper_l, iFip)
 // towctrans    // Weak
 // __towctrans
 // __towctrans_l
 // towctrans_l  // Weak
 GO(towlower, iFi)
 GO(__towlower_l, iFip)
-// towlower_l   // Weak
+GOW(towlower_l, iFip)
 GO(towupper, iFi)
 GO(__towupper_l, iFip)
 GOW(towupper_l, iFip)
@@ -1882,16 +1882,16 @@ GOW(waitpid, iFipi)
 GOW(__waitpid, iFip)
 // warn
 // warnx
-// wcpcpy   // Weak
+GOW(wcpcpy, pFpp)
 // __wcpcpy_chk
-// wcpncpy  // Weak
+GOW(wcpncpy, pFpp)
 // __wcpncpy_chk
 GOW(wcrtomb, uFpip)
 // __wcrtomb_chk
 GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
-// wcscasecmp_l // Weak
-// wcscat   // Weak
+GOW(wcscasecmp_l, iFppp)
+GOW(wcscat, pFpp)
 // __wcscat_chk
 GO(wcschr, pFpi)
 // wcschrnul    // Weak
@@ -1901,16 +1901,16 @@ GO(__wcscoll_l, iFppp)
 GOW(wcscoll_l, iFppp)
 GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppu)
-// wcscspn
-// wcsdup
+GO(wcscspn, uFpp)
+GO(wcsdup, pFp)
 GO(wcsftime, uFpupp)
 GO(__wcsftime_l, uFpuppu)
 // wcsftime_l   // Weak
 GOW(wcslen, uFp)
 GOW(wcsncasecmp, iFppu)
 // __wcsncasecmp_l
-// wcsncasecmp_l    // Weak
-// wcsncat
+GOW(wcsncasecmp_l, iFppup)
+GO(wcsncat, pFppu)
 // __wcsncat_chk
 GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
@@ -1922,7 +1922,7 @@ GO(wcspbrk, pFpp)
 GO(wcsrchr, pFpi)
 GOW(wcsrtombs, uFppup)
 // __wcsrtombs_chk
-// wcsspn
+GO(wcsspn, uFpp)
 GO(wcsstr, pFpp)
 GO(wcstod, dFpp)
 // __wcstod_internal
@@ -1933,9 +1933,9 @@ GO(wcstof, fFpp)
 // __wcstof_l
 // wcstof_l // Weak
 // wcstoimax
-// wcstok
+GO(wcstok, pFppp)
 GO(wcstol, iFppi)
-// wcstold
+GO(wcstold, DFpp)
 // __wcstold_internal
 // __wcstold_l
 // wcstold_l    // Weak
