@@ -15,6 +15,11 @@
         GET_EX;
         EX->q[0] = GX.q[0];
         break;
+    case 0x12:  /* MOVDDUP Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        GX.q[1] = GX.q[0] = EX->q[0];
+        break;
 
     case 0x2A:  /* CVTSI2SD Gx, Ed */
         nextop = F8;
