@@ -422,7 +422,7 @@ GOW(funlockfile, vFp)
 GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
 // futimesat
 // fwide
-// fwprintf // Weak
+GOM(fwprintf, iFEppVV) // Weak
 // __fwprintf_chk
 // __fwritable
 GOW(fwrite, uFpuup)
@@ -1718,7 +1718,7 @@ GO(swab, vFppi)
 // swapon   // Weak
 GOM(swprintf, iFEpupV)
 GOM(__swprintf_chk, iFEpuiupV)
-// swscanf
+GO2(swscanf, iFppV, vswscanf)     // swscanf va_list is only pointer, no realign to do
 GOW(symlink, iFpp)
 // symlinkat
 GO(sync, vFv)

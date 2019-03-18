@@ -8,7 +8,7 @@ typedef void (*sighandler_t)(int);
 typedef struct x86_sigaction_s {
 	union {
 	  __sighandler_t _sa_handler;
-	  void (*_sa_sigaction)(int, struct siginfo *, void *);
+	  void (*_sa_sigaction)(int, siginfo_t *, void *);
 	} _u;
 	sigset_t sa_mask;
 	uint32_t sa_flags;

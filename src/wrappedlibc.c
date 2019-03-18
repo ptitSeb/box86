@@ -213,6 +213,18 @@ EXPORT int my_fprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
 }
 EXPORT int my___fprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fprintf")));
 
+EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vfwprintf;
+    return ((iFppp_t)f)(F, fmt, emu->scratch);
+    #else
+    // other platform don't need that
+    return vfwprintf((FILE*)F, (const wchar_t*)fmt, V);
+    #endif
+}
+
 EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     printf_log(LOG_NONE, "Error: unimplemented dl_iterate_phdr(%p, %p) used\n", F, data);
     emu->quit = 1;
@@ -466,10 +478,11 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         char tmpbuff[100] = {0};
         sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
         int tmp = mkstemp(tmpbuff);
+        int dummy;
         if(tmp<0) return open(pathname, flags, mode);
-        write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         for (int i=1; i<emu->context->argc; ++i)
-            write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
@@ -485,10 +498,11 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         char tmpbuff[100] = {0};
         sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
         int tmp = mkstemp64(tmpbuff);
+        int dummy;
         if(tmp<0) return open64(pathname, flags, mode);
-        write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         for (int i=1; i<emu->context->argc; ++i)
-            write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek64(tmp, 0, SEEK_SET);
         return tmp;
     }

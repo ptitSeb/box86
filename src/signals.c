@@ -96,7 +96,7 @@ void my_sighandler(int32_t sig)
     Pop32(context->signal_emu);
 }
 
-void my_sigactionhandler(int32_t sig, struct siginfo * sigi, void * ucntx)
+void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
     Push32(context->signal_emu, (uintptr_t)ucntx);  // WRONG!!!
