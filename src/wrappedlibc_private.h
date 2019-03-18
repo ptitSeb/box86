@@ -881,7 +881,7 @@ GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
 // __isoc99_vfscanf
 // __isoc99_vfwscanf
 // __isoc99_vscanf
-// __isoc99_vsscanf
+GO(__isoc99_vsscanf, iFppp) // TODO: check if ok
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf

@@ -55,8 +55,8 @@ GO(IMG_isXV,iFp)
 // IMG_QuitWEBP
 // IMG_SaveJPG
 // IMG_SaveJPG_RW
-// IMG_SavePNG
-// IMG_SavePNG_RW
+GO(IMG_SavePNG, iFppi)
+GOM(IMG_SavePNG_RW, iFEppi)
 // _init
 DATA(nsvg__colors, 4)
 // nsvgCreateRasterizer

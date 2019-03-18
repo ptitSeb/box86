@@ -8,7 +8,7 @@ GO(SDL_acosf, fFf)
 GOM(SDL_AddEventWatch, vFEpp)
 // SDL_AddHintCallback
 GOM(SDL_AddTimer, pFEupp)
-// SDL_AllocFormat
+GO(SDL_AllocFormat, pFu)
 GO(SDL_AllocPalette, pFi)
 GO(SDL_AllocRW, pFv)    // no need to create a "my_" probably
 GO(SDL_asin, dFd)
@@ -59,7 +59,7 @@ GO(SDL_ConvertSurfaceFormat, pFpuu)
 // SDL_copysign
 // SDL_copysignf
 // SDL_cos
-// SDL_cosf
+GO(SDL_cosf, fFf)
 GO(SDL_CreateColorCursor, pFpii)
 GO(SDL_CreateCond, pFv)
 // SDL_CreateCursor
@@ -114,7 +114,7 @@ GO(SDL_FlushEvents, vFuu)
 GO(SDL_free, vFp)
 // SDL_FreeAudioStream
 GO(SDL_FreeCursor, vFp)
-// SDL_FreeFormat
+GO(SDL_FreeFormat, vFp)
 GO(SDL_FreePalette, vFp)
 GOM(SDL_FreeRW, vFEp)
 GO(SDL_FreeSurface, vFp)
@@ -179,7 +179,7 @@ GO(SDL_GetError, pFv)
 // SDL_GetEventFilter
 // SDL_GetGlobalMouseState
 // SDL_GetGrabbedWindow
-// SDL_GetHint
+GO(SDL_GetHint, pFp)
 // SDL_GetHintBoolean
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
@@ -287,7 +287,7 @@ GO(SDL_HapticNewEffect, iFpp)
 // SDL_HapticNumAxes
 // SDL_HapticNumEffects
 // SDL_HapticNumEffectsPlaying
-// SDL_HapticOpen
+GO(SDL_HapticOpen, pFi)
 // SDL_HapticOpened
 GO(SDL_HapticOpenFromJoystick, pFp)
 // SDL_HapticOpenFromMouse
@@ -418,7 +418,7 @@ GO(SDL_MapRGB, uFpCCC)
 GO(SDL_MapRGBA, uFpCCCC)
 // SDL_MasksToPixelFormatEnum
 GO(SDL_MaximizeWindow, vFp)
-// SDL_memcmp
+GO(SDL_memcmp, iFppu)
 GO(SDL_memcpy, pFppu)
 GO(SDL_memmove, pFppu)
 // SDL_MemoryBarrierAcquireFunction
@@ -439,8 +439,8 @@ GO(SDL_PauseAudioDevice, vFii)
 // SDL_PeepEvents
 GO(SDL_PixelFormatEnumToMasks, iFuppppp)
 GO(SDL_PollEvent, iFp)
-// SDL_pow
-// SDL_powf
+GO(SDL_pow, dFdd)
+GO(SDL_powf, fFff)
 GO(SDL_PumpEvents, vFv)
 GO(SDL_PushEvent, iFp)
 // SDL_qsort
@@ -538,7 +538,7 @@ GO(SDL_SetError, iFppppp)    // it use ..., so putarbitrary  4 args
 // SDL_SetEventFilter
 GO(SDL_SetHint, iFpp)
 // SDL_SetHintWithPriority
-// SDL_SetMainReady
+GO(SDL_SetMainReady, vFv)
 // SDL_SetMemoryFunctions
 // SDL_SetModState
 // SDL_SetPaletteColors
@@ -617,7 +617,7 @@ GO(SDL_TLSGet, pFu)
 GOM(SDL_TLSSet, iFEupp)
 // SDL_tolower
 // SDL_toupper
-// SDL_TryLockMutex
+GO(SDL_TryLockMutex, iFp)
 GO(SDL_uitoa, pFupi)
 GO(SDL_ulltoa, pFUpi)
 GO(SDL_ultoa, pFupi)

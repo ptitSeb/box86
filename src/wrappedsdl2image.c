@@ -18,6 +18,7 @@
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 
 typedef struct sdl2image_my_s {
     pFp_t       IMG_LoadBMP_RW;
@@ -37,6 +38,7 @@ typedef struct sdl2image_my_s {
     pFp_t       IMG_LoadXPM_RW;
     pFp_t       IMG_LoadXV_RW;
     pFpi_t      IMG_Load_RW;
+    iFppi_t     IMG_SavePNG_RW;
 } sdl2image_my_t;
 
 static void* getSDL2ImageMy(library_t* lib)
@@ -60,6 +62,7 @@ static void* getSDL2ImageMy(library_t* lib)
     GO(IMG_LoadXPM_RW,pFp_t)
     GO(IMG_LoadXV_RW,pFp_t)
     GO(IMG_Load_RW,pFpi_t)
+    GO(IMG_SavePNG_RW, iFppi_t)
     #undef GO
     return my;
 }
@@ -111,6 +114,16 @@ EXPORT void *my2_IMG_Load_RW(x86emu_t* emu, void* a, int32_t b)
         RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
     return r;
 }
+EXPORT int32_t my2_IMG_SavePNG_RW(x86emu_t* emu, void* a, void* surf, int32_t compression)
+{
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
+    SDL2RWSave_t save;
+    RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
+    int32_t r = my->IMG_SavePNG_RW(a, surf, compression);
+    RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
+    return r;
+}
+
 const char* sdl2imageName = "libSDL2_image-2.0.so.0";
 #define LIBNAME sdl2image
 
