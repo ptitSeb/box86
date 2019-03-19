@@ -38,8 +38,8 @@ int Run(x86emu_t *emu)
     double d;
     float f;
     int64_t ll;
-    sse_regs_t *opex, eax1;
-    mmx_regs_t *opem;
+    sse_reg_t *opex, eax1;
+    simde__m64 *opem;
 
     if(emu->quit)
         return 0;
@@ -265,11 +265,11 @@ _trace:
 #define getem(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->mmx[(nextop&7)]; \
-    } else getecommon(A, mmx_regs_t)
+    } else getecommon(A, simde__m64)
 #define getex(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->xmm[(nextop&7)]; \
-    } else getecommon(A, sse_regs_t)
+    } else getecommon(A, sse_reg_t)
 // Macros for ModR/M gets
 #define GET_EB      geteb(oped)
 #define GET_ED      geted(oped)

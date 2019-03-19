@@ -43,7 +43,7 @@ if(USE_CCACHE)
     endif()
 endif()
 
-#include_directories(include)
+include_directories(simde)
 
 set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/bridge.c"
