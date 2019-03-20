@@ -474,12 +474,16 @@ _trace:
                     ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
                     GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
                     break;
+                case 0x81:              /* GRP Ed,Id */
                 case 0x83:              /* GRP Ed,Ib */
                     nextop = F8;
                     GET_ED;
                     ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    tmp32s = F8S;
-                    tmp32u = (uint32_t)tmp32s;
+                    if(opcode==0x83) {
+                        tmp32s = F8S;
+                        tmp32u = (uint32_t)tmp32s;
+                    } else
+                        tmp32u = F32;
                     switch((nextop>>3)&7) {
                         case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
                         case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
