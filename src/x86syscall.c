@@ -1,9 +1,9 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <unistd.h>
 #include <time.h>
 #include <sys/mman.h>
@@ -70,6 +70,7 @@ scwrap_t syscallwrap[] = {
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
+    { 265, __NR_clock_gettime, 2 },
     //{ 270, __NR_tgkill, 3 },
 };
 
