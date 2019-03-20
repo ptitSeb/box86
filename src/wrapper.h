@@ -126,6 +126,7 @@ void dFdd(x86emu_t *emu, uintptr_t fnc);
 void dFdp(x86emu_t *emu, uintptr_t fnc);
 void dFpi(x86emu_t *emu, uintptr_t fnc);
 void dFpp(x86emu_t *emu, uintptr_t fnc);
+void DFDD(x86emu_t *emu, uintptr_t fnc);
 void DFpp(x86emu_t *emu, uintptr_t fnc);
 void LFLp(x86emu_t *emu, uintptr_t fnc);
 void pFEp(x86emu_t *emu, uintptr_t fnc);

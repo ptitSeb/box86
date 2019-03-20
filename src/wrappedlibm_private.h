@@ -297,7 +297,7 @@ GOW(pow, dFdd)
 GOW(powf, fFff)
 GO(__powf_finite, fFff)
 GO(__pow_finite, dFdd)
-//GOW(powl, DFDD)
+GOW(powl, DFDD)
 // remainder    // Weak
 // remainderf   // Weak
 // __remainderf_finite
