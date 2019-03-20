@@ -191,8 +191,8 @@ GOW(fmodf, fFff)
 // __fmodf_finite
 // __fmod_finite
 GOW(fmodl, DFDD)
-// __fpclassify
-// __fpclassifyf
+GO(__fpclassify, iFd)
+GO(__fpclassifyf, iFf)
 GOW(frexp, dFdp)
 GOW(frexpf, fFfp)
 GO2(frexpl, LFLp, frexp)
