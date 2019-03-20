@@ -1763,7 +1763,7 @@ GO(timegm, uFp)
 // timerfd_create
 // timerfd_gettime
 // timerfd_settime
-// times    // Weak
+GOW(times, iFp)
 DATAV(timezone, 4)
 DATAB(__timezone, 4)   // type B
 GO(tmpfile, pFv)
