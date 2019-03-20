@@ -50,6 +50,7 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
+    { 109, __NR_uname, 1 },
     //{120, __NR_clone, 1 },    // need works, args is struct pt_regs...
     { 125,__NR_mprotect, 3 },
     { 140,__NR__llseek, 5 },
