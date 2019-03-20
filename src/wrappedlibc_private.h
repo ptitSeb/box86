@@ -1044,7 +1044,7 @@ DATAV(__malloc_hook, 4)
 DATAV(__malloc_initialize_hook, 4)
 // malloc_set_state // Weak
 // malloc_stats // Weak
-// malloc_trim  // Weak
+GOW(malloc_trim, iFu)
 GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B

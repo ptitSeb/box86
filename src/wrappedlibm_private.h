@@ -12,8 +12,8 @@ GO(__acosf_finite, fFf)
 // acosl    // Weak
 GOW(asin, dFd)
 GOW(asinf, fFf)
-// __asinf_finite
-// __asin_finite
+GO(__asinf_finite, fFf)
+GO(__asin_finite, dFd)
 // asinh    // Weak
 // asinhf   // Weak
 // asinhl   // Weak
