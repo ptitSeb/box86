@@ -904,7 +904,7 @@ GO(XRestackWindows, iFppi)
 //GO(XrmStringToQuark
 //GO(XrmStringToQuarkList
 //GO(XrmUniqueQuark
-//GO(XRootWindow
+GO(XRootWindow, pFpi)
 //GO(XRootWindowOfScreen
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
