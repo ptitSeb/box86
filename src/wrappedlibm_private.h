@@ -57,7 +57,11 @@ GOW(atanf, fFf)
 // catanl   // Weak
 GOW(cbrt, dFd)
 GOW(cbrtf, fFf)
+#ifdef LD80BITS
 GOW(cbrtl, DFD)
+#else
+GO2(cbrtl, LFL, cbrt)
+#endif
 // ccos // Weak
 // ccosf    // Weak
 // ccosh    // Weak
@@ -190,7 +194,11 @@ GOW(fmod, dFdd)
 GOW(fmodf, fFff)
 // __fmodf_finite
 // __fmod_finite
+#ifdef LD80BITS
 GOW(fmodl, DFDD)
+#else
+GO2(fmodl, LFLL, fmod)
+#endif
 GO(__fpclassify, iFd)
 GO(__fpclassifyf, iFf)
 GOW(frexp, dFdp)
@@ -297,7 +305,11 @@ GOW(pow, dFdd)
 GOW(powf, fFff)
 GO(__powf_finite, fFff)
 GO(__pow_finite, dFdd)
+#ifdef LD80BITS
 GOW(powl, DFDD)
+#else
+GO2(powl, LFLL, pow)
+#endif
 // remainder    // Weak
 // remainderf   // Weak
 // __remainderf_finite
