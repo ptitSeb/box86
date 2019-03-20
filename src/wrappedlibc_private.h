@@ -644,9 +644,9 @@ GO(iconv_close, iFu)
 GO(iconv_open, uFpp)
 GO(iconv_canonicalize, pFp)
 // if_freenameindex
-// if_indextoname
+GO(if_indextoname, pFup)
 // if_nameindex
-// if_nametoindex
+GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 // imaxdiv  // Weak
 // in6addr_any  // type R
