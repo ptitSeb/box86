@@ -122,20 +122,20 @@ static inline reg32_t* GetEw16(x86emu_t *emu, uint32_t v)
     }
 }
 
-static inline simde__m64* GetEm(x86emu_t *emu, uint32_t v)
+static inline mmx_regs_t* GetEm(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->mmx[m&0x07];
-    } else return (simde__m64*)GetECommon(emu, m);
+    } else return (mmx_regs_t*)GetECommon(emu, m);
 }
 
-static inline sse_reg_t* GetEx(x86emu_t *emu, uint32_t v)
+static inline sse_regs_t* GetEx(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
          return &emu->xmm[m&0x07];
-    } else return (sse_reg_t*)GetECommon(emu, m);
+    } else return (sse_regs_t*)GetECommon(emu, m);
 }
 
 
@@ -150,13 +150,13 @@ static inline reg32_t* GetGb(x86emu_t *emu, uint32_t v)
     return (reg32_t*)&emu->regs[m&3].byte[m>>2];
 }
 
-static inline simde__m64* GetGm(x86emu_t *emu, uint32_t v)
+static inline mmx_regs_t* GetGm(x86emu_t *emu, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
     return &emu->mmx[m&7];
 }
 
-static inline sse_reg_t* GetGx(x86emu_t *emu, uint32_t v)
+static inline sse_regs_t* GetGx(x86emu_t *emu, uint32_t v)
 {
     uint8_t m = (v&0x38)>>3;
     return &emu->xmm[m&7];

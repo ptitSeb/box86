@@ -297,8 +297,8 @@
             case 5:     /* FLDCW Ew */
                 GET_EW;
                 emu->cw = EW->word[0];
+                // do something with cw?
                 emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
-                simde_mm_setcsr(emu->cw);   // send to "SIMD" hardware too (warning, it's global then)
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete

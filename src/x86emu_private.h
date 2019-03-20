@@ -34,9 +34,9 @@ typedef struct x86emu_s {
     int         fpu_stack;
 	fpu_round_t round;
     // mmx
-    simde__m64  mmx[8];
+    mmx_regs_t  mmx[8];
     // sse
-    sse_reg_t   xmm[8];
+    sse_regs_t  xmm[8];
     uint32_t    mxcsr;
     // cpu helpers
     reg32_t     zero;

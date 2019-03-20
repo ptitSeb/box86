@@ -1,12 +1,6 @@
 #ifndef __REGS_H_
 #define __REGS_H_
 
-#include "x86/mmx.h"
-#include "x86/sse.h"
-#include "x86/sse2.h"
-#include "x86/sse3.h"
-
-
 enum {
 	_AX, _CX, _DX, _BX,
 	_SP, _BP, _SI, _DI
@@ -201,11 +195,27 @@ typedef union {
 } x87flags_t;
 
 typedef union {
-	simde__m128  f;
-	simde__m128i i;
-	simde__m128d d;
-} sse_reg_t;
+	uint64_t	q;
+	uint32_t	ud[2];
+	int32_t 	sd[2];
+	uint16_t 	uw[4];
+	int16_t 	sw[4];
+	uint8_t 	ub[8];
+	int8_t 		sb[8];
+} mmx_regs_t;
 
+typedef union {
+	uint64_t q[2];
+	int64_t sq[2];
+	double d[2];
+	float f[4];
+	uint32_t ud[4];
+	int32_t sd[4];
+	uint16_t uw[8];
+	int16_t sw[8];
+	uint8_t ub[16];
+	int8_t sb[16];
+} sse_regs_t;
 #pragma pack(pop)
 
 #define R_EIP emu->ip.dword[0]

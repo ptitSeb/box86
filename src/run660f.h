@@ -104,32 +104,33 @@
     _6f_0x12:                      /* MOVLPD Gx, Eq */
         nextop = F8;
         GET_ED;
-        GX.d.u64[0] = *(uint64_t*)ED;
+        GX.q[0] = *(uint64_t*)ED;
         NEXT;
     _6f_0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
         GET_ED;
-        simde_mm_storel_pd((simde_float64*)ED, GX.d);
+        *(uint64_t*)ED = GX.q[0];
         NEXT;
     _6f_0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_unpacklo_pd(GX.d, EX->d);
+        GX.q[1] = EX->q[0];
         NEXT;
     _6f_0x15:                      /* UNPCKHPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_unpackhi_pd(GX.d, EX->d);
+        GX.q[0] = GX.q[1];
+        GX.q[1] = EX->q[1];
         NEXT;
     _6f_0x16:                      /* MOVHPD Gx, Ed */
         nextop = F8;
         GET_ED;
-        GX.d.u64[1] = *(uint64_t*)ED;
+        GX.q[1] = *(uint64_t*)ED;
         NEXT;
     _6f_0x17:                      /* MOVHPD Ed, Gx */
         nextop = F8;
         GET_ED;
-        *(uint64_t*)ED = GX.d.u64[1];
+        *(uint64_t*)ED = GX.q[1];
         NEXT;
 
     _6f_0x1F:                      /* NOP (multi-byte) */
@@ -140,29 +141,50 @@
     _6f_0x28:                      /* MOVAPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        simde_mm_store_pd(&GX.d.f64[0], EX->d);
+        GX.q[0] = EX->q[0];
+        GX.q[1] = EX->q[1];
         NEXT;
     _6f_0x29:                      /* MOVAPD Ex, Gx */
         nextop = F8;
         GET_EX;
-        simde_mm_store_pd(&EX->d.f64[0], GX.d);
+        EX->q[0] = GX.q[0];
+        EX->q[1] = GX.q[1];
         NEXT;
     _6f_0x2A:                      /* CVTPI2PD Gx, Em */
         nextop = F8;
         GET_EM;
-        GX.d = simde_mm_cvtpi32_pd(*EM);
+        GX.d[0] = EM->sd[0];
+        GX.d[1] = EM->sd[1];
         NEXT;
 
 
     _6f_0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        GM = simde_mm_cvttpd_pi32(EX->d);
+        GM.sd[0] = EX->d[0];
+        GM.sd[1] = EX->d[1];
         NEXT;
     _6f_0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        GM = simde_mm_cvtpd_pi32(EX->d);
+        switch(emu->round) {
+            case ROUND_Nearest:
+                GM.sd[0] = floor(EX->d[0]+0.5);
+                GM.sd[1] = floor(EX->d[1]+0.5);
+                break;
+            case ROUND_Down:
+                GM.sd[0] = floor(EX->d[0]);
+                GM.sd[1] = floor(EX->d[1]);
+                break;
+            case ROUND_Up:
+                GM.sd[0] = ceil(EX->d[0]);
+                GM.sd[1] = ceil(EX->d[1]);
+                break;
+            case ROUND_Chop:
+                GM.sd[0] = EX->d[0];
+                GM.sd[1] = EX->d[1];
+                break;
+        }
         NEXT;
     _6f_0x2E:                      /* UCOMISD Gx, Ex */
         // no special check...
@@ -170,11 +192,11 @@
         RESET_FLAGS(emu);
         nextop = F8;
         GET_EX;
-        if(isnan(GX.d.f64[0]) || isnan(EX->d.f64[0])) {
+        if(isnan(GX.d[0]) || isnan(EX->d[0])) {
             SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
-        } else if(isgreater(GX.d.f64[0], EX->d.f64[0])) {
+        } else if(isgreater(GX.d[0], EX->d[0])) {
             CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
-        } else if(isless(GX.d.f64[0], EX->d.f64[0])) {
+        } else if(isless(GX.d[0], EX->d[0])) {
             CLEAR_FLAG(F_ZF); CLEAR_FLAG(F_PF); SET_FLAG(F_CF);
         } else {
             SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
@@ -185,156 +207,215 @@
     _6f_0x50:                      /* MOVMSKPD Gd, Ex */
         nextop = F8;
         GET_EX;
-        GD.dword[0] = simde_mm_movemask_pd(EX->d);
+        GD.dword[0] = 0;
+        for(int i=0; i<2; ++i)
+            GD.dword[0] |= ((EX->q[i]>>63)&1)<<i;
         NEXT;
     _6f_0x51:                      /* SQRTPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_sqrt_pd(EX->d);
+        GX.d[0] = sqrt(EX->d[0]);
+        GX.d[1] = sqrt(EX->d[1]);
         NEXT;
 
     _6f_0x54:                      /* ANDPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_and_pd(GX.d, EX->d);
+        GX.q[0] &= EX->q[0];
+        GX.q[1] &= EX->q[1];
         NEXT;
     _6f_0x55:                      /* ANDNPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_andnot_pd(GX.d, EX->d);
+        GX.q[0] = (~GX.q[0]) & EX->q[0];
+        GX.q[1] = (~GX.q[1]) & EX->q[1];
         NEXT;
     _6f_0x56:                      /* ORPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_or_pd(GX.d, EX->d);
+        GX.q[0] |= EX->q[0];
+        GX.q[1] |= EX->q[1];
         NEXT;
     _6f_0x57:                      /* XORPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_xor_pd(GX.d, EX->d);
+        GX.q[0] ^= EX->q[0];
+        GX.q[1] ^= EX->q[1];
         NEXT;
     _6f_0x58:                      /* ADDPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_add_pd(GX.d, EX->d);
+        GX.d[0] += EX->d[0];
+        GX.d[1] += EX->d[1];
         NEXT;
     _6f_0x59:                      /* MULPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_mul_pd(GX.d, EX->d);
+        GX.d[0] *= EX->d[0];
+        GX.d[1] *= EX->d[1];
         NEXT;
     _6f_0x5A:                      /* CVTPD2PS Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.f = simde_mm_cvtpd_ps(EX->d);
+        GX.f[0] = EX->d[0];
+        GX.f[1] = EX->d[1];
+        GX.q[1] = 0;
         NEXT;
     _6f_0x5B:                      /* CVTPS2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cvtps_epi32(EX->f);
+        GX.sd[0] = EX->f[0];
+        GX.sd[1] = EX->f[1];
+        GX.sd[2] = EX->f[2];
+        GX.sd[3] = EX->f[3];
         NEXT;
     _6f_0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_sub_pd(GX.d, EX->d);
+        GX.d[0] -= EX->d[0];
+        GX.d[1] -= EX->d[1];
         NEXT;
     _6f_0x5D:                      /* MINPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_min_pd(GX.d, EX->d);
+        if (isnan(GX.d[0]) || isnan(EX->d[0]) || isless(EX->d[0], GX.d[0]))
+            GX.d[0] = EX->d[0];
+        if (isnan(GX.d[1]) || isnan(EX->d[1]) || isless(EX->d[1], GX.d[1]))
+            GX.d[1] = EX->d[1];
         NEXT;
     _6f_0x5E:                      /* DIVPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_div_pd(GX.d, EX->d);
+        GX.d[0] /= EX->d[0];
+        GX.d[1] /= EX->d[1];
         NEXT;
     _6f_0x5F:                      /* MAXPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d = simde_mm_max_pd(GX.d, EX->d);
+        if (isnan(GX.d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], GX.d[0]))
+            GX.d[0] = EX->d[0];
+        if (isnan(GX.d[1]) || isnan(EX->d[1]) || isgreater(EX->d[1], GX.d[1]))
+            GX.d[1] = EX->d[1];
         NEXT;
 
     _6f_0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpacklo_epi8(GX.i, EX->i);
+        for(int i=7; i>0; --i)
+            GX.ub[2 * i] = GX.ub[i];
+        for(int i=0; i<8; ++i)
+            GX.ub[2 * i + 1] = EX->ub[i];
         NEXT;
     _6f_0x61:  /* PUNPCKLWD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpacklo_epi16(GX.i, EX->i);
+        for(int i=3; i>0; --i)
+            GX.uw[2 * i] = GX.uw[i];
+        for(int i=0; i<4; ++i)
+            GX.uw[2 * i + 1] = EX->uw[i];
         NEXT;
     _6f_0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpacklo_epi32(GX.i, EX->i);
+        GX.ud[3] = EX->ud[1];
+        GX.ud[2] = GX.ud[1];
+        GX.ud[1] = EX->ud[0];
         NEXT;
 
     _6f_0x64:  /* PCMPGTB Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpgt_epi8(GX.i, EX->i);
+        for(int i=0; i<16; ++i)
+            GX.sb[i] = (GX.sb[i]>EX->sb[i])?0xFF:0x00;
         NEXT;
     _6f_0x65:  /* PCMPGTW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpgt_epi16(GX.i, EX->i);
+        for(int i=0; i<8; ++i)
+            GX.sw[i] = (GX.sw[i]>EX->sw[i])?0xFFFF:0x0000;
         NEXT;
     _6f_0x66:  /* PCMPGTD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpgt_epi32(GX.i, EX->i);
+        for(int i=0; i<4; ++i)
+            GX.sd[i] = (GX.sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
         NEXT;
     _6f_0x67:  /* PACKUSWB */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_packus_epi16(GX.i, EX->i);
+        for(int i=0; i<4; ++i)
+            GX.ub[i] = (GX.sw[i]<0)?0:((GX.sw[i]>0xff)?0xff:GX.sw[i]);
+        for(int i=0; i<4; ++i)
+            GX.ub[4+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
         NEXT;
     _6f_0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpackhi_epi8(GX.i, EX->i);
+        for(int i=0; i<8; ++i)
+            GX.ub[2 * i] = GX.ub[i + 8];
+        for(int i=0; i<8; ++i)
+            GX.ub[2 * i + 1] = EX->ub[i + 8];
         NEXT;
     _6f_0x69:  /* PUNPCKHWD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpackhi_epi16(GX.i, EX->i);
+        for(int i=0; i<4; ++i)
+            GX.uw[2 * i] = GX.uw[i + 4];
+        for(int i=0; i<4; ++i)
+            GX.uw[2 * i + 1] = EX->uw[i + 4];
         NEXT;
     _6f_0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpackhi_epi32(GX.i, EX->i);
+        GX.ud[0] = GX.ud[2];
+        GX.ud[2] = GX.ud[3];
+        GX.ud[1] = EX->ud[2];
+        GX.ud[3] = EX->ud[3];
         NEXT;
     _6f_0x6B:  /* PACKSSDW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_packs_epi32(GX.i, EX->i);
+        for(int i=0; i<4; ++i)
+            GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
+        for(int i=0; i<4; ++i)
+            GX.sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
         NEXT;
     _6f_0x6C:  /* PUNPCKLQDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpacklo_epi64(GX.i, EX->i);
+        GX.q[1] = EX->q[0];
         NEXT;
     _6f_0x6D:  /* PUNPCKHQDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_unpackhi_epi64(GX.i, EX->i);
+        GX.q[0] = GX.q[1];
+        GX.q[1] = EX->q[1];
         NEXT;
     _6f_0x6E:  /* MOVD Gx, Ed */
         nextop = F8;
         GET_ED;
-        GX.i = simde_mm_cvtsi32_si128(ED->sword[0]);
+        GX.q[0] = ED->dword[0]; // zero extend, so ud[1] <- 0
+        GX.q[1] = 0;
         NEXT;
     _6f_0x6F:  /* MOVDQA Gx,Ex */
         nextop = F8;
         GET_EX;
-        simde_mm_store_si128(&GX.i, EX->i);
+        GX.q[0] = EX->q[0];
+        GX.q[1] = EX->q[1];
         NEXT;
     _6f_0x70:  /* PSHUFD Gx,Ex,Ib */
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        GX.i = simde_mm_shuffle_epi32(EX->i, tmp8u);
+        if(&GX!=EX)
+            for (int i=0; i<4; ++i)
+                GX.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
+        else {
+            for (int i=0; i<4; ++i)
+                eax1.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
+            GX.q[0] = eax1.q[0];
+            GX.q[1] = eax1.q[1];
+        }
         NEXT;
     _6f_0x71:  /* GRP */
         nextop = F8;
@@ -343,20 +424,20 @@
             case 2:                 /* PSRLW Gx, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
-                    EX->i = simde_mm_setzero_si128();
+                    {EX->q[0] = EX->q[1] = 0;}
                 else
-                    EX->i = simde_mm_srli_epi16(EX->i, tmp8u);
+                    for (int i=0; i<8; ++i) EX->uw[i] >>= tmp8u;
                 break;
             case 4:                 /* PSRAW Gx, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srai_epi16(EX->i, tmp8u);
+                for (int i=0; i<8; ++i) EX->sw[i] >>= tmp8u;
                 break;
             case 6:                 /* PSLLW Gx, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
-                    EX->i = simde_mm_setzero_si128();
+                    {EX->q[0] = EX->q[1] = 0;}
                 else
-                    EX->i = simde_mm_slli_epi16(EX->i, tmp8u);
+                    for (int i=0; i<8; ++i) EX->uw[i] <<= tmp8u;
                 break;
             default:
                 goto _default;
@@ -368,15 +449,21 @@
         switch((nextop>>3)&7) {
             case 2:                 /* PSRLD Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srli_epi32(EX->i, tmp8u);
+                if(tmp8u>31)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else
+                    for (int i=0; i<4; ++i) EX->ud[i] >>= tmp8u;
                 break;
             case 4:                 /* PSRAD Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srai_epi32(EX->i, tmp8u);
+                for (int i=0; i<4; ++i) EX->sd[i] >>= tmp8u;
                 break;
             case 6:                 /* PSLLD Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_slli_epi32(EX->i, tmp8u);
+                if(tmp8u>31)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else
+                    for (int i=0; i<4; ++i) EX->ud[i] <<= tmp8u;
                 break;
             default:
                 goto _default;
@@ -388,19 +475,39 @@
         switch((nextop>>3)&7) {
             case 2:                 /* PSRLQ Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srli_epi64(EX->i, tmp8u);
+                if(tmp8u>63)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else
+                    {EX->q[0] >>= tmp8u; EX->q[1] >>= tmp8u;}
                 break;
             case 3:                 /* PSRLDQ Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srli_si128(EX->i, tmp8u);
+                if(tmp8u>15)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else {
+                    for (int i=tmp8u; i<16; ++i)
+                        EX->ub[i-tmp8u] = EX->ub[i];
+                    for (int i=16-tmp8u; i<16; ++i)
+                        EX->ub[i] = 0;
+                }
                 break;
             case 6:                 /* PSLLQ Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_slli_epi64(EX->i, tmp8u);
+                if(tmp8u>63)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else
+                    {EX->q[0] <<= tmp8u; EX->q[1] <<= tmp8u;}
                 break;
             case 7:                 /* PSLLDQ Ex, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_slli_si128(EX->i, tmp8u);
+                if(tmp8u>15)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else {
+                    for (int i=16-tmp8u; i>=0; --i)
+                        EX->ub[i+tmp8u] = EX->ub[i];
+                    for (int i=0; i<tmp8u; ++i)
+                        EX->ub[i] = 0;
+                }
                 break;
             default:
                 goto _default;
@@ -409,28 +516,32 @@
     _6f_0x74:  /* PCMPEQB Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpeq_epi8(GX.i, EX->i);
+        for (int i=0; i<16; ++i)
+            GX.ub[i] = (GX.ub[i]==EX->ub[i])?0xff:0;
         NEXT;
     _6f_0x75:  /* PCMPEQW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpeq_epi16(GX.i, EX->i);
+        for (int i=0; i<8; ++i)
+            GX.uw[i] = (GX.uw[i]==EX->uw[i])?0xffff:0;
         NEXT;
     _6f_0x76:  /* PCMPEQD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cmpeq_epi32(GX.i, EX->i);
+        for (int i=0; i<4; ++i)
+            GX.ud[i] = (GX.ud[i]==EX->ud[i])?0xffffffff:0;
         NEXT;
 
     _6f_0x7E:  /* MOVD Ed, Gx */
         nextop = F8;
         GET_ED;
-        ED->dword[0] = simde_mm_cvtsi128_si32(GX.i);
+        ED->dword[0] = GX.ud[0];
         NEXT;
     _6f_0x7F:  /* MOVDQA Ex,Gx */
         nextop = F8;
         GET_EX;
-        simde_mm_store_si128(&EX->i, GX.i);
+        EX->q[0] = GX.q[0];
+        EX->q[1] = GX.q[1];
         NEXT;
 
     _6f_0xA3:                      /* BT Ew,Gw */
@@ -558,15 +669,19 @@
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        switch(tmp8u&7) {
-            case 0: GX.d=simde_mm_cmpeq_pd(GX.d, EX->d); break;
-            case 1: GX.d=simde_mm_cmplt_pd(GX.d, EX->d); break;
-            case 2: GX.d=simde_mm_cmple_pd(GX.d, EX->d); break;
-            case 3: GX.d=simde_mm_cmpunord_pd(GX.d, EX->d); break;
-            case 4: GX.d=simde_mm_cmpneq_pd(GX.d, EX->d); break;
-            case 5: GX.d=simde_mm_cmpge_pd(GX.d, EX->d); break;
-            case 6: GX.d=simde_mm_cmpgt_pd(GX.d, EX->d); break;
-            case 7: GX.d=simde_mm_cmpord_pd(GX.d, EX->d); break;
+        for(int i=0; i<2; ++i) {
+            tmp8s = 0;
+            switch(tmp8u&7) {
+                case 0: tmp8s=(GX.d[i] == EX->d[i]); break;
+                case 1: tmp8s=isless(GX.d[i], EX->d[i]); break;
+                case 2: tmp8s=islessequal(GX.d[i], EX->d[i]); break;
+                case 3: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]); break;
+                case 4: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || (GX.d[i] != EX->d[i]); break;
+                case 5: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || isgreaterequal(GX.d[i], EX->d[i]); break;
+                case 6: tmp8s=isnan(GX.d[i]) || isnan(EX->d[i]) || isgreater(GX.d[i], EX->d[i]); break;
+                case 7: tmp8s=!isnan(GX.d[i]) && !isnan(EX->d[i]); break;
+            }
+            GX.q[i]=(tmp8s)?0xffffffffffffffffLL:0LL;
         }
         NEXT;
 
@@ -574,151 +689,203 @@
         nextop = F8;
         GET_EW;
         tmp8u = F8;
-        GX.i = simde_mm_insert_epi16(GX.i, EW->word[0], tmp8u);
+        GX.uw[tmp8u&7] = EW->word[0];
         NEXT;
     _6f_0xC5:  /* PEXTRW Gw,Ex,Ib */
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        GW.word[0] = simde_mm_extract_epi16(EX->i, tmp8u);
+        GW.word[0] = EX->uw[tmp8u&7];
         NEXT;
     _6f_0xC6:  /* SHUFPD Gx, Ex, Ib */
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        GX.d = simde_mm_shuffle_pd(GX.d, EX->d, tmp8u);
+        eax1.q[0] = GX.q[tmp8u&1];
+        eax1.q[1] = EX->q[(tmp8u>>1)&1];
+        GX.q[0] = eax1.q[0];
+        GX.q[1] = eax1.q[1];
         NEXT;
 
     _6f_0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_srl_epi16(GX.i, EX->i);
+        if(EX->q[0]>15)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<8; ++i) GX.uw[i] >>= tmp8u;}
         NEXT;
     _6f_0xD2:  /* PSRLD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_srl_epi32(GX.i, EX->i);
+        if(EX->q[0]>31)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.ud[i] >>= tmp8u;}
         NEXT;
     _6f_0xD3:  /* PSRLQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_srl_epi64(GX.i, EX->i);
+        if(EX->q[0]>63)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX.q[i] >>= tmp8u;}
         NEXT;
     _6f_0xD4:  /* PADDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_add_epi64(GX.i, EX->i);
+        GX.q[0] += EX->q[0];
+        GX.q[1] += EX->q[1];
         NEXT;
 
     _6f_0xD6:  /* MOVQ Ex,Gx */
         nextop = F8;
         GET_EX;
-        EX->f.u64[0] = GX.f.u64[0];
+        EX->q[0] = GX.q[0];
         if((nextop&0xC0)==0xC0)
-            EX->f.u64[1] = 0;
+            EX->q[1] = 0;
         NEXT;
     _6f_0xD7:  /* PMOVMSKB Gd,Ex */
         nextop = F8;
         GET_EX;
-        GD.dword[0] = simde_mm_movemask_epi8(EX->i);
+        GD.dword[0] = 0;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]&0x80)
+                GD.dword[0] |= (1<<i);
         NEXT;
 
     _6f_0xDB:  /* PAND Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_and_si128(GX.i, EX->i);
+        GX.q[0] &= EX->q[0];
+        GX.q[1] &= EX->q[1];
         NEXT;
 
     _6f_0xDF:  /* PANDN Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_andnot_si128(GX.i, EX->i);
+        GX.q[0] = (~GX.q[0]) & EX->q[0];
+        GX.q[1] = (~GX.q[1]) & EX->q[1];
         NEXT;
 
     _6f_0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sra_epi16(GX.i, EX->i);
+        tmp8u=EX->q[0];
+        for (int i=0; i<8; ++i) GX.sw[i] >>= tmp8u;
         NEXT;
     _6f_0xE2:  /* PSRAD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sra_epi32(GX.i, EX->i);
+        tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
         NEXT;
 
     _6f_0xE6:  /* CVTTPD2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_cvttpd_epi32(EX->d);
+        GX.sd[0] = EX->d[0];
+        GX.sd[1] = EX->d[1];
+        GX.q[1] = 0;
         NEXT;
 
     _6f_0xEB:  /* POR Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_or_si128(GX.i, EX->i);
+        GX.ud[0] |= EX->ud[0];
+        GX.ud[1] |= EX->ud[1];
+        GX.ud[2] |= EX->ud[2];
+        GX.ud[3] |= EX->ud[3];
         NEXT;
     _6f_0xEC:  /* PADDSB Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_add_epi8(GX.i, EX->i);
+        for(int i=0; i<16; ++i) {
+            tmp16s = GX.sb[i] + EX->sb[i];
+            GX.sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
+        }
         NEXT;
     _6f_0xED:  /* PADDSW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_add_epi16(GX.i, EX->i);
+        for(int i=0; i<8; ++i) {
+            tmp32s = GX.sw[i] + EX->sw[i];
+            GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+        }
         NEXT;
     _6f_0xEE:  /* PMAXSW Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_max_epi16(GX.i, EX->i);
+        for(int i=0; i<8; ++i)
+            GX.sw[i] = (GX.sw[i]>EX->sw[i])?GX.sw[i]:EX->sw[i];
         NEXT;
     _6f_0xEF:  /* PXOR Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_xor_si128(GX.i, EX->i);
+        GX.ud[0] ^= EX->ud[0];
+        GX.ud[1] ^= EX->ud[1];
+        GX.ud[2] ^= EX->ud[2];
+        GX.ud[3] ^= EX->ud[3];
         NEXT;
 
     _6f_0xF1:  /* PSLLW Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sll_epi16(GX.i, EX->i);
+        if(EX->q[0]>15)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<8; ++i) GX.uw[i] <<= tmp8u;}
         NEXT;
     _6f_0xF2:  /* PSLLD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sll_epi32(GX.i, EX->i);
+        if(EX->q[0]>31)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.ud[i] <<= tmp8u;}
         NEXT;
     _6f_0xF3:  /* PSLLQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sll_epi64(GX.i, EX->i);
+        if(EX->q[0]>63)
+            {GX.q[0] = GX.q[1] = 0;}
+        else 
+            {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX.q[i] <<= tmp8u;}
         NEXT;
     _6f_0xF4:  /* PMULUDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_mul_epu32(GX.i, EX->i);
+        GX.q[1] = (uint64_t)EX->ud[2]*GX.ud[2];
+        GX.q[0] = (uint64_t)EX->ud[0]*GX.ud[0];
         NEXT;
 
     _6f_0xFA:  /* PSUBD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sub_epi32(GX.i, EX->i);
+        GX.ud[0] -= EX->ud[0];
+        GX.ud[1] -= EX->ud[1];
+        GX.ud[2] -= EX->ud[2];
+        GX.ud[3] -= EX->ud[3];
         NEXT;
     _6f_0xFB:  /* PSUBQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_sub_epi64(GX.i, EX->i);
+        GX.q[0] -= EX->q[0];
+        GX.q[1] -= EX->q[1];
         NEXT;
     _6f_0xFC:  /* PADDB Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_add_epi8(GX.i, EX->i);
+        for(int i=0; i<16; ++i)
+            GX.ub[i] += EX->ub[i];
         NEXT;
 
     _6f_0xFE:  /* PADDD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.i = simde_mm_add_epi32(GX.i, EX->i);
+        GX.ud[0] += EX->ud[0];
+        GX.ud[1] += EX->ud[1];
+        GX.ud[2] += EX->ud[2];
+        GX.ud[3] += EX->ud[3];
         NEXT;
 
 

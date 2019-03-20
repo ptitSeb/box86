@@ -294,7 +294,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     if(trace_xmm) {
         // do xmm reg is needed
         for(int i=0; i<8; ++i) {
-            sprintf(tmp, "%d:%016llx%016llx", i, emu->xmm[i].i.u64[1], emu->xmm[i].i.u64[0]);
+            sprintf(tmp, "%d:%016llx%016llx", i, emu->xmm[i].q[1], emu->xmm[i].q[0]);
             strcat(buff, tmp);
             if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
