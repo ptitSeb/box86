@@ -644,9 +644,9 @@ GO(iconv_close, iFu)
 GO(iconv_open, uFpp)
 GO(iconv_canonicalize, pFp)
 // if_freenameindex
-// if_indextoname
+GO(if_indextoname, pFup)
 // if_nameindex
-// if_nametoindex
+GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 // imaxdiv  // Weak
 // in6addr_any  // type R
@@ -1044,11 +1044,11 @@ DATAV(__malloc_hook, 4)
 DATAV(__malloc_initialize_hook, 4)
 // malloc_set_state // Weak
 // malloc_stats // Weak
-// malloc_trim  // Weak
+GOW(malloc_trim, iFu)
 GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B
-// mblen
+GO(mblen, iFpu)
 GOW(mbrlen, uFpupp)
 // __mbrlen
 GOW(mbrtowc, uFppup)
@@ -1763,7 +1763,7 @@ GO(timegm, uFp)
 // timerfd_create
 // timerfd_gettime
 // timerfd_settime
-// times    // Weak
+GOW(times, iFp)
 DATAV(timezone, 4)
 DATAB(__timezone, 4)   // type B
 GO(tmpfile, pFv)
