@@ -343,10 +343,10 @@
     _6f_0x67:  /* PACKUSWB */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<4; ++i)
+        for(int i=0; i<8; ++i)
             GX.ub[i] = (GX.sw[i]<0)?0:((GX.sw[i]>0xff)?0xff:GX.sw[i]);
-        for(int i=0; i<4; ++i)
-            GX.ub[4+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+        for(int i=0; i<8; ++i)
+            GX.ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
         NEXT;
     _6f_0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = F8;
@@ -421,18 +421,18 @@
         nextop = F8;
         GET_EX;
         switch((nextop>>3)&7) {
-            case 2:                 /* PSRLW Gx, Ib */
+            case 2:                 /* PSRLW Ex, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
                 else
                     for (int i=0; i<8; ++i) EX->uw[i] >>= tmp8u;
                 break;
-            case 4:                 /* PSRAW Gx, Ib */
+            case 4:                 /* PSRAW Ex, Ib */
                 tmp8u = F8;
                 for (int i=0; i<8; ++i) EX->sw[i] >>= tmp8u;
                 break;
-            case 6:                 /* PSLLW Gx, Ib */
+            case 6:                 /* PSLLW Ex, Ib */
                 tmp8u = F8;
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
