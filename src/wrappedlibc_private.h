@@ -250,7 +250,7 @@ GO(epoll_create, iFi)
 GO(epoll_create1, iFi)
 GO(epoll_ctl, iFiiip)
 // epoll_pwait
-// epoll_wait
+GO(epoll_wait, iFipii)
 // erand48
 // erand48_r    // Weak
 // err
@@ -460,7 +460,7 @@ GOW(getdelim, iFppip)
 GOW(__getdelim, iFppip)
 // getdirentries
 // getdirentries64
-// getdomainname
+GO(getdomainname, iFpu)
 // __getdomainname_chk
 // getdtablesize    // Weak
 GOW(getegid, iFv)
@@ -615,8 +615,8 @@ GOW(gmtime_r, pFpp)
 // gnu_dev_major
 // gnu_dev_makedev
 // gnu_dev_minor
-// gnu_get_libc_release // Weak
-// gnu_get_libc_version // Weak
+GOW(gnu_get_libc_release, pFv)
+GOW(gnu_get_libc_version, pFv)
 // __gnu_mcount_nc
 // __gnu_Unwind_Find_exidx
 // grantpt
@@ -1250,7 +1250,7 @@ GOW(posix_memalign, iFpuu)
 // posix_spawn_file_actions_init
 // posix_spawnp
 // ppoll
-// prctl    // Weak
+GOW(prctl, iFiuuuu)
 GOW(pread, iFipui)
 GOW(pread64, iFipuI)
 // __pread64    // Weak
@@ -1336,7 +1336,7 @@ GO(__realpath_chk, pFppu)
 // re_compile_fastmap   // Weak
 // re_compile_pattern   // Weak
 GO(recv, iFipui)
-// __recv_chk
+GO(__recv_chk, iFipuui)
 GOW(recvfrom, iFipuipp)
 // __recvfrom_chk
 GOW(recvmsg, iFipi)
@@ -1664,7 +1664,7 @@ GO(__strtol_internal, iFppi)
 GO(strtoll, IFppi)
 // __strtol_l
 // strtol_l // Weak
-// __strtoll_internal
+GO(__strtoll_internal, IFppii)
 // __strtoll_l
 GOW(strtoll_l, IFppip)
 // strtoq   // Weak
@@ -1673,7 +1673,7 @@ GO(__strtoul_internal, uFppii)
 GO(strtoull, UFppi)
 // __strtoul_l
 // strtoul_l    // Weak
-// __strtoull_internal
+GO(__strtoull_internal, UFppii)
 // __strtoull_l
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)

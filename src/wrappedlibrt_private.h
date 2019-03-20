@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error Meh...
+#endif
 
 //clockid_t is uint32?
 // pid_t is uint32 too? (for clock_getcpuclockid)
@@ -37,12 +39,10 @@ GO(clock_settime, iFup)
 // mq_timedreceive
 // mq_timedsend
 // mq_unlink
-// shm_open
-// shm_unlink
+GO(shm_open, iFpiu)
+GO(shm_unlink, iFp)
 GO(timer_create, iFupp) // first pointer is a struct sigevent * so will need some work with signal handling maybe
 GO(timer_delete, iFu)
 GO(timer_getoverrun, iFu)
 GO(timer_gettime, iFup)
 GO(timer_settime, iFuipp)
-
-#endif
