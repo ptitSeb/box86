@@ -563,8 +563,10 @@ static int scandir64_compcb(const struct dirent64** a, const struct dirent64** b
 }
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
-    scandir64selemu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-    scandir64compemu = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
+    // cannot use 2 shared callback in the same call (because they will be the same)
+    // another solution would be to use only 1 (shared) CB and put functions address in Arg 3 & 4 for example
+    scandir64selemu = AddCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+    scandir64compemu = AddCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
     int ret = scandir64(dir, namelist, scandir64_selcb, scandir64_compcb);
     FreeCallback(scandir64selemu);
     FreeCallback(scandir64compemu);
