@@ -99,8 +99,8 @@ GOW(bind_textdomain_codeset, pFpp)
 // bsd_signal   // Weak
 GOM(bsearch, pFEppuup)
 GOW(btowc, iFi)
-// bzero    // Weak
-// __bzero
+GOW(bzero, vFpu)
+GO(__bzero, vFpu)
 GOW(calloc, pFuu)
 // callrpc
 // canonicalize_file_name   // Weak
@@ -775,8 +775,8 @@ DATA(_IO_list_all, 4)
 // _IO_marker_difference
 // _IO_padn
 // _IO_peekc_locked
-// ioperm   // Weak
-// iopl // Weak
+GOW(ioperm, iFuui)
+GOW(iopl, iFi)
 // _IO_popen
 // _IO_printf
 // _IO_proc_close
@@ -1442,21 +1442,21 @@ GOW(setbuf, vFpp)
 GOW(setbuffer, vFppu)
 // setcontext
 // setdomainname
-// setegid
+GO(setegid, iFu)
 GOW(setenv, iFppi)
 // _seterr_reply
 GO(seteuid, iFu)
 // setfsent
 // setfsgid
 // setfsuid
-// setgid   // Weak
+GOW(setgid, iFu)
 // setgrent
 // setgroups
 GO(sethostent, vFi)
 // sethostid
 GO(sethostname, iFpu)
 // setipv4sourcefilter
-// setitimer    // Weak
+GOW(setitimer, iFipp)
 GOM(setjmp, iFEp)
 GOM(_setjmp, iFEp)
 GO(setlinebuf, vFp)
@@ -1467,7 +1467,7 @@ GOW(setmntent, pFpp)
 // __setmntent
 // setnetent
 // setnetgrent
-// setpgid  // Weak
+GOW(setpgid, iFuu)
 // __setpgid
 // setpgrp
 GO(setpriority, iFiii)
@@ -1489,7 +1489,7 @@ GOW(setsockopt, iFiiipu)
 // setstate_r   // Weak
 // settimeofday // Weak
 // setttyent
-// setuid   // Weak
+GOW(setuid, iFu)
 // setusershell
 // setutent // Weak
 // setutxent
@@ -1831,7 +1831,7 @@ GO(utime, iFpp)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 // utmpname // Weak
 // utmpxname
-// valloc   // Weak
+GOW(valloc, pFu)
 GOM(vasprintf, iFEppVV)
 GOM(__vasprintf_chk, iFEpipVV)
 // vdprintf // Weak

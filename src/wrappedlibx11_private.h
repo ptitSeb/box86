@@ -261,7 +261,7 @@ GO(XDeleteProperty, iFppp)
 // _XDeq
 // _XDeqAsyncHandler
 GO(XDestroyIC, vFu)
-//GOM(XDestroyImage, iFEp)  //need to unbridge
+GOM(XDestroyImage, iFEp)  //need to unbridge
 //GO(XDestroyOC
 GO(XDestroyRegion, iFp)
 GO(XDestroySubwindows, iFpp)

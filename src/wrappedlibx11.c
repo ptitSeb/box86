@@ -89,6 +89,7 @@ typedef struct _XImage {
     ximage_t f;
 } XImage;
 
+typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
@@ -114,6 +115,7 @@ typedef struct x11_my_s {
     pFppiiuuui_t    XGetImage;
     iFppppiiiiuu_t  XPutImage;
     pFppiiuuuipii_t XGetSubImage;
+    vFp_t           XDestroyImage;
 } x11_my_t;
 
 void* getX11My(library_t* lib)
@@ -130,6 +132,7 @@ void* getX11My(library_t* lib)
     GO(XGetImage, pFppiiuuui_t)
     GO(XPutImage, iFppppiiiiuu_t)
     GO(XGetSubImage, pFppiiuuuipii_t)
+    GO(XDestroyImage, vFp_t)
     #undef GO
     return my;
 }
@@ -154,6 +157,8 @@ void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
                     , int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y);
+
+void my_XDestroyImage(x86emu_t* emu, void* image);
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getX11My(lib);
@@ -411,4 +416,13 @@ EXPORT void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
 
     BridgeImageFunc(emu, (XImage*)image);
     return img;
+}
+
+EXPORT void my_XDestroyImage(x86emu_t* emu, void* image)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    UnbridgeImageFunc(emu, (XImage*)image);
+    my->XDestroyImage(image);
 }
