@@ -505,7 +505,7 @@ simde_mm_bslli_si128 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE) && !defined(__PGI)
 #  define simde_mm_bslli_si128(a, imm8) SIMDE__M128I_C(_mm_slli_si128(a.n, imm8))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_bslli_si128(a, imm8) \
   SIMDE__M128I_NEON_C(i8, (((imm8) <= 0) ? ((a).neon_i8) : (((imm8) > 15) ? (vdupq_n_s8(0)) : (vextq_s8(vdupq_n_s8(0), (a).neon_i8, 16 - (imm8))))))
 #endif
@@ -540,7 +540,7 @@ simde_mm_bsrli_si128 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE) && !defined(__PGI)
 #  define simde_mm_bsrli_si128(a, imm8) SIMDE__M128I_C(_mm_srli_si128(a.n, imm8))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_bsrli_si128(a, imm8) \
   SIMDE__M128I_NEON_C(i8, ((imm8) <= 0) ? ((a).neon_i8) : (((imm8) > 15) ? (vdupq_n_s8(0)) : (vextq_s8((a).neon_i8, vdupq_n_s8(0), (imm8)))))
 #endif
@@ -1573,7 +1573,7 @@ simde_mm_extract_epi16 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE) && (!defined(SIMDE__REALLY_GCC) || HEDLEY_GCC_VERSION_CHECK(4,6,0))
 #  define simde_mm_extract_epi16(a, imm8) _mm_extract_epi16(a.n, imm8)
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_extract_epi16(a, imm8) (vgetq_lane_s16((a).neon_i16, (imm8)) & ((int32_t) UINT32_C(0x0000ffff)))
 #endif
 
@@ -1585,7 +1585,7 @@ simde_mm_insert_epi16 (simde__m128i a, int32_t i, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE) && !defined(__PGI)
 #  define simde_mm_insert_epi16(a, i, imm8) SIMDE__M128I_C(_mm_insert_epi16((a).n, (i), (imm8)))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_insert_epi16(a, i, imm8) SIMDE__M128I_NEON_C(i16, vsetq_lane_s16((i), a.neon_i16, (imm8)))
 #endif
 
@@ -3025,7 +3025,7 @@ simde_mm_srl_epi64 (simde__m128i a, simde__m128i count) {
 #else
   simde__m128i r;
 
-  if (count.u64[0] > 31)
+  if (count.u64[0] > 63)
     return simde_mm_setzero_si128();
   const int s = (int) (count.u64[0]);
 
@@ -3072,7 +3072,7 @@ simde_mm_srai_epi32 (simde__m128i a, int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_srai_epi32(a, imm8) SIMDE__M128I_C(_mm_srai_epi32((a).n, (imm8)))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_srai_epi32(a, imm8) SIMDE__M128I_NEON_C(i32, ((imm8) <= 0) ? (a.neon_i32) : (((imm8) > 31) ? (vshrq_n_s32(vshrq_n_s32(a.neon_i32, 16), 16)) : (vshrq_n_s32(a.neon_i32, (imm8)))))
 #endif
 
@@ -3141,7 +3141,7 @@ simde_mm_slli_epi16 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_slli_epi16(a, imm8) SIMDE__M128I_C(_mm_slli_epi16(a.n, imm8));
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_slli_epi16(a, imm8) \
   SIMDE__M128I_NEON_C(i16, ((imm8) <= 0) ? ((a).neon_i16) : (((imm8) > 31) ? (vdupq_n_s16(0)) : (vshlq_n_s16((a).neon_i16, (imm8)))))
 #endif
@@ -3159,7 +3159,7 @@ simde_mm_slli_epi32 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_slli_epi32(a, imm8) SIMDE__M128I_C(_mm_slli_epi32(a.n, imm8));
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_slli_epi32(a, imm8) \
   SIMDE__M128I_NEON_C(i32, ((imm8) <= 0) ? ((a).neon_i32) : (((imm8) > 31) ? (vdupq_n_s32(0)) : (vshlq_n_s32((a).neon_i32, (imm8)))))
 #endif
@@ -3192,7 +3192,7 @@ simde_mm_srli_epi16 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_srli_epi16(a, imm8) SIMDE__M128I_C(_mm_srli_epi16(a.n, imm8));
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_srli_epi16(a, imm8) \
   SIMDE__M128I_NEON_C(u16, ((imm8) <= 0) ? ((a).neon_u16) : (((imm8) > 31) ? (vdupq_n_u16(0)) : (vshrq_n_u16((a).neon_u16, (imm8)))))
 #endif
@@ -3210,7 +3210,7 @@ simde_mm_srli_epi32 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_srli_epi32(a, imm8) SIMDE__M128I_C(_mm_srli_epi32(a.n, imm8))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_srli_epi32(a, imm8) \
   SIMDE__M128I_NEON_C(u32, ((imm8) <= 0) ? ((a).neon_u32) : (((imm8) > 31) ? (vdupq_n_u32(0)) : (vshrq_n_u32((a).neon_u32, (imm8)))))
 #endif
@@ -3232,7 +3232,7 @@ simde_mm_srli_epi64 (simde__m128i a, const int imm8) {
 }
 #if defined(SIMDE_SSE2_NATIVE)
 #  define simde_mm_srli_epi64(a, imm8) SIMDE__M128I_C(_mm_srli_epi64(a.n, imm8))
-#elif defined(SIMDE_SSE2_NEON)
+#elif defined(/*SIMDE_SSE2_NEON*/NOPE)
 #  define simde_mm_srli_epi64(a, imm8) \
   SIMDE__M128I_NEON_C(u64, (((imm8)&255) < 0 || ((imm8)&255) > 63) ? (vdupq_n_u64(0)) : ((((imm8)&255) == 0) ? (a.neon_u64) : (vshrq_n_u64((a).neon_u64, (imm8)&255))))
 #endif

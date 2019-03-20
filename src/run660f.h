@@ -342,7 +342,10 @@
         switch((nextop>>3)&7) {
             case 2:                 /* PSRLW Gx, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_srli_epi16(EX->i, tmp8u);
+                if(tmp8u>15)
+                    EX->i = simde_mm_setzero_si128();
+                else
+                    EX->i = simde_mm_srli_epi16(EX->i, tmp8u);
                 break;
             case 4:                 /* PSRAW Gx, Ib */
                 tmp8u = F8;
@@ -350,7 +353,10 @@
                 break;
             case 6:                 /* PSLLW Gx, Ib */
                 tmp8u = F8;
-                EX->i = simde_mm_slli_epi16(EX->i, tmp8u);
+                if(tmp8u>15)
+                    EX->i = simde_mm_setzero_si128();
+                else
+                    EX->i = simde_mm_slli_epi16(EX->i, tmp8u);
                 break;
             default:
                 goto _default;
@@ -553,14 +559,14 @@
         GET_EX;
         tmp8u = F8;
         switch(tmp8u&7) {
-            case 0: GX.d=simde_mm_cmpeq_sd(GX.d, EX->d); break;
-            case 1: GX.d=simde_mm_cmplt_sd(GX.d, EX->d); break;
-            case 2: GX.d=simde_mm_cmple_sd(GX.d, EX->d); break;
-            case 3: GX.d=simde_mm_cmpunord_sd(GX.d, EX->d); break;
-            case 4: GX.d=simde_mm_cmpneq_sd(GX.d, EX->d); break;
-            case 5: GX.d=simde_mm_cmpge_sd(GX.d, EX->d); break;
-            case 6: GX.d=simde_mm_cmpgt_sd(GX.d, EX->d); break;
-            case 7: GX.d=simde_mm_cmpord_sd(GX.d, EX->d); break;
+            case 0: GX.d=simde_mm_cmpeq_pd(GX.d, EX->d); break;
+            case 1: GX.d=simde_mm_cmplt_pd(GX.d, EX->d); break;
+            case 2: GX.d=simde_mm_cmple_pd(GX.d, EX->d); break;
+            case 3: GX.d=simde_mm_cmpunord_pd(GX.d, EX->d); break;
+            case 4: GX.d=simde_mm_cmpneq_pd(GX.d, EX->d); break;
+            case 5: GX.d=simde_mm_cmpge_pd(GX.d, EX->d); break;
+            case 6: GX.d=simde_mm_cmpgt_pd(GX.d, EX->d); break;
+            case 7: GX.d=simde_mm_cmpord_pd(GX.d, EX->d); break;
         }
         NEXT;
 
@@ -568,13 +574,13 @@
         nextop = F8;
         GET_EW;
         tmp8u = F8;
-        GX.i = simde_mm_insert_epi16(GX.i, EW->word[0], tmp8u&7);
+        GX.i = simde_mm_insert_epi16(GX.i, EW->word[0], tmp8u);
         NEXT;
     _6f_0xC5:  /* PEXTRW Gw,Ex,Ib */
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        GW.word[0] = simde_mm_extract_epi16(EX->i, tmp8u&7);
+        GW.word[0] = simde_mm_extract_epi16(EX->i, tmp8u);
         NEXT;
     _6f_0xC6:  /* SHUFPD Gx, Ex, Ib */
         nextop = F8;
