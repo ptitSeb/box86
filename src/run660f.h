@@ -485,10 +485,14 @@
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
                 else {
-                    for (int i=tmp8u; i<16; ++i)
-                        EX->ub[i-tmp8u] = EX->ub[i];
-                    for (int i=16-tmp8u; i<16; ++i)
-                        EX->ub[i] = 0;
+                    tmp8u*=8;
+                    if (tmp8u < 64) {
+                        EX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
+                        EX->q[1] = (EX->q[1] >> tmp8u);
+                    } else {
+                        EX->q[0] = EX->q[1] >> (tmp8u - 64);
+                        EX->q[1] = 0;
+                    }                    
                 }
                 break;
             case 6:                 /* PSLLQ Ex, Ib */
@@ -503,10 +507,14 @@
                 if(tmp8u>15)
                     {EX->q[0] = EX->q[1] = 0;}
                 else {
-                    for (int i=16-tmp8u; i>=0; --i)
-                        EX->ub[i+tmp8u] = EX->ub[i];
-                    for (int i=0; i<tmp8u; ++i)
-                        EX->ub[i] = 0;
+                    tmp8u*=8;
+                    if (tmp8u < 64) {
+                        EX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
+                        EX->q[0] = (EX->q[0] << tmp8u);
+                    } else {
+                        EX->q[1] = EX->q[0] << (tmp8u - 64);
+                        EX->q[0] = 0;
+                    }
                 }
                 break;
             default:
@@ -734,8 +742,8 @@
     _6f_0xD4:  /* PADDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.q[0] += EX->q[0];
-        GX.q[1] += EX->q[1];
+        GX.sq[0] += EX->sq[0];
+        GX.sq[1] += EX->sq[1];
         NEXT;
 
     _6f_0xD6:  /* MOVQ Ex,Gx */
@@ -771,13 +779,14 @@
     _6f_0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GET_EX;
-        tmp8u=EX->q[0];
+        tmp8u=(EX->q[0]>15)?16:EX->q[0];
         for (int i=0; i<8; ++i) GX.sw[i] >>= tmp8u;
         NEXT;
     _6f_0xE2:  /* PSRAD Gx, Ex */
         nextop = F8;
         GET_EX;
-        tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
+        tmp8u=(EX->q[0]>31)?32:EX->q[0];
+        for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
         NEXT;
 
     _6f_0xE6:  /* CVTTPD2DQ Gx, Ex */
@@ -800,7 +809,7 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<16; ++i) {
-            tmp16s = GX.sb[i] + EX->sb[i];
+            tmp16s = (int16_t)GX.sb[i] + EX->sb[i];
             GX.sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
         }
         NEXT;
@@ -808,7 +817,7 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<8; ++i) {
-            tmp32s = GX.sw[i] + EX->sw[i];
+            tmp32s = (int32_t)GX.sw[i] + EX->sw[i];
             GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
         }
         NEXT;
@@ -861,31 +870,31 @@
     _6f_0xFA:  /* PSUBD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.ud[0] -= EX->ud[0];
-        GX.ud[1] -= EX->ud[1];
-        GX.ud[2] -= EX->ud[2];
-        GX.ud[3] -= EX->ud[3];
+        GX.sd[0] -= EX->sd[0];
+        GX.sd[1] -= EX->sd[1];
+        GX.sd[2] -= EX->sd[2];
+        GX.sd[3] -= EX->sd[3];
         NEXT;
     _6f_0xFB:  /* PSUBQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.q[0] -= EX->q[0];
-        GX.q[1] -= EX->q[1];
+        GX.sq[0] -= EX->sq[0];
+        GX.sq[1] -= EX->sq[1];
         NEXT;
     _6f_0xFC:  /* PADDB Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=0; i<16; ++i)
-            GX.ub[i] += EX->ub[i];
+            GX.sb[i] += EX->sb[i];
         NEXT;
 
     _6f_0xFE:  /* PADDD Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.ud[0] += EX->ud[0];
-        GX.ud[1] += EX->ud[1];
-        GX.ud[2] += EX->ud[2];
-        GX.ud[3] += EX->ud[3];
+        GX.sd[0] += EX->sd[0];
+        GX.sd[1] += EX->sd[1];
+        GX.sd[2] += EX->sd[2];
+        GX.sd[3] += EX->sd[3];
         NEXT;
 
 
