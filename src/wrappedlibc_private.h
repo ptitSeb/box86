@@ -1048,7 +1048,7 @@ GOW(malloc_trim, iFu)
 GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B
-// mblen
+GO(mblen, iFpu)
 GOW(mbrlen, uFpupp)
 // __mbrlen
 GOW(mbrtowc, uFppup)
