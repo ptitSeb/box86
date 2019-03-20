@@ -55,9 +55,9 @@ GOW(atanf, fFf)
 // catanhf  // Weak
 // catanhl  // Weak
 // catanl   // Weak
-// cbrt // Weak
-// cbrtf    // Weak
-// cbrtl    // Weak
+GOW(cbrt, dFd)
+GOW(cbrtf, fFf)
+GOW(cbrtl, DFD)
 // ccos // Weak
 // ccosf    // Weak
 // ccosh    // Weak
