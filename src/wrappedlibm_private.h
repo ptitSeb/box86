@@ -190,7 +190,7 @@ GOW(fmod, dFdd)
 GOW(fmodf, fFff)
 // __fmodf_finite
 // __fmod_finite
-// fmodl    // Weak
+GOW(fmodl, DFDD)
 // __fpclassify
 // __fpclassifyf
 GOW(frexp, dFdp)
