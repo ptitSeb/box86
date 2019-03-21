@@ -195,7 +195,7 @@ GO(__dgettext, pFpp)
 GO(difftime, dFuu)
 GO(dirfd, iFp)
 GO(dirname, pFp)
-GO(div, UFii)
+GOM(div, pFpii)
 // _dl_addr
 GOM(dl_iterate_phdr, iFEpp)
 // _dl_mcount_wrapper

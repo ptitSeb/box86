@@ -73,7 +73,7 @@ int Run(x86emu_t *emu)
     &&_0x80,    &&_0x81,    &&_default, &&_0x83,    &&_0x84,    &&_0x85,    &&_0x86,    &&_0x87,     
     &&_0x88,    &&_0x89,    &&_0x8A,    &&_0x8B,    &&_default, &&_0x8D,    &&_default, &&_0x8F,     
     &&_0x90,    &&_0x91,    &&_0x92,    &&_0x93,    &&_0x94,    &&_0x95,    &&_0x96,    &&_0x97, 
-    &&_0x98,    &&_0x99,    &&_default, &&_0x9B,    &&_0x9C,    &&_0x9D,    &&_0x9E,    &&_default,
+    &&_0x98,    &&_0x99,    &&_default, &&_0x9B,    &&_0x9C,    &&_0x9D,    &&_0x9E,    &&_0x9F,
     &&_0xA0,    &&_0xA1,    &&_0xA2,    &&_0xA3,    &&_0xA4,    &&_0xA5,    &&_0xA6,    &&_0xA7, 
     &&_0xA8,    &&_0xA9,    &&_0xAA,    &&_0xAB,    &&_0xAC,    &&_0xAD,    &&_0xAE,    &&_0xAF,     
     &&_0xB0,    &&_0xB1,    &&_0xB2,    &&_0xB3,    &&_0xB4,    &&_0xB5,    &&_0xB6,    &&_0xB7, 
@@ -839,6 +839,11 @@ _trace:
             CONDITIONAL_SET_FLAG(tmp8u&0x80, F_SF);
             RESET_FLAGS(emu);
             NEXT;
+        _0x9F:                      /* LAHF */
+            CHECK_FLAGS(emu);
+            PackFlags(emu);
+            R_AH = (uint8_t)emu->packed_eflags.x32;
+            NEXT;
 
         _0xA0:                      /* MOV AL,Ob */
             R_AL = *(uint8_t*)F32;
@@ -1158,6 +1163,24 @@ _trace:
                     #include "runf20f.h"
                 }
                 NEXT;
+            } else if(nextop==0x66) {
+                nextop = F8;
+                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                tmp32u = R_ECX;
+                switch(nextop) {
+                    case 0xA5:              /* REP MOVSW */
+                        tmp8s *= 2;
+                        while(tmp32u) {
+                            --tmp32u;
+                            *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
+                            R_EDI += tmp8s;
+                            R_ESI += tmp8s;
+                        }
+                        break;
+                    default:
+                        goto _default;
+                }
+                R_ECX = tmp32u;
             } else {
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 tmp32u = R_ECX;
