@@ -551,7 +551,7 @@ GO(getpwuid_r, iFuppup)
 // getresgid    // Weak
 // getresuid    // Weak
 GO(getrlimit, iFip)
-// getrlimit64
+GO(getrlimit64, iFip)
 // getrpcbyname
 // getrpcbyname_r
 // getrpcbynumber
