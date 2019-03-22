@@ -240,13 +240,13 @@ GOW(hypotf, fFff)
 GOW(ldexp, dFdi)
 GOW(ldexpf, fFfi)
 // ldexpl   // Weak
-// lgamma   // Weak
-// lgammaf  // Weak
-// lgammaf_r    // Weak
+GOW(lgamma, dFd)
+GOW(lgammaf, fFf)
+GOW(lgammaf_r, fFfp)
 // __lgammaf_r_finite
-// lgammal  // Weak
-// lgammal_r    // Weak
-// lgamma_r // Weak
+GO2(lgammal, LFL, lgamma)
+GO2(lgammal_r, LFLp, lgamma_r)
+GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
 // llrint   // Weak
@@ -363,9 +363,9 @@ GOW(tanh, dFd)
 GOW(tanhf, fFf)
 // tanhl    // Weak
 // tanl // Weak
-// tgamma   // Weak
-// tgammaf  // Weak
-// tgammal  // Weak
+GOW(tgamma, dFd)
+GOW(tgammaf, fFf)
+GO2(tgammal, LFL, tgamma)
 GOW(trunc, dFd)
 GOW(truncf, fFf)
 // truncl   // Weak
