@@ -1250,7 +1250,7 @@ GOW(posix_memalign, iFpuu)
 // posix_spawn_file_actions_destroy
 // posix_spawn_file_actions_init
 // posix_spawnp
-// ppoll
+GO(ppoll, iFpupp)
 GOW(prctl, iFiuuuu)
 GOW(pread, iFipui)
 GOW(pread64, iFipuI)
