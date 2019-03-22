@@ -1425,7 +1425,7 @@ GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
 // seed48
 // seed48_r // Weak
-// seekdir
+GO(seekdir, vFpi)
 GOW(select, iFipppp)
 GO(__select, iFipppp)
 GO(semctl, iFiiippppp)  // use vararg after the 3 i
