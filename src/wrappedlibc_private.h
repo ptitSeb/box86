@@ -1714,7 +1714,7 @@ GO(strxfrm_l, uFppup)
 // svcunixfd_create
 // svc_unregister
 GO(swab, vFppi)
-// swapcontext
+GO(swapcontext, iFpp)
 // swapoff  // Weak
 // swapon   // Weak
 GOM(swprintf, iFEpupV)

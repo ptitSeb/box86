@@ -14,9 +14,9 @@ GOW(asin, dFd)
 GOW(asinf, fFf)
 GO(__asinf_finite, fFf)
 GO(__asin_finite, dFd)
-// asinh    // Weak
-// asinhf   // Weak
-// asinhl   // Weak
+GOW(asinh, dFd)
+GOW(asinhf, fFf)
+GO2(asinhl, LFL, asinh)
 // asinl    // Weak
 GO(atan, dFd)
 GOW(atan2, dFdd)
