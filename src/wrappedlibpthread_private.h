@@ -14,7 +14,7 @@
 GO(pthread_attr_destroy, iFp)
 // pthread_attr_getaffinity_np
 GO(pthread_attr_getdetachstate, iFpp)
-// pthread_attr_getguardsize
+GO(pthread_attr_getguardsize, iFpp)
 GO(pthread_attr_getinheritsched, iFpp)
 GO(pthread_attr_getschedparam, iFpp)
 GO(pthread_attr_getschedpolicy, iFpp)
@@ -25,7 +25,7 @@ GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
 // pthread_attr_setaffinity_np
 GO(pthread_attr_setdetachstate, iFpi)
-// pthread_attr_setguardsize
+GO(pthread_attr_setguardsize, iFpu)
 GO(pthread_attr_setinheritsched, iFpi)
 GO(pthread_attr_setschedparam, iFpp)
 GO(pthread_attr_setschedpolicy, iFpi)
