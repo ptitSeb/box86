@@ -4,12 +4,12 @@ GOW(acos, dFd)
 GOW(acosf, fFf)
 GO(__acosf_finite, fFf)
 // __acos_finite
-// acosh    // Weak
-// acoshf   // Weak
+GOW(acosh, dFd)
+GOW(acoshf, fFf)
 // __acoshf_finite
 // __acosh_finite
-// acoshl   // Weak
-// acosl    // Weak
+GO2(acoshl, LFL, acosh)
+GO2(acosl, LFL, acos)
 GOW(asin, dFd)
 GOW(asinf, fFf)
 GO(__asinf_finite, fFf)
@@ -17,7 +17,7 @@ GO(__asin_finite, dFd)
 GOW(asinh, dFd)
 GOW(asinhf, fFf)
 GO2(asinhl, LFL, asinh)
-// asinl    // Weak
+GO2(asinl, LFL, asin)
 GO(atan, dFd)
 GOW(atan2, dFdd)
 GOW(atan2f, fFff)
