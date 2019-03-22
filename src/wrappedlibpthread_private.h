@@ -19,7 +19,7 @@ GO(pthread_attr_getinheritsched, iFpp)
 GO(pthread_attr_getschedparam, iFpp)
 GO(pthread_attr_getschedpolicy, iFpp)
 GO(pthread_attr_getscope, iFpp)
-// pthread_attr_getstack
+GO(pthread_attr_getstack, iFppp)
 GO(pthread_attr_getstackaddr, iFpp)
 GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
@@ -30,7 +30,7 @@ GO(pthread_attr_setinheritsched, iFpi)
 GO(pthread_attr_setschedparam, iFpp)
 GO(pthread_attr_setschedpolicy, iFpi)
 GO(pthread_attr_setscope, iFpi)
-// pthread_attr_setstack
+GO(pthread_attr_setstack, iFppu)
 GO(pthread_attr_setstackaddr, iFpp)
 GO(pthread_attr_setstacksize, iFpp)
 // pthread_barrierattr_destroy
