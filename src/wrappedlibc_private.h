@@ -212,7 +212,7 @@ GO(drand48, dFv)
 GOW(dup, iFi)
 GOW(dup2, iFii)
 GO(__dup2, iFii)
-// dup3
+GO(dup3, iFiii)
 GOW(duplocale, pFp)
 GO(__duplocale, pFp)
 // dysize
