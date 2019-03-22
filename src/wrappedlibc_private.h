@@ -1754,7 +1754,7 @@ GO(tcsetattr, iFiip)
 // tdelete  // Weak
 // tdestroy // Weak
 // tee
-// telldir
+GO(telldir, iFp)
 // tempnam
 GOW(textdomain, pFp)
 // tfind    // Weak
