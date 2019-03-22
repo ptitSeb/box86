@@ -123,7 +123,7 @@ DATA(__check_rhosts_file, 4)
 // __chk_fail
 GOW(chmod, iFpu)
 GOW(chown, iFpuu)
-// chroot
+GO(chroot, iFp)
 GOW(clearenv, iFv)
 GO(clearerr, vFp)
 // clearerr_unlocked
