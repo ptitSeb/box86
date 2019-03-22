@@ -1476,7 +1476,7 @@ GO(setpriority, iFiii)
 GO(setpwent, vFv)
 GOW(setregid, iFuu)
 GOW(setresgid, iFuu)
-// setresuid    // Weak
+GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
 GO(setrlimit, iFip)
 // setrlimit64
