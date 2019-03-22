@@ -25,11 +25,11 @@ GO(__atan2f_finite, fFff)
 GO(__atan2_finite, dFdd)
 // atan2l   // Weak
 GOW(atanf, fFf)
-// atanh    // Weak
-// atanhf   // Weak
+GOW(atanh, dFd)
+GOW(atanhf, fFf)
 // __atanhf_finite
 // __atanh_finite
-// atanhl   // Weak
+GO2(atanhl, LFL, atanh)
 // atanl    // Weak
 // cabs // Weak
 // cabsf    // Weak
