@@ -1828,7 +1828,7 @@ GO(__uselocale, pFp)
 GO(usleep, iFu)
 // ustat
 GO(utime, iFpp)
-// utimensat
+GO(utimensat, iFippi)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 // utmpname // Weak
 // utmpxname
