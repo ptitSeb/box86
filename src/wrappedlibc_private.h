@@ -1223,7 +1223,7 @@ GOW(poll, iFpui)    // poll have an array of struct as 1st argument
 GO(__poll, iFpui)
 GO(popen, pFpp)
 GO(posix_fadvise, iFiuui)
-// posix_fadvise64
+GO(posix_fadvise64, iFiuui)
 // posix_fallocate
 // posix_fallocate64
 // posix_madvise
