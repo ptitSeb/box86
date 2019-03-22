@@ -477,7 +477,7 @@ GO(getgrgid_r, iFuppup)
 GO(getgrnam, pFp)
 GO(getgrnam_r, iFpppup)
 // getgrouplist
-// getgroups    // Weak
+GOW(getgroups, iFiu)
 // __getgroups_chk
 GO(gethostbyaddr, pFpui)
 GO(gethostbyaddr_r, iFpuippupp)
