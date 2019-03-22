@@ -308,10 +308,10 @@ GOW(ferror, iFp)
 // fexecve
 GOW(fflush, iFp)
 // fflush_unlocked
-// ffs
+GO(ffs, iFi)
 // __ffs
-// ffsl // Weak
-// ffsll
+GOW(ffsl, iFi)
+GO(ffsll, iFI)
 GOW(fgetc, iFp)
 // fgetc_unlocked   // Weak
 // fgetgrent
