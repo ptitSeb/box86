@@ -47,7 +47,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
-    emu->packed_eflags.x32 = 0x02; // default flags?
+    emu->packed_eflags.x32 = 0x202; // default flags?
     UnpackFlags(emu);
     // own stack?
     if(ownstack)
