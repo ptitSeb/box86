@@ -216,7 +216,7 @@ GO(dup3, iFiii)
 GOW(duplocale, pFp)
 GO(__duplocale, pFp)
 // dysize
-// eaccess  // Weak
+GOW(eaccess, iFpi)
 // ecb_crypt
 // ecvt
 // ecvt_r
@@ -269,7 +269,7 @@ GO(__errno_location, pFv)
 // ether_ntoa
 // ether_ntoa_r
 // ether_ntohost
-// euidaccess   // Weak
+GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
 // eventfd_read
 GO(eventfd_write, iFiU)
