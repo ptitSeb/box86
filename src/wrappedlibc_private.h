@@ -1212,7 +1212,7 @@ GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x86 and arm (and x86_64 too)
 // __pipe
-// pipe2    // Weak
+GOW(pipe2, iFpi) // assuming this works the same as pipe, so pointer for array of 2 int
 // pivot_root
 // pmap_getmaps
 // pmap_getport
