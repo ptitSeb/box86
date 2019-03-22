@@ -957,7 +957,7 @@ GO(jrand48, iFp)
 // key_setnet
 // key_setsecret
 GOW(kill, iFii)
-// killpg
+GO(killpg, iFii)
 // klogctl
 // l64a
 GO(labs, iFi)
