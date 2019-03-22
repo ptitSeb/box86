@@ -525,7 +525,7 @@ GO(getpass, pFp)
 GOW(getpeername, iFipp)
 GOW(getpgid, uFu)
 // __getpgid
-// getpgrp
+GO(getpgrp, iFv)
 // get_phys_pages   // Weak
 GO(getpid, uFv)
 GO(__getpid, uFv)
@@ -1470,7 +1470,7 @@ GOW(setmntent, pFpp)
 // setnetgrent
 GOW(setpgid, iFuu)
 // __setpgid
-// setpgrp
+GO(setpgrp, iFv)
 GO(setpriority, iFiii)
 // setprotoent
 GO(setpwent, vFv)
