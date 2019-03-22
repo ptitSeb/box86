@@ -1479,7 +1479,7 @@ GOW(setresgid, iFuuu)
 GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
 GO(setrlimit, iFip)
-// setrlimit64
+GO(setrlimit64, iFip)
 // setrpcent
 // setservent
 GOW(setsid, iFv)
