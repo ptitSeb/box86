@@ -972,6 +972,7 @@ GOW(lchown, iFpuu)
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 // lfind
 // lgetxattr
+GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
 // __libc_calloc
