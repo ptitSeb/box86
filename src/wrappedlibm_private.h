@@ -129,9 +129,9 @@ GOS(csqrt, pFpdd)
 // dremf    // Weak
 // dreml    // Weak
 GOW(erf, dFd)
-// erfc // Weak
-// erfcf    // Weak
-// erfcl    // Weak
+GOW(erfc, dFd)
+GOW(erfcf, fFf)
+GO2(erfcl, LFL, erfc)
 GOW(erff, fFf)
 GO2(erfl, LFL, erf)
 GOW(exp, dFd)
