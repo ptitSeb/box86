@@ -683,7 +683,7 @@ GO(inet_network, iFp)
 GO(inet_ntoa, pFi)
 GO(inet_ntop, pFippu)
 GO(inet_pton, iFipp)
-// initgroups
+GO(initgroups, iFpi)
 // init_module
 // initstate    // Weak
 // initstate_r  // Weak
