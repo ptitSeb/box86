@@ -63,7 +63,7 @@ GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
 GO(pthread_exit, vFp)
 // pthread_getaffinity_np
-// pthread_getattr_np
+GO(pthread_getattr_np, iFUp)
 // pthread_getconcurrency
 // pthread_getcpuclockid
 GO(pthread_getschedparam, iFppp)
