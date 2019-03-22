@@ -1315,7 +1315,7 @@ GO(__rawmemchr, pFpi)
 // rcmd_af
 // __rcmd_errstr    // type B
 GO(read, iFipu)
-// __read   // Weak
+GOW(__read, iFipu)
 // readahead    // Weak
 GO(__read_chk, iFipuu)
 GOW(readdir, pFp)
