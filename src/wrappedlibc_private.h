@@ -1452,7 +1452,7 @@ GO(seteuid, iFu)
 // setfsuid
 GOW(setgid, iFu)
 // setgrent
-// setgroups
+GO(setgroups, iFup)
 GO(sethostent, vFi)
 // sethostid
 GO(sethostname, iFpu)
