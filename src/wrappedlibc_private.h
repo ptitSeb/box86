@@ -1577,7 +1577,7 @@ GO(stpcpy, pFpp)
 GO(__stpcpy_chk, pFppu)
 // __stpcpy_small
 // stpncpy  // Weak
-// __stpncpy
+GO(__stpncpy, pFppu)
 GO(__stpncpy_chk, pFppuu)
 GOW(strcasecmp, iFpp)
 GO(__strcasecmp, iFpp)
