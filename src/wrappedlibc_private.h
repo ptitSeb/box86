@@ -1475,7 +1475,7 @@ GO(setpriority, iFiii)
 // setprotoent
 GO(setpwent, vFv)
 GOW(setregid, iFuu)
-GOW(setresgid, iFuu)
+GOW(setresgid, iFuuu)
 GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
 GO(setrlimit, iFip)
