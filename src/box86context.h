@@ -91,6 +91,7 @@ typedef struct box86context_s {
 
     uintptr_t           signals[MAX_SIGNAL];
     x86emu_t            *signal_emu;
+    int                 no_sigsegv;
 
 } box86context_t;
 

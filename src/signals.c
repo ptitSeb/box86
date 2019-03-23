@@ -125,6 +125,9 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     if(signum<0 || signum>=MAX_SIGNAL)
         return SIG_ERR;
 
+    if(signum==SIGSEGV && emu->context->no_sigsegv)
+        return 0;
+
     CheckSignalContext(emu);
 
     sighandler_t ret = NULL;
@@ -142,6 +145,9 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
 {
     if(signum<0 || signum>=MAX_SIGNAL)
         return -1;
+    
+    if(signum==SIGSEGV && emu->context->no_sigsegv)
+        return 0;
 
     CheckSignalContext(emu);
 

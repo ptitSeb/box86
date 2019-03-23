@@ -167,6 +167,7 @@ void PrintHelp() {
     printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binaray (if binary is a PIE)\n");
+    printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
 }
 
 int main(int argc, const char **argv, const char **env) {
@@ -210,6 +211,11 @@ int main(int argc, const char **argv, const char **env) {
     if(FileExist("/usr/lib/i386-linux-gnu", 0))
         AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib);
 #endif
+    if(getenv("BOX86_NOSIGSEGV")) {
+        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
+            context->no_sigsegv = 1;
+            printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
+    }
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
     // prepare all other env. var
