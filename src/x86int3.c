@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 #include "debug.h"
 #include "stack.h"
@@ -71,6 +72,7 @@ void x86Int3(x86emu_t* emu)
             int tid = syscall(SYS_gettid);
             addr = Fetch32(emu);
             if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
+                pthread_mutex_lock(&emu->context->mutex_trace);
                 char buff[256] = "\0";
                 char buff2[64]= "\0";
                 char buff3[64]= "\0";
@@ -148,7 +150,9 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
                 printf_log(LOG_DEBUG, "%s =>", buff);
-                w(emu, addr);
+                pthread_mutex_unlock(&emu->context->mutex_trace);
+                w(emu, addr);   // some function never come back, so unlock the mutex first!
+                pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
                     switch(post) {
                     case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
@@ -162,6 +166,7 @@ void x86Int3(x86emu_t* emu)
                 if(perr && errno)
                     snprintf(buff3, 63, " (errno=%d)", errno);
                 printf_log(LOG_DEBUG, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
+                pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);
         }

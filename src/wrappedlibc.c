@@ -18,6 +18,7 @@
 #include <glob.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <search.h>
 
 #include "wrappedlibs.h"
 
@@ -452,6 +453,25 @@ EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size
     // use a temporary callback, but global because there is no bsearch_r...
     bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     void* ret = bsearch(key, base, nmemb, size, bsearch_cmp);
+    FreeCallback(bsearch_emu);
+    bsearch_emu = NULL;
+    return ret;
+}
+
+EXPORT void* my_lsearch(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
+{
+    // use a temporary callback, but global because there is no bsearch_r...
+    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
+    void* ret = lsearch(key, base, nmemb, size, bsearch_cmp);
+    FreeCallback(bsearch_emu);
+    bsearch_emu = NULL;
+    return ret;
+}
+EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
+{
+    // use a temporary callback, but global because there is no bsearch_r...
+    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
+    void* ret = lfind(key, base, nmemb, size, bsearch_cmp);
     FreeCallback(bsearch_emu);
     bsearch_emu = NULL;
     return ret;

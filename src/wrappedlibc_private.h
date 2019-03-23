@@ -970,7 +970,7 @@ GOW(lchown, iFpuu)
 // ldexpf   // Weak
 // ldexpl   // Weak
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
-// lfind
+GOM(lfind, pFEpppup)
 // lgetxattr
 GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig
@@ -1028,7 +1028,7 @@ GOM(__longjmp_chk, vFEpi)
 // lrand48
 // lrand48_r
 // lremovexattr
-// lsearch
+GOM(lsearch, pFEpppup)
 GOW(lseek, iFiii)
 // __lseek  // Weak
 GOW(lseek64, IFiIi)
