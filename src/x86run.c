@@ -234,7 +234,7 @@ _trace:
     if(!(nextop&0xC0)) { \
         if((nextop&7)==4) { \
             uint8_t sib = F8; \
-            uintptr_t base = ((sib&0x7)==5)?F32:(emu->regs[(sib&0x7)].dword[0]); \
+            uintptr_t base = ((sib&0x7)==5)?(F32):(emu->regs[(sib&0x7)].dword[0]); \
             base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6)); \
             A = (T*)base; \
         } else if((nextop&7)==5) { \

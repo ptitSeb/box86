@@ -857,6 +857,23 @@ EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
     my->SDL_AddEventWatch(cb?my2_eventfilter:NULL, cb);
 }
 
+// DL functions from wrappedlibdl.c
+void* my_dlopen(x86emu_t* emu, void *filename, int flag);
+int my_dlclose(x86emu_t* emu, void *handle);
+void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
+EXPORT void* my2_SDL_LoadObject(x86emu_t* emu, void* sofile)
+{
+    return my_dlopen(emu, sofile, 0);   // TODO: check correct flag value...
+}
+EXPORT void my2_SDL_UnloadObject(x86emu_t* emu, void* handle)
+{
+    my_dlclose(emu, handle);
+}
+EXPORT void* my2_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
+{
+    return my_dlsym(emu, handle, name);
+}
+
 const char* sdl2Name = "libSDL2-2.0.so.0";
 #define LIBNAME sdl2
 

@@ -636,6 +636,22 @@ EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
     return r;
 }
 
+EXPORT int32_t my_execle(x86emu_t* emu, void* a, void* b, void* c, va_list v)
+{
+    int n=1;
+    if(b) {
+        ++n;
+        void** cnt = (void**)c;
+        while(cnt[n]) ++n;
+    }
+    void** params = (void**)calloc(n, sizeof(void*));
+    params[0] = b;
+    memcpy(params+4, c, n*sizeof(void*));
+    int32_t r = execve(a, (char* const*)params, *((void**)c+(n+1)));
+    free(params);
+    return r;
+}
+
 EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj, void* dso)
@@ -681,21 +697,6 @@ EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, 
     return 0;
 }
 
-#define CUSTOM_INIT \
-    InitCpuModel(); \
-    ctSetup(); \
-    box86->libclib = lib; \
-    lib->priv.w.p2 = getLIBCMy(lib); \
-    lib->priv.w.needed = 3; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2"); \
-    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0"); \
-    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
-
-#define CUSTOM_FINI \
-    freeLIBCMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
-
 EXPORT struct __processor_model
 {
   unsigned int __cpu_vendor;
@@ -728,6 +729,12 @@ void ctSetup()
     my___ctype_b = *(__ctype_b_loc());
     my___ctype_toupper = *(__ctype_toupper_loc());
     my___ctype_tolower = *(__ctype_tolower_loc());
+}
+
+EXPORT void* my___libc_stack_end;
+void stSetup(box86context_t* context)
+{
+    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
 }
 
 // need to undef all read / read64 stuffs!
@@ -763,9 +770,6 @@ void ctSetup()
 #undef pwrite
 #undef creat
 #undef scandir
-
-// define all standard library functions
-#include "wrappedlib_init.h"
 
 // longjmp / setjmp
 typedef struct jump_buff_i386_s {
@@ -804,3 +808,32 @@ void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
     R_EAX = __val;
     R_EIP = jpbuff->save_eip;
 }
+
+EXPORT void my_getcontext(x86emu_t* emu, void* ucp)
+{
+    printf_log(LOG_NONE, "Warning: call to unimplemented getcontext\n");
+}
+
+EXPORT void my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv)
+{
+    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
+}
+
+
+#define CUSTOM_INIT \
+    InitCpuModel(); \
+    ctSetup(); \
+    stSetup(box86); \
+    box86->libclib = lib; \
+    lib->priv.w.p2 = getLIBCMy(lib); \
+    lib->priv.w.needed = 3; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2"); \
+    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0"); \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
+
+#define CUSTOM_FINI \
+    freeLIBCMy(lib->priv.w.p2); \
+    free(lib->priv.w.p2);
+
+#include "wrappedlib_init.h"

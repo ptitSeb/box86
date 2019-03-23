@@ -274,10 +274,10 @@ GO(eventfd, iFui)
 // eventfd_read
 GO(eventfd_write, iFiU)
 GOM(execl, iFEpVV)
-// execle
+GOM(execle, iFEpVV)
 GOM(execlp, iFEpVV)
 GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
-// execve   // Weak
+GOW(execve, iFppp)   // and this one too...
 GOM(execvp, iFEpVV)
 GO(exit, vFi)
 GO(_exit, vFi)
@@ -448,7 +448,7 @@ GO(getaddrinfo, iFpppp)
 GOW(getc, iFp)
 GOW(getchar, iFv)
 // getchar_unlocked
-GO(getcontext, iFp) // should probably do a my_ version, because context is platform dependant!
+GOM(getcontext, iFEp)
 // getc_unlocked    // Weak
 GO(get_current_dir_name, pFv)
 GOW(getcwd, pFpu)
@@ -1037,7 +1037,7 @@ GOW(lseek64, IFiIi)
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
 // madvise
-// makecontext
+GOM(makecontext, iFEpppV)
 GOW(mallinfo, pFv)
 GO(malloc, pFu)
 // malloc_get_state // Weak
@@ -2096,3 +2096,5 @@ GOM(_ITM_memcpyRnWt, vFppu) // register(2)
 GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)
 GOM(_ITM_deregisterTMCloneTable, vFEp)
+
+DATAM(__libc_stack_end, 4)

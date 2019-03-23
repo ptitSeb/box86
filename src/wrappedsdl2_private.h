@@ -103,7 +103,7 @@ GO(SDL_EventState, CFui)
 GO(SDL_fabs, dFd)
 GO(SDL_fabsf, fFf)
 GO(SDL_FillRect, iFppu)
-// SDL_FillRects
+GO(SDL_FillRects, iFppiu)
 // SDL_FilterEvents
 // SDL_floor
 // SDL_floorf
@@ -330,7 +330,7 @@ GO(SDL_HideWindow, vFp)
 GO(SDL_iconv_string, pFpppu)
 GO(SDL_Init, iFu)
 GO(SDL_InitSubSystem, iFu)
-// SDL_IntersectRect
+GO(SDL_IntersectRect, iFppp)
 // SDL_IntersectRectAndLine
 // SDL_isdigit
 GO(SDL_IsGameController, iFi)
@@ -382,8 +382,8 @@ GO(SDL_JoystickUpdate, vFv)
 GOM(SDL_LoadBMP_RW, pFEpi)
 // SDL_LoadDollarTemplates
 GOM(SDL_LoadFile_RW, pFEppi)
-// SDL_LoadFunction
-// SDL_LoadObject
+GOM(SDL_LoadFunction, pFEpp)
+GOM(SDL_LoadObject, pFEp)
 GOM(SDL_LoadWAV_RW, pFEpippp)
 GO(SDL_LockAudio, vFv)
 GO(SDL_LockAudioDevice, vFi)
@@ -622,7 +622,7 @@ GO(SDL_uitoa, pFupi)
 GO(SDL_ulltoa, pFUpi)
 GO(SDL_ultoa, pFupi)
 // SDL_UnionRect
-// SDL_UnloadObject
+GOM(SDL_UnloadObject, vFEp)
 GO(SDL_UnlockAudio, vFv)
 GO(SDL_UnlockAudioDevice, vFi)
 // SDL_UnlockJoysticks
@@ -630,11 +630,11 @@ GO(SDL_UnlockMutex, iFp)
 GO(SDL_UnlockSurface, vFp)
 // SDL_UnlockTexture
 GO(SDL_UpdateTexture, iFpppi)
-// SDL_UpdateWindowSurface
+GO(SDL_UpdateWindowSurface, iFp)
 // SDL_UpdateWindowSurfaceRects
 // SDL_UpdateYUVTexture
 GO(SDL_UpperBlit, iFpppp)
-// SDL_UpperBlitScaled
+GO(SDL_UpperBlitScaled, iFpppp)
 // SDL_utf8strlcpy
 // SDL_utf8strlen
 // SDL_VideoInit
