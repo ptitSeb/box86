@@ -66,6 +66,7 @@ typedef struct box86context_s {
 
     pthread_mutex_t     mutex_once;
     pthread_mutex_t     mutex_once2;
+    pthread_mutex_t     mutex_trace;
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)
