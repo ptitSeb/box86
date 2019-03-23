@@ -501,13 +501,19 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         return;
     }
     printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
-    EmuCall(emu, p);    // should be sure that argc, argv and env are pushed to the stack!
+    Push32(emu, (uintptr_t)context->envv);
+    Push32(emu, (uintptr_t)context->argv);
+    Push32(emu, context->argc);
+    EmuCall(emu, p);
     // and check init array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         EmuCall(emu, (uintptr_t)addr[i]);
     }
+    Pop32(emu);
+    Pop32(emu);
+    Pop32(emu);
     h->init_done = 1;
     return;
 }
