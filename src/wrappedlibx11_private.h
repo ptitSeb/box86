@@ -59,7 +59,7 @@ GO(XChangeKeyboardControl, iFpup)
 GO(XChangePointerControl, iFpiiiii)
 GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet
-//GO(XChangeWindowAttributes
+GO(XChangeWindowAttributes, iFppup)
 GOM(XCheckIfEvent, iFEpppp)
 GO(XCheckMaskEvent, iFpup)
 GO(XCheckTypedEvent, iFpip)
