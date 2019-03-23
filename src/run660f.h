@@ -745,7 +745,14 @@
         GX.sq[0] += EX->sq[0];
         GX.sq[1] += EX->sq[1];
         NEXT;
-
+    _6f_0xD5:  /* PMULLW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp16s = (int32_t)GX.sw[i] * EX->sw[i];
+            GX.uw[i] = tmp16s&0xffff;
+        }
+        NEXT;
     _6f_0xD6:  /* MOVQ Ex,Gx */
         nextop = F8;
         GET_EX;
