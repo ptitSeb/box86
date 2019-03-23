@@ -8,16 +8,32 @@ GOW(acosh, dFd)
 GOW(acoshf, fFf)
 // __acoshf_finite
 // __acosh_finite
+#ifdef LD80BITS
+GOW(acoshl, DFD)
+#else
 GO2(acoshl, LFL, acosh)
+#endif
+#ifdef LD80BITS
+GOW(acpsl, DFD)
+#else
 GO2(acosl, LFL, acos)
+#endif
 GOW(asin, dFd)
 GOW(asinf, fFf)
 GO(__asinf_finite, fFf)
 GO(__asin_finite, dFd)
 GOW(asinh, dFd)
 GOW(asinhf, fFf)
+#ifdef LD80BITS
+GOW(asinhl, DFD)
+#else
 GO2(asinhl, LFL, asinh)
+#endif
+#ifdef LD80BITS
+GOW(asinl, DFD)
+#else
 GO2(asinl, LFL, asin)
+#endif
 GO(atan, dFd)
 GOW(atan2, dFdd)
 GOW(atan2f, fFff)
@@ -29,7 +45,11 @@ GOW(atanh, dFd)
 GOW(atanhf, fFf)
 // __atanhf_finite
 // __atanh_finite
+#ifdef LD80BITS
+GOW(atanhl, DFD)
+#else
 GO2(atanhl, LFL, atanh)
+#endif
 // atanl    // Weak
 // cabs // Weak
 // cabsf    // Weak
@@ -131,9 +151,17 @@ GOS(csqrt, pFpdd)
 GOW(erf, dFd)
 GOW(erfc, dFd)
 GOW(erfcf, fFf)
+#ifdef LD80BITS
+GOW(erfcl, DFD)
+#else
 GO2(erfcl, LFL, erfc)
+#endif
 GOW(erff, fFf)
+#ifdef LD80BITS
+GOW(erfl, DFD)
+#else
 GO2(erfl, LFL, erf)
+#endif
 GOW(exp, dFd)
 GOW(exp10, dFd)
 GOW(exp10f, fFf)
@@ -203,7 +231,11 @@ GO(__fpclassify, iFd)
 GO(__fpclassifyf, iFf)
 GOW(frexp, dFdp)
 GOW(frexpf, fFfp)
+#ifdef LD80BITS
+GOW(frexpl, DFDp)
+#else
 GO2(frexpl, LFLp, frexp)
+#endif
 // gamma    // Weak
 // gammaf   // Weak
 // __gammaf_r_finite
@@ -244,8 +276,16 @@ GOW(lgamma, dFd)
 GOW(lgammaf, fFf)
 GOW(lgammaf_r, fFfp)
 // __lgammaf_r_finite
+#ifdef LD80BITS
+GOW(lgammal, DFD)
+#else
 GO2(lgammal, LFL, lgamma)
+#endif
+#ifdef LD80BITS
+GOW(lgammal_r, DFDp)
+#else
 GO2(lgammal_r, LFLp, lgamma_r)
+#endif
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
@@ -365,7 +405,11 @@ GOW(tanhf, fFf)
 // tanl // Weak
 GOW(tgamma, dFd)
 GOW(tgammaf, fFf)
+#ifdef LD80BITS
+GOW(tgammal, DFD)
+#else
 GO2(tgammal, LFL, tgamma)
+#endif
 GOW(trunc, dFd)
 GOW(truncf, fFf)
 // truncl   // Weak
