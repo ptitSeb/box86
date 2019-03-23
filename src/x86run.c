@@ -185,7 +185,7 @@ int Run(x86emu_t *emu)
     &&_default, &&_default, &&_default, &&_6f_0xBB, &&_6f_0xBC, &&_6f_0xBD, &&_6f_0xBE, &&_default, //0xB8-0xBF
     &&_default, &&_6f_0xC1, &&_6f_0xC2, &&_default, &&_6f_0xC4, &&_6f_0xC5, &&_6f_0xC6, &&_default, 
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xC8-0xCF
-    &&_default, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_default, &&_6f_0xD6, &&_6f_0xD7, 
+    &&_default, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_6f_0xD5, &&_6f_0xD6, &&_6f_0xD7, 
     &&_default, &&_default, &&_default, &&_6f_0xDB, &&_default, &&_default, &&_default, &&_6f_0xDF, 
     &&_default, &&_6f_0xE1, &&_6f_0xE2, &&_default, &&_default, &&_default, &&_6f_0xE6, &&_default, 
     &&_default, &&_default, &&_default, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
@@ -224,9 +224,9 @@ _trace:
             printf_log(LOG_NONE, "\n");
         }
     }
-    #define NEXT    __builtin_prefetch((void*)ip, 0, 3); goto _trace;
+    #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
 #else
-    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 3); goto *baseopcodes[(opcode=F8)];
+    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];
 #endif
 
 // ModRM utilities macros
