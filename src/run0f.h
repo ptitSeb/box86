@@ -343,6 +343,11 @@
             GM.ud[1] = EM->ud[0];
             NEXT;
 
+        _0f_0x6E:                      /* MOVD Gm, Ed */
+            nextop = F8;
+            GET_ED;
+            GM.q = ED->dword[0];    // zero extended
+            NEXT;
         _0f_0x6F:                      /* MOVQ Gm, Em */
             nextop = F8;
             GET_EM;
@@ -351,6 +356,8 @@
 
         _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable
+            emu->top = 0;
+            emu->fpu_stack = 0;
             NEXT;
 
         _0f_0x7F:                      /* MOVQ Em, Gm */

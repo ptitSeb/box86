@@ -102,7 +102,7 @@ int Run(x86emu_t *emu)
     &&_0f_0x50, &&_0f_0x51, &&_default, &&_default, &&_0f_0x54, &&_0f_0x55, &&_0f_0x56, &&_0f_0x57, //0x50-0x57
     &&_0f_0x58, &&_0f_0x59, &&_0f_0x5A, &&_0f_0x5B, &&_0f_0x5C, &&_0f_0x5D, &&_0f_0x5E, &&_0f_0x5F, 
     &&_0f_0x60, &&_0f_0x61, &&_0f_0x62, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x60-0x67
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x6F, //0x68-0x6F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_0f_0x6E, &&_0f_0x6F, //0x68-0x6F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x77, //0x70-0x77
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x7F, //0x78-0x7F
     &&_0f_0x80_0, &&_0f_0x80_1, &&_0f_0x80_2, &&_0f_0x80_3, &&_0f_0x80_4, &&_0f_0x80_5, &&_0f_0x80_6, &&_0f_0x80_7,
@@ -1185,9 +1185,11 @@ _trace:
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 tmp32u = R_ECX;
                 switch(nextop) {
+                    case 0x90:              /* PAUSE */
+                        NEXT;
                     case 0xC3:              /* REPZ RET... yup */
                         ip = Pop(emu);
-                        break;
+                        NEXT;
                     case 0xA4:              /* REP MOVSB */
                         while(tmp32u) {
                             --tmp32u;
