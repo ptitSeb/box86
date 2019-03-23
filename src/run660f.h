@@ -894,7 +894,12 @@
         for(int i=0; i<16; ++i)
             GX.sb[i] += EX->sb[i];
         NEXT;
-
+    _6f_0xFD:  /* PADDW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i)
+            GX.sw[i] += EX->sw[i];
+        NEXT;
     _6f_0xFE:  /* PADDD Gx,Ex */
         nextop = F8;
         GET_EX;

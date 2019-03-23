@@ -190,7 +190,7 @@ int Run(x86emu_t *emu)
     &&_default, &&_6f_0xE1, &&_6f_0xE2, &&_default, &&_default, &&_default, &&_6f_0xE6, &&_default, 
     &&_default, &&_default, &&_default, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
     &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_default, &&_default, &&_default, 
-    &&_default, &&_default, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_default, &&_6f_0xFE, &&_default
+    &&_default, &&_default, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_6f_0xFD, &&_6f_0xFE, &&_default
     };
 
 x86emurun:
