@@ -15,5 +15,10 @@
 const char* libjpegName = "libjpeg.so.8";
 #define LIBNAME libjpeg
 
+EXPORT int my_jpeg_simd_cpu_support()
+{
+    return 0x01|0x04|0x08; // MMX/SSE/SSE2
+}
+
 #include "wrappedlib_init.h"
 
