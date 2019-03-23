@@ -4,20 +4,20 @@ GOW(acos, dFd)
 GOW(acosf, fFf)
 GO(__acosf_finite, fFf)
 // __acos_finite
-// acosh    // Weak
-// acoshf   // Weak
+GOW(acosh, dFd)
+GOW(acoshf, fFf)
 // __acoshf_finite
 // __acosh_finite
-// acoshl   // Weak
-// acosl    // Weak
+GO2(acoshl, LFL, acosh)
+GO2(acosl, LFL, acos)
 GOW(asin, dFd)
 GOW(asinf, fFf)
 GO(__asinf_finite, fFf)
 GO(__asin_finite, dFd)
-// asinh    // Weak
-// asinhf   // Weak
-// asinhl   // Weak
-// asinl    // Weak
+GOW(asinh, dFd)
+GOW(asinhf, fFf)
+GO2(asinhl, LFL, asinh)
+GO2(asinl, LFL, asin)
 GO(atan, dFd)
 GOW(atan2, dFdd)
 GOW(atan2f, fFff)
@@ -25,11 +25,11 @@ GO(__atan2f_finite, fFff)
 GO(__atan2_finite, dFdd)
 // atan2l   // Weak
 GOW(atanf, fFf)
-// atanh    // Weak
-// atanhf   // Weak
+GOW(atanh, dFd)
+GOW(atanhf, fFf)
 // __atanhf_finite
 // __atanh_finite
-// atanhl   // Weak
+GO2(atanhl, LFL, atanh)
 // atanl    // Weak
 // cabs // Weak
 // cabsf    // Weak
@@ -128,12 +128,12 @@ GOS(csqrt, pFpdd)
 // drem // Weak
 // dremf    // Weak
 // dreml    // Weak
-// erf  // Weak
-// erfc // Weak
-// erfcf    // Weak
-// erfcl    // Weak
-// erff // Weak
-// erfl // Weak
+GOW(erf, dFd)
+GOW(erfc, dFd)
+GOW(erfcf, fFf)
+GO2(erfcl, LFL, erfc)
+GOW(erff, fFf)
+GO2(erfl, LFL, erf)
 GOW(exp, dFd)
 GOW(exp10, dFd)
 GOW(exp10f, fFf)
@@ -240,13 +240,13 @@ GOW(hypotf, fFff)
 GOW(ldexp, dFdi)
 GOW(ldexpf, fFfi)
 // ldexpl   // Weak
-// lgamma   // Weak
-// lgammaf  // Weak
-// lgammaf_r    // Weak
+GOW(lgamma, dFd)
+GOW(lgammaf, fFf)
+GOW(lgammaf_r, fFfp)
 // __lgammaf_r_finite
-// lgammal  // Weak
-// lgammal_r    // Weak
-// lgamma_r // Weak
+GO2(lgammal, LFL, lgamma)
+GO2(lgammal_r, LFLp, lgamma_r)
+GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
 // llrint   // Weak
@@ -363,9 +363,9 @@ GOW(tanh, dFd)
 GOW(tanhf, fFf)
 // tanhl    // Weak
 // tanl // Weak
-// tgamma   // Weak
-// tgammaf  // Weak
-// tgammal  // Weak
+GOW(tgamma, dFd)
+GOW(tgammaf, fFf)
+GO2(tgammal, LFL, tgamma)
 GOW(trunc, dFd)
 GOW(truncf, fFf)
 // truncl   // Weak

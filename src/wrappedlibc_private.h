@@ -123,7 +123,7 @@ DATA(__check_rhosts_file, 4)
 // __chk_fail
 GOW(chmod, iFpu)
 GOW(chown, iFpuu)
-// chroot
+GO(chroot, iFp)
 GOW(clearenv, iFv)
 GO(clearerr, vFp)
 // clearerr_unlocked
@@ -212,11 +212,11 @@ GO(drand48, dFv)
 GOW(dup, iFi)
 GOW(dup2, iFii)
 GO(__dup2, iFii)
-// dup3
+GO(dup3, iFiii)
 GOW(duplocale, pFp)
 GO(__duplocale, pFp)
 // dysize
-// eaccess  // Weak
+GOW(eaccess, iFpi)
 // ecb_crypt
 // ecvt
 // ecvt_r
@@ -269,7 +269,7 @@ GO(__errno_location, pFv)
 // ether_ntoa
 // ether_ntoa_r
 // ether_ntohost
-// euidaccess   // Weak
+GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
 // eventfd_read
 GO(eventfd_write, iFiU)
@@ -308,10 +308,10 @@ GOW(ferror, iFp)
 // fexecve
 GOW(fflush, iFp)
 // fflush_unlocked
-// ffs
+GO(ffs, iFi)
 // __ffs
-// ffsl // Weak
-// ffsll
+GOW(ffsl, iFi)
+GO(ffsll, iFI)
 GOW(fgetc, iFp)
 // fgetc_unlocked   // Weak
 // fgetgrent
@@ -477,7 +477,7 @@ GO(getgrgid_r, iFuppup)
 GO(getgrnam, pFp)
 GO(getgrnam_r, iFpppup)
 // getgrouplist
-// getgroups    // Weak
+GOW(getgroups, iFiu)
 // __getgroups_chk
 GO(gethostbyaddr, pFpui)
 GO(gethostbyaddr_r, iFpuippupp)
@@ -525,7 +525,7 @@ GO(getpass, pFp)
 GOW(getpeername, iFipp)
 GOW(getpgid, uFu)
 // __getpgid
-// getpgrp
+GO(getpgrp, iFv)
 // get_phys_pages   // Weak
 GO(getpid, uFv)
 GO(__getpid, uFv)
@@ -551,7 +551,7 @@ GO(getpwuid_r, iFuppup)
 // getresgid    // Weak
 // getresuid    // Weak
 GO(getrlimit, iFip)
-// getrlimit64
+GO(getrlimit64, iFip)
 // getrpcbyname
 // getrpcbyname_r
 // getrpcbynumber
@@ -683,7 +683,7 @@ GO(inet_network, iFp)
 GO(inet_ntoa, pFi)
 GO(inet_ntop, pFippu)
 GO(inet_pton, iFipp)
-// initgroups
+GO(initgroups, iFpi)
 // init_module
 // initstate    // Weak
 // initstate_r  // Weak
@@ -957,7 +957,7 @@ GO(jrand48, iFp)
 // key_setnet
 // key_setsecret
 GOW(kill, iFii)
-// killpg
+GO(killpg, iFii)
 // klogctl
 // l64a
 GO(labs, iFi)
@@ -972,6 +972,7 @@ GOW(lchown, iFpuu)
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 // lfind
 // lgetxattr
+GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
 // __libc_calloc
@@ -1211,7 +1212,7 @@ GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x86 and arm (and x86_64 too)
 // __pipe
-// pipe2    // Weak
+GOW(pipe2, iFpi) // assuming this works the same as pipe, so pointer for array of 2 int
 // pivot_root
 // pmap_getmaps
 // pmap_getport
@@ -1222,7 +1223,7 @@ GOW(poll, iFpui)    // poll have an array of struct as 1st argument
 GO(__poll, iFpui)
 GO(popen, pFpp)
 GO(posix_fadvise, iFiuui)
-// posix_fadvise64
+GO(posix_fadvise64, iFiuui)
 // posix_fallocate
 // posix_fallocate64
 // posix_madvise
@@ -1249,7 +1250,7 @@ GOW(posix_memalign, iFpuu)
 // posix_spawn_file_actions_destroy
 // posix_spawn_file_actions_init
 // posix_spawnp
-// ppoll
+GO(ppoll, iFpupp)
 GOW(prctl, iFiuuuu)
 GOW(pread, iFipui)
 GOW(pread64, iFipuI)
@@ -1315,7 +1316,7 @@ GO(__rawmemchr, pFpi)
 // rcmd_af
 // __rcmd_errstr    // type B
 GO(read, iFipu)
-// __read   // Weak
+GOW(__read, iFipu)
 // readahead    // Weak
 GO(__read_chk, iFipuu)
 GOW(readdir, pFp)
@@ -1424,7 +1425,7 @@ GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
 // seed48
 // seed48_r // Weak
-// seekdir
+GO(seekdir, vFpi)
 GOW(select, iFipppp)
 GO(__select, iFipppp)
 GO(semctl, iFiiippppp)  // use vararg after the 3 i
@@ -1451,7 +1452,7 @@ GO(seteuid, iFu)
 // setfsuid
 GOW(setgid, iFu)
 // setgrent
-// setgroups
+GO(setgroups, iFup)
 GO(sethostent, vFi)
 // sethostid
 GO(sethostname, iFpu)
@@ -1469,16 +1470,16 @@ GOW(setmntent, pFpp)
 // setnetgrent
 GOW(setpgid, iFuu)
 // __setpgid
-// setpgrp
+GO(setpgrp, iFv)
 GO(setpriority, iFiii)
 // setprotoent
 GO(setpwent, vFv)
 GOW(setregid, iFuu)
-GOW(setresgid, iFuu)
-// setresuid    // Weak
+GOW(setresgid, iFuuu)
+GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
 GO(setrlimit, iFip)
-// setrlimit64
+GO(setrlimit64, iFip)
 // setrpcent
 // setservent
 GOW(setsid, iFv)
@@ -1506,7 +1507,7 @@ GOM(sigaction, iFEipp)    // Weak
 GOM(__sigaction, iFEipp)  // Weak
 GO(sigaddset, iFpi)
 // __sigaddset
-// sigaltstack  // Weak
+GOW(sigaltstack, iFpp)
 // sigandset
 // sigblock // Weak
 // sigdelset
@@ -1577,7 +1578,7 @@ GO(stpcpy, pFpp)
 GO(__stpcpy_chk, pFppu)
 // __stpcpy_small
 // stpncpy  // Weak
-// __stpncpy
+GO(__stpncpy, pFppu)
 GO(__stpncpy_chk, pFppuu)
 GOW(strcasecmp, iFpp)
 GO(__strcasecmp, iFpp)
@@ -1713,7 +1714,7 @@ GO(strxfrm_l, uFppup)
 // svcunixfd_create
 // svc_unregister
 GO(swab, vFppi)
-// swapcontext
+GO(swapcontext, iFpp)
 // swapoff  // Weak
 // swapon   // Weak
 GOM(swprintf, iFEpupV)
@@ -1753,7 +1754,7 @@ GO(tcsetattr, iFiip)
 // tdelete  // Weak
 // tdestroy // Weak
 // tee
-// telldir
+GO(telldir, iFp)
 // tempnam
 GOW(textdomain, pFp)
 // tfind    // Weak
@@ -1827,7 +1828,7 @@ GO(__uselocale, pFp)
 GO(usleep, iFu)
 // ustat
 GO(utime, iFpp)
-// utimensat
+GO(utimensat, iFippi)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 // utmpname // Weak
 // utmpxname
