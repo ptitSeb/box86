@@ -758,3 +758,19 @@
             GET_EM;
             GM.q ^= EM->q;
             NEXT;
+
+        _0f_0xF6:                   /* PSADBW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            tmp32u = 0;
+            for (int i=0; i<8; ++i)
+                tmp8u = (GM.ub[i]>EM->ub[i])?(GM.ub[i] - EM->ub[i]):(EM->ub[i] - GM.ub[i]);
+            GM.q = tmp32u;
+            NEXT;
+
+        _0f_0xFD:                   /* PADDW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i)
+                GM.sw[i] += EM->sw[i];
+            NEXT;
