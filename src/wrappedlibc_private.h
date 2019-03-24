@@ -2098,3 +2098,6 @@ GOM(_ITM_registerTMCloneTable, vFEpu)
 GOM(_ITM_deregisterTMCloneTable, vFEp)
 
 DATAM(__libc_stack_end, 4)
+
+GOM(__register_frame_info, vFpp)    // faked function
+GOM(__deregister_frame_info, pFp)

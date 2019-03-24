@@ -793,6 +793,15 @@ void stSetup(box86context_t* context)
     my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
 }
 
+EXPORT void my___register_frame_info(void* a, void* b)
+{
+    // nothing
+}
+EXPORT void* my___deregister_frame_info(void* a)
+{
+    return NULL;
+}
+
 // need to undef all read / read64 stuffs!
 #undef pread
 #undef pwrite
