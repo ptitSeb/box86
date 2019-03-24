@@ -375,6 +375,32 @@
                 GM.q = eax1.q[0];
             }
             NEXT;
+        _0f_0x71:  /* GRP */
+            nextop = F8;
+            GET_EM;
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLW Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>15)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<4; ++i) EM->uw[i] >>= tmp8u;
+                    break;
+                case 4:                 /* PSRAW Em, Ib */
+                    tmp8u = F8;
+                    for (int i=0; i<4; ++i) EM->sw[i] >>= tmp8u;
+                    break;
+                case 6:                 /* PSLLW Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>15)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<4; ++i) EM->uw[i] <<= tmp8u;
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
 
         _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable

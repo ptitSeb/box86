@@ -103,7 +103,7 @@ int Run(x86emu_t *emu)
     &&_0f_0x58, &&_0f_0x59, &&_0f_0x5A, &&_0f_0x5B, &&_0f_0x5C, &&_0f_0x5D, &&_0f_0x5E, &&_0f_0x5F, 
     &&_0f_0x60, &&_0f_0x61, &&_0f_0x62, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x67, //0x60-0x67
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_0f_0x6E, &&_0f_0x6F, //0x68-0x6F
-    &&_0f_0x70, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x77, //0x70-0x77
+    &&_0f_0x70, &&_0f_0x71, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x77, //0x70-0x77
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x7F, //0x78-0x7F
     &&_0f_0x80_0, &&_0f_0x80_1, &&_0f_0x80_2, &&_0f_0x80_3, &&_0f_0x80_4, &&_0f_0x80_5, &&_0f_0x80_6, &&_0f_0x80_7,
     &&_0f_0x80_8, &&_0f_0x80_9, &&_0f_0x80_A, &&_0f_0x80_B, &&_0f_0x80_C, &&_0f_0x80_D, &&_0f_0x80_E, &&_0f_0x80_F,
