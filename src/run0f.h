@@ -353,6 +353,19 @@
             GET_EM;
             GM.q = EM->q;
             NEXT;
+        _0f_0x70:                       /* PSHUFW Gm, Em, Ib */
+            nextop = F8;
+            GET_EM;
+            tmp8u = F8;
+            if(&GM!=EM) {
+                for(int i=0; i<4; ++i)
+                    GM.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+            } else {
+                for(int i=0; i<4; ++i)
+                    eax1.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+                GM.q = eax1.q[0];
+            }
+            NEXT;
 
         _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable
