@@ -874,6 +874,19 @@
         GX.q[0] = (uint64_t)EX->ud[0]*GX.ud[0];
         NEXT;
 
+    _6f_0xF6:  /* PSADBW Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        tmp32u = 0;
+        for (int i=0; i<8; ++i)
+            tmp8u = (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
+        GX.q[0] = tmp32u;
+        tmp32u = 0;
+        for (int i=8; i<16; ++i)
+            tmp8u = (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
+        GX.q[1] = tmp32u;
+        NEXT;
+
     _6f_0xFA:  /* PSUBD Gx,Ex */
         nextop = F8;
         GET_EX;
