@@ -36,9 +36,18 @@ onecallback_t* FindCallback(x86emu_t* emu)
     // find the callback first
     callbacklist_t *callbacks = emu->context->callbacks;
     khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)emu);
-    if(k==kh_end(callbacks->list))
+    if(k==kh_end(callbacks->list) || !kh_exist(callbacks->list, k))
         return NULL;
     return kh_value(callbacks->list, k);
+}
+
+int IsCallback(x86emu_t* emu, x86emu_t* cb)
+{
+    callbacklist_t *callbacks = emu->context->callbacks;
+    khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)cb);
+    if(k==kh_end(callbacks->list) || !kh_exist(callbacks->list, k))
+        return 0;
+    return 1;
 }
 
 x86emu_t* AddVariableCallback(x86emu_t* emu, int stsize, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <asm/stat.h>
 #include <wchar.h>
+#include <sys/epoll.h>
 
 #include "x86emu.h"
 #include "x86emu_private.h"
@@ -513,3 +514,42 @@ void UnalignOggVorbis(void* dest, void* source)
      #undef GOM
 }
 #undef TRANSFERT
+
+typedef union __attribute__((packed)) x86_epoll_data {
+    void    *ptr;
+    int      fd;
+    uint32_t u32;
+    uint64_t u64;
+} x86_epoll_data_t;
+
+struct __attribute__((packed)) x86_epoll_event {
+    uint32_t            events;
+    x86_epoll_data_t    data;
+};
+// Arm -> x86
+void UnalignEpollEvent(void* dest, void* source, int nbr)
+{
+    struct x86_epoll_event *x86_struct = (struct x86_epoll_event*)dest;
+    struct epoll_event *arm_struct = (struct epoll_event*)source;
+    while(nbr) {
+        x86_struct->events = arm_struct->events;
+        x86_struct->data.u64 = arm_struct->data.u64;
+        ++x86_struct;
+        ++arm_struct;
+        --nbr;
+    }
+}
+
+// x86 -> Arm
+void AlignEpollEvent(void* dest, void* source, int nbr)
+{
+    struct x86_epoll_event *x86_struct = (struct x86_epoll_event*)source;
+    struct epoll_event *arm_struct = (struct epoll_event*)dest;
+    while(nbr) {
+        arm_struct->events = x86_struct->events;
+        arm_struct->data.u64 = x86_struct->data.u64;
+        ++x86_struct;
+        ++arm_struct;
+        --nbr;
+    }
+}

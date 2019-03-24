@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <search.h>
+#include <sys/epoll.h>
 
 #include "wrappedlibs.h"
 
@@ -537,6 +538,23 @@ EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
     return p;
 }
 
+#ifndef NOALIGN
+EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
+{
+    struct epoll_event _event[1];
+    if(event && op!=EPOLL_CTL_DEL)
+        AlignEpollEvent(_event, event, 1);
+    return epoll_ctl(epfd, op, fd, (event && op!=EPOLL_CTL_DEL)?_event:NULL);
+}
+EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
+{
+    struct epoll_event _events[maxevents];
+    int32_t ret = epoll_wait(epfd, _events, maxevents, timeout);
+    if(ret>0)
+        UnalignEpollEvent(events, _events, ret);
+    return ret;
+}
+#endif
 
 x86emu_t *globemu = NULL;   // issue with multi threads...
 static int glob_errfnccallback(const char* epath, int no)
@@ -558,29 +576,29 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     return r;
 }
 
-x86emu_t *scandir64emu = NULL;
-static int scandir64_selcb(const struct dirent64* dir)
+x86emu_t *scandir64emu1 = NULL;
+static int scandir64_selcb1(const struct dirent64* dir)
 {
-    if(scandir64emu) {
-        SetCallbackNArg(scandir64emu, 1);
-        SetCallbackAddress(scandir64emu, (uintptr_t)GetCallbackArg(scandir64emu, 3));
-        SetCallbackArg(scandir64emu, 0, (void*)dir);
-        return (int32_t)RunCallback(scandir64emu);
+    if(scandir64emu1) {
+        SetCallbackNArg(scandir64emu1, 1);
+        SetCallbackAddress(scandir64emu1, (uintptr_t)GetCallbackArg(scandir64emu1, 3));
+        SetCallbackArg(scandir64emu1, 0, (void*)dir);
+        return (int32_t)RunCallback(scandir64emu1);
     }
     return 0;
 }
 #ifdef PANDORA
-static int scandir64_compcb(const void* a, const void* b)
+static int scandir64_compcb1(const void* a, const void* b)
 #else
-static int scandir64_compcb(const struct dirent64** a, const struct dirent64** b)
+static int scandir64_compcb1(const struct dirent64** a, const struct dirent64** b)
 #endif
 {
-    if(scandir64emu) {
-        SetCallbackNArg(scandir64emu, 2);
-        SetCallbackAddress(scandir64emu, (uintptr_t)GetCallbackArg(scandir64emu, 4));
-        SetCallbackArg(scandir64emu, 0, (void*)a);
-        SetCallbackArg(scandir64emu, 1, (void*)b);
-        return (int32_t)RunCallback(scandir64emu);
+    if(scandir64emu1) {
+        SetCallbackNArg(scandir64emu1, 2);
+        SetCallbackAddress(scandir64emu1, (uintptr_t)GetCallbackArg(scandir64emu1, 4));
+        SetCallbackArg(scandir64emu1, 0, (void*)a);
+        SetCallbackArg(scandir64emu1, 1, (void*)b);
+        return (int32_t)RunCallback(scandir64emu1);
     }
     return 0;
 }
@@ -614,26 +632,38 @@ static int scandir64_compcb2(const struct dirent64** a, const struct dirent64** 
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     int ret = 0;
-    // cannot use 2 shared callback in the same call (because they will be the same)
-    if(scandir64emu && (scandir64emu!=emu)) {
+    // cleanup first
+    if(scandir64emu1 && !IsCallback(emu, scandir64emu1))
+        scandir64emu1 = NULL;
+    if(scandir64emu2 && !IsCallback(emu, scandir64emu2))
+        scandir64emu2 = NULL;
+    
+    if(scandir64emu1 && (scandir64emu1!=emu)) {
         // in case there are 2 concurent call!
         if(scandir64emu2 && (scandir64emu2!=emu)) {
-            printf_log(LOG_NONE, "Warning, more then 2 concurent call to scandir64\n");
+                printf_log(LOG_NONE, "Warning, more than 2 concurent call to scandir64\n");
         }
         scandir64emu2 = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
         SetCallbackArg(scandir64emu2, 3, sel);
         SetCallbackArg(scandir64emu2, 4, comp);
+        SetCallbackArg(scandir64emu2, 5, my_scandir64);
         ret = scandir64(dir, namelist, scandir64_selcb2, scandir64_compcb2);
         scandir64emu2 = FreeCallback(scandir64emu2);
+        if(scandir64emu2 && GetCallbackArg(scandir64emu2, 5)!=my_scandir64)
+            scandir64emu2 = NULL;
     } else {
-        scandir64emu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-        SetCallbackArg(scandir64emu, 3, sel);
-        SetCallbackArg(scandir64emu, 4, comp);
-        ret = scandir64(dir, namelist, scandir64_selcb, scandir64_compcb);
-        scandir64emu = FreeCallback(scandir64emu);
+        scandir64emu1 = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+        SetCallbackArg(scandir64emu1, 3, sel);
+        SetCallbackArg(scandir64emu1, 4, comp);
+        SetCallbackArg(scandir64emu1, 5, my_scandir64);
+        ret = scandir64(dir, namelist, scandir64_selcb1, scandir64_compcb1);
+        scandir64emu1 = FreeCallback(scandir64emu1);    // this chain stuff is in case a scandir64 is called inside one of the 2 callback
+        if(scandir64emu1 && GetCallbackArg(scandir64emu1, 5)!=my_scandir64)
+                scandir64emu1 = NULL;
     }
     return ret;
 }
+
 x86emu_t *scandiremu = NULL;
 static int scandir_selcb(const struct dirent* dir)
 {

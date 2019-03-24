@@ -8,6 +8,9 @@ void UnalignStat64(void* source, void* dest);
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
 void AlignOggVorbis(void* dest, void* source);   // x86 -> Arm
 
+void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
+void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
+
 typedef struct {
   unsigned char *data;
   int storage;
