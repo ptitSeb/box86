@@ -248,9 +248,15 @@ DATAV(_environ, 4)
 // envz_strip
 GO(epoll_create, iFi)
 GO(epoll_create1, iFi)
+#ifdef NOALIGN
 GO(epoll_ctl, iFiiip)
 // epoll_pwait
 GO(epoll_wait, iFipii)
+#else
+GOM(epoll_ctl, iFEiiip)     // align epool_event structure
+// epoll_pwait
+GOM(epoll_wait, iFEipii)    // need realign of epoll_event structure
+#endif
 // erand48
 // erand48_r    // Weak
 // err

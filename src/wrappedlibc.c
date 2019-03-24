@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <search.h>
+#include <sys/epoll.h>
 
 #include "wrappedlibs.h"
 
@@ -537,6 +538,23 @@ EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
     return p;
 }
 
+#ifndef NOALIGN
+EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
+{
+    struct epoll_event _event[1];
+    if(event && op!=EPOLL_CTL_DEL)
+        AlignEpollEvent(_event, event, 1);
+    return epoll_ctl(epfd, op, fd, (event && op!=EPOLL_CTL_DEL)?_event:NULL);
+}
+EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
+{
+    struct epoll_event _events[maxevents];
+    int32_t ret = epoll_wait(epfd, _events, maxevents, timeout);
+    if(ret>0)
+        UnalignEpollEvent(events, _events, ret);
+    return ret;
+}
+#endif
 
 x86emu_t *globemu = NULL;   // issue with multi threads...
 static int glob_errfnccallback(const char* epath, int no)
