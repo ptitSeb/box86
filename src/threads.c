@@ -42,6 +42,11 @@ static void* pthread_routine(void* p)
 int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
+	if(attr) {
+		size_t stsize;
+		if(pthread_attr_getstacksize(attr, &stsize)==0)
+			stacksize = stsize;
+	}
 	// TODO: get stack size inside attr
 	void* stack = calloc(1, stacksize);
 	x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, 
