@@ -343,6 +343,15 @@
             GM.ud[1] = EM->ud[0];
             NEXT;
 
+        _0f_0x67:                       /* PACKUSWB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i)
+                GM.ub[i] = (GM.sw[i]<0)?0:((GM.sw[i]>0xff)?0xff:GM.sw[i]);
+            for(int i=0; i<4; ++i)
+                GM.ub[8+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
+            NEXT;
+
         _0f_0x6E:                      /* MOVD Gm, Ed */
             nextop = F8;
             GET_ED;
