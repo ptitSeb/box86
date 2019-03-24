@@ -453,8 +453,7 @@ EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size
     // use a temporary callback, but global because there is no bsearch_r...
     bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     void* ret = bsearch(key, base, nmemb, size, bsearch_cmp);
-    FreeCallback(bsearch_emu);
-    bsearch_emu = NULL;
+    bsearch_emu = FreeCallback(bsearch_emu);
     return ret;
 }
 
@@ -463,8 +462,7 @@ EXPORT void* my_lsearch(x86emu_t* emu, void* key, void* base, size_t* nmemb, siz
     // use a temporary callback, but global because there is no bsearch_r...
     bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     void* ret = lsearch(key, base, nmemb, size, bsearch_cmp);
-    FreeCallback(bsearch_emu);
-    bsearch_emu = NULL;
+    bsearch_emu = FreeCallback(bsearch_emu);
     return ret;
 }
 EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
@@ -472,8 +470,7 @@ EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_
     // use a temporary callback, but global because there is no bsearch_r...
     bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
     void* ret = lfind(key, base, nmemb, size, bsearch_cmp);
-    FreeCallback(bsearch_emu);
-    bsearch_emu = NULL;
+    bsearch_emu = FreeCallback(bsearch_emu);
     return ret;
 }
 
@@ -556,20 +553,19 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     if(errfnc)
         globemu = AddSharedCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
     int32_t r = glob((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob_t*)pblog);
-    if(globemu) {
-        FreeCallback(globemu);
-        globemu = NULL;
-    }
+    if(globemu)
+        globemu = FreeCallback(globemu);
     return r;
 }
 
-x86emu_t *scandir64selemu = NULL;
-x86emu_t *scandir64compemu = NULL;
+x86emu_t *scandir64emu = NULL;
 static int scandir64_selcb(const struct dirent64* dir)
 {
-    if(scandir64selemu) {
-        SetCallbackArg(scandir64selemu, 0, (void*)dir);
-        return (int32_t)RunCallback(scandir64selemu);
+    if(scandir64emu) {
+        SetCallbackNArg(scandir64emu, 1);
+        SetCallbackAddress(scandir64emu, (uintptr_t)GetCallbackArg(scandir64emu, 3));
+        SetCallbackArg(scandir64emu, 0, (void*)dir);
+        return (int32_t)RunCallback(scandir64emu);
     }
     return 0;
 }
@@ -579,33 +575,73 @@ static int scandir64_compcb(const void* a, const void* b)
 static int scandir64_compcb(const struct dirent64** a, const struct dirent64** b)
 #endif
 {
-    if(scandir64compemu) {
-        SetCallbackArg(scandir64compemu, 0, (void*)a);
-        SetCallbackArg(scandir64compemu, 1, (void*)b);
-        return (int32_t)RunCallback(scandir64compemu);
+    if(scandir64emu) {
+        SetCallbackNArg(scandir64emu, 2);
+        SetCallbackAddress(scandir64emu, (uintptr_t)GetCallbackArg(scandir64emu, 4));
+        SetCallbackArg(scandir64emu, 0, (void*)a);
+        SetCallbackArg(scandir64emu, 1, (void*)b);
+        return (int32_t)RunCallback(scandir64emu);
     }
     return 0;
 }
+x86emu_t *scandir64emu2 = NULL;
+static int scandir64_selcb2(const struct dirent64* dir)
+{
+    if(scandir64emu2) {
+        SetCallbackNArg(scandir64emu2, 1);
+        SetCallbackAddress(scandir64emu2, (uintptr_t)GetCallbackArg(scandir64emu2, 3));
+        SetCallbackArg(scandir64emu2, 0, (void*)dir);
+        return (int32_t)RunCallback(scandir64emu2);
+    }
+    return 0;
+}
+#ifdef PANDORA
+static int scandir64_compcb2(const void* a, const void* b)
+#else
+static int scandir64_compcb2(const struct dirent64** a, const struct dirent64** b)
+#endif
+{
+    if(scandir64emu2) {
+        SetCallbackNArg(scandir64emu2, 2);
+        SetCallbackAddress(scandir64emu2, (uintptr_t)GetCallbackArg(scandir64emu2, 4));
+        SetCallbackArg(scandir64emu2, 0, (void*)a);
+        SetCallbackArg(scandir64emu2, 1, (void*)b);
+        return (int32_t)RunCallback(scandir64emu2);
+    }
+    return 0;
+}
+
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
+    int ret = 0;
     // cannot use 2 shared callback in the same call (because they will be the same)
-    // another solution would be to use only 1 (shared) CB and put functions address in Arg 3 & 4 for example
-    scandir64selemu = AddCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-    scandir64compemu = AddCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
-    int ret = scandir64(dir, namelist, scandir64_selcb, scandir64_compcb);
-    FreeCallback(scandir64selemu);
-    FreeCallback(scandir64compemu);
-    scandir64selemu = NULL;
-    scandir64compemu = NULL;
+    if(scandir64emu && (scandir64emu!=emu)) {
+        // in case there are 2 concurent call!
+        if(scandir64emu2 && (scandir64emu2!=emu)) {
+            printf_log(LOG_NONE, "Warning, more then 2 concurent call to scandir64\n");
+        }
+        scandir64emu2 = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+        SetCallbackArg(scandir64emu2, 3, sel);
+        SetCallbackArg(scandir64emu2, 4, comp);
+        ret = scandir64(dir, namelist, scandir64_selcb2, scandir64_compcb2);
+        scandir64emu2 = FreeCallback(scandir64emu2);
+    } else {
+        scandir64emu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+        SetCallbackArg(scandir64emu, 3, sel);
+        SetCallbackArg(scandir64emu, 4, comp);
+        ret = scandir64(dir, namelist, scandir64_selcb, scandir64_compcb);
+        scandir64emu = FreeCallback(scandir64emu);
+    }
     return ret;
 }
-x86emu_t *scandirselemu = NULL;
-x86emu_t *scandircompemu = NULL;
+x86emu_t *scandiremu = NULL;
 static int scandir_selcb(const struct dirent* dir)
 {
-    if(scandirselemu) {
-        SetCallbackArg(scandirselemu, 0, (void*)dir);
-        return (int32_t)RunCallback(scandirselemu);
+    if(scandiremu) {
+        SetCallbackNArg(scandiremu, 1);
+        SetCallbackAddress(scandiremu, (uintptr_t)GetCallbackArg(scandiremu, 3));
+        SetCallbackArg(scandiremu, 0, (void*)dir);
+        return (int32_t)RunCallback(scandiremu);
     }
     return 0;
 }
@@ -615,22 +651,22 @@ static int scandir_compcb(const void* a, const void* b)
 static int scandir_compcb(const struct dirent** a, const struct dirent** b)
 #endif
 {
-    if(scandircompemu) {
-        SetCallbackArg(scandircompemu, 0, (void*)a);
-        SetCallbackArg(scandircompemu, 1, (void*)b);
-        return (int32_t)RunCallback(scandircompemu);
+    if(scandiremu) {
+        SetCallbackNArg(scandiremu, 1);
+        SetCallbackAddress(scandiremu, (uintptr_t)GetCallbackArg(scandiremu, 3));
+        SetCallbackArg(scandiremu, 0, (void*)a);
+        SetCallbackArg(scandiremu, 1, (void*)b);
+        return (int32_t)RunCallback(scandiremu);
     }
     return 0;
 }
 EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
-    scandirselemu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-    scandircompemu = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
+    scandiremu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
+    SetCallbackArg(scandiremu, 3, sel);
+    SetCallbackArg(scandiremu, 4, comp);
     int ret = scandir(dir, namelist, scandir_selcb, scandir_compcb);
-    FreeCallback(scandirselemu);
-    FreeCallback(scandircompemu);
-    scandirselemu = NULL;
-    scandircompemu = NULL;
+    scandiremu = FreeCallback(scandiremu);
     return ret;
 }
 
@@ -755,6 +791,15 @@ EXPORT void* my___libc_stack_end;
 void stSetup(box86context_t* context)
 {
     my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
+}
+
+EXPORT void my___register_frame_info(void* a, void* b)
+{
+    // nothing
+}
+EXPORT void* my___deregister_frame_info(void* a)
+{
+    return NULL;
 }
 
 // need to undef all read / read64 stuffs!
