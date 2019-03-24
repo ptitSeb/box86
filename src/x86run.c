@@ -118,7 +118,7 @@ int Run(x86emu_t *emu)
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD0-0xD7
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0xEF, //0xE8-0xEF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xF0-0xF7
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default  //0xF8-0xFF
     };

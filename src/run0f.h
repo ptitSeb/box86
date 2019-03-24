@@ -753,3 +753,8 @@
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             NEXT;
 
+        _0f_0xEF:                   /* PXOR Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.q ^= EM->q;
+            NEXT;
