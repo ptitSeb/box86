@@ -440,13 +440,11 @@ _trace:
             tmp8u = opcode&7;
             Push(emu, emu->regs[tmp8u].dword[0]);
             NEXT;
-        _0x5C:                      /* POP ESP */
-            R_ESP += 4;
-            NEXT;
         _0x58:
         _0x59:
         _0x5A:
         _0x5B:
+        _0x5C:                      /* POP ESP */
         _0x5D:
         _0x5E:
         _0x5F:                      /* POP Reg */
