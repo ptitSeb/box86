@@ -29,6 +29,7 @@ typedef struct box86context_s {
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 
     int                 x86trace;
+    int                 trace_tid;
     zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box86lib;       // dlopen on box86 itself
 

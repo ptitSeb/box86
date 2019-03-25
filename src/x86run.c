@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifdef HAVE_TRACE
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
 
 #include "debug.h"
 #include "stack.h"
@@ -205,6 +209,12 @@ _trace:
     if(!start_cnt && emu->dec && (
             (emu->trace_end == 0) 
             || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
+        pthread_mutex_lock(&emu->context->mutex_trace);
+        int tid = syscall(SYS_gettid);
+        if(emu->context->trace_tid != tid) {
+            printf_log(LOG_NONE, "Thread %04d|\n", tid);
+            emu->context->trace_tid = tid;
+        }
         printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
         if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
             uint32_t a = *(uint32_t*)(ip+3);
@@ -223,6 +233,7 @@ _trace:
             }
             printf_log(LOG_NONE, "\n");
         }
+        pthread_mutex_unlock(&emu->context->mutex_trace);
     }
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
 #else
