@@ -321,7 +321,14 @@
         GX.ud[2] = GX.ud[1];
         GX.ud[1] = EX->ud[0];
         NEXT;
-
+    _6f_0x63:  /* PACKSSWB Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i)
+            GX.sb[i] = (GX.sw[i]<-128)?-128:((GX.sw[i]>127)?127:GX.sw[i]);
+        for(int i=0; i<8; ++i)
+            GX.sb[8+i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+        NEXT;
     _6f_0x64:  /* PCMPGTB Gx,Ex */
         nextop = F8;
         GET_EX;
@@ -768,6 +775,14 @@
             if(EX->ub[i]&0x80)
                 GD.dword[0] |= (1<<i);
         NEXT;
+    _6f_0xD8:  /* PSUBUSB Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX.ub[i] - EX->ub[i];
+            GX.ub[i] = (tmp16s<0)?0:((tmp16s>255)?255:tmp16s);
+        }
+        NEXT;
 
     _6f_0xDB:  /* PAND Gx,Ex */
         nextop = F8;
@@ -775,7 +790,21 @@
         GX.q[0] &= EX->q[0];
         GX.q[1] &= EX->q[1];
         NEXT;
+    _6f_0xDC:  /* PADDUSB Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX.ub[i] + EX->ub[i];
+            GX.ub[i] = (tmp16s>255)?255:tmp16s;
+        }
+        NEXT;
 
+    _6f_0xDE:  /* PMAXUB Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]>GX.ub[i]) GX.ub[i] = EX->ub[i];
+        NEXT;
     _6f_0xDF:  /* PANDN Gx,Ex */
         nextop = F8;
         GET_EX;
@@ -802,6 +831,15 @@
         GX.sd[0] = EX->d[0];
         GX.sd[1] = EX->d[1];
         GX.q[1] = 0;
+        NEXT;
+
+    _6f_0xE8:  /* PSUBSB Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<16; ++i) {
+            tmp16s = (int16_t)GX.sb[i] - EX->sb[i];
+            GX.ub[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
+        }
         NEXT;
 
     _6f_0xEB:  /* POR Gx,Ex */

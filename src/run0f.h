@@ -738,6 +738,18 @@
             }
             NEXT;
 
+        _0f_0xC4:                       /* PINSRW Gm,Ew,Ib */
+            nextop = F8;
+            GET_EW;
+            tmp8u = F8;
+            GM.uw[tmp8u&3] = EW->word[0];
+            NEXT;
+        _0f_0xC5:                       /* PEXTRW Gw,Em,Ib */
+            nextop = F8;
+            GET_EM;
+            tmp8u = F8;
+            GW.word[0] = EM->uw[tmp8u&3];
+            NEXT;
         _0f_0xC6:                      /* SHUFPS Gx, Ex, Ib */
             nextop = F8;
             GET_EX;
