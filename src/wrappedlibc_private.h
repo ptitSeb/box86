@@ -692,7 +692,7 @@ GO(inet_pton, iFipp)
 GO(initgroups, iFpi)
 // init_module
 // initstate    // Weak
-// initstate_r  // Weak
+GOW(initstate_r, iFupup)
 // inl  // Weak
 // innetgr
 GO(inotify_add_watch, iFipu)
@@ -1314,7 +1314,7 @@ GOM(qsort_r, vFEpuupp)
 GO(raise, iFi)  // will need a GOM version once signal are implemented probably
 GO(rand, iFv)
 GOW(random, iFv)
-// random_r // Weak
+GOW(random_r, iFpp)
 GO(rand_r, iFp)
 // rawmemchr    // Weak
 GO(__rawmemchr, pFpi)
@@ -1493,7 +1493,7 @@ GOW(setsockopt, iFiiipu)
 // setsourcefilter
 // setspent
 // setstate // Weak
-// setstate_r   // Weak
+GOW(setstate_r, iFpp)
 // settimeofday // Weak
 // setttyent
 GOW(setuid, iFu)
@@ -1564,7 +1564,7 @@ GOW(srand, vFu)
 GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
-// srandom_r    // Weak
+GOW(srandom_r, iFup)
 GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
 // ssignal  // Weak
 // sstk
