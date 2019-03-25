@@ -182,7 +182,7 @@ DATAV(daylight, 4)
 // __daylight   // type B
 GOW(dcgettext, pFppi)
 GO(__dcgettext, pFppi)
-// dcngettext   // Weak
+GOW(dcngettext, pFpppui)
 // __default_morecore
 // __default_rt_sa_restorer_v1
 // __default_rt_sa_restorer_v2
@@ -204,7 +204,7 @@ GOM(dl_iterate_phdr, iFEpp)
 // _dl_starting_up // Weak
 // _dl_sym
 // _dl_vsym
-// dngettext    // Weak
+GOW(dngettext, pFpppu)
 // dprintf
 // __dprintf_chk
 GO(drand48, dFv)
@@ -1140,7 +1140,7 @@ GO(__newlocale, pFipp)
 // nfsservctl
 // nftw
 // nftw64
-// ngettext // Weak
+GOW(ngettext, pFppu)
 GO(nice, iFi)
 // _nl_default_dirname  // type R
 // _nl_domain_bindings  // type B
