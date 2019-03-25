@@ -1104,8 +1104,8 @@ GO(mkstemp, iFp)
 GO(mkstemp64, iFp)
 // mktemp
 GO(mktime, uFp)
-// mlock
-// mlockall
+GO(mlock, iFpu)
+GO(mlockall, iFi)
 GOW(mmap, pFpuiiii)
 GOW(mmap64, pFpuiiiI)
 // modf // Weak
@@ -1127,8 +1127,8 @@ GOW(mremap, pFpuui)
 // msgsnd   // Weak
 // msync    // Weak
 // mtrace
-// munlock
-// munlockall
+GO(munlock, iFpu)
+GO(munlockall, iFv)
 GOW(munmap, iFpu)
 // muntrace
 GOW(nanosleep, iFpp)
