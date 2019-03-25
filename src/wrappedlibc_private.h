@@ -1685,7 +1685,7 @@ GO(__strtoull_internal, UFppii)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
 // strtouq  // Weak
-// strverscmp   // Weak
+GOW(strverscmp, iFpp)
 // __strverscmp
 GO(strxfrm, uFppu)
 GO(__strxfrm_l, uFppup)
