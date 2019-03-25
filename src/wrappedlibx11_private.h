@@ -20,7 +20,7 @@ DATAB(_qfree, 4)
 // _Utf8GetConvByName
 //GO(XActivateScreenSaver
 //GO(XAddConnectionWatch
-//GO(XAddExtension
+GO(XAddExtension, pFp)
 //GO(XAddHost
 //GO(XAddHosts
 //GO(XAddPixel
@@ -832,7 +832,7 @@ GO(XPutBackEvent, iFpp)
 // _XPutBackEvent
 GOM(XPutImage, iFEppppiiiiuu)
 //GO(XPutPixel
-//GO(XQLength
+GO(XQLength, iFp)
 GO(XQueryBestCursor, iFppuupp)
 //GO(XQueryBestSize
 //GO(XQueryBestStipple
