@@ -757,7 +757,7 @@
         GET_EX;
         for(int i=0; i<8; ++i) {
             tmp16s = (int32_t)GX.sw[i] * EX->sw[i];
-            GX.uw[i] = tmp16s&0xffff;
+            GX.sw[i] = tmp16s;
         }
         NEXT;
     _6f_0xD6:  /* MOVQ Ex,Gx */
@@ -825,6 +825,14 @@
         for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
         NEXT;
 
+    _6f_0xE5:  /* PMULHW Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX.sw[i] * EX->sw[i];
+            GX.uw[i] = (tmp32s>>16)&0xffff;
+        }
+        NEXT;
     _6f_0xE6:  /* CVTTPD2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
@@ -925,6 +933,12 @@
         GX.q[1] = tmp32u;
         NEXT;
 
+    _6f_0xF9:  /* PSUBW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i)
+            GX.uw[i] -= EX->uw[i];
+        NEXT;
     _6f_0xFA:  /* PSUBD Gx,Ex */
         nextop = F8;
         GET_EX;

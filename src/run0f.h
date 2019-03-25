@@ -49,6 +49,11 @@
             GET_EX;
             EX->q[0] = GX.q[1];
             NEXT;
+        _0f_0x18:                       /* PREFETCHh Ed */
+            nextop = F8;
+            GET_ED;
+            __builtin_prefetch((void*)ED->dword[0], 0, 0); // inoring wich level of cache (roughly (nextop>>3)&7)
+            NEXT;
 
         _0f_0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
@@ -352,6 +357,29 @@
                 GM.ub[8+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
             NEXT;
 
+        _0f_0x68:                       /* PUNPCKHBW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i)
+                GM.ub[2 * i] = GM.ub[i + 4];
+            for(int i=0; i<4; ++i)
+                GM.ub[2 * i + 1] = EM->ub[i + 4];
+            NEXT;
+        _0f_0x69:                       /* PUNPCKHWD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.uw[2 * i] = GM.uw[i + 2];
+            for(int i=0; i<2; ++i)
+                GM.uw[2 * i + 1] = EM->uw[i + 2];
+            NEXT;
+        _0f_0x6A:                       /* PUNPCKHDQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.ud[0] = GM.ud[1];
+            GM.ud[1] = EM->ud[1];
+            NEXT;
+
         _0f_0x6E:                      /* MOVD Gm, Ed */
             nextop = F8;
             GET_ED;
@@ -402,12 +430,40 @@
             }
             NEXT;
 
+        _0f_0x73:  /* GRP */
+            nextop = F8;
+            GET_EM;
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLQ Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>63)
+                        {EM->q = 0;}
+                    else
+                        {EM->q >>= tmp8u;}
+                    break;
+                case 6:                 /* PSLLQ Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>63)
+                        {EM->q = 0;}
+                    else
+                        {EM->q <<= tmp8u;}
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
+
         _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable
             emu->top = 0;
             emu->fpu_stack = 0;
             NEXT;
 
+        _0f_0x7E:                       /* MOVD Ed, Gx */
+            nextop = F8;
+            GET_ED;
+            ED->dword[0] = GM.ud[0];
+            NEXT;
         _0f_0x7F:                      /* MOVQ Em, Gm */
             nextop = F8;
             GET_EM;
@@ -791,6 +847,33 @@
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             NEXT;
 
+        _0f_0xD5:                   /* PMULLW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp16s = (int32_t)GM.sw[i] * EM->sw[i];
+                GM.sw[i] = tmp16s;
+            }
+            NEXT;
+
+        _0f_0xE5:                   /* PMULHW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.sw[i] * EM->sw[i];
+                GM.uw[i] = (tmp32s>>16)&0xffff;
+            }
+            NEXT;
+
+        _0f_0xED:                   /* PADDSW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.sw[i] + EM->sw[i];
+                GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+            }
+            NEXT;
+
         _0f_0xEF:                   /* PXOR Gm, Em */
             nextop = F8;
             GET_EM;
@@ -804,6 +887,13 @@
             for (int i=0; i<8; ++i)
                 tmp8u = (GM.ub[i]>EM->ub[i])?(GM.ub[i] - EM->ub[i]):(EM->ub[i] - GM.ub[i]);
             GM.q = tmp32u;
+            NEXT;
+
+        _0f_0xF9:                   /* PSUBW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i)
+                GM.uw[i] -= EM->uw[i];
             NEXT;
 
         _0f_0xFD:                   /* PADDW Gm,Em */
