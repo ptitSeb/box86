@@ -685,7 +685,7 @@ GOW(inet_aton, iFpp)
 // inet_netof
 GO(inet_network, iFp)
 // inet_nsap_addr
-// inet_nsap_ntoa
+GO(inet_nsap_ntoa, pFipp)
 GO(inet_ntoa, pFi)
 GO(inet_ntop, pFippu)
 GO(inet_pton, iFipp)
