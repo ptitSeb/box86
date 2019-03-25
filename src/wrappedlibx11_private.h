@@ -382,7 +382,7 @@ GO(XGetAtomName, pFpp)
 // _XGetBitsPerPixel
 //GO(XGetClassHint
 GO(XGetCommand, iFpppp)
-//GO(XGetDefault
+GO(XGetDefault, pFppp)
 GO(XGetErrorDatabaseText, iFpppppi)
 GO(XGetErrorText, iFpipi)
 GO(XGetEventData, iFpp)
