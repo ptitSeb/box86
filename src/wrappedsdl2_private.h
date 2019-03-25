@@ -543,7 +543,7 @@ GO(SDL_SetMainReady, vFv)
 // SDL_SetModState
 // SDL_SetPaletteColors
 // SDL_SetPixelFormatPalette
-// SDL_SetRelativeMouseMode
+GO(SDL_SetRelativeMouseMode, iFi)
 GO(SDL_SetRenderDrawBlendMode, iFpu)
 GO(SDL_SetRenderDrawColor, iFpCCCC)
 GO(SDL_SetRenderTarget, iFpp)

@@ -88,7 +88,7 @@ GO(__backtrace_symbols_fd, vFpii)
 GOW(backtrace_symbols_fd, vFpii)
 GO(basename, pFp)
 GOW(bcmp, iFppu)
-// bcopy
+GO(bcopy, vFppu)
 // bdflush
 GOW(bind, iFipu)
 // bindresvport
@@ -182,7 +182,7 @@ DATAV(daylight, 4)
 // __daylight   // type B
 GOW(dcgettext, pFppi)
 GO(__dcgettext, pFppi)
-// dcngettext   // Weak
+GOW(dcngettext, pFpppui)
 // __default_morecore
 // __default_rt_sa_restorer_v1
 // __default_rt_sa_restorer_v2
@@ -204,7 +204,7 @@ GOM(dl_iterate_phdr, iFEpp)
 // _dl_starting_up // Weak
 // _dl_sym
 // _dl_vsym
-// dngettext    // Weak
+GOW(dngettext, pFpppu)
 // dprintf
 // __dprintf_chk
 GO(drand48, dFv)
@@ -685,14 +685,14 @@ GOW(inet_aton, iFpp)
 // inet_netof
 GO(inet_network, iFp)
 // inet_nsap_addr
-// inet_nsap_ntoa
+GO(inet_nsap_ntoa, pFipp)
 GO(inet_ntoa, pFi)
 GO(inet_ntop, pFippu)
 GO(inet_pton, iFipp)
 GO(initgroups, iFpi)
 // init_module
 // initstate    // Weak
-// initstate_r  // Weak
+GOW(initstate_r, iFupup)
 // inl  // Weak
 // innetgr
 GO(inotify_add_watch, iFipu)
@@ -1104,8 +1104,8 @@ GO(mkstemp, iFp)
 GO(mkstemp64, iFp)
 // mktemp
 GO(mktime, uFp)
-// mlock
-// mlockall
+GO(mlock, iFpu)
+GO(mlockall, iFi)
 GOW(mmap, pFpuiiii)
 GOW(mmap64, pFpuiiiI)
 // modf // Weak
@@ -1127,8 +1127,8 @@ GOW(mremap, pFpuui)
 // msgsnd   // Weak
 // msync    // Weak
 // mtrace
-// munlock
-// munlockall
+GO(munlock, iFpu)
+GO(munlockall, iFv)
 GOW(munmap, iFpu)
 // muntrace
 GOW(nanosleep, iFpp)
@@ -1140,7 +1140,7 @@ GO(__newlocale, pFipp)
 // nfsservctl
 // nftw
 // nftw64
-// ngettext // Weak
+GOW(ngettext, pFppu)
 GO(nice, iFi)
 // _nl_default_dirname  // type R
 // _nl_domain_bindings  // type B
@@ -1314,7 +1314,7 @@ GOM(qsort_r, vFEpuupp)
 GO(raise, iFi)  // will need a GOM version once signal are implemented probably
 GO(rand, iFv)
 GOW(random, iFv)
-// random_r // Weak
+GOW(random_r, iFpp)
 GO(rand_r, iFp)
 // rawmemchr    // Weak
 GO(__rawmemchr, pFpi)
@@ -1493,7 +1493,7 @@ GOW(setsockopt, iFiiipu)
 // setsourcefilter
 // setspent
 // setstate // Weak
-// setstate_r   // Weak
+GOW(setstate_r, iFpp)
 // settimeofday // Weak
 // setttyent
 GOW(setuid, iFu)
@@ -1564,7 +1564,7 @@ GOW(srand, vFu)
 GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
-// srandom_r    // Weak
+GOW(srandom_r, iFup)
 GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
 // ssignal  // Weak
 // sstk
@@ -1685,7 +1685,7 @@ GO(__strtoull_internal, UFppii)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
 // strtouq  // Weak
-// strverscmp   // Weak
+GOW(strverscmp, iFpp)
 // __strverscmp
 GO(strxfrm, uFppu)
 GO(__strxfrm_l, uFppup)
@@ -2091,6 +2091,7 @@ GOM(_Jv_RegisterClasses, vFv)   // dummy
 GOM(__fdelt_chk, iFi)
 
 //GOM(getauxval, uFEu)  // implemented since glibc 2.16
+GO(getauxval, uFu)
 
 // not found (libitm???), but it seems OK to declare dummies:
 

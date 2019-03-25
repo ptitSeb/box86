@@ -20,7 +20,7 @@ DATAB(_qfree, 4)
 // _Utf8GetConvByName
 //GO(XActivateScreenSaver
 //GO(XAddConnectionWatch
-//GO(XAddExtension
+GO(XAddExtension, pFp)
 //GO(XAddHost
 //GO(XAddHosts
 //GO(XAddPixel
@@ -59,7 +59,7 @@ GO(XChangeKeyboardControl, iFpup)
 GO(XChangePointerControl, iFpiiiii)
 GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet
-//GO(XChangeWindowAttributes
+GO(XChangeWindowAttributes, iFppup)
 GOM(XCheckIfEvent, iFEpppp)
 GO(XCheckMaskEvent, iFpup)
 GO(XCheckTypedEvent, iFpip)
@@ -382,7 +382,7 @@ GO(XGetAtomName, pFpp)
 // _XGetBitsPerPixel
 //GO(XGetClassHint
 GO(XGetCommand, iFpppp)
-//GO(XGetDefault
+GO(XGetDefault, pFppp)
 GO(XGetErrorDatabaseText, iFpppppi)
 GO(XGetErrorText, iFpipi)
 GO(XGetEventData, iFpp)
@@ -832,7 +832,7 @@ GO(XPutBackEvent, iFpp)
 // _XPutBackEvent
 GOM(XPutImage, iFEppppiiiiuu)
 //GO(XPutPixel
-//GO(XQLength
+GO(XQLength, iFp)
 GO(XQueryBestCursor, iFppuupp)
 //GO(XQueryBestSize
 //GO(XQueryBestStipple
