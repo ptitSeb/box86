@@ -52,7 +52,8 @@ scwrap_t syscallwrap[] = {
     { 91, __NR_munmap, 2 },
     { 109, __NR_uname, 1 },
     //{120, __NR_clone, 1 },    // need works, args is struct pt_regs...
-    { 125,__NR_mprotect, 3 },
+    { 125, __NR_mprotect, 3 },
+    { 136, __NR_personality, 1 },
     { 140,__NR__llseek, 5 },
 #ifdef __NR_select
     { 142, __NR_select, 5 },
