@@ -41,6 +41,8 @@ GO("libcurl.so.4", curl)
 GO("libudev.so.0", udev0)
 GO("libdbus-1.so.3", dbus)
 GO("libiconv.so.2", iconv)
+GO("libcrypto.so.1", crypto)
+GO("libssl.so.1", libssl)
 
 GO("ld-linux.so.2", ldlinux)
 
