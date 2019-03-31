@@ -108,7 +108,7 @@ GO(__pthread_mutex_unlock, iFp)
 GO(pthread_mutex_unlock, iFp)
 GOM(pthread_once, iFEpp)
 // __pthread_once
-// __pthread_register_cancel
+GO(__pthread_register_cancel, vFp)
 // __pthread_register_cancel_defer
 // pthread_rwlockattr_destroy
 // pthread_rwlockattr_getkind_np
@@ -148,7 +148,7 @@ GO(pthread_sigmask, iFipp)
 // pthread_testcancel
 // pthread_timedjoin_np
 // pthread_tryjoin_np
-// __pthread_unregister_cancel
+GO(__pthread_unregister_cancel, vFp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
 // __pthread_unwind_next
