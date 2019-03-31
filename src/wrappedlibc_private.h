@@ -1516,7 +1516,7 @@ GO(sigaddset, iFpi)
 GOW(sigaltstack, iFpp)
 // sigandset
 // sigblock // Weak
-// sigdelset
+GO(sigdelset, iFpi)
 // __sigdelset
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
@@ -1525,7 +1525,7 @@ GO(sigfillset, iFp)
 // sigignore
 // siginterrupt
 // sigisemptyset
-// sigismember
+GO(sigismember, iFpi)
 // __sigismember
 GOM(siglongjmp, pFEip)
 GOM(signal, pFEip)   // Weak
