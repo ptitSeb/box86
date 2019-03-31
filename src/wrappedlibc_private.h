@@ -619,7 +619,7 @@ GO(gmtime, pFp)
 // __gmtime_r
 GOW(gmtime_r, pFpp)
 // gnu_dev_major
-// gnu_dev_makedev
+GO(gnu_dev_makedev, UFuu)
 // gnu_dev_minor
 GOW(gnu_get_libc_release, pFv)
 GOW(gnu_get_libc_version, pFv)
@@ -1042,7 +1042,7 @@ GOW(lseek64, IFiIi)
 // lutimes
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
-// madvise
+GO(madvise, iFpui)
 GOM(makecontext, iFEpppV)
 GOW(mallinfo, pFv)
 GO(malloc, pFu)
