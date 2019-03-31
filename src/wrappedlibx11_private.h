@@ -909,7 +909,7 @@ GO(XRootWindow, pFpi)
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
 //GO(XSaveContext
-//GO(XScreenCount
+GO(XScreenCount, iFp)
 //GO(XScreenNumberOfScreen
 GO(XScreenOfDisplay, pFpi)
 // _XScreenOfWindow
