@@ -1530,8 +1530,8 @@ GO(sigfillset, iFp)
 GOM(siglongjmp, pFEip)
 GOM(signal, pFEip)   // Weak
 // signalfd
-// __signbit
-// __signbitf
+GO(__signbit, iFd)
+GO(__signbitf, iFf)
 // sigorset
 // sigpause // Weak
 // __sigpause
