@@ -186,20 +186,20 @@ GO(__exp_finite, dFd)
 // fdim // Weak
 // fdimf    // Weak
 // fdiml    // Weak
-// feclearexcept
-// fedisableexcept
-// feenableexcept
-// fegetenv
-// fegetexcept
-// fegetexceptflag
-// fegetround
+GO(feclearexcept, iFi)
+GO(fedisableexcept, iFi)
+GO(feenableexcept, iFi)
+GO(fegetenv, iFp)
+GO(fegetexcept, iFv)
+GO(fegetexceptflag, iFpi)
+GO(fegetround, iFv)
 GO(feholdexcept, iFp)
-// feraiseexcept
-// fesetenv
-// fesetexceptflag
-// fesetround
-// fetestexcept
-// feupdateenv
+GO(feraiseexcept, iFi)
+GO(fesetenv, iFp)
+GO(fesetexceptflag, iFpi)
+GO(fesetround, iFi)
+GO(fetestexcept, iFi)
+GO(feupdateenv, iFp)
 GOW(finite, iFd)
 // __finite
 GOW(finitef, iFf)
