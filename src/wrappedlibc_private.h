@@ -1515,12 +1515,12 @@ GO(sigaddset, iFpi)
 // __sigaddset
 GOW(sigaltstack, iFpp)
 // sigandset
-// sigblock // Weak
+GOW(sigblock, iFi)
 GO(sigdelset, iFpi)
 // __sigdelset
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
-// siggetmask
+GO(siggetmask, iFv)
 // sighold
 // sigignore
 // siginterrupt
@@ -1542,12 +1542,12 @@ GOW(sigprocmask, iFipp)
 // sigreturn    // Weak
 // sigset
 GOM(__sigsetjmp, iFEp)
-// sigsetmask   // Weak
+GOW(sigsetmask, iFi)
 // sigstack
 // sigsuspend   // Weak
 // __sigsuspend
 // sigtimedwait // Weak
-// sigvec   // Weak
+GOW(sigvec, iFipp)
 // sigwait  // Weak
 // sigwaitinfo  // Weak
 GOW(sleep, uFu)
