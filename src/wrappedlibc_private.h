@@ -983,7 +983,7 @@ GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig_private
 // __libc_calloc
 // __libc_clntudp_bufcreate
-// __libc_current_sigrtmax
+GO(__libc_current_sigrtmax, iFv)
 // __libc_current_sigrtmax_private
 GO(__libc_current_sigrtmin, iFv)
 // __libc_current_sigrtmin_private
