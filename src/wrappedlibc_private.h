@@ -156,7 +156,7 @@ GOW(__connect, iFipu)
 // copysignf    // Weak
 // copysignl    // Weak
 GOW(creat, iFpu)
-// creat64
+GO(creat64, iFpu)
 // create_module    // Weak
 // ctermid
 GO(ctime, pFp)
