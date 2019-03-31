@@ -1631,7 +1631,7 @@ GO(strncpy, pFppu)
 GO(__strncpy_chk, pFppuu)
 GOW(strndup, pFpu)
 GO(__strndup, pFpu)
-// strnlen
+GO(strnlen, uFpu)
 GO(strpbrk, pFpp)
 // __strpbrk_c2
 // __strpbrk_c3
