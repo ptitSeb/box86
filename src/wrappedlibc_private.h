@@ -1544,7 +1544,7 @@ GOW(sigprocmask, iFipp)
 GOM(__sigsetjmp, iFEp)
 GOW(sigsetmask, iFi)
 // sigstack
-// sigsuspend   // Weak
+GOW(sigsuspend, iFp)
 // __sigsuspend
 // sigtimedwait // Weak
 GOW(sigvec, iFipp)
