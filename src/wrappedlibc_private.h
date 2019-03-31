@@ -1409,7 +1409,7 @@ GOM(scandir, iFEpppp)
 GOM(scandir64, iFEpppp)
 GO2(scanf, iFpp, vscanf)
 // __sched_cpualloc
-// __sched_cpucount
+GO(__sched_cpucount, iFup)
 // __sched_cpufree
 GO(sched_getaffinity, iFiup)
 // sched_getcpu
