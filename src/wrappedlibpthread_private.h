@@ -151,7 +151,7 @@ GO(pthread_sigmask, iFipp)
 GO(__pthread_unregister_cancel, vFp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
-// __pthread_unwind_next
+GO(__pthread_unwind_next, vFp)
 GO(pthread_yield, iFv)
 // raise
 // __res_state
