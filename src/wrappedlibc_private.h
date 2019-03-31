@@ -468,7 +468,7 @@ GOW(__getdelim, iFppip)
 // getdirentries64
 GO(getdomainname, iFpu)
 // __getdomainname_chk
-// getdtablesize    // Weak
+GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
 GO(getenv, pFp)
 GOW(geteuid, pFv)
