@@ -659,7 +659,7 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 //GO(XkbSetCompatMap
 //GO(XkbSetControls
 //GO(XkbSetDebuggingFlags
-//GO(XkbSetDetectableAutoRepeat
+GO(XkbSetDetectableAutoRepeat, iFpip)
 //GO(XkbSetDeviceButtonActions
 //GO(XkbSetDeviceInfo
 //GO(XkbSetDeviceLedInfo
