@@ -174,7 +174,7 @@ GOW(exp2f, fFf)
 // __exp2_finite
 // exp2l    // Weak
 GOW(expf, fFf)
-// __expf_finite
+GO(__expf_finite, fFf)
 GO(__exp_finite, dFd)
 // expl // Weak
 // expm1    // Weak
