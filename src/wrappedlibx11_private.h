@@ -386,7 +386,7 @@ GO(XGetDefault, pFppp)
 GO(XGetErrorDatabaseText, iFpppppi)
 GO(XGetErrorText, iFpipi)
 GO(XGetEventData, iFpp)
-//GO(XGetFontPath
+GO(XGetFontPath, pFpp)
 GO(XGetFontProperty, iFppp)
 GO(XGetGCValues, iFppup)
 GO(XGetGeometry, iFppppppppp)
@@ -659,7 +659,7 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 //GO(XkbSetCompatMap
 //GO(XkbSetControls
 //GO(XkbSetDebuggingFlags
-//GO(XkbSetDetectableAutoRepeat
+GO(XkbSetDetectableAutoRepeat, iFpip)
 //GO(XkbSetDeviceButtonActions
 //GO(XkbSetDeviceInfo
 //GO(XkbSetDeviceLedInfo
@@ -909,7 +909,7 @@ GO(XRootWindow, pFpi)
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
 //GO(XSaveContext
-//GO(XScreenCount
+GO(XScreenCount, iFp)
 //GO(XScreenNumberOfScreen
 GO(XScreenOfDisplay, pFpi)
 // _XScreenOfWindow

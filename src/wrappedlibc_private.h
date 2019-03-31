@@ -156,7 +156,7 @@ GOW(__connect, iFipu)
 // copysignf    // Weak
 // copysignl    // Weak
 GOW(creat, iFpu)
-// creat64
+GO(creat64, iFpu)
 // create_module    // Weak
 // ctermid
 GO(ctime, pFp)
@@ -228,7 +228,7 @@ GOW(endmntent, iFp)
 // __endmntent
 // endnetent
 // endnetgrent
-// endprotoent
+GO(endprotoent, vFv)
 GO(endpwent, vFv)
 // endrpcent
 // endservent
@@ -327,7 +327,7 @@ GO(fgetpos64, iFpp)
 // fgetpwent
 // fgetpwent_r  // Weak
 GOW(fgets, pFpip)
-// __fgets_chk
+GO(__fgets_chk, pFpuip)
 // fgetspent
 // fgetspent_r  // Weak
 // fgets_unlocked
@@ -412,7 +412,7 @@ GOW(ftell, iFp)
 GO(ftello, uFp)
 GO(ftello64, Ifp)
 GO(ftime, iFp)
-// ftok
+GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
 GOW(ftruncate64, iFiU)
 GOW(ftrylockfile, iFp)
@@ -468,7 +468,7 @@ GOW(__getdelim, iFppip)
 // getdirentries64
 GO(getdomainname, iFpu)
 // __getdomainname_chk
-// getdtablesize    // Weak
+GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
 GO(getenv, pFp)
 GOW(geteuid, pFv)
@@ -539,11 +539,11 @@ GO(__getpid, uFv)
 GOW(getppid, uFv)
 GO(getpriority, iFii)
 GOM(getrandom, iFEpuu)
-// getprotobyname
+GO(getprotobyname, pFp)
 // getprotobyname_r
-// getprotobynumber
+GO(getprotobynumber, pFi)
 // getprotobynumber_r
-// getprotoent
+GO(getprotoent, pFv)
 // getprotoent_r
 // getpt    // Weak
 // getpublickey
@@ -554,8 +554,8 @@ GO(getpwnam, pFp)
 GO(getpwnam_r, iFpppup)
 GO(getpwuid, pFu)
 GO(getpwuid_r, iFuppup)
-// getresgid    // Weak
-// getresuid    // Weak
+GOW(getresgid, iFppp)
+GOW(getresuid, iFppp)
 GO(getrlimit, iFip)
 GO(getrlimit64, iFip)
 // getrpcbyname
@@ -619,7 +619,7 @@ GO(gmtime, pFp)
 // __gmtime_r
 GOW(gmtime_r, pFpp)
 // gnu_dev_major
-// gnu_dev_makedev
+GO(gnu_dev_makedev, UFuu)
 // gnu_dev_minor
 GOW(gnu_get_libc_release, pFv)
 GOW(gnu_get_libc_version, pFv)
@@ -983,7 +983,7 @@ GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig_private
 // __libc_calloc
 // __libc_clntudp_bufcreate
-// __libc_current_sigrtmax
+GO(__libc_current_sigrtmax, iFv)
 // __libc_current_sigrtmax_private
 GO(__libc_current_sigrtmin, iFv)
 // __libc_current_sigrtmin_private
@@ -1042,7 +1042,7 @@ GOW(lseek64, IFiIi)
 // lutimes
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
-// madvise
+GO(madvise, iFpui)
 GOM(makecontext, iFEpppV)
 GOW(mallinfo, pFv)
 GO(malloc, pFu)
@@ -1409,7 +1409,7 @@ GOM(scandir, iFEpppp)
 GOM(scandir64, iFEpppp)
 GO2(scanf, iFpp, vscanf)
 // __sched_cpualloc
-// __sched_cpucount
+GO(__sched_cpucount, iFup)
 // __sched_cpufree
 GO(sched_getaffinity, iFiup)
 // sched_getcpu
@@ -1478,7 +1478,7 @@ GOW(setpgid, iFuu)
 // __setpgid
 GO(setpgrp, iFv)
 GO(setpriority, iFiii)
-// setprotoent
+GO(setprotoent, vFi)
 GO(setpwent, vFv)
 GOW(setregid, iFuu)
 GOW(setresgid, iFuuu)
@@ -1515,23 +1515,23 @@ GO(sigaddset, iFpi)
 // __sigaddset
 GOW(sigaltstack, iFpp)
 // sigandset
-// sigblock // Weak
-// sigdelset
+GOW(sigblock, iFi)
+GO(sigdelset, iFpi)
 // __sigdelset
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
-// siggetmask
+GO(siggetmask, iFv)
 // sighold
 // sigignore
 // siginterrupt
 // sigisemptyset
-// sigismember
+GO(sigismember, iFpi)
 // __sigismember
 GOM(siglongjmp, pFEip)
 GOM(signal, pFEip)   // Weak
 // signalfd
-// __signbit
-// __signbitf
+GO(__signbit, iFd)
+GO(__signbitf, iFf)
 // sigorset
 // sigpause // Weak
 // __sigpause
@@ -1542,12 +1542,12 @@ GOW(sigprocmask, iFipp)
 // sigreturn    // Weak
 // sigset
 GOM(__sigsetjmp, iFEp)
-// sigsetmask   // Weak
+GOW(sigsetmask, iFi)
 // sigstack
-// sigsuspend   // Weak
+GOW(sigsuspend, iFp)
 // __sigsuspend
 // sigtimedwait // Weak
-// sigvec   // Weak
+GOW(sigvec, iFipp)
 // sigwait  // Weak
 // sigwaitinfo  // Weak
 GOW(sleep, uFu)
@@ -1631,7 +1631,7 @@ GO(strncpy, pFppu)
 GO(__strncpy_chk, pFppuu)
 GOW(strndup, pFpu)
 GO(__strndup, pFpu)
-// strnlen
+GO(strnlen, uFpu)
 GO(strpbrk, pFpp)
 // __strpbrk_c2
 // __strpbrk_c3
@@ -1882,8 +1882,8 @@ GO(__vsyslog_chk, vFiipV)
 // vwscanf
 GOW(wait, iFp)
 GOW(__wait, iFp)
-// wait3    // Weak
-// wait4    // Weak
+GOW(wait3, iFpip)
+GOW(wait4, iFipip)
 GOW(waitid, iFiipi)
 GOW(waitpid, iFipi)
 GOW(__waitpid, iFip)
@@ -1991,8 +1991,8 @@ GOW(wmemmove, pFppu)
 // __wmempcpy_chk
 GO(wmemset, pFpiu)
 // __wmemset_chk
-// wordexp
-// wordfree
+GO(wordexp, iFppi)
+GO(wordfree, vFp)
 // __woverflow
 // wprintf
 // __wprintf_chk
