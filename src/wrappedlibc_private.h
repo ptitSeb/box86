@@ -554,8 +554,8 @@ GO(getpwnam, pFp)
 GO(getpwnam_r, iFpppup)
 GO(getpwuid, pFu)
 GO(getpwuid_r, iFuppup)
-// getresgid    // Weak
-// getresuid    // Weak
+GOW(getresgid, iFppp)
+GOW(getresuid, iFppp)
 GO(getrlimit, iFip)
 GO(getrlimit64, iFip)
 // getrpcbyname
