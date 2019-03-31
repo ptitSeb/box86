@@ -327,7 +327,7 @@ GO(fgetpos64, iFpp)
 // fgetpwent
 // fgetpwent_r  // Weak
 GOW(fgets, pFpip)
-// __fgets_chk
+GO(__fgets_chk, pFpuip)
 // fgetspent
 // fgetspent_r  // Weak
 // fgets_unlocked
