@@ -386,7 +386,7 @@ GO(XGetDefault, pFppp)
 GO(XGetErrorDatabaseText, iFpppppi)
 GO(XGetErrorText, iFpipi)
 GO(XGetEventData, iFpp)
-//GO(XGetFontPath
+GO(XGetFontPath, pFpp)
 GO(XGetFontProperty, iFppp)
 GO(XGetGCValues, iFppup)
 GO(XGetGeometry, iFppppppppp)
