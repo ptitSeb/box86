@@ -412,7 +412,7 @@ GOW(ftell, iFp)
 GO(ftello, uFp)
 GO(ftello64, Ifp)
 GO(ftime, iFp)
-// ftok
+GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
 GOW(ftruncate64, iFiU)
 GOW(ftrylockfile, iFp)
