@@ -1991,8 +1991,8 @@ GOW(wmemmove, pFppu)
 // __wmempcpy_chk
 GO(wmemset, pFpiu)
 // __wmemset_chk
-// wordexp
-// wordfree
+GO(wordexp, iFppi)
+GO(wordfree, vFp)
 // __woverflow
 // wprintf
 // __wprintf_chk
