@@ -228,7 +228,7 @@ GOW(endmntent, iFp)
 // __endmntent
 // endnetent
 // endnetgrent
-// endprotoent
+GO(endprotoent, vFv)
 GO(endpwent, vFv)
 // endrpcent
 // endservent
@@ -539,11 +539,11 @@ GO(__getpid, uFv)
 GOW(getppid, uFv)
 GO(getpriority, iFii)
 GOM(getrandom, iFEpuu)
-// getprotobyname
+GO(getprotobyname, pFp)
 // getprotobyname_r
-// getprotobynumber
+GO(getprotobynumber, pFi)
 // getprotobynumber_r
-// getprotoent
+GO(getprotoent, pFv)
 // getprotoent_r
 // getpt    // Weak
 // getpublickey
@@ -1478,7 +1478,7 @@ GOW(setpgid, iFuu)
 // __setpgid
 GO(setpgrp, iFv)
 GO(setpriority, iFiii)
-// setprotoent
+GO(setprotoent, vFi)
 GO(setpwent, vFv)
 GOW(setregid, iFuu)
 GOW(setresgid, iFuuu)
