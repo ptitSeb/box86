@@ -1882,8 +1882,8 @@ GO(__vsyslog_chk, vFiipV)
 // vwscanf
 GOW(wait, iFp)
 GOW(__wait, iFp)
-// wait3    // Weak
-// wait4    // Weak
+GOW(wait3, iFpip)
+GOW(wait4, iFipip)
 GOW(waitid, iFiipi)
 GOW(waitpid, iFipi)
 GOW(__waitpid, iFip)
