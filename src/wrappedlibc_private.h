@@ -422,14 +422,14 @@ GOW(ftrylockfile, iFp)
 // fts_read
 // fts_set
 // ftw
-// ftw64
+GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
 // futimens
 GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
 // futimesat
 // fwide
 GOM(fwprintf, iFEppVV) // Weak
-// __fwprintf_chk
+GOM(__fwprintf_chk, iFEp0pVV)
 // __fwritable
 GOW(fwrite, uFpuup)
 // fwrite_unlocked
@@ -613,7 +613,7 @@ GO(getwd, pFp)
 GOM(glob, iFEpipp)
 // glob64
 GO(globfree, vFp)
-// globfree64
+GO(globfree64, vFp)
 // glob_pattern_p   // Weak
 GO(gmtime, pFp)
 // __gmtime_r

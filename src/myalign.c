@@ -229,30 +229,8 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
     }
 }
 
-// stat64 is packed on i386, not on arm (and possibly other structures)
-struct i386_stat64 {
-	unsigned long long	st_dev;
-	unsigned char		__pad0[4];
-	unsigned int		__st_ino;
-	unsigned int		st_mode;
-	unsigned int		st_nlink;
-	unsigned int		st_uid;
-	unsigned int		st_gid;
-	unsigned long long	st_rdev;
-	unsigned char		__pad3[4];
-	long long		st_size;
-	unsigned int		st_blksize;
-	unsigned long long		st_blocks;
-	unsigned int	st_atime;
-	unsigned int	st_atime_nsec;
-	unsigned int	st_mtime;
-	unsigned int	st_mtime_nsec;
-	unsigned int	st_ctime;
-	unsigned int	st_ctime_nsec;
-	unsigned long long	st_ino;
-} __attribute__((packed));
 
-void UnalignStat64(void* source, void* dest)
+void UnalignStat64(const void* source, void* dest)
 {
     struct i386_stat64 *i386st = (struct i386_stat64*)dest;
     struct stat64 *st = (struct stat64*) source;

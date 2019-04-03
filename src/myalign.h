@@ -3,13 +3,39 @@
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack);
 void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack);
 
-void UnalignStat64(void* source, void* dest);
+void UnalignStat64(const void* source, void* dest);
 
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
 void AlignOggVorbis(void* dest, void* source);   // x86 -> Arm
 
 void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
 void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
+
+// stat64 is packed on i386, not on arm (and possibly other structures)
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
+struct i386_stat64 {
+	uint64_t	st_dev;
+	uint8_t		__pad0[4];
+	uint32_t		__st_ino;
+	uint32_t		st_mode;
+	uint32_t		st_nlink;
+	uint32_t		st_uid;
+	uint32_t		st_gid;
+	uint64_t	st_rdev;
+	uint8_t		__pad3[4];
+	int64_t		st_size;
+	uint32_t		st_blksize;
+	uint64_t		st_blocks;
+	uint32_t	st_atime;
+	uint32_t	st_atime_nsec;
+	uint32_t	st_mtime;
+	uint32_t	st_mtime_nsec;
+	uint32_t	st_ctime;
+	uint32_t	st_ctime_nsec;
+	uint64_t	st_ino;
+} __attribute__((packed));
 
 typedef struct {
   unsigned char *data;

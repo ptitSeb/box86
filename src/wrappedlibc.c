@@ -20,6 +20,7 @@
 #include <dirent.h>
 #include <search.h>
 #include <sys/epoll.h>
+#include <ftw.h>
 
 #include "wrappedlibs.h"
 
@@ -226,6 +227,7 @@ EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
     return vfwprintf((FILE*)F, (const wchar_t*)fmt, V);
     #endif
 }
+EXPORT int my___fwprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fwprintf")));
 
 EXPORT void *my_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
@@ -697,6 +699,26 @@ EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void*
     SetCallbackArg(scandiremu, 4, comp);
     int ret = scandir(dir, namelist, scandir_selcb, scandir_compcb);
     scandiremu = FreeCallback(scandiremu);
+    return ret;
+}
+
+static x86emu_t* ftw64emu = NULL;
+static int my_ftw64_cb (const char *filename, const struct stat64 * st64, int flags)
+{
+    if(!ftw64emu)
+        return 0;
+    struct i386_stat64 i386st;
+    UnalignStat64(st64, &i386st);
+    SetCallbackArg(ftw64emu, 0, (void*)filename);
+    SetCallbackArg(ftw64emu, 1, &i386st);
+    SetCallbackArg(ftw64emu, 2, (void*)flags);
+    return (int)RunCallback(ftw64emu);
+}
+EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
+{
+    ftw64emu = AddSharedCallback(emu, (uintptr_t)func, 3, NULL, NULL, NULL, NULL);
+    int ret = ftw64(filename, my_ftw64_cb, descriptors);
+    ftw64emu = FreeCallback(ftw64emu);
     return ret;
 }
 
