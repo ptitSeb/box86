@@ -560,7 +560,7 @@ GO(SDL_SetThreadPriority, iFu)
 GO(SDL_SetWindowBordered, vFpi)
 // SDL_SetWindowBrightness
 // SDL_SetWindowData
-// SDL_SetWindowDisplayMode
+GO(SDL_SetWindowDisplayMode, iFpp)
 GO(SDL_SetWindowFullscreen, iFpu)
 // SDL_SetWindowGammaRamp
 GO(SDL_SetWindowGrab, vFpi)
