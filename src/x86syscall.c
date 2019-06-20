@@ -12,6 +12,9 @@
 #include <asm/stat.h>
 #include <errno.h>
 #include <sched.h>
+#ifndef __NR_olduname
+#include <sys/utsname.h>
+#endif
 
 #include "debug.h"
 #include "stack.h"
@@ -52,8 +55,11 @@ scwrap_t syscallwrap[] = {
     { 78, __NR_gettimeofday, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
-    { 109, __NR_uname, 1 },
+#ifdef __NR_olduname
+    { 109, __NR_olduname, 1 },
+#endif
     //{120, __NR_clone, 1 },    // need works, args is struct pt_regs...
+    { 122, __NR_uname, 1 },
     { 125, __NR_mprotect, 3 },
     { 136, __NR_personality, 1 },
     { 140,__NR__llseek, 5 },
@@ -109,6 +115,16 @@ struct x86_pt_regs {
 	long esp;
 	int  xss;
 };
+
+#ifndef __NR_olduname
+struct old_utsname {
+        char sysname[65];
+        char nodename[65];
+        char release[65];
+        char version[65];
+        char machine[65];
+};
+#endif
 
 int clone_fn(void* arg)
 {
@@ -181,6 +197,22 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)clone(clone_fn, (void*)((uintptr_t)newstack+1024*1024), regs->ebx, newemu, regs->edx, 0, regs->edi);
             }
             return;
+#ifndef __NR_olduname
+        case 109:   // olduname
+            {
+                struct utsname un;
+                R_EAX = uname(&un);
+                if(!R_EAX) {
+                    struct old_utsname *old = (struct old_utsname*)R_EBX;
+                    memcpy(old->sysname, un.sysname, 65);
+                    memcpy(old->nodeame, un.nodeame, 65);
+                    memcpy(old->release, un.release, 65);
+                    memcpy(old->version, un.version, 65);
+                    memcpy(old->machine, un.machine, 65);
+                }
+            }
+            return;
+#endif
 #ifndef __NR_select
         case 142:   // select
             R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
