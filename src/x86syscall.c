@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <unistd.h>
@@ -205,7 +206,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 if(!R_EAX) {
                     struct old_utsname *old = (struct old_utsname*)R_EBX;
                     memcpy(old->sysname, un.sysname, 65);
-                    memcpy(old->nodeame, un.nodeame, 65);
+                    memcpy(old->nodename, un.nodename, 65);
                     memcpy(old->release, un.release, 65);
                     memcpy(old->version, un.version, 65);
                     memcpy(old->machine, un.machine, 65);
