@@ -19,6 +19,9 @@ Alternatively, you can use the curses-bases ccmake (or any other gui frontend fo
 *use ccache if you have it*
 Add `-DUSE_CCACHE=1` if you have ccache (it's better if you plan to touch the sources)
 
+*Armbian on RPi3*
+You may need to activate `-DNOLOADADDR=1` to disable fixing the Loading Address of Box86. Don't use this option if it works without.
+
 *to have a Trace Enabled build*
 To have a trace enabled build (warning, it will be slower), add `-DHAVE_TRACE=1` but you will need, at runtime, to have the [Zydis library](https://github.com/zyantific/zydis) library in your `LD_LIBRARY_PATH` or in the system lib folders.
 

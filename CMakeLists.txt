@@ -10,6 +10,7 @@ option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" $
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" ${USE_FLOAT})
+option(NOLOADADDR, "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 
 # Pandora
 if(PANDORA)
@@ -133,7 +134,9 @@ endif()
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
 target_link_libraries(${BOX86} m dl rt pthread)
 
-target_link_libraries(${BOX86} -Wl,-Ttext-segment,0xA8000000)
+if(NOT NOLOADADDR)
+    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0xA8000000)
+endif()
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
