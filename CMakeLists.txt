@@ -10,7 +10,7 @@ option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" $
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" ${USE_FLOAT})
-option(NOLOADADDR, "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
+option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 
 # Pandora
 if(PANDORA)
