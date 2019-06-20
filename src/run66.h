@@ -308,6 +308,8 @@
                 }
                 break;
             case 0xA7:              /* REP(N)Z CMPSW */
+                tmp16u = 0;
+                tmp16u2 = 0;
                 while(tmp32u) {
                     --tmp32u;
                     tmp16u  = *(uint16_t*)R_EDI;
@@ -334,6 +336,7 @@
                 }
                 break;
             case 0xAF:              /* REP(N)Z SCASW */
+                tmp16u = 0;
                 while(tmp32u) {
                     --tmp32u;
                     tmp16u = *(uint16_t*)R_EDI;
@@ -397,6 +400,3 @@
                 goto fini;
         }
         NEXT;
-                
-
-

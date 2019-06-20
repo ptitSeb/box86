@@ -204,7 +204,10 @@ x86emurun:
 _trace:
     if(start_cnt) --start_cnt;
     emu->prev2_ip = emu->prev_ip;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     emu->prev_ip = old_ip;
+#pragma GCC diagnostic pop
     old_ip = ip;
     if(!start_cnt && emu->dec && (
             (emu->trace_end == 0) 
@@ -1217,6 +1220,8 @@ _trace:
                         }
                         break;
                     case 0xA6:              /* REP(N)Z CMPSB */
+                        tmp8u = 0;
+                        tmp8u2 = 0;
                         if(opcode==0xF2) {
                             while(tmp32u) {
                                 --tmp32u;
@@ -1241,6 +1246,8 @@ _trace:
                         if(R_ECX) cmp8(emu, tmp8u2, tmp8u);
                         break;
                     case 0xA7:              /* REP(N)Z CMPSD */
+                        tmp32u2 = 0;
+                        tmp32u3 = 0;
                         tmp8s *= 4;
                         if(opcode==0xF2) {
                             while(tmp32u) {
@@ -1296,6 +1303,7 @@ _trace:
                         }
                         break;
                     case 0xAE:              /* REP(N)Z SCASB */
+                        tmp8u = 0;
                         if(opcode==0xF2) {
                             while(tmp32u) {
                                 --tmp32u;
@@ -1316,6 +1324,7 @@ _trace:
                         if(R_ECX) cmp8(emu, R_AL, tmp8u);
                         break;
                     case 0xAF:              /* REP(N)Z SCASD */
+                        tmp32u2 = 0;
                         tmp8s *= 4;
                         if(opcode==0xF2) {
                             while(tmp32u) {

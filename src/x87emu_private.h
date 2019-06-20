@@ -165,6 +165,8 @@ static inline double fpu_round(x86emu_t* emu, double d) {
             return ceil(d);
         case ROUND_Chop:
             return round(d);
+        default:
+            return 0;
     }
 }
 #endif

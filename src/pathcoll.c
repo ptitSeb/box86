@@ -48,7 +48,7 @@ void ParseList(const char* List, path_collection_t* collection)
     while(p) {
         const char *p2 = strchr(p, ':');
         if(!p2) {
-            strncpy(tmp, p, MAX_PATH);
+            strncpy(tmp, p, MAX_PATH - 1);
             p=NULL;
         } else {
             int l = (uintptr_t)p2 - (uintptr_t)p;

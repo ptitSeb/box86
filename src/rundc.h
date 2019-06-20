@@ -1,3 +1,5 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
     nextop = F8;
     switch(nextop) {
         case 0xC0:
@@ -239,3 +241,4 @@
                 goto _default;
         }
     }
+#pragma GCC diagnostic pop
