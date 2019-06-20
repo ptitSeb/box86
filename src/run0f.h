@@ -354,7 +354,7 @@
             for(int i=0; i<4; ++i)
                 GM.ub[i] = (GM.sw[i]<0)?0:((GM.sw[i]>0xff)?0xff:GM.sw[i]);
             for(int i=0; i<4; ++i)
-                GM.ub[8+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
+                GM.ub[4+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
             NEXT;
 
         _0f_0x68:                       /* PUNPCKHBW Gm,Em */
@@ -396,10 +396,10 @@
             tmp8u = F8;
             if(&GM!=EM) {
                 for(int i=0; i<4; ++i)
-                    GM.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+                    GM.uw[i] = EM->uw[(tmp8u>>(i*2))&3];
             } else {
                 for(int i=0; i<4; ++i)
-                    eax1.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+                    eax1.uw[i] = EM->uw[(tmp8u>>(i*2))&3];
                 GM.q = eax1.q[0];
             }
             NEXT;

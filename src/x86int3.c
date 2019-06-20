@@ -74,11 +74,11 @@ void x86Int3(x86emu_t* emu)
             if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
                 pthread_mutex_lock(&emu->context->mutex_trace);
                 char buff[256] = "\0";
-                char buff2[64]= "\0";
-                char buff3[64]= "\0";
+                char buff2[64] = "\0";
+                char buff3[64] = "\0";
                 int post = 0;
                 int perr = 0;
-                uint32_t *pu32;
+                uint32_t *pu32 = NULL;
                 const char *s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");

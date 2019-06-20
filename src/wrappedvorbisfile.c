@@ -472,7 +472,6 @@ GO(4)
 GO(5)
 GO(6)
 GO(7)
-GO(8)
 #undef GO
 #define GO(A) {my_read_func_##A, my_seek_func_##A, my_close_func_##A, my_tell_func_##A},
 static ov_callbacks my_ov_callbacks[] = {
@@ -484,7 +483,6 @@ GO(4)
 GO(5)
 GO(6)
 GO(7)
-GO(8)
 };
 #undef GO
 

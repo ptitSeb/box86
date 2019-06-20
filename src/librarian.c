@@ -118,6 +118,8 @@ int FinalizeNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x8
         printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
         return 1;
     }
+    
+    return 0;
 }
 
 library_t* GetLib(lib_t* maplib, const char* name)

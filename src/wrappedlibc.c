@@ -361,9 +361,11 @@ EXPORT int my___swprintf_chk(x86emu_t* emu, void* s, uint32_t n, int32_t flag, u
     myStackAlignW((const char*)fmt, b, emu->scratch);
     void* f = vswprintf;
     int r = ((iFpupp_t)f)(s, n, fmt, emu->scratch);
+    return r;
     #else
     void* f = vswprintf;
-    ((iFpupp_t)f)(s, n, fmt, b);
+    int r = ((iFpupp_t)f)(s, n, fmt, b);
+    return r;
     #endif
 }
 EXPORT int my_swprintf(x86emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
@@ -372,9 +374,11 @@ EXPORT int my_swprintf(x86emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
     myStackAlignW((const char*)fmt, b, emu->scratch);
     void* f = vswprintf;
     int r = ((iFpupp_t)f)(s, n, fmt, emu->scratch);
+    return r;
     #else
     void* f = vswprintf;
-    ((iFpupp_t)f)(s, n, fmt, b);
+    int r = ((iFpupp_t)f)(s, n, fmt, b);
+    return r;
     #endif
 }
 
