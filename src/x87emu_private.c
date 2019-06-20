@@ -112,7 +112,7 @@ void LD2D(void* ld, void* d)
 	int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
 	int32_t exp64final = exp64&0x7ff;
     // do specific value first (0, infinite...)
-    // bit 63 is "intetger part"
+    // bit 63 is "integer part"
     // bit 62 is sign
     if((uint32_t)(val.b&0x7fff)==0x7fff) {
         // infinity and nans
@@ -126,7 +126,7 @@ void LD2D(void* ld, void* d)
         if(t) {    // infinite
             result.d = HUGE_VAL;
         } else {      // NaN
-            result.l.upper |= 0x7ff << 20;
+            result.l.upper = 0x7ff << 20;
             result.l.lower = 0;
         }
         if(val.b&0x8000)
