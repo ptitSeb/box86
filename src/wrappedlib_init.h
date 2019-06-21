@@ -91,7 +91,15 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     lib->priv.w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
     if(!lib->priv.w.lib)
 #endif
+#ifdef ALTNAME2
+        {
+        lib->priv.w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
+        if(!lib->priv.w.lib)
+#endif
         return -1;
+#ifdef ALTNAME2
+        }
+#endif
     }
     lib->priv.w.bridge = NewBridge();
 // Create maps

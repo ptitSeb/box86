@@ -23,6 +23,7 @@ EXPORT void* my____tls_get_addr(x86emu_t* emu)
 const char* ldlinuxName = "ld-linux.so.3";
 #define LIBNAME ldlinux
 #define ALTNAME "ld-linux.so.2"
+#define ALTNAME2 "ld-linux-armhf.so.3"
 
 // define all standard library functions
 #include "wrappedlib_init.h"
