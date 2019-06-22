@@ -8,12 +8,12 @@ GOW(acosh, dFd)
 GOW(acoshf, fFf)
 // __acoshf_finite
 // __acosh_finite
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(acoshl, DFD)
 #else
 GO2(acoshl, LFL, acosh)
 #endif
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(acpsl, DFD)
 #else
 GO2(acosl, LFL, acos)
@@ -24,12 +24,12 @@ GO(__asinf_finite, fFf)
 GO(__asin_finite, dFd)
 GOW(asinh, dFd)
 GOW(asinhf, fFf)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(asinhl, DFD)
 #else
 GO2(asinhl, LFL, asinh)
 #endif
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(asinl, DFD)
 #else
 GO2(asinl, LFL, asin)
@@ -45,7 +45,7 @@ GOW(atanh, dFd)
 GOW(atanhf, fFf)
 // __atanhf_finite
 // __atanh_finite
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(atanhl, DFD)
 #else
 GO2(atanhl, LFL, atanh)
@@ -77,7 +77,7 @@ GO2(atanhl, LFL, atanh)
 // catanl   // Weak
 GOW(cbrt, dFd)
 GOW(cbrtf, fFf)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(cbrtl, DFD)
 #else
 GO2(cbrtl, LFL, cbrt)
@@ -151,13 +151,13 @@ GOS(csqrt, pFpdd)
 GOW(erf, dFd)
 GOW(erfc, dFd)
 GOW(erfcf, fFf)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(erfcl, DFD)
 #else
 GO2(erfcl, LFL, erfc)
 #endif
 GOW(erff, fFf)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(erfl, DFD)
 #else
 GO2(erfl, LFL, erf)
@@ -222,7 +222,7 @@ GOW(fmod, dFdd)
 GOW(fmodf, fFff)
 // __fmodf_finite
 // __fmod_finite
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(fmodl, DFDD)
 #else
 GO2(fmodl, LFLL, fmod)
@@ -231,7 +231,7 @@ GO(__fpclassify, iFd)
 GO(__fpclassifyf, iFf)
 GOW(frexp, dFdp)
 GOW(frexpf, fFfp)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(frexpl, DFDp)
 #else
 GO2(frexpl, LFLp, frexp)
@@ -276,12 +276,12 @@ GOW(lgamma, dFd)
 GOW(lgammaf, fFf)
 GOW(lgammaf_r, fFfp)
 // __lgammaf_r_finite
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(lgammal, DFD)
 #else
 GO2(lgammal, LFL, lgamma)
 #endif
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(lgammal_r, DFDp)
 #else
 GO2(lgammal_r, LFLp, lgamma_r)
@@ -345,7 +345,7 @@ GOW(pow, dFdd)
 GOW(powf, fFff)
 GO(__powf_finite, fFff)
 GO(__pow_finite, dFdd)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(powl, DFDD)
 #else
 GO2(powl, LFLL, pow)
@@ -394,7 +394,7 @@ GOW(sinhf, fFf)
 // sinl // Weak
 GOW(sqrt, dFd)
 GOW(sqrtf, fFf)
-GO(__sqrtf_finite, fVf)
+GO(__sqrtf_finite, fFf)
 GO(__sqrt_finite, dFd)
 // sqrtl    // Weak
 GO(tan, dFd)
@@ -405,7 +405,7 @@ GOW(tanhf, fFf)
 // tanl // Weak
 GOW(tgamma, dFd)
 GOW(tgammaf, fFf)
-#ifdef LD80BITS
+#ifdef HAVE_LD80BITS
 GOW(tgammal, DFD)
 #else
 GO2(tgammal, LFL, tgamma)

@@ -410,7 +410,7 @@ GOW(fstatvfs64, iFip)   // allignment?
 GOW(fsync, iFi)
 GOW(ftell, iFp)
 GO(ftello, uFp)
-GO(ftello64, Ifp)
+GO(ftello64, IFp)
 GO(ftime, iFp)
 GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
@@ -589,7 +589,7 @@ GOW(gettimeofday, iFpp)
 GO(__gettimeofday, iFpp)
 // getttyent
 // getttynam
-GOW(getuid, uPv)
+GOW(getuid, uFv)
 // getusershell
 // getutent // Weak
 // getutent_r   // Weak
