@@ -59,12 +59,15 @@ def main(root, defines):
 				elif ln.startswith("GO") and readline:
 					# ... then look at the second parameter of the line
 					ln = ln.split(",")[1].split(")")[0].strip()
+					
+					if ln[1] not in ["F"]:
+						raise NotImplementedError("Bad middle letter {0} ({1}:{2})".format(ln[1], filename, line[:-1]))
 					if any(c not in values for c in ln[2:]) or (('v' in ln[2:]) and (len(ln) > 3)):
 						old = ln
 						# This needs more work
 						acceptables = ['v', 'o', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
-							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[-1]))
+							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
 						# Ok, this is acceptable: there is 0, 1, stdout and void
 						ln = (ln
 							.replace("v", "")   # void   -> nothing
@@ -172,10 +175,10 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl:
-    		#		  E  		    e	 		   v  		c  			w  		i  			I  			C  			W  			u  			U  			f  		d  			D   		L			p  			V 
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              L         p        V
 			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*"]
 			if len(values) != len(types):
-    				raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
+					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
 			file.write("typedef " + types[values.index(v[0])] + " (*" + ''.join(v) + "_t)"
 				+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
@@ -196,7 +199,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			
 			arg = [
 				"emu, ",                          # E
-				"&emu, ",						  # e
+				"&emu, ",                         # e
 				"",                               # v
 				"*(int8_t*)(R_ESP + {p}), ",      # c
 				"*(int16_t*)(R_ESP + {p}), ",     # w
@@ -211,9 +214,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(long double*)(R_ESP + {p}), ", # D
 				"FromLD((void*)(R_ESP + {p})), ", # L
 				"*(void**)(R_ESP + {p}), ",       # p
-				"(void*)(R_ESP + {p}), "      	  # V
+				"(void*)(R_ESP + {p}), "          # V
 			]
-			#		  E  e  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  
+			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  
 			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
