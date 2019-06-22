@@ -15,7 +15,7 @@ def splitchar(s):
 		ret.append(values.index(c))
 	return ret
 
-def main(root):
+def main(root, defines):
 	# Initialize variables: gbl for all values, vals for file-per-file values, redirects for redirections
 	gbl = []
 	vals = {}
@@ -25,11 +25,38 @@ def main(root):
 	for filepath in glob.glob(os.path.join(root, "src", "wrapped*_private.h")):
 		filename = filepath.split("/")[-1]
 		locval = []
+		readline = True
 		with open(filepath, 'r') as file:
 			for line in file:
 				ln = line.strip()
+				# If the line is a `#' line (#ifdef LD80BITS/#ifndef LD80BITS/header)
+				if ln.startswith("#"):
+					preproc_cmd = ln[1:].strip()
+					try:
+						if preproc_cmd.startswith("if defined(GO)"):
+							continue #if defined(GO) && defined(GOM)...
+						elif preproc_cmd.startswith("if !(defined(GO)"):
+							continue #if !(defined(GO) && defined(GOM)...)
+						elif preproc_cmd.startswith("error"):
+							continue #error meh!
+						elif preproc_cmd.startswith("endif"):
+							readline = True
+						elif preproc_cmd.startswith("ifdef"):
+							readline = defines[preproc_cmd[5:].strip()]
+						elif preproc_cmd.startswith("ifndef"):
+							readline = not defines[preproc_cmd[6:].strip()]
+						elif preproc_cmd.startswith("else"):
+							readline = not readline
+						else:
+							raise NotImplementedError("Unknown preprocessor directive: {0} ({1}:{2})".format(
+								preproc_cmd.split(" ")[0], filename, line[:-1]
+							))
+					except KeyError as k:
+						raise NotImplementedError("Unknown key: {0} ({1}:{2})".format(
+							k.args[0], filename, line[:-1]
+						))
 				# If the line is a `GO...' line (GO/GOM/GO2/...)...
-				if ln.startswith("GO"):
+				elif ln.startswith("GO") and readline:
 					# ... then look at the second parameter of the line
 					ln = ln.split(",")[1].split(")")[0].strip()
 					if any(c not in values for c in ln[2:]) or (('v' in ln[2:]) and (len(ln) > 3)):
@@ -37,7 +64,7 @@ def main(root):
 						# This needs more work
 						acceptables = ['v', 'o', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
-							raise NotImplementedError("{0} ({1})".format(ln[2:], line))
+							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[-1]))
 						# Ok, this is acceptable: there is 0, 1, stdout and void
 						ln = (ln
 							.replace("v", "")   # void   -> nothing
@@ -229,6 +256,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 	return 0
 
 if __name__ == '__main__':
-	if main(sys.argv[1]) != 0:
+	defines = {}
+	for i in range(2, len(sys.argv), 2):
+		defines[sys.argv[i]] = sys.argv[i + 1] == "TRUE"
+	if main(sys.argv[1], defines) != 0:
 		exit(2)
 	exit(0)
