@@ -394,7 +394,7 @@ GOW(sinhf, fFf)
 // sinl // Weak
 GOW(sqrt, dFd)
 GOW(sqrtf, fFf)
-GO(__sqrtf_finite, fVf)
+GO(__sqrtf_finite, fFf)
 GO(__sqrt_finite, dFd)
 // sqrtl    // Weak
 GO(tan, dFd)

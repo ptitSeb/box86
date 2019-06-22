@@ -589,7 +589,7 @@ GOW(gettimeofday, iFpp)
 GO(__gettimeofday, iFpp)
 // getttyent
 // getttynam
-GOW(getuid, uPv)
+GOW(getuid, uFv)
 // getusershell
 // getutent // Weak
 // getutent_r   // Weak
