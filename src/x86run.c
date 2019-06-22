@@ -48,6 +48,8 @@ int Run(x86emu_t *emu)
     if(emu->quit)
         return 0;
 
+    old_ip = 0;
+
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, emu->context->stack);
 #define F8      *(uint8_t*)(ip++)
@@ -204,10 +206,7 @@ x86emurun:
 _trace:
     if(start_cnt) --start_cnt;
     emu->prev2_ip = emu->prev_ip;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     emu->prev_ip = old_ip;
-#pragma GCC diagnostic pop
     old_ip = ip;
     if(!start_cnt && emu->dec && (
             (emu->trace_end == 0) 
