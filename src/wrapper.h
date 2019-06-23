@@ -828,11 +828,20 @@ void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
 void uFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void vFppuiiiiipuiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 
+#if (!defined(HAVE_LD80BITS))
+void LFL(x86emu_t *emu, uintptr_t fnc);
+void LFLL(x86emu_t *emu, uintptr_t fnc);
+void LFLp(x86emu_t *emu, uintptr_t fnc);
+#endif
+
+#if (defined(NOALIGN)) || (!defined(NOALIGN))
+void iFEpppipppp(x86emu_t *emu, uintptr_t fnc);
+#endif
+
 #if (defined(NOALIGN))
 void IFpi(x86emu_t *emu, uintptr_t fnc);
 void dFpi(x86emu_t *emu, uintptr_t fnc);
 void iFppiiiip(x86emu_t *emu, uintptr_t fnc);
-void iFEpppipppp(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if (!defined(NOALIGN))
@@ -853,12 +862,6 @@ void iFEppiiiip(x86emu_t *emu, uintptr_t fnc);
 void DFD(x86emu_t *emu, uintptr_t fnc);
 void DFDD(x86emu_t *emu, uintptr_t fnc);
 void DFDp(x86emu_t *emu, uintptr_t fnc);
-#endif
-
-#if (!defined(HAVE_LD80BITS))
-void LFL(x86emu_t *emu, uintptr_t fnc);
-void LFLL(x86emu_t *emu, uintptr_t fnc);
-void LFLp(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 void iFEpvvpp(x86emu_t *emu, uintptr_t fnc);

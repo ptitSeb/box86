@@ -104,6 +104,9 @@ def main(root, defines):
 				continue
 			if gbl_vals.has_key(v):
 				for other_key in gbl_vals[v]:
+					if "!" + other_key == k:
+						gbl_vals[v].append(k)
+						break
 					if other_key == "()":
 						break
 					other_key_vals = other_key.split(" && ")
