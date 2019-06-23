@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <search.h>
+#include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
 
@@ -807,6 +808,20 @@ EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, 
     emu->context->atforks[emu->context->atfork_sz].parent = (uintptr_t)parent;
     emu->context->atforks[emu->context->atfork_sz++].child = (uintptr_t)child;
     return 0;
+}
+
+EXPORT uint32_t my___umoddi3(uint32_t a, uint32_t b)
+{
+    return a%b;
+}
+EXPORT uint32_t my___udivdi3(uint32_t a, uint32_t b)
+{
+    return a/b;
+}
+
+EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
+{
+    return poll(a, b, c);   // no check...
 }
 
 EXPORT struct __processor_model

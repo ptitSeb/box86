@@ -1752,7 +1752,7 @@ GOW(tcdrain, iFi)
 GO(tcflow, iFii)
 GO(tcflush, iFii)
 GOW(tcgetattr, iFip)
-// tcgetpgrp
+GO(tcgetpgrp, iFi)
 // tcgetsid
 GO(tcsendbreak, iFii)
 GO(tcsetattr, iFiip)
@@ -2103,6 +2103,10 @@ GOM(_ITM_memcpyRnWt, vFppu) // register(2)
 GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)
 GOM(_ITM_deregisterTMCloneTable, vFEp)
+
+GOM(__umoddi3, uFuu)
+GOM(__udivdi3, uFuu)
+GOM(__poll_chk, iFpuii)
 
 DATAM(__libc_stack_end, 4)
 
