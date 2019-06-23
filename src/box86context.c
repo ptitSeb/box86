@@ -40,6 +40,7 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_once, NULL);
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
+    pthread_mutex_init(&context->mutex_lock, NULL);
 
     return context;
 }
@@ -98,6 +99,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_once);
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);
+    pthread_mutex_destroy(&(*context)->mutex_lock);
 
     if((*context)->atfork_sz) {
         free((*context)->atforks);

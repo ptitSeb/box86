@@ -242,65 +242,7 @@ _trace:
     #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];
 #endif
 
-// ModRM utilities macros
-#define getecommon(A, T) \
-    if(!(nextop&0xC0)) { \
-        if((nextop&7)==4) { \
-            uint8_t sib = F8; \
-            uintptr_t base = ((sib&0x7)==5)?(F32):(emu->regs[(sib&0x7)].dword[0]); \
-            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6)); \
-            A = (T*)base; \
-        } else if((nextop&7)==5) { \
-            A = (T*)F32; \
-        } else { \
-            A = (T*)emu->regs[nextop&7].dword[0]; \
-        } \
-    } else { \
-        uintptr_t base; \
-        if((nextop&7)==4) { \
-            uint8_t sib = F8;   \
-            base = emu->regs[(sib&0x7)].dword[0]; \
-            base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));   \
-        } else { \
-            base = emu->regs[(nextop&0x7)].dword[0];    \
-        } \
-        base+=(nextop&0x80)?(F32S):(F8S); \
-        A = (T*)base; \
-    }
-#define geteb(A) \
-    if((nextop&0xC0)==0xC0) { \
-        A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
-    } else getecommon(A, reg32_t)
-#define geted(A) \
-    if((nextop&0xC0)==0xC0) { \
-        A = &emu->regs[(nextop&7)]; \
-    } else getecommon(A, reg32_t)
-#define getem(A) \
-    if((nextop&0xC0)==0xC0) { \
-        A = &emu->mmx[(nextop&7)]; \
-    } else getecommon(A, mmx_regs_t)
-#define getex(A) \
-    if((nextop&0xC0)==0xC0) { \
-        A = &emu->xmm[(nextop&7)]; \
-    } else getecommon(A, sse_regs_t)
-// Macros for ModR/M gets
-#define GET_EB      geteb(oped)
-#define GET_ED      geted(oped)
-#define GET_EM      getem(opem)
-#define GET_EX      getex(opex)
-#define EB          oped
-#define ED          oped
-#define EM          opem
-#define EX          opex
-#define GB          emu->regs[(nextop>>3)&3].byte[(nextop>>5)&0x1]
-#define GD          emu->regs[((nextop&0x38)>>3)]
-#define GM          emu->mmx[((nextop&0x38)>>3)]
-#define GX          emu->xmm[((nextop&0x38)>>3)]
-
-// Alias
-#define GET_EW      GET_ED
-#define EW          ED
-#define GW          GD
+#include "modrm.h"
 
     opcode = F8;
     goto *baseopcodes[opcode];
@@ -476,127 +418,13 @@ _trace:
             NEXT;
 
         _0x65:                      /* GS: */
-            // TODO: set a new decoder function?
-            opcode = F8;
-            switch(opcode) {
-                case 0x33:              /* XOR Gd,Ed */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
-                    break;
-                case 0x81:              /* GRP Ed,Id */
-                case 0x83:              /* GRP Ed,Ib */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    if(opcode==0x83) {
-                        tmp32s = F8S;
-                        tmp32u = (uint32_t)tmp32s;
-                    } else
-                        tmp32u = F32;
-                    switch((nextop>>3)&7) {
-                        case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
-                        case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
-                        case 2: ED->dword[0] = adc32(emu, ED->dword[0], tmp32u); break;
-                        case 3: ED->dword[0] = sbb32(emu, ED->dword[0], tmp32u); break;
-                        case 4: ED->dword[0] = and32(emu, ED->dword[0], tmp32u); break;
-                        case 5: ED->dword[0] = sub32(emu, ED->dword[0], tmp32u); break;
-                        case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
-                        case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
-                    }
-                    break;
-                case 0x89:              /* MOV Ed,Gd */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    ED->dword[0] = GD.dword[0];
-                    break;
-                case 0x8B:              /* MOV Gd,Ed */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    GD.dword[0] = ED->dword[0];
-                    break;
-                case 0xA1:              /* MOV EAX,Ov */
-                    tmp32u = F32;
-                    R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
-                    break;
-
-                case 0xA3:             /* MOV Od,EAX */
-                    tmp32u = F32;
-                    *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u) = R_EAX;
-                    break;
-
-                case 0xC7:              /* MOV Ed,Id */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    ED->dword[0] = F32;
-                    break;
-
-                case 0xFF:              /* GRP 5 Ed */
-                    nextop = F8;
-                    GET_ED;
-                    ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
-                    switch((nextop>>3)&7) {
-                        case 0:                 /* INC Ed */
-                            ED->dword[0] = inc32(emu, ED->dword[0]);
-                            break;
-                        case 1:                 /* DEC Ed */
-                            ED->dword[0] = dec32(emu, ED->dword[0]);
-                            break;
-                        case 2:                 /* CALL NEAR Ed */
-                            Push(emu, ip);
-                            ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
-                            break;
-                        case 3:                 /* CALL FAR Ed */
-                            if(nextop>0xc0) {
-                                emu->old_ip = old_ip;
-                                R_EIP = ip;
-                                printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
-                                emu->quit=1;
-                                emu->error |= ERR_ILLEGAL;
-                                goto fini;
-                            } else {
-                                Push16(emu, R_CS);
-                                Push(emu, ip);
-                                ip = ED->dword[0];
-                                R_CS = (ED+1)->word[0];
-                            }
-                            break;
-                        case 4:                 /* JMP NEAR Ed */
-                            ip = ED->dword[0];
-                            break;
-                        case 5:                 /* JMP FAR Ed */
-                            if(nextop>0xc0) {
-                                emu->old_ip = old_ip;
-                                R_EIP = ip;
-                                printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
-                                emu->quit=1;
-                                emu->error |= ERR_ILLEGAL;
-                                goto fini;
-                            } else {
-                                ip = ED->dword[0];
-                                R_CS = (ED+1)->word[0];
-                            }
-                            break;
-                        case 6:                 /* Push Ed */
-                            Push(emu, ED->dword[0]);
-                            break;
-                        default:
-                            emu->old_ip = old_ip;
-                            R_EIP = ip;
-                            printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
-                            emu->quit=1;
-                            emu->error |= ERR_ILLEGAL;
-                            goto fini;
-                    }
-                    break;
-                default:
-                    goto _default;
-            }
+            emu->old_ip = old_ip;
+            R_EIP = ip;
+            RunGS(emu); // implemented in Run66.c
+            ip = R_EIP;
+            if(emu->quit) goto fini;
             NEXT;
+
         _0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
             #include "run66.h"
         _0x67:                      /* Prefix to change width of registers */
@@ -765,16 +593,20 @@ _trace:
         _0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
             GET_EB;
+            pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK
             tmp8u = GB;
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
+            pthread_mutex_unlock(&emu->context->mutex_lock);
             NEXT;
         _0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
             GET_ED;
+            pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK
             tmp32u = GD.dword[0];
             GD.dword[0] = ED->dword[0];
             ED->dword[0] = tmp32u;
+            pthread_mutex_unlock(&emu->context->mutex_lock);
             NEXT;
         _0x88:                      /* MOV Eb,Gb */
             nextop = F8;
@@ -1162,6 +994,11 @@ _trace:
             NEXT;
 
         _0xF0:                      /* LOCK */
+            emu->old_ip = old_ip;
+            R_EIP = ip;
+            RunLock(emu); // implemented in Run66.c
+            ip = R_EIP;
+            if(emu->quit) goto fini;
             NEXT;
 
         _0xF2:                      /* REPNZ prefix */
