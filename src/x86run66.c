@@ -298,7 +298,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     pthread_mutex_unlock(&emu->context->mutex_lock);
-                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, nextop);
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, PK(0));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     break;
