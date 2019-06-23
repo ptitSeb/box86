@@ -213,6 +213,20 @@ void RunLock(x86emu_t *emu)
                         CLEAR_FLAG(F_CF);
                     ED->dword[0] ^= (1<<tmp8u);
                     break;
+                case 0xC0:                      /* XADD Gb,Eb */
+                    nextop = F8;
+                    GET_EB;
+                    tmp8u = add8(emu, EB->byte[0], GB);
+                    GB = EB->byte[0];
+                    EB->byte[0] = tmp8u;
+                    break;
+                case 0xC1:                      /* XADD Gd,Ed */
+                    nextop = F8;
+                    GET_ED;
+                    tmp32u = add32(emu, ED->dword[0], GD.dword[0]);
+                    GD.dword[0] = ED->dword[0];
+                    ED->dword[0] = tmp32u;
+                    break;
                 case 0xC7:                      /* CMPXCHG8B Gq */
                     CHECK_FLAGS(emu);
                     nextop = F8;
@@ -231,7 +245,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     pthread_mutex_unlock(&emu->context->mutex_lock);
-                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, nextop);
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x0F 0x%02X 0x%02X\n", opcode, nextop);
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     break;
@@ -272,37 +286,6 @@ void RunLock(x86emu_t *emu)
             GD.dword[0] = ED->dword[0];
             ED->dword[0] = tmp32u;
             break;
-        // this should not be allowed, but it seem it is used...
-        case 0xC0:                      /* GRP2 Eb,Ib */
-            nextop = F8;
-            GET_EB;
-            tmp8u = F8/* & 0x1f*/; // masking done in each functions
-            switch((nextop>>3)&7) {
-                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
-                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
-                case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
-                case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
-                case 4:
-                case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
-                case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
-                case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
-            }
-            break;
-        case 0xC1:                      /* GRP2 Ed,Ib */
-            nextop = F8;
-            GET_ED;
-            tmp8u = F8/* & 0x1f*/; // masking done in each functions
-            switch((nextop>>3)&7) {
-                case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
-                case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
-                case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
-                case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
-                case 4:
-                case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
-                case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
-                case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
-            }
-            break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
@@ -315,7 +298,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     pthread_mutex_unlock(&emu->context->mutex_lock);
-                    printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, nextop);
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     break;
