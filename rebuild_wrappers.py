@@ -43,9 +43,11 @@ def main(root, defines):
 							if dependants != []:
 								dependants.pop()
 						elif preproc_cmd.startswith("ifdef"):
+							defines[preproc_cmd[5:].strip()]
 							dependants.append("defined(" + preproc_cmd[5:].strip() + ")")
 						elif preproc_cmd.startswith("ifndef"):
-							dependants.append("!defined(" + preproc_cmd[5:].strip() + ")")
+							defines[preproc_cmd[5:].strip()]
+							dependants.append("!defined(" + preproc_cmd[6:].strip() + ")")
 						elif preproc_cmd.startswith("else"):
 							before = dependants.pop()
 							if before.startswith("!"):
