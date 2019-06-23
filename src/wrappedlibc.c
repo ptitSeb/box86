@@ -810,11 +810,11 @@ EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, 
     return 0;
 }
 
-EXPORT uint32_t my___umoddi3(uint32_t a, uint32_t b)
+EXPORT uint64_t my___umoddi3(uint64_t a, uint64_t b)
 {
     return a%b;
 }
-EXPORT uint32_t my___udivdi3(uint32_t a, uint32_t b)
+EXPORT uint64_t my___udivdi3(uint64_t a, uint64_t b)
 {
     return a/b;
 }

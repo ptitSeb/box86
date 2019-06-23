@@ -2104,8 +2104,8 @@ GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)
 GOM(_ITM_deregisterTMCloneTable, vFEp)
 
-GOM(__umoddi3, uFuu)
-GOM(__udivdi3, uFuu)
+GOM(__umoddi3, UFUU)
+GOM(__udivdi3, UFUU)
 GOM(__poll_chk, iFpuii)
 
 DATAM(__libc_stack_end, 4)
