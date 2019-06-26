@@ -39,6 +39,12 @@
 #include "myalign.h"
 #include "signals.h"
 
+#ifdef PANDORA
+#ifndef __NR_sendmmsg
+#define __NR_sendmmsg			(__NR_SYSCALL_BASE+374)
+#endif
+#endif
+
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
