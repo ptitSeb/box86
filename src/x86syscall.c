@@ -29,6 +29,8 @@
 #include "box86context.h"
 #include "callback.h"
 
+int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
+
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
     int x86s;
@@ -243,6 +245,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
             return;
         case 270:
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
+            return;
+        case 355:
+            // get_random
+            R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
             return;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);

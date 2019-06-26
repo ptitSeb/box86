@@ -1374,7 +1374,7 @@ GOW(re_search_2, iFppipiiipi)
 // re_set_syntax    // Weak
 // _res_hconf   // type B
 GO(__res_iclose, vFpi)
-// __res_init
+GO(__res_init, iFv)
 GO(__res_maybe_init, iFpi)
 GO(__res_nclose, vFp)
 GO(__res_ninit, iFp)
