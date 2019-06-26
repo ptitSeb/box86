@@ -235,7 +235,7 @@ GO(endpwent, vFv)
 // endspent
 // endttyent
 // endusershell
-// endutent // Weak
+GOW(endutent, vFv)
 // endutxent
 DATAV(environ, 4)
 DATAV(_environ, 4)
@@ -312,7 +312,7 @@ GOW(feof, iFp)
 // feof_unlocked
 GOW(ferror, iFp)
 // ferror_unlocked
-// fexecve
+GO(fexecve, iFipp)  //TODO: Check if needed to be wrapped, and target checked for x86 / native?
 GOW(fflush, iFp)
 // fflush_unlocked
 GO(ffs, iFi)
@@ -349,7 +349,7 @@ GOW(finitef, iFf)
 // finitel  // Weak
 // __finitel
 // __flbf
-// flistxattr
+GO(flistxattr, iFipu)
 GOW(flock, pFi)
 GOW(flockfile, vFp)
 // _flushlbf    // Weak
@@ -483,7 +483,7 @@ GO(getgrgid, pFu)
 GO(getgrgid_r, iFuppup)
 GO(getgrnam, pFp)
 GO(getgrnam_r, iFpppup)
-// getgrouplist
+GO(getgrouplist, iFpipp)
 GOW(getgroups, iFiu)
 // __getgroups_chk
 GO(gethostbyaddr, pFpui)
@@ -546,7 +546,7 @@ GO(getprotobynumber, pFi)
 // getprotobynumber_r
 GO(getprotoent, pFv)
 // getprotoent_r
-// getpt    // Weak
+GOW(getpt, iFv)
 // getpublickey
 // getpw    // Weak
 GO(getpwent, pFv)
@@ -593,11 +593,11 @@ GO(__gettimeofday, iFpp)
 GOW(getuid, uFv)
 // getusershell
 // getutent // Weak
-// getutent_r   // Weak
-// getutid  // Weak
-// getutid_r    // Weak
-// getutline    // Weak
-// getutline_r  // Weak
+GOW(getutent_r, iFpp)
+GOW(getutid, pFp)
+GOW(getutid_r, iFppp)
+GOW(getutline, pFp)
+GOW(getutline_r, iFppp)
 // getutmp
 // getutmpx
 // getutxent
@@ -626,7 +626,7 @@ GOW(gnu_get_libc_release, pFv)
 GOW(gnu_get_libc_version, pFv)
 // __gnu_mcount_nc
 // __gnu_Unwind_Find_exidx
-// grantpt
+GO(grantpt, iFi)
 // group_member // Weak
 // gsignal  // Weak
 // gtty
@@ -1016,10 +1016,10 @@ GOM(__libc_start_main, iFEpippppp)
 GOW(link, iFpp)
 // linkat
 GOW(listen, iFii)
-// listxattr
+GO(listxattr, iFppu)
 // llabs
 // lldiv
-// llistxattr
+GO(llistxattr, iFppu)
 // llseek   // Weak
 // loc1 // type B
 // loc2 // type B
@@ -1278,8 +1278,8 @@ DATAV(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
 GO(ptrace, iFiupp)  // will that work???
-// ptsname
-// ptsname_r    // Weak
+GO(ptsname, pFi)
+GOW(ptsname_r, iFipu)
 // __ptsname_r_chk
 GOW(putc, iFip)
 GO(putchar, iFi)
@@ -1292,7 +1292,7 @@ GO(putenv, iFp)
 // putpwent
 GOW(puts, iFp)
 // putspent
-// pututline    // Weak
+GOW(pututline, pFp)
 // pututxline
 // putw
 GO(putwc, iFip)
@@ -1420,13 +1420,13 @@ GO(__sched_get_priority_max, iFi)
 GOW(sched_get_priority_max, iFi)
 GO(__sched_get_priority_min, iFi)
 GOW(sched_get_priority_min, iFi)
-// __sched_getscheduler
-// sched_getscheduler   // Weak
+GO(__sched_getscheduler, iFi)
+GOW(sched_getscheduler, iFi)
 // sched_rr_get_interval    // Weak
 GO(sched_setaffinity, iFiup)
 // sched_setparam   // Weak
-// __sched_setscheduler
-// sched_setscheduler   // Weak
+GO(__sched_setscheduler, iFiip)
+GOW(sched_setscheduler, iFiip)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
@@ -1501,7 +1501,7 @@ GOW(setstate_r, iFpp)
 // setttyent
 GOW(setuid, iFu)
 // setusershell
-// setutent // Weak
+GOW(setutent, vFv)
 // setutxent
 GOW(setvbuf, iFppiu)
 // setxattr
@@ -1526,7 +1526,7 @@ GO(sigfillset, iFp)
 GO(siggetmask, iFv)
 // sighold
 // sigignore
-// siginterrupt
+GO(siginterrupt, iFii)  // no need to wrap this one?
 // sigisemptyset
 GO(sigismember, iFpi)
 // __sigismember
@@ -1804,8 +1804,8 @@ GOW(towupper_l, iFip)
 // truncate // Weak
 GO(truncate64, iFpU)
 // tsearch  // Weak
-// ttyname
-// ttyname_r    // Weak
+GO(ttyname, pFi)
+GOW(ttyname_r, iFipu)
 // __ttyname_r_chk
 // ttyslot
 // twalk    // Weak
@@ -1825,10 +1825,10 @@ GOW(ungetc, iFip)
 GO(ungetwc, iFip)
 GOW(unlink, iFp)
 // unlinkat
-// unlockpt
+GO(unlockpt, iFi)
 GOW(unsetenv, iFp)
 // unshare
-// updwtmp  // Weak
+GOW(updwtmp, vFpp)
 // updwtmpx
 // uselib
 GOW(uselocale, pFp)
@@ -1839,7 +1839,7 @@ GO(usleep, iFu)
 GO(utime, iFpp)
 GO(utimensat, iFippi)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
-// utmpname // Weak
+GOW(utmpname, iFp)
 // utmpxname
 GOW(valloc, pFu)
 GOM(vasprintf, iFEppVV)
