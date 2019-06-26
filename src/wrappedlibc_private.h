@@ -6,6 +6,7 @@
 GO(abort, vFv)      // Should be GOM once signal are handled properly
 GO(abs, iFi)
 GOW(accept, iFipp)
+GOM(accept4, iFEippi)   // glibc 2.10+
 GOW(access, iFpi)
 // acct
 GOW(addmntent, iFpp)
@@ -148,7 +149,7 @@ GOW(close, iFi)
 GOW(closedir, iFp)
 GO(closelog, vFv)
 // __cmsg_nxthdr
-// confstr
+GO(confstr, uFipu)
 // __confstr_chk
 GOW(connect, iFipu)
 GOW(__connect, iFipu)
@@ -158,7 +159,7 @@ GOW(__connect, iFipu)
 GOW(creat, iFpu)
 GO(creat64, iFpu)
 // create_module    // Weak
-// ctermid
+GO(ctermid, pFp)
 GO(ctime, pFp)
 GO(ctime_r, pFpp)
 DATAM(__ctype_b, 4)
@@ -288,15 +289,15 @@ GOM(execvp, iFEpVV)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
-// faccessat
+GO(faccessat, iFipii)
 // fattach
 // __fbufsize
 GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
-// fchmodat
+GO(fchmodat, iFipui)
 GOW(fchown, iFiuu)
-// fchownat
+GO(fchownat, iFipuii)
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
 GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
@@ -339,7 +340,7 @@ GO(fgetws, pFpip)
 // __fgetws_chk
 // fgetws_unlocked
 // __fgetws_unlocked_chk
-// fgetxattr
+GO(fgetxattr, iFippu)
 GO(fileno, iFp)
 // fileno_unlocked  // Weak
 GOW(finite, iFd)
@@ -390,7 +391,7 @@ DATAV(__free_hook, 4)
 GO(freeifaddrs, vFp)
 GOW(freelocale, vFp)
 GO(__freelocale, vFp)
-// fremovexattr
+GO(fremovexattr, iFip)
 GO(freopen, pFppp)
 GO(freopen64, pFppp)
 // frexp    // Weak
@@ -403,7 +404,7 @@ GO(fseeko64, iFpIi)
 // __fsetlocking
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
-// fsetxattr
+GO(fsetxattr, iFippui)
 // fstatfs  // Weak
 GOW(fstatfs64, iFip)
 // fstatvfs
@@ -425,7 +426,7 @@ GOW(ftrylockfile, iFp)
 // ftw
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
-// futimens
+GO(futimens, iFip)
 GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
 // futimesat
 // fwide
@@ -439,7 +440,7 @@ GOW(fwrite, uFpuup)
 GO(__fxstat, iFiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
 // __fxstatat
-// __fxstatat64
+GOM(__fxstatat64, iFEiippi) // struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, pFi)
 // __gconv_get_alias_db
@@ -499,10 +500,10 @@ GOW(gethostname, iFpu)
 // __gethostname_chk
 GO(getifaddrs, iFp)
 // getipv4sourcefilter
-// getitimer    // Weak
+GOW(getitimer, iFip)
 // get_kernel_syms  // Weak
 GOW(getline, iFppp)
-// getloadavg
+GO(getloadavg, iFpi)
 GO(getlogin, pFv)
 GO(getlogin_r, iFpu)
 // __getlogin_r_chk
@@ -572,7 +573,7 @@ GOW(gets, pFp)
 // getsecretkey
 GO(getservbyname, pFpp)
 GO(getservbyname_r, iFppppup)
-// getservbyport
+GO(getservbyport, pFip)
 GO(getservbyport_r, iFipppup)
 // getservent
 GO(getservent_r, iFppup)
@@ -610,7 +611,7 @@ GO2(getwc, iFp, fgetwc)
 // getwc_unlocked   // Weak
 GO(getwd, pFp)
 // __getwd_chk
-// getxattr
+GO(getxattr, iFpppu)
 GOM(glob, iFEpipp)
 // glob64
 GO(globfree, vFp)
@@ -650,9 +651,9 @@ GO(iconv, uFupppp)
 GO(iconv_close, iFu)
 GO(iconv_open, uFpp)
 GO(iconv_canonicalize, pFp)
-// if_freenameindex
+GO(if_freenameindex, vFp)
 GO(if_indextoname, pFup)
-// if_nameindex
+GO(if_nameindex, pFv)
 GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 // imaxdiv  // Weak
@@ -978,7 +979,7 @@ GOW(lchown, iFpuu)
 // ldexpl   // Weak
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 GOM(lfind, pFEpppup)
-// lgetxattr
+GO(lgetxattr, iFpppu)
 GO(__libc_alloca_cutoff, iFu)
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
@@ -1014,7 +1015,7 @@ GOM(__libc_start_main, iFEpippppp)
 // __libc_thread_freeres
 // __libc_valloc
 GOW(link, iFpp)
-// linkat
+GO(linkat, iFipipi)
 GOW(listen, iFii)
 GO(listxattr, iFppu)
 // llabs
@@ -1034,12 +1035,12 @@ GOM(_longjmp, vFEpi)
 GOM(__longjmp_chk, vFEpi)
 // lrand48
 // lrand48_r
-// lremovexattr
+GO(lremovexattr, iFpp)
 GOM(lsearch, pFEpppup)
 GOW(lseek, iFiii)
 // __lseek  // Weak
 GOW(lseek64, IFiIi)
-// lsetxattr
+GO(lsetxattr, iFpppui)
 // lutimes
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
@@ -1095,10 +1096,10 @@ GO(memset, pFpiu)
 GO(__memset_chk, pFpiuu)
 // mincore
 GOW(mkdir, iFpu)
-// mkdirat
+GO(mkdirat, iFipu)
 GO(mkdtemp, pFp)
 GO(mkfifo, iFpu)
-// mkfifoat
+GO(mkfifoat, iFipu)
 GO(mkostemp, iFpi)
 GO(mkostemp64, iFpi)
 GO(mkstemp, iFp)
@@ -1192,10 +1193,10 @@ GOM(__open, iFEpiu) //Weak
 // __open_2
 GOM(open64, iFEpiu) //Weak
 // __open64 // Weak
-// __open64_2
+GO(__open64_2, iFpi)
 // openat   // Weak
 // __openat_2
-// openat64 // Weak
+GOW(openat64, iFipiuuuuu)   // variable arg...
 // __openat64_2
 // __open_catalog
 GOW(opendir, pFp)
@@ -1213,7 +1214,7 @@ DATA(optopt, 4)
 // parse_printf_format
 // passwd2des
 GOW(pathconf, iFpi)
-// pause    // Weak
+GOW(pause, iFv)
 GO(pclose, iFp)
 GO(perror, vFp)
 // personality  // Weak
@@ -1231,8 +1232,8 @@ GO(__poll, iFpui)
 GO(popen, pFpp)
 GO(posix_fadvise, iFiuui)
 GO(posix_fadvise64, iFiuui)
-// posix_fallocate
-// posix_fallocate64
+GO(posix_fallocate, iFiii)
+GO(posix_fallocate64, iFiII)
 // posix_madvise
 GOW(posix_memalign, iFpuu)
 // posix_openpt // Weak
@@ -1263,6 +1264,7 @@ GOW(pread, iFipui)
 GOW(pread64, iFipuI)
 // __pread64    // Weak
 // __pread64_chk
+GOM(preadv64, iFEipiI)  // not always present
 // __pread_chk
 GOM(printf, iFEpVV)
 GOM(__printf_chk, iFEvpVV)
@@ -1303,6 +1305,7 @@ GO(putwc, iFip)
 // pwrite   // Weak
 GOW(pwrite64, iFiuI)
 // __pwrite64   // Weak
+GOM(pwritev64, iFEipiI)  // not always present
 // qecvt
 // qecvt_r
 // qfcvt
@@ -1331,7 +1334,7 @@ GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOW(readdir_r, iFppp)
 GOM(readlink, iFEppu)
-// readlinkat
+GO(readlinkat, iFippu)
 // __readlinkat_chk
 // __readlink_chk
 GO(readv, iFipi)
@@ -1360,10 +1363,10 @@ GOM(__register_atfork, iFEppp)  // ignoring last pointer parameter (dso_handle)
 // re_match // Weak
 // re_match_2   // Weak
 GO(remove, iFp)
-// removexattr
+GO(removexattr, iFpp)
 // remque
 GO(rename, iFpp)
-// renameat
+GO(renameat, iFipip)
 // _res // type B
 GOW(re_search, iFppiiip)
 GOW(re_search_2, iFppipiiipi)
@@ -1409,22 +1412,22 @@ GO(readdir64_r, iFppp)  // is this present?
 GOM(scandir, iFEpppp)
 GOM(scandir64, iFEpppp)
 GO2(scanf, iFpp, vscanf)
-// __sched_cpualloc
+GO(__sched_cpualloc, pFu)   //TODO: check, return cpu_set_t* : should this be aligned/changed?
 GO(__sched_cpucount, iFup)
-// __sched_cpufree
+GO(__sched_cpufree, vFp)
 GO(sched_getaffinity, iFiup)
 // sched_getcpu
-// __sched_getparam
-// sched_getparam   // Weak
+GO(__sched_getparam, iFip)
+GOW(sched_getparam, iFip)
 GO(__sched_get_priority_max, iFi)
 GOW(sched_get_priority_max, iFi)
 GO(__sched_get_priority_min, iFi)
 GOW(sched_get_priority_min, iFi)
 GO(__sched_getscheduler, iFi)
 GOW(sched_getscheduler, iFi)
-// sched_rr_get_interval    // Weak
+GOW(sched_rr_get_interval, iFip)
 GO(sched_setaffinity, iFiup)
-// sched_setparam   // Weak
+GOW(sched_setparam, iFip)
 GO(__sched_setscheduler, iFiip)
 GOW(sched_setscheduler, iFiip)
 GO(__sched_yield, iFv)
@@ -1504,7 +1507,7 @@ GOW(setuid, iFu)
 GOW(setutent, vFv)
 // setutxent
 GOW(setvbuf, iFppiu)
-// setxattr
+GO(setxattr, iFpppui)
 // sgetspent
 // sgetspent_r  // Weak
 GOW(shmat, pFipi)
@@ -1549,10 +1552,10 @@ GOW(sigsetmask, iFi)
 // sigstack
 GOW(sigsuspend, iFp)
 // __sigsuspend
-// sigtimedwait // Weak
+GOW(sigtimedwait, iFppp)
 GOW(sigvec, iFipp)
-// sigwait  // Weak
-// sigwaitinfo  // Weak
+GOW(sigwait, iFpp)
+GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
 GOM(snprintf, iFEpupVV)
 GOM(__snprintf_chk, iFEpuvvpVV)
@@ -1730,7 +1733,7 @@ GOM(swprintf, iFEpupV)
 GOM(__swprintf_chk, iFEpuiupV)
 GO2(swscanf, iFppV, vswscanf)     // swscanf va_list is only pointer, no realign to do
 GOW(symlink, iFpp)
-// symlinkat
+GO(symlinkat, iFpip)
 GO(sync, vFv)
 // sync_file_range
 GOM(syscall, uFE)
@@ -1759,7 +1762,7 @@ GO(tcgetpgrp, iFi)
 // tcgetsid
 GO(tcsendbreak, iFii)
 GO(tcsetattr, iFiip)
-// tcsetpgrp
+GO(tcsetpgrp, iFii)
 // tdelete  // Weak
 // tdestroy // Weak
 // tee
@@ -1824,7 +1827,7 @@ GOW(uname, iFp)
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
 GOW(unlink, iFp)
-// unlinkat
+GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
 GOW(unsetenv, iFp)
 // unshare
@@ -1924,7 +1927,7 @@ GO(wcsncat, pFppu)
 // __wcsncat_chk
 GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
-// __wcsncpy_chk
+GO(__wcsncpy_chk, pFppuu)
 // wcsnlen  // Weak
 GOW(wcsnrtombs, uFppuup)
 // __wcsnrtombs_chk
@@ -2077,7 +2080,7 @@ GOW(writev, iFipi)
 // xdr_wrapstring
 // xencrypt
 GO(__xmknod, iFipup)
-// __xmknodat
+GO(__xmknodat, iFiipip)
 GO(__xpg_basename, pFp)
 // __xpg_sigpause   // Weak
 GO(__xpg_strerror_r, pFipu)

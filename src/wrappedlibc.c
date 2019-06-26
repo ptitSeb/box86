@@ -23,6 +23,7 @@
 #include <sys/epoll.h>
 #include <ftw.h>
 #include <sys/syscall.h> 
+#include <sys/socket.h>
 
 #include "wrappedlibs.h"
 
@@ -40,6 +41,15 @@
 #include "signals.h"
 
 #ifdef PANDORA
+#ifndef __NR_preadv
+#define __NR_preadv                     (__NR_SYSCALL_BASE+361)
+#endif
+#ifndef __NR_pwritev
+#define __NR_pwritev                    (__NR_SYSCALL_BASE+362)
+#endif
+#ifndef __NR_accept4
+#define __NR_accept4                    (__NR_SYSCALL_BASE+366)
+#endif
 #ifndef __NR_sendmmsg
 #define __NR_sendmmsg			(__NR_SYSCALL_BASE+374)
 #endif
@@ -52,7 +62,9 @@ const char* libcName = "libc.so.6";
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
+typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
+typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 typedef struct libc_my_s {
@@ -456,6 +468,14 @@ EXPORT int my___lxstat64(x86emu_t* emu, int v, void* name, void* buf)
 {
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my___fxstatat64(x86emu_t* emu, int v, int d, void* path, void* buf, int flags)
+{
+    struct  stat64 st;
+    int r = fstatat64(d, path, &st, flags);
     UnalignStat64(&st, buf);
     return r;
 }
@@ -882,6 +902,38 @@ EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1, d2, d3, d4);   // should be enough
     return fcntl(a, b, d1, d2, d3, d4, d5, d6);
+}
+
+EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
+{
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "preadv64");
+    if(f)
+        return ((iFipiI_t)f)(fd, v, c, o);
+    return syscall(__NR_preadv, fd, v, c,(uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
+}
+
+EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
+{
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "pwritev64");
+    if(f)
+        return ((iFipiI_t)f)(fd, v, c, o);
+    return syscall(__NR_pwritev, fd, v, c,(uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
+}
+
+EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags)
+{
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "accept4");
+    if(f)
+        return ((iFippi_t)f)(fd, a, l, flags);
+    if(!flags)
+        return accept(fd, a, l);
+    return syscall(__NR_accept4, fd, a, l, flags);
 }
 
 EXPORT struct __processor_model
