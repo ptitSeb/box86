@@ -30,7 +30,7 @@ GO(dbus_connection_close, vFp)
 //GO(dbus_connection_free_preallocated_send, 
 //GO(dbus_connection_get_adt_audit_session_data, 
 //GO(dbus_connection_get_data, 
-//GO(dbus_connection_get_dispatch_status, 
+GO(dbus_connection_get_dispatch_status, iFp)
 //GO(dbus_connection_get_is_anonymous, 
 //GO(dbus_connection_get_is_authenticated, 
 GO(dbus_connection_get_is_connected, iFp)
@@ -69,7 +69,7 @@ GO(dbus_connection_set_exit_on_disconnect, vFpi)
 //GO(dbus_connection_set_max_message_size, 
 //GO(dbus_connection_set_max_received_size, 
 //GO(dbus_connection_set_route_peer_messages, 
-//GO(dbus_connection_set_timeout_functions, 
+GOM(dbus_connection_set_timeout_functions, iFEpppppp)
 //GO(dbus_connection_set_unix_user_function, 
 //GO(dbus_connection_set_wakeup_main_function, 
 //GO(dbus_connection_set_watch_functions, 
@@ -77,7 +77,7 @@ GO(dbus_connection_set_exit_on_disconnect, vFpi)
 //GO(dbus_connection_steal_borrowed_message, 
 //GO(dbus_connection_try_register_fallback, 
 //GO(dbus_connection_try_register_object_path, 
-//GO(dbus_connection_unref, 
+GO(dbus_connection_unref, vFp)
 //GO(dbus_connection_unregister_object_path, 
 //GO(dbus_error_free, 
 //GO(dbus_error_has_name, 
@@ -129,13 +129,13 @@ GO(dbus_connection_set_exit_on_disconnect, vFpi)
 //GO(dbus_message_iter_close_container, 
 //GO(dbus_message_iter_get_arg_type, 
 //GO(dbus_message_iter_get_array_len, 
-//GO(dbus_message_iter_get_basic, 
+GO(dbus_message_iter_get_basic, vFpp)
 //GO(dbus_message_iter_get_element_type, 
 //GO(dbus_message_iter_get_fixed_array, 
 //GO(dbus_message_iter_get_signature, 
 //GO(dbus_message_iter_has_next, 
 GO(dbus_message_iter_init, iFpp)
-//GO(dbus_message_iter_init_append, 
+GO(dbus_message_iter_init_append, vFpp)
 //GO(dbus_message_iter_next, 
 //GO(dbus_message_iter_open_container, 
 //GO(dbus_message_iter_recurse, 
@@ -205,11 +205,11 @@ GO(dbus_parse_address, iFpppp)
 //GO(dbus_signature_validate_single, 
 //GO(dbus_threads_init, 
 //GO(dbus_threads_init_default, 
-//GO(dbus_timeout_get_data, 
-//GO(dbus_timeout_get_enabled, 
-//GO(dbus_timeout_get_interval, 
-//GO(dbus_timeout_handle, 
-//GO(dbus_timeout_set_data, 
+GO(dbus_timeout_get_data, pFp)
+GO(dbus_timeout_get_enabled, iFp)
+GO(dbus_timeout_get_interval, iFp)
+GO(dbus_timeout_handle, iFp)
+GOM(dbus_timeout_set_data, vFppp)
 //GO(dbus_type_is_basic, 
 //GO(dbus_type_is_container, 
 //GO(dbus_type_is_fixed, 
