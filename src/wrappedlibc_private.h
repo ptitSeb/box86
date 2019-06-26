@@ -301,6 +301,7 @@ GO(fclose, iFp)
 GOW(fcloseall, iFv)
 GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
 GOW(__fcntl, iFiiuuuuuu)
+GOM(fcntl64, iFEiiuuuuuu)
 GO(fcvt, pFdipp)
 // fcvt_r
 GO(fdatasync, iFi)
@@ -1026,7 +1027,7 @@ GOW(localeconv, pFv)
 GO(localtime, pFp)
 GOW(localtime_r, pFpp)
 GO(lockf, iFiiu)
-// lockf64
+GO(lockf64, iFiiI)
 // locs // type B
 GOM(longjmp, vFEpi)
 GOM(_longjmp, vFEpi)

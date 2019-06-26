@@ -47,6 +47,7 @@ typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
+typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 typedef struct libc_my_s {
     iFpup_t         _ITM_addUserCommitAction;
@@ -862,6 +863,19 @@ EXPORT uint64_t my___udivdi3(uint64_t a, uint64_t b)
 EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 {
     return poll(a, b, c);   // no check...
+}
+
+EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+{
+    // Implemented starting glibc 2.14+
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "fcntl64");
+    if(f)
+        return ((iFiiuuuuuu_t)f)(a, b, d1, d2, d3, d4, d5, d6);
+    //TODO: check if better to use the syscall or regular fcntl?
+    //return syscall(__NR_fcntl64, a, b, d1, d2, d3, d4);   // should be enough
+    return fcntl(a, b, d1, d2, d3, d4, d5, d6);
 }
 
 EXPORT struct __processor_model
