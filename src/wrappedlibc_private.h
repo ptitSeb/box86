@@ -65,7 +65,7 @@ GO(asctime, pFp)
 GOW(asctime_r, pFpp)
 // asprintf // Weak
 // __asprintf
-// __asprintf_chk
+GOM(__asprintf_chk, iFEpipVV)
 // __assert
 GO(__assert_fail, vFppup)
 GO(__assert_perror_fail, vFipup)
@@ -616,7 +616,7 @@ GO(globfree, vFp)
 GO(globfree64, vFp)
 // glob_pattern_p   // Weak
 GO(gmtime, pFp)
-// __gmtime_r
+GO(__gmtime_r, pFpp)
 GOW(gmtime_r, pFpp)
 // gnu_dev_major
 GO(gnu_dev_makedev, UFuu)
@@ -655,7 +655,7 @@ GO(if_indextoname, pFup)
 GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 // imaxdiv  // Weak
-// in6addr_any  // type R
+DATA(in6addr_any, 16)  // type R
 // in6addr_loopback // type R
 // inb  // Weak
 GOW(index, pFpi)
@@ -1369,11 +1369,11 @@ GOW(re_search_2, iFppipiiipi)
 // re_set_registers // Weak
 // re_set_syntax    // Weak
 // _res_hconf   // type B
-// __res_iclose
+GO(__res_iclose, vFpi)
 // __res_init
-// __res_maybe_init
-// __res_nclose
-// __res_ninit
+GO(__res_maybe_init, iFpi)
+GO(__res_nclose, vFp)
+GO(__res_ninit, iFp)
 DATA(__resp, 4)
 // __res_randomid
 // __res_state
@@ -1429,6 +1429,7 @@ GO(sched_setaffinity, iFiup)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
 GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
+GO2(secure_getenv, pFp, getenv)     // secure_getenv either
 // seed48
 // seed48_r // Weak
 GO(seekdir, vFpi)
@@ -1443,6 +1444,7 @@ GOW(send, iFipui)
 // sendfile
 GO(sendfile64, iFiipu)
 GOW(sendmsg, iFipi)
+GOM(__sendmmsg, iFEipuu)    // actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
 GOW(sendto, iFipuipu)
 // setaliasent
 GOW(setbuf, vFpp)

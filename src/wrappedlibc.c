@@ -22,6 +22,7 @@
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
+#include <sys/syscall.h> 
 
 #include "wrappedlibs.h"
 
@@ -45,6 +46,7 @@ const char* libcName = "libc.so.6";
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
+typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 
 typedef struct libc_my_s {
     iFpup_t         _ITM_addUserCommitAction;
@@ -326,6 +328,17 @@ EXPORT int my___vasprintf_chk(x86emu_t* emu, void* strp, int flags, void* fmt, v
     void* f = vasprintf;
     int r = ((iFppp_t)f)(strp, fmt, *(uint32_t**)b);
     return r;
+    #endif
+}
+
+EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* fmt, void* b, va_list V)
+{
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vasprintf;
+    return ((iFppp_t)f)(result_ptr, fmt, emu->scratch);
+    #else
+    return vasprintf((char**)result_ptr, (char*)fmt, V);
     #endif
 }
 
@@ -795,6 +808,18 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     uint32_t r = fread(buf, 1, buflen, rnd);
     fclose(rnd);
     return r;
+}
+
+EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)
+{
+    // Implemented starting glibc 2.14+
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "__sendmmsg");
+    if(f)
+        return ((iFipuu_t)f)(fd, msgvec, vlen, flags);
+    // Use the syscall
+    return syscall(__NR_sendmmsg, fd, msgvec, vlen, flags);
 }
 
 EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
