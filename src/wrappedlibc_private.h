@@ -352,7 +352,7 @@ GOW(finitef, iFf)
 GOW(flock, pFi)
 GOW(flockfile, vFp)
 // _flushlbf    // Weak
-// fmemopen
+GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
 GO(fopen, pFpp)
@@ -1180,10 +1180,10 @@ DATA(obstack_exit_failure, 4)
 // _obstack_free
 // obstack_free
 // _obstack_memory_used
-// _obstack_newchunk
+GO(_obstack_newchunk, vFpi)
 // obstack_printf   // Weak
 // __obstack_printf_chk
-// obstack_vprintf  // Weak
+GOM(obstack_vprintf, iFEppVV)  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
 GOM(open, iFEpiu)    //Weak

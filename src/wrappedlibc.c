@@ -342,6 +342,21 @@ EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* f
     #endif
 }
 
+EXPORT int32_t my_obstack_vprintf(x86emu_t* emu, void* obstack, void* fmt, void* b, va_list V)
+{
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = obstack_vprintf;
+    int r = ((iFppp_t)f)(obstack, fmt, emu->scratch);
+    return r;
+    #else
+    void* f = obstack_vprintf;
+    int r = ((iFppp_t)f)(obstack, fmt, *(uint32_t**)b);
+    return r;
+    #endif
+}
+
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm

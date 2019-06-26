@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
 
 // __errno_location
 // fork
@@ -118,17 +120,20 @@ GO(__pthread_register_cancel, vFp)
 // pthread_rwlockattr_setpshared
 // __pthread_rwlock_destroy
 // pthread_rwlock_destroy
-// __pthread_rwlock_init
-// pthread_rwlock_init
-// __pthread_rwlock_rdlock
+GO(__pthread_rwlock_init, iFpp)
+GO(pthread_rwlock_init, iFpp)
+GO(__pthread_rwlock_rdlock, iFp)
+GO2(pthread_rwlock_rdlock, iFp, __pthread_rwlock_rdlock)    // not always defined
 // pthread_rwlock_timedrdlock
 // pthread_rwlock_timedwrlock
 // __pthread_rwlock_tryrdlock
 // pthread_rwlock_tryrdlock
 // __pthread_rwlock_trywrlock
 // pthread_rwlock_trywrlock
-// __pthread_rwlock_unlock
-// __pthread_rwlock_wrlock
+GO(__pthread_rwlock_unlock, iFp)
+GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
+GO(__pthread_rwlock_wrlock, iFp)
+GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, uFv)
 // pthread_setaffinity_np
 // pthread_setcancelstate
@@ -168,5 +173,3 @@ GO(sem_wait, iFp)
 // __sigaction
 // system
 // __vfork
-
-#endif
