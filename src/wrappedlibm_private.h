@@ -177,8 +177,8 @@ GOW(expf, fFf)
 GO(__expf_finite, fFf)
 GO(__exp_finite, dFd)
 // expl // Weak
-// expm1    // Weak
-// expm1f   // Weak
+GOW(expm1, dFd)
+GOW(expm1f, fFf)
 // expm1l   // Weak
 // fabs // Weak
 // fabsf    // Weak
@@ -301,8 +301,8 @@ GOW(log10f, fFf)
 // __log10f_finite
 // __log10_finite
 // log10l   // Weak
-// log1p    // Weak
-// log1pf   // Weak
+GOW(log1p, dFd)
+GOW(log1pf, fFf)
 // log1pl   // Weak
 GOW(log2, dFd)
 GOW(log2f, fFf)
