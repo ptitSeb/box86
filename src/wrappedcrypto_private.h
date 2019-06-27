@@ -365,12 +365,12 @@ GO(ASN1_STRING_type, iFp)
 //GO(BIO_vprintf, 
 //GO(BIO_vsnprintf, 
 //GO(BIO_write, 
-//GO(BN_add, 
+GO(BN_add, iFppp)
 //GO(bn_add_part_words, 
-//GO(BN_add_word, 
+GO(BN_add_word, iFpu)
 //GO(bn_add_words, 
 //GO(BN_asc2bn, 
-//GO(BN_bin2bn, 
+GO(BN_bin2bn, pFpip)
 //GO(BN_BLINDING_convert, 
 //GO(BN_BLINDING_convert_ex, 
 //GO(BN_BLINDING_create_param, 
@@ -384,39 +384,39 @@ GO(ASN1_STRING_type, iFp)
 //GO(BN_BLINDING_set_thread_id, 
 //GO(BN_BLINDING_thread_id, 
 //GO(BN_BLINDING_update, 
-//GO(BN_bn2bin, 
-//GO(BN_bn2dec, 
-//GO(BN_bn2hex, 
-//GO(BN_bn2mpi, 
+GO(BN_bn2bin, iFpp)
+GO(BN_bn2dec, pFp)
+GO(BN_bn2hex, pFp)
+GO(BN_bn2mpi, iFpp)
 //GO(BN_bntest_rand, 
-//GO(BN_clear, 
-//GO(BN_clear_bit, 
-//GO(BN_clear_free, 
-//GO(BN_cmp, 
+GO(BN_clear, vFp)
+GO(BN_clear_bit, iFpi)
+GO(BN_clear_free, vFp)
+GO(BN_cmp, iFpp)
 //GO(bn_cmp_part_words, 
 //GO(bn_cmp_words, 
 //GO(BN_consttime_swap, 
-//GO(BN_copy, 
+GO(BN_copy, pFpp)
 //GO(BN_CTX_end, 
-//GO(BN_CTX_free, 
+GO(BN_CTX_free, vFp)
 //GO(BN_CTX_get, 
-//GO(BN_CTX_init, 
-//GO(BN_CTX_new, 
+GO(BN_CTX_init, vFp)
+GO(BN_CTX_new, pFv)
 //GO(BN_CTX_start, 
-//GO(BN_dec2bn, 
-//GO(BN_div, 
+GO(BN_dec2bn, iFpp)
+GO(BN_div, iFppppp)
 //GO(BN_div_recp, 
-//GO(BN_div_word, 
+GO(BN_div_word, uFpu)
 //GO(bn_div_words, 
-//GO(BN_dup, 
+GO(BN_dup, pFp)
 //GO(bn_dup_expand, 
-//GO(BN_exp, 
+GO(BN_exp, iFpppp)
 //GO(bn_expand2, 
-//GO(BN_free, 
+GO(BN_free, vFp)
 //GO(BN_from_montgomery, 
-//GO(BN_gcd, 
+GO(BN_gcd, iFpppp)
 //GO(BN_GENCB_call, 
-//GO(BN_generate_prime, 
+//GO(BN_generate_prime, pFpiippBp) //callback previous last argument...
 //GO(BN_generate_prime_ex, 
 //GO(BN_get0_nist_prime_192, 
 //GO(BN_get0_nist_prime_224, 
@@ -424,7 +424,7 @@ GO(ASN1_STRING_type, iFp)
 //GO(BN_get0_nist_prime_384, 
 //GO(BN_get0_nist_prime_521, 
 //GO(BN_get_params, 
-//GO(BN_get_word, 
+GO(BN_get_word, uFp)
 //GO(BN_GF2m_add, 
 //GO(BN_GF2m_arr2poly, 
 //GO(BN_GF2m_mod, 
@@ -445,47 +445,47 @@ GO(ASN1_STRING_type, iFp)
 //GO(BN_GF2m_mod_sqrt_arr, 
 //GO(bn_GF2m_mul_2x2, 
 //GO(BN_GF2m_poly2arr, 
-//GO(BN_hex2bn, 
+GO(BN_hex2bn, iFpp)
 //GO(BN_init, 
-//GO(BN_is_bit_set, 
-//GO(BN_is_prime, 
+GO(BN_is_bit_set, iFpi)
+//GO(BN_is_prime, iFpiBpp)  // third argument is a callback
 //GO(BN_is_prime_ex, 
 //GO(BN_is_prime_fasttest, 
 //GO(BN_is_prime_fasttest_ex, 
 //GO(BN_kronecker, 
-//GO(BN_lshift, 
-//GO(BN_lshift1, 
-//GO(BN_mask_bits, 
-//GO(BN_mod_add, 
+GO(BN_lshift, iFppi)
+GO(BN_lshift1, iFpp)
+GO(BN_mask_bits, iFpi)
+GO(BN_mod_add, iFppppp)
 //GO(BN_mod_add_quick, 
-//GO(BN_mod_exp, 
+GO(BN_mod_exp, iFppppp)
 //GO(BN_mod_exp2_mont, 
 //GO(BN_mod_exp_mont, 
 //GO(BN_mod_exp_mont_consttime, 
 //GO(BN_mod_exp_mont_word, 
 //GO(BN_mod_exp_recp, 
 //GO(BN_mod_exp_simple, 
-//GO(BN_mod_inverse, 
+GO(BN_mod_inverse, pFpppp)
 //GO(BN_mod_lshift, 
 //GO(BN_mod_lshift1, 
 //GO(BN_mod_lshift1_quick, 
 //GO(BN_mod_lshift_quick, 
-//GO(BN_mod_mul, 
+GO(BN_mod_mul, iFppppp)
 //GO(BN_mod_mul_montgomery, 
 //GO(BN_mod_mul_reciprocal, 
-//GO(BN_mod_sqr, 
+GO(BN_mod_sqr, iFpppp)
 //GO(BN_mod_sqrt, 
-//GO(BN_mod_sub, 
+GO(BN_mod_sub, iFppppp)
 //GO(BN_mod_sub_quick, 
-//GO(BN_mod_word, 
+GO(BN_mod_word, uFpu)
 //GO(BN_MONT_CTX_copy, 
 //GO(BN_MONT_CTX_free, 
 //GO(BN_MONT_CTX_init, 
 //GO(BN_MONT_CTX_new, 
 //GO(BN_MONT_CTX_set, 
 //GO(BN_MONT_CTX_set_locked, 
-//GO(BN_mpi2bn, 
-//GO(BN_mul, 
+GO(BN_mpi2bn, pFpip)
+GO(BN_mul, iFpppp)
 //GO(bn_mul_add_words, 
 //GO(bn_mul_comba4, 
 //GO(bn_mul_comba8, 
@@ -496,52 +496,52 @@ GO(ASN1_STRING_type, iFp)
 //GO(bn_mul_normal, 
 //GO(bn_mul_part_recursive, 
 //GO(bn_mul_recursive, 
-//GO(BN_mul_word, 
+GO(BN_mul_word, iFpu)
 //GO(bn_mul_words, 
-//GO(BN_new, 
+GO(BN_new, pFv)
 //GO(BN_nist_mod_192, 
 //GO(BN_nist_mod_224, 
 //GO(BN_nist_mod_256, 
 //GO(BN_nist_mod_384, 
 //GO(BN_nist_mod_521, 
-//GO(BN_nnmod, 
-//GO(BN_num_bits, 
-//GO(BN_num_bits_word, 
+GO(BN_nnmod, iFpppp)
+GO(BN_num_bits, iFp)
+GO(BN_num_bits_word, iFu)
 //GO(BN_options, 
-//GO(BN_print, 
-//GO(BN_print_fp, 
-//GO(BN_pseudo_rand, 
-//GO(BN_pseudo_rand_range, 
-//GO(BN_rand, 
+GO(BN_print, iFpp)
+GO(BN_print_fp, iFpp)
+GO(BN_pseudo_rand, iFpiii)
+GO(BN_pseudo_rand_range, iFpp)
+GO(BN_rand, iFpiii)
 //GO(BN_rand_range, 
 //GO(BN_reciprocal, 
 //GO(BN_RECP_CTX_free, 
 //GO(BN_RECP_CTX_init, 
 //GO(BN_RECP_CTX_new, 
 //GO(BN_RECP_CTX_set, 
-//GO(BN_rshift, 
-//GO(BN_rshift1, 
-//GO(BN_set_bit, 
-//GO(BN_set_negative, 
+GO(BN_rshift, iFppi)
+GO(BN_rshift1, iFpp)
+GO(BN_set_bit, iFpi)
+GO(BN_set_negative, vFpi)
 //GO(BN_set_params, 
 //GO(BN_set_word, 
-//GO(BN_sqr, 
+GO(BN_sqr, iFppp)
 //GO(bn_sqr_comba4, 
 //GO(bn_sqr_comba8, 
 //GO(bn_sqr_normal, 
 //GO(bn_sqr_recursive, 
 //GO(bn_sqr_words, 
-//GO(BN_sub, 
+GO(BN_sub, iFppp)
 //GO(bn_sub_part_words, 
-//GO(BN_sub_word, 
+GO(BN_sub_word, iFpu)
 //GO(bn_sub_words, 
-//GO(BN_swap, 
+GO(BN_swap, pFpp)
 //GO(BN_to_ASN1_ENUMERATED, 
 //GO(BN_to_ASN1_INTEGER, 
 //GO(BN_uadd, 
-//GO(BN_ucmp, 
+GO(BN_ucmp, iFpp)
 //GO(BN_usub, 
-//GO(BN_value_one, 
+GO(BN_value_one, pFv)
 //GO(BN_X931_derive_prime_ex, 
 //GO(BN_X931_generate_prime_ex, 
 //GO(BN_X931_generate_Xpq, 
