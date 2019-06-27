@@ -576,6 +576,24 @@ uint32_t GetBaseSize(elfheader_t* h)
     return h->memsz;
 }
 
+int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr)
+{
+    if(!h)
+        return 0;
+    uintptr_t base = (uintptr_t)h->memory;
+    if(addr>=base && addr<=(base+h->memsz))
+        return 1;
+    return 0;
+}
+elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr)
+{
+    for (int i=0; i<context->elfsize; ++i)
+        if(IsAddressInElfSpace(context->elfs[i], addr))
+            return context->elfs[i];
+    
+    return NULL;
+}
+
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz)
 {
     uintptr_t addr = (uintptr_t)p;
@@ -595,6 +613,19 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
                 ret = symname;
                 s = offs;
                 size = h->SymTab[i].st_size;
+            }
+        }
+    }
+    for (int i=0; i<h->numDynSym && distance!=0; ++i) {   
+        const char * symname = h->DynStr+h->DynSym[i].st_name;
+        uintptr_t offs = h->DynSym[i].st_value + h->delta;
+
+        if(offs<addr) {
+            if(distance>addr-offs) {
+                distance = addr-offs;
+                ret = symname;
+                s = offs;
+                size = h->DynSym[i].st_size;
             }
         }
     }

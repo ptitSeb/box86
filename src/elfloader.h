@@ -32,6 +32,8 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu);
 void RunDeferedElfInit(x86emu_t *emu);
 void* GetBaseAddress(elfheader_t* h);
 uint32_t GetBaseSize(elfheader_t* h);
+int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
+elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
 
 #endif //__ELF_LOADER_H_

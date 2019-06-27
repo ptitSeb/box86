@@ -39,6 +39,8 @@ typedef struct zydis_dec_s {
 
 int InitX86Trace(box86context_t *context)
 {
+    if(context->zydis)
+        return 0;
     context->zydis = (zydis_t*)calloc(1, sizeof(zydis_t));
     if(!context->zydis)
         return 1;
