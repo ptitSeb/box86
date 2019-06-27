@@ -223,7 +223,7 @@ GOW(eaccess, iFpi)
 // ecvt_r
 // endaliasent
 // endfsent
-// endgrent
+GO(endgrent, vFv)
 GO(endhostent, vFv)
 GOW(endmntent, iFp)
 // __endmntent
@@ -478,7 +478,7 @@ GOW(geteuid, pFv)
 // getfsfile
 // getfsspec
 GOW(getgid, iFv)
-// getgrent
+GO(getgrent, pFv)
 // getgrent_r
 GO(getgrgid, pFu)
 GO(getgrgid_r, iFuppup)
@@ -1463,7 +1463,7 @@ GO(seteuid, iFu)
 // setfsgid
 // setfsuid
 GOW(setgid, iFu)
-// setgrent
+GO(setgrent, vFv)
 GO(setgroups, iFup)
 GO(sethostent, vFi)
 // sethostid
