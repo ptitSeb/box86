@@ -77,10 +77,10 @@ void x86Int3(x86emu_t* emu)
         } else {
             RESET_FLAGS(emu);
             wrapper_t w = (wrapper_t)addr;
-            int tid = syscall(SYS_gettid);
             addr = Fetch32(emu);
             if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
                 pthread_mutex_lock(&emu->context->mutex_trace);
+                int tid = syscall(SYS_gettid);
                 char buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
