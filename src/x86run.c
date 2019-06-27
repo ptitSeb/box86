@@ -1351,9 +1351,10 @@ _trace:
 fini:
     PackFlags(emu);
     if(emu->fork) {
+        int forktype = emu->fork;
         emu->quit = 0;
         emu->fork = 0;
-        emu = x86emu_fork(emu);
+        emu = x86emu_fork(emu, forktype);
         goto x86emurun;
     }
     return 0;

@@ -12,6 +12,14 @@ typedef struct box86context_s box86context_t;
 
 typedef struct cleanup_s cleanup_t;
 
+typedef struct forkpty_s {
+    void*    amaster;
+    void*   name;
+    void*   termp;
+    void*   winp;
+    void*   f;  // forkpty function
+} forkpty_t;
+
 typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8],ip;
@@ -50,6 +58,7 @@ typedef struct x86emu_s {
     int         quit;
     int         error;
     int         fork;   // quit because need to fork
+    forkpty_t*  forkpty_info;
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;

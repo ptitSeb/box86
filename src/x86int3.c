@@ -19,7 +19,9 @@
 #include "wrapper.h"
 #include "box86context.h"
 
-x86emu_t* x86emu_fork(x86emu_t* e)
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+
+x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
 {
     // execute atforks prepare functions, in reverse order
     for (int i=e->context->atfork_sz-1; i>=0; --i)
@@ -37,7 +39,13 @@ x86emu_t* x86emu_fork(x86emu_t* e)
     CloneEmu(newemu, emu);
     // ready to fork
     ++emu->context->forked;
-    int v = fork();
+    int v;
+    if(forktype==2) {
+        iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
+        v = forkpty(emu->forkpty_info->amaster, emu->forkpty_info->name, emu->forkpty_info->termp, emu->forkpty_info->winp);
+        emu->forkpty_info = NULL;
+    } else
+        v = fork();
     if(v==EAGAIN || v==ENOMEM) {
         --emu->context->forked;
         FreeX86Emu(&newemu);    // fork failed, free the new emu
