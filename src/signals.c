@@ -168,7 +168,7 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
             }
         }
     }
-    int ret = sigaction(signum, &newact, oldact?&old:NULL);
+    int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
