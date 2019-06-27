@@ -317,6 +317,8 @@ char* GetNameLib(library_t *lib)
 int IsSameLib(library_t* lib, const char* path)
 {
     int ret = 0;
+    if(!lib) 
+        return 0;
     char* name = Path2Name(path);
     if(strcmp(name, lib->name)==0)
         ret=1;

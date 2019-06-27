@@ -44,26 +44,36 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     //void *dlopen(const char *filename, int flag);
     // TODO, handling special values for filename, like RTLD_SELF?
     // TODO, handling flags?
-    char* rfilename = (char*)filename;
-    printf_log(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+    library_t *lib = NULL;
     dlprivate_t *dl = emu->context->dlprivate;
-    // check if alread dlopenned...
-    for (int i=0; i<dl->lib_sz; ++i) {
-        if(IsSameLib(dl->libs[i], rfilename))
-            return (void*)(i+1);
+    if(filename) {
+        char* rfilename = (char*)filename;
+        printf_log(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        // check if alread dlopenned...
+        for (int i=0; i<dl->lib_sz; ++i) {
+            if(IsSameLib(dl->libs[i], rfilename))
+                return (void*)(i+1);
+        }
+        // Then open the lib
+        if(AddNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
+            printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+            return NULL;
+        }
+        if(FinalizeNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
+            printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+            return NULL;
+        }
+        lib = GetLib(emu->context->maplib, rfilename);
+    } else {
+        // check if alread dlopenned...
+        for (int i=0; i<dl->lib_sz; ++i) {
+            if(!dl->libs[i])
+                return (void*)(i+1);
+        }
+        printf_log(LOG_DEBUG, "Call to dlopen(NULL, %X)\n", flag);
     }
-    // Then open the lib
-    if(AddNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
-        printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
-        return NULL;
-    }
-    if(FinalizeNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
-        printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
-        return NULL;
-    }
-    
     //get the lib and add it to the collection
-    library_t *lib = GetLib(emu->context->maplib, rfilename);
+    
     if(dl->lib_sz == dl->lib_cap) {
         dl->lib_cap += 4;
         dl->libs = (library_t**)realloc(dl->libs, sizeof(library_t*)*dl->lib_cap);
@@ -101,10 +111,25 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     dlprivate_t *dl = emu->context->dlprivate;
     if(nlib<0 || nlib>=dl->lib_sz) 
         return NULL;
-    if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
+    if(dl->libs[nlib]) {
+        if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
+            // not found
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", GetNameLib(dl->libs[nlib]), rsymbol);
+            }
+            printf_log(LOG_DEBUG, " Symbol not found\n");
+            return NULL;
+        }
+    } else {
+        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end))
+            return (void*)start;
+        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end))
+            return (void*)start;
+        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end))
+            return (void*)start;
         // not found
         if(dlsym_error && box86_log<LOG_DEBUG) {
-            printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", GetNameLib(dl->libs[nlib]), rsymbol);
+            printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", "Self", rsymbol);
         }
         printf_log(LOG_DEBUG, " Symbol not found\n");
         return NULL;
