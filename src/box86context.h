@@ -91,6 +91,8 @@ typedef struct box86context_s {
     int                 atfork_sz;
     int                 atfork_cap;
 
+    uint8_t             canary[4];
+
     uintptr_t           signals[MAX_SIGNAL];
     x86emu_t            *signal_emu;
     int                 no_sigsegv;

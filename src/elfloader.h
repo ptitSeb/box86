@@ -35,5 +35,7 @@ uint32_t GetBaseSize(elfheader_t* h);
 int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
+void* GetGSBase(box86context_t *context);
+void* GetTLSBase(elfheader_t* h);
 
 #endif //__ELF_LOADER_H_

@@ -114,7 +114,7 @@ static void CheckSignalContext(x86emu_t* emu)
         context = emu->context;
         if(!context->signal_emu) {
             context->signal_emu = NewX86Emu(context, 0, (uintptr_t)malloc(1024*1024*2), 2*1024*1024, 1);
-            SetupX86Emu(context->signal_emu, emu->shared_global, emu->globals);
+            SetupX86Emu(context->signal_emu);
             SetTraceEmu(context->signal_emu, /*emu->trace_start, emu->trace_end*/0, 0);
         }
     }

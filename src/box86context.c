@@ -17,6 +17,18 @@
 
 void x86Syscall(x86emu_t *emu);
 
+/// maxval not inclusive
+int getrand(int maxval)
+{
+    if(maxval<1024) {
+        return ((random()&0x7fff)*maxval)/0x7fff;
+    } else {
+        uint64_t r = random();
+        r = (r*maxval) / RAND_MAX;
+        return r;
+    }
+}
+
 box86context_t *NewBox86Context(int argc)
 {
     // init and put default values
@@ -41,6 +53,10 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
+
+    for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
+    context->canary[getrand(4)] = 0;
+    printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
 
     return context;
 }
@@ -86,6 +102,8 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->elfs);
 
     free((*context)->stack);
+
+    free((*context)->fullpath);
 
     FreeBridge(&(*context)->system);
 

@@ -1,6 +1,8 @@
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 
+#include <pthread.h>
+
 struct elfheader_s {
     char*       name;
     int         numPHEntries;
@@ -50,11 +52,15 @@ struct elfheader_s {
     uint32_t    memsz;
     uint32_t    stacksz;
     int         stackalign;
+    uint32_t    tlssize;
+    int         tlsalign;
+    pthread_key_t tlskey;
 
     int         init_done;
     int         fini_done;
 
     char*       memory; // char* and not void* to allow math on memory pointer
+    char*       tlsdata;
 };
 
 #define R_386_NONE	0

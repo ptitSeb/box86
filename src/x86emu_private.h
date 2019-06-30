@@ -62,9 +62,6 @@ typedef struct x86emu_s {
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;
-    // global stuffs, pointed with GS: segment
-    void        *globals;
-    int         *shared_global;
     // parent context
     box86context_t *context;
     // atexit and fini functions

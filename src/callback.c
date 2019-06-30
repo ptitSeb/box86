@@ -58,7 +58,7 @@ x86emu_t* AddVariableCallback(x86emu_t* emu, int stsize, uintptr_t fnc, int nb_a
         printf_log(LOG_NONE, "BOX86: Error, cannot allocate %d KB Stack for callback\n", stsize/1024);
     }
     x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize, 1);
-	SetupX86Emu(newemu, emu->shared_global, emu->globals);
+	SetupX86Emu(newemu);
     newemu->trace_start = emu->trace_start;
     newemu->trace_end = emu->trace_end;
 

@@ -27,17 +27,6 @@ void PushExit(x86emu_t* emu)
 {
     Push(emu, (uint32_t)&EndEmuMarker);
 }
-/// maxval not inclusive
-int getrand(int maxval)
-{
-    if(maxval<1024) {
-        return ((random()&0x7fff)*maxval)/0x7fff;
-    } else {
-        uint64_t r = random();
-        r = (r*maxval) / RAND_MAX;
-        return r;
-    }
-}
 
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
@@ -78,28 +67,9 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     return emu;
 }
 
-void SetupX86Emu(x86emu_t *emu, int* shared_global, void* globals)
+void SetupX86Emu(x86emu_t *emu)
 {
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
-
-    // Setup the GS segment:
-    if(shared_global) {
-        emu->globals = globals;
-        emu->shared_global = shared_global;
-    } else {
-        emu->globals = (void*)((char*)calloc(1, 1024)+128);  // arbitrary 1024 byte size, with a small shift to enable negative offset
-        // calc canary...
-        uint8_t canary[4];
-        for (int i=0; i<4; ++i) canary[i] = 1 +  getrand(255);
-        canary[getrand(4)] = 0;
-        memcpy(emu->globals+0x14, canary, sizeof(canary));  // put canary in place
-        printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)canary);
-        uintptr_t unknown = (uintptr_t)emu->globals + 512;    // should point to a struct cpu...
-        memcpy(emu->globals+0x0, &unknown, 4);
-        memcpy(emu->globals+0x10, &emu->context->vsyscall, 4);  // address of vsyscall
-        emu->shared_global = (int*)calloc(1, sizeof(int));
-    }
-    (*emu->shared_global)++;
 }
 
 void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
@@ -186,11 +156,6 @@ void FreeX86Emu(x86emu_t **emu)
     // call atexit and fini first!
     CallAllCleanup(*emu);
     free((*emu)->cleanups);
-    if((*emu)->shared_global && !(*(*emu)->shared_global)--) {
-        if((*emu)->globals)
-            free(((char*)(*emu)->globals-128));
-        free((*emu)->shared_global);
-    }
 
     free((*emu)->scratch);
 

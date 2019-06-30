@@ -20,6 +20,6 @@ DATA(_rtld_global_ro, 4)
 DATA(__stack_chk_guard, 4)
 // defini dans glibc/sysdeps/i386/dl-tls.h
 GOM(___tls_get_addr, pFEv)       //the parameter tls_index is in a register (EAX?)
-GO(__tls_get_addr, pFp)        //same, but the parameter is in the stack
+GOM(__tls_get_addr, pFEp)        //same, but the parameter is in the stack
 
 #endif

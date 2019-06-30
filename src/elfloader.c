@@ -72,9 +72,28 @@ int CalcLoadAddr(elfheader_t* head)
             if(head->stackalign < head->PHEntries[i].p_align)
                 head->stackalign = head->PHEntries[i].p_align;
         }
+        if(head->PHEntries[i].p_type == PT_TLS) {
+            // ignoring offset for now
+            /*uintptr_t phend = head->PHEntries[i].p_vaddr - head->vaddr + head->PHEntries[i].p_memsz;
+            if(phend > head->memsz)
+                head->memsz = phend;
+            if(head->PHEntries[i].p_align > head->align)
+                head->align = head->PHEntries[i].p_align;*/
+            if(head->tlssize) {
+                printf_log(LOG_INFO, "Warning, multiple PT_TLS entries, taking only first one in account\n");
+            } else {
+                head->tlssize = head->PHEntries[i].p_memsz;
+                head->tlsalign = head->PHEntries[i].p_align;
+                // force alignement...
+                if(head->tlsalign>1)
+                    while(head->tlssize&(head->tlsalign-1))
+                        head->tlssize++;
+            }
+        }
     }
     printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
     printf_log(LOG_DEBUG, "Elf Stack Memsize=%u (align=%u)\n", head->stacksz, head->stackalign);
+    printf_log(LOG_DEBUG, "Elf TLS Memsize=%u (align=%u)\n", head->tlssize, head->tlsalign);
 
     return 0;
 }
@@ -108,26 +127,58 @@ int AllocElfMemory(elfheader_t* head, int mainbin)
     head->delta = (intptr_t)p - (intptr_t)head->vaddr;
     printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
+    head->tlsdata = (char*)malloc(head->tlssize);
+    pthread_key_create(&head->tlskey, free);
+
     return 0;
 }
 
 void FreeElfMemory(elfheader_t* head)
 {
+    if(head->tlsdata) {
+        free(head->tlsdata);
+        head->tlsdata = NULL;
+    }
+    void* ptr;
+    if ((ptr = pthread_getspecific(head->tlskey)) != NULL) {
+        free(ptr);
+        pthread_setspecific(head->tlskey, NULL);
+    }
+    pthread_key_delete(head->tlskey);
     if(head->memory)
         munmap((void*)head->memory, head->memsz);
 }
 
 int LoadElfMemory(FILE* f, elfheader_t* head)
 {
+    int tlsloaded = 0;
     for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
             printf_log(LOG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             fseek(f, e->p_offset, SEEK_SET);
-            if(fread(dest, e->p_filesz, 1, f)!=1) {
-                printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
-                return 1;
+            if(e->p_filesz) {
+                if(fread(dest, e->p_filesz, 1, f)!=1) {
+                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                    return 1;
+                }
+            }
+            // zero'd difference between filesz and memsz
+            if(e->p_filesz != e->p_memsz)
+                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+        }
+        if(head->PHEntries[i].p_type == PT_TLS && !tlsloaded) {
+            tlsloaded = 1;
+            Elf32_Phdr * e = &head->PHEntries[i];
+            char* dest = head->tlsdata;
+            printf_log(LOG_DEBUG, "Loading TLS block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
+            fseek(f, e->p_offset, SEEK_SET);
+            if(e->p_filesz) {
+                if(fread(dest, e->p_filesz, 1, f)!=1) {
+                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%d\n", i);
+                    return 1;
+                }
             }
             // zero'd difference between filesz and memsz
             if(e->p_filesz != e->p_memsz)
@@ -196,10 +247,16 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 }
                 break;
             case R_386_TLS_DTPMOD32:
-                // try to use _dl_next_tls_modid() ?
-                // keeping 0 there should work, as a "current module" information?
+                if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
+                    offs = (uintptr_t)head;    // current symbol
+                else {
+                    elfheader_t * h = GetGlobalSymbolElf(maplib, symname);
+                    offs = (uintptr_t)(h?h:head);
+                }
+                printf_log(LOG_DEBUG, "Apply %s @%p with sym=%s (%p -> %p)\n", "R_386_TLS_DTPMOD32", p, symname, *(void**)p, (void*)offs);
                 break;
             case R_386_TLS_DTPOFF32:
+                // Will not change the offset
             case R_386_JMP_SLOT:
                 if (!offs) {
                     if(bind==STB_WEAK) {
@@ -636,4 +693,34 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         *sz = size;
 
     return ret;
+}
+
+void* GetGSBase(box86context_t *context)
+{
+    void* ptr;
+    elfheader_t *h = context->elfs[0];
+    if ((ptr = pthread_getspecific(h->tlskey)) == NULL) {
+        // Setup the GS segment:
+        ptr = (char*)malloc(h->tlssize+0x50);
+        memcpy(ptr, h->tlsdata, h->tlssize);
+        pthread_setspecific(h->tlskey, ptr);
+        // copy canary...
+        memset((void*)((uintptr_t)ptr+h->tlssize), 0, 0x50);                    // set to 0 remining bytes
+        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x14), context->canary, 4);  // put canary in place
+        uintptr_t unknown = (uintptr_t)ptr+h->tlssize;
+        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x0), &unknown, 4);
+        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+    }
+    return ptr+h->tlssize;
+}
+
+void* GetTLSBase(elfheader_t* h)
+{
+    void* ptr;
+    if ((ptr = pthread_getspecific(h->tlskey)) == NULL) {
+        ptr = (char*)malloc(h->tlssize);
+        memcpy(ptr, h->tlsdata, h->tlssize);
+        pthread_setspecific(h->tlskey, ptr);
+    }
+    return ptr;
 }

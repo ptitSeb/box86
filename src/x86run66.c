@@ -11,6 +11,7 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
+#include "elfloader.h"
 
 
 #define F8      *(uint8_t*)(R_EIP++)
@@ -326,18 +327,19 @@ void RunGS(x86emu_t *emu)
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
+    uintptr_t tlsdata = (uintptr_t)GetGSBase(emu->context);
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
             break;
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             if(opcode==0x83) {
                 tmp32s = F8S;
                 tmp32u = (uint32_t)tmp32s;
@@ -357,39 +359,39 @@ void RunGS(x86emu_t *emu)
         case 0x89:              /* MOV Ed,Gd */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             ED->dword[0] = GD.dword[0];
             break;
         case 0x8B:              /* MOV Gd,Ed */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             GD.dword[0] = ED->dword[0];
             break;
         case 0xA1:              /* MOV EAX,Ov */
             tmp32s = F32S;
-            R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32s);
+            R_EAX = *(uint32_t*)((tlsdata) + tmp32s);
             break;
         case 0xA2:              /* MOV Ob,AL */
             tmp32s = F32S;
-            *(uint8_t*)(((uintptr_t)emu->globals) + tmp32s) = R_AL;
+            *(uint8_t*)((tlsdata) + tmp32s) = R_AL;
             break;
         case 0xA3:             /* MOV Od,EAX */
             tmp32s = F32S;
-            *(uint32_t*)(((uintptr_t)emu->globals) + tmp32s) = R_EAX;
+            *(uint32_t*)((tlsdata) + tmp32s) = R_EAX;
             break;
 
         case 0xC7:              /* MOV Ed,Id */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             ED->dword[0] = F32;
             break;
 
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
-            ED = (reg32_t*)(((char*)ED) + (uintptr_t)emu->globals);
+            ED = (reg32_t*)(((char*)ED) + tlsdata);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
                     ED->dword[0] = inc32(emu, ED->dword[0]);

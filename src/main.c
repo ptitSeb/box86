@@ -317,7 +317,7 @@ int main(int argc, const char **argv, const char **env) {
     // stack setup is much more complicated then just that!
     SetupInitialStack(context);
     // this is probably useless
-    SetupX86Emu(context->emu, NULL, NULL);
+    SetupX86Emu(context->emu);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
 #ifdef HAVE_TRACE

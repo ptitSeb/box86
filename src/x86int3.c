@@ -35,7 +35,7 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
     }
     memcpy(newstack, emu->context->stack, emu->context->stacksz);
     x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz, 1);
-    SetupX86Emu(newemu, emu->shared_global, emu->globals);
+    SetupX86Emu(newemu);
     CloneEmu(newemu, emu);
     // ready to fork
     ++emu->context->forked;

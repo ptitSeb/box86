@@ -191,3 +191,8 @@ if(X86_CPP_LIBRARY_PRESENT)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref10.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 endif(X86_CPP_LIBRARY_PRESENT)
+
+add_test(test11 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref11.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
