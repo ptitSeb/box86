@@ -367,13 +367,16 @@ void RunGS(x86emu_t *emu)
             GD.dword[0] = ED->dword[0];
             break;
         case 0xA1:              /* MOV EAX,Ov */
-            tmp32u = F32;
-            R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u);
+            tmp32s = F32S;
+            R_EAX = *(uint32_t*)(((uintptr_t)emu->globals) + tmp32s);
             break;
-
+        case 0xA2:              /* MOV Ob,AL */
+            tmp32s = F32S;
+            *(uint8_t*)(((uintptr_t)emu->globals) + tmp32s) = R_AL;
+            break;
         case 0xA3:             /* MOV Od,EAX */
-            tmp32u = F32;
-            *(uint32_t*)(((uintptr_t)emu->globals) + tmp32u) = R_EAX;
+            tmp32s = F32S;
+            *(uint32_t*)(((uintptr_t)emu->globals) + tmp32s) = R_EAX;
             break;
 
         case 0xC7:              /* MOV Ed,Id */
