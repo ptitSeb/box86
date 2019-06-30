@@ -75,8 +75,6 @@ int main(int argc, char **argv)
   int                   i;
   threadparm_t          gData[NUMTHREADS];
  
-  printf("Enter Testcase - %s\n", argv[0]);
- 
   printf("Create/start %d threads\n", NUMTHREADS);
   for (i=0; i < NUMTHREADS; i++) { 
      /* Create per-thread TLS data and pass it to the thread */

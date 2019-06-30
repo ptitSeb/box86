@@ -1,4 +1,3 @@
-Enter Testcase - ./test11
 Create/start 2 threads
 Thread 1: Entered (10/20)
 Thread 1: foo(), TLS data=0 2 "-1-"
