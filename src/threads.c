@@ -95,16 +95,16 @@ static const key_dtor dtor_cb[nb_dtor] = {
 	,key_dtor_callback_12,key_dtor_callback_13,key_dtor_callback_14,key_dtor_callback_15
 };
 // TODO: put all this in libpthread private stuff...
-static x86emu_t *once_emu = NULL;
-static uintptr_t once_fnc = 0;
+static __thread x86emu_t *once_emu = NULL;
+static __thread uintptr_t once_fnc = 0;
 static void my_thread_once_callback()
 {
 	if(!once_emu)
 		return;
 	EmuCall(once_emu, once_fnc);
 }
-static x86emu_t *once2_emu = NULL;
-static uintptr_t once2_fnc = 0;
+static __thread x86emu_t *once2_emu = NULL;
+static __thread uintptr_t once2_fnc = 0;
 static void my_thread_once2_callback()
 {
 	if(!once2_emu)
