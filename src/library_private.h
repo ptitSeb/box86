@@ -72,12 +72,6 @@ typedef struct library_s {
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } library_t;
 
-typedef struct dlprivate_s {
-    library_t   **libs;
-    int         lib_sz;
-    int         lib_cap;
-} dlprivate_t;
-
 // type for map elements
 typedef struct map_onesymbol_s {
     const char* name;
