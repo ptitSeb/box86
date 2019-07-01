@@ -405,9 +405,9 @@ GO(fseeko64, iFpIi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 GO(fsetxattr, iFippui)
-// fstatfs  // Weak
+GOW(fstatfs, iFip)
 GOW(fstatfs64, iFip)
-// fstatvfs
+GO(fstatvfs, iFip)
 GOW(fstatvfs64, iFip)   // allignment?
 GOW(fsync, iFi)
 GOW(ftell, iFp)
@@ -439,7 +439,7 @@ GOW(fwrite, uFpuup)
 // fwscanf
 GO(__fxstat, iFiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
-// __fxstatat
+GO(__fxstatat, iFiippi)
 GOM(__fxstatat64, iFEiippi) // struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, pFi)
@@ -593,7 +593,7 @@ GO(__gettimeofday, iFpp)
 // getttynam
 GOW(getuid, uFv)
 // getusershell
-// getutent // Weak
+GOW(getutent, pFv)
 GOW(getutent_r, iFpp)
 GOW(getutid, pFp)
 GOW(getutid_r, iFppp)
@@ -1194,7 +1194,7 @@ GOM(__open, iFEpiu) //Weak
 GOM(open64, iFEpiu) //Weak
 // __open64 // Weak
 GO(__open64_2, iFpi)
-// openat   // Weak
+GOW(openat, iFipiu)
 // __openat_2
 GOW(openat64, iFipiuuuuu)   // variable arg...
 // __openat64_2
