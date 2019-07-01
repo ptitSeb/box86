@@ -95,7 +95,7 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         return NULL;
     }
 
-    if(header.e_entry == 0) {
+    if(header.e_entry == 0 && exec) {
         printf_log(LOG_INFO, "No entry point in ELF\n");
         return NULL;
     }

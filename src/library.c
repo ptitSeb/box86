@@ -180,7 +180,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
                 printf_log(LOG_NONE, "Error: Cannot open %s\n", libname);
                 return NULL;
             }
-            elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 1);
+            elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
             if(!elf_header) {
                 printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
                 fclose(f);
