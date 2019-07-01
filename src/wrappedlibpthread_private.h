@@ -119,7 +119,7 @@ GO(__pthread_register_cancel, vFp)
 // pthread_rwlockattr_setkind_np
 // pthread_rwlockattr_setpshared
 // __pthread_rwlock_destroy
-// pthread_rwlock_destroy
+GO(pthread_rwlock_destroy, iFp)
 GO(__pthread_rwlock_init, iFpp)
 GO(pthread_rwlock_init, iFpp)
 GO(__pthread_rwlock_rdlock, iFp)
@@ -127,16 +127,16 @@ GO2(pthread_rwlock_rdlock, iFp, __pthread_rwlock_rdlock)    // not always define
 // pthread_rwlock_timedrdlock
 // pthread_rwlock_timedwrlock
 // __pthread_rwlock_tryrdlock
-// pthread_rwlock_tryrdlock
+GO(pthread_rwlock_tryrdlock, iFp)
 // __pthread_rwlock_trywrlock
-// pthread_rwlock_trywrlock
+GO(pthread_rwlock_trywrlock, iFp)
 GO(__pthread_rwlock_unlock, iFp)
 GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
 GO(__pthread_rwlock_wrlock, iFp)
 GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, uFv)
 // pthread_setaffinity_np
-// pthread_setcancelstate
+GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
 // pthread_setconcurrency
 GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
@@ -150,7 +150,7 @@ GO(pthread_sigmask, iFipp)
 // pthread_spin_lock
 // pthread_spin_trylock
 // pthread_spin_unlock
-// pthread_testcancel
+GO(pthread_testcancel, vFv)
 // pthread_timedjoin_np
 // pthread_tryjoin_np
 GO(__pthread_unregister_cancel, vFp)

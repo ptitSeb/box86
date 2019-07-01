@@ -278,7 +278,7 @@ GO(__errno_location, pFv)
 // ether_ntohost
 GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
-// eventfd_read
+GO(eventfd_read, iFip)
 GO(eventfd_write, iFiU)
 GOM(execl, iFEpVV)
 GOM(execle, iFEpVV)
@@ -2114,7 +2114,11 @@ GOM(__umoddi3, UFUU)
 GOM(__udivdi3, UFUU)
 GOM(__poll_chk, iFpuii)
 
+GO2(fallocate64, iFiII, posix_fallocate64)
+
 DATAM(__libc_stack_end, 4)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
+
+GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
