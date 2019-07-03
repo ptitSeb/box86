@@ -127,7 +127,7 @@ GOW(chown, iFpuu)
 GO(chroot, iFp)
 GOW(clearenv, iFv)
 GO(clearerr, vFp)
-// clearerr_unlocked
+GO(clearerr_unlocked, vFp)
 // clnt_broadcast
 // clnt_create
 // clnt_pcreateerror
@@ -291,7 +291,7 @@ GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
 GO(faccessat, iFipii)
 // fattach
-// __fbufsize
+GO(__fbufsize, uFp)
 GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
@@ -310,18 +310,18 @@ GO(fdatasync, iFi)
 GO(fdopen, pFip)
 GOW(fdopendir, pFi)
 GOW(feof, iFp)
-// feof_unlocked
+GO(feof_unlocked, iFp)
 GOW(ferror, iFp)
-// ferror_unlocked
+GO(ferror_unlocked, iFp)
 GO(fexecve, iFipp)  //TODO: Check if needed to be wrapped, and target checked for x86 / native?
 GOW(fflush, iFp)
-// fflush_unlocked
+GO(fflush_unlocked, iFp)
 GO(ffs, iFi)
 // __ffs
 GOW(ffsl, iFi)
 GO(ffsll, iFI)
 GOW(fgetc, iFp)
-// fgetc_unlocked   // Weak
+GOW(fgetc_unlocked, iFp)
 // fgetgrent
 // fgetgrent_r  // Weak
 GO(fgetpos, iFpp)
@@ -332,17 +332,17 @@ GOW(fgets, pFpip)
 GO(__fgets_chk, pFpuip)
 // fgetspent
 // fgetspent_r  // Weak
-// fgets_unlocked
+GO(fgets_unlocked, pFpip)
 // __fgets_unlocked_chk
 GOW(fgetwc, iFp)
-// fgetwc_unlocked  // Weak
+GOW(fgetwc_unlocked, iFp)
 GO(fgetws, pFpip)
 // __fgetws_chk
-// fgetws_unlocked
+GO(fgetws_unlocked, pFpip)
 // __fgetws_unlocked_chk
 GO(fgetxattr, iFippu)
 GO(fileno, iFp)
-// fileno_unlocked  // Weak
+GOW(fileno_unlocked, iFp)
 GOW(finite, iFd)
 GO(__finite, iFd)
 GOW(finitef, iFf)
@@ -353,7 +353,7 @@ GOW(finitef, iFf)
 GO(flistxattr, iFipu)
 GOW(flock, pFi)
 GOW(flockfile, vFp)
-// _flushlbf    // Weak
+GOW(_flushlbf, vFv)
 GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
@@ -364,26 +364,26 @@ GOM(fork, iFEv) // Weak
 GOM(__fork, iFEv)
 // __fortify_fail
 GOW(fpathconf, iFii)
-// __fpending
+GO(__fpending, uFp)
 GOM(fprintf, iFEppVV)
 GOM(__fprintf_chk, iFEpvpVV)
 //GO2(fprintf, iFppV, vfprintf)
 //GO2(__fprintf_chk, iFpvpV, vfprintf)
 // __fpu_control    // type B
-// __fpurge
+GO(__fpurge, vFp)
 GOW(fputc, iFip)
-// fputc_unlocked
+GO(fputc_unlocked, iFip)
 GOW(fputs, iFpp)    // Weak
-// fputs_unlocked
+GO(fputs_unlocked, iFpp)
 GO(fputwc, iFip)
-// fputwc_unlocked
+GO(fputwc_unlocked, iFip)
 GO(fputws, iFpp)
-// fputws_unlocked
+GO(fputws_unlocked, iFpp)
 GOW(fread, uFpuup)
-// __freadable
+GO(__freadable, iFp)
 GO(__fread_chk, uFpuuup)
-// __freading
-// fread_unlocked
+GO(__freading, iFp)
+GO(fread_unlocked, uFpuup)
 // __fread_unlocked_chk
 GO(free, vFp)
 GO(freeaddrinfo, vFp)
@@ -401,7 +401,7 @@ GO2(fscanf, iFppV, vfscanf)
 GO(fseek, iFpii)
 GO(fseeko, iFpii)
 GO(fseeko64, iFpIi)
-// __fsetlocking
+GO(__fsetlocking, iFpi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 GO(fsetxattr, iFippui)
@@ -432,10 +432,10 @@ GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: chec
 // fwide
 GOM(fwprintf, iFEppVV) // Weak
 GOM(__fwprintf_chk, iFEp0pVV)
-// __fwritable
+GO(__fwritable, iFp)
 GOW(fwrite, uFpuup)
-// fwrite_unlocked
-// __fwriting
+GO(fwrite_unlocked, uFpuup)
+GO(__fwriting, iFp)
 // fwscanf
 GO(__fxstat, iFiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
@@ -455,9 +455,9 @@ GO(getaddrinfo, iFpppp)
 // get_avphys_pages // Weak
 GOW(getc, iFp)
 GOW(getchar, iFv)
-// getchar_unlocked
+GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)
-// getc_unlocked    // Weak
+GOW(getc_unlocked, iFp)
 GO(get_current_dir_name, pFv)
 GOW(getcwd, pFpu)
 // __getcwd_chk
@@ -607,8 +607,8 @@ GOW(getutline_r, iFppp)
 // getw
 GO2(getwc, iFp, fgetwc)
 // getwchar
-// getwchar_unlocked
-// getwc_unlocked   // Weak
+GO(getwchar_unlocked, iFv)
+GOW(getwc_unlocked, iFp)
 GO(getwd, pFp)
 // __getwd_chk
 GO(getxattr, iFpppu)
@@ -1285,8 +1285,8 @@ GOW(ptsname_r, iFipu)
 // __ptsname_r_chk
 GOW(putc, iFip)
 GO(putchar, iFi)
-// putchar_unlocked
-// putc_unlocked
+GO(putchar_unlocked, iFi)
+GO(putc_unlocked, iFip)
 GO(putenv, iFp)
 // putgrent
 // putmsg
@@ -1299,8 +1299,8 @@ GOW(pututline, pFp)
 // putw
 GO(putwc, iFip)
 // putwchar
-// putwchar_unlocked
-// putwc_unlocked
+GO(putwchar_unlocked, iFi)
+GO(putwc_unlocked, iFip)
 // pvalloc  // Weak
 // pwrite   // Weak
 GOW(pwrite64, iFiuI)
@@ -1820,8 +1820,8 @@ GO(__uflow, iFp)
 // ulckpwdf // Weak
 // ulimit   // Weak
 GOW(umask, uFu)
-// umount   // Weak
-// umount2  // Weak
+GOW(umount, iFp)
+GOW(umount2, iFpi)
 GOW(uname, iFp)
 // __underflow
 GOW(ungetc, iFip)
