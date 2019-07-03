@@ -58,6 +58,9 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     CLEARERR
     if(filename) {
         char* rfilename = (char*)filename;
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        }
         printf_log(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         // check if alread dlopenned...
         for (int i=0; i<dl->lib_sz; ++i) {
@@ -83,6 +86,9 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         for (int i=0; i<dl->lib_sz; ++i) {
             if(!dl->libs[i])
                 return (void*)(i+1);
+        }
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "Call to dlopen(NULL, %X)\n", flag);
         }
         printf_log(LOG_DEBUG, "Call to dlopen(NULL, %X)\n", flag);
     }
