@@ -123,14 +123,14 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end))
             return (void*)start;
         dl->last_error = malloc(129);
-        snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %X)\n", rsymbol, handle);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         return NULL;
     }
     int nlib = (int)handle;
     --nlib;
     if(nlib<0 || nlib>=dl->lib_sz) {
         dl->last_error = malloc(129);
-        snprintf(dl->last_error, 129, "Bad handle %X)\n", handle);
+        snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         return NULL;
     }
     if(dl->libs[nlib]) {
@@ -141,7 +141,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
             }
             printf_log(LOG_DEBUG, " Symbol not found\n");
             dl->last_error = malloc(129);
-            snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %X)\n", rsymbol, handle);
+            snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
             return NULL;
         }
     } else {
@@ -157,7 +157,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         }
         printf_log(LOG_DEBUG, " Symbol not found\n");
         dl->last_error = malloc(129);
-        snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %X)\n", rsymbol, handle);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         return NULL;
     }
     return (void*)start;
@@ -171,7 +171,7 @@ int my_dlclose(x86emu_t* emu, void *handle)
     --nlib;
     if(nlib<0 || nlib>=dl->lib_sz) {
         dl->last_error = malloc(129);
-        snprintf(dl->last_error, 129, "Bad handle %X)\n", handle);
+        snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
         return -1;
     }
     return 0;
