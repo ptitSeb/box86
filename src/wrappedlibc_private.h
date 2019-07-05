@@ -1873,7 +1873,7 @@ GOM(__vsnprintf, iFEpupVV)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvpVV)
 GOM(vsprintf, iFEppVV) // Weak
 GOM(__vsprintf_chk, iFEpvvpp)
-GO(vsscanf, iFpV)
+GO(vsscanf, iFppp)
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpupVV)    // Weak
 GOM(__vswprintf_chk, iFEpuvvpVV)    // Weak

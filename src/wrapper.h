@@ -94,7 +94,6 @@ void iFpu(x86emu_t *emu, uintptr_t fnc);
 void iFpU(x86emu_t *emu, uintptr_t fnc);
 void iFpd(x86emu_t *emu, uintptr_t fnc);
 void iFpp(x86emu_t *emu, uintptr_t fnc);
-void iFpV(x86emu_t *emu, uintptr_t fnc);
 void IFpu(x86emu_t *emu, uintptr_t fnc);
 void CFui(x86emu_t *emu, uintptr_t fnc);
 void CFpi(x86emu_t *emu, uintptr_t fnc);
