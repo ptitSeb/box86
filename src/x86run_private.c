@@ -13,6 +13,7 @@
 #include "x86emu_private.h"
 #include "box86context.h"
 #include "x86run.h"
+#include "librarian.h"
 
 static uint32_t x86emu_parity_tab[8] =
 {
@@ -53,8 +54,9 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     return 0;
 }
 
-const char* GetNativeName(void* p)
+const char* GetNativeName(x86emu_t* emu, void* p)
 {
+#if 0
     static char buff[500] = {0};
     Dl_info info;
     if(dladdr(p, &info)==0)
@@ -69,6 +71,13 @@ const char* GetNativeName(void* p)
             strcpy(buff, "unknown");
     }
     return buff;
+#else
+    static char unknown[10] = "???";
+    const char *ret = GetNameOffset(emu->context->maplib, p);
+    if(!ret)
+        return unknown;
+    return ret;
+#endif
 }
 
 uintptr_t pltResolver = ~0;

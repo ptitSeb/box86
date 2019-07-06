@@ -14,6 +14,7 @@
 #include "bridge.h"
 
 KHASH_MAP_IMPL_STR(mapsymbols, onesymbol_t);
+KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
 lib_t *NewLibrarian(box86context_t* context)
 {
@@ -22,6 +23,7 @@ lib_t *NewLibrarian(box86context_t* context)
     maplib->mapsymbols = kh_init(mapsymbols);
     maplib->weaksymbols = kh_init(mapsymbols);
     maplib->localsymbols = kh_init(mapsymbols);
+    maplib->mapoffsets = kh_init(mapoffsets);
     maplib->bridge = NewBridge();
 
     maplib->context = context;
@@ -38,6 +40,9 @@ void FreeLibrarian(lib_t **maplib)
     }
     if((*maplib)->localsymbols) {
         kh_destroy(mapsymbols, (*maplib)->localsymbols);
+    }
+    if((*maplib)->mapoffsets) {
+        kh_destroy(mapoffsets, (*maplib)->mapoffsets);
     }
     // should that be in reverse order?
     for (int i=0; i<(*maplib)->libsz; ++i) {
@@ -312,5 +317,20 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, c
         return ret;
     }
     // TODO: then search in the other libs...
+    return NULL;
+}
+
+void AddOffsetSymbol(lib_t *maplib, void* offs, const char* name)
+{
+    int ret;
+    khint_t k = kh_put(mapoffsets, maplib->mapoffsets, (uintptr_t)offs, &ret);
+    kh_value(maplib->mapoffsets, k) = (cstr_t)name;
+}
+
+const char* GetNameOffset(lib_t *maplib, void* offs)
+{
+    khint_t k = kh_get(mapoffsets, maplib->mapoffsets, (uintptr_t)offs);
+    if (k!=kh_end(maplib->mapoffsets))
+        return kh_value(maplib->mapoffsets, k);
     return NULL;
 }

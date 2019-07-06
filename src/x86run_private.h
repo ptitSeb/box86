@@ -182,7 +182,7 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype);
 void PackFlags(x86emu_t* emu);
 void UnpackFlags(x86emu_t* emu);
 
-const char* GetNativeName(void* p);
+const char* GetNativeName(x86emu_t* emu, void* p);
 
 
 #endif //__X86RUN_PRIVATE_H_

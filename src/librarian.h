@@ -11,6 +11,8 @@ typedef struct box86context_s  box86context_t;
 typedef struct x86emu_s x86emu_t;
 typedef struct elfheader_s elfheader_t;
 typedef struct box86context_s box86context_t;
+typedef struct kh_mapoffsets_s kh_mapoffsets_t;
+typedef char* cstr_t;
 
 lib_t *NewLibrarian(box86context_t* context);
 void FreeLibrarian(lib_t **maplib);
@@ -36,5 +38,8 @@ int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* 
 const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* offs, uint32_t* sz);
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base);
+
+void AddOffsetSymbol(lib_t *maplib, void* offs, const char* name);
+const char* GetNameOffset(lib_t *maplib, void* offs);
 
 #endif //__LIBRARIAN_H_

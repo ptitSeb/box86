@@ -18,6 +18,7 @@
 #include "x86trace.h"
 #include "wrapper.h"
 #include "box86context.h"
+#include "librarian.h"
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
@@ -87,11 +88,11 @@ void x86Int3(x86emu_t* emu)
                 int post = 0;
                 int perr = 0;
                 uint32_t *pu32 = NULL;
-                const char *s = GetNativeName((void*)addr);
+                const char *s = GetNativeName(emu, (void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
                 } else
-                if(strstr(s, "my_SDL_RWFromFile")==s || strstr(s, "my2_SDL_RWFromFile")==s) {
+                if(strstr(s, "SDL_RWFromFile")==s || strstr(s, "SDL_RWFromFile")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%s, %s)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "glColor4f")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f, %f, %f)", tid, *(void**)(R_ESP), "glColor4f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12), *(float*)(R_ESP+16));
@@ -101,10 +102,10 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "glVertex2f", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
                 } else  if(strstr(s, "glVertex3f")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f, %f)", tid, *(void**)(R_ESP), "glVertex3f", *(float*)(R_ESP+4), *(float*)(R_ESP+8), *(float*)(R_ESP+12));
-                } else  if(strstr(s, "__open64")==s || strstr(s, "open64")==s || strstr(s, "my_open64")==s) {
+                } else  if(strstr(s, "__open64")==s || strstr(s, "open64")==s || strstr(s, "open64")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), "open64", *(char**)(R_ESP+4), *(int*)(R_ESP+8));
                     perr = 1;
-                } else  if(strstr(s, "__open")==s || strstr(s, "open")==s || strstr(s, "my_open")==s) {
+                } else  if(strstr(s, "__open")==s || strstr(s, "open")==s || strstr(s, "open")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(int*)(R_ESP+8));
                     perr = 1;
                 } else  if(strstr(s, "fopen")==s) {
@@ -124,10 +125,12 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), "index", *(char**)(R_ESP+4), *(char**)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
                 } else  if(strstr(s, "rindex")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), "rindex", *(char**)(R_ESP+4), *(char**)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
-                } else  if(strstr(s, "my___xstat64")==s) {
+                } else  if(strstr(s, "__xstat64")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), "__xstat64", *(int32_t*)(R_ESP+4), *(char**)(R_ESP+8), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
-                } else  if(strstr(s, "my___lxstat64")==s) {
+                    perr = 1;
+                } else  if(strstr(s, "__lxstat64")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), "__lxstat64", *(int32_t*)(R_ESP+4), *(char**)(R_ESP+8), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
+                    perr = 1;
                 } else  if(strstr(s, "sem_timedwait")==s) {
                     pu32 = *(uint32_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, *(void**)(R_ESP), "sem_timedwait", *(void**)(R_ESP+4), *(void**)(R_ESP+8), pu32?pu32[0]:-1, pu32?pu32[1]:-1);
@@ -146,11 +149,11 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "strstr", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "strlen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"))", tid, *(void**)(R_ESP), "strlen", *(char**)(R_ESP+4), ((R_ESP+4))?(*(char**)(R_ESP+4)):"nil");
-                } else  if(strstr(s, "my_vsnprintf")==s) {
+                } else  if(strstr(s, "vsnprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), "vsnprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
-                } else  if(strstr(s, "my_snprintf")==s) {
+                } else  if(strstr(s, "snprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), "snprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
@@ -171,7 +174,7 @@ void x86Int3(x86emu_t* emu)
                             break;
                     
                 }
-                if(perr && errno)
+                if(perr && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d)", errno);
                 printf_log(LOG_DEBUG, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
