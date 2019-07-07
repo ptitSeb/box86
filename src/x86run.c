@@ -223,7 +223,7 @@ _trace:
             if(a==0) {
                 printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+7)));
+                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
             }
         } else {
             printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
