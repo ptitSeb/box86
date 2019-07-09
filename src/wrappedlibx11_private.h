@@ -758,7 +758,11 @@ GO(XListFontsWithInfo, pFppipp)
 GO(XListPixmapFormats, pFpp)
 GO(XListProperties, pFppp)
 GO(XLoadFont, pFpp)
+#ifdef PANDORA
+GOM(XLoadQueryFont, pFEpp)
+#else
 GO(XLoadQueryFont, pFpp)
+#endif
 // xlocaledir
 //GO(XLocaleOfFontSet
 //GO(XLocaleOfIM

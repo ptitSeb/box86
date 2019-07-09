@@ -91,6 +91,7 @@ typedef struct _XImage {
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
@@ -116,6 +117,9 @@ typedef struct x11_my_s {
     iFppppiiiiuu_t  XPutImage;
     pFppiiuuuipii_t XGetSubImage;
     vFp_t           XDestroyImage;
+    #ifdef PANDORA
+    pFpp_t          XLoadQueryFont;
+    #endif
 } x11_my_t;
 
 void* getX11My(library_t* lib)
@@ -133,6 +137,9 @@ void* getX11My(library_t* lib)
     GO(XPutImage, iFppppiiiiuu_t)
     GO(XGetSubImage, pFppiiuuuipii_t)
     GO(XDestroyImage, vFp_t)
+    #ifdef PANDORA
+    GO(XLoadQueryFont, pFpp_t)
+    #endif
     #undef GO
     return my;
 }
@@ -159,6 +166,10 @@ void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
                     , void* image, int32_t dst_x, int32_t dst_y);
 
 void my_XDestroyImage(x86emu_t* emu, void* image);
+
+#ifdef PANDORA
+void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
+#endif
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getX11My(lib);
@@ -426,3 +437,18 @@ EXPORT void my_XDestroyImage(x86emu_t* emu, void* image)
     UnbridgeImageFunc(emu, (XImage*)image);
     my->XDestroyImage(image);
 }
+
+#ifdef PANDORA
+EXPORT void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name)
+{
+    // basic font substitution...
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    if(strcmp(name, "9x15")==0)
+        return my->XLoadQueryFont(d, "6x13");
+    if(strcmp(name, "9x15B")==0)
+        return my->XLoadQueryFont(d, "6x13B");
+    return my->XLoadQueryFont(d, name);
+}
+#endif
