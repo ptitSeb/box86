@@ -117,6 +117,9 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     uintptr_t start, end;
     char* rsymbol = (char*)symbol;
     CLEARERR
+    if(dlsym_error && box86_log<LOG_DEBUG) {
+        printf_log(LOG_NONE, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
+    }
     printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
     if(handle==NULL) {
         // special case, look globably
