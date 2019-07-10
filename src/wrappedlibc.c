@@ -130,7 +130,11 @@ int EXPORT my_atexit(x86emu_t* emu, void *p)
     AddCleanup(emu, p);
     return 0;
 }
-// All signal functions defined in signals.c
+
+int my_getcontext(x86emu_t* emu, void* ucp);
+int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
+
+// All signal and context functions defined in signals.c
 
 pid_t EXPORT my_fork(x86emu_t* emu)
 {
@@ -1055,16 +1059,6 @@ void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
     // jmp to saved location, plus restore val to eax
     R_EAX = __val;
     R_EIP = jpbuff->save_eip;
-}
-
-EXPORT void my_getcontext(x86emu_t* emu, void* ucp)
-{
-    printf_log(LOG_NONE, "Warning: call to unimplemented getcontext\n");
-}
-
-EXPORT void my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv)
-{
-    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
 }
 
 
