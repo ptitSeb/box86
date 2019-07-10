@@ -13,6 +13,7 @@
 #include <asm/stat.h>
 #include <errno.h>
 #include <sched.h>
+#include <sys/wait.h>
 #ifndef __NR_olduname
 #include <sys/utsname.h>
 #endif
@@ -43,6 +44,9 @@ scwrap_t syscallwrap[] = {
     { 4, __NR_write, 3 },
     { 5, __NR_open, 3 },
     { 6, __NR_close, 1 },
+#ifdef __NR_waitpid
+    { 7, __NR_waitpid, 3 },
+#endif
     { 10, __NR_unlink, 1 },
 #ifdef __NR_time
     { 13, __NR_time, 1 },
@@ -62,7 +66,7 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_olduname
     { 109, __NR_olduname, 1 },
 #endif
-    //{120, __NR_clone, 1 },    // need works, args is struct pt_regs...
+    //{ 120, __NR_clone, 5 },    // need works
     { 122, __NR_uname, 1 },
     { 125, __NR_mprotect, 3 },
     { 136, __NR_personality, 1 },
@@ -168,6 +172,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             emu->quit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
             return;
+#ifndef __NR_waitpid
+        case 7: //sys_waitpid
+            R_EAX = waitpid((pid_t)R_EBX, (int*)R_ECX, (int)R_EDX);
+            return;
+#endif
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
@@ -181,24 +190,31 @@ void EXPORT x86Syscall(x86emu_t *emu)
             return;
         case 120:   // clone
             {
-                struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EBX;
+                //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
                 // lets duplicate the emu
-                x86emu_t* newemu = AddSmallCallback(emu, regs->eip, 0, NULL, NULL, NULL, NULL);
-                SetEAX(newemu, regs->eax);
-                SetEBX(newemu, regs->ebx);
-                SetECX(newemu, regs->ecx);
-                SetEDX(newemu, regs->edx);
-                SetEDI(newemu, regs->edi);
-                SetESI(newemu, regs->esi);
-                SetEBP(newemu, regs->ebp);
-                SetESP(newemu, regs->ecx?regs->ecx:regs->esp);
-                //TODO: how to clean that child-stack ??? The child process cannot free it's own stack :S
-                void* newstack = NULL;
-                if(posix_memalign(&newstack, emu->context->stackalign, 1024*1024)) {
-                    printf_log(LOG_NONE, "Warning, posix_memalign failed, using regular malloc...\n");
-                    newstack = malloc(1024*1024);
+                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)emu->init_stack, emu->size_stack, 0);
+                SetupX86Emu(newemu);
+                CloneEmu(newemu, emu);
+                SetESP(newemu, R_ESP);
+                /*if(regs) {
+                    SetEAX(newemu, regs->eax);
+                    SetEBX(newemu, regs->ebx);
+                    SetECX(newemu, regs->ecx);
+                    SetEDX(newemu, regs->edx);
+                    SetEDI(newemu, regs->edi);
+                    SetESI(newemu, regs->esi);
+                    SetEBP(newemu, regs->ebp);
+                    SetESP(newemu, regs->ecx?regs->ecx:regs->esp);
+                }*/
+                int r = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, NULL);
+                if(r) {
+                    SetEAX(newemu, r);
+                    Run(newemu);
+                    r = GetEAX(newemu);
+                    FreeX86Emu(&newemu);
+                    exit(R_EAX);
                 }
-                R_EAX = (uint32_t)clone(clone_fn, (void*)((uintptr_t)newstack+1024*1024), regs->ebx, newemu, regs->edx, 0, regs->edi);
+                R_EAX = r;
             }
             return;
 #ifndef __NR_olduname

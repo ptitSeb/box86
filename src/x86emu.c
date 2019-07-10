@@ -43,6 +43,8 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     // own stack?
     if(ownstack)
         emu->stack = (void*)stack;
+    emu->init_stack = (void*)stack;
+    emu->size_stack = stacksize;
     // set default value
     R_EIP = start;
     R_ESP = stack + stacksize;

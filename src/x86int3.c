@@ -159,6 +159,8 @@ void x86Int3(x86emu_t* emu)
                     post = 3;
                 } else if(strstr(s, "XLoadQueryFont")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), "XLoadQueryFont", *(void**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else if(strstr(s, "pthread_mutex_lock")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), "pthread_mutex_lock", *(void**)(R_ESP+4));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }

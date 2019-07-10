@@ -72,6 +72,8 @@ typedef struct x86emu_s {
     uint32_t    *scratch;
     // local stack, do be deleted when emu is freed
     void*       stack;
+    void*       init_stack; // initial stack (owned or not)
+    uint32_t    size_stack; // stack size (owned or not)
 
 } x86emu_t;
 
