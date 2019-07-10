@@ -31,9 +31,14 @@ Send all log and trace to a file instead of `stdout`
 #### BOX86_TRACE
 Only on build with trace enabled. Trace allow the logging of all instruction execute, along with register dump
 * 0 : No trace
-* 1 : Trace enabled. The trace start after the init off all depending libs is done
+* 1 : Trace enabled. The trace start after the init of all depending libs is done
 * symbolname : Trace only `symbolname` (trace is disable if the symbol is not found)
 * 0xXXXXXXX-0xYYYYYYY : trace only between the 2 addresses
+
+#### BOX86_TRACE_INIT
+Use BOX86_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program
+* 0 : No trace
+* 1 : Trace enabled. The trace start with the init of all depending libs is done
 
 #### BOX86_TRACE_START
 Only on build with trace enabled.
@@ -47,3 +52,8 @@ Only on build with trace enabled.
 #### BOX86_LOAD_ADDR
 Try to load at 0xXXXXXX main binaray (if binary is a PIE)
 * 0xXXXXXXXX the load address (only active on PIE programs)
+
+#### BOX86_NOSIGSEGV
+To disable handling of SigSEGV (to ease debugging mainly)
+* 0 : default, let x86 program set sighandler for SEGV
+* 1 : disable handling of SigSEGV
