@@ -1877,7 +1877,7 @@ GO(vsscanf, iFppp)
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpupVV)    // Weak
 GOM(__vswprintf_chk, iFEpuvvpVV)    // Weak
-// vswscanf
+GO(vswscanf, iFppp)
 GO(vsyslog, vFipV)
 GO(__vsyslog_chk, vFiipV)
 // vtimes
