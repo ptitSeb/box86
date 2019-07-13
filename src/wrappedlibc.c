@@ -24,6 +24,7 @@
 #include <ftw.h>
 #include <sys/syscall.h> 
 #include <sys/socket.h>
+#include <sys/utsname.h>
 
 #include "wrappedlibs.h"
 
@@ -156,6 +157,14 @@ pid_t EXPORT my_vfork(x86emu_t* emu)
     #else
     return 0;
     #endif
+}
+
+int EXPORT my_uname(struct utsname *buf)
+{
+    // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
+    int ret = uname(buf);
+    strcpy(buf->machine, "i686");
+    return ret;
 }
 
 

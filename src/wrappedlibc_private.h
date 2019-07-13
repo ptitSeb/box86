@@ -1822,7 +1822,7 @@ GO(__uflow, iFp)
 GOW(umask, uFu)
 GOW(umount, iFp)
 GOW(umount2, iFpi)
-GOW(uname, iFp)
+GOM(uname, iFp) //Weak
 // __underflow
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
