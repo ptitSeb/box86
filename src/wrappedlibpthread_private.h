@@ -135,7 +135,7 @@ GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
 GO(__pthread_rwlock_wrlock, iFp)
 GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, uFv)
-// pthread_setaffinity_np
+GO(pthread_setaffinity_np, iFpup) // need to do something about 3rd argument "struct cpu_set_t"?
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
 // pthread_setconcurrency
@@ -151,8 +151,8 @@ GO(pthread_sigmask, iFipp)
 // pthread_spin_trylock
 // pthread_spin_unlock
 GO(pthread_testcancel, vFv)
-// pthread_timedjoin_np
-// pthread_tryjoin_np
+GO(pthread_timedjoin_np, iFppp)
+GO(pthread_tryjoin_np, iFpp)
 GO(__pthread_unregister_cancel, vFp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
