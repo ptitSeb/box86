@@ -1,3 +1,15 @@
+#ifndef __USE_FILE_OFFSET64
+        #define __USE_FILE_OFFSET64
+#endif
+#ifndef __USE_LARGEFILE64
+        #define __USE_LARGEFILE64
+#endif
+#ifndef _LARGEFILE64_SOURCE
+        #define _LARGEFILE64_SOURCE
+#endif
+#ifndef _FILE_OFFSET_BIT
+        #define _FILE_OFFSET_BIT 64
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,7 +73,7 @@ void LoadLogEnv()
 #endif
     p = getenv("BOX86_TRACE_FILE");
     if(p) {
-        ftrace = fopen(p, "w");
+        ftrace = fopen64(p, "w");
         if(!ftrace) {
             ftrace = stdout;
             printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
