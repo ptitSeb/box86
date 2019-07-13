@@ -96,6 +96,8 @@ GO(alcCaptureCloseDevice,iFp)
 GO(alcCaptureStart,vFp)
 GO(alcCaptureStop,vFp)
 GO(alcCaptureSamples,vFppi)
+GO(alcGetThreadContext, pFv)
+GO(alcSetThreadContext, iFp)
 
 GO(alBufferDataStatic,vFiipii)
 GO(alBufferSubDataSOFT,vFuipii)
