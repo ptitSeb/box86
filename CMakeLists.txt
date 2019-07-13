@@ -122,6 +122,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedcrypto.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedlibssl.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedutil.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedlibuuid.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapper.h")

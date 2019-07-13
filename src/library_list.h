@@ -45,6 +45,7 @@ GO("libiconv.so.2", iconv)
 GO("libcrypto.so.1", crypto)
 GO("libssl.so.1", libssl)
 GO("libutil.so.1", util)
+GO("libuuid.so.1", libuuid)
 
 GO("ld-linux.so.2", ldlinux)
 
