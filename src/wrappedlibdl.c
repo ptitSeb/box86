@@ -14,6 +14,7 @@
 #include "library.h"
 #include "librarian.h"
 #include "box86context.h"
+#include "elfloader.h"
 
 typedef struct dlprivate_s {
     library_t   **libs;
@@ -124,6 +125,15 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     if(handle==NULL) {
         // special case, look globably
         if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end))
+            return (void*)start;
+        dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        return NULL;
+    }
+    if(handle==(void*)0xFFFFFFFF) {
+        // special case, look globably but no self (RTLD_NEXT)
+        elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_ESP); // use return address to guess "self"
+        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf));
             return (void*)start;
         dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);

@@ -331,15 +331,19 @@ void RunGS(x86emu_t *emu)
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
+            break;
+        case 0x69:              /* IMUL Gd,Ed,Id */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            tmp32u = F32;
+            GD.dword[0] = imul32(emu, ED->dword[0], tmp32u);
             break;
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             if(opcode==0x83) {
                 tmp32s = F8S;
                 tmp32u = (uint32_t)tmp32s;
@@ -358,14 +362,12 @@ void RunGS(x86emu_t *emu)
             break;
         case 0x89:              /* MOV Ed,Gd */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             ED->dword[0] = GD.dword[0];
             break;
         case 0x8B:              /* MOV Gd,Ed */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             GD.dword[0] = ED->dword[0];
             break;
         case 0xA1:              /* MOV EAX,Ov */
@@ -383,15 +385,13 @@ void RunGS(x86emu_t *emu)
 
         case 0xC7:              /* MOV Ed,Id */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             ED->dword[0] = F32;
             break;
 
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
-            GET_ED;
-            ED = (reg32_t*)(((char*)ED) + tlsdata);
+            GET_ED_OFFS(tlsdata);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
                     ED->dword[0] = inc32(emu, ED->dword[0]);
