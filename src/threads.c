@@ -16,21 +16,32 @@
 #include "x86run_private.h"
 #include "x86trace.h"
 
+typedef struct emuthread_s {
+	x86emu_t *emu;
+	uintptr_t fnc;
+	void*	arg;
+} emuthread_t;
+
 static void pthread_clean_routine(void* p)
 {
-	x86emu_t *emu = (x86emu_t*)p;
-	//free callbacks, all all linked callback too (shared)
-	while((emu=FreeCallback(emu)));
+	emuthread_t *et = (emuthread_t*)p;
+	FreeX86Emu(&et->emu);
+	free(et);
 }
 
 static void* pthread_routine(void* p)
 {
 	void* r = NULL;
+
+	emuthread_t *et = (emuthread_t*)p;
 	
 	pthread_cleanup_push(pthread_clean_routine, p);
 
-	x86emu_t *emu = (x86emu_t*)p;
-	r = (void*)RunCallback(emu);
+	x86emu_t *emu = et->emu;
+	Push(emu, (uint32_t)et->arg);
+	EmuCall(emu, et->fnc);
+	R_ESP+=4;
+	r = (void*)R_EAX;
 
 	pthread_cleanup_pop(1);
 
@@ -45,10 +56,18 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
 			stacksize = stsize;
 	}
-	x86emu_t *emuthread = AddVariableCallback(emu, stacksize, (uintptr_t)start_routine, 1, arg, NULL, NULL, NULL);
+	void* stack = calloc(1, stacksize);
+	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+    x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, 1);
+	SetupX86Emu(emuthread);
+    emuthread->trace_start = emu->trace_start;
+    emuthread->trace_end = emu->trace_end;
+	et->emu = emuthread;
+	et->fnc = (uintptr_t)start_routine;
+	et->arg = arg;
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
-		pthread_routine, emuthread);
+		pthread_routine, et);
 }
 
 
