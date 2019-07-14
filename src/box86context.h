@@ -81,6 +81,7 @@ typedef struct box86context_s {
     library_t           *sdl2ttflib;
     library_t           *zlib;
     library_t           *vorbisfile;
+    library_t           *vorbis;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

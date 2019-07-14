@@ -493,6 +493,96 @@ void UnalignOggVorbis(void* dest, void* source)
 }
 #undef TRANSFERT
 
+#define TRANSFERT \
+GO(analysisp) \
+GO(vi) \
+GO(pcm) \
+GO(pcmret) \
+GO(pcm_storage) \
+GO(pcm_current) \
+GO(pcm_returned) \
+GO(preextrapolate) \
+GO(eofflag) \
+GO(lW) \
+GO(W) \
+GO(nW) \
+GO(centerW) \
+GO(granulepos) \
+GO(sequence) \
+GO(glue_bits) \
+GO(time_bits) \
+GO(floor_bits) \
+GO(res_bits) \
+GO(backend_state)
+
+void UnalignVorbisDspState(void* dest, void* source)
+{
+    // Arm -> x86
+     #define GO(A) ((vorbis_dsp_state*)dest)->A = ((vorbis_dsp_state_x86*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_dsp_state*)dest)->A, &((vorbis_dsp_state_x86*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+void AlignVorbisDspState(void* dest, void* source)
+{
+    // x86 -> Arm
+     #define GO(A) ((vorbis_dsp_state_x86*)dest)->A = ((vorbis_dsp_state*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_dsp_state_x86*)dest)->A, &((vorbis_dsp_state*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+#undef TRANSFERT
+
+#define TRANSFERT \
+GO(pcm) \
+GO(opb.endbyte) \
+GO(opb.endbit) \
+GO(opb.buffer) \
+GO(opb.ptr) \
+GO(opb.storage) \
+GO(lW) \
+GO(W) \
+GO(nW) \
+GO(pcmend) \
+GO(mode) \
+GO(eofflag) \
+GO(granulepos) \
+GO(sequence) \
+GO(vd) \
+GO(localstore) \
+GO(localtop) \
+GO(localalloc) \
+GO(totaluse) \
+GO(reap) \
+GO(glue_bits) \
+GO(time_bits) \
+GO(floor_bits) \
+GO(res_bits) \
+GO(internal)
+
+void UnalignVorbisBlock(void* dest, void* source)
+{
+    // Arm -> x86
+     #define GO(A) ((vorbis_block*)dest)->A = ((vorbis_block_x86*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_block*)dest)->A, &((vorbis_block_x86*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+void AlignVorbisBlock(void* dest, void* source)
+{
+    // x86 -> Arm
+     #define GO(A) ((vorbis_block_x86*)dest)->A = ((vorbis_block*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_block_x86*)dest)->A, &((vorbis_block*)source)->A, S);
+     TRANSFERT
+     #undef GO
+     #undef GOM
+}
+
+#undef TRANSFERT
+
 typedef union __attribute__((packed)) x86_epoll_data {
     void    *ptr;
     int      fd;

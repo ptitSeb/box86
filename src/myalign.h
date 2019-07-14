@@ -8,6 +8,12 @@ void UnalignStat64(const void* source, void* dest);
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
 void AlignOggVorbis(void* dest, void* source);   // x86 -> Arm
 
+void UnalignVorbisDspState(void* dest, void* source); // Arm -> x86
+void AlignVorbisDspState(void* dest, void* source);   // x86 -> Arm
+
+void UnalignVorbisBlock(void* dest, void* source); // Arm -> x86
+void AlignVorbisBlock(void* dest, void* source);   // x86 -> Arm
+
 void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
 void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
 

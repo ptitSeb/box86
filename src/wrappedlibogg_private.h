@@ -2,6 +2,8 @@
 #error meh!
 #endif
 
+// ogg_stream_state doesn't need align :)
+
 //GO(oggpack_adv, 
 //GO(oggpack_adv1, 
 //GO(oggpackB_adv, 
@@ -40,7 +42,7 @@
 //GO(oggpack_writeinit, 
 //GO(oggpack_writetrunc, 
 GO(ogg_page_bos, iFp)
-//GO(ogg_page_checksum_set, 
+GO(ogg_page_checksum_set, iFp)
 //GO(ogg_page_continued, 
 GO(ogg_page_eos, iFp)
 GO(ogg_page_granulepos, IFp)
@@ -52,18 +54,18 @@ GO(ogg_page_serialno, iFp)
 GO(ogg_stream_clear, iFp)
 //GO(ogg_stream_destroy, 
 //GO(ogg_stream_eos, 
-//GO(ogg_stream_flush, 
-//GO(ogg_stream_flush_fill, 
+GO(ogg_stream_flush, iFpp)
+GO(ogg_stream_flush_fill, iFppi)
 GO(ogg_stream_init, iFpi)
 //GO(ogg_stream_iovecin, 
-//GO(ogg_stream_packetin, 
+GO(ogg_stream_packetin, iFpp)
 GO(ogg_stream_packetout, iFpp)
 //GO(ogg_stream_packetpeek, 
 GO(ogg_stream_pagein, iFpp)
-//GO(ogg_stream_pageout, 
+GO(ogg_stream_pageout, iFpp)
 //GO(ogg_stream_pageout_fill, 
-//GO(ogg_stream_reset, 
-//GO(ogg_stream_reset_serialno, 
+GO(ogg_stream_reset, iFp)
+GO(ogg_stream_reset_serialno, iFpi)
 GO(ogg_sync_buffer, pFpi)
 //GO(ogg_sync_check, 
 GO(ogg_sync_clear, iFp)
@@ -71,5 +73,5 @@ GO(ogg_sync_clear, iFp)
 GO(ogg_sync_init, iFp)
 GO(ogg_sync_pageout, iFpp)
 //GO(ogg_sync_pageseek, 
-//GO(ogg_sync_reset, 
+GO(ogg_sync_reset, iFp)
 GO(ogg_sync_wrote, iFpi)
