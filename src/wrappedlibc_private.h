@@ -1062,7 +1062,7 @@ GOW(mbrlen, uFpupp)
 // __mbrlen
 GOW(mbrtowc, uFppup)
 GO(__mbrtowc, uFppup)
-// mbsinit  // Weak
+GOW(mbsinit, iFp)
 GOW(mbsnrtowcs, uFppuup)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, uFppup)
@@ -1986,7 +1986,7 @@ GO(wctomb, iFpi)
 GOW(wctype, uFp)
 GO(__wctype_l, uFpp)
 GOW(wctype_l, uFpp)
-// wcwidth
+GO(wcwidth, iFu)
 GOW(wmemchr, pFpiu)
 GO(wmemcmp, iFppu)
 GOW(wmemcpy, pFppu)
