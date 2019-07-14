@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error Meh!
+#endif
 
 // _fini
 // _init
@@ -152,7 +154,7 @@ GO(SDL_GameControllerUpdate, vFv)
 // SDL_GetAssertionReport
 GO(SDL_GetAudioDeviceName, pFii)
 // SDL_GetAudioDeviceStatus
-// SDL_GetAudioDriver
+GO(SDL_GetAudioDriver, pFi)
 // SDL_GetAudioStatus
 GOM(SDL_GetBasePath, pFE)
 GO(SDL_GetClipboardText, pFv)
@@ -161,9 +163,9 @@ GO(SDL_GetClosestDisplayMode, pFipp)
 GO(SDL_GetColorKey, iFpp)
 // SDL_GetCPUCacheLineSize
 GO(SDL_GetCPUCount, iFv)
-// SDL_GetCurrentAudioDriver
+GO(SDL_GetCurrentAudioDriver, pFv)
 GO(SDL_GetCurrentDisplayMode, iFip)
-// SDL_GetCurrentVideoDriver
+GO(SDL_GetCurrentVideoDriver, pFv)
 // SDL_GetCursor
 // SDL_GetDefaultAssertionHandler
 // SDL_GetDefaultCursor
@@ -192,13 +194,13 @@ GO(SDL_GetModState, pFv)
 GO(SDL_GetMouseState, uFpp)
 // SDL_GetNumAllocations
 GO(SDL_GetNumAudioDevices, iFi)
-// SDL_GetNumAudioDrivers
+GO(SDL_GetNumAudioDrivers, iFv)
 GO(SDL_GetNumDisplayModes, iFi)
-// SDL_GetNumRenderDrivers
+GO(SDL_GetNumRenderDrivers, iFv)
 GO(SDL_GetNumTouchDevices, iFv)
 GO(SDL_GetNumTouchFingers, iFu)
 GO(SDL_GetNumVideoDisplays, iFv)
-// SDL_GetNumVideoDrivers
+GO(SDL_GetNumVideoDrivers, iFv)
 GO(SDL_GetPerformanceCounter, UFv)
 GO(SDL_GetPerformanceFrequency, UFv)
 // SDL_GetPixelFormatName
@@ -210,7 +212,7 @@ GO(SDL_GetPrefPath, pFpp)
 GO(SDL_GetRelativeMouseState, uFpp)
 GO(SDL_GetRenderDrawBlendMode, iFpp)
 // SDL_GetRenderDrawColor
-// SDL_GetRenderDriverInfo
+GO(SDL_GetRenderDriverInfo, iFip)
 // SDL_GetRenderer
 GO(SDL_GetRendererInfo, iFpp)
 // SDL_GetRendererOutputSize
@@ -221,7 +223,7 @@ GO(SDL_GetRGB, vFupppp)
 GO(SDL_GetRGBA, vFuppppp)
 GO(SDL_GetScancodeFromKey, uFu)
 // SDL_GetScancodeFromName
-// SDL_GetScancodeName
+GO(SDL_GetScancodeName, pFu)
 // SDL_GetShapedWindowMode
 // SDL_GetSurfaceAlphaMod
 // SDL_GetSurfaceBlendMode
@@ -237,7 +239,7 @@ GO(SDL_GetTouchDevice, uFi)
 // SDL_GetTouchDeviceType
 GO(SDL_GetTouchFinger, pFui)
 GO(SDL_GetVersion, vFp)
-// SDL_GetVideoDriver
+GO(SDL_GetVideoDriver, pFi)
 // SDL_GetWindowBordersSize
 // SDL_GetWindowBrightness
 // SDL_GetWindowData
@@ -668,4 +670,3 @@ GOM(SDL_WriteU8, uFEpu)
 
 GO(SDL_doesntexist, IFpIi)
 
-#endif
