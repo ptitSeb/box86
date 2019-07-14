@@ -198,6 +198,44 @@ void RunLock(x86emu_t *emu)
                     } else
                         CLEAR_FLAG(F_CF);
                     break;
+                case 0xBA:                      
+                    nextop = F8;
+                    switch((nextop>>3)&7) {
+                        case 4:                 /* BT Ed,Ib */
+                            CHECK_FLAGS(emu);
+                            GET_ED;
+                            tmp8u = F8;
+                            if((nextop&0xC0)!=0xC0)
+                            {
+                                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                            }
+                            tmp8u&=31;
+                            if(ED->dword[0] & (1<<tmp8u))
+                                SET_FLAG(F_CF);
+                            else
+                                CLEAR_FLAG(F_CF);
+                            break;
+                        case 6:             /* BTR Ed, Ib */
+                            CHECK_FLAGS(emu);
+                            GET_ED;
+                            tmp8u = F8;
+                            if((nextop&0xC0)!=0xC0)
+                            {
+                                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                            }
+                            tmp8u&=31;
+                            if(ED->dword[0] & (1<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                                ED->dword[0] ^= (1<<tmp8u);
+                            } else
+                                CLEAR_FLAG(F_CF);
+                            break;
+
+                        default:
+                            R_EIP -= 3; //unfetch
+                            break;
+                    }
+                    break;
                 case 0xBB:                      /* BTC Ed,Gd */
                     CHECK_FLAGS(emu);
                     nextop = F8;
@@ -245,10 +283,8 @@ void RunLock(x86emu_t *emu)
                     }
                     break;
                 default:
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
-                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x0F 0x%02X 0x%02X\n", opcode, nextop);
-                    emu->quit=1;
-                    emu->error |= ERR_ILLEGAL;
+                    // trigger invalid lock?
+                    R_EIP -= 2; // unfetch
                     break;
             }
             break;
@@ -298,7 +334,6 @@ void RunLock(x86emu_t *emu)
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 default:
-                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, PK(0));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
@@ -306,7 +341,9 @@ void RunLock(x86emu_t *emu)
             }
             break;
         default:
-            UnimpOpcode(emu);
+            //UnimpOpcode(emu);
+            // should trigger invalid unlock ?
+            R_EIP--;    // "unfetch" to use normal instruction
     }
     pthread_mutex_unlock(&emu->context->mutex_lock);
 }
