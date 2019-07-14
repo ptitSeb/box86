@@ -70,7 +70,7 @@ GO(SDL_CreateRenderer, pFpiu)
 GO(SDL_CreateRGBSurface, pFuiiiuuuu)
 GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu)
 // SDL_CreateRGBSurfaceWithFormat
-// SDL_CreateRGBSurfaceWithFormatFrom
+GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu)
 GO(SDL_CreateSemaphore, pFu)
 // SDL_CreateShapedWindow
 GO(SDL_CreateSoftwareRenderer, pFp)
@@ -173,9 +173,9 @@ GO(SDL_GetDesktopDisplayMode, iFip)
 GO(SDL_GetDisplayBounds, iFip)
 // SDL_GetDisplayDPI
 GO(SDL_GetDisplayMode, iFiip)
-// SDL_GetDisplayName
+GO(SDL_GetDisplayName, pFi)
 // SDL_GetDisplayOrientation
-// SDL_GetDisplayUsableBounds
+GO(SDL_GetDisplayUsableBounds, iFip)
 GO(SDL_getenv, pFp)
 GO(SDL_GetError, pFv)
 // SDL_GetEventFilter
@@ -208,7 +208,7 @@ GO(SDL_GetPlatform, pFv)
 GO(SDL_GetPowerInfo, iFpp)
 GO(SDL_GetPrefPath, pFpp)
 // SDL_GetQueuedAudioSize
-// SDL_GetRelativeMouseMode
+GO(SDL_GetRelativeMouseMode, iFv)
 GO(SDL_GetRelativeMouseState, uFpp)
 GO(SDL_GetRenderDrawBlendMode, iFpp)
 // SDL_GetRenderDrawColor
@@ -341,7 +341,7 @@ GO(SDL_IsScreenSaverEnabled, iFv)
 // SDL_IsShapedWindow
 // SDL_isspace
 // SDL_IsTablet
-// SDL_IsTextInputActive
+GO(SDL_IsTextInputActive, iFv)
 // SDL_itoa
 GO(SDL_JoystickClose, vFp)
 // SDL_JoystickCurrentPowerLevel
