@@ -93,15 +93,16 @@ int EXPORT my_vorbis_block_clear(x86emu_t *emu, void * vb)
     return ret;
 }
 
-int EXPORT my_vorbis_block_init(x86emu_t *emu, void * a, void* b)
+int EXPORT my_vorbis_block_init(x86emu_t *emu, void * v, void* vb)
 {
     vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
     vorbis_block block;
     vorbis_dsp_state state;
-    AlignVorbisDspState(&state, a);
+    AlignVorbisDspState(&state, v);
+    AlignVorbisBlock(&block, vb);   // useless?
     int ret = my->vorbis_block_init(&state, &block);
-    UnalignVorbisBlock(b, &block);
-    UnalignVorbisDspState(a, &state);   // just in case?
+    UnalignVorbisBlock(vb, &block);
+    UnalignVorbisDspState(v, &state);   // just in case?
     return ret;
 }
 
@@ -152,6 +153,7 @@ int EXPORT my_vorbis_analysis_init(x86emu_t* emu, void* v, void* vi)
 {
     vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
     vorbis_dsp_state state;
+    AlignVorbisDspState(&state, v); // usefull?
     int ret = my->vorbis_analysis_init(&state, vi);
     UnalignVorbisDspState(v, &state);
     return ret;
@@ -173,7 +175,7 @@ int EXPORT my_vorbis_bitrate_addblock(x86emu_t *emu, void * vb)
     vorbis_block block;
     AlignVorbisBlock(&block, vb);
     int ret = my->vorbis_bitrate_addblock(&block);
-    UnalignVorbisBlock(vb, &vb);
+    UnalignVorbisBlock(vb, &block);
     return ret;
 }
 
@@ -181,6 +183,7 @@ int EXPORT my_vorbis_bitrate_flushpacket(x86emu_t* emu, void* v, void* op)
 {
     vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
     vorbis_dsp_state state;
+    AlignVorbisDspState(&state, v);
     int ret = my->vorbis_bitrate_flushpacket(&state, op);
     UnalignVorbisDspState(v, &state);
     return ret;
@@ -222,7 +225,7 @@ int EXPORT my_vorbis_synthesis_init(x86emu_t *emu, void * v, void* vi)
 {
     vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
     vorbis_dsp_state state;
-    //AlignVorbisDspState(&state, v); // useless
+    AlignVorbisDspState(&state, v); // useless?
     int ret = my->vorbis_synthesis_init(&state, vi);
     UnalignVorbisDspState(v, &state);
     return ret;
