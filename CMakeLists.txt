@@ -91,6 +91,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1image.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl1ttf.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrappedsdl2image.c"
