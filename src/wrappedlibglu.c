@@ -31,4 +31,10 @@ void EXPORT my_gluNurbsCallback(x86emu_t* emu, void* a, int32_t b, void* cb)
 const char* libgluName = "libGLU.so.1";
 #define LIBNAME libglu
 
+#define CUSTOM_INIT \
+    lib->priv.w.needed = 1; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libGL.so.1"); \
+
+
 #include "wrappedlib_init.h"
