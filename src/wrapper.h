@@ -552,6 +552,7 @@ void pFpppuu(x86emu_t *emu, uintptr_t fnc);
 void pFpppup(x86emu_t *emu, uintptr_t fnc);
 void pFppppi(x86emu_t *emu, uintptr_t fnc);
 void pFppppp(x86emu_t *emu, uintptr_t fnc);
+void vFEiiipp(x86emu_t *emu, uintptr_t fnc);
 void vFEpuupp(x86emu_t *emu, uintptr_t fnc);
 void vFiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFiffiff(x86emu_t *emu, uintptr_t fnc);

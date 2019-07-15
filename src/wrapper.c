@@ -553,6 +553,7 @@ typedef void* (*pFpppuu_t)(void*, void*, void*, uint32_t, uint32_t);
 typedef void* (*pFpppup_t)(void*, void*, void*, uint32_t, void*);
 typedef void* (*pFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
+typedef void (*vFEiiipp_t)(x86emu_t*, int32_t, int32_t, int32_t, void*, void*);
 typedef void (*vFEpuupp_t)(x86emu_t*, void*, uint32_t, uint32_t, void*, void*);
 typedef void (*vFiiiiii_t)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 typedef void (*vFiffiff_t)(int32_t, float, float, int32_t, float, float);
@@ -1418,6 +1419,7 @@ void pFpppuu(x86emu_t *emu, uintptr_t fcn) { pFpppuu_t fn = (pFpppuu_t)fcn; R_EA
 void pFpppup(x86emu_t *emu, uintptr_t fcn) { pFpppup_t fn = (pFpppup_t)fcn; R_EAX=(uintptr_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void pFppppi(x86emu_t *emu, uintptr_t fcn) { pFppppi_t fn = (pFppppi_t)fcn; R_EAX=(uintptr_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
 void pFppppp(x86emu_t *emu, uintptr_t fcn) { pFppppp_t fn = (pFppppp_t)fcn; R_EAX=(uintptr_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
+void vFEiiipp(x86emu_t *emu, uintptr_t fcn) { vFEiiipp_t fn = (vFEiiipp_t)fcn; fn(emu, *(int32_t*)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void vFEpuupp(x86emu_t *emu, uintptr_t fcn) { vFEpuupp_t fn = (vFEpuupp_t)fcn; fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void vFiiiiii(x86emu_t *emu, uintptr_t fcn) { vFiiiiii_t fn = (vFiiiiii_t)fcn; fn(*(int32_t*)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(int32_t*)(R_ESP + 24)); }
 void vFiffiff(x86emu_t *emu, uintptr_t fcn) { vFiffiff_t fn = (vFiffiff_t)fcn; fn(*(int32_t*)(R_ESP + 4), *(float*)(R_ESP + 8), *(float*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(float*)(R_ESP + 20), *(float*)(R_ESP + 24)); }
