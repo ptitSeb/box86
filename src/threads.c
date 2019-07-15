@@ -175,23 +175,45 @@ EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attri
 
 // phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it 48 bytes on ARM. 
 // Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
-// What about cond that are statically initialized?
-#define COND_SIGN 0x513248F8		// random stuff...
-typedef struct wrapped_cond_s {
-	uint32_t 			sign;
-	pthread_cond_t 		*cond;
-} wrapped_cond_t;
+// What about cond that are statically initialized? It's a versionned function, corresponding to an old behaviour
 
+KHASH_MAP_INIT_INT(mapcond, pthread_cond_t*);
+
+// should all access to that map be behind a mutex?
+kh_mapcond_t *mapcond = NULL;
+
+static pthread_cond_t* add_cond(void* cond)
+{
+	if(!mapcond)
+		mapcond = kh_init(mapcond);
+	khint_t k;
+	int ret;
+	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
+	pthread_cond_t *c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+	return c;
+}
 static pthread_cond_t* get_cond(void* cond)
 {
-	wrapped_cond_t *wcond = (wrapped_cond_t*)cond;
-	if(wcond->sign != COND_SIGN) {
-		// else, lets consider this is a statically initialized condition, so lets create a wrapped one
-		wcond->cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));	// yep, that will leak...
-		wcond->sign = COND_SIGN;
-		pthread_cond_init(wcond->cond, NULL);
+	if(!mapcond)
+		return cond;
+	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
+	if(k==kh_end(mapcond))
+		return (pthread_cond_t*)cond;
+	return kh_value(mapcond, k);
+}
+static void del_cond(void* cond)
+{
+	if(!mapcond)
+		return;
+	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
+	if(k!=kh_end(mapcond)) {
+		free(kh_value(mapcond, k));
+		kh_del(mapcond, mapcond, k);
+		if(kh_size(mapcond)==0) {
+			kh_destroy(mapcond, mapcond);
+			mapcond = NULL;
+		}
 	}
-	return wcond->cond;
 }
 
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
@@ -203,19 +225,15 @@ EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
-	wrapped_cond_t* wcond = (wrapped_cond_t*)cond;
-	if(wcond->sign == COND_SIGN) {
-		free(wcond->cond);
-		wcond->sign = 0;
-	}
+	del_cond(cond);
 	return ret;
 }
 EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
 {
-	wrapped_cond_t* wcond = (wrapped_cond_t *)cond;
-	wcond->cond = (pthread_cond_t *)calloc(1, sizeof(pthread_cond_t));
-	wcond->sign = COND_SIGN;
-	return pthread_cond_init(wcond->cond, (const pthread_condattr_t*)attr);
+	pthread_cond_t *c = (pthread_cond_t*)cond;
+	if(attr==NULL)
+		c = add_cond(cond);
+	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
 EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
 {
