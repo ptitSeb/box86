@@ -107,6 +107,7 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
+    AddOffsetSymbol(emu->context->maplib, symbol, rname);
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
 }
 
@@ -131,6 +132,7 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
+    AddOffsetSymbol(emu->context->maplib, symbol, rname);
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
 }
 
