@@ -2,9 +2,9 @@
 #error Meh...
 #endif
 
-GO(alutInit,iFpp)
-GO(alutInitWithoutContext,iFpp)
-GO(alutExit,iFv)
+GO(alutInit,cFpp)
+GO(alutInitWithoutContext,cFpp)
+GO(alutExit,cFv)
 GO(alutGetError,iFv)
 GO(alutGetErrorString,pFi)
 GO(alutCreateBufferFromFile,uFp)
@@ -18,9 +18,7 @@ GO(alutLoadMemoryWaveform,pFifffppp)
 GO(alutGetMIMETypes,pFi)
 GO(alutGetMajorVersion,iFv)
 GO(alutGetMinorVersion,iFv)
-GO(alutSleep,iFf)
-GO(alutLoadWAVFile,vFppppp)
-GO(alutLoadWAVMemory,vFppppp)
+GO(alutSleep,cFf)
 GO(alutLoadWAVFile,vFpppppp)
 GO(alutLoadWAVMemory,vFpppppp)
 GO(alutUnloadWAV,vFipii)
