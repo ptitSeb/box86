@@ -89,7 +89,7 @@ GO(pthread_mutexattr_gettype, iFpp)
 GO(__pthread_mutexattr_init, iFp)
 GO(pthread_mutexattr_init, iFp)
 // pthread_mutexattr_setprioceiling
-// pthread_mutexattr_setprotocol
+GO(pthread_mutexattr_setprotocol, iFpp)
 GO(pthread_mutexattr_setpshared, iFpi)
 // pthread_mutexattr_setrobust_np
 GO(__pthread_mutexattr_settype, iFpi)

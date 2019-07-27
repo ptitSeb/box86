@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
 
 GOW(acos, dFd)
 GOW(acosf, fFf)
@@ -306,14 +308,14 @@ GOW(log1pf, fFf)
 // log1pl   // Weak
 GOW(log2, dFd)
 GOW(log2f, fFf)
-// __log2f_finite
-// __log2_finite
+GO(__log2f_finite, fFf)
+GO(__log2_finite, dFd)
 // log2l    // Weak
 // logb // Weak
 // logbf    // Weak
 // logbl    // Weak
 GOW(logf, fFf)
-// __logf_finite
+GO(__logf_finite, fFf)
 GO(__log_finite, dFd)
 // logl // Weak
 GOW(lrint, iFd)
@@ -428,5 +430,3 @@ GOW(truncf, fFf)
 // __ynf_finite
 // __yn_finite
 // ynl
-
-#endif
