@@ -43,7 +43,7 @@ def main(root, defines, ver):
 	redirects = {}
 	
 	# First read the files inside the headers
-	for filepath in glob.glob(os.path.join(root, "src", "wrapped*_private.h")):
+	for filepath in glob.glob(os.path.join(root, "src/wrapped/", "wrapped*_private.h")):
 		filename = filepath.split("/")[-1]
 		locval = {}
 		dependants = []
@@ -210,8 +210,8 @@ def main(root, defines, ver):
 #include <stdint.h>
 
 #include "wrapper.h"
-#include "x86emu_private.h"
-#include "x87emu_private.h"
+#include "emu/x86emu_private.h"
+#include "emu/x87emu_private.h"
 #include "regs.h"
 #include "x86emu.h"
 
@@ -265,7 +265,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		gbl[k] = [[c for c in v] for v in gbl[k]]
 	
 	# Rewrite the wrapper.h file:
-	with open(os.path.join(root, "src", "wrapper.h"), 'w') as file:
+	with open(os.path.join(root, "src/wrapped/generated/", "wrapper.h"), 'w') as file:
 		file.write(files_headers["wrapper.h"] % ver)
 		for v in gbl["()"]:
 			file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
@@ -287,7 +287,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		file.write(files_guards["wrapper.h"])
 	
 	# Rewrite the wrapper.c file:
-	with open(os.path.join(root, "src", "wrapper.c"), 'w') as file:
+	with open(os.path.join(root, "src/wrapped/generated/", "wrapper.c"), 'w') as file:
 		file.write(files_headers["wrapper.c"] % ver)
 		
 		# First part: typedefs

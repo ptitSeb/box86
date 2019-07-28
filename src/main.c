@@ -22,7 +22,7 @@
 #include "box86context.h"
 #include "fileutils.h"
 #include "elfloader.h"
-#include "stack.h"
+#include "box86stack.h"
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86trace.h"
