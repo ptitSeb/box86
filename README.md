@@ -45,5 +45,17 @@ Version history
 
 The change log is [here](CHANGELOG.md)
 
+----
+
+A note about Unity game emulation
+----
+
+Running Unity game is not possible for now. Mono itself use signal that are not well emulated enough. So the solution is to use a native version of the libmono used by unity. It can be found here: https://github.com/Unity-Technologies/mono and it needs to be build from source. When build copy `libmonosgen-2.0.so` to `libmonounity.so` and put it somewhere it can be dlopen'd (so in `usr/lib` or friend or somewhere in your `LD_LIBRARY_PATH`).
+Note that libmonounity is not completly wrapped yet, and the mecanism to call x86 library from libmonounity is not done yet
+
+----
+
+Final word
+----
 
 (If you use Box86 in your project, please don't forget to mention Box86)

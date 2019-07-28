@@ -53,5 +53,7 @@ GO("libssl.so.1", libssl)
 GO("libutil.so.1", util)
 GO("libuuid.so.1", libuuid)
 
+GO("libmono.so", monounity)
+
 GO("ld-linux.so.2", ldlinux)
 
