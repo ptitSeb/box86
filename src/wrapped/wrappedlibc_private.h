@@ -1783,7 +1783,7 @@ GO(tmpfile, pFv)
 GO(tmpfile64, pFv)
 GO(tmpnam, pFp)
 // tmpnam_r
-// toascii
+GO(toascii, iFi)
 // __toascii_l  // Weak
 GO(tolower, iFi)
 // _tolower
