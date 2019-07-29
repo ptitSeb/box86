@@ -445,20 +445,10 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         int bind = ELF32_ST_BIND(h->SymTab[i].st_info);
         int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
-        #if 0
-        if(((h->SymTab[i].st_info & 2) || (h->SymTab[i].st_info == 17)
-             || (h->SymTab[i].st_info == 161 && !FindGlobalSymbol(maplib, symname)) 
-             || (h->SymTab[i].st_info == 33)
-            )
-            && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
-            if(!h->SymTab[i].st_value && FindGlobalSymbol(maplib, symname))
-                continue;
-        #else
-        if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS) 
+        if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
-        #endif
             uintptr_t offs = h->SymTab[i].st_value + h->delta;
             uint32_t sz = h->SymTab[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
@@ -476,20 +466,10 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF32_ST_BIND(h->DynSym[i].st_info);
         int type = ELF32_ST_TYPE(h->DynSym[i].st_info);
-        #if 0
-        if(((h->DynSym[i].st_info & 2) || (h->DynSym[i].st_info == 17)
-             || (h->DynSym[i].st_info == 161 && !FindGlobalSymbol(maplib, symname))
-             || (h->DynSym[i].st_info == 33) 
-            )
-            && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
-            if(!h->DynSym[i].st_value && FindGlobalSymbol(maplib, symname))
-                continue;
-        #else
-        if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS) 
+        if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
-        #endif
             uintptr_t offs = h->DynSym[i].st_value + h->delta;
             uint32_t sz = h->DynSym[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
