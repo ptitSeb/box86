@@ -139,7 +139,7 @@ typedef struct sdl2_my_s {
     // threads
     kh_timercb_t    *threads;
     // evt filter
-    x86emu_t        *sdl2_evtfiler;
+    x86emu_t        *sdl2_evtfilter;
     void*           sdl2_evtfnc;
     // log output
     x86emu_t        *sdl2_logouput;
@@ -185,6 +185,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_TLSSet, iFupp_t)
     GO(SDL_JoystickGetDeviceGUID, SFi_t)
     GO(SDL_GameControllerGetBindForAxis, SFpi_t)
+    GO(SDL_SetEventFilter, vFpp_t)
     GO(SDL_AddEventWatch, vFpp_t)
     GO(SDL_DelEventWatch, vFpp_t)
     #undef GO
@@ -206,8 +207,8 @@ void freeSDL2My(void* lib)
         FreeCallback(x);
     );
     kh_destroy(timercb, my->threads);
-    if(my->sdl2_evtfiler) {
-        FreeCallback(my->sdl2_evtfiler);
+    if(my->sdl2_evtfilter) {
+        FreeCallback(my->sdl2_evtfilter);
     }
 }
 
@@ -236,11 +237,14 @@ int32_t sdl2ThreadCallback(void *userdata)
     return ret;
 }
 
-int32_t sdl2EvtFilterCallback(void *p)
+int my2_eventfilter(void* userdata, void* event)
 {
-    x86emu_t *emu = (x86emu_t*) p;
-    RunCallback(emu);
-    return (int32_t)R_EAX;
+    x86emu_t *emu = (x86emu_t*)userdata;
+    if(emu) {
+        SetCallbackArg(emu, 1, event);
+        return (int)RunCallback(emu);
+    }
+    return 0;
 }
 
 void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, const char* message)
@@ -546,20 +550,17 @@ EXPORT void my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
     }
 }
 
-EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* a, void* b)
+EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    if(my->sdl2_evtfiler) {
-        my->SDL_SetEventFilter(NULL, NULL);   // remove old one
-        FreeCallback(my->sdl2_evtfiler);
-        my->sdl2_evtfiler = NULL;
-        my->sdl2_evtfnc = NULL;
-    }
-    if(a) {
-        my->sdl2_evtfnc = a;
-        my->sdl2_evtfiler = AddCallback(emu, (uintptr_t)a, 1, b, NULL, NULL, NULL);
-        my->SDL_SetEventFilter(sdl2EvtFilterCallback, my->sdl2_evtfiler);
-    }
+    x86emu_t *oldcb = my->sdl2_evtfilter;
+    if(p)
+        my->sdl2_evtfilter = AddCallback(emu, (uintptr_t)p, 2, userdata, NULL, NULL, NULL);
+    else
+        my->sdl2_evtfilter = NULL;
+    my->SDL_SetEventFilter(p?my2_eventfilter:NULL, my->sdl2_evtfilter);
+    if(oldcb)
+        FreeCallback(oldcb);
 }
 EXPORT void *my2_SDL_GetEventFilter(x86emu_t* emu)
 {
@@ -578,7 +579,7 @@ EXPORT void my2_SDL_LogSetOutputFunction(x86emu_t* emu, void* cb, void* arg)
     }
     if(cb) {
         my->sdl2_logouput = AddCallback(emu, (uintptr_t)cb, 4, arg, NULL, NULL, NULL);
-        my->SDL_LogSetOutputFunction(sdl2EvtFilterCallback, my->sdl2_logouput);
+        my->SDL_LogSetOutputFunction(sdl2LogOutputCallback, my->sdl2_logouput);
     }
 }
 
@@ -831,15 +832,6 @@ EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* 
     return p;
 }
 
-int my2_eventfilter(void* userdata, void* event)
-{
-    x86emu_t *emu = (x86emu_t*)userdata;
-    if(emu) {
-        SetCallbackArg(emu, 1, event);
-        return (int)RunCallback(emu);
-    }
-    return 0;
-}
 EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;

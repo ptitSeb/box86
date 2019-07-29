@@ -22,13 +22,13 @@ GO(SDL_atanf, fFf)
 GO(SDL_atof, dFp)
 GO(SDL_atoi, iFp)
 GO(SDL_AtomicAdd, iFpi)
-// SDL_AtomicCAS
-// SDL_AtomicCASPtr
+GO(SDL_AtomicCAS, iFpii)
+GO(SDL_AtomicCASPtr, iFppp)
 GO(SDL_AtomicGet, iFp)
-// SDL_AtomicGetPtr
+GO(SDL_AtomicGetPtr, pFp)
 // SDL_AtomicLock
 GO(SDL_AtomicSet, iFpi)
-// SDL_AtomicSetPtr
+GO(SDL_AtomicSetPtr, pFpp)
 // SDL_AtomicTryLock
 // SDL_AtomicUnlock
 // SDL_AudioInit
@@ -360,7 +360,7 @@ GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[
 // SDL_JoystickGetDeviceType
 // SDL_JoystickGetDeviceVendor
 GO(SDL_JoystickGetGUID, uFp)
-// SDL_JoystickGetGUIDFromString
+GO(SDL_JoystickGetGUIDFromString, uFp)
 GO(SDL_JoystickGetGUIDString, vFupi)
 GO(SDL_JoystickGetHat, CFpi)
 // SDL_JoystickGetPlayerIndex
@@ -537,7 +537,7 @@ GO(SDL_SetColorKey, iFpiu)
 GO(SDL_SetCursor, vFp)
 GO(SDL_setenv, iFppi)
 GO(SDL_SetError, iFppppp)    // it use ..., so putarbitrary  4 args
-// SDL_SetEventFilter
+GOM(SDL_SetEventFilter, vFEpp)
 GO(SDL_SetHint, iFpp)
 // SDL_SetHintWithPriority
 GO(SDL_SetMainReady, vFv)
