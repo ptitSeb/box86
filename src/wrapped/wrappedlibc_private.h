@@ -1190,7 +1190,7 @@ GOM(obstack_vprintf, iFEppVV)  // Weak
 // on_exit  // Weak
 GOM(open, iFEpiu)    //Weak
 GOM(__open, iFEpiu) //Weak
-// __open_2
+GO(__open_2, iFpi)
 GOM(open64, iFEpiu) //Weak
 // __open64 // Weak
 GO(__open64_2, iFpi)

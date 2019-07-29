@@ -211,7 +211,7 @@ GO(XConfigureWindow, iFppup)
 // _XConnectXCB
 //GO(XContextDependentDrawing
 //GO(XContextualDrawing
-//GO(XConvertCase
+GO(XConvertCase, vFupp)
 GO(XConvertSelection, iFpppppu)
 GO(XCopyArea, iFppppiiuuii)
 GO(XCopyColormapAndFree, uFpu)

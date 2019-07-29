@@ -253,7 +253,7 @@ GO(SDL_GetWindowID, uFp)
 // SDL_GetWindowMaximumSize
 // SDL_GetWindowMinimumSize
 // SDL_GetWindowOpacity
-// SDL_GetWindowPixelFormat
+GO(SDL_GetWindowPixelFormat, uFp)
 GO(SDL_GetWindowPosition, vFppp)
 GO(SDL_GetWindowSize, vFppp)
 GO(SDL_GetWindowSurface, pFp)
@@ -554,7 +554,7 @@ GO(SDL_SetSurfaceBlendMode, iFpu)
 // SDL_SetSurfaceColorMod
 GO(SDL_SetSurfacePalette, iFpp)
 GO(SDL_SetSurfaceRLE, iFpi)
-// SDL_SetTextInputRect
+GO(SDL_SetTextInputRect, vFp)
 GO(SDL_SetTextureAlphaMod, iFpC)
 GO(SDL_SetTextureBlendMode, iFpu)
 GO(SDL_SetTextureColorMod, iFpCCC)
