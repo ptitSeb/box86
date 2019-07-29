@@ -82,6 +82,7 @@ typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef int64_t (*IFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -501,6 +502,8 @@ EXPORT void *my2_SDL_RWFromFP(x86emu_t* emu, void* a, int b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromFP(a, b);
+    // stdio_size hack...
+    my2_hack_stdio_size((SDL2_RWops_t*)r);
     AddNativeRW2(emu, (SDL2_RWops_t*)r);
     return r;
 }
@@ -508,6 +511,8 @@ EXPORT void *my2_SDL_RWFromFile(x86emu_t* emu, void* a, void* b)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromFile(a, b);
+    // stdio_size hack...
+    my2_hack_stdio_size((SDL2_RWops_t*)r);
     AddNativeRW2(emu, (SDL2_RWops_t*)r);
     return r;
 }

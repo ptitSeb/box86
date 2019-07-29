@@ -13,5 +13,6 @@ void FreeBridge(bridge_t** bridge);
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N);
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc);
 void* GetNativeFnc(uintptr_t fnc);
+void* GetNativeFncOrFnc(uintptr_t fnc);
 
 #endif //__BRIDGE_H_

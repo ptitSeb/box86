@@ -98,11 +98,12 @@ void RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
     if(save->anyEmu) {
         // wrap all function, including the native ones
         printf("ERROR: Emulated RWops function not implemented yet\n");
-        emu->quit = 1;
+        if(emu)
+            emu->quit = 1;
     } else {
         // don't wrap, get back normal functions
         #define GO(A) \
-        ops->A = GetNativeFnc((uintptr_t)ops->A);
+        ops->A = GetNativeFncOrFnc((uintptr_t)ops->A);  // may already be unwrapped
         GO(size)
         GO(seek)
         GO(read)
@@ -128,3 +129,20 @@ void RWNativeEnd2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
         save->s2 = ops->hidden.mem.here;
     }
 }
+
+static int64_t my2_stdio_size(SDL2_RWops_t* ops)
+{
+    SDL2RWSave_t save;
+    RWNativeStart2(NULL, (SDL2_RWops_t*)ops, &save);
+    int64_t ret = ((sdl2_size)ops->hidden.mem.stop)(ops);
+    RWNativeEnd2(NULL, (SDL2_RWops_t*)ops, &save);
+    return ret;
+}
+
+void my2_hack_stdio_size(SDL2_RWops_t* ops)
+{
+    // ugly hack....
+    ops->hidden.mem.stop = (uint8_t*)ops->size;
+    ops->size = my2_stdio_size;
+}
+
