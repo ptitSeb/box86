@@ -52,6 +52,7 @@ GO("libcrypto.so.1", crypto)
 GO("libssl.so.1", libssl)
 GO("libutil.so.1", util)
 GO("libuuid.so.1", libuuid)
+GO("libresolv.so.2", libresolv)
 
 GO("libmono.so", monounity)
 
