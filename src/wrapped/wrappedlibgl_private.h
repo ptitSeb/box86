@@ -2827,6 +2827,14 @@ GO(glBlendFunci,vFuuu)
 GO(glMinSampleShading,vFf)
 //VERSION_4_3
 GO(glInvalidateNamedFramebuffer, vFiup)
+//VERSION_4_4
+GO(glBindBuffersBase, vFiuip)
+GO(glBindBuffersRange, vFiuippp)
+GO(glBindImageTextures, vFuip)
+GO(glBindSamplers, vFuip)
+GO(glBindTextures, vFuip)
+GO(glBindVertexBuffers, vFuippp)
+GO(glBufferStorage, vFiupu)
 //VERSION_4_5
 GO(glBindTextureUnit, vFuu)
 GO(glCreateFramebuffers, vFip)
@@ -2834,6 +2842,8 @@ GO(glCreateProgramPipelines, vFip)
 GO(glCreateRenderbuffers, vFip)
 GO(glCreateTextures, vFuip)
 GO(glInvalidateNamedFramebufferData, vFuip)
+GO(glNamedBufferStorage, vFuiupu)
+GO(glVertexArrayVertexBuffers, vFuuippp)
 
 //GL_KTX_buffer_region
 GO(glBufferRegionEnabled,uFv)
@@ -2954,4 +2964,11 @@ GO(glXWaitX,vFv)
 
 GOM(glXGetProcAddress, pFEp)
 GOM(glXGetProcAddressARB, pFEp)
+
+//GLX_OML_sync_control
+GO(glXGetSyncValuesOML, iFppppp)
+GO(glXGetMscRateOML, iFpppp)
+GO(glXSwapBuffersMscOML, IFppIII)
+GO(glXWaitForMscOML, iFppIIIppp)
+GO(glXWaitForSbcOML, iFppIppp)
 

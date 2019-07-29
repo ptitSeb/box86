@@ -89,6 +89,13 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }
     if(k==kh_end(emu->context->glwrappers)) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
+    }
+    if(k==kh_end(emu->context->glwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
