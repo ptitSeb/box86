@@ -260,7 +260,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
             case R_386_JMP_SLOT:
                 if (!offs) {
                     if(bind==STB_WEAK) {
-                        printf_log(LOG_INFO, "Error: Weak Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
+                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
                     } else {
                         printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
                     }
