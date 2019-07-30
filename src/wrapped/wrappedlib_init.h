@@ -132,7 +132,7 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
         k = kh_put(symbolmap, lib->mysymbolmap, MAPNAME(mysymbolmap)[i].name, &ret);
         kh_value(lib->mysymbolmap, k) = MAPNAME(mysymbolmap)[i].w;
     }
-    cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
+    cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, lib->stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
         kh_value(lib->stsymbolmap, k) = MAPNAME(stsymbolmap)[i].w;
