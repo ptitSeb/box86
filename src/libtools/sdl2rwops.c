@@ -54,30 +54,29 @@ typedef struct SDL2_RWops_s {
     } hidden;
 } SDL2_RWops_t;
 
-static int64_t my2_native_size(SDL2_RWops_t *context)
+EXPORT int64_t my2_native_size(SDL2_RWops_t *context)
 {
     return context->hidden.my.orig->size(context->hidden.my.orig);
 }
-static int64_t my2_native_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
+EXPORT int64_t my2_native_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
 {
     return context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
 }
-static int32_t my2_native_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+EXPORT int32_t my2_native_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {
     return context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
 }
-static int32_t my2_native_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+EXPORT int32_t my2_native_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
 {
     return context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
 }
-static int32_t my2_native_close(SDL2_RWops_t *context)
+EXPORT int32_t my2_native_close(SDL2_RWops_t *context)
 {
     int32_t ret = context->hidden.my.orig->close(context->hidden.my.orig);
-    context->hidden.my.custom_free(context->hidden.my.orig);
-    context->hidden.my.orig = NULL;
+    context->hidden.my.custom_free(context);
     return ret;
 }
-static int64_t my2_emulated_size(SDL2_RWops_t *context)
+EXPORT int64_t my2_emulated_size(SDL2_RWops_t *context)
 {
     x86emu_t *emu = context->hidden.my.emu;
     SetCallbackNArg(emu, 1);
@@ -86,7 +85,7 @@ static int64_t my2_emulated_size(SDL2_RWops_t *context)
     RunCallback(emu);
     return (int64_t)GetEDXEAX(emu);
 }
-static int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
+EXPORT int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
 {
     x86emu_t *emu = context->hidden.my.emu;
     SetCallbackNArg(emu, 4);
@@ -98,7 +97,7 @@ static int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t 
     RunCallback(emu);
     return (int64_t)GetEDXEAX(emu);
 }
-static int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+EXPORT int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {
     x86emu_t *emu = context->hidden.my.emu;
     SetCallbackNArg(emu, 4);
@@ -110,7 +109,7 @@ static int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size,
     RunCallback(emu);
     return (int32_t)GetEAX(emu);
 }
-static int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+EXPORT int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
 {
     x86emu_t *emu = context->hidden.my.emu;
     SetCallbackNArg(emu, 4);
@@ -122,7 +121,7 @@ static int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_
     RunCallback(emu);
     return (int32_t)GetEAX(emu);
 }
-static int32_t my2_emulated_close(SDL2_RWops_t *context)
+EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
 {
     x86emu_t *emu = context->hidden.my.emu;
     SetCallbackNArg(emu, 1);
@@ -146,6 +145,7 @@ SDL2_RWops_t* AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
     SDL2_RWops_t* newrw = Alloc();
     newrw->type = BOX86RW;
     newrw->hidden.my.orig = ops;
+    newrw->hidden.my.custom_free = Free;
 
     // get or create wrapper, add it to map and change to the emulated one if rw
     #define GO(A, W) \
@@ -160,6 +160,8 @@ SDL2_RWops_t* AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
     GO(close, iFp)
 
     #undef GO
+
+    return newrw;
 }
 
 // put Native RW function, wrapping emulated (callback style) ones if needed
@@ -190,6 +192,8 @@ SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops)
     GO(close, iFp)
 
     #undef GO
+
+    return newrw;
 }
 
 void RWNativeEnd2(SDL2_RWops_t* ops)
