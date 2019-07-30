@@ -359,8 +359,8 @@ GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[
 // SDL_JoystickGetDeviceProductVersion
 // SDL_JoystickGetDeviceType
 // SDL_JoystickGetDeviceVendor
-GO(SDL_JoystickGetGUID, uFp)
-GO(SDL_JoystickGetGUIDFromString, uFp)
+GOS(SDL_JoystickGetGUID, pFEpp)
+GOS(SDL_JoystickGetGUIDFromString, pFEpp)
 GO(SDL_JoystickGetGUIDString, vFupi)
 GO(SDL_JoystickGetHat, CFpi)
 // SDL_JoystickGetPlayerIndex

@@ -93,6 +93,7 @@ typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef SDL_JoystickGUID (*SFi_t)(int32_t);
+typedef SDL_JoystickGUID (*SFp_t)(void*);
 typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
 
 typedef struct sdl2_my_s {
@@ -133,6 +134,8 @@ typedef struct sdl2_my_s {
     pFp_t      SDL_GL_GetProcAddress;
     iFupp_t    SDL_TLSSet;
     SFi_t      SDL_JoystickGetDeviceGUID;
+    SFp_t      SDL_JoystickGetGUID;
+    SFp_t      SDL_JoystickGetGUIDFromString;
     SFpi_t     SDL_GameControllerGetBindForAxis;
     vFpp_t     SDL_AddEventWatch;
     vFpp_t     SDL_DelEventWatch;
@@ -188,6 +191,8 @@ void* getSDL2My(library_t* lib)
     GO(SDL_GL_GetProcAddress, pFp_t)
     GO(SDL_TLSSet, iFupp_t)
     GO(SDL_JoystickGetDeviceGUID, SFi_t)
+    GO(SDL_JoystickGetGUID, SFp_t)
+    GO(SDL_JoystickGetGUIDFromString, SFp_t)
     GO(SDL_GameControllerGetBindForAxis, SFpi_t)
     GO(SDL_SetEventFilter, vFpp_t)
     GO(SDL_AddEventWatch, vFpp_t)
@@ -795,6 +800,20 @@ EXPORT void* my2_SDL_JoystickGetDeviceGUID(x86emu_t* emu, void* p, int32_t idx)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     *(SDL_JoystickGUID*)p = my->SDL_JoystickGetDeviceGUID(idx);
+    return p;
+}
+
+EXPORT void* my2_SDL_JoystickGetGUID(x86emu_t* emu, void* p, void* joystick)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    *(SDL_JoystickGUID*)p = my->SDL_JoystickGetGUID(joystick);
+    return p;
+}
+
+EXPORT void* my2_SDL_JoystickGetGUIDFromString(x86emu_t* emu, void* p, void* pchGUID)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    *(SDL_JoystickGUID*)p = my->SDL_JoystickGetGUIDFromString(pchGUID);
     return p;
 }
 
