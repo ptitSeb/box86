@@ -379,6 +379,14 @@
             GM.ud[0] = GM.ud[1];
             GM.ud[1] = EM->ud[1];
             NEXT;
+        _0f_0x6B:                       /* PACKSSDW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.sw[i] = (GM.sd[i]<-32768)?-32768:((GM.sd[i]>32767)?32767:GM.sd[i]);
+            for(int i=0; i<2; ++i)
+                GM.sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
+            NEXT;
 
         _0f_0x6E:                      /* MOVD Gm, Ed */
             nextop = F8;
@@ -459,7 +467,7 @@
             emu->fpu_stack = 0;
             NEXT;
 
-        _0f_0x7E:                       /* MOVD Ed, Gx */
+        _0f_0x7E:                       /* MOVD Ed, Gm */
             nextop = F8;
             GET_ED;
             ED->dword[0] = GM.ud[0];
