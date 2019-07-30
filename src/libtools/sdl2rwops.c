@@ -12,6 +12,7 @@
 #include "emu/x86emu_private.h"
 #include "librarian/library_private.h"
 #include "bridge.h"
+#include "callback.h"
 
 typedef struct SDL2_RWops_s SDL2_RWops_t;
 
@@ -20,6 +21,8 @@ typedef int64_t (*sdl2_seek)(SDL2_RWops_t *context, int64_t offset, int32_t when
 typedef int32_t (*sdl2_read)(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum);
 typedef int32_t (*sdl2_write)(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num);
 typedef int32_t (*sdl2_close)(SDL2_RWops_t *context);
+
+#define BOX86RW 0x72 // random signature value
 
 typedef struct SDL2_RWops_s {
     sdl2_size  size;
@@ -43,21 +46,112 @@ typedef struct SDL2_RWops_s {
         struct {
             void *data1;
         } unknown;
+        struct {
+            SDL2_RWops_t *orig;
+            sdl2_freerw custom_free;
+            x86emu_t *emu;
+        } my;
     } hidden;
 } SDL2_RWops_t;
 
-void AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
+static int64_t my2_native_size(SDL2_RWops_t *context)
+{
+    return context->hidden.my.orig->size(context->hidden.my.orig);
+}
+static int64_t my2_native_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
+{
+    return context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
+}
+static int32_t my2_native_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+{
+    return context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
+}
+static int32_t my2_native_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+{
+    return context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
+}
+static int32_t my2_native_close(SDL2_RWops_t *context)
+{
+    int32_t ret = context->hidden.my.orig->close(context->hidden.my.orig);
+    context->hidden.my.custom_free(context->hidden.my.orig);
+    context->hidden.my.orig = NULL;
+    return ret;
+}
+static int64_t my2_emulated_size(SDL2_RWops_t *context)
+{
+    x86emu_t *emu = context->hidden.my.emu;
+    SetCallbackNArg(emu, 1);
+    SetCallbackArg(emu, 0, context->hidden.my.orig);
+    SetCallbackAddress(emu, (uintptr_t)context->hidden.my.orig->size);
+    RunCallback(emu);
+    return (int64_t)GetEDXEAX(emu);
+}
+static int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
+{
+    x86emu_t *emu = context->hidden.my.emu;
+    SetCallbackNArg(emu, 4);
+    SetCallbackArg(emu, 0, context->hidden.my.orig);
+    SetCallbackArg(emu, 1, (void*)(uintptr_t)(offset&0xffffffff));
+    SetCallbackArg(emu, 2, (void*)(uintptr_t)((offset>>32)&0xffffffff));
+    SetCallbackArg(emu, 3, (void*)whence);
+    SetCallbackAddress(emu, (uintptr_t)context->hidden.my.orig->seek);
+    RunCallback(emu);
+    return (int64_t)GetEDXEAX(emu);
+}
+static int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+{
+    x86emu_t *emu = context->hidden.my.emu;
+    SetCallbackNArg(emu, 4);
+    SetCallbackArg(emu, 0, context->hidden.my.orig);
+    SetCallbackArg(emu, 1, ptr);
+    SetCallbackArg(emu, 2, (void*)size);
+    SetCallbackArg(emu, 3, (void*)maxnum);
+    SetCallbackAddress(emu, (uintptr_t)context->hidden.my.orig->read);
+    RunCallback(emu);
+    return (int32_t)GetEAX(emu);
+}
+static int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+{
+    x86emu_t *emu = context->hidden.my.emu;
+    SetCallbackNArg(emu, 4);
+    SetCallbackArg(emu, 0, context->hidden.my.orig);
+    SetCallbackArg(emu, 1, (void*)ptr);
+    SetCallbackArg(emu, 2, (void*)size);
+    SetCallbackArg(emu, 3, (void*)num);
+    SetCallbackAddress(emu, (uintptr_t)context->hidden.my.orig->write);
+    RunCallback(emu);
+    return (int32_t)GetEAX(emu);
+}
+static int32_t my2_emulated_close(SDL2_RWops_t *context)
+{
+    x86emu_t *emu = context->hidden.my.emu;
+    SetCallbackNArg(emu, 1);
+    SetCallbackArg(emu, 0, context->hidden.my.orig);
+    SetCallbackAddress(emu, (uintptr_t)context->hidden.my.orig->close);
+    int32_t ret = RunCallback(emu);
+    FreeCallback(emu);
+    return ret;
+}
+
+SDL2_RWops_t* AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
 {
     if(!ops)
-        return;
+        return NULL;
     uintptr_t fnc;
     bridge_t* system = emu->context->system;
 
+    sdl2_allocrw Alloc = (sdl2_allocrw)emu->context->sdl2allocrw;
+    sdl2_freerw Free = (sdl2_freerw)emu->context->sdl2freerw;
+
+    SDL2_RWops_t* newrw = Alloc();
+    newrw->type = BOX86RW;
+    newrw->hidden.my.orig = ops;
+
     // get or create wrapper, add it to map and change to the emulated one if rw
     #define GO(A, W) \
-    fnc = CheckBridged(system, ops->A); \
-    if(!fnc) fnc = AddBridge(system, W, ops->A, 0); \
-    ops->A = (sdl2_##A)fnc;
+    fnc = CheckBridged(system, my2_native_##A); \
+    if(!fnc) fnc = AddBridge(system, W, my2_native_##A, 0); \
+    newrw->A = (sdl2_##A)fnc;
 
     GO(size, IFp)
     GO(seek, IFpIi)
@@ -68,81 +162,44 @@ void AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops)
     #undef GO
 }
 
-// check if one of the function is a pure emulated one (i.e. not present in dictionnary)
-static int isAnyEmulated2(SDL2_RWops_t *ops)
-{
-    #define GO(A) if(!GetNativeFnc((uintptr_t)ops->A)) return 1
-    GO(size);
-    GO(seek);
-    GO(read);
-    GO(write);
-    GO(close);
-    #undef GO
-    return 0;
-}
-
 // put Native RW function, wrapping emulated (callback style) ones if needed
-void RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
+SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops)
 {
     if(!ops)
-        return;
-    
-    save->anyEmu = isAnyEmulated2(ops);
-    save->size = ops->size;
-    save->seek = ops->seek;
-    save->read = ops->read;
-    save->write = ops->write;
-    save->close = ops->close;
-    save->s1 = ops->hidden.mem.base;    // used when wrapping native if other are emulated
-    save->s2 = ops->hidden.mem.here;
-    if(save->anyEmu) {
-        // wrap all function, including the native ones
-        printf("ERROR: Emulated RWops function not implemented yet\n");
-        if(emu)
-            emu->quit = 1;
-    } else {
-        // don't wrap, get back normal functions
-        #define GO(A) \
-        ops->A = GetNativeFncOrFnc((uintptr_t)ops->A);  // may already be unwrapped
-        GO(size)
-        GO(seek)
-        GO(read)
-        GO(write)
-        GO(close)
-        #undef GO
-    }
+        return NULL;
+
+    if(ops->type == BOX86RW)
+        return ops->hidden.my.orig;
+
+    sdl2_allocrw Alloc = (sdl2_allocrw)emu->context->sdl2allocrw;
+    sdl2_freerw Free = (sdl2_freerw)emu->context->sdl2freerw;
+
+    SDL2_RWops_t* newrw = Alloc();
+    newrw->type = BOX86RW;
+    newrw->hidden.my.orig = ops;
+    newrw->hidden.my.emu = AddSmallCallback(emu, 0, 0, NULL, NULL, NULL, NULL);
+   
+    // create wrapper
+    #define GO(A, W) \
+    newrw->A = my2_emulated_##A;
+
+    GO(size, IFp)
+    GO(seek, IFpIi)
+    GO(read, iFppii)
+    GO(write, iFppii)
+    GO(close, iFp)
+
+    #undef GO
 }
 
-// put back emulated function back in place
-void RWNativeEnd2(x86emu_t* emu, SDL2_RWops_t* ops, SDL2RWSave_t* save)
+void RWNativeEnd2(SDL2_RWops_t* ops)
 {
     if(!ops)
         return;
 
-    ops->size = save->size;
-    ops->seek = save->seek;
-    ops->read = save->read;
-    ops->write = save->write;
-    ops->close = save->close;
-    if(save->anyEmu) {
-        save->s1 = ops->hidden.mem.base;
-        save->s2 = ops->hidden.mem.here;
-    }
-}
+    if(ops->type != BOX86RW)
+        return; // do nothing
 
-static int64_t my2_stdio_size(SDL2_RWops_t* ops)
-{
-    SDL2RWSave_t save;
-    RWNativeStart2(NULL, (SDL2_RWops_t*)ops, &save);
-    int64_t ret = ((sdl2_size)ops->hidden.mem.stop)(ops);
-    RWNativeEnd2(NULL, (SDL2_RWops_t*)ops, &save);
-    return ret;
+    FreeCallback(ops->hidden.my.emu);
+    ops->hidden.my.custom_free(ops);
 }
-
-void my2_hack_stdio_size(SDL2_RWops_t* ops)
-{
-    // ugly hack....
-    ops->hidden.mem.stop = (uint8_t*)ops->size;
-    ops->size = my2_stdio_size;
-}
-

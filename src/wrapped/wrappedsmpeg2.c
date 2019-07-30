@@ -54,11 +54,10 @@ EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f,
 {
     library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
     pFppii_t fnc = (pFppii_t)lib->priv.w.p2;
-    SDL2RWSave_t sav;
-    RWNativeStart2(emu, (SDL2_RWops_t*)src, &sav);
-    void* ret = fnc(src, info, f, audio);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)src);
+    void* ret = fnc(rw, info, f, audio);
     if(!f) {
-        RWNativeEnd2(emu, (SDL2_RWops_t*)src, &sav);
+        RWNativeEnd2(rw);
         printf_log(LOG_INFO, "Warning, SMPEG_new_rwops called without freesrc set\n");
     }
     return ret;

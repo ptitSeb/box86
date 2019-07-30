@@ -118,7 +118,7 @@ GO(SDL_free, vFp)
 GO(SDL_FreeCursor, vFp)
 GO(SDL_FreeFormat, vFp)
 GO(SDL_FreePalette, vFp)
-GOM(SDL_FreeRW, vFEp)
+GO(SDL_FreeRW, vFp)
 GO(SDL_FreeSurface, vFp)
 // SDL_FreeWAV
 GO(SDL_GameControllerAddMapping, iFp)

@@ -207,6 +207,10 @@ uint32_t GetEAX(x86emu_t *emu)
 {
     return R_EAX;
 }
+uint64_t GetEDXEAX(x86emu_t *emu)
+{
+    return ((uint64_t)R_EAX)|(((uint64_t)R_EDX)<<32);
+}
 void SetEAX(x86emu_t *emu, uint32_t v)
 {
     R_EAX = v;

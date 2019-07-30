@@ -71,10 +71,9 @@ static void* getSDL2ImageMy(library_t* lib)
 EXPORT void *my2_##A(x86emu_t* emu, void* a) \
 { \
     sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2; \
-    SDL2RWSave_t save; \
-    RWNativeStart2(emu, (SDL2_RWops_t*)a, &save); \
-    void* r = my->A(a); \
-    RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save); \
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a); \
+    void* r = my->A(rw); \
+    RWNativeEnd2(rw); \
     return r; \
 }
 GO(IMG_LoadBMP_RW)
@@ -97,30 +96,27 @@ GO(IMG_LoadXV_RW)
  EXPORT void *my2_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
 {
     sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
-    SDL2RWSave_t save;
-    RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
-    void* r = my->IMG_LoadTyped_RW(a, b, c);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    void* r = my->IMG_LoadTyped_RW(rw, b, c);
     if(b==0)
-        RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
+        RWNativeEnd2(rw);
     return r;
 }
 EXPORT void *my2_IMG_Load_RW(x86emu_t* emu, void* a, int32_t b)
 {
     sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
-    SDL2RWSave_t save;
-    RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
-    void* r = my->IMG_Load_RW(a, b);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    void* r = my->IMG_Load_RW(rw, b);
     if(b==0)
-        RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
+        RWNativeEnd2(rw);
     return r;
 }
 EXPORT int32_t my2_IMG_SavePNG_RW(x86emu_t* emu, void* a, void* surf, int32_t compression)
 {
     sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
-    SDL2RWSave_t save;
-    RWNativeStart2(emu, (SDL2_RWops_t*)a, &save);
-    int32_t r = my->IMG_SavePNG_RW(a, surf, compression);
-    RWNativeEnd2(emu, (SDL2_RWops_t*)a, &save);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int32_t r = my->IMG_SavePNG_RW(rw, surf, compression);
+    RWNativeEnd2(rw);
     return r;
 }
 
