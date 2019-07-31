@@ -637,7 +637,7 @@ GO(SDL_UpdateWindowSurface, iFp)
 // SDL_UpdateYUVTexture
 GO(SDL_UpperBlit, iFpppp)
 GO(SDL_UpperBlitScaled, iFpppp)
-// SDL_utf8strlcpy
+GO(SDL_utf8strlcpy, uFppu)
 // SDL_utf8strlen
 // SDL_VideoInit
 // SDL_VideoQuit
