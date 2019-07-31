@@ -215,16 +215,22 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
     x86emu_t *cb = NULL;
     void* ret;
     XErrorHandler old = NULL;
-    if(GetNativeFnc((uintptr_t)handler)) {
-        old = (XErrorHandler)my->XSetErrorHandler(GetNativeFnc((uintptr_t)handler));
+    if(handler) {
+        if(GetNativeFnc((uintptr_t)handler)) {
+            old = (XErrorHandler)my->XSetErrorHandler(GetNativeFnc((uintptr_t)handler));
+        } else {
+            cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
+            old = (XErrorHandler)my->XSetErrorHandler(cb);
+        }
     } else {
-        cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-        old = (XErrorHandler)my->XSetErrorHandler(cb);
+        old = (XErrorHandler)my->XSetErrorHandler(NULL);
     }
-    if(CheckBridged(lib->priv.w.bridge, old))
-        ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else
-        ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
+    if(old) {
+        if(CheckBridged(lib->priv.w.bridge, old))
+            ret = (void*)CheckBridged(lib->priv.w.bridge, old);
+        else
+            ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
+    }
     if(errorhandlercb) FreeCallback(errorhandlercb);
     errorhandlercb = cb;
     return ret;
