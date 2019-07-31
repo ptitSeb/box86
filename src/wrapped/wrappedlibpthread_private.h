@@ -141,7 +141,7 @@ GO(pthread_setcanceltype, iFip)
 // pthread_setconcurrency
 GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
 GO(pthread_setschedparam, iFuip)
-// pthread_setschedprio
+GO(pthread_setschedprio, iFpi)
 // __pthread_setspecific
 GO(pthread_setspecific, iFup)
 GO(pthread_sigmask, iFipp)

@@ -182,8 +182,8 @@ GO(__exp_finite, dFd)
 GOW(expm1, dFd)
 GOW(expm1f, fFf)
 // expm1l   // Weak
-// fabs // Weak
-// fabsf    // Weak
+GOW(fabs, dFd)
+GOW(fabsf, fFf)
 // fabsl    // Weak
 // fdim // Weak
 // fdimf    // Weak
@@ -249,8 +249,8 @@ GOW(hypotf, fFff)
 // __hypotf_finite
 // __hypot_finite
 // hypotl   // Weak
-// ilogb    // Weak
-// ilogbf   // Weak
+GOW(ilogb, iFd)
+GOW(ilogbf, iFf)
 // ilogbl   // Weak
 // __issignaling
 // __issignalingf
