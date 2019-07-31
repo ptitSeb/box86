@@ -2000,7 +2000,7 @@ GO(wmemset, pFpiu)
 GO(wordexp, iFppi)
 GO(wordfree, vFp)
 // __woverflow
-// wprintf
+GOM(wprintf, iFEpVV)
 // __wprintf_chk
 GOW(write, iFipu)
 GOW(__write, iFipu)

@@ -599,14 +599,14 @@ void EXPORT my2_SDL_KillThread(x86emu_t* emu, void* p)
     }
 }
 
-int EXPORT my2_SDL_snprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
+int EXPORT my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
-    void* f = vsprintf;
-    return ((iFppp_t)f)(buff, fmt, emu->scratch);
+    void* f = vsnprintf;
+    return ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     #else
-    return vsprintf((char*)buff, (char*)fmt, V);
+    return vsnprintf((char*)buff, s, (char*)fmt, V);
     #endif
 }
 

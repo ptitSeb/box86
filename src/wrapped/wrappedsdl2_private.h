@@ -659,7 +659,7 @@ GO(SDL_WasInit, uFu)
 // SDL_wcsdup
 // SDL_wcslcat
 // SDL_wcslcpy
-// SDL_wcslen
+GO(SDL_wcslen, uFp)
 GOM(SDL_WriteBE16, uFEpW)
 GOM(SDL_WriteBE32, uFEpu)
 GOM(SDL_WriteBE64, uFEpU)

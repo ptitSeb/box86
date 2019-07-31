@@ -251,6 +251,17 @@ EXPORT int my_fprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
 }
 EXPORT int my___fprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fprintf")));
 
+EXPORT int my_wprintf(x86emu_t *emu, void* fmt, void* b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vwprintf;
+    return ((iFpp_t)f)(fmt, emu->scratch);
+    #else
+    // other platform don't need that
+    return vwprintf((const wchar_t*)fmt, V);
+    #endif
+}
 EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
     #ifndef NOALIGN
     // need to align on arm
