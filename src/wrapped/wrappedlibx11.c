@@ -213,7 +213,7 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
     library_t * lib = GetLib(emu->context->maplib, libx11Name);
     x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
     x86emu_t *cb = NULL;
-    void* ret;
+    void* ret = NULL;
     XErrorHandler old = NULL;
     if(handler) {
         if(GetNativeFnc((uintptr_t)handler)) {
