@@ -69,7 +69,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
                 return (void*)(i+1);
         }
         // Then open the lib
-        if(AddNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
+        if(AddNeededLib(emu->context->maplib, NULL, rfilename, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             dl->last_error = malloc(129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
@@ -112,6 +112,22 @@ char* my_dlerror(x86emu_t* emu)
     dlprivate_t *dl = emu->context->dlprivate;
     return dl->last_error;
 }
+
+int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
+{
+    // look in the library itself
+    if(lib->get(lib, rsymbol, start, end)!=0)
+        return 1;
+    // look in other libs
+    int n = GetNeededLibN(lib);
+    for (int i=0; i<n; ++i) {
+        library_t *l = GetNeededLib(lib, i);
+        if(l && l->get(l, rsymbol, start, end)!=0)
+            return 1;
+    }
+        
+    return 0;
+}
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
     dlprivate_t *dl = emu->context->dlprivate;
@@ -147,17 +163,18 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(dl->libs[nlib]) {
-        if(dl->libs[nlib]->get(dl->libs[nlib], rsymbol, &start, &end)==0) {
+        if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end)==0) {
             // not found
             if(dlsym_error && box86_log<LOG_DEBUG) {
                 printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", GetNameLib(dl->libs[nlib]), rsymbol);
             }
             printf_log(LOG_DEBUG, " Symbol not found\n");
             dl->last_error = malloc(129);
-            snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+            snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p(%s)", rsymbol, handle, GetNameLib(dl->libs[nlib]));
             return NULL;
         }
     } else {
+        // still usefull?
         if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end))
             return (void*)start;
         if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end))

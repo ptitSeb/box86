@@ -86,7 +86,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
-int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
@@ -100,7 +100,7 @@ int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
     }
-    
+
     // add lib now
     if (maplib->libsz == maplib->libcap) {
         maplib->libcap += 8;
@@ -113,6 +113,10 @@ int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_
         printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
         return 1;
     }
+
+    if(parent)
+        LibAddNeededLib(parent, lib);
+    
     printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
     
     return 0;

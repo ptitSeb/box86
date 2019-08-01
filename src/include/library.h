@@ -19,6 +19,9 @@ int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
 int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end);
 kh_symbolmap_t * fillGLProcWrapper();
 void freeProcWrapper(kh_symbolmap_t** symbolmap);
+void LibAddNeededLib(library_t* lib, library_t* needed);
+int GetNeededLibN(library_t* lib);
+library_t* GetNeededLib(library_t* lib, int idx);
 
 int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. native)
 

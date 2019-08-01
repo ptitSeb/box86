@@ -591,7 +591,7 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
 	KHASH_DECLARE(name, khint32_t, char)
 
 #define KHASH_SET_IMPL_INT(name)										\
-	__KHASH_IMPL(name, , khkey_t, khval_t, kh_is_map, __hash_func, __hash_equal)
+	__KHASH_IMPL(name, , khint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal)
 
 /*! @function
   @abstract     Instantiate a hash map containing integer keys

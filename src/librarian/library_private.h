@@ -22,6 +22,8 @@ KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
 KHASH_MAP_DECLARE_STR(datamap, uint32_t)
 
+KHASH_SET_DECLARE_INT(needed)
+
 
 #ifndef MAX_PATH
 #define MAX_PATH 4096
@@ -70,6 +72,7 @@ typedef struct library_s {
     kh_datamap_t        *wdatamap;
     kh_datamap_t        *mydatamap;
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
+    kh_needed_t         *needed;    // list lib needd
 } library_t;
 
 // type for map elements

@@ -22,7 +22,7 @@ void FreeDLPrivate(dlprivate_t **lib);
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib);
-int AddNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu); // 0=success, 1=error
+int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86context_t* box86, x86emu_t* emu); // 0=success, 1=error
 int FinalizeNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu);
 library_t* GetLib(lib_t* maplib, const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);

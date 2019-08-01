@@ -46,6 +46,8 @@ KHASH_MAP_IMPL_STR(datamap, uint32_t)
 KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
 
+KHASH_SET_IMPL_INT(needed);
+
 char* Path2Name(const char* path)
 {
     char* name = (char*)calloc(1, MAX_PATH);
@@ -79,6 +81,7 @@ void EmuLib_Fini(library_t* lib)
 {
     kh_destroy(mapsymbols, lib->priv.n.mapsymbols);
     kh_destroy(mapsymbols, lib->priv.n.localsymbols);
+    kh_destroy(needed, lib->needed);
 }
 
 int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
@@ -130,6 +133,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = -1;
+    lib->needed = kh_init(needed);
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     // And now, actually loading a library
     // look for native(wrapped) libs first
@@ -151,11 +155,12 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             lib->getlocal = NativeLib_GetLocal;
             lib->type = 0;
             // Call librarian to load all dependant elf
-            for(int i=0; i<lib->priv.w.needed; ++i)
-                if(AddNeededLib(context->maplib, lib->priv.w.neededlibs[i], context, 0)) {  // probably all native, not emulated, so that's fine
+            for(int i=0; i<lib->priv.w.needed; ++i) {
+                if(AddNeededLib(context->maplib, lib, lib->priv.w.neededlibs[i], context, 0)) {  // probably all native, not emulated, so that's fine
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
                     return NULL;
                 }
+            }
             break;
         }
     }
@@ -241,7 +246,7 @@ int AddSymbolsLibrary(library_t* lib, x86emu_t* emu)
         // add symbols
         AddSymbols(lib->context->maplib, lib->priv.n.mapsymbols, lib->priv.n.weaksymbols, lib->priv.n.localsymbols, elf_header);
         // Call librarian to load all dependant elf
-        if(LoadNeededLibs(elf_header, lib->context->maplib, lib->context, emu)) {
+        if(LoadNeededLibs(elf_header, lib->context->maplib, lib, lib->context, emu)) {
             printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
             return 1;
         }
@@ -556,4 +561,18 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
         }
 
     return 0;
+}
+
+void LibAddNeededLib(library_t* lib, library_t* needed)
+{
+    khint_t k;
+    int ret;
+    kh_put(needed, lib->needed, (uintptr_t)needed, &ret);
+}
+int GetNeededLibN(library_t* lib) {
+    return kh_size(lib->needed);
+}
+library_t* GetNeededLib(library_t* lib, int idx)
+{
+    return (library_t*)(kh_key(lib->needed,idx));
 }
