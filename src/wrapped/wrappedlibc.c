@@ -133,6 +133,7 @@ int EXPORT my_atexit(x86emu_t* emu, void *p)
 }
 
 int my_getcontext(x86emu_t* emu, void* ucp);
+int my_setcontext(x86emu_t* emu, void* ucp);
 int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
 
 // All signal and context functions defined in signals.c

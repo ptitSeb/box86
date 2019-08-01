@@ -1094,7 +1094,7 @@ GO(__memmove_chk, pFppuu)
 GOW(memrchr, pFpiu)
 GO(memset, pFpiu)
 GO(__memset_chk, pFpiuu)
-// mincore
+GO(mincore, iFpup)
 GOW(mkdir, iFpu)
 GO(mkdirat, iFipu)
 GO(mkdtemp, pFp)
@@ -1453,7 +1453,7 @@ GOW(sendto, iFipuipu)
 // setaliasent
 GOW(setbuf, vFpp)
 GOW(setbuffer, vFppu)
-// setcontext
+GOM(setcontext, iFEp)
 // setdomainname
 GO(setegid, iFu)
 GOW(setenv, iFppi)

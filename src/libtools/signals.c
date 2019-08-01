@@ -224,6 +224,29 @@ EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
     return 0;
 }
 
+EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
+{
+    printf_log(LOG_NONE, "Warning: call to partially implemented setcontext\n");
+    struct i386_ucontext_t *u = (struct i386_ucontext_t*)ucp;
+    // set general register
+    R_EAX = u->uc_mcontext.gregs[REG_EAX];
+    R_ECX = u->uc_mcontext.gregs[REG_ECX];
+    R_EDX = u->uc_mcontext.gregs[REG_EDX];
+    R_EDI = u->uc_mcontext.gregs[REG_EDI];
+    R_ESI = u->uc_mcontext.gregs[REG_ESI];
+    R_EBP = u->uc_mcontext.gregs[REG_EBP];
+    R_EIP = u->uc_mcontext.gregs[REG_EIP];
+    R_ESP = u->uc_mcontext.gregs[REG_ESP];
+    R_EBX = u->uc_mcontext.gregs[REG_EBX];
+    // get segments (only FS)
+    R_FS = u->uc_mcontext.gregs[REG_FS];
+    // set FloatPoint status
+    // set signal mask
+    //sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
+
+    return R_EAX;
+}
+
 EXPORT int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv)
 {
     printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
