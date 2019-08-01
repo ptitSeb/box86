@@ -554,7 +554,7 @@ DATAB(_XIOErrorFunction, 4)
 //GO(XkbFindOverlayForKey
 //GO(XkbForceBell
 //GO(XkbForceDeviceBell
-//GO(XkbFreeClientMap
+GO(XkbFreeClientMap, vFpui)
 //GO(XkbFreeCompatMap
 //GO(XkbFreeComponentList
 //GO(XkbFreeControls
@@ -574,7 +574,7 @@ DATAB(_XIOErrorFunction, 4)
 //GO(XkbFreeGeomSections
 //GO(XkbFreeGeomShapes
 //GO(XkbFreeIndicatorMaps
-//GO(XkbFreeKeyboard
+GO(XkbFreeKeyboard, vFpui)
 //GO(XkbFreeNames
 // _XkbFreeReadBuffer
 //GO(XkbFreeServerMap
@@ -602,7 +602,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 //GO(XkbGetKeySyms
 //GO(XkbGetKeyTypes
 //GO(XkbGetKeyVirtualModMap
-//GO(XkbGetMap
+GO(XkbGetMap, pFpuu)
 //GO(XkbGetMapChanges
 //GO(XkbGetNamedDeviceIndicator
 //GO(XkbGetNamedGeometry
@@ -612,7 +612,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 // _XkbGetReadBufferCountedString
 // _XkbGetReadBufferPtr
 GO(XkbGetState, iFpup)
-//GO(XkbGetUpdatedMap
+GO(XkbGetUpdatedMap, iFpup)
 //GO(XkbGetVirtualMods
 //GO(XkbGetXlibControls
 //GO(XkbIgnoreExtension
@@ -637,7 +637,7 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 //GO(XkbNoteNameChanges
 //GO(XkbOpenDisplay
 // _XkbPeekAtReadBuffer
-//GO(XkbQueryExtension
+GO(XkbQueryExtension, iFpppppp)
 // _XkbReadBufferCopyKeySyms
 // _XkbReadCopyKeySyms
 // _XkbReadGetCompatMapReply
@@ -1047,7 +1047,7 @@ GO(XUnsetICFocus, vFu)
 GO(Xutf8DrawString, vFppppiipi)
 //GO(Xutf8DrawText
 GO(Xutf8LookupString, iFuppipp)
-//GO(Xutf8ResetIC
+GO(Xutf8ResetIC, pFu)
 GO(Xutf8SetWMProperties, vFpppppippp)
 //GO(Xutf8TextEscapement
 GO(Xutf8TextExtents, iFppipp)
