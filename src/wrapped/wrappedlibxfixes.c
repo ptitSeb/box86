@@ -14,5 +14,13 @@
 const char* libxfixesName = "libXfixes.so.3";
 #define LIBNAME libxfixes
 
+#define CUSTOM_INIT \
+    lib->priv.w.needed = 4; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
+    lib->priv.w.neededlibs[1] = strdup("libxcb.so.1"); \
+    lib->priv.w.neededlibs[2] = strdup("libXau.so.6"); \
+    lib->priv.w.neededlibs[3] = strdup("libXdmcp.so.6");
+
 #include "wrappedlib_init.h"
 

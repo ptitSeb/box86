@@ -92,7 +92,13 @@ EXPORT int32_t my_XShmGetImage(x86emu_t* emu, void* disp, void* drawable, void* 
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getXextMy(lib);
+    lib->priv.w.p2 = getXextMy(lib); \
+    lib->priv.w.needed = 4; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
+    lib->priv.w.neededlibs[1] = strdup("libxcb.so.1"); \
+    lib->priv.w.neededlibs[2] = strdup("libXau.so.6"); \
+    lib->priv.w.neededlibs[3] = strdup("libXdmcp.so.6");
 
 #define CUSTOM_FINI \
     freeXextMy(lib->priv.w.p2); \
