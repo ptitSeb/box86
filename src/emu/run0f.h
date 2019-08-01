@@ -245,6 +245,12 @@
             for(int i=0; i<4; ++i)
                 GX.f[i] = sqrtf(EX->f[i]);
             NEXT;
+        _0f_0x52:                      /* RSQRTPS Gx, Ex */
+            nextop = F8;
+            GET_EX;
+            for(int i=0; i<4; ++i)
+                GX.f[i] = 1.0f/sqrtf(EX->f[i]);
+            NEXT;
 
         _0f_0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;
