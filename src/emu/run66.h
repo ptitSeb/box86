@@ -156,6 +156,11 @@
         GET_EW;
         GW.word[0] = EW->word[0];
         NEXT;
+    _66_0x8C:                              /* MOV Ew,Seg */
+        nextop = F8;
+        GET_EW;
+        EW->word[0] = emu->segs[(nextop&38)>>3];
+        NEXT;
     
     _66_0x8F:                              /* POP Ew */
         nextop = F8;
