@@ -1767,7 +1767,7 @@ GO(tcsetpgrp, iFii)
 // tdestroy // Weak
 // tee
 GO(telldir, iFp)
-// tempnam
+GO(tempnam, pFpp)
 GOW(textdomain, pFp)
 // tfind    // Weak
 GO(time, uFp)
