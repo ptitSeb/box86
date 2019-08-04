@@ -574,5 +574,12 @@ int GetNeededLibN(library_t* lib) {
 }
 library_t* GetNeededLib(library_t* lib, int idx)
 {
-    return (library_t*)(kh_key(lib->needed,idx));
+    khint_t k = kh_begin(lib->needed);
+    while(!kh_exist(lib->needed, k)) ++k;
+    while(idx--) {
+        ++k;
+        while(!kh_exist(lib->needed, k)) ++k;
+    }
+
+    return (library_t*)(kh_key(lib->needed,k));
 }

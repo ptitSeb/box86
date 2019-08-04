@@ -90,12 +90,15 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
     // first check if lib is already loaded
-    if(getLib(maplib, path)) {
+    library_t *lib = getLib(maplib, path);
+    if(lib) {
+        if(parent)
+            LibAddNeededLib(parent, lib);
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
     }
     // load a new one
-    library_t *lib = NewLibrary(path, box86);
+    lib = NewLibrary(path, box86);
     if(!lib) {
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
