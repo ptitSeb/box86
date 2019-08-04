@@ -149,7 +149,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     if(handle==(void*)0xFFFFFFFF) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_ESP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf));
+        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf))
             return (void*)start;
         dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
