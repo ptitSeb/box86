@@ -33,7 +33,7 @@ GO(XAllocColor, iFppp)
 //GO(XAllocIconSize
 // _XAllocID
 // _XAllocIDs
-//GO(XAllocNamedColor
+GO(XAllocNamedColor, iFpuppp)
 // _XAllocScratch
 GO(XAllocSizeHints, pFv)
 //GO(XAllocStandardColormap
@@ -290,7 +290,7 @@ GO(XDrawArc, iFpppiiuuii)
 GO(XDrawLine, iFpppiiii)
 GO(XDrawLines, iFppppii)
 GO(XDrawPoint, iFpppii)
-//GO(XDrawPoints
+GO(XDrawPoints, iFppppii)
 GO(XDrawRectangle, iFpppiiuu)
 GO(XDrawRectangles, iFppppi)
 GO(XDrawSegments, iFppppi)
@@ -308,7 +308,7 @@ GO(XEqualRegion, iFpp)
 // _XError
 DATAB(_XErrorFunction, 4)
 //GO(XESetBeforeFlush
-//GO(XESetCloseDisplay
+GOM(XESetCloseDisplay, pFEpip)
 //GO(XESetCopyEventCookie
 //GO(XESetCopyGC
 //GO(XESetCreateFont
@@ -765,7 +765,7 @@ GO(XLoadQueryFont, pFpp)
 #endif
 // xlocaledir
 //GO(XLocaleOfFontSet
-//GO(XLocaleOfIM
+GO(XLocaleOfIM, pFu)
 //GO(XLocaleOfOM
 GO(XLockDisplay, vFp)
 DATAB(_XLockMutex_fn, 4)
@@ -787,7 +787,7 @@ GO(XMaxRequestSize, iFp)
 //GO(XmbDrawText
 // _Xmblen
 GO(XmbLookupString, iFuppipp)
-//GO(XmbResetIC
+GO(XmbResetIC, pFu)
 GO(XmbSetWMProperties, vFpppppippp)
 // _Xmbstoutf8
 // _Xmbstowcs
@@ -1056,7 +1056,7 @@ GO(Xutf8TextListToTextProperty, iFppiup)
 //GO(Xutf8TextPerCharExtents
 //GO(Xutf8TextPropertyToTextList
 // _Xutf8TextPropertyToTextList
-//GO(XVaCreateNestedList
+GO(XVaCreateNestedList, pFipppppppppppppppppppppp)  // should recreate the function instead...
 //GO(XVendorRelease
 // _XVIDtoVisual
 GO(XVisualIDFromVisual, uFp)

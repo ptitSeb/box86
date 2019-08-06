@@ -560,7 +560,7 @@ GO(SDL_SetTextureBlendMode, iFpu)
 GO(SDL_SetTextureColorMod, iFpCCC)
 GO(SDL_SetThreadPriority, iFu)
 GO(SDL_SetWindowBordered, vFpi)
-// SDL_SetWindowBrightness
+GO(SDL_SetWindowBrightness, iFpf)
 GO(SDL_SetWindowData, pFppp)
 GO(SDL_SetWindowDisplayMode, iFpp)
 GO(SDL_SetWindowFullscreen, iFpu)

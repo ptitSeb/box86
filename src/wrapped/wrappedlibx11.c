@@ -23,6 +23,7 @@ typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
 void* my_XSetIOErrorHandler(x86emu_t* t, XIOErrorHandler handler);
+void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler);
 
 EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
@@ -108,6 +109,7 @@ typedef struct x11_my_s {
     pFp_t           XSetErrorHandler;
     pFp_t           XSetIOErrorHandler;
     pFpip_t         XESetError;
+    pFpip_t         XESetCloseDisplay;
     iFpppp_t        XIfEvent;
     iFpppp_t        XCheckIfEvent;
     iFpppp_t        XPeekIfEvent;
@@ -128,6 +130,7 @@ void* getX11My(library_t* lib)
     GO(XSetErrorHandler, pFp_t)
     GO(XSetIOErrorHandler, pFp_t)
     GO(XESetError, pFpip_t)
+    GO(XESetCloseDisplay, pFpip_t)
     GO(XIfEvent, iFpppp_t)
     GO(XCheckIfEvent, iFpppp_t)
     GO(XPeekIfEvent, iFpppp_t)
@@ -170,6 +173,8 @@ void my_XDestroyImage(x86emu_t* emu, void* image);
 void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
 #endif
 
+void* my_XVaCreateNestedList(int dummy, void* p);
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getX11My(lib);
 
@@ -182,6 +187,7 @@ void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
 static x86emu_t *errorhandlercb = NULL;
 static x86emu_t *ioerrorhandlercb = NULL;
 static x86emu_t *exterrorhandlercb = NULL;  // should be set per screen and per extension!
+static x86emu_t *extclosedisplaycb = NULL;  // should be set per screen and per extension!
 static int my_errorhandle_callback(void* display, void* errorevent)
 {
     if(!errorhandlercb)
@@ -207,6 +213,14 @@ static int my_exterrorhandle_callback(void* display, void* err, void* codes, int
     SetCallbackArg(exterrorhandlercb, 3, ret_code);
     return (int)RunCallback(exterrorhandlercb);
 }
+static int my_closedisplay_callback(void* display, void* codes)
+{
+    if(!extclosedisplaycb)
+        return 0;
+    SetCallbackArg(extclosedisplaycb, 0, display);
+    SetCallbackArg(extclosedisplaycb, 1, codes);
+    return (int)RunCallback(extclosedisplaycb);
+}
 
 EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 {
@@ -220,7 +234,7 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
             old = (XErrorHandler)my->XSetErrorHandler(GetNativeFnc((uintptr_t)handler));
         } else {
             cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-            old = (XErrorHandler)my->XSetErrorHandler(cb);
+            old = (XErrorHandler)my->XSetErrorHandler(my_errorhandle_callback);
         }
     } else {
         old = (XErrorHandler)my->XSetErrorHandler(NULL);
@@ -248,7 +262,7 @@ EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
         old = (XIOErrorHandler)my->XSetIOErrorHandler(GetNativeFnc((uintptr_t)handler));
     } else {
         cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-        old = (XIOErrorHandler)my->XSetIOErrorHandler(cb);
+        old = (XIOErrorHandler)my->XSetIOErrorHandler(my_ioerrorhandle_callback);
     }
     if(CheckBridged(lib->priv.w.bridge, old))
         ret = (void*)CheckBridged(lib->priv.w.bridge, old);
@@ -270,7 +284,7 @@ EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void
         old = my->XESetError(display, extension, GetNativeFnc((uintptr_t)handler));
     } else {
         cb = AddCallback(emu, (uintptr_t)handler, 4, NULL, NULL, NULL, NULL);
-        old = my->XESetError(display, extension, cb);
+        old = my->XESetError(display, extension, my_exterrorhandle_callback);
     }
     if(CheckBridged(lib->priv.w.bridge, old))
         ret = (void*)CheckBridged(lib->priv.w.bridge, old);
@@ -278,6 +292,28 @@ EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void
         ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
     if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
     exterrorhandlercb = cb;
+    return ret;
+}
+
+EXPORT void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    x86emu_t *cb = NULL;
+    void* ret;
+    void* old = NULL;
+    if(GetNativeFnc((uintptr_t)handler)) {
+        old = my->XESetCloseDisplay(display, extension, GetNativeFnc((uintptr_t)handler));
+    } else {
+        cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
+        old = my->XESetCloseDisplay(display, extension, my_closedisplay_callback);
+    }
+    if(CheckBridged(lib->priv.w.bridge, old))
+        ret = (void*)CheckBridged(lib->priv.w.bridge, old);
+    else
+        ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
+    if(extclosedisplaycb) FreeCallback(extclosedisplaycb);
+    extclosedisplaycb = cb;
     return ret;
 }
 
@@ -442,7 +478,27 @@ EXPORT void my_XDestroyImage(x86emu_t* emu, void* image)
     UnbridgeImageFunc(emu, (XImage*)image);
     my->XDestroyImage(image);
 }
+#if 0
+typedef struct my_XIMArg_s {
+    char    *name;
+    void    *value;
+} my_XIMArg_t;
+#define my_XNVaNestedList                       "XNVaNestedList"
 
+EXPORT void* my_XVaCreateNestedList(int dummy, void* b)
+{
+    // need to create a similar function here...
+    void* p = b;
+    int n = 0;
+    while(p++) ++n;
+    void** ret = (void**)malloc(sizeof(void*)*n);
+    p = b;
+    n = 0;
+    while(p++)
+        ret[n++] = p;
+    return ret;
+}
+#endif
 #ifdef PANDORA
 EXPORT void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name)
 {

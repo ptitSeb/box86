@@ -99,6 +99,7 @@ void iFpI(x86emu_t *emu, uintptr_t fnc);
 void iFpC(x86emu_t *emu, uintptr_t fnc);
 void iFpu(x86emu_t *emu, uintptr_t fnc);
 void iFpU(x86emu_t *emu, uintptr_t fnc);
+void iFpf(x86emu_t *emu, uintptr_t fnc);
 void iFpd(x86emu_t *emu, uintptr_t fnc);
 void iFpp(x86emu_t *emu, uintptr_t fnc);
 void IFpu(x86emu_t *emu, uintptr_t fnc);
@@ -526,6 +527,7 @@ void iFpippi(x86emu_t *emu, uintptr_t fnc);
 void iFpippp(x86emu_t *emu, uintptr_t fnc);
 void iFpCCCC(x86emu_t *emu, uintptr_t fnc);
 void iFpuuui(x86emu_t *emu, uintptr_t fnc);
+void iFpuppp(x86emu_t *emu, uintptr_t fnc);
 void iFppiip(x86emu_t *emu, uintptr_t fnc);
 void iFppiup(x86emu_t *emu, uintptr_t fnc);
 void iFppipi(x86emu_t *emu, uintptr_t fnc);
@@ -878,6 +880,7 @@ void vFuuiiiiuuiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
 void uFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void vFppuiiiiipuiiiiiiii(x86emu_t *emu, uintptr_t fnc);
+void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)
 void IFpi(x86emu_t *emu, uintptr_t fnc);

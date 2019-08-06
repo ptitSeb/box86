@@ -1804,7 +1804,7 @@ GO(towupper, iFi)
 GO(__towupper_l, iFip)
 GOW(towupper_l, iFip)
 // tr_break
-// truncate // Weak
+GOW(truncate, iFpu)
 GO(truncate64, iFpU)
 // tsearch  // Weak
 GO(ttyname, pFi)

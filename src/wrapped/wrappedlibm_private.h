@@ -311,8 +311,8 @@ GOW(log2f, fFf)
 GO(__log2f_finite, fFf)
 GO(__log2_finite, dFd)
 // log2l    // Weak
-// logb // Weak
-// logbf    // Weak
+GOW(logb, dFd)
+GOW(logbf, fFf)
 // logbl    // Weak
 GOW(logf, fFf)
 GO(__logf_finite, fFf)
