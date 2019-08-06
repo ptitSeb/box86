@@ -14,6 +14,7 @@
 #include "x86run.h"
 #include "x86emu_private.h"
 #include "x86run_private.h"
+#include "x87emu_private.h"
 #include "x86primop.h"
 #include "x86trace.h"
 #include "wrapper.h"
@@ -161,6 +162,12 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), "XLoadQueryFont", *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "pthread_mutex_lock")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), "pthread_mutex_lock", *(void**)(R_ESP+4));
+                } else if(strstr(s, "fmodf")==s) {
+                    post = 4;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "fmodf", *(float*)(R_ESP+4), *(float*)(R_ESP+8));
+                } else if(strstr(s, "fmod")==s) {
+                    post = 4;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "fmod", *(double*)(R_ESP+4), *(double*)(R_ESP+12));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
@@ -175,6 +182,12 @@ void x86Int3(x86emu_t* emu)
                     case 2: snprintf(buff2, 63, "(%s)", R_EAX?((char*)R_EAX):"nil");
                             break;
                     case 3: snprintf(buff2, 63, "(%s)", pu32?((char*)pu32):"nil");
+                            break;
+                    #ifdef USE_FLOAT
+                    case 4: snprintf(buff2, 63, " (%f)", ST0.f);
+                    #else
+                    case 4: snprintf(buff2, 63, " (%f)", ST0.d);
+                    #endif
                             break;
                     
                 }
