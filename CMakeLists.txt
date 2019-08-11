@@ -139,6 +139,8 @@ add_custom_command(OUTPUT ${WRAPPER} COMMAND "${CMAKE_HOME_DIRECTORY}/rebuild_wr
 
 if(USE_FLOAT)
     set(BOX86 box86f)
+elseif(HAVE_TRACE)
+    set(BOX86 box86t)
 else()
     set(BOX86 box86)
 endif()
