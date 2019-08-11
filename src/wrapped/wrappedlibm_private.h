@@ -5,11 +5,11 @@
 GOW(acos, dFd)
 GOW(acosf, fFf)
 GO(__acosf_finite, fFf)
-// __acos_finite
+GO(__acos_finite, dFd)
 GOW(acosh, dFd)
 GOW(acoshf, fFf)
-// __acoshf_finite
-// __acosh_finite
+GO(__acoshf_finite, fFf)
+GO(__acosh_finite, dFd)
 #ifdef HAVE_LD80BITS
 GOW(acoshl, DFD)
 #else
@@ -99,7 +99,7 @@ GOW(ceilf, fFf)
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
-GOS(clog, pFpdd)   // return a double complex, that is a struct
+GOS(clog, pFpV)   // return a double complex, that is a struct
 // clog10   // Weak
 // __clog10
 // clog10f  // Weak
@@ -118,8 +118,8 @@ GOW(cos, dFd)
 GOW(cosf, fFf)
 GOW(cosh, dFd)
 GOW(coshf, fFf)
-// __coshf_finite
-// __cosh_finite
+GO(__coshf_finite, fFf)
+GO(__cosh_finite, dFd)
 // coshl    // Weak
 // cosl // Weak
 // cpow // Weak
@@ -137,7 +137,7 @@ GOW(coshf, fFf)
 // csinhf   // Weak
 // csinhl   // Weak
 // csinl    // Weak
-GOS(csqrt, pFpdd)
+GOS(csqrt, pFpV)
 // csqrtf   // Weak
 // csqrtl   // Weak
 // ctan // Weak
@@ -172,8 +172,8 @@ GOW(exp10f, fFf)
 // exp10l   // Weak
 GOW(exp2, dFd)
 GOW(exp2f, fFf)
-// __exp2f_finite
-// __exp2_finite
+GO(__exp2f_finite, fFf)
+GO(__exp2_finite, dFd)
 // exp2l    // Weak
 GOW(expf, fFf)
 GO(__expf_finite, fFf)
@@ -246,8 +246,8 @@ GO2(frexpl, LFLp, frexp)
 // __gmon_start__  // Weak
 GOW(hypot, dFdd)
 GOW(hypotf, fFff)
-// __hypotf_finite
-// __hypot_finite
+GO(__hypotf_finite, fFff)
+GO(__hypot_finite, dFdd)
 // hypotl   // Weak
 GOW(ilogb, iFd)
 GOW(ilogbf, iFf)
@@ -301,7 +301,7 @@ GOW(log, dFd)
 GOW(log10, dFd)
 GOW(log10f, fFf)
 // __log10f_finite
-// __log10_finite
+GO(__log10_finite, dFd)
 // log10l   // Weak
 GOW(log1p, dFd)
 GOW(log1pf, fFf)
@@ -390,8 +390,8 @@ GOW(sincosf, vFfpp)
 GOW(sinf, fFf)
 GOW(sinh, dFd)
 GOW(sinhf, fFf)
-// __sinhf_finite
-// __sinh_finite
+GO(__sinhf_finite, fFf)
+GO(__sinh_finite, dFd)
 // sinhl    // Weak
 // sinl // Weak
 GOW(sqrt, dFd)

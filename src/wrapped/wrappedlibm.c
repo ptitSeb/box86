@@ -13,15 +13,15 @@
 #include "x86emu.h"
 #include "debug.h"
 
-EXPORT void* my_clog(void* p, double real, double img)
+EXPORT void* my_clog(void* p, void* c)
 {
-    *(double complex*)p = clog(real+img*I);
+    *(double complex*)p = clog(*(double complex*)c);
     return p;
 }
 
-EXPORT void* my_csqrt(void* p, double real, double img)
+EXPORT void* my_csqrt(void* p, void* c)
 {
-    *(double complex*)p = csqrt(real+img*I);
+    *(double complex*)p = csqrt(*(double complex*)c);
     return p;
 }
 
