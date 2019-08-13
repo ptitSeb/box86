@@ -55,7 +55,7 @@ GO(SDL_CondSignal, iFp)
 GO(SDL_CondWait, iFpp)
 GO(SDL_CondWaitTimeout, iFppu)
 GO(SDL_ConvertAudio, iFp)
-// SDL_ConvertPixels
+GO(SDL_ConvertPixels, iFiiupiupi)
 GO(SDL_ConvertSurface, pFppu)
 GO(SDL_ConvertSurfaceFormat, pFpuu)
 // SDL_copysign
@@ -69,7 +69,7 @@ GO(SDL_CreateMutex, pFv)
 GO(SDL_CreateRenderer, pFpiu)
 GO(SDL_CreateRGBSurface, pFuiiiuuuu)
 GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu)
-// SDL_CreateRGBSurfaceWithFormat
+GO(SDL_CreateRGBSurfaceWithFormat, pFuiiiu)
 GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu)
 GO(SDL_CreateSemaphore, pFu)
 // SDL_CreateShapedWindow
@@ -130,9 +130,9 @@ GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
 GO(SDL_GameControllerGetAxisFromString, uFp)
 GOS(SDL_GameControllerGetBindForAxis, pFEppi)
-// SDL_GameControllerGetBindForButton
+GOS(SDL_GameControllerGetBindForButton, pFEppi)
 GO(SDL_GameControllerGetButton, uFpi)
-// SDL_GameControllerGetButtonFromString
+GO(SDL_GameControllerGetButtonFromString, uFp)
 GO(SDL_GameControllerGetJoystick, pFp)
 // SDL_GameControllerGetPlayerIndex
 // SDL_GameControllerGetProduct
@@ -141,8 +141,8 @@ GO(SDL_GameControllerGetJoystick, pFp)
 GO(SDL_GameControllerGetStringForButton, pFu)
 // SDL_GameControllerGetVendor
 GO(SDL_GameControllerMapping, pFp)
-// SDL_GameControllerMappingForDeviceIndex
-// SDL_GameControllerMappingForGUID
+GO(SDL_GameControllerMappingForDeviceIndex, pFi)
+GOM(SDL_GameControllerMappingForGUID, pFEV)   // SDL_GameControllerMappingForGUID structure
 // SDL_GameControllerMappingForIndex
 GO(SDL_GameControllerName, pFp)
 GO(SDL_GameControllerNameForIndex, pFi)
@@ -179,7 +179,7 @@ GO(SDL_GetDisplayUsableBounds, iFip)
 GO(SDL_getenv, pFp)
 GO(SDL_GetError, pFv)
 // SDL_GetEventFilter
-// SDL_GetGlobalMouseState
+GO(SDL_GetGlobalMouseState, uFpp)
 // SDL_GetGrabbedWindow
 GO(SDL_GetHint, pFp)
 // SDL_GetHintBoolean
@@ -355,10 +355,10 @@ GO(SDL_JoystickGetButton, CFpi)
 GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
 // SDL_JoystickGetDeviceInstanceID
 // SDL_JoystickGetDevicePlayerIndex
-// SDL_JoystickGetDeviceProduct
-// SDL_JoystickGetDeviceProductVersion
+GO(SDL_JoystickGetDeviceProduct, WFi)
+GO(SDL_JoystickGetDeviceProductVersion, WFi)
 // SDL_JoystickGetDeviceType
-// SDL_JoystickGetDeviceVendor
+GO(SDL_JoystickGetDeviceVendor, WFi)
 GOS(SDL_JoystickGetGUID, pFEpp)
 GOS(SDL_JoystickGetGUIDFromString, pFEpp)
 GO(SDL_JoystickGetGUIDString, vFupi)
@@ -389,7 +389,7 @@ GOM(SDL_LoadObject, pFEp)
 GOM(SDL_LoadWAV_RW, pFEpippp)
 GO(SDL_LockAudio, vFv)
 GO(SDL_LockAudioDevice, vFi)
-// SDL_LockJoysticks
+GO(SDL_LockJoysticks, vFv)
 GO(SDL_LockMutex, iFp)
 GO(SDL_LockSurface, iFp)
 // SDL_LockTexture
@@ -623,11 +623,11 @@ GO(SDL_TryLockMutex, iFp)
 GO(SDL_uitoa, pFupi)
 GO(SDL_ulltoa, pFUpi)
 GO(SDL_ultoa, pFupi)
-// SDL_UnionRect
+GO(SDL_UnionRect, vFppp)
 GOM(SDL_UnloadObject, vFEp)
 GO(SDL_UnlockAudio, vFv)
 GO(SDL_UnlockAudioDevice, vFi)
-// SDL_UnlockJoysticks
+GO(SDL_UnlockJoysticks, vFv)
 GO(SDL_UnlockMutex, iFp)
 GO(SDL_UnlockSurface, vFp)
 // SDL_UnlockTexture
@@ -652,7 +652,7 @@ GOM(SDL_vsnprintf, iFEpupVV)
 GO(SDL_WaitEvent, iFp)
 GO(SDL_WaitEventTimeout, iFpi)
 GO(SDL_WaitThread, vFpp)
-// SDL_WarpMouseGlobal
+GO(SDL_WarpMouseGlobal, iFii)
 GO(SDL_WarpMouseInWindow, vFpii)
 GO(SDL_WasInit, uFu)
 // SDL_wcscmp
@@ -667,6 +667,12 @@ GOM(SDL_WriteLE16, uFEpW)
 GOM(SDL_WriteLE32, uFEpu)
 GOM(SDL_WriteLE64, uFEpU)
 GOM(SDL_WriteU8, uFEpu)
+
+GOM(SDL_RWseek, IFEpIi)
+GOM(SDL_RWtell, IFEp)
+GOM(SDL_RWread, uFEppuu)
+GOM(SDL_RWwrite, uFEppuu)
+GOM(SDL_RWclose, iFEp)
 
 GO(SDL_doesntexist, IFpIi)
 

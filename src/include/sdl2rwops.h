@@ -23,4 +23,9 @@ SDL2_RWops_t* AddNativeRW2(x86emu_t* emu, SDL2_RWops_t* ops);
 SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops);   // put Native RW function, wrapping emulated (callback style) ones if needed
 void RWNativeEnd2(SDL2_RWops_t* ops);     // put back emulated function back in place
 
+int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence);
+uint32_t RWNativeRead2(SDL2_RWops_t* ops, void* ptr, uint32_t size, uint32_t maxnum);
+int32_t RWNativeWrite2(SDL2_RWops_t *ops, const void *ptr, int32_t size, int32_t num);
+int32_t RWNativeClose2(SDL2_RWops_t* ops);
+
 #endif

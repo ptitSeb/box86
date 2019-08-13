@@ -207,3 +207,20 @@ void RWNativeEnd2(SDL2_RWops_t* ops)
     FreeCallback(ops->hidden.my.emu);
     ops->hidden.my.custom_free(ops);
 }
+
+int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence)
+{
+    return ops->seek(ops, offset, whence);
+}
+uint32_t RWNativeRead2(SDL2_RWops_t* ops, void* ptr, uint32_t size, uint32_t maxnum)
+{
+    return ops->read(ops, ptr, size, maxnum);
+}
+int32_t RWNativeWrite2(SDL2_RWops_t *ops, const void *ptr, int32_t size, int32_t num)
+{
+    return ops->write(ops, ptr, size, num);
+}
+int32_t RWNativeClose2(SDL2_RWops_t* ops)
+{
+    return ops->close(ops);
+}

@@ -69,6 +69,7 @@ typedef struct
 typedef void* (*pFv_t)();
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFS_t)(SDL_JoystickGUID);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
@@ -137,8 +138,10 @@ typedef struct sdl2_my_s {
     SFp_t      SDL_JoystickGetGUID;
     SFp_t      SDL_JoystickGetGUIDFromString;
     SFpi_t     SDL_GameControllerGetBindForAxis;
+    SFpi_t     SDL_GameControllerGetBindForButton;
     vFpp_t     SDL_AddEventWatch;
     vFpp_t     SDL_DelEventWatch;
+    pFS_t      SDL_GameControllerMappingForGUID;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -194,9 +197,11 @@ void* getSDL2My(library_t* lib)
     GO(SDL_JoystickGetGUID, SFp_t)
     GO(SDL_JoystickGetGUIDFromString, SFp_t)
     GO(SDL_GameControllerGetBindForAxis, SFpi_t)
+    GO(SDL_GameControllerGetBindForButton, SFpi_t)
     GO(SDL_SetEventFilter, vFpp_t)
     GO(SDL_AddEventWatch, vFpp_t)
     GO(SDL_DelEventWatch, vFpp_t)
+    GO(SDL_GameControllerMappingForGUID, pFS_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -503,6 +508,45 @@ EXPORT void *my2_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     void* r = my->SDL_RWFromMem(a, b);
     return AddNativeRW2(emu, (SDL2_RWops_t*)r);
+}
+
+EXPORT int64_t my2_SDL_RWseek(x86emu_t* emu, void* a, int64_t offset, int32_t whence)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = RWNativeSeek2(rw, offset, whence);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int64_t my2_SDL_RWtell(x86emu_t* emu, void* a)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = RWNativeSeek2(rw, 0, 1);  //1 == RW_SEEK_CUR
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT uint32_t my2_SDL_RWread(x86emu_t* emu, void* a, void* ptr, uint32_t size, uint32_t maxnum)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint32_t ret = RWNativeRead2(rw, ptr, size, maxnum);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT uint32_t my2_SDL_RWwrite(x86emu_t* emu, void* a, const void* ptr, uint32_t size, uint32_t maxnum)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint32_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int my2_SDL_RWclose(x86emu_t* emu, void* a)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    return RWNativeClose2(rw);
 }
 
 EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
@@ -822,6 +866,19 @@ EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* 
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForAxis(controller, axis);
     return p;
+}
+
+EXPORT void* my2_SDL_GameControllerGetBindForButton(x86emu_t* emu, void* p, void* controller, int32_t button)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForButton(controller, button);
+    return p;
+}
+
+EXPORT void* my2_SDL_GameControllerMappingForGUID(x86emu_t* emu, void* p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    return my->SDL_GameControllerMappingForGUID(*(SDL_JoystickGUID*)p);
 }
 
 EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
