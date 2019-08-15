@@ -351,7 +351,7 @@ GOW(finitef, iFf)
 // __finitel
 // __flbf
 GO(flistxattr, iFipu)
-GOW(flock, pFi)
+GOW(flock, iFii)
 GOW(flockfile, vFp)
 GOW(_flushlbf, vFv)
 GO(fmemopen, pFpup)

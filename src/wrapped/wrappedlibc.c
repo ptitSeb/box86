@@ -25,6 +25,7 @@
 #include <sys/syscall.h> 
 #include <sys/socket.h>
 #include <sys/utsname.h>
+#include <sys/mman.h>
 
 #include "wrappedlibs.h"
 
@@ -579,7 +580,7 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
-
+#define TMP_CMDLINE "box86_tmpcmdline"
 EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
     if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
