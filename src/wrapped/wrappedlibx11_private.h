@@ -223,7 +223,11 @@ GO(XCreateBitmapFromData, pFpppuu)
 GO(XCreateColormap, uFpppi)
 GO(XCreateFontCursor, pFpu)
 GO(XCreateFontSet, pFppppp)
+#ifdef PANDORA
+GOM(XCreateGC, pFEppup)
+#else
 GO(XCreateGC, pFppup)
+#endif
 //GO(XCreateGlyphCursor
 GO(XCreateIC, uFpppppppppppppppp)     // use vararg, so putting an arbitrary number of args, also can have Callbacks ?! Allegro have 7 args and no callback
 GOM(XCreateImage, pFEppuiipuuii)
@@ -926,7 +930,11 @@ GO(XSetAccessControl, iFpi)
 //GO(XSetAfterFunction
 GO(XSetArcMode, iFppi)
 //GO(XSetAuthorization
+#ifdef PANDORA
+GOM(XSetBackground, iFEppu)
+#else
 GO(XSetBackground, iFppu)
+#endif
 GO(XSetClassHint, iFppp)
 GO(XSetClipMask, iFppp)
 GO(XSetClipOrigin, iFppii)
@@ -940,7 +948,11 @@ GO(XSetFillRule, iFppi)
 GO(XSetFillStyle, iFppp)
 GO(XSetFont, iFppp)
 GO(XSetFontPath, iFppi)
+#ifdef PANDORA
+GOM(XSetForeground, iFEppu)
+#else
 GO(XSetForeground, iFppu)
+#endif
 GO(XSetFunction, iFppi)
 GO(XSetGraphicsExposures, iFppu)
 GO(XSetICFocus, vFu)

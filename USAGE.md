@@ -57,3 +57,8 @@ Try to load at 0xXXXXXX main binaray (if binary is a PIE)
 To disable handling of SigSEGV (to ease debugging mainly)
 * 0 : default, let x86 program set sighandler for SEGV
 * 1 : disable handling of SigSEGV
+
+#### BOX86_X11COLOR16
+PANDORA only: to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows
+* 0 : default, don't touch X11 colors
+* 1 : Change colors arguments in XSetForeground, XSetBackground and XCreateGC

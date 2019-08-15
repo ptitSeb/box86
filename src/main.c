@@ -34,6 +34,9 @@ int trace_xmm = 0;
 #ifdef HAVE_TRACE
 uint64_t start_cnt = 0;
 #endif
+#ifdef PANDORA
+int x11color16 = 0;
+#endif
 
 FILE* ftrace = NULL;
 
@@ -88,6 +91,16 @@ void LoadLogEnv()
                 dlsym_error = p[0]-'0';
         }
     }
+#ifdef PANDORA
+    p = getenv("BOX86_X11COLOR16");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                x11color16 = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Try to adjust X11 Color (32->16bits) : %s\n", x11color16?"Yes":"No");
+    }
+#endif
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
@@ -180,6 +193,9 @@ void PrintHelp() {
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binaray (if binary is a PIE)\n");
     printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
+#ifdef PANDORA
+    printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
+#endif
 }
 
 int main(int argc, const char **argv, const char **env) {

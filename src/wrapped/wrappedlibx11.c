@@ -95,9 +95,11 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
+typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uint32_t (*uFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiu_t)(void*, int32_t, int32_t, uint32_t);
+typedef void* (*pFppup_t)(void*, void*, uint32_t, void*);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 typedef void* (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t);
 typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
@@ -120,6 +122,9 @@ typedef struct x11_my_s {
     vFp_t           XDestroyImage;
     #ifdef PANDORA
     pFpp_t          XLoadQueryFont;
+    pFppup_t        XCreateGC;
+    iFppu_t         XSetBackground;
+    iFppu_t         XSetForeground;
     #endif
 } x11_my_t;
 
@@ -141,6 +146,9 @@ void* getX11My(library_t* lib)
     GO(XDestroyImage, vFp_t)
     #ifdef PANDORA
     GO(XLoadQueryFont, pFpp_t)
+    GO(XCreateGC, pFppup_t)
+    GO(XSetBackground, iFppu_t)
+    GO(XSetForeground, iFppu_t)
     #endif
     #undef GO
     return my;
@@ -511,5 +519,83 @@ EXPORT void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name)
     if(strcmp(name, "9x15B")==0)
         return my->XLoadQueryFont(d, "6x13B");
     return my->XLoadQueryFont(d, name);
+}
+extern int x11color16;
+static uint32_t recode32to16(uint32_t c)
+{
+    uint32_t r, g, b;
+    r = (c>>16)&0xff;
+    g = (c>>8)&0xff;
+    b = (c>>0)&0xff;
+    return ((r>>3)<<11) | ((g>>2)<<5) | ((b>>3));
+}
+EXPORT int32_t my_XSetBackground(x86emu_t* emu, void* d, void* gc, uint32_t c)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    if(x11color16)
+        c = recode32to16(c);
+    return my->XSetBackground(d, gc, c);
+}
+EXPORT int32_t my_XSetForeground(x86emu_t* emu, void* d, void* gc, uint32_t c)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    if(x11color16)
+        c = recode32to16(c);
+    return my->XSetForeground(d, gc, c);
+}
+typedef struct XGCValues_s {
+	int32_t function;
+	uint32_t plane_mask;
+	uint32_t foreground;
+	uint32_t background;
+	int32_t line_width;
+	int32_t line_style;
+	int32_t cap_style;
+	int32_t join_style;
+	int32_t fill_style;
+	int32_t fill_rule;
+	int32_t arc_mode;
+	void* tile;
+	void* stipple;
+	int32_t ts_x_origin;
+	int32_t ts_y_origin;
+	void* font;
+	int32_t subwindow_mode;
+	int graphics_exposures;
+	int32_t clip_x_origin;
+	int32_t clip_y_origin;
+	void* clip_mask;
+	int32_t dash_offset;
+	char dashes;
+} XGCValues_t;
+
+EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* vs)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    int setfore = 0;
+    int setback = 0;
+    uint32_t fore = 0; 
+    uint32_t back = 0;
+    XGCValues_t *values = (XGCValues_t*)vs;
+    if(v&(1<<2)) {
+        setfore = 1;
+        fore = values->foreground;
+    }
+    if(v&(1<<3)) {
+        setback = 1;
+        back = values->background;
+    }
+    void* gc = my->XCreateGC(disp, d, v, vs);
+    if(x11color16) {
+    if(setfore)
+        my->XSetForeground(disp, gc, recode32to16(fore));
+    if(setback)
+        my->XSetBackground(disp, gc, recode32to16(back));
+    }
+    return gc;
 }
 #endif
