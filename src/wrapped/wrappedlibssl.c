@@ -19,5 +19,6 @@
 
 const char* libsslName = "libssl.so.1.0.0";
 #define LIBNAME libssl
+#define ALTNAME "libssl.so.1.0.2"
 
 #include "wrappedlib_init.h"

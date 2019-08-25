@@ -20,6 +20,7 @@
 
 const char* cryptoName = "libcrypto.so.1.0.0";
 #define LIBNAME crypto
+#define ALTNAME "libcrypto.so.1.0.2"
 
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 
