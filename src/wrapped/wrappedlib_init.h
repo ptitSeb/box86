@@ -46,7 +46,7 @@ static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
 #define GOM(N, W)
 #undef GOS
 #define GOS(N, W) {#N, W, 0},
-static const map_onesymbol2_t MAPNAME(stsymbolmap)[] = {
+static const map_onesymbol_t MAPNAME(stsymbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GOS
@@ -226,4 +226,3 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t
     *sz = size;
     return 1;
 }
-
