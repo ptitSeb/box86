@@ -51,7 +51,7 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
     if(v==EAGAIN || v==ENOMEM) {
         --emu->context->forked;
         FreeX86Emu(&newemu);    // fork failed, free the new emu
-    } else if(!v) {  
+    } else if(v!=0) {  
         // execute atforks parent functions
         for (int i=0; i<emu->context->atfork_sz; --i)
             EmuCall(emu, emu->context->atforks[i].parent);
