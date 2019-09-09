@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import os
 import glob
@@ -122,7 +122,7 @@ def main(root, defines, ver):
 			if k == "":
 				gbl_vals[v] = []
 				continue
-			if gbl_vals.has_key(v):
+			if v in gbl_vals:
 				if gbl_vals[v] == []:
 					continue
 				for other_key in gbl_vals[v]:
@@ -160,7 +160,7 @@ def main(root, defines, ver):
 			if k == "":
 				redirects_vals[(v, redirects[k][v])] = []
 				continue
-			if redirects_vals.has_key((v, redirects[k][v])):
+			if (v, redirects[k][v]) in redirects_vals:
 				if redirects_vals[(v, redirects[k][v])] == []:
 					continue
 				for other_key in redirects_vals[(v, redirects[k][v])]:
