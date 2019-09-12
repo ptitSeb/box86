@@ -320,7 +320,7 @@ EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list
     int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
     return r;
     #else
-    return vsprintf(buff, fmt, V);
+    return vsprintf(buff, fmt, *(uint32_t**)b);
     #endif
 }
 EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
