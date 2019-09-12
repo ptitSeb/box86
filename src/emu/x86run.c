@@ -1025,6 +1025,14 @@ _trace:
                             R_ESI += tmp8s;
                         }
                         break;
+                    case 0xAB:              /* REP STOSW */
+                        tmp8s *= 2;
+                        while(tmp32u) {
+                            --tmp32u;
+                            *(uint16_t*)R_EDI = R_AX;
+                            R_EDI += tmp8s;
+                        }
+                        break;
                     default:
                         goto _default;
                 }
