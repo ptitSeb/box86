@@ -3,14 +3,14 @@ Compiling
 *for Pandora*
 
  `mkdir build; cd build; cmake .. -DPANDORA=1; make`
-    
+
 *or for Other ARM Linux*
 
- `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1; make`
+ `mkdir build; cd build; cmake .. ; make`
 
 *or for x86 Linux*
 
- `mkdir build; cd build; cmake .. ; make`
+ `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1; make`
 
 *or use ccmake*
 
