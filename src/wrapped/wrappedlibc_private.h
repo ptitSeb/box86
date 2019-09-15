@@ -1140,7 +1140,7 @@ GOW(nanosleep, iFpp)
 GOW(newlocale, pFipp)
 GO(__newlocale, pFipp)
 // nfsservctl
-// nftw
+GOM(nftw, iFEppii)
 // nftw64
 GOW(ngettext, pFppu)
 GO(nice, iFi)

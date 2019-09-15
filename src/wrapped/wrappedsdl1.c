@@ -100,8 +100,10 @@ typedef struct sdl1_my_s {
 } sdl1_my_t;
 
 // event filter. Needs to be global, but there is only one, so that's should be fine
-x86emu_t        *sdl1_evtfiler = NULL;
+x86emu_t        *sdl1_evtfilter = NULL;
 void*           sdl1_evtfnc = NULL;
+int             sdl1_evtautofree = 0;
+int             sdl1_evtinside = 0;
 
 
 void* getSDL1My(library_t* lib)
@@ -154,9 +156,9 @@ void freeSDL1My(void* lib)
         FreeCallback(x);
     );
     kh_destroy(timercb, my->threads);
-    if(sdl1_evtfiler) {
-        FreeCallback(sdl1_evtfiler);
-        sdl1_evtfiler = NULL;
+    if(sdl1_evtfilter) {
+        FreeCallback(sdl1_evtfilter);
+        sdl1_evtfilter = NULL;
         sdl1_evtfnc = NULL;
     }
 }
@@ -187,9 +189,16 @@ int32_t sdl1ThreadCallback(void *userdata)
 
 int32_t sdl1EvtFilterCallback(void *p)
 {
-    SetCallbackArg(sdl1_evtfiler, 0, p);
-    RunCallback(sdl1_evtfiler);
-    return sdl1_evtfiler->regs[0].dword[0];
+    x86emu_t* emu = sdl1_evtfilter;
+    sdl1_evtinside = 1;
+    SetCallbackArg(emu, 0, p);
+    int32_t ret = RunCallback(emu);
+    if(sdl1_evtautofree) {
+        FreeCallback(emu);
+        sdl1_evtautofree = 0;
+    }
+    sdl1_evtinside = 0;
+    return ret;
 }
 
 // TODO: track the memory for those callback
@@ -446,15 +455,23 @@ int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    if(sdl1_evtfiler) {
-        my->SDL_SetEventFilter(NULL);   // remove old one
-        FreeCallback(sdl1_evtfiler);
-        sdl1_evtfiler = NULL;
-        sdl1_evtfnc = NULL;
+    if(sdl1_evtfnc == a) {
+        my->SDL_SetEventFilter(sdl1EvtFilterCallback);
+        return;
+    }
+    if(sdl1_evtfilter) {
+        if(sdl1_evtinside)
+            sdl1_evtautofree = 1;
+        else {
+            my->SDL_SetEventFilter(NULL);   // remove old one
+            FreeCallback(sdl1_evtfilter);
+            sdl1_evtfilter = NULL;
+            sdl1_evtfnc = NULL;
+        }
     }
     if(a) {
         sdl1_evtfnc = a;
-        sdl1_evtfiler = AddCallback(emu, (uintptr_t)a, 1, NULL, NULL, NULL, NULL);
+        sdl1_evtfilter = AddCallback(emu, (uintptr_t)a, 1, NULL, NULL, NULL, NULL);
         my->SDL_SetEventFilter(sdl1EvtFilterCallback);
     }
 }

@@ -640,6 +640,33 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
     return open64(pathname, flags, mode);
 }
 
+typedef int32_t (*nftw_fn) (const char *, const struct stat *, int, struct FTW *);
+x86emu_t* nftw_emu = NULL;
+static int32_t nftw_callback(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+{
+    if(!nftw_emu)
+        return 0;
+    SetCallbackArg(nftw_emu, 0, (void*)fpath);
+    SetCallbackArg(nftw_emu, 1, (void*)sb);
+    SetCallbackArg(nftw_emu, 2, (void*)typeflag);
+    SetCallbackArg(nftw_emu, 3, (void*)ftwbuf);
+    return (int32_t)RunCallback(nftw_emu);
+}
+
+EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
+{
+    if(nftw_emu) {
+        printf_log(LOG_NONE, "ERROR: nftw called 2 times at the same time\n");
+        return -1;
+    }
+    if(B)
+        nftw_emu = AddSharedCallback(emu, (uintptr_t)B, 4, NULL, NULL, NULL, NULL);
+    int32_t ret = nftw(pathname, B?nftw_callback:B, nopenfd, flags);
+    if(B)
+        nftw_emu = FreeCallback(nftw_emu);
+    return ret;
+}
+
 EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
 {
     *((ldiv_t*)p) = ldiv(num, den);
