@@ -2835,6 +2835,8 @@ GO(glBindSamplers, vFuip)
 GO(glBindTextures, vFuip)
 GO(glBindVertexBuffers, vFuippp)
 GO(glBufferStorage, vFiupu)
+GO(glClearTexImage, vFuiiip)
+GO(glClearTexSubImage, vFuiiiiiiiiip)
 //VERSION_4_5
 GO(glBindTextureUnit, vFuu)
 GO(glCreateFramebuffers, vFip)
