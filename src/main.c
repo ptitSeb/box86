@@ -178,8 +178,8 @@ void PrintHelp() {
     printf("\nUsage is box86 path/to/software [args]\n");
     printf("to launch x86 software\n");
     printf("You can also set some environment variables:\n");
-    printf(" BOX86_PATH to set the path used by box86 to find x86 programs (default is '.:bin')\n");
-    printf(" BOX86_LD_LIBRARY_PATH to set the path where box86 will search for x86 libraries (default is '.:lib')\n");
+    printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
+    printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
@@ -202,7 +202,12 @@ int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
     if(argc==1) {
-        printf("Box86%s v%d.%d.%d\n", 
+        printf("Box86%s%s v%d.%d.%d\n", 
+        #ifdef HAVE_TRACE
+            " with trace",
+        #else
+            "",
+        #endif
         #ifdef USE_FLOAT
             " (float only)",
         #else
