@@ -295,7 +295,7 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
-        printf_log(LOG_NONE, "Error: file %s is not found\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: %s is not an executable file\n", context->argv[0]);
         FreeBox86Context(&context);
         return -1;
     }
