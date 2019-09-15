@@ -13,6 +13,11 @@ option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" 
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(X86_CPP_LIBRARY_PRESENT "Set to ON if you have an accessible libstdc++.so.6 32bit ELF lib in your PATH" ${X86_CPP_LIBRARY_PRESENT})
 
+find_package(PythonInterp)
+if(NOT PYTHONINTERP_FOUND)
+    message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+endif()
+
 # Pandora
 if(PANDORA)
     add_definitions(-DPANDORA)
@@ -135,7 +140,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h")
-add_custom_command(OUTPUT ${WRAPPER} COMMAND "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} BYPRODUCTS ${WRAPPER})
+add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} BYPRODUCTS ${WRAPPER})
 
 if(USE_FLOAT)
     set(BOX86 box86f)
