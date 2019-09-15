@@ -164,10 +164,10 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         ++p;
     }
     if(!path) {
-        (*dest)[idx++] = strdup("PATH=.:bin");
+        (*dest)[idx++] = strdup("BOX86_PATH=.:bin");
     }
     if(!ld_path) {
-        (*dest)[idx++] = strdup("LD_LIBRARY_PATH=.:lib");
+        (*dest)[idx++] = strdup("BOX86_LD_LIBRARY_PATH=.:lib");
     }
     return 0;
 }
