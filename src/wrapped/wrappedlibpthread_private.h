@@ -25,7 +25,7 @@ GO(pthread_attr_getstack, iFppp)
 GO(pthread_attr_getstackaddr, iFpp)
 GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
-// pthread_attr_setaffinity_np
+GO(pthread_attr_setaffinity_np, iFpup)  // 3rd argument is const cpu_set_t *, should it be wrapped or something?
 GO(pthread_attr_setdetachstate, iFpi)
 GO(pthread_attr_setguardsize, iFpu)
 GO(pthread_attr_setinheritsched, iFpi)
@@ -50,10 +50,10 @@ GO(pthread_cancel, iFi)
 // __pthread_cleanup_routine
 GO(pthread_condattr_destroy, iFp)
 GO(pthread_condattr_getclock, iFpp)
-// pthread_condattr_getpshared
+GO(pthread_condattr_getpshared, iFpp)
 GO(pthread_condattr_init, iFp)
 GO(pthread_condattr_setclock, iFpp)
-// pthread_condattr_setpshared
+GO(pthread_condattr_setpshared, iFpi)
 GOM(pthread_cond_broadcast, iFEp)
 GOM(pthread_cond_destroy, iFEp)
 GOM(pthread_cond_init, iFEpp)

@@ -1058,8 +1058,8 @@ GOW(malloc_usable_size, uFp)
 // mallopt  // Weak
 // mallwatch    // type B
 GO(mblen, iFpu)
-GOW(mbrlen, uFpupp)
-// __mbrlen
+GOW(mbrlen, uFpup)
+GO(__mbrlen, uFpup)
 GOW(mbrtowc, uFppup)
 GO(__mbrtowc, uFppup)
 GOW(mbsinit, iFp)
@@ -1905,7 +1905,7 @@ GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
 GOW(wcscasecmp_l, iFppp)
 GOW(wcscat, pFpp)
-// __wcscat_chk
+GO(__wcscat_chk, pFppu)
 GO(wcschr, pFpi)
 // wcschrnul    // Weak
 GO(wcscmp, iFpp)

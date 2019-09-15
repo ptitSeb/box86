@@ -431,7 +431,7 @@ GO(SDL_MixAudio, vFppui)
 // SDL_MixAudioFormat
 // SDL_MouseIsHaptic
 // SDL_NewAudioStream
-// SDL_NumHaptics
+GO(SDL_NumHaptics, iFv)
 GO(SDL_NumJoysticks, iFv)
 // SDL_NumSensors
 GOM(SDL_OpenAudio, iFEpp)
