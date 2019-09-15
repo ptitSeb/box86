@@ -177,10 +177,10 @@ void PrintHelp() {
     printf("\n\nThis is Box86, the Linux 86 emulator with a twist\n");
     printf("\nUsage is box86 path/to/software [args]\n");
     printf("to launch x86 software\n");
-    printf("You can also set some env. var.:\n");
-    printf(" BOX86_PATH to set the PATH used by box86 to find x86 programs (default is '.:bin')\n");
-    printf(" BOX86_LD_LIBRARY_PATH to set the path were x86 lib are searched (default is '.:lib')\n");
-    printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set printed debug info\n");
+    printf("You can also set some environment variables:\n");
+    printf(" BOX86_PATH to set the path used by box86 to find x86 programs (default is '.:bin')\n");
+    printf(" BOX86_LD_LIBRARY_PATH to set the path where box86 will search for x86 libraries (default is '.:lib')\n");
+    printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
@@ -191,7 +191,7 @@ void PrintHelp() {
 #endif
     printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
-    printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binaray (if binary is a PIE)\n");
+    printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
