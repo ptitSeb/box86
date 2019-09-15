@@ -1104,7 +1104,7 @@ GO(mkostemp, iFpi)
 GO(mkostemp64, iFpi)
 GO(mkstemp, iFp)
 GO(mkstemp64, iFp)
-// mktemp
+GO(mktemp, pFp)
 GO(mktime, uFp)
 GO(mlock, iFpu)
 GO(mlockall, iFi)
