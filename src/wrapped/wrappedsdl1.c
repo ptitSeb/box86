@@ -527,6 +527,23 @@ EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
     return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 
+// DL functions from wrappedlibdl.c
+void* my_dlopen(x86emu_t* emu, void *filename, int flag);
+int my_dlclose(x86emu_t* emu, void *handle);
+void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
+EXPORT void* my_SDL_LoadObject(x86emu_t* emu, void* sofile)
+{
+    return my_dlopen(emu, sofile, 0);   // TODO: check correct flag value...
+}
+EXPORT void my_SDL_UnloadObject(x86emu_t* emu, void* handle)
+{
+    my_dlclose(emu, handle);
+}
+EXPORT void* my_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
+{
+    return my_dlsym(emu, handle, name);
+}
+
 #define CUSTOM_INIT \
     box86->sdl1lib = lib; \
     lib->priv.w.p2 = getSDL1My(lib); \
