@@ -10,7 +10,7 @@ Also, Box86 uses the native version for some "system" libraries, like libc, libm
 
 Most x86 Games need OpenGL, so on ARM platforms, a solution like [gl4es](https://github.com/ptitSeb/gl4es) is probably needed.
 
-Note that the current version of Box86 doesn't feature any form of JIT/Dynarec: expect everything to be slow.
+Note that the current version of Box86 doesn't feature any form of JIT/Dynarec: some things can be slow.
 
 The current version is still experimental, so some stuff still wont run. But many do work, like for example, WorldOfGoo (at least on the Pandora), Airline Tycoon Deluxe or new FTL. Many of the GameMaker linux games also run fine.
 
