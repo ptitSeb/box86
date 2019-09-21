@@ -6,42 +6,42 @@
 #include "x86emu_private.h"
 typedef struct x86emu_s x86emu_t;
 
-inline uint8_t Fetch8(x86emu_t *emu) {return *(uint8_t*)(R_EIP++);}
-inline int8_t Fetch8s(x86emu_t *emu) {return *(int8_t*)(R_EIP++);}
-inline uint16_t Fetch16(x86emu_t *emu)
+static inline uint8_t Fetch8(x86emu_t *emu) {return *(uint8_t*)(R_EIP++);}
+static inline int8_t Fetch8s(x86emu_t *emu) {return *(int8_t*)(R_EIP++);}
+static inline uint16_t Fetch16(x86emu_t *emu)
 {
     uint16_t val = *(uint16_t*)R_EIP;
     R_EIP+=2;
     return val;
 }
-inline int16_t Fetch16s(x86emu_t *emu)
+static inline int16_t Fetch16s(x86emu_t *emu)
 {
     int16_t val = *(int16_t*)R_EIP;
     R_EIP+=2;
     return val;
 }
-inline uint32_t Fetch32(x86emu_t *emu)
+static inline uint32_t Fetch32(x86emu_t *emu)
 {
     uint32_t val = *(uint32_t*)R_EIP;
     R_EIP+=4;
     return val;
 }
-inline int32_t Fetch32s(x86emu_t *emu)
+static inline int32_t Fetch32s(x86emu_t *emu)
 {
     int32_t val = *(int32_t*)R_EIP;
     R_EIP+=4;
     return val;
 }
-inline uint8_t Peek(x86emu_t *emu, int offset){return *(uint8_t*)(R_EIP + offset);}
+static inline uint8_t Peek(x86emu_t *emu, int offset){return *(uint8_t*)(R_EIP + offset);}
 
-inline uint32_t Pop(x86emu_t *emu)
+static inline uint32_t Pop(x86emu_t *emu)
 {
     uint32_t* st = ((uint32_t*)(R_ESP));
     R_ESP += 4;
     return *st;
 }
 
-inline void Push(x86emu_t *emu, uint32_t v)
+static inline void Push(x86emu_t *emu, uint32_t v)
 {
     R_ESP -= 4;
     *((uint32_t*)R_ESP) = v;
