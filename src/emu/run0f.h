@@ -877,6 +877,14 @@
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             NEXT;
 
+        _0f_0xD3:                   /* PSRLQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                GM.q >>= EM->q;
+            }
+            NEXT;
+
         _0f_0xD5:                   /* PMULLW Gm,Em */
             nextop = F8;
             GET_EM;
@@ -924,6 +932,13 @@
             GET_EM;
             for(int i=0; i<4; ++i)
                 GM.uw[i] -= EM->uw[i];
+            NEXT;
+
+        _0f_0xFC:                   /* PADDW mm, mm */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i)
+                GM.sb[i] += EM->sb[i];
             NEXT;
 
         _0f_0xFD:                   /* PADDW Gm,Em */
