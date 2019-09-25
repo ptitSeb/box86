@@ -213,3 +213,11 @@ add_test(test11 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref11.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+foreach(file ${extension_tests})
+	get_filename_component(testname "${file}" NAME_WE)
+	add_executable(${testname} ${file})
+	set_target_properties(${testname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/extensions/")
+	add_test(NAME "${testname}" COMMAND "${CMAKE_BINARY_DIR}/${BOX86}" "${CMAKE_BINARY_DIR}/tests/extensions/${testname}")
+endforeach()
