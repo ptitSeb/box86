@@ -894,12 +894,39 @@
             }
             NEXT;
 
+        _0f_0xDC:                   /* PADDUSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32u = (uint32_t)GM.ub[i] + EM->ub[i];
+                GM.ub[i] = (tmp32u>255) ? 255 : tmp32u;
+            }
+            NEXT;
+
+        _0f_0xDD:                   /* PADDUSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32u = (uint32_t)GM.uw[i] + EM->uw[i];
+                GM.uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
+            }
+            NEXT;
+
         _0f_0xE5:                   /* PMULHW Gm, Em */
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i) {
                 tmp32s = (int32_t)GM.sw[i] * EM->sw[i];
                 GM.uw[i] = (tmp32s>>16)&0xffff;
+            }
+            NEXT;
+
+        _0f_0xEC:                   /* PADDSB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.sb[i] + EM->sb[i];
+                GM.sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
             }
             NEXT;
 
@@ -946,4 +973,11 @@
             GET_EM;
             for(int i=0; i<4; ++i)
                 GM.sw[i] += EM->sw[i];
+            NEXT;
+
+        _0f_0xFE:                   /* PADDD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.sd[i] += EM->sd[i];
             NEXT;

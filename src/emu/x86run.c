@@ -122,11 +122,11 @@ int Run(x86emu_t *emu)
     &&_0f_0xC0, &&_0f_0xC1, &&_0f_0xC2, &&_default, &&_0f_0xC4, &&_0f_0xC5, &&_0f_0xC6, &&_0f_0xC7, 
     &&_0f_0xC8, &&_0f_0xC9, &&_0f_0xCA, &&_0f_0xCB, &&_0f_0xCC, &&_0f_0xCD, &&_0f_0xCE, &&_0f_0xCF, //0xC8-0xCF
     &&_default, &&_default, &&_default, &&_0f_0xD3, &&_default ,&&_0f_0xD5, &&_default, &&_default, //0xD0-0xD7
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xD8-0xDF
+    &&_default, &&_default, &&_default, &&_default, &&_0f_0xDC ,&&_0f_0xDD, &&_default, &&_default, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_0f_0xE5, &&_default, &&_default, //0xE0-0xE7
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_0f_0xED, &&_default, &&_0f_0xEF, //0xE8-0xEF
+    &&_default, &&_default, &&_default, &&_default, &&_0f_0xEC ,&&_0f_0xED, &&_default, &&_0f_0xEF, //0xE8-0xEF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_0f_0xF6, &&_default, //0xF0-0xF7
-    &&_default, &&_0f_0xF9, &&_default, &&_default, &&_0f_0xFC ,&&_0f_0xFD, &&_default, &&_default  //0xF8-0xFF
+    &&_default, &&_0f_0xF9, &&_default, &&_default, &&_0f_0xFC ,&&_0f_0xFD, &&_0f_0xFE, &&_default  //0xF8-0xFF
     };
 
     static const void* opcodes66[256] = {

@@ -89,8 +89,54 @@ mmx_i8_test_t mmx_i8_add_test_data[] = {
     { .a = I8_MIN, .b = -1, .result = I8_MAX },
     { .a = 0, .b = U8_MAX, .result = U8_MAX },
 };
+mmx_i8_test_t mmx_i8_add_sat_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = I8_MAX, .b = 1, .result = I8_MAX },
+    { .a = I8_MIN, .b = -1, .result = I8_MIN },
+};
+mmx_u8_test_t mmx_u8_add_sat_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = U8_MAX, .b = 1, .result = U8_MAX },
+    { .a = 0, .b = U8_MAX, .result = U8_MAX },
+};
+
+mmx_i16_test_t mmx_i16_add_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = I16_MAX, .b = 1, .result = I16_MIN },
+    { .a = I16_MIN, .b = -1, .result = I16_MAX },
+};
+mmx_i16_test_t mmx_i16_add_sat_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = I16_MAX, .b = 1, .result = I16_MAX },
+    { .a = I16_MIN, .b = -1, .result = I16_MIN },
+};
+mmx_u16_test_t mmx_u16_add_sat_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = U16_MAX, .b = 1, .result = U16_MAX },
+    { .a = 0, .b = U16_MAX, .result = U16_MAX },
+};
+
+mmx_i32_test_t mmx_i32_add_test_data[] = {
+    { .a = 1, .b = 2, .result = 3 },
+    { .a = 0, .b = 1, .result = 1 },
+    { .a = I32_MAX, .b = 1, .result = I32_MIN },
+    { .a = I32_MIN, .b = -1, .result = I32_MAX },
+};
 
 MMX_ARITH_TEST(test_mmx_add_pi8, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _mm_add_pi8);
+MMX_ARITH_TEST(test_mmx_add_sat_pi8, mmx_i8_add_sat_test_data, mmx_i8_test_t, i8, 8, _mm_adds_pi8);
+MMX_ARITH_TEST(test_mmx_add_sat_pu8, mmx_u8_add_sat_test_data, mmx_u8_test_t, u8, 8, _mm_adds_pu8);
+
+MMX_ARITH_TEST(test_mmx_add_pi16, mmx_i16_add_test_data, mmx_i16_test_t, i16, 16, _mm_add_pi16);
+MMX_ARITH_TEST(test_mmx_add_sat_pi16, mmx_i16_add_sat_test_data, mmx_i16_test_t, i16, 16, _mm_adds_pi16);
+MMX_ARITH_TEST(test_mmx_add_sat_pu16, mmx_u16_add_sat_test_data, mmx_u16_test_t, u16, 16, _mm_adds_pu16);
+
+MMX_ARITH_TEST(test_mmx_add_pi32, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _mm_add_pi32);
 
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
@@ -116,6 +162,14 @@ int main() {
 	errors += (int) test_mmx_cpuid();
 
 	errors += (int) test_mmx_add_pi8();
+	errors += (int) test_mmx_add_sat_pi8();
+	errors += (int) test_mmx_add_sat_pu8();
+
+	errors += (int) test_mmx_add_pi16();
+	errors += (int) test_mmx_add_sat_pi16();
+	errors += (int) test_mmx_add_sat_pu16();
+
+	errors += (int) test_mmx_add_pi32();
 
 	printf("Errors: %d\n", errors);
 	return errors;
