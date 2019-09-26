@@ -76,7 +76,7 @@ bool name() { \
 		errors += (int) (!success); \
 	} \
 \
-	_mm_empty(); \
+	_m_empty(); \
 	printf("TEST: finished with: %d errors\n", errors); \
 	return errors; \
 }
@@ -128,15 +128,15 @@ mmx_i32_test_t mmx_i32_add_test_data[] = {
     { .a = I32_MIN, .b = -1, .result = I32_MAX },
 };
 
-MMX_ARITH_TEST(test_mmx_add_pi8, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _mm_add_pi8);
-MMX_ARITH_TEST(test_mmx_add_sat_pi8, mmx_i8_add_sat_test_data, mmx_i8_test_t, i8, 8, _mm_adds_pi8);
-MMX_ARITH_TEST(test_mmx_add_sat_pu8, mmx_u8_add_sat_test_data, mmx_u8_test_t, u8, 8, _mm_adds_pu8);
+MMX_ARITH_TEST(test_mmx_add_pi8, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _m_paddb);
+MMX_ARITH_TEST(test_mmx_add_sat_pi8, mmx_i8_add_sat_test_data, mmx_i8_test_t, i8, 8, _m_paddsb);
+MMX_ARITH_TEST(test_mmx_add_sat_pu8, mmx_u8_add_sat_test_data, mmx_u8_test_t, u8, 8, _m_paddusb);
 
-MMX_ARITH_TEST(test_mmx_add_pi16, mmx_i16_add_test_data, mmx_i16_test_t, i16, 16, _mm_add_pi16);
-MMX_ARITH_TEST(test_mmx_add_sat_pi16, mmx_i16_add_sat_test_data, mmx_i16_test_t, i16, 16, _mm_adds_pi16);
-MMX_ARITH_TEST(test_mmx_add_sat_pu16, mmx_u16_add_sat_test_data, mmx_u16_test_t, u16, 16, _mm_adds_pu16);
+MMX_ARITH_TEST(test_mmx_add_pi16, mmx_i16_add_test_data, mmx_i16_test_t, i16, 16, _m_paddw);
+MMX_ARITH_TEST(test_mmx_add_sat_pi16, mmx_i16_add_sat_test_data, mmx_i16_test_t, i16, 16, _m_paddsw);
+MMX_ARITH_TEST(test_mmx_add_sat_pu16, mmx_u16_add_sat_test_data, mmx_u16_test_t, u16, 16, _m_paddusw);
 
-MMX_ARITH_TEST(test_mmx_add_pi32, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _mm_add_pi32);
+MMX_ARITH_TEST(test_mmx_add_pi32, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _m_paddd);
 
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
