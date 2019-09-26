@@ -939,12 +939,36 @@
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             NEXT;
 
-        _0f_0xD3:                   /* PSRLQ Gm,Em */
+        _0f_0xD1:                   /* PSRLW Gm,Em */
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i) {
-                GM.q >>= EM->q;
+                unsigned int sa = EM->uw[i];
+                if (sa > 15) {
+                    GM.uw[i] = 0;
+                } else {
+                    GM.uw[i] >>= sa;
+                }
             }
+            NEXT;
+
+        _0f_0xD2:                   /* PSRLD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                unsigned int sa = EM->ud[i];
+                if (sa > 31) {
+                    GM.ud[i] = 0;
+                } else {
+                    GM.ud[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xD3:                   /* PSRLQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (EM->q > 63) ? 0 : GM.q >> EM->q;
             NEXT;
 
         _0f_0xD5:                   /* PMULLW Gm,Em */
@@ -1004,6 +1028,42 @@
             GM.q = (~GM.q) & EM->q;
             NEXT;
 
+        _0f_0xE1:                   /* PSRAW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                int sa = EM->sw[i];
+                if (sa > 15) {
+                    GM.sw[i] = (GM.sw[i] < 0) ? -1 : 0;
+                } else {
+                    GM.sw[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xE2:                   /* PSRAD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                int sa = EM->sd[i];
+                if (sa > 31) {
+                    GM.sd[i] = (GM.sd[i] < 0) ? -1 : 0;
+                } else {
+                    GM.sd[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xE3:                   /* PSRAQ Gm, Em */
+            nextop = F8;
+            GET_EM;
+            if (EM->q > 63) {
+                GM.q = (GM.q < 0) ? -1 : 0;
+            } else {
+                GM.q >>= EM->q;
+            }
+            NEXT;
+
         _0f_0xE5:                   /* PMULHW Gm, Em */
             nextop = F8;
             GET_EM;
@@ -1061,22 +1121,48 @@
             GM.q ^= EM->q;
             NEXT;
 
+        _0f_0xF1:                   /* PSLLW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                int sa = EM->sw[i];
+                if (sa > 15) {
+                    GM.sw[i] = 0;
+                } else {
+                    GM.sw[i] <<= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xF2:                   /* PSLLD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                int sa = EM->sd[i];
+                if (sa > 31) {
+                    GM.sd[i] = 0;
+                } else {
+                    GM.sd[i] <<= sa;
+                }
+            }
+            NEXT;
+
         _0f_0xF3:                   /* PSLLQ Gm, Em */
             nextop = F8;
             GET_EM;
-            GM.q <<= EM->q;
+            GM.q = (EM->q > 63) ? 0 : GM.q << EM->q;
             NEXT;
 
         _0f_0xF5:                   /* PMADDWD Gm, Em */
             nextop = F8;
             GET_EM;
             for (int i=0; i<2; ++i) {
-		int offset = i * 2;
+                int offset = i * 2;
 
                 tmp32s = (int32_t)GM.sw[offset + 0] * EM->sw[offset + 0];
                 tmp32s2 = (int32_t)GM.sw[offset + 1] * EM->sw[offset + 1];
                 GM.sd[i] = tmp32s + tmp32s2;
-	    }
+            }
             NEXT;
 
         _0f_0xF6:                   /* PSADBW Gm, Em */
