@@ -354,6 +354,19 @@
             GM.ud[1] = EM->ud[0];
             NEXT;
 
+        _0f_0x63:                      /* PACKSSWB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.sb[0] = (GM.sw[0] > 127) ? 127 : ((GM.sw[0] < -128) ? -128 : GM.sw[0]);
+            GM.sb[1] = (GM.sw[1] > 127) ? 127 : ((GM.sw[1] < -128) ? -128 : GM.sw[1]);
+            GM.sb[2] = (GM.sw[2] > 127) ? 127 : ((GM.sw[2] < -128) ? -128 : GM.sw[2]);
+            GM.sb[3] = (GM.sw[3] > 127) ? 127 : ((GM.sw[3] < -128) ? -128 : GM.sw[3]);
+            GM.sb[4] = (EM->sw[0] > 127) ? 127 : ((EM->sw[0] < -128) ? -128 : EM->sw[0]);
+            GM.sb[5] = (EM->sw[1] > 127) ? 127 : ((EM->sw[1] < -128) ? -128 : EM->sw[1]);
+            GM.sb[6] = (EM->sw[2] > 127) ? 127 : ((EM->sw[2] < -128) ? -128 : EM->sw[2]);
+            GM.sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
+            NEXT;
+
         _0f_0x67:                       /* PACKUSWB Gm, Em */
             nextop = F8;
             GET_EM;

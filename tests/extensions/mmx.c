@@ -309,7 +309,6 @@ mmx_u64_test_t mmx_pmaddwd_test_data[] = {
       .b = 0x0000000200000004,
       .result = 0x0000000400000010 },
 
-    // TODO: This shows that there may be some internal rounding going on
     { .a = 0x000000007FFFFFFF,
       .b = 0x000000007FFFFFFF,
       .result = 0x000000003FFF0002 },
@@ -327,6 +326,46 @@ MMX_64_TEST(test_mmx_pmaddwd, mmx_pmaddwd_test_data, _m_pmaddwd);
 
 
 
+
+
+mmx_u64_test_t mmx_packssdw_test_data[] = {
+    { .a = 0x0000000200000001,
+      .b = 0x0000000400000003,
+      .result = 0x0001000200030004 },
+    { .a = 0x7FFFFFFF7FFFFFFF,
+      .b = 0x7FFFFFFF7FFFFFFF,
+      .result = 0x7FFF7FFF7FFF7FFF },
+    { .a = 0x8000000080000000,
+      .b = 0x8000000080000000,
+      .result = 0x8000800080008000 },
+};
+mmx_u64_test_t mmx_packsswb_test_data[] = {
+    { .a = 0x0004000300020001,
+      .b = 0x0008000700060005,
+      .result = 0x0201040306050807 },
+    { .a = 0x7FFF7FFF7FFF7FFF,
+      .b = 0x7FFF7FFF7FFF7FFF,
+      .result = 0x7F7F7F7F7F7F7F7F },
+    { .a = 0x8000800080008000,
+      .b = 0x8000800080008000,
+      .result = 0x8080808080808080 },
+};
+mmx_u64_test_t mmx_packuswb_test_data[] = {
+    { .a = 0x0004000300020001,
+      .b = 0x0008000700060005,
+      .result = 0x0201040306050807 },
+    { .a = 0x7FFF7FFF7FFF7FFF,
+      .b = 0x7FFF7FFF7FFF7FFF,
+      .result = 0xFFFFFFFFFFFFFFFF },
+    { .a = 0x8000800080008000,
+      .b = 0x8000800080008000,
+      .result = 0x0000000000000000 },
+};
+
+
+MMX_64_TEST(test_mmx_packssdw, mmx_packssdw_test_data, _m_packssdw);
+MMX_64_TEST(test_mmx_packsswb, mmx_packsswb_test_data, _m_packsswb);
+MMX_64_TEST(test_mmx_packuswb, mmx_packuswb_test_data, _m_packuswb);
 
 
 
@@ -379,6 +418,10 @@ int main() {
 	errors += (int) test_mmx_pmullw();
 	errors += (int) test_mmx_pmulhw();
 	errors += (int) test_mmx_pmaddwd();
+
+	errors += (int) test_mmx_packssdw();
+	errors += (int) test_mmx_packsswb();
+	errors += (int) test_mmx_packuswb();
 
 	printf("Errors: %d\n", errors);
 	return errors;
