@@ -894,6 +894,24 @@
             }
             NEXT;
 
+        _0f_0xD8:                   /* PSUBUSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.ub[i] - EM->ub[i];
+                GM.ub[i] = (tmp32s < 0) ? 0 : tmp32s;
+            }
+            NEXT;
+
+        _0f_0xD9:                   /* PSUBUSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.uw[i] - EM->uw[i];
+                GM.uw[i] = (tmp32s < 0) ? 0 : tmp32s;
+            }
+            NEXT;
+
         _0f_0xDC:                   /* PADDUSB Gm,Em */
             nextop = F8;
             GET_EM;
@@ -918,6 +936,24 @@
             for(int i=0; i<4; ++i) {
                 tmp32s = (int32_t)GM.sw[i] * EM->sw[i];
                 GM.uw[i] = (tmp32s>>16)&0xffff;
+            }
+            NEXT;
+
+        _0f_0xE8:                   /* PSUBSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.sb[i] - EM->sb[i];
+                GM.sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
+            }
+            NEXT;
+
+        _0f_0xE9:                   /* PSUBSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.sw[i] - EM->sw[i];
+                GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
             }
             NEXT;
 
@@ -954,11 +990,25 @@
             GM.q = tmp32u;
             NEXT;
 
+        _0f_0xF8:                   /* PSUBB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i)
+                GM.sb[i] -= EM->sb[i];
+            NEXT;
+
         _0f_0xF9:                   /* PSUBW Gm,Em */
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i)
                 GM.uw[i] -= EM->uw[i];
+            NEXT;
+
+        _0f_0xFA:                   /* PSUBD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.sd[i] -= EM->sd[i];
             NEXT;
 
         _0f_0xFC:                   /* PADDW mm, mm */
