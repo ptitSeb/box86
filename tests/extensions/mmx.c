@@ -73,8 +73,8 @@ __m64 mm_load64(u64 val) {
 	__m64 lower = _m_from_int(val & 0xFFFFFFFF);
 	__m64 upper = _m_from_int((val >> 32) & 0xFFFFFFFF);
 
-	__m64 shifted = _mm_slli_si64(lower, 32);
-	__m64 final = _m_por(upper, shifted);
+	__m64 shifted = _mm_slli_si64(upper, 32);
+	__m64 final = _m_por(shifted, lower);
 
 	return final;
 }
@@ -331,7 +331,7 @@ MMX_64_TEST(test_mmx_pmaddwd, mmx_pmaddwd_test_data, _m_pmaddwd);
 mmx_u64_test_t mmx_packssdw_test_data[] = {
     { .a = 0x0000000200000001,
       .b = 0x0000000400000003,
-      .result = 0x0001000200030004 },
+      .result = 0x0004000300020001 },
     { .a = 0x7FFFFFFF7FFFFFFF,
       .b = 0x7FFFFFFF7FFFFFFF,
       .result = 0x7FFF7FFF7FFF7FFF },
@@ -342,7 +342,7 @@ mmx_u64_test_t mmx_packssdw_test_data[] = {
 mmx_u64_test_t mmx_packsswb_test_data[] = {
     { .a = 0x0004000300020001,
       .b = 0x0008000700060005,
-      .result = 0x0201040306050807 },
+      .result = 0x0807060504030201 },
     { .a = 0x7FFF7FFF7FFF7FFF,
       .b = 0x7FFF7FFF7FFF7FFF,
       .result = 0x7F7F7F7F7F7F7F7F },
@@ -353,7 +353,7 @@ mmx_u64_test_t mmx_packsswb_test_data[] = {
 mmx_u64_test_t mmx_packuswb_test_data[] = {
     { .a = 0x0004000300020001,
       .b = 0x0008000700060005,
-      .result = 0x0201040306050807 },
+      .result = 0x0807060504030201 },
     { .a = 0x7FFF7FFF7FFF7FFF,
       .b = 0x7FFF7FFF7FFF7FFF,
       .result = 0xFFFFFFFFFFFFFFFF },
