@@ -13,23 +13,30 @@ typedef uint16_t u16;
 typedef int16_t i16;
 typedef uint32_t u32;
 typedef int32_t i32;
+typedef uint64_t u64;
+typedef int64_t i64;
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define I8_MAX 127
-#define I8_MIN -128
-#define U8_MAX 255
-#define U8_MIN 0
+#define I8_MAX  0x7F
+#define I8_MIN -0x80
+#define U8_MAX  0xFF
+#define U8_MIN  0
 
-#define I16_MAX 32767
-#define I16_MIN -32768
-#define U16_MAX 65535
-#define U16_MIN 0
+#define I16_MAX  0x7FFF
+#define I16_MIN -0x8000
+#define U16_MAX  0xFFFF
+#define U16_MIN  0
 
-#define I32_MAX 2147483647
-#define I32_MIN -2147483648
-#define U32_MAX 4294967295
-#define U32_MIN 0
+#define I32_MAX  0x7FFFFFFF
+#define I32_MIN -0x80000000
+#define U32_MAX  0xFFFFFFFF
+#define U32_MIN  0
+
+#define I64_MAX  0x7FFFFFFFFFFFFFFF
+#define I64_MIN -0x8000000000000000
+#define U64_MAX  0xFFFFFFFFFFFFFFFF
+#define U64_MIN  0
 
 #define MMX_TEST_STRUCT(sz) \
     typedef struct mmx_##sz##_test { \
@@ -44,6 +51,8 @@ MMX_TEST_STRUCT(u16);
 MMX_TEST_STRUCT(i16);
 MMX_TEST_STRUCT(u32);
 MMX_TEST_STRUCT(i32);
+MMX_TEST_STRUCT(u64);
+MMX_TEST_STRUCT(i64);
 
 // Binary compare two mm registers
 bool mm_raw_compare(__m64 a, __m64 b) {
@@ -59,6 +68,17 @@ bool mm_raw_compare(__m64 a, __m64 b) {
 	return (a_lower == b_lower) && (a_upper == b_upper);
 }
 
+// Load a 64 bit value into a mm register
+__m64 mm_load64(u64 val) {
+	__m64 lower = _m_from_int(val & 0xFFFFFFFF);
+	__m64 upper = _m_from_int((val >> 32) & 0xFFFFFFFF);
+
+	__m64 shifted = _mm_slli_si64(lower, 32);
+	__m64 final = _m_por(upper, shifted);
+
+	return final;
+}
+
 #define MMX_ARITH_TEST(name, testcases, testcase_type, type, size, testfunc) \
 bool name() { \
 	printf("TEST: " #name "\n"); \
@@ -70,6 +90,31 @@ bool name() { \
 		__m64 a = _mm_set1_pi##size(test_data.a); \
 		__m64 b = _mm_set1_pi##size(test_data.b); \
 		__m64 expected = _mm_set1_pi##size(test_data.result); \
+		__m64 result = testfunc(a, b); \
+\
+		bool success = mm_raw_compare(expected, result); \
+		errors += (int) (!success); \
+	} \
+\
+	_m_empty(); \
+	printf("TEST: finished with: %d errors\n", errors); \
+	return errors; \
+}
+
+
+// Loads 2 64 bit immediates and compares with the third
+// Test data must be of type mmx_u64_test_t
+#define MMX_64_TEST(name, testcases, testfunc) \
+bool name() { \
+	printf("TEST: " #name "\n"); \
+	int errors = 0; \
+\
+	for (size_t i = 0; i < ARRAY_SIZE(testcases); i++ ) { \
+		mmx_u64_test_t test_data = testcases[i]; \
+\
+		__m64 a = mm_load64(test_data.a); \
+		__m64 b = mm_load64(test_data.b); \
+		__m64 expected = mm_load64(test_data.result); \
 		__m64 result = testfunc(a, b); \
 \
 		bool success = mm_raw_compare(expected, result); \
@@ -197,6 +242,54 @@ MMX_ARITH_TEST(test_mmx_sub_sat_pu16, mmx_u16_sub_sat_test_data, mmx_u16_test_t,
 MMX_ARITH_TEST(test_mmx_sub_pi32, mmx_i32_sub_test_data, mmx_i32_test_t, i32, 32, _m_psubd);
 
 
+
+
+mmx_u64_test_t mmx_por_test_data[] = {
+    { .a = 0xAAAAAAAAAAAAAAAA,
+      .b = 0x5555555555555555,
+      .result = 0xFFFFFFFFFFFFFFFF },
+    { .a = 0x0000000000000000,
+      .b = 0x1111111111111111,
+      .result = 0x1111111111111111 },
+};
+
+mmx_u64_test_t mmx_pand_test_data[] = {
+    { .a = 0xAAAAAAAAAAAAAAAA,
+      .b = 0x5555555555555555,
+      .result = 0x0000000000000000 },
+    { .a = 0xFFFFFFFFFFFFFFFF,
+      .b = 0xFFFFFFFFFFFFFFFF,
+      .result = 0xFFFFFFFFFFFFFFFF },
+};
+
+mmx_u64_test_t mmx_pandn_test_data[] = {
+    { .a = 0x0000000000000000,
+      .b = 0xFFFFFFFFFFFFFFFF,
+      .result = 0xFFFFFFFFFFFFFFFF },
+    { .a = 0xFFFFFFFFFFFFFFFF,
+      .b = 0x0000000000000000,
+      .result = 0x0000000000000000 },
+};
+
+
+mmx_u64_test_t mmx_pxor_test_data[] = {
+    { .a = 0xAAAAAAAAAAAAAAAA,
+      .b = 0x5555555555555555,
+      .result = 0xFFFFFFFFFFFFFFFF },
+    { .a = 0xFFFFFFFFFFFFFFFF,
+      .b = 0xFFFFFFFFFFFFFFFF,
+      .result = 0x0000000000000000 },
+};
+
+
+MMX_64_TEST(test_mmx_por, mmx_por_test_data, _m_por);
+MMX_64_TEST(test_mmx_pand, mmx_pand_test_data, _m_pand);
+MMX_64_TEST(test_mmx_pandn, mmx_pandn_test_data, _m_pandn);
+MMX_64_TEST(test_mmx_pxor, mmx_pxor_test_data, _m_pxor);
+
+
+
+
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
 
@@ -236,6 +329,11 @@ int main() {
 	errors += (int) test_mmx_sub_sat_pi16();
 	errors += (int) test_mmx_sub_sat_pu16();
 	errors += (int) test_mmx_sub_pi32();
+
+	errors += (int) test_mmx_por();
+	errors += (int) test_mmx_pand();
+	errors += (int) test_mmx_pandn();
+	errors += (int) test_mmx_pxor();
 
 	printf("Errors: %d\n", errors);
 	return errors;

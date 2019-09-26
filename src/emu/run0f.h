@@ -912,6 +912,12 @@
             }
             NEXT;
 
+        _0f_0xDB:                   /* PAND Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q &= EM->q;
+            NEXT;
+
         _0f_0xDC:                   /* PADDUSB Gm,Em */
             nextop = F8;
             GET_EM;
@@ -928,6 +934,12 @@
                 tmp32u = (uint32_t)GM.uw[i] + EM->uw[i];
                 GM.uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
             }
+            NEXT;
+
+        _0f_0xDF:                   /* PANDN Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (~GM.q) & EM->q;
             NEXT;
 
         _0f_0xE5:                   /* PMULHW Gm, Em */
@@ -957,6 +969,12 @@
             }
             NEXT;
 
+        _0f_0xEB:                   /* POR Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.q |= EM->q;
+            NEXT;
+
         _0f_0xEC:                   /* PADDSB Gm, Em */
             nextop = F8;
             GET_EM;
@@ -979,6 +997,12 @@
             nextop = F8;
             GET_EM;
             GM.q ^= EM->q;
+            NEXT;
+
+        _0f_0xF3:                   /* PSLLQ Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.q <<= EM->q;
             NEXT;
 
         _0f_0xF6:                   /* PSADBW Gm, Em */
