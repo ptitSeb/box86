@@ -410,8 +410,6 @@ mmx_u64_test_t mmx_punpcklwd_test_data[] = {
 };
 
 
-
-
 MMX_64_TEST(test_mmx_punpckhbw, mmx_punpckhbw_test_data, _m_punpckhbw);
 MMX_64_TEST(test_mmx_punpckhdq, mmx_punpckhdq_test_data, _m_punpckhdq);
 MMX_64_TEST(test_mmx_punpckhwd, mmx_punpckhwd_test_data, _m_punpckhwd);
@@ -419,6 +417,50 @@ MMX_64_TEST(test_mmx_punpcklbw, mmx_punpcklbw_test_data, _m_punpcklbw);
 MMX_64_TEST(test_mmx_punpckldq, mmx_punpckldq_test_data, _m_punpckldq);
 MMX_64_TEST(test_mmx_punpcklwd, mmx_punpcklwd_test_data, _m_punpcklwd);
 
+
+
+
+
+
+mmx_u64_test_t mmx_pcmpeqb_test_data[] = {
+    { .a = 0x8877665544332211,
+      .b = 0x0077005500330011,
+      .result = 0x00FF00FF00FF00FF },
+};
+mmx_u64_test_t mmx_pcmpeqw_test_data[] = {
+    { .a = 0x4444333322221111,
+      .b = 0x0000333300001111,
+      .result = 0x0000FFFF0000FFFF },
+};
+mmx_u64_test_t mmx_pcmpeqd_test_data[] = {
+    { .a = 0x2222222211111111,
+      .b = 0x2222222200000000,
+      .result = 0xFFFFFFFF00000000 },
+};
+
+mmx_u64_test_t mmx_pcmpgtb_test_data[] = {
+    { .a = 0x0000000000002201,
+      .b = 0x0000000000002300,
+      .result = 0x00000000000000FF },
+};
+mmx_u64_test_t mmx_pcmpgtw_test_data[] = {
+    { .a = 0x4444333322221111,
+      .b = 0x0000333300001112,
+      .result = 0xFFFF0000FFFF0000 },
+};
+mmx_u64_test_t mmx_pcmpgtd_test_data[] = {
+    { .a = 0x2222222111111111,
+      .b = 0x2222222200000000,
+      .result = 0x00000000FFFFFFFF },
+};
+
+
+MMX_64_TEST(test_mmx_pcmpeqb, mmx_pcmpeqb_test_data, _m_pcmpeqb);
+MMX_64_TEST(test_mmx_pcmpeqw, mmx_pcmpeqw_test_data, _m_pcmpeqw);
+MMX_64_TEST(test_mmx_pcmpeqd, mmx_pcmpeqd_test_data, _m_pcmpeqd);
+MMX_64_TEST(test_mmx_pcmpgtb, mmx_pcmpgtb_test_data, _m_pcmpgtb);
+MMX_64_TEST(test_mmx_pcmpgtw, mmx_pcmpgtw_test_data, _m_pcmpgtw);
+MMX_64_TEST(test_mmx_pcmpgtd, mmx_pcmpgtd_test_data, _m_pcmpgtd);
 
 
 
@@ -483,6 +525,14 @@ int main() {
 	errors += (int) test_mmx_punpcklbw();
 	errors += (int) test_mmx_punpckldq();
 	errors += (int) test_mmx_punpcklwd();
+
+	errors += (int) test_mmx_pcmpeqb();
+	errors += (int) test_mmx_pcmpeqw();
+	errors += (int) test_mmx_pcmpeqd();
+	errors += (int) test_mmx_pcmpgtb();
+	errors += (int) test_mmx_pcmpgtw();
+	errors += (int) test_mmx_pcmpgtd();
+
 
 	printf("Errors: %d\n", errors);
 	return errors;

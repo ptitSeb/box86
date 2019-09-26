@@ -367,6 +367,31 @@
             GM.sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
             NEXT;
 
+        _0f_0x64:                       /* PCMPGTB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 8; i++) {
+		    GM.sb[i] = (GM.sb[i] > EM->sb[i]) ? 0xFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x65:                       /* PCMPGTW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 4; i++) {
+		    GM.sw[i] = (GM.sw[i] > EM->sw[i]) ? 0xFFFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x66:                       /* PCMPGTD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 2; i++) {
+		    GM.sd[i] = (GM.sd[i] > EM->sd[i]) ? 0xFFFFFFFF : 0;
+	    }
+            NEXT;
+
+
         _0f_0x67:                       /* PACKUSWB Gm, Em */
             nextop = F8;
             GET_EM;
@@ -478,6 +503,30 @@
                 default:
                     goto _default;
             }
+            NEXT;
+
+        _0f_0x74:                       /* PCMPEQB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 8; i++) {
+		    GM.sb[i] = (GM.sb[i] == EM->sb[i]) ? 0xFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x75:                       /* PCMPEQW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 4; i++) {
+		    GM.sw[i] = (GM.sw[i] == EM->sw[i]) ? 0xFFFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x76:                       /* PCMPEQD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 2; i++) {
+		    GM.sd[i] = (GM.sd[i] == EM->sd[i]) ? 0xFFFFFFFF : 0;
+	    }
             NEXT;
 
         _0f_0x77:                      /* EMMS */
