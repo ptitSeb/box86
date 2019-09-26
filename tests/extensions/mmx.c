@@ -101,6 +101,37 @@ bool name() { \
 	return errors; \
 }
 
+#define MMX_SHIFT_TEST(name, testcases, testfunc) \
+bool name() { \
+	printf("TEST: " #name "\n"); \
+	int errors = 0; \
+\
+	for (size_t i = 0; i < ARRAY_SIZE(testcases); i++ ) { \
+		mmx_u64_test_t test_data = testcases[i]; \
+\
+		__m64 a = mm_load64(test_data.a); \
+		__m64 expected = mm_load64(test_data.result); \
+		__m64 result = testfunc(a, test_data.b); \
+\
+		bool success = mm_raw_compare(expected, result); \
+		if (!success) { \
+			printf( \
+				"Failed; Expected: 0x%08x_%08x\tGot: 0x%08x_%08x\n", \
+				_m_to_int(_mm_srli_si64(expected, 32)), \
+				_m_to_int(expected), \
+				_m_to_int(_mm_srli_si64(result, 32)), \
+				_m_to_int(result) \
+			); \
+		} \
+		errors += (int) (!success); \
+	} \
+\
+	_m_empty(); \
+	printf("TEST: finished with: %d errors\n", errors); \
+	return errors; \
+}
+
+
 
 // Loads 2 64 bit immediates and compares with the third
 // Test data must be of type mmx_u64_test_t
@@ -465,6 +496,90 @@ MMX_64_TEST(test_mmx_pcmpgtd, mmx_pcmpgtd_test_data, _m_pcmpgtd);
 
 
 
+mmx_u64_test_t mmx_pslld_test_data[] = {
+    { .a = 1, .b = 1, .result = 2 },
+    { .a = 16, .b = 1, .result = 32 },
+    { .a = 16, .b = 32, .result = 0 },
+    { .a = 16, .b = 0, .result = 16 },
+};
+mmx_u64_test_t mmx_psllq_test_data[] = {
+    { .a = 1, .b = 1, .result = 2 },
+    { .a = 16, .b = 1, .result = 32 },
+    { .a = 16, .b = 64, .result = 0 },
+    { .a = 16, .b = 0, .result = 16 },
+};
+mmx_u64_test_t mmx_psllw_test_data[] = {
+    { .a = 1, .b = 1, .result = 2 },
+    { .a = 16, .b = 1, .result = 32 },
+    { .a = 16, .b = 16, .result = 0 },
+    { .a = 16, .b = 0, .result = 16 },
+};
+mmx_u64_test_t mmx_psrad_test_data[] = {
+    { .a = 1, .b = 1, .result = 0 },
+    { .a = 16, .b = 1, .result = 8 },
+    { .a = 16, .b = 0, .result = 16 },
+    { .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
+
+    { .a = I32_MAX, .b = 32, .result = 0 },
+    { .a = I32_MIN, .b = 32, .result = U32_MAX },
+};
+mmx_u64_test_t mmx_psraw_test_data[] = {
+    { .a = 1, .b = 1, .result = 0 },
+    { .a = 16, .b = 1, .result = 8 },
+    { .a = 16, .b = 0, .result = 16 },
+    { .a = 0x7FFF, .b = 1, .result = 0x3FFF },
+
+    { .a = I16_MAX, .b = 16, .result = 0 },
+    { .a = U16_MAX, .b = 16, .result = U16_MAX },
+};
+mmx_u64_test_t mmx_psrld_test_data[] = {
+    { .a = 1, .b = 1, .result = 0 },
+    { .a = 16, .b = 1, .result = 8 },
+    { .a = 16, .b = 0, .result = 16 },
+    { .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
+
+    { .a = I32_MAX, .b = 32, .result = 0 },
+    { .a = I32_MIN, .b = 32, .result = 0 },
+};
+mmx_u64_test_t mmx_psrlq_test_data[] = {
+    { .a = 1, .b = 1, .result = 0 },
+    { .a = 16, .b = 1, .result = 8 },
+    { .a = 16, .b = 0, .result = 16 },
+
+    { .a = I64_MAX, .b = 64, .result = 0 },
+    { .a = I64_MIN, .b = 64, .result = 0 },
+};
+mmx_u64_test_t mmx_psrlw_test_data[] = {
+    { .a = 1, .b = 1, .result = 0 },
+    { .a = 16, .b = 1, .result = 8 },
+    { .a = 16, .b = 0, .result = 16 },
+
+    { .a = I16_MAX, .b = 16, .result = 0 },
+    { .a = I16_MIN, .b = 16, .result = 0 },
+};
+
+
+
+MMX_64_TEST(test_mmx_pslld, mmx_pslld_test_data, _m_pslld);
+MMX_64_TEST(test_mmx_psllq, mmx_psllq_test_data, _m_psllq);
+MMX_64_TEST(test_mmx_psllw, mmx_psllw_test_data, _m_psllw);
+MMX_64_TEST(test_mmx_psrad, mmx_psrad_test_data, _m_psrad);
+MMX_64_TEST(test_mmx_psraw, mmx_psraw_test_data, _m_psraw);
+MMX_64_TEST(test_mmx_psrld, mmx_psrld_test_data, _m_psrld);
+MMX_64_TEST(test_mmx_psrlq, mmx_psrlq_test_data, _m_psrlq);
+MMX_64_TEST(test_mmx_psrlw, mmx_psrlw_test_data, _m_psrlw);
+
+MMX_SHIFT_TEST(test_mmx_pslldi, mmx_pslld_test_data, _m_pslldi);
+MMX_SHIFT_TEST(test_mmx_psllqi, mmx_psllq_test_data, _m_psllqi);
+MMX_SHIFT_TEST(test_mmx_psllwi, mmx_psllw_test_data, _m_psllwi);
+MMX_SHIFT_TEST(test_mmx_psradi, mmx_psrad_test_data, _m_psradi);
+MMX_SHIFT_TEST(test_mmx_psrawi, mmx_psraw_test_data, _m_psrawi);
+MMX_SHIFT_TEST(test_mmx_psrldi, mmx_psrld_test_data, _m_psrldi);
+MMX_SHIFT_TEST(test_mmx_psrlqi, mmx_psrlq_test_data, _m_psrlqi);
+MMX_SHIFT_TEST(test_mmx_psrlwi, mmx_psrlw_test_data, _m_psrlwi);
+
+
+
 
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
@@ -532,6 +647,23 @@ int main() {
 	errors += (int) test_mmx_pcmpgtb();
 	errors += (int) test_mmx_pcmpgtw();
 	errors += (int) test_mmx_pcmpgtd();
+
+  errors += (int) test_mmx_psllw();
+  errors += (int) test_mmx_psllwi();
+  errors += (int) test_mmx_pslld();
+  errors += (int) test_mmx_pslldi();
+  errors += (int) test_mmx_psllq();
+  errors += (int) test_mmx_psllqi();
+  errors += (int) test_mmx_psraw();
+  errors += (int) test_mmx_psrawi();
+  errors += (int) test_mmx_psrad();
+  errors += (int) test_mmx_psradi();
+  errors += (int) test_mmx_psrld();
+  errors += (int) test_mmx_psrldi();
+  errors += (int) test_mmx_psrlq();
+  errors += (int) test_mmx_psrlqi();
+  errors += (int) test_mmx_psrlw();
+  errors += (int) test_mmx_psrlwi();
 
 
 	printf("Errors: %d\n", errors);
