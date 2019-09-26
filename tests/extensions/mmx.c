@@ -118,6 +118,15 @@ bool name() { \
 		__m64 result = testfunc(a, b); \
 \
 		bool success = mm_raw_compare(expected, result); \
+		if (!success) { \
+			printf( \
+				"Failed; Expected: 0x%08x_%08x\tGot: 0x%08x_%08x\n", \
+				_m_to_int(_mm_srli_si64(expected, 32)), \
+				_m_to_int(expected), \
+				_m_to_int(_mm_srli_si64(result, 32)), \
+				_m_to_int(result) \
+			); \
+		} \
 		errors += (int) (!success); \
 	} \
 \
