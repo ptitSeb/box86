@@ -40,7 +40,7 @@ if(USE_FLOAT)
     add_definitions(-DUSE_FLOAT)
 endif()
 
-add_definitions(-g -std=gnu99 -funwind-tables -O0 -fvisibility=hidden)
+add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)

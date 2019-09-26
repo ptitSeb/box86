@@ -39,11 +39,11 @@ typedef int64_t i64;
 #define U64_MIN  0
 
 #define MMX_TEST_STRUCT(sz) \
-    typedef struct mmx_##sz##_test { \
-        sz a; \
-        sz b; \
-        sz result; \
-    } mmx_##sz##_test_t
+	typedef struct mmx_##sz##_test { \
+		sz a; \
+		sz b; \
+		sz result; \
+	} mmx_##sz##_test_t
 
 MMX_TEST_STRUCT(u8);
 MMX_TEST_STRUCT(i8);
@@ -168,49 +168,49 @@ bool name() { \
 
 
 mmx_i8_test_t mmx_i8_add_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = I8_MAX, .b = 1, .result = I8_MIN },
-    { .a = I8_MIN, .b = -1, .result = I8_MAX },
-    { .a = 0, .b = U8_MAX, .result = U8_MAX },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = I8_MAX, .b = 1, .result = I8_MIN },
+	{ .a = I8_MIN, .b = -1, .result = I8_MAX },
+	{ .a = 0, .b = U8_MAX, .result = U8_MAX },
 };
 mmx_i8_test_t mmx_i8_add_sat_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = I8_MAX, .b = 1, .result = I8_MAX },
-    { .a = I8_MIN, .b = -1, .result = I8_MIN },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = I8_MAX, .b = 1, .result = I8_MAX },
+	{ .a = I8_MIN, .b = -1, .result = I8_MIN },
 };
 mmx_u8_test_t mmx_u8_add_sat_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = U8_MAX, .b = 1, .result = U8_MAX },
-    { .a = 0, .b = U8_MAX, .result = U8_MAX },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = U8_MAX, .b = 1, .result = U8_MAX },
+	{ .a = 0, .b = U8_MAX, .result = U8_MAX },
 };
 
 mmx_i16_test_t mmx_i16_add_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = I16_MAX, .b = 1, .result = I16_MIN },
-    { .a = I16_MIN, .b = -1, .result = I16_MAX },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = I16_MAX, .b = 1, .result = I16_MIN },
+	{ .a = I16_MIN, .b = -1, .result = I16_MAX },
 };
 mmx_i16_test_t mmx_i16_add_sat_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = I16_MAX, .b = 1, .result = I16_MAX },
-    { .a = I16_MIN, .b = -1, .result = I16_MIN },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = I16_MAX, .b = 1, .result = I16_MAX },
+	{ .a = I16_MIN, .b = -1, .result = I16_MIN },
 };
 mmx_u16_test_t mmx_u16_add_sat_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = U16_MAX, .b = 1, .result = U16_MAX },
-    { .a = 0, .b = U16_MAX, .result = U16_MAX },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = U16_MAX, .b = 1, .result = U16_MAX },
+	{ .a = 0, .b = U16_MAX, .result = U16_MAX },
 };
 
 mmx_i32_test_t mmx_i32_add_test_data[] = {
-    { .a = 1, .b = 2, .result = 3 },
-    { .a = 0, .b = 1, .result = 1 },
-    { .a = I32_MAX, .b = 1, .result = I32_MIN },
-    { .a = I32_MIN, .b = -1, .result = I32_MAX },
+	{ .a = 1, .b = 2, .result = 3 },
+	{ .a = 0, .b = 1, .result = 1 },
+	{ .a = I32_MAX, .b = 1, .result = I32_MIN },
+	{ .a = I32_MIN, .b = -1, .result = I32_MAX },
 };
 
 MMX_ARITH_TEST(test_mmx_paddb, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _m_paddb);
@@ -226,49 +226,49 @@ MMX_ARITH_TEST(test_mmx_paddd, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _
 
 
 mmx_i8_test_t mmx_i8_sub_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = I8_MIN, .b = 1, .result = I8_MAX },
-    { .a = I8_MAX, .b = -1, .result = I8_MIN },
-    { .a = U8_MAX, .b = U8_MAX, .result = 0 },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = I8_MIN, .b = 1, .result = I8_MAX },
+	{ .a = I8_MAX, .b = -1, .result = I8_MIN },
+	{ .a = U8_MAX, .b = U8_MAX, .result = 0 },
 };
 mmx_i8_test_t mmx_i8_sub_sat_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = I8_MIN, .b = 1, .result = I8_MIN },
-    { .a = I8_MAX, .b = -1, .result = I8_MAX },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = I8_MIN, .b = 1, .result = I8_MIN },
+	{ .a = I8_MAX, .b = -1, .result = I8_MAX },
 };
 mmx_u8_test_t mmx_u8_sub_sat_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = U8_MIN, .b = 1, .result = U8_MIN },
-    { .a = U8_MAX, .b = U8_MAX, .result = 0 },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = U8_MIN, .b = 1, .result = U8_MIN },
+	{ .a = U8_MAX, .b = U8_MAX, .result = 0 },
 };
 
 mmx_i16_test_t mmx_i16_sub_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = I16_MIN, .b = 1, .result = I16_MAX },
-    { .a = I16_MAX, .b = -1, .result = I16_MIN },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = I16_MIN, .b = 1, .result = I16_MAX },
+	{ .a = I16_MAX, .b = -1, .result = I16_MIN },
 };
 mmx_i16_test_t mmx_i16_sub_sat_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = I16_MIN, .b = 1, .result = I16_MIN },
-    { .a = I16_MAX, .b = -1, .result = I16_MAX },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = I16_MIN, .b = 1, .result = I16_MIN },
+	{ .a = I16_MAX, .b = -1, .result = I16_MAX },
 };
 mmx_u16_test_t mmx_u16_sub_sat_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = U16_MIN, .b = 1, .result = U16_MIN },
-    { .a = U16_MIN, .b = U16_MIN, .result = 0 },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = U16_MIN, .b = 1, .result = U16_MIN },
+	{ .a = U16_MIN, .b = U16_MIN, .result = 0 },
 };
 
 mmx_i32_test_t mmx_i32_sub_test_data[] = {
-    { .a = 3, .b = 2, .result = 1 },
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = I32_MIN, .b = 1, .result = I32_MAX },
-    { .a = I32_MAX, .b = -1, .result = I32_MIN },
+	{ .a = 3, .b = 2, .result = 1 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = I32_MIN, .b = 1, .result = I32_MAX },
+	{ .a = I32_MAX, .b = -1, .result = I32_MIN },
 };
 
 MMX_ARITH_TEST(test_mmx_psubb, mmx_i8_sub_test_data, mmx_i8_test_t, i8, 8, _m_psubb);
@@ -285,40 +285,40 @@ MMX_ARITH_TEST(test_mmx_psubd, mmx_i32_sub_test_data, mmx_i32_test_t, i32, 32, _
 
 
 mmx_u64_test_t mmx_por_test_data[] = {
-    { .a = 0xAAAAAAAAAAAAAAAA,
-      .b = 0x5555555555555555,
-      .result = 0xFFFFFFFFFFFFFFFF },
-    { .a = 0x0000000000000000,
-      .b = 0x1111111111111111,
-      .result = 0x1111111111111111 },
+	{ .a = 0xAAAAAAAAAAAAAAAA,
+	  .b = 0x5555555555555555,
+	  .result = 0xFFFFFFFFFFFFFFFF },
+	{ .a = 0x0000000000000000,
+	  .b = 0x1111111111111111,
+	  .result = 0x1111111111111111 },
 };
 
 mmx_u64_test_t mmx_pand_test_data[] = {
-    { .a = 0xAAAAAAAAAAAAAAAA,
-      .b = 0x5555555555555555,
-      .result = 0x0000000000000000 },
-    { .a = 0xFFFFFFFFFFFFFFFF,
-      .b = 0xFFFFFFFFFFFFFFFF,
-      .result = 0xFFFFFFFFFFFFFFFF },
+	{ .a = 0xAAAAAAAAAAAAAAAA,
+	  .b = 0x5555555555555555,
+	  .result = 0x0000000000000000 },
+	{ .a = 0xFFFFFFFFFFFFFFFF,
+	  .b = 0xFFFFFFFFFFFFFFFF,
+	  .result = 0xFFFFFFFFFFFFFFFF },
 };
 
 mmx_u64_test_t mmx_pandn_test_data[] = {
-    { .a = 0x0000000000000000,
-      .b = 0xFFFFFFFFFFFFFFFF,
-      .result = 0xFFFFFFFFFFFFFFFF },
-    { .a = 0xFFFFFFFFFFFFFFFF,
-      .b = 0x0000000000000000,
-      .result = 0x0000000000000000 },
+	{ .a = 0x0000000000000000,
+	  .b = 0xFFFFFFFFFFFFFFFF,
+	  .result = 0xFFFFFFFFFFFFFFFF },
+	{ .a = 0xFFFFFFFFFFFFFFFF,
+	  .b = 0x0000000000000000,
+	  .result = 0x0000000000000000 },
 };
 
 
 mmx_u64_test_t mmx_pxor_test_data[] = {
-    { .a = 0xAAAAAAAAAAAAAAAA,
-      .b = 0x5555555555555555,
-      .result = 0xFFFFFFFFFFFFFFFF },
-    { .a = 0xFFFFFFFFFFFFFFFF,
-      .b = 0xFFFFFFFFFFFFFFFF,
-      .result = 0x0000000000000000 },
+	{ .a = 0xAAAAAAAAAAAAAAAA,
+	  .b = 0x5555555555555555,
+	  .result = 0xFFFFFFFFFFFFFFFF },
+	{ .a = 0xFFFFFFFFFFFFFFFF,
+	  .b = 0xFFFFFFFFFFFFFFFF,
+	  .result = 0x0000000000000000 },
 };
 
 
@@ -332,31 +332,31 @@ MMX_64_TEST(test_mmx_pxor, mmx_pxor_test_data, _m_pxor);
 
 
 mmx_i16_test_t mmx_pmullw_test_data[] = {
-    { .a = 10, .b = 10, .result = 100 },
-    { .a = 32000, .b = 10, .result = 0xE200 },
-    { .a = 20000, .b = 20000, .result = 0x8400 },
+	{ .a = 10, .b = 10, .result = 100 },
+	{ .a = 32000, .b = 10, .result = 0xE200 },
+	{ .a = 20000, .b = 20000, .result = 0x8400 },
 };
 mmx_i16_test_t mmx_pmulhw_test_data[] = {
-    { .a = 10, .b = 10, .result = 0 },
-    { .a = 32000, .b = 10, .result = 4 },
-    { .a = 20000, .b = 20000, .result = 0x17D7 },
+	{ .a = 10, .b = 10, .result = 0 },
+	{ .a = 32000, .b = 10, .result = 4 },
+	{ .a = 20000, .b = 20000, .result = 0x17D7 },
 };
 mmx_u64_test_t mmx_pmaddwd_test_data[] = {
-    { .a = 0x0000000100000001,
-      .b = 0x0000000100000001,
-      .result = 0x0000000100000001 },
-    { .a = 0x0000000200000004,
-      .b = 0x0000000200000004,
-      .result = 0x0000000400000010 },
+	{ .a = 0x0000000100000001,
+	  .b = 0x0000000100000001,
+	  .result = 0x0000000100000001 },
+	{ .a = 0x0000000200000004,
+	  .b = 0x0000000200000004,
+	  .result = 0x0000000400000010 },
 
-    { .a = 0x000000007FFFFFFF,
-      .b = 0x000000007FFFFFFF,
-      .result = 0x000000003FFF0002 },
+	{ .a = 0x000000007FFFFFFF,
+	  .b = 0x000000007FFFFFFF,
+	  .result = 0x000000003FFF0002 },
 
-    // -1 * -1 = 2
-    { .a = 0x00000000FFFFFFFF,
-      .b = 0x00000000FFFFFFFF,
-      .result = 0x0000000000000002 },
+	// -1 * -1 = 2
+	{ .a = 0x00000000FFFFFFFF,
+	  .b = 0x00000000FFFFFFFF,
+	  .result = 0x0000000000000002 },
 };
 
 
@@ -369,37 +369,37 @@ MMX_64_TEST(test_mmx_pmaddwd, mmx_pmaddwd_test_data, _m_pmaddwd);
 
 
 mmx_u64_test_t mmx_packssdw_test_data[] = {
-    { .a = 0x0000000200000001,
-      .b = 0x0000000400000003,
-      .result = 0x0004000300020001 },
-    { .a = 0x7FFFFFFF7FFFFFFF,
-      .b = 0x7FFFFFFF7FFFFFFF,
-      .result = 0x7FFF7FFF7FFF7FFF },
-    { .a = 0x8000000080000000,
-      .b = 0x8000000080000000,
-      .result = 0x8000800080008000 },
+	{ .a = 0x0000000200000001,
+	  .b = 0x0000000400000003,
+	  .result = 0x0004000300020001 },
+	{ .a = 0x7FFFFFFF7FFFFFFF,
+	  .b = 0x7FFFFFFF7FFFFFFF,
+	  .result = 0x7FFF7FFF7FFF7FFF },
+	{ .a = 0x8000000080000000,
+	  .b = 0x8000000080000000,
+	  .result = 0x8000800080008000 },
 };
 mmx_u64_test_t mmx_packsswb_test_data[] = {
-    { .a = 0x0004000300020001,
-      .b = 0x0008000700060005,
-      .result = 0x0807060504030201 },
-    { .a = 0x7FFF7FFF7FFF7FFF,
-      .b = 0x7FFF7FFF7FFF7FFF,
-      .result = 0x7F7F7F7F7F7F7F7F },
-    { .a = 0x8000800080008000,
-      .b = 0x8000800080008000,
-      .result = 0x8080808080808080 },
+	{ .a = 0x0004000300020001,
+	  .b = 0x0008000700060005,
+	  .result = 0x0807060504030201 },
+	{ .a = 0x7FFF7FFF7FFF7FFF,
+	  .b = 0x7FFF7FFF7FFF7FFF,
+	  .result = 0x7F7F7F7F7F7F7F7F },
+	{ .a = 0x8000800080008000,
+	  .b = 0x8000800080008000,
+	  .result = 0x8080808080808080 },
 };
 mmx_u64_test_t mmx_packuswb_test_data[] = {
-    { .a = 0x0004000300020001,
-      .b = 0x0008000700060005,
-      .result = 0x0807060504030201 },
-    { .a = 0x7FFF7FFF7FFF7FFF,
-      .b = 0x7FFF7FFF7FFF7FFF,
-      .result = 0xFFFFFFFFFFFFFFFF },
-    { .a = 0x8000800080008000,
-      .b = 0x8000800080008000,
-      .result = 0x0000000000000000 },
+	{ .a = 0x0004000300020001,
+	  .b = 0x0008000700060005,
+	  .result = 0x0807060504030201 },
+	{ .a = 0x7FFF7FFF7FFF7FFF,
+	  .b = 0x7FFF7FFF7FFF7FFF,
+	  .result = 0xFFFFFFFFFFFFFFFF },
+	{ .a = 0x8000800080008000,
+	  .b = 0x8000800080008000,
+	  .result = 0x0000000000000000 },
 };
 
 
@@ -410,34 +410,34 @@ MMX_64_TEST(test_mmx_packuswb, mmx_packuswb_test_data, _m_packuswb);
 
 
 mmx_u64_test_t mmx_punpckhbw_test_data[] = {
-    { .a = 0x4433221100000000,
-      .b = 0x8877665500000000,
-      .result = 0x8844773366225511 },
+	{ .a = 0x4433221100000000,
+	  .b = 0x8877665500000000,
+	  .result = 0x8844773366225511 },
 };
 mmx_u64_test_t mmx_punpckhdq_test_data[] = {
-    { .a = 0xAAAAAAAA00000000,
-      .b = 0xBBBBBBBB00000000,
-      .result = 0xBBBBBBBBAAAAAAAA },
+	{ .a = 0xAAAAAAAA00000000,
+	  .b = 0xBBBBBBBB00000000,
+	  .result = 0xBBBBBBBBAAAAAAAA },
 };
 mmx_u64_test_t mmx_punpckhwd_test_data[] = {
-    { .a = 0xBBBBAAAA00000000,
-      .b = 0xDDDDCCCC00000000,
-      .result = 0xDDDDBBBBCCCCAAAA },
+	{ .a = 0xBBBBAAAA00000000,
+	  .b = 0xDDDDCCCC00000000,
+	  .result = 0xDDDDBBBBCCCCAAAA },
 };
 mmx_u64_test_t mmx_punpcklbw_test_data[] = {
-    { .a = 0x0000000044332211,
-      .b = 0x0000000088776655,
-      .result = 0x8844773366225511 },
+	{ .a = 0x0000000044332211,
+	  .b = 0x0000000088776655,
+	  .result = 0x8844773366225511 },
 };
 mmx_u64_test_t mmx_punpckldq_test_data[] = {
-    { .a = 0x00000000AAAAAAAA,
-      .b = 0x00000000BBBBBBBB,
-      .result = 0xBBBBBBBBAAAAAAAA },
+	{ .a = 0x00000000AAAAAAAA,
+	  .b = 0x00000000BBBBBBBB,
+	  .result = 0xBBBBBBBBAAAAAAAA },
 };
 mmx_u64_test_t mmx_punpcklwd_test_data[] = {
-    { .a = 0x00000000BBBBAAAA,
-      .b = 0x00000000DDDDCCCC,
-      .result = 0xDDDDBBBBCCCCAAAA },
+	{ .a = 0x00000000BBBBAAAA,
+	  .b = 0x00000000DDDDCCCC,
+	  .result = 0xDDDDBBBBCCCCAAAA },
 };
 
 
@@ -454,35 +454,35 @@ MMX_64_TEST(test_mmx_punpcklwd, mmx_punpcklwd_test_data, _m_punpcklwd);
 
 
 mmx_u64_test_t mmx_pcmpeqb_test_data[] = {
-    { .a = 0x8877665544332211,
-      .b = 0x0077005500330011,
-      .result = 0x00FF00FF00FF00FF },
+	{ .a = 0x8877665544332211,
+	  .b = 0x0077005500330011,
+	  .result = 0x00FF00FF00FF00FF },
 };
 mmx_u64_test_t mmx_pcmpeqw_test_data[] = {
-    { .a = 0x4444333322221111,
-      .b = 0x0000333300001111,
-      .result = 0x0000FFFF0000FFFF },
+	{ .a = 0x4444333322221111,
+	  .b = 0x0000333300001111,
+	  .result = 0x0000FFFF0000FFFF },
 };
 mmx_u64_test_t mmx_pcmpeqd_test_data[] = {
-    { .a = 0x2222222211111111,
-      .b = 0x2222222200000000,
-      .result = 0xFFFFFFFF00000000 },
+	{ .a = 0x2222222211111111,
+	  .b = 0x2222222200000000,
+	  .result = 0xFFFFFFFF00000000 },
 };
 
 mmx_u64_test_t mmx_pcmpgtb_test_data[] = {
-    { .a = 0x0000000000002201,
-      .b = 0x0000000000002300,
-      .result = 0x00000000000000FF },
+	{ .a = 0x0000000000002201,
+	  .b = 0x0000000000002300,
+	  .result = 0x00000000000000FF },
 };
 mmx_u64_test_t mmx_pcmpgtw_test_data[] = {
-    { .a = 0x4444333322221111,
-      .b = 0x0000333300001112,
-      .result = 0xFFFF0000FFFF0000 },
+	{ .a = 0x4444333322221111,
+	  .b = 0x0000333300001112,
+	  .result = 0xFFFF0000FFFF0000 },
 };
 mmx_u64_test_t mmx_pcmpgtd_test_data[] = {
-    { .a = 0x2222222111111111,
-      .b = 0x2222222200000000,
-      .result = 0x00000000FFFFFFFF },
+	{ .a = 0x2222222111111111,
+	  .b = 0x2222222200000000,
+	  .result = 0x00000000FFFFFFFF },
 };
 
 
@@ -497,67 +497,67 @@ MMX_64_TEST(test_mmx_pcmpgtd, mmx_pcmpgtd_test_data, _m_pcmpgtd);
 
 
 mmx_u64_test_t mmx_pslld_test_data[] = {
-    { .a = 1, .b = 1, .result = 2 },
-    { .a = 16, .b = 1, .result = 32 },
-    { .a = 16, .b = 32, .result = 0 },
-    { .a = 16, .b = 0, .result = 16 },
+	{ .a = 1, .b = 1, .result = 2 },
+	{ .a = 16, .b = 1, .result = 32 },
+	{ .a = 16, .b = 32, .result = 0 },
+	{ .a = 16, .b = 0, .result = 16 },
 };
 mmx_u64_test_t mmx_psllq_test_data[] = {
-    { .a = 1, .b = 1, .result = 2 },
-    { .a = 16, .b = 1, .result = 32 },
-    { .a = 16, .b = 64, .result = 0 },
-    { .a = 16, .b = 0, .result = 16 },
+	{ .a = 1, .b = 1, .result = 2 },
+	{ .a = 16, .b = 1, .result = 32 },
+	{ .a = 16, .b = 64, .result = 0 },
+	{ .a = 16, .b = 0, .result = 16 },
 };
 mmx_u64_test_t mmx_psllw_test_data[] = {
-    { .a = 1, .b = 1, .result = 2 },
-    { .a = 16, .b = 1, .result = 32 },
-    { .a = 16, .b = 16, .result = 0 },
-    { .a = 16, .b = 0, .result = 16 },
+	{ .a = 1, .b = 1, .result = 2 },
+	{ .a = 16, .b = 1, .result = 32 },
+	{ .a = 16, .b = 16, .result = 0 },
+	{ .a = 16, .b = 0, .result = 16 },
 };
 mmx_u64_test_t mmx_psrad_test_data[] = {
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = 16, .b = 1, .result = 8 },
-    { .a = 16, .b = 0, .result = 16 },
-    { .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = 16, .b = 1, .result = 8 },
+	{ .a = 16, .b = 0, .result = 16 },
+	{ .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
 
-    { .a = I32_MAX, .b = 32, .result = 0 },
-    { .a = I32_MIN, .b = 32, .result = U32_MAX },
+	{ .a = I32_MAX, .b = 32, .result = 0 },
+	{ .a = I32_MIN, .b = 32, .result = U32_MAX },
 };
 mmx_u64_test_t mmx_psraw_test_data[] = {
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = 16, .b = 1, .result = 8 },
-    { .a = 16, .b = 0, .result = 16 },
-    { .a = 0x7FFF, .b = 1, .result = 0x3FFF },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = 16, .b = 1, .result = 8 },
+	{ .a = 16, .b = 0, .result = 16 },
+	{ .a = 0x7FFF, .b = 1, .result = 0x3FFF },
 
-    { .a = I16_MAX, .b = 16, .result = 0 },
-    { .a = U16_MAX, .b = 16, .result = U16_MAX },
+	{ .a = I16_MAX, .b = 16, .result = 0 },
+	{ .a = U16_MAX, .b = 16, .result = U16_MAX },
 };
 mmx_u64_test_t mmx_psrld_test_data[] = {
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = 16, .b = 1, .result = 8 },
-    { .a = 16, .b = 0, .result = 16 },
-    { .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = 16, .b = 1, .result = 8 },
+	{ .a = 16, .b = 0, .result = 16 },
+	{ .a = 0x7FFFFFFF, .b = 1, .result = 0x3FFFFFFF },
 
-    { .a = I32_MAX, .b = 32, .result = 0 },
-    { .a = I32_MIN, .b = 32, .result = 0 },
+	{ .a = I32_MAX, .b = 32, .result = 0 },
+	{ .a = I32_MIN, .b = 32, .result = 0 },
 };
 mmx_u64_test_t mmx_psrlq_test_data[] = {
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = 16, .b = 1, .result = 8 },
-    { .a = 16, .b = 0, .result = 16 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = 16, .b = 1, .result = 8 },
+	{ .a = 16, .b = 0, .result = 16 },
 
-    { .a = I64_MAX, .b = 64, .result = 0 },
-    { .a = I64_MIN, .b = 64, .result = 0 },
+	{ .a = I64_MAX, .b = 64, .result = 0 },
+	{ .a = I64_MIN, .b = 64, .result = 0 },
 };
 mmx_u64_test_t mmx_psrlw_test_data[] = {
-    { .a = 1, .b = 1, .result = 0 },
-    { .a = 16, .b = 1, .result = 8 },
-    { .a = 16, .b = 0, .result = 16 },
+	{ .a = 1, .b = 1, .result = 0 },
+	{ .a = 16, .b = 1, .result = 8 },
+	{ .a = 16, .b = 0, .result = 16 },
 
-    { .a = I16_MAX, .b = 16, .result = 0 },
+	{ .a = I16_MAX, .b = 16, .result = 0 },
 
-    // TODO: Works on my machine
-    // { .a = I16_MIN, .b = 16, .result = 0 },
+	// TODO: Works on my machine
+	// { .a = I16_MIN, .b = 16, .result = 0 },
 };
 
 
@@ -650,22 +650,22 @@ int main() {
 	errors += (int) test_mmx_pcmpgtw();
 	errors += (int) test_mmx_pcmpgtd();
 
-  errors += (int) test_mmx_psllw();
-  errors += (int) test_mmx_psllwi();
-  errors += (int) test_mmx_pslld();
-  errors += (int) test_mmx_pslldi();
-  errors += (int) test_mmx_psllq();
-  errors += (int) test_mmx_psllqi();
-  errors += (int) test_mmx_psraw();
-  errors += (int) test_mmx_psrawi();
-  errors += (int) test_mmx_psrad();
-  errors += (int) test_mmx_psradi();
-  errors += (int) test_mmx_psrld();
-  errors += (int) test_mmx_psrldi();
-  errors += (int) test_mmx_psrlq();
-  errors += (int) test_mmx_psrlqi();
-  errors += (int) test_mmx_psrlw();
-  errors += (int) test_mmx_psrlwi();
+	errors += (int) test_mmx_psllw();
+	errors += (int) test_mmx_psllwi();
+	errors += (int) test_mmx_pslld();
+	errors += (int) test_mmx_pslldi();
+	errors += (int) test_mmx_psllq();
+	errors += (int) test_mmx_psllqi();
+	errors += (int) test_mmx_psraw();
+	errors += (int) test_mmx_psrawi();
+	errors += (int) test_mmx_psrad();
+	errors += (int) test_mmx_psradi();
+	errors += (int) test_mmx_psrld();
+	errors += (int) test_mmx_psrldi();
+	errors += (int) test_mmx_psrlq();
+	errors += (int) test_mmx_psrlqi();
+	errors += (int) test_mmx_psrlw();
+	errors += (int) test_mmx_psrlwi();
 
 
 	printf("Errors: %d\n", errors);
