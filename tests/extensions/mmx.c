@@ -378,6 +378,51 @@ MMX_64_TEST(test_mmx_packuswb, mmx_packuswb_test_data, _m_packuswb);
 
 
 
+mmx_u64_test_t mmx_punpckhbw_test_data[] = {
+    { .a = 0x4433221100000000,
+      .b = 0x8877665500000000,
+      .result = 0x8844773366225511 },
+};
+mmx_u64_test_t mmx_punpckhdq_test_data[] = {
+    { .a = 0xAAAAAAAA00000000,
+      .b = 0xBBBBBBBB00000000,
+      .result = 0xBBBBBBBBAAAAAAAA },
+};
+mmx_u64_test_t mmx_punpckhwd_test_data[] = {
+    { .a = 0xBBBBAAAA00000000,
+      .b = 0xDDDDCCCC00000000,
+      .result = 0xDDDDBBBBCCCCAAAA },
+};
+mmx_u64_test_t mmx_punpcklbw_test_data[] = {
+    { .a = 0x0000000044332211,
+      .b = 0x0000000088776655,
+      .result = 0x8844773366225511 },
+};
+mmx_u64_test_t mmx_punpckldq_test_data[] = {
+    { .a = 0x00000000AAAAAAAA,
+      .b = 0x00000000BBBBBBBB,
+      .result = 0xBBBBBBBBAAAAAAAA },
+};
+mmx_u64_test_t mmx_punpcklwd_test_data[] = {
+    { .a = 0x00000000BBBBAAAA,
+      .b = 0x00000000DDDDCCCC,
+      .result = 0xDDDDBBBBCCCCAAAA },
+};
+
+
+
+
+MMX_64_TEST(test_mmx_punpckhbw, mmx_punpckhbw_test_data, _m_punpckhbw);
+MMX_64_TEST(test_mmx_punpckhdq, mmx_punpckhdq_test_data, _m_punpckhdq);
+MMX_64_TEST(test_mmx_punpckhwd, mmx_punpckhwd_test_data, _m_punpckhwd);
+MMX_64_TEST(test_mmx_punpcklbw, mmx_punpcklbw_test_data, _m_punpcklbw);
+MMX_64_TEST(test_mmx_punpckldq, mmx_punpckldq_test_data, _m_punpckldq);
+MMX_64_TEST(test_mmx_punpcklwd, mmx_punpcklwd_test_data, _m_punpcklwd);
+
+
+
+
+
 
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
@@ -431,6 +476,13 @@ int main() {
 	errors += (int) test_mmx_packssdw();
 	errors += (int) test_mmx_packsswb();
 	errors += (int) test_mmx_packuswb();
+
+	errors += (int) test_mmx_punpckhbw();
+	errors += (int) test_mmx_punpckhdq();
+	errors += (int) test_mmx_punpckhwd();
+	errors += (int) test_mmx_punpcklbw();
+	errors += (int) test_mmx_punpckldq();
+	errors += (int) test_mmx_punpcklwd();
 
 	printf("Errors: %d\n", errors);
 	return errors;
