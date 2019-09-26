@@ -213,15 +213,15 @@ mmx_i32_test_t mmx_i32_add_test_data[] = {
     { .a = I32_MIN, .b = -1, .result = I32_MAX },
 };
 
-MMX_ARITH_TEST(test_mmx_add_pi8, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _m_paddb);
-MMX_ARITH_TEST(test_mmx_add_sat_pi8, mmx_i8_add_sat_test_data, mmx_i8_test_t, i8, 8, _m_paddsb);
-MMX_ARITH_TEST(test_mmx_add_sat_pu8, mmx_u8_add_sat_test_data, mmx_u8_test_t, u8, 8, _m_paddusb);
+MMX_ARITH_TEST(test_mmx_paddb, mmx_i8_add_test_data, mmx_i8_test_t, i8, 8, _m_paddb);
+MMX_ARITH_TEST(test_mmx_paddsb, mmx_i8_add_sat_test_data, mmx_i8_test_t, i8, 8, _m_paddsb);
+MMX_ARITH_TEST(test_mmx_paddusb, mmx_u8_add_sat_test_data, mmx_u8_test_t, u8, 8, _m_paddusb);
 
-MMX_ARITH_TEST(test_mmx_add_pi16, mmx_i16_add_test_data, mmx_i16_test_t, i16, 16, _m_paddw);
-MMX_ARITH_TEST(test_mmx_add_sat_pi16, mmx_i16_add_sat_test_data, mmx_i16_test_t, i16, 16, _m_paddsw);
-MMX_ARITH_TEST(test_mmx_add_sat_pu16, mmx_u16_add_sat_test_data, mmx_u16_test_t, u16, 16, _m_paddusw);
+MMX_ARITH_TEST(test_mmx_paddw, mmx_i16_add_test_data, mmx_i16_test_t, i16, 16, _m_paddw);
+MMX_ARITH_TEST(test_mmx_paddsw, mmx_i16_add_sat_test_data, mmx_i16_test_t, i16, 16, _m_paddsw);
+MMX_ARITH_TEST(test_mmx_paddusw, mmx_u16_add_sat_test_data, mmx_u16_test_t, u16, 16, _m_paddusw);
 
-MMX_ARITH_TEST(test_mmx_add_pi32, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _m_paddd);
+MMX_ARITH_TEST(test_mmx_paddd, mmx_i32_add_test_data, mmx_i32_test_t, i32, 32, _m_paddd);
 
 
 
@@ -271,15 +271,15 @@ mmx_i32_test_t mmx_i32_sub_test_data[] = {
     { .a = I32_MAX, .b = -1, .result = I32_MIN },
 };
 
-MMX_ARITH_TEST(test_mmx_sub_pi8, mmx_i8_sub_test_data, mmx_i8_test_t, i8, 8, _m_psubb);
-MMX_ARITH_TEST(test_mmx_sub_sat_pi8, mmx_i8_sub_sat_test_data, mmx_i8_test_t, i8, 8, _m_psubsb);
-MMX_ARITH_TEST(test_mmx_sub_sat_pu8, mmx_u8_sub_sat_test_data, mmx_u8_test_t, u8, 8, _m_psubusb);
+MMX_ARITH_TEST(test_mmx_psubb, mmx_i8_sub_test_data, mmx_i8_test_t, i8, 8, _m_psubb);
+MMX_ARITH_TEST(test_mmx_psubsb, mmx_i8_sub_sat_test_data, mmx_i8_test_t, i8, 8, _m_psubsb);
+MMX_ARITH_TEST(test_mmx_psubusb, mmx_u8_sub_sat_test_data, mmx_u8_test_t, u8, 8, _m_psubusb);
 
-MMX_ARITH_TEST(test_mmx_sub_pi16, mmx_i16_sub_test_data, mmx_i16_test_t, i16, 16, _m_psubw);
-MMX_ARITH_TEST(test_mmx_sub_sat_pi16, mmx_i16_sub_sat_test_data, mmx_i16_test_t, i16, 16, _m_psubsw);
-MMX_ARITH_TEST(test_mmx_sub_sat_pu16, mmx_u16_sub_sat_test_data, mmx_u16_test_t, u16, 16, _m_psubusw);
+MMX_ARITH_TEST(test_mmx_psubw, mmx_i16_sub_test_data, mmx_i16_test_t, i16, 16, _m_psubw);
+MMX_ARITH_TEST(test_mmx_psubuw, mmx_i16_sub_sat_test_data, mmx_i16_test_t, i16, 16, _m_psubsw);
+MMX_ARITH_TEST(test_mmx_psubusw, mmx_u16_sub_sat_test_data, mmx_u16_test_t, u16, 16, _m_psubusw);
 
-MMX_ARITH_TEST(test_mmx_sub_pi32, mmx_i32_sub_test_data, mmx_i32_test_t, i32, 32, _m_psubd);
+MMX_ARITH_TEST(test_mmx_psubd, mmx_i32_sub_test_data, mmx_i32_test_t, i32, 32, _m_psubd);
 
 
 
@@ -605,21 +605,21 @@ int main() {
 	errors += (int) test_mmx_cpuid();
 
 
-	errors += (int) test_mmx_add_pi8();
-	errors += (int) test_mmx_add_sat_pi8();
-	errors += (int) test_mmx_add_sat_pu8();
-	errors += (int) test_mmx_add_pi16();
-	errors += (int) test_mmx_add_sat_pi16();
-	errors += (int) test_mmx_add_sat_pu16();
-	errors += (int) test_mmx_add_pi32();
+	errors += (int) test_mmx_paddb();
+	errors += (int) test_mmx_paddsb();
+	errors += (int) test_mmx_paddusb();
+	errors += (int) test_mmx_paddw();
+	errors += (int) test_mmx_paddsw();
+	errors += (int) test_mmx_paddusw();
+	errors += (int) test_mmx_paddd();
 
-	errors += (int) test_mmx_sub_pi8();
-	errors += (int) test_mmx_sub_sat_pi8();
-	errors += (int) test_mmx_sub_sat_pu8();
-	errors += (int) test_mmx_sub_pi16();
-	errors += (int) test_mmx_sub_sat_pi16();
-	errors += (int) test_mmx_sub_sat_pu16();
-	errors += (int) test_mmx_sub_pi32();
+	errors += (int) test_mmx_psubb();
+	errors += (int) test_mmx_psubsb();
+	errors += (int) test_mmx_psubusb();
+	errors += (int) test_mmx_psubw();
+	errors += (int) test_mmx_psubuw();
+	errors += (int) test_mmx_psubusw();
+	errors += (int) test_mmx_psubd();
 
 	errors += (int) test_mmx_por();
 	errors += (int) test_mmx_pand();
