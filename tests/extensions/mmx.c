@@ -290,13 +290,54 @@ MMX_64_TEST(test_mmx_pxor, mmx_pxor_test_data, _m_pxor);
 
 
 
+
+mmx_i16_test_t mmx_pmullw_test_data[] = {
+    { .a = 10, .b = 10, .result = 100 },
+    { .a = 32000, .b = 10, .result = 0xE200 },
+    { .a = 20000, .b = 20000, .result = 0x8400 },
+};
+mmx_i16_test_t mmx_pmulhw_test_data[] = {
+    { .a = 10, .b = 10, .result = 0 },
+    { .a = 32000, .b = 10, .result = 4 },
+    { .a = 20000, .b = 20000, .result = 0x17D7 },
+};
+mmx_u64_test_t mmx_pmaddwd_test_data[] = {
+    { .a = 0x0000000100000001,
+      .b = 0x0000000100000001,
+      .result = 0x0000000100000001 },
+    { .a = 0x0000000200000004,
+      .b = 0x0000000200000004,
+      .result = 0x0000000400000010 },
+
+    // TODO: This shows that there may be some internal rounding going on
+    { .a = 0x000000007FFFFFFF,
+      .b = 0x000000007FFFFFFF,
+      .result = 0x000000003FFF0002 },
+
+    // -1 * -1 = 2
+    { .a = 0x00000000FFFFFFFF,
+      .b = 0x00000000FFFFFFFF,
+      .result = 0x0000000000000002 },
+};
+
+
+MMX_ARITH_TEST(test_mmx_pmullw, mmx_pmullw_test_data, mmx_i16_test_t, i16, 16, _m_pmullw);
+MMX_ARITH_TEST(test_mmx_pmulhw, mmx_pmulhw_test_data, mmx_i16_test_t, i16, 16, _m_pmulhw);
+MMX_64_TEST(test_mmx_pmaddwd, mmx_pmaddwd_test_data, _m_pmaddwd);
+
+
+
+
+
+
+
 bool test_mmx_cpuid() {
 	printf("TEST: test_mmx_cpuid\n");
 
 	unsigned int eax, ebx, ecx, edx;
 	asm volatile(
 		"cpuid"
-		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) 
+		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
 		: "a" (1), "c" (0)
 	);
 
@@ -334,6 +375,10 @@ int main() {
 	errors += (int) test_mmx_pand();
 	errors += (int) test_mmx_pandn();
 	errors += (int) test_mmx_pxor();
+
+	errors += (int) test_mmx_pmullw();
+	errors += (int) test_mmx_pmulhw();
+	errors += (int) test_mmx_pmaddwd();
 
 	printf("Errors: %d\n", errors);
 	return errors;

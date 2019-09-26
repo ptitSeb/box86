@@ -1005,6 +1005,18 @@
             GM.q <<= EM->q;
             NEXT;
 
+        _0f_0xF5:                   /* PMADDWD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<2; ++i) {
+		int offset = i * 2;
+
+                tmp32s = (int32_t)GM.sw[offset + 0] * EM->sw[offset + 0];
+                tmp32s2 = (int32_t)GM.sw[offset + 1] * EM->sw[offset + 1];
+                GM.sd[i] = tmp32s + tmp32s2;
+	    }
+            NEXT;
+
         _0f_0xF6:                   /* PSADBW Gm, Em */
             nextop = F8;
             GET_EM;

@@ -35,7 +35,7 @@ int Run(x86emu_t *emu)
     uint16_t tmp16u, tmp16u2;
     int16_t tmp16s;
     uint32_t tmp32u, tmp32u2, tmp32u3;
-    int32_t tmp32s;
+    int32_t tmp32s, tmp32s2;
     uint64_t tmp64u;
     int64_t tmp64s;
     uintptr_t ip, old_ip;
@@ -125,7 +125,7 @@ int Run(x86emu_t *emu)
     &&_0f_0xD8, &&_0f_0xD9, &&_default, &&_0f_0xDB, &&_0f_0xDC ,&&_0f_0xDD, &&_default, &&_0f_0xDF, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_0f_0xE5, &&_default, &&_default, //0xE0-0xE7
     &&_0f_0xE8, &&_0f_0xE9, &&_default, &&_0f_0xEB, &&_0f_0xEC ,&&_0f_0xED, &&_default, &&_0f_0xEF, //0xE8-0xEF
-    &&_default, &&_default, &&_default, &&_0f_0xF3, &&_default ,&&_default, &&_0f_0xF6, &&_default, //0xF0-0xF7
+    &&_default, &&_default, &&_default, &&_0f_0xF3, &&_default ,&&_0f_0xF5, &&_0f_0xF6, &&_default, //0xF0-0xF7
     &&_0f_0xF8, &&_0f_0xF9, &&_0f_0xFA, &&_default, &&_0f_0xFC ,&&_0f_0xFD, &&_0f_0xFE, &&_default  //0xF8-0xFF
     };
 
