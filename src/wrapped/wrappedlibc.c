@@ -62,6 +62,7 @@
 const char* libcName = "libc.so.6";
 
 typedef void (*vFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
@@ -71,6 +72,7 @@ typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, 
 
 typedef struct libc_my_s {
     iFpup_t         _ITM_addUserCommitAction;
+    iFpp_t          _IO_file_stat;
 } libc_my_t;
 
 void* getLIBCMy(library_t* lib)
@@ -78,6 +80,7 @@ void* getLIBCMy(library_t* lib)
     libc_my_t* my = (libc_my_t*)calloc(1, sizeof(libc_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     GO(_ITM_addUserCommitAction, iFpup_t)
+    GO(_IO_file_stat, iFpp_t)
     #undef GO
     return my;
 }
@@ -330,6 +333,7 @@ EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probab
     void* f = vfscanf;
     return ((iFppp_t)f)(stream, fmt, *(uint32_t**)b);
 }
+EXPORT int my__IO_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -502,6 +506,15 @@ EXPORT int my___fxstatat64(x86emu_t* emu, int v, int d, void* path, void* buf, i
 {
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my__IO_file_stat(x86emu_t* emu, void* f, void* buf)
+{
+    struct stat64 st;
+    libc_my_t *my = (libc_my_t *)emu->context->libclib->priv.w.p2;
+    int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
     return r;
 }
