@@ -354,6 +354,44 @@
             GM.ud[1] = EM->ud[0];
             NEXT;
 
+        _0f_0x63:                      /* PACKSSWB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.sb[0] = (GM.sw[0] > 127) ? 127 : ((GM.sw[0] < -128) ? -128 : GM.sw[0]);
+            GM.sb[1] = (GM.sw[1] > 127) ? 127 : ((GM.sw[1] < -128) ? -128 : GM.sw[1]);
+            GM.sb[2] = (GM.sw[2] > 127) ? 127 : ((GM.sw[2] < -128) ? -128 : GM.sw[2]);
+            GM.sb[3] = (GM.sw[3] > 127) ? 127 : ((GM.sw[3] < -128) ? -128 : GM.sw[3]);
+            GM.sb[4] = (EM->sw[0] > 127) ? 127 : ((EM->sw[0] < -128) ? -128 : EM->sw[0]);
+            GM.sb[5] = (EM->sw[1] > 127) ? 127 : ((EM->sw[1] < -128) ? -128 : EM->sw[1]);
+            GM.sb[6] = (EM->sw[2] > 127) ? 127 : ((EM->sw[2] < -128) ? -128 : EM->sw[2]);
+            GM.sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
+            NEXT;
+
+        _0f_0x64:                       /* PCMPGTB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 8; i++) {
+		    GM.sb[i] = (GM.sb[i] > EM->sb[i]) ? 0xFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x65:                       /* PCMPGTW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 4; i++) {
+		    GM.sw[i] = (GM.sw[i] > EM->sw[i]) ? 0xFFFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x66:                       /* PCMPGTD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 2; i++) {
+		    GM.sd[i] = (GM.sd[i] > EM->sd[i]) ? 0xFFFFFFFF : 0;
+	    }
+            NEXT;
+
+
         _0f_0x67:                       /* PACKUSWB Gm, Em */
             nextop = F8;
             GET_EM;
@@ -465,6 +503,30 @@
                 default:
                     goto _default;
             }
+            NEXT;
+
+        _0f_0x74:                       /* PCMPEQB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 8; i++) {
+		    GM.sb[i] = (GM.sb[i] == EM->sb[i]) ? 0xFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x75:                       /* PCMPEQW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 4; i++) {
+		    GM.sw[i] = (GM.sw[i] == EM->sw[i]) ? 0xFFFF : 0;
+	    }
+            NEXT;
+
+        _0f_0x76:                       /* PCMPEQD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i = 0; i < 2; i++) {
+		    GM.sd[i] = (GM.sd[i] == EM->sd[i]) ? 0xFFFFFFFF : 0;
+	    }
             NEXT;
 
         _0f_0x77:                      /* EMMS */
@@ -877,6 +939,38 @@
             emu->regs[tmp8s].dword[0] = __builtin_bswap32(emu->regs[tmp8s].dword[0]);
             NEXT;
 
+        _0f_0xD1:                   /* PSRLW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                unsigned int sa = EM->uw[i];
+                if (sa > 15) {
+                    GM.uw[i] = 0;
+                } else {
+                    GM.uw[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xD2:                   /* PSRLD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                unsigned int sa = EM->ud[i];
+                if (sa > 31) {
+                    GM.ud[i] = 0;
+                } else {
+                    GM.ud[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xD3:                   /* PSRLQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (EM->q > 63) ? 0 : GM.q >> EM->q;
+            NEXT;
+
         _0f_0xD5:                   /* PMULLW Gm,Em */
             nextop = F8;
             GET_EM;
@@ -886,12 +980,129 @@
             }
             NEXT;
 
+        _0f_0xD8:                   /* PSUBUSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.ub[i] - EM->ub[i];
+                GM.ub[i] = (tmp32s < 0) ? 0 : tmp32s;
+            }
+            NEXT;
+
+        _0f_0xD9:                   /* PSUBUSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.uw[i] - EM->uw[i];
+                GM.uw[i] = (tmp32s < 0) ? 0 : tmp32s;
+            }
+            NEXT;
+
+        _0f_0xDB:                   /* PAND Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q &= EM->q;
+            NEXT;
+
+        _0f_0xDC:                   /* PADDUSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32u = (uint32_t)GM.ub[i] + EM->ub[i];
+                GM.ub[i] = (tmp32u>255) ? 255 : tmp32u;
+            }
+            NEXT;
+
+        _0f_0xDD:                   /* PADDUSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32u = (uint32_t)GM.uw[i] + EM->uw[i];
+                GM.uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
+            }
+            NEXT;
+
+        _0f_0xDF:                   /* PANDN Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (~GM.q) & EM->q;
+            NEXT;
+
+        _0f_0xE1:                   /* PSRAW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                int sa = EM->sw[i];
+                if (sa > 15) {
+                    GM.sw[i] = (GM.sw[i] < 0) ? -1 : 0;
+                } else {
+                    GM.sw[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xE2:                   /* PSRAD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                int sa = EM->sd[i];
+                if (sa > 31) {
+                    GM.sd[i] = (GM.sd[i] < 0) ? -1 : 0;
+                } else {
+                    GM.sd[i] >>= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xE3:                   /* PSRAQ Gm, Em */
+            nextop = F8;
+            GET_EM;
+            if (EM->q > 63) {
+                GM.q = (GM.q < 0) ? -1 : 0;
+            } else {
+                GM.q >>= EM->q;
+            }
+            NEXT;
+
         _0f_0xE5:                   /* PMULHW Gm, Em */
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i) {
                 tmp32s = (int32_t)GM.sw[i] * EM->sw[i];
                 GM.uw[i] = (tmp32s>>16)&0xffff;
+            }
+            NEXT;
+
+        _0f_0xE8:                   /* PSUBSB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.sb[i] - EM->sb[i];
+                GM.sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
+            }
+            NEXT;
+
+        _0f_0xE9:                   /* PSUBSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32s = (int32_t)GM.sw[i] - EM->sw[i];
+                GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+            }
+            NEXT;
+
+        _0f_0xEB:                   /* POR Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.q |= EM->q;
+            NEXT;
+
+        _0f_0xEC:                   /* PADDSB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i) {
+                tmp32s = (int32_t)GM.sb[i] + EM->sb[i];
+                GM.sb[i] = (tmp32s>127)?127:((tmp32s<-128)?-128:tmp32s);
             }
             NEXT;
 
@@ -910,6 +1121,50 @@
             GM.q ^= EM->q;
             NEXT;
 
+        _0f_0xF1:                   /* PSLLW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                int sa = EM->sw[i];
+                if (sa > 15) {
+                    GM.sw[i] = 0;
+                } else {
+                    GM.sw[i] <<= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xF2:                   /* PSLLD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i) {
+                int sa = EM->sd[i];
+                if (sa > 31) {
+                    GM.sd[i] = 0;
+                } else {
+                    GM.sd[i] <<= sa;
+                }
+            }
+            NEXT;
+
+        _0f_0xF3:                   /* PSLLQ Gm, Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (EM->q > 63) ? 0 : GM.q << EM->q;
+            NEXT;
+
+        _0f_0xF5:                   /* PMADDWD Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<2; ++i) {
+                int offset = i * 2;
+
+                tmp32s = (int32_t)GM.sw[offset + 0] * EM->sw[offset + 0];
+                tmp32s2 = (int32_t)GM.sw[offset + 1] * EM->sw[offset + 1];
+                GM.sd[i] = tmp32s + tmp32s2;
+            }
+            NEXT;
+
         _0f_0xF6:                   /* PSADBW Gm, Em */
             nextop = F8;
             GET_EM;
@@ -919,6 +1174,13 @@
             GM.q = tmp32u;
             NEXT;
 
+        _0f_0xF8:                   /* PSUBB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i)
+                GM.sb[i] -= EM->sb[i];
+            NEXT;
+
         _0f_0xF9:                   /* PSUBW Gm,Em */
             nextop = F8;
             GET_EM;
@@ -926,9 +1188,30 @@
                 GM.uw[i] -= EM->uw[i];
             NEXT;
 
+        _0f_0xFA:                   /* PSUBD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.sd[i] -= EM->sd[i];
+            NEXT;
+
+        _0f_0xFC:                   /* PADDW mm, mm */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i)
+                GM.sb[i] += EM->sb[i];
+            NEXT;
+
         _0f_0xFD:                   /* PADDW Gm,Em */
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i)
                 GM.sw[i] += EM->sw[i];
+            NEXT;
+
+        _0f_0xFE:                   /* PADDD Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<2; ++i)
+                GM.sd[i] += EM->sd[i];
             NEXT;
