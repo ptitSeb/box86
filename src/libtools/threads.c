@@ -15,6 +15,7 @@
 #include "khash.h"
 #include "emu/x86run_private.h"
 #include "x86trace.h"
+#include "dynarec.h"
 
 typedef struct emuthread_s {
 	x86emu_t *emu;
@@ -39,7 +40,7 @@ static void* pthread_routine(void* p)
 
 	x86emu_t *emu = et->emu;
 	Push(emu, (uint32_t)et->arg);
-	EmuCall(emu, et->fnc);
+	DynaCall(emu, et->fnc);
 	R_ESP+=4;
 	r = (void*)R_EAX;
 

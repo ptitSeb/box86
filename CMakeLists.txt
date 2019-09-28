@@ -11,6 +11,7 @@ option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NO
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" ${USE_FLOAT})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
+option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(X86_CPP_LIBRARY_PRESENT "Set to ON if you have an accessible libstdc++.so.6 32bit ELF lib in your PATH" ${X86_CPP_LIBRARY_PRESENT})
 
 find_package(PythonInterp)
@@ -38,6 +39,11 @@ endif()
 
 if(USE_FLOAT)
     add_definitions(-DUSE_FLOAT)
+endif()
+
+if(ARM_DYNAREC)
+    add_definitions(-DDYNAREC)
+    add_definitions(-DARM)
 endif()
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
@@ -85,6 +91,7 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/libtools/sdl1rwops.c"
     "${CMAKE_HOME_DIRECTORY}/src/libtools/sdl2rwops.c"
     "${CMAKE_HOME_DIRECTORY}/src/libtools/signals.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec.c"
 )
 
 set(WRAPPEDS
@@ -142,6 +149,12 @@ set(WRAPPEDS
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h")
 add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} BYPRODUCTS ${WRAPPER})
 
+if(ARM_DYNAREC)
+    set(DYNAREC_SRC
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynablock.c"
+    )
+endif()
+
 if(USE_FLOAT)
     set(BOX86 box86f)
 elseif(HAVE_TRACE)
@@ -150,7 +163,7 @@ else()
     set(BOX86 box86)
 endif()
 
-add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
+add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS} ${DYNAREC_SRC})
 target_link_libraries(${BOX86} m dl rt pthread)
 
 if(NOT NOLOADADDR)

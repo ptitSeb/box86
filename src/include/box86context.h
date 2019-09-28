@@ -19,6 +19,9 @@ typedef struct atfork_fnc_s {
     uintptr_t parent;
     uintptr_t child;
 } atfork_fnc_t;
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
 
 typedef void* (*procaddess_t)(const char* name);
 
@@ -90,6 +93,10 @@ typedef struct box86context_s {
     elfheader_t         **deferedInitList;
     int                 deferedInitSz;
     int                 deferedInitCap;
+
+#ifdef DYNAREC
+    dynablocklist_t     *dynablocks;
+#endif
 
     int                 forked;         //  how many forks... cleanup only when < 0
 

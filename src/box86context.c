@@ -14,6 +14,9 @@
 #include "bridge.h"
 #include "library.h"
 #include "callback.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#endif
 
 void x86Syscall(x86emu_t *emu);
 
@@ -54,6 +57,10 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
 
+#ifdef DYNAREC
+    context->dynablocks = NewDynablockList();
+#endif
+
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
@@ -87,6 +94,11 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->maplib)
         FreeLibrarian(&(*context)->maplib);
+
+#ifdef DYNAREC
+    if((*context)->dynablocks)
+        FreeDynablockList(&(*context)->dynablocks);
+#endif
     
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);
