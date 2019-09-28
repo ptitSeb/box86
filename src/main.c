@@ -29,6 +29,9 @@
 #include "librarian.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
+#ifdef DYNAREC
+int box86_dynarec_log = LOG_NONE;
+#endif
 int dlsym_error = 0;
 int trace_xmm = 0;
 #ifdef HAVE_TRACE
@@ -59,6 +62,25 @@ void LoadLogEnv()
         }
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
+#ifdef DYNAREC
+    p = getenv("BOX86_DYNAREC_LOG");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_DEBUG)
+                box86_dynarec_log = p[0]-'0';
+        } else {
+            if(!strcasecmp(p, "NONE"))
+                box86_dynarec_log = LOG_NONE;
+            else if(!strcasecmp(p, "INFO"))
+                box86_dynarec_log = LOG_INFO;
+            else if(!strcasecmp(p, "DEBUG"))
+                box86_dynarec_log = LOG_DEBUG;
+            else if(!strcasecmp(p, "DUMP"))
+                box86_dynarec_log = LOG_DUMP;
+        }
+        printf_log(LOG_INFO, "Dynarec level is %d\n", box86_dynarec_log);
+    }
+#endif
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE_XMM");
     if(p) {
@@ -181,6 +203,9 @@ void PrintHelp() {
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
+#ifdef DYNAREC
+    printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
+#endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
@@ -202,9 +227,14 @@ int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
     if(argc==1) {
-        printf("Box86%s%s v%d.%d.%d\n", 
+        printf("Box86%s%s%s v%d.%d.%d\n", 
         #ifdef HAVE_TRACE
             " with trace",
+        #else
+            "",
+        #endif
+        #ifdef DYNAREC
+            " with Dynarec",
         #else
             "",
         #endif
