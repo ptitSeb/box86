@@ -1,0 +1,17 @@
+//arm prologue for dynarec
+//Save stuff, prepare stack and register
+//called with pointer to emu as 1st parameter
+//and address to jump to as 2nd parameter
+
+.text
+.align 2
+
+.global arm_epilog
+arm_epilog:
+    //update register -> emu
+    pop     {r0}
+    ldmdb   r0, {r4-r12}    // put back changed value in place
+    //restore all used register
+    pop     {r4-r12}
+    //end, return...
+    bx      lr

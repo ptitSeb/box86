@@ -17,6 +17,11 @@
 #include "x86trace.h"
 #include "dynablock.h"
 #include "dynablock_private.h"
+#ifdef ARM
+#include "dynarec_arm.h"
+#else
+#error Unsupported architecture!
+#endif
 
 #include "khash.h"
 
@@ -57,11 +62,11 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
-dynablock_t* DBGetBlock(box86context_t* context, uintptr_t addr, int create)
+dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
 {
-    dynablocklist_t *dynablocks = context->dynablocks;
+    dynablocklist_t *dynablocks = emu->context->dynablocks;
     // use and atomic lock to avoid concurent access to dynablocks list
-    int tmp;
+    int tmp, ret;
     do {
         tmp = 0;
     } while(!atomic_compare_exchange_weak(&dynalock, &tmp, 1));
@@ -71,12 +76,19 @@ dynablock_t* DBGetBlock(box86context_t* context, uintptr_t addr, int create)
         atomic_store(&dynalock, 0);
         return kh_value(dynablocks->blocks, k);
     }
-    atomic_store(&dynalock, 0);
     // Blocks doesn't exist. If creation is not allow, just return NULL
-    if(!create)
+    if(!create) {
+        atomic_store(&dynalock, 0);
         return NULL;
-    // create a new block
+    }
+    // create and add new block
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
+    k = kh_put(dynablocks, dynablocks->blocks, addr, &ret);
+    dynablock_t* block = kh_value(dynablocks->blocks, k) = (dynablock_t*)calloc(1, sizeof(dynablock_t));
+    // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
+    atomic_store(&dynalock, 0);
+    // fill the block
+    FillBlock(emu, block, addr);
 
-    return NULL;
+    return block;
 }
