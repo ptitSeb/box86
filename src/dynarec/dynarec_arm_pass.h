@@ -80,6 +80,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     int ninst = 0;
     uintptr_t ip = addr;
     uint8_t gd;
+    int32_t i32;
+    int need_epilog = 1;
     INIT;
     while(ok) {
         ip = addr;
@@ -93,13 +95,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x54:
             case 0x55:
             case 0x56:
-            case 0x57:  /* PUSH reg */
+            case 0x57:
                 INST_NAME("PUSH reg");
                 gd = xEAX+(nextop&0x07);
                 STRB_NIMM9_W(gd, xESP, 4);
                 break;
             
-            case 0x89:  /* MOV Ed,Gd */
+            case 0x89:
                 INST_NAME("MOV Ed, Gd");
                 nextop=F8;
                 gd = xEAX+((nextop&0x38)>>3);
@@ -111,12 +113,23 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xE8:
+                INST_NAME("CALL rel");
+                i32 = F32S;
+                MOV32(2, addr);
+                STRB_NIMM9_W(2, xESP, 4);
+                jump_to_epilog(dyn, addr+i32, ninst);
+                need_epilog = 0;
+                ok = 0;
+                break;
+
             default:
                 ok = 0;
                 DEFAULT;
         }
         ++ninst;
     }
-    jump_to_epilog(dyn, ip, ninst);
+    if(need_epilog)
+        jump_to_epilog(dyn, ip, ninst);
     FINI;
 }
