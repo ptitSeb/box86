@@ -61,7 +61,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
                     helper.insts[k].x86.barrier = 1;
             }
         }
-    // removed useless flags calulation
+    // remove useless flags calulation
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.flags==X86_FLAGS_CHANGE) {
             int done = 0;
