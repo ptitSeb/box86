@@ -59,17 +59,35 @@ Op is 20-27
 // movt dst, #imm16
 #define MOVT(dst, imm16) EMIT(0xe3400000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 // pseudo insruction: mov reg, #imm with imm a 32bits value
-#define MOV32(dst, imm32)       \
-    MOVW(dst, (imm32&0xffff));  \
-    MOVT(dst, (imm32>>16))
+#define MOV32(dst, imm32)                   \
+    MOVW(dst, ((uint32_t)imm32)&0xffff);    \
+    if (((uint32_t)imm32)>>16) {            \
+        MOVT(dst, (((uint32_t)imm32)>>16)); }
+// movw.cond dst, #imm16
+#define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
+
 
 // sub dst, src, #(imm8)
 #define SUB_IMM8(dst, src, imm8) EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add.s dst, src, #(imm8)
+#define SUBS_IMM8(dst, src, imm8) EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add dst, src1, src2, lsl #imm
+#define SUB_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0400000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// add.s dst, src1, src2, lsl #imm
+#define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add.s dst, src, #(imm8)
+#define ADDS_IMM8(dst, src, imm8) EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
 #define ADD_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// add.s dst, src1, src2, lsl #imm
+#define ADDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
