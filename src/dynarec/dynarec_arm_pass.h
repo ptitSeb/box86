@@ -73,6 +73,15 @@ static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst)
     BX(2);
 }
 
+static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
+{
+    MESSAGE(LOG_DEBUG, "Jump to epilog\n");
+    LDR_IMM9_W(xEIP, xESP, 4);
+    void* epilog = arm_epilog;
+    MOV32(2, (uintptr_t)epilog);
+    BX(2);
+}
+
 void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 {
     uint8_t nextop;
@@ -98,7 +107,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x57:
                 INST_NAME("PUSH reg");
                 gd = xEAX+(nextop&0x07);
-                STRB_NIMM9_W(gd, xESP, 4);
+                STR_NIMM9_W(gd, xESP, 4);
                 break;
             
             case 0x89:
@@ -133,11 +142,18 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xC3:
+                INST_NAME("RET");
+                ret_to_epilog(dyn, ninst);
+                need_epilog = 0;
+                ok = 0;
+                break;
+
             case 0xE8:
                 INST_NAME("CALL rel");
                 i32 = F32S;
                 MOV32(2, addr);
-                STRB_NIMM9_W(2, xESP, 4);
+                STR_NIMM9_W(2, xESP, 4);
                 jump_to_epilog(dyn, addr+i32, ninst);
                 need_epilog = 0;
                 ok = 0;

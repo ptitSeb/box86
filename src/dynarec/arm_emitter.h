@@ -73,11 +73,13 @@ Op is 20-27
 
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr, #imm9]!
+#define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// strb reg, [addr, #-(imm9)]!
-#define STRB_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr, #-(imm9)]!
+#define STR_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
