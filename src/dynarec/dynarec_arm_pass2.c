@@ -22,11 +22,11 @@
 #define STEP        2
 #define NAME_STEP   arm_pass2
 
-#define INIT        int arm_size = 0
-#define FINI                    \
-    dyn->arm_size = arm_size
+#define INIT        dyn->arm_size = 0
+#define FINI        
 
-#define EMIT(A)     dyn->insts[ninst].size+=4; arm_size+=4
+#define MESSAGE(A, ...)  
+#define EMIT(A)     dyn->insts[ninst].size+=4; dyn->arm_size+=4
 #define FLAGS(A)
 #define NEW_INST    
 #define INST_NAME(name) 

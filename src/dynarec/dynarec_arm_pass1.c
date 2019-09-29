@@ -24,6 +24,7 @@
 
 #define INIT    
 #define FINI    
+#define MESSAGE(A, ...)  
 #define EMIT(A)     
 #define FLAGS(A)    dyn->insts[ninst].x86.flags = A
 #define NEW_INST \
