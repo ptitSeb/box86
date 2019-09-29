@@ -108,8 +108,28 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop);
-                    STR_IMM9(2, gd, 0);
+                    if((nextop&0xC0)==0 && (nextop&7)!=4 && (nextop&7)!=5) {
+                        STR_IMM9(nextop&7, gd, 0);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop);
+                        STR_IMM9(2, gd, 0);
+                    }
+                }
+                break;
+
+            case 0x8B:
+                INST_NAME("MOV Gd, Ed");
+                nextop=F8;
+                gd = xEAX+((nextop&0x38)>>3);
+                if((nextop&0xC0)==0xC0) {   // reg <= reg
+                    MOV_REG(gd, xEAX+(nextop&7));
+                } else {                    // mem <= reg
+                    if((nextop&0xC0)==0 && (nextop&7)!=4 && (nextop&7)!=5) {
+                        LDR_IMM9(gd, nextop&7, 0);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop);
+                        LDR_IMM9(gd, 2, 0);
+                    }
                 }
                 break;
 
