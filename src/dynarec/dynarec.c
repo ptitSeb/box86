@@ -19,6 +19,8 @@
 #include "dynablock_private.h"
 #endif
 
+void arm_prolog(x86emu_t* emu, void* addr);
+
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
 #ifndef DYNAREC
@@ -33,15 +35,14 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
     R_EIP = addr;
     emu->df = d_none;
     while(!emu->quit) {
-        dynablock_t* block = DBGetBlock(emu->context, R_EIP, 1);
+        dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
         if(!block || !block->block)
             // no block, of block doesn't have DynaRec content
             // Use interpreter (should use single instruction step...)
             Run(emu);
         else {
             // block is here, let's run it!
-            void (*f)() = (void(*)())block->block;
-            f();
+            arm_prolog(emu, block->block);
         }
     }
     emu->quit = 0;  // reset Quit flags...

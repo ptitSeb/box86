@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(box86)
 
 enable_testing()
+enable_language(C)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
@@ -44,6 +45,7 @@ endif()
 if(ARM_DYNAREC)
     add_definitions(-DDYNAREC)
     add_definitions(-DARM)
+    enable_language(ASM)
 endif()
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
@@ -152,6 +154,14 @@ add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOM
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynablock.c"
+
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm.c"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass0.c"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass1.c"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass2.c"
+
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_epilog.S"
     )
 endif()
 
