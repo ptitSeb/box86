@@ -19,15 +19,19 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
+            int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
                 uint32_t tmp = F32;
                 MOV32(2, tmp);
+                if (sib_reg!=4) {
+                    ADD_REG_LSL_IMM8(2, 2, xEAX+sib_reg, (sib>>6));
+                }
             } else {
-                MOV_REG(2, xEAX+(sib&0x7));
-            }
-            int sib_reg = (sib>>3)&7;
-            if (sib_reg!=4) {
-                ADD_REG_LSL_IMM8(2, 2, xEAX+sib_reg, (sib>>6));
+                if (sib_reg!=4) {
+                    ADD_REG_LSL_IMM8(2, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
+                } else {
+                    MOV_REG(2, xEAX+(sib&0x7));
+                }
             }
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
@@ -52,7 +56,7 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             MOV32(3, t32);
             ADD_REG_LSL_IMM8(2, 2, 3, 0);
         } else {
-            int8_t t8 = F8;
+            int8_t t8 = F8S;
             if(t8<0) {
                 SUB_IMM8(2, 2, -t8);
             } else if (t8>0) {
@@ -64,10 +68,14 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
     return addr;
 }
 
-static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int ninst)
+static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DEBUG, "Jump to epilog\n");
-    MOV32(xEIP, ip);
+    if(reg) {
+        MOV_REG(xEIP, reg);
+    } else {
+        MOV32(xEIP, ip);
+    }
     void* epilog = arm_epilog;
     MOV32(2, (uintptr_t)epilog);
     BX(2);
@@ -154,6 +162,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if(dyn->insts[ninst].x86.flags) {
                             MOV32(3, i32);
                             ADDS_REG_LSL_IMM8(ed, ed, 3, 0);
+                            // generate flags!
+                            arm_to_x86_flags(dyn, ninst);
+                            // how to get P(arity) and A flag?
                         } else {
                             if(i32>0 && i32<256) {
                                 ADD_IMM8(ed, ed, i32);
@@ -162,16 +173,14 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                                 ADD_REG_LSL_IMM8(ed, ed, 3, 0);
                             }
                         }
-                        if(dyn->insts[ninst].x86.flags) {
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
-                        }
                         break;
                     case 5: //SUB
                         if(dyn->insts[ninst].x86.flags) {
                             MOV32(3, i32);
                             SUBS_REG_LSL_IMM8(ed, ed, 3, 0);
+                            // generate flags!
+                            arm_to_x86_flags(dyn, ninst);
+                            // how to get P(arity) and A flag?
                         } else {
                             if(i32>0 && i32<256) {
                                 SUB_IMM8(ed, ed, i32);
@@ -179,11 +188,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                                 MOV32(3, i32);
                                 SUB_REG_LSL_IMM8(ed, ed, 3, 0);
                             }
-                        }
-                        if(dyn->insts[ninst].x86.flags) {
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
                         }
                         break;
                     default:
@@ -262,9 +266,59 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 i32 = F32S;
                 MOV32(2, addr);
                 STR_NIMM9_W(2, xESP, 4);
-                jump_to_epilog(dyn, addr+i32, ninst);
+                jump_to_epilog(dyn, addr+i32, 0, ninst);
                 need_epilog = 0;
                 ok = 0;
+                break;
+
+            case 0xFF:
+                INST_NAME("Grp5 Ed");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {   // reg <= reg
+                    ed = xEAX+(nextop&7);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop);
+                    ed = 1;
+                    LDR_IMM9(1, 2, 0);
+                }
+                switch((nextop>>3)&7) {
+                    case 0: // INC Ed
+                        FLAGS(X86_FLAGS_CHANGE);
+                        if(dyn->insts[ninst].x86.flags) {
+                            ADDS_IMM8(ed, ed, 1);
+                            // generate flags!
+                            arm_to_x86_flags(dyn, ninst);
+                            // how to get P(arity) and A flag?
+                        } else {
+                            ADD_IMM8(ed, ed, 1);
+                        }
+                        break;
+                    case 1: //DEC Ed
+                        FLAGS(X86_FLAGS_CHANGE);
+                        if(dyn->insts[ninst].x86.flags) {
+                            SUBS_IMM8(ed, ed, 1);
+                            // generate flags!
+                            arm_to_x86_flags(dyn, ninst);
+                            // how to get P(arity) and A flag?
+                        } else {
+                            SUB_IMM8(ed, ed, 1);
+                        }
+                        break;
+                    case 2: // CALL Ed
+                        MOV32(2, addr);
+                        STR_NIMM9_W(2, xESP, 4);
+                        jump_to_epilog(dyn, 0, ed, ninst);
+                        need_epilog = 0;
+                        ok = 0;
+                        break;
+                    case 6: // Push Ed
+                        STR_NIMM9_W(ed, xESP, 4);
+                        break;
+
+                    default:
+                        ok = 0;
+                        DEFAULT;
+                }
                 break;
 
             default:
@@ -274,6 +328,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         ++ninst;
     }
     if(need_epilog)
-        jump_to_epilog(dyn, ip, ninst);
+        jump_to_epilog(dyn, ip, 0, ninst);
     FINI;
 }

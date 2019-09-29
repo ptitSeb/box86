@@ -4,6 +4,7 @@
 extern int box86_log;    // log level
 #ifdef DYNAREC
 extern int box86_dynarec_log;
+extern int box86_dynarec;
 #endif
 extern int dlsym_error;  // log dlsym error
 extern int trace_xmm;    // include XMM reg in trace?
