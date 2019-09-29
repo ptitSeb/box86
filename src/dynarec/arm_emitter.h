@@ -88,6 +88,12 @@ Op is 20-27
 // add.s dst, src1, src2, lsl #imm
 #define ADDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// xor dst, src1, src2, lsl #imm
+#define XOR_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// xor.s dst, src1, src2, lsl #imm
+#define XORS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )

@@ -167,6 +167,28 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         nextop = F8;
         NEW_INST;
         switch(nextop) {
+
+            case 0x31:
+                INST_NAME("XOR Gd, Ed");
+                FLAGS(X86_FLAGS_CHANGE);
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {   // reg <= reg
+                    ed = xEAX+(nextop&7);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDR_IMM9(1, ed, 0);
+                    ed = 1;
+                }
+                if(dyn->insts[ninst].x86.flags) {
+                    XORS_REG_LSL_IMM8(ed, ed, gd, 0);
+                    // generate flags!
+                    arm_to_x86_flags(dyn, ninst);
+                } else {
+                    MOV32(3, i32);
+                    XOR_REG_LSL_IMM8(ed, ed, gd, 0);
+                }
+                break;
+
             case 0x50:
             case 0x51:
             case 0x52:
