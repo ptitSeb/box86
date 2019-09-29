@@ -36,11 +36,11 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
     emu->df = d_none;
     while(!emu->quit) {
         dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
-        if(!block || !block->block)
+        if(!block || !block->block) {
             // no block, of block doesn't have DynaRec content
             // Use interpreter (should use single instruction step...)
             Run(emu);
-        else {
+        } else {
             // block is here, let's run it!
             arm_prolog(emu, block->block);
         }

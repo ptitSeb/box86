@@ -19,31 +19,17 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 
-static void printf_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
-    uint8_t *ip = (uint8_t*)inst->addr;
-    if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
-        uint32_t a = *(uint32_t*)(ip+3);
-        if(a==0) {
-            dynarec_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
-        } else {
-            dynarec_log(LOG_NONE, "0x%p: Native call to %p\n", (void*)ip, (void*)a);
-        }
-    } else {
-        if(dec) {
-            dynarec_log(LOG_NONE, "%s\n", DecodeX86Trace(dec, inst->addr));
-        } else {
-            for(int i=0; i<inst->size; ++i)
-                dynarec_log(LOG_NONE, "%02X ", ip[i]);
-            dynarec_log(LOG_NONE, " %s\n", name);
-        }
-    }
-}
-
 #define STEP        2
 #define NAME_STEP   arm_pass2
 
+#define INIT        int arm_size = 0
+#define FINI                    \
+    dyn->arm_size = arm_size
+
+#define EMIT(A)     dyn->insts[ninst].size+=4; arm_size+=4
+#define FLAGS(A)
 #define NEW_INST    
-#define INST_NAME(name) if(box86_dynarec_log>=LOG_DUMP) printf_instruction(dyn->dec, &dyn->insts[ninst].x86, name)
+#define INST_NAME(name) 
 #define DEFAULT         
 
 #include "dynarec_arm_pass.h"

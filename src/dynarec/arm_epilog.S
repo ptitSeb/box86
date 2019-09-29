@@ -10,7 +10,7 @@
 arm_epilog:
     //update register -> emu
     pop     {r0}
-    ldmdb   r0, {r4-r12}    // put back changed value in place
+    stm     r0, {r4-r12}   // put back reg value in emu
     //restore all used register
     pop     {r4-r12}
     //end, return...

@@ -12,7 +12,7 @@ arm_prolog:
     push     {r4-r12}
     //setup emu -> register
     push     {r0}
-    stmdb    r0, {r4-r12}   // all 8 register in direct access
+    ldm      r0, {r4-r12}    // all 8 register in direct access
     //TODO
     //jump to function
     bx       r1

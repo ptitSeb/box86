@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <stdatomic.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -51,6 +52,8 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     dynablock_t* db;
     kh_foreach_value((*dynablocks)->blocks, db,
+        if(db->block)
+            munmap(db->block, db->size);
         free(db);
     );
     kh_destroy(dynablocks, (*dynablocks)->blocks);
