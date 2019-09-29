@@ -14,8 +14,9 @@
 void arm_epilog();
 
 /* setup r2 to address pointed by */
-static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
+static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed) 
 {
+    uint8_t ret = 2;
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
@@ -30,14 +31,16 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
                 if (sib_reg!=4) {
                     ADD_REG_LSL_IMM8(2, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
                 } else {
-                    MOV_REG(2, xEAX+(sib&0x7));
+                    //MOV_REG(2, xEAX+(sib&0x7));
+                    ret = xEAX+(sib&0x7);
                 }
             }
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
             MOV32(2, tmp);
         } else {
-            MOV_REG(2, xEAX+(nextop&7));
+            //MOV_REG(2, xEAX+(nextop&7));
+            ret = xEAX+(nextop&7);
         }
     } else {
         int tmp = 2;
@@ -54,18 +57,22 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
         }
         if(nextop&0x80) {
             uint32_t t32 = F32;
-            MOV32(3, t32);
-            ADD_REG_LSL_IMM8(2, tmp, 3, 0);
+            if(t32) {
+                MOV32(3, t32);
+                ADD_REG_LSL_IMM8(2, tmp, 3, 0);
+            } else
+                ret = tmp;
         } else {
             int8_t t8 = F8S;
             if(t8<0) {
                 SUB_IMM8(2, tmp, -t8);
             } else if (t8>0) {
                 ADD_IMM8(2, tmp, t8);
-            }
+            } else
+                ret = tmp;
         }
     }
-   
+    *ed = ret;
     return addr;
 }
 
@@ -190,9 +197,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     ed = xEAX+(nextop&7);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop);
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDR_IMM9(1, ed, 0);
                     ed = 1;
-                    LDR_IMM9(1, 2, 0);
                 }
                 if(tmp==0x81)
                     i32 = F32S;
@@ -247,12 +254,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
-                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
-                        ed = xEAX + (nextop&7);
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop);
-                        ed = 2;
-                    }
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
                     STR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -264,13 +266,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(gd, xEAX+(nextop&7));
                 } else {                    // mem <= reg
-                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
-                        ed = xEAX + (nextop&7);
-                        LDR_IMM9(gd, ed, 0);
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop);
-                        LDR_IMM9(gd, 2, 0);
-                    }
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDR_IMM9(gd, ed, 0);
                 }
                 break;
 
@@ -290,12 +287,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     MOV32(ed, i32);
                 } else {                    // mem <= i32
                     gd = 3;
-                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
-                        ed = xEAX + (nextop&7);
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop);
-                        ed = 2;
-                    }
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
                     i32 = F32S;
                     MOV32(gd, i32);
                     STR_IMM9(gd, ed, 0);
@@ -318,9 +310,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     ed = xEAX+(nextop&7);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop);
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDR_IMM9(1, ed, 0);
                     ed = 1;
-                    LDR_IMM9(1, 2, 0);
                 }
                 switch((nextop>>3)&7) {
                     case 0: // INC Ed
