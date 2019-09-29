@@ -27,7 +27,7 @@ Op is 20-27
 #define brLSR(i, r) (1<<5 | ((i&31)<<7) | r)
 #define brASR(i, r) (2<<5 | ((i&31)<<7) | r)
 #define brROR(i, r) (3<<5 | ((i&31)<<7) | r)
-#define brIMM(r)    brLSL(0, r)
+#define brIMM(r)    (r)
 
 // conditions
 #define cEQ (0b0000<<28)
@@ -67,9 +67,17 @@ Op is 20-27
 #define SUB_IMM8(dst, src, imm8) EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add dst, src1, src2, lsl #imm
+#define ADD_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
-// str reg, [addr, #imm]
-#define STR_IMM(reg, addr, imm) EMIT(0xe5800000 | ((reg) << 12) + ((addr) << 16) | brIMM(imm) )
+// ldr reg, [addr, #imm9]
+#define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+
+// str reg, [addr, #imm9]
+#define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// strb reg, [addr, #-(imm9)]!
+#define STRB_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
