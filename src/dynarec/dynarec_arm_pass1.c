@@ -22,6 +22,10 @@
 #define STEP        1
 #define NAME_STEP   arm_pass1
 
+#define INIT    
+#define FINI    
+#define EMIT(A)     
+#define FLAGS(A)    dyn->insts[ninst].x86.flags = A
 #define NEW_INST \
     dyn->insts[ninst].x86.addr = ip; \
     if(ninst) dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;

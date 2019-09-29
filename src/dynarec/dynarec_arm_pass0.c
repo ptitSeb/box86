@@ -22,6 +22,10 @@
 #define STEP        0
 #define NAME_STEP   arm_pass0
 
+#define INIT    uintptr_t sav_addr=addr
+#define FINI    dyn->isize = addr-sav_addr
+#define EMIT(A)     
+#define FLAGS(A)    
 #define NEW_INST        ++dyn->size
 #define INST_NAME(name) 
 #define DEFAULT         \
