@@ -37,7 +37,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     }
     helper.cap = helper.size+2; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
-    helper.dec = emu->dec;
+    helper.emu = emu;
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers

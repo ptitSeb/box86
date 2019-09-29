@@ -14,6 +14,7 @@
 #include "box86context.h"
 #include "x86run.h"
 #include "librarian.h"
+#include "elfloader.h"
 
 static uint32_t x86emu_parity_tab[8] =
 {
@@ -594,4 +595,9 @@ void UnpackFlags(x86emu_t* emu)
     GO(VIP);
     GO(ID);
     #undef GO
+}
+
+uintptr_t GetGSBaseEmu(x86emu_t* emu)
+{
+    return (uintptr_t)GetGSBase(emu->context);
 }

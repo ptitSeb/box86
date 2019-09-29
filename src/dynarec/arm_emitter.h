@@ -92,7 +92,7 @@ Op is 20-27
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, #imm9]!
-#define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -101,3 +101,14 @@ Op is 20-27
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
+
+// blx reg
+#define BLX(reg) EMIT(0xe12fff30 | (reg) )
+
+// push reg!, {list}
+//                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
+#define PUSH(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (1<<21) | (0<<20) | (reg<<16) | (list))
+
+// pop reg!, {list}
+//                           all |    const    |postindex|  add    | no PSR  |writeback|  load   |   base    |reg list
+#define POP(reg, list)  EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (1<<21) | (1<<20) | (reg<<16) | (list))

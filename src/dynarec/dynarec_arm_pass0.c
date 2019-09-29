@@ -8,7 +8,7 @@
 #include "box86context.h"
 #include "dynarec.h"
 #include "emu/x86emu_private.h"
-#include "tools/bridge_private.h"
+#include "emu/x86run_private.h"
 #include "x86run.h"
 #include "x86emu.h"
 #include "box86stack.h"
