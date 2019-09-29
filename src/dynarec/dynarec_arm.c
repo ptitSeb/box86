@@ -61,6 +61,21 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
                     helper.insts[k].x86.barrier = 1;
             }
         }
+    // removed useless flags calulation
+    for(int i=0; i<helper.size; ++i)
+        if(helper.insts[i].x86.flags==X86_FLAGS_CHANGE) {
+            int done = 0;
+            for(int i2=i+1; i2<helper.size && done==0; ++i2) {
+                if(helper.insts[i2].x86.barrier || helper.insts[i2].x86.jmp)
+                    done = 1;
+                else if(helper.insts[i2].x86.flags==X86_FLAGS_USE)
+                    done = 1;
+                else if(helper.insts[i2].x86.flags==X86_FLAGS_CHANGE) {
+                    done = 1;
+                    helper.insts[i].x86.flags=X86_FLAGS_NONE;
+                }
+            }
+        }
     // pass 2, instruction size
     arm_pass2(&helper, addr);
     // ok, now alocate mapped memory, with executable flag on
