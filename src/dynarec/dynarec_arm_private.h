@@ -3,7 +3,7 @@
 
 #include "dynarec_private.h"
 
-typedef struct zydis_dec_s zydis_dec_t;
+typedef struct x86emu_s x86emu_t;
 
 typedef struct instruction_arm_s {
     instruction_x86_t   x86;
@@ -18,7 +18,7 @@ typedef struct dynarec_arm_s {
     uint32_t            isize;      // size in byte of x86 instructions included
     void*               block;      // memory pointer where next instruction is emited
     int                 arm_size;   // size of emitted arm code
-    zydis_dec_t         *dec;
+    x86emu_t*           emu;
 } dynarec_arm_t;
 
 

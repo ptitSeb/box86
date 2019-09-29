@@ -40,27 +40,28 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             MOV_REG(2, xEAX+(nextop&7));
         }
     } else {
-        uintptr_t base;
+        int tmp = 2;
         if((nextop&7)==4) {
             uint8_t sib = F8;
-            MOV_REG(2, xEAX+(sib&0x07));
             int sib_reg = (sib>>3)&7;
             if (sib_reg!=4) {
-                ADD_REG_LSL_IMM8(2, 2, xEAX+sib_reg, (sib>>6));
+                ADD_REG_LSL_IMM8(2, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+            } else {
+                tmp = xEAX+(sib&0x07);
             }
         } else {
-            MOV_REG(2, xEAX+(nextop&0x07));
+            tmp = xEAX+(nextop&0x07);
         }
         if(nextop&0x80) {
             uint32_t t32 = F32;
             MOV32(3, t32);
-            ADD_REG_LSL_IMM8(2, 2, 3, 0);
+            ADD_REG_LSL_IMM8(2, tmp, 3, 0);
         } else {
             int8_t t8 = F8S;
             if(t8<0) {
-                SUB_IMM8(2, 2, -t8);
+                SUB_IMM8(2, tmp, -t8);
             } else if (t8>0) {
-                ADD_IMM8(2, 2, t8);
+                ADD_IMM8(2, tmp, t8);
             }
         }
     }
@@ -70,7 +71,7 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
 
 static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
-    MESSAGE(LOG_DEBUG, "Jump to epilog\n");
+    MESSAGE(LOG_DUMP, "Jump to epilog\n");
     if(reg) {
         MOV_REG(xEIP, reg);
     } else {
@@ -83,8 +84,8 @@ static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
 static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
-    MESSAGE(LOG_DEBUG, "Ret epilog\n");
-    LDR_IMM9_W(xEIP, xESP, 4);
+    MESSAGE(LOG_DUMP, "Ret epilog\n");
+    POP(xESP, 1<<xEIP);
     void* epilog = arm_epilog;
     MOV32(2, (uintptr_t)epilog);
     BX(2);
@@ -104,6 +105,42 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
     ADD_IMM8(1, 0, offsetof(x86emu_t, flags)+F_OF);
     MOVW_COND(cVS, 1, 1);
     MOVW_COND(cVC, 1, 0);
+}
+
+static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
+{
+    MESSAGE(LOG_DUMP, "Get TLSData\n");
+    PUSH(13, (1<<0) | (1<<14));
+    void* p = GetGSBaseEmu;
+    MOV32(1, (uintptr_t)p);
+    BLX(1);
+    MOV_REG(reg, 0);
+    POP(13, (1<<0) | (1<<14));
+}
+
+static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+{
+    uint8_t opcode = F8;
+    uint8_t nextop;
+    int32_t i32;
+    switch(opcode) {
+        case 0xA1:
+            grab_tlsdata(dyn, addr, ninst, 1);
+            INST_NAME("GS:MOV EAX,Id");
+            i32 = F32S;
+            if(i32>0 && i32<256) {
+                LDR_IMM9(xEAX, 1, i32);
+            } else {
+                MOV32(2, i32);
+                ADD_REG_LSL_IMM8(1, 1, 2, 0);
+                LDR_IMM9(xEAX, 1, 0);
+            }
+            break;
+        default:
+            *ok = 0;
+            DEFAULT;
+    }
+    return addr;
 }
 
 void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
@@ -133,7 +170,11 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x57:
                 INST_NAME("PUSH reg");
                 gd = xEAX+(nextop&0x07);
-                STR_NIMM9_W(gd, xESP, 4);
+                PUSH(xESP, 1<<gd);
+                break;
+
+            case 0x65:
+                addr = dynarecGS(dyn, addr, ninst, &ok, &need_epilog);
                 break;
             
             case 0x81:
@@ -206,13 +247,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
-                    if((nextop&0xC0)==0 && (nextop&7)!=4 && (nextop&7)!=5) {
+                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
                         ed = xEAX + (nextop&7);
-                        STR_IMM9(ed, gd, 0);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop);
-                        STR_IMM9(2, gd, 0);
+                        ed = 2;
                     }
+                    STR_IMM9(gd, ed, 0);
                 }
                 break;
 
@@ -223,7 +264,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(gd, xEAX+(nextop&7));
                 } else {                    // mem <= reg
-                    if((nextop&0xC0)==0 && (nextop&7)!=4 && (nextop&7)!=5) {
+                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
                         ed = xEAX + (nextop&7);
                         LDR_IMM9(gd, ed, 0);
                     } else {
@@ -249,7 +290,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     MOV32(ed, i32);
                 } else {                    // mem <= i32
                     gd = 3;
-                    if((nextop&0xC0)==0 && (nextop&7)!=4 && (nextop&7)!=5) {
+                    if(((nextop&0xC0)==0) && ((nextop&7)!=4) && ((nextop&7)!=5)) {
                         ed = xEAX + (nextop&7);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop);
@@ -265,7 +306,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("CALL rel");
                 i32 = F32S;
                 MOV32(2, addr);
-                STR_NIMM9_W(2, xESP, 4);
+                PUSH(xESP, 1<<2);
                 jump_to_epilog(dyn, addr+i32, 0, ninst);
                 need_epilog = 0;
                 ok = 0;
@@ -306,13 +347,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 2: // CALL Ed
                         MOV32(2, addr);
-                        STR_NIMM9_W(2, xESP, 4);
+                        PUSH(xESP, 1<<2);
                         jump_to_epilog(dyn, 0, ed, ninst);
                         need_epilog = 0;
                         ok = 0;
                         break;
                     case 6: // Push Ed
-                        STR_NIMM9_W(ed, xESP, 4);
+                        PUSH(xESP, 1<<ed);
                         break;
 
                     default:
