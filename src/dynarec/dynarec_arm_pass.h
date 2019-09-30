@@ -100,18 +100,18 @@ static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 {
-    ADD_IMM8(1, 0, offsetof(x86emu_t, flags)+F_ZF);
     MOVW_COND(cEQ, 1, 1);
     MOVW_COND(cNE, 1, 0);
-    ADD_IMM8(1, 0, offsetof(x86emu_t, flags)+F_CF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_ZF);
     MOVW_COND(cCS, 1, 1);
     MOVW_COND(cCC, 1, 0);
-    ADD_IMM8(1, 0, offsetof(x86emu_t, flags)+F_SF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_CF);
     MOVW_COND(cMI, 1, 1);
     MOVW_COND(cPL, 1, 0);
-    ADD_IMM8(1, 0, offsetof(x86emu_t, flags)+F_OF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_SF);
     MOVW_COND(cVS, 1, 1);
     MOVW_COND(cVC, 1, 0);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_OF);
 }
 
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
