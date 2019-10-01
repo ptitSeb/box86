@@ -196,6 +196,7 @@ typedef union {
 
 typedef union {
 	uint64_t	q;
+	int64_t		sq;
 	uint32_t	ud[2];
 	int32_t 	sd[2];
 	uint16_t 	uw[4];
