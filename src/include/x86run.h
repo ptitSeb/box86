@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 typedef struct x86emu_s x86emu_t;
-int Run(x86emu_t *emu); // 0 if run was successfull, 1 if error in x86 world
+int Run(x86emu_t *emu, int step); // 0 if run was successfull, 1 if error in x86 world
+int DynaRun(x86emu_t *emu);
 
 uint32_t LibSyscall(x86emu_t *emu);
 void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs);

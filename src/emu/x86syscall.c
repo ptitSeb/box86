@@ -209,7 +209,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 int r = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, NULL);
                 if(r) {
                     SetEAX(newemu, r);
-                    Run(newemu);
+                    DynaRun(newemu);
                     r = GetEAX(newemu);
                     FreeX86Emu(&newemu);
                     exit(R_EAX);

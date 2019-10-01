@@ -34,8 +34,9 @@ static void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, co
             dynarec_log(LOG_NONE, "%p: %s\n", inst->addr, DecodeX86Trace(dec, inst->addr));
         } else {
             dynarec_log(LOG_NONE, "%p: ", inst->addr);
-            for(int i=0; i<inst->size; ++i)
+            for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
+            }
             dynarec_log(LOG_NONE, " %s\n", name);
         }
     }
@@ -47,7 +48,7 @@ static void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, co
 #define INIT    
 #define FINI
 #define EMIT(A)     \
-    if(box86_dynarec_log>=LOG_DUMP) dynarec_log(LOG_NONE, "\t%08x\n", (A)); \
+    if(box86_dynarec_log>=LOG_DUMP) {dynarec_log(LOG_NONE, "\t%08x\n", (A));} \
     *(uint32_t*)(dyn->block) = A;   \
     dyn->block += 4
 

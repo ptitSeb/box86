@@ -4,7 +4,7 @@
 //and address to jump to as 2nd parameter
 
 .text
-.align 2
+.align 4
 
 .global arm_epilog
 arm_epilog:
