@@ -117,12 +117,12 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     MESSAGE(LOG_DUMP, "Get TLSData\n");
-    PUSH(13, (1<<0) | (1<<14));
+    PUSH(13, (1<<0) | (1<<12));
     void* p = GetGSBaseEmu;
     MOV32(1, (uintptr_t)p);
     BLX(1);
     MOV_REG(reg, 0);
-    POP(13, (1<<0) | (1<<14));
+    POP(13, (1<<0) | (1<<12));
 }
 
 static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)

@@ -21,6 +21,7 @@ typedef struct atfork_fnc_s {
 } atfork_fnc_t;
 #ifdef DYNAREC
 typedef struct dynablocklist_s dynablocklist_t;
+typedef struct mmaplist_s mmaplist_t;
 #endif
 
 typedef void* (*procaddess_t)(const char* name);
@@ -95,7 +96,11 @@ typedef struct box86context_s {
     int                 deferedInitCap;
 
 #ifdef DYNAREC
+    pthread_mutex_t     mutex_blocks;
+    pthread_mutex_t     mutex_mmap;
     dynablocklist_t     *dynablocks;
+    mmaplist_t          *mmaplist;
+    int                 mmapsize;
 #endif
 
     int                 forked;         //  how many forks... cleanup only when < 0
@@ -116,5 +121,9 @@ box86context_t *NewBox86Context(int argc);
 void FreeBox86Context(box86context_t** context);
 
 int AddElfHeader(box86context_t* ctx, elfheader_t* head);    // return the index of header
+
+#ifdef DYNAREC
+uintptr_t AllocDynarecMap(box86context_t *context, int size);
+#endif
 
 #endif //__BOX86CONTEXT_H_

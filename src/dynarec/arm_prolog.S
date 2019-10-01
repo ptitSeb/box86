@@ -9,9 +9,9 @@
 .global arm_prolog
 arm_prolog:
     //save all used register
-    push     {r4-r12}
+    push     {r4-r11, lr}
     //setup emu -> register
-    push     {r0}
+    //push     {r0}
     ldm      r0, {r4-r12}    // all 8 register in direct access
     //TODO
     //jump to function
