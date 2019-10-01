@@ -79,7 +79,7 @@ void LoadLogEnv()
             else if(!strcasecmp(p, "DUMP"))
                 box86_dynarec_log = LOG_DUMP;
         }
-        printf_log(LOG_INFO, "Dynarec level is %d\n", box86_dynarec_log);
+        printf_log(LOG_INFO, "Dynarec log level is %d\n", box86_dynarec_log);
     }
     p = getenv("BOX86_DYNAREC");
     if(p) {
