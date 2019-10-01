@@ -15,7 +15,44 @@
 #include "library.h"
 #include "callback.h"
 #ifdef DYNAREC
+#include <sys/mman.h>
 #include "dynablock.h"
+
+typedef struct mmaplist_s {
+    void*         block;
+    uintptr_t     offset;           // offset in the block
+} mmaplist_t;
+
+#define MMAPSIZE (4*1024*1024)       // allocate 4Mo sized blocks
+
+uintptr_t AllocDynarecMap(box86context_t *context, int size)
+{
+    pthread_mutex_lock(&context->mutex_mmap);
+    // look for free space
+    for(int i=0; i<context->mmapsize; ++i) {
+        if(context->mmaplist[i].offset+size < MMAPSIZE) {
+            uintptr_t ret = context->mmaplist[i].offset + (uintptr_t)context->mmaplist[i].block;
+            context->mmaplist[i].offset+=size;
+            pthread_mutex_unlock(&context->mutex_mmap);
+            return ret;
+        }
+    }
+    // no luck, add a new one !
+    int i = context->mmapsize++;    // yeah, usefull post incrementation
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", context->mmapsize);
+    context->mmaplist = (mmaplist_t*)realloc(context->mmaplist, context->mmapsize*sizeof(mmaplist_t));
+    void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if(p==MAP_FAILED) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --context->mmapsize;
+        pthread_mutex_unlock(&context->mutex_mmap);
+        return 0;
+    }
+    context->mmaplist[i].block = p;
+    context->mmaplist[i].offset=size;
+    pthread_mutex_unlock(&context->mutex_mmap);
+    return (uintptr_t)p;
+}
 #endif
 
 void x86Syscall(x86emu_t *emu);
@@ -58,6 +95,8 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_lock, NULL);
 
 #ifdef DYNAREC
+    pthread_mutex_init(&context->mutex_blocks, NULL);
+    pthread_mutex_init(&context->mutex_mmap, NULL);
     context->dynablocks = NewDynablockList();
 #endif
 
@@ -98,6 +137,10 @@ void FreeBox86Context(box86context_t** context)
 #ifdef DYNAREC
     if((*context)->dynablocks)
         FreeDynablockList(&(*context)->dynablocks);
+    for (int i=0; i<(*context)->mmapsize; ++i)
+        if((*context)->mmaplist[i].block)
+            munmap((*context)->mmaplist[i].block, MMAPSIZE);
+    free((*context)->mmaplist);
 #endif
     
     for(int i=0; i<(*context)->argc; ++i)

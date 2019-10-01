@@ -51,6 +51,7 @@ static void* pthread_routine(void* p)
 
 int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
+	pthread_mutex_lock(&emu->context->mutex_lock);
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
 	if(attr) {
 		size_t stsize;
@@ -66,6 +67,7 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
+	pthread_mutex_unlock(&emu->context->mutex_lock);
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, et);

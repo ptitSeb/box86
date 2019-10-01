@@ -682,6 +682,7 @@ void* GetGSBase(box86context_t *context)
     void* ptr;
     elfheader_t *h = context->elfs[0];
     if ((ptr = pthread_getspecific(h->tlskey)) == NULL) {
+        pthread_mutex_lock(&context->mutex_lock);
         // Setup the GS segment:
         ptr = (char*)malloc(h->tlssize+0x50);
         memcpy(ptr, h->tlsdata, h->tlssize);
@@ -692,6 +693,7 @@ void* GetGSBase(box86context_t *context)
         uintptr_t unknown = (uintptr_t)ptr+h->tlssize;
         memcpy((void*)((uintptr_t)ptr+h->tlssize+0x0), &unknown, 4);
         memcpy((void*)((uintptr_t)ptr+h->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        pthread_mutex_unlock(&context->mutex_lock);
     }
     return ptr+h->tlssize;
 }

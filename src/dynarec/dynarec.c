@@ -38,12 +38,14 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         R_EIP = addr;
         emu->df = d_none;
         while(!emu->quit) {
-            dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
-            if(!block || !block->block) {
-                // no block, of block doesn't have DynaRec content
+            volatile dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
+            if(!block || !block->block || !block->done) {
+                // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
+                dynarec_log(LOG_DEBUG, "Calling Interpretor @%p, emu=%p\n", R_EIP, emu);
                 Run(emu);
             } else {
+                dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
                 // block is here, let's run it!
                 arm_prolog(emu, block->block);
             }

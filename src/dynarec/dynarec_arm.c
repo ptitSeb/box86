@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
-#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -33,6 +32,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
+        block->done = 1;
         return;
     }
     helper.cap = helper.size+2; // needs epilog handling
@@ -45,6 +45,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     uintptr_t end = helper.insts[helper.size].x86.addr+helper.insts[helper.size].x86.size;
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
+            helper.insts[i].x86.barrier = 1;
             uintptr_t j = helper.insts[i].x86.jmp;
             if(j<start || j>=end)
                 helper.insts[i].x86.jmp_is_out = 1;
@@ -78,19 +79,19 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
         }
     // pass 2, instruction size
     arm_pass2(&helper, addr);
-    // ok, now alocate mapped memory, with executable flag on
-    void* p = mmap(NULL, helper.arm_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    if(p==MAP_FAILED) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block\n", helper.arm_size);
-        free(helper.insts);
+    // ok, now allocate mapped memory, with executable flag on
+    int sz = helper.arm_size;
+    void* p = (void*)AllocDynarecMap(emu->context, sz);
+    if(p==NULL) {
         return;
     }
-    block->size = helper.arm_size;
     helper.block = p;
     // pass 3, emit (log emit arm opcode)
     dynarec_log(LOG_DEBUG, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
     arm_pass3(&helper, addr);
     // all done...
     free(helper.insts);
+    block->size = sz;
     block->block = p;
+    block->done = 1;
 }
