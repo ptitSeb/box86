@@ -1057,10 +1057,10 @@
         _0f_0xE3:                   /* PSRAQ Gm, Em */
             nextop = F8;
             GET_EM;
-            if (EM->q > 63) {
-                GM.q = (GM.q < 0) ? -1 : 0;
+            if (EM->sq > 63) {
+                GM.sq = (GM.sq < 0) ? -1 : 0;
             } else {
-                GM.q >>= EM->q;
+                GM.sq >>= EM->sq;
             }
             NEXT;
 
