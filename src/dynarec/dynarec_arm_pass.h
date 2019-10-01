@@ -12,6 +12,7 @@
 #define PK(a)   *(uint8_t*)(addr+a)
 
 void arm_epilog();
+void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 /* setup r2 to address pointed by */
 static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed) 
@@ -74,6 +75,26 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
     }
     *ed = ret;
     return addr;
+}
+
+static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
+{
+    MESSAGE(LOG_DUMP, "Jump to linker\n");
+    if(reg) {
+        MOV_REG(xEIP, reg);
+    } else {
+        MOV32(xEIP, ip);
+    }
+    uintptr_t* table = 0;
+    if(dyn->tablesz) {
+        table = &dyn->table[dyn->tablei];
+        *table = (uintptr_t)arm_linker;
+    }
+    ++dyn->tablei;
+    MOV32(1, (uintptr_t)table);
+    void* epilog = arm_linker;
+    MOV32(2, (uintptr_t)epilog);
+    BX(2);
 }
 
 static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
@@ -161,6 +182,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     int8_t i8;
     uint32_t tmp;
     int need_epilog = 1;
+    dyn->tablei = 0;
     INIT;
     while(ok) {
         ip = addr;
@@ -321,7 +343,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 i32 = F32S;
                 MOV32(2, addr);
                 PUSH(xESP, 1<<2);
-                jump_to_epilog(dyn, addr+i32, 0, ninst);
+                jump_to_linker(dyn, addr+i32, 0, ninst);
                 need_epilog = 0;
                 ok = 0;
                 break;
@@ -362,7 +384,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     case 2: // CALL Ed
                         MOV32(2, addr);
                         PUSH(xESP, 1<<2);
-                        jump_to_epilog(dyn, 0, ed, ninst);
+                        jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;
                         break;
@@ -383,6 +405,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         ++ninst;
     }
     if(need_epilog)
-        jump_to_epilog(dyn, ip, 0, ninst);
+        jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     FINI;
 }
