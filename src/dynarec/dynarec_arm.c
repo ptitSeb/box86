@@ -19,8 +19,6 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 
-void arm_epilog();
-
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -37,6 +35,9 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     }
     helper.cap = helper.size+2; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
+    helper.tablesz = helper.tablei;
+    if(helper.tablesz)
+        helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     helper.emu = emu;
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
@@ -91,6 +92,8 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     arm_pass3(&helper, addr);
     // all done...
     free(helper.insts);
+    block->table = helper.table;
+    block->tablesz = helper.tablesz;
     block->size = sz;
     block->block = p;
     block->done = 1;

@@ -19,7 +19,31 @@
 #include "dynablock_private.h"
 #endif
 
+#ifdef ARM
 void arm_prolog(x86emu_t* emu, void* addr);
+void arm_epilog();
+#endif
+
+void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
+{
+    dynablock_t* block = DBGetBlock(emu, addr, 1);
+    if(block==0) {
+        // no block, don't try again, ever
+        *table = arm_epilog;
+        return *table;
+    }
+    if(!block->block && !block->done) {
+        // not finished yet... leave as-is
+        return arm_epilog;
+    }
+    if(!block->block) {
+        // null block, but done
+        *table = arm_epilog;
+        return *table;
+    }
+    *table = block->block;
+    return *table;
+}
 
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
@@ -47,7 +71,9 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
             } else {
                 dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
                 // block is here, let's run it!
+                #ifdef ARM
                 arm_prolog(emu, block->block);
+                #endif
             }
         }
         emu->quit = 0;  // reset Quit flags...
