@@ -43,7 +43,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
         PushExit(emu);
         R_EIP=(uint32_t)*init;
         printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
-        Run(emu);
+        DynaRun(emu);
         if(emu->error)  // any error, don't bother with more
             return 0;
         emu->quit = 0;

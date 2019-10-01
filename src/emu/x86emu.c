@@ -119,7 +119,7 @@ void CallCleanup(x86emu_t *emu, void* p)
                 Push(emu, (uintptr_t)emu->cleanups[i].a);
             PushExit(emu);
             emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
-            Run(emu);
+            Run(emu, 0);
             emu->quit = 0;
             // now remove the cleanup
             if(i!=emu->clean_sz-1)
@@ -340,7 +340,7 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     PushExit(emu);
     R_EIP = addr;
     emu->df = d_none;
-    Run(emu);
+    Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     R_EBX = old_ebx;

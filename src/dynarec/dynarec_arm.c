@@ -27,6 +27,7 @@ void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     // init the helper
     dynarec_arm_t helper = {0};
+    helper.emu = emu;
     arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -38,7 +39,6 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     helper.tablesz = helper.tablei;
     if(helper.tablesz)
         helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
-    helper.emu = emu;
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
@@ -91,6 +91,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     dynarec_log(LOG_DEBUG, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
     arm_pass3(&helper, addr);
     // all done...
+    __builtin___clear_cache(p, p+sz);   // need to clear the cache before execution...
     free(helper.insts);
     block->table = helper.table;
     block->tablesz = helper.tablesz;

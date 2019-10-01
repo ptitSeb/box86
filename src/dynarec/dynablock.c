@@ -79,12 +79,12 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
     k = kh_put(dynablocks, dynablocks->blocks, addr, &ret);
     block = kh_value(dynablocks->blocks, k) = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    //pthread_mutex_unlock(&emu->context->mutex_blocks);
+    pthread_mutex_unlock(&emu->context->mutex_blocks);
     // fill the block
     FillBlock(emu, block, addr);
     dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", addr, block->block, block->size);
 
-    pthread_mutex_unlock(&emu->context->mutex_blocks);
+    //pthread_mutex_unlock(&emu->context->mutex_blocks);
 
     return block;
 }

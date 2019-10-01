@@ -24,7 +24,7 @@
 extern uint64_t start_cnt;
 #endif
 
-int Run(x86emu_t *emu)
+int Run(x86emu_t *emu, int step)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -58,6 +58,11 @@ int Run(x86emu_t *emu)
 #define F32     *(uint32_t*)(ip+=4, ip-4)
 #define F32S    *(int32_t*)(ip+=4, ip-4)
 #define PK(a)   *(uint8_t*)(ip+a)
+#ifdef DYNAREC
+#define STEP if(step) goto stepout;
+#else
+#define STEP
+#endif
 
     static const void* baseopcodes[256] ={
     &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_0x06,    &&_0x07,      //0x00-0x07
@@ -201,7 +206,7 @@ int Run(x86emu_t *emu)
 
 x86emurun:
     ip = R_EIP;
-    UnpackFlags(emu);
+//    UnpackFlags(emu);
 #ifdef HAVE_TRACE
 _trace:
     if(start_cnt) --start_cnt;
@@ -822,9 +827,11 @@ _trace:
             tmp16u = F16;
             ip = Pop(emu);
             R_ESP += tmp16u;
+            STEP
             NEXT;
         _0xC3:                      /* RET */
             ip = Pop(emu);
+            STEP
             NEXT;
 
         _0xC6:                      /* MOV Eb,Ib */
@@ -974,23 +981,28 @@ _trace:
             NEXT;
         _0xE3:                      /* JECXZ */
             tmp8s = F8S;
-            if(!R_ECX)
+            if(!R_ECX) {
                 ip += tmp8s;
+                STEP
+            }
             NEXT;
 
         _0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, ip);
             ip += tmp32s;
+            STEP
             NEXT;
         _0xE9:                      /* JMP Id */
             tmp32s = F32S; // jmp is relative
             ip += tmp32s;
+            STEP
             NEXT;
 
         _0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             ip += tmp32s;
+            STEP
             NEXT;
 
         _0xF0:                      /* LOCK */
@@ -1305,6 +1317,7 @@ _trace:
                 case 2:                 /* CALL NEAR Ed */
                     Push(emu, ip);
                     ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                    STEP
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
@@ -1319,10 +1332,12 @@ _trace:
                         Push(emu, ip);
                         ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
+                        STEP
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
                     ip = ED->dword[0];
+                    STEP
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -1335,6 +1350,7 @@ _trace:
                     } else {
                         ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
+                        STEP
                     }
                     break;
                 case 6:                 /* Push Ed */
@@ -1355,9 +1371,15 @@ _trace:
             R_EIP = ip;
             UnimpOpcode(emu);
             goto fini;
+#ifdef DYNAREC
+stepout:
+    emu->old_ip = old_ip;
+    R_EIP = ip;
+    return 0;
+#endif
 
 fini:
-    PackFlags(emu);
+//    PackFlags(emu);
     if(emu->fork) {
         int forktype = emu->fork;
         emu->quit = 0;
