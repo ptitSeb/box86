@@ -212,6 +212,46 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         NEW_INST;
         switch(opcode) {
 
+            case 0x01:
+                INST_NAME("ADD Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETED;
+                ADDS_REG_LSL_IMM8(ed, ed, gd, 0);
+                WBACK;
+                UFLAGS;
+                break;
+
+            case 0x08:
+                INST_NAME("OR Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETED;
+                ORRS_REG_LSL_IMM8(ed, ed, gd, 0);
+                WBACK;
+                UFLAGS;
+                break;
+
+            case 0x21:
+                INST_NAME("AND Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETED;
+                ANDS_REG_LSL_IMM8(ed, ed, gd, 0);
+                WBACK;
+                UFLAGS;
+                break;
+
+            case 0x29:
+                INST_NAME("SUB Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETED;
+                SUBS_REG_LSL_IMM8(ed, ed, gd, 0);
+                WBACK;
+                UFLAGS;
+                break;
+
             case 0x2E:
                 INST_NAME("CS:");
                 // ignored
