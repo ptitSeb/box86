@@ -160,6 +160,7 @@ if(ARM_DYNAREC)
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass1.c"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass2.c"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass3.c"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_printer.c"
 
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_epilog.S"
