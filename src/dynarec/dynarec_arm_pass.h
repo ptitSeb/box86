@@ -58,7 +58,12 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
         }
         if(nextop&0x80) {
             uint32_t t32 = F32;
-            if(t32) {
+            int32_t i32 = (int32_t)t32;
+            if(i32>0 && i32<255) {
+                ADD_IMM8(2, tmp, t32);
+            } else if(i32<0 && i32>-256) {
+                SUB_IMM8(2, tmp, -t32);
+            } else if(t32) {
                 MOV32(3, t32);
                 ADD_REG_LSL_IMM8(2, tmp, 3, 0);
             } else
