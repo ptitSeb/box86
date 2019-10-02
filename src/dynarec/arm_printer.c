@@ -37,12 +37,12 @@ static const char* opcodes[] = {
 };
 
 static const char* blocktransfert_other[] = {
-    "STMDA", "STMDB", "STMIA", "STMIB",
-    "LDMDA", "LDMDB", "LDMIA", "LDMIB"
+    "STMDA", "STMIA", "STMDB", "STMIB",
+    "LDMDA", "LDMIA", "LDMDB", "LDMIB"
 };
 static const char* blocktransfert_stack[] = {
-    "STMED", "STMFD", "STMEA", "STMFA",
-    "LDMFA", "LDMEA", "LDMFD", "LDMED"
+    "STMED", "STMEA", "STMFD", "STMFA",
+    "LDMFA", "LDMFD", "LDMEA", "LDMED"
 };
 static const char* regname[] = {
     "r0", "r1", "r2", "r3", "r4",
