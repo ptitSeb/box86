@@ -77,6 +77,19 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
     return addr;
 }
 
+static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
+{
+    MESSAGE(LOG_DUMP, "Jump to epilog\n");
+    if(reg) {
+        MOV_REG(xEIP, reg);
+    } else {
+        MOV32(xEIP, ip);
+    }
+    void* epilog = arm_epilog;
+    MOV32(2, (uintptr_t)epilog);
+    BX(2);
+}
+
 static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker\n");
@@ -93,19 +106,6 @@ static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     ++dyn->tablei;
     MOV32(1, (uintptr_t)table);
     void* epilog = arm_linker;
-    MOV32(2, (uintptr_t)epilog);
-    BX(2);
-}
-
-static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
-{
-    MESSAGE(LOG_DUMP, "Jump to epilog\n");
-    if(reg) {
-        MOV_REG(xEIP, reg);
-    } else {
-        MOV32(xEIP, ip);
-    }
-    void* epilog = arm_epilog;
     MOV32(2, (uintptr_t)epilog);
     BX(2);
 }
@@ -279,11 +279,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             
             case 0x81:
             case 0x83:
-                if(nextop==0x81) {
-                    INST_NAME("Grp Ed, Id");
-                } else {
-                    INST_NAME("Grp Ed, Ib");
-                }
                 tmp=nextop;
                 nextop = F8;
                 GETED;
@@ -293,6 +288,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     i32 = F8S;
                 switch((nextop>>3)&7) {
                     case 0: //ADD
+                        if(tmp==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
                         if(i32>0 && i32<256) {
                             ADDS_IMM8(ed, ed, i32);
                         } else {
@@ -303,6 +299,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         WBACK;
                         break;
                     case 5: //SUB
+                        if(tmp==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
                         if(i32>0 && i32<256) {
                             SUBS_IMM8(ed, ed, i32);
                         } else {
@@ -313,6 +310,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         WBACK;
                         break;
                     default:
+                        if(tmp==0x81) {INST_NAME("GRP1 Ed, Id");} else {INST_NAME("GRP1 Ed, Ib");}
                         ok = 0;
                         DEFAULT;
                 }
@@ -398,21 +396,23 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
 
             case 0xFF:
-                INST_NAME("Grp5 Ed");
                 nextop = F8;
                 GETED;
                 switch((nextop>>3)&7) {
                     case 0: // INC Ed
+                        INST_NAME("INC Ed");
                         ADDS_IMM8(ed, ed, 1);
                         UFLAGS;
                         WBACK;
                         break;
                     case 1: //DEC Ed
+                        INST_NAME("DEC Ed");
                         SUBS_IMM8(ed, ed, 1);
                         UFLAGS;
                         WBACK;
                         break;
                     case 2: // CALL Ed
+                        INST_NAME("CALL Ed");
                         MOV32(2, addr);
                         PUSH(xESP, 1<<2);
                         jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
@@ -420,10 +420,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         ok = 0;
                         break;
                     case 6: // Push Ed
+                        INST_NAME("PUSH Ed");
                         PUSH(xESP, 1<<ed);
                         break;
 
                     default:
+                        INST_NAME("Grp5 Ed");
                         ok = 0;
                         DEFAULT;
                 }

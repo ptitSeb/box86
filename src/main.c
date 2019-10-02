@@ -287,6 +287,8 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
     if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
         AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
+    if(FileExist("/usr/lib32", 0))
+        AddPath("/usr/lib32", &context->box86_ld_lib);
 #endif
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
