@@ -183,6 +183,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     uint32_t tmp;
     int need_epilog = 1;
     dyn->tablei = 0;
+    uint8_t wback;
     INIT;
     while(ok) {
         ip = addr;
@@ -194,20 +195,22 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("XOR Gd, Ed");
                 FLAGS(X86_FLAGS_CHANGE);
                 nextop = F8;
+                gd = xEAX+(nextop&0x07);
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     ed = xEAX+(nextop&7);
+                    wback = 0;
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
-                    LDR_IMM9(1, ed, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback);
+                    LDR_IMM9(1, wback, 0);
                     ed = 1;
                 }
+                XORS_REG_LSL_IMM8(ed, ed, gd, 0);
                 if(dyn->insts[ninst].x86.flags) {
-                    XORS_REG_LSL_IMM8(ed, ed, gd, 0);
                     // generate flags!
                     arm_to_x86_flags(dyn, ninst);
-                } else {
-                    MOV32(3, i32);
-                    XOR_REG_LSL_IMM8(ed, ed, gd, 0);
+                }
+                if(wback) {
+                    STR_IMM9(wback, ed, 0);
                 }
                 break;
 
@@ -240,9 +243,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 FLAGS(X86_FLAGS_CHANGE);
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     ed = xEAX+(nextop&7);
+                    wback = 0;
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
-                    LDR_IMM9(1, ed, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback);
+                    LDR_IMM9(1, wback, 0);
                     ed = 1;
                 }
                 if(tmp==0x81)
@@ -265,6 +269,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                                 ADD_REG_LSL_IMM8(ed, ed, 3, 0);
                             }
                         }
+                        if(wback) {
+                            STR_IMM9(wback, ed, 0);
+                        }
                         break;
                     case 5: //SUB
                         if(dyn->insts[ninst].x86.flags) {
@@ -280,6 +287,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                                 MOV32(3, i32);
                                 SUB_REG_LSL_IMM8(ed, ed, 3, 0);
                             }
+                        }
+                        if(wback) {
+                            STR_IMM9(wback, ed, 0);
                         }
                         break;
                     default:
@@ -353,9 +363,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     ed = xEAX+(nextop&7);
+                    wback = 0;
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
-                    LDR_IMM9(1, ed, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback);
+                    LDR_IMM9(1, wback, 0);
                     ed = 1;
                 }
                 switch((nextop>>3)&7) {
@@ -369,6 +380,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             ADD_IMM8(ed, ed, 1);
                         }
+                        if(wback) {
+                            STR_IMM9(wback, ed, 0);
+                        }
                         break;
                     case 1: //DEC Ed
                         FLAGS(X86_FLAGS_CHANGE);
@@ -379,6 +393,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             // how to get P(arity) and A flag?
                         } else {
                             SUB_IMM8(ed, ed, 1);
+                        }
+                        if(wback) {
+                            STR_IMM9(wback, ed, 0);
                         }
                         break;
                     case 2: // CALL Ed
