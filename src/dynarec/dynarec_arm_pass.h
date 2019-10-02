@@ -123,16 +123,16 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 {
     MOVW_COND(cEQ, 1, 1);
     MOVW_COND(cNE, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_ZF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_ZF*sizeof(int));
     MOVW_COND(cCS, 1, 1);
     MOVW_COND(cCC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_CF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_CF*sizeof(int));
     MOVW_COND(cMI, 1, 1);
     MOVW_COND(cPL, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_SF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_SF*sizeof(int));
     MOVW_COND(cVS, 1, 1);
     MOVW_COND(cVC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_OF);
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_OF*sizeof(int));
 }
 
 #define GETGD   gd = xEAX+((nextop&0x38)>>3)
@@ -144,7 +144,7 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
                     LDR_IMM9(1, wback, 0);  \
                     ed = 1;                 \
                 }
-#define WBACK   if(wback) {STR_IMM9(wback, ed, 0);}
+#define WBACK   if(wback) {STR_IMM9(ed, wback, 0);}
 #ifndef UFLAGS
 #define UFLAGS  if(dyn->insts[ninst].x86.flags) {arm_to_x86_flags(dyn, ninst);}
 #endif
@@ -207,6 +207,11 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         NEW_INST;
         switch(nextop) {
 
+            case 0x2E:
+                INST_NAME("CS:");
+                // ignored
+                break;
+
             case 0x31:
                 INST_NAME("XOR Gd, Ed");
                 nextop = F8;
@@ -217,6 +222,32 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 WBACK;
                 break;
 
+            case 0x40:
+            case 0x41:
+            case 0x42:
+            case 0x43:
+            case 0x44:
+            case 0x45:
+            case 0x46:
+            case 0x47:
+                INST_NAME("INC reg");
+                gd = xEAX+(nextop&0x07);
+                ADDS_IMM8(gd, gd, 1);
+                UFLAGS;
+                break;
+            case 0x48:
+            case 0x49:
+            case 0x4A:
+            case 0x4B:
+            case 0x4C:
+            case 0x4D:
+            case 0x4E:
+            case 0x4F:
+                INST_NAME("SUB reg");
+                gd = xEAX+(nextop&0x07);
+                SUBS_IMM8(gd, gd, 1);
+                UFLAGS;
+                break;
             case 0x50:
             case 0x51:
             case 0x52:
@@ -228,6 +259,18 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("PUSH reg");
                 gd = xEAX+(nextop&0x07);
                 PUSH(xESP, 1<<gd);
+                break;
+            case 0x58:
+            case 0x59:
+            case 0x5A:
+            case 0x5B:
+            case 0x5C:
+            case 0x5D:
+            case 0x5E:
+            case 0x5F:
+                INST_NAME("POP reg");
+                gd = xEAX+(nextop&0x07);
+                POP(xESP, 1<<gd);
                 break;
 
             case 0x65:
@@ -275,6 +318,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
             
+            case 0x85:
+                INST_NAME("TEST Ed, Gd");
+                nextop=F8;
+                GETGD;
+                GETED;
+                TSTS_REG_LSL_IMM8(ed, ed, gd, 0);
+                UFLAGS;
+                break;
+
             case 0x89:
                 INST_NAME("MOV Ed, Gd");
                 nextop=F8;
@@ -296,6 +348,19 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 } else {                    // mem <= reg
                     addr = geted(dyn, addr, ninst, nextop, &ed);
                     LDR_IMM9(gd, ed, 0);
+                }
+                break;
+
+            case 0x8D:
+                INST_NAME("LEA Gd, Ed");
+                nextop=F8;
+                GETGD;
+                if((nextop&0xC0)==0xC0) {   // reg <= reg? that's an invalid operation
+                    ok=0;
+                    DEFAULT;
+                } else {                    // mem <= reg
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    MOV_REG(gd, ed);
                 }
                 break;
 
