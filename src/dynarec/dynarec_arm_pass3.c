@@ -19,6 +19,7 @@
 #include "dynablock_private.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
+#include "arm_printer.h"
 
 static void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -48,7 +49,7 @@ static void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, co
 #define INIT    
 #define FINI
 #define EMIT(A)     \
-    if(box86_dynarec_log>=LOG_DUMP) {dynarec_log(LOG_NONE, "\t%08x\n", (A));} \
+    if(box86_dynarec_log>=LOG_DUMP) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (A), arm_print(A));} \
     *(uint32_t*)(dyn->block) = A;   \
     dyn->block += 4
 
