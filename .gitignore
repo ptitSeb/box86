@@ -1,3 +1,4 @@
 build
-build_llvm
+build*
 .vscode
+.gdb_history
