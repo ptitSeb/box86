@@ -285,14 +285,11 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x81:
             case 0x83:
                 nextop = F8;
-                GETED;
-                if(opcode==0x81)
-                    i32 = F32S;
-                else
-                    i32 = F8S;
                 switch((nextop>>3)&7) {
                     case 0: //ADD
                         if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
+                        GETED;
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         if(i32>0 && i32<256) {
                             ADDS_IMM8(ed, ed, i32);
                         } else {
@@ -304,6 +301,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 5: //SUB
                         if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
+                        GETED;
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         if(i32>0 && i32<256) {
                             SUBS_IMM8(ed, ed, i32);
                         } else {
