@@ -78,6 +78,12 @@ Op is 20-27
 #define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
+// and dst, src1, src2, lsl #imm
+#define AND_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// and.s dst, src1, src2, lsl #imm
+#define ANDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
@@ -91,6 +97,12 @@ Op is 20-27
 // tst.s dst, src1, src2, lsl #imm
 #define TSTS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// orr dst, src1, src2, lsl #imm
+#define ORR_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// orr.s dst, src1, src2, lsl #imm
+#define ORRS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // xor dst, src1, src2, lsl #imm
 #define XOR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
