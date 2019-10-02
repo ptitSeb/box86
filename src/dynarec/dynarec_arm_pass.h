@@ -205,7 +205,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     uintptr_t ip = addr;
     uint8_t gd, ed;
     int8_t i8;
-    int32_t i32;
+    int32_t i32, tmp;
     uint32_t u32;
     int need_epilog = 1;
     dyn->tablei = 0;
@@ -327,6 +327,48 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 addr = dynarecGS(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
+            case 0x72:
+                INST_NAME("JC ib");
+                i8 = F8S;
+                USEFLAG;
+                JUMP(addr+i8);
+                MOVW(1, 1);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JC, so 1 - F_CF  => EQ
+                if(dyn->insts) {
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                        // out of the block
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cNE, i32);    // jump to next on ok, inverted
+                        jump_to_linker(dyn, addr+i8, 0, ninst);
+                    } else {
+                        // inside the block
+                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);
+                    }
+                }
+                break;
+            case 0x73:
+                INST_NAME("JNC ib");
+                i8 = F8S;
+                USEFLAG;
+                JUMP(addr+i8);
+                MOVW(1, 1);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_CF  => NE
+                if(dyn->insts) {
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                        // out of the block
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // jump to next on ok, inverted
+                        jump_to_linker(dyn, addr+i8, 0, ninst);
+                    } else {
+                        // inside the block
+                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
+                    }
+                }
+                break;
             case 0x74:
                 INST_NAME("JZ ib");
                 i8 = F8S;
@@ -345,6 +387,27 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         // inside the block
                         i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);
+                    }
+                }
+                break;
+            case 0x75:
+                INST_NAME("JNZ ib");
+                i8 = F8S;
+                USEFLAG;
+                JUMP(addr+i8);
+                MOVW(1, 1);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_ZF  => NE
+                if(dyn->insts) {
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                        // out of the block
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // jump to next on ok, inverted
+                        jump_to_linker(dyn, addr+i8, 0, ninst);
+                    } else {
+                        // inside the block
+                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
                     }
                 }
                 break;
@@ -456,11 +519,34 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
 
             case 0xE8:
-                INST_NAME("CALL rel");
+                INST_NAME("CALL Id");
                 i32 = F32S;
                 MOV32(2, addr);
                 PUSH(xESP, 1<<2);
                 jump_to_linker(dyn, addr+i32, 0, ninst);
+                need_epilog = 0;
+                ok = 0;
+                break;
+            case 0xE9:
+            case 0xEB:
+                if(opcode==0xE9) {
+                    INST_NAME("JMP Id");
+                    i32 = F32S;
+                } else {
+                    INST_NAME("JMP Ib");
+                    i32 = F8S;
+                }
+                JUMP(addr+i32);
+                if(dyn->insts) {
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                        // out of the block
+                        jump_to_linker(dyn, addr+i32, 0, ninst);
+                    } else {
+                        // inside the block
+                        tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                        Bcond(c__, tmp);
+                    }
+                }
                 need_epilog = 0;
                 ok = 0;
                 break;
@@ -488,6 +574,14 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         MOV32(3, addr);
                         PUSH(xESP, 1<<3);
                         jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
+                        need_epilog = 0;
+                        ok = 0;
+                        break;
+                    case 4: // JMP Ed
+                        INST_NAME("JMP Ed");
+                        GETED;
+                        MOV32(3, addr);
+                        jump_to_epilog(dyn, 0, ed, ninst);     // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;
                         break;
