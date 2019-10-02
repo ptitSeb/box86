@@ -109,9 +109,8 @@ static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         *table = (uintptr_t)arm_linker;
     }
     ++dyn->tablei;
-    MOV32(1, (uintptr_t)table);
-    void* epilog = arm_linker;
-    MOV32(2, (uintptr_t)epilog);
+    MOV32_(1, (uintptr_t)table);
+    LDR_IMM9(2, 1, 0);
     BX(2);
 }
 
@@ -152,6 +151,12 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 #define WBACK   if(wback) {STR_IMM9(ed, wback, 0);}
 #ifndef UFLAGS
 #define UFLAGS  if(dyn->insts[ninst].x86.flags) {arm_to_x86_flags(dyn, ninst);}
+#endif
+#ifndef USEFLAG
+#define USEFLAG     
+#endif
+#ifndef JUMP
+#define JUMP(A) 
 #endif
 
 
@@ -320,6 +325,28 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x65:
                 addr = dynarecGS(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+
+            case 0x74:
+                INST_NAME("JZ ib");
+                i8 = F8S;
+                USEFLAG;
+                JUMP(addr+i8);
+                MOVW(1, 1);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_ZF  => EQ
+                if(dyn->insts) {
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                        // out of the block
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cNE, i32);    // jump to next on ok, inverted
+                        jump_to_linker(dyn, addr+i8, 0, ninst);
+                    } else {
+                        // inside the block
+                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);
+                    }
+                }
                 break;
             
             case 0x81:

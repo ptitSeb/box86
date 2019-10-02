@@ -36,9 +36,6 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     }
     helper.cap = helper.size+2; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
-    helper.tablesz = helper.tablei;
-    if(helper.tablesz)
-        helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
@@ -49,7 +46,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
             helper.insts[i].x86.barrier = 1;
             uintptr_t j = helper.insts[i].x86.jmp;
             if(j<start || j>=end)
-                helper.insts[i].x86.jmp_is_out = 1;
+                helper.insts[i].x86.jmp_insts = -1;
             else {
                 // find jump address instruction
                 int k=-1;
@@ -57,10 +54,9 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
                     if(helper.insts[i2].x86.addr==j)
                         k=i2;
                 }
-                if(k==-1)   // not found, mmm, probably wrong, exit anyway
-                    helper.insts[i].x86.jmp_is_out = 1;
-                else
+                if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
                     helper.insts[k].x86.barrier = 1;
+                helper.insts[i].x86.jmp_insts = k;
             }
         }
     // remove useless flags calulation
@@ -84,11 +80,16 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     int sz = helper.arm_size;
     void* p = (void*)AllocDynarecMap(emu->context, sz);
     if(p==NULL) {
+        free(helper.insts);
         return;
     }
     helper.block = p;
+    helper.tablesz = helper.tablei;
+    if(helper.tablesz)
+        helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     // pass 3, emit (log emit arm opcode)
     dynarec_log(LOG_DEBUG, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
+    helper.arm_size = 0;
     arm_pass3(&helper, addr);
     // all done...
     __builtin___clear_cache(p, p+sz);   // need to clear the cache before execution...

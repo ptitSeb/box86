@@ -7,6 +7,7 @@ typedef struct x86emu_s x86emu_t;
 
 typedef struct instruction_arm_s {
     instruction_x86_t   x86;
+    int                 address;     // (start) address of the arm emited instruction
     int                 size;       // size of the arm emited instruction
 } instruction_arm_t;
 

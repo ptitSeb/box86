@@ -82,12 +82,12 @@ const char* arm_print(uint32_t opcode)
     } else {
         const char* cond = conds[(opcode>>28)&15];
         if((opcode&0b00001111111111111111111111110000)==0b00000001001011111111111100010000) {
-            sprintf(ret, "BX r%d", opcode&0b1111);
+            sprintf(ret, "BX%s r%d", cond, opcode&0b1111);
         } else if (((opcode>>25)&0b111)==0b101) {
             int32_t offset = opcode&0x3fffff;
             if(opcode&(1<<23)) offset = -offset;
             offset <<=2;
-            sprintf(ret, "B%s #%d", (opcode&(1<<24))?"L":"", offset);
+            sprintf(ret, "B%s%s #%d", cond, (opcode&(1<<24))?"L":"", offset);
         } else if((opcode&0b00001111110000000000000010010000)==0b00000000000000000000000010010000) {
             sprintf(ret, "MUL ???");
         } else if((opcode&0b00001111100000000000000010010000)==0b00000000100000000000000010010000) {
