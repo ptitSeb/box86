@@ -194,23 +194,23 @@ static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
 
 void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 {
-    uint8_t nextop;
+    uint8_t nextop, opcode;
     int ok = 1;
     int ninst = 0;
     uintptr_t ip = addr;
     uint8_t gd, ed;
-    int32_t i32;
     int8_t i8;
-    uint32_t tmp;
+    int32_t i32;
+    uint32_t u32;
     int need_epilog = 1;
     dyn->tablei = 0;
     uint8_t wback;
     INIT;
     while(ok) {
         ip = addr;
-        nextop = F8;
+        opcode = F8;
         NEW_INST;
-        switch(nextop) {
+        switch(opcode) {
 
             case 0x2E:
                 INST_NAME("CS:");
@@ -218,13 +218,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
 
             case 0x31:
-                INST_NAME("XOR Gd, Ed");
+                INST_NAME("XOR Ed, Gd");
                 nextop = F8;
                 GETGD;
                 GETED;
                 XORS_REG_LSL_IMM8(ed, ed, gd, 0);
-                UFLAGS;
                 WBACK;
+                UFLAGS;
                 break;
 
             case 0x40:
@@ -236,7 +236,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x46:
             case 0x47:
                 INST_NAME("INC reg");
-                gd = xEAX+(nextop&0x07);
+                gd = xEAX+(opcode&0x07);
                 ADDS_IMM8(gd, gd, 1);
                 UFLAGS;
                 break;
@@ -249,7 +249,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x4E:
             case 0x4F:
                 INST_NAME("SUB reg");
-                gd = xEAX+(nextop&0x07);
+                gd = xEAX+(opcode&0x07);
                 SUBS_IMM8(gd, gd, 1);
                 UFLAGS;
                 break;
@@ -262,7 +262,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x56:
             case 0x57:
                 INST_NAME("PUSH reg");
-                gd = xEAX+(nextop&0x07);
+                gd = xEAX+(opcode&0x07);
                 PUSH(xESP, 1<<gd);
                 break;
             case 0x58:
@@ -274,7 +274,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x5E:
             case 0x5F:
                 INST_NAME("POP reg");
-                gd = xEAX+(nextop&0x07);
+                gd = xEAX+(opcode&0x07);
                 POP(xESP, 1<<gd);
                 break;
 
@@ -284,38 +284,37 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             
             case 0x81:
             case 0x83:
-                tmp=nextop;
                 nextop = F8;
                 GETED;
-                if(tmp==0x81)
+                if(opcode==0x81)
                     i32 = F32S;
                 else
                     i32 = F8S;
                 switch((nextop>>3)&7) {
                     case 0: //ADD
-                        if(tmp==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
+                        if(opcode==0x81) {INST_NAME("ADD Ed, Id");} else {INST_NAME("ADD Ed, Ib");}
                         if(i32>0 && i32<256) {
                             ADDS_IMM8(ed, ed, i32);
                         } else {
                             MOV32(3, i32);
                             ADDS_REG_LSL_IMM8(ed, ed, 3, 0);
                         }
-                        UFLAGS;
                         WBACK;
+                        UFLAGS;
                         break;
                     case 5: //SUB
-                        if(tmp==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
+                        if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
                         if(i32>0 && i32<256) {
                             SUBS_IMM8(ed, ed, i32);
                         } else {
                             MOV32(3, i32);
                             SUBS_REG_LSL_IMM8(ed, ed, 3, 0);
                         }
-                        UFLAGS;
                         WBACK;
+                        UFLAGS;
                         break;
                     default:
-                        if(tmp==0x81) {INST_NAME("GRP1 Ed, Id");} else {INST_NAME("GRP1 Ed, Ib");}
+                        if(opcode==0x81) {INST_NAME("GRP1 Ed, Id");} else {INST_NAME("GRP1 Ed, Ib");}
                         ok = 0;
                         DEFAULT;
                 }
@@ -384,8 +383,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 } else {                    // mem <= i32
                     gd = 3;
                     addr = geted(dyn, addr, ninst, nextop, &ed);
-                    i32 = F32S;
-                    MOV32(gd, i32);
+                    u32 = F32;
+                    MOV32(gd, u32);
                     STR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -402,30 +401,33 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0xFF:
                 nextop = F8;
-                GETED;
                 switch((nextop>>3)&7) {
                     case 0: // INC Ed
                         INST_NAME("INC Ed");
+                        GETED;
                         ADDS_IMM8(ed, ed, 1);
-                        UFLAGS;
                         WBACK;
+                        UFLAGS;
                         break;
                     case 1: //DEC Ed
                         INST_NAME("DEC Ed");
+                        GETED;
                         SUBS_IMM8(ed, ed, 1);
-                        UFLAGS;
                         WBACK;
+                        UFLAGS;
                         break;
                     case 2: // CALL Ed
                         INST_NAME("CALL Ed");
-                        MOV32(2, addr);
-                        PUSH(xESP, 1<<2);
+                        GETED;
+                        MOV32(3, addr);
+                        PUSH(xESP, 1<<3);
                         jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;
                         break;
                     case 6: // Push Ed
                         INST_NAME("PUSH Ed");
+                        GETED;
                         PUSH(xESP, 1<<ed);
                         break;
 

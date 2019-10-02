@@ -24,7 +24,9 @@
 #define NAME_STEP   arm_pass1
 
 #define INIT    
-#define FINI    
+#define FINI     \
+    dyn->insts[ninst].x86.addr = addr; \
+    if(ninst) dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;
 #define MESSAGE(A, ...)  
 #define EMIT(A)     
 #define UFLAGS    dyn->insts[ninst].x86.flags = X86_FLAGS_CHANGE

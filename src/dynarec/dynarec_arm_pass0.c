@@ -33,7 +33,7 @@
 #define DEFAULT         \
         --dyn->size;    \
         dynarec_log(LOG_INFO, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X\n", \
-        addr-1, nextop,                 \
+        addr-1, opcode,                 \
         PK(0), PK(1), PK(2), PK(3),     \
         PK(4), PK(5), PK(6))
 
