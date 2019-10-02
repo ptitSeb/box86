@@ -11,7 +11,7 @@ typedef struct instruction_x86_s {
     int         flags;  // flags for this instruction (see X86_FLAGS_XXXX)
     int         barrier; // next instruction is a jump point, so no optim allowed
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
-    int         jmp_is_out; // 1 if the jump is out of the block
+    int         jmp_insts;  // instuction to jump to (-1 if out of the block)
     int         decoded;    // 1 if instruction is decoded
 } instruction_x86_t;
 

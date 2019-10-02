@@ -63,6 +63,10 @@ Op is 20-27
     MOVW(dst, ((uint32_t)imm32)&0xffff);    \
     if (((uint32_t)imm32)>>16) {            \
         MOVT(dst, (((uint32_t)imm32)>>16)); }
+// pseudo insruction: mov reg, #imm with imm a 32bits value, fixed size
+#define MOV32_(dst, imm32)                   \
+    MOVW(dst, ((uint32_t)imm32)&0xffff);    \
+    MOVT(dst, (((uint32_t)imm32)>>16))
 // movw.cond dst, #imm16
 #define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 
@@ -94,6 +98,9 @@ Op is 20-27
 // add.s dst, src1, src2, lsl #imm
 #define ADDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// cmp.s dst, src1, src2, lsl #imm
+#define CMPS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe1500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // tst.s dst, src1, src2, lsl #imm
 #define TSTS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -127,6 +134,12 @@ Op is 20-27
 
 // blx reg
 #define BLX(reg) EMIT(0xe12fff30 | (reg) )
+
+// b cond offset
+#define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | ((O)>>2)&0x7fffff)
+
+// bl cond offset
+#define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | ((O)>>2)&0x7fffff)
 
 // push reg!, {list}
 //                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
