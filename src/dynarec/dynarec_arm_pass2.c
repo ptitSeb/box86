@@ -28,7 +28,6 @@
 
 #define MESSAGE(A, ...)  
 #define EMIT(A)     dyn->insts[ninst].size+=4; dyn->arm_size+=4
-#define FLAGS(A)
 #define NEW_INST    
 #define INST_NAME(name) 
 #define DEFAULT         

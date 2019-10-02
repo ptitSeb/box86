@@ -135,6 +135,22 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
     STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_OF);
 }
 
+#define GETGD   gd = xEAX+((nextop&0x38)>>3)
+#define GETED   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback); \
+                    LDR_IMM9(1, wback, 0);  \
+                    ed = 1;                 \
+                }
+#define WBACK   if(wback) {STR_IMM9(wback, ed, 0);}
+#ifndef UFLAGS
+#define UFLAGS  if(dyn->insts[ninst].x86.flags) {arm_to_x86_flags(dyn, ninst);}
+#endif
+
+
+
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     MESSAGE(LOG_DUMP, "Get TLSData\n");
@@ -193,25 +209,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x31:
                 INST_NAME("XOR Gd, Ed");
-                FLAGS(X86_FLAGS_CHANGE);
                 nextop = F8;
-                gd = xEAX+(nextop&0x07);
-                if((nextop&0xC0)==0xC0) {   // reg <= reg
-                    ed = xEAX+(nextop&7);
-                    wback = 0;
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &wback);
-                    LDR_IMM9(1, wback, 0);
-                    ed = 1;
-                }
+                GETGD;
+                GETED;
                 XORS_REG_LSL_IMM8(ed, ed, gd, 0);
-                if(dyn->insts[ninst].x86.flags) {
-                    // generate flags!
-                    arm_to_x86_flags(dyn, ninst);
-                }
-                if(wback) {
-                    STR_IMM9(wback, ed, 0);
-                }
+                UFLAGS;
+                WBACK;
                 break;
 
             case 0x50:
@@ -240,71 +243,42 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 tmp=nextop;
                 nextop = F8;
-                FLAGS(X86_FLAGS_CHANGE);
-                if((nextop&0xC0)==0xC0) {   // reg <= reg
-                    ed = xEAX+(nextop&7);
-                    wback = 0;
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &wback);
-                    LDR_IMM9(1, wback, 0);
-                    ed = 1;
-                }
+                GETED;
                 if(tmp==0x81)
                     i32 = F32S;
                 else
                     i32 = F8S;
                 switch((nextop>>3)&7) {
                     case 0: //ADD
-                        if(dyn->insts[ninst].x86.flags) {
+                        if(i32>0 && i32<256) {
+                            ADDS_IMM8(ed, ed, i32);
+                        } else {
                             MOV32(3, i32);
                             ADDS_REG_LSL_IMM8(ed, ed, 3, 0);
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
-                        } else {
-                            if(i32>0 && i32<256) {
-                                ADD_IMM8(ed, ed, i32);
-                            } else {
-                                MOV32(3, i32);
-                                ADD_REG_LSL_IMM8(ed, ed, 3, 0);
-                            }
                         }
-                        if(wback) {
-                            STR_IMM9(wback, ed, 0);
-                        }
+                        UFLAGS;
+                        WBACK;
                         break;
                     case 5: //SUB
-                        if(dyn->insts[ninst].x86.flags) {
+                        if(i32>0 && i32<256) {
+                            SUBS_IMM8(ed, ed, i32);
+                        } else {
                             MOV32(3, i32);
                             SUBS_REG_LSL_IMM8(ed, ed, 3, 0);
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
-                        } else {
-                            if(i32>0 && i32<256) {
-                                SUB_IMM8(ed, ed, i32);
-                            } else {
-                                MOV32(3, i32);
-                                SUB_REG_LSL_IMM8(ed, ed, 3, 0);
-                            }
                         }
-                        if(wback) {
-                            STR_IMM9(wback, ed, 0);
-                        }
+                        UFLAGS;
+                        WBACK;
                         break;
                     default:
                         ok = 0;
                         DEFAULT;
-                }
-                if(ed==1) {
-                    STR_IMM9(1, 2, 0);
                 }
                 break;
             
             case 0x89:
                 INST_NAME("MOV Ed, Gd");
                 nextop=F8;
-                gd = xEAX+((nextop&0x38)>>3);
+                GETGD;
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
@@ -316,7 +290,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x8B:
                 INST_NAME("MOV Gd, Ed");
                 nextop=F8;
-                gd = xEAX+((nextop&0x38)>>3);
+                GETGD;
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(gd, xEAX+(nextop&7));
                 } else {                    // mem <= reg
@@ -361,42 +335,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xFF:
                 INST_NAME("Grp5 Ed");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {   // reg <= reg
-                    ed = xEAX+(nextop&7);
-                    wback = 0;
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &wback);
-                    LDR_IMM9(1, wback, 0);
-                    ed = 1;
-                }
+                GETED;
                 switch((nextop>>3)&7) {
                     case 0: // INC Ed
-                        FLAGS(X86_FLAGS_CHANGE);
-                        if(dyn->insts[ninst].x86.flags) {
-                            ADDS_IMM8(ed, ed, 1);
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
-                        } else {
-                            ADD_IMM8(ed, ed, 1);
-                        }
-                        if(wback) {
-                            STR_IMM9(wback, ed, 0);
-                        }
+                        ADDS_IMM8(ed, ed, 1);
+                        UFLAGS;
+                        WBACK;
                         break;
                     case 1: //DEC Ed
-                        FLAGS(X86_FLAGS_CHANGE);
-                        if(dyn->insts[ninst].x86.flags) {
-                            SUBS_IMM8(ed, ed, 1);
-                            // generate flags!
-                            arm_to_x86_flags(dyn, ninst);
-                            // how to get P(arity) and A flag?
-                        } else {
-                            SUB_IMM8(ed, ed, 1);
-                        }
-                        if(wback) {
-                            STR_IMM9(wback, ed, 0);
-                        }
+                        SUBS_IMM8(ed, ed, 1);
+                        UFLAGS;
+                        WBACK;
                         break;
                     case 2: // CALL Ed
                         MOV32(2, addr);
