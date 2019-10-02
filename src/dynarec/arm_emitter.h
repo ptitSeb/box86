@@ -105,6 +105,8 @@ Op is 20-27
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr], #imm9
+#define STRAI_IMM9(reg, addr, imm9) EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, #-(imm9)]!
 #define STR_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 

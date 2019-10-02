@@ -128,16 +128,16 @@ static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 {
     MOVW_COND(cEQ, 1, 1);
     MOVW_COND(cNE, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_ZF*sizeof(int));
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_ZF]));
     MOVW_COND(cCS, 1, 1);
     MOVW_COND(cCC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_CF*sizeof(int));
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_CF]));
     MOVW_COND(cMI, 1, 1);
     MOVW_COND(cPL, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_SF*sizeof(int));
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_SF]));
     MOVW_COND(cVS, 1, 1);
     MOVW_COND(cVC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags)+F_OF*sizeof(int));
+    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
 }
 
 #define GETGD   gd = xEAX+((nextop&0x38)>>3)

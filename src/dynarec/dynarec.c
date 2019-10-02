@@ -70,6 +70,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
+                CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);
@@ -104,6 +105,7 @@ int DynaRun(x86emu_t* emu)
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "Running DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
+                CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);
