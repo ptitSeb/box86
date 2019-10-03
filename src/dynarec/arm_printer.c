@@ -81,8 +81,9 @@ const char* arm_print(uint32_t opcode)
         strcpy(ret, "?????");
     } else {
         const char* cond = conds[(opcode>>28)&15];
-        if((opcode&0b00001111111111111111111111110000)==0b00000001001011111111111100010000) {
-            sprintf(ret, "BX%s r%d", cond, opcode&0b1111);
+        if((opcode&0b00001111111111111111111111010000)==0b00000001001011111111111100010000) {
+            int l = (opcode>>5)&1;
+            sprintf(ret, "B%sX%s r%d", l?"L":"", cond, opcode&0b1111);
         } else if (((opcode>>25)&0b111)==0b101) {
             int32_t offset = opcode&0x3fffff;
             if(opcode&(1<<23)) offset = -offset;
