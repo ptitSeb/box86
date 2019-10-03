@@ -136,10 +136,10 @@ Op is 20-27
 #define BLX(reg) EMIT(0xe12fff30 | (reg) )
 
 // b cond offset
-#define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | ((O)>>2)&0x7fffff)
+#define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | ((O)>>2)&0xffffff)
 
 // bl cond offset
-#define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | ((O)>>2)&0x7fffff)
+#define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | ((O)>>2)&0xffffff)
 
 // push reg!, {list}
 //                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
