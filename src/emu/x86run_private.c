@@ -43,15 +43,18 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
         PushExit(emu);
         R_EIP=(uint32_t)*init;
         printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
-        DynaRun(emu);
+        Run(emu, 0);
         if(emu->error)  // any error, don't bother with more
             return 0;
         emu->quit = 0;
     }
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
     // call main and finish
     PushExit(emu);
     R_EIP=(uint32_t)main;
-    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
+#ifdef DYNAREC
+    DynaRun(emu);
+#endif
     return 0;
 }
 

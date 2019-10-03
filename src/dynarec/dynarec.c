@@ -24,6 +24,7 @@ void arm_prolog(x86emu_t* emu, void* addr);
 void arm_epilog();
 #endif
 
+#ifdef DYNAREC
 void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 {
     dynablock_t* block = DBGetBlock(emu, addr, 1);
@@ -32,7 +33,7 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         *table = arm_epilog;
         return *table;
     }
-    if(!block->block && !block->done) {
+    if(!block->done) {
         // not finished yet... leave as-is
         return arm_epilog;
     }
@@ -44,6 +45,7 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     *table = block->block;
     return *table;
 }
+#endif
 
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
@@ -76,6 +78,12 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                 arm_prolog(emu, block->block);
                 #endif
             }
+            if(emu->fork) {
+                int forktype = emu->fork;
+                emu->quit = 0;
+                emu->fork = 0;
+                emu = x86emu_fork(emu, forktype);
+            }
         }
         emu->quit = 0;  // reset Quit flags...
         emu->df = d_none;
@@ -97,7 +105,7 @@ int DynaRun(x86emu_t* emu)
 #ifdef DYNAREC
     else {
         while(!emu->quit) {
-            volatile dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
+            dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
@@ -110,6 +118,12 @@ int DynaRun(x86emu_t* emu)
                 #ifdef ARM
                 arm_prolog(emu, block->block);
                 #endif
+            }
+            if(emu->fork) {
+                int forktype = emu->fork;
+                emu->quit = 0;
+                emu->fork = 0;
+                emu = x86emu_fork(emu, forktype);
             }
         }
     }
