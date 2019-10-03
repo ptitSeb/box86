@@ -697,6 +697,25 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("NOP");
                 break;
 
+            case 0xB8:
+            case 0xB9:
+            case 0xBA:
+            case 0xBB:
+            case 0xBC:
+            case 0xBD:
+            case 0xBE:
+            case 0xBF:
+                INST_NAME("MOV Reg, Id");
+                gd = xEAX+opcode&7;
+                i32 = F32S;
+                if(i32>=0 && i32<256) {
+                    MOV_IMM(gd, i32, 0);
+                } else {
+                    MOV32(1, i32);
+                    MOV_REG(gd, 1);
+                }
+                break;
+
             case 0xC3:
                 INST_NAME("RET");
                 ret_to_epilog(dyn, ninst);

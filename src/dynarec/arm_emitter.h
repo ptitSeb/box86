@@ -69,6 +69,8 @@ Op is 20-27
     MOVT(dst, (((uint32_t)imm32)>>16))
 // movw.cond dst, #imm16
 #define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
+// mov dst #imm8 ror imm4*2
+#define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 7) )
 
 
 // sub dst, src, #(imm8)
