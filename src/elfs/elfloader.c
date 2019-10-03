@@ -116,7 +116,7 @@ int AllocElfMemory(elfheader_t* head, int mainbin)
         offs = head->vaddr;
     printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
     void* p = mmap((void*)offs, head->memsz
-        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS | ((offs)?MAP_FIXED:0)
+        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | ((offs)?MAP_FIXED:0)
         , -1, 0);
     if(p==MAP_FAILED) {
         printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);

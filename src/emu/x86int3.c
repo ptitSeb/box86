@@ -23,24 +23,11 @@
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
+x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
 {
     // execute atforks prepare functions, in reverse order
-    for (int i=e->context->atfork_sz-1; i>=0; --i)
-        EmuCall(e, e->context->atforks[i].prepare);
-    x86emu_t *emu = e;
-    // lets duplicate the emu
-    void* newstack = 0;
-    if(posix_memalign(&newstack, emu->context->stackalign, emu->context->stacksz)) {
-        printf_log(LOG_NONE, "Warning, posix_memalign failed, using regular malloc...\n");
-        newstack = malloc(emu->context->stacksz);
-    }
-    memcpy(newstack, emu->context->stack, emu->context->stacksz);
-    x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz, 1);
-    SetupX86Emu(newemu);
-    CloneEmu(newemu, emu);
-    // ready to fork
-    ++emu->context->forked;
+    for (int i=emu->context->atfork_sz-1; i>=0; --i)
+        EmuCall(emu, emu->context->atforks[i].prepare);
     int v;
     if(forktype==2) {
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
@@ -49,15 +36,13 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
     } else
         v = fork();
     if(v==EAGAIN || v==ENOMEM) {
-        --emu->context->forked;
-        FreeX86Emu(&newemu);    // fork failed, free the new emu
+        // error...
     } else if(v!=0) {  
         // execute atforks parent functions
         for (int i=0; i<emu->context->atfork_sz; --i)
             EmuCall(emu, emu->context->atforks[i].parent);
 
     } else if(v==0) {
-        emu = newemu;
         // execute atforks child functions
         for (int i=0; i<emu->context->atfork_sz; --i)
             EmuCall(emu, emu->context->atforks[i].child);
@@ -74,7 +59,7 @@ void x86Int3(x86emu_t* emu)
         R_EIP += 2;
         uint32_t addr = Fetch32(emu);
         if(addr==0) {
-            //printf_log(LOG_INFO, "%p:Exit x86 emu\n", *(void**)(R_ESP));
+            //printf_log(LOG_INFO, "%p:Exit x86 emu (emu=%p)\n", *(void**)(R_ESP), emu);
             emu->quit=1; // normal quit
         } else {
             RESET_FLAGS(emu);
