@@ -1381,6 +1381,8 @@ stepout:
 fini:
 //    PackFlags(emu);
     if(emu->fork) {
+        if(step)
+            return 0;
         int forktype = emu->fork;
         emu->quit = 0;
         emu->fork = 0;
