@@ -41,7 +41,7 @@ uintptr_t AllocDynarecMap(box86context_t *context, int size)
     int i = context->mmapsize++;    // yeah, usefull post incrementation
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", context->mmapsize);
     context->mmaplist = (mmaplist_t*)realloc(context->mmaplist, context->mmapsize*sizeof(mmaplist_t));
-    void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if(p==MAP_FAILED) {
         dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
         --context->mmapsize;
