@@ -181,12 +181,12 @@ static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret)
 #ifndef JUMP
 #define JUMP(A) 
 #endif
-#define UFLAG_OP1(A) if(dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
-#define UFLAG_IF(A) if(dyn->insts[ninst].x86.flags) {A}
+#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
+#define UFLAG_IF(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {A}
 
 
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
@@ -525,15 +525,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x68:
                 INST_NAME("PUSH Id");
-                i8 = F32S;
-                MOV32(3, i8);
+                i32 = F32S;
+                MOV32(3, i32);
                 PUSH(xESP, 1<<3);
                 break;
 
             case 0x6A:
                 INST_NAME("PUSH Ib");
-                i8 = F8S;
-                MOV32(3, i8);
+                i32 = F8S;
+                MOV32(3, i32);
                 PUSH(xESP, 1<<3);
                 break;
 
