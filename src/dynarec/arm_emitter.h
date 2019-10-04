@@ -72,6 +72,15 @@ Op is 20-27
 // mov dst #imm8 ror imm4*2
 #define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 7) )
 
+// mov dst, src lsl imm5
+#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (0<<5) | (imm5<<7))
+// mov dst, src lsr imm5
+#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (1<<5) | (imm5<<7))
+// mov dst, src asr imm5
+#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (2<<5) | (imm5<<7))
+// mov dst, src ror imm5
+#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (3<<5) | (imm5<<7))
+
 
 // sub dst, src, #(imm8)
 #define SUB_IMM8(dst, src, imm8) EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -127,6 +136,8 @@ Op is 20-27
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, #imm9]!
 #define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr, rm lsl imm5]
+#define LDR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -134,6 +145,8 @@ Op is 20-27
 #define STRAI_IMM9(reg, addr, imm9) EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, #-(imm9)]!
 #define STR_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr, rm lsl imm5]
+#define STR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
