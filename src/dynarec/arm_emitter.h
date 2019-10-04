@@ -90,6 +90,8 @@ Op is 20-27
 // and.s dst, src1, src2, lsl #imm
 #define ANDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// and dst, src, #(imm8)
+#define AND_IMM8(dst, src, imm8) EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
@@ -118,6 +120,8 @@ Op is 20-27
 // xor.s dst, src1, src2, lsl #imm
 #define XORS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// xor dst, src, #(imm8)
+#define XOR_IMM8(dst, src, imm8) EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
