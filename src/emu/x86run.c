@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef HAVE_TRACE
-#include <unistd.h>
-#include <sys/syscall.h>
-#endif
 
 #include "debug.h"
 #include "box86stack.h"
@@ -19,10 +15,6 @@
 #include "x86trace.h"
 #include "x87emu_private.h"
 #include "box86context.h"
-
-#ifdef HAVE_TRACE
-extern uint64_t start_cnt;
-#endif
 
 int Run(x86emu_t *emu, int step)
 {
@@ -209,39 +201,10 @@ x86emurun:
 //    UnpackFlags(emu);
 #ifdef HAVE_TRACE
 _trace:
-    if(start_cnt) --start_cnt;
     emu->prev2_ip = emu->prev_ip;
     emu->prev_ip = old_ip;
     old_ip = ip;
-    if(!start_cnt && emu->dec && (
-            (emu->trace_end == 0) 
-            || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
-        pthread_mutex_lock(&emu->context->mutex_trace);
-        int tid = syscall(SYS_gettid);
-        if(emu->context->trace_tid != tid) {
-            printf_log(LOG_NONE, "Thread %04d|\n", tid);
-            emu->context->trace_tid = tid;
-        }
-        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
-        if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
-            uint32_t a = *(uint32_t*)(ip+3);
-            if(a==0) {
-                printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
-            } else {
-                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
-            }
-        } else {
-            printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
-            uint8_t peek = PK(0);
-            if(peek==0xC3 || peek==0xC2) {
-                printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
-            } else if(peek==0x55) {
-                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
-            }
-            printf_log(LOG_NONE, "\n");
-        }
-        pthread_mutex_unlock(&emu->context->mutex_trace);
-    }
+    PrintTrace(emu, ip, 0);
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
 #else
     #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];

@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_TRACE
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
 
 #include "debug.h"
 #include "box86stack.h"
@@ -15,6 +19,9 @@
 #include "x86run.h"
 #include "librarian.h"
 #include "elfloader.h"
+#ifdef HAVE_TRACE
+#include "x86trace.h"
+#endif
 
 static uint32_t x86emu_parity_tab[8] =
 {
@@ -604,3 +611,51 @@ uintptr_t GetGSBaseEmu(x86emu_t* emu)
 {
     return (uintptr_t)GetGSBase(emu->context);
 }
+
+#ifdef HAVE_TRACE
+extern uint64_t start_cnt;
+#define PK(a)   *(uint8_t*)(ip+a)
+
+void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
+{
+    if(start_cnt) --start_cnt;
+    if(!start_cnt && emu->dec && (
+            (emu->trace_end == 0) 
+            || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
+        pthread_mutex_lock(&emu->context->mutex_trace);
+        int tid = syscall(SYS_gettid);
+#ifdef DYNAREC
+        if((emu->context->trace_tid != tid) || (emu->context->trace_dynarec!=dynarec)) {
+            printf_log(LOG_NONE, "Thread %04d| (%s) |\n", tid, dynarec?"dyn":"int");
+            emu->context->trace_tid = tid;
+            emu->context->trace_dynarec = dynarec;
+        }
+#else
+        if(emu->context->trace_tid != tid) {
+            printf_log(LOG_NONE, "Thread %04d|\n", tid);
+            emu->context->trace_tid = tid;
+        }
+#endif
+        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
+        if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
+            uint32_t a = *(uint32_t*)(ip+3);
+            if(a==0) {
+                printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
+            } else {
+                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
+            }
+        } else {
+            printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
+            uint8_t peek = PK(0);
+            if(peek==0xC3 || peek==0xC2) {
+                printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
+            } else if(peek==0x55) {
+                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
+            }
+            printf_log(LOG_NONE, "\n");
+        }
+        pthread_mutex_unlock(&emu->context->mutex_trace);
+    }
+}
+
+#endif

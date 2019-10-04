@@ -167,3 +167,10 @@ Op is 20-27
 // pop reg!, {list}
 //                           all |    const    |postindex|  add    | no PSR  |writeback|  load   |   base    |reg list
 #define POP(reg, list)  EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (1<<21) | (1<<20) | (reg<<16) | (list))
+
+// STMDB reg, {list}
+//                            all |    const    |pre-index| subs    | no PSR  |  no wb  | store   |   base    |reg list
+#define STMDB(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (0<<21) | (0<<20) | (reg<<16) | (list))
+// STMia reg, {list}
+//                          all |    const    |postindex|   add   | no PSR  |  no wb  |  store  |   base    |reg list
+#define STM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (0<<20) | (reg<<16) | (list))

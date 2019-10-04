@@ -37,6 +37,9 @@ int dlsym_error = 0;
 int trace_xmm = 0;
 #ifdef HAVE_TRACE
 uint64_t start_cnt = 0;
+#ifdef DYNAREC
+int box86_dynarec_trace = 0;
+#endif
 #endif
 #ifdef PANDORA
 int x11color16 = 0;
@@ -104,6 +107,17 @@ void LoadLogEnv()
         start_cnt = strtoll(p, &p2, 10);
         printf_log(LOG_INFO, "Will start trace only after %llu instructions\n", start_cnt);
     }
+#ifdef DYNAREC
+    p = getenv("BOX86_DYNAREC_TRACE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                box86_dynarec_trace = p[0]-'0';
+            if(box86_dynarec_trace)
+                printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
+        }
+    }
+#endif
 #endif
     p = getenv("BOX86_TRACE_FILE");
     if(p) {
@@ -223,6 +237,9 @@ void PrintHelp() {
     printf("  use BOX86_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
     printf(" BOX86_TRACE_XMM with 1 to enable dump of SSE/SSE2 register along with regular registers\n");
     printf(" BOX86_TRACE_START with N to enable trace after N instructions\n");
+#ifdef DYNAREC
+    printf(" BOX86_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
+#endif
 #endif
     printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");

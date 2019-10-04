@@ -43,7 +43,6 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     uintptr_t end = helper.insts[helper.size].x86.addr+helper.insts[helper.size].x86.size;
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
-            helper.insts[i].x86.barrier = 1;
             uintptr_t j = helper.insts[i].x86.jmp;
             if(j<start || j>=end)
                 helper.insts[i].x86.jmp_insts = -1;

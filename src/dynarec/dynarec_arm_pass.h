@@ -252,6 +252,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         ip = addr;
         opcode = F8;
         NEW_INST;
+#ifdef HAVE_TRACE
+        if(dyn->emu->dec) {
+            STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
+            MOV32(1, ip);
+            STR_IMM9(1, 0, offsetof(x86emu_t, ip));
+            MOV32(2, 1);
+            CALL(PrintTrace, -1);
+        }
+#endif
         if(dyn->insts && dyn->insts[ninst].x86.barrier) {
             dyn->cleanflags = 0;
         }
