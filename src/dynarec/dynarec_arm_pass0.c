@@ -27,7 +27,7 @@
 #define FINI    dyn->isize = addr-sav_addr
 #define MESSAGE(A, ...)  
 #define EMIT(A)     
-#define UFLAGS          {}
+#define UFLAGS(A)          {}
 #define NEW_INST        ++dyn->size
 #define INST_NAME(name) 
 #define DEFAULT         \

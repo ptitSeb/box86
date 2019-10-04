@@ -12,7 +12,6 @@ typedef struct instruction_x86_s {
     int         barrier; // next instruction is a jump point, so no optim allowed
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
-    int         decoded;    // 1 if instruction is decoded
 } instruction_x86_t;
 
 #endif //__DYNAREC_PRIVATE_H_
