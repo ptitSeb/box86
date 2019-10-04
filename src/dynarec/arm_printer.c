@@ -85,8 +85,8 @@ const char* arm_print(uint32_t opcode)
             int l = (opcode>>5)&1;
             sprintf(ret, "B%sX%s r%d", l?"L":"", cond, opcode&0b1111);
         } else if (((opcode>>25)&0b111)==0b101) {
-            int32_t offset = opcode&0x3fffff;
-            if(opcode&(1<<23)) offset = -offset;
+            int32_t offset = opcode&0xffffff;
+            if(opcode&0x800000) offset |= 0xff000000;
             offset <<=2;
             sprintf(ret, "B%s%s #%d", cond, (opcode&(1<<24))?"L":"", offset);
         } else if((opcode&0b00001111110000000000000010010000)==0b00000000000000000000000010010000) {
