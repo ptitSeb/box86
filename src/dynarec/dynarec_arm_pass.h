@@ -188,10 +188,10 @@ static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 
 static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
+    uintptr_t ip = addr-1;
     uint8_t opcode = F8;
     uint8_t nextop;
     int32_t i32;
-    uintptr_t ip = addr-1;
     switch(opcode) {
         case 0xA1:
             grab_tlsdata(dyn, addr, ninst, 1);
@@ -498,6 +498,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x65:
                 addr = dynarecGS(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+
+            case 0x6A:
+                INST_NAME("PUSH Ib");
+                i8 = F8S;
+                MOV32(3, i8);
+                PUSH(xESP, 1<<3);
                 break;
 
             case 0x72:
