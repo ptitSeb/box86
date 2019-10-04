@@ -23,6 +23,7 @@ typedef struct dynarec_arm_s {
     uintptr_t*          table;      // jump table
     int                 tablesz;    // size of the jump table
     int                 tablei;     // index
+    int                 cleanflags; // flags are clean (CMP or TST have been just executed)
 } dynarec_arm_t;
 
 
