@@ -64,7 +64,7 @@ const char* print_shift(int shift, int comma) {
             sprintf(ret, "%s%s %s", comma?",":"", shift_type[sh_op], regname[rs]);
         } else {
             uint8_t amount = shift>>3;
-            sprintf(ret, "%s%s #%ud", comma?",":"", shift_type[sh_op], amount);
+            sprintf(ret, "%s%s #%u", comma?",":"", shift_type[sh_op], amount);
         }
     }
     return ret;    
@@ -119,7 +119,7 @@ const char* arm_print(uint32_t opcode)
                     if(i) {
                         int rm = offset&15;
                         int shift = offset>>4;
-                        sprintf(tmp, "[%s, #%s%s%s]" ,regname[rn], u?"":"-", regname[rm], print_shift(shift, 1));
+                        sprintf(tmp, "[%s, %s%s%s]" ,regname[rn], u?"":"-", regname[rm], print_shift(shift, 1));
                     } else {
                         sprintf(tmp, "[%s, #%s%d]", regname[rn], u?"":"-", offset);
                     }
