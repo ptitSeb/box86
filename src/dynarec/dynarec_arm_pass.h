@@ -181,10 +181,6 @@ static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret)
 #ifndef JUMP
 #define JUMP(A) 
 #endif
-#define BARRIER     \
-    if(dyn->insts && dyn->insts[ninst].x86.barrier) {   \
-        dyn->cleanflags = 0;                            \
-    }
 #define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
@@ -256,6 +252,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         ip = addr;
         opcode = F8;
         NEW_INST;
+        if(dyn->insts && dyn->insts[ninst].x86.barrier) {
+            dyn->cleanflags = 0;
+        }
         switch(opcode) {
 
             case 0x01:
