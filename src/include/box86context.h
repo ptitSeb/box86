@@ -34,6 +34,9 @@ typedef struct box86context_s {
 
     int                 x86trace;
     int                 trace_tid;
+#ifdef DYNAREC
+    int                 trace_dynarec;
+#endif
     zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box86lib;       // dlopen on box86 itself
 
