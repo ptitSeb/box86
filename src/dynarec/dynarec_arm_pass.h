@@ -11,6 +11,7 @@
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S    *(int32_t*)(addr+=4, addr-4)
 #define PK(a)   *(uint8_t*)(addr+a)
+#define PKip(a)   *(uint8_t*)(ip+a)
 
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
@@ -190,6 +191,7 @@ static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     uint8_t opcode = F8;
     uint8_t nextop;
     int32_t i32;
+    uintptr_t ip = addr-1;
     switch(opcode) {
         case 0xA1:
             grab_tlsdata(dyn, addr, ninst, 1);
@@ -605,6 +607,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAG_DF(3, d_add32);
                         UFLAGS;
                         break;
+                    case 4: //AND
+                        if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
+                        GETED;
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        if(i32>0 && i32<256) {
+                            AND_IMM8(ed, ed, i32);
+                        } else {
+                            MOV32(3, i32);
+                            AND_REG_LSL_IMM8(ed, ed, 3, 0);
+                        }
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_and32);
+                        UFLAGS;
+                        break;
                     case 5: //SUB
                         if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
                         GETED;
@@ -621,6 +638,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(3, d_sub32);
+                        UFLAGS;
+                        break;
+                    case 6: //XOR
+                        if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
+                        GETED;
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        if(i32>0 && i32<256) {
+                            XOR_IMM8(ed, ed, i32);
+                        } else {
+                            MOV32(3, i32);
+                            XOR_REG_LSL_IMM8(ed, ed, 3, 0);
+                        }
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_xor32);
                         UFLAGS;
                         break;
                     case 7: //CMP
