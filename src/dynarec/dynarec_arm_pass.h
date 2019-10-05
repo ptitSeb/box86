@@ -798,6 +798,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xC9:
+                INST_NAME("LEAVE");
+                MOV_REG(xESP, xEBP);
+                POP(xESP, (1<<xEBP));
+                break;
+
             case 0xCC:
                 if(PK(0)=='S' && PK(1)=='C') {
                     addr+=2;
