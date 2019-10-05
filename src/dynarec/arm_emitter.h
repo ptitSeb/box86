@@ -54,6 +54,8 @@ Op is 20-27
 
 // mov dst, src
 #define MOV_REG(dst, src) EMIT(0xe1a00000 | ((dst) << 12) | (src) )
+// movxx dst, src
+#define MOV_REG_COND(cond, dst, src) EMIT( cond | 0x01a00000 | ((dst) << 12) | (src) )
 
 // movw dst, #imm16
 #define MOVW(dst, imm16) EMIT(0xe3000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
@@ -147,6 +149,8 @@ Op is 20-27
 #define SDT_OFF(Cond, P, U, B, W, L, Rn, Rd, Imm12)   (Cond | (0b00<<26) | (0<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | Imm12)
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrxx reg, [addr, #imm9]
+#define LDR_IMM9_COND(cond, reg, addr, imm9) EMIT(cond | 0x05900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldrb reg, [addr, #imm9]
 #define LDRB_IMM9(reg, addr, imm9) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, #imm9]!

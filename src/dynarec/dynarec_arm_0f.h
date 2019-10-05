@@ -12,6 +12,131 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     switch(opcode) {
         
         #define GO(GETFLAGS, NO, YES)   \
+            USEFLAG;    \
+            GETFLAGS;   \
+            nextop=F8;  \
+            GETGD;      \
+            if((nextop&0xC0)==0xC0) {   \
+                MOV_REG_COND(YES, gd, xEAX+(nextop&7)); \
+            } else { \
+                addr = geted(dyn, addr, ninst, nextop, &ed);    \
+                LDR_IMM9_COND(YES, gd, ed, 0); \
+            }
+
+        case 0x40:
+            INST_NAME("CMOVO Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x41:
+            INST_NAME("CMOVNO Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x42:
+            INST_NAME("CMOVC Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x43:
+            INST_NAME("CMOVNC Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x44:
+            INST_NAME("CMOVZ Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x45:
+            INST_NAME("CMOVNZ Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x46:
+            INST_NAME("CMOVBE Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
+                ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x47:
+            INST_NAME("CMOVNBE Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
+                ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x48:
+            INST_NAME("CMOVS Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x49:
+            INST_NAME("CMOVNS Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x4A:
+            INST_NAME("CMOVP Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(2, 2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x4B:
+            INST_NAME("CMOVNP Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(2, 2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x4C:
+            INST_NAME("CMOVL Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                , cEQ, cNE)
+            break;
+        case 0x4D:
+            INST_NAME("CMOVGE Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                , cNE, cEQ)
+            break;
+        case 0x4E:
+            INST_NAME("CMOVLE Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                CMPS_IMM8(2, 2, 1);
+                , cNE, cEQ)
+            break;
+        case 0x4F:
+            INST_NAME("CMOVG Gd, Ed");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                XOR_IMM8(3, 3, 1);
+                XOR_IMM8(2, 2, 1);
+                TSTS_REG_LSL_IMM8(2, 2, 3, 0);
+                , cEQ, cNE)
+            break;
+        #undef GO
+
+        #define GO(GETFLAGS, NO, YES)   \
             i32_ = F32S;   \
             USEFLAG;    \
             JUMP(addr+i32_);\
