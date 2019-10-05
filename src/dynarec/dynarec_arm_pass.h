@@ -125,6 +125,16 @@ static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     BX(2);
 }
 
+static void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
+{
+    MESSAGE(LOG_DUMP, "Retn epilog\n");
+    POP(xESP, 1<<xEIP);
+    ADD_IMM8(xESP, xESP, n);
+    void* epilog = arm_epilog;
+    MOV32(2, (uintptr_t)epilog);
+    BX(2);
+}
+
 static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
 {
     MOVW_COND(cEQ, 1, 1);
@@ -172,6 +182,7 @@ static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret)
                 }
 #define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
 #define CALL(F, ret) call_c(dyn, ninst, F, 12, ret)
+#define CALL_(F, ret) call_c(dyn, ninst, F, 3, ret)
 #ifndef UFLAGS
 #define UFLAGS(A)  dyn->cleanflags=A
 #endif
@@ -251,7 +262,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     while(ok) {
         ip = addr;
 #ifdef HAVE_TRACE
-        if(dyn->emu->dec) {
+        if(dyn->emu->dec && box86_dynarec_trace) {
             MESSAGE(LOG_DUMP, "TRACE ----\n");
             STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
             MOV32(1, ip);
@@ -858,6 +869,13 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xC2:
+                INST_NAME("RETN");
+                i32 = F16;
+                retn_to_epilog(dyn, ninst, i32);
+                need_epilog = 0;
+                ok = 0;
+                break;
             case 0xC3:
                 INST_NAME("RET");
                 ret_to_epilog(dyn, ninst);
@@ -877,6 +895,41 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     i32 = F32S;
                     MOV32(3, i32);
                     STR_IMM9(3, ed, 0);
+                }
+                break;
+
+            case 0xCC:
+                if(PK(0)=='S' && PK(1)=='C') {
+                    addr+=2;
+                    UFLAG_DF(1, d_none);
+                    UFLAGS(1);  // cheating...
+                    INST_NAME("Special Box86 instruction");
+                    if((PK(2)==0) && (PK(3)==0) && (PK(4)==0) && (PK(5)==0))
+                    {
+                        addr+=4;
+                        MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
+                        MOV32(12, ip+1+2);
+                        STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                        MOV32(1, 1);
+                        STR_IMM9(1, 0, offsetof(x86emu_t, quit));
+                        ok = 0;
+                        need_epilog = 1;
+                    } else {
+                        MOV32(12, ip+1); // read the 0xCC
+                        addr+=4+4;
+                        STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                        CALL_(x86Int3, -1);
+                        LDM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                        LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
+                        CMPS_IMM8(1, 1, 1);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
+                        jump_to_epilog(dyn, 0, 12, ninst);
+                    }
+                } else {
+                    INST_NAME("INT 3");
+                    ok = 0;
+                    DEFAULT;
                 }
                 break;
 
