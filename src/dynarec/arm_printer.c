@@ -170,7 +170,7 @@ const char* arm_print(uint32_t opcode)
             switch (cat) {
                 case 0b000:
                     // many things are in here, but Branches are already printed, so only exchange and hlf data tranfert are left
-                    if(((opcode>>5)&3)!=0) {
+                    if(((opcode>>5)&3)!=0 && ((opcode>>4)&0b1001)==0b1001) {
                         int p = (opcode>>24)&1;
                         int u = (opcode>>23)&1;
                         int o = (opcode>>22)&1;
