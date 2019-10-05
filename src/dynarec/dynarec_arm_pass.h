@@ -746,6 +746,31 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     DEFAULT;
                 }
                 break;
+            case 0xCD:
+                if(PK(0)==0x80) {
+                    u8 = F8;
+                    UFLAG_DF(1, d_none);
+                    UFLAGS(1);  // cheating...
+                    INST_NAME("Syscall");
+                    MOV32(12, ip+2);
+                    STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    CALL_(x86Syscall, -1);
+                    LDM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    MOVW(2, addr);
+                    CMPS_REG_LSL_IMM8(12, 12, 2, 0);
+                    i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
+                    Bcond(cNE, i32);
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
+                    CMPS_IMM8(1, 1, 1);
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                    Bcond(cNE, i32);
+                    jump_to_epilog(dyn, 0, 12, ninst);
+                } else {
+                    INST_NAME("INT Ib");
+                    ok = 0;
+                    DEFAULT;
+                }
+                break;
 
             case 0xE8:
                 INST_NAME("CALL Id");
