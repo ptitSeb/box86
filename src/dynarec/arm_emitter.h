@@ -1,4 +1,5 @@
-
+#ifndef __ARM_EMITTER_H__
+#define __ARM_EMITTER_H__
 /*
     ARM Emitter
 
@@ -138,8 +139,13 @@ Op is 20-27
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
+// Single data transfert construction
+#define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
+#define SDT_OFF(Cond, P, U, B, W, L, Rn, Rd, Imm12)   (Cond | (0b00<<26) | (0<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | Imm12)
 // ldr reg, [addr, #imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrb reg, [addr, #imm9]
+#define LDRB_IMM9(reg, addr, imm9) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, #imm9]!
 #define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, rm lsl imm5]
@@ -147,6 +153,8 @@ Op is 20-27
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// strb reg, [addr, #imm9]
+#define STRB_IMM9(reg, addr, imm9) EMIT(0xe5c00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], #imm9
 #define STRAI_IMM9(reg, addr, imm9) EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, #-(imm9)]!
@@ -183,3 +191,14 @@ Op is 20-27
 // LDMia reg, {list}
 //                          all |    const    |postindex|   add   | no PSR  |  no wb  |  load   |   base    |reg list
 #define LDM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (1<<20) | (reg<<16) | (list))
+
+// Half Word and signed data transfert construction
+#define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (0<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
+#define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | (0b000<<25) | (P<<24) | (1<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ((Imm8&0xf0)<<(8-4)) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | (Imm8&0x0f))
+
+#define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 0, imm8))
+#define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 1, imm8))
+#define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
+#define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 0, 1, imm8))
+
+#endif  //__ARM_EMITTER_H__
