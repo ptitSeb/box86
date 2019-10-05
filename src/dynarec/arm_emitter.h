@@ -138,6 +138,9 @@ Op is 20-27
     EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// bic dst, src1, src2, lsl #imm
+#define BIC_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
 // Single data transfert construction
 #define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
