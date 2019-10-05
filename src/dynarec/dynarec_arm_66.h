@@ -29,6 +29,25 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 STRH_IMM8(gd, ed, 0);
             }
             break;
+        case 0x8B:
+            INST_NAME("MOV Gw, Ew");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                if(ed!=gd) {
+                    // need to preserve upperbit... It's bit complicated, isn't there an opcode for just that?
+                    MOVW(1, 0xffff);
+                    BIC_REG_LSL_IMM8(gd, gd, 1, 0);
+                    AND_REG_LSL_IMM8(1, 1, ed, 0);
+                    ORR_REG_LSL_IMM8(gd, gd, 1, 0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed);
+                LDRH_IMM8(gd, ed, 0);
+            }
+            break;
+
 
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
