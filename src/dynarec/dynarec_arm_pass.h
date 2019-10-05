@@ -52,6 +52,7 @@
 #define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
 #define UFLAG_IF(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {A}
 
+#include "dynarec_arm_0f.h"
 #include "dynarec_arm_65.h"
 #include "dynarec_arm_66.h"
 
@@ -157,6 +158,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAG_RES(xEAX);
                 UFLAG_DF(1, d_or32);
                 UFLAGS(0);
+                break;
+
+            case 0x0F:
+                addr = dynarec0f(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
             case 0x21:
@@ -504,6 +509,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     TSTS_REG_LSL_IMM8(2, 2, 3, 0);
                     , cEQ, cNE)
                 break;
+            #undef GO
             
             case 0x81:
             case 0x83:
