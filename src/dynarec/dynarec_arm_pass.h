@@ -545,6 +545,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAG_DF(3, d_add32);
                         UFLAGS(0);
                         break;
+                    case 1: //OR
+                        if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
+                        GETED;
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        if(i32>0 && i32<256) {
+                            ORR_IMM8(ed, ed, i32);
+                        } else {
+                            MOV32(3, i32);
+                            ORR_REG_LSL_IMM8(ed, ed, 3, 0);
+                        }
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_or32);
+                        UFLAGS(0);
+                        break;
                     case 4: //AND
                         if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
                         GETED;
