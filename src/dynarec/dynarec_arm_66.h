@@ -16,12 +16,12 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             nextop = F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
                 if(ed!=gd) {
-                    ed = xEAX+(nextop&7);
                     // need to preserve upperbit... It's bit complicated, isn't there an opcode for just that?
                     MOVW(1, 0xffff);
                     BIC_REG_LSL_IMM8(ed, ed, 1, 0);
-                    ADD_REG_LSL_IMM8(1, 1, gd, 0);
+                    AND_REG_LSL_IMM8(1, 1, gd, 0);
                     ORR_REG_LSL_IMM8(ed, ed, 1, 0);
                 }
             } else {
