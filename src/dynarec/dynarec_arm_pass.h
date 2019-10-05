@@ -904,7 +904,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     UFLAG_DF(1, d_none);
                     UFLAGS(1);  // cheating...
                     INST_NAME("Special Box86 instruction");
-                    if((PK(2)==0) && (PK(3)==0) && (PK(4)==0) && (PK(5)==0))
+                    if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
                     {
                         addr+=4;
                         MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
