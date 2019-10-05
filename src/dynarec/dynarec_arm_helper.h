@@ -152,3 +152,16 @@ static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     MESSAGE(LOG_DUMP, "Get TLSData\n");
     call_c(dyn, ninst, GetGSBaseEmu, 12, reg);
 }
+
+static int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
+{
+    if(PK(0)==0xff && PK(1)==0x25)  // aboslute jump, maybe the GOT
+        addr = PK32(2);
+    if(PK(0)==0xCC && PK(1)=='S' && PK(2)=='C' && PK32(3)!=0) {
+        // found !
+        if(retn) *retn = (PK(3+4+4+1)==0xc2)?PK(3+4+4+2):0;
+        if(calladdress) *calladdress = addr;
+        return 1;
+    }
+    return 0;
+}
