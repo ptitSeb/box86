@@ -204,7 +204,11 @@ _trace:
     emu->prev2_ip = emu->prev_ip;
     emu->prev_ip = old_ip;
     old_ip = ip;
-    PrintTrace(emu, ip, 0);
+    if(emu->dec && (
+        (emu->trace_end == 0) 
+        || ((ip >= emu->trace_start) && (ip < emu->trace_end))) )
+            PrintTrace(emu, ip, 0);
+
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
 #else
     #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];
