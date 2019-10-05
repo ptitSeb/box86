@@ -26,13 +26,13 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
                 uint32_t tmp = F32;
-                MOV32(2, tmp);
+                MOV32(ret, tmp);
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(2, 2, xEAX+sib_reg, (sib>>6));
+                    ADD_REG_LSL_IMM8(ret, ret, xEAX+sib_reg, (sib>>6));
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(2, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
+                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
                 } else {
                     //MOV_REG(2, xEAX+(sib&0x7));
                     ret = xEAX+(sib&0x7);
@@ -40,7 +40,7 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             }
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
-            MOV32(2, tmp);
+            MOV32(ret, tmp);
         } else {
             //MOV_REG(2, xEAX+(nextop&7));
             ret = xEAX+(nextop&7);
@@ -62,20 +62,20 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             uint32_t t32 = F32;
             int32_t i32 = (int32_t)t32;
             if(i32>0 && i32<255) {
-                ADD_IMM8(2, tmp, t32);
+                ADD_IMM8(ret, tmp, t32);
             } else if(i32<0 && i32>-256) {
-                SUB_IMM8(2, tmp, -t32);
+                SUB_IMM8(ret, tmp, -t32);
             } else if(t32) {
                 MOV32(3, t32);
-                ADD_REG_LSL_IMM8(2, tmp, 3, 0);
+                ADD_REG_LSL_IMM8(ret, tmp, 3, 0);
             } else
                 ret = tmp;
         } else {
             int8_t t8 = F8S;
             if(t8<0) {
-                SUB_IMM8(2, tmp, -t8);
+                SUB_IMM8(ret, tmp, -t8);
             } else if (t8>0) {
-                ADD_IMM8(2, tmp, t8);
+                ADD_IMM8(ret, tmp, t8);
             } else
                 ret = tmp;
         }
@@ -252,17 +252,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         ip = addr;
 #ifdef HAVE_TRACE
         if(dyn->emu->dec) {
-            MESSAGE(LOG_DUMP, "TRACE ----");
+            MESSAGE(LOG_DUMP, "TRACE ----\n");
             STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
             MOV32(1, ip);
             STR_IMM9(1, 0, offsetof(x86emu_t, ip));
             MOV32(2, 1);
             CALL(PrintTrace, -1);
-            MESSAGE(LOG_DUMP, "----------");
+            MESSAGE(LOG_DUMP, "----------\n");
         }
+#endif
         opcode = F8;
         NEW_INST;
-#endif
         if(dyn->insts && dyn->insts[ninst].x86.barrier) {
             dyn->cleanflags = 0;
         }
@@ -550,89 +550,134 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 PUSH(xESP, 1<<3);
                 break;
 
+            #define GO(GETFLAGS, NO, YES)   \
+                i8 = F8S;   \
+                USEFLAG;    \
+                JUMP(addr+i8);\
+                GETFLAGS;   \
+                if(dyn->insts) {    \
+                    if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
+                        /* out of the block */                  \
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
+                        Bcond(NO, i32);     \
+                        jump_to_linker(dyn, addr+i8, 0, ninst); \
+                    } else {    \
+                        /* inside the block */  \
+                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
+                        Bcond(YES, i32);    \
+                    }   \
+                }
+
+            case 0x70:
+                INST_NAME("JO ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
+                break;
+            case 0x71:
+                INST_NAME("JNO ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
+                break;
             case 0x72:
                 INST_NAME("JC ib");
-                i8 = F8S;
-                USEFLAG;
-                JUMP(addr+i8);
-                MOVW(1, 1);
-                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
-                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JC, so 1 - F_CF  => EQ
-                if(dyn->insts) {
-                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
-                        // out of the block
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cNE, i32);    // jump to next on ok, inverted
-                        jump_to_linker(dyn, addr+i8, 0, ninst);
-                    } else {
-                        // inside the block
-                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                    }
-                }
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
                 break;
             case 0x73:
                 INST_NAME("JNC ib");
-                i8 = F8S;
-                USEFLAG;
-                JUMP(addr+i8);
-                MOVW(1, 1);
-                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
-                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_CF  => NE
-                if(dyn->insts) {
-                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
-                        // out of the block
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // jump to next on ok, inverted
-                        jump_to_linker(dyn, addr+i8, 0, ninst);
-                    } else {
-                        // inside the block
-                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
-                    }
-                }
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
                 break;
             case 0x74:
                 INST_NAME("JZ ib");
-                i8 = F8S;
-                USEFLAG;
-                JUMP(addr+i8);
-                MOVW(1, 1);
-                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_ZF  => EQ
-                if(dyn->insts) {
-                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
-                        // out of the block
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cNE, i32);    // jump to next on ok, inverted
-                        jump_to_linker(dyn, addr+i8, 0, ninst);
-                    } else {
-                        // inside the block
-                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                    }
-                }
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
                 break;
             case 0x75:
                 INST_NAME("JNZ ib");
-                i8 = F8S;
-                USEFLAG;
-                JUMP(addr+i8);
-                MOVW(1, 1);
-                LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                CMPS_REG_LSL_IMM8(1, 1, 2, 0);  // JZ, so 1 - F_ZF  => NE
-                if(dyn->insts) {
-                    if(dyn->insts[ninst].x86.jmp_insts==-1) {
-                        // out of the block
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // jump to next on ok, inverted
-                        jump_to_linker(dyn, addr+i8, 0, ninst);
-                    } else {
-                        // inside the block
-                        i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
-                    }
-                }
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
+                break;
+            case 0x76:
+                INST_NAME("JBE ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                    LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
+                break;
+            case 0x77:
+                INST_NAME("JNBE ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                    LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
+                break;
+            case 0x78:
+                INST_NAME("JS ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
+                break;
+            case 0x79:
+                INST_NAME("JNS ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
+                break;
+            case 0x7A:
+                INST_NAME("JP ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cNE, cEQ)
+                break;
+            case 0x7B:
+                INST_NAME("JNP ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
+                    CMPS_IMM8(2, 2, 1)
+                    , cEQ, cNE)
+                break;
+            case 0x7C:
+                INST_NAME("JL ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                    CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                    , cEQ, cNE)
+                break;
+            case 0x7D:
+                INST_NAME("JGE ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                    CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                    , cNE, cEQ)
+                break;
+            case 0x7E:
+                INST_NAME("JLE ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                    XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                    LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
+                    CMPS_IMM8(2, 2, 1);
+                    , cNE, cEQ)
+                break;
+            case 0x7F:
+                INST_NAME("JG ib");
+                GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+                    XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                    LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
+                    XOR_IMM8(3, 3, 1);
+                    XOR_IMM8(2, 2, 1);
+                    TSTS_REG_LSL_IMM8(2, 2, 3, 0);
+                    , cEQ, cNE)
                 break;
             
             case 0x81:

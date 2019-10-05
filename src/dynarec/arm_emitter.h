@@ -114,9 +114,15 @@ Op is 20-27
 // cmp.s dst, src1, src2, lsl #imm
 #define CMPS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// cmp.s dst, src, #imm
+#define CMPS_IMM8(dst, src, imm8) \
+    EMIT(0xe3500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // tst.s dst, src1, src2, lsl #imm
 #define TSTS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// tst.s dst, src1, #imm
+#define TSTS_IMM8(dst, src, imm8) \
+    EMIT(0xe3100000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // orr dst, src1, src2, lsl #imm
 #define ORR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -174,3 +180,6 @@ Op is 20-27
 // STMia reg, {list}
 //                          all |    const    |postindex|   add   | no PSR  |  no wb  |  store  |   base    |reg list
 #define STM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (0<<20) | (reg<<16) | (list))
+// LDMia reg, {list}
+//                          all |    const    |postindex|   add   | no PSR  |  no wb  |  load   |   base    |reg list
+#define LDM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (1<<20) | (reg<<16) | (list))
