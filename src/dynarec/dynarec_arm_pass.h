@@ -73,9 +73,14 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     int need_epilog = 1;
     dyn->tablei = 0;
     uint8_t wback;
+    // Clean up (because there are multiple passes)
+    dyn->cleanflags = 0;
+    // ok, go now
     INIT;
     while(ok) {
         ip = addr;
+        opcode = F8;
+        NEW_INST;
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
             MESSAGE(LOG_DUMP, "TRACE ----\n");
@@ -87,8 +92,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #endif
-        opcode = F8;
-        NEW_INST;
         if(dyn->insts && dyn->insts[ninst].x86.barrier) {
             dyn->cleanflags = 0;
         }
