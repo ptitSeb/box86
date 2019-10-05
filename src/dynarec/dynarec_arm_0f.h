@@ -9,6 +9,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed, wback;
+    uint8_t eb1, eb2;
     switch(opcode) {
         
         #define GO(GETFLAGS, NO, YES)   \
@@ -281,6 +282,33 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 MUL(gd, ed, gd);
             }
             UFLAGS(0);
+            break;
+
+        case 0xB6:
+            INST_NAME("MOVZX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = (ed&4)>>2;    // L or H
+                if(gd==eb1) {
+                    if(eb2) {
+                        MOV_REG_LSR_IMM5(gd, gd, 8);
+                    }
+                    AND_IMM8(gd, gd, 0xff);
+                } else {
+                    if(eb2) {
+                        MOV_REG_LSR_IMM5(gd, eb1, 8);
+                        AND_IMM8(gd, gd, 0xff);
+                    } else {
+                        AND_IMM8(gd, eb1, 0xff);
+                    }
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed);
+                LDRB_IMM9(gd, ed, 0);
+            }
             break;
             
         default:

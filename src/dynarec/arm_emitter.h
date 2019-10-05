@@ -76,13 +76,13 @@ Op is 20-27
 #define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 7) )
 
 // mov dst, src lsl imm5
-#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (0<<5) | (imm5<<7))
+#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (imm5<<7))
 // mov dst, src lsr imm5
-#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (1<<5) | (imm5<<7))
+#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<5) | (imm5<<7))
 // mov dst, src asr imm5
-#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (2<<5) | (imm5<<7))
+#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (2<<5) | (imm5<<7))
 // mov dst, src ror imm5
-#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (3<<5) | (imm5<<7))
+#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (3<<5) | (imm5<<7))
 
 
 // sub dst, src, #(imm8)
