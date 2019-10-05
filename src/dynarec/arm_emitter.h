@@ -76,14 +76,22 @@ Op is 20-27
 #define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 7) )
 
 // mov dst, src lsl imm5
-#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<5) | (imm5<<7))
+#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | (imm5<<7))
 // mov dst, src lsr imm5
-#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<5) | (imm5<<7))
+#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | (imm5<<7))
 // mov dst, src asr imm5
-#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (2<<5) | (imm5<<7))
+#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | (imm5<<7))
 // mov dst, src ror imm5
-#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (3<<5) | (imm5<<7))
+#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | (imm5<<7))
 
+// mov dst, src lsl rs
+#define MOV_REG_LSL_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (0<<5) | (rs<<8))
+// mov dst, src lsr rs
+#define MOV_REG_LSR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (1<<5) | (rs<<8))
+// mov dst, src asr rs
+#define MOV_REG_ASR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (2<<5) | (rs<<8))
+// mov dst, src ror rs
+#define MOV_REG_ROR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (3<<5) | (rs<<8))
 
 // sub dst, src, #(imm8)
 #define SUB_IMM8(dst, src, imm8) EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -120,6 +128,9 @@ Op is 20-27
 // add.s dst, src1, src2, lsl #imm
 #define ADDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// add dst, src1, src2, lsr #imm
+#define ADD_REG_LSR_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
 // cmp.s dst, src1, src2, lsl #imm
 #define CMPS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
