@@ -53,6 +53,7 @@
 #define UFLAG_IF(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {A}
 
 #include "dynarec_arm_65.h"
+#include "dynarec_arm_66.h"
 
 void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 {
@@ -355,6 +356,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x65:
                 addr = dynarecGS(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0x66:
+                addr = dynarec66(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
             case 0x68:

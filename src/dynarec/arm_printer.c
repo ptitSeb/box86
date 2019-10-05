@@ -149,6 +149,40 @@ const char* arm_print(uint32_t opcode)
         uint32_t cat = (opcode>>25)&0b111;
             switch (cat) {
                 case 0b000:
+                    // many things are in here, but Branches are already printed, so only exchange and hlf data tranfert are left
+                    if(((opcode>>4)&0xf)==0b1001) {
+                        sprintf(ret, "SWP ????");
+                    } else {
+                        int p = (opcode>>24)&1;
+                        int u = (opcode>>23)&1;
+                        int o = (opcode>>22)&1;
+                        int w = (opcode>>21)&1;
+                        int l = (opcode>>20)&1;
+                        int rn = (opcode>>16)&15;
+                        int rd = (opcode>>12)&15;
+                        int offset = ((opcode>>4)&0xf0) | (opcode&0xf);
+                        int rm = opcode&15;
+                        int sh = (opcode>>5)&3;
+                        const char* shs[] = {"swp", "H", "SB", "SH"};
+                        char op2[40];
+                        if(o) {
+                            sprintf(op2, "#%d", u?offset:-offset);
+                        } else {
+                            sprintf(op2, "%s%s", u?"":"-", regname[rm]);
+                        }
+                        char addr[50];
+                        if(p) { // pre-index
+                            if(o && !offset) {
+                                sprintf(addr, "[%s]", regname[rn]);
+                            } else {
+                                sprintf(addr, "[%s, %s]%s", regname[rn], op2, w?"!":"");
+                            }
+                        } else {
+                            sprintf(addr, "[%s], %s", regname[rn], op2);
+                        }
+                        sprintf(ret, "%s%s%s%s %s, %s", l?"LDR":"STR", cond, shs[sh], (w && p)?"T":"", regname[rd], addr);
+                    }
+                    break;
                 case 0b001:
                      // data operation
                     {
