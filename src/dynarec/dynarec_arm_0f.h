@@ -18,7 +18,8 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             nextop=F8;  \
             GETGD;      \
             if((nextop&0xC0)==0xC0) {   \
-                MOV_REG_COND(YES, gd, xEAX+(nextop&7)); \
+                ed = xEAX+(nextop&7);   \
+                MOV_REG_COND(YES, gd, ed); \
             } else { \
                 addr = geted(dyn, addr, ninst, nextop, &ed);    \
                 LDR_IMM9_COND(YES, gd, ed, 0); \

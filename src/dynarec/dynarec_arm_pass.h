@@ -11,6 +11,7 @@
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S    *(int32_t*)(addr+=4, addr-4)
 #define PK(a)   *(uint8_t*)(addr+a)
+#define PK32(a)   *(uint32_t*)(addr+a)
 #define PKip(a)   *(uint8_t*)(ip+a)
 
 #include "dynarec_arm_helper.h"
@@ -62,6 +63,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     int ok = 1;
     int ninst = 0;
     uintptr_t ip = addr;
+    uintptr_t natcall;
+    int retn;
     uint8_t gd, ed;
     int8_t i8;
     int32_t i32, tmp;
@@ -727,7 +730,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xCC:
                 if(PK(0)=='S' && PK(1)=='C') {
                     addr+=2;
-                    UFLAG_DF(1, d_none);
                     UFLAGS(1);  // cheating...
                     INST_NAME("Special Box86 instruction");
                     if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
@@ -761,7 +763,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xCD:
                 if(PK(0)==0x80) {
                     u8 = F8;
-                    UFLAG_DF(1, d_none);
                     UFLAGS(1);  // cheating...
                     INST_NAME("Syscall");
                     MOV32(12, ip+2);
@@ -789,9 +790,33 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 i32 = F32S;
                 MOV32(2, addr);
                 PUSH(xESP, 1<<2);
-                jump_to_linker(dyn, addr+i32, 0, ninst);
-                need_epilog = 0;
-                ok = 0;
+                if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
+                    MESSAGE(LOG_DUMP, "Native Call\n");
+                    UFLAGS(1);  // cheating...
+                    // calling a native function
+                    MOV32(12, natcall); // read the 0xCC
+                    STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    CALL_(x86Int3, -1);
+                    LDM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    POP(xESP, (1<<xEIP));   // pop the return address
+                    if(retn) {
+                        ADD_IMM8(xESP, xESP, retn);
+                    }
+                    MOV32(3, addr);
+                    CMPS_IMM8(3, 12, 0);
+                    i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
+                    Bcond(cNE, i32);
+                    LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
+                    CMPS_IMM8(1, 1, 1);
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                    Bcond(cNE, i32);
+                    jump_to_epilog(dyn, 0, 12, ninst);
+                } else {
+                    // regular call
+                    jump_to_linker(dyn, addr+i32, 0, ninst);
+                    need_epilog = 0;
+                    ok = 0;
+                }
                 break;
             case 0xE9:
             case 0xEB:
