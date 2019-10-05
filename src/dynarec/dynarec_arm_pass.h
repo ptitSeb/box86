@@ -719,6 +719,35 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xC1:
                 nextop = F8;
                 switch((nextop>>3)&7) {
+                    case 4:
+                    case 6:
+                        INST_NAME("SHL Ed, Id");
+                        GETED;
+                        u8 = (F8)&0x1f;
+                        UFLAG_IF{
+                            MOV32(12, u8); UFLAG_OP2(12)
+                        };
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSL_IMM5(ed, ed, u8);
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_shl32);
+                        UFLAGS(0);
+                        break;
+                    case 5:
+                        INST_NAME("SHR Ed, Id");
+                        GETED;
+                        u8 = (F8)&0x1f;
+                        UFLAG_IF{
+                            MOV32(12, u8); UFLAG_OP2(12)
+                        };
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSR_IMM5(ed, ed, u8);
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_shr32);
+                        UFLAGS(0);
+                        break;
                     case 7:
                         INST_NAME("SAR Ed, Id");
                         GETED;
@@ -824,6 +853,72 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     INST_NAME("INT Ib");
                     ok = 0;
                     DEFAULT;
+                }
+                break;
+
+            case 0xD1:
+            case 0xD3:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 4:
+                    case 6:
+                        if(opcode==0xD1) {
+                            INST_NAME("SHL Ed, 1");
+                            MOVW(12, 1);
+                        } else {
+                            INST_NAME("SHL Ed, CL");
+                            MOVW(12, 0xff);
+                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                        }
+                        GETED;
+                        UFLAG_OP2(12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSL_REG(ed, ed, 12);
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_shl32);
+                        UFLAGS(0);
+                        break;
+                    case 5:
+                        if(opcode==0xD1) {
+                            INST_NAME("SHR Ed, 1");
+                            MOVW(12, 1);
+                        } else {
+                            INST_NAME("SHR Ed, CL");
+                            MOVW(12, 0xff);
+                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                        }
+                        GETED;
+                        UFLAG_OP2(12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSR_REG(ed, ed, 12);
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_shr32);
+                        UFLAGS(0);
+                        break;
+                    case 7:
+                        if(opcode==0xD1) {
+                            INST_NAME("SAR Ed, 1");
+                            MOVW(12, 1);
+                        } else {
+                            INST_NAME("SAR Ed, CL");
+                            MOVW(12, 0xff);
+                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                        }
+                        GETED;
+                        UFLAG_OP2(12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_ASR_REG(ed, ed, 12);
+                        WBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(3, d_sar32);
+                        UFLAGS(0);
+                        break;
+                    default:
+                        if(opcode==0xD1) {INST_NAME("GRP3 Ed, 1");} else {INST_NAME("GRP3 Ed, CL");}
+                        ok = 0;
+                        DEFAULT;
                 }
                 break;
 
