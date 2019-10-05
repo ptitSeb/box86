@@ -87,8 +87,7 @@ const char* arm_print(uint32_t opcode)
         } else if (((opcode>>25)&0b111)==0b101) {
             int32_t offset = opcode&0xffffff;
             if(opcode&0x800000) offset |= 0xff000000;
-            offset <<=2;
-            sprintf(ret, "B%s%s #%d", cond, (opcode&(1<<24))?"L":"", offset);
+            sprintf(ret, "B%s%s %+d", cond, (opcode&(1<<24))?"L":"", offset+2);
         } else if((opcode&0b00001111110000000000000010010000)==0b00000000000000000000000010010000) {
             sprintf(ret, "MUL ???");
         } else if((opcode&0b00001111100000000000000010010000)==0b00000000100000000000000010010000) {
@@ -150,9 +149,7 @@ const char* arm_print(uint32_t opcode)
             switch (cat) {
                 case 0b000:
                     // many things are in here, but Branches are already printed, so only exchange and hlf data tranfert are left
-                    if(((opcode>>4)&0xf)==0b1001) {
-                        sprintf(ret, "SWP ????");
-                    } else {
+                    if(((opcode>>5)&3)!=0) {
                         int p = (opcode>>24)&1;
                         int u = (opcode>>23)&1;
                         int o = (opcode>>22)&1;
@@ -181,8 +178,8 @@ const char* arm_print(uint32_t opcode)
                             sprintf(addr, "[%s], %s", regname[rn], op2);
                         }
                         sprintf(ret, "%s%s%s%s %s, %s", l?"LDR":"STR", cond, shs[sh], (w && p)?"T":"", regname[rd], addr);
+                        break;
                     }
-                    break;
                 case 0b001:
                      // data operation
                     {
