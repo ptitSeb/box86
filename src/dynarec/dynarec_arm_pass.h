@@ -788,9 +788,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xE8:
                 INST_NAME("CALL Id");
                 i32 = F32S;
-                MOV32(2, addr);
-                PUSH(xESP, 1<<2);
                 if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
+                    MOV32(2, addr);
+                    PUSH(xESP, 1<<2);
                     MESSAGE(LOG_DUMP, "Native Call\n");
                     UFLAGS(1);  // cheating...
                     // calling a native function
@@ -811,7 +811,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                     Bcond(cNE, i32);
                     jump_to_epilog(dyn, 0, 12, ninst);
+                } else if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
+                    MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
+                    UFLAGS(1);
+                    u8 = F8;
+                    gd = xEAX+(u8&7);
+                    MOV32(gd, addr);
+                } else if ((PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
+                    MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
+                    UFLAGS(1);
+                    u8 = PK(i32+1);
+                    gd = xEAX+((u8&0x38)>>3);
+                    MOV32(gd, addr);
                 } else {
+                    MOV32(2, addr);
+                    PUSH(xESP, 1<<2);
                     // regular call
                     jump_to_linker(dyn, addr+i32, 0, ninst);
                     need_epilog = 0;
