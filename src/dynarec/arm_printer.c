@@ -89,9 +89,30 @@ const char* arm_print(uint32_t opcode)
             if(opcode&0x800000) offset |= 0xff000000;
             sprintf(ret, "B%s%s %+d", cond, (opcode&(1<<24))?"L":"", offset+2);
         } else if((opcode&0b00001111110000000000000010010000)==0b00000000000000000000000010010000) {
-            sprintf(ret, "MUL ???");
+            int a = (opcode>>21)&1;
+            int s = (opcode>>20)&1;
+            int rd = (opcode>>16)&15;
+            int rn = (opcode>>12)&15;
+            int rs = (opcode>>8)&15;
+            int rm = (opcode)&15;
+            if(a) {
+                sprintf(ret, "MLA%s%s %s, %s, %s, %s", cond, s?"S":"", regname[rd], regname[rm], regname[rs], regname[rn]);
+            } else {
+                sprintf(ret, "MUL%s%s %s, %s, %s", cond, s?"S":"", regname[rd], regname[rm], regname[rs]);
+            }
         } else if((opcode&0b00001111100000000000000010010000)==0b00000000100000000000000010010000) {
-            sprintf(ret, "MULL ???");
+            int u = (opcode>>22)&1;
+            int a = (opcode>>21)&1;
+            int s = (opcode>>20)&1;
+            int rdhi = (opcode>>16)&15;
+            int rdlo = (opcode>>12)&15;
+            int rs = (opcode>>8)&15;
+            int rm = (opcode)&15;
+            if(a) {
+                sprintf(ret, "%sMLAL%s%s %s, %s, %s, %s", u?"S":"U", cond, s?"S":"", regname[rdlo], regname[rdhi], regname[rm], regname[rs]);
+            } else {
+                sprintf(ret, "%sMULL%s%s %s, %s, %s, %s", u?"S":"U", cond, s?"S":"", regname[rdlo], regname[rdhi], regname[rm], regname[rs]);
+            }
         } else if((opcode&0b00001111101100000000111111110000)==0b00000001000000000000000010010000) {
             int b = (opcode>>22)&1;
             int rn = (opcode>>16)&15;

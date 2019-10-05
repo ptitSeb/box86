@@ -208,4 +208,14 @@ Op is 20-27
 #define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
 #define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 0, 1, imm8))
 
+// Mul Long construction
+#define MULLONG(Cond, U, A, S, RdHi, RdLo, Rs, Rm)     (Cond | (0b00001<<23) | (U<<22) | (A<<21) | (S<<20) | (RdHi<<16) | (RdLo<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
+
+#define UMULL(RdHi, RdLo, Rs, Rm)   EMIT(MULLONG(c__, 0, 0, 0, RdHi, RdLo, Rs, Rm))
+#define SMULL(RdHi, RdLo, Rs, Rm)   EMIT(MULLONG(c__, 1, 0, 0, RdHi, RdLo, Rs, Rm))
+
+// Mul and MulA
+#define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | (0b000000<<22) | (A<<21) | (S<<20) | (Rd<<16) | (Rn<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
+#define MUL(Rd, Rm, Rs)     EMIT(MULMULA(c__, 0, 0, Rd, Rd, ((Rd==Rm)?Rm:Rs), ((Rd==Rm)?Rs:Rm)))
+
 #endif  //__ARM_EMITTER_H__

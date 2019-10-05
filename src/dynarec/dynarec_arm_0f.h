@@ -266,6 +266,22 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 , cEQ, cNE)
             break;
         #undef GO
+
+        case 0xAF:
+            INST_NAME("IMUL Gd, Ed");
+            nextop = F8;
+            GETGD;
+            GETED;
+            UFLAG_IF {
+                SMULL(3, gd, ed, gd);
+                UFLAG_OP1(3);
+                UFLAG_RES(gd);
+                UFLAG_DF(3, d_imul32);
+            } else {
+                MUL(gd, ed, gd);
+            }
+            UFLAGS(0);
+            break;
             
         default:
             *ok = 0;
