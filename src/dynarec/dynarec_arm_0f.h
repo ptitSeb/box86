@@ -269,6 +269,26 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             break;
         #undef GO
 
+        case 0xA3:
+            INST_NAME("BT Ed, Gd");
+            nextop = F8;
+            USEFLAG;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed);
+                if(wback>=xEAX) {ADD_REG_LSR_IMM8(1, ed, gd, 5); ed=1;}
+                LDR_IMM9(1, ed, 0);
+                ed = 1;
+            }
+            AND_IMM8(2, gd, 0x1f);
+            MOV_REG_LSR_REG(1, ed, 2);
+            AND_IMM8(1, 1, 1);
+            STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_CF]));
+            UFLAGS(1);
+            break;
+
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
             nextop = F8;
