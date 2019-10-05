@@ -50,7 +50,7 @@
 #define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
 #define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
-#define UFLAG_IF(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {A}
+#define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.flags)
 
 #include "dynarec_arm_0f.h"
 #include "dynarec_arm_65.h"
@@ -525,7 +525,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         UFLAG_OP2(ed);
                         if(i32>=0 && i32<256) {
-                            UFLAG_IF(MOV32(3, i32); UFLAG_OP1(3););
+                            UFLAG_IF{
+                                MOV32(3, i32); UFLAG_OP1(3);
+                            };
                             ADD_IMM8(ed, ed, i32);
                         } else {
                             MOV32(3, i32);
@@ -558,7 +560,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         UFLAG_OP2(ed);
                         if(i32>0 && i32<256) {
-                            UFLAG_IF(MOV32(3, i32); UFLAG_OP1(3);)
+                            UFLAG_IF{
+                                MOV32(3, i32); UFLAG_OP1(3);
+                            }
                             SUB_IMM8(ed, ed, i32);
                         } else {
                             MOV32(3, i32);
@@ -674,7 +678,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         INST_NAME("SAR Ed, Id");
                         GETED;
                         u8 = (F8)&0x1f;
-                        UFLAG_IF(MOV32(12, u8); UFLAG_OP2(12));
+                        UFLAG_IF{
+                            MOV32(12, u8); UFLAG_OP2(12)
+                        };
                         UFLAG_OP1(ed);
                         MOV_REG_ASR_IMM5(ed, ed, u8);
                         WBACK;
