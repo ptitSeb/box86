@@ -69,6 +69,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
     int8_t i8;
     int32_t i32, tmp;
     uint8_t u8;
+    uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
     int need_epilog = 1;
     dyn->tablei = 0;
@@ -637,6 +638,29 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(1);
                 break;
 
+            case 0x88:
+                INST_NAME("MOV Eb, Gb");
+                nextop = F8;
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = (gd&4)>>2;
+                MOV_IMM(12, 0xff, 0);
+                if(gb2) {
+                    AND_REG_LSR_IMM8(12, 12, gb1, 8);
+                } else {
+                    AND_REG_LSL_IMM8(12, 12, gb1, 0);
+                }
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?4:0);
+                    ORR_REG_LSL_IMM8(eb1, eb1, 12, (eb2)?8:0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    STRB_IMM9(12, ed, 0);
+                }
+                break;
             case 0x89:
                 INST_NAME("MOV Ed, Gd");
                 nextop=F8;

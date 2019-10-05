@@ -102,12 +102,18 @@ Op is 20-27
 // and.s dst, src1, src2, lsl #imm
 #define ANDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// and dst, src1, src2, lsr #imm
+#define AND_REG_LSR_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
 // and dst, src, #(imm8)
-#define AND_IMM8(dst, src, imm8) EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define AND_IMM8(dst, src, imm8) \
+    EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src, #(imm8)
-#define ADD_IMM8(dst, src, imm8) EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define ADD_IMM8(dst, src, imm8) \
+    EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
-#define ADDS_IMM8(dst, src, imm8) EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define ADDS_IMM8(dst, src, imm8) \
+    EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
 #define ADD_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -147,6 +153,9 @@ Op is 20-27
 // bic dst, src1, src2, lsl #imm
 #define BIC_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// bic dst, src, IMM8
+#define BIC_IMM8(dst, src, imm8, rot) \
+    EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 
 // Single data transfert construction
 #define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
