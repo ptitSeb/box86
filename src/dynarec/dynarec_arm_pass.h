@@ -653,7 +653,83 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 CALL(test32, -1);
                 UFLAGS(1);
                 break;
-
+            case 0x86:
+                INST_NAME("(LOCK)XCHG Eb, Gb");
+                // Lock
+                PUSH(13, (1<<0));   // save Emu
+                LDR_IMM9(0, 0, offsetof(x86emu_t, context));
+                MOV32(1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+                ADD_REG_LSL_IMM8(0, 0, 1, 0);
+                CALL(pthread_mutex_lock, -1);
+                POP(13, (1<<0));
+                // Do the swap
+                nextop = F8;
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = (gd&4)>>2;
+                MOV_IMM(12, 0xff, 0);
+                if(gb2) {   // r12 get gb
+                    AND_REG_LSR_IMM8(12, 12, gb1, 8);
+                } else {
+                    AND_REG_LSL_IMM8(12, 12, gb1, 0);
+                }
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = (ed&4)>>2;
+                    MOV_IMM(1, 0xff, 0);
+                    if(eb2) {   // r1 get eb
+                        AND_REG_LSR_IMM8(1, 1, eb1, 8);
+                    } else {
+                        AND_REG_LSL_IMM8(1, 1, eb1, 0);
+                    }
+                    // do the swap 12 -> ed, 1 -> gd
+                    BIC_IMM8(gb1, gb1, 0xff, gb2?4:0);
+                    ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
+                    BIC_IMM8(eb1, eb1, 0xff, eb2?4:0);
+                    ORR_REG_LSL_IMM8(eb1, eb1, 12, eb2?8:0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDRB_IMM9(1, ed, 0);    // 1 gets eb
+                    // do the swap 12 -> strb(ed), 1 -> gd
+                    BIC_IMM8(gb1, gb1, 0xff, gb2?4:0);
+                    ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
+                    STRB_IMM9(12, ed, 0);
+                }
+                // Unlock
+                PUSH(13, (1<<0));   // save Emu
+                LDR_IMM9(0, 0, offsetof(x86emu_t, context));
+                MOV32(1, offsetof(box86context_t, mutex_lock));
+                ADD_REG_LSL_IMM8(0, 0, 1, 0);
+                CALL(pthread_mutex_unlock, -1);
+                POP(13, (1<<0));
+                break;
+            case 0x87:
+                INST_NAME("(LOCK)XCHG Ed, Gd");
+                // Lock
+                PUSH(13, (1<<0));   // save Emu
+                LDR_IMM9(0, 0, offsetof(x86emu_t, context));
+                MOV32(1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+                ADD_REG_LSL_IMM8(0, 0, 1, 0);
+                CALL(pthread_mutex_lock, -1);
+                POP(13, (1<<0));
+                // Do the swap
+                nextop = F8;
+                GETGD;
+                GETED;
+                // xor swap to avoid one more tmp reg
+                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                XOR_REG_LSL_IMM8(ed, gd, ed, 0);
+                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                WBACK;
+                // Unlock
+                PUSH(13, (1<<0));   // save Emu
+                LDR_IMM9(0, 0, offsetof(x86emu_t, context));
+                MOV32(1, offsetof(box86context_t, mutex_lock));
+                ADD_REG_LSL_IMM8(0, 0, 1, 0);
+                CALL(pthread_mutex_unlock, -1);
+                POP(13, (1<<0));
+                break;
             case 0x88:
                 INST_NAME("MOV Eb, Gb");
                 nextop = F8;
