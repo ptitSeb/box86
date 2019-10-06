@@ -41,7 +41,7 @@
 #define UFLAGS(A)  dyn->cleanflags=A
 #endif
 #ifndef USEFLAG
-#define USEFLAG   if(!dyn->cleanflags) {CALL(UpdateFlags, -1);}
+#define USEFLAG   if(!dyn->cleanflags) {CALL(UpdateFlags, -1); dyn->cleanflags=1; }
 #endif
 #ifndef JUMP
 #define JUMP(A) 
@@ -710,7 +710,9 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     DEFAULT;
                 } else {                    // mem <= reg
                     addr = geted(dyn, addr, ninst, nextop, &ed);
-                    MOV_REG(gd, ed);
+                    if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
+                        MOV_REG(gd, ed);
+                    }
                 }
                 break;
 
@@ -1000,6 +1002,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("CALL Id");
                 i32 = F32S;
                 if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
+                    if (dyn->insts) dyn->insts[ninst].x86.barrier = 1;
                     MOV32(2, addr);
                     PUSH(xESP, 1<<2);
                     MESSAGE(LOG_DUMP, "Native Call\n");
@@ -1065,6 +1068,100 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 need_epilog = 0;
                 ok = 0;
+                break;
+
+            case 0xF7:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:
+                    case 1:
+                        INST_NAME("TEST Ed, Id");
+                        GETED;
+                        i32 = F32S;
+                        if(ed!=1) {
+                            MOV_REG(1, ed);
+                        }
+                        MOV32(2, F32S);
+                        CALL(test32, -1);
+                        UFLAGS(1);
+                        break;
+                    case 2:
+                        INST_NAME("NOT Ed");
+                        GETED;
+                        MVN_IMM8(ed, ed, 0, 0);
+                        break;
+                    case 3:
+                        INST_NAME("NEG Ed");
+                        GETED;
+                        UFLAG_OP1(ed);
+                        RSB_IMM8(ed, ed, 0);
+                        UFLAG_RES(ed);
+                        UFLAG_DF(2, d_neg32);
+                        UFLAGS(0);
+                        break;
+                    case 4:
+                        INST_NAME("MUL EAX, Ed");
+                        UFLAG_DF(2, d_mul32);
+                        GETED;
+                        UMULL(xEDX, xEAX, ed, xEAX);
+                        UFLAG_RES(xEAX);
+                        UFLAG_OP1(xEDX);
+                        UFLAGS(0);
+                        break;
+                    case 5:
+                        INST_NAME("IMUL EAX, Ed");
+                        UFLAG_DF(2, d_imul32);
+                        GETED;
+                        SMULL(xEDX, xEAX, ed, xEAX);
+                        UFLAG_RES(xEAX);
+                        UFLAG_OP1(xEDX);
+                        UFLAGS(0);
+                        break;
+                    case 6:
+                        INST_NAME("DIV Ed");
+                        GETED;
+                        if(ed!=1) {MOV_REG(1, ed);}
+                        // need to store/restore ECX too, or use 2 instructions?
+                        STM(0, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        CALL(div32, -1);
+                        LDM(0, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        UFLAGS(1);
+                        break;
+                    case 7:
+                        INST_NAME("IDIV Ed");
+                        GETED;
+                        if(ed!=1) {MOV_REG(1, ed);}
+                        STM(0, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        CALL(idiv32, -1);
+                        LDM(0, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        UFLAGS(1);
+                        break;
+                }
+                break;
+            case 0xF8:
+                INST_NAME("CLC");
+                USEFLAG;
+                MOVW(1, 0);
+                STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_CF]));
+                UFLAGS(1);
+                break;
+            case 0xF9:
+                INST_NAME("STC");
+                USEFLAG;
+                MOVW(1, 1);
+                STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_CF]));
+                UFLAGS(1);
+                break;
+
+            case 0xFC:
+                INST_NAME("CLD");
+                MOVW(1, 0);
+                STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_DF]));
+                break;
+            case 0xFD:
+                INST_NAME("STD");
+                MOVW(1, 1);
+                STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_DF]));
                 break;
 
             case 0xFF:
