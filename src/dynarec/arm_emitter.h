@@ -139,11 +139,11 @@ Op is 20-27
 #define ADD_REG_LSR_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
 // cmp.s dst, src1, src2, lsl #imm
-#define CMPS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define CMPS_REG_LSL_IMM8(src1, src2, imm8) \
+    EMIT(0xe1500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // cmp.s dst, src, #imm
-#define CMPS_IMM8(dst, src, imm8) \
-    EMIT(0xe3500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define CMPS_IMM8(src, imm8) \
+    EMIT(0xe3500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
 // tst.s dst, src1, src2, lsl #imm
 #define TSTS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -157,8 +157,8 @@ Op is 20-27
 #define ORRS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // orr dst, src1, #imm8
-#define ORR_IMM8(dst, src, imm8) \
-    EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define ORR_IMM8(dst, src, imm8, rot) \
+    EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // xor dst, src1, src2, lsl #imm
 #define XOR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -175,8 +175,8 @@ Op is 20-27
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // mvn dst, src1, src2, lsl #imm
-#define MVN_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1e00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define MVN_REG_LSL_IMM8(dst, rm, imm8) \
+    EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm8, rm) )
 // mvn dst, src, IMM8
 #define MVN_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3e00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )

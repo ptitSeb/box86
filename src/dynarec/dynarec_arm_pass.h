@@ -35,6 +35,9 @@
                     ed = 1;                 \
                 }
 #define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
+#define FAKEED  if((nextop&0xC0)!=0xC0) {   \
+                    addr = fakeed(dyn, addr, ninst, nextop); \
+                }
 #define CALL(F, ret) call_c(dyn, ninst, F, 12, ret)
 #define CALL_(F, ret) call_c(dyn, ninst, F, 3, ret)
 #ifndef UFLAGS
@@ -134,7 +137,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
 
-            case 0x08:
+            case 0x09:
                 INST_NAME("OR Ed, Gd");
                 nextop = F8;
                 GETGD;
@@ -299,7 +302,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 CALL(cmp32, -1);
                 UFLAGS(1);
                 break;
-
+            case 0x3C:
+                INST_NAME("CMP AL, Ib");
+                u32 = F8;
+                MOV32(2, u32);
+                MOV32(1, 0xff);
+                AND_REG_LSL_IMM8(1, 1, xEAX, 0);
+                CALL(cmp8, -1);
+                UFLAGS(1);
+                break;
             case 0x3D:
                 INST_NAME("CMP EAX, Id");
                 i32 = F32S;
@@ -424,113 +435,108 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x70:
                 INST_NAME("JO ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cNE, cEQ)
                 break;
             case 0x71:
                 INST_NAME("JNO ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_OF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cEQ, cNE)
                 break;
             case 0x72:
                 INST_NAME("JC ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cNE, cEQ)
                 break;
             case 0x73:
                 INST_NAME("JNC ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cEQ, cNE)
                 break;
             case 0x74:
                 INST_NAME("JZ ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cNE, cEQ)
                 break;
             case 0x75:
                 INST_NAME("JNZ ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cEQ, cNE)
                 break;
             case 0x76:
                 INST_NAME("JBE ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
                     LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
-                    CMPS_IMM8(2, 2, 1)
-                    , cNE, cEQ)
+                    ORRS_REG_LSL_IMM8(2, 2, 3, 0);
+                    , cEQ, cNE)
                 break;
             case 0x77:
                 INST_NAME("JNBE ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
                     LDR_IMM9(3, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
-                    CMPS_IMM8(2, 2, 1)
-                    , cEQ, cNE)
+                    ORRS_REG_LSL_IMM8(2, 2, 3, 0);
+                    , cNE, cEQ)
                 break;
             case 0x78:
                 INST_NAME("JS ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cNE, cEQ)
                 break;
             case 0x79:
                 INST_NAME("JNS ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cEQ, cNE)
                 break;
             case 0x7A:
                 INST_NAME("JP ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cNE, cEQ)
                 break;
             case 0x7B:
                 INST_NAME("JNP ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_PF]));
-                    CMPS_IMM8(2, 2, 1)
+                    CMPS_IMM8(2, 1)
                     , cEQ, cNE)
                 break;
             case 0x7C:
                 INST_NAME("JL ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
                     LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
-                    CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                    CMPS_REG_LSL_IMM8(1, 2, 0)
                     , cEQ, cNE)
                 break;
             case 0x7D:
                 INST_NAME("JGE ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
                     LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
-                    CMPS_REG_LSL_IMM8(1, 1, 2, 0)
+                    CMPS_REG_LSL_IMM8(1, 2, 0)
                     , cNE, cEQ)
                 break;
             case 0x7E:
                 INST_NAME("JLE ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
                     LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
-                    XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                    XOR_REG_LSL_IMM8(1, 1, 2, 0);
                     LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    ORR_REG_LSL_IMM8(2, 2, 3, 0);
-                    CMPS_IMM8(2, 2, 1);
-                    , cNE, cEQ)
+                    ORRS_REG_LSL_IMM8(2, 1, 2, 0);
+                    , cEQ, cNE)
                 break;
             case 0x7F:
                 INST_NAME("JG ib");
                 GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_SF]));
                     LDR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
-                    XOR_REG_LSL_IMM8(3, 1, 2, 0);
+                    XOR_REG_LSL_IMM8(1, 1, 2, 0);
                     LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_ZF]));
-                    XOR_IMM8(3, 3, 1);
-                    XOR_IMM8(2, 2, 1);
-                    TSTS_REG_LSL_IMM8(2, 2, 3, 0);
-                    , cEQ, cNE)
+                    ORRS_REG_LSL_IMM8(2, 1, 2, 0);
+                    , cNE, cEQ)
                 break;
             #undef GO
             
@@ -567,7 +573,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         GETED;
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         if(i32>0 && i32<256) {
-                            ORR_IMM8(ed, ed, i32);
+                            ORR_IMM8(ed, ed, i32, 0);
                         } else {
                             MOV32(3, i32);
                             ORR_REG_LSL_IMM8(ed, ed, 3, 0);
@@ -684,15 +690,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         AND_REG_LSL_IMM8(1, 1, eb1, 0);
                     }
                     // do the swap 12 -> ed, 1 -> gd
-                    BIC_IMM8(gb1, gb1, 0xff, gb2?4:0);
+                    BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
                     ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
-                    BIC_IMM8(eb1, eb1, 0xff, eb2?4:0);
+                    BIC_IMM8(eb1, eb1, 0xff, eb2?12:0);
                     ORR_REG_LSL_IMM8(eb1, eb1, 12, eb2?8:0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed);
                     LDRB_IMM9(1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
-                    BIC_IMM8(gb1, gb1, 0xff, gb2?4:0);
+                    BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
                     ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
                     STRB_IMM9(12, ed, 0);
                 }
@@ -746,7 +752,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
-                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?4:0);
+                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);
                     ORR_REG_LSL_IMM8(eb1, eb1, 12, (eb2)?8:0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed);
@@ -764,7 +770,29 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     STR_IMM9(gd, ed, 0);
                 }
                 break;
-
+            case 0x8A:
+                INST_NAME("MOV Gb, Eb");
+                nextop = F8;
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = (gd&4)>>2;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                    MOV_IMM(12, 0xff, 0);
+                    if(eb2) {
+                        AND_REG_LSR_IMM8(12, 12, eb1, 8);
+                    } else {
+                        AND_REG_LSL_IMM8(12, 12, eb1, 0);
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    LDRB_IMM9(12, ed, 0);
+                }
+                BIC_IMM8(gb1, gb1, 0xff, (gb2)?12:0);
+                ORR_REG_LSL_IMM8(gb1, gb1, 12, (gb2)?8:0);
+                break;
             case 0x8B:
                 INST_NAME("MOV Gd, Ed");
                 nextop=F8;
@@ -888,8 +916,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             MOV32(12, u8); UFLAG_OP2(12)
                         };
                         UFLAG_OP1(ed);
-                        MOV_REG_LSR_IMM5(ed, ed, u8);
-                        WBACK;
+                        if(u8) {
+                            MOV_REG_LSR_IMM5(ed, ed, u8);
+                            WBACK;
+                        }
                         UFLAG_RES(ed);
                         UFLAG_DF(3, d_shr32);
                         UFLAGS(0);
@@ -902,8 +932,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             MOV32(12, u8); UFLAG_OP2(12)
                         };
                         UFLAG_OP1(ed);
-                        MOV_REG_ASR_IMM5(ed, ed, u8);
-                        WBACK;
+                        if(u8) {
+                            MOV_REG_ASR_IMM5(ed, ed, u8);
+                            WBACK;
+                        }
                         UFLAG_RES(ed);
                         UFLAG_DF(3, d_sar32);
                         UFLAGS(0);
@@ -929,6 +961,23 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 ok = 0;
                 break;
 
+            case 0xC6:
+                INST_NAME("MOV Eb, Ib");
+                nextop=F8;
+                if((nextop&0xC0)==0xC0) {   // reg <= u8
+                    u8 = F8;
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                    eb2 = (ed&4)>>2;    // L or H
+                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);
+                    ORR_IMM8(eb1, eb1, u8, (eb2)?12:0);
+                } else {                    // mem <= u8
+                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    u8 = F8;
+                    MOV32(3, u8);
+                    STRB_IMM9(3, ed, 0);
+                }
+                break;
             case 0xC7:
                 INST_NAME("MOV Ed, Id");
                 nextop=F8;
@@ -972,7 +1021,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         CALL_(x86Int3, -1);
                         LDM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                         LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
-                        CMPS_IMM8(1, 1, 1);
+                        CMPS_IMM8(1, 1);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cNE, i32);
                         jump_to_epilog(dyn, 0, 12, ninst);
@@ -993,11 +1042,11 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     CALL_(x86Syscall, -1);
                     LDM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     MOVW(2, addr);
-                    CMPS_REG_LSL_IMM8(12, 12, 2, 0);
+                    CMPS_REG_LSL_IMM8(12, 2, 0);
                     i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
                     Bcond(cNE, i32);
                     LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
-                    CMPS_IMM8(1, 1, 1);
+                    CMPS_IMM8(1, 1);
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                     Bcond(cNE, i32);
                     jump_to_epilog(dyn, 0, 12, ninst);
@@ -1019,8 +1068,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             MOVW(12, 1);
                         } else {
                             INST_NAME("SHL Ed, CL");
-                            MOVW(12, 0xff);
-                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                            AND_IMM8(12, xECX, 0x1f);
                         }
                         GETED;
                         UFLAG_OP2(12)
@@ -1037,8 +1085,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             MOVW(12, 1);
                         } else {
                             INST_NAME("SHR Ed, CL");
-                            MOVW(12, 0xff);
-                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                            AND_IMM8(12, xECX, 0x1f);
                         }
                         GETED;
                         UFLAG_OP2(12)
@@ -1055,8 +1102,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                             MOVW(12, 1);
                         } else {
                             INST_NAME("SAR Ed, CL");
-                            MOVW(12, 0xff);
-                            AND_REG_LSL_IMM8(12, 12, xECX, 0);
+                            AND_IMM8(12, xECX, 0x1f);
                         }
                         GETED;
                         UFLAG_OP2(12)
@@ -1093,11 +1139,11 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         ADD_IMM8(xESP, xESP, retn);
                     }
                     MOV32(3, addr);
-                    CMPS_IMM8(3, 12, 0);
+                    CMPS_REG_LSL_IMM8(3, 12, 0);
                     i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
                     Bcond(cNE, i32);
                     LDR_IMM9(1, 0, offsetof(x86emu_t, quit));
-                    CMPS_IMM8(1, 1, 1);
+                    CMPS_IMM8(1, 1);
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                     Bcond(cNE, i32);
                     jump_to_epilog(dyn, 0, 12, ninst);
@@ -1157,20 +1203,22 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if(ed!=1) {
                             MOV_REG(1, ed);
                         }
-                        MOV32(2, F32S);
+                        MOV32(2, i32);
                         CALL(test32, -1);
                         UFLAGS(1);
                         break;
                     case 2:
                         INST_NAME("NOT Ed");
                         GETED;
-                        MVN_IMM8(ed, ed, 0, 0);
+                        MVN_REG_LSL_IMM8(ed, ed, 0);
+                        WBACK;
                         break;
                     case 3:
                         INST_NAME("NEG Ed");
                         GETED;
                         UFLAG_OP1(ed);
                         RSB_IMM8(ed, ed, 0);
+                        WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(2, d_neg32);
                         UFLAGS(0);
