@@ -295,12 +295,12 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             GETGD;
             GETED;
             UFLAG_IF {
-                SMULL(3, gd, ed, gd);
+                SMULL(3, gd, gd, ed);   //RdHi, RdLo, Rm must be different
                 UFLAG_OP1(3);
                 UFLAG_RES(gd);
                 UFLAG_DF(3, d_imul32);
             } else {
-                MUL(gd, ed, gd);
+                MUL(gd, ed, gd);    // Rd, Rm must be different
             }
             UFLAGS(0);
             break;

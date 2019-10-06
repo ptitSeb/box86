@@ -379,7 +379,23 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 MOV32(3, i32);
                 PUSH(xESP, 1<<3);
                 break;
-
+            case 0x69:
+                INST_NAME("IMUL Gd, Ed, Id");
+                nextop = F8;
+                GETGD;
+                GETED;
+                i32 = F32S;
+                MOV32(12, i32);
+                UFLAG_IF {
+                    SMULL(3, gd, 12, ed);   //RdHi, RdLo, Rm must be different
+                    UFLAG_OP1(3);
+                    UFLAG_RES(gd);
+                    UFLAG_DF(3, d_imul32);
+                } else {
+                    MUL(gd, ed, 12);
+                }
+                UFLAGS(0);
+                break;
             case 0x6A:
                 INST_NAME("PUSH Ib");
                 i32 = F8S;
