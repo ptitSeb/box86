@@ -94,15 +94,22 @@ Op is 20-27
 #define MOV_REG_ROR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (3<<5) | (rs<<8))
 
 // sub dst, src, #(imm8)
-#define SUB_IMM8(dst, src, imm8) EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define SUB_IMM8(dst, src, imm8) \
+    EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
-#define SUBS_IMM8(dst, src, imm8) EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define SUBS_IMM8(dst, src, imm8) \
+    EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
 #define SUB_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0400000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // add.s dst, src1, src2, lsl #imm
 #define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+
+// rsb dst, src, #(imm8)
+#define RSB_IMM8(dst, src, imm8) \
+    EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add.s dst, src, #(imm8)
 
 // and dst, src1, src2, lsl #imm
 #define AND_REG_LSL_IMM8(dst, src1, src2, imm8) \
@@ -167,6 +174,12 @@ Op is 20-27
 // bic dst, src, IMM8
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// mvn dst, src1, src2, lsl #imm
+#define MVN_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe1e00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// mvn dst, src, IMM8
+#define MVN_IMM8(dst, src, imm8, rot) \
+    EMIT(0xe3e00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 
 // Single data transfert construction
 #define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)

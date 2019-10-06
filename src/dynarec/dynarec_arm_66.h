@@ -9,6 +9,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed, wback;
+    while(opcode==0x66) opcode = F8;    // unlimited 0x66 as prefix for variable sized NOP
     switch(opcode) {
         
         case 0x89:
@@ -46,6 +47,10 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 addr = geted(dyn, addr, ninst, nextop, &ed);
                 LDRH_IMM8(gd, ed, 0);
             }
+            break;
+
+        case 0x90:
+            INST_NAME("NOP");
             break;
 
 
