@@ -278,8 +278,20 @@ const char* arm_print(uint32_t opcode)
                     break;
                 case 0b010:
                 case 0b011:
-                    // single data tranfert
+                    if(((opcode>>16)&15)==15 && ((opcode>>4)&15)==0b0111) {
+                        //Sign extention
+                        int b = (opcode>>20)&1;
+                        int s = (opcode>>22)&1;
+                        int rd = (opcode>>12)&15;
+                        int rm = (opcode)&15;
+                        int rot = (opcode>>10)&3;
+                        char tmp[20] = {0};
+                        if (rot)
+                            sprintf(tmp, " ror %d", rot*8);
+                        sprintf(ret, "%sXT%s %s, %s%s", s?"U":"S", b?"H":"B", regname[rd], regname[rm], tmp);
+                    } else
                     {
+                        // single data tranfert
                         int i = (opcode>>25)&1;
                         int p = (opcode>>24)&1;
                         int u = (opcode>>23)&1;
