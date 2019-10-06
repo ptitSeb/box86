@@ -73,6 +73,32 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
     return addr;
 }
 
+// Do the GETED, but don't emit anything...
+static uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
+{
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            int sib_reg = (sib>>3)&7;
+            if((sib&0x7)==5) {
+                addr+=4;
+            }
+        } else if((nextop&7)==5) {
+            addr+=4;
+        }
+    } else {
+        if((nextop&7)==4) {
+            ++addr;
+        }
+        if(nextop&0x80) {
+            addr+=4;
+        } else {
+            ++addr;
+        }
+    }
+    return addr;
+}
+
 static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to epilog\n");

@@ -1,4 +1,5 @@
 #include "arm_emitter.h"
+#include "dynarec_arm_660f.h"
 
 static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
@@ -9,9 +10,14 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed, wback;
-    while(opcode==0x66) opcode = F8;    // unlimited 0x66 as prefix for variable sized NOP
+    while(opcode==0x66) opcode = F8;    // "unlimited" 0x66 as prefix for variable sized NOP
+    if(opcode==0x2E) opcode = F8;       // cs: is ignored
     switch(opcode) {
         
+        case 0x0F:
+            addr = dynarec660f(dyn, addr, ninst, ok, need_epilog);
+            break;
+
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
@@ -59,12 +65,17 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
+                u16 = F16;
+                MOV32(12, 0xffff);
+                MOVW(1, u16);
+                BIC_REG_LSL_IMM8(ed, ed, 12, 0);
+                ORR_REG_LSL_IMM8(ed, ed, 1, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed);
+                u16 = F16;
+                MOVW(1, u16);
+                STRH_IMM8(1, ed, 0);
             }
-            u16 = F16;
-            MOVW(1, u16);
-            STRH_IMM8(1, ed, 0);
             break;
 
         default:
