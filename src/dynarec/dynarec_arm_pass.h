@@ -717,6 +717,58 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x90:
                 INST_NAME("NOP");
                 break;
+            case 0x91:
+            case 0x92:
+            case 0x93:
+            case 0x94:
+            case 0x95:
+            case 0x96:
+            case 0x97:
+                INST_NAME("XCHG EAX, Reg");
+                gd = xEAX+(opcode&0x07);
+                MOV_REG(2, xEAX);
+                MOV_REG(xEAX, gd);
+                MOV_REG(gd, 2);
+                break;
+            case 0x98:
+                INST_NAME("CWDE");
+                SXTH(xEAX, xEAX, 0);
+                break;
+            case 0x99:
+                INST_NAME("CDQ");
+                MOV_REG_ASR_IMM5(xEDX, xEAX, 0);    // 0 in ASR means only bit #31 everywhere
+                break;
+
+            case 0x9B:
+                INST_NAME("FWAIT");
+                break;
+
+            case 0xA0:
+                INST_NAME("MOV AL, Ob");
+                u32 = F32;
+                MOV32(2, u32);
+                LDRB_IMM9(2, 2, 0);
+                BIC_IMM8(xEAX, xEAX, 0xff, 0);
+                ORR_REG_LSL_IMM8(xEAX, xEAX, 2, 0);
+                break;
+            case 0xA1:
+                INST_NAME("MOV, EAX, Od");
+                u32 = F32;
+                MOV32(2, u32);
+                LDR_IMM9(xEAX, 2, 0);
+                break;
+            case 0xA2:
+                INST_NAME("MOV Ob, AL");
+                u32 = F32;
+                MOV32(2, u32);
+                STRB_IMM9(xEAX, 2, 0);
+                break;
+            case 0xA3:
+                INST_NAME("MOV Ob, EAX");
+                u32 = F32;
+                MOV32(2, u32);
+                STR_IMM9(xEAX, 2, 0);
+                break;
 
             case 0xB8:
             case 0xB9:
