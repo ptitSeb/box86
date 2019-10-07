@@ -2,24 +2,27 @@ void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 /* setup r2 to address pointed by */
-static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed) 
+static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint) 
 {
     uint8_t ret = 2;
+    uint8_t scratch = 2;
+    if(hint>0) ret = hint;
+    if(hint>0 && hint<xEAX) scratch = hint;
+    if(hint==xEIP) scratch = hint;  // allow this one as a scratch and return register
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
             int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
                 uint32_t tmp = F32;
-                MOV32(ret, tmp);
+                MOV32(((sib_reg!=4)?scratch:ret), tmp);
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, ret, xEAX+sib_reg, (sib>>6));
+                    ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
                 }
             } else {
                 if (sib_reg!=4) {
                     ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
                 } else {
-                    //MOV_REG(2, xEAX+(sib&0x7));
                     ret = xEAX+(sib&0x7);
                 }
             }
@@ -27,46 +30,73 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
             uint32_t tmp = F32;
             MOV32(ret, tmp);
         } else {
-            //MOV_REG(2, xEAX+(nextop&7));
             ret = xEAX+(nextop&7);
         }
     } else {
-        int tmp = 2;
+        int i32;
+        uint8_t sib = 0;
+        int sib_reg = 0;
         if((nextop&7)==4) {
-            uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
-            if (sib_reg!=4) {
-                ADD_REG_LSL_IMM8(2, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
-            } else {
-                tmp = xEAX+(sib&0x07);
-            }
-        } else {
-            tmp = xEAX+(nextop&0x07);
+            sib = F8;
+            sib_reg = (sib>>3)&7;
         }
-        if(nextop&0x80) {
-            int32_t i32 = F32S;
-            if(i32>0 && i32<256) {
-                ADD_IMM8(ret, tmp, i32);
-            } else if(i32<0 && i32>-256) {
-                SUB_IMM8(ret, tmp, -i32);
-            } else if(i32) {
-                if(i32>0) {
-                    MOV32(3, i32);
-                    ADD_REG_LSL_IMM8(ret, tmp, 3, 0);
+        if(nextop&0x80)
+            i32 = F32S;
+        else 
+            i32 = F8S;
+        if(i32==0) {
+            if((nextop&7)==4) {
+                if (sib_reg!=4) {
+                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
                 } else {
-                    MOV32(3, -i32);
-                    SUB_REG_LSL_IMM8(ret, tmp, 3, 0);
+                    ret = xEAX+(sib&0x07);
                 }
             } else
-                ret = tmp;
+                ret = xEAX+(nextop&0x07);
         } else {
-            int8_t t8 = F8S;
-            if(t8<0) {
-                SUB_IMM8(ret, tmp, -t8);
-            } else if (t8>0) {
-                ADD_IMM8(ret, tmp, t8);
-            } else
-                ret = tmp;
+            int sub = (i32<0)?1:0;
+            if(sub) i32 = -i32;
+            if(i32<256) {
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        ADD_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+                    } else {
+                        scratch = xEAX+(sib&0x07);
+                    }
+                } else
+                    scratch = xEAX+(nextop&0x07);
+                if(sub) {
+                    SUB_IMM8(ret, scratch, i32);
+                } else {
+                    ADD_IMM8(ret, scratch, i32);
+                }
+            } else {
+                MOV32(scratch, i32);
+                if((nextop&7)==4) {
+                    if (sib_reg!=4) {
+                        if(sub) {
+                            SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
+                        } else {
+                            ADD_REG_LSL_IMM8(scratch, scratch, xEAX+(sib&0x07), 0);
+                        }
+                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                    } else {
+                        int tmp = xEAX+(sib&0x07);
+                        if(sub) {
+                            SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                        } else {
+                            ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                        }
+                    }
+                } else {
+                    int tmp = xEAX+(nextop&0x07);
+                    if(sub) {
+                        SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                    } else {
+                        ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                    }
+                }
+            }
         }
     }
     *ed = ret;
@@ -103,7 +133,9 @@ static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to epilog\n");
     if(reg) {
-        MOV_REG(xEIP, reg);
+        if(reg!=xEIP) {
+            MOV_REG(xEIP, reg);
+        }
     } else {
         MOV32(xEIP, ip);
     }
@@ -116,7 +148,9 @@ static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
     if(reg) {
-        MOV_REG(xEIP, reg);
+        if(reg!=xEIP) {
+            MOV_REG(xEIP, reg);
+        }
     } else {
         MOV32(xEIP, ip);
     }
