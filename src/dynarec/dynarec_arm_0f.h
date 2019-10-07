@@ -274,8 +274,8 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = xEAX+(nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, 2);
-                AND_IMM8(1, gd, 0xff);
-                ADD_REG_LSR_IMM8(1, ed, 1, 5);
+                UBFX(1, gd, 5, 3);
+                ADD_REG_LSL_IMM8(1, ed, 1, 2);
                 LDR_IMM9(1, 1, 0);
                 ed = 1;
             }
