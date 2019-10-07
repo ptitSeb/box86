@@ -547,6 +547,146 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             #undef GO
             
+            case 0x80:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0: //ADD
+                        INST_NAME("ADD Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        UFLAG_OP2(1);
+                        u8 = F8;
+                        UFLAG_OP2(u8);
+                        UFLAG_IF{MOV32(3, u8); UFLAG_OP2(ed); UFLAG_DF(3, d_add8);}
+                        ADD_IMM8(1, 1, u8);
+                        UFLAG_RES(1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, 1, eb2, 8);
+                        } else {
+                            STRB_IMM9(1, ed, 0);
+                        }
+                        UFLAGS(0);
+                        break;
+                    case 1: //OR
+                        INST_NAME("OR Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        u8 = F8;
+                        ORR_IMM8(1, 1, u8, 0);
+                        UFLAG_RES(1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, 1, eb2, 8);
+                        } else {
+                            STRB_IMM9(1, ed, 0);
+                        }
+                        UFLAG_DF(3, d_or8);
+                        UFLAGS(0);
+                        break;
+                    case 4: //AND
+                        INST_NAME("AND Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        u8 = F8;
+                        AND_IMM8(1, 1, u8);
+                        UFLAG_RES(1);
+                        UFLAG_RES(1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, 1, eb2, 8);
+                        } else {
+                            STRB_IMM9(1, ed, 0);
+                        }
+                        UFLAG_DF(3, d_and8);
+                        UFLAGS(0);
+                        break;
+                    case 5: //SUB
+                        INST_NAME("SUB Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        UFLAG_OP2(1);
+                        u8 = F8;
+                        UFLAG_OP2(u8);
+                        UFLAG_IF{MOV32(3, u8); UFLAG_OP2(ed); UFLAG_DF(3, d_sub8);}
+                        SUB_IMM8(1, 1, u8);
+                        UFLAG_RES(1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, 1, eb2, 8);
+                        } else {
+                            STRB_IMM9(1, ed, 0);
+                        }
+                        UFLAGS(0);
+                        break;
+                    case 6: //XOR
+                        INST_NAME("XOR Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        u8 = F8;
+                        XOR_IMM8(1, 1, u8);
+                        UFLAG_RES(1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, 1, eb2, 8);
+                        } else {
+                            STRB_IMM9(1, ed, 0);
+                        }
+                        UFLAG_DF(3, d_xor8);
+                        UFLAGS(0);
+                        break;
+                    case 7: //CMP
+                        INST_NAME("CMP Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2)*8;
+                            UXTB(1, eb1, eb2?3:0);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                            LDRB_IMM9(1, ed, 0);
+                        }
+                        u8 = F8;
+                        MOV32(2, u8);
+                        CALL(cmp32, -1);
+                        UFLAGS(1);
+                        break;
+                    default:
+                        INST_NAME("GRP1 Eb, Ib");
+                        ok = 0;
+                        DEFAULT;
+                }
+                break;
             case 0x81:
             case 0x83:
                 nextop = F8;
