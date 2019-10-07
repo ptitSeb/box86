@@ -25,11 +25,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
                 if(ed!=gd) {
-                    // need to preserve upperbit... It's bit complicated, isn't there an opcode for just that?
-                    MOVW(1, 0xffff);
-                    BIC_REG_LSL_IMM8(ed, ed, 1, 0);
-                    AND_REG_LSL_IMM8(1, 1, gd, 0);
-                    ORR_REG_LSL_IMM8(ed, ed, 1, 0);
+                    BFI(ed, gd, 0, 16);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, 2);
@@ -43,11 +39,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
                 if(ed!=gd) {
-                    // need to preserve upperbit... It's bit complicated, isn't there an opcode for just that?
-                    MOVW(1, 0xffff);
-                    BIC_REG_LSL_IMM8(gd, gd, 1, 0);
-                    AND_REG_LSL_IMM8(1, 1, ed, 0);
-                    ORR_REG_LSL_IMM8(gd, gd, 1, 0);
+                    BFI(gd, ed, 0, 16);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, 2);
@@ -66,10 +58,8 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
                 u16 = F16;
-                MOV32(12, 0xffff);
                 MOVW(1, u16);
-                BIC_REG_LSL_IMM8(ed, ed, 12, 0);
-                ORR_REG_LSL_IMM8(ed, ed, 1, 0);
+                BFI(ed, 1, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 u16 = F16;

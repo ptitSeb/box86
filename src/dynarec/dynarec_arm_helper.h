@@ -17,7 +17,14 @@ static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t ne
                 uint32_t tmp = F32;
                 MOV32(((sib_reg!=4)?scratch:ret), tmp);
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                    if(tmp) {
+                        MOV32(scratch, tmp);
+                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                    } else {
+                        MOV_REG_LSL_IMM5(ret, xEAX+sib_reg, (sib>>6));
+                    }
+                } else {
+                    MOV32(ret, tmp);
                 }
             } else {
                 if (sib_reg!=4) {
