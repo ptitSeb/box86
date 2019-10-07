@@ -306,8 +306,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("CMP AL, Ib");
                 u32 = F8;
                 MOV32(2, u32);
-                MOV32(1, 0xff);
-                AND_REG_LSL_IMM8(1, 1, xEAX, 0);
+                UXTB(1, xEAX, 0);
                 CALL(cmp8, -1);
                 UFLAGS(1);
                 break;
@@ -673,22 +672,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = (gd&4)>>2;
-                MOV_IMM(12, 0xff, 0);
-                if(gb2) {   // r12 get gb
-                    AND_REG_LSR_IMM8(12, 12, gb1, 8);
-                } else {
-                    AND_REG_LSL_IMM8(12, 12, gb1, 0);
-                }
+                UXTB(12, gb1, gb2?3:0);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
                     eb2 = (ed&4)>>2;
-                    MOV_IMM(1, 0xff, 0);
-                    if(eb2) {   // r1 get eb
-                        AND_REG_LSR_IMM8(1, 1, eb1, 8);
-                    } else {
-                        AND_REG_LSL_IMM8(1, 1, eb1, 0);
-                    }
+                    UXTB(1, eb1, eb2?3:0);
                     // do the swap 12 -> ed, 1 -> gd
                     BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
                     ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
@@ -742,12 +731,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = (gd&4)>>2;
-                MOV_IMM(12, 0xff, 0);
-                if(gb2) {
-                    AND_REG_LSR_IMM8(12, 12, gb1, 8);
-                } else {
-                    AND_REG_LSL_IMM8(12, 12, gb1, 0);
-                }
+                UXTB(12, gb1, gb2?3:0);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -780,12 +764,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
-                    MOV_IMM(12, 0xff, 0);
-                    if(eb2) {
-                        AND_REG_LSR_IMM8(12, 12, eb1, 8);
-                    } else {
-                        AND_REG_LSL_IMM8(12, 12, eb1, 0);
-                    }
+                    UXTB(12, eb1, eb2?3:0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed);
                     LDRB_IMM9(12, ed, 0);
