@@ -18,9 +18,22 @@ static uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             UFLAGS(0);
             break;
 
+        case 0x8B:
+            grab_tlsdata(dyn, addr, ninst, 12);
+            INST_NAME("MOV Gd, GS:Ed");
+            nextop=F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {   // reg <= reg
+                MOV_REG(gd, xEAX+(nextop&7));
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                LDR_REG_LSL_IMM5(gd, ed, 12, 0);
+            }
+            break;
+
         case 0xA1:
             grab_tlsdata(dyn, addr, ninst, 1);
-            INST_NAME("GS:MOV EAX,Id");
+            INST_NAME("MOV EAX, GS:Id");
             i32 = F32S;
             if(i32>0 && i32<256) {
                 LDR_IMM9(xEAX, 1, i32);
