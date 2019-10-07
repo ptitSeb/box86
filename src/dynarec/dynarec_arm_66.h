@@ -32,7 +32,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                     ORR_REG_LSL_IMM8(ed, ed, 1, 0);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 STRH_IMM8(gd, ed, 0);
             }
             break;
@@ -50,7 +50,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                     ORR_REG_LSL_IMM8(gd, gd, 1, 0);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 LDRH_IMM8(gd, ed, 0);
             }
             break;
@@ -71,7 +71,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 BIC_REG_LSL_IMM8(ed, ed, 12, 0);
                 ORR_REG_LSL_IMM8(ed, ed, 1, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 u16 = F16;
                 MOVW(1, u16);
                 STRH_IMM8(1, ed, 0);

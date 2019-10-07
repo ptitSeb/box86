@@ -21,16 +21,24 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, 2); \
                     LDR_IMM9(1, wback, 0);  \
                     ed = 1;                 \
+                }
+#define GETEDH(hint)   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==2)?1:2); \
+                    LDR_IMM9(hint, wback, 0);  \
+                    ed = hint;                 \
                 }
 #define WBACK   if(wback) {STR_IMM9(ed, wback, 0);}
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, 2); \
                     LDR_REG_LSL_IMM5(1, wback, O, 0);  \
                     ed = 1;                 \
                 }
@@ -652,7 +660,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("TEST Ed, Gd");
                 nextop=F8;
                 GETGD;
-                GETED;
+                GETEDH(1);
                 if(ed!=1) {MOV_REG(1, ed);};
                 MOV_REG(2, gd);
                 CALL(test32, -1);
@@ -684,7 +692,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     BIC_IMM8(eb1, eb1, 0xff, eb2?12:0);
                     ORR_REG_LSL_IMM8(eb1, eb1, 12, eb2?8:0);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     LDRB_IMM9(1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
                     BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
@@ -739,7 +747,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);
                     ORR_REG_LSL_IMM8(eb1, eb1, 12, (eb2)?8:0);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     STRB_IMM9(12, ed, 0);
                 }
                 break;
@@ -750,7 +758,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     STR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -766,7 +774,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = (ed&4)>>2;    // L or H
                     UXTB(12, eb1, eb2?3:0);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     LDRB_IMM9(12, ed, 0);
                 }
                 BIC_IMM8(gb1, gb1, 0xff, (gb2)?12:0);
@@ -779,7 +787,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(gd, xEAX+(nextop&7));
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     LDR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -792,7 +800,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ok=0;
                     DEFAULT;
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, gd);
                     if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                         MOV_REG(gd, ed);
                     }
@@ -951,7 +959,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);
                     ORR_IMM8(eb1, eb1, u8, (eb2)?12:0);
                 } else {                    // mem <= u8
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 1);
                     u8 = F8;
                     MOV32(3, u8);
                     STRB_IMM9(3, ed, 0);
@@ -965,7 +973,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = xEAX+(nextop&7);
                     MOV32(ed, i32);
                 } else {                    // mem <= i32
-                    addr = geted(dyn, addr, ninst, nextop, &ed);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     i32 = F32S;
                     MOV32(3, i32);
                     STR_IMM9(3, ed, 0);
@@ -1177,7 +1185,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     case 0:
                     case 1:
                         INST_NAME("TEST Ed, Id");
-                        GETED;
+                        GETEDH(1);
                         i32 = F32S;
                         if(ed!=1) {
                             MOV_REG(1, ed);
@@ -1292,7 +1300,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 2: // CALL Ed
                         INST_NAME("CALL Ed");
-                        GETED;
+                        GETEDH(xEIP);
                         MOV32(3, addr);
                         PUSH(xESP, 1<<3);
                         jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
@@ -1301,7 +1309,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 4: // JMP Ed
                         INST_NAME("JMP Ed");
-                        GETED;
+                        GETEDH(xEIP);
                         jump_to_epilog(dyn, 0, ed, ninst);     // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;

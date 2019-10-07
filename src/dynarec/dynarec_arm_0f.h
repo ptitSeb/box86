@@ -27,7 +27,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = xEAX+(nextop&7);   \
                 MOV_REG_COND(YES, gd, ed); \
             } else { \
-                addr = geted(dyn, addr, ninst, nextop, &ed);    \
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);    \
                 LDR_IMM9_COND(YES, gd, ed, 0); \
             }
 
@@ -273,7 +273,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 AND_IMM8(1, gd, 0xff);
                 ADD_REG_LSR_IMM8(1, ed, 1, 5);
                 LDR_IMM9(1, 1, 0);
@@ -303,7 +303,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                         if((nextop&0xC0)==0xC0) {
                             ed = xEAX+(nextop&7);
                         } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed);
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                             LDR_IMM9(1, ed, 0);
                             ed = 1;
                         }
@@ -315,7 +315,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                             ed = xEAX+(nextop&7);
                             LDR_IMM9(ed, 0, offsetof(x86emu_t, mxcsr));
                         } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed);
+                            addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                             LDR_IMM9(12, 0, offsetof(x86emu_t, mxcsr));
                             STR_IMM9(12, ed, 0);
                         }
@@ -352,7 +352,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 eb2 = (ed&4)>>2;    // L or H
                 UXTB(gd, eb1, eb2?3:0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 LDRB_IMM9(gd, ed, 0);
             }
             break;
@@ -364,7 +364,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = xEAX+(nextop&7);
                 UXTH(gd, ed, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed);
+                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                 LDRH_IMM8(gd, ed, 0);
             }
             break;
