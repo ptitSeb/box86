@@ -350,19 +350,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = (ed&4)>>2;    // L or H
-                if(gd==eb1) {
-                    if(eb2) {
-                        MOV_REG_LSR_IMM5(gd, gd, 8);
-                    }
-                    AND_IMM8(gd, gd, 0xff);
-                } else {
-                    if(eb2) {
-                        MOV_REG_LSR_IMM5(gd, eb1, 8);
-                        AND_IMM8(gd, gd, 0xff);
-                    } else {
-                        AND_IMM8(gd, eb1, 0xff);
-                    }
-                }
+                UXTB(gd, eb1, eb2?3:0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed);
                 LDRB_IMM9(gd, ed, 0);
@@ -374,8 +362,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             GETGD;
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
-                MOV32(3, 0xffff);
-                AND_REG_LSL_IMM8(gd, ed, 3, 0);
+                UXTH(gd, ed, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed);
                 LDRH_IMM8(gd, ed, 0);
