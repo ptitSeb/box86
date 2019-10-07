@@ -119,7 +119,7 @@ const char* arm_print(uint32_t opcode)
             int rd = (opcode>>12)&15;
             int rm = (opcode)&15;
             sprintf(ret, "SWP%s%s r%d, r%d, [r%d]", cond, b?"B":"", rd, rm, rn);
-        } else if (((opcode>>26)&0b11)==0b01) {
+        } else if (((opcode>>26)&0b11)==0b01 && ((opcode>>16)&15)!=15) {
             // ldr/str
             int i = (opcode>>25)&1;
             int p = (opcode>>24)&1;
@@ -278,7 +278,7 @@ const char* arm_print(uint32_t opcode)
                     break;
                 case 0b010:
                 case 0b011:
-                    if(((opcode>>16)&15)==15 && ((opcode>>4)&15)==0b0111) {
+                    if(cat==0b011 && ((opcode>>16)&15)==15 && ((opcode>>4)&15)==0b0111) {
                         //Sign extention
                         int b = (opcode>>20)&1;
                         int s = (opcode>>22)&1;
@@ -289,7 +289,20 @@ const char* arm_print(uint32_t opcode)
                         if (rot)
                             sprintf(tmp, " ror %d", rot*8);
                         sprintf(ret, "%sXT%s %s, %s%s", s?"U":"S", b?"H":"B", regname[rd], regname[rm], tmp);
-                    } else
+                    } else if(((opcode>>21)&0b1111111)==0b0111111 && ((opcode>>4)&7)==0b101) {
+                        int widthm1 = (opcode>>16)&31;
+                        int rd = (opcode>>12)&15;
+                        int lsb = (opcode>>7)&31;
+                        int rn = (opcode)&15;
+                        sprintf(ret, "UBFX %s, %s, #%d, #%d", regname[rd], regname[rn], lsb, widthm1+1);
+                    } else if(((opcode>>21)&0b1111111)==0b0111110 && ((opcode>>4)&7)==0b001) {
+                        int msb = (opcode>>16)&31;
+                        int rd = (opcode>>12)&15;
+                        int lsb = (opcode>>7)&31;
+                        int rn = (opcode)&15;
+                        sprintf(ret, "BFI %s, %s, #%d, #%d", regname[rd], regname[rn], lsb, (msb-lsb+1));
+                    }
+                    else
                     {
                         // single data tranfert
                         int i = (opcode>>25)&1;

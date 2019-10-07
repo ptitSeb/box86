@@ -679,24 +679,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
-                gb2 = (gd&4)>>2;
+                gb2 = ((gd&4)>>2)*8;
                 UXTB(12, gb1, gb2?3:0);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
-                    eb2 = (ed&4)>>2;
+                    eb2 = ((ed&4)>>2)*8;
                     UXTB(1, eb1, eb2?3:0);
                     // do the swap 12 -> ed, 1 -> gd
-                    BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
-                    ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
-                    BIC_IMM8(eb1, eb1, 0xff, eb2?12:0);
-                    ORR_REG_LSL_IMM8(eb1, eb1, 12, eb2?8:0);
+                    BFI(gb1, 1, gb2, 8);
+                    BFI(eb1, 12, eb2, 8);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     LDRB_IMM9(1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
-                    BIC_IMM8(gb1, gb1, 0xff, gb2?12:0);
-                    ORR_REG_LSL_IMM8(gb1, gb1, 1, gb2?8:0);
+                    BFI(gb1, 1, gb2, 8);
                     STRB_IMM9(12, ed, 0);
                 }
                 // Unlock
@@ -767,7 +764,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
-                gb2 = (gd&4)>>2;
+                gb2 = ((gd&4)>>2)*8;
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -777,8 +774,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     addr = geted(dyn, addr, ninst, nextop, &ed, 2);
                     LDRB_IMM9(12, ed, 0);
                 }
-                BIC_IMM8(gb1, gb1, 0xff, (gb2)?12:0);
-                ORR_REG_LSL_IMM8(gb1, gb1, 12, (gb2)?8:0);
+                BFI(gb1, 12, gb2, 8);
                 break;
             case 0x8B:
                 INST_NAME("MOV Gd, Ed");
@@ -841,8 +837,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 u32 = F32;
                 MOV32(2, u32);
                 LDRB_IMM9(2, 2, 0);
-                BIC_IMM8(xEAX, xEAX, 0xff, 0);
-                ORR_REG_LSL_IMM8(xEAX, xEAX, 2, 0);
+                BFI(xEAX, 2, 0, 8);
                 break;
             case 0xA1:
                 INST_NAME("MOV, EAX, Od");
@@ -956,7 +951,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
-                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);
+                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);   // BFI needs a reg, so I keep the BIC/OR method here
                     ORR_IMM8(eb1, eb1, u8, (eb2)?12:0);
                 } else {                    // mem <= u8
                     addr = geted(dyn, addr, ninst, nextop, &ed, 1);

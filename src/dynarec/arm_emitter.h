@@ -264,4 +264,10 @@ Op is 20-27
 // UXTH rd, rm ror rot
 #define UXTH(rd, rm, rot)   EMIT(c__ | (0b01101111<<20) | (0x0f<<16) | ((rd)<<12) | (rot)<<10 | (0b0111<<4) | (rm))
 
+// UBFX: Unsigned Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
+#define UBFX(rd, rn, lsb, width)    EMIT(c__ | (0b0111111<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
+
+// BFI: Bit Field Insert: copy any number of low order bit from Rn to any position of Rd
+#define BFI(rd, rn, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
+
 #endif  //__ARM_EMITTER_H__
