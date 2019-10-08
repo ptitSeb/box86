@@ -28,7 +28,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                     BFI(ed, gd, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 STRH_IMM8(gd, ed, 0);
             }
             break;
@@ -42,8 +42,9 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                     BFI(gd, ed, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
-                LDRH_IMM8(gd, ed, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                LDRH_IMM8(x1, ed, 0);
+                BFI(gd, x1, 0, 16);
             }
             break;
 
@@ -58,10 +59,10 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
                 u16 = F16;
-                MOVW(1, u16);
-                BFI(ed, 1, 0, 16);
+                MOVW(x1, u16);
+                BFI(ed, x1, 0, 16);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, 2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 u16 = F16;
                 MOVW(1, u16);
                 STRH_IMM8(1, ed, 0);
