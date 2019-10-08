@@ -167,9 +167,9 @@ static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         *table = (uintptr_t)arm_linker;
     }
     ++dyn->tablei;
-    MOV32_(1, (uintptr_t)table);
-    LDR_IMM9(2, 1, 0);
-    BX(2);
+    MOV32_(x1, (uintptr_t)table);
+    LDR_IMM9(x2, x1, 0);
+    BX(x2);
 }
 
 static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
@@ -177,8 +177,8 @@ static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     MESSAGE(LOG_DUMP, "Ret epilog\n");
     POP(xESP, 1<<xEIP);
     void* epilog = arm_epilog;
-    MOV32(2, (uintptr_t)epilog);
-    BX(2);
+    MOV32(x2, (uintptr_t)epilog);
+    BX(x2);
 }
 
 static void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
@@ -187,35 +187,19 @@ static void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     POP(xESP, 1<<xEIP);
     ADD_IMM8(xESP, xESP, n);
     void* epilog = arm_epilog;
-    MOV32(2, (uintptr_t)epilog);
-    BX(2);
-}
-
-static void arm_to_x86_flags(dynarec_arm_t* dyn, int ninst)
-{
-    MOVW_COND(cEQ, 1, 1);
-    MOVW_COND(cNE, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_ZF]));
-    MOVW_COND(cCS, 1, 1);
-    MOVW_COND(cCC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_CF]));
-    MOVW_COND(cMI, 1, 1);
-    MOVW_COND(cPL, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_SF]));
-    MOVW_COND(cVS, 1, 1);
-    MOVW_COND(cVC, 1, 0);
-    STR_IMM9(1, 0, offsetof(x86emu_t, flags[F_OF]));
+    MOV32(x2, (uintptr_t)epilog);
+    BX(x2);
 }
 
 static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret)
 {
     MOV32(reg, (uintptr_t)fnc);
-    PUSH(13, (1<<0));
+    PUSH(xSP, (1<<xEmu));
     BLX(reg);
     if(ret>=0) {
         MOV_REG(ret, 0);
     }
-    POP(13, (1<<0));
+    POP(xSP, (1<<xEmu));
 }
 
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)

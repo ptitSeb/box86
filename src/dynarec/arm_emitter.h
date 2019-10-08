@@ -22,6 +22,15 @@ Op is 20-27
 #define xESI    10
 #define xEDI    11
 #define xEIP    12
+// scratch registers
+#define x1      1
+#define x2      2
+#define x3      3
+#define x12     12
+// emu is r0
+#define xEmu    0
+// ARM SP is r13
+#define xSP     13      
 
 // barel roll operations (4 possibles)
 #define brLSL(i, r) (0<<5 | ((i&31)<<7) | r)
