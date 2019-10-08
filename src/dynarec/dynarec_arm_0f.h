@@ -302,7 +302,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                     case 2:                 
                         INST_NAME("LDMXCSR Md");
                         GETED;
-                        STR_IMM9(x1, xEmu, offsetof(x86emu_t, mxcsr));
+                        STR_IMM9(ed, xEmu, offsetof(x86emu_t, mxcsr));
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");
