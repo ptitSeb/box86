@@ -64,8 +64,8 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 u16 = F16;
-                MOVW(1, u16);
-                STRH_IMM8(1, ed, 0);
+                MOVW(x1, u16);
+                STRH_IMM8(x1, ed, 0);
             }
             break;
 

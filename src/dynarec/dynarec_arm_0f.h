@@ -279,7 +279,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
                 ADD_REG_LSL_IMM8(x1, ed, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, x1, 0);
-                ed = 1;
+                ed = x1;
             }
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x1, ed, x2);

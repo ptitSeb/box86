@@ -214,10 +214,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x25:
                 INST_NAME("AND EAX, Id");
                 i32 = F32S;
-                MOV32(1, i32);
-                AND_REG_LSL_IMM8(xEAX, xEAX, 1, 0);
+                MOV32(x1, i32);
+                AND_REG_LSL_IMM8(xEAX, xEAX, x1, 0);
                 UFLAG_RES(xEAX);
-                UFLAG_DF(1, d_and32);
+                UFLAG_DF(x1, d_and32);
                 UFLAGS(0);
                 break;
 
@@ -1391,14 +1391,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 USEFLAG;
                 MOVW(x1, 0);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                UFLAGS(1);
                 break;
             case 0xF9:
                 INST_NAME("STC");
                 USEFLAG;
                 MOVW(x1, 1);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                UFLAGS(1);
                 break;
 
             case 0xFC:
