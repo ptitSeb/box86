@@ -1,12 +1,12 @@
 Usage
 ----
 
-There are many environnement variable to control Box86 behavour. 
+There are many environment variable to control Box86 behaviour. 
 
 ##### BOX86_LOG
 Controls the Verbose level of the log
  * 0
- * NONE : No message (exept some fatal error)
+ * NONE : No message (except some fatal error)
  * 1
  * INFO : Current default. Show some log
  * 2
@@ -42,7 +42,7 @@ Use BOX86_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and
 
 #### BOX86_TRACE_START
 Only on build with trace enabled.
-* NNNNNNN : Start trace anly after NNNNNNNN opcode execute (number is an `uint64_t`)
+* NNNNNNN : Start trace only after NNNNNNNN opcode execute (number is an `uint64_t`)
 
 #### BOX86_TRACE_XMM
 Only on build with trace enabled.
