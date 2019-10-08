@@ -14,7 +14,7 @@ Note that the current version of Box86 doesn't feature any form of JIT/Dynarec: 
 
 The current version is still experimental, so some stuff still wont run. But many do work, like for example, WorldOfGoo (at least on the Pandora), Airline Tycoon Deluxe or new FTL. Many of the GameMaker linux games also run fine.
 
-If you are serious about developping Box86, you should install ccache and activate it's support in the cmake project (use ccmake for example)
+If you are serious about developing Box86, you should install ccache and activate it's support in the cmake project (use ccmake for example)
 To have TRACE enabled (i.e. dumping to stdout all individual x86 instructions executed, with dump of registers), you'll also need [Zydis library](https://github.com/zyantific/zydis) accessible on your system.
 
 Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](src/x86primop.c) for copyright details
@@ -50,7 +50,7 @@ The change log is [here](CHANGELOG.md)
 A note about Unity game emulation
 ----
 
-Running Unity games is not possible for now. Mono itself uses signals that are not well emulated enough. So the solution is to use a native version of the libmono used by unity. It can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source. When built copy `libmonosgen-2.0.so` to `libmonounity.so` and put it somewhere it can be dlopen'd (so in `usr/lib` or friend or somewhere in your `LD_LIBRARY_PATH`).
+Running Unity games is not possible for now. Mono itself uses signals that are not well emulated enough. So the solution is to use a native version of the libmono used by Unity. It can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source. When built copy `libmonosgen-2.0.so` to `libmonounity.so` and put it somewhere it can be dlopen'd (so in `usr/lib` or friend or somewhere in your `LD_LIBRARY_PATH`).
 Note that libmonounity is not completely wrapped yet, and the mechanism to call x86 library from libmonounity is not done yet
 
 ----
