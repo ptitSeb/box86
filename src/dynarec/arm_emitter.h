@@ -117,7 +117,7 @@ Op is 20-27
 
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \
-    EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+    EMIT(0xe2600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
 
 // and dst, src1, src2, lsl #imm
