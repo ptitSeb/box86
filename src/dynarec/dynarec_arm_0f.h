@@ -363,7 +363,36 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 LDRH_IMM8(gd, ed, 0);
             }
             break;
-            
+
+        case 0xBE:
+            INST_NAME("MOVSX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = (ed&4)>>2;    // L or H
+                SXTB(gd, eb1, eb2?3:0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                LDRB_IMM9(gd, ed, 0);
+                SXTB(gd, gd, 0);    // is that optimal?
+            }
+            break;
+        case 0xBF:
+            INST_NAME("MOVSX Gd, Ew");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                SXTH(gd, ed, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                LDRH_IMM8(gd, ed, 0);
+                SXTH(gd, gd, 0);    // is that optimal?
+            }
+            break;
+
         default:
             *ok = 0;
             DEFAULT;

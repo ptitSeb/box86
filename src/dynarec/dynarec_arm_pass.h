@@ -63,6 +63,7 @@
 #ifndef JUMP
 #define JUMP(A) 
 #endif
+#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
@@ -1144,10 +1145,15 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                         CALL_(x86Int3, -1);
                         LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                        MOV32(x3, ip+1+2+4+4); // expected return address
+                        CMPS_REG_LSL_IMM8(xEIP, x3, 0);
+                        i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
                         LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                         CMPS_IMM8(x1, 1);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cNE, i32);
+                        MARK;
                         jump_to_epilog(dyn, 0, 12, ninst);
                     }
                 } else {
@@ -1258,18 +1264,22 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     CALL_(x86Int3, -1);
                     LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    MOV32(x3, natcall+2+4+4);
+                    i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
+                    Bcond(cNE, i32);    // Not the expected address, exit dynarec block
                     POP(xESP, (1<<xEIP));   // pop the return address
                     if(retn) {
                         ADD_IMM8(xESP, xESP, retn);
                     }
                     MOV32(x3, addr);
-                    CMPS_REG_LSL_IMM8(x3, x12, 0);
-                    i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
-                    Bcond(cNE, i32);
+                    CMPS_REG_LSL_IMM8(xEIP, x3, 0);
+                    i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
+                    Bcond(cNE, i32);    // Not the expected address again
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                     CMPS_IMM8(x1, 1);
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                    Bcond(cNE, i32);
+                    Bcond(cNE, i32);    // not quitting, so lets continue
+                    MARK;
                     jump_to_epilog(dyn, 0, 12, ninst);
                 } else if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
                     MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
