@@ -375,8 +375,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 SXTB(gd, eb1, eb2?3:0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                LDRB_IMM9(gd, ed, 0);
-                SXTB(gd, gd, 0);    // is that optimal?
+                LDRSB_IMM8(gd, ed, 0);
             }
             break;
         case 0xBF:
@@ -388,8 +387,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 SXTH(gd, ed, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                LDRH_IMM8(gd, ed, 0);
-                SXTH(gd, gd, 0);    // is that optimal?
+                LDRSH_IMM8(gd, ed, 0);
             }
             break;
 

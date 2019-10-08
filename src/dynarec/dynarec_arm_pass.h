@@ -1265,6 +1265,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     CALL_(x86Int3, -1);
                     LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     MOV32(x3, natcall+2+4+4);
+                    CMPS_REG_LSL_IMM8(xEIP, x3, 0);
                     i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
                     Bcond(cNE, i32);    // Not the expected address, exit dynarec block
                     POP(xESP, (1<<xEIP));   // pop the return address
