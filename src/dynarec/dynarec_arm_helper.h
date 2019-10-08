@@ -214,7 +214,7 @@ static int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdre
         addr = PK32(2); // need to add a check to see if the address is from the GOT !
     if(PK(0)==0xCC && PK(1)=='S' && PK(2)=='C' && PK32(3)!=0) {
         // found !
-        if(retn) *retn = (PK(3+4+4+1)==0xc2)?PK(3+4+4+2):0;
+        if(retn) *retn = (PK(3+4+4+1)==0xc2)?(PK(3+4+4+2)):0;
         if(calladdress) *calladdress = addr+1;
         return 1;
     }
