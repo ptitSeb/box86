@@ -64,6 +64,7 @@
 #define JUMP(A) 
 #endif
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
+#define BARRIER(A) if (dyn->insts) dyn->insts[ninst].x86.barrier = A
 #define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
@@ -112,7 +113,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         }
 #endif
         if(dyn->insts && dyn->insts[ninst].x86.barrier) {
-            dyn->cleanflags = 0;
+            if(dyn->insts[ninst].x86.barrier!=2)
+                dyn->cleanflags = 0;
         }
         switch(opcode) {
 
@@ -682,7 +684,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         }
                         u8 = F8;
                         MOV32(x2, u8);
-                        CALL(cmp32, -1);
+                        CALL(cmp8, -1);
                         UFLAGS(1);
                         break;
                     default:
@@ -799,7 +801,25 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         DEFAULT;
                 }
                 break;
-            
+            case 0x84:
+                INST_NAME("TEST Eb, Gb");
+                nextop=F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2)*8;
+                    UXTB(x1, eb1, eb2?3:0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    LDRB_IMM9(x1, ed, 0);
+                }
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2)*8;
+                UXTB(x2, gb1, gb2?3:0);
+                CALL(test8, -1);
+                UFLAGS(1);
+                break;
             case 0x85:
                 INST_NAME("TEST Ed, Gd");
                 nextop=F8;
@@ -1127,6 +1147,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xCC:
                 if(PK(0)=='S' && PK(1)=='C') {
                     addr+=2;
+                    BARRIER(2);
                     UFLAGS(1);  // cheating...
                     INST_NAME("Special Box86 instruction");
                     if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
@@ -1254,7 +1275,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("CALL Id");
                 i32 = F32S;
                 if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
-                    if (dyn->insts) dyn->insts[ninst].x86.barrier = 1;
+                    BARRIER(2);
                     MOV32(x2, addr);
                     PUSH(xESP, 1<<x2);
                     MESSAGE(LOG_DUMP, "Native Call\n");
