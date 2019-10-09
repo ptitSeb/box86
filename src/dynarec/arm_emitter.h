@@ -118,7 +118,9 @@ Op is 20-27
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \
     EMIT(0xe2600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
-// add.s dst, src, #(imm8)
+// rsb cond dst, src, #(imm8)
+#define RSB_COND_IMM8(cond, dst, src, imm8) \
+    EMIT((cond) | 0x02600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
 // and dst, src1, src2, lsl #imm
 #define AND_REG_LSL_IMM8(dst, src1, src2, imm8) \
@@ -201,19 +203,43 @@ Op is 20-27
 #define LDRB_IMM9(reg, addr, imm9) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, #imm9]!
 #define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr, #-imm9]!
+#define LDR_NIMM9_W(reg, addr, imm9) EMIT(0xe5300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, rm lsl imm5]
 #define LDR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// ldr reg, [addr], #imm9
+#define LDRAI_IMM9_W(reg, addr, imm9)   EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr], #-imm9
+#define LDRAI_NIMM9_W(reg, addr, imm9)  EMIT(0xe4300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrb reg, [addr], #imm9
+#define LDRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrb reg, [addr], #-imm9
+#define LDRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr], rm lsl imm5
+#define LDRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6b00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// ldrb reg, [addr], rm lsl imm5
+#define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6f00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // strb reg, [addr, #imm9]
 #define STRB_IMM9(reg, addr, imm9) EMIT(0xe5c00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], #imm9
-#define STRAI_IMM9(reg, addr, imm9) EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define STRAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr], #-imm9
+#define STRAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4000000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, #-(imm9)]!
 #define STR_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, rm lsl imm5]
 #define STR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// strb reg, [addr], #imm9
+#define STRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4c00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// strb reg, [addr], #-imm9
+#define STRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4400000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr], rm lsl imm5
+#define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6a00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// strb reg, [addr], rm lsl imm5
+#define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6e00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
@@ -244,6 +270,7 @@ Op is 20-27
 // LDMia reg, {list}
 //                          all |    const    |postindex|   add   | no PSR  |  no wb  |  load   |   base    |reg list
 #define LDM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (1<<20) | (reg<<16) | (list))
+
 
 // Half Word and signed data transfert construction
 #define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (0<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
