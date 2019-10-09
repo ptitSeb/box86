@@ -118,6 +118,34 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
         }
         switch(opcode) {
 
+            case 0x00:
+                INST_NAME("ADD Eb, Gb");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    LDRB_IMM9(x1, ed, 0);
+                }
+                UFLAG_OP1(x1);
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x3, gb1, gb2);
+                UFLAG_OP2(x3);
+                ADD_REG_LSL_IMM8(x1, x1, x3, 0);
+                UFLAG_RES(x1);
+                if((nextop&0xC0)==0xC0) {
+                    BFI(eb1, x1, eb2*8, 8);
+                } else {
+                    STRB_IMM9(x1, ed, 0);
+                }
+                UFLAG_DF(x3, d_add8);
+                UFLAGS(0);
+                break;
             case 0x01:
                 INST_NAME("ADD Ed, Gd");
                 nextop = F8;
@@ -154,6 +182,32 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
 
+            case 0x08:
+                INST_NAME("OR Eb, Gb");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    LDRB_IMM9(x1, ed, 0);
+                }
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x3, gb1, gb2);
+                ORR_REG_LSL_IMM8(x1, x1, x3, 0);
+                UFLAG_RES(x1);
+                if((nextop&0xC0)==0xC0) {
+                    BFI(eb1, x1, eb2*8, 8);
+                } else {
+                    STRB_IMM9(x1, ed, 0);
+                }
+                UFLAG_DF(x3, d_or8);
+                UFLAGS(0);
+                break;
             case 0x09:
                 INST_NAME("OR Ed, Gd");
                 nextop = F8;
