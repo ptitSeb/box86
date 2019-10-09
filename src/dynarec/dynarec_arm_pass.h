@@ -790,6 +790,26 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAG_DF(x3, d_or32);
                         UFLAGS(0);
                         break;
+                    case 2: //ADC
+                        if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
+                        GETEDH(x1);
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        MOV32(x2, i32);
+                        CALL(adc32, ed);
+                        WBACK;
+                        UFLAGS(1);
+                        break;
+                    case 3: //SBB
+                        if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
+                        GETEDH(x1);
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        MOV32(x2, i32);
+                        CALL(sbb32, ed);
+                        WBACK;
+                        UFLAGS(1);
+                        break;
                     case 4: //AND
                         if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
                         GETED;
@@ -849,10 +869,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         CALL(cmp32, -1);
                         UFLAGS(1);
                         break;
-                    default:
-                        if(opcode==0x81) {INST_NAME("GRP1 Ed, Id");} else {INST_NAME("GRP1 Ed, Ib");}
-                        ok = 0;
-                        DEFAULT;
                 }
                 break;
             case 0x84:
