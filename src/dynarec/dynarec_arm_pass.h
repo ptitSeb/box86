@@ -1402,6 +1402,159 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 ok = 0;
                 break;
 
+            case 0xF6:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:
+                    case 1:
+                        INST_NAME("TEST Eb, Ib");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        u8 = F8;
+                        MOV32(x2, u8);
+                        CALL(test8, -1);
+                        UFLAGS(1);
+                        break;
+                    case 2:
+                        INST_NAME("NOT Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        MVN_REG_LSL_IMM8(x1, x1, 0);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("NEG Ed");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        RSB_IMM8(x1, x1, 0);
+                        UFLAG_RES(x1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        UFLAG_DF(x2, d_neg8);
+                        UFLAGS(0);
+                        break;
+                    case 4:
+                        INST_NAME("MUL AL, Ed");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        RSB_IMM8(x1, x1, 0);
+                        UFLAG_RES(x1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        STM(xEmu, (1<<xEAX));
+                        CALL(mul8, -1);
+                        LDM(xEmu, (1<<xEAX));
+                        UFLAGS(0);
+                        break;
+                    case 5:
+                        INST_NAME("IMUL AL, Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        RSB_IMM8(x1, x1, 0);
+                        UFLAG_RES(x1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        STM(xEmu, (1<<xEAX));
+                        CALL(imul8, -1);
+                        LDM(xEmu, (1<<xEAX));
+                        UFLAGS(0);
+                        break;
+                    case 6:
+                        INST_NAME("DIV Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        RSB_IMM8(x1, x1, 0);
+                        UFLAG_RES(x1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        STM(xEmu, (1<<xEAX));
+                        CALL(div8, -1);
+                        LDM(xEmu, (1<<xEAX));
+                        UFLAGS(1);
+                        break;
+                    case 7:
+                        INST_NAME("IDIV Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        RSB_IMM8(x1, x1, 0);
+                        UFLAG_RES(x1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        STM(xEmu, (1<<xEAX));
+                        CALL(idiv8, -1);
+                        LDM(xEmu, (1<<xEAX));
+                        UFLAGS(1);
+                        break;
+                }
+                break;
             case 0xF7:
                 nextop = F8;
                 switch((nextop>>3)&7) {
