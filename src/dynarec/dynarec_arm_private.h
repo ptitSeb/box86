@@ -9,7 +9,7 @@ typedef struct instruction_arm_s {
     instruction_x86_t   x86;
     int                 address;     // (start) address of the arm emited instruction
     int                 size;       // size of the arm emited instruction
-    uintptr_t           mark;
+    uintptr_t           mark, mark2, mark3;
 } instruction_arm_t;
 
 typedef struct dynarec_arm_s {
