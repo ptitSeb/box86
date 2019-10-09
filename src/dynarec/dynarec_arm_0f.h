@@ -266,6 +266,129 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 , cNE, cEQ)
             break;
         #undef GO
+        #define GO(GETFLAGS, NO, YES)   \
+            USEFLAG;    \
+            GETFLAGS;   \
+            nextop=F8;  \
+            MOVW(x3, 0); \
+            MOVW_COND(YES, x3, 1);  \
+            if((nextop&0xC0)==0xC0) { \
+                ed = (nextop&7);    \
+                eb1 = xEAX+(ed&3);  \
+                eb2 = ((ed&4)>>2);  \
+                BFI(eb1, x3, eb2*8, 8); \
+            } else {                \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2);    \
+                STRB_IMM9(x3, ed, 0);   \
+            }
+
+        case 0x90:
+            INST_NAME("SETO Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x91:
+            INST_NAME("SETNO Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x92:
+            INST_NAME("SETC Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x93:
+            INST_NAME("SETNC Eb");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x94:
+            INST_NAME("SETZ Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x95:
+            INST_NAME("SETNZ Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x96:
+            INST_NAME("SETBE Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
+                , cEQ, cNE)
+            break;
+        case 0x97:
+            INST_NAME("SETNBE Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
+                , cNE, cEQ)
+            break;
+        case 0x98:
+            INST_NAME("SETS Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(x2, x1)
+                , cNE, cEQ)
+            break;
+        case 0x99:
+            INST_NAME("SETNS Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x9A:
+            INST_NAME("SETP Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(x2, x1)
+                , cNE, cEQ)
+            break;
+        case 0x9B:
+            INST_NAME("SETNP Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x9C:
+            INST_NAME("SETL Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                , cEQ, cNE)
+            break;
+        case 0x9D:
+            INST_NAME("SETGE Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                , cNE, cEQ)
+            break;
+        case 0x9E:
+            INST_NAME("SETLE Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(x1, x1, x2, 0);
+                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
+                , cEQ, cNE)
+            break;
+        case 0x9F:
+            INST_NAME("SETG Eb");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(x1, x1, x2, 0);
+                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
+                , cNE, cEQ)
+            break;
+        #undef GO
 
         case 0xA3:
             INST_NAME("BT Ed, Gd");
