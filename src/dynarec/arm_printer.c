@@ -199,8 +199,8 @@ const char* arm_print(uint32_t opcode)
                             sprintf(addr, "[%s], %s", regname[rn], op2);
                         }
                         sprintf(ret, "%s%s%s%s %s, %s", l?"LDR":"STR", cond, shs[sh], (w && p)?"T":"", regname[rd], addr);
+                        break;
                     }
-                    break;
                 case 0b001:
                      // data operation
                     {
