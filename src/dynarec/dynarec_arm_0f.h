@@ -345,7 +345,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = (ed&4)>>2;    // L or H
-                UXTB(gd, eb1, eb2?3:0);
+                UXTB(gd, eb1, eb2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 LDRB_IMM9(gd, ed, 0);

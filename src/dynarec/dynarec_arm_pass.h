@@ -564,8 +564,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -576,7 +576,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         ADD_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2, 8);
+                            BFI(eb1, x1, eb2*8, 8);
                         } else {
                             STRB_IMM9(x1, ed, 0);
                         }
@@ -587,8 +587,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -597,7 +597,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         ORR_IMM8(x1, x1, u8, 0);
                         UFLAG_RES(1);
                         if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2, 8);
+                            BFI(eb1, x1, eb2*8, 8);
                         } else {
                             STRB_IMM9(x1, ed, 0);
                         }
@@ -609,8 +609,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -619,7 +619,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         AND_IMM8(x1, x1, u8);
                         UFLAG_RES(1);
                         if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2, 8);
+                            BFI(eb1, x1, eb2*8, 8);
                         } else {
                             STRB_IMM9(x1, ed, 0);
                         }
@@ -631,8 +631,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -643,7 +643,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         SUB_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2, 8);
+                            BFI(eb1, x1, eb2*8, 8);
                         } else {
                             STRB_IMM9(x1, ed, 0);
                         }
@@ -654,8 +654,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -664,7 +664,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         XOR_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2, 8);
+                            BFI(eb1, x1, eb2*8, 8);
                         } else {
                             STRB_IMM9(x1, ed, 0);
                         }
@@ -676,8 +676,8 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         if((nextop&0xC0)==0xC0) {
                             ed = (nextop&7);
                             eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2)*8;
-                            UXTB(x1, eb1, eb2?3:0);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                             LDRB_IMM9(x1, ed, 0);
@@ -807,16 +807,16 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2)*8;
-                    UXTB(x1, eb1, eb2?3:0);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                     LDRB_IMM9(x1, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2)*8;
-                UXTB(x2, gb1, gb2?3:0);
+                gb2 = ((gd&4)>>2);
+                UXTB(x2, gb1, gb2);
                 CALL(test8, -1);
                 UFLAGS(1);
                 break;
@@ -843,21 +843,21 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2)*8;
-                UXTB(x12, gb1, gb2?3:0);
+                gb2 = ((gd&4)>>2);
+                UXTB(x12, gb1, gb2);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2)*8;
-                    UXTB(x1, eb1, eb2?3:0);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
                     // do the swap 12 -> ed, 1 -> gd
-                    BFI(gb1, x1, gb2, 8);
-                    BFI(eb1, x12, eb2, 8);
+                    BFI(gb1, x1, gb2*8, 8);
+                    BFI(eb1, x12, eb2*8, 8);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                     LDRB_IMM9(x1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
-                    BFI(gb1, x1, gb2, 8);
+                    BFI(gb1, x1, gb2*8, 8);
                     STRB_IMM9(x12, ed, 0);
                 }
                 // Unlock
@@ -900,7 +900,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = (gd&4)>>2;
-                UXTB(12, gb1, gb2?3:0);
+                UXTB(12, gb1, gb2);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -932,7 +932,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
-                    UXTB(x12, eb1, eb2?3:0);
+                    UXTB(x12, eb1, eb2);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                     LDRB_IMM9(x12, ed, 0);
