@@ -99,6 +99,7 @@ typedef struct box86context_s {
     int                 deferedInitCap;
 
 #ifdef DYNAREC
+    pthread_mutex_t     mutex_blocks;
     pthread_mutex_t     mutex_mmap;
     dynablocklist_t     *dynablocks;
     mmaplist_t          *mmaplist;
