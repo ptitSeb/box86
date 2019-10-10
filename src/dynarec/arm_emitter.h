@@ -105,6 +105,9 @@ Op is 20-27
 // sub dst, src, #(imm8)
 #define SUB_IMM8(dst, src, imm8) \
     EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// sub cond dst, src, #(imm8)
+#define SUB_COND_IMM8(dst, src, imm8) \
+    EMIT((cond) | 0x02400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)
 #define SUBS_IMM8(dst, src, imm8) \
     EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )

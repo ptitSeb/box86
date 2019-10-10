@@ -1526,16 +1526,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
+                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        SUBS_IMM8(xECX, xECX, 1);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                        // done, file cmp test
+                        Bcond(cNE, i32);
+                        // done, finish cmp test
                         MARK2;
                         CALL(cmp8, -1);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
@@ -1554,16 +1555,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
+                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        SUBS_IMM8(xECX, xECX, 1);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                        // done, file cmp test
+                        Bcond(cNE, i32);
+                        // done, finish with cmp test
                         MARK2;
                         CALL(cmp32, -1);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
@@ -1583,7 +1585,6 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
-                        // done
                         break;
                     case 0xAB:
                         INST_NAME("REP STOSD");
@@ -1600,7 +1601,33 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
-                        // done
+                        break;
+                    case 0xAC:
+                        INST_NAME("REP LODSB");
+                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                        CMPS_IMM8(x3, 1);
+                        MOV_REG_LSR_IMM5(x3, xECX, 0);
+                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        // DF=0, increment addresses, DF=1 decrement addresses
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
+                        LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                        BFI(xEAX, x1, 0, 8);
+                        XOR_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        break;
+                    case 0xAD:
+                        INST_NAME("REP LODSB");
+                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                        CMPS_IMM8(x3, 1);
+                        MOV_REG_LSR_IMM5(x3, xECX, 2);
+                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        // DF=0, increment addresses, DF=1 decrement addresses
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
+                        LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                        XOR_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         break;
                     case 0xAE:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
@@ -1616,16 +1643,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
+                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        SUBS_IMM8(xECX, xECX, 1);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                        // done, file cmp test
+                        Bcond(cNE, i32);
+                        // done, finish with cmp test
                         MARK2;
                         CALL(cmp8, -1);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
@@ -1644,16 +1672,17 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         MARK;
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
+                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        SUBS_IMM8(xECX, xECX, 1);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
-                        // done, file cmp test
+                        Bcond(cNE, i32);
+                        // done, finish with cmp test
                         MARK2;
                         CALL(cmp32, -1);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
