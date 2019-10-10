@@ -119,6 +119,10 @@ const char* arm_print(uint32_t opcode)
             int rd = (opcode>>12)&15;
             int rm = (opcode)&15;
             sprintf(ret, "SWP%s%s r%d, r%d, [r%d]", cond, b?"B":"", rd, rm, rn);
+        } else if((opcode&0b000011111111111110000111111110000)==0b00000110101111110000111100110000) {
+            int rd = (opcode>>12)&15;
+            int rm = (opcode)&15;
+            sprintf(ret, "BSWAP%s %s, %s", cond, regname[rd], regname[rm]);
         } else if (((opcode>>26)&0b11)==0b01 && ((opcode>>16)&15)!=15) {
             // ldr/str
             int i = (opcode>>25)&1;

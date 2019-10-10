@@ -312,4 +312,7 @@ Op is 20-27
 // BFI: Bit Field Insert: copy any number of low order bit from Rn to any position of Rd
 #define BFI(rd, rn, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
 
+// REV: Reverse byte of a 32bits word
+#define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
+
 #endif  //__ARM_EMITTER_H__

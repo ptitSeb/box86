@@ -495,7 +495,7 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = (ed&4)>>2;    // L or H
-                SXTB(gd, eb1, eb2?3:0);
+                SXTB(gd, eb1, eb2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 LDRSB_IMM8(gd, ed, 0);
@@ -512,6 +512,19 @@ static uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2);
                 LDRSH_IMM8(gd, ed, 0);
             }
+            break;
+
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            INST_NAME("BSWAP Reg");
+            gd = xEAX+(opcode&7);
+            REV(gd, gd);
             break;
 
         default:
