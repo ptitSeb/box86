@@ -6,6 +6,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
     uintptr_t ip = addr-1;
     uint8_t opcode = F8;
     uint8_t nextop;
+    uint32_t u32;
     int32_t i32;
     int16_t i16;
     uint16_t u16;
@@ -50,6 +51,20 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
 
         case 0x90:
             INST_NAME("NOP");
+            break;
+
+        case 0xA1:
+            INST_NAME("MOV, AX, Od");
+            u32 = F32;
+            MOV32(x2, u32);
+            LDRH_IMM8(x2, x2, 0);
+            BFI(xEAX, x2, 0, 16);
+            break;
+        case 0xA3:
+            INST_NAME("MOV Od, AX");
+            u32 = F32;
+            MOV32(x2, u32);
+            STRH_IMM8(xEAX, x2, 0);
             break;
 
 
