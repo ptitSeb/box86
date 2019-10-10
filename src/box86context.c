@@ -95,7 +95,6 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_lock, NULL);
 
 #ifdef DYNAREC
-    pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
     context->dynablocks = NewDynablockList();
 #endif
@@ -141,6 +140,7 @@ void FreeBox86Context(box86context_t** context)
         if((*context)->mmaplist[i].block)
             munmap((*context)->mmaplist[i].block, MMAPSIZE);
     free((*context)->mmaplist);
+    pthread_mutex_destroy(&(*context)->mutex_mmap);
 #endif
     
     for(int i=0; i<(*context)->argc; ++i)
