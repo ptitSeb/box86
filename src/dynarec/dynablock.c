@@ -33,6 +33,8 @@ dynablocklist_t* NewDynablockList()
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->blocks = kh_init(dynablocks);
 
+    pthread_mutex_init(&ret->mutex_blocks, NULL);
+
     return ret;
 }
 void FreeDynablockList(dynablocklist_t** dynablocks)
@@ -47,6 +49,9 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         free(db);
     );
     kh_destroy(dynablocks, (*dynablocks)->blocks);
+
+    pthread_mutex_destroy(&(*dynablocks)->mutex_blocks);
+
     free(*dynablocks);
     *dynablocks = NULL;
 }
@@ -57,8 +62,8 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
 */
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
 {
-    pthread_mutex_lock(&emu->context->mutex_blocks);
     dynablocklist_t *dynablocks = emu->context->dynablocks;
+    pthread_mutex_lock(&dynablocks->mutex_blocks);
     int ret;
     dynablock_t* block = NULL;
     khint_t k = kh_get(dynablocks, dynablocks->blocks, addr);
@@ -66,12 +71,12 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
     if(k!=kh_end(dynablocks->blocks)) {
         /*atomic_store(&dynalock, 0);*/
         block = kh_value(dynablocks->blocks, k);
-        pthread_mutex_unlock(&emu->context->mutex_blocks);
+        pthread_mutex_unlock(&dynablocks->mutex_blocks);
         return block;
     }
     // Blocks doesn't exist. If creation is not allow, just return NULL
     if(!create) {
-        pthread_mutex_unlock(&emu->context->mutex_blocks);
+        pthread_mutex_unlock(&dynablocks->mutex_blocks);
         return block;
     }
     // create and add new block
@@ -79,7 +84,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
     k = kh_put(dynablocks, dynablocks->blocks, addr, &ret);
     block = kh_value(dynablocks->blocks, k) = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    pthread_mutex_unlock(&emu->context->mutex_blocks);
+    pthread_mutex_unlock(&dynablocks->mutex_blocks);
     // fill the block
     FillBlock(emu, block, addr);
     dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", addr, block->block, block->size);

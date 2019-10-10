@@ -13,6 +13,7 @@ typedef struct kh_dynablocks_s kh_dynablocks_t;
 
 typedef struct dynablocklist_s {
     kh_dynablocks_t     *blocks;
+    pthread_mutex_t     mutex_blocks;
 } dynablocklist_t;
 
 #endif //__DYNABLOCK_PRIVATE_H_
