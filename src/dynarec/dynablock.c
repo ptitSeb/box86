@@ -17,6 +17,7 @@
 #include "x86trace.h"
 #include "dynablock.h"
 #include "dynablock_private.h"
+#include "elfloader.h"
 #ifdef ARM
 #include "dynarec_arm.h"
 #else
@@ -62,7 +63,9 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
 */
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create)
 {
-    dynablocklist_t *dynablocks = emu->context->dynablocks;
+    dynablocklist_t *dynablocks = GetDynablocksFromAddress(emu->context, addr);
+    if(!dynablocks)
+        return NULL;
     pthread_mutex_lock(&dynablocks->mutex_blocks);
     int ret;
     dynablock_t* block = NULL;

@@ -8,8 +8,11 @@ typedef struct library_s library_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct box86context_s box86context_t;
 typedef struct x86emu_s x86emu_t;
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
 
-void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
+elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
 const char* ElfName(elfheader_t* head);
 
@@ -38,5 +41,8 @@ elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
 void* GetGSBase(box86context_t *context);
 void* GetTLSBase(elfheader_t* h);
+#ifdef DYNAREC
+dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
+#endif
 
 #endif //__ELF_LOADER_H_

@@ -17,6 +17,20 @@
 #include "library.h"
 #include "x86emu.h"
 #include "box86stack.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#endif
+
+elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
+{
+    elfheader_t *h = ParseElfHeader(f, name, exec);
+    if(!h)
+        return NULL;
+#ifdef DYNAREC
+    h->blocks = NewDynablockList();
+#endif
+    return h;
+}
 
 void FreeElfHeader(elfheader_t** head)
 {
@@ -32,6 +46,9 @@ void FreeElfHeader(elfheader_t** head)
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);
+#ifdef DYNAREC
+    FreeDynablockList(&h->blocks);
+#endif
     FreeElfMemory(h);
     free(h);
 
@@ -708,3 +725,13 @@ void* GetTLSBase(elfheader_t* h)
     }
     return ptr;
 }
+
+#ifdef DYNAREC
+dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
+{
+    elfheader_t* elf = FindElfAddress(context, addr);
+    if(!elf)
+        return NULL;
+    return elf->blocks;
+}
+#endif

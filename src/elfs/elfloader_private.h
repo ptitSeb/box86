@@ -1,6 +1,10 @@
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
+
 #include <pthread.h>
 
 struct elfheader_s {
@@ -61,6 +65,9 @@ struct elfheader_s {
 
     char*       memory; // char* and not void* to allow math on memory pointer
     char*       tlsdata;
+#ifdef DYNAREC
+    dynablocklist_t *blocks;
+#endif
 };
 
 #define R_386_NONE	0
@@ -74,5 +81,7 @@ struct elfheader_s {
 #define R_386_RELATIVE	8
 #define R_386_GOTOFF	9
 #define R_386_GOTPC	10
+
+elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
 
 #endif //__ELFLOADER_PRIVATE_H_
