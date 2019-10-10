@@ -36,7 +36,20 @@
                     LDR_IMM9(hint, wback, 0); \
                     ed = hint;              \
                 }
-#define WBACK   if(wback) {STR_IMM9(ed, wback, 0);}
+//GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDW(hint, ret)   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    MOV_REG(ret, ed);       \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint); \
+                    ed = ret;               \
+                    LDR_IMM9(ed, wback, 0); \
+                }
+// Write back ed in wback (if wback not 0)
+#define WBACK       if(wback) {STR_IMM9(ed, wback, 0);}
+// Send back wb to either ed or wback
+#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, 0);} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7);   \
@@ -250,7 +263,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 addr = dynarec0f(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
-/*            case 0x10:
+            case 0x10:
                 INST_NAME("ADC Eb, Gb");
                 nextop = F8;
                 if((nextop&0xC0)==0xC0) {
@@ -278,12 +291,10 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("ADC Ed, Gd");
                 nextop = F8;
                 GETGD;
-                GETEDH(x12);
-                MOV_REG(x1, ed);
-                ed=x1;
+                GETEDW(x12, x1);
                 MOV_REG(x2, gd);
                 CALL_(adc32, x1);
-                WBACK;
+                SBACK(x1);
                 UFLAGS(1);
                 break;
 
@@ -315,14 +326,12 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("SBB Ed, Gd");
                 nextop = F8;
                 GETGD;
-                GETEDH(x12);
-                MOV_REG(x1, ed);
-                ed=x1;
+                GETEDW(x12, x1);
                 MOV_REG(x2, gd);
                 CALL_(sbb32, x1);
-                WBACK;
+                SBACK(x1);
                 UFLAGS(1);
-                break;*/
+                break;
 
             case 0x20:
                 INST_NAME("AND Eb, Gb");
@@ -347,7 +356,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 } else {
                     STRB_IMM9(x1, ed, 0);
                 }
-                UFLAG_DF(x3, d_sub8);
+                UFLAG_DF(x3, d_and8);
                 UFLAGS(0);
                 break;
             case 0x21:
@@ -475,7 +484,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 } else {
                     STRB_IMM9(x1, ed, 0);
                 }
-                UFLAG_DF(x3, d_sub8);
+                UFLAG_DF(x3, d_xor8);
                 UFLAGS(0);
                 break;
             case 0x31:
