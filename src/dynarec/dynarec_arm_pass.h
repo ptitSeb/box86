@@ -1095,6 +1095,23 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 MOV32(x2, u32);
                 STR_IMM9(xEAX, x2, 0);
                 break;
+            
+            case 0xA8:
+                INST_NAME("TEST AL, Ib");
+                UXTB(x1, xEAX, 0);
+                u8 = F8;
+                MOV32(x2, u8);
+                CALL(test8, -1);
+                UFLAGS(1);
+                break;
+            case 0xA9:
+                INST_NAME("TEST EAX, Id");
+                MOV_REG(x1, xEAX);
+                i32 = F32S;
+                MOV32(x2, i32);
+                CALL(test32, -1);
+                UFLAGS(1);
+                break;
 
             case 0xB8:
             case 0xB9:
