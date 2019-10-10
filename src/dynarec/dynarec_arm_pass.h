@@ -1330,9 +1330,74 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xC1:
                 nextop = F8;
                 switch((nextop>>3)&7) {
+                    case 0:
+                        INST_NAME("ROL Ed, Ib");
+                        USEFLAG;
+                        GETEDH(x12);
+                        u8 = (F8)&0x1f;
+                        if(u8) {
+                            MOV_REG_ROR_IMM5(ed, ed, (32-u8));
+                            WBACK;
+                        }
+                        UFLAG_IF {  // calculate flags directly
+                            if(u8==1) {
+                                MOV_REG_LSR_IMM5(x2, ed, 31);
+                                ADD_REG_LSL_IMM8(x2, x2, ed, 0);
+                                AND_IMM8(x2, x2, 1);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            }
+                            if(u8) {
+                                AND_IMM8(x2, ed, 0x1);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            }
+                        }
+                        UFLAGS(1);
+                        break;
+                    case 1:
+                        INST_NAME("ROR Ed, Ib");
+                        USEFLAG;
+                        GETEDH(x12);
+                        u8 = (F8)&0x1f;
+                        UFLAG_OP1(ed);
+                        if(u8) {
+                            MOV_REG_ROR_IMM5(ed, ed, u8);
+                            WBACK;
+                        }
+                        UFLAG_IF {  // calculate flags directly
+                            if(u8==1) {
+                                MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
+                                XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
+                                AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            }
+                            if(u8) {
+                                MOV_REG_LSR_IMM5(x2, ed, 31);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            }
+                        }
+                        UFLAGS(1);
+                        break;
+                    case 2:
+                        INST_NAME("RCL Ed, Ib");
+                        GETEDW(x12, x1);
+                        u8 = F8;
+                        MOV_REG(x2, gd);
+                        CALL_(rcl32, x1);
+                        SBACK(x1);
+                        UFLAGS(1);
+                        break;
+                    case 3:
+                        INST_NAME("RCR Ed, Ib");
+                        GETEDW(x12, x1);
+                        u8 = F8;
+                        MOV_REG(x2, gd);
+                        CALL_(rcl32, x1);
+                        SBACK(x1);
+                        UFLAGS(1);
+                        break;
                     case 4:
                     case 6:
-                        INST_NAME("SHL Ed, Id");
+                        INST_NAME("SHL Ed, Ib");
                         GETED;
                         u8 = (F8)&0x1f;
                         UFLAG_IF{
@@ -1346,7 +1411,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(0);
                         break;
                     case 5:
-                        INST_NAME("SHR Ed, Id");
+                        INST_NAME("SHR Ed, Ib");
                         GETED;
                         u8 = (F8)&0x1f;
                         UFLAG_IF{
@@ -1362,7 +1427,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(0);
                         break;
                     case 7:
-                        INST_NAME("SAR Ed, Id");
+                        INST_NAME("SAR Ed, Ib");
                         GETED;
                         u8 = (F8)&0x1f;
                         UFLAG_IF{
@@ -1378,7 +1443,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(0);
                         break;
                     default:
-                        INST_NAME("GRP3 Ed, Id");
+                        INST_NAME("GRP3 Ed, Ib");
                         ok = 0;
                         DEFAULT;
                 }
@@ -1504,6 +1569,90 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xD3:
                 nextop = F8;
                 switch((nextop>>3)&7) {
+                    case 0:
+                        if(opcode==0xD1) {
+                            INST_NAME("ROL Ed, 1");
+                            MOVW(x3, 31);
+                        } else {
+                            INST_NAME("ROL Ed, CL");
+                            AND_IMM8(x3, xECX, 0x1f);
+                            RSB_IMM8(x3, x3, 0x20);
+                            AND_IMM8(x3, x3, 0x1f); // usefull?
+                        }
+                        USEFLAG;
+                        GETEDH(x12);
+                        MOV_REG_ROR_REG(ed, ed, x3);
+                        WBACK;
+                        UFLAG_IF {  // calculate flags directly
+                            if(u8==1) {
+                                MOV_REG_LSR_IMM5(x2, ed, 31);
+                                ADD_REG_LSL_IMM8(x2, x2, ed, 0);
+                                AND_IMM8(x2, x2, 1);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            }
+                            if(u8) {
+                                AND_IMM8(x2, ed, 0x1);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            }
+                        }
+                        UFLAGS(1);
+                        break;
+                    case 1:
+                        if(opcode==0xD1) {
+                            INST_NAME("ROR Ed, 1");
+                            MOVW(x3, 1);
+                        } else {
+                            INST_NAME("ROR Ed, CL");
+                            AND_IMM8(x3, xECX, 0x1f);
+                        }
+                        USEFLAG;
+                        GETEDH(x12);
+                        u8 = (F8)&0x1f;
+                        UFLAG_OP1(ed);
+                        if(u8) {
+                            MOV_REG_ROR_REG(ed, ed, x3);
+                            WBACK;
+                        }
+                        UFLAG_IF {  // calculate flags directly
+                            if(u8==1) {
+                                MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
+                                XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
+                                AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            }
+                            if(u8) {
+                                MOV_REG_LSR_IMM5(x2, ed, 31);
+                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            }
+                        }
+                        UFLAGS(1);
+                        break;
+                    case 2:
+                        if(opcode==0xD1) {
+                            INST_NAME("RCL Ed, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("RCL Ed, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEDW(x12, x1);
+                        CALL_(rcl32, x1);
+                        SBACK(x1);
+                        UFLAGS(1);
+                        break;
+                    case 3:
+                        if(opcode==0xD1) {
+                            INST_NAME("RCR Ed, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("RCR Ed, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEDW(x12, x1);
+                        CALL_(rcl32, x1);
+                        SBACK(x1);
+                        UFLAGS(1);
+                        break;
                     case 4:
                     case 6:
                         if(opcode==0xD1) {

@@ -182,6 +182,9 @@ Op is 20-27
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// xor dst, src1, src2, lsl #imm
+#define XOR_REG_LSR_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
 // bic dst, src1, src2, lsl #imm
 #define BIC_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
