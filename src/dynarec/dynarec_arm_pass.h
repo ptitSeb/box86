@@ -1290,7 +1290,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 STRB_IMM9(xEAX, x2, 0);
                 break;
             case 0xA3:
-                INST_NAME("MOV Ob, EAX");
+                INST_NAME("MOV Od, EAX");
                 u32 = F32;
                 MOV32(x2, u32);
                 STR_IMM9(xEAX, x2, 0);
