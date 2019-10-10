@@ -57,7 +57,7 @@ void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const ch
     }
 }
 
-void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
+elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 {
     Elf32_Ehdr header;
     if(fread(&header, sizeof(Elf32_Ehdr), 1, f)!=1) {
