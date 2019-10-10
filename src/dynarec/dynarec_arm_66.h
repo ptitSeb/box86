@@ -19,6 +19,45 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             addr = dynarec660f(dyn, addr, ninst, ok, need_epilog);
             break;
 
+        case 0x38:
+            INST_NAME("CMP Ew, Gw");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                UXTH(x1, ed, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3);
+                STRH_IMM8(x1, ed, 0);
+            }
+            UXTH(x2, gd, 0);
+            CALL(cmp16, -1);
+            UFLAGS(1);
+            break;
+        case 0x3B:
+            INST_NAME("CMP Gw, Ew");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                UXTH(x2, ed, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3);
+                STRH_IMM8(x2, ed, 0);
+            }
+            UXTH(x1, gd, 0);
+            CALL(cmp16, -1);
+            UFLAGS(1);
+            break;
+        case 0x3D:
+            INST_NAME("CMP AX, Id");
+            i32 = F16;
+            MOV32(x2, i32);
+            UXTH(x1, xEAX, 0);
+            CALL(cmp16, -1);
+            UFLAGS(1);
+            break;
+
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
