@@ -132,16 +132,16 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     SXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRSB_IMM8(x1, ed, 0);
                 }
                 UFLAG_OP1(x1);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
-                SXTB(x3, gb1, gb2);
-                UFLAG_OP2(x3);
-                ADD_REG_LSL_IMM8(x1, x1, x3, 0);
+                SXTB(x2, gb1, gb2);
+                UFLAG_OP2(x2);
+                ADD_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
                 if((nextop&0xC0)==0xC0) {
                     BFI(eb1, x1, eb2*8, 8);
@@ -196,14 +196,14 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     UXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRB_IMM9(x1, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
-                UXTB(x3, gb1, gb2);
-                ORR_REG_LSL_IMM8(x1, x1, x3, 0);
+                UXTB(x2, gb1, gb2);
+                ORR_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
                 if((nextop&0xC0)==0xC0) {
                     BFI(eb1, x1, eb2*8, 8);
@@ -250,6 +250,80 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 addr = dynarec0f(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
+/*            case 0x10:
+                INST_NAME("ADC Eb, Gb");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
+                    LDRB_IMM9(x1, ed, 0);
+                }
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x2, gb1, gb2);
+                CALL_(adc8, x1);
+                if((nextop&0xC0)==0xC0) {
+                    BFI(eb1, x1, eb2*8, 8);
+                } else {
+                    STRB_IMM9(x1, ed, 0);
+                }
+                UFLAGS(1);
+                break;
+            case 0x11:
+                INST_NAME("ADC Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETEDH(x12);
+                MOV_REG(x1, ed);
+                ed=x1;
+                MOV_REG(x2, gd);
+                CALL_(adc32, x1);
+                WBACK;
+                UFLAGS(1);
+                break;
+
+            case 0x18:
+                INST_NAME("SBB Eb, Gb");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x1, eb1, eb2);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
+                    LDRB_IMM9(x1, ed, 0);
+                }
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x2, gb1, gb2);
+                CALL_(sbb8, x1);
+                if((nextop&0xC0)==0xC0) {
+                    BFI(eb1, x1, eb2*8, 8);
+                } else {
+                    STRB_IMM9(x1, ed, 0);
+                }
+                UFLAGS(1);
+                break;
+            case 0x19:
+                INST_NAME("SBB Ed, Gd");
+                nextop = F8;
+                GETGD;
+                GETEDH(x12);
+                MOV_REG(x1, ed);
+                ed=x1;
+                MOV_REG(x2, gd);
+                CALL_(sbb32, x1);
+                WBACK;
+                UFLAGS(1);
+                break;*/
+
             case 0x20:
                 INST_NAME("AND Eb, Gb");
                 nextop = F8;
@@ -259,7 +333,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     UXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRB_IMM9(x1, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
@@ -318,16 +392,16 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     SXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRSB_IMM8(x1, ed, 0);
                 }
                 UFLAG_OP1(x1);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
-                SXTB(x3, gb1, gb2);
-                UFLAG_OP2(x3);
-                SUB_REG_LSL_IMM8(x1, x1, x3, 0);
+                SXTB(x2, gb1, gb2);
+                UFLAG_OP2(x2);
+                SUB_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
                 if((nextop&0xC0)==0xC0) {
                     BFI(eb1, x1, eb2*8, 8);
@@ -387,7 +461,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     UXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRB_IMM9(x1, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
@@ -446,14 +520,14 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     UXTB(x1, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRB_IMM9(x1, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
                 UXTB(x2, gb1, gb2);
-                CALL(cmp8, -1);
+                CALL_(cmp8, -1);
                 UFLAGS(1);
                 break;
             case 0x39:
@@ -475,7 +549,7 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2);
                     UXTB(x2, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
                     LDRB_IMM9(x2, ed, 0);
                 }
                 gd = (nextop&0x38)>>3;
