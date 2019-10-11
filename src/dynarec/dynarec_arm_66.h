@@ -31,7 +31,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 STRH_IMM8(x1, ed, 0);
             }
             UXTH(x2, gd, 0);
-            CALL(cmp16, -1);
+            CALL(cmp16, -1, 0);
             UFLAGS(1);
             break;
         case 0x3B:
@@ -46,7 +46,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
                 STRH_IMM8(x2, ed, 0);
             }
             UXTH(x1, gd, 0);
-            CALL(cmp16, -1);
+            CALL(cmp16, -1, 0);
             UFLAGS(1);
             break;
         case 0x3D:
@@ -54,7 +54,7 @@ static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* o
             i32 = F16;
             MOV32(x2, i32);
             UXTH(x1, xEAX, 0);
-            CALL(cmp16, -1);
+            CALL(cmp16, -1, 0);
             UFLAGS(1);
             break;
 

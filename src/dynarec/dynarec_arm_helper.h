@@ -191,21 +191,21 @@ static void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     BX(x2);
 }
 
-static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret)
+static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
     MOV32(reg, (uintptr_t)fnc);
-    PUSH(xSP, (1<<xEmu));
+    PUSH(xSP, (1<<xEmu) | mask);
     BLX(reg);
     if(ret>=0) {
         MOV_REG(ret, 0);
     }
-    POP(xSP, (1<<xEmu));
+    POP(xSP, (1<<xEmu) | mask);
 }
 
 static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     MESSAGE(LOG_DUMP, "Get TLSData\n");
-    call_c(dyn, ninst, GetGSBaseEmu, 12, reg);
+    call_c(dyn, ninst, GetGSBaseEmu, 12, reg, 0);
 }
 
 static int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
