@@ -20,6 +20,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "../tools/bridge_private.h"
 
 #include "dynarec_arm_helper.h"
 
@@ -236,9 +237,10 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
         uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
         addr = *(uint32_t*)a1; 
     }
-    if(PK(0)==0xCC && PK(1)=='S' && PK(2)=='C' && PK32(3)!=0) {
+    onebridge_t *b = (onebridge_t*)(addr);
+    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0) {
         // found !
-        if(retn) *retn = (PK(3+4+4+1)==0xc2)?(PK16(3+4+4+2)):0;
+        if(retn) *retn = (b->C3==0xC2)?b->N:0;
         if(calladdress) *calladdress = addr+1;
         return 1;
     }
