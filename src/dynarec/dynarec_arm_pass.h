@@ -68,21 +68,32 @@
 #define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 #define CALL_(F, ret, M) call_c(dyn, ninst, F, x3, ret, M)
-#ifndef UFLAGS
-#define UFLAGS(A)  dyn->cleanflags=A
-#endif
-#ifndef USEFLAG
-#define USEFLAG   if(!dyn->cleanflags) {CALL(UpdateFlags, -1, 0); dyn->cleanflags=1; }
-#endif
-#ifndef JUMP
-#define JUMP(A) 
-#endif
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
 #define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
 #define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
 #define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
 #define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
+#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
+#define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+#ifndef UFLAGS
+#define UFLAGS(A)  dyn->cleanflags=A
+#endif
+#ifndef USEFLAG
+#define USEFLAG   \
+    if(!dyn->cleanflags) {  \
+        LDR_IMM9(x12, xEmu, offsetof(x86emu_t, df)); \
+        TSTS_REG_LSL_IMM8(x12, x12, x12, 0);    \
+        i32 = (GETMARKF)-(dyn->arm_size+8); \
+        Bcond(cEQ, i32);    \
+        CALL(UpdateFlags, -1, 0); \
+        MARKF;              \
+        dyn->cleanflags=1;  \
+    }
+#endif
+#ifndef JUMP
+#define JUMP(A) 
+#endif
 #define BARRIER(A) if (dyn->insts) dyn->insts[ninst].x86.barrier = A
 #define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
