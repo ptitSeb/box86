@@ -1480,6 +1480,26 @@ void NAME_STEP(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(1);
                 break;
 
+            case 0xB0:
+            case 0xB1:
+            case 0xB2:
+            case 0xB3:
+                INST_NAME("MOV xL, Ib");
+                u8 = F8;
+                MOVW(x1, u8);
+                gb1 = xEAX+(opcode&3);
+                BFI(gb1, x1, 0, 8);
+                break;
+            case 0xB4:
+            case 0xB5:
+            case 0xB6:
+            case 0xB7:
+                INST_NAME("MOV xH, Ib");
+                u8 = F8;
+                MOVW(x1, u8);
+                gb1 = xEAX+(opcode&3);
+                BFI(gb1, x1, 8, 8);
+                break;
             case 0xB8:
             case 0xB9:
             case 0xBA:
