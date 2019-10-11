@@ -295,7 +295,7 @@ Op is 20-27
 
 // Mul and MulA
 #define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | (0b000000<<22) | (A<<21) | (S<<20) | (Rd<<16) | (Rn<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
-#define MUL(Rd, Rm, Rs)     EMIT(MULMULA(c__, 0, 0, Rd, Rd, ((Rd==Rm)?Rm:Rs), ((Rd==Rm)?Rs:Rm)))
+#define MUL(Rd, Rm, Rn)     EMIT(MULMULA(c__, 0, 0, (Rd), 0, (Rm), (Rn)))
 
 // SXTB rd, rm ror rot
 #define SXTB(rd, rm, rot)   EMIT(c__ | (0b01101010<<20) | (0x0f<<16) | ((rd)<<12) | (rot)<<10 | (0b0111<<4) | (rm))
