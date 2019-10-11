@@ -814,7 +814,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 i32 = F32S;
                 MOV32(x12, i32);
                 UFLAG_IF {
-                    SMULL(x3, gd, x12, ed);   //RdHi, RdLo, Rm must be different
+                    SMULL(x3, gd, x12, ed);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul32);
@@ -828,6 +828,23 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 i32 = F8S;
                 MOV32(x3, i32);
                 PUSH(xESP, 1<<x3);
+                break;
+            case 0x6B:
+                INST_NAME("IMUL Gd, Ed, Ib");
+                nextop = F8;
+                GETGD;
+                GETED;
+                i32 = F8S;
+                MOV32(x12, i32);
+                UFLAG_IF {
+                    SMULL(x3, gd, x12, ed);
+                    UFLAG_OP1(x3);
+                    UFLAG_RES(gd);
+                    UFLAG_DF(x3, d_imul32);
+                } else {
+                    MUL(gd, ed, x12);
+                }
+                UFLAGS(0);
                 break;
 
             #define GO(GETFLAGS, NO, YES)   \
