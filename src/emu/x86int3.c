@@ -153,6 +153,9 @@ void x86Int3(x86emu_t* emu)
                 } else if(strstr(s, "fmod")==s) {
                     post = 4;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "fmod", *(double*)(R_ESP+4), *(double*)(R_ESP+12));
+                } else if(strstr(s, "SDL_GetWindowSurface")==s) {
+                    post = 5;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), "SDL_GetWindowSurface", *(void**)(R_ESP+4));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
@@ -174,7 +177,14 @@ void x86Int3(x86emu_t* emu)
                     case 4: snprintf(buff2, 63, " (%f)", ST0.d);
                     #endif
                             break;
-                    
+                    case 5: {
+                            uint32_t* p = (uint32_t*)R_EAX;
+                            if(p)
+                                snprintf(buff2, 63, " size=%dx%d, pitch=%d, pixels=%p", p[2], p[3], p[4], p+5);
+                            else
+                                snprintf(buff2, 63, "NULL Surface");
+                            }
+                            break;
                 }
                 if(perr && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d)", errno);
