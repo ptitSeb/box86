@@ -129,6 +129,20 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             STRH_IMM8(xEAX, x2, 0);
             break;
 
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Iw");
+            u16 = F16;
+            MOVW(x1, u16);
+            gd = xEAX+(opcode&7);
+            BFI(gd, x1, 0, 16);
+            break;
 
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
