@@ -1,224 +1,157 @@
+#ifndef __DYNAREC_ARM_HELPER_H__
+#define __DYNAREC_ARM_HELPER_H__
+
+#if STEP == 0
+#include "dynarec_arm_pass0.h"
+#elif STEP == 1
+#include "dynarec_arm_pass1.h"
+#elif STEP == 2
+#include "dynarec_arm_pass2.h"
+#elif STEP == 3
+#include "dynarec_arm_pass3.h"
+#endif
+
+#include "debug.h"
+#include "arm_emitter.h"
+#include "../emu/x86primop.h"
+
+#define F8      *(uint8_t*)(addr++)
+#define F8S     *(int8_t*)(addr++)
+#define F16     *(uint16_t*)(addr+=2, addr-2)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
+#define F32S    *(int32_t*)(addr+=4, addr-4)
+#define PK(a)   *(uint8_t*)(addr+a)
+#define PK32(a)   *(uint32_t*)(addr+a)
+#define PK16(a)   *(uint16_t*)(addr+a)
+#define PKip(a)   *(uint8_t*)(ip+a)
+
+#define GETGD   gd = xEAX+((nextop&0x38)>>3)
+//GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2); \
+                    LDR_IMM9(x1, wback, 0); \
+                    ed = x1;                \
+                }
+//GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
+#define GETEDH(hint)   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2); \
+                    LDR_IMM9(hint, wback, 0); \
+                    ed = hint;              \
+                }
+//GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDW(hint, ret)   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    MOV_REG(ret, ed);       \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint); \
+                    ed = ret;               \
+                    LDR_IMM9(ed, wback, 0); \
+                }
+// Write back ed in wback (if wback not 0)
+#define WBACK       if(wback) {STR_IMM9(ed, wback, 0);}
+// Send back wb to either ed or wback
+#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, 0);} else {MOV_REG(ed, wb);}
+//GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
+                    ed = xEAX+(nextop&7);   \
+                    wback = 0;              \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2); \
+                    LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
+                    ed = x1;                 \
+                }
+#define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
+#define FAKEED  if((nextop&0xC0)!=0xC0) {   \
+                    addr = fakeed(dyn, addr, ninst, nextop); \
+                }
+// CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)
+#define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
+// CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
+#define CALL_(F, ret, M) call_c(dyn, ninst, F, x3, ret, M)
+#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
+#define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
+#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
+#define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
+#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
+#define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
+#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
+#define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+#ifndef UFLAGS
+#define UFLAGS(A)  dyn->cleanflags=A
+#endif
+#ifndef USEFLAG
+#define USEFLAG   \
+    if(!dyn->cleanflags) {  \
+        LDR_IMM9(x12, xEmu, offsetof(x86emu_t, df)); \
+        TSTS_REG_LSL_IMM8(x12, x12, x12, 0);    \
+        i32 = (GETMARKF)-(dyn->arm_size+8); \
+        Bcond(cEQ, i32);    \
+        CALL(UpdateFlags, -1, 0); \
+        MARKF;              \
+        dyn->cleanflags=1;  \
+    }
+#endif
+#ifndef JUMP
+#define JUMP(A) 
+#endif
+#define BARRIER(A) if (dyn->insts) dyn->insts[ninst].x86.barrier = A
+#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
+#define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.flags)
+
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
+#ifndef STEPNAME
+#define STEPNAME3(N,M) N##M
+#define STEPNAME2(N,M) STEPNAME3(N,M)
+#define STEPNAME(N) STEPNAME2(N, STEP)
+#endif
+
+#define arm_pass        STEPNAME(arm_pass)
+
+#define dynarec0f       STEPNAME(dynarec0f)
+#define dynarecGS       STEPNAME(dynarecGS)
+#define dynarec66       STEPNAME(dynarec66)
+#define dynarec660f     STEPNAME(dynarec660f)
+
+#define geted           STEPNAME(geted_)
+#define fakeed          STEPNAME(fakeed_)
+#define jump_to_epilog  STEPNAME(jump_to_epilog_)
+#define jump_to_linker  STEPNAME(jump_to_linker_)
+#define ret_to_epilog   STEPNAME(ret_to_epilog_)
+#define retn_to_epilog  STEPNAME(retn_to_epilog_)
+#define call_c          STEPNAME(call_c_)
+#define grab_tlsdata    STEPNAME(grab_tlsdata_)
+#define isNativeCall    STEPNAME(isNativeCall_)
+
 /* setup r2 to address pointed by */
-static uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint) 
-{
-    uint8_t ret = 2;
-    uint8_t scratch = 2;
-    if(hint>0) ret = hint;
-    if(hint>0 && hint<xEAX) scratch = hint;
-    if(hint==xEIP) scratch = hint;  // allow this one as a scratch and return register
-    if(!(nextop&0xC0)) {
-        if((nextop&7)==4) {
-            uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
-            if((sib&0x7)==5) {
-                uint32_t tmp = F32;
-                MOV32(((sib_reg!=4)?scratch:ret), tmp);
-                if (sib_reg!=4) {
-                    if(tmp) {
-                        MOV32(scratch, tmp);
-                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
-                    } else {
-                        MOV_REG_LSL_IMM5(ret, xEAX+sib_reg, (sib>>6));
-                    }
-                } else {
-                    MOV32(ret, tmp);
-                }
-            } else {
-                if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
-                } else {
-                    ret = xEAX+(sib&0x7);
-                }
-            }
-        } else if((nextop&7)==5) {
-            uint32_t tmp = F32;
-            MOV32(ret, tmp);
-        } else {
-            ret = xEAX+(nextop&7);
-        }
-    } else {
-        int i32;
-        uint8_t sib = 0;
-        int sib_reg = 0;
-        if((nextop&7)==4) {
-            sib = F8;
-            sib_reg = (sib>>3)&7;
-        }
-        if(nextop&0x80)
-            i32 = F32S;
-        else 
-            i32 = F8S;
-        if(i32==0) {
-            if((nextop&7)==4) {
-                if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
-                } else {
-                    ret = xEAX+(sib&0x07);
-                }
-            } else
-                ret = xEAX+(nextop&0x07);
-        } else {
-            int sub = (i32<0)?1:0;
-            if(sub) i32 = -i32;
-            if(i32<256) {
-                if((nextop&7)==4) {
-                    if (sib_reg!=4) {
-                        ADD_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
-                    } else {
-                        scratch = xEAX+(sib&0x07);
-                    }
-                } else
-                    scratch = xEAX+(nextop&0x07);
-                if(sub) {
-                    SUB_IMM8(ret, scratch, i32);
-                } else {
-                    ADD_IMM8(ret, scratch, i32);
-                }
-            } else {
-                MOV32(scratch, i32);
-                if((nextop&7)==4) {
-                    if (sib_reg!=4) {
-                        if(sub) {
-                            SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
-                        } else {
-                            ADD_REG_LSL_IMM8(scratch, scratch, xEAX+(sib&0x07), 0);
-                        }
-                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
-                    } else {
-                        int tmp = xEAX+(sib&0x07);
-                        if(sub) {
-                            SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
-                        } else {
-                            ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
-                        }
-                    }
-                } else {
-                    int tmp = xEAX+(nextop&0x07);
-                    if(sub) {
-                        SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
-                    } else {
-                        ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
-                    }
-                }
-            }
-        }
-    }
-    *ed = ret;
-    return addr;
-}
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint);
 
 // Do the GETED, but don't emit anything...
-static uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
-{
-    if(!(nextop&0xC0)) {
-        if((nextop&7)==4) {
-            uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
-            if((sib&0x7)==5) {
-                addr+=4;
-            }
-        } else if((nextop&7)==5) {
-            addr+=4;
-        }
-    } else {
-        if((nextop&7)==4) {
-            ++addr;
-        }
-        if(nextop&0x80) {
-            addr+=4;
-        } else {
-            ++addr;
-        }
-    }
-    return addr;
-}
+uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
-static void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
-{
-    MESSAGE(LOG_DUMP, "Jump to epilog\n");
-    if(reg) {
-        if(reg!=xEIP) {
-            MOV_REG(xEIP, reg);
-        }
-    } else {
-        MOV32(xEIP, ip);
-    }
-    void* epilog = arm_epilog;
-    MOV32(2, (uintptr_t)epilog);
-    BX(2);
-}
+void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
+void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
+void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
+void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
+void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
+void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
+int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 
-static void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
-{
-    MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
-    if(reg) {
-        if(reg!=xEIP) {
-            MOV_REG(xEIP, reg);
-        }
-    } else {
-        MOV32(xEIP, ip);
-    }
-    uintptr_t* table = 0;
-    if(dyn->tablesz) {
-        table = &dyn->table[dyn->tablei];
-        *table = (uintptr_t)arm_linker;
-    }
-    ++dyn->tablei;
-    MOV32_(x1, (uintptr_t)table);
-    LDR_IMM9(x2, x1, 0);
-    BX(x2);
-}
+uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 
-static void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
-{
-    MESSAGE(LOG_DUMP, "Ret epilog\n");
-    POP(xESP, 1<<xEIP);
-    void* epilog = arm_epilog;
-    MOV32(x2, (uintptr_t)epilog);
-    BX(x2);
-}
-
-static void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
-{
-    MESSAGE(LOG_DUMP, "Retn epilog\n");
-    POP(xESP, 1<<xEIP);
-    ADD_IMM8(xESP, xESP, n);
-    void* epilog = arm_epilog;
-    MOV32(x2, (uintptr_t)epilog);
-    BX(x2);
-}
-
-static void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
-{
-    MOV32(reg, (uintptr_t)fnc);
-    PUSH(xSP, (1<<xEmu) | mask);
-    BLX(reg);
-    if(ret>=0) {
-        MOV_REG(ret, 0);
-    }
-    POP(xSP, (1<<xEmu) | mask);
-}
-
-static void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
-{
-    MESSAGE(LOG_DUMP, "Get TLSData\n");
-    call_c(dyn, ninst, GetGSBaseEmu, 12, reg, 0);
-}
-
-static int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
-{
-    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
-        uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
-        addr = *(uint32_t*)a1; 
-    }
-    if(PK(0)==0xCC && PK(1)=='S' && PK(2)=='C' && PK32(3)!=0) {
-        // found !
-        if(retn) *retn = (PK(3+4+4+1)==0xc2)?(PK16(3+4+4+2)):0;
-        if(calladdress) *calladdress = addr+1;
-        return 1;
-    }
-    return 0;
-}
+#endif //__DYNAREC_ARM_HELPER_H__

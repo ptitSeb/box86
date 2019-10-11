@@ -1,7 +1,30 @@
-#include "arm_emitter.h"
-#include "dynarec_arm_660f.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <pthread.h>
+#include <errno.h>
 
-static uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+#include "debug.h"
+#include "box86context.h"
+#include "dynarec.h"
+#include "emu/x86emu_private.h"
+#include "emu/x86run_private.h"
+#include "x86run.h"
+#include "x86emu.h"
+#include "box86stack.h"
+#include "callback.h"
+#include "emu/x86run_private.h"
+#include "x86trace.h"
+#include "dynablock.h"
+#include "dynablock_private.h"
+#include "dynarec_arm.h"
+#include "dynarec_arm_private.h"
+#include "arm_printer.h"
+
+#include "dynarec_arm_helper.h"
+
+
+uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
     uintptr_t ip = addr-1;
     uint8_t opcode = F8;
