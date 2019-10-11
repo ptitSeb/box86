@@ -156,15 +156,40 @@ if(ARM_DYNAREC)
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynablock.c"
 
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass0.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass1.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass2.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass3.c"
+        
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_printer.c"
 
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_epilog.S"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_linker.S"
+    )
+
+    set(DYNAREC_PASS
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_helper.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_0f.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_65.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_66.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_660f.c"
+    )
+
+    add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
+
+    add_library(arm_pass0 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm_pass0 PROPERTIES COMPILE_FLAGS "-DSTEP=0")
+    add_library(arm_pass1 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm_pass1 PROPERTIES COMPILE_FLAGS "-DSTEP=1")
+    add_library(arm_pass2 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
+    add_library(arm_pass3 OBJECT ${DYNAREC_PASS})
+    set_target_properties(arm_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+
+    add_library(dynarec STATIC 
+        $<TARGET_OBJECTS:dynarec_arm> 
+        $<TARGET_OBJECTS:arm_pass0> 
+        $<TARGET_OBJECTS:arm_pass1>
+        $<TARGET_OBJECTS:arm_pass2>
+        $<TARGET_OBJECTS:arm_pass3>
     )
 endif()
 
@@ -176,8 +201,11 @@ else()
     set(BOX86 box86)
 endif()
 
-add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS} ${DYNAREC_SRC})
+add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
 target_link_libraries(${BOX86} m dl rt pthread)
+if(ARM_DYNAREC)
+    target_link_libraries(${BOX86} dynarec)
+endif()
 
 if(NOT NOLOADADDR)
     target_link_libraries(${BOX86} -Wl,-Ttext-segment,0xA8000000)

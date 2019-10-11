@@ -14,4 +14,6 @@ typedef struct instruction_x86_s {
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
 } instruction_x86_t;
 
+void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);
+
 #endif //__DYNAREC_PRIVATE_H_
