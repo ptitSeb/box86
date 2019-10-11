@@ -2458,6 +2458,57 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 break;
 
+            case 0xFE:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:
+                        INST_NAME("INC Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        ADD_IMM8(x1, x1, 1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        UFLAG_RES(x1);
+                        UFLAG_DF(x1, d_inc8);
+                        UFLAGS(0);
+                        break;
+                    case 1:
+                        INST_NAME("DEC Eb");
+                        if((nextop&0xC0)==0xC0) {
+                            ed = (nextop&7);
+                            eb1 = xEAX+(ed&3);
+                            eb2 = ((ed&4)>>2);
+                            UXTB(x1, eb1, eb2);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                            LDRB_IMM9(x1, ed, 0);
+                        }
+                        SUB_IMM8(x1, x1, 1);
+                        if((nextop&0xC0)==0xC0) {
+                            BFI(eb1, x1, eb2*8, 8);
+                        } else {
+                            STRB_IMM9(x1, ed, 0);
+                        }
+                        UFLAG_RES(x1);
+                        UFLAG_DF(x1, d_dec8);
+                        UFLAGS(0);
+                        break;
+                    default:
+                        INST_NAME("Grp5 Ed");
+                        ok = 0;
+                        DEFAULT;
+                }
+                break;
             case 0xFF:
                 nextop = F8;
                 switch((nextop>>3)&7) {
