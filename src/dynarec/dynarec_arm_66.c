@@ -38,8 +38,82 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     if(opcode==0x2E) opcode = F8;       // cs: is ignored
     switch(opcode) {
         
+        case 0x01:
+            INST_NAME("ADD Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            UFLAG_OP12(ed, gd);
+            ADD_REG_LSL_IMM8(ed, ed, gd, 0);
+            WBACKW;
+            UFLAG_RES(ed);
+            UFLAG_DF(x1, d_add16);
+            UFLAGS(0);
+            break;
+        case 0x03:
+            INST_NAME("ADD Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            UFLAG_OP12(gd, ed);
+            ADD_REG_LSL_IMM8(gd, gd, ed, 0);
+            UFLAG_RES(gd);
+            GWBACK;
+            UFLAG_DF(x1, d_add16);
+            UFLAGS(0);
+            break;
+        case 0x05:
+            INST_NAME("ADD AX, Id");
+            i32 = F16;
+            MOV32(x1, i32);
+            UFLAG_OP12(xEAX, x1);
+            UXTH(x2, xEAX, 0);
+            ADD_REG_LSL_IMM8(x2, x2, x1, 0);
+            UFLAG_RES(x2);
+            BFI(xEAX, x2, 0, 16);
+            UFLAG_DF(x1, d_add16);
+            UFLAGS(0);
+            break;
+                
         case 0x0F:
             addr = dynarec660f(dyn, addr, ninst, ok, need_epilog);
+            break;
+
+        case 0x29:
+            INST_NAME("SUB Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            UFLAG_OP12(ed, gd);
+            SUB_REG_LSL_IMM8(ed, ed, gd, 0);
+            WBACKW;
+            UFLAG_RES(ed);
+            UFLAG_DF(x1, d_sub16);
+            UFLAGS(0);
+            break;
+        case 0x2B:
+            INST_NAME("SUB Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            UFLAG_OP12(gd, ed);
+            SUB_REG_LSL_IMM8(gd, gd, ed, 0);
+            UFLAG_RES(gd);
+            GWBACK;
+            UFLAG_DF(x1, d_sub16);
+            UFLAGS(0);
+            break;
+        case 0x0D:
+            INST_NAME("SUB AX, Id");
+            i32 = F16;
+            MOV32(x1, i32);
+            UFLAG_OP12(xEAX, x1);
+            UXTH(x2, xEAX, 0);
+            SUB_REG_LSL_IMM8(x2, x2, x1, 0);
+            UFLAG_RES(x2);
+            BFI(xEAX, x2, 0, 16);
+            UFLAG_DF(x1, d_sub16);
+            UFLAGS(0);
             break;
 
         case 0x38:
