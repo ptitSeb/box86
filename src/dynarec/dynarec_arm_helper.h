@@ -133,15 +133,17 @@
 #endif
 #ifndef USEFLAG
 // USEFLAG will check status of defered flags the call update flags if needed. x3 will be used
-#define USEFLAG   \
+#define USEFLAG(A)   \
     if(!dyn->cleanflags) {  \
-        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
-        TSTS_REG_LSL_IMM8(x3, x3, 0);    \
-        i32 = (GETMARKF)-(dyn->arm_size+8); \
-        Bcond(cEQ, i32);    \
-        CALL_(UpdateFlags, -1, 0); \
-        MARKF;              \
-        dyn->cleanflags=1;  \
+        if(A) {             \
+            LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
+            TSTS_REG_LSL_IMM8(x3, x3, 0);               \
+            i32 = (GETMARKF)-(dyn->arm_size+8);         \
+            Bcond(cEQ, i32);                            \
+            CALL_(UpdateFlags, -1, 0);                  \
+            MARKF;                                      \
+            dyn->cleanflags=1;                          \
+        }                   \
     }
 #endif
 #ifndef JUMP

@@ -261,30 +261,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x10:
                 INST_NAME("ADC Eb, Gb");
+                USEFLAG(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
+                GETEB(x1);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
                 UXTB(x2, gb1, gb2);
-                CALL_(adc8, x1, (1<<x12));
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                CALL_(adc8, x1, (1<<x3));
+                EBBACK;
                 UFLAGS(1);
                 break;
             case 0x11:
                 INST_NAME("ADC Ed, Gd");
+                USEFLAG(0);
                 nextop = F8;
                 GETGD;
                 GETEDW(x12, x1);
@@ -295,16 +285,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x12:
                 INST_NAME("ADC Gb, Eb");
+                USEFLAG(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
+                GETEB(x2);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
@@ -315,6 +298,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x13:
                 INST_NAME("ADC Gd, Ed");
+                USEFLAG(0);
                 nextop = F8;
                 GETGD;
                 GETEDW(x12, x2);
@@ -325,6 +309,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x14:
                 INST_NAME("ADC Gb, Ib");
+                USEFLAG(0);
                 u8 = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
@@ -337,6 +322,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x15:
                 INST_NAME("ADC Gd, Ed");
+                USEFLAG(0);
                 i32 = F32S;
                 GETGD;
                 MOV_REG(x1, gd);
@@ -348,30 +334,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x18:
                 INST_NAME("SBB Eb, Gb");
+                USEFLAG(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
+                GETEB(x1);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
                 UXTB(x2, gb1, gb2);
-                CALL_(sbb8, x1, (1<<x12));
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                CALL_(sbb8, x1, (1<<x3));
+                EBBACK;
                 UFLAGS(1);
                 break;
             case 0x19:
                 INST_NAME("SBB Ed, Gd");
+                USEFLAG(0);
                 nextop = F8;
                 GETGD;
                 GETEDW(x12, x1);
@@ -382,16 +358,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x1A:
                 INST_NAME("SBB Gb, Eb");
+                USEFLAG(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
+                GETEB(x2);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
@@ -402,6 +371,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x1B:
                 INST_NAME("SBB Gd, Ed");
+                USEFLAG(0);
                 nextop = F8;
                 GETGD;
                 GETEDW(x12, x2);
@@ -412,6 +382,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x1C:
                 INST_NAME("SBB Gb, Ib");
+                USEFLAG(0);
                 u8 = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
@@ -424,6 +395,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x1D:
                 INST_NAME("SBB Gd, Ed");
+                USEFLAG(0);
                 i32 = F32S;
                 GETGD;
                 MOV_REG(x1, gd);
@@ -715,16 +687,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0x38:
                 INST_NAME("CMP Eb, Gb");
+                UFLAGS(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
+                GETEB(x1);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
@@ -734,6 +699,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x39:
                 INST_NAME("CMP Ed, Gd");
+                UFLAGS(0);
                 nextop = F8;
                 GETGD;
                 GETEDH(x1);
@@ -744,16 +710,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x3A:
                 INST_NAME("CMP Gb, Eb");
+                UFLAGS(0);
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
+                GETEB(x2);
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
                 gb2 = ((gd&4)>>2);
@@ -763,6 +722,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x3B:
                 INST_NAME("CMP Gd, Ed");
+                UFLAGS(0);
                 nextop = F8;
                 GETGD;
                 GETEDH(x2);
@@ -773,6 +733,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x3C:
                 INST_NAME("CMP AL, Ib");
+                UFLAGS(0);
                 u32 = F8;
                 MOV32(x2, u32);
                 UXTB(x1, xEAX, 0);
@@ -781,6 +742,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x3D:
                 INST_NAME("CMP EAX, Id");
+                UFLAGS(0);
                 i32 = F32S;
                 MOV32(x2, i32);
                 MOV_REG(x1, xEAX);
@@ -901,7 +863,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
             #define GO(GETFLAGS, NO, YES)   \
                 i8 = F8S;   \
-                USEFLAG;    \
+                USEFLAG(1); \
                 JUMP(addr+i8);\
                 GETFLAGS;   \
                 if(dyn->insts) {    \
@@ -1030,127 +992,60 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 switch((nextop>>3)&7) {
                     case 0: //ADD
                         INST_NAME("ADD Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         UFLAG_OP1(x1);
                         u8 = F8;
                         UFLAG_IF{MOV32(x3, u8); UFLAG_OP2(x3); UFLAG_DF(x3, d_add8);}
                         ADD_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAGS(0);
                         break;
                     case 1: //OR
                         INST_NAME("OR Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         u8 = F8;
                         ORR_IMM8(x1, x1, u8, 0);
                         UFLAG_RES(1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_DF(x3, d_or8);
                         UFLAGS(0);
                         break;
                     case 4: //AND
                         INST_NAME("AND Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         u8 = F8;
                         AND_IMM8(x1, x1, u8);
                         UFLAG_RES(1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_DF(x3, d_and8);
                         UFLAGS(0);
                         break;
                     case 5: //SUB
                         INST_NAME("SUB Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         UFLAG_OP1(x1);
                         u8 = F8;
                         UFLAG_IF{MOV32(x3, u8); UFLAG_OP2(x3); UFLAG_DF(x3, d_sub8);}
                         SUB_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAGS(0);
                         break;
                     case 6: //XOR
                         INST_NAME("XOR Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         u8 = F8;
                         XOR_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_DF(x3, d_xor8);
                         UFLAGS(0);
                         break;
                     case 7: //CMP
                         INST_NAME("CMP Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        UFLAGS(0);
+                        GETEB(x1);
                         u8 = F8;
                         MOV32(x2, u8);
                         CALL(cmp8, -1, 0);
@@ -1207,8 +1102,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 2: //ADC
                         if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
-                        GETEDH(x1);
-                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        UFLAGS(0);
+                        GETEDW(x3, x1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MOV32(x2, i32);
                         CALL(adc32, ed, (wback?(1<<wback):0));
@@ -1217,8 +1112,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 3: //SBB
                         if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
-                        GETEDH(x1);
-                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        UFLAGS(0);
+                        GETEDW(x3, x1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MOV32(x2, i32);
                         CALL(sbb32, ed, (wback?(1<<wback):0));
@@ -1277,6 +1172,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 7: //CMP
                         if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                        UFLAGS(0);
                         GETEDH(x1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         if(ed!=x1) {MOV_REG(x1,ed);}
@@ -1288,6 +1184,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x84:
                 INST_NAME("TEST Eb, Gb");
+                UFLAGS(0);
                 nextop=F8;
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
@@ -1307,6 +1204,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x85:
                 INST_NAME("TEST Ed, Gd");
+                UFLAGS(0);
                 nextop=F8;
                 GETGD;
                 GETEDH(x1);
@@ -1481,7 +1379,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x9C:
                 INST_NAME("PUSHF");
-                USEFLAG;
+                USEFLAG(1);
                 CALL(PackFlags, -1, 0);
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
                 PUSH(xESP, (1<<x1));
@@ -1510,7 +1408,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x9F:
                 INST_NAME("LAHF");
-                USEFLAG;
+                USEFLAG(1);
                 CALL(PackFlags, -1, 0); // could be done here probably
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
                 BFI(xEAX, x1, 8, 8);
@@ -1560,6 +1458,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xA6:
                 INST_NAME("CMPSB");
+                UFLAGS(0);
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 CMPS_IMM8(x3, 1);
                 MOVW(x3, 1);
@@ -1571,6 +1470,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xA7:
                 INST_NAME("CMPSD");
+                UFLAGS(0);
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 CMPS_IMM8(x3, 1);
                 MOVW(x3, 4);
@@ -1582,6 +1482,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xA8:
                 INST_NAME("TEST AL, Ib");
+                UFLAGS(0);
                 UXTB(x1, xEAX, 0);
                 u8 = F8;
                 MOV32(x2, u8);
@@ -1606,6 +1507,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xAB:
                 INST_NAME("STOSD");
+                UFLAGS(0);
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 CMPS_IMM8(x3, 1);
                 MOVW(x3, 4);
@@ -1631,6 +1533,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xAE:
                 INST_NAME("SCASB");
+                UFLAGS(0);
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 CMPS_IMM8(x3, 1);
                 MOVW(x3, 1);
@@ -1641,7 +1544,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(1);
                 break;
             case 0xAF:
-                INST_NAME("REPZ SCASD");
+                INST_NAME("SCASD");
+                UFLAGS(0);
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                 CMPS_IMM8(x3, 1);
                 MOVW(x3, 4);
@@ -1690,7 +1594,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("ROL Ed, Ib");
-                        USEFLAG;
+                        USEFLAG(1);
                         GETEDH(x12);
                         u8 = (F8)&0x1f;
                         if(u8) {
@@ -1712,7 +1616,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 1:
                         INST_NAME("ROR Ed, Ib");
-                        USEFLAG;
+                        USEFLAG(1);
                         GETEDH(x12);
                         u8 = (F8)&0x1f;
                         UFLAG_OP1(ed);
@@ -1899,7 +1803,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xCD:
                 if(PK(0)==0x80) {
                     u8 = F8;
-                    UFLAGS(1);  // cheating...
+                    UFLAGS(0);
+                    UFLAGS(1);
                     INST_NAME("Syscall");
                     MOV32(12, ip+2);
                     STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
@@ -2048,7 +1953,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             RSB_IMM8(x3, x3, 0x20);
                             AND_IMM8(x3, x3, 0x1f); // usefull?
                         }
-                        USEFLAG;
+                        USEFLAG(1);
                         GETEDH(x12);
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
@@ -2079,7 +1984,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             i32 = GETMARK2-(dyn->arm_size+8);
                             Bcond(cEQ, i32);
                         }
-                        USEFLAG;
+                        USEFLAG(1);
                         GETEDH(x12);
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
@@ -2192,6 +2097,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     MOV32(x2, addr);
                     PUSH(xESP, 1<<x2);
                     MESSAGE(LOG_DUMP, "Native Call (retn=%d)\n", retn);
+                    UFLAGS(0);
                     UFLAGS(1);  // cheating...
                     // calling a native function
                     MOV32(x12, natcall); // read the 0xCC
@@ -2736,13 +2642,13 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xF8:
                 INST_NAME("CLC");
-                USEFLAG;
+                USEFLAG(1);
                 MOVW(x1, 0);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 break;
             case 0xF9:
                 INST_NAME("STC");
-                USEFLAG;
+                USEFLAG(1);
                 MOVW(x1, 1);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 break;

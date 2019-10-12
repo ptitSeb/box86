@@ -42,7 +42,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         
         #define GO(GETFLAGS, NO, YES)   \
-            USEFLAG;    \
+            USEFLAG(1); \
             GETFLAGS;   \
             nextop=F8;  \
             GETGD;      \
@@ -164,7 +164,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         #define GO(GETFLAGS, NO, YES)   \
             i32_ = F32S;   \
-            USEFLAG;    \
+            USEFLAG(1);    \
             JUMP(addr+i32_);\
             GETFLAGS;   \
             if(dyn->insts) {    \
@@ -288,7 +288,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         #undef GO
         #define GO(GETFLAGS, NO, YES)   \
-            USEFLAG;    \
+            USEFLAG(1); \
             GETFLAGS;   \
             nextop=F8;  \
             MOVW(x3, 0); \
@@ -414,7 +414,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xA3:
             INST_NAME("BT Ed, Gd");
             nextop = F8;
-            USEFLAG;
+            USEFLAG(1);
             GETGD;
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
