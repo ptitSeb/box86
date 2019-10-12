@@ -373,13 +373,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     UFLAG_OP1(ed);
                     if(i32>=0 && i32<256) {
                         UFLAG_IF{
-                            MOVW(x3, i32); UFLAG_OP2(x3);
+                            MOVW(x2, i32); UFLAG_OP2(x2);
                         };
                         ADD_IMM8(ed, ed, i32);
                     } else {
-                        MOVW(x3, i32);
-                        UFLAG_OP2(3);
-                        ADD_REG_LSL_IMM8(ed, ed, x3, 0);
+                        MOVW(x2, i32);
+                        UFLAG_OP2(x2);
+                        ADD_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -393,8 +393,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(i32>0 && i32<256) {
                         ORR_IMM8(ed, ed, i32, 0);
                     } else {
-                        MOVW(x3, i32);
-                        ORR_REG_LSL_IMM8(ed, ed, x3, 0);
+                        MOVW(x2, i32);
+                        ORR_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -428,8 +428,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(i32>0 && i32<256) {
                         AND_IMM8(ed, ed, i32);
                     } else {
-                        MOVW(x3, i32);
-                        AND_REG_LSL_IMM8(ed, ed, x3, 0);
+                        MOVW(x2, i32);
+                        AND_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -443,13 +443,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     UFLAG_OP1(ed);
                     if(i32>0 && i32<256) {
                         UFLAG_IF{
-                            MOVW(x3, i32); UFLAG_OP2(x3);
+                            MOVW(x2, i32); UFLAG_OP2(x2);
                         }
                         SUB_IMM8(ed, ed, i32);
                     } else {
-                        MOVW(x3, i32);
-                        UFLAG_OP2(x3);
-                        SUB_REG_LSL_IMM8(ed, ed, x3, 0);
+                        MOVW(x2, i32);
+                        UFLAG_OP2(x2);
+                        SUB_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -463,8 +463,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(i32>0 && i32<256) {
                         XOR_IMM8(ed, ed, i32);
                     } else {
-                        MOVW(x3, i32);
-                        XOR_REG_LSL_IMM8(ed, ed, x3, 0);
+                        MOVW(x2, i32);
+                        XOR_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
