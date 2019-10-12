@@ -43,8 +43,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
     int need_epilog = 1;
+    uint8_t wback, wb2;
     dyn->tablei = 0;
-    uint8_t wback;
     // Clean up (because there are multiple passes)
     dyn->cleanflags = 0;
     // ok, go now
@@ -1921,6 +1921,116 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xD0:
+            case 0xD2:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:
+                        if(opcode==0xD0) {
+                            INST_NAME("ROL Eb, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("ROL Eb, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        CALL_(rol8, x1, (1<<x3));
+                        EBBACK;
+                        UFLAGS(1);
+                        break;
+                    case 1:
+                        if(opcode==0xD0) {
+                            INST_NAME("ROR Eb, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("ROR Eb, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        CALL_(ror8, x1, (1<<x3));
+                        EBBACK;
+                        UFLAGS(1);
+                        break;
+                    case 2:
+                        if(opcode==0xD0) {
+                            INST_NAME("RCL Eb, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("RCL Eb, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        CALL_(rcl8, x1, (1<<x3));
+                        EBBACK;
+                        UFLAGS(1);
+                        break;
+                    case 3:
+                        if(opcode==0xD0) {
+                            INST_NAME("RCR Eb, 1");
+                            MOVW(x2, 1);
+                        } else {
+                            INST_NAME("RCR Eb, CL");
+                            AND_IMM8(x2, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        CALL_(rcr8, x1, (1<<x3));
+                        EBBACK;
+                        UFLAGS(1);
+                        break;
+                    case 4:
+                    case 6:
+                        if(opcode==0xD0) {
+                            INST_NAME("SHL Eb, 1");
+                            MOVW(x12, 1);
+                        } else {
+                            INST_NAME("SHL Eb, CL");
+                            AND_IMM8(x12, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        UFLAG_OP2(x12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSL_REG(ed, ed, x12);
+                        EBBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shl8);
+                        UFLAGS(0);
+                        break;
+                    case 5:
+                        if(opcode==0xD0) {
+                            INST_NAME("SHR Eb, 1");
+                            MOVW(x12, 1);
+                        } else {
+                            INST_NAME("SHR Eb, CL");
+                            AND_IMM8(x12, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        UFLAG_OP2(x12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_LSR_REG(ed, ed, x12);
+                        EBBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shr8);
+                        UFLAGS(0);
+                        break;
+                    case 7:
+                        if(opcode==0xD0) {
+                            INST_NAME("SAR Eb, 1");
+                            MOVW(x12, 1);
+                        } else {
+                            INST_NAME("SAR Eb, CL");
+                            AND_IMM8(x12, xECX, 0x1f);
+                        }
+                        GETEB(x1);
+                        UFLAG_OP2(x12)
+                        UFLAG_OP1(ed);
+                        MOV_REG_ASR_REG(ed, ed, x12);
+                        EBBACK;
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_sar8);
+                        UFLAGS(0);
+                        break;
+                }
+                break;
             case 0xD1:
             case 0xD3:
                 nextop = F8;
