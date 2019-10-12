@@ -28,7 +28,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 {
     uintptr_t ip = addr-1;
     uint8_t opcode = F8;
-    uint8_t nextop;
+    uint8_t nextop, u8;
     uint32_t u32;
     int32_t i32;
     int16_t i16;
@@ -411,6 +411,87 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             gd = xEAX+(opcode&7);
             BFI(gd, x1, 0, 16);
             break;
+        case 0xC1:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ew, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    CALL_(rol16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 1:
+                    INST_NAME("ROR Ew, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    CALL_(ror16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 2:
+                    INST_NAME("RCL Ew, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    CALL_(rcl16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ew, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    CALL_(rcr16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_LSL_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    UFLAGS(0);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_LSR_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    UFLAGS(0);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_ASR_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    UFLAGS(0);
+                    break;
+            }
+            break;
 
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
@@ -425,6 +506,117 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 u16 = F16;
                 MOVW(x1, u16);
                 STRH_IMM8(x1, ed, 0);
+            }
+            break;
+
+        case 0xD1:
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROL Ew, 1");
+                        MOVW(x2, 1);
+                    } else {
+                        INST_NAME("ROL Ew, CL");
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    CALL_(rol16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 1:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROR Ew, 1");
+                        MOVW(x2, 1);
+                    } else {
+                        INST_NAME("ROR Ew, CL");
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    CALL_(ror16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 2:
+                    if(opcode==0xD1) {
+                        INST_NAME("RCL Ew, 1");
+                        MOVW(x2, 1);
+                    } else {
+                        INST_NAME("RCL Ew, CL");
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    CALL_(rcl16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 3:
+                    if(opcode==0xD1) {
+                        INST_NAME("RCR Ew, 1");
+                        MOVW(x2, 1);
+                    } else {
+                        INST_NAME("RCR Ew, CL");
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    CALL_(rcr16, x1, (1<<x3));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 4:
+                case 6:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHL Ed, 1");
+                        MOVW(x12, 1);
+                    } else {
+                        INST_NAME("SHL Ed, CL");
+                        AND_IMM8(x12, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_LSL_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    UFLAGS(0);
+                    break;
+                case 5:
+                    if(opcode==0xD1) {
+                        INST_NAME("SHR Ed, 1");
+                        MOVW(x12, 1);
+                    } else {
+                        INST_NAME("SHR Ed, CL");
+                        AND_IMM8(x12, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_LSR_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    UFLAGS(0);
+                    break;
+                case 7:
+                    if(opcode==0xD1) {
+                        INST_NAME("SAR Ed, 1");
+                        MOVW(x12, 1);
+                    } else {
+                        INST_NAME("SAR Ed, CL");
+                        AND_IMM8(x12, xECX, 0x1f);
+                    }
+                    GETEW(x1);
+                    UFLAG_OP2(x12)
+                    UFLAG_OP1(ed);
+                    MOV_REG_ASR_REG(ed, ed, x12);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    UFLAGS(0);
+                    break;
             }
             break;
 
