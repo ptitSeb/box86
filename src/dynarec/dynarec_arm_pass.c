@@ -380,6 +380,58 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 SBACK(x1);
                 UFLAGS(1);
                 break;
+            case 0x1A:
+                INST_NAME("SBB Gb, Eb");
+                nextop = F8;
+                if((nextop&0xC0)==0xC0) {
+                    ed = (nextop&7);
+                    eb1 = xEAX+(ed&3);
+                    eb2 = ((ed&4)>>2);
+                    UXTB(x2, eb1, eb2);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
+                    LDRB_IMM9(x2, ed, 0);
+                }
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x1, gb1, gb2);
+                CALL_(sbb8, x1, 0);
+                BFI(gb1, x1, gb2*8, 8);
+                UFLAGS(1);
+                break;
+            case 0x1B:
+                INST_NAME("SBB Gd, Ed");
+                nextop = F8;
+                GETGD;
+                GETEDW(x12, x2);
+                MOV_REG(x1, gd);
+                CALL_(sbb32, x1, 0);
+                MOV_REG(gd, x1);
+                UFLAGS(1);
+                break;
+            case 0x1C:
+                INST_NAME("SBB Gb, Ib");
+                u8 = F8;
+                gd = (nextop&0x38)>>3;
+                gb1 = xEAX+(gd&3);
+                gb2 = ((gd&4)>>2);
+                UXTB(x1, gb1, gb2);
+                MOVW(x2, u8);
+                CALL_(sbb8, x1, 0);
+                BFI(gb1, x1, gb2*8, 8);
+                UFLAGS(1);
+                break;
+            case 0x1D:
+                INST_NAME("SBB Gd, Ed");
+                i32 = F32S;
+                GETGD;
+                MOV_REG(x1, gd);
+                MOV32(x2, i32);
+                CALL_(sbb32, x1, 0);
+                MOV_REG(gd, x1);
+                UFLAGS(1);
+                break;
 
             case 0x20:
                 INST_NAME("AND Eb, Gb");
