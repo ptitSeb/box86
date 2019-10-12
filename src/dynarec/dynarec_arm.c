@@ -56,7 +56,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
         block->done = 1;
         return;
     }
-    helper.cap = helper.size+2; // needs epilog handling
+    helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);

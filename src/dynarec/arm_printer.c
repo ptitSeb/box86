@@ -123,43 +123,6 @@ const char* arm_print(uint32_t opcode)
             int rd = (opcode>>12)&15;
             int rm = (opcode)&15;
             sprintf(ret, "BSWAP%s %s, %s", cond, regname[rd], regname[rm]);
-        } else if (((opcode>>26)&0b11)==0b01 && ((opcode>>16)&15)!=15) {
-            // ldr/str
-            int i = (opcode>>25)&1;
-            int p = (opcode>>24)&1;
-            int u = (opcode>>23)&1;
-            int b = (opcode>>22)&1;
-            int w = (opcode>>21)&1;
-            int l = (opcode>>20)&1;
-            int rn = (opcode>>16)&15;
-            int rd = (opcode>>12)&15;
-            int offset = opcode&0xfff;
-            char tmp[30] = {0};
-            sprintf(ret, "%s%s%s%s %s,", l?"LDR":"STR", cond, b?"B":"", (w && p)?"T":"", regname[rd]);
-            if(p) {     // pre-index
-                if(!offset) {
-                    sprintf(tmp, "[%s]", regname[rn]);
-                } else {
-                    if(i) {
-                        int rm = offset&15;
-                        int shift = offset>>4;
-                        sprintf(tmp, "[%s, %s%s%s]" ,regname[rn], u?"":"-", regname[rm], print_shift(shift, 1));
-                    } else {
-                        sprintf(tmp, "[%s, #%s%d]", regname[rn], u?"":"-", offset);
-                    }
-                    if(w)
-                        strcat(tmp, "!");
-                }
-            } else {    // post-index
-                if(i) {
-                    int rm = offset&15;
-                    int shift = offset>>4;
-                    sprintf(tmp, "[%s], #%s%s%s" ,regname[rn], u?"":"-", regname[rm], print_shift(shift, 1));
-                } else {
-                    sprintf(tmp, "[%s], #%s%d", regname[rn], u?"":"-", offset);
-                }
-            }
-            strcat(ret, tmp);
         } else if((opcode&0b00001111111100000000000000000000)==0b00000011000000000000000000000000) {
             uint16_t imm16 = opcode&0x0fff | ((opcode>>4)&0xf000);
             int rn = (opcode>>12)&15;

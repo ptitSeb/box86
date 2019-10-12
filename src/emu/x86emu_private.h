@@ -54,6 +54,7 @@ typedef struct x86emu_s {
     uint32_t    op1;
     uint32_t    op2;
     uint32_t    res;
+    uint32_t    *x86emu_parity_tab; // helper
     // emu control
     int         quit;
     int         error;

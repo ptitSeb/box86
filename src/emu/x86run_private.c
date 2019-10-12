@@ -23,19 +23,7 @@
 #include "x86trace.h"
 #endif
 
-static uint32_t x86emu_parity_tab[8] =
-{
-	0x96696996,
-	0x69969669,
-	0x69969669,
-	0x96696996,
-	0x69969669,
-	0x96696996,
-	0x96696996,
-	0x69969669,
-};
-
-#define PARITY(x)   (((x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
+#define PARITY(x)   (((emu->x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
 int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
@@ -141,7 +129,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             break;
         case d_and16:
             CLEAR_FLAG(F_OF);
@@ -284,7 +272,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             break;
         case d_or16:
             CLEAR_FLAG(F_OF);
@@ -306,7 +294,7 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(emu->op1 != 0, F_CF);
             CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             bc = emu->res | emu->op1;
             CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
             CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
@@ -529,7 +517,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_OF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_AF);
             break;
