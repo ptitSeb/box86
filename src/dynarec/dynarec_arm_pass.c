@@ -1488,7 +1488,46 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 MOV32(x2, u32);
                 STR_IMM9(xEAX, x2, 0);
                 break;
-            
+            case 0xA4:
+                INST_NAME("MOVSB");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 1);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
+                break;
+            case 0xA5:
+                INST_NAME("MOVSD");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 4);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
+                break;
+            case 0xA6:
+                INST_NAME("CMPSB");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 1);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
+                CALL(cmp8, -1, 0);
+                UFLAGS(1);
+                break;
+            case 0xA7:
+                INST_NAME("CMPSD");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 4);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
+                CALL(cmp32, -1, 0);
+                UFLAGS(1);
+                break;
             case 0xA8:
                 INST_NAME("TEST AL, Ib");
                 UXTB(x1, xEAX, 0);
@@ -1505,7 +1544,61 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 CALL(test32, -1, 0);
                 UFLAGS(1);
                 break;
-
+            case 0xAA:
+                INST_NAME("STOSB");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 1);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
+                break;
+            case 0xAB:
+                INST_NAME("STOSD");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 4);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
+                break;
+            case 0xAC:
+                INST_NAME("LODSB");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 1);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                BFI(xEAX, x1, 0, 8);
+                break;
+            case 0xAD:
+                INST_NAME("LODSD");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 4);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                LDRAI_REG_LSL_IMM5(xEAX, xESI, x3, 0);
+                break;
+            case 0xAE:
+                INST_NAME("SCASB");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 1);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                UXTB(x1, xEAX, 0);
+                LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
+                CALL(cmp8, -1, 0);
+                UFLAGS(1);
+                break;
+            case 0xAF:
+                INST_NAME("REPZ SCASD");
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                CMPS_IMM8(x3, 1);
+                MOVW(x3, 4);
+                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                MOV_REG_LSL_IMM5(x1, xEAX, 0);
+                LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
+                CALL(cmp32, -1, 0);
+                UFLAGS(1);
+                break;
             case 0xB0:
             case 0xB1:
             case 0xB2:
@@ -2050,6 +2143,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 ok = 0;
                 DEFAULT;
             } else {
+                // DF=0, increment addresses, DF=1 decrement addresses
                 switch(nextop) {
                     case 0x90:
                         INST_NAME("PAUSE");
@@ -2065,7 +2159,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
@@ -2083,7 +2176,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
@@ -2097,72 +2189,73 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xA6:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
-                        // done, finish cmp test
+                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
+                        Bcond(c__, i32);
+                        // done, finish with cmp test
                         MARK2;
+                        SUB_IMM8(xECX, xECX, 1);
                         CALL(cmp8, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xA7:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
+                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
+                        Bcond(c__, i32);
                         // done, finish with cmp test
                         MARK2;
+                        SUB_IMM8(xECX, xECX, 1);
                         CALL(cmp32, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xAA:
                         INST_NAME("REP STOSB");
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
                         MARK;
                         STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2171,14 +2264,13 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xAB:
                         INST_NAME("REP STOSD");
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
                         MARK;
                         STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2187,86 +2279,92 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xAC:
                         INST_NAME("REP LODSB");
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOV_REG_LSR_IMM5(x3, xECX, 0);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
+                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                        CMPS_IMM8(x3, 1);
+                        MOVW(x3, 1);
+                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
+                        i32 = GETMARK-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
                         BFI(xEAX, x1, 0, 8);
-                        XOR_REG_LSL_IMM8(xECX, xECX, xECX, 0);
                         break;
                     case 0xAD:
-                        INST_NAME("REP LODSB");
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOV_REG_LSR_IMM5(x3, xECX, 2);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
+                        INST_NAME("REP LODSD");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
-                        XOR_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
+                        CMPS_IMM8(x3, 1);
+                        MOVW(x3, 4);
+                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        MARK;
+                        LDRAI_REG_LSL_IMM5(xEAX, xESI, x3, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
+                        i32 = GETMARK-(dyn->arm_size+8);
+                        Bcond(cNE, i32);
                         break;
                     case 0xAE:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         UXTB(x1, xEAX, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
+                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
+                        Bcond(c__, i32);
                         // done, finish with cmp test
                         MARK2;
+                        SUB_IMM8(xECX, xECX, 1);
                         CALL(cmp8, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+                        Bcond(cEQ, i32);    // end of loop
                         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
                         CMPS_IMM8(x3, 1);
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
-                        MOV_REG_LSR_IMM5(x1, xEAX, 0);
-                        // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        MOV_REG_LSL_IMM5(x1, xEAX, 0);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        SUB_IMM8(xECX, xECX, 1);
                         i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
                             Bcond(cEQ, i32);
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        SUBS_IMM8(xECX, xECX, 1);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
+                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
+                        Bcond(c__, i32);
                         // done, finish with cmp test
                         MARK2;
+                        SUB_IMM8(xECX, xECX, 1);
                         CALL(cmp32, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
