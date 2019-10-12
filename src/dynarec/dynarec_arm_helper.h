@@ -76,6 +76,16 @@
                 }
 // GETGW extract x86 register in gd, that is i
 #define GETGW(i) gd = xEAX+((nextop&0x38)>>3); UXTH(i, gd, 0); gd = i;
+//GETEWW will use i for ed, and can use w for wback.
+#define GETEWW(w, i) if((nextop&0xC0)==0xC0) {  \
+                    wback = xEAX+(nextop&7);\
+                    UXTH(i, wback, 0);      \
+                    ed = i;                 \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w); \
+                    LDRH_IMM8(i, wback, 0); \
+                    ed = i;                 \
+                }
 //GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i) if((nextop&0xC0)==0xC0) {  \
                     wback = xEAX+(nextop&7);\
@@ -88,6 +98,8 @@
                 }
 // Write ed back to original register / memory
 #define EWBACK   if(wback<xEAX) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
+// Write w back to original register / memory
+#define EWBACKW(w)   if(wback<xEAX) {STRH_IMM8(w, wback, 0);} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI(gd, (xEAX+((nextop&0x38)>>3)), 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
