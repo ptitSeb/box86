@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "arm_emitter.h"
 #include "../emu/x86primop.h"
+#include "dynarec_arm_functions.h"
 
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
@@ -87,13 +88,14 @@
 #define UFLAGS(A)  dyn->cleanflags=A
 #endif
 #ifndef USEFLAG
+// USEFLAG will check status of defered flags the call update flags if needed. x3 will be used
 #define USEFLAG   \
     if(!dyn->cleanflags) {  \
-        LDR_IMM9(x12, xEmu, offsetof(x86emu_t, df)); \
-        TSTS_REG_LSL_IMM8(x12, x12, x12, 0);    \
+        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
+        TSTS_REG_LSL_IMM8(x3, x3, x3, 0);    \
         i32 = (GETMARKF)-(dyn->arm_size+8); \
         Bcond(cEQ, i32);    \
-        CALL(UpdateFlags, -1, 0); \
+        CALL_(UpdateFlags, -1, 0); \
         MARKF;              \
         dyn->cleanflags=1;  \
     }

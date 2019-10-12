@@ -156,7 +156,7 @@ if(ARM_DYNAREC)
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynablock.c"
 
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm.c"
-        
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_functions.c"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_printer.c"
 
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"

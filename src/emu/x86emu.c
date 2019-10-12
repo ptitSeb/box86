@@ -22,6 +22,18 @@ typedef struct cleanup_s {
     void*       a;
 } cleanup_t;
 
+static uint32_t x86emu_parity_tab[8] =
+{
+	0x96696996,
+	0x69969669,
+	0x69969669,
+	0x96696996,
+	0x69969669,
+	0x96696996,
+	0x96696996,
+	0x69969669,
+};
+
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 void PushExit(x86emu_t* emu)
 {
@@ -38,6 +50,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
+    emu->x86emu_parity_tab = x86emu_parity_tab;
     emu->packed_eflags.x32 = 0x202; // default flags?
     UnpackFlags(emu);
     // own stack?
