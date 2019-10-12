@@ -358,6 +358,131 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAGS(0);
             break;
 
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: //ADD
+                    if(opcode==0x81) {
+                        INST_NAME("ADD Ew, Iw");
+                    } else {
+                        INST_NAME("ADD Ew, Ib");
+                    }
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    UFLAG_OP1(ed);
+                    if(i32>=0 && i32<256) {
+                        UFLAG_IF{
+                            MOVW(x3, i32); UFLAG_OP2(x3);
+                        };
+                        ADD_IMM8(ed, ed, i32);
+                    } else {
+                        MOVW(x3, i32);
+                        UFLAG_OP2(3);
+                        ADD_REG_LSL_IMM8(ed, ed, x3, 0);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_add16);
+                    UFLAGS(0);
+                    break;
+                case 1: //OR
+                    if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    if(i32>0 && i32<256) {
+                        ORR_IMM8(ed, ed, i32, 0);
+                    } else {
+                        MOVW(x3, i32);
+                        ORR_REG_LSL_IMM8(ed, ed, x3, 0);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_or16);
+                    UFLAGS(0);
+                    break;
+                case 2: //ADC
+                    if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
+                    UFLAGS(0);
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    MOVW(x2, i32);
+                    CALL(adc32, ed, (wback?(1<<wback):0));
+                    EWBACK;
+                    UFLAGS(1);
+                    break;
+                case 3: //SBB
+                    if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
+                    UFLAGS(0);
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    MOVW(x2, i32);
+                    CALL(sbb32, ed, (wback?(1<<wback):0));
+                    WBACK;
+                    UFLAGS(1);
+                    break;
+                case 4: //AND
+                    if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    if(i32>0 && i32<256) {
+                        AND_IMM8(ed, ed, i32);
+                    } else {
+                        MOVW(x3, i32);
+                        AND_REG_LSL_IMM8(ed, ed, x3, 0);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_and16);
+                    UFLAGS(0);
+                    break;
+                case 5: //SUB
+                    if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    UFLAG_OP1(ed);
+                    if(i32>0 && i32<256) {
+                        UFLAG_IF{
+                            MOVW(x3, i32); UFLAG_OP2(x3);
+                        }
+                        SUB_IMM8(ed, ed, i32);
+                    } else {
+                        MOVW(x3, i32);
+                        UFLAG_OP2(x3);
+                        SUB_REG_LSL_IMM8(ed, ed, x3, 0);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sub16);
+                    UFLAGS(0);
+                    break;
+                case 6: //XOR
+                    if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    if(i32>0 && i32<256) {
+                        XOR_IMM8(ed, ed, i32);
+                    } else {
+                        MOVW(x3, i32);
+                        XOR_REG_LSL_IMM8(ed, ed, x3, 0);
+                    }
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_xor16);
+                    UFLAGS(0);
+                    break;
+                case 7: //CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
+                    UFLAGS(0);
+                    GETEW(x1);
+                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    MOVW(x2, i32);
+                    CALL(cmp16, -1, 0);
+                    UFLAGS(1);
+                    break;
+            }
+            break;
+                
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
