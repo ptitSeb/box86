@@ -27,7 +27,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 {
     uintptr_t ip = addr-1;
     uint8_t opcode = F8;
-    uint8_t nextop;
+    uint8_t nextop, u8;
     int32_t i32, i32_;
     int16_t i16;
     uint16_t u16;
@@ -430,7 +430,43 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             AND_IMM8(x1, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
+        case 0xA4:
+        case 0xA5:
+            nextop = F8;
+            if(opcode==0xA4) {
+                INST_NAME("SHLD Ed, Gd, Ib");
+                u8 = F8;
+                MOVW(x3, u8);
+            } else {
+                INST_NAME("SHLD Ed, Gd, CL");
+                UXTB(x3, xECX, 0);
+            }
+            GETEDW(x12, x1);
+            GETGD;
+            MOV_REG(x2, gd);
+            CALL(shld32, x1, (wback?(1<<wback):0));
+            SBACK(x1);
+            UFLAGS(1);
+            break;
 
+        case 0xAC:
+        case 0xAD:
+            nextop = F8;
+            if(opcode==0xA4) {
+                INST_NAME("SHRD Ed, Gd, Ib");
+                u8 = F8;
+                MOVW(x3, u8);
+            } else {
+                INST_NAME("SHRD Ed, Gd, CL");
+                UXTB(x3, xECX, 0);
+            }
+            GETEDW(x12, x1);
+            GETGD;
+            MOV_REG(x2, gd);
+            CALL(shrd32, x1, (wback?(1<<wback):0));
+            SBACK(x1);
+            UFLAGS(1);
+            break;
         case 0xAE:
             nextop = F8;
             if((nextop&0xF8)==0xE8) {
