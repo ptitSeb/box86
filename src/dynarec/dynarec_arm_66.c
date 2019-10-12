@@ -312,6 +312,43 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAGS(1);
             break;
 
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg16");
+            gd = xEAX+(opcode&7);
+            UBFX(x1, gd, 0, 16);
+            UFLAG_OP1(x1);
+            ADD_IMM8(x1, x1, 1);
+            BFI(gd, x1, 0, 16);
+            UFLAG_RES(x1);
+            UFLAG_DF(x1, d_inc16);
+            UFLAGS(0);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg16");
+            gd = xEAX+(opcode&7);
+            UBFX(x1, gd, 0, 16);
+            UFLAG_OP1(x1);
+            SUB_IMM8(x1, x1, 1);
+            BFI(gd, x1, 0, 16);
+            UFLAG_RES(x1);
+            UFLAG_DF(x1, d_dec16);
+            UFLAGS(0);
+            break;
+
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
