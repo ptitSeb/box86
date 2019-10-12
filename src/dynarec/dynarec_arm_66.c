@@ -114,6 +114,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x11:
             INST_NAME("ADC Ew, Gw");
+            USEFLAG(0);
             nextop = F8;
             GETGW(2);
             GETEW(1);
@@ -123,6 +124,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x13:
             INST_NAME("ADC Gw, Ew");
+            USEFLAG(0);
             nextop = F8;
             GETGW(1);
             GETEW(2);
@@ -132,6 +134,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x15:
             INST_NAME("ADC AX, Id");
+            USEFLAG(0);
             i32 = F16;
             MOV32(x2, i32);
             UXTH(x1, xEAX, 0);
@@ -142,6 +145,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         case 0x19:
             INST_NAME("SBB Ew, Gw");
+            USEFLAG(0);
             nextop = F8;
             GETGW(2);
             GETEW(1);
@@ -151,6 +155,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x1B:
             INST_NAME("SBB Gw, Ew");
+            USEFLAG(0);
             nextop = F8;
             GETGW(1);
             GETEW(2);
@@ -160,6 +165,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x1D:
             INST_NAME("SBB AX, Id");
+            USEFLAG(0);
             i32 = F16;
             MOV32(x2, i32);
             UXTH(x1, xEAX, 0);
@@ -275,6 +281,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         case 0x39:
             INST_NAME("CMP Ew, Gw");
+            UFLAGS(0);
             nextop = F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {
@@ -290,6 +297,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x3B:
             INST_NAME("CMP Gw, Ew");
+            UFLAGS(0);
             nextop = F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {
@@ -305,6 +313,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
         case 0x3D:
             INST_NAME("CMP AX, Id");
+            UFLAGS(0);
             i32 = F16;
             MOV32(x2, i32);
             UXTH(x1, xEAX, 0);
@@ -416,6 +425,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
+                    UFLAGS(0);
                     u8 = F8;
                     MOVW(x2, u8);
                     GETEW(x1);
@@ -425,6 +435,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
+                    UFLAGS(0);
                     u8 = F8;
                     MOVW(x2, u8);
                     GETEW(x1);
@@ -434,6 +445,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
+                    UFLAGS(0);
                     u8 = F8;
                     MOVW(x2, u8);
                     GETEW(x1);
@@ -443,6 +455,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 3:
                     INST_NAME("RCR Ew, Ib");
+                    UFLAGS(0);
                     u8 = F8;
                     MOVW(x2, u8);
                     GETEW(x1);
@@ -521,6 +534,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         INST_NAME("ROL Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
+                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rol16, x1, (1<<x3));
                     EWBACK;
@@ -534,6 +548,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         INST_NAME("ROR Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
+                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(ror16, x1, (1<<x3));
                     EWBACK;
@@ -547,6 +562,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         INST_NAME("RCL Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
+                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
                     EWBACK;
@@ -560,6 +576,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         INST_NAME("RCR Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
+                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
                     EWBACK;
@@ -626,6 +643,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 0:
                 case 1:
                     INST_NAME("TEST Ew, Iw");
+                    UFLAGS(0);
                     GETEW(x1);
                     i32 = F16;
                     MOV32(x2, i32);

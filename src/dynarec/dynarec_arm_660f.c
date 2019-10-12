@@ -44,7 +44,7 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
         case 0xA3:
             INST_NAME("BT Ew, Gw");
             nextop = F8;
-            USEFLAG;
+            USEFLAG(1);
             GETGD;  // there is an AND below, to 32bits is the same
             GETEW(x1);
             AND_IMM8(x2, gd, 15);
