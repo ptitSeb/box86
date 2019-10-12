@@ -41,6 +41,17 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             FAKEED;
             break;
         
+        case 0xA3:
+            INST_NAME("BT Ew, Gw");
+            nextop = F8;
+            USEFLAG;
+            GETGD;  // there is an AND below, to 32bits is the same
+            GETEW(x1);
+            AND_IMM8(x2, gd, 15);
+            MOV_REG_LSR_REG(x1, ed, x2);
+            AND_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            break;
         case 0xA4:
         case 0xA5:
             nextop = F8;
