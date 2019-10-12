@@ -435,14 +435,16 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             nextop = F8;
             if(opcode==0xA4) {
                 INST_NAME("SHLD Ed, Gd, Ib");
-                u8 = F8;
-                MOVW(x3, u8);
             } else {
                 INST_NAME("SHLD Ed, Gd, CL");
                 UXTB(x3, xECX, 0);
             }
             GETEDW(x12, x1);
             GETGD;
+            if(opcode==0xA4) {
+                u8 = F8;
+                MOVW(x3, u8);
+            }
             MOV_REG(x2, gd);
             CALL(shld32, x1, (wback?(1<<wback):0));
             SBACK(x1);
@@ -452,16 +454,18 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xAC:
         case 0xAD:
             nextop = F8;
-            if(opcode==0xA4) {
+            if(opcode==0xAC) {
                 INST_NAME("SHRD Ed, Gd, Ib");
-                u8 = F8;
-                MOVW(x3, u8);
             } else {
                 INST_NAME("SHRD Ed, Gd, CL");
                 UXTB(x3, xECX, 0);
             }
             GETEDW(x12, x1);
             GETGD;
+            if(opcode==0xAC) {
+                u8 = F8;
+                MOVW(x3, u8);
+            }
             MOV_REG(x2, gd);
             CALL(shrd32, x1, (wback?(1<<wback):0));
             SBACK(x1);
