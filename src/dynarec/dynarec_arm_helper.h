@@ -92,7 +92,7 @@
 #define USEFLAG   \
     if(!dyn->cleanflags) {  \
         LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
-        TSTS_REG_LSL_IMM8(x3, x3, x3, 0);    \
+        TSTS_REG_LSL_IMM8(x3, x3, 0);    \
         i32 = (GETMARKF)-(dyn->arm_size+8); \
         Bcond(cEQ, i32);    \
         CALL_(UpdateFlags, -1, 0); \
