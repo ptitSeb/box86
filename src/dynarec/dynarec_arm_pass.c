@@ -1551,17 +1551,16 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         if(u8) {
                             MOV_REG_ROR_IMM5(ed, ed, (32-u8));
                             WBACK;
-                        }
-                        UFLAG_IF {  // calculate flags directly
-                            if(u8==1) {
-                                MOV_REG_LSR_IMM5(x2, ed, 31);
-                                ADD_REG_LSL_IMM8(x2, x2, ed, 0);
-                                AND_IMM8(x2, x2, 1);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            if(u8) {
-                                AND_IMM8(x2, ed, 0x1);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            UFLAG_IF {  // calculate flags directly
+                                AND_IMM8(x1, ed, 0x1);
+                                STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                                if(u8==1) {
+                                    MOV_REG_LSR_IMM5(x1, ed, 31);
+                                    ADD_REG_LSL_IMM8(x1, x1, ed, 0);
+                                    AND_IMM8(x1, x1, 1);
+                                    STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                                }
+                                UFLAG_DF(x2, d_none);
                             }
                         }
                         UFLAGS(1);
@@ -1575,17 +1574,16 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         if(u8) {
                             MOV_REG_ROR_IMM5(ed, ed, u8);
                             WBACK;
-                        }
-                        UFLAG_IF {  // calculate flags directly
-                            if(u8==1) {
-                                MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
-                                XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
-                                AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            if(u8) {
-                                MOV_REG_LSR_IMM5(x2, ed, 31);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            UFLAG_IF {  // calculate flags directly
+                                MOV_REG_LSR_IMM5(x1, ed, 31);
+                                STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                                if(u8==1) {
+                                    MOV_REG_LSR_IMM5(x1, ed, 30); // x1 = d>>30
+                                    XOR_REG_LSR_IMM8(x1, x1, x1, 1); // x1 = ((d>>30) ^ ((d>>30)>>1))
+                                    AND_IMM8(x1, x1, 1);    // x1 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
+                                    STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                                }
+                                UFLAG_DF(x2, d_none);
                             }
                         }
                         UFLAGS(1);
@@ -1604,7 +1602,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEDW(x12, x1);
                         u8 = F8;
                         MOV_REG(x2, gd);
-                        CALL_(rcl32, x1, (1<<x12));
+                        CALL_(rcr32, x1, (1<<x12));
                         SBACK(x1);
                         UFLAGS(1);
                         break;
@@ -1789,6 +1787,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             INST_NAME("ROL Ed, CL");
                             AND_IMM8(x3, xECX, 0x1f);
+                            TSTS_REG_LSL_IMM8(x3, x3, x3, 0);
+                            i32 = GETMARK2-(dyn->arm_size+8);
+                            Bcond(cEQ, i32);
                             RSB_IMM8(x3, x3, 0x20);
                             AND_IMM8(x3, x3, 0x1f); // usefull?
                         }
@@ -1797,17 +1798,19 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_IF {  // calculate flags directly
-                            if(u8==1) {
-                                MOV_REG_LSR_IMM5(x2, ed, 31);
-                                ADD_REG_LSL_IMM8(x2, x2, ed, 0);
-                                AND_IMM8(x2, x2, 1);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            if(u8) {
-                                AND_IMM8(x2, ed, 0x1);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                            }
+                            CMPS_IMM8(x3, 31);
+                            i32 = GETMARK-(dyn->arm_size+8);
+                            Bcond(cNE, i32);
+                                MOV_REG_LSR_IMM5(x1, ed, 31);
+                                ADD_REG_LSL_IMM8(x1, x1, ed, 0);
+                                AND_IMM8(x1, x1, 1);
+                                STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            MARK;
+                            AND_IMM8(x1, ed, 0x1);
+                            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            UFLAG_DF(x2, d_none);
                         }
+                        MARK2;
                         UFLAGS(1);
                         break;
                     case 1:
@@ -1817,27 +1820,28 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             INST_NAME("ROR Ed, CL");
                             AND_IMM8(x3, xECX, 0x1f);
+                            TSTS_REG_LSL_IMM8(x3, x3, x3, 0);
+                            i32 = GETMARK2-(dyn->arm_size+8);
+                            Bcond(cEQ, i32);
                         }
                         USEFLAG;
                         GETEDH(x12);
-                        u8 = (F8)&0x1f;
-                        UFLAG_OP1(ed);
-                        if(u8) {
-                            MOV_REG_ROR_REG(ed, ed, x3);
-                            WBACK;
-                        }
+                        MOV_REG_ROR_REG(ed, ed, x3);
+                        WBACK;
                         UFLAG_IF {  // calculate flags directly
-                            if(u8==1) {
+                            CMPS_IMM8(x3, 1);
+                            i32 = GETMARK-(dyn->arm_size+8);
+                            Bcond(cNE, i32);
                                 MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
                                 XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
                                 AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
                                 STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            if(u8) {
-                                MOV_REG_LSR_IMM5(x2, ed, 31);
-                                STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                            }
+                            MARK;
+                            MOV_REG_LSR_IMM5(x2, ed, 31);
+                            STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            UFLAG_DF(x2, d_none);
                         }
+                        MARK2;
                         UFLAGS(1);
                         break;
                     case 2:
@@ -1862,7 +1866,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEDW(x12, x1);
-                        CALL_(rcl32, x1, (1<<x12));
+                        CALL_(rcr32, x1, (1<<x12));
                         SBACK(x1);
                         UFLAGS(1);
                         break;
