@@ -1787,7 +1787,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             INST_NAME("ROL Ed, CL");
                             AND_IMM8(x3, xECX, 0x1f);
-                            TSTS_REG_LSL_IMM8(x3, x3, x3, 0);
+                            TSTS_REG_LSL_IMM8(x3, x3, 0);
                             i32 = GETMARK2-(dyn->arm_size+8);
                             Bcond(cEQ, i32);
                             RSB_IMM8(x3, x3, 0x20);
@@ -1820,7 +1820,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             INST_NAME("ROR Ed, CL");
                             AND_IMM8(x3, xECX, 0x1f);
-                            TSTS_REG_LSL_IMM8(x3, x3, x3, 0);
+                            TSTS_REG_LSL_IMM8(x3, x3, 0);
                             i32 = GETMARK2-(dyn->arm_size+8);
                             Bcond(cEQ, i32);
                         }
@@ -2066,7 +2066,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2084,7 +2084,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2102,7 +2102,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2116,7 +2116,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
                         // done, finish cmp test
@@ -2131,7 +2131,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2145,7 +2145,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
                         // done, finish with cmp test
@@ -2160,7 +2160,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 1);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2176,7 +2176,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOVW(x3, 4);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2192,7 +2192,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOV_REG_LSR_IMM5(x3, xECX, 0);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
@@ -2206,7 +2206,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         MOV_REG_LSR_IMM5(x3, xECX, 2);
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
@@ -2220,7 +2220,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         UXTB(x1, xEAX, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2233,7 +2233,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
                         // done, finish with cmp test
@@ -2249,7 +2249,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         RSB_COND_IMM8(cEQ, x3, x3, 0);
                         MOV_REG_LSR_IMM5(x1, xEAX, 0);
                         // DF=0, increment addresses, DF=1 decrement addresses
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
                         MARK;
@@ -2262,7 +2262,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         } else {
                             Bcond(cNE, i32);
                         }
-                        TSTS_REG_LSL_IMM8(xECX, xECX, xECX, 0);
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = GETMARK-(dyn->arm_size+8);
                         Bcond(cNE, i32);
                         // done, finish with cmp test

@@ -159,11 +159,11 @@ Op is 20-27
 #define CMPS_IMM8(src, imm8) \
     EMIT(0xe3500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
 // tst.s dst, src1, src2, lsl #imm
-#define TSTS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define TSTS_REG_LSL_IMM8(src1, src2, imm8) \
+    EMIT(0xe1100000 | ((0) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 // tst.s dst, src1, #imm
-#define TSTS_IMM8(dst, src, imm8) \
-    EMIT(0xe3100000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define TSTS_IMM8(src, imm8) \
+    EMIT(0xe3100000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
 // orr dst, src1, src2, lsl #imm
 #define ORR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
