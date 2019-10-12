@@ -103,7 +103,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAG_DF(x1, d_sub16);
             UFLAGS(0);
             break;
-        case 0x0D:
+        case 0x2D:
             INST_NAME("SUB AX, Id");
             i32 = F16;
             MOV32(x1, i32);
