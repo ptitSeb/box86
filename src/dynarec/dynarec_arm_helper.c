@@ -216,8 +216,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
-    MOV32(reg, (uintptr_t)fnc);
     PUSH(xSP, (1<<xEmu) | mask);
+    MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
     if(ret>=0) {
         MOV_REG(ret, 0);
