@@ -57,14 +57,16 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             nextop = F8;
             if(opcode==0xA4) {
                 INST_NAME("SHLD Ew, Gw, Ib");
-                u8 = F8;
-                MOVW(x3, u8);
             } else {
                 INST_NAME("SHLD Ew, Gw, CL");
                 UXTB(x3, xECX, 0);
             }
             GETEWW(x12, x1);
             GETGW(x2);
+            if(opcode==0xA4) {
+                u8 = F8;
+                MOVW(x3, u8);
+            }
             CALL(shld16, x1, (wback?(1<<wback):0));
             EWBACKW(x1);
             UFLAGS(1);
@@ -73,16 +75,18 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
         case 0xAC:
         case 0xAD:
             nextop = F8;
-            if(opcode==0xA4) {
+            if(opcode==0xAC) {
                 INST_NAME("SHRD Ew, Gw, Ib");
-                u8 = F8;
-                MOVW(x3, u8);
             } else {
                 INST_NAME("SHRD Ew, Gw, CL");
                 UXTB(x3, xECX, 0);
             }
             GETEWW(x12, x1);
             GETGW(x2);
+            if(opcode==0xAC) {
+                u8 = F8;
+                MOVW(x3, u8);
+            }
             CALL(shrd16, x1, (wback?(1<<wback):0));
             EWBACKW(x1);
             UFLAGS(1);
