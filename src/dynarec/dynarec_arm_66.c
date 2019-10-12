@@ -568,10 +568,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 4:
                 case 6:
                     if(opcode==0xD1) {
-                        INST_NAME("SHL Ed, 1");
+                        INST_NAME("SHL Ew, 1");
                         MOVW(x12, 1);
                     } else {
-                        INST_NAME("SHL Ed, CL");
+                        INST_NAME("SHL Ew, CL");
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);
@@ -585,10 +585,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 5:
                     if(opcode==0xD1) {
-                        INST_NAME("SHR Ed, 1");
+                        INST_NAME("SHR Ew, 1");
                         MOVW(x12, 1);
                     } else {
-                        INST_NAME("SHR Ed, CL");
+                        INST_NAME("SHR Ew, CL");
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);
@@ -602,10 +602,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 7:
                     if(opcode==0xD1) {
-                        INST_NAME("SAR Ed, 1");
+                        INST_NAME("SAR Ew, 1");
                         MOVW(x12, 1);
                     } else {
-                        INST_NAME("SAR Ed, CL");
+                        INST_NAME("SAR Ew, CL");
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);

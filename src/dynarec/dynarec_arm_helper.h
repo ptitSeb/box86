@@ -77,19 +77,33 @@
 // GETGW extract x86 register in gd, that is i
 #define GETGW(i) gd = xEAX+((nextop&0x38)>>3); UXTH(i, gd, 0); gd = i;
 //GETEW will use i for ed, and can use r3 for wback.
-#define GETEW(i) if((nextop&0xC0)==0xC0) {   \
+#define GETEW(i) if((nextop&0xC0)==0xC0) {  \
                     wback = xEAX+(nextop&7);\
-                    UXTH(i, wback, 0);     \
-                    ed = i;                \
+                    UXTH(i, wback, 0);      \
+                    ed = i;                 \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3); \
                     LDRH_IMM8(i, wback, 0); \
-                    ed = i;                \
+                    ed = i;                 \
                 }
 // Write ed back to original register / memory
 #define EWBACK   if(wback<xEAX) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI(gd, (xEAX+((nextop&0x38)>>3)), 0, 16);
+//GETEB will use i for ed, and can use r3 for wback.
+#define GETEB(i) if((nextop&0xC0)==0xC0) {  \
+                    wback = (nextop&7);     \
+                    wb2 = (wback>>2);       \
+                    wback = xEAX+(wback&3); \
+                    UXTB(i, wback, wb2);    \
+                    ed = i;                 \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3); \
+                    LDRB_IMM9(i, wback, 0); \
+                    ed = i;                 \
+                }
+// Write ed back to original register / memory
+#define EBBACK   if(wback<xEAX) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2, 8);}
 // CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)
 #define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
