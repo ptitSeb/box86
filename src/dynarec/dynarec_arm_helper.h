@@ -86,8 +86,8 @@
                     LDRH_IMM8(i, wback, 0); \
                     ed = i;                \
                 }
-// WBACKW send ed back to original register / memory
-#define WBACKW   if(wback<xEAX) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
+// Write ed back to original register / memory
+#define EWBACK   if(wback<xEAX) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI(gd, (xEAX+((nextop&0x38)>>3)), 0, 16);
 // CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)

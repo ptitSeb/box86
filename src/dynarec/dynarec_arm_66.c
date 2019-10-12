@@ -45,7 +45,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             GETEW(1);
             UFLAG_OP12(ed, gd);
             ADD_REG_LSL_IMM8(ed, ed, gd, 0);
-            WBACKW;
+            EWBACK;
             UFLAG_RES(ed);
             UFLAG_DF(x1, d_add16);
             UFLAGS(0);
@@ -66,17 +66,140 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("ADD AX, Id");
             i32 = F16;
             MOV32(x1, i32);
-            UFLAG_OP12(xEAX, x1);
             UXTH(x2, xEAX, 0);
+            UFLAG_OP12(x2, x1);
             ADD_REG_LSL_IMM8(x2, x2, x1, 0);
             UFLAG_RES(x2);
             BFI(xEAX, x2, 0, 16);
             UFLAG_DF(x1, d_add16);
             UFLAGS(0);
             break;
+
+        case 0x09:
+            INST_NAME("OR Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            ORR_REG_LSL_IMM8(ed, ed, gd, 0);
+            EWBACK;
+            UFLAG_RES(ed);
+            UFLAG_DF(x1, d_or16);
+            UFLAGS(0);
+            break;
+        case 0x0B:
+            INST_NAME("OR Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            ORR_REG_LSL_IMM8(gd, gd, ed, 0);
+            UFLAG_RES(gd);
+            GWBACK;
+            UFLAG_DF(x1, d_or16);
+            UFLAGS(0);
+            break;
+        case 0x0D:
+            INST_NAME("OR AX, Id");
+            i32 = F16;
+            MOV32(x1, i32);
+            UXTH(x2, xEAX, 0);
+            ORR_REG_LSL_IMM8(x2, x2, x1, 0);
+            UFLAG_RES(x2);
+            BFI(xEAX, x2, 0, 16);
+            UFLAG_DF(x1, d_or16);
+            UFLAGS(0);
+            break;
                 
         case 0x0F:
             addr = dynarec660f(dyn, addr, ninst, ok, need_epilog);
+            break;
+        case 0x11:
+            INST_NAME("ADC Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            CALL_(adc16, x1, (1<<x3));
+            EWBACK;
+            UFLAGS(1);
+            break;
+        case 0x13:
+            INST_NAME("ADC Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            CALL_(adc16, x1, (1<<x3));
+            GWBACK;
+            UFLAGS(1);
+            break;
+        case 0x15:
+            INST_NAME("ADC AX, Id");
+            i32 = F16;
+            MOV32(x2, i32);
+            UXTH(x1, xEAX, 0);
+            CALL_(adc16, x1, (1<<x3));
+            BFI(xEAX, x1, 0, 16);
+            UFLAGS(1);
+            break;
+
+        case 0x19:
+            INST_NAME("SBB Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            CALL_(sbb16, x1, (1<<x3));
+            EWBACK;
+            UFLAGS(1);
+            break;
+        case 0x1B:
+            INST_NAME("SBB Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            CALL_(sbb16, x1, (1<<x3));
+            GWBACK;
+            UFLAGS(1);
+            break;
+        case 0x1D:
+            INST_NAME("SBB AX, Id");
+            i32 = F16;
+            MOV32(x2, i32);
+            UXTH(x1, xEAX, 0);
+            CALL_(sbb16, x1, (1<<x3));
+            BFI(xEAX, x1, 0, 16);
+            UFLAGS(1);
+            break;
+
+        case 0x21:
+            INST_NAME("AND Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            AND_REG_LSL_IMM8(ed, ed, gd, 0);
+            EWBACK;
+            UFLAG_RES(ed);
+            UFLAG_DF(x1, d_and16);
+            UFLAGS(0);
+            break;
+        case 0x23:
+            INST_NAME("AND Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            AND_REG_LSL_IMM8(gd, gd, ed, 0);
+            UFLAG_RES(gd);
+            GWBACK;
+            UFLAG_DF(x1, d_and16);
+            UFLAGS(0);
+            break;
+        case 0x25:
+            INST_NAME("AND AX, Id");
+            i32 = F16;
+            MOV32(x1, i32);
+            UXTH(x2, xEAX, 0);
+            AND_REG_LSL_IMM8(x2, x2, x1, 0);
+            UFLAG_RES(x2);
+            BFI(xEAX, x2, 0, 16);
+            UFLAG_DF(x1, d_and16);
+            UFLAGS(0);
             break;
 
         case 0x29:
@@ -86,7 +209,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             GETEW(1);
             UFLAG_OP12(ed, gd);
             SUB_REG_LSL_IMM8(ed, ed, gd, 0);
-            WBACKW;
+            EWBACK;
             UFLAG_RES(ed);
             UFLAG_DF(x1, d_sub16);
             UFLAGS(0);
@@ -107,12 +230,46 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("SUB AX, Id");
             i32 = F16;
             MOV32(x1, i32);
-            UFLAG_OP12(xEAX, x1);
             UXTH(x2, xEAX, 0);
+            UFLAG_OP12(x2, x1);
             SUB_REG_LSL_IMM8(x2, x2, x1, 0);
             UFLAG_RES(x2);
             BFI(xEAX, x2, 0, 16);
             UFLAG_DF(x1, d_sub16);
+            UFLAGS(0);
+            break;
+
+        case 0x31:
+            INST_NAME("XOR Ew, Gw");
+            nextop = F8;
+            GETGW(2);
+            GETEW(1);
+            XOR_REG_LSL_IMM8(ed, ed, gd, 0);
+            EWBACK;
+            UFLAG_RES(ed);
+            UFLAG_DF(x1, d_xor16);
+            UFLAGS(0);
+            break;
+        case 0x33:
+            INST_NAME("XOR Gw, Ew");
+            nextop = F8;
+            GETGW(1);
+            GETEW(2);
+            XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+            UFLAG_RES(gd);
+            GWBACK;
+            UFLAG_DF(x1, d_xor16);
+            UFLAGS(0);
+            break;
+        case 0x35:
+            INST_NAME("XOR AX, Id");
+            i32 = F16;
+            MOV32(x1, i32);
+            UXTH(x2, xEAX, 0);
+            XOR_REG_LSL_IMM8(x2, x2, x1, 0);
+            UFLAG_RES(x2);
+            BFI(xEAX, x2, 0, 16);
+            UFLAG_DF(x1, d_xor16);
             UFLAGS(0);
             break;
 
