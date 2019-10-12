@@ -273,7 +273,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAGS(0);
             break;
 
-        case 0x38:
+        case 0x39:
             INST_NAME("CMP Ew, Gw");
             nextop = F8;
             GETGD;
