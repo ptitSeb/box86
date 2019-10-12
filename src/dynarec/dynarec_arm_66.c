@@ -428,6 +428,71 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             }
             break;
 
+        case 0xF7:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ew, Iw");
+                    GETEW(x1);
+                    i32 = F16;
+                    MOV32(x2, i32);
+                    CALL(test16, -1, 0);
+                    UFLAGS(1);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ew");
+                    GETEW(x1);
+                    MVN_REG_LSL_IMM8(ed, ed, 0);
+                    EWBACK;
+                    break;
+                case 3:
+                    INST_NAME("NEG Ew");
+                    GETEW(x1);
+                    UFLAG_OP1(ed);
+                    RSB_IMM8(ed, ed, 0);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x2, d_neg16);
+                    UFLAGS(0);
+                    break;
+                case 4:
+                    INST_NAME("MUL AX, Ew");
+                    UFLAG_DF(2, d_mul32);
+                    GETEW(x1);
+                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    CALL(mul16, -1, 0);
+                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    UFLAGS(0);
+                    break;
+                case 5:
+                    INST_NAME("IMUL AX, Ew");
+                    UFLAG_DF(x2, d_imul32);
+                    GETEW(x1);
+                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    CALL(imul16_eax, -1, 0);
+                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    UFLAGS(0);
+                    break;
+                case 6:
+                    INST_NAME("DIV Ew");
+                    GETEW(x1);
+                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    CALL(div16, -1, 0);
+                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    UFLAGS(1);
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ew");
+                    GETEW(x1);
+                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    CALL(idiv16, -1, 0);
+                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    UFLAGS(1);
+                    break;
+            }
+            break;
+
         default:
             *ok = 0;
             DEFAULT;
