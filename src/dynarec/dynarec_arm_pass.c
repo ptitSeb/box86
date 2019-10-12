@@ -2044,7 +2044,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETED;
                         UFLAG_OP2(x12)
                         UFLAG_OP1(ed);
-                        MOV_REG_LSR_REG(ed, ed, 12);
+                        MOV_REG_LSR_REG(ed, ed, x12);
                         WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shr32);
