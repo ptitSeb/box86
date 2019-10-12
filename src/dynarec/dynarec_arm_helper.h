@@ -19,6 +19,7 @@
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
 #define F16     *(uint16_t*)(addr+=2, addr-2)
+#define F16S    *(int16_t*)(addr+=2, addr-2)
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S    *(int32_t*)(addr+=4, addr-4)
 #define PK(a)   *(uint8_t*)(addr+a)
