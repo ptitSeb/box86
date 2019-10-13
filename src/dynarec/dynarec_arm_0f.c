@@ -464,9 +464,10 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(wback, wback, x1, 2); //(&ed)+=r1*4;
-                LDR_IMM9(x1, wback, 0);
+                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
+                LDR_IMM9(x1, x3, 0);
                 ed = x1;
+                wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x1, ed, x2);
@@ -561,9 +562,10 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(wback, wback, x1, 2); //(&ed)+=r1*4;
+                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, wback, 0);
                 ed = x1;
+                wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x1, ed, x2);
@@ -638,14 +640,16 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         ed = xEAX+(nextop&7);
                         u8 = F8;
                         MOVW(gd, u8);
+                        wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress);
                         u8 = F8;
                         MOVW(gd, u8);
                         UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM8(x1, ed, x1, 2); //(&ed)+=r1*4;
-                        LDR_IMM9(x1, x1, 0);
+                        ADD_REG_LSL_IMM8(x3, ed, x1, 2); //(&ed)+=r1*4;
+                        LDR_IMM9(x1, x3, 0);
                         ed = x1;
+                        wback = x3;
                     }
                     AND_IMM8(x2, gd, 0x1f);
                     MOV_REG_LSR_REG(x1, ed, x2);
@@ -675,9 +679,10 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(wback, wback, x1, 2); //(&ed)+=r1*4;
-                LDR_IMM9(x1, wback, 0);
+                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
+                LDR_IMM9(x1, x3, 0);
                 ed = x1;
+                wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x1, ed, x2);
