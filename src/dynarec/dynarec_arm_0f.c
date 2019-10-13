@@ -603,6 +603,32 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             }
             break;
 
+        case 0xBB:
+            INST_NAME("BTC Ed, Gd");
+            nextop = F8;
+            USEFLAG(1);
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2);
+                UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
+                ADD_REG_LSL_IMM8(wback, wback, x1, 2); //(&ed)+=r1*4;
+                LDR_IMM9(x1, wback, 0);
+                ed = x1;
+            }
+            AND_IMM8(x2, gd, 0x1f);
+            MOV_REG_LSR_REG(x1, ed, x2);
+            AND_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOVW(x1, 1);
+            XOR_REG_LSL_REG(ed, ed, x1, x2);
+            if(wback) {
+                STR_IMM9(ed, wback, 0);
+            }
+            break;
+
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
             nextop = F8;
