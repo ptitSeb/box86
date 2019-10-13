@@ -47,7 +47,7 @@ typedef enum {
 	d_dec8,
 	d_dec16,
 	d_dec32,
-	d_inc8,
+	d_inc8,		//10
 	d_inc16,
 	d_inc32,
 	d_imul8,
@@ -57,7 +57,7 @@ typedef enum {
 	d_or16,
 	d_or32,
 	d_mul8,
-	d_mul16,
+	d_mul16,	//20
 	d_mul32,
 	d_neg8,
 	d_neg16,
@@ -67,7 +67,7 @@ typedef enum {
 	d_shl32,
 	d_shr8,
 	d_shr16,
-	d_shr32,
+	d_shr32,	//30
 	d_sar8,
 	d_sar16,
 	d_sar32,
@@ -76,7 +76,7 @@ typedef enum {
 	d_sub32,
 	d_xor8,
 	d_xor16,
-	d_xor32
+	d_xor32		//39
 } defered_flags_t;
 
 #pragma pack(push, 1)
