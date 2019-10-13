@@ -995,7 +995,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEB(x1);
                         UFLAG_OP1(x1);
                         u8 = F8;
-                        UFLAG_IF{MOV32(x3, u8); UFLAG_OP2(x3); UFLAG_DF(x3, d_add8);}
+                        UFLAG_IF{MOV32(x12, u8); UFLAG_OP2(x12); UFLAG_DF(x12, d_add8);}
                         ADD_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         EBBACK;
@@ -1026,7 +1026,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEB(x1);
                         UFLAG_OP1(x1);
                         u8 = F8;
-                        UFLAG_IF{MOV32(x3, u8); UFLAG_OP2(x3); UFLAG_DF(x3, d_sub8);}
+                        UFLAG_IF{MOV32(x12, u8); UFLAG_OP2(x12); UFLAG_DF(x12, d_sub8);}
                         SUB_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         EBBACK;
