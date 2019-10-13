@@ -24,11 +24,12 @@
 
 #include "dynarec_arm_helper.h"
 
-/* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint) 
+/* setup r2 to address pointed by ED, also fixaddress is 1 if ED is a constant */
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress)
 {
     uint8_t ret = 2;
     uint8_t scratch = 2;
+    *fixaddress = 0;
     if(hint>0) ret = hint;
     if(hint>0 && hint<xEAX) scratch = hint;
     if(hint==xEIP) scratch = hint;  // allow this one as a scratch and return register
@@ -47,6 +48,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     MOV32(ret, tmp);
+                    *fixaddress = 1;
                 }
             } else {
                 if (sib_reg!=4) {
@@ -58,6 +60,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
             MOV32(ret, tmp);
+            *fixaddress = 1;
         } else {
             ret = xEAX+(nextop&7);
         }

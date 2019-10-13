@@ -34,7 +34,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress); \
                     LDR_IMM9(x1, wback, 0); \
                     ed = x1;                \
                 }
@@ -43,7 +43,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress); \
                     LDR_IMM9(hint, wback, 0); \
                     ed = hint;              \
                 }
@@ -53,7 +53,7 @@
                     MOV_REG(ret, ed);       \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress); \
                     ed = ret;               \
                     LDR_IMM9(ed, wback, 0); \
                 }
@@ -66,7 +66,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress); \
                     LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
                     ed = x1;                 \
                 }
@@ -83,7 +83,7 @@
                     UXTH(i, wback, 0);      \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress); \
                     LDRH_IMM8(i, wback, 0); \
                     ed = i;                 \
                 }
@@ -93,7 +93,7 @@
                     UXTH(i, wback, 0);      \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
                     LDRH_IMM8(i, wback, 0); \
                     ed = i;                 \
                 }
@@ -102,7 +102,7 @@
 // Write w back to original register / memory
 #define EWBACKW(w)   if(wback<xEAX) {STRH_IMM8(w, wback, 0);} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
-#define GWBACK       BFI(gd, (xEAX+((nextop&0x38)>>3)), 0, 16);
+#define GWBACK       BFI((xEAX+((nextop&0x38)>>3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i) if((nextop&0xC0)==0xC0) {  \
                     wback = (nextop&7);     \
@@ -111,7 +111,7 @@
                     UXTB(i, wback, wb2);    \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
                     LDRB_IMM9(i, wback, 0); \
                     ed = i;                 \
                 }
@@ -194,7 +194,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define isNativeCall    STEPNAME(isNativeCall_)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
 
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);

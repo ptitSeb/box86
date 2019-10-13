@@ -44,6 +44,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     uint32_t u32;
     int need_epilog = 1;
     uint8_t wback, wb2;
+    int fixedaddress;
     dyn->tablei = 0;
     // Clean up (because there are multiple passes)
     dyn->cleanflags = 0;
@@ -1063,7 +1064,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     BFI(gb1, x1, gb2*8, 8);
                     BFI(eb1, x12, eb2*8, 8);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     LDRB_IMM9(x1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
                     BFI(gb1, x1, gb2*8, 8);
@@ -1113,7 +1114,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = ((ed&4)>>2)*8;    // L or H
                     BFI(eb1, x12, eb2, 8);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     STRB_IMM9(x12, ed, 0);
                 }
                 break;
@@ -1124,7 +1125,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(xEAX+(nextop&7), gd);
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     STR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -1140,7 +1141,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     eb2 = (ed&4)>>2;    // L or H
                     UXTB(x12, eb1, eb2);
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     LDRB_IMM9(x12, ed, 0);
                 }
                 BFI(gb1, x12, gb2, 8);
@@ -1152,7 +1153,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {   // reg <= reg
                     MOV_REG(gd, xEAX+(nextop&7));
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     LDR_IMM9(gd, ed, 0);
                 }
                 break;
@@ -1165,7 +1166,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     ok=0;
                     DEFAULT;
                 } else {                    // mem <= reg
-                    addr = geted(dyn, addr, ninst, nextop, &ed, gd);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress);
                     if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                         MOV_REG(gd, ed);
                     }
@@ -1556,7 +1557,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     MOVW(x3, u8);
                     BFI(eb1, x3, eb2*8, 8);
                 } else {                    // mem <= u8
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     u8 = F8;
                     MOVW(x3, u8);
                     STRB_IMM9(x3, ed, 0);
@@ -1570,7 +1571,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = xEAX+(nextop&7);
                     MOV32(ed, i32);
                 } else {                    // mem <= i32
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     i32 = F32S;
                     MOV32(x3, i32);
                     STR_IMM9(x3, ed, 0);
@@ -2475,14 +2476,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEDH(xEIP);
                         MOV32(x3, addr);
                         PUSH(xESP, 1<<x3);
-                        jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
+                        if(fixedaddress)
+                            jump_to_linker(dyn, 0, ed, ninst);
+                        else
+                            jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;
                         break;
                     case 4: // JMP Ed
                         INST_NAME("JMP Ed");
                         GETEDH(xEIP);
-                        jump_to_epilog(dyn, 0, ed, ninst);     // it's variable, so no linker
+                        if(fixedaddress)
+                            jump_to_linker(dyn, 0, ed, ninst);
+                        else
+                            jump_to_epilog(dyn, 0, ed, ninst);     // it's variable, so no linker
                         need_epilog = 0;
                         ok = 0;
                         break;

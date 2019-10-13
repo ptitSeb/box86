@@ -30,6 +30,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t nextop;
     int32_t i32;
     uint8_t gd, ed, wback;
+    int fixedaddress;
     switch(opcode) {
         case 0x33:
             grab_tlsdata(dyn, addr, ninst, x12);
@@ -51,7 +52,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                 LDR_REG_LSL_IMM5(gd, ed, x12, 0);
             }
             break;

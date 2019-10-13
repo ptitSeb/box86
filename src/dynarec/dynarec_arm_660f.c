@@ -33,6 +33,7 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
     uint16_t u16;
     uint8_t gd, ed, wback;
     uint8_t eb1, eb2;
+    int fixedaddress;
     switch(opcode) {
 
         case 0x1F:
