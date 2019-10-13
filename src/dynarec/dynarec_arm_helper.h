@@ -115,8 +115,17 @@
                     LDRB_IMM9(i, wback, 0); \
                     ed = i;                 \
                 }
-// Write ed back to original register / memory
-#define EBBACK   if(wback<xEAX) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2, 8);}
+// Write eb (ed) back to original register / memory
+#define EBBACK   if(wback<xEAX) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2*8, 8);}
+//GETGB will use i for gd
+#define GETGB(i)    gd = (nextop&0x38)>>3;  \
+                    gb2 = ((gd&4)>>2);      \
+                    gb1 = xEAX+(gd&3);      \
+                    gd = i;                 \
+                    UXTB(gd, gb1, gb2);
+// Write gb (gd) back to original register / memory
+#define GBBACK   BFI(gb1, gd, gb2*8, 8);
+
 // CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)
 #define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)

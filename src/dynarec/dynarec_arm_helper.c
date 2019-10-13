@@ -38,7 +38,6 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
                 uint32_t tmp = F32;
-                MOV32(((sib_reg!=4)?scratch:ret), tmp);
                 if (sib_reg!=4) {
                     if(tmp) {
                         MOV32(scratch, tmp);

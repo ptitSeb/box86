@@ -76,7 +76,8 @@ typedef enum {
 	d_sub32,
 	d_xor8,
 	d_xor16,
-	d_xor32		//39
+	d_xor32,
+	d_unknown	//40
 } defered_flags_t;
 
 #pragma pack(push, 1)

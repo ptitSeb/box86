@@ -539,7 +539,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xBD:
         case 0xBE:
         case 0xBF:
-            INST_NAME("MOV Reg, Iw");
+            INST_NAME("MOV Reg16, Iw");
             u16 = F16;
             MOVW(x1, u16);
             gd = xEAX+(opcode&7);
@@ -590,13 +590,12 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 4:
                 case 6:
-                    INST_NAME("SHL Ed, Ib");
+                    INST_NAME("SHL Ew, Ib");
                     u8 = F8;
-                    MOVW(x2, u8);
+                    MOVW(x2, (u8&0x1f));
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
-                    MOV_REG_LSL_REG(ed, ed, x12);
+                    UFLAG_OP12(ed, x2)
+                    MOV_REG_LSL_REG(ed, ed, x2);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shl16);
@@ -605,11 +604,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 5:
                     INST_NAME("SHR Ed, Ib");
                     u8 = F8;
-                    MOVW(x2, u8);
+                    MOVW(x2, (u8&0x1f));
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
-                    MOV_REG_LSR_REG(ed, ed, x12);
+                    UFLAG_OP12(ed, x2)
+                    MOV_REG_LSR_REG(ed, ed, x2);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
@@ -618,11 +616,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 7:
                     INST_NAME("SAR Ed, Ib");
                     u8 = F8;
-                    MOVW(x2, u8);
+                    MOVW(x2, (u8&0x1f));
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
-                    MOV_REG_ASR_REG(ed, ed, x12);
+                    UFLAG_OP12(ed, x2)
+                    MOV_REG_ASR_REG(ed, ed, x2);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar16);
@@ -717,8 +714,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
+                    UFLAG_OP12(ed, x12)
                     MOV_REG_LSL_REG(ed, ed, x12);
                     EWBACK;
                     UFLAG_RES(ed);
@@ -734,8 +730,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
+                    UFLAG_OP12(ed, x12)
                     MOV_REG_LSR_REG(ed, ed, x12);
                     EWBACK;
                     UFLAG_RES(ed);
@@ -751,8 +746,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         AND_IMM8(x12, xECX, 0x1f);
                     }
                     GETEW(x1);
-                    UFLAG_OP2(x12)
-                    UFLAG_OP1(ed);
+                    UFLAG_OP12(ed, x12)
                     MOV_REG_ASR_REG(ed, ed, x12);
                     EWBACK;
                     UFLAG_RES(ed);
