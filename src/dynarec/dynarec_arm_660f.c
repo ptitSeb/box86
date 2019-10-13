@@ -72,6 +72,22 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             UFLAGS(1);
             break;
 
+        case 0xAB:
+            INST_NAME("BTS Ew, Gw");
+            nextop = F8;
+            USEFLAG(1);
+            GETGD;  // there is an AND below, to 32bits is the same
+            GETEW(x12);
+            AND_IMM8(x2, gd, 15);
+            MOV_REG_LSR_REG(x1, ed, x2);
+            ANDS_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            Bcond(cNE, i32);
+            MOVW(x1, 1);
+            ORR_REG_LSL_REG(ed, ed, x1, x2);
+            EWBACK;
+            break;
         case 0xAC:
         case 0xAD:
             nextop = F8;
@@ -90,6 +106,23 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             CALL(shrd16, x1, (wback?(1<<wback):0));
             EWBACKW(x1);
             UFLAGS(1);
+            break;
+
+        case 0xB3:
+            INST_NAME("BTR Ew, Gw");
+            nextop = F8;
+            USEFLAG(1);
+            GETGD;  // there is an AND below, to 32bits is the same
+            GETEW(x12);
+            AND_IMM8(x2, gd, 15);
+            MOV_REG_LSR_REG(x1, ed, x2);
+            ANDS_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            Bcond(cEQ, i32);
+            MOVW(x1, 1);
+            XOR_REG_LSL_REG(ed, ed, x1, x2);
+            EWBACK;
             break;
 
         default:
