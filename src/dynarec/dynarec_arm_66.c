@@ -34,6 +34,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed, wback;
+    int fixedaddress;
     while(opcode==0x66) opcode = F8;    // "unlimited" 0x66 as prefix for variable sized NOP
     if(opcode==0x2E) opcode = F8;       // cs: is ignored
     switch(opcode) {
@@ -41,8 +42,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x01:
             INST_NAME("ADD Ew, Gw");
             nextop = F8;
-            GETGW(2);
-            GETEW(1);
+            GETGW(x2);
+            GETEW(x1);
             UFLAG_OP12(ed, gd);
             ADD_REG_LSL_IMM8(ed, ed, gd, 0);
             EWBACK;
@@ -53,8 +54,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x03:
             INST_NAME("ADD Gw, Ew");
             nextop = F8;
-            GETGW(1);
-            GETEW(2);
+            GETGW(x1);
+            GETEW(x2);
             UFLAG_OP12(gd, ed);
             ADD_REG_LSL_IMM8(gd, gd, ed, 0);
             UFLAG_RES(gd);
@@ -65,12 +66,12 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x05:
             INST_NAME("ADD AX, Id");
             i32 = F16;
-            MOV32(x1, i32);
-            UXTH(x2, xEAX, 0);
-            UFLAG_OP12(x2, x1);
-            ADD_REG_LSL_IMM8(x2, x2, x1, 0);
-            UFLAG_RES(x2);
-            BFI(xEAX, x2, 0, 16);
+            MOVW(x2, i32);
+            UXTH(x1, xEAX, 0);
+            UFLAG_OP12(x1, x2);
+            ADD_REG_LSL_IMM8(x1, x1, x2, 0);
+            UFLAG_RES(x1);
+            BFI(xEAX, x1, 0, 16);
             UFLAG_DF(x1, d_add16);
             UFLAGS(0);
             break;
@@ -78,8 +79,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x09:
             INST_NAME("OR Ew, Gw");
             nextop = F8;
-            GETGW(2);
-            GETEW(1);
+            GETGW(x2);
+            GETEW(x1);
             ORR_REG_LSL_IMM8(ed, ed, gd, 0);
             EWBACK;
             UFLAG_RES(ed);
@@ -89,8 +90,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x0B:
             INST_NAME("OR Gw, Ew");
             nextop = F8;
-            GETGW(1);
-            GETEW(2);
+            GETGW(x1);
+            GETEW(x2);
             ORR_REG_LSL_IMM8(gd, gd, ed, 0);
             UFLAG_RES(gd);
             GWBACK;
@@ -100,7 +101,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0x0D:
             INST_NAME("OR AX, Id");
             i32 = F16;
-            MOV32(x1, i32);
+            MOVW(x1, i32);
             UXTH(x2, xEAX, 0);
             ORR_REG_LSL_IMM8(x2, x2, x1, 0);
             UFLAG_RES(x2);
@@ -116,8 +117,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("ADC Ew, Gw");
             USEFLAG(0);
             nextop = F8;
-            GETGW(2);
-            GETEW(1);
+            GETGW(x2);
+            GETEW(x1);
             CALL_(adc16, x1, (1<<x3));
             EWBACK;
             UFLAGS(1);
@@ -126,8 +127,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("ADC Gw, Ew");
             USEFLAG(0);
             nextop = F8;
-            GETGW(1);
-            GETEW(2);
+            GETGW(x1);
+            GETEW(x2);
             CALL_(adc16, x1, (1<<x3));
             GWBACK;
             UFLAGS(1);
@@ -288,7 +289,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 ed = xEAX+(nextop&7);
                 UXTH(x1, ed, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress);
                 STRH_IMM8(x1, ed, 0);
             }
             UXTH(x2, gd, 0);
@@ -304,7 +305,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 ed = xEAX+(nextop&7);
                 UXTH(x2, ed, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress);
                 STRH_IMM8(x2, ed, 0);
             }
             UXTH(x1, gd, 0);
@@ -493,7 +494,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     BFI(ed, gd, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                 STRH_IMM8(gd, ed, 0);
             }
             break;
@@ -507,7 +508,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     BFI(gd, ed, 0, 16);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                 LDRH_IMM8(x1, ed, 0);
                 BFI(gd, x1, 0, 16);
             }
@@ -637,7 +638,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 MOVW(x1, u16);
                 BFI(ed, x1, 0, 16);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                 u16 = F16;
                 MOVW(x1, u16);
                 STRH_IMM8(x1, ed, 0);
