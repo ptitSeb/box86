@@ -92,15 +92,17 @@
                     wback = xEAX+(nextop&7);\
                     UXTH(i, wback, 0);      \
                     ed = i;                 \
+                    wb1 = 0;                \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
                     LDRH_IMM8(i, wback, 0); \
                     ed = i;                 \
+                    wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wback<xEAX) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
+#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wback<xEAX) {STRH_IMM8(w, wback, 0);} else {BFI(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, 0);} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI((xEAX+((nextop&0x38)>>3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
@@ -109,14 +111,16 @@
                     wb2 = (wback>>2);       \
                     wback = xEAX+(wback&3); \
                     UXTB(i, wback, wb2);    \
+                    wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
                     LDRB_IMM9(i, wback, 0); \
+                    wb1 = 1;                \
                     ed = i;                 \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wback<xEAX) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2*8, 8);}
+#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2*8, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    gd = (nextop&0x38)>>3;  \
                     gb2 = ((gd&4)>>2);      \
