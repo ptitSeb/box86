@@ -177,22 +177,26 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
-    if(reg) {
-        if(reg!=xEIP) {
-            MOV_REG(xEIP, reg);
-        }
+    if(!box86_dynarec_linker) {
+        jump_to_epilog(dyn, ip, reg, ninst);
     } else {
-        MOV32(xEIP, ip);
+        if(reg) {
+            if(reg!=xEIP) {
+                MOV_REG(xEIP, reg);
+            }
+        } else {
+            MOV32(xEIP, ip);
+        }
+        uintptr_t* table = 0;
+        if(dyn->tablesz) {
+            table = &dyn->table[dyn->tablei];
+            *table = (uintptr_t)arm_linker;
+        }
+        ++dyn->tablei;
+        MOV32_(x1, (uintptr_t)table);
+        LDR_IMM9(x2, x1, 0);
+        BX(x2);
     }
-    uintptr_t* table = 0;
-    if(dyn->tablesz) {
-        table = &dyn->table[dyn->tablei];
-        *table = (uintptr_t)arm_linker;
-    }
-    ++dyn->tablei;
-    MOV32_(x1, (uintptr_t)table);
-    LDR_IMM9(x2, x1, 0);
-    BX(x2);
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)

@@ -5,6 +5,7 @@ extern int box86_log;    // log level
 #ifdef DYNAREC
 extern int box86_dynarec_log;
 extern int box86_dynarec;
+extern int box86_dynarec_linker;
 extern int box86_dynarec_trace;
 #endif
 extern int dlsym_error;  // log dlsym error
