@@ -33,11 +33,17 @@ Op is 20-27
 #define xSP     13      
 
 // barel roll operations (4 possibles)
-#define brLSL(i, r) (0<<5 | ((i&31)<<7) | r)
-#define brLSR(i, r) (1<<5 | ((i&31)<<7) | r)
-#define brASR(i, r) (2<<5 | ((i&31)<<7) | r)
-#define brROR(i, r) (3<<5 | ((i&31)<<7) | r)
+#define brLSL(i, r) (0<<4 | 0<<5 | ((i&31)<<7) | r)
+#define brLSR(i, r) (0<<4 | 1<<5 | ((i&31)<<7) | r)
+#define brASR(i, r) (0<<4 | 2<<5 | ((i&31)<<7) | r)
+#define brROR(i, r) (0<<4 | 3<<5 | ((i&31)<<7) | r)
 #define brIMM(r)    (r)
+// barel roll with a register
+#define brRLSL(i, r) (1<<4 | 0<<5 | ((i&15)<<8) | r)
+#define brRLSR(i, r) (1<<4 | 1<<5 | ((i&15)<<8) | r)
+#define brRASR(i, r) (1<<4 | 2<<5 | ((i&15)<<8) | r)
+#define brRROR(i, r) (1<<4 | 3<<5 | ((i&15)<<8) | r)
+
 
 // conditions
 #define cEQ (0b0000<<28)
@@ -137,6 +143,9 @@ Op is 20-27
 // and dst, src, #(imm8)
 #define AND_IMM8(dst, src, imm8) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// and.s dst, src, #(imm8)
+#define ANDS_IMM8(dst, src, imm8) \
+    EMIT(0xe2100000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) \
     EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -173,6 +182,9 @@ Op is 20-27
 // orr dst, src1, #imm8
 #define ORR_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// orr dst, src1, src2, lsl #rs
+#define ORR_REG_LSL_REG(dst, src1, src2, rs) \
+    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // xor dst, src1, src2, lsl #imm
 #define XOR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -182,6 +194,9 @@ Op is 20-27
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// xor dst, src1, src2, lsl #rs
+#define XOR_REG_LSL_REG(dst, src1, src2, rs) \
+    EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // xor dst, src1, src2, lsl #imm
 #define XOR_REG_LSR_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
@@ -191,6 +206,9 @@ Op is 20-27
 // bic dst, src, IMM8
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// bic dst, src1, src2, lsl #imm
+#define BIC_REG_LSL_REG(dst, src1, src2, rs) \
+    EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // mvn dst, src1, src2, lsl #imm
 #define MVN_REG_LSL_IMM8(dst, rm, imm8) \
     EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm8, rm) )
