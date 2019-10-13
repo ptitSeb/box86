@@ -537,6 +537,9 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_AF);
             break;
+        case d_unknown:
+            printf_log(LOG_NONE, "Box86: %p trying to evaluate Unknown defered Flags\n", R_EIP);
+            break;
     }
     RESET_FLAGS(emu);
 }

@@ -73,27 +73,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x00:
                 INST_NAME("ADD Eb, Gb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETEB(x1);
+                GETGB(x2);
                 UFLAG_OP12(x1, x2);
                 ADD_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                EBBACK;
                 UFLAG_DF(x3, d_add8);
                 UFLAGS(0);
                 break;
@@ -112,23 +97,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x02:
                 INST_NAME("ADD Gb, Eb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETEB(x2);
+                GETGB(x1);
                 UFLAG_OP12(x1, x2);
                 ADD_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAG_DF(x3, d_add8);
                 UFLAGS(0);
                 break;
@@ -144,10 +118,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
             case 0x04:
-                INST_NAME("ADD Gb, Ib");
+                INST_NAME("ADD AL, Ib");
                 u8 = F8;
                 UXTB(x1, xEAX, 0);
-                MOV32(x2, u8);
+                MOVW(x2, u8);
                 UFLAG_OP12(x1, x2);
                 ADD_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
@@ -169,26 +143,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x08:
                 INST_NAME("OR Eb, Gb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETEB(x1);
+                GETGB(x2);
                 ORR_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                EBBACK;
                 UFLAG_DF(x3, d_or8);
                 UFLAGS(0);
                 break;
@@ -206,22 +165,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x0A:
                 INST_NAME("OR Gb, Eb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETEB(x2);
+                GETGB(x1);
                 ORR_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAG_DF(x3, d_or8);
                 UFLAGS(0);
                 break;
@@ -236,7 +184,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
             case 0x0C:
-                INST_NAME("OR Gb, Ib");
+                INST_NAME("OR AL, Ib");
                 u8 = F8;
                 UXTB(x1, xEAX, 0);
                 ORR_IMM8(x1, x1, u8, 0);
@@ -264,10 +212,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 USEFLAG(0);
                 nextop = F8;
                 GETEB(x1);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETGB(x2);
                 CALL_(adc8, x1, (1<<x3));
                 EBBACK;
                 UFLAGS(1);
@@ -288,12 +233,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 USEFLAG(0);
                 nextop = F8;
                 GETEB(x2);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETGB(x1);
                 CALL_(adc8, x1, 0);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAGS(1);
                 break;
             case 0x13:
@@ -308,27 +250,22 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(1);
                 break;
             case 0x14:
-                INST_NAME("ADC Gb, Ib");
+                INST_NAME("ADC AL, Ib");
                 USEFLAG(0);
                 u8 = F8;
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                UXTB(x1, xEAX, 0);
                 MOVW(x2, u8);
                 CALL_(adc8, x1, 0);
-                BFI(gb1, x1, gb2*8, 8);
+                BFI(xEAX, x1, 0, 8);
                 UFLAGS(1);
                 break;
             case 0x15:
-                INST_NAME("ADC Gd, Ed");
+                INST_NAME("ADC EAX, Id");
                 USEFLAG(0);
                 i32 = F32S;
-                GETGD;
-                MOV_REG(x1, gd);
+                MOV_REG(x1, xEAX);
                 MOV32(x2, i32);
-                CALL_(adc32, x1, 0);
-                MOV_REG(gd, x1);
+                CALL_(adc32, xEAX, 0);
                 UFLAGS(1);
                 break;
 
@@ -337,10 +274,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 USEFLAG(0);
                 nextop = F8;
                 GETEB(x1);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETGB(x2);
                 CALL_(sbb8, x1, (1<<x3));
                 EBBACK;
                 UFLAGS(1);
@@ -361,12 +295,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 USEFLAG(0);
                 nextop = F8;
                 GETEB(x2);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETGB(x1);
                 CALL_(sbb8, x1, 0);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAGS(1);
                 break;
             case 0x1B:
@@ -376,58 +307,37 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 GETGD;
                 GETEDW(x12, x2);
                 MOV_REG(x1, gd);
-                CALL_(sbb32, x1, 0);
-                MOV_REG(gd, x1);
+                CALL_(sbb32, gd, 0);
                 UFLAGS(1);
                 break;
             case 0x1C:
-                INST_NAME("SBB Gb, Ib");
+                INST_NAME("SBB AL, Ib");
                 USEFLAG(0);
                 u8 = F8;
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                UXTB(x1, xEAX, 0);
                 MOVW(x2, u8);
                 CALL_(sbb8, x1, 0);
-                BFI(gb1, x1, gb2*8, 8);
+                BFI(xEAX, x1, 0, 8);
                 UFLAGS(1);
                 break;
             case 0x1D:
-                INST_NAME("SBB Gd, Ed");
+                INST_NAME("SBB EAX, Id");
                 USEFLAG(0);
                 i32 = F32S;
-                GETGD;
-                MOV_REG(x1, gd);
+                MOV_REG(x1, xEAX);
                 MOV32(x2, i32);
-                CALL_(sbb32, x1, 0);
-                MOV_REG(gd, x1);
+                CALL_(sbb32, xEAX, 0);
                 UFLAGS(1);
                 break;
 
             case 0x20:
                 INST_NAME("AND Eb, Gb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETEB(x1);
+                GETGB(x2);
                 AND_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                EBBACK;
                 UFLAG_DF(x3, d_and8);
                 UFLAGS(0);
                 break;
@@ -445,22 +355,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x22:
                 INST_NAME("AND Gb, Eb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETEB(x2);
+                GETGB(x1);
                 AND_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAG_DF(x3, d_and8);
                 UFLAGS(0);
                 break;
@@ -475,7 +374,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
             case 0x24:
-                INST_NAME("AND Gb, Ib");
+                INST_NAME("AND AL, Ib");
                 u8 = F8;
                 UXTB(x1, xEAX, 0);
                 AND_IMM8(x1, x1, u8);
@@ -497,28 +396,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x28:
                 INST_NAME("SUB Eb, Gb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                UFLAG_OP1(x1);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
-                UFLAG_OP2(x2);
+                GETEB(x1);
+                GETGB(x2);
+                UFLAG_OP12(x1, x2);
                 SUB_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                EBBACK;
                 UFLAG_DF(x3, d_sub8);
                 UFLAGS(0);
                 break;
@@ -537,23 +420,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x2A:
                 INST_NAME("SUB Gb, Eb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETEB(x2);
+                GETGB(x1);
                 UFLAG_OP12(x1, x2);
                 SUB_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAG_DF(x3, d_sub8);
                 UFLAGS(0);
                 break;
@@ -569,7 +441,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
             case 0x2C:
-                INST_NAME("SUB EAX, Ib");
+                INST_NAME("SUB AL, Ib");
                 i32 = F8;
                 UXTB(x1, xEAX, 0);
                 MOV32(x2, i32)
@@ -599,26 +471,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x30:
                 INST_NAME("XOR Eb, Gb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETEB(x1);
+                GETGB(x2);
                 XOR_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                if((nextop&0xC0)==0xC0) {
-                    BFI(eb1, x1, eb2*8, 8);
-                } else {
-                    STRB_IMM9(x1, ed, 0);
-                }
+                EBBACK;
                 UFLAG_DF(x3, d_xor8);
                 UFLAGS(0);
                 break;
@@ -636,22 +493,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x32:
                 INST_NAME("XOR Gb, Eb");
                 nextop = F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x2, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12);
-                    LDRB_IMM9(x2, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETEB(x2);
+                GETGB(x1);
                 XOR_REG_LSL_IMM8(x1, x1, x2, 0);
                 UFLAG_RES(x1);
-                BFI(gb1, x1, gb2*8, 8);
+                GBBACK;
                 UFLAG_DF(x3, d_xor8);
                 UFLAGS(0);
                 break;
@@ -666,7 +512,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
             case 0x34:
-                INST_NAME("XOR Gb, Ib");
+                INST_NAME("XOR AL, Ib");
                 u8 = F8;
                 UXTB(x1, xEAX, 0);
                 XOR_IMM8(x1, x1, u8);
@@ -690,10 +536,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 nextop = F8;
                 GETEB(x1);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETGB(x2);
                 CALL_(cmp8, -1, 0);
                 UFLAGS(1);
                 break;
@@ -713,10 +556,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 nextop = F8;
                 GETEB(x2);
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x1, gb1, gb2);
+                GETGB(x1);
                 CALL(cmp8, -1, 0);
                 UFLAGS(1);
                 break;
@@ -1006,7 +846,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEB(x1);
                         u8 = F8;
                         ORR_IMM8(x1, x1, u8, 0);
-                        UFLAG_RES(1);
+                        UFLAG_RES(x1);
                         EBBACK;
                         UFLAG_DF(x3, d_or8);
                         UFLAGS(0);
@@ -1016,7 +856,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEB(x1);
                         u8 = F8;
                         AND_IMM8(x1, x1, u8);
-                        UFLAG_RES(1);
+                        UFLAG_RES(x1);
                         EBBACK;
                         UFLAG_DF(x3, d_and8);
                         UFLAGS(0);
@@ -1077,7 +917,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             ADD_IMM8(ed, ed, i32);
                         } else {
                             MOV32(x3, i32);
-                            UFLAG_OP2(3);
+                            UFLAG_OP2(x3);
                             ADD_REG_LSL_IMM8(ed, ed, x3, 0);
                         }
                         WBACK;
@@ -1186,19 +1026,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("TEST Eb, Gb");
                 UFLAGS(0);
                 nextop=F8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
-                    UXTB(x1, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                    LDRB_IMM9(x1, ed, 0);
-                }
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x2, gb1, gb2);
+                GETEB(x1);
+                GETGB(x2);
                 CALL(test8, -1, 0);
                 UFLAGS(1);
                 break;
@@ -1224,10 +1053,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 POP(xSP, (1<<xEmu));
                 // Do the swap
                 nextop = F8;
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2);
-                UXTB(x12, gb1, gb2);
+                GETGB(x12);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
@@ -1280,10 +1106,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x88:
                 INST_NAME("MOV Eb, Gb");
                 nextop = F8;
-                gd = (nextop&0x38)>>3;
-                gb1 = xEAX+(gd&3);
-                gb2 = (gd&4)>>2;
-                UXTB(12, gb1, gb2);
+                GETGB(x12);
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -1485,7 +1308,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 UXTB(x1, xEAX, 0);
                 u8 = F8;
-                MOV32(x2, u8);
+                MOVW(x2, u8);
                 CALL(test8, -1, 0);
                 UFLAGS(1);
                 break;
@@ -1619,7 +1442,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         USEFLAG(1);
                         GETEDH(x12);
                         u8 = (F8)&0x1f;
-                        UFLAG_OP1(ed);
                         if(u8) {
                             MOV_REG_ROR_IMM5(ed, ed, u8);
                             WBACK;
@@ -1641,7 +1463,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         INST_NAME("RCL Ed, Ib");
                         GETEDW(x12, x1);
                         u8 = F8;
-                        MOV_REG(x2, gd);
+                        MOVW(x2, u8);
                         CALL_(rcl32, x1, (1<<x12));
                         SBACK(x1);
                         UFLAGS(1);
@@ -1650,7 +1472,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         INST_NAME("RCR Ed, Ib");
                         GETEDW(x12, x1);
                         u8 = F8;
-                        MOV_REG(x2, gd);
+                        MOVW(x2, u8);
                         CALL_(rcr32, x1, (1<<x12));
                         SBACK(x1);
                         UFLAGS(1);
@@ -1731,12 +1553,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                     eb2 = (ed&4)>>2;    // L or H
-                    BIC_IMM8(eb1, eb1, 0xff, (eb2)?12:0);   // BFI needs a reg, so I keep the BIC/OR method here
-                    ORR_IMM8(eb1, eb1, u8, (eb2)?12:0);
+                    MOVW(x3, u8);
+                    BFI(eb1, x3, eb2*8, 8);
                 } else {                    // mem <= u8
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1);
                     u8 = F8;
-                    MOV32(x3, u8);
+                    MOVW(x3, u8);
                     STRB_IMM9(x3, ed, 0);
                 }
                 break;
@@ -1892,8 +1714,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x12, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
+                        UFLAG_OP12(ed, x12)
                         MOV_REG_LSL_REG(ed, ed, x12);
                         EBBACK;
                         UFLAG_RES(ed);
@@ -1909,8 +1730,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x12, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
+                        UFLAG_OP12(ed, x12)
                         MOV_REG_LSR_REG(ed, ed, x12);
                         EBBACK;
                         UFLAG_RES(ed);
@@ -1926,8 +1746,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x12, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
+                        UFLAG_OP12(ed, x12)
                         MOV_REG_ASR_REG(ed, ed, x12);
                         EBBACK;
                         UFLAG_RES(ed);
@@ -1941,9 +1760,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 switch((nextop>>3)&7) {
                     case 0:
+                        USEFLAG(1);
                         if(opcode==0xD1) {
                             INST_NAME("ROL Ed, 1");
-                            MOVW(x3, 31);
+                            MOVW(x3, 0x1f);
                         } else {
                             INST_NAME("ROL Ed, CL");
                             AND_IMM8(x3, xECX, 0x1f);
@@ -1951,9 +1771,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             i32 = GETMARK2-(dyn->arm_size+8);
                             Bcond(cEQ, i32);
                             RSB_IMM8(x3, x3, 0x20);
-                            AND_IMM8(x3, x3, 0x1f); // usefull?
                         }
-                        USEFLAG(1);
                         GETEDH(x12);
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
@@ -2450,71 +2268,31 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 0:
                     case 1:
                         INST_NAME("TEST Eb, Ib");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         u8 = F8;
-                        MOV32(x2, u8);
+                        MOVW(x2, u8);
                         CALL(test8, -1, 0);
                         UFLAGS(1);
                         break;
                     case 2:
                         INST_NAME("NOT Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         MVN_REG_LSL_IMM8(x1, x1, 0);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         break;
                     case 3:
                         INST_NAME("NEG Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         UFLAG_OP1(x1);
                         RSB_IMM8(x1, x1, 0);
                         UFLAG_RES(x1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_DF(x2, d_neg8);
                         UFLAGS(0);
                         break;
                     case 4:
                         INST_NAME("MUL AL, Ed");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         STM(xEmu, (1<<xEAX));
                         CALL(mul8, -1, 0);
                         LDM(xEmu, (1<<xEAX));
@@ -2522,15 +2300,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 5:
                         INST_NAME("IMUL AL, Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         STM(xEmu, (1<<xEAX));
                         CALL(imul8, -1, 0);
                         LDM(xEmu, (1<<xEAX));
@@ -2538,15 +2308,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 6:
                         INST_NAME("DIV Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         STM(xEmu, (1<<xEAX));
                         CALL(div8, -1, 0);
                         LDM(xEmu, (1<<xEAX));
@@ -2554,15 +2316,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 7:
                         INST_NAME("IDIV Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         STM(xEmu, (1<<xEAX));
                         CALL(idiv8, -1, 0);
                         LDM(xEmu, (1<<xEAX));
@@ -2669,44 +2423,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("INC Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         UFLAG_OP1(x1);
                         ADD_IMM8(x1, x1, 1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_RES(x1);
                         UFLAG_DF(x1, d_inc8);
                         UFLAGS(0);
                         break;
                     case 1:
                         INST_NAME("DEC Eb");
-                        if((nextop&0xC0)==0xC0) {
-                            ed = (nextop&7);
-                            eb1 = xEAX+(ed&3);
-                            eb2 = ((ed&4)>>2);
-                            UXTB(x1, eb1, eb2);
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x2);
-                            LDRB_IMM9(x1, ed, 0);
-                        }
+                        GETEB(x1);
                         UFLAG_OP1(x1);
                         SUB_IMM8(x1, x1, 1);
-                        if((nextop&0xC0)==0xC0) {
-                            BFI(eb1, x1, eb2*8, 8);
-                        } else {
-                            STRB_IMM9(x1, ed, 0);
-                        }
+                        EBBACK;
                         UFLAG_RES(x1);
                         UFLAG_DF(x1, d_dec8);
                         UFLAGS(0);
