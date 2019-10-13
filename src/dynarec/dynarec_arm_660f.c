@@ -31,7 +31,8 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
     int32_t i32, i32_;
     int16_t i16;
     uint16_t u16;
-    uint8_t gd, ed, wback;
+    uint8_t gd, ed;
+    uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
     int fixedaddress;
     switch(opcode) {

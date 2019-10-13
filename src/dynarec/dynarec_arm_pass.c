@@ -43,7 +43,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
     int need_epilog = 1;
-    uint8_t wback, wb2;
+    uint8_t wback, wb1, wb2;
     int fixedaddress;
     dyn->tablei = 0;
     // Clean up (because there are multiple passes)
