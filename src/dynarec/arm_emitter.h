@@ -234,17 +234,17 @@ Op is 20-27
 // ldrb reg, [addr, rm lsl imm5]
 #define LDRB_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldr reg, [addr], #imm9
-#define LDRAI_IMM9_W(reg, addr, imm9)   EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define LDRAI_IMM9_W(reg, addr, imm9)   EMIT(0xe4900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr], #-imm9
-#define LDRAI_NIMM9_W(reg, addr, imm9)  EMIT(0xe4300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define LDRAI_NIMM9_W(reg, addr, imm9)  EMIT(0xe4100000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldrb reg, [addr], #imm9
-#define LDRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define LDRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldrb reg, [addr], #-imm9
-#define LDRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+#define LDRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4100000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr], rm lsl imm5
-#define LDRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6b00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+#define LDRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6900000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldrb reg, [addr], rm lsl imm5
-#define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6f00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+#define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -265,9 +265,9 @@ Op is 20-27
 // strb reg, [addr], #-imm9
 #define STRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4400000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], rm lsl imm5
-#define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6a00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+#define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strb reg, [addr], rm lsl imm5
-#define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6e00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+#define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
