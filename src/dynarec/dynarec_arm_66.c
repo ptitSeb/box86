@@ -65,7 +65,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAGS(0);
             break;
         case 0x05:
-            INST_NAME("ADD AX, Id");
+            INST_NAME("ADD AX, Iw");
             i32 = F16;
             MOVW(x2, i32);
             UXTH(x1, xEAX, 0);
@@ -100,7 +100,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             UFLAGS(0);
             break;
         case 0x0D:
-            INST_NAME("OR AX, Id");
+            INST_NAME("OR AX, Iw");
             i32 = F16;
             MOVW(x1, i32);
             UXTH(x2, xEAX, 0);
@@ -357,15 +357,15 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         INST_NAME("ADD Ew, Ib");
                     }
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     UFLAG_OP1(ed);
-                    if(i32>=0 && i32<256) {
+                    if(i16>=0 && i16<256) {
                         UFLAG_IF{
-                            MOVW(x2, i32); UFLAG_OP2(x2);
+                            MOVW(x2, i16); UFLAG_OP2(x2);
                         };
-                        ADD_IMM8(ed, ed, i32);
+                        ADD_IMM8(ed, ed, i16);
                     } else {
-                        MOVW(x2, i32);
+                        MOVW(x2, i16);
                         UFLAG_OP2(x2);
                         ADD_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
@@ -377,11 +377,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        ORR_IMM8(ed, ed, i32, 0);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16>0 && i16<256) {
+                        ORR_IMM8(ed, ed, i16, 0);
                     } else {
-                        MOVW(x2, i32);
+                        MOVW(x2, i16);
                         ORR_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
@@ -393,9 +393,9 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
                     UFLAGS(0);
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    MOVW(x2, i32);
-                    CALL(adc16, ed, (wback?(1<<wback):0));
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOVW(x2, i16);
+                    CALL(adc16, ed, ((wback<xEAX)?(1<<wback):0));
                     EWBACK;
                     UFLAGS(1);
                     break;
@@ -403,20 +403,20 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
                     UFLAGS(0);
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    MOVW(x2, i32);
-                    CALL(sbb16, ed, (wback?(1<<wback):0));
-                    WBACK;
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOVW(x2, i16);
+                    CALL(sbb16, ed, ((wback<xEAX)?(1<<wback):0));
+                    EWBACK;
                     UFLAGS(1);
                     break;
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        AND_IMM8(ed, ed, i32);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16>0 && i16<256) {
+                        AND_IMM8(ed, ed, i16);
                     } else {
-                        MOVW(x2, i32);
+                        MOVW(x2, i16);
                         AND_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
@@ -427,15 +427,15 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     UFLAG_OP1(ed);
-                    if(i32>0 && i32<256) {
+                    if(i16>0 && i16<256) {
                         UFLAG_IF{
-                            MOVW(x2, i32); UFLAG_OP2(x2);
+                            MOVW(x2, i16); UFLAG_OP2(x2);
                         }
-                        SUB_IMM8(ed, ed, i32);
+                        SUB_IMM8(ed, ed, i16);
                     } else {
-                        MOVW(x2, i32);
+                        MOVW(x2, i16);
                         UFLAG_OP2(x2);
                         SUB_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
@@ -447,11 +447,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        XOR_IMM8(ed, ed, i32);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    if(i16>0 && i16<256) {
+                        XOR_IMM8(ed, ed, i16);
                     } else {
-                        MOVW(x2, i32);
+                        MOVW(x2, i16);
                         XOR_REG_LSL_IMM8(ed, ed, x2, 0);
                     }
                     EWBACK;
@@ -463,8 +463,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
                     UFLAGS(0);
                     GETEW(x1);
-                    if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                    MOVW(x2, i32);
+                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    MOVW(x2, i16);
                     CALL(cmp16, -1, 0);
                     UFLAGS(1);
                     break;
@@ -762,8 +762,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("TEST Ew, Iw");
                     UFLAGS(0);
                     GETEW(x1);
-                    i32 = F16;
-                    MOVW(x2, i32);
+                    i16 = F16S;
+                    MOVW(x2, i16);
                     CALL(test16, -1, 0);
                     UFLAGS(1);
                     break;
@@ -785,7 +785,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 4:
                     INST_NAME("MUL AX, Ew");
-                    UFLAG_DF(x2, d_mul32);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                     CALL(mul16, -1, 0);
@@ -794,7 +793,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
-                    UFLAG_DF(x2, d_imul32);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                     CALL(imul16_eax, -1, 0);

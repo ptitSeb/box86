@@ -143,6 +143,10 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), "snprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
+                } else  if(strstr(s, "sprintf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %08X...)", tid, *(void**)(R_ESP), "sprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8));
+                    pu32 = *(uint32_t**)(R_ESP+4);
+                    post = 3;
                 } else  if(strstr(s, "fprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "fprintf", *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
