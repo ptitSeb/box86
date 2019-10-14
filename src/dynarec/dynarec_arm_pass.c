@@ -225,8 +225,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 GETGD;
                 GETEDW(x12, x1);
                 MOV_REG(x2, gd);
-                CALL_(adc32, x1, (1<<x12));
-                SBACK(x1);
+                CALL_(adc32, ed, (1<<x12));
+                WBACK;
                 UFLAGS(1);
                 break;
             case 0x12:
@@ -246,8 +246,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 GETGD;
                 GETEDW(x12, x2);
                 MOV_REG(x1, gd);
-                CALL_(adc32, x1, 0);
-                MOV_REG(gd, x1);
+                CALL_(adc32, gd, 0);
                 UFLAGS(1);
                 break;
             case 0x14:
@@ -287,8 +286,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 GETGD;
                 GETEDW(x12, x1);
                 MOV_REG(x2, gd);
-                CALL_(sbb32, x1, (1<<x12));
-                SBACK(x1);
+                CALL_(sbb32, ed, (1<<x12));
+                WBACK;
                 UFLAGS(1);
                 break;
             case 0x1A:
@@ -443,12 +442,16 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x2C:
                 INST_NAME("SUB AL, Ib");
-                i32 = F8;
+                u8 = F8;
                 UXTB(x1, xEAX, 0);
-                MOV32(x2, i32)
-                UFLAG_OP12(x1, x2);
-                SUB_REG_LSL_IMM8(x1, x1, x2, 0);
-                UFLAG_RES(x1);
+                UFLAG_IF {
+                    MOVW(x2, u8);
+                    UFLAG_OP12(x1, x2);
+                    SUB_REG_LSL_IMM8(x1, x1, x2, 0);
+                    UFLAG_RES(x1);
+                } else {
+                    SUB_IMM8(x1, x1, u8);
+                }
                 BFI(xEAX, x1, 0, 8);
                 UFLAG_DF(x3, d_sub8);
                 UFLAGS(0);
@@ -575,8 +578,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x3C:
                 INST_NAME("CMP AL, Ib");
                 UFLAGS(0);
-                u32 = F8;
-                MOV32(x2, u32);
+                u8 = F8;
+                MOVW(x2, u8);
                 UXTB(x1, xEAX, 0);
                 CALL(cmp8, -1, 0);
                 UFLAGS(1);
@@ -834,9 +837,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 0: //ADD
                         INST_NAME("ADD Eb, Ib");
                         GETEB(x1);
-                        UFLAG_OP1(x1);
                         u8 = F8;
-                        UFLAG_IF{MOV32(x12, u8); UFLAG_OP2(x12); UFLAG_DF(x12, d_add8);}
+                        UFLAG_IF{MOVW(x12, u8); UFLAG_OP12(x1, x12); UFLAG_DF(x12, d_add8);}
                         ADD_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         EBBACK;
@@ -865,9 +867,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 5: //SUB
                         INST_NAME("SUB Eb, Ib");
                         GETEB(x1);
-                        UFLAG_OP1(x1);
                         u8 = F8;
-                        UFLAG_IF{MOV32(x12, u8); UFLAG_OP2(x12); UFLAG_DF(x12, d_sub8);}
+                        UFLAG_IF{MOV32(x12, u8); UFLAG_OP12(x1, x12); UFLAG_DF(x12, d_sub8);}
                         SUB_IMM8(x1, x1, u8);
                         UFLAG_RES(x1);
                         EBBACK;
@@ -888,7 +889,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(0);
                         GETEB(x1);
                         u8 = F8;
-                        MOV32(x2, u8);
+                        MOVW(x2, u8);
                         CALL(cmp8, -1, 0);
                         UFLAGS(1);
                         break;
@@ -910,15 +911,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         }
                         GETED;
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                        UFLAG_OP1(ed);
                         if(i32>=0 && i32<256) {
                             UFLAG_IF{
-                                MOV32(x3, i32); UFLAG_OP2(x3);
+                                MOV32(x3, i32); UFLAG_OP12(ed, x3);
                             };
                             ADD_IMM8(ed, ed, i32);
                         } else {
                             MOV32(x3, i32);
-                            UFLAG_OP2(x3);
+                            UFLAG_OP12(ed, x3);
                             ADD_REG_LSL_IMM8(ed, ed, x3, 0);
                         }
                         WBACK;
@@ -980,15 +980,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
                         GETED;
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                        UFLAG_OP1(ed);
                         if(i32>0 && i32<256) {
                             UFLAG_IF{
-                                MOV32(x3, i32); UFLAG_OP2(x3);
+                                MOV32(x3, i32); UFLAG_OP12(ed, x3);
                             }
                             SUB_IMM8(ed, ed, i32);
                         } else {
                             MOV32(x3, i32);
-                            UFLAG_OP2(x3);
+                            UFLAG_OP12(ed, x3);
                             SUB_REG_LSL_IMM8(ed, ed, x3, 0);
                         }
                         WBACK;
@@ -1045,13 +1044,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0x86:
                 INST_NAME("(LOCK)XCHG Eb, Gb");
-                // Lock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_lock, -1, 0);
-                POP(xSP, (1<<xEmu));
                 // Do the swap
                 nextop = F8;
                 GETGB(x12);
@@ -1064,31 +1056,41 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     BFI(gb1, x1, gb2*8, 8);
                     BFI(eb1, x12, eb2*8, 8);
                 } else {
+                    // Lock
+                    PUSH(xSP, (1<<xEmu));   // save Emu
+                    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+                    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+                    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+                    CALL(pthread_mutex_lock, -1, 0);
+                    POP(xSP, (1<<xEmu));
+                    // do the swap
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     LDRB_IMM9(x1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
                     BFI(gb1, x1, gb2*8, 8);
                     STRB_IMM9(x12, ed, 0);
+                    // Unlock
+                    PUSH(xSP, (1<<xEmu));   // save Emu
+                    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+                    MOV32(x1, offsetof(box86context_t, mutex_lock));
+                    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+                    CALL(pthread_mutex_unlock, -1, 0);
+                    POP(xSP, (1<<xEmu));
                 }
-                // Unlock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_unlock, -1, 0);
-                POP(xSP, (1<<xEmu));
                 break;
             case 0x87:
                 INST_NAME("(LOCK)XCHG Ed, Gd");
-                // Lock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_lock, -1, 0);
-                POP(xSP, (1<<xEmu));
                 // Do the swap
                 nextop = F8;
+                if((nextop&0xC0)!=0xC0) {
+                    // Lock
+                    PUSH(xSP, (1<<xEmu));   // save Emu
+                    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+                    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+                    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+                    CALL(pthread_mutex_lock, -1, 0);
+                    POP(xSP, (1<<xEmu));
+                }
                 GETGD;
                 GETED;
                 // xor swap to avoid one more tmp reg
@@ -1096,13 +1098,15 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 XOR_REG_LSL_IMM8(ed, gd, ed, 0);
                 XOR_REG_LSL_IMM8(gd, gd, ed, 0);
                 WBACK;
-                // Unlock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_unlock, -1, 0);
-                POP(xSP, (1<<xEmu));
+                if((nextop&0xC0)!=0xC0) {
+                    // Unlock
+                    PUSH(xSP, (1<<xEmu));   // save Emu
+                    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+                    MOV32(x1, offsetof(box86context_t, mutex_lock));
+                    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+                    CALL(pthread_mutex_unlock, -1, 0);
+                    POP(xSP, (1<<xEmu));
+                }
                 break;
             case 0x88:
                 INST_NAME("MOV Eb, Gb");
@@ -1111,8 +1115,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 if((nextop&0xC0)==0xC0) {
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
-                    eb2 = ((ed&4)>>2)*8;    // L or H
-                    BFI(eb1, x12, eb2, 8);
+                    eb2 = ((ed&4)>>2);    // L or H
+                    BFI(eb1, x12, eb2*8, 8);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     STRB_IMM9(x12, ed, 0);
@@ -1134,17 +1138,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 nextop = F8;
                 gd = (nextop&0x38)>>3;
                 gb1 = xEAX+(gd&3);
-                gb2 = ((gd&4)>>2)*8;
-                if((nextop&0xC0)==0xC0) {
-                    ed = (nextop&7);
-                    eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
-                    eb2 = (ed&4)>>2;    // L or H
-                    UXTB(x12, eb1, eb2);
-                } else {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                    LDRB_IMM9(x12, ed, 0);
-                }
-                BFI(gb1, x12, gb2, 8);
+                gb2 = ((gd&4)>>2);
+                GETEB(x12);
+                BFI(gb1, x12, gb2*8, 8);
                 break;
             case 0x8B:
                 INST_NAME("MOV Gd, Ed");
@@ -1264,29 +1260,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xA4:
                 INST_NAME("MOVSB");
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 1);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 1);
                 LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                 STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                 break;
             case 0xA5:
                 INST_NAME("MOVSD");
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 4);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 4);
                 LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                 STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                 break;
             case 0xA6:
                 INST_NAME("CMPSB");
                 UFLAGS(0);
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 1);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 1);
                 LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                 LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                 CALL(cmp8, -1, 0);
@@ -1295,10 +1282,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xA7:
                 INST_NAME("CMPSD");
                 UFLAGS(0);
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 4);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 4);
                 LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                 LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                 CALL(cmp32, -1, 0);
@@ -1323,45 +1307,29 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xAA:
                 INST_NAME("STOSB");
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 1);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 1);
                 STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                 break;
             case 0xAB:
                 INST_NAME("STOSD");
-                UFLAGS(0);
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 4);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 4);
                 STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                 break;
             case 0xAC:
                 INST_NAME("LODSB");
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 1);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 1);
                 LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                 BFI(xEAX, x1, 0, 8);
                 break;
             case 0xAD:
                 INST_NAME("LODSD");
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 4);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 4);
                 LDRAI_REG_LSL_IMM5(xEAX, xESI, x3, 0);
                 break;
             case 0xAE:
                 INST_NAME("SCASB");
                 UFLAGS(0);
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 1);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 1);
                 UXTB(x1, xEAX, 0);
                 LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                 CALL(cmp8, -1, 0);
@@ -1370,10 +1338,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0xAF:
                 INST_NAME("SCASD");
                 UFLAGS(0);
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                CMPS_IMM8(x3, 1);
-                MOVW(x3, 4);
-                RSB_COND_IMM8(cEQ, x3, x3, 0);
+                GETDIR(x3, 4);
                 MOV_REG_LSL_IMM5(x1, xEAX, 0);
                 LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                 CALL(cmp32, -1, 0);
@@ -1419,7 +1384,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 0:
                         INST_NAME("ROL Ed, Ib");
                         USEFLAG(1);
-                        GETEDH(x12);
+                        GETEDW(x12, x2);
                         u8 = (F8)&0x1f;
                         if(u8) {
                             MOV_REG_ROR_IMM5(ed, ed, (32-u8));
@@ -1441,7 +1406,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 1:
                         INST_NAME("ROR Ed, Ib");
                         USEFLAG(1);
-                        GETEDH(x12);
+                        GETEDW(x12, x2);
                         u8 = (F8)&0x1f;
                         if(u8) {
                             MOV_REG_ROR_IMM5(ed, ed, u8);
@@ -1465,8 +1430,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEDW(x12, x1);
                         u8 = F8;
                         MOVW(x2, u8);
-                        CALL_(rcl32, x1, (1<<x12));
-                        SBACK(x1);
+                        CALL_(rcl32, ed, (1<<x12));
+                        WBACK;
                         UFLAGS(1);
                         break;
                     case 3:
@@ -1474,8 +1439,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEDW(x12, x1);
                         u8 = F8;
                         MOVW(x2, u8);
-                        CALL_(rcr32, x1, (1<<x12));
-                        SBACK(x1);
+                        CALL_(rcr32, ed, (1<<x12));
+                        WBACK;
                         UFLAGS(1);
                         break;
                     case 4:
@@ -1709,14 +1674,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 6:
                         if(opcode==0xD0) {
                             INST_NAME("SHL Eb, 1");
-                            MOVW(x12, 1);
+                            MOVW(x2, 1);
                         } else {
                             INST_NAME("SHL Eb, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP12(ed, x12)
-                        MOV_REG_LSL_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x2)
+                        MOV_REG_LSL_REG(ed, ed, x2);
                         EBBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shl8);
@@ -1725,14 +1690,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 5:
                         if(opcode==0xD0) {
                             INST_NAME("SHR Eb, 1");
-                            MOVW(x12, 1);
+                            MOVW(x2, 1);
                         } else {
                             INST_NAME("SHR Eb, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP12(ed, x12)
-                        MOV_REG_LSR_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x2)
+                        MOV_REG_LSR_REG(ed, ed, x2);
                         EBBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shr8);
@@ -1741,14 +1706,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 7:
                         if(opcode==0xD0) {
                             INST_NAME("SAR Eb, 1");
-                            MOVW(x12, 1);
+                            MOVW(x2, 1);
                         } else {
                             INST_NAME("SAR Eb, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEB(x1);
-                        UFLAG_OP12(ed, x12)
-                        MOV_REG_ASR_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x2)
+                        MOV_REG_ASR_REG(ed, ed, x2);
                         EBBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_sar8);
@@ -1773,7 +1738,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             Bcond(cEQ, i32);
                             RSB_IMM8(x3, x3, 0x20);
                         }
-                        GETEDH(x12);
+                        GETEDW(x12, x2);
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_IF {  // calculate flags directly
@@ -1804,7 +1769,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             Bcond(cEQ, i32);
                         }
                         USEFLAG(1);
-                        GETEDH(x12);
+                        GETEDW(x12, x2);
                         MOV_REG_ROR_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_IF {  // calculate flags directly
@@ -1832,8 +1797,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEDW(x12, x1);
-                        CALL_(rcl32, x1, (1<<x12));
-                        SBACK(x1);
+                        CALL_(rcl32, ed, (1<<x12));
+                        WBACK;
                         UFLAGS(1);
                         break;
                     case 3:
@@ -1845,23 +1810,22 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             AND_IMM8(x2, xECX, 0x1f);
                         }
                         GETEDW(x12, x1);
-                        CALL_(rcr32, x1, (1<<x12));
-                        SBACK(x1);
+                        CALL_(rcr32, ed, (1<<x12));
+                        WBACK;
                         UFLAGS(1);
                         break;
                     case 4:
                     case 6:
                         if(opcode==0xD1) {
                             INST_NAME("SHL Ed, 1");
-                            MOVW(x12, 1);
+                            MOVW(x3, 1);
                         } else {
                             INST_NAME("SHL Ed, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x3, xECX, 0x1f);
                         }
                         GETED;
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
-                        MOV_REG_LSL_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x3);
+                        MOV_REG_LSL_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shl32);
@@ -1870,15 +1834,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 5:
                         if(opcode==0xD1) {
                             INST_NAME("SHR Ed, 1");
-                            MOVW(x12, 1);
+                            MOVW(x3, 1);
                         } else {
                             INST_NAME("SHR Ed, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x3, xECX, 0x1f);
                         }
                         GETED;
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
-                        MOV_REG_LSR_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x3);
+                        MOV_REG_LSR_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_shr32);
@@ -1887,15 +1850,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     case 7:
                         if(opcode==0xD1) {
                             INST_NAME("SAR Ed, 1");
-                            MOVW(x12, 1);
+                            MOVW(x3, 1);
                         } else {
                             INST_NAME("SAR Ed, CL");
-                            AND_IMM8(x12, xECX, 0x1f);
+                            AND_IMM8(x3, xECX, 0x1f);
                         }
                         GETED;
-                        UFLAG_OP2(x12)
-                        UFLAG_OP1(ed);
-                        MOV_REG_ASR_REG(ed, ed, x12);
+                        UFLAG_OP12(ed, x3);
+                        MOV_REG_ASR_REG(ed, ed, x3);
                         WBACK;
                         UFLAG_RES(ed);
                         UFLAG_DF(x3, d_sar32);
@@ -2042,10 +2004,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xA4:
                         INST_NAME("REP MOVSB");
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 1);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,1);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
@@ -2059,10 +2018,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xA5:
                         INST_NAME("REP MOVSD");
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 4);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,4);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
@@ -2079,10 +2035,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 1);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
@@ -2109,10 +2062,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 4);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
@@ -2139,10 +2089,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 1);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,1);
                         MARK;
                         STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2154,10 +2101,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 4);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,4);
                         MARK;
                         STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2169,10 +2113,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 1);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2185,10 +2126,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 4);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(xEAX, xESI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
@@ -2200,10 +2138,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 1);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,1);
                         UXTB(x1, xEAX, 0);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
@@ -2230,10 +2165,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
-                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_DF]));
-                        CMPS_IMM8(x3, 1);
-                        MOVW(x3, 4);
-                        RSB_COND_IMM8(cEQ, x3, x3, 0);
+                        GETDIR(x3,4);
                         MOV_REG_LSL_IMM5(x1, xEAX, 0);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
