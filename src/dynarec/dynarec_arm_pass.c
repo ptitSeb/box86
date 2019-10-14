@@ -943,7 +943,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 2: //ADC
                         if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
-                        UFLAGS(0);
+                        USEFLAG(0);
                         GETEDW(x3, x1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MOV32(x2, i32);
@@ -953,7 +953,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 3: //SBB
                         if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
-                        UFLAGS(0);
+                        USEFLAG(0);
                         GETEDW(x3, x1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MOV32(x2, i32);
@@ -1427,6 +1427,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 2:
+                        USEFLAG(0);
                         INST_NAME("RCL Ed, Ib");
                         GETEDW(x12, x1);
                         u8 = F8;
@@ -1436,6 +1437,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 3:
+                        USEFLAG(0);
                         INST_NAME("RCR Ed, Ib");
                         GETEDW(x12, x1);
                         u8 = F8;
@@ -1646,6 +1648,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 2:
+                        USEFLAG(0);
                         if(opcode==0xD0) {
                             INST_NAME("RCL Eb, 1");
                             MOVW(x2, 1);
@@ -1659,6 +1662,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 3:
+                        USEFLAG(0);
                         if(opcode==0xD0) {
                             INST_NAME("RCR Eb, 1");
                             MOVW(x2, 1);
@@ -1790,6 +1794,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 2:
+                        USEFLAG(0);
                         if(opcode==0xD1) {
                             INST_NAME("RCL Ed, 1");
                             MOVW(x2, 1);
@@ -1803,6 +1808,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         UFLAGS(1);
                         break;
                     case 3:
+                        USEFLAG(0);
                         if(opcode==0xD1) {
                             INST_NAME("RCR Ed, 1");
                             MOVW(x2, 1);
