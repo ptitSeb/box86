@@ -2005,10 +2005,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xA4:
                         INST_NAME("REP MOVSB");
-                        GETDIR(x3,1);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
+                        GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
@@ -2019,10 +2019,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 0xA5:
                         INST_NAME("REP MOVSD");
-                        GETDIR(x3,4);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                         Bcond(cEQ, i32);    // end of loop
+                        GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
@@ -2291,9 +2291,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 4:
                         INST_NAME("MUL EAX, Ed");
-                        UFLAG_DF(2, d_mul32);
+                        UFLAG_DF(x2, d_mul32);
                         GETED;
-                        UMULL(xEDX, xEAX, ed, xEAX);
+                        UMULL(xEDX, xEAX, xEAX, ed);
                         UFLAG_RES(xEAX);
                         UFLAG_OP1(xEDX);
                         UFLAGS(0);
@@ -2302,7 +2302,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         INST_NAME("IMUL EAX, Ed");
                         UFLAG_DF(x2, d_imul32);
                         GETED;
-                        SMULL(xEDX, xEAX, ed, xEAX);
+                        SMULL(xEDX, xEAX, xEAX, ed);
                         UFLAG_RES(xEAX);
                         UFLAG_OP1(xEDX);
                         UFLAGS(0);

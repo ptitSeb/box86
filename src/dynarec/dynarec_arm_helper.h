@@ -82,10 +82,12 @@
                     wback = xEAX+(nextop&7);\
                     UXTH(i, wback, 0);      \
                     ed = i;                 \
+                    wb1 = 0;                \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress); \
                     LDRH_IMM8(i, wback, 0); \
                     ed = i;                 \
+                    wb1 = 1;                \
                 }
 //GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i) if((nextop&0xC0)==0xC0) {  \

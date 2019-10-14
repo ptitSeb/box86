@@ -448,8 +448,8 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 MOVW(x3, u8);
             }
             MOV_REG(x2, gd);
-            CALL(shld32, x1, (wback?(1<<wback):0));
-            SBACK(x1);
+            CALL(shld32, ed, (wback?(1<<wback):0));
+            WBACK;
             UFLAGS(1);
             break;
 
@@ -470,13 +470,13 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x1, ed, x2);
-            ANDS_IMM8(x1, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOV_REG_LSR_REG(x12, ed, x2);
+            ANDS_IMM8(x12, x12, 1);
+            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
             i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
             Bcond(cNE, i32); // bit already set, jump to next instruction
-            MOVW(x1, 1);
-            ORR_REG_LSL_REG(ed, ed, x1, x2);
+            MOVW(x12, 1);
+            ORR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
                 STR_IMM9(ed, wback, 0);
             }
@@ -497,8 +497,8 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 MOVW(x3, u8);
             }
             MOV_REG(x2, gd);
-            CALL(shrd32, x1, (wback?(1<<wback):0));
-            SBACK(x1);
+            CALL(shrd32, ed, (wback?(1<<wback):0));
+            WBACK;
             UFLAGS(1);
             break;
         case 0xAE:
@@ -546,7 +546,7 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 UFLAG_RES(gd);
                 UFLAG_DF(x3, d_imul32);
             } else {
-                MUL(gd, ed, gd);
+                MUL(gd, gd, ed);
             }
             UFLAGS(0);
             break;
@@ -568,13 +568,13 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x1, ed, x2);
-            ANDS_IMM8(x1, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOV_REG_LSR_REG(x12, ed, x2);
+            ANDS_IMM8(x12, x12, 1);
+            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
             i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
             Bcond(cEQ, i32); // bit already clear, jump to next instruction
-            MOVW(x1, 1);
-            XOR_REG_LSL_REG(ed, ed, x1, x2);
+            MOVW(x12, 1);
+            XOR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
                 STR_IMM9(ed, wback, 0);
             }
@@ -652,13 +652,13 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         wback = x3;
                     }
                     AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x1, ed, x2);
-                    ANDS_IMM8(x1, x1, 1);
-                    STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    MOV_REG_LSR_REG(x12, ed, x2);
+                    ANDS_IMM8(x12, x12, 1);
+                    STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                     Bcond(cEQ, i32); // bit already clear, jump to next instruction
-                    MOVW(x1, 1);
-                    XOR_REG_LSL_REG(ed, ed, x1, x2);
+                    //MOVW(x12, 1); // already 0x01
+                    XOR_REG_LSL_REG(ed, ed, x12, x2);
                     if(wback) {
                         STR_IMM9(ed, wback, 0);
                     }
@@ -685,11 +685,11 @@ uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x1, ed, x2);
-            AND_IMM8(x1, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            MOVW(x1, 1);
-            XOR_REG_LSL_REG(ed, ed, x1, x2);
+            MOV_REG_LSR_REG(x12, ed, x2);
+            AND_IMM8(x12, x12, 1);
+            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOVW(x12, 1);
+            XOR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
                 STR_IMM9(ed, wback, 0);
             }

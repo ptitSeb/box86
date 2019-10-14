@@ -47,7 +47,7 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             INST_NAME("BT Ew, Gw");
             nextop = F8;
             USEFLAG(1);
-            GETGD;  // there is an AND below, to 32bits is the same
+            GETGD;  // there is an AND below, so 32bits is the same (no need for GETGW)
             GETEW(x1);
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
@@ -69,7 +69,7 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
                 u8 = F8;
                 MOVW(x3, u8);
             }
-            CALL(shld16, x1, (wback?(1<<wback):0));
+            CALL(shld16, x1, (1<<wback));
             EWBACKW(x1);
             UFLAGS(1);
             break;
@@ -105,7 +105,7 @@ uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
                 u8 = F8;
                 MOVW(x3, u8);
             }
-            CALL(shrd16, x1, (wback?(1<<wback):0));
+            CALL(shrd16, x1, (1<<wback));
             EWBACKW(x1);
             UFLAGS(1);
             break;
