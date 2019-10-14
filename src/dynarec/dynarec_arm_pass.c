@@ -1046,8 +1046,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 INST_NAME("(LOCK)XCHG Eb, Gb");
                 // Do the swap
                 nextop = F8;
-                GETGB(x12);
                 if((nextop&0xC0)==0xC0) {
+                    GETGB(x12);
                     ed = (nextop&7);
                     eb1 = xEAX+(ed&3);
                     eb2 = ((ed&4)>>2);
@@ -1064,6 +1064,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     CALL(pthread_mutex_lock, -1, 0);
                     POP(xSP, (1<<xEmu));
                     // do the swap
+                    GETGB(x12);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
                     LDRB_IMM9(x1, ed, 0);    // 1 gets eb
                     // do the swap 12 -> strb(ed), 1 -> gd
