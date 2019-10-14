@@ -391,7 +391,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 2: //ADC
                     if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
-                    UFLAGS(0);
+                    USEFLAG(0);
                     GETEW(x1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOVW(x2, i16);
@@ -401,7 +401,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 3: //SBB
                     if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
-                    UFLAGS(0);
+                    USEFLAG(0);
                     GETEW(x1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
                     MOVW(x2, i16);
@@ -568,6 +568,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
+                    USEFLAG(0);
                     UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
@@ -578,6 +579,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
                 case 3:
                     INST_NAME("RCR Ew, Ib");
+                    USEFLAG(0);
                     UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
@@ -675,6 +677,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     UFLAGS(1);
                     break;
                 case 2:
+                    USEFLAG(0);
                     if(opcode==0xD1) {
                         INST_NAME("RCL Ew, 1");
                         MOVW(x2, 1);
@@ -689,6 +692,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     UFLAGS(1);
                     break;
                 case 3:
+                    USEFLAG(0);
                     if(opcode==0xD1) {
                         INST_NAME("RCR Ew, 1");
                         MOVW(x2, 1);
