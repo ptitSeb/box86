@@ -130,6 +130,13 @@
 // Write gb (gd) back to original register / memory
 #define GBBACK   BFI(gb1, gd, gb2*8, 8);
 
+// Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
+#define GETDIR(r, A)    \
+    LDR_IMM9(r, xEmu, offsetof(x86emu_t, flags[F_DF]));     \
+    CMPS_IMM8(r, 1);                                        \
+    MOVW(r, A);                                             \
+    RSB_COND_IMM8(cEQ, r, r, 0)
+
 // CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)
 #define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
