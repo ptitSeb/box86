@@ -396,7 +396,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x27:
                 INST_NAME("DAA");
                 USEFLAG(0);
-                u8 = F8;
                 UXTB(x1, xEAX, 0);
                 CALL_(daa8, x1, 0);
                 BFI(xEAX, x1, 0, 8);
@@ -482,7 +481,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x2F:
                 INST_NAME("DAS");
                 USEFLAG(0);
-                u8 = F8;
                 UXTB(x1, xEAX, 0);
                 CALL_(das8, x1, 0);
                 BFI(xEAX, x1, 0, 8);
@@ -555,7 +553,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x37:
                 INST_NAME("AAA");
                 USEFLAG(0);
-                u8 = F8;
                 UXTH(x1, xEAX, 0);
                 CALL_(aaa16, x1, 0);
                 BFI(xEAX, x1, 0, 16);
@@ -623,7 +620,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x3F:
                 INST_NAME("AAS");
                 USEFLAG(0);
-                u8 = F8;
                 UXTH(x1, xEAX, 0);
                 CALL_(aas16, x1, 0);
                 BFI(xEAX, x1, 0, 16);
@@ -1239,17 +1235,17 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 CALL(PackFlags, -1, 0);
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
                 PUSH(xESP, (1<<x1));
-                UFLAGS(1);
                 break;
             case 0x9D:
                 INST_NAME("POPF");
-                STR_IMM9(xESP, xEmu, offsetof(x86emu_t, regs[_SP]));
+                UFLAGS(0);
+                POP(xESP, (1<<x1));
                 CALL(arm_popf, -1, 0);
-                LDR_IMM9(xESP, xEmu, offsetof(x86emu_t, regs[_SP]));
                 UFLAGS(1);
                 break;
             case 0x9E:
                 INST_NAME("SAHF");
+                UFLAGS(0);
                 UBFX(x1, xEAX, 8+0, 1);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 UBFX(x1, xEAX, 8+2, 1);
@@ -1260,6 +1256,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 UBFX(x1, xEAX, 8+7, 1);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                MOVW(x1, d_none);
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
                 UFLAGS(1);
                 break;
             case 0x9F:
