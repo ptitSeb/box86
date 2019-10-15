@@ -821,6 +821,34 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     break;
             }
             break;
+        case 0xFF:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("INC Ew");
+                    GETEW(x1);
+                    UFLAG_OP1(ed);
+                    ADD_IMM8(ed, ed, 1);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x1, d_inc16);
+                    UFLAGS(0);
+                    break;
+                case 1:
+                    INST_NAME("DEC Ew");
+                    GETEW(x1);
+                    UFLAG_OP1(ed);
+                    SUB_IMM8(ed, ed, 1);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x1, d_dec16);
+                    UFLAGS(0);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
 
         default:
             *ok = 0;
