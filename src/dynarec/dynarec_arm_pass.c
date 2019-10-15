@@ -2415,20 +2415,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         GETEDH(xEIP);
                         MOV32(x3, addr);
                         PUSH(xESP, 1<<x3);
-                        if(fixedaddress)
-                            jump_to_linker(dyn, 0, ed, ninst);
-                        else
-                            jump_to_epilog(dyn, 0, ed, ninst);  // it's variable, so no linker
+                        jump_to_linker(dyn, 0, ed, ninst);  // smart linker
                         need_epilog = 0;
                         ok = 0;
                         break;
                     case 4: // JMP Ed
                         INST_NAME("JMP Ed");
                         GETEDH(xEIP);
-                        if(fixedaddress)
-                            jump_to_linker(dyn, 0, ed, ninst);
-                        else
-                            jump_to_epilog(dyn, 0, ed, ninst);     // it's variable, so no linker
+                        jump_to_linker(dyn, 0, ed, ninst);  // linker is smarter now and will adapt
                         need_epilog = 0;
                         ok = 0;
                         break;
