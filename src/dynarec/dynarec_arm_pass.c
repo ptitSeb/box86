@@ -393,6 +393,15 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
 
+            case 0x27:
+                INST_NAME("DAA");
+                USEFLAG(0);
+                u8 = F8;
+                UXTB(x1, xEAX, 0);
+                CALL_(daa8, x1, 0);
+                BFI(xEAX, x1, 0, 8);
+                UFLAGS(1);
+                break;
             case 0x28:
                 INST_NAME("SUB Eb, Gb");
                 nextop = F8;
@@ -466,10 +475,18 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAG_DF(x1, d_sub32);
                 UFLAGS(0);
                 break;
-
             case 0x2E:
                 INST_NAME("CS:");
                 // ignored
+                break;
+            case 0x2F:
+                INST_NAME("DAS");
+                USEFLAG(0);
+                u8 = F8;
+                UXTB(x1, xEAX, 0);
+                CALL_(das8, x1, 0);
+                BFI(xEAX, x1, 0, 8);
+                UFLAGS(1);
                 break;
 
             case 0x30:
@@ -535,6 +552,15 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(0);
                 break;
 
+            case 0x37:
+                INST_NAME("AAA");
+                USEFLAG(0);
+                u8 = F8;
+                UXTH(x1, xEAX, 0);
+                CALL_(aaa16, x1, 0);
+                BFI(xEAX, x1, 0, 16);
+                UFLAGS(1);
+                break;
             case 0x38:
                 INST_NAME("CMP Eb, Gb");
                 UFLAGS(0);
@@ -594,6 +620,15 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 UFLAGS(1);
                 break;
 
+            case 0x3F:
+                INST_NAME("AAS");
+                USEFLAG(0);
+                u8 = F8;
+                UXTH(x1, xEAX, 0);
+                CALL_(aas16, x1, 0);
+                BFI(xEAX, x1, 0, 16);
+                UFLAGS(1);
+                break;
             case 0x40:
             case 0x41:
             case 0x42:
