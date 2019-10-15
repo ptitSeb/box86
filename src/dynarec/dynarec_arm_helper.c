@@ -48,7 +48,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     MOV32(ret, tmp);
-                    //*fixaddress = 1;
+                    *fixaddress = 1;
                 }
             } else {
                 if (sib_reg!=4) {
@@ -60,7 +60,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
             MOV32(ret, tmp);
-            //*fixaddress = 1;
+            *fixaddress = 1;
         } else {
             ret = xEAX+(nextop&7);
         }
@@ -179,6 +179,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
+    int i32;
     if(!box86_dynarec_linker) {
         jump_to_epilog(dyn, ip, reg, ninst);
     } else {
@@ -192,12 +193,29 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         uintptr_t* table = 0;
         if(dyn->tablesz) {
             table = &dyn->table[dyn->tablei];
-            *table = (uintptr_t)arm_linker;
+            table[0] = (uintptr_t)arm_linker;
+            if(!ip) {   // need the smart linker
+                table[1] = ip;
+            }
         }
-        ++dyn->tablei;
+        if(ip)
+            dyn->tablei+=1; // fast linker, with a fixed address
+        else
+            dyn->tablei+=2; // smart linker
         MOV32_(x1, (uintptr_t)table);
+        if(!ip) {   // no IP, jump address in a reg, so need smart linker
+            LDR_IMM9(x2, x1, 4);    // load planned IP
+            CMPS_REG_LSL_IMM8(x12, x2, 0);
+            i32 = GETMARK-(dyn->arm_size+8);
+            Bcond(cEQ, i32);    // Ok, still going in the same place
+            STR_IMM9(x12, x1, 4);   // nope, putting back linker in place
+            MOV32(x2, (uintptr_t)arm_linker);
+            STR_IMM9(x2, x1, 0);
+            BX(x2); // go to linker
+            MARK;
+        }
         LDR_IMM9(x2, x1, 0);
-        BX(x2);
+        BX(x2); // jump
     }
 }
 
