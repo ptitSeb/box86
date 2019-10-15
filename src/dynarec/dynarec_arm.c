@@ -84,7 +84,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.flags==X86_FLAGS_CHANGE) {
             int done = 0;
-            for(int i2=i+1; i2<helper.size && done==0; ++i2) {
+            for(int i2=i+1; i2<helper.size+1 && done==0; ++i2) {
                 if(helper.insts[i2].x86.barrier || helper.insts[i2].x86.jmp)
                     done = 1;
                 else if(helper.insts[i2].x86.flags==X86_FLAGS_USE)
