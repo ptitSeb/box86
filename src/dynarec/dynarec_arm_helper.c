@@ -203,14 +203,14 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         else
             dyn->tablei+=2; // smart linker
         MOV32_(x1, (uintptr_t)table);
+        // TODO: This is not thread safe.
         if(!ip) {   // no IP, jump address in a reg, so need smart linker
             LDR_IMM9(x2, x1, 4);    // load planned IP
             CMPS_REG_LSL_IMM8(x12, x2, 0);
             i32 = GETMARK-(dyn->arm_size+8);
             Bcond(cEQ, i32);    // Ok, still going in the same place
-            STR_IMM9(x12, x1, 4);   // nope, putting back linker in place
             MOV32(x2, (uintptr_t)arm_linker);
-            STR_IMM9(x2, x1, 0);
+            STM(x1, (1<<x2) | (1<<x12)); // nope, putting back linker & IP in place
             BX(x2); // go to linker
             MARK;
         }
