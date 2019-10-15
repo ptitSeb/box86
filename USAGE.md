@@ -62,3 +62,26 @@ To disable handling of SigSEGV (to ease debugging mainly)
 PANDORA only: to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows
 * 0 : default, don't touch X11 colors
 * 1 : Change colors arguments in XSetForeground, XSetBackground and XCreateGC
+
+#### BOX86_DYNAREC_LOG
+Set level of DynaRec log
+ * 0 :
+ * NONE : No Log for DynaRec
+ * 1 :
+ * INFO : Minimum Dynarec Log (only unimplemented OpCode)
+ * 2 :
+ * DEBUG : Debug Log for Dynarec (with detail on block created / executed)
+ * 3 :
+ * DUMP : All above plus dump of the x86 -> native opcode conversions
+
+#### BOX86_DYNAREC
+ * 0 : Disable Dynarec
+ * 1 : Enable Dynarec (default)
+
+#### BOX86_DYNAREC_LINKER
+ * 0 : Disable Dynarec Linker (use that on debug, with dynarec log >= 2, to have detail on wich block get executed)
+ * 1 : Enable Dynarec Linker (default)
+
+#### BOX86_DYNAREC_TRACE
+ * 0 : Disable trace for generated code (default)
+ * 1 : Enable trace for generated code (like regular Trace, this will slow down a lot and generate huge logs)
