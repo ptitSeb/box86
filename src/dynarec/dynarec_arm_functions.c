@@ -20,9 +20,9 @@
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
 
-void arm_popf(x86emu_t* emu)
+void arm_popf(x86emu_t* emu, uint32_t f)
 {
-    emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+    emu->packed_eflags.x32 = ((f & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
     UnpackFlags(emu);
     RESET_FLAGS(emu);
 }
