@@ -205,7 +205,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
 
             case 0x0F:
-                addr = dynarec0f(dyn, addr, ninst, &ok, &need_epilog);
+                addr = dynarec0F(dyn, addr, ninst, &ok, &need_epilog);
                 break;
 
             case 0x10:
@@ -688,7 +688,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             case 0x66:
                 addr = dynarec66(dyn, addr, ninst, &ok, &need_epilog);
                 break;
-
+            case 0x67:
+                addr = dynarec67(dyn, addr, ninst, &ok, &need_epilog);
+                break;
             case 0x68:
                 INST_NAME("PUSH Id");
                 i32 = F32S;
@@ -2006,6 +2008,31 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 break;
 
+            case 0xD8:
+                addr = dynarecD8(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xD9:
+                addr = dynarecD9(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDA:
+                addr = dynarecDA(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDB:
+                addr = dynarecDB(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDC:
+                addr = dynarecDC(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDD:
+                addr = dynarecDD(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDE:
+                addr = dynarecDE(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+            case 0xDF:
+                addr = dynarecDF(dyn, addr, ninst, &ok, &need_epilog);
+                break;
+
             case 0xE8:
                 INST_NAME("CALL Id");
                 i32 = F32S;
@@ -2088,14 +2115,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         case 0xF3:                      /* REPZ prefix */
             nextop = F8;
             if(nextop==0x0F) {
-                /*if(opcode==0xF3) {
-                    #include "runf30f.h"
+                if(opcode==0xF3) {
+                    addr = dynarecF30F(dyn, addr, ninst, &ok, &need_epilog);
                 } else {
-                    #include "runf20f.h"
-                }*/
-                INST_NAME("F2/F3 0F ...");
-                ok = 0;
-                DEFAULT;
+                    addr = dynarecF20F(dyn, addr, ninst, &ok, &need_epilog);
+                }
             } else if(nextop==0x66) {
                 nextop = F8;
                 #if 0

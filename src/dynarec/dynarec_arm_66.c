@@ -112,7 +112,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
                 
         case 0x0F:
-            addr = dynarec660f(dyn, addr, ninst, ok, need_epilog);
+            addr = dynarec660F(dyn, addr, ninst, ok, need_epilog);
             break;
         case 0x11:
             INST_NAME("ADC Ew, Gw");

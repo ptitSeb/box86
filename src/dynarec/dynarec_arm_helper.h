@@ -191,10 +191,21 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 #define arm_pass        STEPNAME(arm_pass)
 
-#define dynarec0f       STEPNAME(dynarec0f)
+#define dynarec0F       STEPNAME(dynarec0F)
 #define dynarecGS       STEPNAME(dynarecGS)
 #define dynarec66       STEPNAME(dynarec66)
-#define dynarec660f     STEPNAME(dynarec660f)
+#define dynarec67       STEPNAME(dynarec67)
+#define dynarecD8       STEPNAME(dynarecD8)
+#define dynarecD9       STEPNAME(dynarecD9)
+#define dynarecDA       STEPNAME(dynarecDA)
+#define dynarecDB       STEPNAME(dynarecDB)
+#define dynarecDC       STEPNAME(dynarecDC)
+#define dynarecDD       STEPNAME(dynarecDD)
+#define dynarecDE       STEPNAME(dynarecDE)
+#define dynarecDF       STEPNAME(dynarecDF)
+#define dynarec660F     STEPNAME(dynarec660F)
+#define dynarecF20F     STEPNAME(dynarecF20F)
+#define dynarecF30F     STEPNAME(dynarecF30F)
 
 #define geted           STEPNAME(geted_)
 #define fakeed          STEPNAME(fakeed_)
@@ -220,9 +231,20 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 
-uintptr_t dynarec0f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarec660f(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 
 #endif //__DYNAREC_ARM_HELPER_H__
