@@ -337,4 +337,24 @@ Op is 20-27
 // REV: Reverse byte of a 32bits word
 #define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
 
+
+// VFPU & NEON
+#define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
+
+// Move between Rt to Sm
+#define VMOVtoV(Sm, Rt) EMIT(c__ | (0b1110<<24) | (0b000<<21) | (0<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
+// Move between Sm to Rt
+#define VMOVfrV(Rt, Sm) EMIT(c__ | (0b1110<<24) | (0b000<<21) | (1<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
+
+// Move between Rt to Sm and Rt2 to Sm+1 (Sm cannot be 31!, rt and Rt2 can be the same)
+#define VMOVtoV_64(Sm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
+// Move between Sm to Rt and Sm+1 to Rt2 (Sm cannot be 31!, Rt and Rt2 must be different)
+#define VMOVfrV_64(Rt, Rt2, Sm) EMIT(c_, | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
+
+// Move between Rt/Rt2 to Dm
+#define VMOVtoV_Q(Dm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+// Move between Dm and Rt/Rt2 (Rt and Rt2 must be different)
+#define VMOVfrV_Q(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+
+
 #endif  //__ARM_EMITTER_H__

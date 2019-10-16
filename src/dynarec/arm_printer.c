@@ -305,6 +305,43 @@ const char* arm_print(uint32_t opcode)
                         sprintf(ret, "%s%s%s%s %s, %s", l?"LDR":"STR", cond, b?"B":"", (w && p)?"T":"", regname[rd], addr);
                     }
                     break;
+                case 0b111:
+                    if(((opcode>>21)&0b1111111)==0b1110000 && (((opcode>>8)&0b1111)==0b1010) && ((opcode&0b1111111)==0b0010000)) {
+                        // VMOV ARM to/from Sm
+                        int rt = (opcode>>12)&15;
+                        int vn = ((opcode>>16)&15)<<1 | ((opcode>>7)&1);
+                        int op = ((opcode>>20)&1);
+                        if(op==0)
+                            sprintf(ret, "VMOV%s S%d, %s", cond, vn, regname[rt]);
+                        else
+                            sprintf(ret, "VMOV%s %s, S%d", cond, regname[rt], vn);
+                    }
+                    break;
+                case 0b110:
+                    if(((opcode>>21)&0b1111111)==0b1100010 && (((opcode>>8)&0b1111)==0b1010) && (((opcode>>4)&0b1101)==0b0001)) {
+                        // VMOV ARM to/from 2*SM
+                        int rt = (opcode>>12)&15;
+                        int rt2 = (opcode>>16)&15;
+                        int vm = (opcode&15)<<1 | ((opcode>>5)&1);
+                        int op = (opcode>>20)&1;
+                        if(op==0)
+                            sprintf(ret, "VMOV%s S%d, S%d, %s, %s", cond, vm, vm+1, regname[rt], regname[rt2]);
+                        else
+                            sprintf(ret, "VMOV%s %s, %s, S%d, S%d", cond, regname[rt], regname[rt2], vm, vm+1);
+                    } else
+                    if(((opcode>>21)&0b1111111)==0b1100010 && (((opcode>>8)&0b1111)==0b1011) && (((opcode>>4)&0b1101)==0b0001)) {
+                        // VMOV ARM to/from 2*SM
+                        int rt = (opcode>>12)&15;
+                        int rt2 = (opcode>>16)&15;
+                        int vm = (opcode&15) | ((opcode>>5)&1)<<4;
+                        int op = (opcode>>20)&1;
+                        if(op==0)
+                            sprintf(ret, "VMOV%s D%d, %s, %s", cond, vm, regname[rt], regname[rt2]);
+                        else
+                            sprintf(ret, "VMOV%s %s, %s, D%d", cond, regname[rt], regname[rt2], vm);
+                    }
+
+                    break;
                 default:
                     sprintf(ret, "???%s", cond);
             }
