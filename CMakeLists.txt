@@ -170,7 +170,18 @@ if(ARM_DYNAREC)
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_0f.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_65.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_66.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_67.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_d8.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_d9.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_da.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_db.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_dc.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_dd.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_de.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_df.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_660f.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f20f.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f30f.c"
     )
 
     add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
