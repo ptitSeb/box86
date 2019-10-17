@@ -2601,7 +2601,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
         ++ninst;
     }
-    if(need_epilog)
+    if(need_epilog) {
+        x87_purgecache(dyn, ninst, x1, x2, x3);
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
+    }
     FINI;
 }

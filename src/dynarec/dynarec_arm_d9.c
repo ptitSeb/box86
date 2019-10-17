@@ -87,38 +87,43 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("FLD1");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_1));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2t));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
+            break;
         case 0xEA:     
             INST_NAME("FLDL2E");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2e));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
+            break;
         case 0xEB:
             INST_NAME("FLDPI");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_pi));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
+            break;
         case 0xEC:
             INST_NAME("FLDLG2");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_lg2));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
+            break;
         case 0xED:
             INST_NAME("FLDLN2");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_ln2));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
+            break;
         case 0xEE:
             INST_NAME("FLDZ");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_0));
-            VSTR_64(v1, x2, 0);
+            VLDR_64(v1, x2, 0);
             break;
  
         case 0xE0:  /* FCHS */

@@ -247,40 +247,40 @@ const char* arm_print(uint32_t opcode)
                 case 0b011:
                     if(cat==0b011 && ((opcode>>16)&15)==15 && ((opcode>>4)&15)==0b0111) {
                         //Sign extention
-                        int b = (opcode>>20)&1;
-                        int s = (opcode>>22)&1;
-                        int rd = (opcode>>12)&15;
-                        int rm = (opcode)&15;
-                        int rot = (opcode>>10)&3;
+                        int b = ((opcode>>20)&1);
+                        int s = ((opcode>>22)&1);
+                        int rd = ((opcode>>12)&15);
+                        int rm = ((opcode)&15);
+                        int rot = ((opcode>>10)&3);
                         char tmp[20] = {0};
                         if (rot)
                             sprintf(tmp, " ror %d", rot*8);
                         sprintf(ret, "%sXT%s %s, %s%s", s?"U":"S", b?"H":"B", regname[rd], regname[rm], tmp);
                     } else if(((opcode>>21)&0b1111111)==0b0111111 && ((opcode>>4)&7)==0b101) {
-                        int widthm1 = (opcode>>16)&31;
-                        int rd = (opcode>>12)&15;
-                        int lsb = (opcode>>7)&31;
-                        int rn = (opcode)&15;
+                        int widthm1 = ((opcode>>16)&31);
+                        int rd = ((opcode>>12)&15);
+                        int lsb = ((opcode>>7)&31);
+                        int rn = ((opcode)&15);
                         sprintf(ret, "UBFX %s, %s, #%d, #%d", regname[rd], regname[rn], lsb, widthm1+1);
                     } else if(((opcode>>21)&0b1111111)==0b0111110 && ((opcode>>4)&7)==0b001) {
-                        int msb = (opcode>>16)&31;
-                        int rd = (opcode>>12)&15;
-                        int lsb = (opcode>>7)&31;
-                        int rn = (opcode)&15;
+                        int msb = ((opcode>>16)&31);
+                        int rd = ((opcode>>12)&15);
+                        int lsb = ((opcode>>7)&31);
+                        int rn = ((opcode)&15);
                         sprintf(ret, "BFI %s, %s, #%d, #%d", regname[rd], regname[rn], lsb, (msb-lsb+1));
                     }
                     else
                     {
                         // single data tranfert
-                        int i = (opcode>>25)&1;
-                        int p = (opcode>>24)&1;
-                        int u = (opcode>>23)&1;
-                        int b = (opcode>>22)&1;
-                        int w = (opcode>>21)&1;
-                        int l = (opcode>>20)&1;
-                        int rn = (opcode>>16)&15;
-                        int rd = (opcode>>12)&15;
-                        int offset = opcode&0xfff;
+                        int i = ((opcode>>25)&1);
+                        int p = ((opcode>>24)&1);
+                        int u = ((opcode>>23)&1);
+                        int b = ((opcode>>22)&1);
+                        int w = ((opcode>>21)&1);
+                        int l = ((opcode>>20)&1);
+                        int rn = ((opcode>>16)&15);
+                        int rd = ((opcode>>12)&15);
+                        int offset = (opcode&0xfff);
                         char op2[40];
                         if(i) {
                             int shift = offset>>4;
@@ -308,7 +308,7 @@ const char* arm_print(uint32_t opcode)
                 case 0b111:
                     if(((opcode>>21)&0b1111111)==0b1110000 && (((opcode>>8)&0b1111)==0b1010) && ((opcode&0b1111111)==0b0010000)) {
                         // VMOV ARM to/from Sm
-                        int rt = (opcode>>12)&15;
+                        int rt = ((opcode>>12)&15);
                         int vn = ((opcode>>16)&15)<<1 | ((opcode>>7)&1);
                         int op = ((opcode>>20)&1);
                         if(op==0)
@@ -320,10 +320,10 @@ const char* arm_print(uint32_t opcode)
                 case 0b110:
                     if(((opcode>>21)&0b1111111)==0b1100010 && (((opcode>>8)&0b1111)==0b1010) && (((opcode>>4)&0b1101)==0b0001)) {
                         // VMOV ARM to/from 2*SM
-                        int rt = (opcode>>12)&15;
-                        int rt2 = (opcode>>16)&15;
+                        int rt = ((opcode>>12)&15);
+                        int rt2 = ((opcode>>16)&15);
                         int vm = (opcode&15)<<1 | ((opcode>>5)&1);
-                        int op = (opcode>>20)&1;
+                        int op = ((opcode>>20)&1);
                         if(op==0)
                             sprintf(ret, "VMOV%s S%d, S%d, %s, %s", cond, vm, vm+1, regname[rt], regname[rt2]);
                         else
@@ -331,10 +331,10 @@ const char* arm_print(uint32_t opcode)
                     } else
                     if(((opcode>>21)&0b1111111)==0b1100010 && (((opcode>>8)&0b1111)==0b1011) && (((opcode>>4)&0b1101)==0b0001)) {
                         // VMOV ARM to/from 2*SM
-                        int rt = (opcode>>12)&15;
-                        int rt2 = (opcode>>16)&15;
+                        int rt = ((opcode>>12)&15);
+                        int rt2 = ((opcode>>16)&15);
                         int vm = (opcode&15) | ((opcode>>5)&1)<<4;
-                        int op = (opcode>>20)&1;
+                        int op = ((opcode>>20)&1);
                         if(op==0)
                             sprintf(ret, "VMOV%s D%d, %s, %s", cond, vm, regname[rt], regname[rt2]);
                         else
@@ -342,22 +342,22 @@ const char* arm_print(uint32_t opcode)
                     } else
                     if(((opcode>>21)&0b1111001)==0b1101000 && (((opcode>>8)&0b1110)==0b1010)) {
                         // VLDR/VSTR to/from Single/Double
-                        int ldr = (opcode>>21)&1;
-                        int u = (opcode>>23)&1;
-                        int vd = ((opcode>>22)&1)<<4 | ((opcode>>12)&15);
-                        int rn = (opcode>>16)&15;
-                        int imm8 = opcode&255;
-                        int notsingle = (opcode>>8)&1;
+                        uint32_t ldr = ((opcode>>20)&1);
+                        uint32_t u = ((opcode>>23)&1);
+                        uint32_t vd = ((opcode>>22)&1)<<4 | ((opcode>>12)&15);
+                        uint32_t rn = ((opcode>>16)&15);
+                        int32_t imm8 = (opcode&255);
+                        uint32_t notsingle = ((opcode>>8)&1);
                         char offset[50] = {0};
                         if(imm8)
                             sprintf(offset, ", #%d", u?imm8:-imm8);
-                        sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", notsingle?"D":"S", vd, regname[rn], offset);
+                        sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", cond, notsingle?"D":"S", vd, regname[rn], offset);
                     } else
                     if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
-                        // VMOV siggle/double reg
-                        int sz = (opcode>>8)&1;
-                        int vd = (opcode>>22)&1 | ((opcode>>12)&15)<<1;
-                        int vm = (opcode>>5)&1 | ((opcode)&15)<<1;
+                        // VMOV single/double reg
+                        int sz = ((opcode>>8)&1);
+                        int vd = ((opcode>>22)&1) | ((opcode>>12)&15)<<1;
+                        int vm = ((opcode>>5)&1) | ((opcode)&15)<<1;
                         sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
                     }
                     break;

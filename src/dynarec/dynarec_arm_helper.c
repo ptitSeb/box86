@@ -338,7 +338,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_IMM8(s3, s2, i);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(i+X87FIRST, s3, 0);    // save the value
+            VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
             dyn->x87cache[i] = -1;
         }
 }
@@ -363,7 +363,7 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_IMM8(s3, s2, i);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(i+X87FIRST, s3, 0);    // save the value
+            VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
         }
 }
 #endif
