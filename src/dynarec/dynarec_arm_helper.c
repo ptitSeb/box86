@@ -368,12 +368,12 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 }
 #endif
 
-int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 {
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==a)
-            return i+X87FIRST;
+            return i;
     // get a free spot
     int ret = -1;
     for (int i=0; i<8 && ret==-1; ++i)
@@ -381,14 +381,18 @@ int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
             ret = i;
     // found, setup and grab the value
     dyn->x87cache[ret] = a;
-    ret+=X87FIRST;
     MOVW(s1, offsetof(x86emu_t, fpu));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     ADD_IMM8(s2, s2, a);
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);
-    VLDR_64(ret, s2, 0);
+    VLDR_64((ret+X87FIRST), s2, 0);
 
     return ret;
+}
+
+int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
+{
+    return x87_get_cache(dyn, ninst, s1, s2, a) + X87FIRST;
 }

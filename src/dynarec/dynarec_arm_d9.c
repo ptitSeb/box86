@@ -45,6 +45,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     int v1, v2, v3;
+    int i1, i2, i3;
     switch(nextop) {
 
         case 0xC0:
@@ -68,9 +69,14 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF:  /* FXCH STx */
-            *ok = 0;
-            DEFAULT;
+        case 0xCF:
+            INST_NAME("FXCH STx");
+            // swap the cache value, not the double value itself :p
+            i1 = x87_get_cache(dyn, ninst, x1, x2, nextop&7);
+            i2 = x87_get_cache(dyn, ninst, x1, x2, 0);
+            i3 = dyn->x87cache[i1];
+            dyn->x87cache[i1] = dyn->x87cache[i2];
+            dyn->x87cache[i2] = i3;
             break;
 
         case 0xD0:
