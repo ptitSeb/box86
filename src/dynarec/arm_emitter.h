@@ -371,4 +371,9 @@ Op is 20-27
 // Store to memory to single  VSTR Sd, [Rn, #imm8]
 #define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Sd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Sd)&15)<<12) | (0b1010<<8) | ((Imm8)&255))
 
+// Convert from single Sm to double Dd
+#define VCVT_64_32(Dd, Sm)      EMIT(c__ | (0b1110<<24) | (1<<23) |  ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0111<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (0<<4) | (((Sm)>>1)&15))
+// Convert from double Dm to single Sd
+#define VCVT_32_64(Sd, Dm)      EMIT(c__ | (0b1110<<24) | (1<<23) |  (((Sd)&1)<<22) | (0b11<<20) | (0b0111<<16) | ((((Sd)>>4)&1)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | (0<<4) | ((Dm)&15))
+
 #endif  //__ARM_EMITTER_H__

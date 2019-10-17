@@ -359,6 +359,19 @@ const char* arm_print(uint32_t opcode)
                         int vd = ((opcode>>22)&1) | ((opcode>>12)&15)<<1;
                         int vm = ((opcode>>5)&1) | ((opcode)&15)<<1;
                         sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
+                    } else
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b01111) && (((opcode>>4)&0b11101101)==0b10101100)) {
+                        // VCVT
+                        int sz = ((opcode>>8)&1);
+                        if(sz) {    // double to single
+                            int vd = ((opcode>>12)&15)<<1 | ((opcode>>22)&1);
+                            int vm = ((opcode>>5)&1)<<4 | (opcode&15);
+                            sprintf("VCVT%d.F64.F32 D%d, S%d", cond, vd, vm);
+                        } else {
+                            int vd = (opcode>>12)&15 | ((opcode>>22)&1)<<4;
+                            int vm = ((opcode>>5)&1) | (opcode&15)<<1;
+                            sprintf("VCVT%d.F32.F64 S%d, D%d", cond, vd, vm);
+                        }
                     }
                     break;
                 default:

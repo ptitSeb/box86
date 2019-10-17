@@ -45,6 +45,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     int v1, v2, v3;
+    int s0, s1, s2;
     int i1, i2, i3;
     switch(nextop) {
 
@@ -171,6 +172,31 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
              
         default:
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("FLD ST0, float[ED]");
+                    v1 = x87_do_push(dyn, ninst, x1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    s0 = 0; // use S0 as scratch single reg
+                    VLDR_32(s0, ed, 0);
+                    VCVT_64_32(v1, s0);
+                    break;
+                case 1:
+                    INST_NAME("FST float[ED], ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    s0 = 0;
+                    VCVT_32_64(s0, v1);
+                    VSTR_32(s0, ed, 0);
+                    break;
+                case 2:
+                    INST_NAME("FSTP float[ED], ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    s0 = 0;
+                    VCVT_32_64(s0, v1);
+                    VSTR_32(s0, ed, 0);
+                    x87_do_pop(dyn, ninst, x1);
+                    break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
                     GETEW(x1);
