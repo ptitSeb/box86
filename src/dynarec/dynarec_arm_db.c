@@ -35,6 +35,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint16_t u16;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
+    int v1, v2, v3;
+    int s0, s1, s2;
     int fixedaddress;
     switch(nextop) {
         case 0xC0:
@@ -91,6 +93,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         default:
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("FILD ST0, Ed");
+                    v1 = x87_do_push(dyn, ninst, x1);
+                    GETED;
+                    s0 = 0;
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_S32(v1, s0);
+                    break;
+
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_refresh(dyn, ninst, x1, x3, 0);
