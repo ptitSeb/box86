@@ -180,7 +180,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VLDR_32(s0, ed, 0);
                     VCVT_64_32(v1, s0);
                     break;
-                case 1:
+                case 2:
                     INST_NAME("FST float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
@@ -188,7 +188,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VCVT_32_64(s0, v1);
                     VSTR_32(s0, ed, 0);
                     break;
-                case 2:
+                case 3:
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
