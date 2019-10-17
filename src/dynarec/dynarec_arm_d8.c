@@ -47,11 +47,12 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC4:
         case 0xC5:
         case 0xC6:
-        case 0xC7:  /* FADD */
-            *ok = 0;
-            DEFAULT;
+        case 0xC7:
+            INST_NAME("FADD ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VADD_F64(v1, v1, v2);
             break;
-
         case 0xC8:
         case 0xC9:
         case 0xCA:
@@ -59,7 +60,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF:  /* FMUL */
+        case 0xCF:
             INST_NAME("FMUL ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
