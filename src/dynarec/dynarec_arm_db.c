@@ -90,6 +90,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xE7:
             *ok = 0;
             DEFAULT;
+            break;
 
         default:
             switch((nextop>>3)&7) {

@@ -49,6 +49,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC7:  /* FADDP STx, ST0 */
             *ok = 0;
             DEFAULT;
+            break;
 
         case 0xC8:
         case 0xC9:
@@ -117,6 +118,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xDF:
             *ok = 0;
             DEFAULT;
+            break;
 
        
         default:

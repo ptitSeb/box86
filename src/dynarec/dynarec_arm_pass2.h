@@ -5,5 +5,3 @@
 #define EMIT(A)     dyn->insts[ninst].size+=4; dyn->arm_size+=4
 #define NEW_INST    if(ninst) {dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);}
 #define INST_NAME(name) 
-#define DEFAULT         
-

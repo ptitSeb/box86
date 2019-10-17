@@ -744,6 +744,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             #define GO(GETFLAGS, NO, YES)   \
                 i8 = F8S;   \
                 USEFLAG(1); \
+                BARRIER(2); \
                 JUMP(addr+i8);\
                 GETFLAGS;   \
                 if(dyn->insts) {    \
@@ -1727,10 +1728,11 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xCD:
                 if(PK(0)==0x80) {
+                    INST_NAME("Syscall");
                     u8 = F8;
+                    BARRIER(2);
                     UFLAGS(0);
                     UFLAGS(1);
-                    INST_NAME("Syscall");
                     MOV32(12, ip+2);
                     STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     CALL_(x86Syscall, -1, 0);
@@ -2082,6 +2084,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
                 } else {
+                    BARRIER(2);
                     MOV32(x2, addr);
                     PUSH(xESP, 1<<x2);
                     // regular call
@@ -2092,6 +2095,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xE9:
             case 0xEB:
+                BARRIER(2);
                 if(opcode==0xE9) {
                     INST_NAME("JMP Id");
                     i32 = F32S;
@@ -2568,6 +2572,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 2: // CALL Ed
                         INST_NAME("CALL Ed");
+                        BARRIER(2);
                         GETEDH(xEIP);
                         MOV32(x3, addr);
                         PUSH(xESP, 1<<x3);
@@ -2577,6 +2582,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         break;
                     case 4: // JMP Ed
                         INST_NAME("JMP Ed");
+                        BARRIER(2);
                         GETEDH(xEIP);
                         jump_to_linker(dyn, 0, ed, ninst);  // linker is smarter now and will adapt
                         need_epilog = 0;

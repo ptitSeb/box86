@@ -76,6 +76,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             VMOV_64(v2, v1);
             x87_do_pop(dyn, ninst, x1);
             break;
+            
         case 0xE0:
         case 0xE1:
         case 0xE2:
@@ -119,6 +120,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xFF:
             *ok = 0;
             DEFAULT;
+            break;
 
         default:
             switch((nextop>>3)&7) {

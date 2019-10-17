@@ -165,8 +165,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         #undef GO
 
         #define GO(GETFLAGS, NO, YES)   \
-            i32_ = F32S;   \
-            USEFLAG(1);    \
+            i32_ = F32S;    \
+            USEFLAG(1);     \
+            BARRIER(2);     \
             JUMP(addr+i32_);\
             GETFLAGS;   \
             if(dyn->insts) {    \

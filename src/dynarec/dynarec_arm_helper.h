@@ -179,6 +179,9 @@
 #define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
 #define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
 #define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.flags)
+#ifndef DEFAULT
+#define DEFAULT      BARRIER(2)
+#endif
 
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
@@ -225,6 +228,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
+#define x87_stackcount  STEPNAME(x87_stackcount)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -243,6 +247,8 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 // x87 helper
 // reset the cache
 void x87_reset(dynarec_arm_t* dyn, int ninst);
+// cache of the local stack counter, to avoid upadte at every call
+void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push, needs 1 scratch register. Return the Dd value to be used
 int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu pop, needs 1 scratch register. All previous returned Dd should be considered invalid
