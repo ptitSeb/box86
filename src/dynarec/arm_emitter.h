@@ -352,9 +352,18 @@ Op is 20-27
 #define VMOVfrV_64(Rt, Rt2, Sm) EMIT(c_, | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
 
 // Move between Rt/Rt2 to Dm
-#define VMOVtoV_Q(Dm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+#define VMOVtoV_D(Dm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
 // Move between Dm and Rt/Rt2 (Rt and Rt2 must be different)
-#define VMOVfrV_Q(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+#define VMOVfrV_D(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
 
+// Load from memory to double  VLDR Dd, [Rn, #imm8]
+#define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Dd>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | ((Dd&15)<<12) | (0b1011<<8) | ((Imm8)&255))
+// Load from memory to single  VLDR Sd, [Rn, #imm8]
+#define VLDR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Sd>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | ((Sd&15)<<12) | (0b1010<<8) | ((Imm8)&255))
+
+// Store to memory to double  VSTR Dd, [Rn, #imm8]
+#define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Dd>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | ((Dd&15)<<12) | (0b1011<<8) | ((Imm8)&255))
+// Store to memory to single  VSTR Sd, [Rn, #imm8]
+#define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Sd>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | ((Sd&15)<<12) | (0b1010<<8) | ((Imm8)&255))
 
 #endif  //__ARM_EMITTER_H__

@@ -339,8 +339,20 @@ const char* arm_print(uint32_t opcode)
                             sprintf(ret, "VMOV%s D%d, %s, %s", cond, vm, regname[rt], regname[rt2]);
                         else
                             sprintf(ret, "VMOV%s %s, %s, D%d", cond, regname[rt], regname[rt2], vm);
+                    } else
+                    if(((opcode>>21)&0b1111001)==0b1101000 && (((opcode>>8)&0b1110)==0b1010)) {
+                        // VLDR/VSTR to/from Single/Double
+                        int ldr = (opcode>>21)&1;
+                        int u = (opcode>>23)&1;
+                        int vd = ((opcode>>22)&1)<<4 | ((opcode>>12)&15);
+                        int rn = (opcode>>16)&15;
+                        int imm8 = opcode&255;
+                        int notsingle = (opcode>>8)&1;
+                        char offset[50] = {0};
+                        if(imm8)
+                            sprintf(offset, ", #%d", u?imm8:-imm8);
+                        sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", notsingle?"D":"S", vd, regname[rn], offset);
                     }
-
                     break;
                 default:
                     sprintf(ret, "???%s", cond);
