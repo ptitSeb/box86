@@ -352,6 +352,13 @@ const char* arm_print(uint32_t opcode)
                         if(imm8)
                             sprintf(offset, ", #%d", u?imm8:-imm8);
                         sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", notsingle?"D":"S", vd, regname[rn], offset);
+                    } else
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
+                        // VMOV siggle/double reg
+                        int sz = (opcode>>8)&1;
+                        int vd = (opcode>>22)&1 | ((opcode>>12)&15)<<1;
+                        int vm = (opcode>>5)&1 | ((opcode)&15)<<1;
+                        sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
                     }
                     break;
                 default:

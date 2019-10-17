@@ -54,7 +54,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC4:
         case 0xC5:
         case 0xC6:
-        case 0xC7:  /* FLD STx */
+        case 0xC7:
+            INST_NAME("FLD STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v2 = x87_do_push(dyn, ninst, x1);
+            VMOV_64(v2, v1);
+            break;
 
         case 0xC8:
         case 0xC9:
@@ -68,35 +73,43 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             DEFAULT;
             break;
 
-        case 0xD0:  /* FNOP */
+        case 0xD0:
+            INST_NAME("FNOP");
             break;
 
-        case 0xE8:  /* FLD1 */
+        case 0xE8:
+            INST_NAME("FLD1");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_1));
             VSTR_64(v1, x2, 0);
             break;
-        case 0xE9:  /* FLDL2T */
+        case 0xE9:
+            INST_NAME("FLDL2T");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2t));
             VSTR_64(v1, x2, 0);
-        case 0xEA:  /* FLDL2E */        
+        case 0xEA:     
+            INST_NAME("FLDL2E");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2e));
             VSTR_64(v1, x2, 0);
-        case 0xEB:  /* FLDPI */
+        case 0xEB:
+            INST_NAME("FLDPI");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_pi));
             VSTR_64(v1, x2, 0);
-        case 0xEC:  /* FLDLG2 */
+        case 0xEC:
+            INST_NAME("FLDLG2");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_lg2));
             VSTR_64(v1, x2, 0);
-        case 0xED:  /* FLDLN2 */
+        case 0xED:
+            INST_NAME("FLDLN2");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_ln2));
             VSTR_64(v1, x2, 0);
-        case 0xEE:  /* FLDZ */
+        case 0xEE:
+            INST_NAME("FLDZ");
             v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_0));
             VSTR_64(v1, x2, 0);

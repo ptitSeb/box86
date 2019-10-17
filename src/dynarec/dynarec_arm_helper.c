@@ -271,6 +271,8 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
     return 0;
 }
 
+// x87 stuffs
+#define X87FIRST    8
 void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
@@ -297,7 +299,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch)
             dyn->x87cache[i] = 0;
             ret=i;
         }
-    return ret+8;
+    return ret+X87FIRST;
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int scratch)
 {
@@ -336,7 +338,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_IMM8(s3, s2, i);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(i+8, s3, 0);    // save the value
+            VSTR_64(i+X87FIRST, s3, 0);    // save the value
             dyn->x87cache[i] = -1;
         }
 }
@@ -361,7 +363,32 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_IMM8(s3, s2, i);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(i+8, s3, 0);    // save the value
+            VSTR_64(i+X87FIRST, s3, 0);    // save the value
         }
 }
 #endif
+
+int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
+{
+    // search in cache first
+    for (int i=0; i<8; ++i)
+        if(dyn->x87cache[i]==a)
+            return i+X87FIRST;
+    // get a free spot
+    int ret = -1;
+    for (int i=0; i<8 && ret==-1; ++i)
+        if(dyn->x87cache[i]==-1)
+            ret = i;
+    // found, setup and grab the value
+    dyn->x87cache[ret] = a;
+    ret+=X87FIRST;
+    MOVW(s1, offsetof(x86emu_t, fpu));
+    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    ADD_IMM8(s2, s2, a);
+    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+    VLDR_64(ret, s2, 0);
+
+    return ret;
+}

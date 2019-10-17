@@ -222,6 +222,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_reset       STEPNAME(x87_reset)
 #define x87_purgecache  STEPNAME(x87_purgecache)
 #define x87_reflectcache STEPNAME(x87_reflectcache)
+#define x87_get_st      STEPNAME(x87_get_st)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -249,6 +250,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE
 void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif
+int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);

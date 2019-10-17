@@ -356,6 +356,11 @@ Op is 20-27
 // Move between Dm and Rt/Rt2 (Rt and Rt2 must be different)
 #define VMOVfrV_D(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
 
+// Move between Dd and Dm
+#define VMOV_64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | (((Dd)&1)<<22) | (0b11<<20) | (((Dd>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | (((Dm)&1)<<5) | (((Dm)>>1)&15))
+// Move between Sd and Sm
+#define VMOV_32(Sd, Sm)     EMIT(c__ | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | (((Sd>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b01<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15))
+
 // Load from memory to double  VLDR Dd, [Rn, #imm8]
 #define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Dd>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | ((Dd&15)<<12) | (0b1011<<8) | ((Imm8)&255))
 // Load from memory to single  VLDR Sd, [Rn, #imm8]
