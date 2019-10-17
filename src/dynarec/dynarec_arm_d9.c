@@ -44,6 +44,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
+    int v1, v2, v3;
     switch(nextop) {
 
         case 0xC0:
@@ -71,12 +72,35 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
 
         case 0xE8:  /* FLD1 */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_1));
+            VSTR_64(v1, x2, 0);
+            break;
         case 0xE9:  /* FLDL2T */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_l2t));
+            VSTR_64(v1, x2, 0);
         case 0xEA:  /* FLDL2E */        
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_l2e));
+            VSTR_64(v1, x2, 0);
         case 0xEB:  /* FLDPI */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_pi));
+            VSTR_64(v1, x2, 0);
         case 0xEC:  /* FLDLG2 */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_lg2));
+            VSTR_64(v1, x2, 0);
         case 0xED:  /* FLDLN2 */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_ln2));
+            VSTR_64(v1, x2, 0);
         case 0xEE:  /* FLDZ */
+            v1 = x87_do_push(dyn, ninst, x1);
+            MOV32(x2, (&d_0));
+            VSTR_64(v1, x2, 0);
+            break;
  
         case 0xE0:  /* FCHS */
         case 0xE1:  /* FABS */
