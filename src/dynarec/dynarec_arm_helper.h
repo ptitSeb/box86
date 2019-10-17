@@ -229,6 +229,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
 #define x87_stackcount  STEPNAME(x87_stackcount)
+#define x87_setround    STEPNAME(x87_setround)
+#define x87_restoreround STEPNAME(x87_restoreround)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -264,6 +266,11 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
+// Set rounding according to cw flags, return reg to restore flags
+int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// Restore round flag
+void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
+
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);

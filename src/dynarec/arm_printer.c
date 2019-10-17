@@ -316,6 +316,15 @@ const char* arm_print(uint32_t opcode)
                         else
                             sprintf(ret, "VMOV%s %s, S%d", cond, regname[rt], vn);
                     } else
+                    if(((opcode>>21)&0b1111111)==0b1110111 && (((opcode>>16)&0b1111)==0b0001) && ((opcode&0b111111111111)==0b101000010000)) {
+                        // VMOV ARM to/from FPCSR
+                        int rt = ((opcode>>12)&15);
+                        int op = ((opcode>>20)&1);
+                        if(op==0)
+                            sprintf(ret, "VMSR%s FPSCR, %s", cond, regname[rt]);
+                        else
+                            sprintf(ret, "VMRS%s %s, FPCSR", cond, regname[rt]);
+                    } else
                     if(((opcode>>19)&0b111110111)==0b111010111 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b100)) {
                         // VCVT float / integer
                         int sz = ((opcode>>8)&1);
@@ -326,7 +335,7 @@ const char* arm_print(uint32_t opcode)
                         int M = (opcode>>5)&1;
                         int Vm = (opcode)&15;
                         int d, m;
-                        int to_integer = (opc2&2)?1:0;
+                        int to_integer = (opc2&4)?1:0;
                         if(to_integer) {
                             d = (Vd<<1) | D;
                             m = (sz)?((M<<4)|Vm):((Vm<<1)|M);
@@ -339,10 +348,10 @@ const char* arm_print(uint32_t opcode)
                                 sprintf(ret, "VCVT%s.F%d.%c32 %c%d, S%d", cond, sz?64:32, op?'S':'U', sz?'D':'S', d, m);
                                 break;
                             case 0b100:
-                                sprintf(ret, "VCVT%s%s.U32.F%d S%d %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
+                                sprintf(ret, "VCVT%s%s.U32.F%d S%d, %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
                                 break;
                             case 0b101:
-                                sprintf(ret, "VCVT%s%s.S32.F%d S%d %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
+                                sprintf(ret, "VCVT%s%s.S32.F%d S%d, %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
                                 break;
                             default:
                                 sprintf(ret, "VCVT????%s ???", cond);
@@ -398,7 +407,7 @@ const char* arm_print(uint32_t opcode)
                         int sz = ((opcode>>8)&1);
                         int vd = ((opcode>>22)&1) | ((opcode>>12)&15)<<1;
                         int vm = ((opcode>>5)&1) | ((opcode)&15)<<1;
-                        sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
+                        sprintf(ret, "VMOV%s.F%d %s%d, %s%d", cond, sz?64:32, sz?"D":"S", vd, sz?"D":"S", vm);
                     } else
                     if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b0111) && (((opcode>>4)&0b11101101)==0b10101100)) {
                         // VCVT float / float

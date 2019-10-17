@@ -23,6 +23,7 @@
 
 #include "dynarec_arm_helper.h"
 
+static double maxint32 = (double)0x7fffffff;
 
 uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
@@ -36,7 +37,9 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int v1, v2, v3;
-    int s0, s1, s2;
+    int s0 = 0;
+    int s1, s2;
+    int d0 = 0;
     int fixedaddress;
     switch(nextop) {
         case 0xC0:
@@ -47,6 +50,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC5:
         case 0xC6:
         case 0xC7:  /* FCMOVNB ST(0), ST(i) */
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:  /* FCMOVNE ST(0), ST(i) */
         case 0xD0:
         case 0xD1:
         case 0xD2:
@@ -98,11 +109,95 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst);
                     GETED;
-                    s0 = 0;
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(v1, s0);
                     break;
-
+                case 1:
+                    INST_NAME("FISTTP Ed, ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        ed = x1;
+                    }
+                    VCVT_S32_F64(s0, v1);
+                    VMOVfrV(ed, s0);
+                    MOV32(x12, 0x7fffffff);
+                    CMPS_REG_LSL_IMM8(ed, x12, 0);
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cNE, i32);
+                    VMOVtoV(s0, x12);
+                    VCVT_F64_S32(d0, s0);
+                    VCMP_F64(v1, d0);
+                    VMRS_APSR();
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cLS, i32);
+                    MOV32(ed, 0x80000000);
+                    MARK;
+                    WBACK;
+                    x87_do_pop(dyn, ninst);
+                    x87_restoreround(dyn, ninst, u8);
+                    break;
+                case 2:
+                    INST_NAME("FIST Ed, ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        ed = x1;
+                    }
+                    VCVTR_S32_F64(s0, v1);
+                    VMOVfrV(ed, s0);
+                    MOV32(x12, 0x7fffffff);
+                    CMPS_REG_LSL_IMM8(ed, x12, 0);
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cNE, i32);
+                    VMOVtoV(s0, x12);
+                    VCVT_F64_S32(d0, s0);
+                    VCMP_F64(v1, d0);
+                    VMRS_APSR();
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cLS, i32);
+                    MOV32(ed, 0x80000000);
+                    MARK;
+                    WBACK;
+                    x87_restoreround(dyn, ninst, u8);
+                    break;
+                case 3:
+                    INST_NAME("FISTP Ed, ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        ed = x1;
+                    }
+                    VCVTR_S32_F64(s0, v1);
+                    VMOVfrV(ed, s0);
+                    MOV32(x12, 0x7fffffff);
+                    CMPS_REG_LSL_IMM8(ed, x12, 0);
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cNE, i32);
+                    VMOVtoV(s0, x12);
+                    VCVT_F64_S32(d0, s0);
+                    VCMP_F64(v1, d0);
+                    VMRS_APSR();
+                    i32 = GETMARK-(dyn->arm_size+8);
+                    Bcond(cLS, i32);
+                    MOV32(ed, 0x80000000);
+                    MARK;
+                    WBACK;
+                    x87_do_pop(dyn, ninst);
+                    x87_restoreround(dyn, ninst, u8);
+                    break;
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_refresh(dyn, ninst, x1, x3, 0);

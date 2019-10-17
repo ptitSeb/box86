@@ -173,6 +173,9 @@ Op is 20-27
 // tst.s dst, src1, #imm
 #define TSTS_IMM8(src, imm8) \
     EMIT(0xe3100000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
+// tst.s dst, src1, #imm ror rot*2
+#define TSTS_IMM8_ROR(src, imm8, rot) \
+    EMIT(0xe3100000 | ((0) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
 // orr dst, src1, src2, lsl #imm
 #define ORR_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
@@ -308,6 +311,7 @@ Op is 20-27
 #define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 1, imm8))
 #define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
 #define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 0, 1, imm8))
+#define STRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 1, 1, imm8))
 
 // Mul Long construction
 #define MULLONG(Cond, U, A, S, RdHi, RdLo, Rs, Rm)     (Cond | (0b00001<<23) | (U<<22) | (A<<21) | (S<<20) | (RdHi<<16) | (RdLo<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
@@ -340,6 +344,13 @@ Op is 20-27
 
 // VFPU & NEON
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
+
+// Move from FPSCR to Arm register
+#define VMRS(Rt)    EMIT(c__ | (0b1110<<24) | (0b1111<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
+// Move to FPSCR from Arm register
+#define VMSR(Rt)    EMIT(c__ | (0b1110<<24) | (0b1110<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
+// Move to FPSCR from Arm flags APSR
+#define VMRS_APSR()    VMRS(15)
 
 // Move between Rt to Sm
 #define VMOVtoV(Sm, Rt) EMIT(c__ | (0b1110<<24) | (0b000<<21) | (0<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
@@ -377,9 +388,9 @@ Op is 20-27
 #define VCVT_F32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  (((Sd)&1)<<22) | (0b11<<20) | (0b0111<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | (0<<4) | ((Dm)&15))
 
 // Convert from double Dm to int32 Sd, with Round toward Zero mode
-#define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+#define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from double Dm to int32 Sd, with Round selection from FPSCR
-#define VCVTR_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+#define VCVTR_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from int32 Sm to double Dd
 #define VCVT_F64_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
@@ -390,5 +401,10 @@ Op is 20-27
 #define VADD_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (0<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
 // Sub F64 Dd = Dn + Dm
 #define VSUB_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (1<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+
+// Cmp between 2 double Dd and Dm
+#define VCMP_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0100<<16) | (((Dd)&15)<<12) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+// Cmp between 1 double Dd and 0.0
+#define VCMP_F64_0(Dd)      EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0101<<16) | (((Dn)&15)<<12) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | (0<<5) | (0) )
 
 #endif  //__ARM_EMITTER_H__

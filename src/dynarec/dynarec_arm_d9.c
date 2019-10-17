@@ -197,10 +197,15 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VSTR_32(s0, ed, 0);
                     x87_do_pop(dyn, ninst);
                     break;
+                case 5:
+                    INST_NAME("FLDCW Ew");
+                    GETEW(x1);
+                    STRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+                    break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
                     GETEW(x1);
-                    LDR_IMM9(x1, xEmu, offsetof(x86emu_t, cw));
+                    LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));
                     EWBACK;
                     break;
                 default:
