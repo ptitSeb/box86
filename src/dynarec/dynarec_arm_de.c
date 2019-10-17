@@ -69,6 +69,9 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
 
         case 0xD9:  /* FCOMPP */
+            *ok = 0;
+            DEFAULT;
+            break;
 
         case 0xE0:
         case 0xE1:
@@ -77,7 +80,13 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xE4:
         case 0xE5:
         case 0xE6:
-        case 0xE7:  /* FSUBRP STx, ST0 */
+        case 0xE7:
+            INST_NAME("FSUBRP STx, ST0");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VSUB_F64(v2, v1, v2);
+            x87_do_pop(dyn, ninst);
+            break;
         case 0xE8:
         case 0xE9:
         case 0xEA:
@@ -85,7 +94,13 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:
         case 0xED:
         case 0xEE:
-        case 0xEF:  /* FSUBP STx, ST0 */
+        case 0xEF:
+            INST_NAME("FSUBP STx, ST0");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VSUB_F64(v2, v2, v1);
+            x87_do_pop(dyn, ninst);
+            break;
         case 0xF0:
         case 0xF1:
         case 0xF2:

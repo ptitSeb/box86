@@ -83,6 +83,10 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xDD:
         case 0xDE:
         case 0xDF:  /* FCOMP */
+            *ok = 0;
+            DEFAULT;
+            break;
+
         case 0xE0:
         case 0xE1:
         case 0xE2:
@@ -91,6 +95,11 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xE5:
         case 0xE6:
         case 0xE7:  /* FSUB */
+            INST_NAME("FSUB ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VSUB_F64(v1, v1, v2);
+            break;
         case 0xE8:
         case 0xE9:
         case 0xEA:
@@ -99,6 +108,11 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xED:
         case 0xEE:
         case 0xEF:  /* FSUBR */
+            INST_NAME("FSUBR ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VSUB_F64(v1, v2, v1);
+            break;
         case 0xF0:
         case 0xF1:
         case 0xF2:
@@ -139,6 +153,24 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VMUL_F64(v1, v1, d1);
+                    break;
+                case 4:
+                    INST_NAME("FSUB ST0, float[ED]");
+                    GETED;
+                    s0 = 0;
+                    d1 = 1;
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VSUB_F64(v1, v1, d1);
+                    break;
+                case 5:
+                    INST_NAME("FSUBR ST0, float[ED]");
+                    GETED;
+                    s0 = 0;
+                    d1 = 1;
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VSUB_F64(v1, d1, v1);
                     break;
                 default:
                     *ok = 0;
