@@ -94,13 +94,9 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_refresh(dyn, ninst, x1, x3, 0);
-                    if((nextop&0xC0)==0xC0) {
-                        MOV_REG(x1, xEAX+(nextop&7));   // ???
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                        if(ed!=x1) {
-                            MOV_REG(x1, ed);
-                        }
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {
+                        MOV_REG(x1, ed);
                     }
                     CALL(arm_fstp, -1, 0);
                     x87_do_pop(dyn, ninst, x1);

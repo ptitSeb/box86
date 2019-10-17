@@ -122,6 +122,19 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         default:
             switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("FST double");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    VSTR_64(v1, ed, 0); // check alignment?
+                    break;
+                case 3:
+                    INST_NAME("FSTP double");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    VSTR_64(v1, ed, 0); // check alignment?
+                    x87_do_pop(dyn, ninst, x1);
+                    break;
                 default:
                     *ok = 0;
                     DEFAULT;
