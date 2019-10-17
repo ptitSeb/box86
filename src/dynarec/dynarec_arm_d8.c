@@ -120,6 +120,15 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
       
         default:
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("FADD ST0, float[ED]");
+                    GETED;
+                    s0 = 0;
+                    d1 = 1;
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VADD_F64(v1, v1, d1);
+                    break;
                 case 1:
                     INST_NAME("FMUL ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
