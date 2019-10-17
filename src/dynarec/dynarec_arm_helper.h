@@ -250,9 +250,9 @@ void x87_reset(dynarec_arm_t* dyn, int ninst);
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push, needs 1 scratch register. Return the Dd value to be used
-int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch);
+int x87_do_push(dynarec_arm_t* dyn, int ninst);
 // fpu pop, needs 1 scratch register. All previous returned Dd should be considered invalid
-void x87_do_pop(dynarec_arm_t* dyn, int ninst, int scratch);
+void x87_do_pop(dynarec_arm_t* dyn, int ninst);
 // purge the cache (needs 3 scratch registers)
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE

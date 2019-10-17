@@ -307,7 +307,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     dyn->x87stack = 0;
 }
 
-int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch)
+int x87_do_push(dynarec_arm_t* dyn, int ninst)
 {
     dyn->x87stack+=1;
     // move all regs in cache, and find a free one
@@ -321,7 +321,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch)
         }
     return ret+X87FIRST;
 }
-void x87_do_pop(dynarec_arm_t* dyn, int ninst, int scratch)
+void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 {
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
@@ -337,23 +337,48 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     for (int i=0; i<8 && !ret; ++i)
         if(dyn->x87cache[i] != -1)
             ret = 1;
-    if(!ret)    // nothing to do
+    if(!ret && !dyn->x87stack)    // nothing to do
         return;
-    MESSAGE(LOG_DUMP, "Purge x87 Cache\n");
-    // prepare offset to fpu => s1
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
-    // Get top
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
-    // loop all cache entries
-    for (int i=0; i<8; ++i)
-        if(dyn->x87cache[i]!=-1) {
-            ADD_IMM8(s3, s2, i);
-            AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
-            ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
-            dyn->x87cache[i] = -1;
+    MESSAGE(LOG_DUMP, "Purge x87 Cache and Synch Stackcount (%d)\n", dyn->x87stack);
+    int a = dyn->x87stack;
+    if(a!=0) {
+        // reset x87stack
+        dyn->x87stack = 0;
+        // Add x87stack to emu fpu_stack
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
+        if(a>0) {
+            ADD_IMM8(s2, s2, a);
+        } else {
+            SUB_IMM8(s2, s2, -a);
         }
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        if(a>0) {
+            SUB_IMM8(s2, s2, a);
+        } else {
+            ADD_IMM8(s2, s2, -a);
+        }
+        AND_IMM8(s2, s2, 7);
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    } else {
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    }
+    if(ret!=0) {
+        // prepare offset to fpu => s1
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+        // Get top
+        // loop all cache entries
+        for (int i=0; i<8; ++i)
+            if(dyn->x87cache[i]!=-1) {
+                ADD_IMM8(s3, s2, i);
+                AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
+                ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+                VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
+                dyn->x87cache[i] = -1;
+            }
+    }
 }
 
 #ifdef HAVE_TRACE

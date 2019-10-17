@@ -74,7 +74,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VMOV_64(v2, v1);
-            x87_do_pop(dyn, ninst, x1);
+            x87_do_pop(dyn, ninst);
             break;
 
         case 0xE0:
@@ -126,7 +126,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD double");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     VLDR_64(v1, ed, 0);
                     break;
@@ -141,7 +141,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     VSTR_64(v1, ed, 0); // check alignment?
-                    x87_do_pop(dyn, ninst, x1);
+                    x87_do_pop(dyn, ninst);
                     break;
                 default:
                     *ok = 0;

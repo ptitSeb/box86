@@ -59,7 +59,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC7:
             INST_NAME("FLD STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            v2 = x87_do_push(dyn, ninst, x1);
+            v2 = x87_do_push(dyn, ninst);
             VMOV_64(v2, v1);
             break;
 
@@ -86,43 +86,43 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         case 0xE8:
             INST_NAME("FLD1");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_1));
             VLDR_64(v1, x2, 0);
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_l2t));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_l2e));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEB:
             INST_NAME("FLDPI");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_pi));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_lg2));
             VLDR_64(v1, x2, 0);
             break;
         case 0xED:
             INST_NAME("FLDLN2");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_ln2));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEE:
             INST_NAME("FLDZ");
-            v1 = x87_do_push(dyn, ninst, x1);
+            v1 = x87_do_push(dyn, ninst);
             MOV32(x2, (&d_0));
             VLDR_64(v1, x2, 0);
             break;
@@ -174,7 +174,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     s0 = 0; // use S0 as scratch single reg
                     VLDR_32(s0, ed, 0);
@@ -195,7 +195,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     s0 = 0;
                     VCVT_F32_F64(s0, v1);
                     VSTR_32(s0, ed, 0);
-                    x87_do_pop(dyn, ninst, x1);
+                    x87_do_pop(dyn, ninst);
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");

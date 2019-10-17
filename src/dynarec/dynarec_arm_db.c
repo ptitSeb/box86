@@ -96,7 +96,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst);
                     GETED;
                     s0 = 0;
                     VMOVtoV(s0, ed);
@@ -111,7 +111,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         MOV_REG(x1, ed);
                     }
                     CALL(arm_fstp, -1, 0);
-                    x87_do_pop(dyn, ninst, x1);
+                    x87_do_pop(dyn, ninst);
                     break;
                 default:
                     *ok = 0;
