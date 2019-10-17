@@ -406,11 +406,11 @@ const char* arm_print(uint32_t opcode)
                         if(sz) {    // double to single
                             int vd = ((opcode>>12)&15)<<1 | ((opcode>>22)&1);
                             int vm = ((opcode>>5)&1)<<4 | (opcode&15);
-                            sprintf(ret, "VCVT%s.F64.F32 D%d, S%d", cond, vd, vm);
+                            sprintf(ret, "VCVT%s.F32.F64 S%d, D%d", cond, vd, vm);
                         } else {
                             int vd = (opcode>>12)&15 | ((opcode>>22)&1)<<4;
                             int vm = ((opcode>>5)&1) | (opcode&15)<<1;
-                            sprintf(ret, "VCVT%s.F32.F64 S%d, D%d", cond, vd, vm);
+                            sprintf(ret, "VCVT%s.F64.F32 D%d, S%d", cond, vd, vm);
                         }
                     }
                     break;
