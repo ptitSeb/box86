@@ -37,10 +37,70 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     switch(opcode) {
-       
-        default:
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC4:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:  /* FCMOVNB ST(0), ST(i) */
+        case 0xD0:
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:  /* FCMOVNBE ST(0), ST(i) */
+        case 0xD8:
+        case 0xD9:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:  /* FCMOVNU ST(0), ST(i) */
+        case 0xE2:      /* FNCLEX */
+        case 0xE3:      /* FNINIT */
+        case 0xE8:
+        case 0xE9:
+        case 0xEA:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xEE:
+        case 0xEF:  /* FUCOMI ST0, STx */
+        case 0xF0:  
+        case 0xF1:
+        case 0xF2:
+        case 0xF3:
+        case 0xF4:
+        case 0xF5:
+        case 0xF6:
+        case 0xF7:  /* FCOMI ST0, STx */
+
+        case 0xE0:
+        case 0xE1:
+        case 0xE4:
+        case 0xE5:
+        case 0xE6:
+        case 0xE7:
             *ok = 0;
             DEFAULT;
+
+        default:
+            switch((nextop>>3)&7) {
+                case 7:
+                    INST_NAME("FSTP tbyte");
+                    GETED(x1);
+                    CALL(arm_fstp, -1, 0);
+                    x87_do_pop(dyn, ninst, x1);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
     }
     return addr;
 }
