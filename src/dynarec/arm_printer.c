@@ -317,7 +317,7 @@ const char* arm_print(uint32_t opcode)
                             sprintf(ret, "VMOV%s %s, S%d", cond, regname[rt], vn);
                     } else
                     if(((opcode>>19)&0b111110111)==0b111010111 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b100)) {
-                        // VCVT
+                        // VCVT float / integer
                         int sz = ((opcode>>8)&1);
                         int op = ((opcode>>7)&1);
                         int opc2 = ((opcode>>16)&7);
@@ -346,6 +346,40 @@ const char* arm_print(uint32_t opcode)
                                 break;
                             default:
                                 sprintf(ret, "VCVT????%s ???", cond);
+                        }
+                    } else
+                    if(((opcode>>20)&0b11111011)==0b11100010 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b000)) {
+                        int sz = ((opcode>>8)&1);
+                        int D = (opcode>>22)&1;
+                        int Vn = (opcode>>16)&15;
+                        int Vd = (opcode>>12)&15;
+                        int N = (opcode>>7)&1;
+                        int M = (opcode>>5)&1;
+                        int Vm = (opcode)&15;
+                        int d = (sz)?((D<<4)|Vd):((Vd<<1)|D);
+                        int n = (sz)?((N<<4)|Vn):((Vn<<1)|N);
+                        int m = (sz)?((M<<4)|Vm):((Vm<<1)|M);
+                        char r = sz?'D':'S';
+                        sprintf(ret, "VMUL%s.F%d %c%d, %c%d, %c%d", cond, sz?64:32, r, d, r, n, r, m);
+                    } else
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
+                        // VMOV single/double reg
+                        int sz = ((opcode>>8)&1);
+                        int vd = ((opcode>>22)&1) | ((opcode>>12)&15)<<1;
+                        int vm = ((opcode>>5)&1) | ((opcode)&15)<<1;
+                        sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
+                    } else
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b0111) && (((opcode>>4)&0b11101101)==0b10101100)) {
+                        // VCVT float / float
+                        int sz = ((opcode>>8)&1);
+                        if(sz) {    // double to single
+                            int vd = ((opcode>>12)&15)<<1 | ((opcode>>22)&1);
+                            int vm = ((opcode>>5)&1)<<4 | (opcode&15);
+                            sprintf(ret, "VCVT%s.F64.F32 D%d, S%d", cond, vd, vm);
+                        } else {
+                            int vd = (opcode>>12)&15 | ((opcode>>22)&1)<<4;
+                            int vm = ((opcode>>5)&1) | (opcode&15)<<1;
+                            sprintf(ret, "VCVT%s.F32.F64 S%d, D%d", cond, vd, vm);
                         }
                     }
                     break;
@@ -384,26 +418,6 @@ const char* arm_print(uint32_t opcode)
                         if(imm8)
                             sprintf(offset, ", #%d", u?imm8:-imm8);
                         sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", cond, notsingle?"D":"S", vd, regname[rn], offset);
-                    } else
-                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
-                        // VMOV single/double reg
-                        int sz = ((opcode>>8)&1);
-                        int vd = ((opcode>>22)&1) | ((opcode>>12)&15)<<1;
-                        int vm = ((opcode>>5)&1) | ((opcode)&15)<<1;
-                        sprintf(ret, "VMOV%d %s%d, %s%d", cond, sz?"D":"S", vd, sz?"D":"S", vm);
-                    } else
-                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b01111) && (((opcode>>4)&0b11101101)==0b10101100)) {
-                        // VCVT
-                        int sz = ((opcode>>8)&1);
-                        if(sz) {    // double to single
-                            int vd = ((opcode>>12)&15)<<1 | ((opcode>>22)&1);
-                            int vm = ((opcode>>5)&1)<<4 | (opcode&15);
-                            sprintf("VCVT%d.F64.F32 D%d, S%d", cond, vd, vm);
-                        } else {
-                            int vd = (opcode>>12)&15 | ((opcode>>22)&1)<<4;
-                            int vm = ((opcode>>5)&1) | (opcode&15)<<1;
-                            sprintf("VCVT%d.F32.F64 S%d, D%d", cond, vd, vm);
-                        }
                     }
                     break;
                 default:

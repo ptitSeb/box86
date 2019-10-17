@@ -27,20 +27,104 @@
 uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
     uintptr_t ip = addr-1;
-    uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop = F8;
+    uint8_t u8;
     uint32_t u32;
     int32_t i32;
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
+    int v1, v2, v3;
+    int s0, s1, s2;
     int fixedaddress;
-    switch(opcode) {
-       
-        default:
+    switch(nextop) {
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC4:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:  /* FADDP STx, ST0 */
             *ok = 0;
             DEFAULT;
+
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+            INST_NAME("FMULP STx, ST0");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VMUL_F64(v2, v2, v1);
+            x87_do_pop(dyn, ninst, x1);
+            break;
+
+        case 0xD9:  /* FCOMPP */
+
+        case 0xE0:
+        case 0xE1:
+        case 0xE2:
+        case 0xE3:
+        case 0xE4:
+        case 0xE5:
+        case 0xE6:
+        case 0xE7:  /* FSUBRP STx, ST0 */
+        case 0xE8:
+        case 0xE9:
+        case 0xEA:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xEE:
+        case 0xEF:  /* FSUBP STx, ST0 */
+        case 0xF0:
+        case 0xF1:
+        case 0xF2:
+        case 0xF3:
+        case 0xF4:
+        case 0xF5:
+        case 0xF6:
+        case 0xF7:  /* FDIVRP STx, ST0 */
+        case 0xF8:
+        case 0xF9:
+        case 0xFA:
+        case 0xFB:
+        case 0xFC:
+        case 0xFD:
+        case 0xFE:
+        case 0xFF:  /* FDIVP STx, ST0 */
+
+        case 0xD0:
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:
+        case 0xD8:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:
+            *ok = 0;
+            DEFAULT;
+
+       
+        default:
+            switch((nextop>>3)&7) {
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
     }
     return addr;
 }
