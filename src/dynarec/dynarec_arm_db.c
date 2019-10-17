@@ -27,8 +27,8 @@
 uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
     uintptr_t ip = addr-1;
-    uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop = F8;
+    uint8_t u8;
     uint32_t u32;
     int32_t i32;
     int16_t i16;
@@ -36,7 +36,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
-    switch(opcode) {
+    switch(nextop) {
         case 0xC0:
         case 0xC1:
         case 0xC2:
@@ -93,7 +93,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 7:
                     INST_NAME("FSTP tbyte");
-                    GETED(x1);
+                    x87_refresh(dyn, ninst, x1, x3, 0);
+                    if((nextop&0xC0)==0xC0) {
+                        MOV_REG(x1, xEAX+(nextop&7));   // ???
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        if(ed!=x1) {
+                            MOV_REG(x1, ed);
+                        }
+                    }
                     CALL(arm_fstp, -1, 0);
                     x87_do_pop(dyn, ninst, x1);
                     break;

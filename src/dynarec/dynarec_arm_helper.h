@@ -224,6 +224,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_reflectcache STEPNAME(x87_reflectcache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_st      STEPNAME(x87_get_st)
+#define x87_refresh     STEPNAME(x87_refresh)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -251,8 +252,12 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE
 void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif
+// get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+// get vfpu register for a x7 reg, create the entry if needed
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+// refresh a value from the cache ->emu (nothing done if value is not cached)
+void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);

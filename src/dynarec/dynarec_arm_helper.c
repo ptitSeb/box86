@@ -396,3 +396,24 @@ int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 {
     return x87_get_cache(dyn, ninst, s1, s2, a) + X87FIRST;
 }
+
+
+void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
+{
+    int ret = -1;
+    for (int i=0; i<8 && ret!=-1; ++i)
+        if(dyn->x87cache[i] == st)
+            ret = i;
+    if(ret==-1)    // nothing to do
+        return;
+    // prepare offset to fpu => s1
+    MOVW(s1, offsetof(x86emu_t, fpu));
+    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    // Get top
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    // loop all cache entries
+    ADD_IMM8(s2, s2, st);
+    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+    VSTR_64(ret+X87FIRST, s2, 0);    // save the value
+}
