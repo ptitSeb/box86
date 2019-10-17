@@ -284,6 +284,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     if(!dyn->x87stack)
         return;
+    MESSAGE(LOG_DUMP, "Synch x87 Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     // Add x87stack to emu fpu_stack
     LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, fpu_stack));
@@ -324,7 +325,6 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
-    int ret = -1;
     for(int i=0; i<8; ++i)
         if(dyn->x87cache[i]!=-1)
             --dyn->x87cache[i];
@@ -339,6 +339,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ret = 1;
     if(!ret)    // nothing to do
         return;
+    MESSAGE(LOG_DUMP, "Purge x87 Cache\n");
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
@@ -360,7 +361,7 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_stackcount(dyn, ninst, s1);
     int ret = 0;
-    for (int i=0; i<8 && !ret; ++i)
+    for (int i=0; (i<8) && (!ret); ++i)
         if(dyn->x87cache[i] != -1)
             ret = 1;
     if(!ret)    // nothing to do
@@ -387,9 +388,10 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st)
             return i;
+    MESSAGE(LOG_DUMP, "Create x87 Cache for ST%d\n", st);
     // get a free spot
     int ret = -1;
-    for (int i=0; i<8 && ret==-1; ++i)
+    for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->x87cache[i]==-1)
             ret = i;
     // found, setup and grab the value
@@ -418,24 +420,21 @@ int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+    x87_stackcount(dyn, ninst, s1);
     int ret = -1;
-    for (int i=0; i<8 && ret!=-1; ++i)
+    for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->x87cache[i] == st)
             ret = i;
     if(ret==-1)    // nothing to do
         return;
+    MESSAGE(LOG_DUMP, "Refresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
-    int a = st - dyn->x87stack;
-    if(a<0) {
-        SUB_IMM8(s2, s2, -a);
-    } else {
-        ADD_IMM8(s2, s2, a);
-    }
+    ADD_IMM8(s2, s2, st);
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(ret+X87FIRST, s2, 0);    // save the value

@@ -76,7 +76,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             VMOV_64(v2, v1);
             x87_do_pop(dyn, ninst, x1);
             break;
-            
+
         case 0xE0:
         case 0xE1:
         case 0xE2:
@@ -124,6 +124,12 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         default:
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("FLD double");
+                    v1 = x87_do_push(dyn, ninst, x1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    VLDR_64(v1, ed, 0);
+                    break;
                 case 2:
                     INST_NAME("FST double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
