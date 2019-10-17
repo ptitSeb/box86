@@ -315,6 +315,38 @@ const char* arm_print(uint32_t opcode)
                             sprintf(ret, "VMOV%s S%d, %s", cond, vn, regname[rt]);
                         else
                             sprintf(ret, "VMOV%s %s, S%d", cond, regname[rt], vn);
+                    } else
+                    if(((opcode>>19)&0b111110111)==0b111010111 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b100)) {
+                        // VCVT
+                        int sz = ((opcode>>8)&1);
+                        int op = ((opcode>>7)&1);
+                        int opc2 = ((opcode>>16)&7);
+                        int D = (opcode>>22)&1;
+                        int Vd = (opcode>>12)&15;
+                        int M = (opcode>>5)&1;
+                        int Vm = (opcode)&15;
+                        int d, m;
+                        int to_integer = (opc2&2)?1:0;
+                        if(to_integer) {
+                            d = (Vd<<1) | D;
+                            m = (sz)?((M<<4)|Vm):((Vm<<1)|M);
+                        } else {
+                            m = ((Vm<<1)|M);
+                            d = (sz)?((D<<4)|Vd):((Vd<<1)|D);
+                        }
+                        switch(opc2) {
+                            case 0:
+                                sprintf(ret, "VCVT%s.F%d.%c32 %c%d, S%d", cond, sz?64:32, op?'S':'U', sz?'D':'S', d, m);
+                                break;
+                            case 0b100:
+                                sprintf(ret, "VCVT%s%s.U32.F%d S%d %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
+                                break;
+                            case 0b101:
+                                sprintf(ret, "VCVT%s%s.S32.F%d S%d %c%d", op?"":"R", cond, sz?64:32, d, sz?'D':'S', m);
+                                break;
+                            default:
+                                sprintf(ret, "VCVT????%s ???", cond);
+                        }
                     }
                     break;
                 case 0b110:
