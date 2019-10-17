@@ -217,12 +217,19 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define isNativeCall    STEPNAME(isNativeCall_)
 
+#define x87_do_push     STEPNAME(x87_do_push)
+#define x87_do_pop      STEPNAME(x87_do_pop)
+#define x87_reset       STEPNAME(x87_reset)
+#define x87_purgecache  STEPNAME(x87_purgecache)
+#define x87_reflectcache STEPNAME(x87_reflectcache)
+
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
 
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
+// generic x86 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
@@ -230,6 +237,18 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
+// x87 helper
+// reset the cache
+void x87_reset(dynarec_arm_t* dyn, int ninst);
+// fpu push, needs 1 scratch register. Return the Dd value to be used
+int x87_do_push(dynarec_arm_t* dyn, int ninst, int scratch);
+// fpu pop, needs 1 scratch register. All previous returned Dd should be considered invalid
+void x87_do_pop(dynarec_arm_t* dyn, int ninst, int scratch);
+// purge the cache (needs 3 scratch registers)
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#ifdef HAVE_TRACE
+void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#endif
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);

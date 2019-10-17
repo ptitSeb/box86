@@ -48,6 +48,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     dyn->tablei = 0;
     // Clean up (because there are multiple passes)
     dyn->cleanflags = 0;
+    x87_reset(dyn, ninst);
     // ok, go now
     INIT;
     while(ok) {
@@ -57,6 +58,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
             MESSAGE(LOG_DUMP, "TRACE ----\n");
+            x87_reflectcache(dyn, ninst, x1, x2, x3);
             STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
             MOV32(1, ip);
             STR_IMM9(1, 0, offsetof(x86emu_t, ip));
@@ -66,6 +68,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
 #endif
         if(dyn->insts && dyn->insts[ninst].x86.barrier) {
+            x87_purgecache(dyn, ninst, x1, x2, x3);
             if(dyn->insts[ninst].x86.barrier!=2)
                 dyn->cleanflags = 0;
         }

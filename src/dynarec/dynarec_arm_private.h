@@ -26,6 +26,7 @@ typedef struct dynarec_arm_s {
     int                 tablesz;    // size of the jump table
     int                 tablei;     // index
     int                 cleanflags; // flags are clean (CMP or TST have been just executed)
+    int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
 } dynarec_arm_t;
 
 

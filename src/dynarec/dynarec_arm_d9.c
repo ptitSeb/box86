@@ -20,9 +20,17 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "emu/x87emu_private.h"
 
 #include "dynarec_arm_helper.h"
 
+static double d_1   = 1.0;
+static double d_l2t = L2T;
+static double d_l2e = L2E;
+static double d_pi  = PI;
+static double d_lg2 = LG2;
+static double d_ln2 = LN2;
+static double d_0   = 0.0;
 
 uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
@@ -61,11 +69,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
 
         case 0xD0:  /* FNOP */
             break;
- 
-        case 0xE0:  /* FCHS */
-        case 0xE1:  /* FABS */
-        case 0xE4:  /* FTST */
-        case 0xE5:  /* FXAM */
+
         case 0xE8:  /* FLD1 */
         case 0xE9:  /* FLDL2T */
         case 0xEA:  /* FLDL2E */        
@@ -73,6 +77,11 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:  /* FLDLG2 */
         case 0xED:  /* FLDLN2 */
         case 0xEE:  /* FLDZ */
+ 
+        case 0xE0:  /* FCHS */
+        case 0xE1:  /* FABS */
+        case 0xE4:  /* FTST */
+        case 0xE5:  /* FXAM */
         case 0xF0:  /* F2XM1 */
         case 0xF1:  /* FYL2X */
         case 0xF2:  /* FTAN */
