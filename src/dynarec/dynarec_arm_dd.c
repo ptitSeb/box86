@@ -38,6 +38,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     int v1, v2, v3;
+
     switch(nextop) {
         case 0xC0:
         case 0xC1:

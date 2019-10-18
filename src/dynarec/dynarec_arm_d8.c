@@ -39,6 +39,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     int s0, s1, s2;
     int d0, d1;
     int fixedaddress;
+
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -94,7 +95,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xE4:
         case 0xE5:
         case 0xE6:
-        case 0xE7:  /* FSUB */
+        case 0xE7:
             INST_NAME("FSUB ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
@@ -107,7 +108,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:
         case 0xED:
         case 0xEE:
-        case 0xEF:  /* FSUBR */
+        case 0xEF:
             INST_NAME("FSUBR ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
@@ -137,9 +138,10 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FADD ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = 0;
-                    d1 = 1;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VADD_F64(v1, v1, d1);
@@ -148,26 +150,28 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FMUL ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = 0;
-                    d1 = 1;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VMUL_F64(v1, v1, d1);
                     break;
                 case 4:
                     INST_NAME("FSUB ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = 0;
-                    d1 = 1;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VSUB_F64(v1, v1, d1);
                     break;
                 case 5:
                     INST_NAME("FSUBR ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = 0;
-                    d1 = 1;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VSUB_F64(v1, d1, v1);

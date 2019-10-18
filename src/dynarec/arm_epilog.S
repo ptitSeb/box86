@@ -12,6 +12,7 @@ arm_epilog:
     //pop     {r0}
     stm     r0, {r4-r12}   // put back reg value in emu, including EIP (so r12 must be EIP now)
     //restore all used register
+    vpop     {d8-d15}
     pop     {r4-r11, pc}
     //end, return...
     //bx      lr

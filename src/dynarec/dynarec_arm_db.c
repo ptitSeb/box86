@@ -37,10 +37,10 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int v1, v2, v3;
-    int s0 = 0;
-    int s1, s2;
-    int d0 = 0;
+    int s0, s1, s2;
+    int d0;
     int fixedaddress;
+    
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -109,6 +109,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst);
                     GETED;
+                    s0 = x87_get_scratch_single(0);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(v1, s0);
                     break;
@@ -123,6 +124,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
+                    s0 = x87_get_scratch_single(0);
+                    d0 = x87_get_scratch_double(0);
                     VCVT_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);
@@ -152,6 +155,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
+                    s0 = x87_get_scratch_single(0);
+                    d0 = x87_get_scratch_double(0);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);
@@ -180,6 +185,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
+                    s0 = x87_get_scratch_single(0);
+                    d0 = x87_get_scratch_double(0);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);

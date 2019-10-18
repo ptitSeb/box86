@@ -36,10 +36,10 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int v1, v2, v3;
-    int s0 = 0;
-    int s1 = 0;
+    int s0, s1;
     int d0;
     int fixedaddress;
+
     switch(nextop) {
         case 0xE0:  /* FNSTSW AX */
         case 0xE8:
@@ -119,15 +119,17 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst);
                     GETEW(x1);
+                    s0 = x87_get_scratch_single(0);
                     VMOVtoV(s0, x1);
                     VCVT_F64_F32(v1, s0);
                     break;
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x3, x2);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
+                    s0 = x87_get_scratch_single(0);
                     VCVT_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOVW(x12, 0x7fff);
@@ -149,9 +151,10 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 2:
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x3, x2);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
+                    s0 = x87_get_scratch_single(0);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOVW(x12, 0x7fff);
@@ -172,9 +175,10 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x3, x2);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
+                    s0 = x87_get_scratch_single(0);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOVW(x12, 0x7fff);

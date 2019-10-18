@@ -231,6 +231,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
+#define x87_get_scratch_single STEPNAME(x87_get_scratch_single)
+#define x87_get_scratch_double STEPNAME(x87_get_scratch_double)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -270,6 +272,10 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
+// Get a FPU single scratch reg
+int x87_get_scratch_single(int i);
+// Geta FPU double scratch reg
+int x87_get_scratch_double(int i);
 
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);

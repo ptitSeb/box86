@@ -176,7 +176,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = 0; // use S0 as scratch single reg
+                    s0 = x87_get_scratch_single(0);
                     VLDR_32(s0, ed, 0);
                     VCVT_F64_F32(v1, s0);
                     break;
@@ -184,7 +184,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FST float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = 0;
+                    s0 = x87_get_scratch_single(0);
                     VCVT_F32_F64(s0, v1);
                     VSTR_32(s0, ed, 0);
                     break;
@@ -192,7 +192,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = 0;
+                    s0 = x87_get_scratch_single(0);
                     VCVT_F32_F64(s0, v1);
                     VSTR_32(s0, ed, 0);
                     x87_do_pop(dyn, ninst);

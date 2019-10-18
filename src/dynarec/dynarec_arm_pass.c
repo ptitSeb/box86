@@ -67,11 +67,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #endif
-        if(dyn->insts && dyn->insts[ninst].x86.barrier) {
-            x87_purgecache(dyn, ninst, x1, x2, x3);
-            if(dyn->insts[ninst].x86.barrier!=2)
-                dyn->cleanflags = 0;
-        }
         switch(opcode) {
 
             case 0x00:
@@ -1637,6 +1632,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
             case 0xC2:
                 INST_NAME("RETN");
+                BARRIER(2);
                 i32 = F16;
                 retn_to_epilog(dyn, ninst, i32);
                 need_epilog = 0;
@@ -1644,6 +1640,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 break;
             case 0xC3:
                 INST_NAME("RET");
+                BARRIER(2);
                 ret_to_epilog(dyn, ninst);
                 need_epilog = 0;
                 ok = 0;
@@ -2055,7 +2052,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     MOV32(x3, natcall+2+4+4);
                     CMPS_REG_LSL_IMM8(xEIP, x3, 0);
-                    i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
+                    i32 = GETMARK-(dyn->arm_size+8);
                     Bcond(cNE, i32);    // Not the expected address, exit dynarec block
                     POP(xESP, (1<<xEIP));   // pop the return address
                     if(retn) {
@@ -2063,7 +2060,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     }
                     MOV32(x3, addr);
                     CMPS_REG_LSL_IMM8(xEIP, x3, 0);
-                    i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
+                    i32 = GETMARK-(dyn->arm_size+8);
                     Bcond(cNE, i32);    // Not the expected address again
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                     CMPS_IMM8(x1, 1);
@@ -2605,7 +2602,12 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 ok = 0;
                 DEFAULT;
         }
-        ++ninst;
+        if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            if(dyn->insts[ninst+1].x86.barrier!=2)
+                dyn->cleanflags = 0;
+        }
+       ++ninst;
     }
     if(need_epilog) {
         x87_purgecache(dyn, ninst, x1, x2, x3);

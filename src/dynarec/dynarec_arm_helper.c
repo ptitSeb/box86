@@ -253,6 +253,7 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     MESSAGE(LOG_DUMP, "Get TLSData\n");
     call_c(dyn, ninst, GetGSBaseEmu, 12, reg, 0);
+    MESSAGE(LOG_DUMP, "----TLSData\n");
 }
 
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
@@ -305,6 +306,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
     // reset x87stack
     dyn->x87stack = 0;
+    MESSAGE(LOG_DUMP, "------x87 Stackcount\n");
 }
 
 int x87_do_push(dynarec_arm_t* dyn, int ninst)
@@ -374,7 +376,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
                 ADD_IMM8(s3, s2, dyn->x87cache[i]);
                 AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
                 ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-                VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
+                VSTR_64(i+X87FIRST, s3, 0);    // save the value
                 dyn->x87cache[i] = -1;
             }
     }
@@ -401,7 +403,7 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_IMM8(s3, s2, dyn->x87cache[i]);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(dyn->x87cache[i]+X87FIRST, s3, 0);    // save the value
+            VSTR_64(i+X87FIRST, s3, 0);    // save the value
         }
 }
 #endif
@@ -432,6 +434,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);
     VLDR_64((ret+X87FIRST), s2, 0);
+    MESSAGE(LOG_DUMP, "-------x87 Cache for ST%d\n", st);
 
     return ret;
 }
@@ -462,6 +465,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(ret+X87FIRST, s2, 0);    // save the value
+    MESSAGE(LOG_DUMP, "--------x87 Cache for ST%d\n", st);
 }
 
 static int round_map[] = {0, 2, 1, 3};  // map x86 -> arm round flag
@@ -484,4 +488,15 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {
     VMSR(s1);               // put back fpscr
+}
+
+// Get a FPU single scratch reg
+int x87_get_scratch_single(int i)
+{
+    return 0+i;
+}
+// Geta FPU double scratch reg
+int x87_get_scratch_double(int i)
+{
+    return 2+i;
 }
