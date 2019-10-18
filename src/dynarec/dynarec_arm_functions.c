@@ -36,3 +36,8 @@ void arm_fstp(x86emu_t* emu, void* p)
     else
         memcpy(p, &STld(0).ld, 10);
 }
+
+void arm_print_armreg(x86emu_t* emu, uintptr_t reg, uintptr_t n)
+{
+    dynarec_log(LOG_DEBUG, "R%d=0x%x (%d)\n", n, reg, reg);
+}
