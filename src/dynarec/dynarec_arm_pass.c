@@ -13,6 +13,7 @@
 #include "x86emu.h"
 #include "box86stack.h"
 #include "callback.h"
+#include "bridge.h"
 #include "emu/x86run_private.h"
 #include "x86trace.h"
 #include "dynablock.h"
@@ -1701,6 +1702,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                         ok = 0;
                         need_epilog = 1;
                     } else {
+                        MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(dyn->emu, GetNativeFnc(ip)), retn);
                         MOV32(x12, ip+1); // read the 0xCC
                         addr+=4+4;
                         STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
@@ -2042,7 +2044,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     BARRIER(2);
                     MOV32(x2, addr);
                     PUSH(xESP, 1<<x2);
-                    MESSAGE(LOG_DUMP, "Native Call (retn=%d)\n", retn);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(dyn->emu, GetNativeFnc(natcall-1)), retn);
                     UFLAGS(0);
                     UFLAGS(1);  // cheating...
                     // calling a native function

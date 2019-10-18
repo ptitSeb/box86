@@ -274,6 +274,8 @@ Op is 20-27
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
+// bx cond reg
+#define BXcond(C, reg) EMIT(C | 0x012fff10 | (reg) )
 
 // blx reg
 #define BLX(reg) EMIT(0xe12fff30 | (reg) )
