@@ -40,7 +40,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     int s0, s1, s2;
     int d0;
     int fixedaddress;
-    
+
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -76,6 +76,9 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xDF:  /* FCMOVNU ST(0), ST(i) */
         case 0xE2:      /* FNCLEX */
         case 0xE3:      /* FNINIT */
+            *ok = 0;
+            DEFAULT;
+            break;
         case 0xE8:
         case 0xE9:
         case 0xEA:
@@ -83,7 +86,13 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:
         case 0xED:
         case 0xEE:
-        case 0xEF:  /* FUCOMI ST0, STx */
+        case 0xEF:
+            INST_NAME("FUCOMI ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOMI(x1, x2);
+            break;
         case 0xF0:  
         case 0xF1:
         case 0xF2:
@@ -91,7 +100,13 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF4:
         case 0xF5:
         case 0xF6:
-        case 0xF7:  /* FCOMI ST0, STx */
+        case 0xF7:
+            INST_NAME("FCOMI ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOMI(x1, x2);
+            break;
 
         case 0xE0:
         case 0xE1:

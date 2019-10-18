@@ -165,6 +165,20 @@
     ORR_REG_LSL_IMM8(s2, s2, s1, 0);                                            \
     STRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw))
 
+// Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
+#define FCOMI(s1, s2)    \
+    XOR_REG_LSL_IMM8(s2, s2, s2, 0);                        \
+    VMRS_APSR();    /* 0b111 */                             \
+    MOVW_COND(cVS, s1, 0b111); /* unordered */              \
+    MOVW_COND(cEQ, s1, 0b100); /* zero */                   \
+    MOVW_COND(cGT, s1, 0b000); /* greater than */           \
+    MOVW_COND(cLO, s1, 0b001); /* less than */              \
+    UBFX(s2, s1, 0, 1);                                     \
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_CF]));    \
+    UBFX(s2, s1, 1, 1);                                     \
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_PF]));    \
+    UBFX(s2, s1, 2, 1);                                     \
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]))
 
 
 #ifndef UFLAGS

@@ -41,7 +41,14 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     int fixedaddress;
 
     switch(nextop) {
-        case 0xE0:  /* FNSTSW AX */
+        case 0xE0:
+            INST_NAME("FNSTSW AX");
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            AND_IMM8(x2, x2, 7);
+            BFI(x1, x2, 11, 3); // inject top
+            BFI(xEAX, x1, 0, 16);
+            break;
         case 0xE8:
         case 0xE9:
         case 0xEA:
@@ -49,7 +56,14 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:
         case 0xED:
         case 0xEE:
-        case 0xEF:  /* FUCOMIP ST0, STx */
+        case 0xEF:
+            INST_NAME("FUCOMIP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOMI(x1, x2);
+            x87_do_pop(dyn, ninst);
+            break;
         case 0xF0:
         case 0xF1:
         case 0xF2:
@@ -57,9 +71,13 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF4:
         case 0xF5:
         case 0xF6:
-        case 0xF7:  /* FCOMIP ST0, STx */
-            *ok = 0;
-            DEFAULT;
+        case 0xF7:
+            INST_NAME("FCOMIP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOMI(x1, x2);
+            x87_do_pop(dyn, ninst);
             break;
 
         case 0xC0:

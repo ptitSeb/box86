@@ -158,7 +158,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VADD_F64(v1, v1, d1);
                     break;
                 case 1:
-                    INST_NAME("FMUL ST0, float[ED]");
+                    INST_NAME("FMUL ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -166,7 +166,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VMUL_F64(v1, v1, d1);
                     break;
                 case 2:
-                    INST_NAME("FCOM ST0, float[ED]");
+                    INST_NAME("FCOM ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -175,7 +175,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     FCOM(x1, x2);
                     break;
                 case 3:
-                    INST_NAME("FCOMP ST0, float[ED]");
+                    INST_NAME("FCOMP ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -185,7 +185,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     x87_do_pop(dyn, ninst);
                     break;
                 case 4:
-                    INST_NAME("FSUB ST0, float[ED]");
+                    INST_NAME("FSUB ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -193,7 +193,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VSUB_F64(v1, v1, d1);
                     break;
                 case 5:
-                    INST_NAME("FSUBR ST0, float[ED]");
+                    INST_NAME("FSUBR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -201,7 +201,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VSUB_F64(v1, d1, v1);
                     break;
                 case 6:
-                    INST_NAME("FDIV ST0, float[ED]");
+                    INST_NAME("FDIV ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
@@ -209,7 +209,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VDIV_F64(v1, v1, d1);
                     break;
                 case 7:
-                    INST_NAME("FDIVR ST0, float[ED]");
+                    INST_NAME("FDIVR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                     d1 = x87_get_scratch_double(0);
