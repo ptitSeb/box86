@@ -730,8 +730,11 @@ void* GetTLSBase(elfheader_t* h)
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {
     elfheader_t* elf = FindElfAddress(context, addr);
-    if(!elf)
+    if(!elf) {
+        if((*(uint8_t*)addr)==0xCC)
+            return context->dynablocks;
         return NULL;
+    }
     return elf->blocks;
 }
 #endif
