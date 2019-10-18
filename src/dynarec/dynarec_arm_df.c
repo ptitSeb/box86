@@ -118,10 +118,11 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst);
-                    GETEW(x1);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    LDRSH_IMM8(x1, wback, 0);
                     s0 = x87_get_scratch_single(0);
                     VMOVtoV(s0, x1);
-                    VCVT_F64_F32(v1, s0);
+                    VCVT_F64_S32(v1, s0);
                     break;
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
