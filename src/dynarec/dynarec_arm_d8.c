@@ -67,7 +67,6 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VMUL_F64(v1, v1, v2);
             break;
-
         case 0xD0:
         case 0xD1:
         case 0xD2:
@@ -75,7 +74,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xD4:
         case 0xD5:
         case 0xD6:
-        case 0xD7:  /* FCOM */
+        case 0xD7:
+            INST_NAME("FCOM ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            break;
         case 0xD8:
         case 0xD9:
         case 0xDA:
@@ -83,11 +88,14 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xDC:
         case 0xDD:
         case 0xDE:
-        case 0xDF:  /* FCOMP */
-            *ok = 0;
-            DEFAULT;
+        case 0xDF:
+            INST_NAME("FCOMP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            x87_do_pop(dyn, ninst);
             break;
-
         case 0xE0:
         case 0xE1:
         case 0xE2:
@@ -162,6 +170,29 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VMUL_F64(v1, v1, d1);
+                    break;
+                case 2:
+                    INST_NAME("FCOM ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VCMP_F64(v1, d1);
+                    FCOM(x1, x2);
+                    break;
+                case 3:
+                    INST_NAME("FCOMP ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VCMP_F64(v1, d1);
+                    FCOM(x1, x2);
+                    x87_do_pop(dyn, ninst);
                     break;
                 case 4:
                     INST_NAME("FSUB ST0, float[ED]");

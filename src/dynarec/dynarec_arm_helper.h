@@ -151,6 +151,22 @@
 #define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
 #define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
 #define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+
+// Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
+#define FCOM(s1, s2)    \
+    LDRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw));   /*offset is 8bits right?*/   \
+    MOVW(s1, 0b0100011100000000);                                               \
+    BIC_REG_LSL_IMM8(s2, s2, s1, 0);                                            \
+    VMRS_APSR();    /* 0b0100011100000000 */                                    \
+    MOVW_COND(cVS, s1, 0b0100010100000000); /* unordered */                     \
+    MOVW_COND(cEQ, s1, 0b0100000000000000); /* zero */                          \
+    MOVW_COND(cGT, s1, 0b0000000000000000); /* greater than */                  \
+    MOVW_COND(cLO, s1, 0b0000000100000000); /* less than */                     \
+    ORR_REG_LSL_IMM8(s2, s2, s1, 0);                                            \
+    STRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw))
+
+
+
 #ifndef UFLAGS
 #define UFLAGS(A)  dyn->cleanflags=A
 #endif

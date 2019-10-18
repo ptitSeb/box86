@@ -85,7 +85,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xE4:
         case 0xE5:
         case 0xE6:
-        case 0xE7:  /* FUCOM ST0, STx */
+        case 0xE7:
+            INST_NAME("FUCOM ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            break;
         case 0xE8:
         case 0xE9:
         case 0xEA:
@@ -93,8 +99,15 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEC:
         case 0xED:
         case 0xEE:
-        case 0xEF:  /* FUCOMP ST0, STx */
-
+        case 0xEF:
+            INST_NAME("FUCOMP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            x87_do_pop(dyn, ninst);
+            break;
+            
         case 0xC8:
         case 0xC9:
         case 0xCA:
