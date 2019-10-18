@@ -127,6 +127,22 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             EWBACK;
             break;
 
+        case 0xB6:
+            INST_NAME("MOVZX Gw, Eb");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = (ed&4)>>2;    // L or H
+                UXTB(x1, eb1, eb2);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                LDRB_IMM9(x1, ed, 0);
+            }
+            BFI(gd, x1, 0, 16);
+            break;
+
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             nextop = F8;
@@ -140,6 +156,22 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, in
             MOVW(x1, 1);
             XOR_REG_LSL_REG(ed, ed, x1, x2);
             EWBACK;
+            break;
+
+        case 0xBE:
+            INST_NAME("MOVSX Gw, Eb");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = (ed&4)>>2;    // L or H
+                SXTB(x1, eb1, eb2);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                LDRSB_IMM8(x1, ed, 0);
+            }
+            BFI(gd, x1, 0, 16);
             break;
 
         default:
