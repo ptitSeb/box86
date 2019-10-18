@@ -27,7 +27,7 @@ void arm_epilog();
 #ifdef DYNAREC
 void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 {
-    dynablock_t* block = DBGetBlock(emu, addr, 1);
+    dynablock_t* block = DBGetBlock(emu, addr, 1, NULL);    // keep a copy of parent block?
     if(block==0) {
         // no block, don't try again, ever
         *table = arm_epilog;
@@ -63,8 +63,9 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         PushExit(emu);
         R_EIP = addr;
         emu->df = d_none;
+        dynablock_t* block = NULL;
         while(!emu->quit) {
-            volatile dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
+            block = DBGetBlock(emu, R_EIP, 1, block);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
@@ -104,8 +105,9 @@ int DynaRun(x86emu_t* emu)
         return Run(emu, 0);
 #ifdef DYNAREC
     else {
+        dynablock_t* block = NULL;
         while(!emu->quit) {
-            dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
+            block = DBGetBlock(emu, R_EIP, 1, block);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)

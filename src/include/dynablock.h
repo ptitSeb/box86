@@ -12,6 +12,6 @@ void FreeDynablockList(dynablocklist_t** dynablocks);
 
 
 // Handling of Dynarec block (i.e. an exectable chunk of x86 translated code)
-dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create);   // return NULL if block is not found / cannot be created. Don't create if create==0
+dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current);   // return NULL if block is not found / cannot be created. Don't create if create==0
 
 #endif //__DYNABLOCK_H_
