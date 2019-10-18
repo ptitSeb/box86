@@ -417,6 +417,17 @@ const char* arm_print(uint32_t opcode)
                         char r = sz?'D':'S';
                         sprintf(ret, "VSUB%s.F%d %c%d, %c%d, %c%d", cond, sz?64:32, r, d, r, n, r, m);
                     } else
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b0100) && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
+                        // VCMP single/double reg
+                        int sz = ((opcode>>8)&1);
+                        int D = (opcode>>22)&1;
+                        int Vd = (opcode>>12)&15;
+                        int M = (opcode>>5)&1;
+                        int Vm = (opcode)&15;
+                        int vd = (sz)?((D<<4) | Vd):(D | (Vd<<1));
+                        int vm = (sz)?((M<<4) | Vm):(M | (Vm<<1));
+                        sprintf(ret, "VCMP%s.F%d %s%d, %s%d", cond, sz?64:32, sz?"D":"S", vd, sz?"D":"S", vm);
+                    } else
                     if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b0100)) {
                         // VMOV single/double reg
                         int sz = ((opcode>>8)&1);
