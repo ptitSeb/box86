@@ -306,8 +306,8 @@ Op is 20-27
 
 
 // Half Word and signed data transfert construction
-#define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (0<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
-#define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | (0b000<<25) | (P<<24) | (1<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ((Imm8&0xf0)<<(8-4)) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | (Imm8&0x0f))
+#define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (U<<23) | (0<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
+#define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | (0b000<<25) | (P<<24) | (U<<23) | (1<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ((Imm8&0xf0)<<(8-4)) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | (Imm8&0x0f))
 
 #define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 0, imm8))
 #define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 1, imm8))
@@ -399,8 +399,12 @@ Op is 20-27
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
 
+// Divide F64 Dd = Dn/Dm
+#define VDIV_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b00<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+
 // Add F64 Dd = Dn + Dm
 #define VADD_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (0<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+
 // Sub F64 Dd = Dn + Dm
 #define VSUB_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (1<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
 

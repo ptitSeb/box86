@@ -38,7 +38,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     int v1, v2, v3;
     int s0, s1, s2;
     int fixedaddress;
-    
+
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -109,7 +109,13 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF4:
         case 0xF5:
         case 0xF6:
-        case 0xF7:  /* FDIVRP STx, ST0 */
+        case 0xF7:
+            INST_NAME("FDIVRP STx, ST0");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VDIV_F64(v2, v1, v2);
+            x87_do_pop(dyn, ninst);
+            break;
         case 0xF8:
         case 0xF9:
         case 0xFA:
@@ -117,7 +123,13 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xFC:
         case 0xFD:
         case 0xFE:
-        case 0xFF:  /* FDIVP STx, ST0 */
+        case 0xFF:
+            INST_NAME("FDIVP STx, ST0");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VDIV_F64(v2, v2, v1);
+            x87_do_pop(dyn, ninst);
+            break;
 
         case 0xD0:
         case 0xD1:

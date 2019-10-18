@@ -372,6 +372,21 @@ const char* arm_print(uint32_t opcode)
                         char r = sz?'D':'S';
                         sprintf(ret, "VMUL%s.F%d %c%d, %c%d, %c%d", cond, sz?64:32, r, d, r, n, r, m);
                     } else
+                    if(((opcode>>20)&0b11111011)==0b11101000 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b000)) {
+                        // VDIV
+                        int sz = ((opcode>>8)&1);
+                        int D = (opcode>>22)&1;
+                        int Vn = (opcode>>16)&15;
+                        int Vd = (opcode>>12)&15;
+                        int N = (opcode>>7)&1;
+                        int M = (opcode>>5)&1;
+                        int Vm = (opcode)&15;
+                        int d = (sz)?((D<<4)|Vd):((Vd<<1)|D);
+                        int n = (sz)?((N<<4)|Vn):((Vn<<1)|N);
+                        int m = (sz)?((M<<4)|Vm):((Vm<<1)|M);
+                        char r = sz?'D':'S';
+                        sprintf(ret, "VDIV%s.F%d %c%d, %c%d, %c%d", cond, sz?64:32, r, d, r, n, r, m);
+                    } else
                     if(((opcode>>20)&0b11111011)==0b11100011 && (((opcode>>9)&0b111)==0b101) && (((opcode>>4)&0b101)==0b000)) {
                         // VADD
                         int sz = ((opcode>>8)&1);

@@ -121,7 +121,12 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF4:
         case 0xF5:
         case 0xF6:
-        case 0xF7:  /* FDIV */
+        case 0xF7:
+            INST_NAME("FDIV ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VDIV_F64(v1, v1, v2);
+            break;
         case 0xF8:
         case 0xF9:
         case 0xFA:
@@ -129,9 +134,11 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xFC:
         case 0xFD:
         case 0xFE:
-        case 0xFF:  /* FDIVR */
-            *ok = 0;
-            DEFAULT;
+        case 0xFF:
+            INST_NAME("FDIVR ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VDIV_F64(v1, v2, v1);
             break;
       
         default:
@@ -175,6 +182,26 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VSUB_F64(v1, d1, v1);
+                    break;
+                case 6:
+                    INST_NAME("FDIV ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VDIV_F64(v1, v1, d1);
+                    break;
+                case 7:
+                    INST_NAME("FDIVR ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    s0 = x87_get_scratch_single(0);
+                    d1 = x87_get_scratch_double(0);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_F32(d1, s0);
+                    VDIV_F64(v1, d1, v1);
                     break;
                 default:
                     *ok = 0;
