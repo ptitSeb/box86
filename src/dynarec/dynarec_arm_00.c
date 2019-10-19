@@ -1063,12 +1063,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(eb1, x12, eb2*8, 8);
             } else {
                 // Lock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_lock, -1, 0);
-                POP(xSP, (1<<xEmu));
+                LOCK;
                 // do the swap
                 GETGB(x12);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
@@ -1077,12 +1072,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gb1, x1, gb2*8, 8);
                 STRB_IMM9(x12, ed, 0);
                 // Unlock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_unlock, -1, 0);
-                POP(xSP, (1<<xEmu));
+                UNLOCK;
             }
             break;
         case 0x87:
@@ -1091,12 +1081,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             if((nextop&0xC0)!=0xC0) {
                 // Lock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_lock, -1, 0);
-                POP(xSP, (1<<xEmu));
+                LOCK;
             }
             GETGD;
             GETED;
@@ -1107,12 +1092,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             WBACK;
             if((nextop&0xC0)!=0xC0) {
                 // Unlock
-                PUSH(xSP, (1<<xEmu));   // save Emu
-                LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-                MOV32(x1, offsetof(box86context_t, mutex_lock));
-                ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
-                CALL(pthread_mutex_unlock, -1, 0);
-                POP(xSP, (1<<xEmu));
+                UNLOCK;
             }
             break;
         case 0x88:

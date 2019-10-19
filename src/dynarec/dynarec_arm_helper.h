@@ -213,6 +213,11 @@
 #ifndef DEFAULT
 #define DEFAULT      BARRIER(2)
 #endif
+// Emit the LOCK mutex (x1, x2 and x3 are lost)
+#define LOCK        emit_lock(dyn, addr, ninst)
+// Emit the UNLOCK mutex (x1, x2 and x3 are lost)
+#define UNLOCK      emit_unlock(dyn, addr, ninst)
+
 
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
@@ -252,6 +257,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define call_c          STEPNAME(call_c_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define isNativeCall    STEPNAME(isNativeCall_)
+#define emit_lock       STEPNAME(emit_lock)
+#define emit_unlock     STEPNAME(emit_unlock)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_pop      STEPNAME(x87_do_pop)
@@ -281,6 +288,9 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
+void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
+void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
+
 // x87 helper
 // reset the cache
 void x87_reset(dynarec_arm_t* dyn, int ninst);

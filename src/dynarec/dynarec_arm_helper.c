@@ -270,6 +270,28 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
     return 0;
 }
 
+// emit "lock", x1, x2 and x3 are lost
+void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
+{
+    PUSH(xSP, (1<<xEmu));   // save Emu
+    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+    CALL(pthread_mutex_lock, -1, 0);
+    POP(xSP, (1<<xEmu));
+}
+
+// emit "unlock", x1, x2 and x3 are lost
+void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
+{
+    PUSH(xSP, (1<<xEmu));   // save Emu
+    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
+    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
+    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+    CALL(pthread_mutex_unlock, -1, 0);
+    POP(xSP, (1<<xEmu));
+}
+
 // x87 stuffs
 #define X87FIRST    8
 void x87_reset(dynarec_arm_t* dyn, int ninst)
