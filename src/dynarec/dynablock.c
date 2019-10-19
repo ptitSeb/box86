@@ -29,10 +29,11 @@
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 
 
-dynablocklist_t* NewDynablockList()
+dynablocklist_t* NewDynablockList(uintptr_t base)
 {
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->blocks = kh_init(dynablocks);
+    ret->base = base;
     pthread_mutex_init(&ret->mutex_blocks, NULL);
 
     return ret;
@@ -43,6 +44,7 @@ void FreeDynablockList_internal(dynablocklist_t* dynablocks)
     if(!dynablocks)
         return;
     // don't free individual blocks, it's only copies
+    dynarec_log(LOG_DEBUG, "With a %d Blocks (with %d buckets) Accelerator\n", kh_size(dynablocks->blocks), kh_n_buckets(dynablocks->blocks));
     kh_destroy(dynablocks, dynablocks->blocks);
     pthread_mutex_destroy(&dynablocks->mutex_blocks);
 
@@ -55,6 +57,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
+    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets)\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks));
     dynablock_t* db;
     kh_foreach_value((*dynablocks)->blocks, db,
         free(db->table);
@@ -89,7 +92,7 @@ static void handlingBlockHeat(dynablock_t* block)
         return;
     // is the block getting a lot of call?
     if(!block->dynablocklists && block->hot>TOOHOT)
-        block->dynablocklists = NewDynablockList(); // yes, create a local block hash
+        block->dynablocklists = NewDynablockList(0); // yes, create a local block hash
     else
         ++block->hot;
 }
@@ -108,7 +111,6 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
         khint_t k = kh_get(dynablocks, dynablocks->blocks, addr);
         if(k!=kh_end(dynablocks->blocks)) {
             block = kh_value(dynablocks->blocks, k);
-            handlingBlockHeat(block);
             pthread_mutex_unlock(&dynablocks->mutex_blocks);
             return block;
         }
@@ -119,9 +121,10 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     if(!dynablocks)
         return NULL;
     pthread_mutex_lock(&dynablocks->mutex_blocks);
+    handlingBlockHeat(current);
     int ret;
     dynablock_t* block = NULL;
-    khint_t k = kh_get(dynablocks, dynablocks->blocks, addr);
+    khint_t k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
     // check if the block exist
     if(k!=kh_end(dynablocks->blocks)) {
         /*atomic_store(&dynalock, 0);*/
@@ -139,7 +142,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     }
     // create and add new block
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
-    k = kh_put(dynablocks, dynablocks->blocks, addr, &ret);
+    k = kh_put(dynablocks, dynablocks->blocks, addr-dynablocks->base, &ret);
     if(!ret) {
         // Ooops, block is already there? retreive it and bail out
         block = kh_value(dynablocks->blocks, k);    

@@ -27,7 +27,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     if(!h)
         return NULL;
 #ifdef DYNAREC
-    h->blocks = NewDynablockList();
+    h->blocks = NewDynablockList((uintptr_t)GetBaseAddress(h));
 #endif
     return h;
 }
@@ -37,6 +37,10 @@ void FreeElfHeader(elfheader_t** head)
     if(!head || !*head)
         return;
     elfheader_t *h = *head;
+#ifdef DYNAREC
+    dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->name);
+    FreeDynablockList(&h->blocks);
+#endif
     free(h->name);
     free(h->PHEntries);
     free(h->SHEntries);
@@ -46,9 +50,7 @@ void FreeElfHeader(elfheader_t** head)
     free(h->DynStr);
     free(h->SymTab);
     free(h->DynSym);
-#ifdef DYNAREC
-    FreeDynablockList(&h->blocks);
-#endif
+
     FreeElfMemory(h);
     free(h);
 
@@ -452,7 +454,7 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
 
 uintptr_t GetLastByte(elfheader_t* h)
 {
-    return (uintptr_t)h->memory + h->delta + h->memsz;
+    return (uintptr_t)h->memory/* + h->delta*/ + h->memsz;
 }
 
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
@@ -634,8 +636,9 @@ int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr)
 {
     if(!h)
         return 0;
-    uintptr_t base = (uintptr_t)h->memory;
-    if(addr>=base && addr<=(base+h->memsz))
+    uintptr_t base = (uintptr_t)GetBaseAddress(h);
+    uintptr_t end = GetLastByte(h);
+    if(addr>=base && addr<=end)
         return 1;
     return 0;
 }
@@ -733,6 +736,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(!elf) {
         if((*(uint8_t*)addr)==0xCC)
             return context->dynablocks;
+        dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", addr);
         return NULL;
     }
     return elf->blocks;

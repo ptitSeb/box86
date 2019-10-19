@@ -147,14 +147,14 @@ void freeSDL1My(void* lib)
 {
     sdl1_my_t *my = (sdl1_my_t *)lib;
     x86emu_t *x;
-    kh_foreach_value(my->timercb, x, 
+    /*kh_foreach_value(my->timercb, x, 
         FreeCallback(x);
-    );
+    );*/
     kh_destroy(timercb, my->timercb);
 
-    kh_foreach_value(my->threads, x, 
+    /*kh_foreach_value(my->threads, x, 
         FreeCallback(x);
-    );
+    );*/
     kh_destroy(timercb, my->threads);
     if(sdl1_evtfilter) {
         FreeCallback(sdl1_evtfilter);

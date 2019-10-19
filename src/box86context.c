@@ -97,7 +97,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynablocks = NewDynablockList();
+    context->dynablocks = NewDynablockList(0);
 #endif
 
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
@@ -115,6 +115,21 @@ void FreeBox86Context(box86context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
+    if((*context)->maplib)
+        FreeLibrarian(&(*context)->maplib);
+
+#ifdef DYNAREC
+    dynarec_log(LOG_INFO, "Free global Dynarecblocks\n");
+    if((*context)->dynablocks)
+        FreeDynablockList(&(*context)->dynablocks);
+    for (int i=0; i<(*context)->mmapsize; ++i)
+        if((*context)->mmaplist[i].block)
+            munmap((*context)->mmaplist[i].block, MMAPSIZE);
+    free((*context)->mmaplist);
+    pthread_mutex_destroy(&(*context)->mutex_blocks);
+    pthread_mutex_destroy(&(*context)->mutex_mmap);
+#endif
+    
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);
 
@@ -131,20 +146,6 @@ void FreeBox86Context(box86context_t** context)
 
     FreeDLPrivate(&(*context)->dlprivate);
 
-    if((*context)->maplib)
-        FreeLibrarian(&(*context)->maplib);
-
-#ifdef DYNAREC
-    if((*context)->dynablocks)
-        FreeDynablockList(&(*context)->dynablocks);
-    for (int i=0; i<(*context)->mmapsize; ++i)
-        if((*context)->mmaplist[i].block)
-            munmap((*context)->mmaplist[i].block, MMAPSIZE);
-    free((*context)->mmaplist);
-    pthread_mutex_destroy(&(*context)->mutex_blocks);
-    pthread_mutex_destroy(&(*context)->mutex_mmap);
-#endif
-    
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);
     free((*context)->argv);
