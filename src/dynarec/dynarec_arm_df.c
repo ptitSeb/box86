@@ -213,6 +213,34 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
                     break;
+                case 4:
+                    INST_NAME("FBLD ST0, tbytes");
+                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fbld, -1, 0);
+                    break;
+                case 5: // could be inlined for most thing, but is it usefull?
+                    INST_NAME("FILD ST0, i64");
+                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fild64, -1, 0);
+                    break;
+                case 6:
+                    INST_NAME("FBSTP tbytes, ST0");
+                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fbstp, -1, 0);
+                    break;
+                case 7: // could be inlined for most thing, but is it usefull?
+                    INST_NAME("FISTP i64, ST0");
+                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fistp64, -1, 0);
+                    break;
                 default:
                     *ok = 0;
                     DEFAULT;

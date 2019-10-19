@@ -157,6 +157,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xFC:
             INST_NAME("FRNDINT");
+            // use C helper for now, nothing staightforward is available
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_frndint, -1, 0);
+            /*
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             VCMP_F64_0(v1);
             VMRS_APSR();
@@ -166,6 +170,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VCVT_S32_F64(x1, v1);   // limit to 32bits....
             VCVT_F64_S32(v1, x1);
             x87_restoreround(dyn, ninst, u8);
+            */
             break;
         case 0xF0:
             INST_NAME("F2XM1");

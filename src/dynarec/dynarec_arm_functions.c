@@ -92,6 +92,10 @@ void arm_fsincos(x86emu_t* emu)
     fpu_do_push(emu);
     sincos(ST1.d, &ST1.d, &ST0.d);
 }
+void arm_frndint(x86emu_t* emu)
+{
+    ST0.d = fpu_round(emu, ST0.d);
+}
 void arm_fscale(x86emu_t* emu)
 {
     ST0.d *= exp2(trunc(ST1.d));
@@ -103,4 +107,37 @@ void arm_fsin(x86emu_t* emu)
 void arm_fcos(x86emu_t* emu)
 {
     ST0.d = cos(ST0.d);
+}
+
+void arm_fbld(x86emu_t* emu, uint8_t* ed)
+{
+    fpu_do_push(emu);
+    fpu_fbld(emu, ed);
+}
+
+void arm_fild64(x86emu_t* emu, int64_t* ed)
+{
+    fpu_do_push(emu);
+    ST0.d = *ed;
+    STll(0).ll = *ed;
+    STll(0).ref = ST0.ll;
+}
+
+void arm_fbstp(x86emu_t* emu, uint8_t* ed)
+{
+    fpu_fbst(emu, ed);
+    fpu_do_pop(emu);
+}
+
+void arm_fistp64(x86emu_t* emu, int64_t* ed)
+{
+    if(STll(0).ref==ST(0).ll) {
+        *ed = STll(0).ll;
+    } else {
+        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
+            *ed = 0x8000000000000000LL;
+        else
+            *ed = (int64_t)ST0.d;
+    }
+    fpu_do_pop(emu);
 }
