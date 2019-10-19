@@ -27,17 +27,107 @@
 uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
 {
     uintptr_t ip = addr-1;
-    uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop = F8;
+    uint8_t u8;
     uint32_t u32;
     int32_t i32;
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
+    int v1, v2, v3;
+    int d0, d1;
     int fixedaddress;
-    switch(opcode) {
-       
+    switch(nextop) {
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC4:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:
+            INST_NAME("FCMOVB ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cNE, v1, v2);   // F_CF==1
+            break;
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:
+            INST_NAME("FCMOVE ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cNE, v1, v2);   // F_ZF==1
+            break;
+        case 0xD0:
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:
+            INST_NAME("FCMOVBE ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            ORRS_REG_LSL_IMM8(x1, x1, x2, 0);
+            VMOVcond_64(cNE, v1, v2);   // F_CF==1 | F_ZF==1
+            break;
+        case 0xD8:
+        case 0xD9:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:
+            INST_NAME("FCMOVU ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cNE, v1, v2);   // F_PF==1
+            break;       
+        case 0xE9:
+            INST_NAME("FUCOMPP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst);
+            break;
+
+        case 0xE4:
+        case 0xF0:
+        case 0xF1:
+        case 0xF4:
+        case 0xF5:
+        case 0xF6:
+        case 0xF7:
+        case 0xF8:
+        case 0xF9:
+        case 0xFD:
+            *ok = 0;
+            DEFAULT;
+            break;
+
         default:
             *ok = 0;
             DEFAULT;

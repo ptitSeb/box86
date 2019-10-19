@@ -8,4 +8,16 @@ void arm_fstp(x86emu_t* emu, void* p);
 
 void arm_print_armreg(x86emu_t* emu, uintptr_t reg, uintptr_t n);
 
+void arm_f2xm1(x86emu_t* emu);
+void arm_fyl2x(x86emu_t* emu);
+void arm_ftan(x86emu_t* emu);
+void arm_fpatan(x86emu_t* emu);
+void arm_fxtract(x86emu_t* emu);
+void arm_fprem(x86emu_t* emu);
+void arm_fyl2xp1(x86emu_t* emu);
+void arm_fsincos(x86emu_t* emu);
+void arm_fscale(x86emu_t* emu);
+void arm_fsin(x86emu_t* emu);
+void arm_fcos(x86emu_t* emu);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

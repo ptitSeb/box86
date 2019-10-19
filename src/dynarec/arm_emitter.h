@@ -373,6 +373,8 @@ Op is 20-27
 #define VMOV_64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 // Move between Sd and Sm
 #define VMOV_32(Sd, Sm)     EMIT(c__ | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b01<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15))
+// Move with condition between Dd and Dm
+#define VMOVcond_64(cond, Dd, Dm)     EMIT(cond | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 
 // Load from memory to double  VLDR Dd, [Rn, #imm8]
 #define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))

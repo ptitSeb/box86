@@ -95,6 +95,18 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             VABS_F64(v1, v1);
             break;
 
+        case 0xE4:
+            INST_NAME("FTST");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VCMP_F64_0(v1);
+            FCOM(x1, x2);   // same flags...
+            break;
+        case 0xE5:
+            INST_NAME("FXAM");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(fpu_fxam, -1, 0);  // should be possible inline, but is it worth it?
+            break;
+
         case 0xE8:
             INST_NAME("FLD1");
             v1 = x87_do_push(dyn, ninst);
@@ -157,20 +169,62 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             VCVT_F64_S32(v1, x1);
             x87_restoreround(dyn, ninst, u8);
             break;
+        case 0xF0:
+            INST_NAME("F2XM1");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_f2xm1, -1, 0);
+            break;
+        case 0xF1:
+            INST_NAME("FYL2X");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fyl2x, -1, 0);
+            break;
+        case 0xF2:
+            INST_NAME("FTAN");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_ftan, -1, 0);
+            break;
+        case 0xF3:
+            INST_NAME("FPATAN");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fpatan, -1, 0);
+            break;
+        case 0xF4:
+            INST_NAME("FXTRACT");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fxtract, -1, 0);
+            break;
+        case 0xF8:
+            INST_NAME("FPREM");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fprem, -1, 0);
+            break;
+        case 0xF9:
+            INST_NAME("FYL2XP1");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fyl2xp1, -1, 0);
+            break;
+        case 0xFB:
+            INST_NAME("FSINCOS");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fsincos, -1, 0);
+            break;
+        case 0xFD:
+            INST_NAME("FSCALE");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fscale, -1, 0);
+            break;
+        case 0xFE:
+            INST_NAME("FSIN");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fsin, -1, 0);
+            break;
+        case 0xFF:
+            INST_NAME("FCOS");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(arm_fcos, -1, 0);
+            break;
 
-        case 0xE4:  /* FTST */
-        case 0xE5:  /* FXAM */
-        case 0xF0:  /* F2XM1 */
-        case 0xF1:  /* FYL2X */
-        case 0xF2:  /* FTAN */
-        case 0xF3:  /* FPATAN */
-        case 0xF4:  /* FXTRACT */
-        case 0xF8:  /* FPREM */
-        case 0xF9:  /* FYL2XP1 */
-        case 0xFB:  /* FSINCOS */
-        case 0xFD:  /* FSCALE */
-        case 0xFE:  /* FSIN */
-        case 0xFF:  /* FCOS */
 
         case 0xD1:
         case 0xD4:

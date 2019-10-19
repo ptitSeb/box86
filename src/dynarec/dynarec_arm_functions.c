@@ -1,8 +1,10 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -40,4 +42,65 @@ void arm_fstp(x86emu_t* emu, void* p)
 void arm_print_armreg(x86emu_t* emu, uintptr_t reg, uintptr_t n)
 {
     dynarec_log(LOG_DEBUG, "R%d=0x%x (%d)\n", n, reg, reg);
+}
+
+void arm_f2xm1(x86emu_t* emu)
+{
+    ST0.d = exp2(ST0.d) - 1.0;
+}
+void arm_fyl2x(x86emu_t* emu)
+{
+    ST(1).d = log2(ST0.d)*ST(1).d;
+    fpu_do_pop(emu);
+}
+void arm_ftan(x86emu_t* emu)
+{
+    ST0.d = tan(ST0.d);
+    fpu_do_push(emu);
+    ST0.d = 1.0;
+
+}
+void arm_fpatan(x86emu_t* emu)
+{
+    ST1.d = atan2(ST1.d, ST0.d);
+    fpu_do_pop(emu);
+}
+void arm_fxtract(x86emu_t* emu)
+{
+    int32_t tmp32s = (ST0.ll&0x7ff0000000000000LL)>>52;
+    tmp32s -= 1023;
+    ST0.d /= exp2(tmp32s);
+    fpu_do_push(emu);
+    ST0.d = tmp32s;
+}
+void arm_fprem(x86emu_t* emu)
+{
+    int32_t tmp32s = ST0.d / ST1.d;
+    ST0.d -= ST1.d * tmp32s;
+    emu->sw.f.F87_C2 = 0;
+    emu->sw.f.F87_C0 = (tmp32s&1);
+    emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
+    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+}
+void arm_fyl2xp1(x86emu_t* emu)
+{
+    ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
+    fpu_do_pop(emu);
+}
+void arm_fsincos(x86emu_t* emu)
+{
+    fpu_do_push(emu);
+    sincos(ST1.d, &ST1.d, &ST0.d);
+}
+void arm_fscale(x86emu_t* emu)
+{
+    ST0.d *= exp2(trunc(ST1.d));
+}
+void arm_fsin(x86emu_t* emu)
+{
+    ST0.d = sin(ST0.d);
+}
+void arm_fcos(x86emu_t* emu)
+{
+    ST0.d = cos(ST0.d);
 }

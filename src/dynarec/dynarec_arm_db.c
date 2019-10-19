@@ -49,7 +49,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xC4:
         case 0xC5:
         case 0xC6:
-        case 0xC7:  /* FCMOVNB ST(0), ST(i) */
+        case 0xC7:
+            INST_NAME("FCMOVNB ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cEQ, v1, v2);   // F_CF==0
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
@@ -57,7 +65,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF:  /* FCMOVNE ST(0), ST(i) */
+        case 0xCF:
+            INST_NAME("FCMOVNE ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cEQ, v1, v2);   // F_ZF==0
+            break;
         case 0xD0:
         case 0xD1:
         case 0xD2:
@@ -65,7 +81,16 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xD4:
         case 0xD5:
         case 0xD6:
-        case 0xD7:  /* FCMOVNBE ST(0), ST(i) */
+        case 0xD7:
+            INST_NAME("FCMOVNBE ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            ORRS_REG_LSL_IMM8(x1, x1, x2, 0);
+            VMOVcond_64(cEQ, v1, v2);   // F_CF==0 | F_ZF==0
+            break;
         case 0xD8:
         case 0xD9:
         case 0xDA:
@@ -73,7 +98,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xDC:
         case 0xDD:
         case 0xDE:
-        case 0xDF:  /* FCMOVNU ST(0), ST(i) */
+        case 0xDF:
+            INST_NAME("FCMOVNU ST0, STx");
+            USEFLAG(1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            VMOVcond_64(cEQ, v1, v2);   // F_PF==0
+            break;
         case 0xE2:      /* FNCLEX */
         case 0xE3:      /* FNINIT */
             *ok = 0;
