@@ -58,7 +58,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x83:
         case 0x86:
         case 0x87:
-            MESSAGE(LOG_DUMP, "LOCK:");
+            MESSAGE(LOG_DUMP, "LOCK\n");
             locked = 1;
             LOCK;
             addr = dynarec00(dyn, addr, ip, ninst, ok, need_epilog);
@@ -74,8 +74,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0xBB:
                 case 0xC0:
                 case 0xC1:
-                //case 0xC7:
-                    MESSAGE(LOG_DUMP, "LOCK:");
+                case 0xC7:
+                    MESSAGE(LOG_DUMP, "LOCK\n");
                     locked = 1;
                     LOCK;
                     addr = dynarec0F(dyn, addr+1, ip, ninst, ok, need_epilog);
@@ -92,7 +92,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             {
                 case 0:
                 case 1:
-                    MESSAGE(LOG_DUMP, "LOCK:");
+                    MESSAGE(LOG_DUMP, "LOCK\n");
                     locked = 1;
                     LOCK;
                     addr = dynarec00(dyn, addr, ip, ninst, ok, need_epilog);

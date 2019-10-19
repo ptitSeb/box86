@@ -822,6 +822,32 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             break;
 
+        case 0xC7:
+            INST_NAME("CMPXCHG8B Gq, Eq");
+            nextop = F8;
+            USEFLAG(1);
+            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+            LDR_IMM9(x1, wback, 0);
+            LDR_IMM9(x2, wback, 4);
+            CMPS_REG_LSL_IMM8(xEAX, x1, 0);
+            i32 = GETMARK-(dyn->arm_size+8);
+            Bcond(cNE, i32);    // EAX != Ed[0]
+            CMPS_REG_LSL_IMM8(xEDX, x2, 0);
+            i32 = GETMARK-(dyn->arm_size+8);
+            Bcond(cNE, i32);    // EDX != Ed[1]
+            STR_IMM9(xEBX, wback, 0);
+            STR_IMM9(xECX, wback, 4);
+            MOVW(x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            Bcond(c__, i32);
+            MARK;
+            MOV_REG(xEAX, x1);
+            MOV_REG(xEDX, x2);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            UFLAGS(1);
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
