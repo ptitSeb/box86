@@ -72,8 +72,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0xB3:
                 case 0xBA:
                 case 0xBB:
-                //case 0xC0:
-                //case 0xC1:
+                case 0xC0:
+                case 0xC1:
                 //case 0xC7:
                     MESSAGE(LOG_DUMP, "LOCK:");
                     locked = 1;

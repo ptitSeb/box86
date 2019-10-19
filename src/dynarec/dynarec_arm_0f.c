@@ -789,6 +789,38 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDRSH_IMM8(gd, ed, 0);
             }
             break;
+        case 0xC0:
+            INST_NAME("XADD Gb, Eb");
+            nextop = F8;
+            GETEB(x2);
+            GETGB(x1);
+            UFLAG_OP12(gd, ed);
+            ADD_REG_LSL_IMM8(x12, ed, gd, 0);
+            UFLAG_RES(x12);
+            gd = ed;
+            GBBACK;
+            ed = x12;
+            EBBACK;
+            UFLAG_DF(x3, d_add8);
+            UFLAGS(0);
+            break;
+        case 0xC1:
+            INST_NAME("XADD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            GETED;
+            UFLAG_OP12(gd, ed);
+            ADD_REG_LSL_IMM8(x12, gd, ed, 0);
+            UFLAG_RES(x12);
+            MOV_REG(gd, ed);
+            if(wback) {
+                STR_IMM9(x12, wback, 0);
+            } else {
+                MOV_REG(ed, x12);
+            }
+            UFLAG_DF(x1, d_add32);
+            UFLAGS(0);
+            break;
 
         case 0xC8:
         case 0xC9:
