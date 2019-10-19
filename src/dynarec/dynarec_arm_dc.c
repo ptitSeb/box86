@@ -216,9 +216,6 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
                     VLDR_64(d1, wback, 0);
                     VDIV_F64(v1, d1, v1);
                     break;
-                default:
-                    *ok = 0;
-                    DEFAULT;
             }
     }
     return addr;
