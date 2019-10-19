@@ -157,12 +157,11 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xFC:
             INST_NAME("FRNDINT");
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             VCMP_F64_0(v1);
             VMRS_APSR();
-            Bcond(cVS, i32);    // Unordered, skip
-            Bcond(cEQ, i32);    // Zero, skip
+            B_NEXT(cVS);    // Unordered, skip
+            B_NEXT(cEQ);    // Zero, skip
             u8 = x87_setround(dyn, ninst, x1, x2, x3);
             VCVT_S32_F64(x1, v1);   // limit to 32bits....
             VCVT_F64_S32(v1, x1);

@@ -83,8 +83,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(cNE, i32);
+            B_NEXT(cNE);
             MOVW(x1, 1);
             ORR_REG_LSL_REG(ed, ed, x1, x2);
             EWBACK;
@@ -119,8 +118,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(cEQ, i32);
+            B_NEXT(cEQ);
             MOVW(x1, 1);
             XOR_REG_LSL_REG(ed, ed, x1, x2);
             EWBACK;

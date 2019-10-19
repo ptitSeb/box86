@@ -152,6 +152,23 @@
 #define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
 #define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
 
+// Branch to MARK if cond (use i32)
+#define B_MARK(cond)    \
+    i32 = GETMARK-(dyn->arm_size+8);    \
+    Bcond(cond, (GETMARK-(dyn->arm_size+8)))
+// Branch to MARK2 if cond (use i32)
+#define B_MARK2(cond)    \
+    i32 = GETMARK2-(dyn->arm_size+8);   \
+    Bcond(cond, i32)
+// Branch to MARK3 if cond (use i32)
+#define B_MARK3(cond)    \
+    i32 = GETMARK3-(dyn->arm_size+8);   \
+    Bcond(cond, i32)
+// Branch to next instruction if cond (use i32)
+#define B_NEXT(cond)     \
+    i32 = (dyn->insts)?(dyn->insts[ninst+1].address-(dyn->arm_size+8)):0; \
+    Bcond(cond, i32)
+
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2)    \
     LDRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw));   /*offset is 8bits right?*/   \

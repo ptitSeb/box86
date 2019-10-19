@@ -1663,12 +1663,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                     MOV32(x3, ip+1+2+4+4); // expected return address
                     CMPS_REG_LSL_IMM8(xEIP, x3, 0);
-                    i32 = dyn->insts[ninst].mark-(dyn->arm_size+8);
-                    Bcond(cNE, i32);
+                    B_MARK(cNE);
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                     CMPS_IMM8(x1, 1);
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                    Bcond(cNE, i32);
+                    B_NEXT(cNE);
                     MARK;
                     jump_to_epilog(dyn, 0, 12, ninst);
                 }
@@ -1691,12 +1689,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                 MOVW(x2, addr);
                 CMPS_REG_LSL_IMM8(x12, x2, 0);
-                i32 = 4*4-8;    // 4 instructions to epilog, if IP is not what is expected
-                Bcond(cNE, i32);
+                B_MARK(cNE);    // jump to epilog, if IP is not what is expected
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                 CMPS_IMM8(x1, 1);
                 i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                Bcond(cNE, i32);
+                B_NEXT(cNE);
+                MARK;
                 jump_to_epilog(dyn, 0, 12, ninst);
             } else {
                 INST_NAME("INT Ib");
@@ -1827,8 +1825,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROL Ed, CL");
                         AND_IMM8(x3, xECX, 0x1f);
                         TSTS_REG_LSL_IMM8(x3, x3, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
+                        B_MARK2(cEQ);
                         RSB_IMM8(x3, x3, 0x20);
                     }
                     GETEDW(x12, x2);
@@ -1836,8 +1833,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
                         CMPS_IMM8(x3, 31);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                             MOV_REG_LSR_IMM5(x1, ed, 31);
                             ADD_REG_LSL_IMM8(x1, x1, ed, 0);
                             AND_IMM8(x1, x1, 1);
@@ -1858,8 +1854,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROR Ed, CL");
                         AND_IMM8(x3, xECX, 0x1f);
                         TSTS_REG_LSL_IMM8(x3, x3, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);
+                        B_MARK2(cEQ);
                     }
                     USEFLAG(1);
                     GETEDW(x12, x2);
@@ -1867,8 +1862,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
                         CMPS_IMM8(x3, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                             MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
                             XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
                             AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
@@ -2007,20 +2001,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                 MOV32(x3, natcall+2+4+4);
                 CMPS_REG_LSL_IMM8(xEIP, x3, 0);
-                i32 = GETMARK-(dyn->arm_size+8);
-                Bcond(cNE, i32);    // Not the expected address, exit dynarec block
+                B_MARK(cNE);    // Not the expected address, exit dynarec block
                 POP(xESP, (1<<xEIP));   // pop the return address
                 if(retn) {
                     ADD_IMM8(xESP, xESP, retn);
                 }
                 MOV32(x3, addr);
                 CMPS_REG_LSL_IMM8(xEIP, x3, 0);
-                i32 = GETMARK-(dyn->arm_size+8);
-                Bcond(cNE, i32);    // Not the expected address again
+                B_MARK(cNE);    // Not the expected address again
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                 CMPS_IMM8(x1, 1);
-                i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                Bcond(cNE, i32);    // not quitting, so lets continue
+                B_NEXT(cNE);    // not quitting, so lets continue
                 MARK;
                 jump_to_epilog(dyn, 0, xEIP, ninst);
             } else if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
@@ -2128,185 +2119,163 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0xA4:
                         INST_NAME("REP MOVSB");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         // done
                         break;
                     case 0xA5:
                         INST_NAME("REP MOVSD");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         // done
                         break;
                     case 0xA6:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
-                            Bcond(cEQ, i32);
+                            B_MARK2(cEQ);
                         } else {
-                            Bcond(cNE, i32);
+                            B_MARK2(cNE);
                         }
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
-                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
-                        Bcond(c__, i32);
+                        B_MARK(cNE);
+                        B_MARK3(c__);   // go past sub ecx, 1
                         // done, finish with cmp test
                         MARK2;
                         SUB_IMM8(xECX, xECX, 1);
+                        MARK3;
                         CALL(cmp8, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xA7:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
-                            Bcond(cEQ, i32);
+                            B_MARK2(cEQ);
                         } else {
-                            Bcond(cNE, i32);
+                            B_MARK2(cNE);
                         }
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
-                        Bcond(c__, i32);
+                        B_MARK3(c__);
                         // done, finish with cmp test
                         MARK2;
                         SUB_IMM8(xECX, xECX, 1);
+                        MARK3;
                         CALL(cmp32, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xAA:
                         INST_NAME("REP STOSB");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
                         MARK;
                         STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         break;
                     case 0xAB:
                         INST_NAME("REP STOSD");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
                         MARK;
                         STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         break;
                     case 0xAC:
                         INST_NAME("REP LODSB");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         BFI(xEAX, x1, 0, 8);
                         break;
                     case 0xAD:
                         INST_NAME("REP LODSD");
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
                         MARK;
                         LDRAI_REG_LSL_IMM5(xEAX, xESI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         break;
                     case 0xAE:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
                         UXTB(x1, xEAX, 0);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
-                            Bcond(cEQ, i32);
+                            B_MARK2(cEQ);
                         } else {
-                            Bcond(cNE, i32);
+                            B_MARK2(cNE);
                         }
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
-                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
-                        Bcond(c__, i32);
+                        B_MARK(cNE);
+                        B_MARK3(c__);
                         // done, finish with cmp test
                         MARK2;
                         SUB_IMM8(xECX, xECX, 1);
+                        MARK3;
                         CALL(cmp8, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
-                        i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                        Bcond(cEQ, i32);    // end of loop
+                        B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
                         MOV_REG_LSL_IMM5(x1, xEAX, 0);
                         MARK;
                         LDRAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
                         CMPS_REG_LSL_IMM8(x1, x2, 0);
-                        i32 = GETMARK2-(dyn->arm_size+8);
                         if(opcode==0xF2) {
-                            Bcond(cEQ, i32);
+                            B_MARK2(cEQ);
                         } else {
-                            Bcond(cNE, i32);
+                            B_MARK2(cNE);
                         }
                         SUBS_IMM8(xECX, xECX, 1);
-                        i32 = GETMARK-(dyn->arm_size+8);
-                        Bcond(cNE, i32);
+                        B_MARK(cNE);
                         i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
-                        Bcond(c__, i32);
+                        B_MARK3(c__);
                         // done, finish with cmp test
                         MARK2;
                         SUB_IMM8(xECX, xECX, 1);
+                        MARK3;
                         CALL(cmp32, -1, 0);
                         UFLAGS(0);  // in some case, there is no comp, so cannot use "1"
                         break;

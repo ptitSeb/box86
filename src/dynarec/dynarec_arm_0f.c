@@ -474,8 +474,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG_LSR_REG(x12, ed, x2);
             ANDS_IMM8(x12, x12, 1);
             STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(cNE, i32); // bit already set, jump to next instruction
+            B_NEXT(cNE); // bit already set, jump to next instruction
             MOVW(x12, 1);
             ORR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
@@ -568,8 +567,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CMPS_REG_LSL_IMM8(x1, ed, 0);
             MOVW_COND(cCC, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = GETMARK-(dyn->arm_size+8);
-            Bcond(cNE, i32);
+            B_MARK(cNE);
             // AL == Eb
             GETGB(x1);
             MOV_REG(ed, x1);
@@ -577,8 +575,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             // done
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(c__, i32);
+            B_NEXT(c__);
             MARK;
             // AL != Eb
             BFI(xEAX, ed, 0, 8);
@@ -602,16 +599,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CMPS_REG_LSL_IMM8(xEAX, ed, 0);
             MOVW_COND(cCC, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = GETMARK-(dyn->arm_size+8);
-            Bcond(cNE, i32);
+            B_MARK(cNE);
             // EAX == Ed
             MOV_REG(ed, gd);
             WBACK;
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             // done
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(c__, i32);
+            B_NEXT(c__);
             MARK;
             // EAX != Ed
             MOV_REG(xEAX, ed);
@@ -639,8 +634,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG_LSR_REG(x12, ed, x2);
             ANDS_IMM8(x12, x12, 1);
             STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(cEQ, i32); // bit already clear, jump to next instruction
+            B_NEXT(cEQ); // bit already clear, jump to next instruction
             MOVW(x12, 1);
             XOR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
@@ -723,8 +717,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_REG_LSR_REG(x12, ed, x2);
                     ANDS_IMM8(x12, x12, 1);
                     STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-                    Bcond(cEQ, i32); // bit already clear, jump to next instruction
+                    B_NEXT(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x12, 1); // already 0x01
                     XOR_REG_LSL_REG(ed, ed, x12, x2);
                     if(wback) {
@@ -830,17 +823,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDR_IMM9(x1, wback, 0);
             LDR_IMM9(x2, wback, 4);
             CMPS_REG_LSL_IMM8(xEAX, x1, 0);
-            i32 = GETMARK-(dyn->arm_size+8);
-            Bcond(cNE, i32);    // EAX != Ed[0]
+            B_MARK(cNE);    // EAX != Ed[0]
             CMPS_REG_LSL_IMM8(xEDX, x2, 0);
-            i32 = GETMARK-(dyn->arm_size+8);
-            Bcond(cNE, i32);    // EDX != Ed[1]
+            B_MARK(cNE);    // EDX != Ed[1]
             STR_IMM9(xEBX, wback, 0);
             STR_IMM9(xECX, wback, 4);
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
-            Bcond(c__, i32);
+            B_NEXT(c__);
             MARK;
             MOV_REG(xEAX, x1);
             MOV_REG(xEDX, x2);
