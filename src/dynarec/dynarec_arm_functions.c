@@ -139,3 +139,11 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
     }
     fpu_do_pop(emu);
 }
+
+void arm_fld(x86emu_t* emu, uint8_t* ed)
+{
+    fpu_do_push(emu);
+    memcpy(&STld(0).ld, ed, 10);
+    LD2D(&STld(0), &ST(0).d);
+    STld(0).ref = ST0.ll;
+}

@@ -248,6 +248,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
                     break;
+                case 5:
+                    INST_NAME("FLD tbyte");
+                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {
+                        MOV_REG(x1, ed);
+                    }
+                    CALL(arm_fld, -1, 0);
+                    break;
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_refresh(dyn, ninst, x1, x3, 0);

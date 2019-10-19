@@ -24,5 +24,6 @@ void arm_fbld(x86emu_t* emu, uint8_t* ed);
 void arm_fild64(x86emu_t* emu, int64_t* ed);
 void arm_fbstp(x86emu_t* emu, uint8_t* ed);
 void arm_fistp64(x86emu_t* emu, int64_t* ed);
+void arm_fld(x86emu_t* emu, uint8_t* ed);
 
 #endif //__DYNAREC_ARM_FUNCTIONS_H__
