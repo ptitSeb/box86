@@ -67,8 +67,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x0F:
             nextop = PK(1);
             switch(nextop) {
-                //case 0xB0:
-                //case 0xB1:
+                case 0xB0:
+                case 0xB1:
                 case 0xB3:
                 case 0xBA:
                 case 0xBB:

@@ -33,6 +33,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
+    uint8_t gb1, gb2;
     int fixedaddress;
     switch(opcode) {
 
@@ -551,6 +552,73 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             break;
 
+        case 0xB0:
+            INST_NAME("CMPXCHG Eb, Gb");
+            nextop = F8;
+            UFLAGS(0);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df)); // d_none == 0
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
+            GETEB(x2)
+            UXTB(x1, xEAX, 0);
+            // Use a quick CMP, without setting A or P...
+            CMPS_REG_LSL_IMM8(x1, ed, 0);
+            MOVW_COND(cCC, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            i32 = GETMARK-(dyn->arm_size+8);
+            Bcond(cNE, i32);
+            // AL == Eb
+            GETGB(x1);
+            MOV_REG(ed, x1);
+            EBBACK;
+            MOVW(x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            // done
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            Bcond(c__, i32);
+            MARK;
+            // AL != Eb
+            BFI(xEAX, ed, 0, 8);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            UFLAGS(1);
+            break;
+        case 0xB1:
+            INST_NAME("CMPXCHG Ed, Gd");
+            nextop = F8;
+            UFLAGS(0);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df)); // d_none == 0
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
+            GETED;
+            GETGD;
+            // Use a quick CMP, without setting A or P...
+            CMPS_REG_LSL_IMM8(xEAX, ed, 0);
+            MOVW_COND(cCC, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            i32 = GETMARK-(dyn->arm_size+8);
+            Bcond(cNE, i32);
+            // EAX == Ed
+            MOV_REG(ed, gd);
+            WBACK;
+            MOVW(x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            // done
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            Bcond(c__, i32);
+            MARK;
+            // EAX != Ed
+            MOV_REG(xEAX, ed);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            UFLAGS(1);
+            break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             nextop = F8;
