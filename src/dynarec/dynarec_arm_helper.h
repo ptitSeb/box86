@@ -178,7 +178,8 @@
     UBFX(s2, s1, 1, 1);                                     \
     STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_PF]));    \
     UBFX(s2, s1, 2, 1);                                     \
-    STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]))
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]));    \
+    UFLAG_DF(x2, d_none)
 
 
 #ifndef UFLAGS

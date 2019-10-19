@@ -88,10 +88,12 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMI ST0, STx");
+            UFLAGS(0);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
+            UFLAGS(1);
             break;
         case 0xF0:  
         case 0xF1:
@@ -102,10 +104,12 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF6:
         case 0xF7:
             INST_NAME("FCOMI ST0, STx");
+            UFLAGS(0);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
+            UFLAGS(1);
             break;
 
         case 0xE0:
