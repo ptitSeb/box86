@@ -25,9 +25,8 @@
 
 static double maxint32 = (double)0x7fffffff;
 
-uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-1;
     uint8_t nextop = F8;
     uint8_t u8;
     uint32_t u32;

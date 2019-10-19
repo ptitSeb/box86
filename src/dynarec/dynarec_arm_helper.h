@@ -225,6 +225,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 #define arm_pass        STEPNAME(arm_pass)
 
+#define dynarec00       STEPNAME(dynarec00)
 #define dynarec0F       STEPNAME(dynarec0F)
 #define dynarecGS       STEPNAME(dynarecGS)
 #define dynarec66       STEPNAME(dynarec66)
@@ -237,6 +238,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define dynarecDD       STEPNAME(dynarecDD)
 #define dynarecDE       STEPNAME(dynarecDE)
 #define dynarecDF       STEPNAME(dynarecDF)
+#define dynarecF0       STEPNAME(dynarecF0)
 #define dynarec660F     STEPNAME(dynarec660F)
 #define dynarecF20F     STEPNAME(dynarecF20F)
 #define dynarecF30F     STEPNAME(dynarecF30F)
@@ -309,20 +311,22 @@ int x87_get_scratch_single(int i);
 int x87_get_scratch_double(int i);
 
 
-uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
-uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 
 #endif //__DYNAREC_ARM_HELPER_H__

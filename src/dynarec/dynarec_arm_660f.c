@@ -23,9 +23,8 @@
 
 #include "dynarec_arm_helper.h"
 
-uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-2;
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     int32_t i32, i32_;

@@ -32,9 +32,8 @@ static double d_lg2 = LG2;
 static double d_ln2 = LN2;
 static double d_0   = 0.0;
 
-uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-1;
     uint8_t nextop = F8;
     uint8_t u8;
     uint32_t u32;

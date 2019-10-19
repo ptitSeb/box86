@@ -25,9 +25,8 @@
 #include "dynarec_arm_helper.h"
 
 
-uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-1;
     uint8_t nextop = F8;
     uint8_t u8;
     uint32_t u32;
@@ -107,7 +106,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             FCOM(x1, x2);
             x87_do_pop(dyn, ninst);
             break;
-            
+
         case 0xC8:
         case 0xC9:
         case 0xCA:

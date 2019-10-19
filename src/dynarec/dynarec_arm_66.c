@@ -24,9 +24,8 @@
 #include "dynarec_arm_helper.h"
 
 
-uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-1;
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint32_t u32;
@@ -112,7 +111,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             break;
                 
         case 0x0F:
-            addr = dynarec660F(dyn, addr, ninst, ok, need_epilog);
+            addr = dynarec660F(dyn, addr, ninst, ip, ok, need_epilog);
             break;
         case 0x11:
             INST_NAME("ADC Ew, Gw");

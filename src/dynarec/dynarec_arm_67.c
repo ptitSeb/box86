@@ -24,11 +24,10 @@
 #include "dynarec_arm_helper.h"
 
 
-uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int* need_epilog)
+uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uintptr_t ip = addr-1;
-    uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop = F8;
+    uint8_t u8;
     uint32_t u32;
     int32_t i32;
     int16_t i16;
@@ -36,7 +35,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
-    switch(opcode) {
+    switch(nextop) {
        
         default:
             *ok = 0;

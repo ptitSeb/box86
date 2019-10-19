@@ -167,6 +167,7 @@ if(ARM_DYNAREC)
     set(DYNAREC_PASS
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_helper.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_00.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_0f.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_65.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_66.c"
@@ -179,6 +180,7 @@ if(ARM_DYNAREC)
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_dd.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_de.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_df.c"
+    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f0.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_660f.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f20f.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f30f.c"
