@@ -84,6 +84,17 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             INST_NAME("FNOP");
             break;
 
+        case 0xE0:
+            INST_NAME("FCHS");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VNEG_F64(v1, v1);
+            break;
+        case 0xE1:
+            INST_NAME("FABS");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VABS_F64(v1, v1);
+            break;
+
         case 0xE8:
             INST_NAME("FLD1");
             v1 = x87_do_push(dyn, ninst);
@@ -126,9 +137,14 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             MOV32(x2, (&d_0));
             VLDR_64(v1, x2, 0);
             break;
- 
-        case 0xE0:  /* FCHS */
-        case 0xE1:  /* FABS */
+
+        case 0xFA:
+            INST_NAME("FSQRT");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VSQRT_F64(v1, v1);
+            break;
+
+
         case 0xE4:  /* FTST */
         case 0xE5:  /* FXAM */
         case 0xF0:  /* F2XM1 */
@@ -138,7 +154,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF4:  /* FXTRACT */
         case 0xF8:  /* FPREM */
         case 0xF9:  /* FYL2XP1 */
-        case 0xFA:  /* FSQRT */
         case 0xFB:  /* FSINCOS */
         case 0xFC:  /* FRNDINT */
         case 0xFD:  /* FSCALE */
