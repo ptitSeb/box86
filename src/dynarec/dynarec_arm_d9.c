@@ -144,6 +144,19 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
             VSQRT_F64(v1, v1);
             break;
 
+        case 0xFC:
+            INST_NAME("FRNDINT");
+            i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            VCMP_F64_0(v1);
+            VMRS_APSR();
+            Bcond(cVS, i32);    // Unordered, skip
+            Bcond(cEQ, i32);    // Zero, skip
+            u8 = x87_setround(dyn, ninst, x1, x2, x3);
+            VCVT_S32_F64(x1, v1);   // limit to 32bits....
+            VCVT_F64_S32(v1, x1);
+            x87_restoreround(dyn, ninst, u8);
+            break;
 
         case 0xE4:  /* FTST */
         case 0xE5:  /* FXAM */
@@ -155,7 +168,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int* ok, int*
         case 0xF8:  /* FPREM */
         case 0xF9:  /* FYL2XP1 */
         case 0xFB:  /* FSINCOS */
-        case 0xFC:  /* FRNDINT */
         case 0xFD:  /* FSCALE */
         case 0xFE:  /* FSIN */
         case 0xFF:  /* FCOS */
