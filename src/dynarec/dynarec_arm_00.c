@@ -2034,7 +2034,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 UFLAGS(1);
                 u8 = F8;
                 gd = xEAX+(u8&7);
-                MOV32(gd, addr);
+                MOV32(gd, addr-1);
             } else if ((PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
                 MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
                 UFLAGS(1);
