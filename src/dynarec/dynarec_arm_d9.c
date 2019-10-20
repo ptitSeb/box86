@@ -259,7 +259,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     s0 = x87_get_scratch_single(0);
-                    VLDR_32(s0, ed, 0);
+                    // to avoid bus error
+                    //VLDR_32(s0, ed, 0);
+                    LDR_IMM9(x2, ed, 0);
+                    VMOVtoV(s0, x2);
                     VCVT_F64_F32(v1, s0);
                     break;
                 case 2:
@@ -268,7 +271,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     s0 = x87_get_scratch_single(0);
                     VCVT_F32_F64(s0, v1);
-                    VSTR_32(s0, ed, 0);
+                    // to avoid bus error...
+                    //VSTR_32(s0, ed, 0);
+                    VMOVfrV(x2, s0);
+                    STR_IMM9(x2, ed, 0);
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
@@ -276,7 +282,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     s0 = x87_get_scratch_single(0);
                     VCVT_F32_F64(s0, v1);
-                    VSTR_32(s0, ed, 0);
+                    // to avoid bus error...
+                    //VSTR_32(s0, ed, 0);
+                    VMOVfrV(x2, s0);
+                    STR_IMM9(x2, ed, 0);
                     x87_do_pop(dyn, ninst);
                     break;
                 case 5:
