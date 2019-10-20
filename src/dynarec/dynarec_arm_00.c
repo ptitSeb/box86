@@ -1690,7 +1690,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 B_MARK(cNE);    // jump to epilog, if IP is not what is expected
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                 CMPS_IMM8(x1, 1);
-                i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);
                 B_NEXT(cNE);
                 MARK;
                 jump_to_epilog(dyn, 0, 12, ninst);
@@ -2178,8 +2177,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         }
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
-                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
-                        B_MARK3(c__);
+                        B_MARK3(c__);   // go past sub ecx, 1
                         // done, finish with cmp test
                         MARK2;
                         SUB_IMM8(xECX, xECX, 1);
