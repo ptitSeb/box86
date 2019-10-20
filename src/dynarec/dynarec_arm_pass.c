@@ -53,14 +53,17 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         NEW_INST;
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
-            MESSAGE(LOG_DUMP, "TRACE ----\n");
-            x87_reflectcache(dyn, ninst, x1, x2, x3);
-            STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
-            MOV32(1, ip);
-            STR_IMM9(1, 0, offsetof(x86emu_t, ip));
-            MOV32(2, 1);
-            CALL(PrintTrace, -1, 0);
-            MESSAGE(LOG_DUMP, "----------\n");
+        if((dyn->emu->trace_end == 0) 
+            || ((ip >= dyn->emu->trace_start) && (ip <= dyn->emu->trace_end)))  {
+                MESSAGE(LOG_DUMP, "TRACE ----\n");
+                x87_reflectcache(dyn, ninst, x1, x2, x3);
+                MOV32(1, ip);
+                STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
+                STR_IMM9(1, 0, offsetof(x86emu_t, ip));
+                MOV32(2, 1);
+                CALL(PrintTrace, -1, 0);
+                MESSAGE(LOG_DUMP, "----------\n");
+            }
         }
 #endif
 

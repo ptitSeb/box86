@@ -283,10 +283,15 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FLDCW Ew");
                     GETEW(x1);
                     STRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+                    MOV_REG_LSR_IMM5(x1, x1, 10);
+                    AND_IMM8(x1, x1, 3);
+                    STR_IMM9(x1, xEmu, offsetof(x86emu_t, round));
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
-                    GETEW(x1);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    ed = x1;
+                    wb1 = 1;
                     LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));
                     EWBACK;
                     break;

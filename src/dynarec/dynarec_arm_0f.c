@@ -292,7 +292,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             USEFLAG(1); \
             GETFLAGS;   \
             nextop=F8;  \
-            MOVW(x3, 0); \
+            MOVW_COND(NO, x3, 0); \
             MOVW_COND(YES, x3, 1);  \
             if((nextop&0xC0)==0xC0) { \
                 ed = (nextop&7);    \
@@ -573,13 +573,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             // done
-            B_NEXT(c__);
+            B_MARK3(c__);
             MARK;
             // AL != Eb
             BFI(xEAX, ed, 0, 8);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             UFLAGS(1);
+            MARK3;
             break;
         case 0xB1:
             INST_NAME("CMPXCHG Ed, Gd");
@@ -604,13 +605,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             // done
-            B_NEXT(c__);
+            B_MARK3(c__);   // not next, in case its called with a LOCK prefix
             MARK;
             // EAX != Ed
             MOV_REG(xEAX, ed);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             UFLAGS(1);
+            MARK3
             break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
@@ -632,12 +634,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG_LSR_REG(x12, ed, x2);
             ANDS_IMM8(x12, x12, 1);
             STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            B_NEXT(cEQ); // bit already clear, jump to next instruction
+            B_MARK3(cEQ); // bit already clear, jump to end of instruction
             MOVW(x12, 1);
             XOR_REG_LSL_REG(ed, ed, x12, x2);
             if(wback) {
                 STR_IMM9(ed, wback, 0);
             }
+            MARK3;
             break;
 
         case 0xB6:
@@ -715,12 +718,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_REG_LSR_REG(x12, ed, x2);
                     ANDS_IMM8(x12, x12, 1);
                     STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                    B_NEXT(cEQ); // bit already clear, jump to next instruction
+                    B_MARK3(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x12, 1); // already 0x01
                     XOR_REG_LSL_REG(ed, ed, x12, x2);
                     if(wback) {
                         STR_IMM9(ed, wback, 0);
                     }
+                    MARK3;
                 default:
                     *ok = 0;
                     DEFAULT;
@@ -828,13 +832,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             STR_IMM9(xECX, wback, 4);
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            B_NEXT(c__);
+            B_MARK3(c__);
             MARK;
             MOV_REG(xEAX, x1);
             MOV_REG(xEDX, x2);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             UFLAGS(1);
+            MARK3;
             break;
         case 0xC8:
         case 0xC9:

@@ -121,6 +121,20 @@
                     wb1 = 1;                \
                     ed = i;                 \
                 }
+//GETSEB signe extend EB, will use i for ed, and can use r3 for wback.
+#define GETSEB(i) if((nextop&0xC0)==0xC0) { \
+                    wback = (nextop&7);     \
+                    wb2 = (wback>>2);       \
+                    wback = xEAX+(wback&3); \
+                    SXTB(i, wback, wb2);    \
+                    wb1 = 0;                \
+                    ed = i;                 \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
+                    LDRSB_IMM8(i, wback, 0);\
+                    wb1 = 1;                \
+                    ed = i;                 \
+                }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2*8, 8);}
 //GETGB will use i for gd
@@ -129,6 +143,12 @@
                     gb1 = xEAX+(gd&3);      \
                     gd = i;                 \
                     UXTB(gd, gb1, gb2);
+//GETSGB signe extend GB, will use i for gd
+#define GETSGB(i)    gd = (nextop&0x38)>>3; \
+                    gb2 = ((gd&4)>>2);      \
+                    gb1 = xEAX+(gd&3);      \
+                    gd = i;                 \
+                    SXTB(gd, gb1, gb2);
 // Write gb (gd) back to original register / memory
 #define GBBACK   BFI(gb1, gd, gb2*8, 8);
 
@@ -196,7 +216,8 @@
     STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_PF]));    \
     UBFX(s2, s1, 2, 1);                                     \
     STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]));    \
-    UFLAG_DF(x2, d_none)
+    MOVW(s2, d_none);                                       \
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, df));
 
 
 #ifndef UFLAGS

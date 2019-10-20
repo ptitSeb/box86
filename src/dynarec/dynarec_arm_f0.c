@@ -54,11 +54,14 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x81:
         case 0x83:
-        case 0x86:
-        case 0x87:
             MESSAGE(LOG_DUMP, "LOCK\n");
             locked = 1;
             LOCK;
+            addr = dynarec00(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
+
+        case 0x86:  // for this two, the lock is already done by the opcode, so just ignoring it
+        case 0x87:
             addr = dynarec00(dyn, addr, ip, ninst, ok, need_epilog);
             break;
 

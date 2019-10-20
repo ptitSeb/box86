@@ -1096,15 +1096,23 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
-            GETGB(x12);
+            gd = (nextop&0x38)>>3;
+            gb2 = ((gd&4)>>2);
+            gb1 = xEAX+(gd&3);
+            if(gb2) {
+                gd = x12;
+                UXTB(gd, gb1, gb2);
+            } else {
+                gd = gb1;   // no need to extract
+            }
             if((nextop&0xC0)==0xC0) {
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = ((ed&4)>>2);    // L or H
-                BFI(eb1, x12, eb2*8, 8);
+                BFI(eb1, gd, eb2*8, 8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                STRB_IMM9(x12, ed, 0);
+                STRB_IMM9(gd, ed, 0);
             }
             break;
         case 0x89:
@@ -1124,8 +1132,22 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = (nextop&0x38)>>3;
             gb1 = xEAX+(gd&3);
             gb2 = ((gd&4)>>2);
-            GETEB(x12);
-            BFI(gb1, x12, gb2*8, 8);
+            if((nextop&0xC0)==0xC0) {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
+                    wback = xEAX+(wback&3);
+                    if(wb2) {
+                        UXTB(x12, wback, wb2);
+                        ed = x12;
+                    } else {
+                        ed = wback;
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    LDRB_IMM9(x12, wback, 0);
+                    ed = x12;
+                }
+            BFI(gb1, ed, gb2*8, 8);
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");
@@ -1389,8 +1411,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(1);
                     break;
                 case 2:
-                    USEFLAG(0);
                     INST_NAME("RCL Eb, Ib");
+                    USEFLAG(0);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1399,8 +1421,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(1);
                     break;
                 case 3:
-                    USEFLAG(0);
                     INST_NAME("RCR Eb, Ib");
+                    USEFLAG(0);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1455,10 +1477,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_sar8);
                     UFLAGS(0);
                     break;
-                default:
-                    INST_NAME("GRP3 Ed, Ib");
-                    *ok = 0;
-                    DEFAULT;
             }
             break;
         case 0xC1:
@@ -1466,7 +1484,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    USEFLAG(1);
+                    UFLAG_IF{ USEFLAG(1); }
                     GETEDW(x12, x2);
                     u8 = (F8)&0x1f;
                     if(u8) {
@@ -1488,7 +1506,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    USEFLAG(1);
+                    UFLAG_IF{ USEFLAG(1); }
                     GETEDW(x12, x2);
                     u8 = (F8)&0x1f;
                     if(u8) {
@@ -1814,7 +1832,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0:
-                    USEFLAG(1);
+                    UFLAG_IF{ USEFLAG(1); }
                     if(opcode==0xD1) {
                         INST_NAME("ROL Ed, 1");
                         MOVW(x3, 0x1f);
@@ -1844,6 +1862,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(1);
                     break;
                 case 1:
+                    UFLAG_IF{ USEFLAG(1); }
                     if(opcode==0xD1) {
                         INST_NAME("ROR Ed, 1");
                         MOVW(x3, 1);
@@ -1853,7 +1872,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         TSTS_REG_LSL_IMM8(x3, x3, 0);
                         B_MARK2(cEQ);
                     }
-                    USEFLAG(1);
                     GETEDW(x12, x2);
                     MOV_REG_ROR_REG(ed, ed, x3);
                     WBACK;
