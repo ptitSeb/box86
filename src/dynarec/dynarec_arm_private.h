@@ -7,7 +7,8 @@ typedef struct x86emu_s x86emu_t;
 
 typedef struct instruction_arm_s {
     instruction_x86_t   x86;
-    int                 address;     // (start) address of the arm emited instruction
+    uintptr_t           address;    // (start) address of the arm emited instruction
+    uintptr_t           epilog;     // epilog of current instruction (can be start of next, of barrier stuff)
     int                 size;       // size of the arm emited instruction
     uintptr_t           mark, mark2, mark3;
     uintptr_t           markf;

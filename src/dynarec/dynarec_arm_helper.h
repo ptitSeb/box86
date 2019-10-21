@@ -186,7 +186,7 @@
     Bcond(cond, i32)
 // Branch to next instruction if cond (use i32)
 #define B_NEXT(cond)     \
-    i32 = (dyn->insts)?(dyn->insts[ninst+1].address-(dyn->arm_size+8)):0; \
+    i32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
     Bcond(cond, i32)
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)

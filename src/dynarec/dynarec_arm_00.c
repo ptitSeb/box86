@@ -2053,7 +2053,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE9:
         case 0xEB:
-            BARRIER(2);
+            BARRIER(1);
             if(opcode==0xE9) {
                 INST_NAME("JMP Id");
                 i32 = F32S;
@@ -2523,7 +2523,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
-                    BARRIER(2);
+                    BARRIER(1);
                     GETEDH(xEIP);
                     jump_to_linker(dyn, 0, ed, ninst);  // linker is smarter now and will adapt
                     *need_epilog = 0;

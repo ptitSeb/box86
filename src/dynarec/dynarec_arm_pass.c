@@ -68,6 +68,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 #endif
 
         addr = dynarec00(dyn, addr, ip, ninst, &ok, &need_epilog);
+        
+        INST_EPILOG;
 
         if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
             x87_purgecache(dyn, ninst, x1, x2, x3);
