@@ -495,7 +495,7 @@ GO(SDL_RenderGetClipRect, vFpp)
 GO(SDL_RenderPresent, vFp)
 // SDL_RenderReadPixels
 GO(SDL_RenderSetClipRect, iFpp)
-// SDL_RenderSetIntegerScale
+GO(SDL_RenderSetIntegerScale, iFpi)
 GO(SDL_RenderSetLogicalSize, iFpii)
 GO(SDL_RenderSetScale, iFpff)
 GO(SDL_RenderSetViewport, iFpp)
@@ -539,7 +539,7 @@ GO(SDL_setenv, iFppi)
 GO(SDL_SetError, iFppppp)    // it use ..., so putarbitrary  4 args
 GOM(SDL_SetEventFilter, vFEpp)
 GO(SDL_SetHint, iFpp)
-// SDL_SetHintWithPriority
+GO(SDL_SetHintWithPriority, iFppi)
 GO(SDL_SetMainReady, vFv)
 // SDL_SetMemoryFunctions
 // SDL_SetModState
