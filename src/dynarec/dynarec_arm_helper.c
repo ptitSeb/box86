@@ -63,7 +63,8 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             ret = xEAX+(nextop&7);
         }
     } else {
-        int i32;
+        int32_t i32;
+        uint32_t u32;
         uint8_t sib = 0;
         int sib_reg = 0;
         if((nextop&7)==4) {
@@ -71,59 +72,78 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             sib_reg = (sib>>3)&7;
         }
         if(nextop&0x80)
-            i32 = F32S;
+            u32 = F32;
         else 
             i32 = F8S;
-        if(i32==0) {
+        if(u32==0x80000000) {
+            // special case...
+            MOV32(scratch, u32);
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+                    SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
+                    ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
                 } else {
-                    ret = xEAX+(sib&0x07);
-                }
-            } else
-                ret = xEAX+(nextop&0x07);
-        } else {
-            int sub = (i32<0)?1:0;
-            if(sub) i32 = -i32;
-            if(i32<256) {
-                if((nextop&7)==4) {
-                    if (sib_reg!=4) {
-                        ADD_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
-                    } else {
-                        scratch = xEAX+(sib&0x07);
-                    }
-                } else
-                    scratch = xEAX+(nextop&0x07);
-                if(sub) {
-                    SUB_IMM8(ret, scratch, i32);
-                } else {
-                    ADD_IMM8(ret, scratch, i32);
+                    int tmp = xEAX+(sib&0x07);
+                    SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
                 }
             } else {
-                MOV32(scratch, i32);
+                int tmp = xEAX+(nextop&0x07);
+                SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+            }
+        } else {
+            if(nextop&0x80)
+                i32=(int32_t)u32;
+            if(i32==0) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        if(sub) {
-                            SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
-                        } else {
-                            ADD_REG_LSL_IMM8(scratch, scratch, xEAX+(sib&0x07), 0);
-                        }
-                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                        ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
                     } else {
-                        int tmp = xEAX+(sib&0x07);
+                        ret = xEAX+(sib&0x07);
+                    }
+                } else
+                    ret = xEAX+(nextop&0x07);
+            } else {
+                int sub = (i32<0)?1:0;
+                if(sub) i32 = -i32;  // this value cannot be negated!
+                if(i32<256) {
+                    if((nextop&7)==4) {
+                        if (sib_reg!=4) {
+                            ADD_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+                        } else {
+                            scratch = xEAX+(sib&0x07);
+                        }
+                    } else
+                        scratch = xEAX+(nextop&0x07);
+                    if(sub) {
+                        SUB_IMM8(ret, scratch, i32);
+                    } else {
+                        ADD_IMM8(ret, scratch, i32);
+                    }
+                } else {
+                    MOV32(scratch, i32);
+                    if((nextop&7)==4) {
+                        if (sib_reg!=4) {
+                            if(sub) {
+                                SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
+                            } else {
+                                ADD_REG_LSL_IMM8(scratch, scratch, xEAX+(sib&0x07), 0);
+                            }
+                            ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                        } else {
+                            int tmp = xEAX+(sib&0x07);
+                            if(sub) {
+                                SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                            } else {
+                                ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                            }
+                        }
+                    } else {
+                        int tmp = xEAX+(nextop&0x07);
                         if(sub) {
                             SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
                         } else {
                             ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
                         }
-                    }
-                } else {
-                    int tmp = xEAX+(nextop&0x07);
-                    if(sub) {
-                        SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
-                    } else {
-                        ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
                     }
                 }
             }
