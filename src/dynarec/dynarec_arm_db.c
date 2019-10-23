@@ -9,11 +9,11 @@
 #include "dynarec.h"
 #include "emu/x86emu_private.h"
 #include "emu/x86run_private.h"
+#include "emu/x87emu_private.h"
 #include "x86run.h"
 #include "x86emu.h"
 #include "box86stack.h"
 #include "callback.h"
-#include "emu/x86run_private.h"
 #include "x86trace.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
@@ -104,10 +104,18 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             TSTS_REG_LSL_IMM8(x1, x1, 0);
             VMOVcond_64(cEQ, v1, v2);   // F_PF==0
             break;
-        case 0xE2:      /* FNCLEX */
-        case 0xE3:      /* FNINIT */
-            *ok = 0;
-            DEFAULT;
+        case 0xE2:
+            INST_NAME("FNCLEX");
+            MOVW(x1, 0);
+            LDRH_IMM8(x2, xEmu, offsetof(x86emu_t, sw));
+            BFI(x2, x1, 0, 8);  // IE .. PE, SF, ES
+            BFI(x2, x1, 15, 1); // B
+            STRH_IMM8(x2, xEmu, offsetof(x86emu_t, sw));
+            break;
+        case 0xE3:
+            INST_NAME("FNINIT");
+            x87_purgecache(dyn, ninst, x1, x2, x3);
+            CALL(reset_fpu, -1, 0);
             break;
         case 0xE8:
         case 0xE9:
