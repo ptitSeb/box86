@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 static double maxint32 = (double)0x7fffffff;

@@ -20,6 +20,7 @@
 #include "arm_printer.h"
 #include "emu/x87emu_private.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 static double d_1   = 1.0;

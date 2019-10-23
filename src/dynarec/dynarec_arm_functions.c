@@ -147,3 +147,90 @@ void arm_fld(x86emu_t* emu, uint8_t* ed)
     LD2D(&STld(0), &ST(0).d);
     STld(0).ref = ST0.ll;
 }
+
+void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
+{
+    switch(tmp32u) {
+        case 0x0:
+            // emulate a P4
+            R_EAX = 0x80000004;
+            // return GenuineIntel
+            R_EBX = 0x756E6547;
+            R_EDX = 0x49656E69;
+            R_ECX = 0x6C65746E;
+            break;
+        case 0x1:
+            R_EAX = 0x00000101; // familly and all
+            R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
+            R_EDX =   1         // fpu 
+                    | 1<<8      // cmpxchg8
+                    | 1<<11     // sep (sysenter & sysexit)
+                    | 1<<15     // cmov
+                    | 1<<19     // clflush (seems to be with SSE2)
+                    | 1<<23     // mmx
+                    | 1<<24     // fxsr (fxsave, fxrestore)
+                    | 1<<25     // SSE
+                    | 1<<26     // SSE2
+                    ;
+            R_ECX =   1<<12     // fma
+                    | 1<<13     // cx16 (cmpxchg16)
+                    ;           // also 1<<0 is SSE3 and 1<<9 is SSSE3
+            break;
+        case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
+            R_EAX = 0x665B5001;
+            R_EBX = 0x00000000;
+            R_ECX = 0x00000000;
+            R_EDX = 0x007A7000;
+            break;
+        
+        case 0x4:   // Cache info
+            switch (R_ECX) {
+                case 0: // L1 data cache
+                    R_EAX = (1 | (1<<5) | (1<<8));   //type
+                    R_EBX = (63 | (7<<22)); // size
+                    R_ECX = 63;
+                    R_EDX = 1;
+                    break;
+                case 1: // L1 inst cache
+                    R_EAX = (2 | (1<<5) | (1<<8)); //type
+                    R_EBX = (63 | (7<<22)); // size
+                    R_ECX = 63;
+                    R_EDX = 1;
+                    break;
+                case 2: // L2 cache
+                    R_EAX = (3 | (2<<5) | (1<<8)); //type
+                    R_EBX = (63 | (15<<22));    // size
+                    R_ECX = 4095;
+                    R_EDX = 1;
+                    break;
+
+                default:
+                    R_EAX = 0x00000000;
+                    R_EBX = 0x00000000;
+                    R_ECX = 0x00000000;
+                    R_EDX = 0x00000000;
+                    break;
+            }
+            break;
+        case 0x5:   //mwait info
+            R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 1 | 2;
+            R_EDX = 0;
+            break;
+        case 0x6:   // thermal
+        case 0x9:   // direct cache access
+        case 0xA:   // Architecture performance monitor
+            R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 0;
+            R_EDX = 0;
+            break;
+
+        case 0x80000000:        // max extended
+            break;              // no extended, so return same value as beeing the max value!
+        default:
+            printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
+            R_EAX = 0;
+    }   
+}

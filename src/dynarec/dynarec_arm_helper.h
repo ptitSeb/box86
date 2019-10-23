@@ -14,7 +14,6 @@
 #include "debug.h"
 #include "arm_emitter.h"
 #include "../emu/x86primop.h"
-#include "dynarec_arm_functions.h"
 
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
