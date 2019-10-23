@@ -525,6 +525,41 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV32(x2, u32);
             STRH_IMM8(xEAX, x2, 0);
             break;
+        case 0xA5:
+            INST_NAME("MOVSW");
+            GETDIR(x3, 2);
+            LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
+            STRHAI_REG_LSL_IMM5(x1, xEDI, x3);
+            break;
+        case 0xA7:
+            INST_NAME("CMPSW");
+            UFLAGS(0);
+            GETDIR(x3, 2);
+            LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
+            LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
+            CALL(cmp16, -1, 0);
+            UFLAGS(1);
+            break;
+
+        case 0xAB:
+            INST_NAME("STOSW");
+            GETDIR(x3, 2);
+            STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
+            break;
+        case 0xAD:
+            INST_NAME("LODSW");
+            GETDIR(x3, 2);
+            LDRHAI_REG_LSL_IMM5(xEAX, xESI, x3);
+            break;
+        case 0xAF:
+            INST_NAME("SCASW");
+            UFLAGS(0);
+            GETDIR(x3, 2);
+            UXTH(x1, xEAX, 0);
+            LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
+            CALL(cmp16, -1, 0);
+            UFLAGS(1);
+            break;
 
         case 0xB8:
         case 0xB9:
