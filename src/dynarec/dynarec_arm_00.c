@@ -858,6 +858,28 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_or8);
                     UFLAGS(0);
                     break;
+                case 2: //ADC
+                    INST_NAME("ADC Eb, Ib");
+                    UFLAGS(0);
+                    GETEB(x1);
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    CALL_(adc8, x1, (1<<x3));
+                    UFLAG_RES(x1);
+                    EBBACK;
+                    UFLAGS(1);
+                    break;
+                case 3: //SBB
+                    INST_NAME("SBB Eb, Ib");
+                    UFLAGS(0);
+                    GETEB(x1);
+                    u8 = F8;
+                    MOVW(x2, u8);
+                    CALL_(sbb8, x1, (1<<x3));
+                    UFLAG_RES(x1);
+                    EBBACK;
+                    UFLAGS(1);
+                    break;
                 case 4: //AND
                     INST_NAME("AND Eb, Ib");
                     GETEB(x1);
@@ -897,10 +919,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CALL(cmp8, -1, 0);
                     UFLAGS(1);
                     break;
-                default:
-                    INST_NAME("GRP1 Eb, Ib");
-                    *ok = 0;
-                    DEFAULT;
             }
             break;
         case 0x81:
