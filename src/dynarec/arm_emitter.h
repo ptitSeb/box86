@@ -248,6 +248,8 @@ Op is 20-27
 #define LDRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6900000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldrb reg, [addr], rm lsl imm5
 #define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// ldrd reg, reg+1, [addr, #imm9], reg must be even, reg+1 is implicit
+#define LDR_IMM8(reg, addr, imm9) EMIT(c_ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1101<<4) | ((imm8)&0x0f) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -271,6 +273,8 @@ Op is 20-27
 #define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strb reg, [addr], rm lsl imm5
 #define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
+// strd reg, reg+1, [addr, #imm9], reg must be even, reg+1 is implicit
+#define STRD_IMM9(reg, addr, imm9) EMIT(c_ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1111<<4) | ((imm8)&0x0f) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
@@ -347,7 +351,7 @@ Op is 20-27
 #define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
 
 
-// VFPU & NEON
+// VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 
 // Move from FPSCR to Arm register
@@ -426,5 +430,34 @@ Op is 20-27
 
 // Abs Dd = |Dm|
 #define VABS_F64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
+
+// NEON
+// L is 1 for VLD1, 0 for VST1 Dd is V:Vd, type:0b0111=32, 0b1010=64, 0b0110=96, 0b0010=128, size:0=8,1=16,2=32,3=64, align:"4<<align", wback=rm!=15, reg_index:rm!=13&&rm!=15
+#define Vxx1gen(L, D, Rn, Vd, type, size, align, Rm) (0b1111<<28 | 0b0100<<24 | 0<<23 | (D)<<22 | (L)<<21 | 0<<20 | (Rn)<<16 | (Vd)<<12 | (type)<<8 | (size)<<6 | (align)<<4 | (Rm))
+// Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
+#define VLD1Q_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 15))
+// Load [Rn]! => Dd/Dd+1/Dd+2/Dd+3. Align is 4
+#define VLD1Q_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 13))
+// Load [Rn, Rm]! => Dd/Dd+1/Dd+2/Dd+3. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
+#define VLD1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, Rm))
+// Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
+#define VLD1Q_8(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 0, 0, 15))
+// Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
+#define VLD1Q_16(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 1, 0, 15))
+// Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
+#define VLD1Q_64(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 3, 0, 15))
+
+// Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
+#define VST1Q_32(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 15))
+// Store [Rn]! => Dd/Dd+1/Dd+2/Dd+3.Align is 4
+#define VST1Q_32_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 13))
+// Store [Rn, Rm]! => Dd/Dd+1/Dd+2/Dd+3. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
+#define VST1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, Rm))
+// Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
+#define VST1Q_8(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 0, 0, 15))
+// Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
+#define VST1Q_16(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 1, 0, 15))
+// Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
+#define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 3, 0, 15))
 
 #endif  //__ARM_EMITTER_H__

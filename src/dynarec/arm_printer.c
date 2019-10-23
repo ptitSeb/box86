@@ -78,6 +78,39 @@ const char* arm_print(uint32_t opcode)
     static __thread char ret[100];
     memset(ret, 0, sizeof(ret));
     if((opcode & (0b1111<<28))==(0b1111<<28)) {
+        // NEON?
+        if(((opcode>>24)&0b1111)==0b0100 && ((opcode>>20)&0b1001)==0b0000)
+        {
+            // VLD1 / VST1
+            int D = (opcode>>22)&1;
+            int Rn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int type = (opcode>>8)&15;
+            int size = (opcode>>6)&3;
+            int align = (opcode>>4)&3;
+            int l = (opcode>>21)&1;
+            int Rm = opcode&15;
+            int regs = 0;
+            int Dd = (D<<4) | Vd;
+            char reglist[50] = {0};
+            switch (type) {
+                case 0b0111: regs = 1; sprintf(reglist, "D%d", Dd); break;
+                case 0b1010: regs = 2; sprintf(reglist, "D%d, D%d", Dd, Dd+1); break;
+                case 0b0110: regs = 3; sprintf(reglist, "D%d, D%d, D%d", Dd, Dd+1, Dd+2); break;
+                case 0b0010: regs = 4; sprintf(reglist, "D%d, D%d, D%d, D%d", Dd, Dd+1, Dd+2, Dd+3); break;
+            }
+            char salign[10] = {0};
+            if (align) sprintf(salign, ":%d", 4<<align);
+            char wback[10] = {0};
+            if(Rm!=15) {
+                if(Rm==13) strcpy(wback, "!");
+                else sprintf(wback, ", %s", regname[Rm]);
+            }
+            if (!regs)
+                strcpy(ret, "VLD1?????");
+            else
+                sprintf(ret, "V%s1%s.%d {%s}, [%s%s]%s", l?"LD":"ST", (regs>2)?"q":"", 8<<size, reglist, regname[Rn], salign, wback);
+        } else
         strcpy(ret, "?????");
     } else {
         const char* cond = conds[(opcode>>28)&15];
@@ -167,7 +200,40 @@ const char* arm_print(uint32_t opcode)
                         }
                         sprintf(ret, "%s%s%s%s %s, %s", l?"LDR":"STR", cond, shs[sh], (w && p)?"T":"", regname[rd], addr);
                         break;
+                    } else
+                    if((((opcode>>25)&0b111)==0b000) && (((opcode>>20)&1)==0) && ((opcode>>4)&0b1101)==0b1101)
+                    {
+                        //STRD / LDRD
+                        int p = (opcode>>24)&1;
+                        int u = (opcode>>23)&1;
+                        int o = (opcode>>22)&1;
+                        int w = (opcode>>21)&1;
+                        int rn = (opcode>>16)&15;
+                        int rt = (opcode>>12)&15;
+                        int imm4H = (opcode>>8)&15;
+                        int imm4L = opcode&15;
+                        int rm = opcode&15;
+                        int s = (opcode>>5)&1;
+                        int imm8 = (imm4H<<4) | imm4L;
+                        char op2[40];
+                        if(o) {
+                            sprintf(op2, "#%d", u?imm8:-imm8);
+                        } else {
+                            sprintf(op2, "%s%s", u?"":"-", regname[rm]);
+                        }
+                        char addr[50];
+                        if(p) { // pre-index
+                            if(o && !imm8) {
+                                sprintf(addr, "[%s]", regname[rn]);
+                            } else {
+                                sprintf(addr, "[%s, %s]%s", regname[rn], op2, w?"!":"");
+                            }
+                        } else {
+                            sprintf(addr, "[%s], %s", regname[rn], op2);
+                        }
+                        sprintf("%s%sD%s %s, %s, %s", (rt&1)?"!!":"", s?"STR":"LDR", cond, regname[rt], regname[rt+1], addr);
                     }
+
                 case 0b001:
                      // data operation
                     {
@@ -477,7 +543,7 @@ const char* arm_print(uint32_t opcode)
                         int vm = (sz)?((M<<4) | Vm):(M | (Vm<<1));
                         sprintf(ret, "VMOV%s.F%d %s%d, %s%d", cond, sz?64:32, sz?"D":"S", vd, sz?"D":"S", vm);
                     } else
-                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b1100)) {
+                    if(((opcode>>20)&0b11111011)==0b11101011 && (((opcode>>16)&0b1111)==0b0000) && (((opcode>>8)&0b1110)==0b1010) && (((opcode>>4)&0b1101)==0b1100)) {
                         // VABS single/double reg
                         int sz = ((opcode>>8)&1);
                         int D = (opcode>>22)&1;
