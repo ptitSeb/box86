@@ -416,7 +416,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA2:
             INST_NAME("CPUID");
             MOV_REG(x1, xEAX);
-            MOV32(x12, ip+1);   // EIP is useless, but why not...
+            MOV32(x12, ip+2);   // EIP is useless, but why not...
             // not purging stuff like x87 here, there is no float math or anything
             STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
             CALL_(arm_cpuid, -1, 0);
