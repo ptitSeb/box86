@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 
@@ -152,8 +153,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FADD ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VADD_F64(v1, v1, d1);
@@ -162,8 +163,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FMUL ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VMUL_F64(v1, v1, d1);
@@ -172,8 +173,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FCOM ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VCMP_F64(v1, d1);
@@ -183,8 +184,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FCOMP ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VCMP_F64(v1, d1);
@@ -195,8 +196,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FSUB ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VSUB_F64(v1, v1, d1);
@@ -205,8 +206,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FSUBR ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VSUB_F64(v1, d1, v1);
@@ -215,8 +216,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FDIV ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VDIV_F64(v1, v1, d1);
@@ -225,8 +226,8 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FDIVR ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
-                    d1 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d1 = fpu_get_scratch_double(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_F32(d1, s0);
                     VDIV_F64(v1, d1, v1);

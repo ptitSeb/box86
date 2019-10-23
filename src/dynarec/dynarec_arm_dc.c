@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 
@@ -150,7 +151,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FADD ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VADD_F64(v1, v1, d1);
                     break;
@@ -158,7 +159,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FMUL ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VMUL_F64(v1, v1, d1);
                     break;
@@ -166,7 +167,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FCOM ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VCMP_F64(v1, d1);
                     FCOM(x1, x2);
@@ -175,7 +176,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FCOMP ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VCMP_F64(v1, d1);
                     FCOM(x1, x2);
@@ -185,7 +186,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FSUB ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VSUB_F64(v1, v1, d1);
                     break;
@@ -193,7 +194,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FSUBR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VSUB_F64(v1, d1, v1);
                     break;
@@ -201,7 +202,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FDIV ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VDIV_F64(v1, v1, d1);
                     break;
@@ -209,7 +210,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FDIVR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    d1 = x87_get_scratch_double(0);
+                    d1 = fpu_get_scratch_double(dyn);
                     VLDR_64(d1, wback, 0);
                     VDIV_F64(v1, d1, v1);
                     break;

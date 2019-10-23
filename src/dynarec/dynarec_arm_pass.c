@@ -17,6 +17,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 #ifndef STEP
@@ -51,12 +52,16 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     while(ok) {
         ip = addr;
         NEW_INST;
+        fpu_reset_scratch(dyn);
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
         if((dyn->emu->trace_end == 0) 
             || ((ip >= dyn->emu->trace_start) && (ip <= dyn->emu->trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
-                x87_reflectcache(dyn, ninst, x1, x2, x3);
+                if(trace_xmm)
+                    fpu_reflectcache(dyn, ninst, x1, x2, x3);
+                else
+                    x87_reflectcache(dyn, ninst, x1, x2, x3);
                 MOV32(1, ip);
                 STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
                 STR_IMM9(1, 0, offsetof(x86emu_t, ip));
@@ -68,18 +73,18 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 #endif
 
         addr = dynarec00(dyn, addr, ip, ninst, &ok, &need_epilog);
-        
+
         INST_EPILOG;
 
         if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             if(dyn->insts[ninst+1].x86.barrier!=2)
                 dyn->cleanflags = 0;
         }
         ++ninst;
     }
     if(need_epilog) {
-        x87_purgecache(dyn, ninst, x1, x2, x3);
+        fpu_purgecache(dyn, ninst, x1, x2, x3);
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }
     FINI;

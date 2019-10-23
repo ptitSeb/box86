@@ -28,4 +28,13 @@ void arm_fld(x86emu_t* emu, uint8_t* ed);
 
 void arm_cpuid(x86emu_t* emu, uint32_t tmp32u);
 
+// Get a FPU single scratch reg
+int fpu_get_scratch_single(dynarec_arm_t* dyn);
+// Get a FPU double scratch reg
+int fpu_get_scratch_double(dynarec_arm_t* dyn);
+// Get a FPU quad scratch reg
+int fpu_get_scratch_quad(dynarec_arm_t* dyn);
+// Reset scratch regs counter
+int fpu_reset_scratch(dynarec_arm_t* dyn);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

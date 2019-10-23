@@ -419,6 +419,10 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             }
     }
 }
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    x87_purgecache(dyn, ninst, s1, s2, s3);
+}
 
 #ifdef HAVE_TRACE
 void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -443,6 +447,10 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
             VSTR_64(i+X87FIRST, s3, 0);    // save the value
         }
+}
+void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    x87_reflectcache(dyn, ninst, s1, s2, s3);
 }
 #endif
 
@@ -526,15 +534,4 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {
     VMSR(s1);               // put back fpscr
-}
-
-// Get a FPU single scratch reg
-int x87_get_scratch_single(int i)
-{
-    return 0+i;
-}
-// Geta FPU double scratch reg
-int x87_get_scratch_double(int i)
-{
-    return 2+i;
 }

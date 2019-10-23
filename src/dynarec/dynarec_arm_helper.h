@@ -308,8 +308,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
-#define x87_get_scratch_single STEPNAME(x87_get_scratch_single)
-#define x87_get_scratch_double STEPNAME(x87_get_scratch_double)
+#define fpu_purgecache  STEPNAME(fpu_purgecache)
+#define fpu_reflectcache STEPNAME(fpu_reflectcache)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -337,11 +337,6 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 int x87_do_push(dynarec_arm_t* dyn, int ninst);
 // fpu pop, needs 1 scratch register. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst);
-// purge the cache (needs 3 scratch registers)
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#ifdef HAVE_TRACE
-void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#endif
 // get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x7 reg, create the entry if needed
@@ -352,10 +347,17 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
-// Get a FPU single scratch reg
-int x87_get_scratch_single(int i);
-// Geta FPU double scratch reg
-int x87_get_scratch_double(int i);
+
+// purge the x87 cache only(needs 3 scratch registers)
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#ifdef HAVE_TRACE
+void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#endif
+// purge the FPU cache (needs 3 scratch registers)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#ifdef HAVE_TRACE
+void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+#endif
 
 
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);

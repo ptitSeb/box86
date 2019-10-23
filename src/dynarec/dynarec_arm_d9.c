@@ -101,7 +101,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE5:
             INST_NAME("FXAM");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(fpu_fxam, -1, 0);  // should be possible inline, but is it worth it?
             break;
 
@@ -157,7 +157,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFC:
             INST_NAME("FRNDINT");
             // use C helper for now, nothing staightforward is available
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_frndint, -1, 0);
             /*
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
@@ -173,57 +173,57 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF0:
             INST_NAME("F2XM1");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_f2xm1, -1, 0);
             break;
         case 0xF1:
             INST_NAME("FYL2X");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fyl2x, -1, 0);
             break;
         case 0xF2:
             INST_NAME("FTAN");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_ftan, -1, 0);
             break;
         case 0xF3:
             INST_NAME("FPATAN");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fpatan, -1, 0);
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fxtract, -1, 0);
             break;
         case 0xF8:
             INST_NAME("FPREM");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fprem, -1, 0);
             break;
         case 0xF9:
             INST_NAME("FYL2XP1");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fyl2xp1, -1, 0);
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fsincos, -1, 0);
             break;
         case 0xFD:
             INST_NAME("FSCALE");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fscale, -1, 0);
             break;
         case 0xFE:
             INST_NAME("FSIN");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fsin, -1, 0);
             break;
         case 0xFF:
             INST_NAME("FCOS");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(arm_fcos, -1, 0);
             break;
 
@@ -259,7 +259,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = x87_get_scratch_single(0);
+                    s0 = fpu_get_scratch_single(dyn);
                     // to avoid bus error
                     //VLDR_32(s0, ed, 0);
                     LDR_IMM9(x2, ed, 0);
@@ -270,7 +270,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FST float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = x87_get_scratch_single(0);
+                    s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
                     // to avoid bus error...
                     //VSTR_32(s0, ed, 0);
@@ -281,7 +281,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    s0 = x87_get_scratch_single(0);
+                    s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
                     // to avoid bus error...
                     //VSTR_32(s0, ed, 0);

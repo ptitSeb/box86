@@ -115,7 +115,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE3:
             INST_NAME("FNINIT");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
             CALL(reset_fpu, -1, 0);
             break;
         case 0xE8:
@@ -167,7 +167,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst);
                     GETED;
-                    s0 = x87_get_scratch_single(0);
+                    s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(v1, s0);
                     break;
@@ -182,8 +182,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
-                    s0 = x87_get_scratch_single(0);
-                    d0 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d0 = fpu_get_scratch_double(dyn);
                     VCVT_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);
@@ -211,8 +211,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
-                    s0 = x87_get_scratch_single(0);
-                    d0 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d0 = fpu_get_scratch_double(dyn);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);
@@ -239,8 +239,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                         ed = x1;
                     }
-                    s0 = x87_get_scratch_single(0);
-                    d0 = x87_get_scratch_double(0);
+                    s0 = fpu_get_scratch_single(dyn);
+                    d0 = fpu_get_scratch_double(dyn);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
                     MOV32(x12, 0x7fffffff);
@@ -259,7 +259,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
-                    x87_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
