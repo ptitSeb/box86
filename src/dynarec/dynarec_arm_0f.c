@@ -33,6 +33,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
     uint8_t gb1, gb2;
+    int v0, v1, v2;
+    int q0, q1;
     int fixedaddress;
     switch(opcode) {
 
@@ -41,6 +43,21 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             FAKEED;
             break;
+
+        case 0x28:
+            INST_NAME("MOVAPS Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLD1Q_32(v1, ed);
+            }
+            break;
+
         
         #define GO(GETFLAGS, NO, YES)   \
             USEFLAG(1); \

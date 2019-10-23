@@ -419,10 +419,6 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             }
     }
 }
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
-{
-    x87_purgecache(dyn, ninst, s1, s2, s3);
-}
 
 #ifdef HAVE_TRACE
 void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -447,10 +443,6 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
             VSTR_64(i+X87FIRST, s3, 0);    // save the value
         }
-}
-void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
-{
-    x87_reflectcache(dyn, ninst, s1, s2, s3);
 }
 #endif
 
@@ -535,3 +527,63 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {
     VMSR(s1);               // put back fpscr
 }
+
+// first SSE cache is Q8 (so D16+D17)
+#define FIRSTSSE    8
+void sse_reset(dynarec_arm_t* dyn, int ninst)
+{
+    for (int i=0; i<8; ++i)
+        dyn->ssecache[i] = 0;
+}
+// get neon register for a SSE reg, create the entry if needed
+int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
+{
+    int ret = (FIRSTSSE + a)*2;
+    if(dyn->ssecache[a])
+        return ret;
+    dyn->ssecache[a] = 1;
+    MOV32(s1, offsetof(x86emu_t, xmm[a]));
+    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    VLD1Q_32(ret, s1);
+    return ret;
+}
+// purge the SSE cache only(needs 3 scratch registers)
+void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i]) {
+            int a = (FIRSTSSE + i)*2;
+            MOV32(s1, offsetof(x86emu_t, xmm[i]));
+            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            VST1Q_32(a, s1);
+            dyn->ssecache[i] = 0;
+        }
+
+}
+#ifdef HAVE_TRACE
+void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i]) {
+            int a = (FIRSTSSE + i)*2;
+            MOV32(s1, offsetof(x86emu_t, xmm[i]));
+            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            VST1Q_32(a, s1);
+        }
+}
+#endif
+
+
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    x87_purgecache(dyn, ninst, s1, s2, s3);
+    sse_purgecache(dyn, ninst, s1);
+}
+
+#ifdef HAVE_TRACE
+void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    x87_reflectcache(dyn, ninst, s1, s2, s3);
+    sse_reflectcache(dyn, ninst, s1);
+}
+#endif

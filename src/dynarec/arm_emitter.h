@@ -376,6 +376,8 @@ Op is 20-27
 // Move between Dm and Rt/Rt2 (Rt and Rt2 must be different)
 #define VMOVfrV_D(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
 
+// Move between Dd <- Dm and Dd+1 <- Dm+1 (2 instructions)
+#define VMOVQ(Dd, Dm)   VMOV_64(Dd, Dm); VMOV_64(Dd+1, Dm+1)
 // Move between Dd and Dm
 #define VMOV_64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 // Move between Sd and Sm
@@ -432,32 +434,32 @@ Op is 20-27
 #define VABS_F64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 
 // NEON
-// L is 1 for VLD1, 0 for VST1 Dd is V:Vd, type:0b0111=32, 0b1010=64, 0b0110=96, 0b0010=128, size:0=8,1=16,2=32,3=64, align:"4<<align", wback=rm!=15, reg_index:rm!=13&&rm!=15
+// L is 1 for VLD1, 0 for VST1 Dd is V:Vd, type:0b0111=64, 0b1010=128, 0b0110=192, 0b0010=256, size:0=8,1=16,2=32,3=64, align:"4<<align", wback=rm!=15, reg_index:rm!=13&&rm!=15
 #define Vxx1gen(L, D, Rn, Vd, type, size, align, Rm) (0b1111<<28 | 0b0100<<24 | 0<<23 | (D)<<22 | (L)<<21 | 0<<20 | (Rn)<<16 | (Vd)<<12 | (type)<<8 | (size)<<6 | (align)<<4 | (Rm))
 // Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
-#define VLD1Q_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 15))
+#define VLD1Q_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
 // Load [Rn]! => Dd/Dd+1/Dd+2/Dd+3. Align is 4
-#define VLD1Q_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 13))
+#define VLD1Q_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 13))
 // Load [Rn, Rm]! => Dd/Dd+1/Dd+2/Dd+3. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
-#define VLD1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, Rm))
+#define VLD1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, Rm))
 // Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
-#define VLD1Q_8(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 0, 0, 15))
+#define VLD1Q_8(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 0, 0, 15))
 // Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
-#define VLD1Q_16(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 1, 0, 15))
+#define VLD1Q_16(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 1, 0, 15))
 // Load [Rn] => Dd/Dd+1/Dd+2/Dd+3. Align is 4
-#define VLD1Q_64(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 3, 0, 15))
+#define VLD1Q_64(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 3, 0, 15))
 
 // Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
-#define VST1Q_32(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 15))
+#define VST1Q_32(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
 // Store [Rn]! => Dd/Dd+1/Dd+2/Dd+3.Align is 4
-#define VST1Q_32_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, 13))
+#define VST1Q_32_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 13))
 // Store [Rn, Rm]! => Dd/Dd+1/Dd+2/Dd+3. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
-#define VST1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 2, 0, Rm))
+#define VST1Q_32_REG(Dd, Rn, Rm) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, Rm))
 // Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
-#define VST1Q_8(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 0, 0, 15))
+#define VST1Q_8(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 0, 0, 15))
 // Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
-#define VST1Q_16(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 1, 0, 15))
+#define VST1Q_16(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 1, 0, 15))
 // Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
-#define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0010, 3, 0, 15))
+#define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 3, 0, 15))
 
 #endif  //__ARM_EMITTER_H__

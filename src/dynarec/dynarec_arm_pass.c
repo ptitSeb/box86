@@ -47,6 +47,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // Clean up (because there are multiple passes)
     dyn->cleanflags = 0;
     x87_reset(dyn, ninst);
+    sse_reset(dyn, ninst);
     // ok, go now
     INIT;
     while(ok) {
