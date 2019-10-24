@@ -31,6 +31,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
+    int v0, v1;
+    int q0, q1;
+    int d0, d1;
     int fixedaddress;
     switch(opcode) {
 
@@ -38,6 +41,142 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("NOP (multibyte)");
             nextop = F8;
             FAKEED;
+            break;
+
+        #define GO(GETFLAGS, NO, YES)   \
+            USEFLAG(1); \
+            GETFLAGS;   \
+            nextop=F8;  \
+            GETGD;      \
+            if((nextop&0xC0)==0xC0) {   \
+                ed = xEAX+(nextop&7);   \
+            } else { \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);    \
+                LDRH_IMM8_COND(YES, x1, ed, 0); \
+                ed = x1;                        \
+            }   \
+            BFI_COND(YES, gd, ed, 0 ,16);
+
+        case 0x40:
+            INST_NAME("CMOVO Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x41:
+            INST_NAME("CMOVNO Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x42:
+            INST_NAME("CMOVC Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x43:
+            INST_NAME("CMOVNC Gw, Ew");
+            GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
+                CMPS_IMM8(2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x44:
+            INST_NAME("CMOVZ Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(x2, 1)
+                , cNE, cEQ)
+            break;
+        case 0x45:
+            INST_NAME("CMOVNZ Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x46:
+            INST_NAME("CMOVBE Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
+                , cEQ, cNE)
+            break;
+        case 0x47:
+            INST_NAME("CMOVNBE Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
+                , cNE, cEQ)
+            break;
+        case 0x48:
+            INST_NAME("CMOVS Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(x2, x1)
+                , cNE, cEQ)
+            break;
+        case 0x49:
+            INST_NAME("CMOVNS Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x4A:
+            INST_NAME("CMOVP Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(x2, x1)
+                , cNE, cEQ)
+            break;
+        case 0x4B:
+            INST_NAME("CMOVNP Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
+                CMPS_IMM8(x2, 1)
+                , cEQ, cNE)
+            break;
+        case 0x4C:
+            INST_NAME("CMOVL Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                , cEQ, cNE)
+            break;
+        case 0x4D:
+            INST_NAME("CMOVGE Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                , cNE, cEQ)
+            break;
+        case 0x4E:
+            INST_NAME("CMOVLE Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(x1, x1, x2, 0);
+                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
+                , cEQ, cNE)
+            break;
+        case 0x4F:
+            INST_NAME("CMOVG Gw, Ew");
+            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                XOR_REG_LSL_IMM8(x1, x1, x2, 0);
+                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
+                , cNE, cEQ)
+            break;
+        #undef GO
+
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v0+1, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLDR_64(v0+1, ed, 0);
+            }
             break;
         
         case 0xA3:

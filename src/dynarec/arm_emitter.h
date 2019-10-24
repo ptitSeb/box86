@@ -316,6 +316,7 @@ Op is 20-27
 #define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 0, imm8))
 #define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 1, imm8))
 #define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
+#define LDRH_IMM8_COND(cond, reg, addr, imm8) EMIT(HWS_OFF(cond, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
 #define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 0, 1, imm8))
 #define STRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 1, 1, imm8))
 
@@ -346,6 +347,8 @@ Op is 20-27
 
 // BFI: Bit Field Insert: copy any number of low order bit from Rn to any position of Rd
 #define BFI(rd, rn, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
+// BFI_COND: Bit Field Insert with condition: copy any number of low order bit from Rn to any position of Rd
+#define BFI_COND(cond, rd, rn, lsb, width) EMIT(cond | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
 
 // REV: Reverse byte of a 32bits word
 #define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
