@@ -310,6 +310,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_restoreround STEPNAME(x87_restoreround)
 #define sse_reset       STEPNAME(sse_reset)
 #define sse_get_reg     STEPNAME(sse_get_reg)
+#define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_purgecache  STEPNAME(sse_purgecache)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #ifdef HAVE_TRACE
@@ -364,6 +365,8 @@ void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void sse_reset(dynarec_arm_t* dyn, int ninst);
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+// get neon register for a SSE reg, but don't try to synch it if it needed to be created
+int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // purge the SSE cache only(needs 3 scratch registers)
 void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
 #ifdef HAVE_TRACE

@@ -549,7 +549,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xAD:
             INST_NAME("LODSW");
             GETDIR(x3, 2);
-            LDRHAI_REG_LSL_IMM5(xEAX, xESI, x3);
+            LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
+            BFI(xEAX, x1, 0, 16);
             break;
         case 0xAF:
             INST_NAME("SCASW");

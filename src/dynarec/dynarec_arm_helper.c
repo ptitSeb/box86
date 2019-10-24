@@ -547,6 +547,15 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     VLD1Q_32(ret, s1);
     return ret;
 }
+// get neon register for a SSE reg, but don't try to synch it if it needed to be created
+int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
+{
+    int ret = (FIRSTSSE + a)*2;
+    if(dyn->ssecache[a])
+        return ret;
+    dyn->ssecache[a] = 1;
+    return ret;
+}
 // purge the SSE cache only(needs 3 scratch registers)
 void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
