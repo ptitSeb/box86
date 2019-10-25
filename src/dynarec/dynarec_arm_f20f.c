@@ -22,6 +22,16 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+// Get Ex as a double, not a quad
+#define GETEX(a) \
+    if((nextop&0xC0)==0xC0) { \
+        a = sse_get_reg(dyn, ninst, x1, nextop&7); \
+    } else {    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
+        a = fpu_get_scratch_double(dyn);            \
+        VLDR_64(a, ed, 0);                          \
+    }
+
 uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
@@ -39,6 +49,36 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int fixedaddress;
     switch(nextop) {
         
+        case 0x10:
+            INST_NAME("MOVSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v0, d0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);   // to avoid bus errors
+                VMOVtoV_D(v0, x2, x3);
+                VEOR(v0+1, v0+1, v0+1); // upper 64bits set to 0
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVSD Ex, Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(d0, v0);
+            } else {
+                VMOVfrV_D(x2, x3, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                STRD_IMM8(x2, ed, 0);
+            }
+            break;
+
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
@@ -67,7 +107,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0x2D:
             INST_NAME("CVTSD2SI Gd, Ex");
-            u8 = x87_setround(dyn, ninst, x1, x2, x3);
+            u8 = x87_setround(dyn, ninst, x1, x2, x12);
             nextop = F8;
             GETGD;
             s0 = fpu_get_scratch_single(dyn);
@@ -87,28 +127,16 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            if((nextop&0xC0)==0xC0) {
-                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                d0 = fpu_get_scratch_double(dyn);
-                VLDR_64(d0, ed, 0);
-            }
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
             VADD_F64(v0, v0, d0);
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            if((nextop&0xC0)==0xC0) {
-                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                d0 = fpu_get_scratch_double(dyn);
-                VLDR_64(d0, ed, 0);
-            }
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
             VMUL_F64(v0, v0, d0);
             break;
 

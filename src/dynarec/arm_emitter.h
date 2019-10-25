@@ -249,7 +249,7 @@ Op is 20-27
 // ldrb reg, [addr], rm lsl imm5
 #define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldrd reg, reg+1, [addr, #imm9], reg must be even, reg+1 is implicit
-#define LDR_IMM8(reg, addr, imm9) EMIT(c_ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1101<<4) | ((imm8)&0x0f) )
+#define LDRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1101<<4) | ((imm8)&0x0f) )
 
 // str reg, [addr, #imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -273,8 +273,8 @@ Op is 20-27
 #define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strb reg, [addr], rm lsl imm5
 #define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
-// strd reg, reg+1, [addr, #imm9], reg must be even, reg+1 is implicit
-#define STRD_IMM9(reg, addr, imm9) EMIT(c_ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1111<<4) | ((imm8)&0x0f) )
+// strd reg, reg+1, [addr, #imm8], reg must be even, reg+1 is implicit
+#define STRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1111<<4) | ((imm8)&0x0f) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
@@ -372,12 +372,12 @@ Op is 20-27
 // Move between Rt to Sm and Rt2 to Sm+1 (Sm cannot be 31!, rt and Rt2 can be the same)
 #define VMOVtoV_64(Sm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
 // Move between Sm to Rt and Sm+1 to Rt2 (Sm cannot be 31!, Rt and Rt2 must be different)
-#define VMOVfrV_64(Rt, Rt2, Sm) EMIT(c_, | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
+#define VMOVfrV_64(Rt, Rt2, Sm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1010<<8) | (0b00<<6) | (1<<4) | ((Sm)&1)>>1 | ((Sm)&0b10000)<<1)
 
 // Move between Rt/Rt2 to Dm
-#define VMOVtoV_D(Dm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+#define VMOVtoV_D(Dm, Rt, Rt2) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (0<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | (((Dm)>>4)&1)<<5)
 // Move between Dm and Rt/Rt2 (Rt and Rt2 must be different)
-#define VMOVfrV_D(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | ((Dm)&1)<<5)
+#define VMOVfrV_D(Rt, Rt2, Dm) EMIT(c__ | (0b1100<<24) | (0b010<<21) | (1<<20) | ((Rt2)<<16) | ((Rt)<<12) | (0b1011<<8) | (0b00<<6) | (1<<4) | ((Dm)&0b1111) | (((Dm)>>4)&1)<<5)
 
 // Move between Dd and Dm
 #define VMOV_64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
@@ -465,5 +465,10 @@ Op is 20-27
 #define VST1Q_16(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 1, 0, 15))
 // Store [Rn] => Dd/Dd+1/Dd+2/Dd+3.Align is 4
 #define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 3, 0, 15))
+
+#define VEOR_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | 0b00<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+
+#define VEOR(Dd, Dn, Dm)    EMIT(VEOR_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VEORQ(Dd, Dn, Dm)   EMIT(VEOR_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__
