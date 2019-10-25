@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -321,6 +322,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 LDRSB_IMM8(x1, ed, 0);
             }
             BFI(gd, x1, 0, 16);
+            break;
+
+        case 0xEF:
+            INST_NAME("PXOR Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                d0 = fpu_get_scratch_double(dyn);
+                VLD1Q_64(d0, ed);
+            }
+            VEORQ(v0, v0, d0);
             break;
 
         default:
