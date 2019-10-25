@@ -140,6 +140,15 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMUL_F64(v0, v0, d0);
             break;
 
+        case 0x5E:
+            INST_NAME("DIVSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            VDIV_F64(v0, v0, d0);
+            break;
+
         default:
             *ok = 0;
             DEFAULT;
