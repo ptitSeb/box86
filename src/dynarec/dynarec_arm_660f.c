@@ -178,6 +178,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLDR_64(v0+1, ed, 0);
             }
             break;
+
+        case 0x6F:
+            INST_NAME("MOVDQA Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLD1Q_64(v0, ed);
+            }
+            break;
         
         case 0xA3:
             INST_NAME("BT Ew, Gw");
