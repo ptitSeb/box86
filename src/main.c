@@ -71,7 +71,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_DEBUG)
+            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_DUMP))
                 box86_dynarec_log = p[0]-'0';
         } else {
             if(!strcasecmp(p, "NONE"))
