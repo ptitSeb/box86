@@ -148,6 +148,25 @@ const char* arm_print(uint32_t opcode)
             else
                 sprintf(ret, "VADD.%d D%d, D%d, D%d", 8<<size, Dd, Dn, Dm);
         } else
+        if(((opcode>>24)&0b1111)==0b0011 && ((opcode>>20)&0b1000)==0b0000 && ((opcode>>8)&0b1111)==0b1000 && ((opcode>>4)&1)==1)
+        {
+            // VCEQ
+            int D = (opcode>>22)&1;
+            int Vn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int N = (opcode>>7)&1;
+            int Q = (opcode>>6)&1;
+            int M = (opcode>>5)&1;
+            int Vm = (opcode)&15;
+            int size = (opcode>>20)&3;
+            int Dd = (D<<4) | Vd;
+            int Dn = (N<<4) | Vn;
+            int Dm = (M<<4) | Vm;
+            if (Q)
+                sprintf(ret, "VCEQQ.%d Q%d, Q%d, Q%d", 8<<size, Dd/2, Dn/2, Dm/2);
+            else
+                sprintf(ret, "VCEQ.%d D%d, D%d, D%d", 8<<size, Dd, Dn, Dm);
+        } else
         if(((opcode>>24)&0b1111)==0b0010 && ((opcode>>20)&0b1011)==0b0010 && ((opcode>>8)&0b1111)==0b0001 && ((opcode>>4)&1)==1)
         {
             // VORR / VMOV (simd)
