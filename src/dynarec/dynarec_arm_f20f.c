@@ -56,7 +56,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(v0, d0);
+                VMOVD(v0, d0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 LDRD_IMM8(x2, ed, 0);   // to avoid bus errors
@@ -71,7 +71,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(d0, v0);
+                VMOVD(d0, v0);
             } else {
                 VMOVfrV_D(x2, x3, v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);

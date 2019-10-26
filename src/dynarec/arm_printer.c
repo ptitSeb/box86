@@ -111,6 +111,59 @@ const char* arm_print(uint32_t opcode)
             else
                 sprintf(ret, "V%s1%s.%d {%s}, [%s%s]%s", l?"LD":"ST", (regs>2)?"q":"", 8<<size, reglist, regname[Rn], salign, wback);
         } else
+        if(((opcode>>24)&0b1111)==0b0011 && ((opcode>>20)&0b1011)==0b0000 && ((opcode>>8)&0b1111)==0b0001 && ((opcode>>4)&1)==1)
+        {
+            // VEOR
+            int D = (opcode>>22)&1;
+            int Vn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int N = (opcode>>7)&1;
+            int Q = (opcode>>6)&1;
+            int M = (opcode>>5)&1;
+            int Vm = (opcode)&15;
+            int Dd = (D<<4) | Vd;
+            int Dn = (N<<4) | Vn;
+            int Dm = (M<<4) | Vm;
+            if (Q)
+                sprintf(ret, "VEORQ Q%d, Q%d, Q%d", Dd/2, Dn/2, Dm/2);
+            else
+                sprintf(ret, "VEOR D%d, D%d, D%d", Dd, Dn, Dm);
+        } else
+        if(((opcode>>24)&0b1111)==0b0010 && ((opcode>>20)&0b1011)==0b0010 && ((opcode>>8)&0b1111)==0b0001 && ((opcode>>4)&1)==1)
+        {
+            // VMOV (simd)
+            int D = (opcode>>22)&1;
+            int Vn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int N = (opcode>>7)&1;
+            int Q = (opcode>>6)&1;
+            int M = (opcode>>5)&1;
+            int Vm = (opcode)&15;
+            int Dd = (D<<4) | Vd;
+            int Dn = (N<<4) | Vn;
+            int Dm = (M<<4) | Vm;
+            if(Vn!=Vm) {
+                sprintf(ret, "VORR????");
+            } else {
+                if (Q)
+                    sprintf(ret, "VMOVQ Q%d, Q%d", Dd/2, Dm/2);
+                else
+                    sprintf(ret, "VMOV D%d, D%d", Dd, Dm);
+            }
+        } else
+        if(((opcode>>24)&0b1110)==0b0010 && ((opcode>>20)&0b1000)==0b1000 && ((opcode>>16)&0b0111)==0b0000 && ((opcode>>8)&0b1111)==0b1010 && ((opcode>>4)&1)==1)
+        {
+            // VMOVL
+            int D = (opcode>>22)&1;
+            int U = (opcode>>24)&1;
+            int imm3 = (opcode>>19)&7;
+            int Vd = (opcode>>12)&15;
+            int M = (opcode>>5)&1;
+            int Vm = (opcode)&15;
+            int Dd = (D<<4) | Vd;
+            int Dm = (M<<4) | Vm;
+            sprintf(ret, "VMOVL.%s%d Q%d, D%d", U?"U":"S", 4<<imm3,Dd/2, Dm);
+        } else
         strcpy(ret, "?????");
     } else {
         const char* cond = conds[(opcode>>28)&15];

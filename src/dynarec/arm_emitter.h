@@ -435,8 +435,6 @@ Op is 20-27
 #define VABS_F64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 
 // NEON
-// Move between Dd <- Dm and Dd+1 <- Dm+1 (2 instructions)
-#define VMOVQ(Dd, Dm)   VMOV_64(Dd, Dm); VMOV_64(Dd+1, Dm+1)
 
 // L is 1 for VLD1, 0 for VST1 Dd is V:Vd, type:0b0111=64, 0b1010=128, 0b0110=192, 0b0010=256, size:0=8,1=16,2=32,3=64, align:"4<<align", wback=rm!=15, reg_index:rm!=13&&rm!=15
 #define Vxx1gen(L, D, Rn, Vd, type, size, align, Rm) (0b1111<<28 | 0b0100<<24 | 0<<23 | (D)<<22 | (L)<<21 | 0<<20 | (Rn)<<16 | (Vd)<<12 | (type)<<8 | (size)<<6 | (align)<<4 | (Rm))
@@ -467,8 +465,20 @@ Op is 20-27
 #define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 3, 0, 15))
 
 #define VEOR_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | 0b00<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
-
 #define VEOR(Dd, Dn, Dm)    EMIT(VEOR_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VEORQ(Dd, Dn, Dm)   EMIT(VEOR_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VMOVL_gen(U, D, imm3, Vd, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (imm3)<<19 | (Vd)<<12 | 0b1010<<8 | (M)<<5 | 1<<4 | (Vm))
+#define VMOVL_S32(Dd, Dm)   EMIT(VMOVL_gen(0, ((Dd)>>4)&1, 0b100, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+#define VMOVL_U32(Dd, Dm)   EMIT(VMOVL_gen(1, ((Dd)>>4)&1, 0b100, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+
+#define VMOV_gen(D,Vd, M, Vm, Q) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 0b10<<20 | (Vm)<<16 | (Vd)<<12 | 0b0001<<8 | (M)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VMOVD(Dd, Dm) EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 0))
+#define VMOVQ(Dd, Dm) EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 1))
+
+#define VLD1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b10<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))
+#define VLD1LANE_8(Dd, Rn, index)    EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 0, (index)<<1, 15))
+#define VLD1LANE_16(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
+#define VLD1LANE_32(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
 
 #endif  //__ARM_EMITTER_H__

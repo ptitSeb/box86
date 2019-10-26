@@ -243,15 +243,15 @@ int fpu_get_scratch_single(dynarec_arm_t* dyn)
 // Get a FPU double scratch reg
 int fpu_get_scratch_double(dynarec_arm_t* dyn)
 {
-    int i = (dyn->fpu_scratch+2)&2;
-    dyn->fpu_scratch = i;
+    int i = (dyn->fpu_scratch+1)&2;
+    dyn->fpu_scratch = i+2;
     return i;
 }
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
-    int i = (dyn->fpu_scratch+4)&4;
-    dyn->fpu_scratch = i;
+    int i = (dyn->fpu_scratch+3)&4;
+    dyn->fpu_scratch = i+4;
     return i;
 }
 // Reset scratch regs counter
