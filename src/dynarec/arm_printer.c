@@ -129,7 +129,7 @@ const char* arm_print(uint32_t opcode)
             else
                 sprintf(ret, "VEOR D%d, D%d, D%d", Dd, Dn, Dm);
         } else
-        if(((opcode>>24)&0b1111)==0b0010 && ((opcode>>20)&0b1000)==0b0000 && ((opcode>>8)&0b1111)==0b1000 && ((opcode>>4)&1)==1)
+        if(((opcode>>24)&0b1111)==0b0010 && ((opcode>>20)&0b1000)==0b0000 && ((opcode>>8)&0b1111)==0b1000 && ((opcode>>4)&1)==0)
         {
             // VEOR
             int D = (opcode>>22)&1;

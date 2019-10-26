@@ -489,7 +489,7 @@ Op is 20-27
 #define VST1LANE_16(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
 #define VST1LANE_32(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
 
-#define VADD_gen(size, D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1000<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VADD_gen(size, D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1000<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
 #define VADD_8(Dd, Dn, Dm)     EMIT(VADD_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VADDQ_8(Dd, Dn, Dm)    EMIT(VADD_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VADD_16(Dd, Dn, Dm)    EMIT(VADD_gen(1, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
