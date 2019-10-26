@@ -378,6 +378,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             BFI(gd, x1, 0, 16);
             break;
 
+        case 0xDB:
+            INST_NAME("PAND Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                q0 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(q0, ed);
+            }
+            VANDQ(v0, v0, q0);
+            break;
+
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;

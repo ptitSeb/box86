@@ -499,4 +499,12 @@ Op is 20-27
 #define VADD_64(Dd, Dn, Dm)    EMIT(VADD_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VADDQ_64(Dd, Dn, Dm)   EMIT(VADD_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VORR_gen(D,Vd, N, Vn, M, Vm, Q) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 0b10<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VORRD(Dd, Dn, Dm) EMIT(VORR_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 0))
+#define VORRQ(Dd, Dn, Dm) EMIT(VORR_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 1))
+
+#define VAND_gen(D,Vd, N, Vn, M, Vm, Q) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 0b00<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VANDD(Dd, Dn, Dm) EMIT(VAND_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 0))
+#define VANDQ(Dd, Dn, Dm) EMIT(VAND_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 1))
+
 #endif  //__ARM_EMITTER_H__
