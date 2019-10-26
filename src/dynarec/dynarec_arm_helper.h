@@ -317,6 +317,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define sse_reflectcache STEPNAME(sse_reflectcache)
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
+#define sse_pushcache   STEPNAME(sse_pushcache)
+#define sse_popcache    STEPNAME(sse_popcache)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -372,6 +374,8 @@ void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
 #ifdef HAVE_TRACE
 void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1);
 #endif
+void sse_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
+void sse_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
 // common coproc helpers
 // purge the FPU cache (needs 3 scratch registers)

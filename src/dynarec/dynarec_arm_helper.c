@@ -257,8 +257,10 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
     PUSH(xSP, (1<<xEmu) | mask);
+    sse_pushcache(dyn, ninst, reg);
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
+    sse_popcache(dyn, ninst, reg);
     if(ret>=0) {
         MOV_REG(ret, 0);
     }
@@ -559,11 +561,18 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 // purge the SSE cache only(needs 3 scratch registers)
 void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]) {
             int a = (FIRSTSSE + i)*2;
-            MOV32(s1, offsetof(x86emu_t, xmm[i]));
-            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            if (old==-1) {
+                MOV32(s1, offsetof(x86emu_t, xmm[i]));
+                ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+                old = i;
+            } else {
+                ADD_IMM8(s1, s1, (i-old)*16);
+                old = i;
+            }
             VST1Q_32(a, s1);
             dyn->ssecache[i] = 0;
         }
@@ -572,16 +581,69 @@ void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 #ifdef HAVE_TRACE
 void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]) {
             int a = (FIRSTSSE + i)*2;
-            MOV32(s1, offsetof(x86emu_t, xmm[i]));
-            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            if (old==-1) {
+                MOV32(s1, offsetof(x86emu_t, xmm[i]));
+                ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            } else {
+                ADD_IMM8(s1, s1, (i-old)*16);
+                old = i;
+            }
             VST1Q_32(a, s1);
         }
 }
 #endif
 
+void sse_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    int n=0;
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i])
+            ++n;
+    if(!n)
+        return;
+    MESSAGE(LOG_DUMP, "Push SSE Cache (%d)------\n", n);
+    if(n==8) {
+        SUB_IMM8(xSP, xSP, 7*16);
+        SUB_IMM8(xSP, xSP, 16);
+    } else {
+        SUB_IMM8(xSP, xSP, n*16);
+    }
+    MOV_REG(s1, xSP);
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i]) {
+            int a = (FIRSTSSE+i)*2;
+            VST1Q_32_W(a, s1);
+        }
+    MESSAGE(LOG_DUMP, "------- Push SSE Cache (%d)\n", n);
+}
+
+void sse_popcache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    int n=0;
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i])
+            ++n;
+    if(!n)
+        return;
+    MESSAGE(LOG_DUMP, "Pop SSE Cache (%d)------\n", n);
+    MOV_REG(s1, xSP);
+    for (int i=0; i<8; ++i)
+        if(dyn->ssecache[i]) {
+            int a = (FIRSTSSE+i)*2;
+            VLD1Q_32_W(a, s1);
+        }
+    if(n==8) {
+        ADD_IMM8(xSP, xSP, 7*16);
+        ADD_IMM8(xSP, xSP, 16);
+    } else {
+        ADD_IMM8(xSP, xSP, n*16);
+    }
+    MESSAGE(LOG_DUMP, "------- Pop SSE Cache (%d)\n", n);
+}
 
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
