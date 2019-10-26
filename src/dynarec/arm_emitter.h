@@ -507,6 +507,10 @@ Op is 20-27
 #define VANDD(Dd, Dn, Dm) EMIT(VAND_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 0))
 #define VANDQ(Dd, Dn, Dm) EMIT(VAND_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 1))
 
+#define VBIC_gen(D,Vd, N, Vn, M, Vm, Q) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 0b01<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VBICD(Dd, Dn, Dm) EMIT(VBIC_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 0))
+#define VBICQ(Dd, Dn, Dm) EMIT(VBIC_gen(((Dd)>>4)&1, (Dd)&15, ((Dn)>>4)&1, (Dn)&15, ((Dm)>>4)&1, (Dm)&15, 1))
+
 #define VCEQ_gen(size, D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1000<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VCEQ_8(Dd, Dn, Dm)     EMIT(VCEQ_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQQ_8(Dd, Dn, Dm)    EMIT(VCEQ_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
