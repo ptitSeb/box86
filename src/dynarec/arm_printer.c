@@ -151,6 +151,106 @@ const char* arm_print(uint32_t opcode)
                     sprintf(ret, "VMOV D%d, D%d", Dd, Dm);
             }
         } else
+        if(((opcode>>24)&0b1111)==0b0100 && ((opcode>>20)&0b1011)==0b1000 && ((opcode>>8)&0b0011)==0b0000)
+        {
+            // VST1LANE
+            int D = (opcode>>22)&1;
+            int Rn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int size = (opcode>>10)&3;
+            int index_align = (opcode>>4)&15;
+            int Rm = (opcode)&15;
+            int Dd = (D<<4) | Vd;
+            int rsize = 32;
+            char ralign[30] = {0};
+            int index = 0;
+            int alignment = 1;
+            switch(size) {
+                case 0:
+                    rsize = 8;
+                    index = (index_align>>1)&7;
+                    break;
+                case 1:
+                    rsize = 16;
+                    index = (index_align>>2)&3;
+                    alignment += (index_align&1);
+                    break;
+                case 2:
+                    rsize = 32;
+                    index = (index_align>>3)&1;
+                    if((index_align&3)!=0)
+                        alignment = 4;
+                    break;
+            }
+            if(alignment!=1)
+                sprintf(ret, ":%d", 4<<alignment);
+            char post[40] = {0};
+            if(Rm!=15) {
+                if (Rm==13)
+                    strcpy(post, "!");
+                else
+                    sprintf(post, ", %s", regname[Rm]);
+            }
+            sprintf(ret, "VST1.%d {D%d[%d]}, [%s%s]%s", rsize, Dd, index, regname[Rn], ralign, post);
+        } else
+        if(((opcode>>24)&0b1111)==0b0100 && ((opcode>>20)&0b1011)==0b1010 && ((opcode>>8)&0b0011)==0b0000)
+        {
+            // VLD1LANE
+            int D = (opcode>>22)&1;
+            int Rn = (opcode>>16)&15;
+            int Vd = (opcode>>12)&15;
+            int size = (opcode>>10)&3;
+            int index_align = (opcode>>4)&15;
+            int Rm = (opcode)&15;
+            int Dd = (D<<4) | Vd;
+            int rsize = 32;
+            char ralign[30] = {0};
+            int index = 0;
+            int T = 0;
+            int alignment = 1;
+            char list[40] = {0};
+            switch(size) {
+                case 0:
+                    rsize = 8;
+                    index = (index_align>>1)&7;
+                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    break;
+                case 1:
+                    rsize = 16;
+                    index = (index_align>>2)&3;
+                    alignment += (index_align&1);
+                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    break;
+                case 2:
+                    rsize = 32;
+                    index = (index_align>>3)&1;
+                    if((index_align&3)!=0)
+                        alignment = 4;
+                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    break;
+                case 3:
+                    rsize = 8 <<((index_align>>2)&3);
+                    index = -1;
+                    T = (index_align>>1)&1;
+                    if(index_align&1)
+                        alignment = (index_align>>2)&3;
+                    if(T)
+                        sprintf(list, "{D%d[], D%d[]}", Dd, Dd+1);
+                    else
+                        sprintf(list, "{D%d[]}", Dd);
+                    break;
+            }
+            if(alignment!=1)
+                sprintf(ret, ":%d", 4<<alignment);
+            char post[40] = {0};
+            if(Rm!=15) {
+                if (Rm==13)
+                    strcpy(post, "!");
+                else
+                    sprintf(post, ", %s", regname[Rm]);
+            }
+            sprintf(ret, "VLD1.%d %s, [%s%s]%s", rsize, list, regname[Rn], ralign, post);
+        } else
         if(((opcode>>24)&0b1110)==0b0010 && ((opcode>>20)&0b1000)==0b1000 && ((opcode>>16)&0b0111)==0b0000 && ((opcode>>8)&0b1111)==0b1010 && ((opcode>>4)&1)==1)
         {
             // VMOVL

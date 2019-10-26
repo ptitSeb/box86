@@ -206,7 +206,49 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLD1Q_64(v0, ed);
             }
             break;
-        
+        case 0x70:
+            INST_NAME("PSHUFD Gx,Ex,Ib");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            i32 = -1;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                u8 = F8;
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                // use stack as tmporary storage
+                SUB_IMM8(xSP, xSP, 4);
+                if (u8) {
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            VST1LANE_32(v1+(idx/2), xSP, idx&1);
+                            i32 = idx;
+                        }
+                        VLD1LANE_32(v0+(i/2), xSP, i&1);
+                    }
+                } else {
+                    VST1LANE_32(v1, xSP, 0);
+                    VLD1QALL_32(v0, xSP);
+                }
+                ADD_IMM8(xSP, xSP, 4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                u8 = F8;
+                if (u8) {
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            ADD_IMM8(x2, ed, idx*4);
+                            i32 = idx;
+                        }
+                        VLD1LANE_32(v0+(i/2), x2, i&1);
+                    }
+                } else {
+                    VLD1QALL_32(v0, ed);
+                }
+            }
+            break;
+
         case 0xA3:
             INST_NAME("BT Ew, Gw");
             nextop = F8;

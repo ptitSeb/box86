@@ -481,4 +481,12 @@ Op is 20-27
 #define VLD1LANE_16(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
 #define VLD1LANE_32(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
 
+#define VLD1ALL_32(Dd, Rn)      EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 3, 2<<2 , 15))
+#define VLD1QALL_32(Dd, Rn)     EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 3, 2<<2 | 1<<1, 15))
+
+#define VST1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b00<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))
+#define VST1LANE_8(Dd, Rn, index)    EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 0, (index)<<1, 15))
+#define VST1LANE_16(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
+#define VST1LANE_32(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
+
 #endif  //__ARM_EMITTER_H__
