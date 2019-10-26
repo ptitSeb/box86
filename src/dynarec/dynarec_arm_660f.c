@@ -384,13 +384,28 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
-                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                d0 = fpu_get_scratch_double(dyn);
-                VLD1Q_64(d0, ed);
+                q0 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(q0, ed);
             }
-            VEORQ(v0, v0, d0);
+            VEORQ(v0, v0, q0);
+            break;
+
+        case 0xFE:
+            INST_NAME("PADDD Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                q0 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(q0, ed);
+            }
+            VADDQ_32(v0, v0, q0);
             break;
 
         default:
