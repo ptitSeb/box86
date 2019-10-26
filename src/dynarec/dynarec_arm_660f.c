@@ -249,6 +249,49 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0x72:  /* GRP */
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLD Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_32(q0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>31) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        VSHRQ_U32(q0, q0, u8&31);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_32(q0, ed);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAD Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_32(q0, ed);
+                    }
+                    u8 = F8;
+                    VSHRQ_S32(q0, q0, u8&31);
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_32(q0, ed);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+
         case 0x76:
             INST_NAME("PCMPEQD Gx,Ex");
             nextop = F8;
