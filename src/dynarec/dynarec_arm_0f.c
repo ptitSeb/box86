@@ -85,6 +85,30 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0x14:
+            INST_NAME("UNPCKLPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                q1 = fpu_get_scratch_quad(dyn);
+                VMOVQ(q1, q0);
+            } else q1 = q0;
+            VZIPQ_32(v0, q1);
+            break;
+        case 0x15:
+            INST_NAME("UNPCKHPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                q1 = fpu_get_scratch_quad(dyn);
+                VMOVQ(q1, q0);
+            } else q1 = q0;
+            VZIPQ_32(v0, q1);
+            VMOVQ(v0, q1);
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -299,14 +323,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEX(q0);
             GETGX(v0);
-            VADDQ_32(v0, v0, q0);
+            VADDQ_F32(v0, v0, q0);
             break;*/
         /*case 0x59:
             INST_NAME("MULPS Gx, Ex");
             nextop = F8;
             GETEX(q0);
             GETGX(v0);
-            VMULQ_64(v0, v0, q0);
+            VMULQ_F32(v0, v0, q0);
             break;*/
 
         #define GO(GETFLAGS, NO, YES)   \

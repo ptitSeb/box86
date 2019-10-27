@@ -583,4 +583,10 @@ Op is 20-27
 #define VSHLQ_32(Dd, Dm, imm5)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b1<<5 | (imm5+32), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHLQ_64(Dd, Dm, imm6)   EMIT(VSHL_gen(((Dd)>>4)&1, (imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VZIP_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0001<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VZIP_8(Dd, Dm)     EMIT(VZIP_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VZIP_16(Dd, Dm)    EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VZIPQ_8(Dd, Dm)    EMIT(VZIP_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VZIPQ_16(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VZIPQ_32(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #endif  //__ARM_EMITTER_H__
