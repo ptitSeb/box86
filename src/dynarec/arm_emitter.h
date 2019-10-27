@@ -411,7 +411,7 @@ Op is 20-27
 // Convert from single Sm to double Dd
 #define VCVT_F64_F32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0111<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (0<<4) | (((Sm)>>1)&15))
 // Convert from double Dm to single Sd
-#define VCVT_F32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  (((Sd)&1)<<22) | (0b11<<20) | (0b0111<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | (0<<4) | ((Dm)&15))
+#define VCVT_F32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  (((Sd)&1)<<22) | (0b11<<20) | (0b0111<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | (0<<4) | ((Dm)&15))
 
 // Convert from double Dm to int32 Sd, with Round toward Zero mode
 #define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
@@ -572,5 +572,15 @@ Op is 20-27
 #define VSHRQ_S32(Dd, Dm, imm5)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, 0b1<<5 | (32-imm5), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_U64(Dd, Dm, imm6)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_s64(Dd, Dm, imm6)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VSHL_gen(D, imm6, Vd, L, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | (imm6)<<16 | (Vd)<<12 | 0b0101<<8 | (L)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VSHL_8(Dd, Dm, imm3)    EMIT(VSHL_gen(((Dd)>>4)&1, 0b001<<3 | (imm3+8), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSHL_16(Dd, Dm, imm4)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b01<<4 | (imm4+16), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSHL_32(Dd, Dm, imm5)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b1<<5 | (imm5+32), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSHL_64(Dd, Dm, imm6)   EMIT(VSHL_gen(((Dd)>>4)&1, (imm6), (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSHLQ_8(Dd, Dm, imm3)    EMIT(VSHL_gen(((Dd)>>4)&1, 0b001<<3 | (imm3+8), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VSHLQ_16(Dd, Dm, imm4)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b01<<4 | (imm4+16), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VSHLQ_32(Dd, Dm, imm5)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b1<<5 | (imm5+32), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VSHLQ_64(Dd, Dm, imm6)   EMIT(VSHL_gen(((Dd)>>4)&1, (imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__

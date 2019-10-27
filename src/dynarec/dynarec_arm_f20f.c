@@ -139,6 +139,19 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0);
             VMUL_F64(v0, v0, d0);
             break;
+        case 0x5A:
+            INST_NAME("CVTSD2SS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            d1 = fpu_get_scratch_double(dyn);
+            s0 = fpu_get_scratch_single(dyn);
+            VCVT_F32_F64(s0, d0);
+            VMOV_64(d1, v0);
+            VMOV_32(d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
 
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");

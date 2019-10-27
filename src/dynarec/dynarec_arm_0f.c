@@ -22,6 +22,18 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+#define GETGX(a)    \
+    gd = (nextop&0x38)>>3;  \
+    a = sse_get_reg(dyn, ninst, x1, gd)
+#define GETEX(a)    \
+    if((nextop&0xC0)==0xC0) { \
+        a = sse_get_reg(dyn, ninst, x1, nextop&7); \
+    } else {    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
+        a = fpu_get_scratch_quad(dyn); \
+        VLD1Q_64(a, ed);    \
+    }
+
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -254,20 +266,48 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         #undef GO
 
-        case 0x57:
-            INST_NAME("XORPS Gx,Ex");
+        case 0x54:
+            INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            if((nextop&0xC0)==0xC0) {
-                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                q0 = fpu_get_scratch_quad(dyn);
-                VLD1Q_64(q0, ed);
-            }
+            GETEX(q0);
+            GETGX(v0);
+            VANDQ(v0, v0, q0);
+            break;
+        case 0x55:
+            INST_NAME("ANDNPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VBICQ(v0, q0, v0);
+            break;
+        case 0x56:
+            INST_NAME("ORPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VORRQ(v0, v0, q0);
+            break;
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
             VEORQ(v0, v0, q0);
             break;
+        /*case 0x58:
+            INST_NAME("ADDPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VADDQ_32(v0, v0, q0);
+            break;*/
+        /*case 0x59:
+            INST_NAME("MULPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VMULQ_64(v0, v0, q0);
+            break;*/
 
         #define GO(GETFLAGS, NO, YES)   \
             i32_ = F32S;    \
