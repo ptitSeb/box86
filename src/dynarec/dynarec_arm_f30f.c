@@ -22,6 +22,21 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+// Get Ex as a single, not a quad, with b a intermediary double
+#define GETEX(a, b) \
+    if((nextop&0xC0)==0xC0) { \
+        b = sse_get_reg(dyn, ninst, x1, nextop&7);  \
+        a = fpu_get_scratch_double(dyn);            \
+        VMOV_64(a, b);                              \
+        b = a;                                      \
+        a = fpu_get_scratch_single(dyn);            \
+        VMOV_32(a, b*2);                            \
+    } else {    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
+        a = fpu_get_scratch_single(dyn);            \
+        VLDR_32(a, ed, 0);                          \
+    }
+
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -129,6 +144,61 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VCVTR_S32_F32(s0, s0);
             VMOVfrV(gd, s0);
             x87_restoreround(dyn, ninst, u8);
+            break;
+
+        case 0x58:
+            INST_NAME("ADDSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            VADD_F32(d1*2, d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
+        case 0x59:
+            INST_NAME("MULSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            VMUL_F32(d1*2, d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
+        case 0x5A:
+            INST_NAME("CVTSS2SD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            VCVT_F64_F32(v0, s0);
+            break;
+
+        case 0x5C:
+            INST_NAME("SUBSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            VSUB_F32(d1*2, d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
+
+        case 0x5E:
+            INST_NAME("DIVSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            VDIV_F32(d1*2, d1*2, s0);
+            VMOV_64(v0, d1);
             break;
 
         case 0x7F:

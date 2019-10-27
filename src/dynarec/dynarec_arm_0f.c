@@ -38,6 +38,39 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int fixedaddress;
     switch(opcode) {
 
+        case 0x10:
+            INST_NAME("MOVUPS Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);
+                VMOVtoV_D(v0, x2, x3);
+                LDRD_IMM8(x2, ed, 8);
+                VMOVtoV_D(v0+1, x2, x3);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVUPS Ex,Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VMOVfrV_D(x2, x3, v0);
+                STRD_IMM8(x2, ed, 0);
+                VMOVfrV_D(x2, x3, v0+1);
+                STRD_IMM8(x2, ed, 8);
+            }
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -55,6 +88,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VLD1Q_32(v0, ed);
+            }
+            break;
+        case 0x29:
+            INST_NAME("MOVAPS Ex,Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VST1Q_32(v0, ed);
             }
             break;
 

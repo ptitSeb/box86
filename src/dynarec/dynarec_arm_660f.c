@@ -22,6 +22,15 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+// Get EX as a quad
+#define GETEX(a)                \
+    if((nextop&0xC0)==0xC0) {   \
+        a = sse_get_reg(dyn, ninst, x1, nextop&7);  \
+    } else {                    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
+        VLD1Q_64(q0, ed);       \
+    }
+
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -44,6 +53,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             FAKEED;
             break;
+
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+            UFLAGS(0);
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(q0);
+            VCMP_F64(v0, q0);
+            FCOMI(x1, x2);
+            UFLAGS(1);
+            break;
+
 
         #define GO(GETFLAGS, NO, YES)   \
             USEFLAG(1); \
@@ -166,6 +190,43 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 , cNE, cEQ)
             break;
         #undef GO
+
+        case 0x54:
+            INST_NAME("ANDPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VANDQ(v0, v0, q0);
+            break;
+        case 0x55:
+            INST_NAME("ANDNPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VBICQ(v0, q0, v0);
+            break;
+        case 0x56:
+            INST_NAME("ORPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VORRQ(v0, v0, q0);
+            break;
+        case 0x57:
+            INST_NAME("XORPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VEORQ(v0, v0, q0);
+            break;
+        case 0x58:
+            INST_NAME("ADDPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VADDQ_64(v0, v0, q0);
+            break;
+        /*case 0x59:
+            INST_NAME("MULPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            VMULQ_64(v0, v0, q0);
+            break;*/
 
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
