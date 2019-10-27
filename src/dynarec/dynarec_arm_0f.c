@@ -35,6 +35,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t gb1, gb2;
     int v0, v1, v2;
     int q0, q1;
+    int d0, d1;
+    int s0, s1;
     int fixedaddress;
     switch(opcode) {
 
@@ -102,6 +104,32 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VST1Q_32(v0, ed);
             }
+            break;
+
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
+            UFLAGS(0);
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d0 = fpu_get_scratch_double(dyn);
+            s0 = fpu_get_scratch_single(dyn);
+            s1 = fpu_get_scratch_single(dyn);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(d0, v1);
+                VMOV_32(s0, d0*2);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLDR_32(s0, ed, 0);
+            }
+            VMOV_64(d0, v0);
+            VMOV_32(s1, d0*2);
+            VCMP_F32(s1, s0);
+            FCOMI(x1, x2);
+            UFLAGS(1);
             break;
 
         
