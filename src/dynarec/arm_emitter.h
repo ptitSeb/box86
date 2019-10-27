@@ -386,6 +386,18 @@ Op is 20-27
 // Move with condition between Dd and Dm
 #define VMOVcond_64(cond, Dd, Dm)     EMIT(cond | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
 
+#define VMOVtoDx_gen(Vd, D, Rt, opc1, opc2)   (0b1110<<24 | 0<<23 | (opc1)<<21 | (Vd)<<16 | (Rt)<<12 | 0b1011<<8 | (D)<<7 | (opc2)<<5 | 1<<4)
+// Move between Rt and Dm[x]
+#define VMOVtoDx_32(Dm, x, Rt) EMIT(c__ | VMOVtoDx_gen((Dm)&15, ((Dm)>>4)&1, Rt, x, 0))
+// Move between Rt and Dm[x]
+#define VMOVtoDx_16(Dm, x, Rt) EMIT(c__ | VMOVtoDx_gen((Dm)&15, ((Dm)>>4)&1, Rt, (x)>>1, ((x)&1)<<1 | 1))
+// Move between Rt and Dm[x]
+#define VMOVtoDx_8(Dm, x, Rt)  EMIT(c__ | VMOVtoDx_gen((Dm)&15, ((Dm)>>4)&1, Rt, 2| (x)>>2, (x)&3))
+
+#define VMOVfrDx_gen(Vn, N, Rt, U, opc1, opc2) (0b1110<<24 | (U)<<23 | (opc1)<<21 | 1<<20 | (Vn)<<16 | (Rt)<<12 | 0b1011<<8 | (N)<<7 | (opc2)<<5 | 1<<4)
+// Move between Dn[x] and Rt
+#define VMOVfrDx_32(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, x, 0))
+
 // Load from memory to double  VLDR Dd, [Rn, #imm8]
 #define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))
 // Load from memory to single  VLDR Sd, [Rn, #imm8]
@@ -407,6 +419,12 @@ Op is 20-27
 #define VCVTR_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from int32 Sm to double Dd
 #define VCVT_F64_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
+// Convert from single Sm to int32 Sd, with Round toward Zero mode
+#define VCVT_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+// Convert from single Sm to int32 Sd, with Round selection from FPSCR
+#define VCVTR_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (0<<8) | (0<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+// Convert from int32 Sm to single Dd
+#define VCVT_F32_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )

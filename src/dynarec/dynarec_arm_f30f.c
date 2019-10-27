@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -37,6 +38,98 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int d0, d1;
     int q0, q1;
     switch(opcode) {
+
+        case 0x10:
+            INST_NAME("MOVSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d0 = fpu_get_scratch_double(dyn);
+            if((nextop&0xC0)==0xC0) {
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                d1 = fpu_get_scratch_double(dyn);
+                VMOVD(d0, v0);
+                VMOVD(d1, q0);
+                VMOV_32(d0*2, d1*2);
+                VMOVD(v0, d0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDR_IMM9(x2, ed, 0);   // to avoid bus errors
+                VEORQ(v0, v0, v0);
+                VMOVtoDx_32(v0, 0, x2);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVSS Ex, Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            d0 = fpu_get_scratch_double(dyn);
+            if((nextop&0xC0)==0xC0) {
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                d1 = fpu_get_scratch_double(dyn);
+                VMOVD(d0, v0);
+                VMOVD(d1, q0);
+                VMOV_32(d1*2, d0*2);
+                VMOVD(q0, d1);
+            } else {
+                VMOVfrDx_32(x2, v0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                STR_IMM9(x2, ed, 0);
+            }
+            break;
+
+        case 0x2A:
+            INST_NAME("CVTSI2SS Gx, Ed");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETED;
+            s0 = fpu_get_scratch_single(dyn);
+            VMOVtoV(s0, ed);
+            VCVT_F32_S32(s0, s0);
+            d0 = fpu_get_scratch_double(dyn);
+            VMOV_64(d0, v0);
+            VMOV_32(d0*2, s0);
+            VMOV_64(v0, d0);
+            break;
+
+        case 0x2C:
+            INST_NAME("CVTTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            s0 = fpu_get_scratch_single(dyn);
+            if((nextop&0xC0)==0xC0) {
+                v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                d0 = fpu_get_scratch_double(dyn);
+                VMOV_64(d0, v0);
+                VMOV_32(s0, d0*2);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLDR_32(s0, ed, 0);
+            }
+            VCVT_S32_F32(s0, s0);
+            VMOVfrV(gd, s0);
+            break;
+        case 0x2D:
+            INST_NAME("CVTSD2SI Gd, Ex");
+            u8 = x87_setround(dyn, ninst, x1, x2, x12);
+            nextop = F8;
+            GETGD;
+            s0 = fpu_get_scratch_single(dyn);
+            if((nextop&0xC0)==0xC0) {
+                v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                d0 = fpu_get_scratch_double(dyn);
+                VMOV_64(d0, v0);
+                VMOV_32(s0, d0*2);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLDR_32(s0, ed, 0);
+            }
+            VCVTR_S32_F32(s0, s0);
+            VMOVfrV(gd, s0);
+            x87_restoreround(dyn, ninst, u8);
+            break;
 
         case 0x7F:
             INST_NAME("MOVDQU Gx,Ex");
