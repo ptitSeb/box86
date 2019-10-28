@@ -512,6 +512,12 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("NOP");
             break;
 
+        case 0x98:
+            INST_NAME("CBW");
+            SXTB(x1, xEAX, 0);
+            BFI(xEAX, x1, 0, 16);
+            break;
+
         case 0xA1:
             INST_NAME("MOV, AX, Od");
             u32 = F32;

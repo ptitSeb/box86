@@ -599,7 +599,7 @@ Op is 20-27
 #define VSHR_U32(Dd, Dm, imm5)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b1<<5 | (32-imm5), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VSHR_S32(Dd, Dm, imm5)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, 0b1<<5 | (32-imm5), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VSHR_U64(Dd, Dm, imm6)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
-#define VSHR_s64(Dd, Dm, imm6)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSHR_S64(Dd, Dm, imm6)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_U8(Dd, Dm, imm3)    EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b001<<3 | (8-imm3), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_S8(Dd, Dm, imm3)    EMIT(VSHR_gen(0, ((Dd)>>4)&1, 0b001<<3 | (8-imm3), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_U16(Dd, Dm, imm4)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b01<<4 | (16-imm4), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -607,7 +607,7 @@ Op is 20-27
 #define VSHRQ_U32(Dd, Dm, imm5)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b1<<5 | (32-imm5), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_S32(Dd, Dm, imm5)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, 0b1<<5 | (32-imm5), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHRQ_U64(Dd, Dm, imm6)   EMIT(VSHR_gen(1, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
-#define VSHRQ_s64(Dd, Dm, imm6)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VSHRQ_S64(Dd, Dm, imm6)   EMIT(VSHR_gen(0, ((Dd)>>4)&1, (64-imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VSHL_gen(D, imm6, Vd, L, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | (imm6)<<16 | (Vd)<<12 | 0b0101<<8 | (L)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VSHL_8(Dd, Dm, imm3)    EMIT(VSHL_gen(((Dd)>>4)&1, 0b001<<3 | (imm3+8), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
