@@ -51,6 +51,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int fixedaddress;
     switch(opcode) {
 
+        case 0x13:
+            INST_NAME("MOVLPD Eq, Gx");
+            nextop = F8;
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                // access register instead of memory is bad opcode!
+                *ok = 0;
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+            VSTR_64(v0, ed, 0);
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -346,7 +359,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
-        case 0x72:  /* GRP */
+        case 0x72:
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 2:
@@ -400,6 +413,94 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_32(q0, ed);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLQ Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_64(q0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>63) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        VSHRQ_U64(q0, q0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_64(q0, ed);
+                    }
+                    break;
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_64(q0, ed);
+                    }
+                    u8 = F8;
+                    if(u8>15) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        q1 = fpu_get_scratch_quad(dyn);
+                        VEORQ(q1, q1, q1);
+                        VEXTQ_8(q0, q0, q1, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_64(q0, ed);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_64(q0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>63) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        VSHLQ_64(q0, q0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_64(q0, ed);
+                    }
+                    break;
+                case 7:
+                    INST_NAME("PSLLDQ Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_64(q0, ed);
+                    }
+                    u8 = F8;
+                    if(u8>15) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        q1 = fpu_get_scratch_quad(dyn);
+                        VEORQ(q1, q1, q1);
+                        VEXTQ_8(q0, q1, q0, 16-u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_64(q0, ed);
                     }
                     break;
                 default:

@@ -1082,6 +1082,52 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             break;
 
+        case 0xC6:
+            INST_NAME("SHUFPS Gx, Ex, Ib");
+            nextop = F8;
+            i32 = -1;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            q0 = fpu_get_scratch_quad(dyn); // temporary storage
+            // use stack as temporary storage
+            SUB_IMM8(xSP, xSP, 4);
+            if((nextop&0xC0)!=0xC0)
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+            u8 = F8;
+            // first two elements from Gx
+            for (int i=0; i<2; ++i) {
+                int32_t idx = (u8>>(i*2))&3;
+                if(idx!=i32) {
+                    VST1LANE_32(v0+(idx/2), xSP, idx&1);
+                    i32 = idx;
+                }
+                VLD1LANE_32(q0+(i/2), xSP, i&1);
+            }
+            i32 = -1;
+            // next two from Ex
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                for (int i=2; i<4; ++i) {
+                    int32_t idx = (u8>>(i*2))&3;
+                    if(idx!=i32) {
+                        VST1LANE_32(v1+(idx/2), xSP, idx&1);
+                        i32 = idx;
+                    }
+                    VLD1LANE_32(q0+(i/2), xSP, i&1);
+                }
+            } else {
+                for (int i=2; i<4; ++i) {
+                    int32_t idx = (u8>>(i*2))&3;
+                    if(idx!=i32) {
+                        ADD_IMM8(x2, ed, idx*4);
+                        i32 = idx;
+                    }
+                    VLD1LANE_32(q0+(i/2), x2, i&1);
+                }
+            }
+            ADD_IMM8(xSP, xSP, 4);
+            VMOVQ(v0, q0);
+            break;
         case 0xC7:
             INST_NAME("CMPXCHG8B Gq, Eq");
             nextop = F8;

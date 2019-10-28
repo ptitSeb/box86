@@ -176,7 +176,20 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(s0, d0);
             VCVT_F64_F32(v0, s0);
             break;
-
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                v1 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(v1, ed);
+            }
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VCVTQ_S32_F32(v0, v1);
+            break;
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
@@ -188,7 +201,6 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VSUB_F32(d1*2, d1*2, s0);
             VMOV_64(v0, d1);
             break;
-
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
             nextop = F8;
@@ -247,6 +259,21 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOV_64(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLD1_64(v0, ed);
+            }
+            VEOR(v0+1, v0+1, v0+1);
+            break;
         case 0x7F:
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
@@ -263,6 +290,31 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVfrV_D(x2, x3, v0+1);
                 STRD_IMM8(x2, ed, 8);
             }
+            break;
+
+        case 0xC2:
+            INST_NAME("CMPSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            VCMP_F32(d1*2, s0);
+            VMRS_APSR();
+            MOVW(x2, 0);
+            u8 = F8;
+            switch(u8&7) {
+                case 0: MVN_COND_REG_LSL_IMM8(cEQ, x2, x2, 0); break;   // Equal
+                case 1: MVN_COND_REG_LSL_IMM8(cCC, x2, x2, 0); break;   // Less than
+                case 2: MVN_COND_REG_LSL_IMM8(cLS, x2, x2, 0); break;   // Less or equal
+                case 3: MVN_COND_REG_LSL_IMM8(cVS, x2, x2, 0); break;   // NaN
+                case 4: MVN_COND_REG_LSL_IMM8(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: MVN_COND_REG_LSL_IMM8(cPL, x2, x2, 0); break;   // Greater or equal or unordered
+                case 6: MVN_COND_REG_LSL_IMM8(cHI, x2, x2, 0); break;   // Greater or unordered
+                case 7: MVN_COND_REG_LSL_IMM8(cVC, x2, x2, 0); break;   // not NaN
+            }
+            VMOVtoDx_32(v0, 0, x2);
             break;
 
         default:
