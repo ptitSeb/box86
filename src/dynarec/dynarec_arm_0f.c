@@ -84,7 +84,34 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 STRD_IMM8(x2, ed, 8);
             }
             break;
-
+        case 0x12:
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                INST_NAME("MOVHLPS Gx,Ex");
+                GETGX(v0);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v0, v1+1);
+            } else {
+                INST_NAME("MOVLPS Gx,Ex");
+                GETGX(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);
+                VMOVfrV_D(v0, x2, x3);
+            }
+            break;
+        case 0x13:
+            nextop = F8;
+            INST_NAME("MOVLPS Ex,Gx");
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VMOVfrV_D(x2, x3, v0);
+                STRD_IMM8(x2, ed, 0);
+            }
+            break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
@@ -107,6 +134,34 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else q1 = q0;
             VZIPQ_32(v0, q1);
             VMOVQ(v0, q1);
+            break;
+        case 0x16:
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                INST_NAME("MOVLHPS Gx,Ex");
+                GETGX(v0);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v0+1, v1);
+            } else {
+                INST_NAME("MOVHPS Gx,Ex");
+                GETGX(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);
+                VMOVfrV_D(v0+1, x2, x3);
+            }
+            break;
+        case 0x17:
+            nextop = F8;
+            INST_NAME("MOVHPS Ex,Gx");
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOV_64(v1, v0+1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VMOVfrV_D(x2, x3, v0+1);
+                STRD_IMM8(x2, ed, 0);
+            }
             break;
 
         case 0x1F:
@@ -332,7 +387,29 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGX(v0);
             VMULQ_F32(v0, v0, q0);
             break;
-
+        case 0x5A:
+            INST_NAME("CVTPS2PD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(q0<16) {
+                d0 = q0;
+            } else {
+                d0 = fpu_get_scratch_double(dyn);
+                VMOV_64(d0, q0);
+            }
+            VCVT_F64_F32(v0+1, q0*2+1);
+            VCVT_F64_F32(v0, q0*2);
+            break;
+        case 0x5B:
+            INST_NAME("CVTDQ2PS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VCVTQ_F32_S32(v0, q0);
+            break;
         case 0x5C:
             INST_NAME("SUBPS Gx, Ex");
             nextop = F8;

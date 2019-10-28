@@ -607,4 +607,7 @@ Op is 20-27
 #define VCGT_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VCGT_F32(Dd, Dn, Dm)    EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 0<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
 #define VCGTQ_F32(Dd, Dn, Dm)   EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 1<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
+
+#define VCVT_NEON_gen(D, size, Vd, op, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b11<<9 | (op)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VCVTQ_F32_S32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b00, 1, ((Dm)>>4)&1, (Dm)&15))
 #endif  //__ARM_EMITTER_H__
