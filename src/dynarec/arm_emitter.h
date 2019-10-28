@@ -385,6 +385,8 @@ Op is 20-27
 #define VMOV_32(Sd, Sm)     EMIT(c__ | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b01<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15))
 // Move with condition between Dd and Dm
 #define VMOVcond_64(cond, Dd, Dm)     EMIT(cond | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
+// Move with condition between Sd and Sm
+#define VMOVcond_32(cond, Sd, Sm)     EMIT(cond | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b01<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15))
 
 #define VMOVtoDx_gen(Vd, D, Rt, opc1, opc2)   (0b1110<<24 | 0<<23 | (opc1)<<21 | (Vd)<<16 | (Rt)<<12 | 0b1011<<8 | (D)<<7 | (opc2)<<5 | 1<<4)
 // Move between Rt and Dm[x]
@@ -589,4 +591,20 @@ Op is 20-27
 #define VZIPQ_8(Dd, Dm)    EMIT(VZIP_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VZIPQ_16(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VZIPQ_32(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VADD_F_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | (D)<<22 | 0<<20 | (Vn)<<16 | (Vd)<<12 | 0b1101<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VADD__F32(Dd, Dn, Dm)   EMIT(VADD_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VADDQ_F32(Dd, Dn, Dm)   EMIT(VADD_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VSUB_F_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | (D)<<22 | 1<<21 | 0<<20 | (Vn)<<16 | (Vd)<<12 | 0b1101<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VSUB__F32(Dd, Dn, Dm)   EMIT(VSUB_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VSUBQ_F32(Dd, Dn, Dm)   EMIT(VSUB_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VMUL_F_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | (D)<<22 | 0<<20 | (Vn)<<16 | (Vd)<<12 | 0b1101<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VMUL__F32(Dd, Dn, Dm)   EMIT(VMUL_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VMULQ_F32(Dd, Dn, Dm)   EMIT(VMUL_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VCGT_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VCGT_F32(Dd, Dn, Dm)    EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 0<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
+#define VCGTQ_F32(Dd, Dn, Dm)   EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 1<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
 #endif  //__ARM_EMITTER_H__

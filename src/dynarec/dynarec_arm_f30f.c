@@ -189,6 +189,20 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOV_64(v0, d1);
             break;
 
+        case 0x5D:
+            INST_NAME("MINSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            // MINSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            VCMP_F32(d1*2, s0);
+            VMRS_APSR();
+            VMOVcond_32(cPL, d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
@@ -198,6 +212,20 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             d1 = fpu_get_scratch_double(dyn);
             VMOV_64(d1, v0);
             VDIV_F32(d1*2, d1*2, s0);
+            VMOV_64(v0, d1);
+            break;
+        case 0x5F:
+            INST_NAME("MAXSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            d1 = fpu_get_scratch_double(dyn);
+            VMOV_64(d1, v0);
+            // MAXSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            VCMP_F32(s0, d1*2);
+            VMRS_APSR();
+            VMOVcond_32(cPL, d1*2, s0);
             VMOV_64(v0, d1);
             break;
 

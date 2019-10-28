@@ -318,20 +318,28 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGX(v0);
             VEORQ(v0, v0, q0);
             break;
-        /*case 0x58:
+        case 0x58:
             INST_NAME("ADDPS Gx, Ex");
             nextop = F8;
             GETEX(q0);
             GETGX(v0);
             VADDQ_F32(v0, v0, q0);
-            break;*/
-        /*case 0x59:
+            break;
+        case 0x59:
             INST_NAME("MULPS Gx, Ex");
             nextop = F8;
             GETEX(q0);
             GETGX(v0);
             VMULQ_F32(v0, v0, q0);
-            break;*/
+            break;
+
+        case 0x5C:
+            INST_NAME("SUBPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VSUBQ_F32(v0, v0, q0);
+            break;
 
         #define GO(GETFLAGS, NO, YES)   \
             i32_ = F32S;    \
