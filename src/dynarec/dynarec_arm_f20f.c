@@ -161,7 +161,17 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0);
             VSUB_F64(v0, v0, d0);
             break;
-
+        case 0x5D:
+            INST_NAME("MINSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
+            VCMP_F64(v0, d0);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0, d0);
+            break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
@@ -169,6 +179,40 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(d0);
             VDIV_F64(v0, v0, d0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            VCMP_F64(d0, v0);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0, d0);
+            break;
+
+        case 0xC2:
+            INST_NAME("CMPSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            VCMP_F64(v0, d0);
+            VMRS_APSR();
+            MOVW(x2, 0);
+            u8 = F8;
+            switch(u8&7) {
+                case 0: MVN_COND_REG_LSL_IMM8(cEQ, x2, x2, 0); break;   // Equal
+                case 1: MVN_COND_REG_LSL_IMM8(cCC, x2, x2, 0); break;   // Less than
+                case 2: MVN_COND_REG_LSL_IMM8(cLS, x2, x2, 0); break;   // Less or equal
+                case 3: MVN_COND_REG_LSL_IMM8(cVS, x2, x2, 0); break;   // NaN
+                case 4: MVN_COND_REG_LSL_IMM8(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: MVN_COND_REG_LSL_IMM8(cPL, x2, x2, 0); break;   // Greater or equal or unordered
+                case 6: MVN_COND_REG_LSL_IMM8(cHI, x2, x2, 0); break;   // Greater or unordered
+                case 7: MVN_COND_REG_LSL_IMM8(cVC, x2, x2, 0); break;   // not NaN
+            }
+            VMOVtoV_D(v0, x2, x2);
             break;
 
         default:

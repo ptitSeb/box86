@@ -209,7 +209,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(s0, d0);
             d1 = fpu_get_scratch_double(dyn);
             VMOV_64(d1, v0);
-            // MINSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
+            // MINSS: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             VCMP_F32(d1*2, s0);
             VMRS_APSR();
             VMOVcond_32(cPL, d1*2, s0);
