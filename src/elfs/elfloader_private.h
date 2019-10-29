@@ -49,6 +49,8 @@ struct elfheader_s {
     uint32_t    pltrel;
     uintptr_t   gotplt;
     uintptr_t   got;
+    uintptr_t   text;
+    int         textsz;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;

@@ -276,6 +276,13 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
         printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
     }
+    // grab .text for main code
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
+    if(ii) {
+        h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
+        h->textsz = h->SHEntries[ii].sh_size;
+        printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
+    }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
