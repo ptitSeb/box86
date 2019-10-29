@@ -157,7 +157,7 @@ void freeSDL1My(void* lib)
     );*/
     kh_destroy(timercb, my->threads);
     if(sdl1_evtfilter) {
-        FreeCallback(sdl1_evtfilter);
+        //FreeCallback(sdl1_evtfilter);
         sdl1_evtfilter = NULL;
         sdl1_evtfnc = NULL;
     }
