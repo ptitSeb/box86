@@ -648,6 +648,7 @@ Op is 20-27
 
 #define VMULL_NEON_gen(U, D, size, Vn, Vd, op, N, M, Vm)    (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b11<<10 | (op)<<9 | (N)<<7 | (M)<<5 | (Vm))
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
+#define VMULL_U64_U32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VTRN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VTRN_32(Dd, Dm)     EMIT(VTRN_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))

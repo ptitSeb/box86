@@ -774,7 +774,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 q1 = v1;
             }
             VTRN_32(q1, q1+1);  // transpose EX
-            VMULL_S64_S32(v0, q0, q1);
+            VMULL_U64_U32(v0, q0, q1);
             break;
 
         case 0xF9:
