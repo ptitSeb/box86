@@ -238,21 +238,21 @@ void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
 {
-    return dyn->fpu_scratch++;
+    return dyn->fpu_scratch++;  // return an Sx
 }
 // Get a FPU double scratch reg
 int fpu_get_scratch_double(dynarec_arm_t* dyn)
 {
     int i = (dyn->fpu_scratch+1)&(~1);
     dyn->fpu_scratch = i+2;
-    return i;
+    return i/2; // return a Dx
 }
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
     int i = (dyn->fpu_scratch+3)&(~3);
     dyn->fpu_scratch = i+4;
-    return i;
+    return i/2; // Return a Dx, not a Qx
 }
 // Reset scratch regs counter
 int fpu_reset_scratch(dynarec_arm_t* dyn)

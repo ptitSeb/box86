@@ -28,9 +28,7 @@
         b = sse_get_reg(dyn, ninst, x1, nextop&7);  \
         a = fpu_get_scratch_double(dyn);            \
         VMOV_64(a, b);                              \
-        b = a;                                      \
-        a = fpu_get_scratch_single(dyn);            \
-        VMOV_32(a, b*2);                            \
+        a *= 2;                                     \
     } else {    \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
         a = fpu_get_scratch_single(dyn);            \
@@ -58,9 +56,9 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVSS Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
             d0 = fpu_get_scratch_double(dyn);
             if((nextop&0xC0)==0xC0) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 d1 = fpu_get_scratch_double(dyn);
                 VMOVD(d0, v0);
@@ -68,6 +66,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOV_32(d0*2, d1*2);
                 VMOVD(v0, d0);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 LDR_IMM9(x2, ed, 0);   // to avoid bus errors
                 VEORQ(v0, v0, v0);

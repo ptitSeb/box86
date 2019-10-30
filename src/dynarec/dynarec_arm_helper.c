@@ -566,6 +566,7 @@ void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->ssecache[i]) {
             int a = (FIRSTSSE + i)*2;
             if (old==-1) {
+                MESSAGE(LOG_DUMP, "Purge SSE Cache ------\n");
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
                 ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
                 old = i;
@@ -576,7 +577,9 @@ void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
             VST1Q_32(a, s1);
             dyn->ssecache[i] = 0;
         }
-
+    if(old!=-1) {
+        MESSAGE(LOG_DUMP, "------ Purge SSE Cache\n");
+    }
 }
 #ifdef HAVE_TRACE
 void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
