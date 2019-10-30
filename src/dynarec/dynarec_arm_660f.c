@@ -256,8 +256,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PUNPCKLDQ Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             GETEX(q0);
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 q1 = fpu_get_scratch_quad(dyn);
                 VMOVQ(q1, q0);
@@ -277,11 +277,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOV_64(v0+1, v1);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VLDR_64(v0+1, ed, 0);
             }
@@ -297,6 +298,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETED;
             VMOVtoV(d0*2, ed);// d0 = U32{ed, 0}
             VMOVL_U32(v0, d0);// U32/U32 -> U64/U64
+            VEOR(v0+1, v0+1, v0+1); // upper 64 to 0
             break;
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
@@ -545,11 +547,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVDQA Ex,Gx");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v1, v0);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VST1Q_32(v0, ed);
             }

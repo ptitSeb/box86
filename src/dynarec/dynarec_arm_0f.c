@@ -72,9 +72,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOVUPS Ex,Gx");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
@@ -147,7 +147,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 GETGX(v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 LDRD_IMM8(x2, ed, 0);
-                VMOVfrV_D(v0+1, x2, x3);
+                VMOVtoV_D(v0+1, x2, x3);
             }
             break;
         case 0x17:
@@ -187,9 +187,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);

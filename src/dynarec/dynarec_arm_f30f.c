@@ -279,11 +279,11 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 VMOVQ(v1, v0);
             } else {
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VMOVfrV_D(x2, x3, v0);
                 STRD_IMM8(x2, ed, 0);
