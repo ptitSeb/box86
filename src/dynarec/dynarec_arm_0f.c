@@ -96,7 +96,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 GETGX(v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 LDRD_IMM8(x2, ed, 0);
-                VMOVfrV_D(v0, x2, x3);
+                VMOVtoV_D(v0, x2, x3);
             }
             break;
         case 0x13:
