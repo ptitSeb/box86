@@ -51,6 +51,51 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int fixedaddress;
     switch(opcode) {
 
+        case 0x10:
+            INST_NAME("MOVUPD Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);
+                VMOVtoV_D(v0, x2, x3);
+                LDRD_IMM8(x2, ed, 8);
+                VMOVtoV_D(v0+1, x2, x3);
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVUPD Ex,Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VMOVfrV_D(x2, x3, v0);
+                STRD_IMM8(x2, ed, 0);
+                VMOVfrV_D(x2, x3, v0+1);
+                STRD_IMM8(x2, ed, 8);
+            }
+            break;
+        case 0x12:
+            INST_NAME("MOVLPD Gx, Eq");
+            nextop = F8;
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                // access register instead of memory is bad opcode!
+                *ok = 0;
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+            VLDR_64(v0, ed, 0);
+            break;
         case 0x13:
             INST_NAME("MOVLPD Eq, Gx");
             nextop = F8;
@@ -68,6 +113,33 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("NOP (multibyte)");
             nextop = F8;
             FAKEED;
+            break;
+        
+        case 0x28:
+            INST_NAME("MOVAPD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLD1Q_32(v0, ed);
+            }
+            break;
+        case 0x29:
+            INST_NAME("MOVAPD Ex, Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VST1Q_32(v0, ed);
+            }
             break;
 
         case 0x2E:
