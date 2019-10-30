@@ -97,7 +97,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynablocks = NewDynablockList(0);
+    context->dynablocks = NewDynablockList(0, 0, 0);
 #endif
 
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);

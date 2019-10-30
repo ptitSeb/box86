@@ -27,7 +27,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     if(!h)
         return NULL;
 #ifdef DYNAREC
-    h->blocks = NewDynablockList((uintptr_t)GetBaseAddress(h));
+    h->blocks = NewDynablockList((uintptr_t)GetBaseAddress(h), h->text + h->delta, h->textsz);
 #endif
     return h;
 }

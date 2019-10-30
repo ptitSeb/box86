@@ -7,7 +7,7 @@ typedef struct dynablock_s dynablock_t;
 
 typedef struct dynablocklist_s dynablocklist_t;
 
-dynablocklist_t* NewDynablockList(uintptr_t base);
+dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz);
 void FreeDynablockList(dynablocklist_t** dynablocks);
 
 
