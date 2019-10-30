@@ -406,7 +406,7 @@ Op is 20-27
 // Load from memory to double  VLDR Dd, [Rn, #imm8]
 #define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))
 // Load from memory to single  VLDR Sd, [Rn, #imm8]
-#define VLDR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Sd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Sd)&15)<<12) | (0b1010<<8) | ((Imm8)&255))
+#define VLDR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Sd)&1)<<22) | (1<<20) | ((Rn)<<16) | ((((Sd)>>1)&15)<<12) | (0b1010<<8) | ((Imm8)&255))
 
 // Store to memory to double  VSTR Dd, [Rn, #imm8]
 #define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))

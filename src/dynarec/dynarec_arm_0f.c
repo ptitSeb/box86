@@ -203,22 +203,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
             UFLAGS(0);
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             d0 = fpu_get_scratch_double(dyn);
-            s0 = fpu_get_scratch_single(dyn);
-            s1 = fpu_get_scratch_single(dyn);
+            d1 = fpu_get_scratch_double(dyn);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOV_64(d0, v1);
-                VMOV_32(s0, d0*2);
+                s0 = d0*2;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                s0 = fpu_get_scratch_single(dyn);
                 VLDR_32(s0, ed, 0);
             }
-            VMOV_64(d0, v0);
-            VMOV_32(s1, d0*2);
-            VCMP_F32(s1, s0);
+            VMOV_64(d1, v0);
+            VCMP_F32(d1*2, s0);
             FCOMI(x1, x2);
             UFLAGS(1);
             break;
@@ -399,8 +397,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d0 = fpu_get_scratch_double(dyn);
                 VMOV_64(d0, q0);
             }
-            VCVT_F64_F32(v0+1, q0*2+1);
-            VCVT_F64_F32(v0, q0*2);
+            VCVT_F64_F32(v0+1, d0*2+1);
+            VCVT_F64_F32(v0, d0*2);
             break;
         case 0x5B:
             INST_NAME("CVTDQ2PS Gx, Ex");
@@ -1086,8 +1084,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
             i32 = -1;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             q0 = fpu_get_scratch_quad(dyn); // temporary storage
             // use stack as temporary storage
             SUB_IMM8(xSP, xSP, 4);

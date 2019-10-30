@@ -47,7 +47,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets)%s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), ((*dynablocks)->direct)?"With Direct mapping enabled":"");
+    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets)%s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
     kh_foreach_value((*dynablocks)->blocks, db,
         free(db->table);

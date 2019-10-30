@@ -901,10 +901,12 @@ const char* arm_print(uint32_t opcode)
                         // VLDR/VSTR to/from Single/Double
                         uint32_t ldr = ((opcode>>20)&1);
                         uint32_t u = ((opcode>>23)&1);
-                        uint32_t vd = ((opcode>>22)&1)<<4 | ((opcode>>12)&15);
                         uint32_t rn = ((opcode>>16)&15);
                         int32_t imm8 = (opcode&255);
+                        uint32_t D = (opcode>>22)&1;
+                        uint32_t Vd = (opcode>>12)&15;
                         uint32_t notsingle = ((opcode>>8)&1);
+                        uint32_t vd = (notsingle)?(D<<4 | Vd):(Vd<<1 | D);
                         char offset[50] = {0};
                         if(imm8)
                             sprintf(offset, ", #%d", u?imm8:-imm8);
