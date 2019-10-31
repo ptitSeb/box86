@@ -26,9 +26,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     elfheader_t *h = ParseElfHeader(f, name, exec);
     if(!h)
         return NULL;
-#ifdef DYNAREC
-    h->blocks = NewDynablockList((uintptr_t)GetBaseAddress(h), h->text + h->delta, h->textsz);
-#endif
+
     return h;
 }
 
@@ -148,6 +146,10 @@ int AllocElfMemory(elfheader_t* head, int mainbin)
 
     head->tlsdata = (char*)malloc(head->tlssize);
     pthread_key_create(&head->tlskey, free);
+
+#ifdef DYNAREC
+    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz);
+#endif
 
     return 0;
 }

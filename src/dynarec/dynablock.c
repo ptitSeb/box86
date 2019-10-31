@@ -75,8 +75,8 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     khint_t k;
     dynablock_t* db;
     uintptr_t key;
-    uintptr_t start = dynablocks->text;
-    uintptr_t end = dynablocks->text + dynablocks->textsz;
+    uintptr_t start = dynablocks->text-dynablocks->base;
+    uintptr_t end = dynablocks->text + dynablocks->textsz-dynablocks->base;
     kh_foreach(dynablocks->blocks, key, db,
         if(key>=start && key<end)
             direct[key-start] = db;
