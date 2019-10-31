@@ -314,7 +314,7 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
 
 // x87 stuffs
 #define X87FIRST    8
-void x87_reset(dynarec_arm_t* dyn, int ninst)
+static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
@@ -372,7 +372,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
             --dyn->x87cache[i];
 }
 
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
@@ -423,7 +423,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 }
 
 #ifdef HAVE_TRACE
-void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_stackcount(dyn, ninst, s1);
     int ret = 0;
@@ -532,7 +532,7 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 
 // first SSE cache is Q8 (so D16+D17)
 #define FIRSTSSE    8
-void sse_reset(dynarec_arm_t* dyn, int ninst)
+static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
         dyn->ssecache[i] = 0;
@@ -559,7 +559,7 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
     return ret;
 }
 // purge the SSE cache only(needs 3 scratch registers)
-void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
     for (int i=0; i<8; ++i)
@@ -582,7 +582,7 @@ void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     }
 }
 #ifdef HAVE_TRACE
-void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
+static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
     for (int i=0; i<8; ++i)
@@ -658,6 +658,13 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
-    sse_reflectcache(dyn, ninst, s1);
+    if(trace_xmm)
+       sse_reflectcache(dyn, ninst, s1);
 }
 #endif
+
+void fpu_reset(dynarec_arm_t* dyn, int ninst)
+{
+    x87_reset(dyn, ninst);
+    sse_reset(dyn, ninst);
+}

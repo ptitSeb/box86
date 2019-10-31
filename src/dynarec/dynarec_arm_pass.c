@@ -46,23 +46,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     dyn->tablei = 0;
     // Clean up (because there are multiple passes)
     dyn->cleanflags = 0;
-    x87_reset(dyn, ninst);
-    sse_reset(dyn, ninst);
+    fpu_reset(dyn, ninst);
     // ok, go now
     INIT;
     while(ok) {
         ip = addr;
         NEW_INST;
         fpu_reset_scratch(dyn);
+        fpu_reset_reg(dyn);
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
         if((dyn->emu->trace_end == 0) 
             || ((ip >= dyn->emu->trace_start) && (ip <= dyn->emu->trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
-                if(trace_xmm)
-                    fpu_reflectcache(dyn, ninst, x1, x2, x3);
-                else
-                    x87_reflectcache(dyn, ninst, x1, x2, x3);
+                fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 MOV32(1, ip);
                 STM(0, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
                 STR_IMM9(1, 0, offsetof(x86emu_t, ip));

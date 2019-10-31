@@ -299,26 +299,22 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_pop      STEPNAME(x87_do_pop)
-#define x87_reset       STEPNAME(x87_reset)
-#define x87_purgecache  STEPNAME(x87_purgecache)
-#define x87_reflectcache STEPNAME(x87_reflectcache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
-#define sse_reset       STEPNAME(sse_reset)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
-#define sse_purgecache  STEPNAME(sse_purgecache)
-#define fpu_purgecache  STEPNAME(fpu_purgecache)
-#ifdef HAVE_TRACE
-#define sse_reflectcache STEPNAME(sse_reflectcache)
-#define fpu_reflectcache STEPNAME(fpu_reflectcache)
-#endif
 #define sse_pushcache   STEPNAME(sse_pushcache)
 #define sse_popcache    STEPNAME(sse_popcache)
+
+#define fpu_reset       STEPNAME(fpu_reset)
+#define fpu_purgecache  STEPNAME(fpu_purgecache)
+#ifdef HAVE_TRACE
+#define fpu_reflectcache STEPNAME(fpu_reflectcache)
+#endif
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -338,8 +334,6 @@ void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 
 // x87 helper
-// reset the cache
-void x87_reset(dynarec_arm_t* dyn, int ninst);
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push, needs 1 scratch register. Return the Dd value to be used
@@ -357,27 +351,17 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 
-// purge the x87 cache only(needs 3 scratch registers)
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#ifdef HAVE_TRACE
-void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#endif
 //SSE/SSE2 helpers
-// reset the cache
-void sse_reset(dynarec_arm_t* dyn, int ninst);
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
-// purge the SSE cache only(needs 3 scratch registers)
-void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
-#ifdef HAVE_TRACE
-void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1);
-#endif
 void sse_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
 void sse_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
 // common coproc helpers
+// reset the cache
+void fpu_reset(dynarec_arm_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE

@@ -31,6 +31,7 @@ typedef struct dynarec_arm_s {
     int                 ssecache[8];// cache status for the 8 SSE(2) registers
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
+    int                 fpu_reg;    // x87/sse/mmx reg counter
 } dynarec_arm_t;
 
 
