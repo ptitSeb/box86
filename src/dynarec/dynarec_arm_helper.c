@@ -795,11 +795,10 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
 // emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MOVW(s3, 0);
-    STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
+    MOVW(s4, 0);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUBS_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
     // first the easy flags, also found on ARM
-    MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     MOVW(s4, 0);
@@ -834,7 +833,7 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);
     AND_IMM8(s3, s3, 31);
     MOV_REG_LSR_REG(s4, s4, s3);
-    TSTS_IMM8_ROR(s4, 1, 0);
+    TSTS_IMM8(s4, 1);
     MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
@@ -851,7 +850,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    TSTS_IMM8_ROR(s3, 0b10, 1+4);
+    TSTS_IMM8_ROR(s3, 0b10, 1+8);
     MOVW(s4, 0);
     MOVW_COND(cNE, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
@@ -861,7 +860,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
     BIC_REG_LSL_IMM8(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
     ORR_REG_LSL_IMM8(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
-    TSTS_IMM8_ROR(s3, 0b10, 1+4);
+    TSTS_IMM8_ROR(s3, 0b10, 1+8);
     MOVW(s4, 0);
     MOVW_COND(cNE, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x8000
@@ -871,7 +870,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
     MOV_REG_LSR_IMM5(s4, s3, 14);
     XOR_REG_LSR_IMM8(s4, s4, s4, 1);
-    TSTS_IMM8_ROR(s4, 1, 0);
+    TSTS_IMM8(s4, 1);
     MOVW(s4, 0);
     MOVW_COND(cNE, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 14) ^ ((bc>>14)>>1)) & 1
@@ -883,7 +882,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);
     AND_IMM8(s3, s3, 31);
     MOV_REG_LSR_REG(s4, s4, s3);
-    TSTS_IMM8_ROR(s4, 1, 0);
+    TSTS_IMM8(s4, 1);
     MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
@@ -892,11 +891,10 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MOVW(s3, 0);
-    STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
+    MOVW(s4, 0);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
     TSTS_IMM8(s3, 0xff);
-    MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     TSTS_IMM8(s3, 0x80);
@@ -919,7 +917,7 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
     MOV_REG_LSR_IMM5(s4, s3, 6);
     XOR_REG_LSR_IMM8(s4, s4, s4, 1);
-    TSTS_IMM8_ROR(s4, 1, 0);
+    TSTS_IMM8(s4, 1);
     MOVW(s4, 0);
     MOVW_COND(cNE, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
@@ -931,7 +929,87 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);
     AND_IMM8(s3, s3, 31);
     MOV_REG_LSR_REG(s4, s4, s3);
-    TSTS_IMM8_ROR(s4, 1, 0);
+    TSTS_IMM8(s4, 1);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+}
+
+// emit TEST32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s4, 0);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    MOVW(s4, 0);
+    MOVW_COND(cMI, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    AND_REG_LSL_IMM5(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8(s4, 1);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+}
+
+// emit TEST16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s4, 0);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    TSTS_IMM8_ROR(s3, 0b10, 1+8);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    AND_REG_LSL_IMM5(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8(s4, 1);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+}
+
+// emit TEST8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s4, 0);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    TSTS_IMM8(s3, 0x80);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    AND_REG_LSL_IMM5(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8(s4, 1);
     MOVW(s4, 0);
     MOVW_COND(cEQ, s4, 1);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));

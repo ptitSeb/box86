@@ -299,6 +299,9 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
 #define emit_cmp32      STEPNAME(emit_cmp32)
+#define emit_test8     STEPNAME(emit_test8)
+#define emit_test16     STEPNAME(emit_test16)
+#define emit_test32     STEPNAME(emit_test32)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -346,6 +349,9 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call

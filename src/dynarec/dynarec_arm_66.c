@@ -474,7 +474,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             GETEW(x1);
             GETGW(x2);
-            CALL(test16, -1, 0);
+            emit_test16(dyn, ninst, x1, x2, x3, x12);
             UFLAGS(1);
             break;
 
@@ -805,9 +805,9 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("TEST Ew, Iw");
                     UFLAGS(0);
                     GETEW(x1);
-                    i16 = F16S;
-                    MOVW(x2, i16);
-                    CALL(test16, -1, 0);
+                    u16 = F16;
+                    MOVW(x2, u16);
+                    emit_test16(dyn, ninst, x1, x2, x3, x12);
                     UFLAGS(1);
                     break;
                 case 2:

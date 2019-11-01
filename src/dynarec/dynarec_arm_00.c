@@ -1045,7 +1045,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop=F8;
             GETEB(x1);
             GETGB(x2);
-            CALL(test8, -1, 0);
+            emit_test8(dyn, ninst, x1, x2, x3, x12);
             UFLAGS(1);
             break;
         case 0x85:
@@ -1054,9 +1054,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop=F8;
             GETGD;
             GETEDH(x1);
-            if(ed!=x1) {MOV_REG(x1, ed);};
-            MOV_REG(x2, gd);
-            CALL(test32, -1, 0);
+            emit_test32(dyn, ninst, ed, gd, x3, x12);
             UFLAGS(1);
             break;
         case 0x86:
@@ -1316,15 +1314,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UXTB(x1, xEAX, 0);
             u8 = F8;
             MOVW(x2, u8);
-            CALL(test8, -1, 0);
+            emit_test8(dyn, ninst, x1, x2, x3, x12);
             UFLAGS(1);
             break;
         case 0xA9:
             INST_NAME("TEST EAX, Id");
-            MOV_REG(x1, xEAX);
             i32 = F32S;
             MOV32(x2, i32);
-            CALL(test32, -1, 0);
+            emit_test32(dyn, ninst, xEAX, x2, x3, x12);
             UFLAGS(1);
             break;
         case 0xAA:
@@ -2323,7 +2320,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
-                    CALL(test8, -1, 0);
+                    emit_test8(dyn, ninst, x1, x2, x3, x12);
                     UFLAGS(1);
                     break;
                 case 2:
@@ -2384,11 +2381,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("TEST Ed, Id");
                     GETEDH(x1);
                     i32 = F32S;
-                    if(ed!=x1) {
-                        MOV_REG(x1, ed);
-                    }
                     MOV32(x2, i32);
-                    CALL(test32, -1, 0);
+                    emit_test32(dyn, ninst, ed, x2, x3, x12);
                     UFLAGS(1);
                     break;
                 case 2:
