@@ -375,6 +375,14 @@ Op is 20-27
 #define MSR_imm_gen(cond, mask, imm12) (cond | 0b00110<<23 | 0b10<<20 | (mask)<<18 | 0b1111<<12 | (imm12))
 #define MSR_nzcvq_0()   EMIT(MSR_imm_gen(c__, 0b10, 0))
 
+#define LDREXD_gen(cond, Rn, Rt) (cond | 0b000<<25 | 0b11011<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
+// Load Exclusive Rt/Rt+1 from Rn (tagging the memory)
+#define LDREXD(Rn, Rt)  EMIT(LDREXD_gen(c__, Rn, Rt))
+
+#define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001>>4 | (Rt))
+// Store Exclusive Rt/Rt+1 to Rn, with result in Rd if tag is ok (Rd!=Rn && Rd!=Rt && Rd!=Rt+1), Rd==1 if store failed
+#define STREXD(Rd, Rn, Rt)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
+
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 

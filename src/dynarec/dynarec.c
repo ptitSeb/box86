@@ -22,16 +22,23 @@
 #ifdef ARM
 void arm_prolog(x86emu_t* emu, void* addr);
 void arm_epilog();
+int arm_tableupdate(void* jump, uintptr_t addr, void** table);
 #endif
 
 #ifdef DYNAREC
 void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 {
     dynablock_t* block = DBGetBlock(emu, addr, 1, NULL);    // keep a copy of parent block?
+    int r;
     if(block==0) {
         // no block, don't try again, ever
+        #ifdef ARM
+        r = arm_tableupdate(arm_epilog, addr, table);
+        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
+        #else
         *table = arm_epilog;
-        return *table;
+        #endif
+        return arm_epilog;
     }
     if(!block->done) {
         // not finished yet... leave as-is
@@ -39,11 +46,21 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     }
     if(!block->block) {
         // null block, but done
+        #ifdef ARM
+        r = arm_tableupdate(arm_epilog, addr, table);
+        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
+        #else
         *table = arm_epilog;
-        return *table;
+        #endif
+        return arm_epilog;
     }
+    #ifdef ARM
+    r = arm_tableupdate(block->block, addr, table);
+    if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
+    #else
     *table = block->block;
-    return *table;
+    #endif
+    return block->block;
 }
 #endif
 

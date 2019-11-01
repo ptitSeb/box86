@@ -207,52 +207,114 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
                 MOV_REG(xEIP, reg);
             }
         } else {
-            MOV32(xEIP, ip);
+            MOV32_(xEIP, ip);
         }
         uintptr_t* table = 0;
         if(dyn->tablesz) {
             table = &dyn->table[dyn->tablei];
             table[0] = (uintptr_t)arm_linker;
-            if(!ip) {   // need the smart linker
-                table[1] = ip;
-            }
+            table[1] = 0;
         }
-        if(ip)
-            dyn->tablei+=1; // fast linker, with a fixed address
-        else
-            dyn->tablei+=2; // smart linker
+        dyn->tablei+=2; // smart linker or not, we keep table correctly alligned for LDREXD/STREXD access
         MOV32_(x1, (uintptr_t)table);
         // TODO: This is not thread safe.
         if(!ip) {   // no IP, jump address in a reg, so need smart linker
-            LDM(x1, (1<<x2) | (1<<x3)); // load dest address in x2 and planned ip in x3
+            dyn->tablei+=2; // smart linker
+            MOV32_(x1, (uintptr_t)table);
+            MARK;
+            LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
             CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
             MOV32(x2, (uintptr_t)arm_linker);
-            STM(x1, (1<<x2) | (1<<x12)); // nope, putting back linker & IP in place
+            MOV_REG(x3, x12);
+            STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+            // x12 now contain success / falure for write
+            CMPS_IMM8(x12, 1);
+            MOV_REG(x12, x3);   // put back IP in place...
+            B_MARK(cEQ);
             BX(x2); // go to linker
+        } else {
+            LDR_IMM9(x2, x1, 0);
+            BX(x2); // jump
         }
-        LDR_IMM9(x2, x1, 0);
-        BX(x2); // jump
     }
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
-    MESSAGE(LOG_DUMP, "Ret epilog\n");
-    POP(xESP, 1<<xEIP);
-    void* epilog = arm_epilog;
-    MOV32(x2, (uintptr_t)epilog);
-    BX(x2);
+// using linker here doesn't seem to bring any significant speed improvment. To much change in the jump table probably
+#if 0
+    int i32;
+    if(!box86_dynarec_linker) {
+#endif
+        MESSAGE(LOG_DUMP, "Ret epilog\n");
+        POP(xESP, 1<<xEIP);
+        void* epilog = arm_epilog;
+        MOV32(x2, (uintptr_t)epilog);
+        BX(x2);
+#if 0
+    } else {
+        MESSAGE(LOG_DUMP, "Ret epilog with linker\n");
+        POP(xESP, 1<<xEIP);
+        uintptr_t* table = 0;
+        if(dyn->tablesz) {
+            table = &dyn->table[dyn->tablei];
+            table[0] = (uintptr_t)arm_linker;
+            table[1] = 0;
+        }
+        dyn->tablei+=2; // smart linker
+        MOV32_(x1, (uintptr_t)table);
+        MARK;
+        LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
+        CMPS_REG_LSL_IMM5(xEIP, x3, 0);
+        BXcond(cEQ, x2);
+        MOV32(x2, (uintptr_t)arm_linker);
+        MOV_REG(x3, x12);
+        STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+        // x12 now contain success / falure for write
+        CMPS_IMM8(x12, 1);
+        MOV_REG(x12, x3);   // put back IP in place...
+        B_MARK(cEQ);
+        BX(x2); // go to linker
+    }
+#endif
 }
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
-    MESSAGE(LOG_DUMP, "Retn epilog\n");
-    POP(xESP, 1<<xEIP);
-    ADD_IMM8(xESP, xESP, n);
-    void* epilog = arm_epilog;
-    MOV32(x2, (uintptr_t)epilog);
-    BX(x2);
+    int i32;
+    if(!box86_dynarec_linker) {
+        MESSAGE(LOG_DUMP, "Retn epilog\n");
+        POP(xESP, 1<<xEIP);
+        ADD_IMM8(xESP, xESP, n);
+        void* epilog = arm_epilog;
+        MOV32(x2, (uintptr_t)epilog);
+        BX(x2);
+    } else {
+        MESSAGE(LOG_DUMP, "Retn epilog with linker\n");
+        POP(xESP, 1<<xEIP);
+        ADD_IMM8(xESP, xESP, n);
+        uintptr_t* table = 0;
+        if(dyn->tablesz) {
+            table = &dyn->table[dyn->tablei];
+            table[0] = (uintptr_t)arm_linker;
+            table[1] = 0;
+        }
+        dyn->tablei+=2; // smart linker
+        MOV32_(x1, (uintptr_t)table);
+        MARK;
+        LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
+        CMPS_REG_LSL_IMM5(xEIP, x3, 0);
+        BXcond(cEQ, x2);
+        MOV32(x2, (uintptr_t)arm_linker);
+        MOV_REG(x3, x12);
+        STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+        // x12 now contain success / falure for write
+        CMPS_IMM8(x12, 1);
+        MOV_REG(x12, x3);   // put back IP in place...
+        B_MARK(cEQ);
+        BX(x2); // go to linker
+    }
 }
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)

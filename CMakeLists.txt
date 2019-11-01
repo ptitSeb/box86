@@ -162,6 +162,7 @@ if(ARM_DYNAREC)
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_epilog.S"
         "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_linker.S"
+        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_table.S"
     )
 
     set(DYNAREC_PASS
