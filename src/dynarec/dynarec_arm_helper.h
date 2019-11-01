@@ -174,7 +174,7 @@
 // Branch to MARK if cond (use i32)
 #define B_MARK(cond)    \
     i32 = GETMARK-(dyn->arm_size+8);    \
-    Bcond(cond, (GETMARK-(dyn->arm_size+8)))
+    Bcond(cond, i32)
 // Branch to MARK2 if cond (use i32)
 #define B_MARK2(cond)    \
     i32 = GETMARK2-(dyn->arm_size+8);   \
