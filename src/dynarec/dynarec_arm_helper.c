@@ -325,7 +325,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     if(!dyn->x87stack)
         return;
-    MESSAGE(LOG_DUMP, "Synch x87 Stackcount (%d)\n", dyn->x87stack);
+    MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     // Add x87stack to emu fpu_stack
     LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, fpu_stack));
@@ -346,7 +346,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
     // reset x87stack
     dyn->x87stack = 0;
-    MESSAGE(LOG_DUMP, "------x87 Stackcount\n");
+    MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
 }
 
 int x87_do_push(dynarec_arm_t* dyn, int ninst)
@@ -362,6 +362,16 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
             ret=dyn->x87reg[i]=fpu_get_reg_double(dyn);
         }
     return ret;
+}
+void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    dyn->x87stack+=1;
+    // move all regs in cache
+    for(int i=0; i<8; ++i)
+        if(dyn->x87cache[i]!=-1)
+            ++dyn->x87cache[i];
+    if(s1)
+        x87_stackcount(dyn, ninst, s1);
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 {
@@ -385,7 +395,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
             ret = 1;
     if(!ret && !dyn->x87stack)    // nothing to do
         return;
-    MESSAGE(LOG_DUMP, "Purge x87 Cache and Synch Stackcount (%d)\n", dyn->x87stack);
+    MESSAGE(LOG_DUMP, "\tPurge x87 Cache and Synch Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     if(a!=0) {
         // reset x87stack
@@ -461,7 +471,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st)
             return i;
-    MESSAGE(LOG_DUMP, "Create x87 Cache for ST%d\n", st);
+    MESSAGE(LOG_DUMP, "\tCreate x87 Cache for ST%d\n", st);
     // get a free spot
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -482,7 +492,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);
     VLDR_64(dyn->x87reg[ret], s2, 0);
-    MESSAGE(LOG_DUMP, "-------x87 Cache for ST%d\n", st);
+    MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 
     return ret;
 }
@@ -502,18 +512,99 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             ret = i;
     if(ret==-1)    // nothing to do
         return;
-    MESSAGE(LOG_DUMP, "Refresh x87 Cache for ST%d\n", st);
+    MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
-    ADD_IMM8(s2, s2, st);
-    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    if(st) {
+        ADD_IMM8(s2, s2, st);
+        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    }
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
-    MESSAGE(LOG_DUMP, "--------x87 Cache for ST%d\n", st);
+    MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
+}
+
+void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
+{
+    x87_stackcount(dyn, ninst, s1);
+    int ret = -1;
+    for (int i=0; (i<8) && (ret==-1); ++i)
+        if(dyn->x87cache[i] == st)
+            ret = i;
+    if(ret==-1)    // nothing to do
+        return;
+    MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
+    // prepare offset to fpu => s1
+    MOVW(s1, offsetof(x86emu_t, fpu));
+    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    // Get top
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    // Update
+    if(st) {
+        ADD_IMM8(s2, s2, st);
+        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    }
+    ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+    VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
+    MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
+    // and forget that cache
+    fpu_free_reg_double(dyn, dyn->x87reg[ret]);
+    dyn->x87cache[ret] = -1;
+    dyn->x87reg[ret] = -1;
+}
+
+void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
+{
+    // search in cache first
+    for (int i=0; i<8; ++i)
+        if(dyn->x87cache[i]==st) {
+            // refresh the value
+        MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
+            MOVW(s1, offsetof(x86emu_t, fpu));
+            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+            int a = st - dyn->x87stack;
+            if(a<0) {
+                SUB_IMM8(s2, s2, -a);
+            } else {
+                ADD_IMM8(s2, s2, a);
+            }
+            AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+            ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+            VLDR_64(dyn->x87reg[i], s2, 0);
+            MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
+            // ok
+            return;
+        }
+    // Was not in the cache? creating it....
+    MESSAGE(LOG_DUMP, "\tCreate x87 Cache for ST%d\n", st);
+    // get a free spot
+    int ret = -1;
+    for (int i=0; (i<8) && (ret==-1); ++i)
+        if(dyn->x87cache[i]==-1)
+            ret = i;
+    // found, setup and grab the value
+    dyn->x87cache[ret] = st;
+    dyn->x87reg[ret] = fpu_get_reg_double(dyn);
+    MOVW(s1, offsetof(x86emu_t, fpu));
+    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    int a = st - dyn->x87stack;
+    if(a<0) {
+        SUB_IMM8(s2, s2, -a);
+    } else {
+        ADD_IMM8(s2, s2, a);
+    }
+    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+    VLDR_64(dyn->x87reg[ret], s2, 0);
+    MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
+
+    return;
 }
 
 static int round_map[] = {0, 2, 1, 3};  // map x86 -> arm round flag
@@ -569,7 +660,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
-                MESSAGE(LOG_DUMP, "Purge SSE Cache ------\n");
+                MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
                 ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
                 old = i+1;  //+1 because VST1Q with write back
@@ -584,7 +675,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
             dyn->ssecache[i] = -1;
         }
     if(old!=-1) {
-        MESSAGE(LOG_DUMP, "------ Purge SSE Cache\n");
+        MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
 }
 #ifdef HAVE_TRACE
@@ -617,7 +708,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "Push FPU Cache (%d)------\n", n);
+    MESSAGE(LOG_DUMP, "\tPush FPU Cache (%d)------\n", n);
     if(n>=8) {
         MOVW(s1, n*8);
         SUB_REG_LSL_IMM8(xSP, xSP, s1, 0);
@@ -631,7 +722,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
             VST1_32_W(a, s1);
         }
     }
-    MESSAGE(LOG_DUMP, "------- Push FPU Cache (%d)\n", n);
+    MESSAGE(LOG_DUMP, "\t------- Push FPU Cache (%d)\n", n);
 }
 
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
@@ -643,7 +734,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "Pop FPU Cache (%d)------\n", n);
+    MESSAGE(LOG_DUMP, "\tPop FPU Cache (%d)------\n", n);
     MOV_REG(s1, xSP);
     for (int i=0; i<n; ++i) {
         if(dyn->fpuused[i+8]) {
@@ -657,7 +748,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     } else {
         ADD_IMM8(xSP, xSP, n*8);
     }
-    MESSAGE(LOG_DUMP, "------- Pop FPU Cache (%d)\n", n);
+    MESSAGE(LOG_DUMP, "\t------- Pop FPU Cache (%d)\n", n);
 }
 
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)

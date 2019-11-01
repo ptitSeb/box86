@@ -49,26 +49,20 @@ void arm_f2xm1(x86emu_t* emu)
 void arm_fyl2x(x86emu_t* emu)
 {
     ST(1).d = log2(ST0.d)*ST(1).d;
-    fpu_do_pop(emu);
 }
 void arm_ftan(x86emu_t* emu)
 {
     ST0.d = tan(ST0.d);
-    fpu_do_push(emu);
-    ST0.d = 1.0;
-
 }
 void arm_fpatan(x86emu_t* emu)
 {
     ST1.d = atan2(ST1.d, ST0.d);
-    fpu_do_pop(emu);
 }
 void arm_fxtract(x86emu_t* emu)
 {
-    int32_t tmp32s = (ST0.ll&0x7ff0000000000000LL)>>52;
+    int32_t tmp32s = (ST1.ll&0x7ff0000000000000LL)>>52;
     tmp32s -= 1023;
-    ST0.d /= exp2(tmp32s);
-    fpu_do_push(emu);
+    ST1.d /= exp2(tmp32s);
     ST0.d = tmp32s;
 }
 void arm_fprem(x86emu_t* emu)
@@ -83,11 +77,9 @@ void arm_fprem(x86emu_t* emu)
 void arm_fyl2xp1(x86emu_t* emu)
 {
     ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
-    fpu_do_pop(emu);
 }
 void arm_fsincos(x86emu_t* emu)
 {
-    fpu_do_push(emu);
     sincos(ST1.d, &ST1.d, &ST0.d);
 }
 void arm_frndint(x86emu_t* emu)
@@ -109,13 +101,11 @@ void arm_fcos(x86emu_t* emu)
 
 void arm_fbld(x86emu_t* emu, uint8_t* ed)
 {
-    fpu_do_push(emu);
     fpu_fbld(emu, ed);
 }
 
 void arm_fild64(x86emu_t* emu, int64_t* ed)
 {
-    fpu_do_push(emu);
     ST0.d = *ed;
     STll(0).ll = *ed;
     STll(0).ref = ST0.ll;
@@ -124,7 +114,6 @@ void arm_fild64(x86emu_t* emu, int64_t* ed)
 void arm_fbstp(x86emu_t* emu, uint8_t* ed)
 {
     fpu_fbst(emu, ed);
-    fpu_do_pop(emu);
 }
 
 void arm_fistp64(x86emu_t* emu, int64_t* ed)
@@ -137,12 +126,10 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
         else
             *ed = (int64_t)ST0.d;
     }
-    fpu_do_pop(emu);
 }
 
 void arm_fld(x86emu_t* emu, uint8_t* ed)
 {
-    fpu_do_push(emu);
     memcpy(&STld(0).ld, ed, 10);
     LD2D(&STld(0), &ST(0).d);
     STld(0).ref = ST0.ll;

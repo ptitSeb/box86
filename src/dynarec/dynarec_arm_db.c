@@ -259,7 +259,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
@@ -268,7 +268,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
-                    x87_refresh(dyn, ninst, x1, x3, 0);
+                    x87_forget(dyn, ninst, x1, x3, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);

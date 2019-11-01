@@ -14,6 +14,7 @@
 #include "box86stack.h"
 #include "callback.h"
 #include "emu/x86run_private.h"
+#include "emu/x87emu_private.h"
 #include "x86trace.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
@@ -214,31 +215,33 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {MOV_REG(x1, ed);}
-                    CALL(arm_fbld, -1, 0);
+                    CALL(fpu_fbld, -1, 0);
                     break;
                 case 5: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FILD ST0, i64");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fild64, -1, 0);
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {MOV_REG(x1, ed);}
-                    CALL(arm_fbstp, -1, 0);
+                    CALL(fpu_fbst, -1, 0);
+                    x87_do_pop(dyn, ninst);
                     break;
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistp64, -1, 0);
+                    x87_do_pop(dyn, ninst);
                     break;
                 default:
                     *ok = 0;

@@ -101,7 +101,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE5:
             INST_NAME("FXAM");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_refresh(dyn, ninst, x1, x2, 0);
             CALL(fpu_fxam, -1, 0);  // should be possible inline, but is it worth it?
             break;
 
@@ -157,7 +157,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFC:
             INST_NAME("FRNDINT");
             // use C helper for now, nothing staightforward is available
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_frndint, -1, 0);
             /*
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
@@ -173,57 +173,69 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF0:
             INST_NAME("F2XM1");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_f2xm1, -1, 0);
             break;
         case 0xF1:
             INST_NAME("FYL2X");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2x, -1, 0);
+            x87_do_pop(dyn, ninst);
             break;
         case 0xF2:
             INST_NAME("FTAN");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_ftan, -1, 0);
+            v1 = x87_do_push(dyn, ninst);
+            MOV32(x2, (&d_1));
+            VLDR_64(v1, x2, 0);
             break;
         case 0xF3:
             INST_NAME("FPATAN");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fpatan, -1, 0);
+            x87_do_pop(dyn, ninst);
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_do_push_empty(dyn, ninst, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fxtract, -1, 0);
             break;
         case 0xF8:
             INST_NAME("FPREM");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem, -1, 0);
             break;
         case 0xF9:
             INST_NAME("FYL2XP1");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2xp1, -1, 0);
+            x87_do_pop(dyn, ninst);
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_do_push_empty(dyn, ninst, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fsincos, -1, 0);
             break;
         case 0xFD:
             INST_NAME("FSCALE");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_fscale, -1, 0);
             break;
         case 0xFE:
             INST_NAME("FSIN");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_fsin, -1, 0);
             break;
         case 0xFF:
             INST_NAME("FCOS");
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_fcos, -1, 0);
             break;
 

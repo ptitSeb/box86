@@ -298,10 +298,13 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_unlock     STEPNAME(emit_unlock)
 
 #define x87_do_push     STEPNAME(x87_do_push)
+#define x87_do_push_empty STEPNAME(x87_do_push_empty)
 #define x87_do_pop      STEPNAME(x87_do_pop)
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
+#define x87_forget      STEPNAME(x87_forget)
+#define x87_reget_st    STEPNAME(x87_reget_st)
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
@@ -341,9 +344,11 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
-// fpu push, needs 1 scratch register. Return the Dd value to be used
+// fpu push. Return the Dd value to be used
 int x87_do_push(dynarec_arm_t* dyn, int ninst);
-// fpu pop, needs 1 scratch register. All previous returned Dd should be considered invalid
+// fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
+void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
+// fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst);
 // get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
@@ -351,6 +356,10 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
+// refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
+void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
+// refresh the cache value from emu
+void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
