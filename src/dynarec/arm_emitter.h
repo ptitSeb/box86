@@ -356,6 +356,22 @@ Op is 20-27
 // REV: Reverse byte of a 32bits word
 #define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
 
+#define SSAT_gen(cond, sat_imm, Rd, imm5, sh, Rn) (cond | 0b0110101<<21 | (sat_imm)<<16 | (Rd)<<12 | (imm5)<<7 | (sh)<<6 | 0b01<<4 | (Rn))
+// Signed Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
+#define SSAT_REG_LSL_IMM5(Rd, saturate_to, Rn, shift)   EMIT(SSAT_gen(c__, (saturate_to)-1, Rd, shift, 0, Rn))
+#define USAT_gen(cond, sat_imm, Rd, imm5, sh, Rn) (cond | 0b0110111<<21 | (sat_imm)<<16 | (Rd)<<12 | (imm5)<<7 | (sh)<<6 | 0b01<<4 | (Rn))
+// Unsigned Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
+#define USAT_REG_LSL_IMM5(Rd, saturate_to, Rn, shift)   EMIT(SSAT_gen(c__, (saturate_to), Rd, shift, 0, Rn))
+
+#define MRS_gen(cond, Rd)   (cond | 0b00010<<23 | 0b1111<<16 | (Rd)<<12)
+// Load MRS ASPR flags
+#define MRS_aspr(Rd)    EMIT(MRS_gen(c__, Rd))
+
+#define MSR_gen(cond, mask, Rn) (cond | 0b00010<<23 | 0b10<<20 | (mask)<<18 | 0b1111<<12 | (Rn))
+// Store MRS ASPR nzcvq flags from Rn
+#define MSR_nzcvq(Rn)   EMIT(MSR_gen(c__, 0b10, Rn))
+#define MSR_imm_gen(cond, mask, imm12) (cond | 0b00110<<23 | 0b10<<20 | (mask)<<18 | 0b1111<<12 | (imm12))
+#define MSR_nzcvq_0()   EMIT(MSR_imm_gen(c__, 0b10, 0))
 
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))

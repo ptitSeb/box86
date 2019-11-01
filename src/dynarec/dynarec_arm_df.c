@@ -154,16 +154,13 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
-                    MOVW(x12, 0x7fff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK2(cGE);
-                    MOV32(x12, 0xffff8000);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cGE);
-                    MARK2;
+                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
+                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
+                    MRS_aspr(x3);   // check Q flag
+                    TSTS_IMM8_ROR(x3, 0b10, 3);
+                    B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    // STRH doesn't seems to correctly store large negative value (and probably large int value neither)
                     STRH_IMM8(ed, wback, 0);
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
@@ -177,16 +174,13 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
-                    MOVW(x12, 0x7fff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK2(cGE);
-                    MOV32(x12, 0xffff8000);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cGE);
-                    MARK2;
+                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
+                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
+                    MRS_aspr(x3);   // check Q flag
+                    TSTS_IMM8_ROR(x3, 0b10, 3);
+                    B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    // STRH doesn't seems to correctly store large negative value (and probably large int value neither)
                     STRH_IMM8(ed, wback, 0);
                     x87_restoreround(dyn, ninst, u8);
                     break;
@@ -199,16 +193,13 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VCVTR_S32_F64(s0, v1);
                     VMOVfrV(ed, s0);
-                    MOVW(x12, 0x7fff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK2(cGE);
-                    MOV32(x12, 0xffff8000);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cGE);
-                    MARK2;
+                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
+                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
+                    MRS_aspr(x3);   // check Q flag
+                    TSTS_IMM8_ROR(x3, 0b10, 3);
+                    B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    // STRH doesn't seems to correctly store large negative value (and probably large int value neither)
                     STRH_IMM8(ed, wback, 0);
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);

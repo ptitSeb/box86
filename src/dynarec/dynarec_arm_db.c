@@ -174,7 +174,6 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("FISTTP Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -183,27 +182,26 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
-                    d0 = fpu_get_scratch_double(dyn);
+                    MSR_nzcvq_0();
+                    VMRS(x12);   // Get FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x12, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
                     VCVT_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU exception (IO only)
                     VMOVfrV(ed, s0);
-                    MOV32(x12, 0x7fffffff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cNE);
-                    VMOVtoV(s0, x12);
-                    VCVT_F64_S32(d0, s0);
-                    VCMP_F64(v1, d0);
-                    VMRS_APSR();
-                    B_MARK(cLS);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    B_MARK(cEQ);
                     MOV32(ed, 0x80000000);
                     MARK;
                     WBACK;
+                    VMSR(x12);  // put back values
                     x87_do_pop(dyn, ninst);
-                    x87_restoreround(dyn, ninst, u8);
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -212,17 +210,16 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
-                    d0 = fpu_get_scratch_double(dyn);
+                    MSR_nzcvq_0();
+                    VMRS(x12);   // Get FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, u8, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
-                    MOV32(x12, 0x7fffffff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cNE);
-                    VMOVtoV(s0, x12);
-                    VCVT_F64_S32(d0, s0);
-                    VCMP_F64(v1, d0);
-                    VMRS_APSR();
-                    B_MARK(cLS);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    B_MARK(cEQ);
                     MOV32(ed, 0x80000000);
                     MARK;
                     WBACK;
@@ -231,7 +228,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("FISTP Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -240,17 +237,16 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
-                    d0 = fpu_get_scratch_double(dyn);
+                    MSR_nzcvq_0();
+                    // The FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, u8, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU execption (denormal and overflow only)
                     VMOVfrV(ed, s0);
-                    MOV32(x12, 0x7fffffff);
-                    CMPS_REG_LSL_IMM8(ed, x12, 0);
-                    B_MARK(cNE);
-                    VMOVtoV(s0, x12);
-                    VCVT_F64_S32(d0, s0);
-                    VCMP_F64(v1, d0);
-                    VMRS_APSR();
-                    B_MARK(cLS);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    B_MARK(cEQ);
                     MOV32(ed, 0x80000000);
                     MARK;
                     WBACK;
