@@ -27,6 +27,8 @@ typedef struct mmaplist_s {
 
 uintptr_t AllocDynarecMap(box86context_t *context, int size)
 {
+    // make size 0x10 bytes aligned
+    size = (size+0x0f)&~0x0f;
     pthread_mutex_lock(&context->mutex_mmap);
     // look for free space
     for(int i=0; i<context->mmapsize; ++i) {
