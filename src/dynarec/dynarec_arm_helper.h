@@ -296,6 +296,9 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define isNativeCall    STEPNAME(isNativeCall_)
 #define emit_lock       STEPNAME(emit_lock)
 #define emit_unlock     STEPNAME(emit_unlock)
+#define emit_cmp8       STEPNAME(emit_cmp8)
+#define emit_cmp16      STEPNAME(emit_cmp16)
+#define emit_cmp32      STEPNAME(emit_cmp32)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -340,6 +343,9 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
+void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call

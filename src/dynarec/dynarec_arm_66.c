@@ -43,7 +43,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGW(x2);
             GETEW(x1);
             UFLAG_OP12(ed, gd);
-            ADD_REG_LSL_IMM8(ed, ed, gd, 0);
+            ADD_REG_LSL_IMM5(ed, ed, gd, 0);
             EWBACK;
             UFLAG_RES(ed);
             UFLAG_DF(x1, d_add16);
@@ -55,7 +55,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGW(x1);
             GETEW(x2);
             UFLAG_OP12(gd, ed);
-            ADD_REG_LSL_IMM8(gd, gd, ed, 0);
+            ADD_REG_LSL_IMM5(gd, gd, ed, 0);
             UFLAG_RES(gd);
             GWBACK;
             UFLAG_DF(x1, d_add16);
@@ -67,7 +67,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x2, i32);
             UXTH(x1, xEAX, 0);
             UFLAG_OP12(x1, x2);
-            ADD_REG_LSL_IMM8(x1, x1, x2, 0);
+            ADD_REG_LSL_IMM5(x1, x1, x2, 0);
             UFLAG_RES(x1);
             BFI(xEAX, x1, 0, 16);
             UFLAG_DF(x1, d_add16);
@@ -178,7 +178,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            AND_REG_LSL_IMM8(ed, ed, gd, 0);
+            AND_REG_LSL_IMM5(ed, ed, gd, 0);
             EWBACK;
             UFLAG_RES(ed);
             UFLAG_DF(x1, d_and16);
@@ -189,7 +189,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            AND_REG_LSL_IMM8(gd, gd, ed, 0);
+            AND_REG_LSL_IMM5(gd, gd, ed, 0);
             UFLAG_RES(gd);
             GWBACK;
             UFLAG_DF(x1, d_and16);
@@ -200,7 +200,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F16;
             MOV32(x1, i32);
             UXTH(x2, xEAX, 0);
-            AND_REG_LSL_IMM8(x2, x2, x1, 0);
+            AND_REG_LSL_IMM5(x2, x2, x1, 0);
             UFLAG_RES(x2);
             BFI(xEAX, x2, 0, 16);
             UFLAG_DF(x1, d_and16);
@@ -364,7 +364,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         MOVW(x2, i16);
                         UFLAG_OP2(x2);
-                        ADD_REG_LSL_IMM8(ed, ed, x2, 0);
+                        ADD_REG_LSL_IMM5(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -414,7 +414,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         AND_IMM8(ed, ed, i16);
                     } else {
                         MOVW(x2, i16);
-                        AND_REG_LSL_IMM8(ed, ed, x2, 0);
+                        AND_REG_LSL_IMM5(ed, ed, x2, 0);
                     }
                     EWBACK;
                     UFLAG_RES(ed);

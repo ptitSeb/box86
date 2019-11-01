@@ -41,7 +41,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 if (sib_reg!=4) {
                     if(tmp) {
                         MOV32(scratch, tmp);
-                        ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                        ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                     } else {
                         MOV_REG_LSL_IMM5(ret, xEAX+sib_reg, (sib>>6));
                     }
@@ -51,7 +51,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 }
             } else {
                 if (sib_reg!=4) {
-                    ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
+                    ADD_REG_LSL_IMM5(ret, xEAX+(sib&0x7), xEAX+sib_reg, (sib>>6));
                 } else {
                     ret = xEAX+(sib&0x7);
                 }
@@ -82,7 +82,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
-                    ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                    ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                 } else {
                     int tmp = xEAX+(sib&0x07);
                     SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
@@ -97,7 +97,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if(i32==0) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        ADD_REG_LSL_IMM8(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+                        ADD_REG_LSL_IMM5(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
                     } else {
                         ret = xEAX+(sib&0x07);
                     }
@@ -109,7 +109,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 if(i32<256) {
                     if((nextop&7)==4) {
                         if (sib_reg!=4) {
-                            ADD_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
+                            ADD_REG_LSL_IMM5(scratch, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));
                         } else {
                             scratch = xEAX+(sib&0x07);
                         }
@@ -127,15 +127,15 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                             if(sub) {
                                 SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
                             } else {
-                                ADD_REG_LSL_IMM8(scratch, scratch, xEAX+(sib&0x07), 0);
+                                ADD_REG_LSL_IMM5(scratch, scratch, xEAX+(sib&0x07), 0);
                             }
-                            ADD_REG_LSL_IMM8(ret, scratch, xEAX+sib_reg, (sib>>6));
+                            ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                         } else {
                             int tmp = xEAX+(sib&0x07);
                             if(sub) {
                                 SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
                             } else {
-                                ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                                ADD_REG_LSL_IMM5(ret, tmp, scratch, 0);
                             }
                         }
                     } else {
@@ -143,7 +143,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         if(sub) {
                             SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
                         } else {
-                            ADD_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                            ADD_REG_LSL_IMM5(ret, tmp, scratch, 0);
                         }
                     }
                 }
@@ -225,7 +225,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         // TODO: This is not thread safe.
         if(!ip) {   // no IP, jump address in a reg, so need smart linker
             LDM(x1, (1<<x2) | (1<<x3)); // load dest address in x2 and planned ip in x3
-            CMPS_REG_LSL_IMM8(xEIP, x3, 0);
+            CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
             MOV32(x2, (uintptr_t)arm_linker);
             STM(x1, (1<<x2) | (1<<x12)); // nope, putting back linker & IP in place
@@ -297,7 +297,7 @@ void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
     PUSH(xSP, (1<<xEmu));   // save Emu
     LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
     MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+    ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
     CALL(pthread_mutex_lock, -1, 0);
     POP(xSP, (1<<xEmu));
 }
@@ -308,7 +308,7 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
     PUSH(xSP, (1<<xEmu));   // save Emu
     LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
     MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-    ADD_REG_LSL_IMM8(xEmu, xEmu, x1, 0);
+    ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
     CALL(pthread_mutex_unlock, -1, 0);
     POP(xSP, (1<<xEmu));
 }
@@ -423,14 +423,14 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
     if(ret!=0) {
         // prepare offset to fpu => s1
         MOVW(s1, offsetof(x86emu_t, fpu));
-        ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
         // Get top
         // loop all cache entries
         for (int i=0; i<8; ++i)
             if(dyn->x87cache[i]!=-1) {
                 ADD_IMM8(s3, s2, dyn->x87cache[i]);
                 AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
-                ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+                ADD_REG_LSL_IMM5(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
                 VSTR_64(dyn->x87reg[i], s3, 0);    // save the value
                 fpu_free_reg_double(dyn, dyn->x87reg[i]);
                 dyn->x87reg[i] = -1;
@@ -451,7 +451,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         return;
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // loop all cache entries
@@ -459,7 +459,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         if(dyn->x87cache[i]!=-1) {
             ADD_IMM8(s3, s2, dyn->x87cache[i]);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
-            ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+            ADD_REG_LSL_IMM5(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
             VSTR_64(dyn->x87reg[i], s3, 0);    // save the value
         }
 }
@@ -481,7 +481,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
     MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
@@ -490,7 +490,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADD_IMM8(s2, s2, a);
     }
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
-    ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+    ADD_REG_LSL_IMM5(s2, s1, s2, 3);
     VLDR_64(dyn->x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 
@@ -515,7 +515,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -523,7 +523,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADD_IMM8(s2, s2, st);
         AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     }
-    ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+    ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
 }
@@ -540,7 +540,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
     MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -548,7 +548,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADD_IMM8(s2, s2, st);
         AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     }
-    ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+    ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
@@ -565,7 +565,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             // refresh the value
         MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
             MOVW(s1, offsetof(x86emu_t, fpu));
-            ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
             LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
             int a = st - dyn->x87stack;
             if(a<0) {
@@ -574,7 +574,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
                 ADD_IMM8(s2, s2, a);
             }
             AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
-            ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+            ADD_REG_LSL_IMM5(s2, s1, s2, 3);
             VLDR_64(dyn->x87reg[i], s2, 0);
             MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
             // ok
@@ -591,7 +591,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
     MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
@@ -600,7 +600,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADD_IMM8(s2, s2, a);
     }
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
-    ADD_REG_LSL_IMM8(s2, s1, s2, 3);
+    ADD_REG_LSL_IMM5(s2, s1, s2, 3);
     VLDR_64(dyn->x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 
@@ -641,7 +641,7 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
         return dyn->ssecache[a];
     int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
     MOV32(s1, offsetof(x86emu_t, xmm[a]));
-    ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     VLD1Q_32(ret, s1);
     return ret;
 }
@@ -662,7 +662,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
-                ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
                 old = i+1;  //+1 because VST1Q with write back
             } else {
                 if(old!=i) {
@@ -686,7 +686,7 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
-                ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
                 old = i+1;
             } else {
                 if(old!=i) {
@@ -744,7 +744,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     }
     if(n>=8) {
         MOVW(s1, n*8);
-        ADD_REG_LSL_IMM8(xSP, xSP, s1, 0);
+        ADD_REG_LSL_IMM5(xSP, xSP, s1, 0);
     } else {
         ADD_IMM8(xSP, xSP, n*8);
     }
@@ -789,4 +789,150 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
     if(reg>=16) {
         VMOV_64(reg, s/2);
     }
+}
+
+
+// emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s3, 0);
+    STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
+    SUBS_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    // first the easy flags, also found on ARM
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    MOVW(s4, 0);
+    MOVW_COND(cMI, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    /*MOVW(s4, 0);
+    MOVW_COND(cCS, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));*/
+    MOVW(s4, 0);
+    MOVW_COND(cVS, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    // and now the tricky ones (and mostly unused), PF and AF
+    // bc = (res & (~d | s)) | (~d & s)
+    MVN_REG_LSL_IMM8(s4, s1, 0);        // s4 = ~d
+    ORR_REG_LSL_IMM8(s4, s4, s2, 0);    // s4 = ~d | s
+    AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
+    BIC_REG_LSL_IMM8(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
+    ORR_REG_LSL_IMM8(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
+    TSTS_IMM8_ROR(s3, 0b10, 1);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x80000000
+    TSTS_IMM8_ROR(s3, 0x08, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8_ROR(s4, 1, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+}
+
+// emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s3, 0);
+    STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    MOVW(s4, 0xffff);
+    TSTS_REG_LSL_IMM8(s3, s4, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    TSTS_IMM8_ROR(s3, 0b10, 1+4);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    // bc = (res & (~d | s)) | (~d & s)
+    MVN_REG_LSL_IMM8(s4, s1, 0);        // s4 = ~d
+    ORR_REG_LSL_IMM8(s4, s4, s2, 0);    // s4 = ~d | s
+    AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
+    BIC_REG_LSL_IMM8(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
+    ORR_REG_LSL_IMM8(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
+    TSTS_IMM8_ROR(s3, 0b10, 1+4);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x8000
+    TSTS_IMM8_ROR(s3, 0x08, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    MOV_REG_LSR_IMM5(s4, s3, 14);
+    XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+    TSTS_IMM8_ROR(s4, 1, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 14) ^ ((bc>>14)>>1)) & 1
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8_ROR(s4, 1, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+}
+
+// emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MOVW(s3, 0);
+    STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    TSTS_IMM8(s3, 0xff);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    TSTS_IMM8(s3, 0x80);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    // bc = (res & (~d | s)) | (~d & s)
+    MVN_REG_LSL_IMM8(s4, s1, 0);        // s4 = ~d
+    ORR_REG_LSL_IMM8(s4, s4, s2, 0);    // s4 = ~d | s
+    AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
+    BIC_REG_LSL_IMM8(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
+    ORR_REG_LSL_IMM8(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
+    TSTS_IMM8(s3, 0x80);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x80
+    TSTS_IMM8_ROR(s3, 0x08, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    MOV_REG_LSR_IMM5(s4, s3, 6);
+    XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+    TSTS_IMM8_ROR(s4, 1, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cNE, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+    SUB_REG_LSL_IMM8(s3, s1, s2, 0);
+    AND_IMM8(s3, s3, 31);
+    MOV_REG_LSR_REG(s4, s4, s3);
+    TSTS_IMM8_ROR(s4, 1, 0);
+    MOVW(s4, 0);
+    MOVW_COND(cEQ, s4, 1);
+    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
 }

@@ -41,9 +41,6 @@ typedef struct x86emu_s {
     // sse
     sse_regs_t  xmm[8];
     uint32_t    mxcsr;
-    // cpu helpers
-    reg32_t     zero;
-    reg32_t     *sbiidx[8];
     // defered flags
     defered_flags_t df;
     uint32_t    op1;
@@ -65,6 +62,9 @@ typedef struct x86emu_s {
     uintptr_t   trace_start, trace_end;
     // parent context
     box86context_t *context;
+    // cpu helpers
+    reg32_t     zero;
+    reg32_t     *sbiidx[8];
     // atexit and fini functions
     cleanup_t   *cleanups;
     int         clean_sz;

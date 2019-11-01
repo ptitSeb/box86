@@ -63,7 +63,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDR_IMM9(xEAX, x1, i32);
             } else {
                 MOV32(x2, i32);
-                ADD_REG_LSL_IMM8(x1, x1, x2, 0);
+                ADD_REG_LSL_IMM5(x1, x1, x2, 0);
                 LDR_IMM9(xEAX, x1, 0);
             }
             break;

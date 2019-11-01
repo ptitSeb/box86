@@ -132,14 +132,14 @@ Op is 20-27
     EMIT((cond) | 0x02600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
 // and dst, src1, src2, lsl #imm
-#define AND_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define AND_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // and.s dst, src1, src2, lsl #imm
-#define ANDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define ANDS_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0100000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // and dst, src1, src2, lsr #imm
-#define AND_REG_LSR_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
+#define AND_REG_LSR_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0000000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 // and dst, src, #(imm8)
 #define AND_IMM8(dst, src, imm8) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -153,17 +153,17 @@ Op is 20-27
 #define ADDS_IMM8(dst, src, imm8) \
     EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
-#define ADD_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define ADD_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // add.s dst, src1, src2, lsl #imm
-#define ADDS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define ADDS_REG_LSL_IMM5(dst, src1, src2, imm8) \
+    EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // add dst, src1, src2, lsr #imm
-#define ADD_REG_LSR_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
+#define ADD_REG_LSR_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 // cmp.s dst, src1, src2, lsl #imm
-#define CMPS_REG_LSL_IMM8(src1, src2, imm8) \
-    EMIT(0xe1500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define CMPS_REG_LSL_IMM5(src1, src2, imm5) \
+    EMIT(0xe1500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // cmp.s dst, src, #imm
 #define CMPS_IMM8(src, imm8) \
     EMIT(0xe3500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -237,6 +237,8 @@ Op is 20-27
 #define LDR_NIMM9_W(reg, addr, imm9) EMIT(0xe5300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, rm lsl imm5]
 #define LDR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(c__ | (0b011<<25) | (1<<24) | (1<<23) | (0<<21) | (1<<20) | ((reg) << 12) | ((addr) << 16) | brLSL(imm5, rm) )
+// ldr reg, [addr, rm lsr imm5]
+#define LDR_REG_LSR_IMM5(reg, addr, rm, imm5) EMIT(c__ | (0b011<<25) | (1<<24) | (1<<23) | (0<<21) | (1<<20) | ((reg) << 12) | ((addr) << 16) | brLSR(imm5, rm) )
 // ldrb reg, [addr, rm lsl imm5]
 #define LDRB_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldr reg, [addr], #imm9
@@ -446,6 +448,10 @@ Op is 20-27
 #define VCVTR_S32_F32(Sd, Sm)   EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from int32 Sm to single Dd
 #define VCVT_F32_S32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b000<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
+
+#define VCVT_16_gen(cond, D, op, U, Vd, sf, sx, i, imm4)   (cond | 0b1110<<24 | 1<<23 | (D)<<22 | 0b11<<20 | 1<<19 | (op)<<18 | 1<<17 | (U)<<16 | (Vd)<<12 | 0b101<<9 | (sf)<<8 | (sx)<<7 | 1<<6 | (i)<<5 | (imm4))
+// Inplace convert from F64 to S16. Rounding is not selectable
+#define VCVT_S16_F64(Dd)    EMIT(VCVT_16_gen(c__, ((Dd)>>4)&1, 1, 0, (Dd)&15, 1, 0, 16&1, (16>>1)&15))
 
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )

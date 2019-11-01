@@ -321,14 +321,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CMOVL Gd, Ed");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cEQ, cNE)
             break;
         case 0x4D:
             INST_NAME("CMOVGE Gd, Ed");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cNE, cEQ)
             break;
         case 0x4E:
@@ -521,14 +521,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("JL id");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cEQ, cNE)
             break;
         case 0x8D:
             INST_NAME("JGE id");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cNE, cEQ)
             break;
         case 0x8E:
@@ -644,14 +644,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SETL Eb");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cEQ, cNE)
             break;
         case 0x9D:
             INST_NAME("SETGE Eb");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_REG_LSL_IMM8(x1, x2, 0)
+                CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cNE, cEQ)
             break;
         case 0x9E:
@@ -693,7 +693,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(x1, ed, x1, 2); //(&ed)+=r1*4;
+                ADD_REG_LSL_IMM5(x1, ed, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, x1, 0);
                 ed = x1;
             }
@@ -734,7 +734,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, x3, 0);
                 ed = x1;
                 wback = x3;
@@ -833,7 +833,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEB(x2)
             UXTB(x1, xEAX, 0);
             // Use a quick CMP, without setting A or P...
-            CMPS_REG_LSL_IMM8(x1, ed, 0);
+            CMPS_REG_LSL_IMM5(x1, ed, 0);
             MOVW_COND(cCC, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
@@ -866,7 +866,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETED;
             GETGD;
             // Use a quick CMP, without setting A or P...
-            CMPS_REG_LSL_IMM8(xEAX, ed, 0);
+            CMPS_REG_LSL_IMM5(xEAX, ed, 0);
             MOVW_COND(cCC, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
@@ -896,7 +896,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, wback, 0);
                 ed = x1;
                 wback = x3;
@@ -957,7 +957,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         u8 = F8;
                         MOVW(gd, u8);
                         UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM8(x1, ed, x1, 2); //(&ed)+=r1*4;
+                        ADD_REG_LSL_IMM5(x1, ed, x1, 2); //(&ed)+=r1*4;
                         LDR_IMM9(x1, x1, 0);
                         ed = x1;
                     }
@@ -980,7 +980,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         u8 = F8;
                         MOVW(gd, u8);
                         UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM8(x3, ed, x1, 2); //(&ed)+=r1*4;
+                        ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
                         LDR_IMM9(x1, x3, 0);
                         ed = x1;
                         wback = x3;
@@ -1013,7 +1013,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
                 UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                ADD_REG_LSL_IMM8(x3, wback, x1, 2); //(&ed)+=r1*4;
+                ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                 LDR_IMM9(x1, x3, 0);
                 ed = x1;
                 wback = x3;
@@ -1061,7 +1061,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEB(x2);
             GETGB(x1);
             UFLAG_OP12(gd, ed);
-            ADD_REG_LSL_IMM8(x12, ed, gd, 0);
+            ADD_REG_LSL_IMM5(x12, ed, gd, 0);
             UFLAG_RES(x12);
             gd = ed;
             GBBACK;
@@ -1076,7 +1076,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGD;
             GETED;
             UFLAG_OP12(gd, ed);
-            ADD_REG_LSL_IMM8(x12, gd, ed, 0);
+            ADD_REG_LSL_IMM5(x12, gd, ed, 0);
             UFLAG_RES(x12);
             MOV_REG(gd, ed);
             if(wback) {
@@ -1140,9 +1140,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
             LDR_IMM9(x1, wback, 0);
             LDR_IMM9(x2, wback, 4);
-            CMPS_REG_LSL_IMM8(xEAX, x1, 0);
+            CMPS_REG_LSL_IMM5(xEAX, x1, 0);
             B_MARK(cNE);    // EAX != Ed[0]
-            CMPS_REG_LSL_IMM8(xEDX, x2, 0);
+            CMPS_REG_LSL_IMM5(xEDX, x2, 0);
             B_MARK(cNE);    // EDX != Ed[1]
             STR_IMM9(xEBX, wback, 0);
             STR_IMM9(xECX, wback, 4);
