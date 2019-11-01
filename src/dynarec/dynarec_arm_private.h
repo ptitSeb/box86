@@ -28,7 +28,9 @@ typedef struct dynarec_arm_s {
     int                 tablei;     // index
     int                 cleanflags; // flags are clean (CMP or TST have been just executed)
     int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
+    int                 x87reg[8];  // reg used for x87cache entry
     int                 ssecache[8];// cache status for the 8 SSE(2) registers
+    int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
     int                 fpu_reg;    // x87/sse/mmx reg counter

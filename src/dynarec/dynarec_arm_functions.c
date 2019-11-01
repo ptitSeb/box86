@@ -264,18 +264,36 @@ int fpu_reset_scratch(dynarec_arm_t* dyn)
 int fpu_get_reg_double(dynarec_arm_t* dyn)
 {
     // TODO: check upper limit?
-    int i = dyn->fpu_reg++;
+    int i=0;
+    while (dyn->fpuused[i]) ++i;
+    dyn->fpuused[i] = 1;
     return i+FPUFIRST; // return a Dx
+}
+// Free a FPU double reg
+void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
+{
+    // TODO: check upper limit?
+    int i=reg-FPUFIRST;
+    dyn->fpuused[i] = 0;
 }
 // Get a FPU quad reg
 int fpu_get_reg_quad(dynarec_arm_t* dyn)
 {
-    int i = (dyn->fpu_reg+1)&(~1);
-    dyn->fpu_reg = i+2;
+    int i=0;
+    while (dyn->fpuused[i] || dyn->fpuused[i+1]) i+=2;
+    dyn->fpuused[i] = dyn->fpuused[i+1] = 1;
     return i+FPUFIRST; // Return a Dx, not a Qx
+}
+// Free a FPU quad reg
+void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
+{
+    int i=reg-FPUFIRST;
+    dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
 }
 // Reset fpu regs counter
 int fpu_reset_reg(dynarec_arm_t* dyn)
 {
     dyn->fpu_reg = 0;
+    for (int i=0; i<24; ++i)
+        dyn->fpuused[i]=0;
 }

@@ -204,18 +204,26 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             nextop = F8;
             GETGX(v0);
-            d0 = fpu_get_scratch_double(dyn);
-            d1 = fpu_get_scratch_double(dyn);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(d0, v1);
+                if(v1<16)
+                    d0 = v1;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v1);
+                }
                 s0 = d0*2;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 s0 = fpu_get_scratch_single(dyn);
                 VLDR_32(s0, ed, 0);
             }
-            VMOV_64(d1, v0);
+            if(v0<16)
+                d1=v0;
+            else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v0);
+            }
             VCMP_F32(d1*2, s0);
             FCOMI(x1, x2);
             UFLAGS(1);

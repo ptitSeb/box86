@@ -307,14 +307,19 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_restoreround STEPNAME(x87_restoreround)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
-#define sse_pushcache   STEPNAME(sse_pushcache)
-#define sse_popcache    STEPNAME(sse_popcache)
 
+#define fpu_pushcache   STEPNAME(fpu_pushcache)
+#define fpu_popcache    STEPNAME(fpu_popcache)
 #define fpu_reset       STEPNAME(fpu_reset)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
+
+// get the single reg that from the double "reg" (so Dx[idx])
+#define fpu_get_single_reg      STEPNAME(fpu_get_single_reg)
+// put back (if needed) the single reg in place
+#define fpu_putback_single_reg  STEPNAME(fpu_putback_single_reg)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
@@ -356,8 +361,6 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
-void sse_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
-void sse_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
 // common coproc helpers
 // reset the cache
@@ -367,6 +370,13 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif
+void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
+void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1);
+
+// get the single reg that from the double "reg" (so Dx[idx])
+int fpu_get_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx);
+// put back (if needed) the single reg in place
+void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int s);
 
 
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);

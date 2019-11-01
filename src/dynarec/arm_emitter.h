@@ -419,17 +419,17 @@ Op is 20-27
 #define VCVT_F32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  (((Sd)&1)<<22) | (0b11<<20) | (0b0111<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | (0<<4) | ((Dm)&15))
 
 // Convert from double Dm to int32 Sd, with Round toward Zero mode
-#define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
+#define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from double Dm to int32 Sd, with Round selection from FPSCR
-#define VCVTR_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
+#define VCVTR_S32_F64(Sd, Dm)   EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from int32 Sm to double Dd
 #define VCVT_F64_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from single Sm to int32 Sd, with Round toward Zero mode
-#define VCVT_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+#define VCVT_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from single Sm to int32 Sd, with Round selection from FPSCR
-#define VCVTR_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>4)&15)<<12) | (0b101<<9) | (0<<8) | (0<<7) | (1<<6) | ((((Sm)>>4)&1)<<5) | ((Sm)&15) )
+#define VCVTR_S32_F32(Sd, Sm)   EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from int32 Sm to single Dd
-#define VCVT_F32_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
+#define VCVT_F32_S32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b000<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
@@ -479,6 +479,8 @@ Op is 20-27
 #define Vxx1gen(L, D, Rn, Vd, type, size, align, Rm) (0b1111<<28 | 0b0100<<24 | 0<<23 | (D)<<22 | (L)<<21 | 0<<20 | (Rn)<<16 | (Vd)<<12 | (type)<<8 | (size)<<6 | (align)<<4 | (Rm))
 // Load [Rn] => Dd/Dd+1. Align is 4
 #define VLD1Q_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
+// Load [Rn]! => Dd. Align is 4
+#define VLD1_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 13))
 // Load [Rn]! => Dd/Dd+1. Align is 4
 #define VLD1Q_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 13))
 // Load [Rn, Rm]! => Dd/Dd+1. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
@@ -492,6 +494,8 @@ Op is 20-27
 // Load [Rn] => Dd. Align is 4
 #define VLD1_64(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 3, 0, 15))
 
+// Store [Rn]! => Dd. Align is 4
+#define VST1_32_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 13))
 // Store [Rn] => Dd/Dd+1. Align is 4
 #define VST1Q_32(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
 // Store [Rn]! => Dd/Dd+1. Align is 4

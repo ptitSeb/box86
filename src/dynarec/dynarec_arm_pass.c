@@ -53,7 +53,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         ip = addr;
         NEW_INST;
         fpu_reset_scratch(dyn);
-        fpu_reset_reg(dyn);
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
         if((dyn->emu->trace_end == 0) 

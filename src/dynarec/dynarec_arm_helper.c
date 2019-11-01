@@ -20,6 +20,7 @@
 #include "arm_printer.h"
 #include "../tools/bridge_private.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is 1 if ED is a constant */
@@ -257,10 +258,10 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
     PUSH(xSP, (1<<xEmu) | mask);
-    sse_pushcache(dyn, ninst, reg);
+    fpu_pushcache(dyn, ninst, reg);
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
-    sse_popcache(dyn, ninst, reg);
+    fpu_popcache(dyn, ninst, reg);
     if(ret>=0) {
         MOV_REG(ret, 0);
     }
@@ -313,7 +314,6 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
 }
 
 // x87 stuffs
-#define X87FIRST    8
 static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
@@ -359,17 +359,22 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
             ++dyn->x87cache[i];
         else if(ret==-1) {
             dyn->x87cache[i] = 0;
-            ret=i;
+            ret=dyn->x87reg[i]=fpu_get_reg_double(dyn);
         }
-    return ret+X87FIRST;
+    return ret;
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 {
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
     for(int i=0; i<8; ++i)
-        if(dyn->x87cache[i]!=-1)
+        if(dyn->x87cache[i]!=-1) {
             --dyn->x87cache[i];
+            if(dyn->x87cache[i]==-1) {
+                fpu_free_reg_double(dyn, dyn->x87reg[i]);
+                dyn->x87reg[i] = -1;
+            }
+        }
 }
 
 static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -416,7 +421,9 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
                 ADD_IMM8(s3, s2, dyn->x87cache[i]);
                 AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
                 ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-                VSTR_64(i+X87FIRST, s3, 0);    // save the value
+                VSTR_64(dyn->x87reg[i], s3, 0);    // save the value
+                fpu_free_reg_double(dyn, dyn->x87reg[i]);
+                dyn->x87reg[i] = -1;
                 dyn->x87cache[i] = -1;
             }
     }
@@ -443,7 +450,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
             ADD_IMM8(s3, s2, dyn->x87cache[i]);
             AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM8(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-            VSTR_64(i+X87FIRST, s3, 0);    // save the value
+            VSTR_64(dyn->x87reg[i], s3, 0);    // save the value
         }
 }
 #endif
@@ -462,6 +469,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             ret = i;
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
+    dyn->x87reg[ret] = fpu_get_reg_double(dyn);
     MOVW(s1, offsetof(x86emu_t, fpu));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
@@ -473,7 +481,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     }
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);
-    VLDR_64((ret+X87FIRST), s2, 0);
+    VLDR_64(dyn->x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "-------x87 Cache for ST%d\n", st);
 
     return ret;
@@ -481,7 +489,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 {
-    return x87_get_cache(dyn, ninst, s1, s2, a) + X87FIRST;
+    return dyn->x87reg[x87_get_cache(dyn, ninst, s1, s2, a)];
 }
 
 
@@ -504,7 +512,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     ADD_IMM8(s2, s2, st);
     AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM8(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-    VSTR_64(ret+X87FIRST, s2, 0);    // save the value
+    VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
     MESSAGE(LOG_DUMP, "--------x87 Cache for ST%d\n", st);
 }
 
@@ -530,20 +538,17 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
     VMSR(s1);               // put back fpscr
 }
 
-// first SSE cache is Q8 (so D16+D17)
-#define FIRSTSSE    8
 static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
-        dyn->ssecache[i] = 0;
+        dyn->ssecache[i] = -1;
 }
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
-    int ret = (FIRSTSSE + a)*2;
-    if(dyn->ssecache[a])
-        return ret;
-    dyn->ssecache[a] = 1;
+    if(dyn->ssecache[a]!=-1)
+        return dyn->ssecache[a];
+    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
     MOV32(s1, offsetof(x86emu_t, xmm[a]));
     ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
     VLD1Q_32(ret, s1);
@@ -552,10 +557,9 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
-    int ret = (FIRSTSSE + a)*2;
-    if(dyn->ssecache[a])
-        return ret;
-    dyn->ssecache[a] = 1;
+    if(dyn->ssecache[a]!=-1)
+        return dyn->ssecache[a];
+    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
     return ret;
 }
 // purge the SSE cache only(needs 3 scratch registers)
@@ -563,19 +567,21 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
     for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]) {
-            int a = (FIRSTSSE + i)*2;
+        if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "Purge SSE Cache ------\n");
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
                 ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
-                old = i;
+                old = i+1;  //+1 because VST1Q with write back
             } else {
-                ADD_IMM8(s1, s1, (i-old)*16);
-                old = i;
+                if(old!=i) {
+                    ADD_IMM8(s1, s1, (i-old)*16);
+                }
+                old = i+1;
             }
-            VST1Q_32(a, s1);
-            dyn->ssecache[i] = 0;
+            VST1Q_32_W(dyn->ssecache[i], s1);
+            fpu_free_reg_quad(dyn, dyn->ssecache[i]);
+            dyn->ssecache[i] = -1;
         }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "------ Purge SSE Cache\n");
@@ -586,72 +592,79 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
     for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]) {
-            int a = (FIRSTSSE + i)*2;
+        if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MOV32(s1, offsetof(x86emu_t, xmm[i]));
                 ADD_REG_LSL_IMM8(s1, xEmu, s1, 0);
+                old = i+1;
             } else {
-                ADD_IMM8(s1, s1, (i-old)*16);
-                old = i;
+                if(old!=i) {
+                    ADD_IMM8(s1, s1, (i-old)*16);
+                }
+                old = i+1;
             }
-            VST1Q_32(a, s1);
+            VST1Q_32_W(dyn->ssecache[i], s1);
         }
 }
 #endif
 
-void sse_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
+void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    // only need to push 16-31...
     int n=0;
-    for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i])
+    for (int i=8; i<24; i++)
+        if(dyn->fpuused[i])
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "Push SSE Cache (%d)------\n", n);
-    if(n==8) {
-        SUB_IMM8(xSP, xSP, 7*16);
-        SUB_IMM8(xSP, xSP, 16);
+    MESSAGE(LOG_DUMP, "Push FPU Cache (%d)------\n", n);
+    if(n>=8) {
+        MOVW(s1, n*8);
+        SUB_REG_LSL_IMM8(xSP, xSP, s1, 0);
     } else {
-        SUB_IMM8(xSP, xSP, n*16);
+        SUB_IMM8(xSP, xSP, n*8);
     }
     MOV_REG(s1, xSP);
-    for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]) {
-            int a = (FIRSTSSE+i)*2;
-            VST1Q_32_W(a, s1);
+    for (int i=0; i<n; ++i) {   // should use VSTM?
+        if(dyn->fpuused[i+8]) {
+            int a = 16+i;
+            VST1_32_W(a, s1);
         }
-    MESSAGE(LOG_DUMP, "------- Push SSE Cache (%d)\n", n);
+    }
+    MESSAGE(LOG_DUMP, "------- Push FPU Cache (%d)\n", n);
 }
 
-void sse_popcache(dynarec_arm_t* dyn, int ninst, int s1)
+void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+    // only need to push 16-31...
     int n=0;
-    for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i])
+    for (int i=8; i<24; i++)
+        if(dyn->fpuused[i])
             ++n;
     if(!n)
         return;
-    MESSAGE(LOG_DUMP, "Pop SSE Cache (%d)------\n", n);
+    MESSAGE(LOG_DUMP, "Pop FPU Cache (%d)------\n", n);
     MOV_REG(s1, xSP);
-    for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]) {
-            int a = (FIRSTSSE+i)*2;
-            VLD1Q_32_W(a, s1);
+    for (int i=0; i<n; ++i) {
+        if(dyn->fpuused[i+8]) {
+            int a = 16+i;
+            VLD1_32_W(a, s1);
         }
-    if(n==8) {
-        ADD_IMM8(xSP, xSP, 7*16);
-        ADD_IMM8(xSP, xSP, 16);
-    } else {
-        ADD_IMM8(xSP, xSP, n*16);
     }
-    MESSAGE(LOG_DUMP, "------- Pop SSE Cache (%d)\n", n);
+    if(n>=8) {
+        MOVW(s1, n*8);
+        ADD_REG_LSL_IMM8(xSP, xSP, s1, 0);
+    } else {
+        ADD_IMM8(xSP, xSP, n*8);
+    }
+    MESSAGE(LOG_DUMP, "------- Pop FPU Cache (%d)\n", n);
 }
 
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_purgecache(dyn, ninst, s1, s2, s3);
     sse_purgecache(dyn, ninst, s1);
+    fpu_reset_reg(dyn);
 }
 
 #ifdef HAVE_TRACE
@@ -667,4 +680,22 @@ void fpu_reset(dynarec_arm_t* dyn, int ninst)
 {
     x87_reset(dyn, ninst);
     sse_reset(dyn, ninst);
+    fpu_reset_reg(dyn);
+}
+
+// get the single reg that from the double "reg" (so Dx[idx])
+int fpu_get_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx)
+{
+    if(reg<16)
+        return reg*2+idx;
+    int a = fpu_get_scratch_double(dyn);
+    VMOV_64(a, reg);
+    return a*2+idx;
+}
+// put back (if needed) the single reg in place
+void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int s)
+{
+    if(reg>=16) {
+        VMOV_64(reg, s/2);
+    }
 }
