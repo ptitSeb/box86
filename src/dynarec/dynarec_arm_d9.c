@@ -226,6 +226,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFD:
             INST_NAME("FSCALE");
             x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fscale, -1, 0);
             break;
         case 0xFE:
