@@ -619,6 +619,9 @@ Op is 20-27
 #define VCEQQ_32(Dd, Dn, Dm)   EMIT(VCEQ_I_gen(2, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQ_64(Dd, Dn, Dm)    EMIT(VCEQ_I_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQQ_64(Dd, Dn, Dm)   EMIT(VCEQ_I_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQ_F_gen(sz, D, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (sz)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
+#define VCEQ_F32(Dd, Dn, Dm)    EMIT(VCEQ_F_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQQ_F32(Dd, Dn, Dm)   EMIT(VCEQ_F_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VCGT_I_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VCGT_U8(Dd, Dn, Dm)     EMIT(VCGT_I_gen(1, ((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
@@ -637,7 +640,13 @@ Op is 20-27
 #define VCGTQ_S32(Dd, Dn, Dm)   EMIT(VCGT_I_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCGT_S64(Dd, Dn, Dm)    EMIT(VCGT_I_gen(0, ((Dd)>>4)&1, 3, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCGTQ_S64(Dd, Dn, Dm)   EMIT(VCGT_I_gen(0, ((Dd)>>4)&1, 3, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCGT_F_gen(D, sz, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | 1<<21 | (sz)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
+#define VCGT_F32(Dd, Dn, Dm)    EMIT(VCGT_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCGTQ_F32(Dd, Dn, Dm)   EMIT(VCGT_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VCGE_F_gen(D, sz, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | 0<<21 | (sz)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
+#define VCGE_F32(Dd, Dn, Dm)    EMIT(VCGE_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCGEQ_F32(Dd, Dn, Dm)   EMIT(VCGE_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VSHR_gen(U, D, imm6, Vd, L, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (imm6)<<16 | (Vd)<<12 | (L)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VSHR_U8(Dd, Dm, imm3)    EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b001<<3 | (8-imm3), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
@@ -686,10 +695,6 @@ Op is 20-27
 #define VMUL__F32(Dd, Dn, Dm)   EMIT(VMUL_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VMULQ_F32(Dd, Dn, Dm)   EMIT(VMUL_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
-#define VCGT_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
-#define VCGT_F32(Dd, Dn, Dm)    EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 0<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
-#define VCGTQ_F32(Dd, Dn, Dm)   EMIT(0b1111<<28 | 0b0011<<25 | ((Dd>>4)&1)<<22 | 10<<20 | (Dn&15)<<16 | (Dd&15)<<12 | 0b1110<<8 | ((Dn>>4)&1)<<7 | 1<<6 | ((Dm>>4)&1)<<5 | (Dm)&15)
-
 #define VCVT_NEON_gen(D, size, Vd, op, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b11<<9 | (op)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VCVTQ_F32_S32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b00, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCVTQ_S32_F32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b10, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -704,5 +709,8 @@ Op is 20-27
 #define VEXT_gen(D, Vn, Vd, imm4, N, Q, M, Vm)  (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (Vn)<<16 | (Vd)<<12 | (imm4)<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VEXT_8(Dd, Dn, Dm, imm4)    EMIT(VEXT_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, imm4, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VEXTQ_8(Dd, Dn, Dm, imm4)   EMIT(VEXT_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, imm4, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VMVN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b1011<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
+#define VMVNQ(Dd, Dm)       EMIT(VMVN_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__

@@ -78,6 +78,22 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STRD_IMM8(x2, ed, 0);
             }
             break;
+        case 0x12:
+            INST_NAME("MOVDDUP Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(v0, d0);
+                VMOVD(v0+1, d0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                LDRD_IMM8(x2, ed, 0);   // to avoid bus errors
+                VMOVtoV_D(v0, x2, x3);
+                VMOVtoV_D(v0+1, x2, x3);
+            }
+            break;
 
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
