@@ -393,7 +393,7 @@ Op is 20-27
 // Load Exclusive Rt/Rt+1 from Rn (tagging the memory)
 #define LDREXD(Rn, Rt)  EMIT(LDREXD_gen(c__, Rn, Rt))
 
-#define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001>>4 | (Rt))
+#define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive Rt/Rt+1 to Rn, with result in Rd if tag is ok (Rd!=Rn && Rd!=Rt && Rd!=Rt+1), Rd==1 if store failed
 #define STREXD(Rd, Rn, Rt)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
 
