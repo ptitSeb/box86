@@ -1922,11 +1922,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("SAR Ed, 1");
                     GETED;
-                    MOVW(x3, 1);
                     UFLAG_IF {
+                        MOVW(x3, 1);
                         UFLAG_OP12(ed, x3);
-                        MOV_REG_ASR_REG(ed, ed, x3);
                     }
+                    MOV_REG_ASR_IMM5(ed, ed, 1);
                     WBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_sar32);
