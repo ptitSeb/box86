@@ -211,7 +211,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
-                    VMRS(x12);   // Get FPCSR reg to clear exceptions flags
+                    // x12 already have FPCSR reg to clear exceptions flags
                     ORR_IMM8(x3, u8, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
