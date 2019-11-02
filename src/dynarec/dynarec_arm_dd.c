@@ -20,6 +20,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 
+#include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
 
@@ -140,6 +141,14 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     v1 = x87_do_push(dyn, ninst);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                     VLDR_64(v1, ed, 0);
+                    break;
+                case 1:
+                    INST_NAME("FISTTP i64, ST0");
+                    x87_forget(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fistp64, -1, 0);
+                    x87_do_pop(dyn, ninst);
                     break;
                 case 2:
                     INST_NAME("FST double");

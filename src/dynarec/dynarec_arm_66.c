@@ -353,7 +353,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             STRH_IMM8(x2, xESP, 0);
             break;
 
-
         case 0x81:
         case 0x83:
             nextop = F8;
