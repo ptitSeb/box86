@@ -213,7 +213,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         if(dyn->tablesz) {
             table = &dyn->table[dyn->tablei];
             table[0] = (uintptr_t)arm_linker;
-            table[1] = 0;
+            table[1] = ip;
         }
         dyn->tablei+=2; // smart linker or not, we keep table correctly alligned for LDREXD/STREXD access
         MOV32_(x1, (uintptr_t)table);

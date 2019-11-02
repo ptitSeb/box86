@@ -22,6 +22,7 @@
 #ifdef ARM
 void arm_prolog(x86emu_t* emu, void* addr);
 void arm_epilog();
+void arm_linker();
 int arm_tableupdate(void* jump, uintptr_t addr, void** table);
 #endif
 
@@ -36,21 +37,30 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         r = arm_tableupdate(arm_epilog, addr, table);
         if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
         #else
-        *table = arm_epilog;
+        table[0] = arm_epilog;
+        table[1] = addr;
         #endif
         return arm_epilog;
     }
     if(!block->done) {
-        // not finished yet... leave as-is
+        // not finished yet... leave linker
+        #ifdef ARM
+        r = arm_tableupdate(arm_linker, addr, table);
+        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
+        #else
+        table[0] = arm_linker;
+        table[1] = addr;
+        #endif
         return arm_epilog;
     }
     if(!block->block) {
-        // null block, but done
+        // null block, but done, go to epilog
         #ifdef ARM
         r = arm_tableupdate(arm_epilog, addr, table);
         if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
         #else
-        *table = arm_epilog;
+        table[0] = arm_epilog;
+        table[1] = addr;
         #endif
         return arm_epilog;
     }
@@ -58,7 +68,8 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     r = arm_tableupdate(block->block, addr, table);
     if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
     #else
-    *table = block->block;
+    table[0] = block->block;
+    table[1] = addr;
     #endif
     return block->block;
 }

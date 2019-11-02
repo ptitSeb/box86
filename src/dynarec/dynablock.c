@@ -56,6 +56,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     kh_destroy(dynablocks, (*dynablocks)->blocks);
     if((*dynablocks)->direct)
         free((*dynablocks)->direct);
+    (*dynablocks)->direct = 0;
 
     pthread_mutex_destroy(&(*dynablocks)->mutex_blocks);
 
