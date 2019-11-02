@@ -109,6 +109,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
             VSTR_64(v0, ed, 0);
             break;
+        case 0x14:
+            INST_NAME("UNPCKLPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(v0+1, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VLDR_64(v0+1, ed, 0);
+            }
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -322,6 +335,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             VMUL_F64(v0, v0, q0);
             VMUL_F64(v0+1, v0+1, q0+1);
+            break;
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            s0 = fpu_get_single_reg(dyn, ninst, v0, 0);
+            VCVT_F32_F64(s0, v1);
+            fpu_putback_single_reg(dyn, ninst, v0, 0, s0);
+            s0 = fpu_get_single_reg(dyn, ninst, v0, 1);
+            VCVT_F32_F64(s0, v1+1);
+            fpu_putback_single_reg(dyn, ninst, v0, 1, s0);
+            VEOR(v0+1, v0+1, v0+1);
             break;
 
         case 0x62:
