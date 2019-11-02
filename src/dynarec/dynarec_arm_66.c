@@ -840,8 +840,9 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETEW(x1);
                     SMULBB(x2, xEAX, ed);
                     UFLAG_RES(x2);
-                    BFI(xEAX, x2,  0, 16);
-                    BFI(xEDX, x2, 16, 16);
+                    BFI(xEAX, x2, 0, 16);
+                    MOV_REG_LSR_IMM5(x2, x2, 16);
+                    BFI(xEDX, x2, 0, 16);
                     UFLAGS(0);
                     break;
                 case 6:

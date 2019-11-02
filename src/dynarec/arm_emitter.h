@@ -114,7 +114,7 @@ Op is 20-27
 // sub cond dst, src, #(imm8)
 #define SUB_COND_IMM8(dst, src, imm8) \
     EMIT((cond) | 0x02400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
-// add.s dst, src, #(imm8)
+// sub.s dst, src, #(imm8)
 #define SUBS_IMM8(dst, src, imm8) \
     EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
@@ -123,6 +123,10 @@ Op is 20-27
 // add.s dst, src1, src2, lsl #imm
 #define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+
+// sbc dst, src, #(imm8)
+#define SBC_IMM8(dst, src, imm8) \
+    EMIT(0xe2c00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \
@@ -218,6 +222,12 @@ Op is 20-27
 // mvn dst, src, IMM8
 #define MVN_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3e00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// mvn dst, src1, src2, lsr #imm
+#define MVN_REG_LSR_IMM8(dst, rm, imm8) \
+    EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSR(imm8, rm) )
+// mvn dst, rm lsr rs
+#define MVN_REG_LSR_REG(dst, rm, rs) \
+    EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | (1<<4) | (1<<5) | (rs<<8) | (rm) )
 // mvn with condition dst, src1, src2, lsl #imm
 #define MVN_COND_REG_LSL_IMM8(cond, dst, rm, imm8) \
     EMIT(cond | 0x01e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm8, rm) )
