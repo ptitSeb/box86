@@ -836,10 +836,12 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
+                    UFLAG_DF(x1, d_imul16);
                     GETEW(x1);
-                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
-                    CALL(imul16_eax, -1, 0);
-                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    SMULBB(x2, xEAX, ed);
+                    UFLAG_RES(x2);
+                    BFI(xEAX, x2,  0, 16);
+                    BFI(xEDX, x2, 16, 16);
                     UFLAGS(0);
                     break;
                 case 6:

@@ -685,6 +685,24 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             UFLAGS(1);
             break;
 
+        case 0xAF:
+            INST_NAME("IMUL Gw,Ew");
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                LDRH_IMM8(x1, wback, 0);
+                ed = x1;
+            }
+            gd = xEAX+((nextop&0x38)>>3);
+            SMULBB(x2, gd, ed);
+            UFLAG_RES(x2);
+            BFI((xEAX+((nextop&0x38)>>3)), x2, 0, 16);
+            UFLAGS(0);
+            break;
+
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
             nextop = F8;
