@@ -7,6 +7,7 @@ extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_dynarec_linker;
 extern int box86_dynarec_trace;
+extern int box86_dynarec_forced;
 #endif
 extern int dlsym_error;  // log dlsym error
 extern int trace_xmm;    // include XMM reg in trace?

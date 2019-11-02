@@ -738,6 +738,8 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(!elf) {
         if((*(uint8_t*)addr)==0xCC)
             return context->dynablocks;
+        if(box86_dynarec_forced)
+            return context->dynablocks;
         dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", addr);
         return NULL;
     }

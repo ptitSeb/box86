@@ -33,6 +33,7 @@ int box86_log = LOG_INFO;//LOG_NONE;
 int box86_dynarec_log = LOG_NONE;
 int box86_dynarec = 1;
 int box86_dynarec_linker = 1;
+int box86_dynarec_forced = 0;
 #endif
 int dlsym_error = 0;
 int trace_xmm = 0;
@@ -100,6 +101,15 @@ void LoadLogEnv()
                 box86_dynarec_linker = p[0]-'0';
         }
         printf_log(LOG_INFO, "Dynarec Linker is %s\n", box86_dynarec_linker?"On":"Off");
+    }
+    p = getenv("BOX86_DYNAREC_FORCED");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dynarec_forced = p[0]-'0';
+        }
+        if(box86_dynarec_forced)
+        printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
     }
 #endif
 #ifdef HAVE_TRACE
