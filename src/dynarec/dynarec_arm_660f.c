@@ -122,6 +122,33 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0x16:
+            INST_NAME("MOVHPD Gx, Ed");
+            nextop = F8;
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                // access register instead of memory is bad opcode!
+                *ok = 0;
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+            VLDR_64(v0+1, ed, 0);
+            break;
+        case 0x17:
+            INST_NAME("MOVHPD Ed, Gx");
+            nextop = F8;
+            GETGX(v0);
+            if((nextop&0xC0)==0xC0) {
+                // access register instead of memory is bad opcode!
+                *ok = 0;
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+            VSTR_64(v0+1, ed, 0);
+            break;
+
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
