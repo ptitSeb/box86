@@ -303,8 +303,8 @@
 //GO(SSL_CTX_set_client_cert_engine, 
 //GO(SSL_CTX_set_cookie_generate_cb, 
 //GO(SSL_CTX_set_cookie_verify_cb, 
-//GO(SSL_CTX_set_default_passwd_cb, 
-//GO(SSL_CTX_set_default_passwd_cb_userdata, 
+// GOM(SSL_CTX_set_default_passwd_cb, vFEpp)
+// GOM(SSL_CTX_set_default_passwd_cb_userdata, vFEpp)
 //GO(SSL_CTX_set_default_verify_paths, 
 //GO(SSL_CTX_set_ex_data, 
 //GO(SSL_CTX_set_generate_session_id, 
@@ -526,15 +526,15 @@ GO(SSL_set_session, iFpp)
 //GO(SSL_use_RSAPrivateKey, 
 //GO(SSL_use_RSAPrivateKey_ASN1, 
 //GO(SSL_use_RSAPrivateKey_file, 
-//GO(SSLv23_client_method, 
-//GO(SSLv23_method, 
-//GO(SSLv23_server_method, 
-//GO(SSLv2_client_method, 
-//GO(SSLv2_method, 
-//GO(SSLv2_server_method, 
-//GO(SSLv3_client_method, 
-//GO(SSLv3_method, 
-//GO(SSLv3_server_method, 
+GO(SSLv23_client_method, pFv)
+GO(SSLv23_method, pFv)
+GO(SSLv23_server_method, pFv)
+GO(SSLv2_client_method, pFv)
+GO(SSLv2_method, pFv)
+GO(SSLv2_server_method, pFv)
+GO(SSLv3_client_method, pFv)
+GO(SSLv3_method, pFv)
+GO(SSLv3_server_method, pFv)
 //GO(ssl_verify_alarm_type, 
 //GO(ssl_verify_cert_chain, 
 //GO(SSL_version, 
