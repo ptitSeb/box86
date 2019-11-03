@@ -201,7 +201,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("FIST Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -211,8 +211,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
-                    // x12 already have FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, u8, 0b001, 6); // enable exceptions
+                    // x1 already have FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
@@ -228,7 +228,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("FISTP Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -239,7 +239,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
                     // The FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, u8, 0b001, 6); // enable exceptions
+                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
