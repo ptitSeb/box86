@@ -90,7 +90,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 INST_NAME("MOVHLPS Gx,Ex");
                 GETGX(v0);
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(v0, v1+1);
+                VMOVD(v0, v1+1);
             } else {
                 INST_NAME("MOVLPS Gx,Ex");
                 GETGX(v0);
@@ -105,7 +105,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGX(v0);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(v1, v0);
+                VMOVD(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VMOVfrV_D(x2, x3, v0);
@@ -141,7 +141,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 INST_NAME("MOVLHPS Gx,Ex");
                 GETGX(v0);
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(v0+1, v1);
+                VMOVD(v0+1, v1);
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
                 GETGX(v0);
@@ -156,7 +156,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGX(v0);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                VMOV_64(v1, v0+1);
+                VMOVD(v1, v0+1);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VMOVfrV_D(x2, x3, v0+1);
@@ -210,7 +210,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d0 = v1;
                 else {
                     d0 = fpu_get_scratch_double(dyn);
-                    VMOV_64(d0, v1);
+                    VMOVD(d0, v1);
                 }
                 s0 = d0*2;
             } else {
@@ -222,7 +222,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d1=v0;
             else {
                 d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
+                VMOVD(d1, v0);
             }
             VCMP_F32(d1*2, s0);
             FCOMI(x1, x2);
@@ -403,7 +403,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d0 = q0;
             } else {
                 d0 = fpu_get_scratch_double(dyn);
-                VMOV_64(d0, q0);
+                VMOVD(d0, q0);
             }
             VCVT_F64_F32(v0+1, d0*2+1);
             VCVT_F64_F32(v0, d0*2);
