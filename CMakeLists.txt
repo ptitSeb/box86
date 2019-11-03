@@ -148,8 +148,15 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
+
+set(WRAPPEDS_HEAD "")
+foreach(A ${WRAPPEDS})
+    string(REPLACE ".c" "_private.h" B ${A})
+    set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
+endforeach()
+
 set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h")
-add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} BYPRODUCTS ${WRAPPER})
+add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
