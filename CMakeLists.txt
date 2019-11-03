@@ -166,6 +166,7 @@ if(ARM_DYNAREC)
     )
 
     set(DYNAREC_PASS
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_helper.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_00.c"
