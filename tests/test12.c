@@ -18,9 +18,18 @@ int main(int argc, char **argv)
     d = d*(1<<30)/M_PI;
     angle_t u32 = (angle_t)d;
     printf("(angle_t)%f = %u == 0x%08X\n", d, u32, u32);
-    /*d = -d;
-    u32 = angle_t(d);
-    printf("(angle_t)%f = %u == 0x%08X\n", d, u32, u32);*/
+
+    int16_t a=0, b=0;
+    asm volatile (
+        "fldpi   \n"
+        "fisttp %0   \n"
+    : "=m" (a));
+    asm volatile (
+        "fldpi      \n"
+        "fchs       \n"
+        "fistp %0   \n"
+    : "=m" (b));
+    printf("go PI trucated=%d, -PI rounded=%d\n", a, b);
 
     return 0;
 }

@@ -148,7 +148,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
@@ -168,7 +168,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
@@ -187,7 +187,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x3);
+                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
