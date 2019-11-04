@@ -240,7 +240,7 @@ GOW(endutent, vFv)
 // endutxent
 DATAV(environ, 4)
 DATAV(_environ, 4)
-// __environ    // type B
+DATA(__environ, 4)    // type B
 // envz_add
 // envz_entry
 // envz_get
@@ -2117,6 +2117,8 @@ GOM(__poll_chk, iFpuii)
 GO2(fallocate64, iFiII, posix_fallocate64)
 
 DATAM(__libc_stack_end, 4)
+
+DATAM(___brk_addr, 4)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)

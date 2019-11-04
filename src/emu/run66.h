@@ -91,7 +91,11 @@
 
     _66_0x66:
         goto _0x66; // 0x66 0x66 => can remove one 0x66
-
+        
+    _66_0x68:                       /* PUSH u16 */
+        tmp16u = F16;
+        Push16(emu, tmp16u);
+        NEXT;
     _66_0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
         GET_EW;

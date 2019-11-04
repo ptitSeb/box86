@@ -343,10 +343,16 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             break;
 
+        case 0x68:
+            INST_NAME("PUSH Iw");
+            u16 = F16;
+            MOVW(x2, u16);
+            SUB_IMM8(xESP, xESP, 2);
+            STRH_IMM8(x2, xESP, 0);
+            break;
+
         case 0x6A:
             INST_NAME("PUSH Ib");
-            MOVW(x1, offsetof(x86emu_t, segs[_DS]));
-            ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
             i16 = F8S;
             MOVW(x2, i16);
             SUB_IMM8(xESP, xESP, 2);

@@ -13,6 +13,8 @@
 
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
 {
+    if(!fmt)
+        return;
     // loop...
     const char* p = fmt;
     int state = 0;

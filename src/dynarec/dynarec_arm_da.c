@@ -149,6 +149,29 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VCVT_F64_S32(d0, s0);
                     VMUL_F64(v1, v1, d0);
                     break;
+                case 2:
+                    INST_NAME("FICOM ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    d0 = fpu_get_scratch_double(dyn);
+                    s0 = fpu_get_scratch_single(dyn);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_S32(d0, s0);
+                    VCMP_F64(v1, d0);
+                    FCOM(x1, x2);
+                    break;
+                case 3:
+                    INST_NAME("FICOMP ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    GETED;
+                    d0 = fpu_get_scratch_double(dyn);
+                    s0 = fpu_get_scratch_single(dyn);
+                    VMOVtoV(s0, ed);
+                    VCVT_F64_S32(d0, s0);
+                    VCMP_F64(v1, d0);
+                    FCOM(x1, x2);
+                    x87_do_pop(dyn, ninst);
+                    break;
                 case 4:
                     INST_NAME("FISUB ST0, Ed");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
@@ -189,9 +212,6 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VCVT_F64_S32(d0, s0);
                     VDIV_F64(v1, d0, v1);
                     break;
-                default:
-                    *ok = 0;
-                    DEFAULT;
             }
     }
     return addr;

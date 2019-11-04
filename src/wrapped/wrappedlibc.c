@@ -1071,6 +1071,8 @@ EXPORT void* my___deregister_frame_info(void* a)
     return NULL;
 }
 
+EXPORT void* my____brk_addr = NULL;
+
 // need to undef all read / read64 stuffs!
 #undef pread
 #undef pwrite
