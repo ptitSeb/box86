@@ -71,6 +71,7 @@ void x86Int3(x86emu_t* emu)
                 char buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
+                char *tmp;
                 int post = 0;
                 int perr = 0;
                 uint32_t *pu32 = NULL;
@@ -92,7 +93,8 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d, %d)", tid, *(void**)(R_ESP), "open64", *(char**)(R_ESP+4), *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
                 } else  if(strstr(s, "__open")==s || strstr(s, "open")==s || strstr(s, "open")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(int*)(R_ESP+8));
+                    tmp = *(char**)(R_ESP+4);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8));
                     perr = 1;
                 } else  if(strstr(s, "fopen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "fopen", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
