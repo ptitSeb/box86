@@ -263,7 +263,7 @@ GOM(epoll_wait, iFEipii)    // need realign of epoll_event structure
 // err
 // errno    // type B
 GO(__errno_location, pFv)
-// error    // Weak
+GOW(error, vFiippppppppp)  // Simple attempt: there is a vararg, but the alignment will/may be off if it tries some Double in the "printf" part
 // error_at_line    // Weak
 // error_message_count  // type B
 // error_one_per_line   // type B
@@ -1210,7 +1210,7 @@ DATA(optopt, 4)
 // outb // Weak
 // outl // Weak
 // outw // Weak
-// __overflow
+GO(__overflow, iFpi)
 // parse_printf_format
 // passwd2des
 GOW(pathconf, iFpi)
