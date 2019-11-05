@@ -23,7 +23,7 @@ typedef union ui64_s {
 #define ST0val ST0.d
 #endif
 #ifndef NOALIGN
-int of_convert(int flag) { return (flag&~0740000) & (flag&0140000)<<2 | (flag&0600000)>>2;}
+int of_convert(int flag) { return (flag&~0740000) | ((flag&0140000)<<2) | ((flag&0600000)>>2);}
 #else
 int of_convert(int flag) { return flag; }
 #endif
