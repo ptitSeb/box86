@@ -23,34 +23,31 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFppii_t)(void*, void*, int32_t, int32_t);
 static x86emu_t *dspemu = NULL;
 
-static void smpeg_dispcallback(void* dst, int32_t x, int32_t y, unsigned int w, unsigned int h)
+static void smpeg_dispcallback(void* data, void* frame)
 {
     x86emu_t *emu = dspemu;
 
     if(!emu)
         return;
-    SetCallbackArg(emu, 0, dst);
-    SetCallbackArg(emu, 1, (void*)x);
-    SetCallbackArg(emu, 2, (void*)y);
-    SetCallbackArg(emu, 3, (void*)w);
-    SetCallbackArg(emu, 4, (void*)h);
+    SetCallbackArg(emu, 0, data);
+    SetCallbackArg(emu, 1, frame);
     RunCallback(emu);
 }
 
-EXPORT void my_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* cb, void* data, void* lock)
+EXPORT void my2_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* cb, void* data, void* lock)
 {
     library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
     vFpppp_t fnc = (vFpppp_t)lib->priv.w.priv;
     x86emu_t *old = dspemu;
     dspemu = NULL;
     if(cb)
-        dspemu = AddCallback(emu, (uintptr_t)cb, 5, NULL, NULL, NULL, NULL);
+        dspemu = AddCallback(emu, (uintptr_t)cb, 2, NULL, NULL, NULL, NULL);
     fnc(mpeg, dspemu?smpeg_dispcallback:NULL, data, lock);
     if(old)
         FreeCallback(old);
 }
 
-EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f, int32_t audio)
+EXPORT void* my2_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f, int32_t audio)
 {
     library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
     pFppii_t fnc = (pFppii_t)lib->priv.w.p2;
@@ -65,7 +62,8 @@ EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f,
 
 #define CUSTOM_INIT \
     lib->priv.w.priv = dlsym(lib->priv.w.lib, "SMPEG_setdisplay"); \
-    lib->priv.w.p2 = dlsym(lib->priv.w.lib, "SMPEG_new_rwops");
+    lib->priv.w.p2 = dlsym(lib->priv.w.lib, "SMPEG_new_rwops"); \
+    lib->altmy = strdup("my2_");
 
 #include "wrappedlib_init.h"
 

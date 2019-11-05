@@ -113,6 +113,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2mixer.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2image.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsmpeg.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsmpeg2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedvorbisfile.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibvorbis.c"

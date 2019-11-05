@@ -36,22 +36,20 @@ static void* getSDL1TTFMy(library_t* lib)
 void EXPORT *my_TTF_OpenFontIndexRW(x86emu_t* emu, void* a, int32_t b, int32_t c, int32_t d)
 {
     sdl1ttf_my_t *my = (sdl1ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
-    SDLRWSave_t save;
-    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
-    void* r = my->TTF_OpenFontIndexRW(a, b, c, d);
+    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
+    void* r = my->TTF_OpenFontIndexRW(rw, b, c, d);
     if(b==0)
-        RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+        RWNativeEnd(rw);
     return r;
 }
 
 void EXPORT *my_TTF_OpenFontRW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
     sdl1ttf_my_t *my = (sdl1ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
-    SDLRWSave_t save;
-    RWNativeStart(emu, (SDL1_RWops_t*)a, &save);
-    void* r = my->TTF_OpenFontRW(a, b, c);
+    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
+    void* r = my->TTF_OpenFontRW(rw, b, c);
     if(b==0)
-        RWNativeEnd(emu, (SDL1_RWops_t*)a, &save);
+        RWNativeEnd(rw);
     return r;
 }
 
