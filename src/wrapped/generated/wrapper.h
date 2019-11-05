@@ -19,6 +19,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // o = stdout
 // C = unsigned byte c = char
 // W = unsigned short w = short
+// A = libc AT_ flags bitfild
 // Q = ...
 // S8 = struct, 8 bytes
 
@@ -202,6 +203,7 @@ void iFiup(x86emu_t *emu, uintptr_t fnc);
 void iFipi(x86emu_t *emu, uintptr_t fnc);
 void iFipu(x86emu_t *emu, uintptr_t fnc);
 void iFipp(x86emu_t *emu, uintptr_t fnc);
+void iFipA(x86emu_t *emu, uintptr_t fnc);
 void iFuii(x86emu_t *emu, uintptr_t fnc);
 void iFuip(x86emu_t *emu, uintptr_t fnc);
 void iFuui(x86emu_t *emu, uintptr_t fnc);
@@ -353,15 +355,18 @@ void iFiuii(x86emu_t *emu, uintptr_t fnc);
 void iFiuui(x86emu_t *emu, uintptr_t fnc);
 void iFiupp(x86emu_t *emu, uintptr_t fnc);
 void iFipii(x86emu_t *emu, uintptr_t fnc);
-void iFipiu(x86emu_t *emu, uintptr_t fnc);
 void iFipip(x86emu_t *emu, uintptr_t fnc);
+void iFipiA(x86emu_t *emu, uintptr_t fnc);
 void iFipui(x86emu_t *emu, uintptr_t fnc);
 void iFipuI(x86emu_t *emu, uintptr_t fnc);
 void iFipuu(x86emu_t *emu, uintptr_t fnc);
 void iFipup(x86emu_t *emu, uintptr_t fnc);
+void iFipuA(x86emu_t *emu, uintptr_t fnc);
 void iFippi(x86emu_t *emu, uintptr_t fnc);
 void iFippu(x86emu_t *emu, uintptr_t fnc);
 void iFippp(x86emu_t *emu, uintptr_t fnc);
+void iFippA(x86emu_t *emu, uintptr_t fnc);
+void iFipAu(x86emu_t *emu, uintptr_t fnc);
 void iFuipp(x86emu_t *emu, uintptr_t fnc);
 void iFuuff(x86emu_t *emu, uintptr_t fnc);
 void iFupup(x86emu_t *emu, uintptr_t fnc);
@@ -513,15 +518,15 @@ void iFiiipu(x86emu_t *emu, uintptr_t fnc);
 void iFiiipp(x86emu_t *emu, uintptr_t fnc);
 void iFiiupp(x86emu_t *emu, uintptr_t fnc);
 void iFiipip(x86emu_t *emu, uintptr_t fnc);
-void iFiippi(x86emu_t *emu, uintptr_t fnc);
+void iFiippA(x86emu_t *emu, uintptr_t fnc);
 void iFiuuuu(x86emu_t *emu, uintptr_t fnc);
 void iFipiii(x86emu_t *emu, uintptr_t fnc);
-void iFipipi(x86emu_t *emu, uintptr_t fnc);
-void iFipuii(x86emu_t *emu, uintptr_t fnc);
+void iFipipA(x86emu_t *emu, uintptr_t fnc);
+void iFipuiA(x86emu_t *emu, uintptr_t fnc);
 void iFipuui(x86emu_t *emu, uintptr_t fnc);
 void iFippui(x86emu_t *emu, uintptr_t fnc);
-void iFipppi(x86emu_t *emu, uintptr_t fnc);
 void iFipppp(x86emu_t *emu, uintptr_t fnc);
+void iFipppA(x86emu_t *emu, uintptr_t fnc);
 void iFuppup(x86emu_t *emu, uintptr_t fnc);
 void iFpiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpiiip(x86emu_t *emu, uintptr_t fnc);
@@ -632,7 +637,7 @@ void vFppippi(x86emu_t *emu, uintptr_t fnc);
 void vFppupii(x86emu_t *emu, uintptr_t fnc);
 void vFpppppi(x86emu_t *emu, uintptr_t fnc);
 void vFpppppp(x86emu_t *emu, uintptr_t fnc);
-void iFEiippi(x86emu_t *emu, uintptr_t fnc);
+void iFEiippA(x86emu_t *emu, uintptr_t fnc);
 void iFEpiipp(x86emu_t *emu, uintptr_t fnc);
 void iFEpippi(x86emu_t *emu, uintptr_t fnc);
 void iFEpipVV(x86emu_t *emu, uintptr_t fnc);
@@ -778,7 +783,7 @@ void iFiiiiiiip(x86emu_t *emu, uintptr_t fnc);
 void iFiiippppp(x86emu_t *emu, uintptr_t fnc);
 void iFiiuuuuuu(x86emu_t *emu, uintptr_t fnc);
 void iFiiupiupi(x86emu_t *emu, uintptr_t fnc);
-void iFipiuuuuu(x86emu_t *emu, uintptr_t fnc);
+void iFipAuuuuu(x86emu_t *emu, uintptr_t fnc);
 void iFuiifpppp(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiiipi(x86emu_t *emu, uintptr_t fnc);
 void iFpuippupp(x86emu_t *emu, uintptr_t fnc);

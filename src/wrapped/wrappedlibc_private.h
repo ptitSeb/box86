@@ -289,15 +289,15 @@ GOM(execvp, iFEpVV)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
-GO(faccessat, iFipii)
+GO(faccessat, iFipiA)
 // fattach
 GO(__fbufsize, uFp)
 GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
-GO(fchmodat, iFipui)
+GO(fchmodat, iFipuA)
 GOW(fchown, iFiuu)
-GO(fchownat, iFipuii)
+GO(fchownat, iFipuiA)
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
 GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
@@ -439,8 +439,8 @@ GO(__fwriting, iFp)
 // fwscanf
 GO(__fxstat, iFiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
-GO(__fxstatat, iFiippi)
-GOM(__fxstatat64, iFEiippi) // struct stat64 again
+GO(__fxstatat, iFiippA)
+GOM(__fxstatat64, iFEiippA) // struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, pFi)
 // __gconv_get_alias_db
@@ -1015,7 +1015,7 @@ GOM(__libc_start_main, iFEpippppp)
 // __libc_thread_freeres
 // __libc_valloc
 GOW(link, iFpp)
-GO(linkat, iFipipi)
+GO(linkat, iFipipA)
 GOW(listen, iFii)
 GO(listxattr, iFppu)
 // llabs
@@ -1194,9 +1194,9 @@ GO(__open_2, iFpi)
 GOM(open64, iFEpiu) //Weak
 // __open64 // Weak
 GO(__open64_2, iFpi)
-GOW(openat, iFipiu)
+GOW(openat, iFipAu)
 // __openat_2
-GOW(openat64, iFipiuuuuu)   // variable arg...
+GOW(openat64, iFipAuuuuu)   // variable arg...
 // __openat64_2
 // __open_catalog
 GOW(opendir, pFp)
@@ -1827,7 +1827,7 @@ GO(__underflow, iFp)
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
 GOW(unlink, iFp)
-GO(unlinkat, iFipi)
+GO(unlinkat, iFipA)
 GO(unlockpt, iFi)
 GOW(unsetenv, iFp)
 // unshare
@@ -1840,7 +1840,7 @@ GO(__uselocale, pFp)
 GO(usleep, iFu)
 // ustat
 GO(utime, iFpp)
-GO(utimensat, iFippi)
+GO(utimensat, iFippA)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 GOW(utmpname, iFp)
 // utmpxname
@@ -2123,4 +2123,4 @@ DATAM(___brk_addr, 4)
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
 
-GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
+GO(name_to_handle_at, iFipppA) // only glibc 2.14+, so may not be present...
