@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+// __USE_UNIX98 is needed for sttype / gettype definition
+#define __USE_UNIX98
 #include <pthread.h>
 #include <errno.h>
 
