@@ -4,7 +4,7 @@ import os
 import glob
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'L', 'p', 'V', "A"]
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'L', 'p', 'V', "O"]
 def splitchar(s):
 	ret = [len(s)]
 	i = 0
@@ -227,9 +227,9 @@ typedef union ui64_s {
 #define ST0val ST0.d
 #endif
 #ifndef NOALIGN
-int at_convert(int flag) { return (flag&~0740000) & (flag&0140000)<<2 | (flag&0600000)>>2;}
+int of_convert(int flag) { return (flag&~0740000) & (flag&0140000)<<2 | (flag&0600000)>>2;}
 #else
-int at_convert(int flag) { return flag; }
+int of_convert(int flag) { return flag; }
 #endif
 """,
 		"wrapper.h": """/*****************************************************************
@@ -253,7 +253,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // o = stdout
 // C = unsigned byte c = char
 // W = unsigned short w = short
-// A = libc AT_ flags bitfild
+// O = libc O_ flags bitfield
 // Q = ...
 // S8 = struct, 8 bytes
 
@@ -350,9 +350,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"FromLD((void*)(R_ESP + {p})), ", # L
 				"*(void**)(R_ESP + {p}), ",       # p
 				"(void*)(R_ESP + {p}), ",         # V
-				"at_convert(*(int32_t*)(R_ESP + {p})), ",         # A
+				"of_convert(*(int32_t*)(R_ESP + {p})), ",         # O
 			]
-			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  A
+			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   L   p  V  O
 			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0, 4]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
@@ -380,7 +380,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # L
 				"R_EAX=(uintptr_t)fn({0});",                                    # p
 				"\n#error Invalid return type: va_list\n",                      # V
-				"\n#error Invalid return type: at_flags\n",                     # A
+				"\n#error Invalid return type: at_flags\n",                     # O
 			]
 			if len(values) != len(vals):
 				raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))

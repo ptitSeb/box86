@@ -289,15 +289,15 @@ GOM(execvp, iFEpVV)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
-GO(faccessat, iFipiA)
+GO(faccessat, iFipii)
 // fattach
 GO(__fbufsize, uFp)
 GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
-GO(fchmodat, iFipuA)
+GO(fchmodat, iFipui)
 GOW(fchown, iFiuu)
-GO(fchownat, iFipuiA)
+GO(fchownat, iFipuii)
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
 GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
@@ -439,8 +439,8 @@ GO(__fwriting, iFp)
 // fwscanf
 GO(__fxstat, iFiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
-GO(__fxstatat, iFiippA)
-GOM(__fxstatat64, iFEiippA) // struct stat64 again
+GO(__fxstatat, iFiippi)
+GOM(__fxstatat64, iFEiippi) // struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, pFi)
 // __gconv_get_alias_db
@@ -1015,7 +1015,7 @@ GOM(__libc_start_main, iFEpippppp)
 // __libc_thread_freeres
 // __libc_valloc
 GOW(link, iFpp)
-GO(linkat, iFipipA)
+GO(linkat, iFipipi)
 GOW(listen, iFii)
 GO(listxattr, iFppu)
 // llabs
@@ -1188,15 +1188,15 @@ GO(_obstack_newchunk, vFpi)
 GOM(obstack_vprintf, iFEppVV)  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
-GOM(open, iFEpiu)    //Weak
-GOM(__open, iFEpiu) //Weak
-GO(__open_2, iFpi)
-GOM(open64, iFEpiu) //Weak
+GOM(open, iFEpOu)    //Weak
+GOM(__open, iFEpOu) //Weak
+GO(__open_2, iFpO)
+GOM(open64, iFEpOu) //Weak
 // __open64 // Weak
-GO(__open64_2, iFpi)
-GOW(openat, iFipAu)
+GO(__open64_2, iFpO)
+GOW(openat, iFipOu)
 // __openat_2
-GOW(openat64, iFipAuuuuu)   // variable arg...
+GOW(openat64, iFipOuuuuu)   // variable arg...
 // __openat64_2
 // __open_catalog
 GOW(opendir, pFp)
@@ -1827,7 +1827,7 @@ GO(__underflow, iFp)
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
 GOW(unlink, iFp)
-GO(unlinkat, iFipA)
+GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
 GOW(unsetenv, iFp)
 // unshare
@@ -1840,7 +1840,7 @@ GO(__uselocale, pFp)
 GO(usleep, iFu)
 // ustat
 GO(utime, iFpp)
-GO(utimensat, iFippA)
+GO(utimensat, iFippi)
 GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 GOW(utmpname, iFp)
 // utmpxname
@@ -2123,4 +2123,4 @@ DATAM(___brk_addr, 4)
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
 
-GO(name_to_handle_at, iFipppA) // only glibc 2.14+, so may not be present...
+GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
