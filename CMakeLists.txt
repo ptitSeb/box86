@@ -45,6 +45,7 @@ endif()
 if(ARM_DYNAREC)
     add_definitions(-DDYNAREC)
     add_definitions(-DARM)
+    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard -marm)
     enable_language(ASM)
 endif()
 
