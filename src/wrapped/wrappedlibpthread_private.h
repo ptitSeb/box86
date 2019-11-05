@@ -173,3 +173,5 @@ GO(sem_wait, iFp)
 // __sigaction
 // system
 // __vfork
+
+GOM(pthread_mutexattr_setkind_np, iFEpi)    // deprecated

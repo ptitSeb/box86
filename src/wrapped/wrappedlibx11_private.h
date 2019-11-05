@@ -430,7 +430,7 @@ GO(XGetWindowProperty, iFpppiiipppppp)
 //GO(XGetWMClientMachine
 GO(XGetWMColormapWindows, iFpppp)
 GO(XGetWMHints, pFpp)
-//GO(XGetWMIconName
+GO(XGetWMIconName, iFppp)
 GO(XGetWMName, iFppp)
 GO(XGetWMNormalHints, iFpppp)
 //GO(XGetWMProtocols

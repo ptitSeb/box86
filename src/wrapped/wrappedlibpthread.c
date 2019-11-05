@@ -29,7 +29,7 @@ int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr);
 int my_pthread_cond_signal(x86emu_t* emu, void* cond);
 int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime);
 int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex);
-
+int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind);
 
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
@@ -53,7 +53,6 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
         strncpy((char*)n, "dummy", s);
     return 0;
 }
-
 
 
 #include "wrappedlib_init.h"
