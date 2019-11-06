@@ -116,6 +116,7 @@ typedef struct x11_my_s {
     iFpppp_t        XCheckIfEvent;
     iFpppp_t        XPeekIfEvent;
     pFppuiipuuii_t  XCreateImage;
+    iFp_t           XInitImage;
     pFppiiuuui_t    XGetImage;
     iFppppiiiiuu_t  XPutImage;
     pFppiiuuuipii_t XGetSubImage;
@@ -140,6 +141,7 @@ void* getX11My(library_t* lib)
     GO(XCheckIfEvent, iFpppp_t)
     GO(XPeekIfEvent, iFpppp_t)
     GO(XCreateImage, pFppuiipuuii_t)
+    GO(XInitImage, iFp_t)
     GO(XGetImage, pFppiiuuui_t)
     GO(XPutImage, iFppppiiiiuu_t)
     GO(XGetSubImage, pFppiiuuuipii_t)
@@ -162,6 +164,8 @@ void freeX11My(void* lib)
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
+
+int32_t my_XInitImage(x86emu_t* emu, void* img);
 
 void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt);
@@ -431,6 +435,17 @@ EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t dept
     // bridge all access functions...
     BridgeImageFunc(emu, img);
     return img;
+}
+
+EXPORT int32_t my_XInitImage(x86emu_t* emu, void* img)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    int ret = my->XInitImage(img);
+    // bridge all access functions...
+    BridgeImageFunc(emu, img);
+    return ret;
 }
 
 EXPORT void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y

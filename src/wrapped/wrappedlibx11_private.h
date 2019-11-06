@@ -485,7 +485,7 @@ DATAB(_XInitDisplayLock_fn, 4)
 // _XInitDynamicIM
 // _XInitDynamicOM
 //GO(XInitExtension
-GO(XInitImage, iFp)
+GOM(XInitImage, iFEp)
 // _XInitImageFuncPtrs
 // _XInitKeysymDB
 GO(XInitThreads, uFv)
