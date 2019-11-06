@@ -52,7 +52,7 @@ GO(XBell, iFpi)
 GO(XBlackPixel, uFpi)
 //GO(XBlackPixelOfScreen
 //GO(XCellsOfScreen
-//GO(XChangeActivePointerGrab
+GO(XChangeActivePointerGrab, vFpuuu)
 GO(XChangeGC, iFppup)
 GO(XChangeKeyboardControl, iFpup)
 //GO(XChangeKeyboardMapping
@@ -207,7 +207,7 @@ DATA(XcmsUNDEFINEDColorSpace, 4)
 //GO(XcmsVisualOfCCC
 // _XColor_to_XcmsRGB
 GO(XConfigureWindow, iFppup)
-//GO(XConnectionNumber
+GO(XConnectionNumber, iFp)
 // _XConnectXCB
 //GO(XContextDependentDrawing
 //GO(XContextualDrawing
@@ -253,13 +253,13 @@ GO(_XDefaultIOError, iFp)
 // _XDefaultOpenOM
 GO(XDefaultRootWindow, pFp)
 GO(XDefaultScreen, pFp)
-//GO(XDefaultScreenOfDisplay
+GO(XDefaultScreenOfDisplay, pFp)
 //GO(XDefaultString
 GO(XDefaultVisual, pFpi)
 //GO(XDefaultVisualOfScreen
 // _XDefaultWireError
 GO(XDefineCursor, iFppp)
-//GO(XDeleteContext
+GO(XDeleteContext, iFpui)
 //GO(XDeleteModifiermapEntry
 GO(XDeleteProperty, iFppp)
 // _XDeq
@@ -346,7 +346,7 @@ GO(XFillPolygon, iFppppiii)
 GO(XFillRectangle, iFpppiiuu)
 GO(XFillRectangles, iFppppi)
 GO(XFilterEvent, iFpp)
-//GO(XFindContext
+GO(XFindContext, iFpuip)
 //GO(XFindOnExtensionList
 GO(XFlush, iFp)
 GO(_XFlush, vFp)
@@ -485,7 +485,7 @@ DATAB(_XInitDisplayLock_fn, 4)
 // _XInitDynamicIM
 // _XInitDynamicOM
 //GO(XInitExtension
-//GO(XInitImage
+GO(XInitImage, iFp)
 // _XInitImageFuncPtrs
 // _XInitKeysymDB
 GO(XInitThreads, uFv)
@@ -911,14 +911,14 @@ GO(XRestackWindows, iFppi)
 //GO(XrmStringToBindingQuarkList
 //GO(XrmStringToQuark
 //GO(XrmStringToQuarkList
-//GO(XrmUniqueQuark
+GO(XrmUniqueQuark, iFv)
 GO(XRootWindow, pFpi)
 //GO(XRootWindowOfScreen
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
-//GO(XSaveContext
+GO(XSaveContext, iFpuip)
 GO(XScreenCount, iFp)
-//GO(XScreenNumberOfScreen
+GO(XScreenNumberOfScreen, iFp)
 GO(XScreenOfDisplay, pFpi)
 // _XScreenOfWindow
 //GO(XScreenResourceString
