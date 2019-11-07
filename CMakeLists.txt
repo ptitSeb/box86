@@ -6,6 +6,7 @@ enable_testing()
 enable_language(C)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
+option(GAMESHELL "Set to ON if targeting a Gameshell device" ${GAMESHELL})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
@@ -24,6 +25,11 @@ endif()
 if(PANDORA)
     add_definitions(-DPANDORA)
     #add_definitions(-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp -ftree-vectorize -fsingle-precision-constant -ffast-math)
+endif()
+
+# Gameshell
+if(GAMESHELL)
+    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard )
 endif()
 
 if(LD80BITS)
@@ -45,9 +51,11 @@ endif()
 if(ARM_DYNAREC)
     add_definitions(-DDYNAREC)
     add_definitions(-DARM)
-    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard -marm)
+    add_definitions(-marm)
     enable_language(ASM)
 endif()
+
+
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 

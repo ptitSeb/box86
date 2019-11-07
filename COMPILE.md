@@ -4,6 +4,10 @@ Compiling
 
  `mkdir build; cd build; cmake .. -DPANDORA=1; make`
 
+*for Gameshell*
+
+`mkdir build; cd build; cmake .. -DGAMESHELL=1; make`
+
 *or for Other ARM Linux*
 
  `mkdir build; cd build; cmake .. ; make`
