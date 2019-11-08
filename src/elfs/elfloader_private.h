@@ -60,13 +60,13 @@ struct elfheader_s {
     int         stackalign;
     uint32_t    tlssize;
     int         tlsalign;
-    pthread_key_t tlskey;
+
+    int32_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
 
     int         init_done;
     int         fini_done;
 
     char*       memory; // char* and not void* to allow math on memory pointer
-    char*       tlsdata;
 #ifdef DYNAREC
     dynablocklist_t *blocks;
 #endif

@@ -96,6 +96,8 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
 
+    pthread_key_create(&context->tlskey, free);
+
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
@@ -174,6 +176,16 @@ void FreeBox86Context(box86context_t** context)
 
     FreeCallbackList(&(*context)->callbacks);
 
+    void* ptr;
+    if ((ptr = pthread_getspecific((*context)->tlskey)) != NULL) {
+        free(ptr);
+        pthread_setspecific((*context)->tlskey, NULL);
+    }
+    pthread_key_delete((*context)->tlskey);
+
+    if((*context)->tlsdata)
+        free((*context)->tlsdata);
+
     pthread_mutex_destroy(&(*context)->mutex_once);
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);
@@ -208,4 +220,10 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
     ctx->elfsize++;
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
+}
+
+int AddTLSPartition(box86context_t* context, int tlssize) {
+    context->tlssize += tlssize;
+    context->tlsdata = realloc(context->tlsdata, context->tlssize);
+    return -context->tlssize;   // negative offset
 }

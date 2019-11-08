@@ -21,6 +21,14 @@
 #include "dynablock.h"
 #endif
 
+// return the index of header (-1 if it doesn't exist)
+int getElfIndex(box86context_t* ctx, elfheader_t* head) {
+    for (int i=0; i<ctx->elfsize; ++i)
+        if(ctx->elfs[i]==head)
+            return i;
+    return -1;
+}
+
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
 {
     elfheader_t *h = ParseElfHeader(f, name, exec);
@@ -90,22 +98,12 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
         if(head->PHEntries[i].p_type == PT_TLS) {
-            // ignoring offset for now
-            /*uintptr_t phend = head->PHEntries[i].p_vaddr - head->vaddr + head->PHEntries[i].p_memsz;
-            if(phend > head->memsz)
-                head->memsz = phend;
-            if(head->PHEntries[i].p_align > head->align)
-                head->align = head->PHEntries[i].p_align;*/
-            if(head->tlssize) {
-                printf_log(LOG_INFO, "Warning, multiple PT_TLS entries, taking only first one in account\n");
-            } else {
-                head->tlssize = head->PHEntries[i].p_memsz;
-                head->tlsalign = head->PHEntries[i].p_align;
-                // force alignement...
-                if(head->tlsalign>1)
-                    while(head->tlssize&(head->tlsalign-1))
-                        head->tlssize++;
-            }
+            head->tlssize = head->PHEntries[i].p_memsz;
+            head->tlsalign = head->PHEntries[i].p_align;
+            // force alignement...
+            if(head->tlsalign>1)
+                while(head->tlssize&(head->tlsalign-1))
+                    head->tlssize++;
         }
     }
     printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%x (align=0x%x)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
@@ -120,7 +118,7 @@ const char* ElfName(elfheader_t* head)
     return head->name;
 }
 
-int AllocElfMemory(elfheader_t* head, int mainbin)
+int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
     if(mainbin && head->vaddr==0) {
@@ -144,8 +142,7 @@ int AllocElfMemory(elfheader_t* head, int mainbin)
     head->delta = (intptr_t)p - (intptr_t)head->vaddr;
     printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
-    head->tlsdata = (char*)malloc(head->tlssize);
-    pthread_key_create(&head->tlskey, free);
+    head->tlsbase = AddTLSPartition(context, head->tlssize);
 
 #ifdef DYNAREC
     head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz);
@@ -156,23 +153,12 @@ int AllocElfMemory(elfheader_t* head, int mainbin)
 
 void FreeElfMemory(elfheader_t* head)
 {
-    if(head->tlsdata) {
-        free(head->tlsdata);
-        head->tlsdata = NULL;
-    }
-    void* ptr;
-    if ((ptr = pthread_getspecific(head->tlskey)) != NULL) {
-        free(ptr);
-        pthread_setspecific(head->tlskey, NULL);
-    }
-    pthread_key_delete(head->tlskey);
     if(head->memory)
         munmap((void*)head->memory, head->memsz);
 }
 
-int LoadElfMemory(FILE* f, elfheader_t* head)
+int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 {
-    int tlsloaded = 0;
     for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf32_Phdr * e = &head->PHEntries[i];
@@ -189,10 +175,9 @@ int LoadElfMemory(FILE* f, elfheader_t* head)
             if(e->p_filesz != e->p_memsz)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
         }
-        if(head->PHEntries[i].p_type == PT_TLS && !tlsloaded) {
-            tlsloaded = 1;
+        if(head->PHEntries[i].p_type == PT_TLS) {
             Elf32_Phdr * e = &head->PHEntries[i];
-            char* dest = head->tlsdata;
+            char* dest = (char*)context->tlsdata;
             printf_log(LOG_DEBUG, "Loading TLS block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             fseek(f, e->p_offset, SEEK_SET);
             if(e->p_filesz) {
@@ -225,11 +210,21 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         else
             GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
         uintptr_t globoffs, globend;
+        int delta;
         int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
                 // can be ignored
                 printf_log(LOG_DEBUG, "Ignoring %s @%p (%p)\n", DumpRelType(t), p, (void*)(p?(*p):0));
+                break;
+            case R_386_TLS_TPOFF:
+                // Negated offset in static TLS block
+                {
+                    elfheader_t *h = GetGlobalSymbolElf(maplib, symname);
+                    delta = *(int*)p;
+                    printf_log(LOG_DEBUG, "Applying %s on %s @%p (%d -> %d)\n", DumpRelType(t), symname, p, delta, (int32_t)offs + h->tlsbase);
+                    *p = (uint32_t)((int32_t)offs + h->tlsbase);
+                }
                 break;
             case R_386_PC32:
                     if (!offs) {
@@ -268,27 +263,50 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 }
                 break;
             case R_386_TLS_DTPMOD32:
+                // ID of module containing symbol
                 if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
-                    offs = (uintptr_t)head;    // current symbol
+                    offs = getElfIndex(GetLibrarianContext(maplib), head);
                 else {
-                    elfheader_t * h = GetGlobalSymbolElf(maplib, symname);
-                    offs = (uintptr_t)(h?h:head);
+                    elfheader_t *h = GetGlobalSymbolElf(maplib, symname);
+                    offs = getElfIndex(GetLibrarianContext(maplib), h);
                 }
-                printf_log(LOG_DEBUG, "Apply %s @%p with sym=%s (%p -> %p)\n", "R_386_TLS_DTPMOD32", p, symname, *(void**)p, (void*)offs);
+                if(p) {
+                    printf_log(LOG_DEBUG, "Apply %s @%p with sym=%s (%p -> %p)\n", "R_386_TLS_DTPMOD32", p, symname, *(void**)p, (void*)offs);
+                    *p = offs;
+                } else {
+                    printf_log(LOG_NONE, "Warning, Symbol %s or Elf not found, but R_386_TLS_DTPMOD32 Slot Offset is NULL \n", symname);
+                }
                 break;
             case R_386_TLS_DTPOFF32:
-                // Will not change the offset
-            case R_386_JMP_SLOT:
+                // Offset in TLS block
                 if (!offs) {
                     if(bind==STB_WEAK) {
-                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
+                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_TLS_DTPOFF32 @%p (%p)\n", symname, p, *(void**)p);
                     } else {
-                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply %s @%p (%p)\n", symname, (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, *(void**)p);
+                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_TLS_DTPOFF32 @%p (%p)\n", symname, p, *(void**)p);
                     }
 //                    return -1;
                 } else {
                     if(p) {
-                        printf_log(LOG_DEBUG, "Apply %s @%p with sym=%s (%p -> %p)\n", (t==R_386_JMP_SLOT)?"R_386_JMP_SLOT":"R_386_TLS_DTPOFF32", p, symname, *(void**)p, (void*)offs);
+                        int tlsoffset = offs;    // it's not an offset in elf memory
+                        printf_log(LOG_DEBUG, "Apply R_386_TLS_DTPOFF32 @%p with sym=%s (%p -> %p)\n", p, symname, (void*)tlsoffset, (void*)offs);
+                        *p = tlsoffset;
+                    } else {
+                        printf_log(LOG_NONE, "Warning, Symbol %s found, but R_386_TLS_DTPOFF32 Slot Offset is NULL \n", symname);
+                    }
+                }
+                break;
+            case R_386_JMP_SLOT:
+                if (!offs) {
+                    if(bind==STB_WEAK) {
+                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                    } else {
+                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                    }
+//                    return -1;
+                } else {
+                    if(p) {
+                        printf_log(LOG_DEBUG, "Apply R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", p, symname, *(void**)p, (void*)offs);
                         *p = offs;
                     } else {
                         printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
@@ -470,7 +488,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
-            uintptr_t offs = h->SymTab[i].st_value + h->delta;
+            uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
             uint32_t sz = h->SymTab[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
@@ -491,7 +509,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<62521)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
-            uintptr_t offs = h->DynSym[i].st_value + h->delta;
+            uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             uint32_t sz = h->DynSym[i].st_size;
             printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
@@ -699,36 +717,68 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     return ret;
 }
 
+static void* fillTLSData(box86context_t *context)
+{
+        void* ptr = NULL;
+        pthread_mutex_lock(&context->mutex_lock);
+        // Setup the GS segment:
+        int dtsize = context->elfsize*8;
+        ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
+        memcpy(ptr, context->tlsdata, context->tlssize);
+        pthread_setspecific(context->tlskey, ptr);
+        // copy canary...
+        memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
+        uintptr_t unknown = (uintptr_t)ptr+context->tlssize;
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &unknown, 4);
+        uintptr_t dtp = (uintptr_t)ptr+context->tlssize+0x50;
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x4), &dtp, 4);
+        if(dtsize) {
+            for (int i=0; i<context->elfsize; ++i) {
+                // set pointer
+                dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
+                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8), &dtp, 4);
+                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8+4), &i, 4); // index
+            }
+        }
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        pthread_mutex_unlock(&context->mutex_lock);
+        return ptr;
+}
+
 void* GetGSBase(box86context_t *context)
 {
     void* ptr;
-    elfheader_t *h = context->elfs[0];
-    if ((ptr = pthread_getspecific(h->tlskey)) == NULL) {
-        pthread_mutex_lock(&context->mutex_lock);
-        // Setup the GS segment:
-        ptr = (char*)malloc(h->tlssize+0x50);
-        memcpy(ptr, h->tlsdata, h->tlssize);
-        pthread_setspecific(h->tlskey, ptr);
-        // copy canary...
-        memset((void*)((uintptr_t)ptr+h->tlssize), 0, 0x50);                    // set to 0 remining bytes
-        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x14), context->canary, 4);  // put canary in place
-        uintptr_t unknown = (uintptr_t)ptr+h->tlssize;
-        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x0), &unknown, 4);
-        memcpy((void*)((uintptr_t)ptr+h->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
-        pthread_mutex_unlock(&context->mutex_lock);
+    if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
+        ptr = fillTLSData(context);
     }
-    return ptr+h->tlssize;
+    return ptr+context->tlssize;
 }
 
-void* GetTLSBase(elfheader_t* h)
+void* GetDTatOffset(box86context_t* context, int index, int offset)
 {
+    return (void*)((char*)GetTLSPointer(context, context->elfs[index])+offset);
+}
+
+int32_t GetTLSBase(elfheader_t* h)
+{
+    return h->tlsbase;
+}
+
+uint32_t GetTLSSize(elfheader_t* h)
+{
+    return h->tlssize;
+}
+
+void* GetTLSPointer(box86context_t* context, elfheader_t* h)
+{
+    if(!h->tlssize)
+        return NULL;
     void* ptr;
-    if ((ptr = pthread_getspecific(h->tlskey)) == NULL) {
-        ptr = (char*)malloc(h->tlssize);
-        memcpy(ptr, h->tlsdata, h->tlssize);
-        pthread_setspecific(h->tlskey, ptr);
+    if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
+        ptr = fillTLSData(context);
     }
-    return ptr;
+    return ptr+(context->tlssize+h->tlsbase);
 }
 
 #ifdef DYNAREC

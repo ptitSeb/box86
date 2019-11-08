@@ -98,6 +98,10 @@ typedef struct box86context_s {
     int                 deferedInitSz;
     int                 deferedInitCap;
 
+    pthread_key_t       tlskey;     // then tls key to have actual tlsdata
+    void*               tlsdata;    // the initial global tlsdata
+    int32_t             tlssize;    // current size of tlsdata
+
 #ifdef DYNAREC
     pthread_mutex_t     mutex_blocks;
     pthread_mutex_t     mutex_mmap;
@@ -123,7 +127,11 @@ typedef struct box86context_s {
 box86context_t *NewBox86Context(int argc);
 void FreeBox86Context(box86context_t** context);
 
-int AddElfHeader(box86context_t* ctx, elfheader_t* head);    // return the index of header
+// return the index of the added header
+int AddElfHeader(box86context_t* ctx, elfheader_t* head);
+
+// return the tlsbase (negative) for the new TLS partition created (no partition index is stored in the context)
+int AddTLSPartition(box86context_t* context, int tlssize);
 
 #ifdef DYNAREC
 uintptr_t AllocDynarecMap(box86context_t *context, int size);

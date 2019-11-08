@@ -61,6 +61,11 @@ void FreeLibrarian(lib_t **maplib)
 
 }
 
+box86context_t* GetLibrarianContext(lib_t* maplib)
+{
+    return maplib->context;
+}
+
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib)
 {
     return maplib->mapsymbols;

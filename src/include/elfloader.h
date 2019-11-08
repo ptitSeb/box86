@@ -18,9 +18,9 @@ const char* ElfName(elfheader_t* head);
 
 // return 0 if OK
 int CalcLoadAddr(elfheader_t* head);
-int AllocElfMemory(elfheader_t* head, int mainbin);
+int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
-int LoadElfMemory(FILE* f, elfheader_t* head);
+int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
 int RelocateElf(lib_t *maplib, elfheader_t* head);
 int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
@@ -40,7 +40,10 @@ int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
 void* GetGSBase(box86context_t *context);
-void* GetTLSBase(elfheader_t* h);
+int32_t GetTLSBase(elfheader_t* h);
+uint32_t GetTLSSize(elfheader_t* h);
+void* GetTLSPointer(box86context_t* context, elfheader_t* h);
+void* GetDTatOffset(box86context_t* context, int index, int offset);
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
 #endif

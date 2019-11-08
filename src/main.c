@@ -407,14 +407,14 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // allocate memory
-    if(AllocElfMemory(elf_header, 1)) {
+    if(AllocElfMemory(context, elf_header, 1)) {
         printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
     }
     // Load elf into memory
-    if(LoadElfMemory(f, elf_header)) {
+    if(LoadElfMemory(f, context, elf_header)) {
         printf_log(LOG_NONE, "Error: loading in memory elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);

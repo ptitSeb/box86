@@ -19,6 +19,7 @@ void FreeLibrarian(lib_t **maplib);
 dlprivate_t *NewDLPrivate();
 void FreeDLPrivate(dlprivate_t **lib);
 
+box86context_t* GetLibrarianContext(lib_t* maplib);
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib);
