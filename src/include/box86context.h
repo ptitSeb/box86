@@ -79,6 +79,8 @@ typedef struct box86context_s {
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)
+    void*               sdl1allocrw;
+    void*               sdl1freerw;
     library_t           *sdl1mixerlib;
     library_t           *sdl1imagelib;
     library_t           *sdl1ttflib;

@@ -111,6 +111,7 @@ void IFpu(x86emu_t *emu, uintptr_t fnc);
 void CFui(x86emu_t *emu, uintptr_t fnc);
 void CFpi(x86emu_t *emu, uintptr_t fnc);
 void CFpu(x86emu_t *emu, uintptr_t fnc);
+void CFpp(x86emu_t *emu, uintptr_t fnc);
 void uFEp(x86emu_t *emu, uintptr_t fnc);
 void uFiu(x86emu_t *emu, uintptr_t fnc);
 void uFip(x86emu_t *emu, uintptr_t fnc);

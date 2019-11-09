@@ -65,6 +65,8 @@ KHASH_MAP_INIT_INT(timercb, x86emu_t*)
 
 typedef struct sdl1_my_s {
     // functions
+    sdl1_allocrw  SDL_AllocRW;
+    sdl1_freerw   SDL_FreeRW;
     iFpp_t     SDL_OpenAudio;
     pFpi_t     SDL_LoadBMP_RW;
     pFpi_t     SDL_RWFromConstMem;
@@ -73,7 +75,6 @@ typedef struct sdl1_my_s {
     pFpi_t     SDL_RWFromMem;
     iFppi_t    SDL_SaveBMP_RW;
     pFpippp_t  SDL_LoadWAV_RW;
-    vFp_t      SDL_FreeRW;
     uFp_t      SDL_ReadBE16;
     uFp_t      SDL_ReadBE32;
     UFp_t      SDL_ReadBE64;
@@ -110,6 +111,8 @@ void* getSDL1My(library_t* lib)
 {
     sdl1_my_t* my = (sdl1_my_t*)calloc(1, sizeof(sdl1_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    GO(SDL_AllocRW, sdl1_allocrw)
+    GO(SDL_FreeRW, sdl1_freerw)
     GO(SDL_OpenAudio, iFpp_t)
     GO(SDL_LoadBMP_RW, pFpi_t)
     GO(SDL_RWFromConstMem, pFpi_t)
@@ -118,7 +121,6 @@ void* getSDL1My(library_t* lib)
     GO(SDL_RWFromMem, pFpi_t)
     GO(SDL_SaveBMP_RW, iFppi_t)
     GO(SDL_LoadWAV_RW, pFpippp_t)
-    GO(SDL_FreeRW, vFp_t)
     GO(SDL_ReadBE16, uFp_t)
     GO(SDL_ReadBE32, uFp_t)
     GO(SDL_ReadBE64, UFp_t)
@@ -537,6 +539,8 @@ EXPORT void* my_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 #define CUSTOM_INIT \
     box86->sdl1lib = lib; \
     lib->priv.w.p2 = getSDL1My(lib); \
+    box86->sdl1allocrw = ((sdl1_my_t*)lib->priv.w.p2)->SDL_AllocRW; \
+    box86->sdl1freerw  = ((sdl1_my_t*)lib->priv.w.p2)->SDL_FreeRW; \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libm.so.6"); \
@@ -546,7 +550,9 @@ EXPORT void* my_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 #define CUSTOM_FINI \
     freeSDL1My(lib->priv.w.p2); \
     free(lib->priv.w.p2); \
-    ((box86context_t*)(lib->context))->sdl1lib = NULL;
+    ((box86context_t*)(lib->context))->sdl1lib = NULL;  \
+    ((box86context_t*)(lib->context))->sdl1allocrw = NULL; \
+    ((box86context_t*)(lib->context))->sdl1freerw = NULL;
 
 #include "wrappedlib_init.h"
 

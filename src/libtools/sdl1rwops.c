@@ -125,8 +125,8 @@ SDL1_RWops_t* AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops)
     uintptr_t fnc;
     bridge_t* system = emu->context->system;
 
-    sdl1_allocrw Alloc = (sdl1_allocrw)emu->context->sdl2allocrw;
-    sdl1_freerw Free = (sdl1_freerw)emu->context->sdl2freerw;
+    sdl1_allocrw Alloc = (sdl1_allocrw)emu->context->sdl1allocrw;
+    sdl1_freerw Free = (sdl1_freerw)emu->context->sdl1freerw;
 
     SDL1_RWops_t* newrw = Alloc();
     newrw->type = BOX86RW;
@@ -158,8 +158,8 @@ SDL1_RWops_t* RWNativeStart(x86emu_t* emu, SDL1_RWops_t* ops)
     if(ops->type == BOX86RW)
         return ops->hidden.my.orig;
 
-    sdl1_allocrw Alloc = (sdl1_allocrw)emu->context->sdl2allocrw;
-    sdl1_freerw Free = (sdl1_freerw)emu->context->sdl2freerw;
+    sdl1_allocrw Alloc = (sdl1_allocrw)emu->context->sdl1allocrw;
+    sdl1_freerw Free = (sdl1_freerw)emu->context->sdl1freerw;
 
     SDL1_RWops_t* newrw = Alloc();
     newrw->type = BOX86RW;
