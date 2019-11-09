@@ -377,6 +377,24 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VEOR(v0+1, v0+1, v0+1);
             break;
 
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            GETEX(q0);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            VMOVD(v0+1, q0);  // get a copy
+            VZIP_8(v0, v0+1);
+            break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            GETEX(q0);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            VMOVD(v0+1, q0);  // get a copy
+            VZIP_16(v0, v0+1);
+            break;
         case 0x62:
             INST_NAME("PUNPCKLDQ Gx,Ex");
             nextop = F8;
@@ -396,6 +414,27 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             GETEX(v1);
             VCGTQ_S32(v0, v0, v1);
+            break;
+
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            GETEX(q0);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            VMOVD(v0, v0+1);    // get high part into low
+            VMOVD(v0+1, q0+1);  // get a copy
+            VZIP_8(v0, v0+1);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            GETEX(q0);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            VMOVD(v0, v0+1);    // get high part into low
+            VMOVD(v0+1, q0+1);  // get a copy
+            VZIP_16(v0, v0+1);
             break;
 
         case 0x6C:
@@ -483,7 +522,69 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 }
             }
             break;
-
+        case 0x71:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLW Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_16(q0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>15) {
+                        VEORQ(q0, q0, q0);
+                    } else if(u8) {
+                        VSHRQ_U16(q0, q0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_16(q0, ed);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_16(q0, ed);
+                    }
+                    u8 = F8;
+                    if(u8) {
+                        VSHRQ_S16(q0, q0, u8&31);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_16(q0, ed);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Ex, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                        q0 = fpu_get_scratch_quad(dyn);
+                        VLD1Q_16(q0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>15) {
+                        VEORQ(q0, q0, q0);
+                    } else {
+                        VSHLQ_16(q0, q0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1Q_16(q0, ed);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
         case 0x72:
             nextop = F8;
             switch((nextop>>3)&7) {
