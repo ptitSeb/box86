@@ -903,7 +903,41 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             XOR_REG_LSL_REG(ed, ed, x1, x2);
             EWBACK;
             break;
-
+        case 0xBC:
+            INST_NAME("BSF Ew,Gw");
+            nextop = F8;
+            GETEW(x1);  // Get EW
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            XOR_IMM8_COND(cEQ, x1, x1, 1);
+            B_MARK(cEQ);
+            RBIT(x1, x1);   // reverse
+            CLZ(x2, x1);    // x2 gets leading 0 == BSF
+            BFI(xEAX+((nextop&0x38)>>3), x2, 0, 16);
+            XOR_REG_LSL_IMM8(x1, x1, x1, 0);    //ZF not set
+            MARK;
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            UFLAGS(1);
+            break;
+        case 0xBD:
+            INST_NAME("BSR Ew,Gw");
+            nextop = F8;
+            GETEW(x1);  // Get EW
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            XOR_IMM8_COND(cEQ, x1, x1, 1);
+            B_MARK(cEQ);
+            MOV_REG_LSL_IMM5(x1, x1, 16);   // put bits on top
+            CLZ(x2, x1);    // x2 gets leading 0
+            RSB_IMM8(x2, x2, 15); // complement
+            BFI(xEAX+((nextop&0x38)>>3), x2, 0, 16);
+            XOR_REG_LSL_IMM8(x1, x1, x1, 0);    //ZF not set
+            MARK;
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            UFLAGS(1);
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
             nextop = F8;

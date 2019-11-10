@@ -201,6 +201,9 @@ Op is 20-27
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// xor.cond dst, src, #(imm8)
+#define XOR_IMM8_COND(cond, dst, src, imm8) \
+    EMIT(cond | 0x02200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // xor dst, src1, src2, lsl #rs
 #define XOR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
@@ -396,6 +399,11 @@ Op is 20-27
 #define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive Rt/Rt+1 to Rn, with result in Rd if tag is ok (Rd!=Rn && Rd!=Rt && Rd!=Rt+1), Rd==1 if store failed
 #define STREXD(Rd, Rn, Rt)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
+
+// Count leading 0 bit of Rm, store result in Rd
+#define CLZ(Rd, Rm)  EMIT(c__ | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))
+// Reverse bits of Rm, store result in Rd
+#define RBIT(Rd, Rm) EMIT(c__ | 0b01101111<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0011<<4 | (Rm))
 
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))

@@ -601,7 +601,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             u8 = F8;
             MOVW(x2, u8);
             UXTB(x1, xEAX, 0);
-            CALL(cmp8, -1, 0);
+            emit_cmp8(dyn, ninst, x1, x2, x3, x12);
             UFLAGS(1);
             break;
         case 0x3D:
@@ -1291,6 +1291,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             POP(xESP, (1<<x1));
             CALL(arm_popf, -1, 0);
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
             UFLAGS(1);
             break;
         case 0x9E:

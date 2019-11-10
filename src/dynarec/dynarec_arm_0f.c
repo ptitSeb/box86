@@ -1001,7 +1001,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     DEFAULT;
             }
             break;
-
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
             nextop = F8;
@@ -1028,7 +1027,40 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 STR_IMM9(ed, wback, 0);
             }
             break;
-
+        case 0xBC:
+            INST_NAME("BSF Ed,Gd");
+            nextop = F8;
+            GETED;
+            GETGD;
+            TSTS_REG_LSL_IMM8(ed, ed, 0);
+            MOVW_COND(cEQ, x1, 1);
+            B_MARK(cEQ);
+            RBIT(x1, ed);   // reverse
+            CLZ(gd, x1);    // x2 gets leading 0 == BSF
+            MOVW(x1, 0);    //ZF not set
+            MARK;
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            UFLAGS(1);
+            break;
+        case 0xBD:
+            INST_NAME("BSR Ed,Gd");
+            nextop = F8;
+            GETED;
+            GETGD;
+            TSTS_REG_LSL_IMM8(ed, ed, 0);
+            MOVW_COND(cEQ, x1, 1);
+            B_MARK(cEQ);
+            CLZ(gd, ed);    // x2 gets leading 0
+            RSB_IMM8(gd, gd, 31); // complement
+            MOVW(x1, 0);    //ZF not set
+            MARK;
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            UFLAGS(1);
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
             nextop = F8;
