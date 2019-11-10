@@ -1283,6 +1283,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
             BFI(xEAX, x1, 8, 8);
             UFLAGS(1);
+            break;
         case 0xA0:
             INST_NAME("MOV AL, Ob");
             u32 = F32;
