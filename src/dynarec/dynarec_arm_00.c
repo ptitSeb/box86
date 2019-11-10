@@ -2132,6 +2132,56 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             addr = dynarecDF(dyn, addr, ip, ninst, ok, need_epilog);
             break;
+        #define GO(NO, YES)   \
+            BARRIER(2); \
+            JUMP(addr+i8);\
+            if(dyn->insts) {    \
+                if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
+                    /* out of the block */                  \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
+                    Bcond(NO, i32);     \
+                    jump_to_linker(dyn, addr+i8, 0, ninst); \
+                } else {    \
+                    /* inside the block */  \
+                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
+                    Bcond(YES, i32);    \
+                }   \
+            }
+        case 0xE0:
+            INST_NAME("LOOPNZ");
+            USEFLAG(1);
+            i8 = F8S;
+            SUBS_IMM8(xECX, xECX, 1);
+            B_NEXT(cEQ);    // CX is 0, no LOOP
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            GO(cNE, cEQ);
+            break;
+        case 0xE1:
+            INST_NAME("LOOPZ");
+            USEFLAG(1);
+            i8 = F8S;
+            SUBS_IMM8(xECX, xECX, 1);
+            B_NEXT(cEQ);    // CX is 0, no LOOP
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            GO(cEQ, cNE);
+            break;
+        case 0xE2:
+            INST_NAME("LOOP");
+            USEFLAG(1);
+            i8 = F8S;
+            SUBS_IMM8(xECX, xECX, 1);
+            GO(cEQ, cNE);
+            break;
+        case 0xE3:
+            INST_NAME("JECXZ");
+            USEFLAG(1);
+            i8 = F8S;
+            TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+            GO(cNE, cEQ);
+            break;
+        #undef GO
 
         case 0xE8:
             INST_NAME("CALL Id");
