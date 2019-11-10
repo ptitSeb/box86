@@ -677,6 +677,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = xEAX+(opcode&0x07);
             POP(xESP, 1<<gd);
             break;
+        case 0x60:
+            INST_NAME("PUSHAD");
+            MOV_REG(x1, xESP);
+            PUSH(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
+            MOV_REG(xESP, x1);
+            break;
+        case 0x61:
+            INST_NAME("POPAD");
+            MOV_REG(x1, xESP);
+            POP(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
+            MOV_REG(xESP, x1);
+            break;
 
         case 0x65:
             addr = dynarecGS(dyn, addr, ip, ninst, ok, need_epilog);
@@ -1216,7 +1228,29 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             }
             break;
-
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                STRH_IMM8(ed, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                LDRH_IMM8(x1, ed, 0);
+                STRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            }
+            break;
+        case 0x8F:
+            INST_NAME("POP Ed");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                POP(xESP, (1<<(xEAX+(nextop&7))));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                POP(xESP, (1<<x2));
+                STR_IMM9(x2, ed, 0);
+            }
+            break;
         case 0x90:
             INST_NAME("NOP");
             break;
@@ -2173,6 +2207,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             *need_epilog = 0;
             *ok = 0;
             break;
+        
+        case 0xEE:
+            INST_NAME("OUT dx, al");
+            //ignored!
+            break;
 
         case 0xF0:
             addr = dynarecF0(dyn, addr, ip, ninst, ok, need_epilog);
@@ -2189,35 +2228,33 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else if(nextop==0x66) {
                 nextop = F8;
-                #if 0
-                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
-                tmp32u = R_ECX;
                 switch(nextop) {
-                    case 0xA5:              /* REP MOVSW */
-                        tmp8s *= 2;
-                        while(tmp32u) {
-                            --tmp32u;
-                            *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
-                            R_EDI += tmp8s;
-                            R_ESI += tmp8s;
-                        }
+                    case 0xA5:
+                        INST_NAME("REP MOVSW");
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        B_NEXT(cEQ);    // end of loop
+                        GETDIR(x3, 2);
+                        MARK;
+                        LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
+                        STRHAI_REG_LSL_IMM5(x1, xEDI, x3);
+                        SUBS_IMM8(xECX, xECX, 1);
+                        B_MARK(cNE);
                         break;
-                    case 0xAB:              /* REP STOSW */
-                        tmp8s *= 2;
-                        while(tmp32u) {
-                            --tmp32u;
-                            *(uint16_t*)R_EDI = R_AX;
-                            R_EDI += tmp8s;
-                        }
+                    case 0xAB:
+                        INST_NAME("REP STOSW");
+                        TSTS_REG_LSL_IMM8(xECX, xECX, 0);
+                        B_NEXT(cEQ);    // end of loop
+                        GETDIR(x3, 2);
+                        MARK;
+                        STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
+                        SUBS_IMM8(xECX, xECX, 1);
+                        B_MARK(cNE);
                         break;
                     default:
-                        goto _default;
+                        INST_NAME("F2/F3 66 ...");
+                        *ok = 0;
+                        DEFAULT;
                 }
-                R_ECX = tmp32u;
-                #endif
-                INST_NAME("F2/F3 66 ...");
-                *ok = 0;
-                DEFAULT;
             } else {
                 // DF=0, increment addresses, DF=1 decrement addresses
                 switch(nextop) {
@@ -2400,6 +2437,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
             
+        case 0xF5:
+            INST_NAME("CMC");
+            USEFLAG(1);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            XOR_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            break;
         case 0xF6:
             nextop = F8;
             switch((nextop>>3)&7) {

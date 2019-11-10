@@ -342,6 +342,31 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAG_DF(x1, d_dec16);
             UFLAGS(0);
             break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH Reg16");
+            SUB_IMM8(xESP, xESP, 2);
+            STRH_IMM8(xEAX+(opcode&7), xESP, 0);    //TODO: use a single STRH pre-decrement instruction
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:                      
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP Reg16");
+            LDRH_IMM8(x1, xESP, 0);     //TODO: use a single LDRH post-increment instruction
+            BFI(xEAX+(opcode&7), x1, 0, 16);
+            ADD_IMM8(xESP, xESP, 2);
+            break;
 
         case 0x68:
             INST_NAME("PUSH Iw");
@@ -523,6 +548,18 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gd, x1, 0, 16);
             }
             break;
+        case 0x8C:
+            INST_NAME("MOV Ew,Seg");
+            nextop = F8;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                BFI(ed, x1, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                STRH_IMM8(x1, ed, 0);
+            }
+            break;
 
         case 0x90:
             INST_NAME("NOP");
@@ -560,6 +597,15 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
             LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
             CALL(cmp16, -1, 0);
+            UFLAGS(1);
+            break;
+
+        case 0xA9:
+            INST_NAME("TEST AX,Iw");
+            u16 = F16;
+            MOVW(x2, u16);
+            UBFX(x1, xEAX, 0, 16);
+            emit_test16(dyn, ninst, x1, x2, x3, x12);
             UFLAGS(1);
             break;
 
