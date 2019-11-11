@@ -47,7 +47,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     MOV32(ret, tmp);
-                    *fixaddress = 1;
+                    *fixaddress = tmp;
                 }
             } else {
                 if (sib_reg!=4) {
@@ -59,7 +59,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
             MOV32(ret, tmp);
-            *fixaddress = 1;
+            *fixaddress = tmp;
         } else {
             ret = xEAX+(nextop&7);
         }
