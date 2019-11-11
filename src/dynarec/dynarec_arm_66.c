@@ -584,6 +584,19 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                STRH_IMM8(ed, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                LDRH_IMM8(x1, ed, 0);
+                STRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            }
+            break;
+
         case 0x90:
             INST_NAME("NOP");
             break;
@@ -693,7 +706,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ew, Ib");
                     USEFLAG(0);
-                    UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -704,7 +716,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ew, Ib");
                     USEFLAG(0);
-                    UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -809,7 +820,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("RCL Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
                     EWBACK;
@@ -824,7 +834,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("RCR Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
                     EWBACK;

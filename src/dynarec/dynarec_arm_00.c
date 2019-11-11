@@ -898,7 +898,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
-                    UFLAGS(0);
+                    USEFLAG(0);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -909,7 +909,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3: //SBB
                     INST_NAME("SBB Eb, Ib");
-                    UFLAGS(0);
+                    USEFLAG(0);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
