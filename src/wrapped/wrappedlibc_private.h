@@ -1212,7 +1212,7 @@ DATA(optopt, 4)
 // outl // Weak
 // outw // Weak
 GO(__overflow, iFpi)
-// parse_printf_format
+GO(parse_printf_format, uFpup)
 // passwd2des
 GOW(pathconf, iFpi)
 GOW(pause, iFv)

@@ -263,7 +263,7 @@ GO(XDeleteContext, iFpui)
 //GO(XDeleteModifiermapEntry
 GO(XDeleteProperty, iFppp)
 // _XDeq
-// _XDeqAsyncHandler
+GO(_XDeqAsyncHandler, vFEpp)
 GO(XDestroyIC, vFu)
 GOM(XDestroyImage, iFEp)  //need to unbridge
 //GO(XDestroyOC
@@ -379,7 +379,7 @@ GO(XFreeStringList, vFp)
 // _XFreeX11XCBStructure
 GO(XGContextFromGC, pFp)
 GO(XGeometry, iFpippuuuiipppp)
-// _XGetAsyncData
+GO(_XGetAsyncData, vFpppiiii)
 // _XGetAsyncReply
 GO(XGetAtomName, pFpp)
 //GO(XGetAtomNames

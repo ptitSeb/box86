@@ -29,7 +29,7 @@ GO(clock_settime, iFup)
 // lio_listio
 // lio_listio64
 // mq_close
-// mq_getattr
+GO(mq_getattr, iFip)
 // mq_notify
 // mq_open
 // __mq_open_2

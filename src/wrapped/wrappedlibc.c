@@ -287,7 +287,7 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
 
 EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     printf_log(LOG_NONE, "Error: unimplemented dl_iterate_phdr(%p, %p) used\n", F, data);
-    emu->quit = 1;
+    //emu->quit = 1;
     return 0;
 }
 
