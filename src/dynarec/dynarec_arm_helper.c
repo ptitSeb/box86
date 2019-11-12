@@ -105,7 +105,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     ret = xEAX+(nextop&0x07);
             } else {
                 int sub = (i32<0)?1:0;
-                if(sub) i32 = -i32;  // this value cannot be negated!
+                if(sub) i32 = -i32;
                 if(i32<256) {
                     if((nextop&7)==4) {
                         if (sib_reg!=4) {
