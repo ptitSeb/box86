@@ -29,9 +29,17 @@ GO(pthread_attr_setaffinity_np, iFpup)  // 3rd argument is const cpu_set_t *, sh
 GO(pthread_attr_setdetachstate, iFpi)
 GO(pthread_attr_setguardsize, iFpu)
 GO(pthread_attr_setinheritsched, iFpi)
+#ifdef NOALIGN
 GO(pthread_attr_setschedparam, iFpp)
+#else
+GOM(pthread_attr_setschedparam, iFEpp)
+#endif
 GO(pthread_attr_setschedpolicy, iFpi)
+#ifdef NOALIGN
 GO(pthread_attr_setscope, iFpi)
+#else
+GOM(pthread_attr_setscope, iFEpi)
+#endif
 GO(pthread_attr_setstack, iFppu)
 GO(pthread_attr_setstackaddr, iFpp)
 GO(pthread_attr_setstacksize, iFpp)

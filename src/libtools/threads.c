@@ -261,3 +261,11 @@ EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)
     // does "kind" needs some type of translation?
     return pthread_mutexattr_settype(t, kind);
 }
+
+EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
+{
+    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, call to pthread_attr_setaffinity_np(...) changed\n");
+	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
+    //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
+    // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
+}
