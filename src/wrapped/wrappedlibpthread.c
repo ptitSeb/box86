@@ -55,6 +55,22 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
     return 0;
 }
 
+EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, void* thread, int cpusetsize, void* cpuset)
+{
+    printf_log(LOG_INFO, "Warning, call to pthread_setaffinity_np(...) ignored\n");
+    //the cpuset needs transformation, from i386 to current architecture
+    // ignoring for now
+    return 0;   // faking success
+}
+
+EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
+{
+    printf_log(LOG_INFO, "Warning, call to pthread_attr_setaffinity_np(...) ignored\n");
+    //the cpuset needs transformation, from i386 to current architecture
+    // ignoring for now
+    return 0;   // faking success
+}
+
 EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 {
     printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(...) ignored\n");

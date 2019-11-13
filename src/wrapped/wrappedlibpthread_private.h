@@ -25,7 +25,11 @@ GO(pthread_attr_getstack, iFppp)
 GO(pthread_attr_getstackaddr, iFpp)
 GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
+#ifdef NOALIGN
 GO(pthread_attr_setaffinity_np, iFpup)  // 3rd argument is const cpu_set_t *, should it be wrapped or something?
+#else
+GOM(pthread_attr_setaffinity_np, iFEpup)
+#endif
 GO(pthread_attr_setdetachstate, iFpi)
 GO(pthread_attr_setguardsize, iFpu)
 GO(pthread_attr_setinheritsched, iFpi)
@@ -143,7 +147,11 @@ GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
 GO(__pthread_rwlock_wrlock, iFp)
 GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, uFv)
+#ifdef NOALIGN
 GO(pthread_setaffinity_np, iFpup) // need to do something about 3rd argument "struct cpu_set_t"?
+#else
+GOM(pthread_setaffinity_np, iFEpup)
+#endif
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
 // pthread_setconcurrency
