@@ -17,6 +17,7 @@
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
+#include "wrapper.h"
 
 typedef struct mmaplist_s {
     void*         block;

@@ -6,6 +6,7 @@
 
 #include "wrappedlibs.h"
 
+#include "wrapper.h"
 #include "debug.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
