@@ -75,15 +75,21 @@ static void freeSDL2MixerMy(library_t* lib)
 void EffectFuncCallback(int chan, void *stream, int len, void *udata)
 {
     x86emu_t *emu = (x86emu_t*) udata;
+    SetCallbackNArg(emu, 3);
     SetCallbackArg(emu, 0, (void*)chan);
     SetCallbackArg(emu, 1, stream);
     SetCallbackArg(emu, 2, (void*)len);
+    SetCallbackArg(emu, 3, GetCallbackArg(emu, 4));
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
     RunCallback(emu);
 }
 void EffectDoneCallback(int chan, void *udata)
 {
     x86emu_t *emu = (x86emu_t*) udata;
+    SetCallbackNArg(emu, 2);
     SetCallbackArg(emu, 0, (void*)chan);
+    SetCallbackArg(emu, 1, GetCallbackArg(emu, 4));
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 6));
     RunCallback(emu);
 }
 
@@ -147,37 +153,40 @@ EXPORT int32_t my2_Mix_RegisterEffect(x86emu_t*emu, int32_t channel, void* cb_ef
     khint_t k;
     void* cb1 = NULL;
     void* cb2 = NULL;
-printf("Warning: Mix_RegisterEffect(%d, %p, %p, %p) Ignored\n", channel, cb_effect, cb_done, arg);
     #if 0
-    // how to register 2 functions with the same pointer
-    if(cb_effect) {
-        k = kh_get(effectcb, my->effectcb, (uintptr_t)effect);
-        if(k==kh_end(my->effectcb)) {
-            effect = AddCallback(emu, (uintptr_t)cb_effect, 4, NULL, NULL, NULL, arg);
-            int ret;
-            k = kh_put(effectcb, my->effectcb, (uintptr_t)cb_effect, &ret);
-            kh_value(my->effectcb, k) = effect;
-        } else {
-            effect = kh_value(my->effectcb, k);
+    // best way to do it would probably be to create only 1 effect and done callback, and do the registering / per channel stuff there directly
+    if(channel == -2) {
+        effect = AddCallback(emu, (uintptr_t)cb_effect, 4, NULL, NULL, NULL, arg);
+        SetCallbackArg(effect, 4, arg);
+        SetCallbackArg(effect, 5, cb_effect);
+        SetCallbackArg(effect, 6, cb_done);
+        if(cb_effect) {
+            k = kh_get(effectcb, my->effectcb, (uintptr_t)effect);
+            if(k==kh_end(my->effectcb)) {
+                int ret;
+                k = kh_put(effectcb, my->effectcb, (uintptr_t)cb_effect, &ret);
+                kh_value(my->effectcb, k) = effect;
+            } else {
+                effect = kh_value(my->effectcb, k);
+            }
+            cb1 = EffectFuncCallback;
         }
-        cb1 = EffectFuncCallback;
-    }
-    if(cb_done) {
-        k = kh_get(effectcb, my->effectcb, (uintptr_t)effect);
-        if(k==kh_end(my->effectcb)) {
-            effect = AddCallback(emu, (uintptr_t)cb_done, 2, NULL, arg, NULL, NULL);
-            int ret;
-            k = kh_put(effectcb, my->effectcb, (uintptr_t)cb_done, &ret);
-            kh_value(my->effectcb, k) = effect;
-        } else {
-            effect = kh_value(my->effectcb, k);
+        if(cb_done) {
+            k = kh_get(effectcb, my->effectcb, (uintptr_t)effect);
+            if(k==kh_end(my->effectcb)) {
+                int ret;
+                k = kh_put(effectcb, my->effectcb, (uintptr_t)cb_done, &ret);
+                kh_value(my->effectcb, k) = effect;
+            } else {
+                effect = kh_value(my->effectcb, k);
+            }
+            cb2 = EffectDoneCallback;
         }
-        cb2 = EffectDoneCallback;
+        return my->Mix_RegisterEffect(channel, cb1, cb2, effect);
     }
-    return my->Mix_RegisterEffect(channel, cb1, cb2, )
-    #else
-    return 0;
     #endif
+    printf("Warning: Mix_RegisterEffect(%d, %p, %p, %p) Ignored\n", channel, cb_effect, cb_done, arg);
+    return 0;
 }
 
 x86emu_t* sdl2channelfinished_emu = NULL;
