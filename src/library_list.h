@@ -54,6 +54,7 @@ GO("libssl.so.1", libssl)
 GO("libutil.so.1", util)
 GO("libuuid.so.1", libuuid)
 GO("libresolv.so.2", libresolv)
+GO("libpulse-simple.so.0", pulsesimple)
 
 GO("libmono.so", monounity)
 

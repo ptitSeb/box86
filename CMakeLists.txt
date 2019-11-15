@@ -155,6 +155,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedutil.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibuuid.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibresolv.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulsesimple.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
