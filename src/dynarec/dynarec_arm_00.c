@@ -1539,7 +1539,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("SAR Eb, Ib");
-                    GETEB(x1);
+                    GETSEB(x1);
                     u8 = (F8)&0x1f;
                     UFLAG_IF{
                         MOV32(x12, u8); UFLAG_OP2(x12)
@@ -1893,7 +1893,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("SAR Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    GETEB(x1);
+                    GETSEB(x1);
                     UFLAG_OP12(ed, x2)
                     MOV_REG_ASR_REG(ed, ed, x2);
                     EBBACK;

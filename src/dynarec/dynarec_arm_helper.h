@@ -100,6 +100,18 @@
                     ed = i;                 \
                     wb1 = 1;                \
                 }
+//GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
+#define GETSEW(i) if((nextop&0xC0)==0xC0) {  \
+                    wback = xEAX+(nextop&7);\
+                    SXTH(i, wback, 0);      \
+                    ed = i;                 \
+                    wb1 = 0;                \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
+                    LDRSH_IMM8(i, wback, 0);\
+                    ed = i;                 \
+                    wb1 = 1;                \
+                }
 // Write ed back to original register / memory
 #define EWBACK   if(wb1) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
 // Write w back to original register / memory
@@ -120,7 +132,7 @@
                     wb1 = 1;                \
                     ed = i;                 \
                 }
-//GETSEB signe extend EB, will use i for ed, and can use r3 for wback.
+//GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
 #define GETSEB(i) if((nextop&0xC0)==0xC0) { \
                     wback = (nextop&7);     \
                     wb2 = (wback>>2);       \

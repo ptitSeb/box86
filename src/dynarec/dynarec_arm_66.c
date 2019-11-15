@@ -750,7 +750,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    GETEW(x1);
+                    GETSEW(x1);
                     u8 = F8;
                     MOVW(x2, (u8&0x1f));
                     UFLAG_OP12(ed, x2)
@@ -880,7 +880,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("SAR Ew, CL");
                         AND_IMM8(x12, xECX, 0x1f);
                     }
-                    GETEW(x1);
+                    GETSEW(x1);
                     UFLAG_OP12(ed, x12)
                     MOV_REG_ASR_REG(ed, ed, x12);
                     EWBACK;
