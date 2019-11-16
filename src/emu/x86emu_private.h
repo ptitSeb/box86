@@ -5,6 +5,7 @@
 
 typedef struct zydis_dec_s zydis_dec_t;
 typedef struct box86context_s box86context_t;
+typedef struct i386_ucontext_s i386_ucontext_t;
 
 #define ERR_UNIMPL  1
 #define ERR_DIVBY0  2
@@ -75,6 +76,8 @@ typedef struct x86emu_s {
     void*       stack;
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
+
+    i386_ucontext_t *uc_link; // to handle setcontext
 
 } x86emu_t;
 

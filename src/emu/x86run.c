@@ -1351,6 +1351,7 @@ stepout:
 
 fini:
 //    PackFlags(emu);
+    // fork handling
     if(emu->fork) {
         if(step)
             return 0;
@@ -1358,6 +1359,12 @@ fini:
         emu->quit = 0;
         emu->fork = 0;
         emu = x86emu_fork(emu, forktype);
+        goto x86emurun;
+    }
+    // setcontext handling
+    else if(emu->uc_link) {
+        emu->quit = 0;
+        my_setcontext(emu, emu->uc_link);
         goto x86emurun;
     }
     return 0;

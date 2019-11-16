@@ -40,6 +40,11 @@ void PushExit(x86emu_t* emu)
     Push(emu, (uint32_t)&EndEmuMarker);
 }
 
+void* GetExit()
+{
+    return &EndEmuMarker;
+}
+
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);

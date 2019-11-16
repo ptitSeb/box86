@@ -94,10 +94,10 @@ typedef struct
 
 typedef uint32_t i386_sigset_t;
   
-typedef struct i386_ucontext_t
+typedef struct i386_ucontext_s
   {
     uint32_t uc_flags;
-    struct i386_ucontext_t *uc_link;
+    struct i386_ucontext_s *uc_link;
     i386_stack_t uc_stack;
     i386_mcontext_t uc_mcontext;
     i386_sigset_t uc_sigmask;
@@ -203,8 +203,11 @@ __attribute__((alias("my_sigaction")));
 
 EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
 {
-    printf_log(LOG_NONE, "Warning: call to partially implemented getcontext\n");
-    struct i386_ucontext_t *u = (struct i386_ucontext_t*)ucp;
+//    printf_log(LOG_NONE, "Warning: call to partially implemented getcontext\n");
+    i386_ucontext_t *u = (i386_ucontext_t*)ucp;
+    // stack traking
+    u->uc_stack.ss_sp = NULL;
+    u->uc_stack.ss_size = 0;    // this need to filled
     // get general register
     u->uc_mcontext.gregs[REG_EAX] = R_EAX;
     u->uc_mcontext.gregs[REG_ECX] = R_ECX;
@@ -226,8 +229,11 @@ EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
 
 EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
 {
-    printf_log(LOG_NONE, "Warning: call to partially implemented setcontext\n");
-    struct i386_ucontext_t *u = (struct i386_ucontext_t*)ucp;
+//    printf_log(LOG_NONE, "Warning: call to partially implemented setcontext\n");
+    i386_ucontext_t *u = (i386_ucontext_t*)ucp;
+    // stack tracking
+    emu->init_stack = u->uc_stack.ss_sp;
+    emu->size_stack = u->uc_stack.ss_size;
     // set general register
     R_EAX = u->uc_mcontext.gregs[REG_EAX];
     R_ECX = u->uc_mcontext.gregs[REG_ECX];
@@ -243,12 +249,41 @@ EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
     // set FloatPoint status
     // set signal mask
     //sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
+    // set uc_link
+    emu->uc_link = u->uc_link;
 
     return R_EAX;
 }
 
-EXPORT int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv)
+EXPORT int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, int32_t* argv)
 {
-    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
+//    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
+    i386_ucontext_t *u = (i386_ucontext_t*)ucp;
+    // setup stack
+    u->uc_mcontext.gregs[REG_ESP] = (uintptr_t)u->uc_stack.ss_sp + u->uc_stack.ss_size - 4;
+    // setup the function
+    u->uc_mcontext.gregs[REG_EIP] = (intptr_t)fnc;
+    // setup args
+    uint32_t* esp = (uint32_t*)u->uc_mcontext.gregs[REG_ESP];
+    for (int i=0; i<argc; ++i) {
+        // push value
+        --esp;
+        *esp = argv[(argc-1)-i];
+    }
+    // push the return value
+    --esp;
+    *esp = (uintptr_t)GetExit();
+    u->uc_mcontext.gregs[REG_ESP] = (uintptr_t)esp;
+    
+    return 0;
+}
+
+EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
+{
+//    printf_log(LOG_NONE, "Warning: call to unimplemented swapcontext\n");
+    // grab current context in ucp1
+    my_getcontext(emu, ucp1);
+    // activate ucp2
+    my_setcontext(emu, ucp2);
     return 0;
 }

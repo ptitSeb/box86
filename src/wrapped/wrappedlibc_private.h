@@ -1046,7 +1046,7 @@ GO(lsetxattr, iFpppui)
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
 GO(madvise, iFpui)
-GOM(makecontext, iFEpppV)
+GOM(makecontext, iFEppiV)
 GOW(mallinfo, pFv)
 GO(malloc, pFu)
 // malloc_get_state // Weak
@@ -1728,7 +1728,7 @@ GO(strxfrm_l, uFppup)
 // svcunixfd_create
 // svc_unregister
 GO(swab, vFppi)
-GO(swapcontext, iFpp)
+GOM(swapcontext, iFEpp)
 // swapoff  // Weak
 // swapon   // Weak
 GOM(swprintf, iFEpupV)
