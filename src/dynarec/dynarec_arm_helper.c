@@ -691,6 +691,79 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
     VMSR(s1);               // put back fpscr
 }
 
+// MMX helpers
+static void mmx_reset(dynarec_arm_t* dyn, int ninst)
+{
+    for (int i=0; i<8; ++i)
+        dyn->mmxcache[i] = -1;
+}
+// get neon register for a MMX reg, create the entry if needed
+int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
+{
+    if(dyn->mmxcache[a]!=-1)
+        return dyn->mmxcache[a];
+    int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
+    MOV32(s1, offsetof(x86emu_t, mmx[a]));
+    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    VLD1_32(ret, s1);
+    return ret;
+}
+// get neon register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
+{
+    if(dyn->mmxcache[a]!=-1)
+        return dyn->mmxcache[a];
+    int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
+    return ret;
+}
+// purge the MMX cache only(needs 3 scratch registers)
+static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    int old = -1;
+    for (int i=0; i<8; ++i)
+        if(dyn->mmxcache[i]!=-1) {
+            if (old==-1) {
+                MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
+                MOV32(s1, offsetof(x86emu_t, mmx[i]));
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                old = i+1;  //+1 because VST1 with write back
+            } else {
+                if(old!=i) {
+                    ADD_IMM8(s1, s1, (i-old)*16);
+                }
+                old = i+1;
+            }
+            VST1_32_W(dyn->mmxcache[i], s1);
+            fpu_free_reg_double(dyn, dyn->mmxcache[i]);
+            dyn->mmxcache[i] = -1;
+        }
+    if(old!=-1) {
+        MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
+    }
+}
+#ifdef HAVE_TRACE
+static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
+{
+    int old = -1;
+    for (int i=0; i<8; ++i)
+        if(dyn->mmxcache[i]!=-1) {
+            if (old==-1) {
+                MOV32(s1, offsetof(x86emu_t, xmm[i]));
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                old = i+1;
+            } else {
+                if(old!=i) {
+                    ADD_IMM8(s1, s1, (i-old)*16);
+                }
+                old = i+1;
+            }
+            VST1_32_W(dyn->mmxcache[i], s1);
+        }
+}
+#endif
+
+
+// SSE / SSE2 helpers
 static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
     for (int i=0; i<8; ++i)
@@ -816,6 +889,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_purgecache(dyn, ninst, s1, s2, s3);
+    mmx_purgecache(dyn, ninst, s1);
     sse_purgecache(dyn, ninst, s1);
     fpu_reset_reg(dyn);
 }
@@ -824,6 +898,7 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
+    // MMX is not shown in trace...
     if(trace_xmm)
        sse_reflectcache(dyn, ninst, s1);
 }
@@ -832,6 +907,7 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_reset(dynarec_arm_t* dyn, int ninst)
 {
     x87_reset(dyn, ninst);
+    mmx_reset(dyn, ninst);
     sse_reset(dyn, ninst);
     fpu_reset_reg(dyn);
 }

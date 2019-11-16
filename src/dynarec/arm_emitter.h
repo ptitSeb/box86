@@ -531,6 +531,8 @@ Op is 20-27
 #define Vxx1gen(L, D, Rn, Vd, type, size, align, Rm) (0b1111<<28 | 0b0100<<24 | 0<<23 | (D)<<22 | (L)<<21 | 0<<20 | (Rn)<<16 | (Vd)<<12 | (type)<<8 | (size)<<6 | (align)<<4 | (Rm))
 // Load [Rn] => Dd/Dd+1. Align is 4
 #define VLD1Q_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
+// Load [Rn] => Dd. Align is 4
+#define VLD1_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 15))
 // Load [Rn]! => Dd. Align is 4
 #define VLD1_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 13))
 // Load [Rn]! => Dd/Dd+1. Align is 4
@@ -560,6 +562,8 @@ Op is 20-27
 #define VST1Q_16(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 1, 0, 15))
 // Store [Rn] => Dd/Dd+1. Align is 4
 #define VST1Q_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 3, 0, 15))
+// Store [Rn] => Dd. Align is 4
+#define VST1_64(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 3, 0, 15))
 
 #define VEOR_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 0<<23 | (D)<<22 | 0b00<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VEOR(Dd, Dn, Dm)    EMIT(VEOR_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
@@ -706,6 +710,8 @@ Op is 20-27
 #define VCVT_NEON_gen(D, size, Vd, op, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b11<<9 | (op)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VCVTQ_F32_S32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b00, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCVTQ_S32_F32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b10, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCVTn_F32_S32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b00, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCVTn_S32_F32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b10, 0, ((Dm)>>4)&1, (Dm)&15))
 
 #define VMULL_NEON_gen(U, D, size, Vn, Vd, op, N, M, Vm)    (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b11<<10 | (op)<<9 | (N)<<7 | (M)<<5 | (Vm))
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
@@ -720,5 +726,11 @@ Op is 20-27
 
 #define VMVN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b1011<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
 #define VMVNQ(Dd, Dm)       EMIT(VMVN_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VQMOVN_gen(D, size, Vd, op, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0010<<8 | (op)<<6 | (M)<<5 | (Vm))
+// Vector Saturating Move and Narrow, for 16 bits signed integer (Dm is Qm in fact)
+#define VQMOVN_S16(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0b10, ((Dm)>>4)&1, (Dm)&15))
+#define VQMOVN_S32(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0b10, ((Dm)>>4)&1, (Dm)&15))
+#define VQMOVN_S64(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0b10, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__

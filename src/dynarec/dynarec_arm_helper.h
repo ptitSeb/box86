@@ -326,6 +326,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
+#define mmx_get_reg     STEPNAME(mmx_get_reg)
+#define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 
@@ -388,6 +390,12 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
+
+//MMX helpers
+// get neon register for a MMX reg, create the entry if needed
+int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+// get neon register for a MMX reg, but don't try to synch it if it needed to be created
+int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 
 //SSE/SSE2 helpers
 // get neon register for a SSE reg, create the entry if needed

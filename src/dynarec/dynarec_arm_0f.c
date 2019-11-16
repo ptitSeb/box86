@@ -33,6 +33,17 @@
         a = fpu_get_scratch_quad(dyn); \
         VLD1Q_64(a, ed);    \
     }
+#define GETGM(a)    \
+    gd = (nextop&0x38)>>3;  \
+    a = mmx_get_reg(dyn, ninst, x1, gd)
+#define GETEM(a)    \
+    if((nextop&0xC0)==0xC0) { \
+        a = mmx_get_reg(dyn, ninst, x1, nextop&7); \
+    } else {    \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress); \
+        a = fpu_get_scratch_double(dyn); \
+        VLD1_32(a, ed);    \
+    }
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -195,6 +206,35 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
                 VST1Q_32(v0, ed);
             }
+            break;
+        case 0x2A:
+            INST_NAME("CVTPI2PS Gx, Em");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                v1 = fpu_get_reg_double(dyn);
+                VLD1_32(v1, ed);
+            }
+            VCVTn_F32_S32(v0, v1);
+            break;
+
+        case 0x2C:
+            INST_NAME("CVTTPS2PI Gm, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                v1 = fpu_get_reg_double(dyn);
+                VLD1_32(v1, ed);
+            }
+            VCVTn_S32_F32(v0, v1);
             break;
 
         case 0x2E:
@@ -428,6 +468,50 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEX(q0);
             GETGX(v0);
             VSUBQ_F32(v0, v0, q0);
+            break;
+
+        case 0x6B:
+            INST_NAME("PACKSSDW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            q0 = fpu_get_reg_quad(dyn);
+            VMOVD(q0+0, v0);
+            VMOVD(q0+1, v1);
+            VQMOVN_S32(v0, q0);
+            break;
+
+        case 0x77:
+            INST_NAME("EMMS");
+            // empty MMX, FPU now usable
+            /*emu->top = 0;
+            emu->fpu_stack = 0;*/ //TODO: Check if something is needed here?
+            break;
+
+        case 0x7E:
+            INST_NAME("MOVD Ed, Gm");
+            nextop = F8;
+            GETGM(v0);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX + (nextop&7);
+                VMOVfrDx_32(ed, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                s0 = fpu_get_single_reg(dyn, ninst, v0, 0);
+                VSTR_32(s0, ed, 0);
+            }
+            break;
+        case 0x7F:
+            INST_NAME("MOVQ Em, Gm");
+            nextop = F8;
+            GETGM(v0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                VST1_64(v0, ed);
+            }
             break;
 
         #define GO(GETFLAGS, NO, YES)   \
