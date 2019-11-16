@@ -1,7 +1,10 @@
 Current version
 =======
+* Dynarec!!! Only for ARM
+* added real support for getcontext/set/context/makecontext/swapcontext
 * Preliminary signal handling
-* Some fixes to SDL(1/2) Image and SDL1 Mixer
+* Fixes to SDL(1/2) Image and SDL1 Mixer, and to SDL1.2 RWops usage
+* Fixed numerous issues in opcodes (both interpretor and dynarec). FTL works fine now, among many others
 
 v0.0.4
 =======
