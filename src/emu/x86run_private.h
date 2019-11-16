@@ -182,7 +182,12 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype);
 void PackFlags(x86emu_t* emu);
 void UnpackFlags(x86emu_t* emu);
 
+uintptr_t GetGSBaseEmu(x86emu_t* emu);
+
 const char* GetNativeName(x86emu_t* emu, void* p);
 
+#ifdef HAVE_TRACE
+void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec);
+#endif
 
 #endif //__X86RUN_PRIVATE_H_

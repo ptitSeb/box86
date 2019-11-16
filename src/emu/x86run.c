@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef HAVE_TRACE
-#include <unistd.h>
-#include <sys/syscall.h>
-#endif
 
 #include "debug.h"
 #include "box86stack.h"
@@ -20,11 +16,7 @@
 #include "x87emu_private.h"
 #include "box86context.h"
 
-#ifdef HAVE_TRACE
-extern uint64_t start_cnt;
-#endif
-
-int Run(x86emu_t *emu)
+int Run(x86emu_t *emu, int step)
 {
     uint8_t opcode;
     uint8_t nextop;
@@ -58,6 +50,11 @@ int Run(x86emu_t *emu)
 #define F32     *(uint32_t*)(ip+=4, ip-4)
 #define F32S    *(int32_t*)(ip+=4, ip-4)
 #define PK(a)   *(uint8_t*)(ip+a)
+#ifdef DYNAREC
+#define STEP if(step) goto stepout;
+#else
+#define STEP
+#endif
 
     static const void* baseopcodes[256] ={
     &&_0x00_0,  &&_0x00_1,  &&_0x00_2,  &&_0x00_3,  &&_0x00_4,  &&_0x00_5,  &&_0x06,    &&_0x07,      //0x00-0x07
@@ -77,7 +74,7 @@ int Run(x86emu_t *emu)
     &&_0x70_0,  &&_0x70_1,  &&_0x70_2,  &&_0x70_3,  &&_0x70_4,  &&_0x70_5,  &&_0x70_6,  &&_0x70_7,    //0x70-0x77
     &&_0x70_8,  &&_0x70_9,  &&_0x70_A,  &&_0x70_B,  &&_0x70_C,  &&_0x70_D,  &&_0x70_E,  &&_0x70_F,    //0x78-0x7F
     &&_0x80,    &&_0x81,    &&_default, &&_0x83,    &&_0x84,    &&_0x85,    &&_0x86,    &&_0x87,     
-    &&_0x88,    &&_0x89,    &&_0x8A,    &&_0x8B,    &&_default, &&_0x8D,    &&_default, &&_0x8F,     
+    &&_0x88,    &&_0x89,    &&_0x8A,    &&_0x8B,    &&_default, &&_0x8D,    &&_0x8E,    &&_0x8F,     
     &&_0x90,    &&_0x91,    &&_0x92,    &&_0x93,    &&_0x94,    &&_0x95,    &&_0x96,    &&_0x97, 
     &&_0x98,    &&_0x99,    &&_default, &&_0x9B,    &&_0x9C,    &&_0x9D,    &&_0x9E,    &&_0x9F,
     &&_0xA0,    &&_0xA1,    &&_0xA2,    &&_0xA3,    &&_0xA4,    &&_0xA5,    &&_0xA6,    &&_0xA7, 
@@ -143,11 +140,11 @@ int Run(x86emu_t *emu)
     &&_66_0x50, &&_66_0x51, &&_66_0x52, &&_66_0x53, &&_66_0x54, &&_66_0x55, &&_66_0x56, &&_66_0x57, //0x50-0x57
     &&_66_0x58, &&_66_0x59, &&_66_0x5A, &&_66_0x5B, &&_66_0x5C, &&_66_0x5D, &&_66_0x5E, &&_66_0x5F, //0x58-0x5F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_66_0x66, &&_default, //0x60-0x67
-    &&_default, &&_66_0x69, &&_66_0x6A, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
+    &&_66_0x68, &&_66_0x69, &&_66_0x6A, &&_66_0x6B, &&_default, &&_default, &&_default, &&_default, //0x68-0x6F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x70-0x77
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x78-0x7F
     &&_default, &&_66_0x81, &&_default, &&_66_0x83, &&_default, &&_66_0x85, &&_default, &&_66_0x87, 
-    &&_default, &&_66_0x89, &&_default, &&_66_0x8B, &&_66_0x8C, &&_default, &&_default, &&_66_0x8F, 
+    &&_default, &&_66_0x89, &&_default, &&_66_0x8B, &&_66_0x8C, &&_default, &&_66_0x8E, &&_66_0x8F, 
     &&_66_0x90, &&_default, &&_66_0x92, &&_default, &&_default, &&_default, &&_default, &&_default, 
     &&_66_0x98, &&_66_0x99, &&_default, &&_default, &&_66_0x9C, &&_default, &&_default, &&_default, //0x98-0x9F
     &&_default, &&_66_0xA1, &&_default, &&_66_0xA3, &&_default, &&_66_0xA5, &&_default, &&_66_0xA7, 
@@ -201,42 +198,17 @@ int Run(x86emu_t *emu)
 
 x86emurun:
     ip = R_EIP;
-    UnpackFlags(emu);
+//    UnpackFlags(emu);
 #ifdef HAVE_TRACE
 _trace:
-    if(start_cnt) --start_cnt;
     emu->prev2_ip = emu->prev_ip;
     emu->prev_ip = old_ip;
     old_ip = ip;
-    if(!start_cnt && emu->dec && (
-            (emu->trace_end == 0) 
-            || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
-        pthread_mutex_lock(&emu->context->mutex_trace);
-        int tid = syscall(SYS_gettid);
-        if(emu->context->trace_tid != tid) {
-            printf_log(LOG_NONE, "Thread %04d|\n", tid);
-            emu->context->trace_tid = tid;
-        }
-        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
-        if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
-            uint32_t a = *(uint32_t*)(ip+3);
-            if(a==0) {
-                printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
-            } else {
-                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
-            }
-        } else {
-            printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
-            uint8_t peek = PK(0);
-            if(peek==0xC3 || peek==0xC2) {
-                printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
-            } else if(peek==0x55) {
-                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
-            }
-            printf_log(LOG_NONE, "\n");
-        }
-        pthread_mutex_unlock(&emu->context->mutex_trace);
-    }
+    if(emu->dec && (
+        (emu->trace_end == 0) 
+        || ((ip >= emu->trace_start) && (ip < emu->trace_end))) )
+            PrintTrace(emu, ip, 0);
+
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
 #else
     #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];
@@ -634,7 +606,11 @@ _trace:
             GET_ED;
             GD.dword[0] = (uint32_t)ED;
             NEXT;
-
+        _0x8E:                      /* MOV Seg,Ew */
+            nextop = F8;
+            GET_EW;
+            emu->segs[((nextop&0x38)>>3)] = EW->word[0];
+            NEXT;
         _0x8F:                      /* POP Ed */
             nextop = F8;
             GET_ED;
@@ -822,9 +798,11 @@ _trace:
             tmp16u = F16;
             ip = Pop(emu);
             R_ESP += tmp16u;
+            STEP
             NEXT;
         _0xC3:                      /* RET */
             ip = Pop(emu);
+            STEP
             NEXT;
 
         _0xC6:                      /* MOV Eb,Ib */
@@ -974,23 +952,28 @@ _trace:
             NEXT;
         _0xE3:                      /* JECXZ */
             tmp8s = F8S;
-            if(!R_ECX)
+            if(!R_ECX) {
                 ip += tmp8s;
+                STEP
+            }
             NEXT;
 
         _0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, ip);
             ip += tmp32s;
+            STEP
             NEXT;
         _0xE9:                      /* JMP Id */
             tmp32s = F32S; // jmp is relative
             ip += tmp32s;
+            STEP
             NEXT;
 
         _0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             ip += tmp32s;
+            STEP
             NEXT;
 
         _0xF0:                      /* LOCK */
@@ -1305,6 +1288,7 @@ _trace:
                 case 2:                 /* CALL NEAR Ed */
                     Push(emu, ip);
                     ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                    STEP
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
@@ -1319,10 +1303,12 @@ _trace:
                         Push(emu, ip);
                         ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
+                        STEP
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
                     ip = ED->dword[0];
+                    STEP
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -1335,6 +1321,7 @@ _trace:
                     } else {
                         ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
+                        STEP
                     }
                     break;
                 case 6:                 /* Push Ed */
@@ -1355,14 +1342,29 @@ _trace:
             R_EIP = ip;
             UnimpOpcode(emu);
             goto fini;
+#ifdef DYNAREC
+stepout:
+    emu->old_ip = old_ip;
+    R_EIP = ip;
+    return 0;
+#endif
 
 fini:
-    PackFlags(emu);
+//    PackFlags(emu);
+    // fork handling
     if(emu->fork) {
+        if(step)
+            return 0;
         int forktype = emu->fork;
         emu->quit = 0;
         emu->fork = 0;
         emu = x86emu_fork(emu, forktype);
+        goto x86emurun;
+    }
+    // setcontext handling
+    else if(emu->uc_link) {
+        emu->quit = 0;
+        my_setcontext(emu, emu->uc_link);
         goto x86emurun;
     }
     return 0;

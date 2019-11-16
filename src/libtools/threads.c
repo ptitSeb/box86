@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+// __USE_UNIX98 is needed for sttype / gettype definition
+#define __USE_UNIX98
 #include <pthread.h>
 #include <errno.h>
 
@@ -15,6 +17,7 @@
 #include "khash.h"
 #include "emu/x86run_private.h"
 #include "x86trace.h"
+#include "dynarec.h"
 
 typedef struct emuthread_s {
 	x86emu_t *emu;
@@ -39,7 +42,7 @@ static void* pthread_routine(void* p)
 
 	x86emu_t *emu = et->emu;
 	Push(emu, (uint32_t)et->arg);
-	EmuCall(emu, et->fnc);
+	DynaCall(emu, et->fnc);
 	R_ESP+=4;
 	r = (void*)R_EAX;
 
@@ -50,6 +53,7 @@ static void* pthread_routine(void* p)
 
 int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
+	pthread_mutex_lock(&emu->context->mutex_lock);
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
 	if(attr) {
 		size_t stsize;
@@ -65,6 +69,7 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
+	pthread_mutex_unlock(&emu->context->mutex_lock);
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, et);
@@ -249,4 +254,18 @@ EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
 {
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, (pthread_mutex_t*)mutex);
+}
+
+EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)
+{
+    // does "kind" needs some type of translation?
+    return pthread_mutexattr_settype(t, kind);
+}
+
+EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
+{
+    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, call to pthread_attr_setaffinity_np(...) changed\n");
+	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
+    //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
+    // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
 }

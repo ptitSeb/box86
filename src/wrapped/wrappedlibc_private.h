@@ -35,7 +35,7 @@ GOW(addmntent, iFpp)
 DATAV(__after_morecore_hook, 4)
 GO(alarm, iFu)
 GO2(aligned_alloc, pFuu, memalign)
-// alphasort
+GO(alphasort, iFpp)
 GO(alphasort64, iFpp)
 DATA(argp_err_exit_status, 4)
 // argp_error   // Weak
@@ -64,7 +64,7 @@ DATA(argp_err_exit_status, 4)
 // argz_stringify   // Weak
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
-// asprintf // Weak
+GOM(asprintf, iFEppVV) // Weak
 // __asprintf
 GOM(__asprintf_chk, iFEpipVV)
 // __assert
@@ -104,7 +104,7 @@ GOW(bzero, vFpu)
 GO(__bzero, vFpu)
 GOW(calloc, pFuu)
 // callrpc
-// canonicalize_file_name   // Weak
+GOW(canonicalize_file_name, pFp)
 // capget
 // capset
 GO(catclose, iFp)
@@ -240,7 +240,7 @@ GOW(endutent, vFv)
 // endutxent
 DATAV(environ, 4)
 DATAV(_environ, 4)
-// __environ    // type B
+DATA(__environ, 4)    // type B
 // envz_add
 // envz_entry
 // envz_get
@@ -260,15 +260,15 @@ GOM(epoll_wait, iFEipii)    // need realign of epoll_event structure
 #endif
 // erand48
 // erand48_r    // Weak
-// err
+GO(err, vFippppppppp)
 // errno    // type B
 GO(__errno_location, pFv)
-// error    // Weak
+GOW(error, vFiippppppppp)  // Simple attempt: there is a vararg, but the alignment will/may be off if it tries some Double in the "printf" part
 // error_at_line    // Weak
 // error_message_count  // type B
 // error_one_per_line   // type B
 // error_print_progname // type B
-// errx
+GO(errx, vFippppppppp)
 // ether_aton
 // ether_aton_r
 // ether_hostton
@@ -289,6 +289,7 @@ GOM(execvp, iFEpVV)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
+GO(__explicit_bzero_chk, vFpuu)
 GO(faccessat, iFipii)
 // fattach
 GO(__fbufsize, uFp)
@@ -384,7 +385,7 @@ GO(__freadable, iFp)
 GO(__fread_chk, uFpuuup)
 GO(__freading, iFp)
 GO(fread_unlocked, uFpuup)
-// __fread_unlocked_chk
+GO(__fread_unlocked_chk, uFpuuup)
 GO(free, vFp)
 GO(freeaddrinfo, vFp)
 DATAV(__free_hook, 4)
@@ -421,14 +422,14 @@ GOW(ftrylockfile, iFp)
 // fts_children
 // fts_close
 // fts_open
-// fts_read
+GO(fts_read, pFp)
 // fts_set
 // ftw
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
 GO(futimens, iFip)
 GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
-// futimesat
+GO(futimesat, iFippp)
 // fwide
 GOM(fwprintf, iFEppVV) // Weak
 GOM(__fwprintf_chk, iFEp0pVV)
@@ -656,7 +657,7 @@ GO(if_indextoname, pFup)
 GO(if_nameindex, pFv)
 GO(if_nametoindex, uFp)
 // imaxabs  // Weak
-// imaxdiv  // Weak
+GOW(imaxdiv, IFII)
 DATA(in6addr_any, 16)  // type R
 // in6addr_loopback // type R
 // inb  // Weak
@@ -1045,7 +1046,7 @@ GO(lsetxattr, iFpppui)
 GO(__lxstat, iFipp)
 GOM(__lxstat64, iFEipp)
 GO(madvise, iFpui)
-GOM(makecontext, iFEpppV)
+GOM(makecontext, iFEppiV)
 GOW(mallinfo, pFv)
 GO(malloc, pFu)
 // malloc_get_state // Weak
@@ -1087,7 +1088,7 @@ GO(__memcpy_chk, pFppuu)
 GO(memmem, pFpupu)
 GO(memmove, pFppu)
 GO(__memmove_chk, pFppuu)
-// mempcpy
+GO(mempcpy, pFppu)
 // __mempcpy
 // __mempcpy_chk
 // __mempcpy_small
@@ -1188,16 +1189,16 @@ GO(_obstack_newchunk, vFpi)
 GOM(obstack_vprintf, iFEppVV)  // Weak
 // __obstack_vprintf_chk
 // on_exit  // Weak
-GOM(open, iFEpiu)    //Weak
-GOM(__open, iFEpiu) //Weak
-GO(__open_2, iFpi)
-GOM(open64, iFEpiu) //Weak
+GOM(open, iFEpOu)    //Weak
+GOM(__open, iFEpOu) //Weak
+GO(__open_2, iFpO)
+GOM(open64, iFEpOu) //Weak
 // __open64 // Weak
-GO(__open64_2, iFpi)
-GOW(openat, iFipiu)
+GO(__open64_2, iFpO)
+GOW(openat, iFipOu)
 // __openat_2
-GOW(openat64, iFipiuuuuu)   // variable arg...
-// __openat64_2
+GOW(openat64, iFipOuuuuu)   // variable arg...
+GO(__openat64_2, iFipOuuuuu)
 // __open_catalog
 GOW(opendir, pFp)
 GO(openlog, vFpii)
@@ -1210,8 +1211,8 @@ DATA(optopt, 4)
 // outb // Weak
 // outl // Weak
 // outw // Weak
-// __overflow
-// parse_printf_format
+GO(__overflow, iFpi)
+GO(parse_printf_format, uFpup)
 // passwd2des
 GOW(pathconf, iFpi)
 GOW(pause, iFv)
@@ -1320,7 +1321,7 @@ GO(rand, iFv)
 GOW(random, iFv)
 GOW(random_r, iFpp)
 GO(rand_r, iFp)
-// rawmemchr    // Weak
+GOW(rawmemchr, pFpi)
 GO(__rawmemchr, pFpi)
 // rcmd
 // rcmd_af
@@ -1345,7 +1346,7 @@ GO(__realpath_chk, pFppu)
 // reboot
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
-// re_compile_pattern   // Weak
+GOW(re_compile_pattern, pFpup)
 GO(recv, iFipui)
 GO(__recv_chk, iFipuui)
 GOW(recvfrom, iFipuipp)
@@ -1360,18 +1361,19 @@ GOM(__register_atfork, iFEppp)  // ignoring last pointer parameter (dso_handle)
 // register_printf_function // Weak
 // registerrpc
 // remap_file_pages // Weak
-// re_match // Weak
+GOW(re_match, iFppiip)
 // re_match_2   // Weak
 GO(remove, iFp)
 GO(removexattr, iFpp)
 // remque
 GO(rename, iFpp)
 GO(renameat, iFipip)
+GO(renameat2, iFipipu)
 // _res // type B
 GOW(re_search, iFppiiip)
 GOW(re_search_2, iFppipiiipi)
 // re_set_registers // Weak
-// re_set_syntax    // Weak
+GOW(re_set_syntax, uFu)
 // _res_hconf   // type B
 GO(__res_iclose, vFpi)
 GO(__res_init, iFv)
@@ -1397,7 +1399,7 @@ GO(readdir64_r, iFppp)  // is this present?
 // __rpc_thread_svc_fdset
 // __rpc_thread_svc_max_pollfd
 // __rpc_thread_svc_pollfd
-// rpmatch
+GO(rpmatch, iFp)
 // rresvport
 // rresvport_af
 // rtime
@@ -1500,7 +1502,7 @@ GOW(setsockopt, iFiiipu)
 // setspent
 // setstate // Weak
 GOW(setstate_r, iFpp)
-// settimeofday // Weak
+GOW(settimeofday, iFpp)
 // setttyent
 GOW(setuid, iFu)
 // setusershell
@@ -1562,7 +1564,7 @@ GOM(__snprintf_chk, iFEpuvvpVV)
 // sockatmark
 GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
-// splice
+GO(splice, iFipipuu)
 GOM(sprintf, iFEppVV)
 GOM(__sprintf_chk, iFEpvvpVV)
 // sprofil  // Weak
@@ -1589,7 +1591,7 @@ GO(stpcpy, pFpp)
 // __stpcpy
 GO(__stpcpy_chk, pFppu)
 // __stpcpy_small
-// stpncpy  // Weak
+GOW(stpncpy, pFppu)
 GO(__stpncpy, pFppu)
 GO(__stpncpy_chk, pFppuu)
 GOW(strcasecmp, iFpp)
@@ -1726,7 +1728,7 @@ GO(strxfrm_l, uFppup)
 // svcunixfd_create
 // svc_unregister
 GO(swab, vFppi)
-GO(swapcontext, iFpp)
+GOM(swapcontext, iFEpp)
 // swapoff  // Weak
 // swapon   // Weak
 GOM(swprintf, iFEpupV)
@@ -1735,6 +1737,7 @@ GO2(swscanf, iFppV, vswscanf)     // swscanf va_list is only pointer, no realign
 GOW(symlink, iFpp)
 GO(symlinkat, iFpip)
 GO(sync, vFv)
+GO(syncfs, iFi)
 // sync_file_range
 GOM(syscall, uFE)
 GOW(sysconf, iFi)
@@ -1893,8 +1896,8 @@ GOW(wait4, iFipip)
 GOW(waitid, iFiipi)
 GOW(waitpid, iFipi)
 GOW(__waitpid, iFip)
-// warn
-// warnx
+GO(warn, vFppppppppp)
+GO(warnx, vFppppppppp)
 GOW(wcpcpy, pFpp)
 // __wcpcpy_chk
 GOW(wcpncpy, pFpp)
@@ -1973,7 +1976,7 @@ GO(wcstoull, UFppi)
 // wcstoumax
 // wcstouq  // Weak
 // wcswcs   // Weak
-// wcswidth
+GO(wcswidth, iFpu)
 GO(wcsxfrm, uFppu)
 GOW(wcsxfrm_l, uFppup)
 GO(__wcsxfrm_l, uFppup)
@@ -2117,6 +2120,8 @@ GOM(__poll_chk, iFpuii)
 GO2(fallocate64, iFiII, posix_fallocate64)
 
 DATAM(__libc_stack_end, 4)
+
+DATAM(___brk_addr, 4)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)

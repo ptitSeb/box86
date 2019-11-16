@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_TRACE
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
 
 #include "debug.h"
 #include "box86stack.h"
@@ -14,20 +18,12 @@
 #include "box86context.h"
 #include "x86run.h"
 #include "librarian.h"
+#include "elfloader.h"
+#ifdef HAVE_TRACE
+#include "x86trace.h"
+#endif
 
-static uint32_t x86emu_parity_tab[8] =
-{
-	0x96696996,
-	0x69969669,
-	0x69969669,
-	0x96696996,
-	0x69969669,
-	0x96696996,
-	0x96696996,
-	0x69969669,
-};
-
-#define PARITY(x)   (((x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
+#define PARITY(x)   (((emu->x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
 int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
@@ -42,15 +38,18 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
         PushExit(emu);
         R_EIP=(uint32_t)*init;
         printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
-        Run(emu);
+        Run(emu, 0);
         if(emu->error)  // any error, don't bother with more
             return 0;
         emu->quit = 0;
     }
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
     // call main and finish
     PushExit(emu);
     R_EIP=(uint32_t)main;
-    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
+#ifdef DYNAREC
+    DynaRun(emu);
+#endif
     return 0;
 }
 
@@ -80,7 +79,7 @@ const char* GetNativeName(x86emu_t* emu, void* p)
 uintptr_t pltResolver = ~0;
 void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs)
 {
-    printf_log(LOG_INFO, "PltResolver: Ofs=%p, Id=%d (IP=%p)", (void*)ofs, id, *(void**)(R_ESP));
+    printf_log(LOG_INFO, "PltResolver: Ofs=%p, Id=%d (IP=%p, ESP+4=%p)", (void*)ofs, id, *(void**)(R_ESP), *(void**)(R_ESP+4));
     emu->quit=1;
 }
 
@@ -130,7 +129,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             break;
         case d_and16:
             CLEAR_FLAG(F_OF);
@@ -273,7 +272,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             break;
         case d_or16:
             CLEAR_FLAG(F_OF);
@@ -295,7 +294,7 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(emu->op1 != 0, F_CF);
             CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             bc = emu->res | emu->op1;
             CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
             CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
@@ -518,7 +517,7 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_OF);
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
-            CONDITIONAL_SET_FLAG(PARITY(emu->res), F_PF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_AF);
             break;
@@ -537,6 +536,9 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_AF);
+            break;
+        case d_unknown:
+            printf_log(LOG_NONE, "Box86: %p trying to evaluate Unknown defered Flags\n", R_EIP);
             break;
     }
     RESET_FLAGS(emu);
@@ -595,3 +597,56 @@ void UnpackFlags(x86emu_t* emu)
     GO(ID);
     #undef GO
 }
+
+uintptr_t GetGSBaseEmu(x86emu_t* emu)
+{
+    return (uintptr_t)GetGSBase(emu->context);
+}
+
+#ifdef HAVE_TRACE
+extern uint64_t start_cnt;
+#define PK(a)   *(uint8_t*)(ip+a)
+
+void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
+{
+    if(start_cnt) --start_cnt;
+    if(!start_cnt && emu->dec && (
+            (emu->trace_end == 0) 
+            || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
+        pthread_mutex_lock(&emu->context->mutex_trace);
+        int tid = syscall(SYS_gettid);
+#ifdef DYNAREC
+        if((emu->context->trace_tid != tid) || (emu->context->trace_dynarec!=dynarec)) {
+            printf_log(LOG_NONE, "Thread %04d| (%s) |\n", tid, dynarec?"dyn":"int");
+            emu->context->trace_tid = tid;
+            emu->context->trace_dynarec = dynarec;
+        }
+#else
+        if(emu->context->trace_tid != tid) {
+            printf_log(LOG_NONE, "Thread %04d|\n", tid);
+            emu->context->trace_tid = tid;
+        }
+#endif
+        printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
+        if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
+            uint32_t a = *(uint32_t*)(ip+3);
+            if(a==0) {
+                printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
+            } else {
+                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
+            }
+        } else {
+            printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
+            uint8_t peek = PK(0);
+            if(peek==0xC3 || peek==0xC2) {
+                printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
+            } else if(peek==0x55) {
+                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
+            }
+            printf_log(LOG_NONE, "\n");
+        }
+        pthread_mutex_unlock(&emu->context->mutex_trace);
+    }
+}
+
+#endif

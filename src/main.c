@@ -29,10 +29,19 @@
 #include "librarian.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
+#ifdef DYNAREC
+int box86_dynarec_log = LOG_NONE;
+int box86_dynarec = 1;
+int box86_dynarec_linker = 1;
+int box86_dynarec_forced = 0;
+#endif
 int dlsym_error = 0;
 int trace_xmm = 0;
 #ifdef HAVE_TRACE
 uint64_t start_cnt = 0;
+#ifdef DYNAREC
+int box86_dynarec_trace = 0;
+#endif
 #endif
 #ifdef PANDORA
 int x11color16 = 0;
@@ -59,6 +68,50 @@ void LoadLogEnv()
         }
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
+#ifdef DYNAREC
+    p = getenv("BOX86_DYNAREC_LOG");
+    if(p) {
+        if(strlen(p)==1) {
+            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_DUMP))
+                box86_dynarec_log = p[0]-'0';
+        } else {
+            if(!strcasecmp(p, "NONE"))
+                box86_dynarec_log = LOG_NONE;
+            else if(!strcasecmp(p, "INFO"))
+                box86_dynarec_log = LOG_INFO;
+            else if(!strcasecmp(p, "DEBUG"))
+                box86_dynarec_log = LOG_DEBUG;
+            else if(!strcasecmp(p, "DUMP"))
+                box86_dynarec_log = LOG_DUMP;
+        }
+        printf_log(LOG_INFO, "Dynarec log level is %d\n", box86_dynarec_log);
+    }
+    p = getenv("BOX86_DYNAREC");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dynarec = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Dynarec is %s\n", box86_dynarec?"On":"Off");
+    }
+    p = getenv("BOX86_DYNAREC_LINKER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dynarec_linker = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Dynarec Linker is %s\n", box86_dynarec_linker?"On":"Off");
+    }
+    p = getenv("BOX86_DYNAREC_FORCED");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dynarec_forced = p[0]-'0';
+        }
+        if(box86_dynarec_forced)
+        printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+    }
+#endif
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE_XMM");
     if(p) {
@@ -73,6 +126,17 @@ void LoadLogEnv()
         start_cnt = strtoll(p, &p2, 10);
         printf_log(LOG_INFO, "Will start trace only after %llu instructions\n", start_cnt);
     }
+#ifdef DYNAREC
+    p = getenv("BOX86_DYNAREC_TRACE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                box86_dynarec_trace = p[0]-'0';
+            if(box86_dynarec_trace)
+                printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
+        }
+    }
+#endif
 #endif
     p = getenv("BOX86_TRACE_FILE");
     if(p) {
@@ -181,6 +245,11 @@ void PrintHelp() {
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
+#ifdef DYNAREC
+    printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
+    printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
+    printf(" BOX86_DYNAREC_LINKER with 0/1 to disable or enable Dynarec Linker (On by default, use 0 only for easier debug)\n");
+#endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86 execution trace only between address\n");
@@ -188,6 +257,9 @@ void PrintHelp() {
     printf("  use BOX86_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
     printf(" BOX86_TRACE_XMM with 1 to enable dump of SSE/SSE2 register along with regular registers\n");
     printf(" BOX86_TRACE_START with N to enable trace after N instructions\n");
+#ifdef DYNAREC
+    printf(" BOX86_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
+#endif
 #endif
     printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
@@ -202,9 +274,14 @@ int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
     if(argc==1) {
-        printf("Box86%s%s v%d.%d.%d\n", 
+        printf("Box86%s%s%s v%d.%d.%d\n", 
         #ifdef HAVE_TRACE
             " with trace",
+        #else
+            "",
+        #endif
+        #ifdef DYNAREC
+            " with Dynarec",
         #else
             "",
         #endif
@@ -247,6 +324,8 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
     if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
         AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
+    if(FileExist("/usr/lib32", 0))
+        AddPath("/usr/lib32", &context->box86_ld_lib);
 #endif
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
@@ -328,14 +407,14 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // allocate memory
-    if(AllocElfMemory(elf_header, 1)) {
+    if(AllocElfMemory(context, elf_header, 1)) {
         printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
         return -1;
     }
     // Load elf into memory
-    if(LoadElfMemory(f, elf_header)) {
+    if(LoadElfMemory(f, context, elf_header)) {
         printf_log(LOG_NONE, "Error: loading in memory elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
@@ -447,7 +526,7 @@ int main(int argc, const char **argv, const char **env) {
     SetEBX(context->emu, (uint32_t)context->argv);
     SetEIP(context->emu, context->ep);
     ResetFlags(context->emu);
-    Run(context->emu);
+    Run(context->emu, 0);
     // Get EAX
     int ret = GetEAX(context->emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);

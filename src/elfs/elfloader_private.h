@@ -1,6 +1,10 @@
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
+
 #include <pthread.h>
 
 struct elfheader_s {
@@ -45,6 +49,8 @@ struct elfheader_s {
     uint32_t    pltrel;
     uintptr_t   gotplt;
     uintptr_t   got;
+    uintptr_t   text;
+    int         textsz;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;
@@ -54,13 +60,16 @@ struct elfheader_s {
     int         stackalign;
     uint32_t    tlssize;
     int         tlsalign;
-    pthread_key_t tlskey;
+
+    int32_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
 
     int         init_done;
     int         fini_done;
 
     char*       memory; // char* and not void* to allow math on memory pointer
-    char*       tlsdata;
+#ifdef DYNAREC
+    dynablocklist_t *blocks;
+#endif
 };
 
 #define R_386_NONE	0
@@ -74,5 +83,7 @@ struct elfheader_s {
 #define R_386_RELATIVE	8
 #define R_386_GOTOFF	9
 #define R_386_GOTPC	10
+
+elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
 
 #endif //__ELFLOADER_PRIVATE_H_

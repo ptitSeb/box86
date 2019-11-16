@@ -91,6 +91,7 @@ typedef struct _XImage {
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
@@ -116,10 +117,12 @@ typedef struct x11_my_s {
     iFpppp_t        XCheckIfEvent;
     iFpppp_t        XPeekIfEvent;
     pFppuiipuuii_t  XCreateImage;
+    iFp_t           XInitImage;
     pFppiiuuui_t    XGetImage;
     iFppppiiiiuu_t  XPutImage;
     pFppiiuuuipii_t XGetSubImage;
     vFp_t           XDestroyImage;
+    vFpp_t          _XDeqAsyncHandler;
     #ifdef PANDORA
     pFpp_t          XLoadQueryFont;
     pFppup_t        XCreateGC;
@@ -140,10 +143,12 @@ void* getX11My(library_t* lib)
     GO(XCheckIfEvent, iFpppp_t)
     GO(XPeekIfEvent, iFpppp_t)
     GO(XCreateImage, pFppuiipuuii_t)
+    GO(XInitImage, iFp_t)
     GO(XGetImage, pFppiiuuui_t)
     GO(XPutImage, iFppppiiiiuu_t)
     GO(XGetSubImage, pFppiiuuuipii_t)
     GO(XDestroyImage, vFp_t)
+    GO(_XDeqAsyncHandler, vFpp_t)
     #ifdef PANDORA
     GO(XLoadQueryFont, pFpp_t)
     GO(XCreateGC, pFppup_t)
@@ -162,6 +167,8 @@ void freeX11My(void* lib)
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
+
+int32_t my_XInitImage(x86emu_t* emu, void* img);
 
 void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt);
@@ -433,6 +440,17 @@ EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t dept
     return img;
 }
 
+EXPORT int32_t my_XInitImage(x86emu_t* emu, void* img)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    int ret = my->XInitImage(img);
+    // bridge all access functions...
+    BridgeImageFunc(emu, img);
+    return ret;
+}
+
 EXPORT void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt)
 {
@@ -485,6 +503,46 @@ EXPORT void my_XDestroyImage(x86emu_t* emu, void* image)
 
     UnbridgeImageFunc(emu, (XImage*)image);
     my->XDestroyImage(image);
+}
+
+typedef struct xintasync_s {
+    struct xintasync_s *next;
+    int (*handler)(
+                    void*,
+                    void*,
+                    void*,
+                    int,
+                    void*
+                    );
+    void* data;
+} xintasync_t;
+
+static int my_XInternalAsyncHandler(void* dpy, void* rep, void* buf, int len, void* data)
+{
+    if(!data)
+        return 0;
+    x86emu_t *emu = (x86emu_t*)data;
+    SetCallbackArg(emu, 0, dpy);
+    SetCallbackArg(emu, 1, rep);
+    SetCallbackArg(emu, 2, buf);
+    SetCallbackArg(emu, 3, (void*)len);
+    // data is already se as 4th arg
+    int ret = RunCallback(emu);
+    return ret;
+}
+
+EXPORT void my__XDeqAsyncHandler(x86emu_t* emu, void* cb, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+
+    if(!data) {
+        my->_XDeqAsyncHandler(cb, data);
+        return;
+    }
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 5, NULL, NULL, NULL, NULL);
+    SetCallbackArg(cbemu, 4, data);
+    my->_XDeqAsyncHandler(my_XInternalAsyncHandler, cbemu);
 }
 #if 0
 typedef struct my_XIMArg_s {

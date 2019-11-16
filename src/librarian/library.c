@@ -199,13 +199,13 @@ library_t *NewLibrary(const char* path, box86context_t* context)
                 return NULL;
             }
             // allocate memory
-            if(AllocElfMemory(elf_header, 0)) {
+            if(AllocElfMemory(context, elf_header, 0)) {
                 printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
                 fclose(f);
                 return NULL;
             }
             // Load elf into memory
-            if(LoadElfMemory(f, elf_header)) {
+            if(LoadElfMemory(f, context, elf_header)) {
                 printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
                 fclose(f);
                 return NULL;

@@ -212,18 +212,18 @@ void freeSDL2My(void* lib)
 {
     sdl2_my_t *my = (sdl2_my_t *)lib;
     x86emu_t *x;
-    kh_foreach_value(my->timercb, x, 
+    /*kh_foreach_value(my->timercb, x, 
         FreeCallback(x);
-    );
+    );*/
     kh_destroy(timercb, my->timercb);
 
-    kh_foreach_value(my->threads, x, 
+    /*kh_foreach_value(my->threads, x, 
         FreeCallback(x);
-    );
+    );*/
     kh_destroy(timercb, my->threads);
-    if(my->sdl2_evtfilter) {
+    /*if(my->sdl2_evtfilter) {
         FreeCallback(my->sdl2_evtfilter);
-    }
+    }*/
 }
 
 

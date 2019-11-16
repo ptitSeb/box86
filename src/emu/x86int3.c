@@ -23,24 +23,11 @@
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
+x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
 {
     // execute atforks prepare functions, in reverse order
-    for (int i=e->context->atfork_sz-1; i>=0; --i)
-        EmuCall(e, e->context->atforks[i].prepare);
-    x86emu_t *emu = e;
-    // lets duplicate the emu
-    void* newstack = 0;
-    if(posix_memalign(&newstack, emu->context->stackalign, emu->context->stacksz)) {
-        printf_log(LOG_NONE, "Warning, posix_memalign failed, using regular malloc...\n");
-        newstack = malloc(emu->context->stacksz);
-    }
-    memcpy(newstack, emu->context->stack, emu->context->stacksz);
-    x86emu_t* newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)newstack, emu->context->stacksz, 1);
-    SetupX86Emu(newemu);
-    CloneEmu(newemu, emu);
-    // ready to fork
-    ++emu->context->forked;
+    for (int i=emu->context->atfork_sz-1; i>=0; --i)
+        EmuCall(emu, emu->context->atforks[i].prepare);
     int v;
     if(forktype==2) {
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
@@ -49,15 +36,13 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype)
     } else
         v = fork();
     if(v==EAGAIN || v==ENOMEM) {
-        --emu->context->forked;
-        FreeX86Emu(&newemu);    // fork failed, free the new emu
+        // error...
     } else if(v!=0) {  
         // execute atforks parent functions
         for (int i=0; i<emu->context->atfork_sz; --i)
             EmuCall(emu, emu->context->atforks[i].parent);
 
     } else if(v==0) {
-        emu = newemu;
         // execute atforks child functions
         for (int i=0; i<emu->context->atfork_sz; --i)
             EmuCall(emu, emu->context->atforks[i].child);
@@ -74,7 +59,7 @@ void x86Int3(x86emu_t* emu)
         R_EIP += 2;
         uint32_t addr = Fetch32(emu);
         if(addr==0) {
-            //printf_log(LOG_INFO, "%p:Exit x86 emu\n", *(void**)(R_ESP));
+            //printf_log(LOG_INFO, "%p:Exit x86 emu (emu=%p)\n", *(void**)(R_ESP), emu);
             emu->quit=1; // normal quit
         } else {
             RESET_FLAGS(emu);
@@ -86,6 +71,7 @@ void x86Int3(x86emu_t* emu)
                 char buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
+                char *tmp;
                 int post = 0;
                 int perr = 0;
                 uint32_t *pu32 = NULL;
@@ -107,7 +93,8 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d, %d)", tid, *(void**)(R_ESP), "open64", *(char**)(R_ESP+4), *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
                 } else  if(strstr(s, "__open")==s || strstr(s, "open")==s || strstr(s, "open")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(int*)(R_ESP+8));
+                    tmp = *(char**)(R_ESP+4);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8));
                     perr = 1;
                 } else  if(strstr(s, "fopen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "fopen", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
@@ -154,10 +141,20 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), "vsnprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
+                } else  if(strstr(s, "vsprintf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\"...)", tid, *(void**)(R_ESP), "vsprintf", *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
+                    pu32 = *(uint32_t**)(R_ESP+4);
+                    post = 3;
                 } else  if(strstr(s, "snprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), "snprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
+                } else  if(strstr(s, "sprintf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %08X...)", tid, *(void**)(R_ESP), "sprintf", *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8));
+                    pu32 = *(uint32_t**)(R_ESP+4);
+                    post = 3;
+                } else  if(strstr(s, "fprintf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "fprintf", *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), "XLoadQueryFont", *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "pthread_mutex_lock")==s) {
@@ -168,6 +165,9 @@ void x86Int3(x86emu_t* emu)
                 } else if(strstr(s, "fmod")==s) {
                     post = 4;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, *(void**)(R_ESP), "fmod", *(double*)(R_ESP+4), *(double*)(R_ESP+12));
+                } else if(strstr(s, "SDL_GetWindowSurface")==s) {
+                    post = 5;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), "SDL_GetWindowSurface", *(void**)(R_ESP+4));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
@@ -189,7 +189,14 @@ void x86Int3(x86emu_t* emu)
                     case 4: snprintf(buff2, 63, " (%f)", ST0.d);
                     #endif
                             break;
-                    
+                    case 5: {
+                            uint32_t* p = (uint32_t*)R_EAX;
+                            if(p)
+                                snprintf(buff2, 63, " size=%dx%d, pitch=%d, pixels=%p", p[2], p[3], p[4], p+5);
+                            else
+                                snprintf(buff2, 63, "NULL Surface");
+                            }
+                            break;
                 }
                 if(perr && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d)", errno);

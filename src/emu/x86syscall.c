@@ -40,6 +40,7 @@ typedef struct scwrap_s {
 } scwrap_t;
 
 scwrap_t syscallwrap[] = {
+    { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     { 3, __NR_read, 3 },
     { 4, __NR_write, 3 },
     { 5, __NR_open, 3 },
@@ -51,26 +52,52 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_time
     { 13, __NR_time, 1 },
 #endif
+    { 15, __NR_chmod, 2 },
+    { 19, __NR_lseek, 3 },
     { 20, __NR_getpid, 0 },
+    { 24, __NR_getuid, 0 },
     { 33, __NR_access, 2 },
+    { 37, __NR_kill, 2 },
     { 38, __NR_rename, 2 },
     { 39, __NR_mkdir, 2 },
     { 42, __NR_pipe, 1 },
     { 45, __NR_brk, 1 },
+    { 47, __NR_getgid, 0 },
     { 49, __NR_geteuid, 0 },
     { 50, __NR_getegid, 0 },
     { 54, __NR_ioctl, 5 },
+    { 55, __NR_fcntl, 3 },
+    { 63, __NR_dup2, 2 },
     { 78, __NR_gettimeofday, 2 },
+    { 83, __NR_symlink, 2 },
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
+    { 94, __NR_fchmod, 2 },
+#ifdef __NR_newstat
+    { 106, __NR_newstat, 2 },
+#else
+    { 106, __NR_stat, 2 },
+#endif
+#ifdef __NR_newlstat
+    { 107, __NR_newlstat, 2 },
+#else
+    { 107, __NR_lstat, 2 },
+#endif
+#ifdef __NR_newfstat
+    { 108, __NR_newfstat, 2 },
+#else
+    { 108, __NR_fstat, 2 },
+#endif
 #ifdef __NR_olduname
     { 109, __NR_olduname, 1 },
 #endif
+    { 114, __NR_wait4, 4 }, //TODO: check struct rusage alignment
     //{ 120, __NR_clone, 5 },    // need works
     { 122, __NR_uname, 1 },
     { 125, __NR_mprotect, 3 },
     { 136, __NR_personality, 1 },
-    { 140,__NR__llseek, 5 },
+    { 140, __NR__llseek, 5 },
+    { 141, __NR_getdents, 3 },
 #ifdef __NR_select
     { 142, __NR_select, 5 },
 #endif
@@ -209,7 +236,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 int r = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, NULL);
                 if(r) {
                     SetEAX(newemu, r);
-                    Run(newemu);
+                    DynaRun(newemu);
                     r = GetEAX(newemu);
                     FreeX86Emu(&newemu);
                     exit(R_EAX);

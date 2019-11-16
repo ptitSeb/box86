@@ -14,6 +14,49 @@
 #include "bridge.h"
 #include "library.h"
 #include "callback.h"
+#include "wrapper.h"
+#ifdef DYNAREC
+#include <sys/mman.h>
+#include "dynablock.h"
+
+typedef struct mmaplist_s {
+    void*         block;
+    uintptr_t     offset;           // offset in the block
+} mmaplist_t;
+
+#define MMAPSIZE (4*1024*1024)       // allocate 4Mo sized blocks
+
+uintptr_t AllocDynarecMap(box86context_t *context, int size)
+{
+    // make size 0x10 bytes aligned
+    size = (size+0x0f)&~0x0f;
+    pthread_mutex_lock(&context->mutex_mmap);
+    // look for free space
+    for(int i=0; i<context->mmapsize; ++i) {
+        if(context->mmaplist[i].offset+size < MMAPSIZE) {
+            uintptr_t ret = context->mmaplist[i].offset + (uintptr_t)context->mmaplist[i].block;
+            context->mmaplist[i].offset+=size;
+            pthread_mutex_unlock(&context->mutex_mmap);
+            return ret;
+        }
+    }
+    // no luck, add a new one !
+    int i = context->mmapsize++;    // yeah, usefull post incrementation
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", context->mmapsize);
+    context->mmaplist = (mmaplist_t*)realloc(context->mmaplist, context->mmapsize*sizeof(mmaplist_t));
+    void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if(p==MAP_FAILED) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --context->mmapsize;
+        pthread_mutex_unlock(&context->mutex_mmap);
+        return 0;
+    }
+    context->mmaplist[i].block = p;
+    context->mmaplist[i].offset=size;
+    pthread_mutex_unlock(&context->mutex_mmap);
+    return (uintptr_t)p;
+}
+#endif
 
 void x86Syscall(x86emu_t *emu);
 
@@ -54,6 +97,14 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
 
+    pthread_key_create(&context->tlskey, free);
+
+#ifdef DYNAREC
+    pthread_mutex_init(&context->mutex_blocks, NULL);
+    pthread_mutex_init(&context->mutex_mmap, NULL);
+    context->dynablocks = NewDynablockList(0, 0, 0);
+#endif
+
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
@@ -69,6 +120,21 @@ void FreeBox86Context(box86context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
+    if((*context)->maplib)
+        FreeLibrarian(&(*context)->maplib);
+
+#ifdef DYNAREC
+    dynarec_log(LOG_INFO, "Free global Dynarecblocks\n");
+    if((*context)->dynablocks)
+        FreeDynablockList(&(*context)->dynablocks);
+    for (int i=0; i<(*context)->mmapsize; ++i)
+        if((*context)->mmaplist[i].block)
+            munmap((*context)->mmaplist[i].block, MMAPSIZE);
+    free((*context)->mmaplist);
+    pthread_mutex_destroy(&(*context)->mutex_blocks);
+    pthread_mutex_destroy(&(*context)->mutex_mmap);
+#endif
+    
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);
 
@@ -85,9 +151,6 @@ void FreeBox86Context(box86context_t** context)
 
     FreeDLPrivate(&(*context)->dlprivate);
 
-    if((*context)->maplib)
-        FreeLibrarian(&(*context)->maplib);
-    
     for(int i=0; i<(*context)->argc; ++i)
         free((*context)->argv[i]);
     free((*context)->argv);
@@ -113,6 +176,16 @@ void FreeBox86Context(box86context_t** context)
         freeProcWrapper(&(*context)->alwrappers);
 
     FreeCallbackList(&(*context)->callbacks);
+
+    void* ptr;
+    if ((ptr = pthread_getspecific((*context)->tlskey)) != NULL) {
+        free(ptr);
+        pthread_setspecific((*context)->tlskey, NULL);
+    }
+    pthread_key_delete((*context)->tlskey);
+
+    if((*context)->tlsdata)
+        free((*context)->tlsdata);
 
     pthread_mutex_destroy(&(*context)->mutex_once);
     pthread_mutex_destroy(&(*context)->mutex_once2);
@@ -148,4 +221,10 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
     ctx->elfsize++;
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
+}
+
+int AddTLSPartition(box86context_t* context, int tlssize) {
+    context->tlssize += tlssize;
+    context->tlsdata = realloc(context->tlsdata, context->tlssize);
+    return -context->tlssize;   // negative offset
 }

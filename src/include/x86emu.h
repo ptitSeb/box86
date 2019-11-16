@@ -29,6 +29,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip);
 
 void StopEmu(x86emu_t* emu, const char* reason);
 void PushExit(x86emu_t* emu);
+void* GetExit();
 void EmuCall(x86emu_t* emu, uintptr_t addr);
 void AddCleanup(x86emu_t *emu, void *p);
 void AddCleanup1Arg(x86emu_t *emu, void *p, void* a);

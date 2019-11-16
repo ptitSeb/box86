@@ -139,8 +139,13 @@ int EXPORT my_atexit(x86emu_t* emu, void *p)
 int my_getcontext(x86emu_t* emu, void* ucp);
 int my_setcontext(x86emu_t* emu, void* ucp);
 int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
+int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2);
 
 // All signal and context functions defined in signals.c
+
+// this one is defined in elfloader.c
+int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data);
+
 
 pid_t EXPORT my_fork(x86emu_t* emu)
 {
@@ -285,12 +290,6 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
     return result;
 }
 
-EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
-    printf_log(LOG_NONE, "Error: unimplemented dl_iterate_phdr(%p, %p) used\n", F, data);
-    emu->quit = 1;
-    return 0;
-}
-
 EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -314,6 +313,17 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
     #endif
 }
 EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
+
+EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vasprintf;
+    return ((iFppp_t)f)(buff, fmt, emu->scratch);
+    #else
+    return vasprintf((char**)buff, (char*)fmt, V);
+    #endif
+}
 
 EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -1070,6 +1080,8 @@ EXPORT void* my___deregister_frame_info(void* a)
 {
     return NULL;
 }
+
+EXPORT void* my____brk_addr = NULL;
 
 // need to undef all read / read64 stuffs!
 #undef pread

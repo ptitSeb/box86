@@ -799,7 +799,7 @@ GO(BN_value_one, pFv)
 //GO(CRYPTO_cfb128_1_encrypt, 
 //GO(CRYPTO_cfb128_8_encrypt, 
 //GO(CRYPTO_cfb128_encrypt, 
-//GO(CRYPTO_cleanup_all_ex_data, 
+GO(CRYPTO_cleanup_all_ex_data, vFv)
 //GO(CRYPTO_ctr128_encrypt, 
 //GO(CRYPTO_ctr128_encrypt_ctr32, 
 //GO(CRYPTO_cts128_decrypt, 
@@ -1470,7 +1470,7 @@ GO(DES_string_to_key, vFpp)
 //GO(ENGINE_add, 
 //GO(ENGINE_add_conf_module, 
 //GO(ENGINE_by_id, 
-//GO(ENGINE_cleanup, 
+GO(ENGINE_cleanup, vFv)
 //GO(engine_cleanup_add_first, 
 //GO(engine_cleanup_add_last, 
 GO(ENGINE_cmd_is_executable, iFpi)
@@ -2568,8 +2568,8 @@ GO(MD5_Update, iFppu)
 //GO(OCSP_SINGLERESP_new, 
 //GO(OCSP_url_svcloc_new, 
 //GO(OPENSSL_add_all_algorithms_conf, 
-//GO(OPENSSL_add_all_algorithms_noconf, 
-//GO(OpenSSL_add_all_ciphers, 
+GO(OPENSSL_add_all_algorithms_noconf, vFv)
+GO(OpenSSL_add_all_ciphers, vFv)
 //GO(OpenSSL_add_all_digests, 
 //GO(OPENSSL_asc2uni, 
 //GO(OPENSSL_atomic_add, 
@@ -3437,7 +3437,7 @@ GO(PKCS12_parse, iFppppp)
 //GO(X509_CRL_print, 
 //GO(X509_CRL_print_fp, 
 //GO(X509_CRL_set_default_method, 
-//GO(X509_CRL_set_issuer_name, 
+GO(X509_CRL_set_issuer_name, iFpp)
 //GO(X509_CRL_set_lastUpdate, 
 //GO(X509_CRL_set_meth_data, 
 //GO(X509_CRL_set_nextUpdate, 
@@ -3482,12 +3482,12 @@ GO(X509_free, vFp)
 //GO(X509_get_ext_by_OBJ, 
 //GO(X509_get_ext_count, 
 //GO(X509_get_ext_d2i, 
-//GO(X509_get_issuer_name, 
+GO(X509_get_issuer_name, pFp)
 //GO(X509_get_pubkey, 
 //GO(X509_get_pubkey_parameters, 
 //GO(X509_get_serialNumber, 
 //GO(X509_get_signature_nid, 
-//GO(X509_get_subject_name, 
+GO(X509_get_subject_name, pFp)
 //GO(X509_gmtime_adj, 
 //GO(X509_http_nbio, 
 //GO(X509_INFO_free, 
@@ -3618,7 +3618,7 @@ GO(X509_new, pFv)
 //GO(X509_REQ_print_fp, 
 //GO(X509_REQ_set_extension_nids, 
 //GO(X509_REQ_set_pubkey, 
-//GO(X509_REQ_set_subject_name, 
+GO(X509_REQ_set_subject_name, iFpp)
 //GO(X509_REQ_set_version, 
 //GO(X509_REQ_sign, 
 //GO(X509_REQ_sign_ctx, 
@@ -3639,12 +3639,12 @@ GO(X509_new, pFv)
 //GO(X509_REVOKED_set_revocationDate, 
 //GO(X509_REVOKED_set_serialNumber, 
 //GO(X509_set_ex_data, 
-//GO(X509_set_issuer_name, 
+GO(X509_set_issuer_name, iFpp)
 //GO(X509_set_notAfter, 
 //GO(X509_set_notBefore, 
 //GO(X509_set_pubkey, 
 //GO(X509_set_serialNumber, 
-//GO(X509_set_subject_name, 
+GO(X509_set_subject_name, iFpp)
 //GO(X509_set_version, 
 //GO(X509_SIG_free, 
 //GO(X509_sign, 

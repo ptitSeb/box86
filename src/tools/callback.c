@@ -10,6 +10,7 @@
 #include "emu/x86run_private.h"
 #include "box86context.h"
 #include "box86stack.h"
+#include "dynarec.h"
 #include "khash.h"
 
 typedef struct onecallback_s onecallback_t;
@@ -161,7 +162,7 @@ uint32_t RunCallback(x86emu_t* emu)
     if(cb) {
         for (int i=cb->nb_args-1; i>=0; --i)    // reverse order
             Push(emu, (uint32_t)cb->arg[i]);
-        EmuCall(emu, cb->fnc);
+        DynaCall(emu, cb->fnc);
         R_ESP+=(cb->nb_args*4);
         return R_EAX;
     }

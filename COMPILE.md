@@ -4,6 +4,10 @@ Compiling
 
  `mkdir build; cd build; cmake .. -DPANDORA=1; make`
 
+*for Gameshell*
+
+`mkdir build; cd build; cmake .. -DGAMESHELL=1; make`
+
 *or for Other ARM Linux*
 
  `mkdir build; cd build; cmake .. ; make`
@@ -24,6 +28,9 @@ You may need to activate `-DNOLOADADDR=1` to disable fixing the Loading Address 
 
 *to have a Trace Enabled build*
 To have a trace enabled build (warning, it will be slower), add `-DHAVE_TRACE=1` but you will need, at runtime, to have the [Zydis library](https://github.com/zyantific/zydis) library in your `LD_LIBRARY_PATH` or in the system lib folders.
+
+*to have ARM Dynarec*
+The Dynarec is only avaiable on ARM Cpu. Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode).
 
 ----
 

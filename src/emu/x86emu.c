@@ -22,10 +22,27 @@ typedef struct cleanup_s {
     void*       a;
 } cleanup_t;
 
+static uint32_t x86emu_parity_tab[8] =
+{
+	0x96696996,
+	0x69969669,
+	0x69969669,
+	0x96696996,
+	0x69969669,
+	0x96696996,
+	0x96696996,
+	0x69969669,
+};
+
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 void PushExit(x86emu_t* emu)
 {
     Push(emu, (uint32_t)&EndEmuMarker);
+}
+
+void* GetExit()
+{
+    return &EndEmuMarker;
 }
 
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
@@ -38,6 +55,7 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
     for (int i=0; i<8; ++i)
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
+    emu->x86emu_parity_tab = x86emu_parity_tab;
     emu->packed_eflags.x32 = 0x202; // default flags?
     UnpackFlags(emu);
     // own stack?
@@ -119,7 +137,7 @@ void CallCleanup(x86emu_t *emu, void* p)
                 Push(emu, (uintptr_t)emu->cleanups[i].a);
             PushExit(emu);
             emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
-            Run(emu);
+            Run(emu, 0);
             emu->quit = 0;
             // now remove the cleanup
             if(i!=emu->clean_sz-1)
@@ -340,7 +358,7 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     PushExit(emu);
     R_EIP = addr;
     emu->df = d_none;
-    Run(emu);
+    Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     R_EBX = old_ebx;

@@ -2,7 +2,8 @@
 #define __BRIDGE_PRIVATE_H_
 #include <stdint.h>
 
-#include "wrapper.h"
+// the generic wrapper pointer functions
+typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 
 #pragma pack(push, 1)
 typedef struct onebridge_s {

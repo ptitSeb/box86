@@ -11,7 +11,6 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
-#include "elfloader.h"
 
 
 #define F8      *(uint8_t*)(R_EIP++)
@@ -364,7 +363,7 @@ void RunGS(x86emu_t *emu)
     int32_t tmp32s;
     uint64_t tmp64u;
     int64_t tmp64s;
-    uintptr_t tlsdata = (uintptr_t)GetGSBase(emu->context);
+    uintptr_t tlsdata = GetGSBaseEmu(emu);
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;

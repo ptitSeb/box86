@@ -57,7 +57,7 @@ void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const ch
     }
 }
 
-void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
+elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 {
     Elf32_Ehdr header;
     if(fread(&header, sizeof(Elf32_Ehdr), 1, f)!=1) {
@@ -275,6 +275,13 @@ void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
         h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
         printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
+    }
+    // grab .text for main code
+    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
+    if(ii) {
+        h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
+        h->textsz = h->SHEntries[ii].sh_size;
+        printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
     }
 
     LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);

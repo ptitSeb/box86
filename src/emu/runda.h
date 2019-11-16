@@ -90,6 +90,15 @@
                 ST0.d *= ED->sdword[0];
                 #endif
                 break;
+            case 2:     /* FICOM ST0, Ed int */
+                GET_ED;
+                fpu_fcom(emu, ED->sdword[0]);
+                break;
+            case 3:     /* FICOMP ST0, Ed int */
+                GET_ED;
+                fpu_fcom(emu, ED->sdword[0]);
+                fpu_do_pop(emu);
+                break;
             case 4:     /* FISUB ST0, Ed int */
                 GET_ED;
                 #ifdef USE_FLOAT
@@ -122,7 +131,5 @@
                 ST0.d = ED->sdword[0] / ST0.d;
                 #endif
                 break;
-            default:
-                goto _default;
         }
     }

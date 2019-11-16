@@ -32,6 +32,13 @@ lib_t *NewLibrarian(box86context_t* context)
 }
 void FreeLibrarian(lib_t **maplib)
 {
+    // should that be in reverse order?
+    for (int i=0; i<(*maplib)->libsz; ++i) {
+        FreeLibrary(&(*maplib)->libraries[i].lib);
+    }
+    free((*maplib)->libraries);
+    (*maplib)->libraries = NULL;
+
     if((*maplib)->mapsymbols) {
         kh_destroy(mapsymbols, (*maplib)->mapsymbols);
     }
@@ -44,12 +51,6 @@ void FreeLibrarian(lib_t **maplib)
     if((*maplib)->mapoffsets) {
         kh_destroy(mapoffsets, (*maplib)->mapoffsets);
     }
-    // should that be in reverse order?
-    for (int i=0; i<(*maplib)->libsz; ++i) {
-        FreeLibrary(&(*maplib)->libraries[i].lib);
-    }
-    free((*maplib)->libraries);
-    (*maplib)->libraries = NULL;
     (*maplib)->libsz = (*maplib)->libcap = 0;
 
     if((*maplib)->bridge)
@@ -58,6 +59,11 @@ void FreeLibrarian(lib_t **maplib)
     free(*maplib);
     *maplib = NULL;
 
+}
+
+box86context_t* GetLibrarianContext(lib_t* maplib)
+{
+    return maplib->context;
 }
 
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib)

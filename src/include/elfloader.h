@@ -8,16 +8,19 @@ typedef struct library_s library_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct box86context_s box86context_t;
 typedef struct x86emu_s x86emu_t;
+#ifdef DYNAREC
+typedef struct dynablocklist_s dynablocklist_t;
+#endif
 
-void* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
+elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
 const char* ElfName(elfheader_t* head);
 
 // return 0 if OK
 int CalcLoadAddr(elfheader_t* head);
-int AllocElfMemory(elfheader_t* head, int mainbin);
+int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
-int LoadElfMemory(FILE* f, elfheader_t* head);
+int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
 int RelocateElf(lib_t *maplib, elfheader_t* head);
 int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
@@ -37,6 +40,12 @@ int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);
 const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uint32_t* sz);
 void* GetGSBase(box86context_t *context);
-void* GetTLSBase(elfheader_t* h);
+int32_t GetTLSBase(elfheader_t* h);
+uint32_t GetTLSSize(elfheader_t* h);
+void* GetTLSPointer(box86context_t* context, elfheader_t* h);
+void* GetDTatOffset(box86context_t* context, int index, int offset);
+#ifdef DYNAREC
+dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
+#endif
 
 #endif //__ELF_LOADER_H_
