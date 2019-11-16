@@ -17,6 +17,7 @@
 #include "library.h"
 #include "x86emu.h"
 #include "box86stack.h"
+#include "callback.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -796,3 +797,35 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     return elf->blocks;
 }
 #endif
+
+typedef struct my_dl_phdr_info_s {
+    void*           dlpi_addr;
+    const char*     dlpi_name;
+    Elf32_Phdr*     dlpi_phdr;
+    int             dlpi_phnum;
+} my_dl_phdr_info_t;
+
+static int dl_iterate_phdr_callback(x86emu_t *emu, my_dl_phdr_info_t *info, size_t size, void* data)
+{
+    SetCallbackArg(emu, 0, info);
+    SetCallbackArg(emu, 1, (void*)size);
+    int ret = RunCallback(emu);
+    return ret;
+}
+
+EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
+    printf_log(LOG_INFO, "Warning: call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
+    x86emu_t* cbemu = AddSharedCallback(emu, (uintptr_t)F, 3, NULL, NULL, data, NULL);
+    box86context_t *context = GetEmuContext(emu);
+    for (int idx=0; idx<context->elfsize; ++idx) {
+        my_dl_phdr_info_t info;
+        info.dlpi_addr = GetBaseAddress(context->elfs[idx]);
+        info.dlpi_name = context->elfs[idx]->name;
+        info.dlpi_phdr = context->elfs[idx]->PHEntries;
+        info.dlpi_phnum = context->elfs[idx]->numPHEntries;
+        if(dl_iterate_phdr_callback(cbemu, &info, sizeof(info), data))
+            break;
+    }
+    FreeCallback(cbemu);
+    return 0;
+}
