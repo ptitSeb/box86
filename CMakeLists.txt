@@ -306,7 +306,12 @@ add_test(test12 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref12.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+add_test(test13 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test13 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref13.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
