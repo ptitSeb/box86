@@ -229,6 +229,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(1);
             break;
 
+        case 0x31:
+            INST_NAME("RDTSC");
+            CALL(ReadTSC, xEAX, 0);   // will return the u64 in x1:xEAX
+            MOV_REG(xEDX, x1);
+            break;
+
         
         #define GO(GETFLAGS, NO, YES)   \
             USEFLAG(1); \
