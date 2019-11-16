@@ -16,6 +16,8 @@
 #include "x87emu_private.h"
 #include "box86context.h"
 
+int my_setcontext(x86emu_t* emu, void* ucp);
+
 int Run(x86emu_t *emu, int step)
 {
     uint8_t opcode;
