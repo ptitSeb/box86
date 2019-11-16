@@ -64,7 +64,7 @@ DATA(argp_err_exit_status, 4)
 // argz_stringify   // Weak
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
-// asprintf // Weak
+GOM(asprintf, iFEppVV) // Weak
 // __asprintf
 GOM(__asprintf_chk, iFEpipVV)
 // __assert

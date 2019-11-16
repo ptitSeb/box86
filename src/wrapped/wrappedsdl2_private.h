@@ -542,7 +542,7 @@ GO(SDL_SetHint, iFpp)
 GO(SDL_SetHintWithPriority, iFppi)
 GO(SDL_SetMainReady, vFv)
 // SDL_SetMemoryFunctions
-// SDL_SetModState
+GO(SDL_SetModState, vFi)
 // SDL_SetPaletteColors
 // SDL_SetPixelFormatPalette
 GO(SDL_SetRelativeMouseMode, iFi)

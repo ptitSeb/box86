@@ -315,6 +315,17 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
 }
 EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
 
+EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    void* f = vasprintf;
+    return ((iFppp_t)f)(buff, fmt, emu->scratch);
+    #else
+    return vasprintf((char**)buff, (char*)fmt, V);
+    #endif
+}
+
 EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
