@@ -24,20 +24,7 @@ void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
 void* my_XSetIOErrorHandler(x86emu_t* t, XIOErrorHandler handler);
 void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler);
-
-EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
-{
-    printf_log(LOG_NONE, "BOX86: Error, called unimplemented XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
-    emu->quit = 1;
-    return NULL;
-}
-EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
-{
-    printf_log(LOG_NONE, "BOX86: Error, called unimplemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
-    emu->quit = 1;
-    return NULL;
-}
-
+typedef int (*WireToEventProc)(void*, void*, void*);
 typedef int(*EventHandler) (void*,void*,void*);
 int32_t my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg);
 
@@ -129,6 +116,8 @@ typedef struct x11_my_s {
     iFppu_t         XSetBackground;
     iFppu_t         XSetForeground;
     #endif
+    pFpip_t         XESetWireToEvent;
+    pFpip_t         XESetEventToWire;
 } x11_my_t;
 
 void* getX11My(library_t* lib)
@@ -155,6 +144,8 @@ void* getX11My(library_t* lib)
     GO(XSetBackground, iFppu_t)
     GO(XSetForeground, iFppu_t)
     #endif
+    GO(XESetWireToEvent, pFpip_t)
+    GO(XESetEventToWire, pFpip_t)
     #undef GO
     return my;
 }
@@ -657,3 +648,110 @@ EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* 
     return gc;
 }
 #endif
+
+#define GO(A)   \
+static x86emu_t* wire_to_event_cb_##A = NULL;   \
+static int my_WireToEvent_CB_##A (void* dpy, void* re, void* event) \
+{   \
+    if(!wire_to_event_cb_##A)   \
+        return 0;   \
+    SetCallbackArg(wire_to_event_cb_##A, 0, dpy); \
+    SetCallbackArg(wire_to_event_cb_##A, 1, re); \
+    SetCallbackArg(wire_to_event_cb_##A, 2, event); \
+    return RunCallback(wire_to_event_cb_##A);   \
+}   \
+static x86emu_t* event_to_wire_cb_##A = NULL;   \
+static int my_EventToWire_CB_##A(void* dpy, void* re, void* event)  \
+{ \
+    if(!event_to_wire_cb_##A)   \
+        return 0;   \
+    SetCallbackArg(event_to_wire_cb_##A, 0, dpy);   \
+    SetCallbackArg(event_to_wire_cb_##A, 1, re);    \
+    SetCallbackArg(event_to_wire_cb_##A, 2, event); \
+    return RunCallback(event_to_wire_cb_##A);   \
+}
+#define SUPERGO() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   
+
+SUPERGO()
+#undef GO
+static void* getNextWireToEvent(x86emu_t* emu)
+{
+    #define GO(A)   \
+    if(!wire_to_event_cb_##A) { \
+        wire_to_event_cb_##A = emu; \
+        return my_WireToEvent_CB_##A; \
+    }
+    SUPERGO()
+    return NULL;
+    #undef GO
+}
+static void* getNextEventToWire(x86emu_t* emu)
+{
+    #define GO(A)   \
+    if(!event_to_wire_cb_##A) { \
+        event_to_wire_cb_##A = emu; \
+        return my_EventToWire_CB_##A; \
+    }
+    SUPERGO()
+    return NULL;
+    #undef GO
+}
+
+EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
+{
+    printf_log(LOG_INFO, "BOX86: Warning, called partly implemented XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
+
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    void* ret = NULL;
+    // check if putting things back...
+    if(GetNativeFnc((uintptr_t)proc)) {
+        ret = my->XESetWireToEvent(display, event_number, GetNativeFnc((uintptr_t)proc));
+        //wire_to_event_cb = NULL;
+    } else {
+        x86emu_t *cb_emu = AddCallback(emu, (uintptr_t)proc, 3, NULL, NULL, NULL, NULL);
+        void* ptr = getNextWireToEvent(cb_emu);
+        if(!ptr) {
+            printf_log(LOG_NONE, "BOX86: Error, to many call to XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
+            emu->quit = 1;
+            return NULL;
+        }
+        ret = my->XESetWireToEvent(display, event_number, ptr);
+    }
+    uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
+    if(!b)
+        b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
+    return (void*)b;
+}
+EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
+{
+    printf_log(LOG_INFO, "BOX86: Warning, called party implemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
+    library_t * lib = GetLib(emu->context->maplib, libx11Name);
+    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    void* ret = NULL;
+    // check if putting things back...
+    if(GetNativeFnc((uintptr_t)proc)) {
+        ret = my->XESetEventToWire(display, event_number, GetNativeFnc((uintptr_t)proc));
+        //event_to_wire_cb = NULL;
+    } else {
+        x86emu_t *emu_cb = AddCallback(emu, (uintptr_t)proc, 3, NULL, NULL, NULL, NULL);
+        void* ptr = getNextEventToWire(emu_cb);
+        if(!ptr) {
+            printf_log(LOG_NONE, "BOX86: Error, to many call to XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
+            emu->quit = 1;
+            return NULL;
+        }
+        ret = my->XESetEventToWire(display, event_number, ptr);
+    }
+    uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
+    if(!b)
+        b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
+    return (void*)b;}
