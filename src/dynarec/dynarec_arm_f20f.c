@@ -140,6 +140,15 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             x87_restoreround(dyn, ninst, u8);
             break;
 
+        case 0x51:
+            INST_NAME("SQRTSD Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(d0);
+            VSQRT_F64(v0, d0);
+            break;
+
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;

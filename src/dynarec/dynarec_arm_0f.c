@@ -470,6 +470,17 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VSUBQ_F32(v0, v0, q0);
             break;
 
+        case 0x5E:
+            INST_NAME("DIVPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            q0 = fpu_get_reg_quad(dyn);
+            VRECPEQ_F32(q1, v1);
+            VRECPSQ_F32(q1, q1, v1);
+            VMULQ_F32(v0, v0, q1);
+            break;
+
         case 0x6B:
             INST_NAME("PACKSSDW Gm,Em");
             nextop = F8;

@@ -183,6 +183,24 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             x87_restoreround(dyn, ninst, u8);
             break;
 
+        case 0x51:
+            INST_NAME("SQRTSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            if(v0<16)
+                d1 = v0;
+            else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v0);
+            }
+            VSQRT_F32(d1*2, s0);
+            if(v0!=d1) {
+                VMOV_64(v0, d1);
+            }
+            break;
+
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;

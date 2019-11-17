@@ -521,6 +521,8 @@ Op is 20-27
 
 // Sqrt F64 Dd = - Dm
 #define VSQRT_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+// Sqrt F32 Dd = - Dm
+#define VSQRT_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b11<<20) | (0b0001<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
 // Abs Dd = |Dm|
 #define VABS_F64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
@@ -746,5 +748,13 @@ Op is 20-27
 #define VTBL1_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b00, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 // Vector Table lookup, take elements from Dn/Dn+1, and using lookup table Dm, put elements in Dd
 #define VTBL2_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b01, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRECPE_gen(D, size, Vd, F, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b010<<9 | (F)<<8 | (Q)<<6 | (M)<<5 | (Vm))
+// Vector Reciprocal Estimate of Dm to Dd
+#define VRECPEQ_F32(Dd, Dm) EMIT(VRECPE_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRECPS_gen(D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1111<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+// Vector Reciprocal Step of Dn and Dm to Dd
+#define VRECPSQ_F32(Dd, Dn, Dm) EMIT(VRECPS_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__
