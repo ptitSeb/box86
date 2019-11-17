@@ -87,7 +87,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xC8,    &&_0xC9,    &&_default, &&_default, &&_0xCC,    &&_0xCD,    &&_default, &&_default,  //0xC8-0xCF
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_default, &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
-    &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_default, &&_default, &&_default, &&_default,
+    &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_default, &&_0xE5,    &&_default, &&_default,
     &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_default, &&_default, &&_default,
     &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_0xF5,    &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_default, &&_default, &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
@@ -958,6 +958,11 @@ _trace:
                 ip += tmp8s;
                 STEP
             }
+            NEXT;
+
+        _0xE5:                      /* IN EAX, Ib */
+            tmp32s = F8;   // port address
+            R_EAX = 0;  // nothing... should do a warning maybe?
             NEXT;
 
         _0xE8:                      /* CALL Id */
