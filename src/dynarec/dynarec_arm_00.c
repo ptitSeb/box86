@@ -2186,6 +2186,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
+            if(addr+i32==0) {
+                *need_epilog = 1;
+                *ok = 0;
+                // something is wrong...
+            } else
             if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
                 BARRIER(2);
                 MOV32(x2, addr);

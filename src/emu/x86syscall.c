@@ -82,6 +82,7 @@ scwrap_t syscallwrap[] = {
     { 50, __NR_getegid, 0 },
     { 54, __NR_ioctl, 5 },
     { 55, __NR_fcntl, 3 },
+    { 60, __NR_umask, 1 },
     { 63, __NR_dup2, 2 },
     { 78, __NR_gettimeofday, 2 },
     { 83, __NR_symlink, 2 },
@@ -123,6 +124,7 @@ scwrap_t syscallwrap[] = {
     { 143, __NR_flock,  2 },
     { 162, __NR_nanosleep, 2 },
     { 172, __NR_prctl, 5 },
+    { 175, __NR_rt_sigprocmask, 4 },
     { 183, __NR_getcwd, 2 },
     { 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     { 191, __NR_ugetrlimit, 2 },
@@ -223,6 +225,15 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = waitpid((pid_t)R_EBX, (int*)R_ECX, (int)R_EDX);
             return;
 #endif
+        case 11: // sys_execve
+            {
+                char* prog = (char*)R_EBX;
+                char** argv = (char**)R_ECX;
+                char** envv = (char**)R_EDX;
+                printf_log(LOG_DUMP, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
+                R_EAX = execve((const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
+            }
+            return;
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
@@ -321,6 +332,24 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 174: // sys_rt_sigaction
             printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = 0;
+            return;
+        case 190:   // vfork
+            {
+                // lets duplicate the emu
+                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)emu->init_stack, emu->size_stack, 0);
+                SetupX86Emu(newemu);
+                CloneEmu(newemu, emu);
+                SetESP(newemu, R_ESP);
+                int r = vfork();
+                if(r) {
+                    SetEAX(newemu, r);
+                    DynaRun(newemu);
+                    r = GetEAX(newemu);
+                    FreeX86Emu(&newemu);
+                    exit(R_EAX);
+                }
+                R_EAX = r;
+            }
             return;
         case 195:
             {   
