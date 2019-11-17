@@ -17,6 +17,10 @@
 #ifndef __NR_olduname
 #include <sys/utsname.h>
 #endif
+#ifndef __NR_socketcall
+#include <linux/net.h>
+#include <sys/socket.h>
+#endif
 
 #include "debug.h"
 #include "box86stack.h"
@@ -29,6 +33,17 @@
 #include "myalign.h"
 #include "box86context.h"
 #include "callback.h"
+
+#ifndef __NR_socketcall
+//#ifndef SYS_RECVMMSG
+//#define SYS_RECVMMSG    19
+//#endif
+//#ifndef SYS_SENDMMSG
+//#define SYS_SENDMMSG    20
+//#endif
+int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags); // not always present, so used wrapped version
+#endif
+
 
 int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 
@@ -73,6 +88,10 @@ scwrap_t syscallwrap[] = {
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
     { 94, __NR_fchmod, 2 },
+    { 99, __NR_statfs, 2 },
+#ifdef __NR_socketcall
+    { 102, __NR_socketcall, 2 },
+#endif
 #ifdef __NR_newstat
     { 106, __NR_newstat, 2 },
 #else
@@ -215,6 +234,40 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uintptr_t)mmap((void*)st->addr, st->len, st->prot, st->flags, st->fd, st->offset);
             }
             return;
+#ifndef __NR_socketcall
+        case 102: {
+                unsigned long *args = (unsigned long *)R_ECX;
+                // need to do all call "by hand"
+                switch(R_EBX) {
+                    case SYS_SOCKET: R_EAX = socket(args[0], args[1], args[2]); break;
+                    case SYS_BIND: R_EAX = bind(args[0], (void*)args[1], args[2]); break;
+                    case SYS_CONNECT: R_EAX = connect(args[0], (void*)args[1], args[2]); break;
+                    case SYS_LISTEN: R_EAX = listen(args[0], args[1]); break;
+                    case SYS_ACCEPT: R_EAX = accept(args[0], (void*)args[1], (void*)args[2]); break;
+                    case SYS_GETSOCKNAME: R_EAX = getsockname(args[0], (void*)args[1], (void*)args[2]); break;
+                    case SYS_GETPEERNAME: R_EAX = getpeername(args[0], (void*)args[1], (void*)args[2]); break;
+                    case SYS_SOCKETPAIR: R_EAX = socketpair(args[0], args[1], args[2], (int*)args[3]); break;
+                    case SYS_SEND: R_EAX = send(args[0], (void*)args[1], args[2], args[3]); break;
+                    case SYS_RECV: R_EAX = recv(args[0], (void*)args[1], args[2], args[3]); break;
+                    case SYS_SENDTO: R_EAX = sendto(args[0], (void*)args[1], args[2], args[3], (void*)args[4], args[5]); break;
+                    case SYS_RECVFROM: R_EAX = recvfrom(args[0], (void*)args[1], args[2], args[3], (void*)args[4], (void*)args[5]); break;
+                    case SYS_SHUTDOWN: R_EAX = shutdown(args[0], args[1]); break;
+                    case SYS_SETSOCKOPT: R_EAX = setsockopt(args[0], args[1], args[2], (void*)args[3], args[4]); break;
+                    case SYS_GETSOCKOPT: R_EAX = getsockopt(args[0], args[1], args[2], (void*)args[3], (void*)args[4]); break;
+                    case SYS_SENDMSG: R_EAX = sendmsg(args[0], (void*)args[1], args[2]); break;
+                    case SYS_RECVMSG: R_EAX = recvmsg(args[0], (void*)args[1], args[2]); break;
+                    case SYS_ACCEPT4: R_EAX = my_accept4(emu, args[0], (void*)args[1], (void*)args[2], args[3]); break;
+                    #ifdef SYS_RECVMMSG
+                    // TODO: Create my_ version of recvmmsg and sendmmsg
+                    case SYS_RECVMMSG: R_EAX = recvmmsg(args[0], (void*)args[1], args[2], args[3], (void*)args[4]); break;
+                    case SYS_SENDMMSG: R_EAX = sendmmsg(args[0], (void*)args[1], args[2], args[3]); break;
+                    #endif
+                    default:
+                        R_EAX = -1;
+                }
+            }
+            return;
+#endif
         case 120:   // clone
             {
                 //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
