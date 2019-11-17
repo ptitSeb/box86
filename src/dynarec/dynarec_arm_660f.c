@@ -408,6 +408,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VZIPQ_32(v0, q1);
             break;
 
+        case 0x64:
+            INST_NAME("PCMPGTB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VCGTQ_S8(v0, v0, v1);
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VCGTQ_S16(v0, v0, v1);
+            break;
         case 0x66:
             INST_NAME("PCMPGTD Gx,Ex");
             nextop = F8;
@@ -415,7 +429,18 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(v1);
             VCGTQ_S32(v0, v0, v1);
             break;
-
+        case 0x67:
+            INST_NAME("PACKUSWB Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VQMOVN_U16(v0, v0);
+            if(v0==v1) {
+                VMOVD(v0+1, v0);
+            } else {
+                VQMOVN_U16(v0+1, v1);
+            }
+            break;
         case 0x68:
             INST_NAME("PUNPCKHBW Gx,Ex");
             nextop = F8;
@@ -437,6 +462,18 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VZIP_16(v0, v0+1);
             break;
 
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VQMOVN_S32(v0, v0);
+            if(v0==v1) {
+                VMOVD(v0+1, v0);
+            } else {
+                VQMOVN_S32(v0+1, v1);
+            }
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;

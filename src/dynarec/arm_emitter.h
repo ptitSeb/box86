@@ -734,6 +734,12 @@ Op is 20-27
 #define VQMOVN_S32(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0b10, ((Dm)>>4)&1, (Dm)&15))
 // Vector Saturating Move and Narrow, for 64 bits signed integer (Dm is Qm in fact)
 #define VQMOVN_S64(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0b10, ((Dm)>>4)&1, (Dm)&15))
+// Vector Saturating Move and Narrow, for 16 bits unsigned integer (Dm is Qm in fact)
+#define VQMOVN_U16(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+// Vector Saturating Move and Narrow, for 32 bits signed integer (Dm is Qm in fact)
+#define VQMOVN_U32(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+// Vector Saturating Move and Narrow, for 64 bits signed integer (Dm is Qm in fact)
+#define VQMOVN_U64(Dd, Dm)  EMIT(VQMOVN_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
 
 #define VTBL_gen(D, Vn, Vd, len, N, op, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (Vn)<<16 | (Vd)<<12 | 0b10<<10 | (len)<<8 | (N)<<7 | (op)<<6 | (M)<<5 | (Vm))
 // Vector Table lookup, take elements from Dn, and using lookup table Dm, put elements in Dd
