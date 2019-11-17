@@ -90,7 +90,7 @@ box86context_t *NewBox86Context(int argc)
     context->callbacks = NewCallbackList();
 
     context->argc = argc;
-    context->argv = (char**)calloc(context->argc, sizeof(char*));
+    context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
     pthread_mutex_init(&context->mutex_once, NULL);
     pthread_mutex_init(&context->mutex_once2, NULL);
