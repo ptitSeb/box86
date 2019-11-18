@@ -13,7 +13,7 @@
 int CalcStackSize(box86context_t *context)
 {
     printf_log(LOG_DEBUG, "Calc stack size, based on %d elf(s)\n", context->elfsize);
-    context->stacksz = 1024; context->stackalign=4;
+    context->stacksz = 8*1024*1024; context->stackalign=4;
     for (int i=0; i<context->elfsize; ++i)
         CalcStack(context->elfs[i], &context->stacksz, &context->stackalign);
 
