@@ -158,6 +158,7 @@ int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 		return ret;
 	}
 }
+EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 
 EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 {

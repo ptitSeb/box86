@@ -65,7 +65,7 @@ DATA(argp_err_exit_status, 4)
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
 GOM(asprintf, iFEppVV) // Weak
-// __asprintf
+GOM(__asprintf, iFEppVV)
 GOM(__asprintf_chk, iFEpipVV)
 // __assert
 GO(__assert_fail, vFppup)
@@ -1034,7 +1034,7 @@ GO(lockf64, iFiiI)
 GOM(longjmp, vFEpi)
 GOM(_longjmp, vFEpi)
 GOM(__longjmp_chk, vFEpi)
-// lrand48
+GO(lrand48, iFv)
 // lrand48_r
 GO(lremovexattr, iFpp)
 GOM(lsearch, pFEpppup)

@@ -324,6 +324,8 @@ EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list
     return vasprintf((char**)buff, (char*)fmt, V);
     #endif
 }
+EXPORT int my___asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
+
 
 EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
     #ifndef NOALIGN

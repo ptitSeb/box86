@@ -23,6 +23,7 @@ int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, v
 int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor);
 int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor);
 int my_pthread_once(x86emu_t* emu, void* once, void* cb);
+int my___pthread_once(x86emu_t* emu, void* once, void* cb);
 int my_pthread_cond_broadcast(x86emu_t* emu, void* cond);
 int my_pthread_cond_destroy(x86emu_t* emu, void* cond);
 int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr);
