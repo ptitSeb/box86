@@ -1089,7 +1089,7 @@ GO(memmem, pFpupu)
 GO(memmove, pFppu)
 GO(__memmove_chk, pFppuu)
 GO(mempcpy, pFppu)
-// __mempcpy
+GO(__mempcpy, pFppu)
 // __mempcpy_chk
 // __mempcpy_small
 GOW(memrchr, pFpiu)
@@ -2067,7 +2067,7 @@ GOW(writev, iFipi)
 // xdr_string
 // xdr_u_char
 // xdr_u_hyper
-// xdr_u_int
+GO(xdr_u_int, iFpp)
 // xdr_uint16_t
 // xdr_uint32_t
 // xdr_uint64_t
@@ -2115,6 +2115,7 @@ GOM(_ITM_deregisterTMCloneTable, vFEp)
 
 GOM(__umoddi3, UFUU)
 GOM(__udivdi3, UFUU)
+GOM(__divdi3, IFII)
 GOM(__poll_chk, iFpuii)
 
 GO2(fallocate64, iFiII, posix_fallocate64)

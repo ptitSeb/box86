@@ -983,6 +983,10 @@ EXPORT uint64_t my___udivdi3(uint64_t a, uint64_t b)
 {
     return a/b;
 }
+EXPORT int64_t my___divdi3(int64_t a, int64_t b)
+{
+    return a/b;
+}
 
 EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 {
