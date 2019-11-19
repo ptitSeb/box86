@@ -182,11 +182,13 @@ void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
 void* my_XVaCreateNestedList(int dummy, void* p);
 
 #define CUSTOM_INIT \
+    box86->x11lib = lib; \
     lib->priv.w.p2 = getX11My(lib);
 
 #define CUSTOM_FINI \
     freeX11My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    free(lib->priv.w.p2);   \
+    ((box86context_t*)(lib->context))->x11lib = NULL; \
 
 #include "wrappedlib_init.h"
 
@@ -230,8 +232,8 @@ static int my_closedisplay_callback(void* display, void* codes)
 
 EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     void* ret = NULL;
     XErrorHandler old = NULL;
@@ -258,8 +260,8 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 
 EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     if(ioerrorhandlercb) { FreeCallback(ioerrorhandlercb); ioerrorhandlercb=NULL;}
     x86emu_t *cb = NULL;
     void* ret;
@@ -281,8 +283,8 @@ EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
 
 EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     void* ret;
     void* old = NULL;
@@ -303,8 +305,8 @@ EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void
 
 EXPORT void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     void* ret;
     void* old = NULL;
@@ -333,8 +335,8 @@ int32_t xifevent_callback(void* dpy, void *event, void* arg)
 
 EXPORT int32_t my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     cb = AddSharedCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
     int32_t ret = my->XIfEvent(d, ev, xifevent_callback, (void*)cb);
@@ -344,8 +346,8 @@ EXPORT int32_t my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void
 
 EXPORT int32_t my_XCheckIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     cb = AddSharedCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
     int32_t ret = my->XCheckIfEvent(d, ev, xifevent_callback, (void*)cb);
@@ -355,8 +357,8 @@ EXPORT int32_t my_XCheckIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h,
 
 EXPORT int32_t my_XPeekIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     x86emu_t *cb = NULL;
     cb = AddSharedCallback(emu, (uintptr_t)h, 3, NULL, NULL, arg, NULL);
     int32_t ret = my->XPeekIfEvent(d, ev, xifevent_callback, (void*)cb);
@@ -420,8 +422,8 @@ void sub_image_wrapper(x86emu_t *emu, uintptr_t fnc)
 EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     XImage *img = my->XCreateImage(disp, vis, depth, fmt, off, data, w, h, pad, bpl);
     if(!img)
@@ -433,8 +435,8 @@ EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t dept
 
 EXPORT int32_t my_XInitImage(x86emu_t* emu, void* img)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     int ret = my->XInitImage(img);
     // bridge all access functions...
@@ -445,8 +447,8 @@ EXPORT int32_t my_XInitImage(x86emu_t* emu, void* img)
 EXPORT void* my_XGetImage(x86emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     XImage *img = my->XGetImage(disp, drawable, x, y, w, h, plane, fmt);
     if(!img)
@@ -460,9 +462,8 @@ EXPORT int32_t my_XPutImage(x86emu_t* emu, void* disp, void* drawable, void* gc,
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
-
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     UnbridgeImageFunc(emu, (XImage*)image);
     int32_t r = my->XPutImage(disp, drawable, gc, image, src_x, src_y, dst_x, dst_y, w, h);
     // bridge all access functions...
@@ -475,8 +476,8 @@ EXPORT void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     UnbridgeImageFunc(emu, (XImage*)image);
     XImage *img = my->XGetSubImage(disp, drawable, x, y, w, h, plane, fmt, image, dst_x, dst_y);
@@ -489,8 +490,8 @@ EXPORT void* my_XGetSubImage(x86emu_t* emu, void* disp, void* drawable
 
 EXPORT void my_XDestroyImage(x86emu_t* emu, void* image)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     UnbridgeImageFunc(emu, (XImage*)image);
     my->XDestroyImage(image);
@@ -524,8 +525,8 @@ static int my_XInternalAsyncHandler(void* dpy, void* rep, void* buf, int len, vo
 
 EXPORT void my__XDeqAsyncHandler(x86emu_t* emu, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     if(!data) {
         my->_XDeqAsyncHandler(cb, data);
@@ -560,8 +561,8 @@ EXPORT void* my_XVaCreateNestedList(int dummy, void* b)
 EXPORT void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name)
 {
     // basic font substitution...
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     if(strcmp(name, "9x15")==0)
         return my->XLoadQueryFont(d, "6x13");
@@ -580,16 +581,16 @@ static uint32_t recode32to16(uint32_t c)
 }
 EXPORT int32_t my_XSetBackground(x86emu_t* emu, void* d, void* gc, uint32_t c)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     if(x11color16)
         c = recode32to16(c);
     return my->XSetBackground(d, gc, c);
 }
 EXPORT int32_t my_XSetForeground(x86emu_t* emu, void* d, void* gc, uint32_t c)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     if(x11color16)
         c = recode32to16(c);
     return my->XSetForeground(d, gc, c);
@@ -622,8 +623,8 @@ typedef struct XGCValues_s {
 
 EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* vs)
 {
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     int setfore = 0;
     int setback = 0;
@@ -709,8 +710,8 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 {
     printf_log(LOG_INFO, "BOX86: Warning, called partly implemented XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
 
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     void* ret = NULL;
     // check if putting things back...
     if(GetNativeFnc((uintptr_t)proc)) {
@@ -734,8 +735,8 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
     printf_log(LOG_INFO, "BOX86: Warning, called party implemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
-    library_t * lib = GetLib(emu->context->maplib, libx11Name);
-    x11_my_t *my = (x11_my_t*)lib->priv.w.p2;
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     void* ret = NULL;
     // check if putting things back...
     if(GetNativeFnc((uintptr_t)proc)) {
