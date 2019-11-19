@@ -48,3 +48,4 @@ GO(pa_simple_write, iFppip)
 //GO(pa_threaded_mainloop_wait, 
 //GO(pa_xfree, 
 //GO(pa_xmalloc, 
+GO(pa_strerror, pFi)    // this one seems to comes from the "full" pulseaudio lib
