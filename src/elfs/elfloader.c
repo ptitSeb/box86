@@ -222,9 +222,11 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 // Negated offset in static TLS block
                 {
                     elfheader_t *h = GetGlobalSymbolElf(maplib, symname);
-                    delta = *(int*)p;
-                    printf_log(LOG_DEBUG, "Applying %s on %s @%p (%d -> %d)\n", DumpRelType(t), symname, p, delta, (int32_t)offs + h->tlsbase);
-                    *p = (uint32_t)((int32_t)offs + h->tlsbase);
+                    if(h) {
+                        delta = *(int*)p;
+                        printf_log(LOG_DEBUG, "Applying %s on %s @%p (%d -> %d)\n", DumpRelType(t), symname, p, delta, (int32_t)offs + h->tlsbase);
+                        *p = (uint32_t)((int32_t)offs + h->tlsbase);
+                    }
                 }
                 break;
             case R_386_PC32:

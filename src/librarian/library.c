@@ -87,38 +87,43 @@ void EmuLib_Fini(library_t* lib)
 int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
 {
     khint_t k;
+    // symbols...
     k = kh_get(mapsymbols, lib->priv.n.mapsymbols, name);
-    if(k==kh_end(lib->priv.n.mapsymbols)) {
-        k = kh_get(mapsymbols, lib->priv.n.weaksymbols, name);
-        if(k==kh_end(lib->priv.n.weaksymbols))
-            return 0;
+    if(k!=kh_end(lib->priv.n.mapsymbols)) {
+        *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
+        *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
+        return *offs;
+    }
+    // weak symbols...
+    k = kh_get(mapsymbols, lib->priv.n.weaksymbols, name);
+    if(k!=kh_end(lib->priv.n.weaksymbols)) {
         *offs = kh_value(lib->priv.n.weaksymbols, k).offs;
         *sz = kh_value(lib->priv.n.weaksymbols, k).sz;
         return *offs;
     }
-    *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
-    *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
-    return *offs;
+    return 0;
 }
 int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
 {
     khint_t k;
     k = kh_get(mapsymbols, lib->priv.n.mapsymbols, name);
-    if(k==kh_end(lib->priv.n.mapsymbols))
-        return 0;
-    *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
-    *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
-    return *offs;
+    if(k!=kh_end(lib->priv.n.mapsymbols)) {
+        *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
+        *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
+        return *offs;
+    }
+    return 0;
 }
 int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
 {
     khint_t k;
     k = kh_get(mapsymbols, lib->priv.n.localsymbols, name);
-    if(k==kh_end(lib->priv.n.localsymbols))
-        return 0;
-    *offs = kh_value(lib->priv.n.localsymbols, k).offs;
-    *sz = kh_value(lib->priv.n.localsymbols, k).sz;
-    return *offs;
+    if(k!=kh_end(lib->priv.n.localsymbols)) {
+        *offs = kh_value(lib->priv.n.localsymbols, k).offs;
+        *sz = kh_value(lib->priv.n.localsymbols, k).sz;
+        return *offs;
+    }
+    return 0;
 }
 
 int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)

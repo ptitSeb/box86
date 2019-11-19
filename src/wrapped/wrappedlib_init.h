@@ -150,8 +150,8 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
             k = kh_put(datamap, lib->wdatamap, MAPNAME(datamap)[i].name, &ret);
             kh_value(lib->wdatamap, k) = MAPNAME(datamap)[i].sz;
         } else {
-            k = kh_put(datamap, lib->wdatamap, MAPNAME(datamap)[i].name, &ret);
-            kh_value(lib->wdatamap, k) = MAPNAME(datamap)[i].sz;
+            k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
+            kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
         }
     }
     cnt = sizeof(MAPNAME(mydatamap))/sizeof(map_onedata_t);
