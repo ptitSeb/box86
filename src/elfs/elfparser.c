@@ -103,7 +103,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         printf_log(LOG_INFO, "Program Header Entry size incorrect (%d != %d)\n", header.e_phentsize, sizeof(Elf32_Phdr));
         return NULL;
     }
-    if(header.e_shentsize != sizeof(Elf32_Shdr)) {
+    if(header.e_shentsize != sizeof(Elf32_Shdr) && header.e_shentsize != 0) {
         printf_log(LOG_INFO, "Section Header Entry size incorrect (%d != %d)\n", header.e_shentsize, sizeof(Elf32_Shdr));
         return NULL;
     }
@@ -114,33 +114,35 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     h->numPHEntries = header.e_phnum;
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
-    // special cases for nums
-    if(h->numSHEntries == 0) {
-        printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
-        // read 1st section header and grab actual number from here
-        fseek(f, header.e_shoff, SEEK_SET);
-        Elf32_Shdr section;
-        if(fread(&section, sizeof(Elf32_Shdr), 1, f)!=1) {
-            free(h);
-            printf_log(LOG_INFO, "Cannot read Initial Section Header\n");
-            return NULL;
+    if(header.e_shentsize!=0) {
+        // special cases for nums
+        if(h->numSHEntries == 0) {
+            printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
+            // read 1st section header and grab actual number from here
+            fseek(f, header.e_shoff, SEEK_SET);
+            Elf32_Shdr section;
+            if(fread(&section, sizeof(Elf32_Shdr), 1, f)!=1) {
+                free(h);
+                printf_log(LOG_INFO, "Cannot read Initial Section Header\n");
+                return NULL;
+            }
+            h->numSHEntries = section.sh_size;
         }
-        h->numSHEntries = section.sh_size;
-    }
-    // now read all section headers
-    printf_log(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
-    h->SHEntries = (Elf32_Shdr*)calloc(h->numSHEntries, sizeof(Elf32_Shdr));
-    fseek(f, header.e_shoff ,SEEK_SET);
-    if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
-            FreeElfHeader(&h);
-            printf_log(LOG_INFO, "Cannot read all Section Header\n");
-            return NULL;
-    }
+        // now read all section headers
+        printf_log(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
+        h->SHEntries = (Elf32_Shdr*)calloc(h->numSHEntries, sizeof(Elf32_Shdr));
+        fseek(f, header.e_shoff ,SEEK_SET);
+        if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
+                FreeElfHeader(&h);
+                printf_log(LOG_INFO, "Cannot read all Section Header\n");
+                return NULL;
+        }
 
-    if(h->numPHEntries == PN_XNUM) {
-        printf_log(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
-        // read 1st section header and grab actual number from here
-        h->numPHEntries = h->SHEntries[0].sh_info;
+        if(h->numPHEntries == PN_XNUM) {
+            printf_log(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
+            // read 1st section header and grab actual number from here
+            h->numPHEntries = h->SHEntries[0].sh_info;
+        }
     }
 
     printf_log(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
@@ -152,141 +154,143 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             return NULL;
     }
 
-    if(h->SHIdx == SHN_XINDEX) {
-        printf_log(LOG_DEBUG, "Read number of String Table in 1st Section\n");
-        h->SHIdx = h->SHEntries[0].sh_link;
-    }
-    if(h->SHIdx > h->numSHEntries) {
-        printf_log(LOG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
-        FreeElfHeader(&h);
-        return NULL;
-    }
-    // load Section table
-    printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
-    if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
-        FreeElfHeader(&h);
-        return NULL;
-    }
-    if(box86_log>=LOG_DUMP) DumpMainHeader(&header, h);
+    if(header.e_shentsize!=0) {
+        if(h->SHIdx == SHN_XINDEX) {
+            printf_log(LOG_DEBUG, "Read number of String Table in 1st Section\n");
+            h->SHIdx = h->SHEntries[0].sh_link;
+        }
+        if(h->SHIdx > h->numSHEntries) {
+            printf_log(LOG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
+            FreeElfHeader(&h);
+            return NULL;
+        }
+        // load Section table
+        printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
+        if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
+            FreeElfHeader(&h);
+            return NULL;
+        }
+        if(box86_log>=LOG_DUMP) DumpMainHeader(&header, h);
 
-    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
-    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab, &h->numSymTab);
-    if(box86_log>=LOG_DUMP && h->SymTab) DumpSymTab(h);
+        LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
+        LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab, &h->numSymTab);
+        if(box86_log>=LOG_DUMP && h->SymTab) DumpSymTab(h);
 
-    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
-    if(box86_log>=LOG_DUMP && h->Dynamic) DumpDynamicSections(h);
-    // grab DT_REL & DT_RELA stuffs
-    // also grab the DT_STRTAB string table
-    {
-        for (int i=0; i<h->numDynamic; ++i) {
-            if(h->Dynamic[i].d_tag == DT_REL)
-                h->rel = h->Dynamic[i].d_un.d_ptr;
-            else if(h->Dynamic[i].d_tag == DT_RELSZ)
-                h->relsz = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_RELENT)
-                h->relent = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_RELA)
-                h->rela = h->Dynamic[i].d_un.d_ptr;
-            else if(h->Dynamic[i].d_tag == DT_RELASZ)
-                h->relasz = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_RELAENT)
-                h->relaent = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_PLTREL)
-                h->pltrel = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)
-                h->pltsz = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_JMPREL)
-                h->jmprel = h->Dynamic[i].d_un.d_val;
-            else if(h->Dynamic[i].d_tag == DT_STRTAB)
-                h->DynStrTab = (char*)(h->Dynamic[i].d_un.d_ptr);
-            else if(h->Dynamic[i].d_tag == DT_STRSZ)
-                h->szDynStrTab = h->Dynamic[i].d_un.d_val;
-        }
-        if(h->rel) {
-            if(h->relent != sizeof(Elf32_Rel)) {
-                printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf32_Rel));
-                FreeElfHeader(&h);
-                return NULL;
+        LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
+        if(box86_log>=LOG_DUMP && h->Dynamic) DumpDynamicSections(h);
+        // grab DT_REL & DT_RELA stuffs
+        // also grab the DT_STRTAB string table
+        {
+            for (int i=0; i<h->numDynamic; ++i) {
+                if(h->Dynamic[i].d_tag == DT_REL)
+                    h->rel = h->Dynamic[i].d_un.d_ptr;
+                else if(h->Dynamic[i].d_tag == DT_RELSZ)
+                    h->relsz = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_RELENT)
+                    h->relent = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_RELA)
+                    h->rela = h->Dynamic[i].d_un.d_ptr;
+                else if(h->Dynamic[i].d_tag == DT_RELASZ)
+                    h->relasz = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_RELAENT)
+                    h->relaent = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_PLTREL)
+                    h->pltrel = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)
+                    h->pltsz = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_JMPREL)
+                    h->jmprel = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_STRTAB)
+                    h->DynStrTab = (char*)(h->Dynamic[i].d_un.d_ptr);
+                else if(h->Dynamic[i].d_tag == DT_STRSZ)
+                    h->szDynStrTab = h->Dynamic[i].d_un.d_val;
             }
-            printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
-        }
-        if(h->rela) {
-            if(h->relaent != sizeof(Elf32_Rela)) {
-                printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf32_Rela));
-                FreeElfHeader(&h);
-                return NULL;
+            if(h->rel) {
+                if(h->relent != sizeof(Elf32_Rel)) {
+                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf32_Rel));
+                    FreeElfHeader(&h);
+                    return NULL;
+                }
+                printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
             }
-            printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
-        }
-        if(h->jmprel) {
-            if(h->pltrel == DT_REL) {
-                h->pltent = sizeof(Elf32_Rel);
-            } else if(h->pltrel == DT_RELA) {
-                h->pltent = sizeof(Elf32_Rela);
-            } else {
-                printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
-                FreeElfHeader(&h);
-                return NULL;
+            if(h->rela) {
+                if(h->relaent != sizeof(Elf32_Rela)) {
+                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf32_Rela));
+                    FreeElfHeader(&h);
+                    return NULL;
+                }
+                printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
             }
-            if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
-                printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
-                FreeElfHeader(&h);
-                return NULL;
+            if(h->jmprel) {
+                if(h->pltrel == DT_REL) {
+                    h->pltent = sizeof(Elf32_Rel);
+                } else if(h->pltrel == DT_RELA) {
+                    h->pltent = sizeof(Elf32_Rela);
+                } else {
+                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
+                    FreeElfHeader(&h);
+                    return NULL;
+                }
+                if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
+                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
+                    FreeElfHeader(&h);
+                    return NULL;
+                }
+                printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
             }
-            printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
+            if(h->DynStrTab && h->szDynStrTab) {
+                //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
+            }
         }
-        if(h->DynStrTab && h->szDynStrTab) {
-            //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
+        // look for PLT Offset
+        int ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got.plt");
+        if(ii) {
+            h->gotplt = h->SHEntries[ii].sh_addr;
+            printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
         }
-    }
-    // look for PLT Offset
-    int ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got.plt");
-    if(ii) {
-        h->gotplt = h->SHEntries[ii].sh_addr;
-        printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
-    }
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
-    if(ii) {
-        h->got = h->SHEntries[ii].sh_addr;
-        printf_log(LOG_DEBUG, "The GOT Table is at address %p\n", (void*)h->got);
-    }
-    // look for .init entry point
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init");
-    if(ii) {
-        h->initentry = h->SHEntries[ii].sh_addr;
-        printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
-    }
-    // and .init_array
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init_array");
-    if(ii) {
-        h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
-        h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-        printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %d elements\n", (void*)h->initarray, h->initarray_sz);
-    }
-    // look for .fini entry point
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
-    if(ii) {
-        h->finientry = h->SHEntries[ii].sh_addr;
-        printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
-    }
-    // and .fini_array
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini_array");
-    if(ii) {
-        h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
-        h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-        printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
-    }
-    // grab .text for main code
-    ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
-    if(ii) {
-        h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
-        h->textsz = h->SHEntries[ii].sh_size;
-        printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
-    }
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
+        if(ii) {
+            h->got = h->SHEntries[ii].sh_addr;
+            printf_log(LOG_DEBUG, "The GOT Table is at address %p\n", (void*)h->got);
+        }
+        // look for .init entry point
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init");
+        if(ii) {
+            h->initentry = h->SHEntries[ii].sh_addr;
+            printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
+        }
+        // and .init_array
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init_array");
+        if(ii) {
+            h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
+            h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %d elements\n", (void*)h->initarray, h->initarray_sz);
+        }
+        // look for .fini entry point
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
+        if(ii) {
+            h->finientry = h->SHEntries[ii].sh_addr;
+            printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
+        }
+        // and .fini_array
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini_array");
+        if(ii) {
+            h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
+            h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
+        }
+        // grab .text for main code
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
+        if(ii) {
+            h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            h->textsz = h->SHEntries[ii].sh_size;
+            printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
+        }
 
-    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
-    LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
-    if(box86_log>=LOG_DUMP && h->DynSym) DumpDynSym(h);
-
+        LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
+        LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
+        if(box86_log>=LOG_DUMP && h->DynSym) DumpDynSym(h);
+    }
+    
     return h;
 }
