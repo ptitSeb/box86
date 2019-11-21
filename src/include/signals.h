@@ -22,4 +22,6 @@ sighandler_t my_sysv_signal(x86emu_t* emu, int signum, sighandler_t handler);
 int my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
 int my___sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
 
+int my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact, int sigsetsize);
+
 #endif //__SIGNALS_H__

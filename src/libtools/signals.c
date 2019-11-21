@@ -9,6 +9,7 @@
 #include "emu/x86emu_private.h"
 #include "signals.h"
 #include "box86stack.h"
+#include "dynarec.h"
 
 
 static box86context_t *context = NULL;  // global context, because signals are globals?
@@ -109,18 +110,21 @@ typedef struct i386_ucontext_s
 
 void my_sighandler(int32_t sig)
 {
+    pthread_mutex_unlock(&context->mutex_trace);   // just in case
+    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
     Push32(context->signal_emu, sig);
-    EmuCall(context->signal_emu, context->signals[sig]);
+    DynaCall(context->signal_emu, context->signals[sig]);
     Pop32(context->signal_emu);
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
+    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
     Push32(context->signal_emu, (uintptr_t)ucntx);  // WRONG!!!
     Push32(context->signal_emu, (uintptr_t)sigi);
     Push32(context->signal_emu, sig);
-    EmuCall(context->signal_emu, context->signals[sig]);
+    DynaCall(context->signal_emu, context->signals[sig]);
     Pop32(context->signal_emu);
     Pop32(context->signal_emu);
     Pop32(context->signal_emu);
@@ -200,6 +204,48 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
 }
 int EXPORT my___sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact)
 __attribute__((alias("my_sigaction")));
+
+int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact, int sigsetsize)
+{
+    printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d\n", signum, act, oldact, sigsetsize);
+    if(signum<0 || signum>=MAX_SIGNAL)
+        return -1;
+    
+    if(signum==SIGSEGV && emu->context->no_sigsegv)
+        return 0;
+
+    CheckSignalContext(emu);
+
+    struct sigaction newact;
+    struct sigaction old;
+    if(act) {
+        newact.sa_mask = act->sa_mask;
+        newact.sa_flags = act->sa_flags;
+        if(act->sa_flags&0x04) {
+            if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                newact.sa_sigaction = my_sigactionhandler;
+            }
+        } else {
+            if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                newact.sa_handler = my_sighandler;
+            }
+        }
+    }
+    int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    if(oldact) {
+        oldact->sa_flags = old.sa_flags;
+        oldact->sa_mask = old.sa_mask;
+        if(old.sa_flags & 0x04)
+            oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
+        else
+            oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
+    }
+    
+    return ret;
+}
+
 
 EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
 {

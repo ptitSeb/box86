@@ -33,6 +33,7 @@
 #include "myalign.h"
 #include "box86context.h"
 #include "callback.h"
+#include "signals.h"
 
 #ifndef __NR_socketcall
 //#ifndef SYS_RECVMMSG
@@ -46,6 +47,8 @@ int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags); 
 
 
 int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
+int of_convert(int flag);
+int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
@@ -58,7 +61,7 @@ scwrap_t syscallwrap[] = {
     { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     { 3, __NR_read, 3 },
     { 4, __NR_write, 3 },
-    { 5, __NR_open, 3 },
+    //{ 5, __NR_open, 3 },  // flags need transformation
     { 6, __NR_close, 1 },
 #ifdef __NR_waitpid
     { 7, __NR_waitpid, 3 },
@@ -84,6 +87,8 @@ scwrap_t syscallwrap[] = {
     { 55, __NR_fcntl, 3 },
     { 60, __NR_umask, 1 },
     { 63, __NR_dup2, 2 },
+    { 64, __NR_getppid, 0 },
+    { 75, __NR_setrlimit, 2 },
     { 78, __NR_gettimeofday, 2 },
     { 83, __NR_symlink, 2 },
     { 85, __NR_readlink, 3 },
@@ -93,6 +98,8 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_socketcall
     { 102, __NR_socketcall, 2 },
 #endif
+    { 104, __NR_setitimer, 3 },
+    { 105, __NR_getitimer, 2 },
 #ifdef __NR_newstat
     { 106, __NR_newstat, 2 },
 #else
@@ -122,16 +129,25 @@ scwrap_t syscallwrap[] = {
     { 142, __NR_select, 5 },
 #endif
     { 143, __NR_flock,  2 },
+    { 149, __NR__sysctl, 1 },    // need wrapping?
+    { 158, __NR_sched_yield, 0 },
     { 162, __NR_nanosleep, 2 },
+    { 168, __NR_poll, 3 },
     { 172, __NR_prctl, 5 },
     { 175, __NR_rt_sigprocmask, 4 },
+    { 179, __NR_rt_sigsuspend, 2 },
     { 183, __NR_getcwd, 2 },
     { 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     { 191, __NR_ugetrlimit, 2 },
     { 192, __NR_mmap2, 6},
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
+    { 199, __NR_getuid32, 0 },
+    { 200, __NR_getgid32, 0 },
+    { 201, __NR_geteuid32, 0 },
+    { 202, __NR_getegid32, 0 },
     { 220, __NR_getdents64, 3 },
+    { 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
@@ -185,8 +201,10 @@ struct old_utsname {
 int clone_fn(void* arg)
 {
     x86emu_t *emu = (x86emu_t*)arg;
-    int ret = (int)RunCallback(emu);
-    FreeCallback(emu);
+    R_EAX = 0;
+    DynaRun(emu);
+    int ret = R_EAX;
+    FreeX86Emu(&emu);
     return ret;
 }
 
@@ -219,6 +237,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 1: // sys_exit
             emu->quit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
+            return;
+        case 5: // sys_open
+            R_EAX = my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
             return;
 #ifndef __NR_waitpid
         case 7: //sys_waitpid
@@ -283,10 +304,21 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {
                 //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
                 // lets duplicate the emu
-                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)emu->init_stack, emu->size_stack, 0);
+                void* stack_base = (void*)R_ECX;
+                int stack_size = 0;
+                if(!R_ECX) {
+                    // allocate a new stack...
+                    stack_size = 1024*1024;
+                    stack_base = malloc(stack_size); // why not 1M... (normal operation do copy on write, simpler to just copy)
+                    // copy value from old stack to new stack
+                    int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
+                    memcpy(stack_base-size_to_copy, (void*)R_ESP, size_to_copy);
+                }
+                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (R_ECX)?0:1);
                 SetupX86Emu(newemu);
                 CloneEmu(newemu, emu);
-                SetESP(newemu, R_ESP);
+                SetESP(newemu, (uintptr_t)stack_base);
+                // setup registers
                 /*if(regs) {
                     SetEAX(newemu, regs->eax);
                     SetEBX(newemu, regs->ebx);
@@ -295,17 +327,13 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     SetEDI(newemu, regs->edi);
                     SetESI(newemu, regs->esi);
                     SetEBP(newemu, regs->ebp);
-                    SetESP(newemu, regs->ecx?regs->ecx:regs->esp);
-                }*/
-                int r = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, NULL);
-                if(r) {
-                    SetEAX(newemu, r);
-                    DynaRun(newemu);
-                    r = GetEAX(newemu);
-                    FreeX86Emu(&newemu);
-                    exit(R_EAX);
+                    SetESP(newemu, (uintptr_t)stack_base - size_to_copy);
                 }
-                R_EAX = r;
+                SetESP(newemu, (uintptr_t)stack_base - size_to_copy);*/
+                void* mystack = (R_EBX&CLONE_VM)?malloc(1024*1024):NULL;  // stack for own process... memory leak, but no practical way to remove it
+                int ret = clone(clone_fn, (void*)((R_EBX&CLONE_VM)?((uintptr_t)mystack+1024*1024):0), R_EBX, newemu, R_ESI, R_EDI, R_EBP);
+                //int r = syscall(__NR_clone, R_EBX, (R_EBX&CLONE_VM)?((uintptr_t)mystack):0, R_EDX, R_ESI, NULL);  // cannot use that syscall in C: how to setup the stack?!
+                R_EAX = ret;
             }
             return;
 #ifndef __NR_olduname
@@ -330,24 +358,12 @@ void EXPORT x86Syscall(x86emu_t *emu)
             return;
 #endif
         case 174: // sys_rt_sigaction
-            printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
-            R_EAX = 0;
+            //printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
+            R_EAX = my_syscall_sigaction(emu, R_EBX, (void*)R_ECX, (void*)R_EDX, R_ESI);
             return;
         case 190:   // vfork
             {
-                // lets duplicate the emu
-                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)emu->init_stack, emu->size_stack, 0);
-                SetupX86Emu(newemu);
-                CloneEmu(newemu, emu);
-                SetESP(newemu, R_ESP);
                 int r = vfork();
-                if(r) {
-                    SetEAX(newemu, r);
-                    DynaRun(newemu);
-                    r = GetEAX(newemu);
-                    FreeX86Emu(&newemu);
-                    exit(R_EAX);
-                }
                 R_EAX = r;
             }
             return;
@@ -416,6 +432,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
         case 1: // __NR_exit
             emu->quit = 1;
             return u32(4); // faking the syscall here, we don't want to really terminate the program now
+        case 5: // sys_open
+            return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 270: //_NR_tgkill
             if(!u32(12)) {
                 //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
