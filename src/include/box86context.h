@@ -122,6 +122,7 @@ typedef struct box86context_s {
     uint8_t             canary[4];
 
     uintptr_t           signals[MAX_SIGNAL];
+    uintptr_t           restorer[MAX_SIGNAL];
     x86emu_t            *signal_emu;
     int                 no_sigsegv;
 

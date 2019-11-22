@@ -89,6 +89,7 @@ scwrap_t syscallwrap[] = {
     { 63, __NR_dup2, 2 },
     { 64, __NR_getppid, 0 },
     { 75, __NR_setrlimit, 2 },
+    { 77, __NR_getrusage, 2 },
     { 78, __NR_gettimeofday, 2 },
     { 83, __NR_symlink, 2 },
     { 85, __NR_readlink, 3 },
@@ -118,9 +119,13 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_olduname
     { 109, __NR_olduname, 1 },
 #endif
+#ifdef __NR_iopl
+    { 110, __NR_iopl, 1 },
+#endif
     { 114, __NR_wait4, 4 }, //TODO: check struct rusage alignment
+    //{ 119, __NR_sigreturn, 0},
     //{ 120, __NR_clone, 5 },    // need works
-    { 122, __NR_uname, 1 },
+    //{ 122, __NR_uname, 1 },
     { 125, __NR_mprotect, 3 },
     { 136, __NR_personality, 1 },
     { 140, __NR__llseek, 5 },
@@ -134,6 +139,7 @@ scwrap_t syscallwrap[] = {
     { 162, __NR_nanosleep, 2 },
     { 168, __NR_poll, 3 },
     { 172, __NR_prctl, 5 },
+    //{ 173, __NR_rt_sigreturn, 0 },
     { 175, __NR_rt_sigprocmask, 4 },
     { 179, __NR_rt_sigsuspend, 2 },
     { 183, __NR_getcwd, 2 },
@@ -146,6 +152,7 @@ scwrap_t syscallwrap[] = {
     { 200, __NR_getgid32, 0 },
     { 201, __NR_geteuid32, 0 },
     { 202, __NR_getegid32, 0 },
+    { 208, __NR_setresuid32, 3 },
     { 220, __NR_getdents64, 3 },
     { 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },
@@ -189,6 +196,14 @@ struct x86_pt_regs {
 };
 
 #ifndef __NR_olduname
+struct oldold_utsname {
+        char sysname[9];
+        char nodename[9];
+        char release[9];
+        char version[9];
+        char machine[9];
+};
+#endif
 struct old_utsname {
         char sysname[65];
         char nodename[65];
@@ -196,7 +211,6 @@ struct old_utsname {
         char version[65];
         char machine[65];
 };
-#endif
 
 int clone_fn(void* arg)
 {
@@ -295,11 +309,36 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     case SYS_SENDMMSG: R_EAX = sendmmsg(args[0], (void*)args[1], args[2], args[3]); break;
                     #endif
                     default:
+                        printf_log(LOG_DEBUG, "BOX86 Error on Syscall 102: Unknown Soket command %d\n", R_EBX);
                         R_EAX = -1;
                 }
             }
             return;
 #endif
+#ifndef __NR_olduname
+        case 109:   // olduname
+            {
+                struct utsname un;
+                R_EAX = uname(&un);
+                if(!R_EAX) {
+                    struct oldold_utsname *old = (struct oldold_utsname*)R_EBX;
+                    memcpy(old->sysname, un.sysname, 9);
+                    memcpy(old->nodename, un.nodename, 9);
+                    memcpy(old->release, un.release, 9);
+                    memcpy(old->version, un.version, 9);
+                    strcpy(old->machine, "i686");
+                }
+            }
+            return;
+#endif
+#ifndef __NR_iopl
+        case 110:   // iopl
+            R_EAX = 0;  // only on x86, so return 0...
+            return;
+#endif
+        case 119: // sys_sigreturn
+            emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
+            return;
         case 120:   // clone
             {
                 //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
@@ -336,8 +375,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = ret;
             }
             return;
-#ifndef __NR_olduname
-        case 109:   // olduname
+        case 122:   // uname
             {
                 struct utsname un;
                 R_EAX = uname(&un);
@@ -347,16 +385,18 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     memcpy(old->nodename, un.nodename, 65);
                     memcpy(old->release, un.release, 65);
                     memcpy(old->version, un.version, 65);
-                    memcpy(old->machine, un.machine, 65);
+                    strcpy(old->machine, "i686");
                 }
             }
             return;
-#endif
 #ifndef __NR_select
         case 142:   // select
             R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
             return;
 #endif
+        case 173: // sys_rt_sigreturn
+            emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
+            return;
         case 174: // sys_rt_sigaction
             //printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = my_syscall_sigaction(emu, R_EBX, (void*)R_ECX, (void*)R_EDX, R_ESI);
@@ -367,7 +407,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = r;
             }
             return;
-        case 195:
+        case 195:   // stat64
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_stat64, R_EBX, &st);
@@ -376,7 +416,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = r;
             }
             return;
-        case 197:
+        case 197:   // fstat64
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_fstat64, R_EBX, &st);
@@ -385,11 +425,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = r;
             }
             return;
-        case 270:
+        case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
             return;
-        case 355:
-            // get_random
+        case 355:  // get_random
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
             return;
         default:

@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <signal.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <syscall.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -96,7 +100,7 @@ typedef struct
 typedef uint32_t i386_sigset_t;
   
 typedef struct i386_ucontext_s
-  {
+{
     uint32_t uc_flags;
     struct i386_ucontext_s *uc_link;
     i386_stack_t uc_stack;
@@ -104,9 +108,15 @@ typedef struct i386_ucontext_s
     i386_sigset_t uc_sigmask;
     struct i386_libc_fpstate __fpregs_mem;
     uint32_t __ssp[4];
-  } i386_ucontext_t;
+} i386_ucontext_t;
 
-
+struct kernel_sigaction {
+        void (*k_sa_handler) (int);
+        unsigned long sa_flags;
+        void (*sa_restorer) (void);
+        unsigned long sa_mask;
+        unsigned long sa_mask2;
+};
 
 void my_sighandler(int32_t sig)
 {
@@ -114,7 +124,11 @@ void my_sighandler(int32_t sig)
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
     Push32(context->signal_emu, sig);
     DynaCall(context->signal_emu, context->signals[sig]);
-    Pop32(context->signal_emu);
+    if(context->restorer[sig]) {
+        DynaCall(context->signal_emu, context->restorer[sig]);
+    } else {
+        Pop32(context->signal_emu);
+    }
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
@@ -125,9 +139,13 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     Push32(context->signal_emu, (uintptr_t)sigi);
     Push32(context->signal_emu, sig);
     DynaCall(context->signal_emu, context->signals[sig]);
-    Pop32(context->signal_emu);
-    Pop32(context->signal_emu);
-    Pop32(context->signal_emu);
+    if(context->restorer[sig]) {
+        DynaCall(context->signal_emu, context->restorer[sig]);
+    } else {
+        Pop32(context->signal_emu);
+        Pop32(context->signal_emu);
+        Pop32(context->signal_emu);
+    }
 }
 
 static void CheckSignalContext(x86emu_t* emu)
@@ -156,6 +174,7 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     if(handler!=NULL && handler!=(sighandler_t)1) {
         // create a new handler
         context->signals[signum] = (uintptr_t)handler;
+        context->restorer[signum] = 0;
         handler = my_sighandler;
     }
     return signal(signum, handler);
@@ -173,11 +192,11 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
 
     CheckSignalContext(emu);
 
-    struct sigaction newact;
-    struct sigaction old;
+    struct sigaction newact = {0};
+    struct sigaction old = {0};
     if(act) {
         newact.sa_mask = act->sa_mask;
-        newact.sa_flags = act->sa_flags;
+        newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
         if(act->sa_flags&0x04) {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                 context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
@@ -189,6 +208,7 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
                 newact.sa_handler = my_sighandler;
             }
         }
+        context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
     int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
@@ -205,45 +225,100 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
 int EXPORT my___sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact)
 __attribute__((alias("my_sigaction")));
 
-int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact, int sigsetsize)
+int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_restorer_t *act, x86_sigaction_restorer_t *oldact, int sigsetsize)
 {
-    printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d\n", signum, act, oldact, sigsetsize);
+    printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
     if(signum<0 || signum>=MAX_SIGNAL)
         return -1;
     
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
-
+    // TODO, how to handle sigsetsize>4?!
     CheckSignalContext(emu);
 
-    struct sigaction newact;
-    struct sigaction old;
-    if(act) {
-        newact.sa_mask = act->sa_mask;
-        newact.sa_flags = act->sa_flags;
-        if(act->sa_flags&0x04) {
-            if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
-                newact.sa_sigaction = my_sigactionhandler;
+    if(signum==32 || signum==33) {
+        // cannot use libc sigaction, need to use syscall!
+        struct kernel_sigaction newact = {0};
+        struct kernel_sigaction old = {0};
+        if(act) {
+            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%x\n", act->sa_flags, act->sa_mask);
+            memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>8)?8:sigsetsize);
+            newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
+            if(act->sa_flags&0x04) {
+                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                    context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                    newact.k_sa_handler = (void*)my_sigactionhandler;
+                } else {
+                    newact.k_sa_handler = (void*)act->_u._sa_sigaction;
+                }
+            } else {
+                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                    context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    newact.k_sa_handler = my_sighandler;
+                } else {
+                    newact.k_sa_handler = act->_u._sa_handler;
+                }
             }
-        } else {
-            if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                context->signals[signum] = (uintptr_t)act->_u._sa_handler;
-                newact.sa_handler = my_sighandler;
-            }
+            context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
         }
+
+        if(oldact) {
+            old.sa_flags = oldact->sa_flags;
+            memcpy(&old.sa_mask, &oldact->sa_mask, (sigsetsize>8)?8:sigsetsize);
+        }
+
+        int ret = syscall(__NR_sigaction, signum, act?&newact:NULL, oldact?&old:NULL, (sigsetsize>8)?8:sigsetsize);
+        if(oldact && ret==0) {
+            oldact->sa_flags = old.sa_flags;
+            memcpy(&oldact->sa_mask, &old.sa_mask, (sigsetsize>8)?8:sigsetsize);
+            if(old.sa_flags & 0x04)
+                oldact->_u._sa_sigaction = (void*)old.k_sa_handler; //TODO should wrap...
+            else
+                oldact->_u._sa_handler = old.k_sa_handler;  //TODO should wrap...
+        }
+        return ret;
+    } else {
+        // using libc sigaction
+        struct sigaction newact = {0};
+        struct sigaction old = {0};
+        if(act) {
+            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%x\n", act->sa_flags, act->sa_mask);
+            newact.sa_mask = act->sa_mask;
+            newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
+            if(act->sa_flags&0x04) {
+                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                    context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                    newact.sa_sigaction = my_sigactionhandler;
+                } else {
+                    newact.sa_sigaction = act->_u._sa_sigaction;
+                }
+            } else {
+                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
+                    context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    newact.sa_handler = my_sighandler;
+                } else {
+                    newact.sa_handler = act->_u._sa_handler;
+                }
+            }
+            context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+        }
+
+        if(oldact) {
+            old.sa_flags = oldact->sa_flags;
+            old.sa_mask = oldact->sa_mask;
+        }
+
+        int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+        if(oldact && ret==0) {
+            oldact->sa_flags = old.sa_flags;
+            oldact->sa_mask = old.sa_mask;
+            if(old.sa_flags & 0x04)
+                oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
+            else
+                oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
+        }
+        return ret;
     }
-    int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
-    if(oldact) {
-        oldact->sa_flags = old.sa_flags;
-        oldact->sa_mask = old.sa_mask;
-        if(old.sa_flags & 0x04)
-            oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
-        else
-            oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
-    }
-    
-    return ret;
 }
 
 
