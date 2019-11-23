@@ -14,6 +14,7 @@ option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${
 option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" ${USE_FLOAT})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
+option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 option(X86_CPP_LIBRARY_PRESENT "Set to ON if you have an accessible libstdc++.so.6 32bit ELF lib in your PATH" ${X86_CPP_LIBRARY_PRESENT})
 
 find_package(PythonInterp)
@@ -55,6 +56,9 @@ if(ARM_DYNAREC)
     enable_language(ASM)
 endif()
 
+if(NOGETCLOCK)
+    add_definitions(-DNOGETCLOCK)
+endif()
 
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)

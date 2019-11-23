@@ -368,6 +368,45 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     R_EIP = old_eip;  // and set back instruction pointer
 }
 
+#if defined(__ARM_ARCH)
+#if (__ARM_ARCH >= 6)
+static inline unsigned int arm_perf (void)
+{
+  unsigned int value;
+  // Read CCNT Register
+  asm volatile ("MRC p15, 0, %0, c9, c13, 0\t\n": "=r"(value));
+  return value;
+}
+static inline void init_perfcounters (int32_t do_reset, int32_t enable_divider)
+{
+  // in general enable all counters (including cycle counter)
+  int32_t value = 1;
+
+  // peform reset:
+  if (do_reset)
+  {
+    value |= 2;     // reset all counters to zero.
+    value |= 4;     // reset cycle counter to zero.
+  }
+
+  if (enable_divider)
+    value |= 8;     // enable "by 64" divider for CCNT.
+
+  value |= 16;
+
+  // program the performance-counter control-register:
+  asm volatile ("MCR p15, 0, %0, c9, c12, 0\t\n" :: "r"(value));
+
+  // enable all counters:
+  asm volatile ("MCR p15, 0, %0, c9, c12, 1\t\n" :: "r"(0x8000000f));
+
+  // clear overflows:
+  asm volatile ("MCR p15, 0, %0, c9, c12, 3\t\n" :: "r"(0x8000000f));
+}
+
+#endif
+#endif
+
 uint64_t ReadTSC(x86emu_t* emu)
 {
     // Read the TimeStamp Counter as 64bits.
@@ -376,25 +415,29 @@ uint64_t ReadTSC(x86emu_t* emu)
   uint64_t ret;
   __asm__ volatile("rdtsc" : "=A"(ret));
   return ret;
+#if 0
 #elif defined(__ARM_ARCH)
 #if (__ARM_ARCH >= 6)
-  uint32_t pmccntr;
-  uint32_t pmuseren;
-  uint32_t pmcntenset;
-  // Read the user mode perf monitor counter access permissions.
-  asm volatile("mrc p15, 0, %0, c9, c14, 0" : "=r"(pmuseren));
-  if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
-    asm volatile("mrc p15, 0, %0, c9, c12, 1" : "=r"(pmcntenset));
-    if (pmcntenset & 0x80000000ul) {  // Is it counting?
-      asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(pmccntr));
-      // The counter is set up to count every 64th cycle, but it's x86 we want...,so *64 is probably too much
-      return (uint64_t)(pmccntr) * 32;
+    static int init = 1;
+    if(init) {
+        init_perfcounters(1, 1);
+        init = 0;
     }
-  }
+    uint32_t perf = arm_perf();
+    if(perf) {
+        return ((uint64_t)perf)*64;
+    }
+#endif
 #endif
 #endif
 // fall back to gettime...
+#ifndef NOGETCLOCK
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+  return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
+#else
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
+#endif
 }
