@@ -62,6 +62,9 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(v2, v1);
             break;
         case 0xD8:
+            INST_NAME("FSTP ST0, ST0");
+            x87_do_pop(dyn, ninst);
+            break;
         case 0xD9:
         case 0xDA:
         case 0xDB:

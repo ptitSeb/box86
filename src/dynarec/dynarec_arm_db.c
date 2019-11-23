@@ -191,9 +191,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VMRS(x3);   // get the FPCSR reg and test FPU exception (IO only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
-                    B_MARK(cEQ);
-                    MOV32(ed, 0x80000000);
-                    MARK;
+                    MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
                     VMSR(x12);  // put back values
                     x87_do_pop(dyn, ninst);
@@ -219,9 +217,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
-                    B_MARK(cEQ);
-                    MOV32(ed, 0x80000000);
-                    MARK;
+                    MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
                     x87_restoreround(dyn, ninst, u8);
                     break;
@@ -246,9 +242,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (denormal and overflow only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
-                    B_MARK(cEQ);
-                    MOV32(ed, 0x80000000);
-                    MARK;
+                    MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);

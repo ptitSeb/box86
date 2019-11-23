@@ -88,7 +88,9 @@ Op is 20-27
 // movw.cond dst, #imm16
 #define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 // mov dst #imm8 ror imm4*2
-#define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 7) )
+#define MOV_IMM(dst, imm8, rimm4) EMIT(0xe3a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 8) )
+// mov.cond dst #imm8 ror imm4*2
+#define MOV_IMM_COND(cond, dst, imm8, rimm4) EMIT(cond | 0x03a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 8) )
 
 // mov dst, src lsl imm5
 #define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | (imm5<<7))
