@@ -1875,7 +1875,7 @@ GOM(vsnprintf, iFEpupVV)    // Weak
 GOM(__vsnprintf, iFEpupVV)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvpVV)
 GOM(vsprintf, iFEppVV) // Weak
-GOM(__vsprintf_chk, iFEpvvpp)
+GOM(__vsprintf_chk, iFEpvvVV)   // ignoring flag and slen, just use vsprintf in fact
 GO(vsscanf, iFppp)
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpupVV)    // Weak
