@@ -599,17 +599,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CMP AL, Ib");
             UFLAGS(0);
             u8 = F8;
-            MOVW(x2, u8);
             UXTB(x1, xEAX, 0);
-            emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+            if(u8) {
+                MOVW(x2, u8);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+            } else {
+                emit_cmp8_0(dyn, ninst, x1, x3, x12);
+            }
             UFLAGS(1);
             break;
         case 0x3D:
             INST_NAME("CMP EAX, Id");
             UFLAGS(0);
             i32 = F32S;
-            MOV32(x2, i32);
-            emit_cmp32(dyn, ninst, xEAX, x2, x3, x12);
+            if(i32) {
+                MOV32(x2, i32);
+                emit_cmp32(dyn, ninst, xEAX, x2, x3, x12);
+            } else {
+                emit_cmp32_0(dyn, ninst, xEAX, x3, x12);
+            }
             UFLAGS(1);
             break;
 
@@ -953,8 +961,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(0);
                     GETEB(x1);
                     u8 = F8;
-                    MOVW(x2, u8);
-                    emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+                    if(u8) {
+                        MOVW(x2, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x12);
+                    }
                     UFLAGS(1);
                     break;
             }
@@ -1075,8 +1087,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(0);
                     GETEDH(x1);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    MOV32(x2, i32);
-                    emit_cmp32(dyn, ninst, ed, x2, x3, x12);
+                    if(i32) {
+                        MOV32(x2, i32);
+                        emit_cmp32(dyn, ninst, ed, x2, x3, x12);
+                    } else {
+                        emit_cmp32_0(dyn, ninst, ed, x3, x12);
+                    }
                     UFLAGS(1);
                     break;
             }
