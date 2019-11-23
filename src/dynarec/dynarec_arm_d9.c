@@ -271,35 +271,35 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
                     // to avoid bus error
                     //VLDR_32(s0, ed, 0);
-                    LDR_IMM9(x2, ed, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);
                     VMOVtoV(s0, x2);
                     VCVT_F64_F32(v1, s0);
                     break;
                 case 2:
                     INST_NAME("FST float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
                     // to avoid bus error...
                     //VSTR_32(s0, ed, 0);
                     VMOVfrV(x2, s0);
-                    STR_IMM9(x2, ed, 0);
+                    STR_IMM9(x2, ed, fixedaddress);
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
                     // to avoid bus error...
                     //VSTR_32(s0, ed, 0);
                     VMOVfrV(x2, s0);
-                    STR_IMM9(x2, ed, 0);
+                    STR_IMM9(x2, ed, fixedaddress);
                     x87_do_pop(dyn, ninst);
                     break;
                 case 5:
@@ -311,7 +311,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                     ed = x1;
                     wb1 = 1;
                     LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));

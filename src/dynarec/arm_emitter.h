@@ -37,7 +37,7 @@ Op is 20-27
 #define brLSR(i, r) (0<<4 | 1<<5 | ((i&31)<<7) | r)
 #define brASR(i, r) (0<<4 | 2<<5 | ((i&31)<<7) | r)
 #define brROR(i, r) (0<<4 | 3<<5 | ((i&31)<<7) | r)
-#define brIMM(r)    (r)
+#define brIMM(r)    (abs(r))
 // barel roll with a register
 #define brRLSL(i, r) (1<<4 | 0<<5 | ((i&15)<<8) | r)
 #define brRLSR(i, r) (1<<4 | 1<<5 | ((i&15)<<8) | r)
@@ -240,61 +240,49 @@ Op is 20-27
 // Single data transfert construction
 #define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
 #define SDT_OFF(Cond, P, U, B, W, L, Rn, Rd, Imm12)   (Cond | (0b00<<26) | (0<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | Imm12)
-// ldr reg, [addr, #imm9]
-#define LDR_IMM9(reg, addr, imm9) EMIT(0xe5900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldrxx reg, [addr, #imm9]
-#define LDR_IMM9_COND(cond, reg, addr, imm9) EMIT(cond | 0x05900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldrb reg, [addr, #imm9]
-#define LDRB_IMM9(reg, addr, imm9) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldr reg, [addr, #imm9]!
-#define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5b00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldr reg, [addr, #-imm9]!
-#define LDR_NIMM9_W(reg, addr, imm9) EMIT(0xe5300000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr, #+/-imm9]
+#define LDR_IMM9(reg, addr, imm9) EMIT(0xe5100000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrxx reg, [addr, #+/-imm9]
+#define LDR_IMM9_COND(cond, reg, addr, imm9) EMIT(cond | 0x05100000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrb reg, [addr, #+/-imm9]
+#define LDRB_IMM9(reg, addr, imm9) EMIT(0xe5500000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr, #+/-imm9]!
+#define LDR_IMM9_W(reg, addr, imm9) EMIT(0xe5300000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr, rm lsl imm5]
 #define LDR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(c__ | (0b011<<25) | (1<<24) | (1<<23) | (0<<21) | (1<<20) | ((reg) << 12) | ((addr) << 16) | brLSL(imm5, rm) )
 // ldr reg, [addr, rm lsr imm5]
 #define LDR_REG_LSR_IMM5(reg, addr, rm, imm5) EMIT(c__ | (0b011<<25) | (1<<24) | (1<<23) | (0<<21) | (1<<20) | ((reg) << 12) | ((addr) << 16) | brLSR(imm5, rm) )
 // ldrb reg, [addr, rm lsl imm5]
 #define LDRB_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
-// ldr reg, [addr], #imm9
-#define LDRAI_IMM9_W(reg, addr, imm9)   EMIT(0xe4900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldr reg, [addr], #-imm9
-#define LDRAI_NIMM9_W(reg, addr, imm9)  EMIT(0xe4100000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldrb reg, [addr], #imm9
-#define LDRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4900000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// ldrb reg, [addr], #-imm9
-#define LDRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4100000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldr reg, [addr], #+/-imm9
+#define LDRAI_IMM9_W(reg, addr, imm9)   EMIT(0xe4100000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// ldrb reg, [addr], #+/-imm9
+#define LDRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4100000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldr reg, [addr], rm lsl imm5
 #define LDRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6900000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldrb reg, [addr], rm lsl imm5
 #define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
-// ldrd reg, reg+1, [addr, #imm9], reg must be even, reg+1 is implicit
-#define LDRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1101<<4) | ((imm8)&0x0f) )
+// ldrd reg, reg+1, [addr, #+/-imm9], reg must be even, reg+1 is implicit
+#define LDRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24  | (((imm8)<0)?0:1)<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((abs(imm8))&0xf0)<<(8-4) | (0b1101<<4) | ((abs(imm8))&0x0f) )
 
-// str reg, [addr, #imm9]
-#define STR_IMM9(reg, addr, imm9) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// strb reg, [addr, #imm9]
-#define STRB_IMM9(reg, addr, imm9) EMIT(0xe5c00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// str reg, [addr], #imm9
-#define STRAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4800000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// str reg, [addr], #-imm9
-#define STRAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4000000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// str reg, [addr, #-(imm9)]!
-#define STR_NIMM9_W(reg, addr, imm9) EMIT(0xe5200000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr, #+/-imm9]
+#define STR_IMM9(reg, addr, imm9) EMIT(0xe5000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// strb reg, [addr, #+/-imm9]
+#define STRB_IMM9(reg, addr, imm9) EMIT(0xe5400000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr], #+/-imm9
+#define STRAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr, rm lsl imm5]
 #define STR_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strb reg, [addr, rm lsl imm5]
 #define STRB_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe5c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
-// strb reg, [addr], #imm9
-#define STRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4c00000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
-// strb reg, [addr], #-imm9
-#define STRBAI_NIMM9_W(reg, addr, imm9) EMIT(0xe4400000 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// strb reg, [addr], #+/-imm9
+#define STRBAI_IMM9_W(reg, addr, imm9)  EMIT(0xe4400000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], rm lsl imm5
 #define STRAI_REG_LSL_IMM5(reg, addr, rm, imm5)  EMIT(0xe6800000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strb reg, [addr], rm lsl imm5
 #define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
-// strd reg, reg+1, [addr, #imm8], reg must be even, reg+1 is implicit
-#define STRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | 1<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((imm8)&0xf0)<<(8-4) | (0b1111<<4) | ((imm8)&0x0f) )
+// strd reg, reg+1, [addr, #+/-imm8], reg must be even, reg+1 is implicit
+#define STRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | (((imm8)<0)?0:1)<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((abs(imm8))&0xf0)<<(8-4) | (0b1111<<4) | ((abs(imm8))&0x0f) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )
@@ -333,12 +321,12 @@ Op is 20-27
 #define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (U<<23) | (0<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
 #define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | (0b000<<25) | (P<<24) | (U<<23) | (1<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ((Imm8&0xf0)<<(8-4)) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | (Imm8&0x0f))
 
-#define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 0, imm8))
-#define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 1, 1, imm8))
-#define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
-#define LDRH_IMM8_COND(cond, reg, addr, imm8) EMIT(HWS_OFF(cond, 1, 1, 0, 1, addr, reg, 0, 1, imm8))
-#define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 0, 1, imm8))
-#define STRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, 1, 0, 0, addr, reg, 1, 1, imm8))
+#define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 1, addr, reg, 1, 0, abs(imm8)))
+#define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 1, addr, reg, 1, 1, abs(imm8)))
+#define LDRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1,  (((imm8)<0)?0:1), 0, 1, addr, reg, 0, 1, abs(imm8)))
+#define LDRH_IMM8_COND(cond, reg, addr, imm8) EMIT(HWS_OFF(cond, 1, (((imm8)<0)?0:1), 0, 1, addr, reg, 0, 1, abs(imm8)))
+#define STRH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 0, addr, reg, 0, 1, abs(imm8)))
+#define STRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 0, addr, reg, 1, 1, abs(imm8)))
 
 #define LDRHAI_REG_LSL_IMM5(reg, addr, rm) EMIT(HWS_REG(c__, 0, 1, 0, 1, addr, reg, 0, 1, rm))
 #define STRHAI_REG_LSL_IMM5(reg, addr, rm) EMIT(HWS_REG(c__, 0, 1, 0, 0, addr, reg, 0, 1, rm))
@@ -453,15 +441,15 @@ Op is 20-27
 // Move between Dn[x] and Rt
 #define VMOVfrDx_32(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, x, 0))
 
-// Load from memory to double  VLDR Dd, [Rn, #imm8]
-#define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))
-// Load from memory to single  VLDR Sd, [Rn, #imm8]
-#define VLDR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | (((Sd)&1)<<22) | (1<<20) | ((Rn)<<16) | ((((Sd)>>1)&15)<<12) | (0b1010<<8) | ((Imm8)&255))
+// Load from memory to double  VLDR Dd, [Rn, #+/-imm8], imm8&3 ignored!
+#define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((abs(Imm8)>>2)&255))
+// Load from memory to single  VLDR Sd, [Rn, #+/-imm8], imm8&3 ignored!
+#define VLDR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | (((Sd)&1)<<22) | (1<<20) | ((Rn)<<16) | ((((Sd)>>1)&15)<<12) | (0b1010<<8) | ((abs(Imm8)>>2)&255))
 
-// Store to memory to double  VSTR Dd, [Rn, #imm8]
-#define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((Imm8)&255))
-// Store to memory to single  VSTR Sd, [Rn, #imm8]
-#define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (1<<23) | ((((Sd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Sd)&15)<<12) | (0b1010<<8) | ((Imm8)&255))
+// Store to memory to double  VSTR Dd, [Rn, #+/-imm8], imm8&3 ignored!
+#define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Dd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((abs(Imm8)>>2)&255))
+// Store to memory to single  VSTR Sd, [Rn, #+/-imm8], imm8&3 ignored!
+#define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Sd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Sd)&15)<<12) | (0b1010<<8) | ((abs(Imm8)>>2)&255))
 
 // Convert from single Sm to double Dd
 #define VCVT_F64_F32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0111<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (0<<4) | (((Sm)>>1)&15))

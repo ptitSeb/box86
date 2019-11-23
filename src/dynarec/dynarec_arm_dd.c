@@ -142,13 +142,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FLD double");
                     v1 = x87_do_push(dyn, ninst);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    VLDR_64(v1, ed, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VLDR_64(v1, ed, fixedaddress);
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistp64, -1, 0);
                     x87_do_pop(dyn, ninst);
@@ -156,14 +156,14 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("FST double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    VSTR_64(v1, ed, 0); // check alignment?
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VSTR_64(v1, ed, fixedaddress); // check alignment?
                     break;
                 case 3:
                     INST_NAME("FSTP double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
-                    VSTR_64(v1, ed, 0); // check alignment?
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VSTR_64(v1, ed, fixedaddress); // check alignment?
                     x87_do_pop(dyn, ninst);
                     break;
                 default:

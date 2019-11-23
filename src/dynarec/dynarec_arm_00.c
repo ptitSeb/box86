@@ -1133,11 +1133,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LOCK;
                 // do the swap
                 GETGB(x12);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                LDRB_IMM9(x1, ed, 0);    // 1 gets eb
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                LDRB_IMM9(x1, ed, fixedaddress);    // 1 gets eb
                 // do the swap 12 -> strb(ed), 1 -> gd
                 BFI(gb1, x1, gb2*8, 8);
-                STRB_IMM9(x12, ed, 0);
+                STRB_IMM9(x12, ed, fixedaddress);
                 // Unlock
                 UNLOCK;
             }
@@ -1180,8 +1180,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 eb2 = ((ed&4)>>2);    // L or H
                 BFI(eb1, gd, eb2*8, 8);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                STRB_IMM9(gd, ed, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                STRB_IMM9(gd, ed, fixedaddress);
             }
             break;
         case 0x89:
@@ -1191,8 +1191,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(xEAX+(nextop&7), gd);
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                STR_IMM9(gd, ed, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                STR_IMM9(gd, ed, fixedaddress);
             }
             break;
         case 0x8A:
@@ -1212,8 +1212,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = wback;
                     }
                 } else {
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    LDRB_IMM9(x12, wback, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0);
+                    LDRB_IMM9(x12, wback, fixedaddress);
                     ed = x12;
                 }
             BFI(gb1, ed, gb2*8, 8);
@@ -1225,8 +1225,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                LDR_IMM9(gd, ed, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                LDR_IMM9(gd, ed, fixedaddress);
             }
             break;
 
@@ -1238,7 +1238,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ok=0;
                 DEFAULT;
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0);
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOV_REG(gd, ed);
                 }
@@ -1251,8 +1251,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 STRH_IMM8(ed, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
-                LDRH_IMM8(x1, ed, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0);
+                LDRH_IMM8(x1, ed, fixedaddress);
                 STRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
             }
             break;
@@ -1262,9 +1262,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {
                 POP(xESP, (1<<(xEAX+(nextop&7))));
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                 POP(xESP, (1<<x2));
-                STR_IMM9(x2, ed, 0);
+                STR_IMM9(x2, ed, fixedaddress);
             }
             break;
         case 0x90:
@@ -1719,10 +1719,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOVW(x3, u8);
                 BFI(eb1, x3, eb2*8, 8);
             } else {                    // mem <= u8
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                 u8 = F8;
                 MOVW(x3, u8);
-                STRB_IMM9(x3, ed, 0);
+                STRB_IMM9(x3, ed, fixedaddress);
             }
             break;
         case 0xC7:
@@ -1733,10 +1733,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 MOV32(ed, i32);
             } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
                 i32 = F32S;
                 MOV32(x3, i32);
-                STR_IMM9(x3, ed, 0);
+                STR_IMM9(x3, ed, fixedaddress);
             }
             break;
 

@@ -139,8 +139,8 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
-                    LDRSH_IMM8(x1, wback, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                    LDRSH_IMM8(x1, wback, fixedaddress);
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, x1);
                     VCVT_F64_S32(v1, s0);
@@ -149,7 +149,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     u8 = x87_setround(dyn, ninst, x1, x2, x12);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_S32_F64(s0, v1);
@@ -161,7 +161,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    STRH_IMM8(ed, wback, 0);
+                    STRH_IMM8(ed, wback, fixedaddress);
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
                     break;
@@ -169,7 +169,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     u8 = x87_setround(dyn, ninst, x1, x2, x12);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     VCVTR_S32_F64(s0, v1);
@@ -181,14 +181,14 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    STRH_IMM8(ed, wback, 0);
+                    STRH_IMM8(ed, wback, fixedaddress);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     u8 = x87_setround(dyn, ninst, x1, x2, x12);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     VCVTR_S32_F64(s0, v1);
@@ -200,28 +200,28 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_MARK(cEQ);    // not saturated, continue
                     MOV32(ed, 0xffff8000);
                     MARK;
-                    STRH_IMM8(ed, wback, 0);
+                    STRH_IMM8(ed, wback, fixedaddress);
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbld, -1, 0);
                     break;
                 case 5: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FILD ST0, i64");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fild64, -1, 0);
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbst, -1, 0);
                     x87_do_pop(dyn, ninst);
@@ -229,7 +229,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistp64, -1, 0);
                     x87_do_pop(dyn, ninst);

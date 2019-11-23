@@ -150,34 +150,34 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FADD ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VADD_F64(v1, v1, d1);
                     break;
                 case 1:
                     INST_NAME("FMUL ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VMUL_F64(v1, v1, d1);
                     break;
                 case 2:
                     INST_NAME("FCOM ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VCMP_F64(v1, d1);
                     FCOM(x1, x2);
                     break;
                 case 3:
                     INST_NAME("FCOMP ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VCMP_F64(v1, d1);
                     FCOM(x1, x2);
                     x87_do_pop(dyn, ninst);
@@ -185,33 +185,33 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                     INST_NAME("FSUB ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VSUB_F64(v1, v1, d1);
                     break;
                 case 5:
                     INST_NAME("FSUBR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VSUB_F64(v1, d1, v1);
                     break;
                 case 6:
                     INST_NAME("FDIV ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VDIV_F64(v1, v1, d1);
                     break;
                 case 7:
                     INST_NAME("FDIVR ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3);
                     d1 = fpu_get_scratch_double(dyn);
-                    VLDR_64(d1, wback, 0);
+                    VLDR_64(d1, wback, fixedaddress);
                     VDIV_F64(v1, d1, v1);
                     break;
             }

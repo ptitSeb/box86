@@ -178,7 +178,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -204,7 +204,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -229,7 +229,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -250,7 +250,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 5:
                     INST_NAME("FLD tbyte");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
                     }
@@ -259,7 +259,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("FSTP tbyte");
                     x87_forget(dyn, ninst, x1, x3, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
                     }

@@ -33,8 +33,8 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress); \
-                    LDR_IMM9(x1, wback, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0); \
+                    LDR_IMM9(x1, wback, fixedaddress); \
                     ed = x1;                \
                 }
 //GETEDH can use hint for ed, and r1 or r2 for wback (depending on hint). wback is 0 if ed is xEAX..xEDI
@@ -42,8 +42,8 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress); \
-                    LDR_IMM9(hint, wback, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 4095, 0); \
+                    LDR_IMM9(hint, wback, fixedaddress); \
                     ed = hint;              \
                 }
 //GETEDW can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
@@ -52,20 +52,20 @@
                     MOV_REG(ret, ed);       \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 4095, 0); \
                     ed = ret;               \
-                    LDR_IMM9(ed, wback, 0); \
+                    LDR_IMM9(ed, wback, fixedaddress); \
                 }
 // Write back ed in wback (if wback not 0)
-#define WBACK       if(wback) {STR_IMM9(ed, wback, 0);}
+#define WBACK       if(wback) {STR_IMM9(ed, wback, fixedaddress);}
 // Send back wb to either ed or wback
-#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, 0);} else {MOV_REG(ed, wb);}
+#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress);} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0); \
                     LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
                     ed = x1;                 \
                 }
@@ -83,8 +83,8 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress); \
-                    LDRH_IMM8(i, wback, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 255, 0); \
+                    LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
@@ -95,8 +95,8 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
-                    LDRH_IMM8(i, wback, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
+                    LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
                 }
@@ -107,15 +107,15 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
-                    LDRSH_IMM8(i, wback, 0);\
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
+                    LDRSH_IMM8(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, 0);} else {BFI(wback, ed, 0, 16);}
+#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, fixedaddress);} else {BFI(wback, ed, 0, 16);}
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, 0);} else {BFI(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, fixedaddress);} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI((xEAX+((nextop&0x38)>>3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
@@ -127,8 +127,8 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
-                    LDRB_IMM9(i, wback, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0); \
+                    LDRB_IMM9(i, wback, fixedaddress); \
                     wb1 = 1;                \
                     ed = i;                 \
                 }
@@ -141,13 +141,13 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress); \
-                    LDRSB_IMM8(i, wback, 0);\
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0); \
+                    LDRSB_IMM8(i, wback, fixedaddress);\
                     wb1 = 1;                \
                     ed = i;                 \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, 0);} else {BFI(wback, ed, wb2*8, 8);}
+#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, fixedaddress);} else {BFI(wback, ed, wb2*8, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    gd = (nextop&0x38)>>3;  \
                     gb2 = ((gd&4)>>2);      \
@@ -348,7 +348,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define fpu_putback_single_reg  STEPNAME(fpu_putback_single_reg)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask);
 
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);

@@ -23,8 +23,8 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
-/* setup r2 to address pointed by ED, also fixaddress is 1 if ED is a constant */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress)
+/* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, uint32_t absmax, uint32_t mask)
 {
     uint8_t ret = 2;
     uint8_t scratch = 2;
@@ -39,15 +39,15 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             if((sib&0x7)==5) {
                 uint32_t tmp = F32;
                 if (sib_reg!=4) {
-                    if(tmp) {
+                    if(tmp && (abs(tmp)>absmax || (tmp&mask))) {
                         MOV32(scratch, tmp);
                         ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                     } else {
                         MOV_REG_LSL_IMM5(ret, xEAX+sib_reg, (sib>>6));
+                        *fixaddress = tmp;
                     }
                 } else {
                     MOV32(ret, tmp);
-                    *fixaddress = tmp;
                 }
             } else {
                 if (sib_reg!=4) {
@@ -59,7 +59,6 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
             MOV32(ret, tmp);
-            *fixaddress = tmp;
         } else {
             ret = xEAX+(nextop&7);
         }
@@ -94,7 +93,8 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         } else {
             if(nextop&0x80)
                 i32=(int32_t)u32;
-            if(i32==0) {
+            if(i32==0 || (abs(i32)<=absmax && !(i32&mask))) {
+                *fixaddress = i32;
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         ADD_REG_LSL_IMM5(ret, xEAX+(sib&0x07), xEAX+sib_reg, (sib>>6));

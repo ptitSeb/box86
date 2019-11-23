@@ -50,7 +50,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                 LDR_REG_LSL_IMM5(gd, ed, x12, 0);
             }
             break;
@@ -59,7 +59,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_tlsdata(dyn, addr, ninst, x1);
             INST_NAME("MOV EAX, GS:Id");
             i32 = F32S;
-            if(i32>0 && i32<256) {
+            if(i32>-4096 && i32<4096) {
                 LDR_IMM9(xEAX, x1, i32);
             } else {
                 MOV32(x2, i32);
