@@ -72,6 +72,15 @@ int getrand(int maxval)
     }
 }
 
+void free_tlsdatasize(void* p)
+{
+    if(!p)
+        return;
+    tlsdatasize_t *data = (tlsdatasize_t*)p;
+    free(data->tlsdata);
+    free(p);
+}
+
 box86context_t *NewBox86Context(int argc)
 {
     // init and put default values
@@ -97,7 +106,7 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
 
-    pthread_key_create(&context->tlskey, free);
+    pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
@@ -180,7 +189,7 @@ void FreeBox86Context(box86context_t** context)
 
     void* ptr;
     if ((ptr = pthread_getspecific((*context)->tlskey)) != NULL) {
-        free(ptr);
+        free_tlsdatasize(ptr);
         pthread_setspecific((*context)->tlskey, NULL);
     }
     pthread_key_delete((*context)->tlskey);

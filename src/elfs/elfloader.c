@@ -728,7 +728,10 @@ static void* fillTLSData(box86context_t *context)
         int dtsize = context->elfsize*8;
         ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
         memcpy(ptr, context->tlsdata, context->tlssize);
-        pthread_setspecific(context->tlskey, ptr);
+        tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
+        data->tlsdata = ptr;
+        data->tlssize = context->tlssize;
+        pthread_setspecific(context->tlskey, data);
         // copy canary...
         memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
         memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
@@ -745,24 +748,24 @@ static void* fillTLSData(box86context_t *context)
             }
         }
         memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
-        context->tlscurrent = context->tlssize;
         pthread_mutex_unlock(&context->mutex_lock);
-        return ptr;
+        return data;
 }
 
 static void* resizeTLSData(box86context_t *context, void* oldptr)
 {
         void* ptr = NULL;
         pthread_mutex_lock(&context->mutex_lock);
-        if(context->tlscurrent==context->tlssize) { // Meh, nothing to do (some multithread joke probably)
-            pthread_mutex_unlock(&context->mutex_lock);
-            return context->tlsdata;
-        }
+        tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
+        tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
         // Setup the GS segment:
         int dtsize = context->elfsize*8;
         ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
+        data->tlsdata = ptr;
+        data->tlssize = context->tlssize;
+
         memcpy(ptr, context->tlsdata, context->tlssize);
-        pthread_setspecific(context->tlskey, ptr);
+        pthread_setspecific(context->tlskey, data);
         // copy canary...
         memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
         memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
@@ -780,23 +783,22 @@ static void* resizeTLSData(box86context_t *context, void* oldptr)
         }
         memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
         // copy the relevent old part, in case something changed
-        memcpy((void*)((uintptr_t)ptr+(context->tlssize-context->tlscurrent)), oldptr, context->tlscurrent);
+        memcpy((void*)((uintptr_t)ptr+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
         // all done, update new size, free old pointer and exit
-        context->tlscurrent = context->tlssize;
         pthread_mutex_unlock(&context->mutex_lock);
-        free(oldptr);
-        return ptr;
+        free_tlsdatasize(oldptr);
+        return data;
 }
 
 void* GetGSBase(box86context_t *context)
 {
-    void* ptr;
-    if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
-        ptr = fillTLSData(context);
+    tlsdatasize_t* ptr;
+    if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
+        ptr = (tlsdatasize_t*)fillTLSData(context);
     }
-    if(context->tlscurrent != context->tlssize)
-        ptr = resizeTLSData(context, ptr);
-    return ptr+context->tlssize;
+    if(ptr->tlssize != context->tlssize)
+        ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
+    return ptr->tlsdata+ptr->tlssize;
 }
 
 void* GetDTatOffset(box86context_t* context, int index, int offset)
@@ -818,13 +820,13 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h)
 {
     if(!h->tlssize)
         return NULL;
-    void* ptr;
-    if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
-        ptr = fillTLSData(context);
+    tlsdatasize_t* ptr;
+    if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
+        ptr = (tlsdatasize_t*)fillTLSData(context);
     }
-    if(context->tlscurrent != context->tlssize)
-        ptr = resizeTLSData(context, ptr);
-    return ptr+(context->tlssize+h->tlsbase);
+    if(ptr->tlssize != context->tlssize)
+        ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
+    return ptr->tlsdata+(ptr->tlssize+h->tlsbase);
 }
 
 #ifdef DYNAREC

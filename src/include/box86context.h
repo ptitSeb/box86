@@ -28,6 +28,13 @@ typedef void* (*procaddess_t)(const char* name);
 
 #define MAX_SIGNAL 64
 
+typedef struct tlsdatasize_s {
+    int32_t     tlssize;
+    void*       tlsdata;
+} tlsdatasize_t;
+
+void free_tlsdatasize(void* p);
+
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -104,7 +111,6 @@ typedef struct box86context_s {
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
-    int32_t             tlscurrent; // current size of tlsdata
     int32_t             tlssize;    // wanted size of tlsdata
 
 #ifdef DYNAREC
