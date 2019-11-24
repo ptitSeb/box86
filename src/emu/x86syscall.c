@@ -89,6 +89,9 @@ scwrap_t syscallwrap[] = {
     { 63, __NR_dup2, 2 },
     { 64, __NR_getppid, 0 },
     { 75, __NR_setrlimit, 2 },
+#ifdef __NR_getrlimit
+    { 76, __NR_getrlimit, 2 },
+#endif
     { 77, __NR_getrusage, 2 },
     { 78, __NR_gettimeofday, 2 },
     { 83, __NR_symlink, 2 },
@@ -284,6 +287,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
+            return;
+#endif
+#ifndef __NR_getrlimit
+        case 76:    // sys_getrlimit... this is the old version, using the new one. Maybe some tranform is needed?
+            R_EAX = getrlimit(R_EBX, (void*)R_ECX);
             return;
 #endif
         case 90:    // old_mmap
