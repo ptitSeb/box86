@@ -283,7 +283,7 @@ GO(eventfd_write, iFiU)
 GOM(execl, iFEpVV)
 GOM(execle, iFEpVV)
 GOM(execlp, iFEpVV)
-GO(execv, iFpp)     // maybe need to GOM this one, and check if path is an x86 file...
+GOM(execv, iFEpp)
 GOW(execve, iFppp)   // and this one too...
 GOM(execvp, iFEpVV)
 GO(exit, vFi)

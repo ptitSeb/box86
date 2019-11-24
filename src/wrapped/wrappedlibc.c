@@ -41,6 +41,7 @@
 #include "box86context.h"
 #include "myalign.h"
 #include "signals.h"
+#include "fileutils.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -880,6 +881,25 @@ EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
     return ret;
 }
 
+EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
+{
+    int x86 = FileIsX86ELF(path);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p), IsX86=%d\n", path, argv, x86);
+    if (x86) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        newargv[0] = emu->context->box86path;
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = argv[j];
+        int ret = execv(newargv[0], argv);
+        free(newargv);
+        return ret;
+    }
+    return execv(path, argv);
+}
+
 EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
 {
     return execvp(a, b);
@@ -897,7 +917,7 @@ EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
     void** params = (void**)calloc(n, sizeof(void*));
     params[0] = b;
     memcpy(params+4, c, n*sizeof(void*));
-    int32_t r = execv(a, (char* const*)params);
+    int32_t r = my_execv(emu, a, (char* const*)params);
     free(params);
     return r;
 }

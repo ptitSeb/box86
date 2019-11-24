@@ -167,6 +167,7 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->stack);
 
     free((*context)->fullpath);
+    free((*context)->box86path);
 
     FreeBridge(&(*context)->system);
 

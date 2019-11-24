@@ -304,6 +304,7 @@ int main(int argc, const char **argv, const char **env) {
     
     // Create a new context
     box86context_t *context = NewBox86Context(argc - 1);
+    context->box86path = strdup(argv[0]);
 
     const char *p;
     const char* prog = argv[1];

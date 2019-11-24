@@ -7,7 +7,13 @@
 #define IS_FILE         (1<<1)
        
 
-int FileExist(const char* filename, int flags);    // 0 : doesn't exist, 1: Does exist
-char* ResolveFile(const char* filename, path_collection_t* paths); // find a file, using Path if needed
+// 0 : doesn't exist, 1: Does exist
+int FileExist(const char* filename, int flags);
+
+// find a file, using Path if needed
+char* ResolveFile(const char* filename, path_collection_t* paths);
+
+// 1: if file is an x86 elf, 0: if not (or not found)
+int FileIsX86ELF(const char* filename);
 
 #endif //__FILEUTILS_H_
