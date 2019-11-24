@@ -104,7 +104,8 @@ typedef struct box86context_s {
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
-    int32_t             tlssize;    // current size of tlsdata
+    int32_t             tlscurrent; // current size of tlsdata
+    int32_t             tlssize;    // wanted size of tlsdata
 
 #ifdef DYNAREC
     pthread_mutex_t     mutex_blocks;

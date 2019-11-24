@@ -67,17 +67,17 @@ void FreeElfHeader(elfheader_t** head)
 int CalcLoadAddr(elfheader_t* head)
 {
     head->memsz = 0;
-    head->paddr = head->vaddr = (uintptr_t)~0;
+    head->paddr = head->vaddr = ~(uintptr_t)0;
     head->align = 1;
     for (int i=0; i<head->numPHEntries; ++i)
         if(head->PHEntries[i].p_type == PT_LOAD) {
-            if(head->paddr > head->PHEntries[i].p_paddr)
-                head->paddr = head->PHEntries[i].p_paddr;
-            if(head->vaddr > head->PHEntries[i].p_vaddr)
-                head->vaddr = head->PHEntries[i].p_vaddr;
+            if(head->paddr > (uintptr_t)head->PHEntries[i].p_paddr)
+                head->paddr = (uintptr_t)head->PHEntries[i].p_paddr;
+            if(head->vaddr > (uintptr_t)head->PHEntries[i].p_vaddr)
+                head->vaddr = (uintptr_t)head->PHEntries[i].p_vaddr;
         }
     
-    if(head->vaddr==~0 || head->paddr==~0) {
+    if(head->vaddr==~(uintptr_t)0 || head->paddr==~(uintptr_t)0) {
         printf_log(LOG_NONE, "Error: v/p Addr for Elf Load not set\n");
         return 1;
     }
@@ -745,7 +745,46 @@ static void* fillTLSData(box86context_t *context)
             }
         }
         memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        context->tlscurrent = context->tlssize;
         pthread_mutex_unlock(&context->mutex_lock);
+        return ptr;
+}
+
+static void* resizeTLSData(box86context_t *context, void* oldptr)
+{
+        void* ptr = NULL;
+        pthread_mutex_lock(&context->mutex_lock);
+        if(context->tlscurrent==context->tlssize) { // Meh, nothing to do (some multithread joke probably)
+            pthread_mutex_unlock(&context->mutex_lock);
+            return context->tlsdata;
+        }
+        // Setup the GS segment:
+        int dtsize = context->elfsize*8;
+        ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
+        memcpy(ptr, context->tlsdata, context->tlssize);
+        pthread_setspecific(context->tlskey, ptr);
+        // copy canary...
+        memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
+        uintptr_t unknown = (uintptr_t)ptr+context->tlssize;
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &unknown, 4);
+        uintptr_t dtp = (uintptr_t)ptr+context->tlssize+0x50;
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x4), &dtp, 4);
+        if(dtsize) {
+            for (int i=0; i<context->elfsize; ++i) {
+                // set pointer
+                dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
+                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8), &dtp, 4);
+                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8+4), &i, 4); // index
+            }
+        }
+        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        // copy the relevent old part, in case something changed
+        memcpy((void*)((uintptr_t)ptr+(context->tlssize-context->tlscurrent)), oldptr, context->tlscurrent);
+        // all done, update new size, free old pointer and exit
+        context->tlscurrent = context->tlssize;
+        pthread_mutex_unlock(&context->mutex_lock);
+        free(oldptr);
         return ptr;
 }
 
@@ -755,6 +794,8 @@ void* GetGSBase(box86context_t *context)
     if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
         ptr = fillTLSData(context);
     }
+    if(context->tlscurrent != context->tlssize)
+        ptr = resizeTLSData(context, ptr);
     return ptr+context->tlssize;
 }
 
@@ -781,6 +822,8 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h)
     if ((ptr = pthread_getspecific(context->tlskey)) == NULL) {
         ptr = fillTLSData(context);
     }
+    if(context->tlscurrent != context->tlssize)
+        ptr = resizeTLSData(context, ptr);
     return ptr+(context->tlssize+h->tlsbase);
 }
 
