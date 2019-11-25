@@ -747,4 +747,10 @@ Op is 20-27
 // Vector Reciprocal Step of Dn and Dm to Dd
 #define VRECPSQ_F32(Dd, Dn, Dm) EMIT(VRECPS_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VSWAP_gen(D, size, Vd, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Swap Double vectors content
+#define VSWAP(Dd, Dm)   EMIT(VSWAP_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15)))
+// Swap Quad vectors content
+#define VSWAPQ(Dd, Dm)  EMIT(VSWAP_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15)))
+
 #endif  //__ARM_EMITTER_H__

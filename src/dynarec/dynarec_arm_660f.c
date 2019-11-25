@@ -462,7 +462,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVD(v0+1, q0+1);  // get a copy
             VZIP_16(v0, v0+1);
             break;
-
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            gd = (nextop&0x38)>>3;
+            GETEX(q0);
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                q1 = fpu_get_scratch_quad(dyn);
+                VMOVQ(q1, q0);
+            } else q1 = q0;
+            VZIPQ_32(v0, q1);
+            VMOVQ(v0, q1);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gx,Ex");
             nextop = F8;
@@ -488,7 +501,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLDR_64(v0+1, ed, fixedaddress);
             }
             break;
-
+        case 0x6D:
+            INST_NAME("PUNPCKHQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            VMOVD(q0, q0+1);
+            if((nextop&0xC0)==0xC0) {
+                q1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(q0+1, q1+1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023-8, 3);
+                VLDR_64(q0+1, ed, fixedaddress+8);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
