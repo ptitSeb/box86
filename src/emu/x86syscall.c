@@ -14,9 +14,7 @@
 #include <errno.h>
 #include <sched.h>
 #include <sys/wait.h>
-#ifndef __NR_olduname
 #include <sys/utsname.h>
-#endif
 #ifndef __NR_socketcall
 #include <linux/net.h>
 #include <sys/socket.h>
