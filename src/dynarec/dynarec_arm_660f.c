@@ -28,7 +28,8 @@
         a = sse_get_reg(dyn, ninst, x1, nextop&7);  \
     } else {                    \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
-        VLD1Q_64(q0, ed);       \
+        a = fpu_get_scratch_quad(dyn); \
+        VLD1Q_64(a, ed);       \
     }
 #define GETGX(a)    \
     gd = (nextop&0x38)>>3;  \
