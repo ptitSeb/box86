@@ -14,9 +14,7 @@
 #include <errno.h>
 #include <sched.h>
 #include <sys/wait.h>
-#ifndef __NR_olduname
 #include <sys/utsname.h>
-#endif
 #ifndef __NR_socketcall
 #include <linux/net.h>
 #include <sys/socket.h>
@@ -140,6 +138,7 @@ scwrap_t syscallwrap[] = {
     { 149, __NR__sysctl, 1 },    // need wrapping?
     { 158, __NR_sched_yield, 0 },
     { 162, __NR_nanosleep, 2 },
+    { 164, __NR_setresuid, 3 },
     { 168, __NR_poll, 3 },
     { 172, __NR_prctl, 5 },
     //{ 173, __NR_rt_sigreturn, 0 },
