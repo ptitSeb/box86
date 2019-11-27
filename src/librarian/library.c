@@ -81,7 +81,6 @@ void EmuLib_Fini(library_t* lib)
 {
     kh_destroy(mapsymbols, lib->priv.n.mapsymbols);
     kh_destroy(mapsymbols, lib->priv.n.localsymbols);
-    kh_destroy(needed, lib->needed);
 }
 
 int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
@@ -315,6 +314,8 @@ void FreeLibrary(library_t **lib)
         kh_destroy(symbolmap, (*lib)->stsymbolmap);
     if((*lib)->symbol2map)
         kh_destroy(symbol2map, (*lib)->symbol2map);
+    if((*lib)->needed)
+        kh_destroy(needed, (*lib)->needed);
 
     free(*lib);
     *lib = NULL;
