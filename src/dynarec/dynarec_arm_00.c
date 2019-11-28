@@ -1153,9 +1153,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGD;
             GETED;
             // xor swap to avoid one more tmp reg
-            XOR_REG_LSL_IMM8(gd, gd, ed, 0);
-            XOR_REG_LSL_IMM8(ed, gd, ed, 0);
-            XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+            if(gd!=ed) {
+                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                XOR_REG_LSL_IMM8(ed, gd, ed, 0);
+                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+            }
             WBACK;
             if((nextop&0xC0)!=0xC0) {
                 // Unlock
