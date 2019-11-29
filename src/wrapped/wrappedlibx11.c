@@ -742,7 +742,7 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 }
 EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
-    printf_log(LOG_INFO, "BOX86: Warning, called party implemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
+    printf_log(LOG_INFO, "BOX86: Warning, called partly implemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     void* ret = NULL;
