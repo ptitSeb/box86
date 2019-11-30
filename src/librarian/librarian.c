@@ -264,6 +264,24 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
     return 0;
 }
 
+int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self)
+{
+    if(maplib->context->elfs[0]==self) {
+        if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
+            if(*start)
+                return 1;
+    } else {
+        for(int i=0; i<maplib->libsz; ++i) {
+            if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
+                if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+                    if(*start)
+                        return 1;
+        }
+    }
+    return 0;
+}
+
+
 void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
 {
     int ret;
