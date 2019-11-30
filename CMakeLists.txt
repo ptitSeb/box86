@@ -245,7 +245,7 @@ if(ARM_DYNAREC)
 endif()
 
 if(NOT NOLOADADDR)
-    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0xA8000000)
+    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x0A800000)
 endif()
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
