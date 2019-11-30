@@ -400,12 +400,6 @@ EXPORT double my_ov_time_total(x86emu_t* emu, void* vf, int32_t i) {
 
 #include "wrappedlib_init.h"
 
-typedef union ui64_s {
-    int64_t     i;
-    uint64_t    u;
-    uint32_t    d[2];
-} ui64_t;
-
 static size_t my_read_func(x86emu_t* emu, void *ptr, size_t size, size_t nmemb, void *datasource)
 {
     SetCallbackNArg(emu, 4);
@@ -421,10 +415,8 @@ static int my_seek_func(x86emu_t* emu, void *datasource, int64_t offset, int whe
 {
     SetCallbackNArg(emu, 4);    // because offset is 64bits...
     SetCallbackArg(emu, 0, datasource);
-    ui64_t ofs;
-    ofs.i = offset;
-    SetCallbackArg(emu, 1, (void*)ofs.d[0]);
-    SetCallbackArg(emu, 2, (void*)ofs.d[1]);
+    SetCallbackArg(emu, 1, (void*)(uintptr_t)(offset&0xffffffff));
+    SetCallbackArg(emu, 2, (void*)(uintptr_t)(offset>>32));
     SetCallbackArg(emu, 3, (void*)whence);
     void* fnc = GetCallbackArg(emu, 6);
     SetCallbackAddress(emu, (uintptr_t)fnc);

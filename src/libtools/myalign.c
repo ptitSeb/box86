@@ -274,8 +274,7 @@ typedef struct __attribute__((packed)) {
   long    lacing_returned;
 
   unsigned char    header[282];
-  unsigned char     dummy_align[2]; // not in the actual structure....
-  int              header_fill;
+  int              header_fill __attribute__ ((aligned (4)));
 
   int     e_o_s;
   int     b_o_s;
@@ -315,7 +314,7 @@ typedef struct __attribute__((packed)) vorbis_dsp_state_x86 {
   void       *backend_state;
 } vorbis_dsp_state_x86;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   long endbyte;
   int  endbit;
 
@@ -397,7 +396,7 @@ GO(datasource) \
 GO(seekable) \
 GO(offset) \
 GO(end) \
-GO(oy) \
+GOM(oy, sizeof(ogg_sync_state)) \
 GO(links) \
 GO(offsets) \
 GO(dataoffsets) \
@@ -462,7 +461,6 @@ GO(vb.mode) \
 GO(vb.eofflag) \
 GO(vb.granulepos) \
 GO(vb.sequence) \
-GO(vb.vd) \
 GO(vb.localstore) \
 GO(vb.localtop) \
 GO(vb.localalloc) \
@@ -473,25 +471,33 @@ GO(vb.time_bits) \
 GO(vb.floor_bits) \
 GO(vb.res_bits) \
 GO(vb.internal) \
-GO(callbacks)
+GOM(callbacks, sizeof(ov_callbacks))
 
 void AlignOggVorbis(void* dest, void* source)
 {
      // Arm -> x86
-     #define GO(A) ((OggVorbis*)dest)->A = ((OggVorbis_x86*)source)->A;
-     #define GOM(A, S) memcpy(&((OggVorbis*)dest)->A, &((OggVorbis_x86*)source)->A, S);
+     OggVorbis_x86* src = (OggVorbis_x86*)source;
+     OggVorbis*     dst = (OggVorbis*)dest;
+
+     #define GO(A) dst->A = src->A;
+     #define GOM(A, S) memcpy(&dst->A, &src->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
+     dst->vb.vd = (src->vb.vd == &src->vd)?&dst->vd:(vorbis_dsp_state*)src->vb.vd;
 }
 void UnalignOggVorbis(void* dest, void* source)
 {
     // x86 -> Arm
-     #define GO(A) ((OggVorbis_x86*)dest)->A = ((OggVorbis*)source)->A;
-     #define GOM(A, S) memcpy(&((OggVorbis_x86*)dest)->A, &((OggVorbis*)source)->A, S);
+     OggVorbis_x86* dst = (OggVorbis_x86*)dest;
+     OggVorbis*     src = (OggVorbis*)source;
+
+     #define GO(A) dst->A = src->A;
+     #define GOM(A, S) memcpy(&dst->A, &src->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
+     dst->vb.vd = (src->vb.vd == &src->vd)?&dst->vd:(vorbis_dsp_state_x86*)src->vb.vd;
 }
 #undef TRANSFERT
 

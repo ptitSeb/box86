@@ -120,27 +120,31 @@ GO(vorbis_synthesis_blockin, iFpp)
 GOM(vorbis_synthesis, iFEpp)
 GOM(vorbis_synthesis_blockin, iFEpp)
 #endif
-//GO(vorbis_synthesis_halfrate, 
-//GO(vorbis_synthesis_halfrate_p, 
+GO(vorbis_synthesis_halfrate, iFpi)
+GO(vorbis_synthesis_halfrate_p, iFp)
 GO(vorbis_synthesis_headerin, iFppp)
-//GO(vorbis_synthesis_idheader, 
+GO(vorbis_synthesis_idheader, iFp)
 #ifdef NOALIGN
 GO(vorbis_synthesis_init, iFpp)
-//GO(vorbis_synthesis_lapout, 
+GO(vorbis_synthesis_lapout, iFpp)
 GO(vorbis_synthesis_pcmout, iFpp)
 GO(vorbis_synthesis_read, iFpi)
 GO(vorbis_synthesis_restart, iFp)
 GO(vorbis_synthesis_trackonly, iFpp)
 #else
 GOM(vorbis_synthesis_init, iFEpp)
-//GO(vorbis_synthesis_lapout, 
+GOM(vorbis_synthesis_lapout, iFEpp)
 GOM(vorbis_synthesis_pcmout, iFEpp)
 GOM(vorbis_synthesis_read, iFEpi)
 GOM(vorbis_synthesis_restart, iFEp)
 GOM(vorbis_synthesis_trackonly, iFpp)
 #endif
 GO(vorbis_version_string, pFv)
-//GO(vorbis_window, 
+#ifdef NOALIGN
+GO(vorbis_window, pFpi)
+#else
+GOM(vorbis_window, pFEpi)
+#endif
 //GO(_vorbis_window_get, 
 //GO(_vp_ampmax_decay, 
 //GO(_vp_couple_quantize_normalize, 

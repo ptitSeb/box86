@@ -331,8 +331,8 @@ GOW(modff, fFfp)
 // nan  // Weak
 // nanf // Weak
 // nanl // Weak
-// nearbyint    // Weak
-// nearbyintf   // Weak
+GOW(nearbyint, dFd)
+GOW(nearbyintf, fFf)
 // nearbyintl   // Weak
 // nextafter    // Weak
 // nextafterf   // Weak

@@ -44,10 +44,12 @@ typedef struct vorbis_my_s {
     iFpp_t  vorbis_synthesis;
     iFpp_t  vorbis_synthesis_blockin;
     iFpp_t  vorbis_synthesis_init;
+    iFpp_t  vorbis_synthesis_lapout;
     iFpp_t  vorbis_synthesis_pcmout;
     iFpi_t  vorbis_synthesis_read;
     iFp_t   vorbis_synthesis_restart;
     iFpp_t  vorbis_synthesis_trackonly;
+    pFpi_t  vorbis_window;
 } vorbis_my_t;
 
 void* getVorbisMy(library_t* lib)
@@ -68,10 +70,12 @@ void* getVorbisMy(library_t* lib)
     GO(vorbis_synthesis, iFpp_t)
     GO(vorbis_synthesis_blockin, iFpp_t)
     GO(vorbis_synthesis_init, iFpp_t)
+    GO(vorbis_synthesis_lapout, iFpp_t)
     GO(vorbis_synthesis_pcmout, iFpp_t)
     GO(vorbis_synthesis_read, iFpi_t)
     GO(vorbis_synthesis_restart, iFp_t)
     GO(vorbis_synthesis_trackonly, iFpp_t)
+    GO(vorbis_window, pFpi_t)
     #undef GO
     return my;
 }
@@ -231,6 +235,16 @@ int EXPORT my_vorbis_synthesis_init(x86emu_t *emu, void * v, void* vi)
     return ret;
 }
 
+int EXPORT my_vorbis_synthesis_lapout(x86emu_t *emu, void* v, void* pcm)
+{
+    vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
+    vorbis_dsp_state state;
+    AlignVorbisDspState(&state, v);
+    int ret = my->vorbis_synthesis_lapout(&state, pcm);
+    UnalignVorbisDspState(v, &state);
+    return ret;
+}
+
 int EXPORT my_vorbis_synthesis_pcmout(x86emu_t *emu, void * v, void* pcm)
 {
     vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
@@ -268,6 +282,17 @@ int EXPORT my_vorbis_synthesis_trackonly(x86emu_t *emu, void * vb, void* op)
     AlignVorbisBlock(&block, vb);
     int ret = my->vorbis_synthesis_trackonly(&block, op);
     UnalignVorbisBlock(vb, &block);
+    return ret;
+}
+
+// this one seems wrong (use emulated vorbisfile to debug)
+EXPORT void* my_vorbis_window(x86emu_t *emu, void* v, int W)
+{
+    vorbis_my_t* my = (vorbis_my_t*)emu->context->vorbis->priv.w.p2;
+    vorbis_dsp_state state;
+    AlignVorbisDspState(&state, v);
+    void* ret = my->vorbis_window(&state, W);
+    UnalignVorbisDspState(v, &state);
     return ret;
 }
 

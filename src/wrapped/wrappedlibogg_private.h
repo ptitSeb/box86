@@ -44,7 +44,7 @@ GO(oggpack_writeclear, vFp)
 //GO(oggpack_writetrunc, 
 GO(ogg_page_bos, iFp)
 GO(ogg_page_checksum_set, iFp)
-//GO(ogg_page_continued, 
+GO(ogg_page_continued, iFp)
 GO(ogg_page_eos, iFp)
 GO(ogg_page_granulepos, IFp)
 //GO(ogg_page_packets, 
@@ -61,7 +61,7 @@ GO(ogg_stream_init, iFpi)
 //GO(ogg_stream_iovecin, 
 GO(ogg_stream_packetin, iFpp)
 GO(ogg_stream_packetout, iFpp)
-//GO(ogg_stream_packetpeek, 
+GO(ogg_stream_packetpeek, iFpp)
 GO(ogg_stream_pagein, iFpp)
 GO(ogg_stream_pageout, iFpp)
 //GO(ogg_stream_pageout_fill, 
@@ -73,6 +73,6 @@ GO(ogg_sync_clear, iFp)
 //GO(ogg_sync_destroy, 
 GO(ogg_sync_init, iFp)
 GO(ogg_sync_pageout, iFpp)
-//GO(ogg_sync_pageseek, 
+GO(ogg_sync_pageseek, iFpp)
 GO(ogg_sync_reset, iFp)
 GO(ogg_sync_wrote, iFpi)
