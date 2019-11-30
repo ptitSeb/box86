@@ -78,7 +78,7 @@ GO(pthread_equal, iFuu)
 GO(pthread_exit, vFp)
 // pthread_getaffinity_np
 GO(pthread_getattr_np, iFup)
-// pthread_getconcurrency
+GO(pthread_getconcurrency, iFv)
 GO(pthread_getcpuclockid, iFup)
 GO(pthread_getschedparam, iFupp)
 GO(__pthread_getspecific, pFu)
@@ -154,7 +154,7 @@ GOM(pthread_setaffinity_np, iFEpup)
 #endif
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
-// pthread_setconcurrency
+GO(pthread_setconcurrency, iFi)
 GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
 GO(pthread_setschedparam, iFuip)
 GO(pthread_setschedprio, iFpi)

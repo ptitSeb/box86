@@ -273,7 +273,11 @@ GOW(ilogbf, iFf)
 // jnl
 GOW(ldexp, dFdi)
 GOW(ldexpf, fFfi)
-// ldexpl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(ldexpl, DFD)
+#else
+GO2(ldexpl, LFL, ldexp)
+#endif
 GOW(lgamma, dFd)
 GOW(lgammaf, fFf)
 GOW(lgammaf_r, fFfp)

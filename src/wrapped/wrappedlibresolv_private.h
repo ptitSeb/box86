@@ -30,7 +30,7 @@ GO(__ns_get16, uFp)
 GOW(ns_get16, uFp)
 GO(__ns_get32, uFp)
 GOW(ns_get32, uFp)
-//GO(ns_initparse
+GO(ns_initparse, iFpip)
 //GO(ns_makecanon
 //GO(ns_msg_getflag
 GO(ns_name_compress, iFppupp)
@@ -44,7 +44,7 @@ GO(ns_name_skip, iFpp)
 GO(ns_name_uncompress, iFppppu)
 GO(__ns_name_unpack, iFppppu)
 GOW(ns_name_unpack, iFppppu)
-//GO(ns_parserr
+GO(ns_parserr, iFpiip)
 //GO(ns_parse_ttl
 GO(ns_put16, vFup)
 GO(ns_put32, vFup)
@@ -87,7 +87,7 @@ GO(__res_nameinquery, iFpiipp)
 //GO(__res_nmkquery
 //GO(__res_nquery
 //GO(__res_nquerydomain
-//GO(__res_nsearch
+GO(__res_nsearch, iFppiipi)
 //GO(__res_nsend
 //DATA(_res_opcodes, 4)
 GO(__res_ownok, iFp)

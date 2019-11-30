@@ -900,11 +900,30 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     return execv(path, argv);
 }
 
-EXPORT int32_t my_execvp(x86emu_t* emu, void* a, void* b, va_list v)
+EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 {
-    return execvp(a, b);
+    // need to use BOX86_PATH / PATH here...
+    int x86 = FileIsX86ELF(path);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p), IsX86=%d\n", path, argv, x86);
+    if (x86) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        newargv[0] = emu->context->box86path;
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = argv[j];
+        int ret = execvp(newargv[0], argv);
+        free(newargv);
+        return ret;
+    }
+    return execvp(path, argv);
 }
-EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v) __attribute__((alias("my_execvp")));
+EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v)
+{
+    // align?
+    return my_execvp(emu, a, b);
+}
 
 EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
 {

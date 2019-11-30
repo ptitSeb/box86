@@ -285,7 +285,7 @@ GOM(execle, iFEpVV)
 GOM(execlp, iFEpVV)
 GOM(execv, iFEpp)
 GOW(execve, iFppp)   // and this one too...
-GOM(execvp, iFEpVV)
+GOM(execvp, iFEpp)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
@@ -1749,8 +1749,8 @@ DATA(sys_errlist, 4)
 GO(sysinfo, iFp)
 GO2(syslog, vFiV, vsyslog)
 GO2(__syslog_chk, vFiipV, __vsyslog_chk)
-// _sys_nerr    // type R
-// sys_nerr // type R
+DATA(_sys_nerr, 4)    // type R
+DATA(sys_nerr, 4) // type R
 DATA(sys_sigabbrev, 4)
 DATA(_sys_siglist, 4)
 DATA(sys_siglist, 4)
