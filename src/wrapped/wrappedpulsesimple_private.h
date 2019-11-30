@@ -48,4 +48,17 @@ GO(pa_simple_write, iFppip)
 //GO(pa_threaded_mainloop_wait, 
 //GO(pa_xfree, 
 //GO(pa_xmalloc, 
-GO(pa_strerror, pFi)    // this one seems to comes from the "full" pulseaudio lib
+// this one seems to comes from the "full" pulseaudio lib
+GO(pa_strerror, pFi)
+GO(pa_mainloop_free, vFp)
+GO(pa_mainloop_get_api, pFp)
+GO(pa_mainloop_new, pFv)
+GO(pa_mainloop_prepare, iFpi)
+GO(pa_mainloop_poll, iFp)
+GO(pa_mainloop_dispatch, iFp)
+GO(pa_mainloop_get_retval, iFp)
+GO(pa_mainloop_iterate, iFpip)
+GO(pa_mainloop_run, iFpp)
+GO(pa_mainloop_quit, vFpi)
+GO(pa_mainloop_wakeup, vFp)
+//GO(pa_mainloop_set_poll_func, vFpBp)  //B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
