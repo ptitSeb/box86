@@ -134,6 +134,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)calloc(1, sizeof(library_t));
+    lib->path = strdup(path);
     lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = -1;
@@ -245,6 +246,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 }
 int AddSymbolsLibrary(library_t* lib, x86emu_t* emu)
 {
+    lib->active = 1;
     if(lib->type==1) {
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
         // add symbols
@@ -281,6 +283,51 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
     return 0;
 }
 
+int ReloadLibrary(library_t* lib, x86emu_t* emu)
+{
+    lib->active = 1;
+    if(lib->type==1) {
+        elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
+        // reload image in memory and re-run the mapping
+        char libname[MAX_PATH];
+        strcpy(libname, lib->path);
+        int found = FileExist(libname, IS_FILE);
+        if(!found && !strchr(lib->path, '/'))
+            for(int i=0; i<lib->context->box86_ld_lib.size; ++i)
+            {
+                strcpy(libname, lib->context->box86_ld_lib.paths[i]);
+                strcat(libname, lib->path);
+                if(FileExist(libname, IS_FILE))
+                    break;
+            }
+        if(!FileExist(libname, IS_FILE)) {
+            printf_log(LOG_NONE, "Error: open file to re-load elf %s\n", libname);
+            return 1;   // failed to reload...
+        }
+        FILE *f = fopen(libname, "rb");
+        if(ReloadElfMemory(f, lib->context, elf_header)) {
+            printf_log(LOG_NONE, "Error: re-loading in memory elf %s\n", libname);
+            fclose(f);
+            return 1;
+        }
+        // can close the file now
+        fclose(f);
+        if(RelocateElf(lib->context->maplib, elf_header)) {
+            printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
+            return 1;
+        }
+        RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
+        // init (will use PltRelocator... because some other libs are not yet resolved)
+        RunElfInit(elf_header, emu);
+    }
+    return 0;
+}
+
+void InactiveLibrary(library_t* lib)
+{
+    lib->active = 0;
+}
+
 void FreeLibrary(library_t **lib)
 {
     if(!(*lib)) return;
@@ -289,6 +336,7 @@ void FreeLibrary(library_t **lib)
         (*lib)->fini(*lib);
     }
     free((*lib)->name);
+    free((*lib)->path);
     free((*lib)->altmy);
 
     if((*lib)->bridgemap) {
@@ -345,7 +393,7 @@ int IsSameLib(library_t* lib, const char* path)
 }
 int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    if(!name[0])
+    if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map
@@ -371,7 +419,7 @@ int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uin
 }
 int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    if(!name[0])
+    if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // get a new symbol
@@ -397,7 +445,7 @@ int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
 }
 int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    if(!name[0])
+    if(!name[0] || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map
@@ -430,6 +478,8 @@ int GetElfIndex(library_t* lib)
 
 int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size)
 {
+    if(!lib->active)
+        return 0;
     khint_t k;
     int ret;
     void* symbol;

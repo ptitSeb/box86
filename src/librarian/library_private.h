@@ -50,8 +50,10 @@ typedef struct nlib_s {
 
 typedef struct library_s {
     char*               name;   // <> path
+    char*               path;   // original path
     int                 nbdot;  // nombre of "." after .so
     int                 type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
+    int                 active;
     wrappedlib_fini_t   fini;
     wrappedlib_get_t    get;        // get weak and no weak
     wrappedlib_get_t    getnoweak;  // get only non weak symbol

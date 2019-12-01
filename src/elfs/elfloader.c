@@ -196,6 +196,29 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
     return 0;
 }
 
+int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
+{
+    for (int i=0; i<head->numPHEntries; ++i) {
+        if(head->PHEntries[i].p_type == PT_LOAD) {
+            Elf32_Phdr * e = &head->PHEntries[i];
+            char* dest = (char*)e->p_paddr + head->delta;
+            printf_log(LOG_DEBUG, "Re-loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
+            fseek(f, e->p_offset, SEEK_SET);
+            if(e->p_filesz) {
+                if(fread(dest, e->p_filesz, 1, f)!=1) {
+                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                    return 1;
+                }
+            }
+            // zero'd difference between filesz and memsz
+            if(e->p_filesz != e->p_memsz)
+                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+        }
+    }
+    // TLS data are just a copy, no need to re-load it
+    return 0;
+}
+
 int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
 {
     for (int i=0; i<cnt; ++i) {
@@ -324,7 +347,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     memmove(p, (void*)offs, sym->st_size);
                     if(LOG_DEBUG<=box86_log) {
                         uint32_t*k = (uint32_t*)p;
-                        for (int i=0; i<(sym->st_size>128)?128:sym->st_size; i+=4, ++k)
+                        for (int i=0; i<((sym->st_size>128)?128:sym->st_size); i+=4, ++k)
                             printf_log(LOG_DEBUG, "%s0x%08X", i?" ":"", *k);
                         printf_log(LOG_DEBUG, "%s)\n", (sym->st_size>128)?" ...":"");
                     }
@@ -604,6 +627,7 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     Pop32(emu);
     Pop32(emu);
     h->init_done = 1;
+    h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
     printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
@@ -640,6 +664,7 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
     }
     SetESP(emu, sESP);
     h->fini_done = 1;
+    h->init_done = 0;   // can be re-inited again...
     return;
 }
 

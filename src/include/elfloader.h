@@ -21,6 +21,7 @@ int CalcLoadAddr(elfheader_t* head);
 int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
 int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
+int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
 int RelocateElf(lib_t *maplib, elfheader_t* head);
 int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
