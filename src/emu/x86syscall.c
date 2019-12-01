@@ -135,6 +135,8 @@ scwrap_t syscallwrap[] = {
     { 142, __NR_select, 5 },
 #endif
     { 143, __NR_flock,  2 },
+    { 145, __NR_fdatasync, 1 },
+    { 146, __NR_writev, 3 },
     { 149, __NR__sysctl, 1 },    // need wrapping?
     { 158, __NR_sched_yield, 0 },
     { 162, __NR_nanosleep, 2 },
