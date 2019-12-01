@@ -124,11 +124,11 @@ GOM(pthread_once, iFEpp)
 GOM(__pthread_once, iFEpp)
 GO(__pthread_register_cancel, vFp)
 // __pthread_register_cancel_defer
-// pthread_rwlockattr_destroy
-// pthread_rwlockattr_getkind_np
+GO(pthread_rwlockattr_destroy, vFp)
+GO(pthread_rwlockattr_getkind_np, iFpp)
 // pthread_rwlockattr_getpshared
-// pthread_rwlockattr_init
-// pthread_rwlockattr_setkind_np
+GO(pthread_rwlockattr_init, iFp)
+GO(pthread_rwlockattr_setkind_np, iFpi)
 // pthread_rwlockattr_setpshared
 // __pthread_rwlock_destroy
 GO(pthread_rwlock_destroy, iFp)

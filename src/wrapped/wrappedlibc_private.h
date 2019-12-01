@@ -289,7 +289,7 @@ GOM(execvp, iFEpp)
 GO(exit, vFi)
 GO(_exit, vFi)
 GO(_Exit, vFi)    // Weak
-GO(__explicit_bzero_chk, vFpuu)
+GOM(__explicit_bzero_chk, vFEpuu)    // not always defined
 GO(faccessat, iFipii)
 // fattach
 GO(__fbufsize, uFp)
@@ -2104,8 +2104,8 @@ GOM(_Jv_RegisterClasses, vFv)   // dummy
 
 GOM(__fdelt_chk, iFi)
 
-//GOM(getauxval, uFEu)  // implemented since glibc 2.16
-GO(getauxval, uFu)
+GOM(getauxval, uFEu)  // implemented since glibc 2.16
+//GO(getauxval, uFu)
 
 // not found (libitm???), but it seems OK to declare dummies:
 

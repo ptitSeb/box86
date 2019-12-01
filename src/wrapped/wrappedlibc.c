@@ -1202,6 +1202,17 @@ void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
     R_EIP = jpbuff->save_eip;
 }
 
+EXPORT uint32_t my_getauxval(x86emu_t* emu, uint32_t type)
+{
+    printf_log(LOG_INFO, "Warning, getauxval(%d) called\n", type);
+    return ENOENT;
+}
+
+EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)
+{
+    memset(dst, 0, len);
+}
+
 
 #define CUSTOM_INIT \
     InitCpuModel(); \
