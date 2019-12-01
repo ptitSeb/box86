@@ -32,6 +32,9 @@ int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abst
 int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex);
 int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind);
 int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope);
+void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg);
+void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec);
+int my_pthread_kill(x86emu_t* emu, void* thread, int sig);
 
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
@@ -76,6 +79,25 @@ EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 {
     printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(...) ignored\n");
     return 0;   // faking success
+}
+
+EXPORT int32_t my_pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
+{
+    // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
+    if(emu->context->atfork_sz==emu->context->atfork_cap) {
+        emu->context->atfork_cap += 4;
+        emu->context->atforks = (atfork_fnc_t*)realloc(emu->context->atforks, emu->context->atfork_cap*sizeof(atfork_fnc_t));
+    }
+    emu->context->atforks[emu->context->atfork_sz].prepare = (uintptr_t)prepare;
+    emu->context->atforks[emu->context->atfork_sz].parent = (uintptr_t)parent;
+    emu->context->atforks[emu->context->atfork_sz++].child = (uintptr_t)child;
+    return 0;
+}
+EXPORT int32_t my___pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child) __attribute__((alias("my_pthread_atfork")));
+
+EXPORT void my___pthread_initialize()
+{
+    // nothing, the lib initialize itself now
 }
 
 #include "wrappedlib_init.h"

@@ -3,6 +3,7 @@
 // __USE_UNIX98 is needed for sttype / gettype definition
 #define __USE_UNIX98
 #include <pthread.h>
+#include <signal.h>
 #include <errno.h>
 
 #include "debug.h"
@@ -269,4 +270,36 @@ EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
 	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
     //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
     // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
+}
+
+static void my_cleanup_routine(void* arg)
+{
+    if(!arg)
+        return;
+    x86emu_t *emu = (x86emu_t*)arg;
+    RunCallback(emu);
+	FreeCallback(emu);
+}
+void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare the function that should be in pthread lib
+void _pthread_cleanup_pop_restore(void* buffer, int exec);
+
+EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg)
+{
+    // create a callback...
+    x86emu_t* cbemu = AddCallback(emu, (uintptr_t)routine, 1, arg, NULL, NULL, NULL);
+	_pthread_cleanup_push_defer(buffer, my_cleanup_routine, cbemu);
+}
+
+EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec)
+{
+	_pthread_cleanup_pop_restore(buffer, exec);
+}
+
+
+EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
+{
+    // check for old "is everything ok?"
+    if(thread==NULL && sig==0)
+        return pthread_kill(pthread_self(), 0);
+    return pthread_kill((pthread_t)thread, sig);
 }

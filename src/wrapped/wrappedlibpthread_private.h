@@ -12,7 +12,8 @@
 // __libc_allocate_rtsig
 // __libc_current_sigrtmax
 // __libc_current_sigrtmin
-// pthread_atfork
+GOM(pthread_atfork, iFEppp)
+GOM(__pthread_atfork, iFppp)
 GO(pthread_attr_destroy, iFp)
 // pthread_attr_getaffinity_np
 GO(pthread_attr_getdetachstate, iFpp)
@@ -56,9 +57,9 @@ GO(pthread_attr_setstacksize, iFpp)
 // pthread_barrier_wait
 GO(pthread_cancel, iFi)
 // _pthread_cleanup_pop
-// _pthread_cleanup_pop_restore
+GOM(_pthread_cleanup_pop_restore, vFEpi)
 // _pthread_cleanup_push
-// _pthread_cleanup_push_defer
+GOM(_pthread_cleanup_push_defer, vFEppp)
 // __pthread_cleanup_routine
 GO(pthread_condattr_destroy, iFp)
 GO(pthread_condattr_getclock, iFpp)
@@ -84,12 +85,13 @@ GO(pthread_getschedparam, iFupp)
 GO(__pthread_getspecific, pFu)
 GO(pthread_getspecific, pFu)
 GOM(pthread_getname_np, iFEppu)  //not present on Pandora
+GOM(__pthread_initialize, vFv)  // doesn't exist anymore...
 // __pthread_initialize_minimal
 GO(pthread_join, iFup)
 GOM(__pthread_key_create, iFEpp)
 GOM(pthread_key_create, iFEpp)
 GO(pthread_key_delete, iFu)
-GO(pthread_kill, iFpi)
+GO(pthread_kill, iFEpi)
 // pthread_kill_other_threads_np
 GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)
