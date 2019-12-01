@@ -258,7 +258,6 @@ void fFppu(x86emu_t *emu, uintptr_t fnc);
 void fFppp(x86emu_t *emu, uintptr_t fnc);
 void dFppu(x86emu_t *emu, uintptr_t fnc);
 void dFppp(x86emu_t *emu, uintptr_t fnc);
-void DFppu(x86emu_t *emu, uintptr_t fnc);
 void pFEip(x86emu_t *emu, uintptr_t fnc);
 void pFEpi(x86emu_t *emu, uintptr_t fnc);
 void pFEpp(x86emu_t *emu, uintptr_t fnc);
@@ -413,6 +412,7 @@ void uFpuuu(x86emu_t *emu, uintptr_t fnc);
 void uFpuup(x86emu_t *emu, uintptr_t fnc);
 void uFpupp(x86emu_t *emu, uintptr_t fnc);
 void uFppii(x86emu_t *emu, uintptr_t fnc);
+void uFppip(x86emu_t *emu, uintptr_t fnc);
 void uFppup(x86emu_t *emu, uintptr_t fnc);
 void uFpppi(x86emu_t *emu, uintptr_t fnc);
 void uFpppp(x86emu_t *emu, uintptr_t fnc);
@@ -939,12 +939,16 @@ void iFEppiiiip(x86emu_t *emu, uintptr_t fnc);
 void DFD(x86emu_t *emu, uintptr_t fnc);
 void DFDD(x86emu_t *emu, uintptr_t fnc);
 void DFDp(x86emu_t *emu, uintptr_t fnc);
+void DFppu(x86emu_t *emu, uintptr_t fnc);
+void DFppip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
 void LFL(x86emu_t *emu, uintptr_t fnc);
 void LFLL(x86emu_t *emu, uintptr_t fnc);
 void LFLp(x86emu_t *emu, uintptr_t fnc);
+void LFppu(x86emu_t *emu, uintptr_t fnc);
+void LFppip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 void iFEp0pVV(x86emu_t *emu, uintptr_t fnc);

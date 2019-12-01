@@ -1673,23 +1673,28 @@ GOW(strtok_r, pFppp)
 GO(strtol, iFppi)
 GO(strtold, DFpp)
 // __strtold_internal
-// __strtold_l
+#ifdef HAVE_LD80BITS
+GO(__strtold_l, DFppip)
 GOW(strtold_l, DFppu)
+#else
+GO2(__strtold_l, LFppip, __strtod_l)
+GO2(strtold_l, LFppu, strtod_l)
+#endif
 GO(__strtol_internal, iFppi)
 GO(strtoll, IFppi)
-// __strtol_l
-// strtol_l // Weak
+GO(__strtol_l, iFppiip)
+GOW(strtol_l, iFppiip)
 GO(__strtoll_internal, IFppii)
-// __strtoll_l
+GO(__strtoll_l, IFppip)
 GOW(strtoll_l, IFppip)
 // strtoq   // Weak
 GO(strtoul, uFppi)
 GO(__strtoul_internal, uFppii)
 GO(strtoull, UFppi)
-// __strtoul_l
-// strtoul_l    // Weak
+GO(__strtoul_l, uFppip)
+GOW(strtoul_l, uFppip)
 GO(__strtoull_internal, UFppii)
-// __strtoull_l
+GO(__strtoull_l, UFppip)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
 // strtouq  // Weak
