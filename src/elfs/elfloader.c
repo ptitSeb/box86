@@ -207,10 +207,10 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         uintptr_t offs = 0;
         uint32_t sz = 0;
         uintptr_t end = 0;
-        if(!GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head)) // first local from elf
-            if(bind!=STB_LOCAL)
-                if(!GetNoWeakSymbolStartEnd(maplib, symname, &offs, &end, head))    // then global from elf
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);          // then everything
+        if(bind==STB_LOCAL)
+            GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head);
+        else
+            GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
         uintptr_t globoffs, globend;
         int delta;
         int t = ELF32_R_TYPE(rel[i].r_info);
@@ -324,9 +324,9 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     memmove(p, (void*)offs, sym->st_size);
                     if(LOG_DEBUG<=box86_log) {
                         uint32_t*k = (uint32_t*)p;
-                        for (int i=0; i<sym->st_size; i+=4, ++k)
+                        for (int i=0; i<(sym->st_size>128)?128:sym->st_size; i+=4, ++k)
                             printf_log(LOG_DEBUG, "%s0x%08X", i?" ":"", *k);
-                        printf_log(LOG_DEBUG, ")\n");
+                        printf_log(LOG_DEBUG, "%s)\n", (sym->st_size>128)?" ...":"");
                     }
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p)\n", symname, p, *(void**)p);
@@ -494,13 +494,15 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
             uint32_t sz = h->SymTab[i].st_size;
-            printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
+            printf_log(LOG_DUMP, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
                 AddSymbol(localsymbols, symname, offs, sz);
-            else if(bind==STB_WEAK)
-                AddSymbol(weaksymbols, symname, offs, sz);
-            else
-                AddSymbol(mapsymbols, symname, offs, sz);
+            else    // add in local and global map 
+                if(bind==STB_WEAK) {
+                    AddSymbol(weaksymbols, symname, offs, sz);
+                } else {
+                    AddSymbol(mapsymbols, symname, offs, sz);
+                }
         }
     }
     
@@ -515,13 +517,15 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             uint32_t sz = h->DynSym[i].st_size;
-            printf_log(LOG_DUMP, "Adding Symbol(bind=%d) \"%s\" with offset=%p sz=%d\n", bind, symname, (void*)offs, sz);
+            printf_log(LOG_DUMP, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
             if(bind==STB_LOCAL)
                 AddSymbol(localsymbols, symname, offs, sz);
-            else if(bind==STB_WEAK)
-                AddSymbol(weaksymbols, symname, offs, sz);
-            else
-                AddSymbol(mapsymbols, symname, offs, sz);
+            else // add in local and global map 
+                if(bind==STB_WEAK) {
+                    AddSymbol(weaksymbols, symname, offs, sz);
+                } else {
+                    AddSymbol(mapsymbols, symname, offs, sz);
+                }
         }
     }
     
@@ -589,6 +593,7 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     Push32(emu, (uintptr_t)context->argv);
     Push32(emu, context->argc);
     EmuCall(emu, p);
+    printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
@@ -599,6 +604,7 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     Pop32(emu);
     Pop32(emu);
     h->init_done = 1;
+    printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
 void RunDeferedElfInit(x86emu_t *emu)

@@ -34,8 +34,9 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
 int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self);
 elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name);
 
-void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz);
+void AddSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz); // replace if already there
 uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name);
+void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz); // don't add if already there
 int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end);
 const char* GetSymbolName(kh_mapsymbols_t* mapsymbols, void* p, uintptr_t* offs, uint32_t* sz);
 

@@ -53,8 +53,8 @@ typedef struct library_s {
     int                 nbdot;  // nombre of "." after .so
     int                 type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
     wrappedlib_fini_t   fini;
-    wrappedlib_get_t    get;    // get weak and no weak
-    wrappedlib_get_t    getnoweak;  // get only global symbol
+    wrappedlib_get_t    get;        // get weak and no weak
+    wrappedlib_get_t    getnoweak;  // get only non weak symbol
     wrappedlib_get_t    getlocal;
     union {
         wlib_t  w;     

@@ -193,17 +193,26 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
 }
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
+    // search non-weak symbol, from newer to older
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
         if(*start)
             return 1;
-    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
-        if(*start)
-            return 1;
-    for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+    for(int i=maplib->libsz-1; i>=0; --i) {
+        if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
             if(*start)
                 return 1;
     }
+
+    // and now weak symbol, from older to newer
+    // library for newer to older, weak only now
+    for(int i=0; i<maplib->libsz; ++i) {
+        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))    // only weak symbol haven't been found yet
+            if(*start)
+                return 1;
+    }
+    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
+        if(*start)
+            return 1;
     // nope, not found
     return 0;
 }
@@ -235,7 +244,6 @@ elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name)
 
 int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    //excude self if defined
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
         if(*start)
             return 1;
@@ -295,6 +303,15 @@ uintptr_t FindSymbol(kh_mapsymbols_t *mapsymbols, const char* name)
     if(k==kh_end(mapsymbols))
         return 0;
     return kh_val(mapsymbols, k).offs;
+}
+void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr, uint32_t sz)
+{
+    int ret;
+    khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
+    if(ret==1)
+        return; // Symbol already there, don't touch it
+    kh_value(mapsymbols, k).offs = addr;
+    kh_value(mapsymbols, k).sz = sz;
 }
 
 int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end)
