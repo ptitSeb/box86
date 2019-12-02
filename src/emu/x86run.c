@@ -72,7 +72,7 @@ int Run(x86emu_t *emu, int step)
     &&_0x50,    &&_0x51,    &&_0x52,    &&_0x53,    &&_0x54,    &&_0x55,    &&_0x56,    &&_0x57, 
     &&_0x58,    &&_0x59,    &&_0x5A,    &&_0x5B,    &&_0x5C,    &&_0x5D,    &&_0x5E,    &&_0x5F, 
     &&_0x60,    &&_0x61,    &&_default, &&_default, &&_default, &&_0x65,    &&_0x66,    &&_0x67,
-    &&_0x68,    &&_0x69,    &&_0x6A,    &&_0x6B,    &&_default, &&_default, &&_default, &&_default,   //0x68-0x6F
+    &&_0x68,    &&_0x69,    &&_0x6A,    &&_0x6B,    &&_0x6C,    &&_0x6D,    &&_default, &&_default,   //0x68-0x6F
     &&_0x70_0,  &&_0x70_1,  &&_0x70_2,  &&_0x70_3,  &&_0x70_4,  &&_0x70_5,  &&_0x70_6,  &&_0x70_7,    //0x70-0x77
     &&_0x70_8,  &&_0x70_9,  &&_0x70_A,  &&_0x70_B,  &&_0x70_C,  &&_0x70_D,  &&_0x70_E,  &&_0x70_F,    //0x78-0x7F
     &&_0x80,    &&_0x81,    &&_default, &&_0x83,    &&_0x84,    &&_0x85,    &&_0x86,    &&_0x87,     
@@ -427,6 +427,20 @@ _trace:
             GET_ED;
             tmp32s = F8S;
             GD.dword[0] = imul32(emu, ED->dword[0], (uint32_t)tmp32s);
+            NEXT;
+        _0x6C:                      /* INSB */
+            *(int8_t*)R_EDI = 0;   // faking port read
+            if(ACCESS_FLAG(F_DF))
+                R_EDI-=1;
+            else
+                R_EDI+=1;
+            NEXT;
+        _0x6D:                      /* INSD */
+            *(int32_t*)R_EDI = 0;   // faking port read
+            if(ACCESS_FLAG(F_DF))
+                R_EDI-=4;
+            else
+                R_EDI+=4;
             NEXT;
 
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
