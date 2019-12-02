@@ -418,6 +418,7 @@ void uFppip(x86emu_t *emu, uintptr_t fnc);
 void uFppup(x86emu_t *emu, uintptr_t fnc);
 void uFpppi(x86emu_t *emu, uintptr_t fnc);
 void uFpppp(x86emu_t *emu, uintptr_t fnc);
+void UFpUii(x86emu_t *emu, uintptr_t fnc);
 void UFppii(x86emu_t *emu, uintptr_t fnc);
 void UFppip(x86emu_t *emu, uintptr_t fnc);
 void pFEupp(x86emu_t *emu, uintptr_t fnc);

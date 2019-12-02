@@ -805,12 +805,12 @@ GO(_IO_sgetn, uFppu)
 GO(_IO_sputbackc, iFpi)
 // _IO_sputbackwc
 // _IO_sscanf
-// _IO_str_init_readonly
-// _IO_str_init_static
-// _IO_str_overflow
-// _IO_str_pbackfail
-// _IO_str_seekoff
-// _IO_str_underflow
+GO(_IO_str_init_readonly, vFppi)
+GO(_IO_str_init_static, vFppup)
+GO(_IO_str_overflow, iFpi)
+GO(_IO_str_pbackfail, iFpi)
+GO(_IO_str_seekoff, UFpUii)
+GO(_IO_str_underflow, iFp)
 GO(_IO_sungetc, iFp)
 // _IO_sungetwc
 GO(_IO_switch_to_get_mode, iFp)
@@ -821,7 +821,7 @@ GO(_IO_switch_to_get_mode, iFp)
 GO(_IO_un_link, vFp)
 GO(_IO_unsave_markers, vFp)
 // _IO_unsave_wmarkers
-// _IO_vfprintf
+GOM(_IO_vfprintf, iFEppVV)
 GOM(_IO_vfscanf, iFEppV)
 // _IO_vsprintf
 // _IO_wdefault_doallocate
