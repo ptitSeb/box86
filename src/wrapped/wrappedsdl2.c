@@ -924,7 +924,13 @@ const char* sdl2Name = "libSDL2-2.0.so.0";
     lib->priv.w.p2 = getSDL2My(lib); \
     box86->sdl2allocrw = ((sdl2_my_t*)lib->priv.w.p2)->SDL_AllocRW; \
     box86->sdl2freerw  = ((sdl2_my_t*)lib->priv.w.p2)->SDL_FreeRW; \
-    lib->altmy = strdup("my2_");
+    lib->altmy = strdup("my2_"); \
+    lib->priv.w.needed = 4; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libdl.so.2"); \
+    lib->priv.w.neededlibs[1] = strdup("libm.so.6"); \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1"); \
+    lib->priv.w.neededlibs[3] = strdup("libpthread.so.0");
 
 #define CUSTOM_FINI \
     freeSDL2My(lib->priv.w.p2); \

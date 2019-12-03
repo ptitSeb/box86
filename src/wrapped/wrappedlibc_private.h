@@ -1781,9 +1781,9 @@ GOW(textdomain, pFp)
 GO(time, uFp)
 GO(timegm, uFp)
 // timelocal    // Weak
-// timerfd_create
-// timerfd_gettime
-// timerfd_settime
+GO(timerfd_create, iFii)
+GO(timerfd_gettime, iFip)
+GO(timerfd_settime, iFiipp)
 GOW(times, iFp)
 DATAV(timezone, 4)
 DATAB(__timezone, 4)   // type B

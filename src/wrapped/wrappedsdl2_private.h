@@ -589,7 +589,7 @@ GOM(SDL_snprintf, iFEpupVV)
 GO(SDL_SoftStretch, iFpppp)
 GO(SDL_sqrt, dFd)
 GO(SDL_sqrtf, fFf)
-// SDL_sscanf
+GO2(SDL_sscanf, iFppV, SDL_vsscanf)
 GO(SDL_StartTextInput, vFv)
 GO(SDL_StopTextInput, vFv)
 GO(SDL_strcasecmp, iFpp)
