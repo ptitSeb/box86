@@ -46,6 +46,7 @@ int box86_dynarec_trace = 0;
 #ifdef PANDORA
 int x11color16 = 0;
 #endif
+char* libGL = NULL;
 
 FILE* ftrace = NULL;
 
@@ -165,6 +166,11 @@ void LoadLogEnv()
         printf_log(LOG_INFO, "Try to adjust X11 Color (32->16bits) : %s\n", x11color16?"Yes":"No");
     }
 #endif
+    p = getenv("BOX86_LIBGL");
+    if(p) {
+        libGL = strdup(p);
+        printf("BOX86 using \"%s\" as libGL.so.1\n", p);
+    }
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
@@ -268,6 +274,7 @@ void PrintHelp() {
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
+    printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
 }
 
 int main(int argc, const char **argv, const char **env) {
@@ -535,6 +542,8 @@ int main(int argc, const char **argv, const char **env) {
 
     // all done, free context
     FreeBox86Context(&context);
+    if(libGL)
+        free(libGL);
 
     return ret;
 }

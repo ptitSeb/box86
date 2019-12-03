@@ -85,3 +85,8 @@ Set level of DynaRec log
 #### BOX86_DYNAREC_TRACE
  * 0 : Disable trace for generated code (default)
  * 1 : Enable trace for generated code (like regular Trace, this will slow down a lot and generate huge logs)
+
+#### BOX86_LIBGL
+ * libXXXX set the name for libGL (default to libGL.so.1)
+ * /PATH/TO/libGLXXX set the name and path for libGL
+ Don't forget you need to use SDL_VIDEO_GL_DRIVER for SDL/SDL2 programs
