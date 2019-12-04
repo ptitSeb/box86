@@ -1677,8 +1677,8 @@ GO(strtold, DFpp)
 GO(__strtold_l, DFppip)
 GOW(strtold_l, DFppu)
 #else
-GO2(__strtold_l, LFppip, __strtod_l)
-GO2(strtold_l, LFppu, strtod_l)
+GO2(__strtold_l, KFppip, __strtod_l)
+GO2(strtold_l, KFppu, strtod_l)
 #endif
 GO(__strtol_internal, iFppi)
 GO(strtoll, IFppi)

@@ -13,7 +13,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // list of defined wrapper
 // v = void, i = int32, u = uint32, U/I= (u)int64
 // p = pointer, P = callback
-// f = float, d = double, D = long double, L = fake long double
+// f = float, d = double, D = long double, K = fake long double
 // V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
 // 0 = constant 0, 1 = constant 1
 // o = stdout
@@ -948,11 +948,11 @@ void DFppip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
-void LFL(x86emu_t *emu, uintptr_t fnc);
-void LFLL(x86emu_t *emu, uintptr_t fnc);
-void LFLp(x86emu_t *emu, uintptr_t fnc);
-void LFppu(x86emu_t *emu, uintptr_t fnc);
-void LFppip(x86emu_t *emu, uintptr_t fnc);
+void KFK(x86emu_t *emu, uintptr_t fnc);
+void KFKK(x86emu_t *emu, uintptr_t fnc);
+void KFKp(x86emu_t *emu, uintptr_t fnc);
+void KFppu(x86emu_t *emu, uintptr_t fnc);
+void KFppip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 void iFEp0pVV(x86emu_t *emu, uintptr_t fnc);

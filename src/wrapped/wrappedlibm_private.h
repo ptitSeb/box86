@@ -13,12 +13,12 @@ GO(__acosh_finite, dFd)
 #ifdef HAVE_LD80BITS
 GOW(acoshl, DFD)
 #else
-GO2(acoshl, LFL, acosh)
+GO2(acoshl, KFK, acosh)
 #endif
 #ifdef HAVE_LD80BITS
 GOW(acpsl, DFD)
 #else
-GO2(acosl, LFL, acos)
+GO2(acosl, KFK, acos)
 #endif
 GOW(asin, dFd)
 GOW(asinf, fFf)
@@ -29,12 +29,12 @@ GOW(asinhf, fFf)
 #ifdef HAVE_LD80BITS
 GOW(asinhl, DFD)
 #else
-GO2(asinhl, LFL, asinh)
+GO2(asinhl, KFK, asinh)
 #endif
 #ifdef HAVE_LD80BITS
 GOW(asinl, DFD)
 #else
-GO2(asinl, LFL, asin)
+GO2(asinl, KFK, asin)
 #endif
 GO(atan, dFd)
 GOW(atan2, dFdd)
@@ -50,7 +50,7 @@ GOW(atanhf, fFf)
 #ifdef HAVE_LD80BITS
 GOW(atanhl, DFD)
 #else
-GO2(atanhl, LFL, atanh)
+GO2(atanhl, KFK, atanh)
 #endif
 // atanl    // Weak
 // cabs // Weak
@@ -82,7 +82,7 @@ GOW(cbrtf, fFf)
 #ifdef HAVE_LD80BITS
 GOW(cbrtl, DFD)
 #else
-GO2(cbrtl, LFL, cbrt)
+GO2(cbrtl, KFK, cbrt)
 #endif
 // ccos // Weak
 // ccosf    // Weak
@@ -156,13 +156,13 @@ GOW(erfcf, fFf)
 #ifdef HAVE_LD80BITS
 GOW(erfcl, DFD)
 #else
-GO2(erfcl, LFL, erfc)
+GO2(erfcl, KFK, erfc)
 #endif
 GOW(erff, fFf)
 #ifdef HAVE_LD80BITS
 GOW(erfl, DFD)
 #else
-GO2(erfl, LFL, erf)
+GO2(erfl, KFK, erf)
 #endif
 GOW(exp, dFd)
 GOW(exp10, dFd)
@@ -227,7 +227,7 @@ GOW(fmodf, fFff)
 #ifdef HAVE_LD80BITS
 GOW(fmodl, DFDD)
 #else
-GO2(fmodl, LFLL, fmod)
+GO2(fmodl, KFKK, fmod)
 #endif
 GO(__fpclassify, iFd)
 GO(__fpclassifyf, iFf)
@@ -236,7 +236,7 @@ GOW(frexpf, fFfp)
 #ifdef HAVE_LD80BITS
 GOW(frexpl, DFDp)
 #else
-GO2(frexpl, LFLp, frexp)
+GO2(frexpl, KFKp, frexp)
 #endif
 // gamma    // Weak
 // gammaf   // Weak
@@ -276,7 +276,7 @@ GOW(ldexpf, fFfi)
 #ifdef HAVE_LD80BITS
 GOW(ldexpl, DFD)
 #else
-GO2(ldexpl, LFL, ldexp)
+GO2(ldexpl, KFK, ldexp)
 #endif
 GOW(lgamma, dFd)
 GOW(lgammaf, fFf)
@@ -285,12 +285,12 @@ GOW(lgammaf_r, fFfp)
 #ifdef HAVE_LD80BITS
 GOW(lgammal, DFD)
 #else
-GO2(lgammal, LFL, lgamma)
+GO2(lgammal, KFK, lgamma)
 #endif
 #ifdef HAVE_LD80BITS
 GOW(lgammal_r, DFDp)
 #else
-GO2(lgammal_r, LFLp, lgamma_r)
+GO2(lgammal_r, KFKp, lgamma_r)
 #endif
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
@@ -354,7 +354,7 @@ GO(__pow_finite, dFdd)
 #ifdef HAVE_LD80BITS
 GOW(powl, DFDD)
 #else
-GO2(powl, LFLL, pow)
+GO2(powl, KFKK, pow)
 #endif
 // remainder    // Weak
 // remainderf   // Weak
@@ -414,7 +414,7 @@ GOW(tgammaf, fFf)
 #ifdef HAVE_LD80BITS
 GOW(tgammal, DFD)
 #else
-GO2(tgammal, LFL, tgamma)
+GO2(tgammal, KFK, tgamma)
 #endif
 GOW(trunc, dFd)
 GOW(truncf, fFf)
