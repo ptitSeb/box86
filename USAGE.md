@@ -89,4 +89,4 @@ Set level of DynaRec log
 #### BOX86_LIBGL
  * libXXXX set the name for libGL (default to libGL.so.1)
  * /PATH/TO/libGLXXX set the name and path for libGL
- Don't forget you need to use SDL_VIDEO_GL_DRIVER for SDL/SDL2 programs
+ You can also use SDL_VIDEO_GL_DRIVER

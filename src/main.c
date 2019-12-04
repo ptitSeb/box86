@@ -167,9 +167,15 @@ void LoadLogEnv()
     }
 #endif
     p = getenv("BOX86_LIBGL");
-    if(p) {
+    if(p)
         libGL = strdup(p);
-        printf("BOX86 using \"%s\" as libGL.so.1\n", p);
+    if(!libGL) {
+        p = getenv("SDL_VIDEO_GL_DRIVER");
+        if(p)
+            libGL = strdup(p);
+    }
+    if(!libGL) {
+        printf_log(LOG_INFO, "BOX86 using \"%s\" as libGL.so.1\n", p);
     }
 }
 
