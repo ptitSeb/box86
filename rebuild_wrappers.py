@@ -4,7 +4,7 @@ import os
 import glob
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'p', 'V', "O"]
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', "O"]
 def splitchar(s):
 	ret = [len(s)]
 	i = 0
@@ -246,6 +246,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 
 // list of defined wrapper
 // v = void, i = int32, u = uint32, U/I= (u)int64
+// l = signed long, L = unsigned long (long is an int with the size of a pointer)
 // p = pointer, P = callback
 // f = float, d = double, D = long double, K = fake long double
 // V = vaargs, E = current x86emu struct, e = ref to current x86emu struct
@@ -297,8 +298,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         p        V			A
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*", "int32_t"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V			A
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -308,8 +309,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			if k != "()":
 				file.write("\n#if " + k + "\n")
 				for v in gbl[k]:
-					#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         p        V			A
-					types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "void*", "void*", "int32_t"]
+					#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V			A
+					types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t"]
 					if len(values) != len(types):
 							raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 					
@@ -348,12 +349,14 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(double*)(R_ESP + {p}), ",      # d
 				"*(long double*)(R_ESP + {p}), ", # D
 				"FromLD((void*)(R_ESP + {p})), ", # K
+				"*(intptr_t*)(R_ESP + {p}), ",    # l
+				"*(uintptr_t*)(R_ESP + {p}), ",   # L
 				"*(void**)(R_ESP + {p}), ",       # p
 				"(void*)(R_ESP + {p}), ",         # V
 				"of_convert(*(int32_t*)(R_ESP + {p})), ",         # O
 			]
-			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   p  V  O
-			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 0, 4]
+			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O
+			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
 			if len(values) != len(deltas):
@@ -378,6 +381,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # d
 				"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",       # D
 				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # K
+				"R_EAX=(intptr_t)fn({0});",                                     # l
+				"R_EAX=(uintptr_t)fn({0});",                                    # L
 				"R_EAX=(uintptr_t)fn({0});",                                    # p
 				"\n#error Invalid return type: va_list\n",                      # V
 				"\n#error Invalid return type: at_flags\n",                     # O
@@ -409,6 +414,6 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 	return 0
 
 if __name__ == '__main__':
-	if main(sys.argv[1], sys.argv[2:], "1.1.1.04") != 0:
+	if main(sys.argv[1], sys.argv[2:], "1.1.1.05") != 0:
 		exit(2)
 	exit(0)
