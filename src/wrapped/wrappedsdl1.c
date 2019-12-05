@@ -49,6 +49,7 @@ typedef struct {
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void  (*vFp_t)(void*);
@@ -94,6 +95,7 @@ typedef struct sdl1_my_s {
     vFp_t      SDL_KillThread;
     vFp_t      SDL_SetEventFilter;
     pFp_t      SDL_GL_GetProcAddress;
+    iFp_t      SDL_GetWMInfo;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -140,6 +142,7 @@ void* getSDL1My(library_t* lib)
     GO(SDL_KillThread, vFp_t)
     GO(SDL_SetEventFilter, vFp_t)
     GO(SDL_GL_GetProcAddress, pFp_t)
+    GO(SDL_GetWMInfo, iFp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -174,11 +177,11 @@ void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
     RunCallback(emu);
 }
 
-uint32_t sdl1TimerCallback(void *userdata)
+uint32_t sdl1TimerCallback(uint32_t interval, void *userdata)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
-    RunCallback(emu);
-    return R_EAX;
+    SetCallbackArg(emu, 0, (void*)interval);
+    return RunCallback(emu);
 }
 
 int32_t sdl1ThreadCallback(void *userdata)
@@ -382,7 +385,7 @@ void EXPORT *my_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
 uint32_t EXPORT my_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 2, NULL, p, NULL, NULL);
     uint32_t t = my->SDL_AddTimer(a, sdl1TimerCallback, cbemu);
     int ret;
     khint_t k = kh_put(timercb, my->timercb, t, &ret);
@@ -535,6 +538,41 @@ EXPORT void my_SDL_UnloadObject(x86emu_t* emu, void* handle)
 EXPORT void* my_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 {
     return my_dlsym(emu, handle, name);
+}
+
+typedef struct my_SDL_version {
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+} my_SDL_version;
+
+typedef struct {
+  my_SDL_version version;
+  int subsystem;
+  union {
+    struct {
+      void* display;
+      void* window;
+      void (*lock_func)(void);
+      void (*unlock_func)(void);
+      void* fswindow;
+      void* wmwindow;
+      void* gfxdisplay;
+    } x11;
+  } info;
+} my_SDL_SysWMinfo;
+
+EXPORT int32_t my_SDL_GetWMInfo(x86emu_t* emu, void* p)
+{
+    // does SDL_SysWMinfo needs alignment?
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    int ret = my->SDL_GetWMInfo(p);
+    my_SDL_SysWMinfo *info = (my_SDL_SysWMinfo*)p;
+    if(info->info.x11.lock_func)
+        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.lock_func, 0);
+    if(info->info.x11.unlock_func)
+        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0);
+    return ret;
 }
 
 #define CUSTOM_INIT \
