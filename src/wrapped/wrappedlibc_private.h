@@ -788,8 +788,8 @@ GOW(ioperm, iFuui)
 GOW(iopl, iFi)
 // _IO_popen
 // _IO_printf
-// _IO_proc_close
-// _IO_proc_open
+GO(_IO_proc_close, iFp)
+GO(_IO_proc_open, pFppp)
 GO(_IO_putc, iFip)
 // _IO_puts
 GO(_IO_remove_marker, vFp)
