@@ -93,6 +93,9 @@ scwrap_t syscallwrap[] = {
     { 77, __NR_getrusage, 2 },
     { 78, __NR_gettimeofday, 2 },
     { 83, __NR_symlink, 2 },
+#ifdef __NR_select
+    { 82, __NR_select, 5 },
+#endif
     { 85, __NR_readlink, 3 },
     { 91, __NR_munmap, 2 },
     { 94, __NR_fchmod, 2 },
@@ -131,9 +134,7 @@ scwrap_t syscallwrap[] = {
     { 136, __NR_personality, 1 },
     { 140, __NR__llseek, 5 },
     { 141, __NR_getdents, 3 },
-#ifdef __NR_select
-    { 142, __NR_select, 5 },
-#endif
+    { 142, __NR__newselect, 5 },
     { 143, __NR_flock,  2 },
     { 144, __NR_msync, 3 },
     { 145, __NR_readv, 3 },
@@ -299,6 +300,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = getrlimit(R_EBX, (void*)R_ECX);
             return;
 #endif
+#ifndef __NR_select
+        case 82:   // select
+            R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
+            return;
+#endif
         case 90:    // old_mmap
             {
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
@@ -414,11 +420,6 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 }
             }
             return;
-#ifndef __NR_select
-        case 142:   // select
-            R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
-            return;
-#endif
         case 173: // sys_rt_sigreturn
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
             return;
