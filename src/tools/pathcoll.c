@@ -13,6 +13,8 @@
 
 void FreeCollection(path_collection_t* collection)
 {
+    if(!collection)
+        return;
     if(collection->cap) {
         for(int i=0; i<collection->size; ++i)
             free(collection->paths[i]);
@@ -24,7 +26,7 @@ void FreeCollection(path_collection_t* collection)
     return;
 }
 
-void ParseList(const char* List, path_collection_t* collection)
+void ParseList(const char* List, path_collection_t* collection, int folder)
 {
     if(collection->cap)
         FreeCollection(collection);
@@ -60,7 +62,7 @@ void ParseList(const char* List, path_collection_t* collection)
         int l = strlen(tmp);
         // skip empty strings
         if(l) {
-            if(tmp[l-1]!='/')
+            if(folder && tmp[l-1]!='/')
                 strcat(tmp, "/");
             collection->paths[idx]  =strdup(tmp);
             collection->size=++idx;
@@ -77,14 +79,14 @@ void CopyCollection(path_collection_t* to, path_collection_t* from)
         to->paths[i] = strdup(from->paths[i]);
 }
 
-void AddPath(const char* path, path_collection_t* collection)
+void AddPath(const char* path, path_collection_t* collection, int folder)
 {
     char tmp[MAX_PATH];
     strcpy(tmp, path);
     int l = strlen(tmp);
     // skip empty strings
     if(l) {
-        if(tmp[l-1]!='/')
+        if(folder && tmp[l-1]!='/')
             strcat(tmp, "/");
         if(collection->size==collection->cap) {
             collection->cap += 4;

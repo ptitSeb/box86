@@ -27,6 +27,7 @@
 #include "x86run.h"
 #include "x86trace.h"
 #include "librarian.h"
+#include "library.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
 #ifdef DYNAREC
@@ -184,10 +185,10 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
     const char* p = getenv(env);
     if(p) {
         printf_log(LOG_INFO, "%s: ", env);
-        ParseList(p, col);
+        ParseList(p, col, 1);
     } else {
         printf_log(LOG_INFO, "Using default %s: ", env);
-        ParseList(defpath, col);
+        ParseList(defpath, col, 1);
     }
     if(LOG_INFO<=box86_log) {
         for(int i=0; i<col->size; i++)
@@ -281,6 +282,7 @@ void PrintHelp() {
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
+    printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
 }
 
 int main(int argc, const char **argv, const char **env) {
@@ -325,22 +327,33 @@ int main(int argc, const char **argv, const char **env) {
     LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA
     if(FileExist("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", 0))
-        AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib);
+        AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/mnt/utmp/box86/lib/i386-linux-gnu", 0))
-        AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib);
+        AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     //TODO: add relative path to box86 location
-#else
-    if(FileExist("/lib/i386-linux-gnu", 0))
-        AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib);
-    if(FileExist("/usr/lib/i386-linux-gnu", 0))
-        AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib);
-    if(FileExist("/lib/i686-pc-linux-gnu", 0))
-        AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
-    if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
-        AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib);
-    if(FileExist("/usr/lib32", 0))
-        AddPath("/usr/lib32", &context->box86_ld_lib);
 #endif
+    if(FileExist("/lib/i386-linux-gnu", 0))
+        AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/i386-linux-gnu", 0))
+        AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/lib/i686-pc-linux-gnu", 0))
+        AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
+        AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib32", 0))
+        AddPath("/usr/lib32", &context->box86_ld_lib, 1);
+    path_collection_t ld_preload = {0};
+    if(getenv("BOX86_LD_PRELOAD")) {
+        char* p = getenv("BOX86_LD_PRELOAD");
+        ParseList(p, &ld_preload, 0);
+        if (ld_preload.size && box86_log) {
+            printf_log(LOG_INFO, "BOX86 try to Preload ");
+            for (int i=0; i<ld_preload.size; ++i)
+                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log(LOG_INFO, "\n");
+        }
+    }
+
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
             context->no_sigsegv = 1;
@@ -389,11 +402,13 @@ int main(int argc, const char **argv, const char **env) {
     if(!context->argv[0]) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
         printf_log(LOG_NONE, "Error: %s is not an executable file\n", context->argv[0]);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     context->fullpath = (char*)calloc(PATH_MAX, 1);
@@ -403,6 +418,7 @@ int main(int argc, const char **argv, const char **env) {
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, context->argv[0], 1);
@@ -410,6 +426,7 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     int mainelf = AddElfHeader(context, elf_header);
@@ -418,6 +435,7 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // allocate memory
@@ -425,6 +443,7 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // Load elf into memory
@@ -432,6 +451,7 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_NONE, "Error: loading in memory elf %s\n", context->argv[0]);
         fclose(f);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // can close the file now
@@ -440,6 +460,7 @@ int main(int argc, const char **argv, const char **env) {
     if(CalcStackSize(context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // init x86 emu
@@ -482,15 +503,32 @@ int main(int argc, const char **argv, const char **env) {
 #endif
     // export symbols
     AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
+    // pre-load lib if needed
+    if(ld_preload.size) {
+        for (int i=0; i<ld_preload.size; ++i) {
+            if(AddNeededLib(context->maplib, NULL, ld_preload.paths[i], context, context->emu)) {
+                printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
+            }            
+        }
+    }
     // Call librarian to load all dependant elf
     if(LoadNeededLibs(elf_header, context->maplib, NULL, context, context->emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
+    }
+    if(ld_preload.size) {
+        for (int i=0; i<ld_preload.size; ++i) {
+            if(FinalizeLibrary(GetLib(context->maplib, ld_preload.paths[i]), context->emu)) {
+                printf_log(LOG_INFO, "Warning, cannot finalize pre-load lib: \"%s\"\n", ld_preload.paths[i]);
+            }            
+        }
     }
     if(FinalizeNeededLibs(elf_header, context->maplib, context, context->emu)) {
         printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // reloc...
@@ -498,6 +536,7 @@ int main(int argc, const char **argv, const char **env) {
     if(RelocateElf(context->maplib, elf_header)) {
         printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
         FreeBox86Context(&context);
+        FreeCollection(&ld_preload);
         return -1;
     }
     // and handle PLT
@@ -550,6 +589,7 @@ int main(int argc, const char **argv, const char **env) {
     FreeBox86Context(&context);
     if(libGL)
         free(libGL);
+    FreeCollection(&ld_preload);
 
     return ret;
 }

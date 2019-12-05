@@ -90,3 +90,8 @@ Set level of DynaRec log
  * libXXXX set the name for libGL (default to libGL.so.1)
  * /PATH/TO/libGLXXX set the name and path for libGL
  You can also use SDL_VIDEO_GL_DRIVER
+
+#### BOX86_LD_PRELOAD
+ * XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary
+ PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary
+ 
