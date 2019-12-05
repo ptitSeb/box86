@@ -1128,7 +1128,7 @@ GOW(mremap, pFpuui)
 // msgget   // Weak
 // msgrcv   // Weak
 // msgsnd   // Weak
-// msync    // Weak
+GOW(msync, iFpui)
 // mtrace
 GO(munlock, iFpu)
 GO(munlockall, iFv)
