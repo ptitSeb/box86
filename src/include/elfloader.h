@@ -48,5 +48,6 @@ void* GetDTatOffset(box86context_t* context, int index, int offset);
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
 #endif
+void ResetSecialCaseMainElf(elfheader_t* h);
 
 #endif //__ELF_LOADER_H_

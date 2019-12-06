@@ -175,7 +175,7 @@ void LoadLogEnv()
         if(p)
             libGL = strdup(p);
     }
-    if(!libGL) {
+    if(libGL) {
         printf_log(LOG_INFO, "BOX86 using \"%s\" as libGL.so.1\n", p);
     }
 }
@@ -543,8 +543,9 @@ int main(int argc, const char **argv, const char **env) {
     RelocateElfPlt(context, context->maplib, elf_header);
     // defered init
     RunDeferedElfInit(context->emu);
+    // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
+    ResetSecialCaseMainElf(elf_header);
     // init...
-//    RunElfInit(elf_header, context->emu); //=> this seems to be done in the startup code itself
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE");
     if(p) {

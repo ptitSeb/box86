@@ -23,6 +23,10 @@
 #endif
 #include "../emu/x86emu_private.h"
 
+void* my__IO_2_1_stderr_ = NULL;
+void* my__IO_2_1_stdin_  = NULL;
+void* my__IO_2_1_stdout_ = NULL;
+
 // return the index of header (-1 if it doesn't exist)
 int getElfIndex(box86context_t* ctx, elfheader_t* head) {
     for (int i=0; i<ctx->elfsize; ++i)
@@ -460,6 +464,20 @@ Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
     }
     return NULL;
 }
+
+Elf32_Sym* GetElfObject(elfheader_t* h, const char* name)
+{
+    for (int i=0; i<h->numSymTab; ++i) {
+        if(h->SymTab[i].st_info == 16) {
+            const char * symname = h->StrTab+h->SymTab[i].st_name;
+            if(strcmp(symname, name)==0) {
+                return h->SymTab+i;
+            }
+        }
+    }
+    return NULL;
+}
+
 
 uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
 {
@@ -907,4 +925,27 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     }
     FreeCallback(cbemu);
     return 0;
+}
+
+void ResetSecialCaseMainElf(elfheader_t* h)
+{
+    Elf32_Sym *sym = NULL;
+     for (int i=0; i<h->numDynSym; ++i) {
+        if(h->DynSym[i].st_info == 17) {
+            sym = h->DynSym+i;
+            const char * symname = h->DynStr+sym->st_name;
+            if(strcmp(symname, "_IO_2_1_stderr_")==0) {
+                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stderr_, sym->st_size);
+                my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
+            } else
+            if(strcmp(symname, "_IO_2_1_stdin_")==0) {
+                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stdin_, sym->st_size);
+                my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
+            } else
+            if(strcmp(symname, "_IO_2_1_stdout_")==0) {
+                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stdout_, sym->st_size);
+                my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
+            }
+        }
+    }
 }
