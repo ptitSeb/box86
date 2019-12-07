@@ -23,7 +23,9 @@ const char* libxextName = "libXext.so.6";
 typedef struct _XImage XImage;
 void BridgeImageFunc(x86emu_t *emu, XImage *img);
 void UnbridgeImageFunc(x86emu_t *emu, XImage *img);
+typedef int (*XextErrorHandler)(void *, void *, void*);
 
+typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpppiiu_t)(void*, void*, void*, int32_t, int32_t, uint32_t);
 typedef void* (*pFppuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
 typedef int32_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
@@ -33,6 +35,7 @@ typedef struct xext_my_s {
     pFppuippuu_t        XShmCreateImage;
     iFpppiiu_t          XShmGetImage;
     iFppppiiiiuui_t     XShmPutImage;
+    pFp_t               XSetExtensionErrorHandler;
 } xext_my_t;
 
 void* getXextMy(library_t* lib)
@@ -42,6 +45,7 @@ void* getXextMy(library_t* lib)
     GO(XShmCreateImage, pFppuippuu_t)
     GO(XShmGetImage, iFpppiiu_t)
     GO(XShmPutImage, iFppppiiiiuui_t)
+    GO(XSetExtensionErrorHandler, pFp_t)
     #undef GO
     return my;
 }
@@ -89,6 +93,47 @@ EXPORT int32_t my_XShmGetImage(x86emu_t* emu, void* disp, void* drawable, void* 
     // bridge all access functions...
     BridgeImageFunc(emu, (XImage*)image);
     return r;
+}
+
+static x86emu_t *exterrorhandlercb = NULL;
+static int my_exterrorhandle_callback(void* display, void* ext_name, void* reason)
+{
+    if(!exterrorhandlercb)
+        return 0;
+    SetCallbackArg(exterrorhandlercb, 0, display);
+    SetCallbackArg(exterrorhandlercb, 1, ext_name);
+    SetCallbackArg(exterrorhandlercb, 1, reason);
+    return (int)RunCallback(exterrorhandlercb);
+}
+
+
+EXPORT void* my_XSetExtensionErrorHandler(x86emu_t* emu, void* handler)
+{
+    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
+
+    x86emu_t *cb = NULL;
+    void* ret = NULL;
+    XextErrorHandler old = NULL;
+    if(handler) {
+        if(GetNativeFnc((uintptr_t)handler)) {
+            old = (XextErrorHandler)my->XSetExtensionErrorHandler(GetNativeFnc((uintptr_t)handler));
+        } else {
+            cb = AddCallback(emu, (uintptr_t)handler, 3, NULL, NULL, NULL, NULL);
+            old = (XextErrorHandler)my->XSetExtensionErrorHandler(my_exterrorhandle_callback);
+        }
+    } else {
+        old = (XextErrorHandler)my->XSetExtensionErrorHandler(NULL);
+    }
+    if(old) {
+        if(CheckBridged(lib->priv.w.bridge, old))
+            ret = (void*)CheckBridged(lib->priv.w.bridge, old);
+        else
+            ret = (void*)AddBridge(lib->priv.w.bridge, iFppp, old, 0);
+    }
+    if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
+    exterrorhandlercb = cb;
+    return ret;
 }
 
 #define CUSTOM_INIT \

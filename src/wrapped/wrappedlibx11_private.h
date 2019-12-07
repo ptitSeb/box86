@@ -278,7 +278,7 @@ GO(XDisplayHeightMM, iFpi)
 GO(XDisplayKeycodes, iFppp)
 //GO(XDisplayMotionBufferSize
 GO(XDisplayName, pFp)
-//GO(XDisplayOfIM
+GO(XDisplayOfIM, pFu)
 //GO(XDisplayOfOM
 //GO(XDisplayOfScreen
 //GO(XDisplayPlanes

@@ -202,7 +202,8 @@ static int my_errorhandle_callback(void* display, void* errorevent)
         return 0;
     SetCallbackArg(errorhandlercb, 0, display);
     SetCallbackArg(errorhandlercb, 1, errorevent);
-    return (int)RunCallback(errorhandlercb);
+    int ret = (int)RunCallback(errorhandlercb);
+    return ret;
 }
 static int my_ioerrorhandle_callback(void* display)
 {
@@ -238,8 +239,9 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
     void* ret = NULL;
     XErrorHandler old = NULL;
     if(handler) {
-        if(GetNativeFnc((uintptr_t)handler)) {
-            old = (XErrorHandler)my->XSetErrorHandler(GetNativeFnc((uintptr_t)handler));
+        void* native = GetNativeFnc((uintptr_t)handler);
+        if(native) {
+            old = (XErrorHandler)my->XSetErrorHandler(native);
         } else {
             cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
             old = (XErrorHandler)my->XSetErrorHandler(my_errorhandle_callback);

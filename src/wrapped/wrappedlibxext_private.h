@@ -66,7 +66,7 @@ GO(XMissingExtension, iFpp)
 //GO(XSecurityGenerateAuthorization, 
 //GO(XSecurityQueryExtension, 
 //GO(XSecurityRevokeAuthorization, 
-//GO(XSetExtensionErrorHandler, 
+GOM(XSetExtensionErrorHandler, pFEp)
 GO(XShapeCombineMask, vFppiiipi)
 GO(XShapeCombineRectangles, vFppiiipiii)
 GO(XShapeCombineRegion, vFppiiipi)
