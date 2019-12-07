@@ -37,7 +37,7 @@ typedef struct smpeg_my_s {
     vFpp_t      SMPEG_getinfo;
 } smpeg_my_t;
 
-void* getSMPEGMy(library_t* lib)
+static void* getSMPEGMy(library_t* lib)
 {
     smpeg_my_t* my = (smpeg_my_t*)calloc(1, sizeof(smpeg_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
@@ -51,7 +51,7 @@ void* getSMPEGMy(library_t* lib)
     return my;
 }
 
-void freeSMPEGMy(void* lib)
+static void freeSMPEGMy(void* lib)
 {
     smpeg_my_t *my = (smpeg_my_t *)lib;
 }
@@ -126,19 +126,16 @@ EXPORT void* my_SMPEG_new_data(x86emu_t* emu, void* data, int size, void* info, 
     return ret;
 }
 
-EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f)
+EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t sdl_audio)
 {
     library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpegName);
     smpeg_my_t* my = (smpeg_my_t*)lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)src);
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
-    void* ret = my->SMPEG_new_rwops(rw, &inf, f);
+    void* ret = my->SMPEG_new_rwops(rw, &inf, sdl_audio);
     UnalignSmpegInfo(info, &inf);
-    if(!f) {
-        RWNativeEnd(rw);
-        printf_log(LOG_INFO, "Warning, SMPEG_new_rwops called without freesrc set\n");
-    }
+    RWNativeEnd(rw);
     return ret;
 }
 
