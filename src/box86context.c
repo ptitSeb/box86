@@ -212,8 +212,9 @@ void FreeBox86Context(box86context_t** context)
         if((*context)->signals[i]!=0 && (*context)->signals[i]!=1) {
             signal(i, SIG_DFL);
         }
-    if((*context)->signal_emu)
-        FreeX86Emu(&(*context)->signal_emu);
+    for (int i=0; i<MAX_SIGNAL; ++i)
+        if((*context)->signal_emus[i])
+            FreeX86Emu(&(*context)->signal_emus[i]);
 
 
     free(*context);

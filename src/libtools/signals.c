@@ -122,12 +122,12 @@ void my_sighandler(int32_t sig)
 {
     pthread_mutex_unlock(&context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
-    Push32(context->signal_emu, sig);
-    DynaCall(context->signal_emu, context->signals[sig]);
+    Push32(context->signal_emus[sig], sig);
+    DynaCall(context->signal_emus[sig], context->signals[sig]);
     if(context->restorer[sig]) {
-        DynaCall(context->signal_emu, context->restorer[sig]);
+        DynaCall(context->signal_emus[sig], context->restorer[sig]);
     } else {
-        Pop32(context->signal_emu);
+        Pop32(context->signal_emus[sig]);
     }
 }
 
@@ -135,28 +135,28 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
-    Push32(context->signal_emu, (uintptr_t)ucntx);  // WRONG!!!
-    Push32(context->signal_emu, (uintptr_t)sigi);
-    Push32(context->signal_emu, sig);
-    DynaCall(context->signal_emu, context->signals[sig]);
+    Push32(context->signal_emus[sig], (uintptr_t)ucntx);  // WRONG!!!
+    Push32(context->signal_emus[sig], (uintptr_t)sigi);
+    Push32(context->signal_emus[sig], sig);
+    DynaCall(context->signal_emus[sig], context->signals[sig]);
     if(context->restorer[sig]) {
-        DynaCall(context->signal_emu, context->restorer[sig]);
+        DynaCall(context->signal_emus[sig], context->restorer[sig]);
     } else {
-        Pop32(context->signal_emu);
-        Pop32(context->signal_emu);
-        Pop32(context->signal_emu);
+        Pop32(context->signal_emus[sig]);
+        Pop32(context->signal_emus[sig]);
+        Pop32(context->signal_emus[sig]);
     }
 }
 
-static void CheckSignalContext(x86emu_t* emu)
+static void CheckSignalContext(x86emu_t* emu, int sig)
 {
     if(!context) {
         context = emu->context;
-        if(!context->signal_emu) {
-            context->signal_emu = NewX86Emu(context, 0, (uintptr_t)malloc(1024*1024*2), 2*1024*1024, 1);
-            SetupX86Emu(context->signal_emu);
-            SetTraceEmu(context->signal_emu, /*emu->trace_start, emu->trace_end*/0, 0);
-        }
+    }
+    if(!context->signal_emus[sig]) {
+        context->signal_emus[sig] = NewX86Emu(context, 0, (uintptr_t)malloc(1024*1024*2), 2*1024*1024, 1);
+        SetupX86Emu(context->signal_emus[sig]);
+        SetTraceEmu(context->signal_emus[sig], /*emu->trace_start, emu->trace_end*/0, 0);
     }
 }
 
@@ -168,7 +168,7 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
-    CheckSignalContext(emu);
+    CheckSignalContext(emu, signum);
 
     sighandler_t ret = NULL;
     if(handler!=NULL && handler!=(sighandler_t)1) {
@@ -190,7 +190,7 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
-    CheckSignalContext(emu);
+    CheckSignalContext(emu, signum);
 
     struct sigaction newact = {0};
     struct sigaction old = {0};
@@ -234,7 +234,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
     // TODO, how to handle sigsetsize>4?!
-    CheckSignalContext(emu);
+    CheckSignalContext(emu, signum);
 
     if(signum==32 || signum==33) {
         // cannot use libc sigaction, need to use syscall!
