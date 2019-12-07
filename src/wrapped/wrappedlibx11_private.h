@@ -1097,7 +1097,7 @@ GO(XwcLookupString, iFuppipp)
 //GO(XWhitePixel
 //GO(XWhitePixelOfScreen
 //GO(XWidthMMOfScreen
-//GO(XWidthOfScreen
+GO(XWidthOfScreen, iFp)
 GO(XWindowEvent, iFppup)
 // _XWireToEvent
 GO(XWithdrawWindow, iFppi)

@@ -113,7 +113,7 @@ GO(catopen, pFpi)
 // cbc_crypt
 GO(cfgetispeed, iFp)
 GO(cfgetospeed, iFp)
-// cfmakeraw
+GO(cfmakeraw, vFp)
 GOW(cfree, vFp)
 GO(cfsetispeed, iFpi)
 GO(cfsetospeed, iFpi)
