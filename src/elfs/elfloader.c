@@ -935,15 +935,15 @@ void ResetSecialCaseMainElf(elfheader_t* h)
             sym = h->DynSym+i;
             const char * symname = h->DynStr+sym->st_name;
             if(strcmp(symname, "_IO_2_1_stderr_")==0) {
-                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stderr_, sym->st_size);
+                memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
                 my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
             } else
             if(strcmp(symname, "_IO_2_1_stdin_")==0) {
-                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stdin_, sym->st_size);
+                memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
                 my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
             } else
             if(strcmp(symname, "_IO_2_1_stdout_")==0) {
-                memcpy((void*)sym->st_value+h->delta, &_IO_2_1_stdout_, sym->st_size);
+                memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
             }
         }
