@@ -57,7 +57,7 @@ typedef struct scwrap_s {
 
 scwrap_t syscallwrap[] = {
     { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
-    //{ 3, __NR_read, 3 },
+    { 3, __NR_read, 3 },
     { 4, __NR_write, 3 },
     //{ 5, __NR_open, 3 },  // flags need transformation
     { 6, __NR_close, 1 },
@@ -275,12 +275,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
             emu->quit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
             break;
-        case 3: // sys_read
-            R_EAX = read(R_EBX, (void*)R_ECX, R_EDX);
-            break;
         case 5: // sys_open
             if(s==5) {printf_log(LOG_DUMP, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
-            R_EAX = my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
+            R_EAX = syscall(__NR_open, (void*)R_EBX, of_convert(R_ECX), R_EDX);
+            //my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
             break;
 #ifndef __NR_waitpid
         case 7: //sys_waitpid
