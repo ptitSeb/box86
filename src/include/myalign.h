@@ -17,6 +17,9 @@ void AlignVorbisBlock(void* dest, void* source);   // x86 -> Arm
 void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
 void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
 
+void UnalignSmpegInfo(void* dest, void* source); // Arm -> x86
+void AlignSmpegInfo(void* dest, void* source);   // x86 -> Arm
+
 // stat64 is packed on i386, not on arm (and possibly other structures)
 #undef st_atime
 #undef st_mtime
@@ -203,3 +206,18 @@ typedef struct OggVorbis  {
   ov_callbacks callbacks;
 
 } OggVorbis;
+
+typedef struct my_SMPEG_Info_s {
+    int has_audio;
+    int has_video;
+    int width;
+    int height;
+    int current_frame;
+    double current_fps;
+    char audio_string[80];
+    int  audio_current_frame;
+    uint32_t current_offset;
+    uint32_t total_size;
+    double current_time;
+    double total_time;
+} my_SMPEG_Info_t;

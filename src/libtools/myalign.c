@@ -526,8 +526,8 @@ GO(backend_state)
 void UnalignVorbisDspState(void* dest, void* source)
 {
     // Arm -> x86
-     #define GO(A) ((vorbis_dsp_state*)dest)->A = ((vorbis_dsp_state_x86*)source)->A;
-     #define GOM(A, S) memcpy(&((vorbis_dsp_state*)dest)->A, &((vorbis_dsp_state_x86*)source)->A, S);
+     #define GO(A) ((vorbis_dsp_state_x86*)dest)->A = ((vorbis_dsp_state*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_dsp_state_x86*)dest)->A, &((vorbis_dsp_state*)source)->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
@@ -535,8 +535,8 @@ void UnalignVorbisDspState(void* dest, void* source)
 void AlignVorbisDspState(void* dest, void* source)
 {
     // x86 -> Arm
-     #define GO(A) ((vorbis_dsp_state_x86*)dest)->A = ((vorbis_dsp_state*)source)->A;
-     #define GOM(A, S) memcpy(&((vorbis_dsp_state_x86*)dest)->A, &((vorbis_dsp_state*)source)->A, S);
+     #define GO(A) ((vorbis_dsp_state*)dest)->A = ((vorbis_dsp_state_x86*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_dsp_state*)dest)->A, &((vorbis_dsp_state_x86*)source)->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
@@ -573,8 +573,8 @@ GO(internal)
 void UnalignVorbisBlock(void* dest, void* source)
 {
     // Arm -> x86
-     #define GO(A) ((vorbis_block*)dest)->A = ((vorbis_block_x86*)source)->A;
-     #define GOM(A, S) memcpy(&((vorbis_block*)dest)->A, &((vorbis_block_x86*)source)->A, S);
+     #define GO(A) ((vorbis_block_x86*)dest)->A = ((vorbis_block*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_block_x86*)dest)->A, &((vorbis_block*)source)->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
@@ -582,8 +582,8 @@ void UnalignVorbisBlock(void* dest, void* source)
 void AlignVorbisBlock(void* dest, void* source)
 {
     // x86 -> Arm
-     #define GO(A) ((vorbis_block_x86*)dest)->A = ((vorbis_block*)source)->A;
-     #define GOM(A, S) memcpy(&((vorbis_block_x86*)dest)->A, &((vorbis_block*)source)->A, S);
+     #define GO(A) ((vorbis_block*)dest)->A = ((vorbis_block_x86*)source)->A;
+     #define GOM(A, S) memcpy(&((vorbis_block*)dest)->A, &((vorbis_block_x86*)source)->A, S);
      TRANSFERT
      #undef GO
      #undef GOM
@@ -628,4 +628,53 @@ void AlignEpollEvent(void* dest, void* source, int nbr)
         ++arm_struct;
         --nbr;
     }
+}
+
+typedef struct __attribute__((packed)) x86_SMPEG_Info_s {
+    int has_audio;
+    int has_video;
+    int width;
+    int height;
+    int current_frame;
+    double current_fps;
+    char audio_string[80];
+    int  audio_current_frame;
+    uint32_t current_offset;
+    uint32_t total_size;
+    double current_time;
+    double total_time;
+} x86_SMPEG_Info_t;
+
+#define TRANSFERT \
+GO(has_audio) \
+GO(has_video) \
+GO(width) \
+GO(height) \
+GO(current_frame) \
+GO(current_fps) \
+GOM(audio_string, 80) \
+GO(audio_current_frame) \
+GO(current_offset) \
+GO(total_size) \
+GO(current_time) \
+GO(total_time)
+
+
+// Arm -> x86
+void UnalignSmpegInfo(void* dest, void* source)
+{
+    #define GO(A) ((x86_SMPEG_Info_t*)dest)->A = ((my_SMPEG_Info_t*)source)->A;
+    #define GOM(A, S) memcpy(&((x86_SMPEG_Info_t*)dest)->A, &((my_SMPEG_Info_t*)source)->A, S);
+    TRANSFERT
+    #undef GO
+    #undef GOM
+}
+// x86 -> Arm
+void AlignSmpegInfo(void* dest, void* source)
+{
+    #define GO(A) ((my_SMPEG_Info_t*)dest)->A = ((x86_SMPEG_Info_t*)source)->A;
+    #define GOM(A, S) memcpy(&((my_SMPEG_Info_t*)dest)->A, &((x86_SMPEG_Info_t*)source)->A, S);
+    TRANSFERT
+    #undef GO
+    #undef GOM
 }
