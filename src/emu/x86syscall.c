@@ -57,7 +57,7 @@ typedef struct scwrap_s {
 
 scwrap_t syscallwrap[] = {
     { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
-    { 3, __NR_read, 3 },
+    //{ 3, __NR_read, 3 },
     { 4, __NR_write, 3 },
     //{ 5, __NR_open, 3 },  // flags need transformation
     { 6, __NR_close, 1 },
@@ -247,39 +247,45 @@ void EXPORT x86Syscall(x86emu_t *emu)
 {
     RESET_FLAGS(emu);
     uint32_t s = R_EAX;
-    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)R_EBX, (void*)R_ECX, (void*)R_EDX, (void*)R_ESI, (void*)R_EDI); 
+    printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_EIP, s, s, (void*)R_EBX, (void*)R_ECX, (void*)R_EDX, (void*)R_ESI, (void*)R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {
         if(syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
             switch(syscallwrap[i].nbpars) {
-                case 0: *(int32_t*)&R_EAX = syscall(sc); return;
-                case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); return;
-                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); return;
-                case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); return;
-                case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); return;
-                case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); return;
-                case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); return;
+                case 0: *(int32_t*)&R_EAX = syscall(sc); break;
+                case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); break;
+                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); break;
+                case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
+                case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
+                case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
+                case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
                    return;
             }
+            printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+            return;
         }
     }
     switch (s) {
         case 1: // sys_exit
             emu->quit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
-            return;
+            break;
+        case 3: // sys_read
+            R_EAX = read(R_EBX, (void*)R_ECX, R_EDX);
+            break;
         case 5: // sys_open
+            if(s==5) {printf_log(LOG_DUMP, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
             R_EAX = my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
-            return;
+            break;
 #ifndef __NR_waitpid
         case 7: //sys_waitpid
             R_EAX = waitpid((pid_t)R_EBX, (int*)R_ECX, (int)R_EDX);
-            return;
+            break;
 #endif
         case 11: // sys_execve
             {
@@ -289,28 +295,28 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 printf_log(LOG_DUMP, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
                 R_EAX = execve((const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
             }
-            return;
+            break;
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
-            return;
+            break;
 #endif
 #ifndef __NR_getrlimit
         case 76:    // sys_getrlimit... this is the old version, using the new one. Maybe some tranform is needed?
             R_EAX = getrlimit(R_EBX, (void*)R_ECX);
-            return;
+            break;
 #endif
 #ifndef __NR_select
         case 82:   // select
             R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
-            return;
+            break;
 #endif
         case 90:    // old_mmap
             {
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
                 R_EAX = (uintptr_t)mmap((void*)st->addr, st->len, st->prot, st->flags, st->fd, st->offset);
             }
-            return;
+            break;
 #ifndef __NR_socketcall
         case 102: {
                 unsigned long *args = (unsigned long *)R_ECX;
@@ -344,7 +350,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                         R_EAX = -1;
                 }
             }
-            return;
+            break;
 #endif
 #ifndef __NR_olduname
         case 109:   // olduname
@@ -360,16 +366,16 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     strcpy(old->machine, "i686");
                 }
             }
-            return;
+            break;
 #endif
 #ifndef __NR_iopl
         case 110:   // iopl
             R_EAX = 0;  // only on x86, so return 0...
-            return;
+            break;
 #endif
         case 119: // sys_sigreturn
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
-            return;
+            break;
         case 120:   // clone
             {
                 //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
@@ -405,7 +411,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 //int r = syscall(__NR_clone, R_EBX, (R_EBX&CLONE_VM)?((uintptr_t)mystack):0, R_EDX, R_ESI, NULL);  // cannot use that syscall in C: how to setup the stack?!
                 R_EAX = ret;
             }
-            return;
+            break;
         case 122:   // uname
             {
                 struct utsname un;
@@ -419,20 +425,20 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     strcpy(old->machine, "i686");
                 }
             }
-            return;
+            break;
         case 173: // sys_rt_sigreturn
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
-            return;
+            break;
         case 174: // sys_rt_sigaction
             //printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = my_syscall_sigaction(emu, R_EBX, (void*)R_ECX, (void*)R_EDX, R_ESI);
-            return;
+            break;
         case 190:   // vfork
             {
                 int r = vfork();
                 R_EAX = r;
             }
-            return;
+            break;
         case 195:   // stat64
             {   
                 struct stat64 st;
@@ -441,7 +447,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            return;
+            break;
         case 197:   // fstat64
             {   
                 struct stat64 st;
@@ -450,18 +456,20 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            return;
+            break;
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
-            return;
+            break;
         case 355:  // get_random
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
-            return;
+            break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
             emu->error |= ERR_UNIMPL;
+            return;
     }
+    printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
 }
 
 #define stack(n) (R_ESP+4+n)
