@@ -58,7 +58,7 @@ GO("libuuid.so.1", libuuid)
 GO("libresolv.so.2", libresolv)
 GO("libpulse-simple.so.0", pulsesimple)
 
-GO("libmono.so", monounity)
+//GO("libmono.so", monounity)
 
 GO("ld-linux.so.2", ldlinux)
 
