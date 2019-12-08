@@ -304,7 +304,7 @@ DATAV(_LIB_VERSION, 4)
 GOW(log, dFd)
 GOW(log10, dFd)
 GOW(log10f, fFf)
-// __log10f_finite
+GO(__log10f_finite, fFf)
 GO(__log10_finite, dFd)
 // log10l   // Weak
 GOW(log1p, dFd)

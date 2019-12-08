@@ -13,11 +13,11 @@ GO(curl_easy_perform, uFp)
 //GO(curl_easy_reset, 
 //GO(curl_easy_send, 
 GOM(curl_easy_setopt, uFEpup)   // can set many callbacks!
-//GO(curl_easy_strerror, 
+GO(curl_easy_strerror, pFu)
 //GO(curl_easy_unescape, 
 //GO(curl_escape, 
-//GO(curl_formadd, 
-//GO(curl_formfree, 
+GO(curl_formadd, iFpppppppppppppppp)    // there is a vararg here. Should GOM and use CURLFORM_ARRAY instead
+GO(curl_formfree, vFp)
 //GO(curl_formget, 
 //GO(curl_free, 
 //GO(curl_getdate, 

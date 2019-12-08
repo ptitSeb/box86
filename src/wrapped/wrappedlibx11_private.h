@@ -599,7 +599,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 //GO(XkbGetIndicatorState
 //GO(XkbGetKeyActions
 //GO(XkbGetKeyBehaviors
-//GO(XkbGetKeyboard
+GO(XkbGetKeyboard, pFpuu)
 //GO(XkbGetKeyboardByName
 //GO(XkbGetKeyExplicitComponents
 //GO(XkbGetKeyModifierMap

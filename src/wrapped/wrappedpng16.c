@@ -27,6 +27,8 @@ typedef struct png16_my_s {
     vFppp_t     png_set_read_fn;
     vFpp_t      png_set_read_user_transform_fn;
     vFppp_t     png_destroy_read_struct;
+    vFppp_t     png_set_write_fn;
+    vFpp_t      png_destroy_write_struct;
     // functions
 } png16_my_t;
 
@@ -37,6 +39,8 @@ void* getPng16My(library_t* lib)
     GO(png_set_read_fn, vFppp_t)
     GO(png_set_read_user_transform_fn, vFpp_t)
     GO(png_destroy_read_struct, vFppp_t)
+    GO(png_set_write_fn, vFppp_t)
+    GO(png_destroy_write_struct, vFpp_t)
     #undef GO
     return my;
 }
@@ -134,6 +138,80 @@ EXPORT void my16_png_destroy_read_struct(x86emu_t* emu, void* png_ptr_ptr, void*
     }
     // ok, clean other stuffs now
     my->png_destroy_read_struct(png_ptr_ptr, info_ptr_ptr, end_info_ptr_ptr);
+}
+
+static x86emu_t *emu_userdatawrite = NULL;
+static void* userwrite_pngptr = NULL;
+static void my16_user_write_data(void* png_ptr, void* data, int32_t length)
+{
+    if(emu_userdatawrite) {
+        SetCallbackArg(emu_userdatawrite, 0, png_ptr);
+        SetCallbackArg(emu_userdatawrite, 1, data);
+        SetCallbackArg(emu_userdatawrite, 2, (void*)length);
+        RunCallback(emu_userdatawrite);
+    }
+}
+static x86emu_t *emu_userdataflush = NULL;
+static void* userflush_pngptr = NULL;
+static void my16_user_flush_data(void* png_ptr)
+{
+    if(emu_userdataflush) {
+        SetCallbackArg(emu_userdataflush, 0, png_ptr);
+        RunCallback(emu_userdataflush);
+    }
+}
+
+EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
+{
+    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+
+    if(write_fn && emu_userdatawrite) {
+        printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_write_fn without clearing\n");
+        FreeCallback(emu_userdatawrite);
+        emu_userdatawrite = NULL;
+        userwrite_pngptr = NULL;
+    }
+    if(flush_fn && emu_userdataflush) {
+        printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_write_fn without clearing\n");
+        FreeCallback(emu_userdataflush);
+        emu_userdataflush = NULL;
+        userflush_pngptr = NULL;
+    }
+
+    if(write_fn) {
+        userwrite_pngptr = png_ptr;
+        emu_userdatawrite = AddCallback(emu, (uintptr_t)write_fn, 3, NULL, NULL, NULL, NULL);
+    }
+    if(flush_fn) {
+        userflush_pngptr = png_ptr;
+        emu_userdataflush = AddCallback(emu, (uintptr_t)flush_fn, 1, NULL, NULL, NULL, NULL);
+    }
+
+    my->png_set_write_fn(png_ptr, (write_fn)?my16_user_write_data:NULL, (flush_fn)?my16_user_flush_data:NULL);
+}
+
+EXPORT void my16_png_destroy_write_struct(x86emu_t* emu, void* png_ptr_ptr, void* info_ptr_ptr)
+{
+    if(!png_ptr_ptr)
+        return;
+
+    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+    // clean up box86 stuff first
+    void* ptr = *(void**)png_ptr_ptr;
+    if(userflush_pngptr == ptr) {
+        userflush_pngptr = NULL;
+        FreeCallback(emu_userdataflush);
+        emu_userdataflush = NULL;
+    }
+    if(userwrite_pngptr == ptr) {
+        userwrite_pngptr = NULL;
+        FreeCallback(emu_userdatawrite);
+        emu_userdatawrite = NULL;
+    }
+    // ok, clean other stuffs now
+    my->png_destroy_write_struct(png_ptr_ptr, info_ptr_ptr);
 }
 
 #define CUSTOM_INIT \
