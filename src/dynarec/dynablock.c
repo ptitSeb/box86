@@ -101,10 +101,24 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
 */
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
 {
-    dynablocklist_t *dynablocks = GetDynablocksFromAddress(emu->context, addr);
+    // try the quickest way first: get parent of current and check if ok!
+    dynablocklist_t *dynablocks = NULL;
+    dynablock_t* block = NULL;
+    if(current) {
+        dynablocks = current->parent;    
+        if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz) {
+            block = dynablocks->direct[addr-dynablocks->text];
+            if(block)
+                return block;
+        }
+        if(!(addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz))
+            dynablocks = NULL;
+    }
+    // nope, lets do the long way
+    if(!dynablocks)
+        dynablocks = GetDynablocksFromAddress(emu->context, addr);
     if(!dynablocks)
         return NULL;
-    dynablock_t* block = NULL;
     // check direct first, without lock
     if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
         block = dynablocks->direct[addr-dynablocks->text];
@@ -151,6 +165,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
         if(!dynablocks->direct && kh_size(dynablocks->blocks)==MAGIC_SIZE)
             ConvertHash2Direct(dynablocks);
     }
+    block->parent = dynablocks;
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
     pthread_mutex_unlock(&dynablocks->mutex_blocks);
 

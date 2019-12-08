@@ -4,6 +4,7 @@
 typedef struct dynablocklist_s dynablocklist_t;
 
 typedef struct dynablock_s {
+    dynablocklist_t *parent;
     void*       block;
     int         size;
     uintptr_t*  table;
