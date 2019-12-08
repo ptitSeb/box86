@@ -1,7 +1,7 @@
 #if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
 
 GO(png_create_write_struct, pFpppp)
-GO(png_destroy_write_struct, vFpp)
+GOM(png_destroy_write_struct, vFEpp)
 GO(png_write_row, vFpp)
 GO(png_set_compression_level, vFpi)
 GO(png_set_tIME, vFppp)
@@ -22,5 +22,9 @@ GO(png_read_image, vFpp)
 GO(png_create_read_struct, pFpppp)
 GO(png_read_info, vFpp)
 GO(png_get_rowbytes, uFpp)
+GO(png_set_rows, vFppp)
+GO(png_write_png, vFppip)
+GO(png_get_io_ptr, pFp)
+GOM(png_set_write_fn, vFEppp)
 
 #endif
