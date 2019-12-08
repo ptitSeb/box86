@@ -2009,7 +2009,7 @@ GO(wordexp, iFppi)
 GO(wordfree, vFp)
 // __woverflow
 GOM(wprintf, iFEpVV)
-// __wprintf_chk
+GOM(__wprintf_chk, iFEipVV)
 GOW(write, iFipu)
 GOW(__write, iFipu)
 GOW(writev, iFipi)
