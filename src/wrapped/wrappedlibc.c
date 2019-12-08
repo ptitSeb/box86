@@ -1225,6 +1225,24 @@ EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint
     memset(dst, 0, len);
 }
 
+EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
+{
+    char* ret;
+    if(strcmp(path, "/proc/self/exe")==0) {
+        ret = realpath(emu->context->fullpath, resolved_path);
+    } else  if(strncmp((const char*)path, "/proc/", 6)==0) {
+        // check if self checking....
+        pid_t pid = getpid();
+        char tmp[64];
+        sprintf(tmp, "/proc/%d/exe", pid);
+        if(strcmp((const char*)path, tmp)==0)
+            ret = realpath(emu->context->fullpath, resolved_path);
+        else
+            ret = realpath(path, resolved_path);
+    } else
+        ret = realpath(path, resolved_path);
+    return ret;
+}
 
 #define CUSTOM_INIT \
     InitCpuModel(); \

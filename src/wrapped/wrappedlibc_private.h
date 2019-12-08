@@ -1341,7 +1341,7 @@ GO(readlinkat, iFippu)
 GO(readv, iFipi)
 GO(realloc, pFpu)
 DATAV(__realloc_hook, 4)
-GO(realpath, pFpp)
+GOM(realpath, pFEpp)
 GO(__realpath_chk, pFppu)
 // reboot
 // re_comp  // Weak
