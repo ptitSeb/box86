@@ -661,7 +661,7 @@ _trace:
             Push(emu, emu->packed_eflags.x32);
             NEXT;
         _0x9D:                      /* POPF */
-            emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7) & (0xffff-40) ) | 0x2; // mask off res2 and res3 and on res1
+            emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             UnpackFlags(emu);
             RESET_FLAGS(emu);
             NEXT;
