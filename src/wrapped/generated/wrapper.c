@@ -79,6 +79,7 @@ typedef uint64_t (*UFv_t)(void);
 typedef uint64_t (*UFp_t)(void*);
 typedef float (*fFi_t)(int32_t);
 typedef float (*fFf_t)(float);
+typedef float (*fFp_t)(void*);
 typedef double (*dFv_t)(void);
 typedef double (*dFi_t)(int32_t);
 typedef double (*dFd_t)(double);
@@ -104,6 +105,7 @@ typedef void (*vFud_t)(uint32_t, double);
 typedef void (*vFup_t)(uint32_t, void*);
 typedef void (*vFfi_t)(float, int32_t);
 typedef void (*vFff_t)(float, float);
+typedef void (*vFfp_t)(float, void*);
 typedef void (*vFdd_t)(double, double);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
@@ -1034,6 +1036,7 @@ void UFv(x86emu_t *emu, uintptr_t fcn) { UFv_t fn = (UFv_t)fcn; ui64_t r; r.u=(u
 void UFp(x86emu_t *emu, uintptr_t fcn) { UFp_t fn = (UFp_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void fFi(x86emu_t *emu, uintptr_t fcn) { fFi_t fn = (fFi_t)fcn; float fl=fn(*(int32_t*)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void fFf(x86emu_t *emu, uintptr_t fcn) { fFf_t fn = (fFf_t)fcn; float fl=fn(*(float*)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
+void fFp(x86emu_t *emu, uintptr_t fcn) { fFp_t fn = (fFp_t)fcn; float fl=fn(*(void**)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void dFv(x86emu_t *emu, uintptr_t fcn) { dFv_t fn = (dFv_t)fcn; double db=fn(); fpu_do_push(emu); ST0val = db; }
 void dFi(x86emu_t *emu, uintptr_t fcn) { dFi_t fn = (dFi_t)fcn; double db=fn(*(int32_t*)(R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
 void dFd(x86emu_t *emu, uintptr_t fcn) { dFd_t fn = (dFd_t)fcn; double db=fn(*(double*)(R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
@@ -1059,6 +1062,7 @@ void vFud(x86emu_t *emu, uintptr_t fcn) { vFud_t fn = (vFud_t)fcn; fn(*(uint32_t
 void vFup(x86emu_t *emu, uintptr_t fcn) { vFup_t fn = (vFup_t)fcn; fn(*(uint32_t*)(R_ESP + 4), *(void**)(R_ESP + 8)); }
 void vFfi(x86emu_t *emu, uintptr_t fcn) { vFfi_t fn = (vFfi_t)fcn; fn(*(float*)(R_ESP + 4), *(int32_t*)(R_ESP + 8)); }
 void vFff(x86emu_t *emu, uintptr_t fcn) { vFff_t fn = (vFff_t)fcn; fn(*(float*)(R_ESP + 4), *(float*)(R_ESP + 8)); }
+void vFfp(x86emu_t *emu, uintptr_t fcn) { vFfp_t fn = (vFfp_t)fcn; fn(*(float*)(R_ESP + 4), *(void**)(R_ESP + 8)); }
 void vFdd(x86emu_t *emu, uintptr_t fcn) { vFdd_t fn = (vFdd_t)fcn; fn(*(double*)(R_ESP + 4), *(double*)(R_ESP + 12)); }
 void vFpi(x86emu_t *emu, uintptr_t fcn) { vFpi_t fn = (vFpi_t)fcn; fn(*(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8)); }
 void vFpu(x86emu_t *emu, uintptr_t fcn) { vFpu_t fn = (vFpu_t)fcn; fn(*(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8)); }

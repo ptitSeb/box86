@@ -39,7 +39,7 @@ GO(SDL_AtomicSetPtr, pFpp)
 // SDL_AudioStreamGet
 // SDL_AudioStreamPut
 GO(SDL_BuildAudioCVT, iFpuuiuui)
-// SDL_CalculateGammaRamp
+GO(SDL_CalculateGammaRamp, vFfp)
 GO(SDL_calloc, pFuu)
 // SDL_CaptureMouse
 GO(SDL_ceil, dFd)
@@ -225,8 +225,8 @@ GO(SDL_GetScancodeFromKey, uFu)
 // SDL_GetScancodeFromName
 GO(SDL_GetScancodeName, pFu)
 // SDL_GetShapedWindowMode
-// SDL_GetSurfaceAlphaMod
-// SDL_GetSurfaceBlendMode
+GO(SDL_GetSurfaceAlphaMod, iFpp)
+GO(SDL_GetSurfaceBlendMode, iFpp)
 // SDL_GetSurfaceColorMod
 GO(SDL_GetSystemRAM, iFv)
 // SDL_GetTextureAlphaMod
@@ -241,7 +241,7 @@ GO(SDL_GetTouchFinger, pFui)
 GO(SDL_GetVersion, vFp)
 GO(SDL_GetVideoDriver, pFi)
 // SDL_GetWindowBordersSize
-// SDL_GetWindowBrightness
+GO(SDL_GetWindowBrightness, fFp)
 GO(SDL_GetWindowData, pFpp)
 GO(SDL_GetWindowDisplayIndex, iFp)
 GO(SDL_GetWindowDisplayMode, iFpp)
@@ -639,8 +639,8 @@ GO(SDL_UpperBlit, iFpppp)
 GO(SDL_UpperBlitScaled, iFpppp)
 GO(SDL_utf8strlcpy, uFppu)
 // SDL_utf8strlen
-// SDL_VideoInit
-// SDL_VideoQuit
+GO(SDL_VideoInit, iFp)
+GO(SDL_VideoQuit, vFv)
 GOM(SDL_vsnprintf, iFEpupVV)
 // SDL_vsscanf
 // SDL_Vulkan_CreateSurface

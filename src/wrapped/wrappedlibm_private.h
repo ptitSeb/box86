@@ -338,11 +338,11 @@ GOW(modff, fFfp)
 GOW(nearbyint, dFd)
 GOW(nearbyintf, fFf)
 // nearbyintl   // Weak
-// nextafter    // Weak
-// nextafterf   // Weak
+GOW(nextafter, dFdd)
+GOW(nextafterf, fFff)
 // nextafterl   // Weak
-// nexttoward   // Weak
-// nexttowardf  // Weak
+GOW(nexttoward, dFdd)
+GOW(nexttowardf, fFff)
 // nexttowardl  // Weak
 GOW(pow, dFdd)
 // pow10    // Weak
