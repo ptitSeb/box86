@@ -227,7 +227,7 @@ void freeSDL2My(void* lib)
 }
 
 
-void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
+static void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
     SetCallbackArg(emu, 1, stream);
@@ -235,23 +235,23 @@ void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
     RunCallback(emu);
 }
 
-uint32_t sdl2TimerCallback(void *userdata)
+static uint32_t sdl2TimerCallback(uint32_t interval, void *userdata)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
-    RunCallback(emu);
-    return R_EAX;
+    SetCallbackArg(emu, 0, (void*)interval);
+    uint32_t ret = RunCallback(emu);
+    return ret;
 }
 
-int32_t sdl2ThreadCallback(void *userdata)
+static int32_t sdl2ThreadCallback(void *userdata)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
-    RunCallback(emu);
-    int32_t ret = (int32_t)R_EAX;
+    int32_t ret = (int32_t)RunCallback(emu);
     FreeCallback(emu);
     return ret;
 }
 
-int my2_eventfilter(void* userdata, void* event)
+static int my2_eventfilter(void* userdata, void* event)
 {
     x86emu_t *emu = (x86emu_t*)userdata;
     if(emu) {
@@ -261,7 +261,7 @@ int my2_eventfilter(void* userdata, void* event)
     return 0;
 }
 
-void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, const char* message)
+static void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, const char* message)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
     SetCallbackArg(emu, 1, (void*)category);
@@ -552,7 +552,7 @@ EXPORT int my2_SDL_RWclose(x86emu_t* emu, void* a)
 EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
+    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 2, NULL, p, NULL, NULL);
     uint32_t t = my->SDL_AddTimer(a, sdl2TimerCallback, cbemu);
     int ret;
     khint_t k = kh_put(timercb, my->timercb, t, &ret);
