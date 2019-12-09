@@ -160,6 +160,13 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibuuid.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibresolv.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulsesimple.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgtkx112.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkx112.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkpixbuf2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgio2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgmodule2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )

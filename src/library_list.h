@@ -58,6 +58,13 @@ GO("libutil.so.1", util)
 GO("libuuid.so.1", libuuid)
 GO("libresolv.so.2", libresolv)
 GO("libpulse-simple.so.0", pulsesimple)
+GO("libgtk-x11-2.0.so.0", gtkx112)
+GO("libgdk-x11-2.0.so.0", gdkx112)
+GO("libgdk_pixbuf-2.0.so.0", gdkpixbuf2)
+GO("libgio-2.0.so.0", gio2)
+GO("libgmodule-2.0.so.0", gmodule2)
+GO("libgobject-2.0.so.0", gobject2)
+GO("libglib-2.0.so.0", glib2)
 
 //GO("libmono.so", monounity)
 
