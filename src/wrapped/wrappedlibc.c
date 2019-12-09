@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <search.h>
+#include <sys/types.h>
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
@@ -1254,6 +1255,59 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
     } else
         ret = realpath(path, resolved_path);
     return ret;
+}
+
+static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)
+{
+    x86emu_t *emu = (x86emu_t*)cookie;
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 3));
+    SetCallbackArg(emu, 1, buf);
+    SetCallbackArg(emu, 2, (void*)size);
+    SetCallbackNArg(emu, 3);
+    return RunCallback(emu);
+}
+static ssize_t my_cookie_write(void *cookie, const char *buf, size_t size)
+{
+    x86emu_t *emu = (x86emu_t*)cookie;
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 4));
+    SetCallbackArg(emu, 1, (void*)buf);
+    SetCallbackArg(emu, 2, (void*)size);
+    SetCallbackNArg(emu, 3);
+    return RunCallback(emu);
+}
+static int my_cookie_seek(void *cookie, off64_t *offset, int whence)
+{
+    x86emu_t *emu = (x86emu_t*)cookie;
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
+    SetCallbackArg(emu, 1, offset);
+    SetCallbackArg(emu, 2, (void*)whence);
+    SetCallbackNArg(emu, 3);
+    return RunCallback(emu);
+
+}
+static int my_cookie_close(void *cookie)
+{
+    x86emu_t *emu = (x86emu_t*)cookie;
+    void* cl = (void*)GetCallbackArg(emu, 6);
+    int ret = 0;
+    if(cl) {
+        SetCallbackAddress(emu, (uintptr_t)cl);
+        SetCallbackNArg(emu, 1);
+        ret = (int)RunCallback(emu);
+    }
+    // free anyway, even if ret is not null?
+    FreeCallback(emu);
+    return ret;
+}
+EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read, void* write, void* seek, void* close)
+{
+    cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
+    x86emu_t *cb = AddCallback(emu, 0, 3, cookie, NULL, NULL, NULL);
+    SetCallbackArg(emu, 3, read);
+    SetCallbackArg(emu, 4, write);
+    SetCallbackArg(emu, 5, seek);
+    SetCallbackArg(emu, 6, close);
+    return fopencookie(cb, mode, io_funcs);
 }
 
 #define CUSTOM_INIT \

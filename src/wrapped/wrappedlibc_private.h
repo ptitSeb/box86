@@ -360,7 +360,7 @@ GO(fmemopen, pFpup)
 GO(fnmatch, iFppi)
 GO(fopen, pFpp)
 GOW(fopen64, pFpp)
-//GOM(fopencookie, pFppp)   // last p are 4 callbacks...
+GOM(fopencookie, pFEpppppp)   // last 4p are a struct with 4 callbacks...
 GOM(fork, iFEv) // Weak
 GOM(__fork, iFEv)
 // __fortify_fail
