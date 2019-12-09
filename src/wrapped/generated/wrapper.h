@@ -465,8 +465,10 @@ void pFpuuu(x86emu_t *emu, uintptr_t fnc);
 void pFpupi(x86emu_t *emu, uintptr_t fnc);
 void pFpupu(x86emu_t *emu, uintptr_t fnc);
 void pFppii(x86emu_t *emu, uintptr_t fnc);
+void pFppiu(x86emu_t *emu, uintptr_t fnc);
 void pFppip(x86emu_t *emu, uintptr_t fnc);
 void pFppuu(x86emu_t *emu, uintptr_t fnc);
+void pFppup(x86emu_t *emu, uintptr_t fnc);
 void pFpppi(x86emu_t *emu, uintptr_t fnc);
 void pFpppu(x86emu_t *emu, uintptr_t fnc);
 void pFpppp(x86emu_t *emu, uintptr_t fnc);
@@ -603,10 +605,12 @@ void pFEppii(x86emu_t *emu, uintptr_t fnc);
 void pFipipu(x86emu_t *emu, uintptr_t fnc);
 void pFuiiiu(x86emu_t *emu, uintptr_t fnc);
 void pFuiipp(x86emu_t *emu, uintptr_t fnc);
+void pFpiiip(x86emu_t *emu, uintptr_t fnc);
 void pFpiiuu(x86emu_t *emu, uintptr_t fnc);
 void pFpippp(x86emu_t *emu, uintptr_t fnc);
 void pFpuiii(x86emu_t *emu, uintptr_t fnc);
 void pFpuiip(x86emu_t *emu, uintptr_t fnc);
+void pFppiup(x86emu_t *emu, uintptr_t fnc);
 void pFppipi(x86emu_t *emu, uintptr_t fnc);
 void pFppipp(x86emu_t *emu, uintptr_t fnc);
 void pFppuuu(x86emu_t *emu, uintptr_t fnc);
@@ -667,6 +671,7 @@ void vFppiiii(x86emu_t *emu, uintptr_t fnc);
 void vFppiiip(x86emu_t *emu, uintptr_t fnc);
 void vFppiipi(x86emu_t *emu, uintptr_t fnc);
 void vFppippi(x86emu_t *emu, uintptr_t fnc);
+void vFppuuuu(x86emu_t *emu, uintptr_t fnc);
 void vFppupii(x86emu_t *emu, uintptr_t fnc);
 void vFpppppi(x86emu_t *emu, uintptr_t fnc);
 void vFpppppp(x86emu_t *emu, uintptr_t fnc);
@@ -947,10 +952,6 @@ void pFEppup(x86emu_t *emu, uintptr_t fnc);
 void IFpi(x86emu_t *emu, uintptr_t fnc);
 void dFpi(x86emu_t *emu, uintptr_t fnc);
 void iFppiiiip(x86emu_t *emu, uintptr_t fnc);
-#endif
-
-#if !defined(PANDORA)
-void pFppup(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)

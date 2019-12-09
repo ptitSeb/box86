@@ -39,27 +39,27 @@ GO(g_app_info_add_supports_type, iFppp)
 GO(g_app_info_can_delete, iFp)
 GO(g_app_info_can_remove_supports_type, iFp)
 //GO(g_app_info_create_flags_get_type, 
-//GO(g_app_info_create_from_commandline, 
-//GO(g_app_info_delete, 
-//GO(g_app_info_dup, 
-//GO(g_app_info_equal, 
-//GO(g_app_info_get_all, 
-//GO(g_app_info_get_all_for_type, 
-//GO(g_app_info_get_commandline, 
-//GO(g_app_info_get_default_for_type, 
-//GO(g_app_info_get_default_for_uri_scheme, 
-//GO(g_app_info_get_description, 
-//GO(g_app_info_get_display_name, 
-//GO(g_app_info_get_executable, 
-//GO(g_app_info_get_fallback_for_type, 
-//GO(g_app_info_get_icon, 
-//GO(g_app_info_get_id, 
-//GO(g_app_info_get_name, 
-//GO(g_app_info_get_recommended_for_type, 
-//GO(g_app_info_get_supported_types, 
+GO(g_app_info_create_from_commandline, pFppup)
+GO(g_app_info_delete, iFp)
+GO(g_app_info_dup, pFp)
+GO(g_app_info_equal, iFpp)
+GO(g_app_info_get_all, pFv)
+GO(g_app_info_get_all_for_type, pFp)
+GO(g_app_info_get_commandline, pFp)
+GO(g_app_info_get_default_for_type, pFpp)
+GO(g_app_info_get_default_for_uri_scheme, pFp)
+GO(g_app_info_get_description, pFp)
+GO(g_app_info_get_display_name, pFp)
+GO(g_app_info_get_executable, pFp)
+GO(g_app_info_get_fallback_for_type, pFp)
+GO(g_app_info_get_icon, pFp)
+GO(g_app_info_get_id, pFp)
+GO(g_app_info_get_name, pFp)
+GO(g_app_info_get_recommended_for_type, pFp)
+GO(g_app_info_get_supported_types, pFp)
 //GO(g_app_info_get_type, 
-//GO(g_app_info_launch, 
-//GO(g_app_info_launch_default_for_uri, 
+GO(g_app_info_launch, iFpppp)
+GO(g_app_info_launch_default_for_uri, iFppp)
 GO(g_app_info_launch_uris, iFpppp)
 //GO(g_app_info_monitor_get, 
 //GO(g_app_info_monitor_get_type, 
@@ -69,8 +69,8 @@ GO(g_app_info_set_as_default_for_extension, iFppp)
 GO(g_app_info_set_as_default_for_type, iFppp)
 GO(g_app_info_set_as_last_used_for_type, iFppp)
 GO(g_app_info_should_show, iFp)
-//GO(g_app_info_supports_files, 
-//GO(g_app_info_supports_uris, 
+GO(g_app_info_supports_files, iFp)
+GO(g_app_info_supports_uris, iFp)
 //GO(g_app_launch_context_get_display, 
 //GO(g_app_launch_context_get_environment, 
 //GO(g_app_launch_context_get_startup_notify_id, 
@@ -558,28 +558,28 @@ GO(g_app_info_should_show, iFp)
 //GO(g_dbus_subtree_flags_get_type, 
 //GO(g_desktop_app_info_get_action_name, 
 //GO(g_desktop_app_info_get_boolean, 
-//GO(g_desktop_app_info_get_categories, 
-//GO(g_desktop_app_info_get_filename, 
-//GO(g_desktop_app_info_get_generic_name, 
+GO(g_desktop_app_info_get_categories, pFp)
+GO(g_desktop_app_info_get_filename, pFp)
+GO(g_desktop_app_info_get_generic_name, pFp)
 //GO(g_desktop_app_info_get_implementations, 
-//GO(g_desktop_app_info_get_is_hidden, 
-//GO(g_desktop_app_info_get_keywords, 
-//GO(g_desktop_app_info_get_nodisplay, 
-//GO(g_desktop_app_info_get_show_in, 
+GO(g_desktop_app_info_get_is_hidden, iFp)
+GO(g_desktop_app_info_get_keywords, pFp)
+GO(g_desktop_app_info_get_nodisplay, iFp)
+GO(g_desktop_app_info_get_show_in, iFpp)
 //GO(g_desktop_app_info_get_startup_wm_class, 
 //GO(g_desktop_app_info_get_string, 
-//GO(g_desktop_app_info_get_type, 
+GO(g_desktop_app_info_get_type, iFv)
 //GO(g_desktop_app_info_has_key, 
 //GO(g_desktop_app_info_launch_action, 
 //GO(g_desktop_app_info_launch_uris_as_manager, 
 //GO(g_desktop_app_info_list_actions, 
 //GO(g_desktop_app_info_lookup_get_default_for_uri_scheme, 
-//GO(g_desktop_app_info_lookup_get_type, 
-//GO(g_desktop_app_info_new, 
-//GO(g_desktop_app_info_new_from_filename, 
-//GO(g_desktop_app_info_new_from_keyfile, 
+GO(g_desktop_app_info_lookup_get_type, iFv)
+GO(g_desktop_app_info_new, pFp)
+GO(g_desktop_app_info_new_from_filename, pFp)
+GO(g_desktop_app_info_new_from_keyfile, pFp)
 //GO(g_desktop_app_info_search, 
-//GO(g_desktop_app_info_set_desktop_env, 
+GO(g_desktop_app_info_set_desktop_env, vFp)
 //GO(g_drive_can_eject, 
 //GO(g_drive_can_poll_for_media, 
 //GO(g_drive_can_start, 
@@ -700,9 +700,9 @@ GO(g_app_info_should_show, iFp)
 //GO(g_file_has_parent, 
 //GO(g_file_has_prefix, 
 //GO(g_file_has_uri_scheme, 
-//GO(g_file_icon_get_file, 
-//GO(g_file_icon_get_type, 
-//GO(g_file_icon_new, 
+GO(g_file_icon_get_file, pFp)
+GO(g_file_icon_get_type, iFv)
+GO(g_file_icon_new, pFp)
 //GO(g_file_info_clear_status, 
 //GO(g_file_info_copy_into, 
 //GO(g_file_info_dup, 
@@ -888,13 +888,13 @@ GO(g_app_info_should_show, iFp)
 //GO(g_filter_output_stream_get_close_base_stream, 
 //GO(g_filter_output_stream_get_type, 
 //GO(g_filter_output_stream_set_close_base_stream, 
-//GO(g_icon_deserialize, 
-//GO(g_icon_equal, 
+GO(g_icon_deserialize, pFp)
+GO(g_icon_equal, iFpp)
 //GO(g_icon_get_type, 
-//GO(g_icon_hash, 
-//GO(g_icon_new_for_string, 
-//GO(g_icon_serialize, 
-//GO(g_icon_to_string, 
+GO(g_icon_hash, uFp)
+GO(g_icon_new_for_string, pFpp)
+GO(g_icon_serialize, pFp)
+GO(g_icon_to_string, pFp)
 //GO(g_inet_address_equal, 
 //GO(g_inet_address_get_family, 
 //GO(g_inet_address_get_is_any, 

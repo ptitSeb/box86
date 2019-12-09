@@ -583,7 +583,7 @@
 //GO(g_list_foreach, 
 //GO(g_list_free, 
 //GO(g_list_free_1, 
-//GO(g_list_free_full, 
+//GOM(g_list_free_full, vFEpB)
 //GO(g_list_index, 
 //GO(g_list_insert, 
 //GO(g_list_insert_before, 
@@ -1012,9 +1012,9 @@ GO(g_main_context_pending, iFp)
 //GO(g_set_printerr_handler, 
 //GO(g_set_print_handler, 
 //GO(g_shell_error_quark, 
-//GO(g_shell_parse_argv, 
-//GO(g_shell_quote, 
-//GO(g_shell_unquote, 
+GO(g_shell_parse_argv, iFpppp)
+GO(g_shell_quote, pFp)
+GO(g_shell_unquote, pFpp)
 //GO(g_slice_alloc, 
 //GO(g_slice_alloc0, 
 //GO(g_slice_copy, 
@@ -1139,7 +1139,7 @@ GO(g_main_context_pending, iFp)
 //GO(g_str_equal, 
 //GO(g_strerror, 
 //GO(g_strescape, 
-//GO(g_strfreev, 
+GO(g_strfreev, vFp)
 //GO(g_str_hash, 
 //GO(g_str_has_prefix, 
 //GO(g_str_has_suffix, 

@@ -70,7 +70,7 @@
 //GO(g_cclosure_new_object_swap, 
 //GO(g_cclosure_new_swap, 
 //GO(g_checksum_get_type, 
-//GO(g_clear_object, 
+GO(g_clear_object, vFp)
 //GO(g_closure_add_finalize_notifier, 
 //GO(g_closure_add_invalidate_notifier, 
 //GO(g_closure_add_marshal_guards, 
@@ -129,7 +129,7 @@
 //GO(g_object_force_floating, 
 //GO(g_object_freeze_notify, 
 //GO(g_object_get, 
-//GO(g_object_get_data, 
+GO(g_object_get_data, pFpp)
 //GO(g_object_get_property, 
 //GO(g_object_get_qdata, 
 //GO(g_object_get_type, 
@@ -137,21 +137,21 @@
 //GO(g_object_interface_find_property, 
 //GO(g_object_interface_install_property, 
 //GO(g_object_interface_list_properties, 
-//GO(g_object_is_floating, 
+GO(g_object_is_floating, iFp)
 //GO(g_object_new, 
 //GO(g_object_newv, 
 //GO(g_object_new_valist, 
 //GO(g_object_notify, 
 //GO(g_object_notify_by_pspec, 
-//GO(g_object_ref, 
-//GO(g_object_ref_sink, 
+GO(g_object_ref, pFp)
+GO(g_object_ref_sink, pFp)
 //GO(g_object_remove_toggle_ref, 
 //GO(g_object_remove_weak_pointer, 
 //GO(g_object_replace_data, 
 //GO(g_object_replace_qdata, 
 //GO(g_object_run_dispose, 
 //GO(g_object_set, 
-//GO(g_object_set_data, 
+GO(g_object_set_data, vFppp)
 //GO(g_object_set_data_full, 
 //GO(g_object_set_property, 
 //GO(g_object_set_qdata, 
@@ -160,7 +160,7 @@
 //GO(g_object_steal_data, 
 //GO(g_object_steal_qdata, 
 //GO(g_object_thaw_notify, 
-//GO(g_object_unref, 
+GO(g_object_unref, vFp)
 //GO(g_object_watch_closure, 
 //GO(g_object_weak_ref, 
 //GO(g_object_weak_unref, 
