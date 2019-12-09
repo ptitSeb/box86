@@ -304,6 +304,7 @@ void vFEpip(x86emu_t *emu, uintptr_t fnc);
 void vFEpuu(x86emu_t *emu, uintptr_t fnc);
 void vFEpup(x86emu_t *emu, uintptr_t fnc);
 void vFEppp(x86emu_t *emu, uintptr_t fnc);
+void vFEpVV(x86emu_t *emu, uintptr_t fnc);
 void vFiiii(x86emu_t *emu, uintptr_t fnc);
 void vFiiip(x86emu_t *emu, uintptr_t fnc);
 void vFiipV(x86emu_t *emu, uintptr_t fnc);

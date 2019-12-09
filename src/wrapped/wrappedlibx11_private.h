@@ -1088,7 +1088,7 @@ GO(XwcLookupString, iFuppipp)
 // _Xwcstombs
 //GO(XwcTextEscapement
 //GO(XwcTextExtents
-//GO(XwcTextListToTextProperty
+GO(XwcTextListToTextProperty, iFppiup)
 // _XwcTextListToTextProperty
 //GO(XwcTextPerCharExtents
 //GO(XwcTextPropertyToTextList

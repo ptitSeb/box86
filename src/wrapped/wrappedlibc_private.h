@@ -1687,7 +1687,7 @@ GOW(strtol_l, lFppiip)
 GO(__strtoll_internal, IFppii)
 GO(__strtoll_l, IFppip)
 GOW(strtoll_l, IFppip)
-// strtoq   // Weak
+GOW(strtoq, IFppi)  // is that ok?
 GO(strtoul, LFppi)
 GO(__strtoul_internal, LFppii)
 GO(strtoull, UFppi)
@@ -1697,7 +1697,7 @@ GO(__strtoull_internal, UFppii)
 GO(__strtoull_l, UFppip)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
-// strtouq  // Weak
+GOW(strtouq, UFppi) // ok?
 GOW(strverscmp, iFpp)
 // __strverscmp
 GO(strxfrm, uFppu)
@@ -1889,7 +1889,7 @@ GO(vswscanf, iFppp)
 GO(vsyslog, vFipV)
 GO(__vsyslog_chk, vFiipV)
 // vtimes
-// vwarn
+GOM(vwarn, vFEpVV)
 // vwarnx
 // vwprintf
 // __vwprintf_chk

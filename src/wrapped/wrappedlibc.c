@@ -62,6 +62,7 @@
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
+typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
@@ -457,6 +458,17 @@ EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     #else
     void* f = verr;
     ((vFipp_t)f)(eval, fmt, *(uint32_t**)b);
+    #endif
+}
+
+EXPORT void my_vwarn(x86emu_t* emu, void* fmt, void* b) {
+    #ifndef NOALIGN
+    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vwarn;
+    ((vFpp_t)f)(fmt, emu->scratch);
+    #else
+    void* f = vwarn;
+    ((vFpp_t)f)(fmt, *(uint32_t**)b);
     #endif
 }
 
