@@ -1329,6 +1329,22 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             REV(gd, gd);
             break;
 
+        case 0xD4:
+            INST_NAME("ADDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VADD_64(v0, v0, v1);
+            break;
+
+        case 0xF4:
+            INST_NAME("PMULUDQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VMULL_U64_U32(v0, v0, v1);
+            break;
+
         default:
             *ok = 0;
             DEFAULT;

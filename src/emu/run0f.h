@@ -970,7 +970,11 @@
             GET_EM;
             GM.q = (EM->q > 63) ? 0 : GM.q >> EM->q;
             NEXT;
-
+        _0f_0xD4:                   /* PADDQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.sq += EM->sq;
+            NEXT;
         _0f_0xD5:                   /* PMULLW Gm,Em */
             nextop = F8;
             GET_EM;
@@ -1152,7 +1156,11 @@
             GET_EM;
             GM.q = (EM->q > 63) ? 0 : GM.q << EM->q;
             NEXT;
-
+        _0f_0xF4:                   /* PMULUDQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.q = (uint64_t)GM.ud[0] * (uint64_t)EM->ud[0];
+            NEXT;
         _0f_0xF5:                   /* PMADDWD Gm, Em */
             nextop = F8;
             GET_EM;
@@ -1164,7 +1172,6 @@
                 GM.sd[i] = tmp32s + tmp32s2;
             }
             NEXT;
-
         _0f_0xF6:                   /* PSADBW Gm, Em */
             nextop = F8;
             GET_EM;
