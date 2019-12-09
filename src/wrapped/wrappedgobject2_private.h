@@ -270,15 +270,15 @@
 //GO(g_type_add_interface_check, 
 //GO(g_type_add_interface_dynamic, 
 //GO(g_type_add_interface_static, 
-//GO(g_type_check_class_cast, 
-//GO(g_type_check_class_is_a, 
-//GO(g_type_check_instance, 
-//GO(g_type_check_instance_cast, 
-//GO(g_type_check_instance_is_a, 
-//GO(g_type_check_instance_is_fundamentally_a, 
-//GO(g_type_check_is_value_type, 
-//GO(g_type_check_value, 
-//GO(g_type_check_value_holds, 
+GO(g_type_check_class_cast, pFpi)
+GO(g_type_check_class_is_a, iFpi)
+GO(g_type_check_instance, iFp)
+GO(g_type_check_instance_cast, pFpi)
+GO(g_type_check_instance_is_a, iFpi)
+GO(g_type_check_instance_is_fundamentally_a, iFpi)
+GO(g_type_check_is_value_type, iFpi)
+GO(g_type_check_value, iFp)
+GO(g_type_check_value_holds, iFpi)
 //GO(g_type_children, 
 //GO(g_type_class_add_private, 
 //GO(g_type_class_adjust_private_offset, 

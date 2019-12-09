@@ -1198,18 +1198,18 @@ GO(gtk_grab_remove, vFp)
 //GO(gtk_icon_factory_lookup_default, 
 //GO(gtk_icon_factory_new, 
 //GO(gtk_icon_factory_remove_default, 
-//GO(gtk_icon_info_copy, 
-//GO(gtk_icon_info_free, 
-//GO(gtk_icon_info_get_attach_points, 
-//GO(gtk_icon_info_get_base_size, 
-//GO(gtk_icon_info_get_builtin_pixbuf, 
-//GO(gtk_icon_info_get_display_name, 
-//GO(gtk_icon_info_get_embedded_rect, 
+GO(gtk_icon_info_copy, pFp)
+GO(gtk_icon_info_free, vFp)
+GO(gtk_icon_info_get_attach_points, iFppp)
+GO(gtk_icon_info_get_base_size, iFp)
+GO(gtk_icon_info_get_builtin_pixbuf, pFp)
+GO(gtk_icon_info_get_display_name, pFp)
+GO(gtk_icon_info_get_embedded_rect, iFpp)
 //GO(gtk_icon_info_get_filename, 
 //GO(gtk_icon_info_get_type, 
-//GO(gtk_icon_info_load_icon, 
-//GO(gtk_icon_info_new_for_pixbuf, 
-//GO(gtk_icon_info_set_raw_coordinates, 
+GO(gtk_icon_info_load_icon, pFpp)
+GO(gtk_icon_info_new_for_pixbuf, pFpp)
+GO(gtk_icon_info_set_raw_coordinates, vFpp)
 //GO(gtk_icon_lookup_flags_get_type, 
 //GO(gtk_icon_set_add_source, 
 //GO(gtk_icon_set_copy, 
@@ -3649,7 +3649,7 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_create_pango_layout, 
 //GO(gtk_widget_destroy, 
 //GO(gtk_widget_destroyed, 
-//GO(gtk_widget_draw, 
+GO(gtk_widget_draw, vFpp)
 //GO(gtk_widget_ensure_style, 
 //GO(gtk_widget_error_bell, 
 //GO(gtk_widget_event, 
@@ -3713,8 +3713,8 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_has_rc_style, 
 //GO(gtk_widget_has_screen, 
 //GO(gtk_widget_help_type_get_type, 
-//GO(gtk_widget_hide, 
-//GO(gtk_widget_hide_all, 
+GO(gtk_widget_hide, vFp)
+GO(gtk_widget_hide_all, vFp)
 //GO(gtk_widget_hide_on_delete, 
 //GO(gtk_widget_input_shape_combine_mask, 
 //GO(gtk_widget_intersect, 
@@ -3727,7 +3727,7 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_keynav_failed, 
 //GO(gtk_widget_list_accel_closures, 
 //GO(gtk_widget_list_mnemonic_labels, 
-//GO(gtk_widget_map, 
+GO(gtk_widget_map, vFp)
 //GO(gtk_widget_mnemonic_activate, 
 //GO(gtk_widget_modify_base, 
 //GO(gtk_widget_modify_bg, 
@@ -3744,10 +3744,10 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_push_composite_child, 
 //GO(gtk_widget_queue_clear, 
 //GO(gtk_widget_queue_clear_area, 
-//GO(gtk_widget_queue_draw, 
+GO(gtk_widget_queue_draw, vFp)
 //GO(gtk_widget_queue_draw_area, 
-//GO(gtk_widget_queue_resize, 
-//GO(gtk_widget_queue_resize_no_redraw, 
+GO(gtk_widget_queue_resize, vFp)
+GO(gtk_widget_queue_resize_no_redraw, vFp)
 //GO(gtk_widget_realize, 
 //GO(gtk_widget_ref, 
 //GO(gtk_widget_region_intersect, 
@@ -3797,11 +3797,11 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_set_visible, 
 //GO(gtk_widget_set_window, 
 //GO(gtk_widget_shape_combine_mask, 
-//GO(gtk_widget_show, 
-//GO(gtk_widget_show_all, 
-//GO(gtk_widget_show_now, 
+GO(gtk_widget_show, vFp)
+GO(gtk_widget_show_all, vFp)
+GO(gtk_widget_show_now, vFp)
 //GO(gtk_widget_size_allocate, 
-//GO(gtk_widget_size_request, 
+GO(gtk_widget_size_request, vFpp)
 //GO(gtk_widget_style_attach, 
 //GO(gtk_widget_style_get, 
 //GO(gtk_widget_style_get_property, 
@@ -3809,9 +3809,9 @@ GO(gtk_true, iFv)
 //GO(gtk_widget_thaw_child_notify, 
 //GO(gtk_widget_translate_coordinates, 
 //GO(gtk_widget_trigger_tooltip_query, 
-//GO(gtk_widget_unmap, 
-//GO(gtk_widget_unparent, 
-//GO(gtk_widget_unrealize, 
+GO(gtk_widget_unmap, vFp)
+GO(gtk_widget_unparent, vFp)
+GO(gtk_widget_unrealize, vFp)
 //GO(gtk_widget_unref, 
 //GO(gtk_window_activate_default, 
 //GO(gtk_window_activate_focus, 

@@ -35,9 +35,9 @@
 //GO(g_action_name_is_valid, 
 //GO(g_action_parse_detailed_name, 
 //GO(g_action_print_detailed_name, 
-//GO(g_app_info_add_supports_type, 
-//GO(g_app_info_can_delete, 
-//GO(g_app_info_can_remove_supports_type, 
+GO(g_app_info_add_supports_type, iFppp)
+GO(g_app_info_can_delete, iFp)
+GO(g_app_info_can_remove_supports_type, iFp)
 //GO(g_app_info_create_flags_get_type, 
 //GO(g_app_info_create_from_commandline, 
 //GO(g_app_info_delete, 
@@ -60,15 +60,15 @@
 //GO(g_app_info_get_type, 
 //GO(g_app_info_launch, 
 //GO(g_app_info_launch_default_for_uri, 
-//GO(g_app_info_launch_uris, 
+GO(g_app_info_launch_uris, iFpppp)
 //GO(g_app_info_monitor_get, 
 //GO(g_app_info_monitor_get_type, 
-//GO(g_app_info_remove_supports_type, 
-//GO(g_app_info_reset_type_associations, 
-//GO(g_app_info_set_as_default_for_extension, 
-//GO(g_app_info_set_as_default_for_type, 
-//GO(g_app_info_set_as_last_used_for_type, 
-//GO(g_app_info_should_show, 
+GO(g_app_info_remove_supports_type, iFppp)
+GO(g_app_info_reset_type_associations, vFp)
+GO(g_app_info_set_as_default_for_extension, iFppp)
+GO(g_app_info_set_as_default_for_type, iFppp)
+GO(g_app_info_set_as_last_used_for_type, iFppp)
+GO(g_app_info_should_show, iFp)
 //GO(g_app_info_supports_files, 
 //GO(g_app_info_supports_uris, 
 //GO(g_app_launch_context_get_display, 
