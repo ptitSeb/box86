@@ -213,6 +213,10 @@ void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
             R_ECX = 0;
             R_EDX = 0;
             break;
+        case 0x7:   // extended bits...
+            if(R_ECX==0)    R_EAX = 0;
+            else R_EAX = R_ECX = R_EBX = R_EDX = 0;
+            break;
 
         case 0x80000000:        // max extended
             break;              // no extended, so return same value as beeing the max value!
