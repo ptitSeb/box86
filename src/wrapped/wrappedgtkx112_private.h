@@ -751,23 +751,23 @@ GO(gtk_container_set_resize_mode, vFpi)
 //GO(gtk_decorated_window_set_title, 
 //GO(gtk_delete_type_get_type, 
 //GO(gtk_dest_defaults_get_type, 
-//GO(gtk_dialog_add_action_widget, 
-//GO(gtk_dialog_add_button, 
+GO(gtk_dialog_add_action_widget, vFppi)
+GO(gtk_dialog_add_button, pFppi)
 //GO(gtk_dialog_add_buttons, 
 //GO(gtk_dialog_flags_get_type, 
 //GO(gtk_dialog_get_action_area, 
 //GO(gtk_dialog_get_content_area, 
 //GO(gtk_dialog_get_has_separator, 
 //GO(gtk_dialog_get_response_for_widget, 
-//GO(gtk_dialog_get_type, 
+GO(gtk_dialog_get_type, iFv)
 //GO(gtk_dialog_get_widget_for_response, 
 //GO(gtk_dialog_new, 
 //GO(gtk_dialog_new_with_buttons, 
-//GO(gtk_dialog_response, 
-//GO(gtk_dialog_run, 
+GO(gtk_dialog_response, vFpi)
+GO(gtk_dialog_run, iFp)
 //GO(gtk_dialog_set_alternative_button_order, 
 //GO(gtk_dialog_set_alternative_button_order_from_array, 
-//GO(gtk_dialog_set_default_response, 
+GO(gtk_dialog_set_default_response, vFpi)
 //GO(gtk_dialog_set_has_separator, 
 //GO(gtk_dialog_set_response_sensitive, 
 //GO(gtk_direction_type_get_type, 
@@ -1700,7 +1700,7 @@ GO(gtk_menu_shell_select_item, vFpp)
 //GO(gtk_message_dialog_get_image, 
 //GO(gtk_message_dialog_get_message_area, 
 //GO(gtk_message_dialog_get_type, 
-//GO(gtk_message_dialog_new, 
+GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
 //GO(gtk_message_dialog_new_with_markup, 
 //GO(gtk_message_dialog_set_image, 
 //GO(gtk_message_dialog_set_markup, 
@@ -3871,7 +3871,7 @@ GO(gtk_widget_unref, vFp)
 //GO(gtk_window_maximize, 
 //GO(gtk_window_mnemonic_activate, 
 //GO(gtk_window_move, 
-//GO(gtk_window_new, 
+GO(gtk_window_new, pFi)
 //GO(gtk_window_parse_geometry, 
 //GO(gtk_window_position_get_type, 
 //GO(gtk_window_present, 
@@ -3910,18 +3910,18 @@ GO(gtk_widget_unref, vFp)
 //GO(gtk_window_set_modal, 
 //GO(gtk_window_set_opacity, 
 //GO(gtk_window_set_policy, 
-//GO(gtk_window_set_position, 
+GO(gtk_window_set_position, vFpi)
 //GO(gtk_window_set_resizable, 
 //GO(gtk_window_set_role, 
 //GO(gtk_window_set_screen, 
 //GO(gtk_window_set_skip_pager_hint, 
 //GO(gtk_window_set_skip_taskbar_hint, 
 //GO(gtk_window_set_startup_id, 
-//GO(gtk_window_set_title, 
-//GO(gtk_window_set_transient_for, 
+GO(gtk_window_set_title, vFpp)
+GO(gtk_window_set_transient_for, vFpp)
 //GO(gtk_window_set_type_hint, 
 //GO(gtk_window_set_urgency_hint, 
-//GO(gtk_window_set_wmclass, 
+GO(gtk_window_set_wmclass, vFppp)
 //GO(gtk_window_stick, 
 //GO(gtk_window_type_get_type, 
 //GO(gtk_window_unfullscreen, 
