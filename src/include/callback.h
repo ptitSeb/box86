@@ -21,6 +21,6 @@ void* GetCallbackArg(x86emu_t* emu, int arg);
 void SetCallbackNArg(x86emu_t* emu, int narg);
 void SetCallbackAddress(x86emu_t* emu, uintptr_t address);
 uintptr_t GetCallbackAddress(x86emu_t* emu);
-int IsCallback(x86emu_t* emu, x86emu_t* cb);
+int IsCallback(box86context_t* context, x86emu_t* cb);
 
 #endif //__CALLBACK_H__

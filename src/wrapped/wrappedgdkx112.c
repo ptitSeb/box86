@@ -14,11 +14,11 @@
 const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 #define LIBNAME gdkx112
 
-#include "wrappedlib_init.h"
-
 #define CUSTOM_INIT \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0"); \
     lib->priv.w.neededlibs[1] = strdup("libgio-2.0.so.0");  \
-    lib->priv.w.neededlibs[1] = strdup("libgdk_pixbuf-2.0.so.0");
+    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");
+
+#include "wrappedlib_init.h"

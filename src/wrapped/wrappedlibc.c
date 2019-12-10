@@ -821,9 +821,9 @@ EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, voi
 {
     int ret = 0;
     // cleanup first
-    if(scandir64emu1 && !IsCallback(emu, scandir64emu1))
+    if(scandir64emu1 && !IsCallback(emu->context, scandir64emu1))
         scandir64emu1 = NULL;
-    if(scandir64emu2 && !IsCallback(emu, scandir64emu2))
+    if(scandir64emu2 && !IsCallback(emu->context, scandir64emu2))
         scandir64emu2 = NULL;
     
     if(scandir64emu1 && (scandir64emu1!=emu)) {

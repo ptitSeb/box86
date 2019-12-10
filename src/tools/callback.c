@@ -42,9 +42,9 @@ onecallback_t* FindCallback(x86emu_t* emu)
     return kh_value(callbacks->list, k);
 }
 
-int IsCallback(x86emu_t* emu, x86emu_t* cb)
+int IsCallback(box86context_t* context, x86emu_t* cb)
 {
-    callbacklist_t *callbacks = emu->context->callbacks;
+    callbacklist_t *callbacks = context->callbacks;
     khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)cb);
     if(k==kh_end(callbacks->list) || !kh_exist(callbacks->list, k))
         return 0;

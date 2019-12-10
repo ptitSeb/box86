@@ -1653,7 +1653,7 @@ GO(g_icon_to_string, pFp)
 //GO(g_test_dbus_up, 
 //GO(g_themed_icon_append_name, 
 //GO(g_themed_icon_get_names, 
-//GO(g_themed_icon_get_type, 
+GO(g_themed_icon_get_type, iFv)
 //GO(g_themed_icon_new, 
 //GO(g_themed_icon_new_from_names, 
 //GO(g_themed_icon_new_with_default_fallbacks, 

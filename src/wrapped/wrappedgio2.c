@@ -14,9 +14,9 @@
 const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2
 
-#include "wrappedlib_init.h"
-
 #define CUSTOM_INIT \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgmodule-2.0.so.0");
+
+#include "wrappedlib_init.h"

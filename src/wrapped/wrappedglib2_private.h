@@ -581,9 +581,9 @@
 //GO(g_list_find_custom, 
 //GO(g_list_first, 
 //GO(g_list_foreach, 
-//GO(g_list_free, 
+GO(g_list_free, vFp)
 //GO(g_list_free_1, 
-//GOM(g_list_free_full, vFEpB)
+GOM(g_list_free_full, vFEpp)
 //GO(g_list_index, 
 //GO(g_list_insert, 
 //GO(g_list_insert_before, 

@@ -14,9 +14,10 @@
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 #define LIBNAME gtkx112
 
-#include "wrappedlib_init.h"
 
 #define CUSTOM_INIT \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");
+
+#include "wrappedlib_init.h"

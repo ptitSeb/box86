@@ -224,7 +224,7 @@ GO(g_object_unref, vFp)
 //GO(g_signal_chain_from_overridden_handler, 
 //GO(g_signal_connect_closure, 
 //GO(g_signal_connect_closure_by_id, 
-//GO(g_signal_connect_data, 
+GOM(g_signal_connect_data, LFEpppppu)
 //GO(g_signal_connect_object, 
 //GO(g_signal_emit, 
 //GO(g_signal_emit_by_name, 

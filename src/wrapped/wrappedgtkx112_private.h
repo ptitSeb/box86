@@ -1641,7 +1641,7 @@ GO(gtk_menu_attach, vFppuuuu)
 //GO(gtk_menu_get_reserve_toggle_size, 
 //GO(gtk_menu_get_tearoff_state, 
 //GO(gtk_menu_get_title, 
-//GO(gtk_menu_get_type, 
+GO(gtk_menu_get_type, iFv)
 //GO(gtk_menu_item_activate, 
 //GO(gtk_menu_item_deselect, 
 GO(gtk_menu_item_get_accel_path, pFp)
@@ -2523,7 +2523,7 @@ GO(gtk_parse_args, iFpp)
 //GO(gtk_sensitivity_type_get_type, 
 //GO(gtk_separator_get_type, 
 //GO(gtk_separator_menu_item_get_type, 
-//GO(gtk_separator_menu_item_new, 
+GO(gtk_separator_menu_item_new, pFv)
 //GO(gtk_separator_tool_item_get_draw, 
 //GO(gtk_separator_tool_item_get_type, 
 //GO(gtk_separator_tool_item_new, 
