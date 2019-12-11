@@ -29,25 +29,34 @@ typedef void(* DBusRemoveTimeoutFunction) (void *timeout, void *data);
 typedef void(* DBusTimeoutToggledFunction) (void *timeout, void *data);
 
 
-
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+
+#define SUPER() \
+    GO(dbus_timeout_set_data, vFppp_t)  \
+    GO(dbus_connection_set_timeout_functions, iFpppppp_t)   \
+    GO(dbus_connection_add_filter, iFpppp_t)    \
+    GO(dbus_connection_remove_filter, vFppp_t)  \
+    GO(dbus_message_get_args_valist, iFppip_t)
 
 typedef struct dbus_my_s {
     // functions
-    vFppp_t        dbus_timeout_set_data;
-    iFpppppp_t     dbus_connection_set_timeout_functions;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } dbus_my_t;
 
 static void* getDBusMy(library_t* lib)
 {
     dbus_my_t* my = (dbus_my_t*)calloc(1, sizeof(dbus_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(dbus_timeout_set_data, vFppp_t)
-    GO(dbus_connection_set_timeout_functions, iFpppppp_t)
+    SUPER()
     #undef GO
     return my;
 }
+#undef SUPER
 
 static void freeDBusMy(void* lib)
 {
@@ -127,6 +136,112 @@ EXPORT int32_t my_dbus_connection_set_timeout_functions(x86emu_t* emu, void* c, 
             r?my_dbus_connection_timout_remove_cb:NULL, 
             t?my_dbus_connection_timout_toggle_cb:NULL, 
             d, f?my_dbus_connection_timout_free_cb:NULL);
+}
+
+#define NF 4
+#define SUPER() \
+    GO(0)   \
+    GO(1)   \
+    GO(2)   \
+    GO(3)
+
+static box86context_t *context = NULL;
+static uintptr_t my_filter_fnc[NF] = {0};
+static uintptr_t my_filter_free[NF] = {0};
+
+#define GO(A) \
+    static int32_t my_filter_handler_##A (void* connection, void* message, void* data) { \
+        return RunFunction(context, my_filter_fnc[A], 3, connection, message, data); \
+    }   \
+    static void my_filter_free_##A (void* memory) { \
+        RunFunction(context, my_filter_free[A], 1, memory); \
+    }
+
+SUPER()
+
+#undef GO
+
+static int getSetFilter(uintptr_t fnc, uintptr_t fr, void** cbfnc, void** cbfree) {
+    #define GO(A) if(!my_filter_fnc[A]) {my_filter_fnc[A]=fnc; my_filter_free[A]=fr; *cbfnc = my_filter_handler_##A; *cbfree = my_filter_free_##A; return A+1;}
+    SUPER()
+    #undef GO
+    return 0;
+}
+
+static int getFilter(uintptr_t fnc, void** cbfnc) {
+    #define GO(A) if(my_filter_fnc[A]==fnc) {*cbfnc = my_filter_handler_##A; return A+1;}
+    SUPER()
+    #undef GO
+    return 0;
+}
+
+static void freeFilter(uintptr_t fnc) {
+    #define GO(A) if(fnc == my_filter_fnc[A]) {my_filter_fnc[A]=0; my_filter_free[A]=0; return;}
+    SUPER()
+    #undef GO
+}
+
+#undef SUPER
+
+EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* fnc, void* data, void* fr)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    if (!context)
+        context = emu->context;
+
+    void* cbfnc = NULL;
+    void* cbfree= NULL;
+    if(getSetFilter((uintptr_t)fnc, (uintptr_t)fr, &cbfnc, &cbfree)) {
+        return my->dbus_connection_add_filter(connection, cbfnc, data, fr?cbfree:NULL);
+    }
+    printf_log(LOG_NONE, "Error: no more slot for dbus_connection_add_filter\n");
+}
+
+EXPORT void my_dbus_connection_remove_filter(x86emu_t* emu, void* connection, void* fnc, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    if (!context)
+        context = emu->context;
+
+    void* cbfnc = NULL;
+    if(getFilter((uintptr_t)fnc, &cbfnc)) {
+        my->dbus_connection_remove_filter(connection, cbfnc, data);
+    }
+    freeFilter((uintptr_t)fnc);
+    
+}
+
+EXPORT int my_dbus_message_get_args_valist(x86emu_t* emu, void* message, void* e, int arg, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    // need to develop this specific alignment!
+    #if 0   //ndef NOALIGN
+    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    void* f = vprintf;
+    return my->dbus_message_get_args_valist(message, e, arg, emu->scratch);
+    #else
+    return my->dbus_message_get_args_valist(message, e, arg, *(uint32_t**)b);
+    #endif
+}
+
+EXPORT int my_dbus_message_get_args(x86emu_t* emu, void* message, void* e, int arg, void* V)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    // need to develop this specific alignment!
+    #if 0   //ndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->dbus_message_get_args_valist(message, e, arg, emu->scratch);
+    #else
+    return my->dbus_message_get_args_valist(message, e, arg, V);
+    #endif
 }
 
 #define CUSTOM_INIT \

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "debug.h"
 #include "x86emu.h"
@@ -233,4 +234,31 @@ void FreeCallbackList(callbacklist_t** callbacks)
     kh_destroy(callbacks, (*callbacks)->list);
     free(*callbacks);
     *callbacks = NULL;
+}
+
+uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
+{
+    uint32_t mystack[32*1024];  // 32K*4 = 128K stack
+    x86emu_t *emu = NewX86Emu(context, fnc, &mystack, 32*1024*4, 0);
+    SetupX86Emu(emu);
+
+    R_ESP -= nargs*4;   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    va_list va;
+    va_start (va, nargs);
+    for (int i=0; i<nargs; ++i) {
+        *p = va_arg(va, uint32_t);
+        p++;
+    }
+    va_end (va);
+
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    uint32_t ret = R_EAX;
+    FreeX86Emu(&emu);
+
+    return ret;
 }

@@ -22,5 +22,6 @@ void SetCallbackNArg(x86emu_t* emu, int narg);
 void SetCallbackAddress(x86emu_t* emu, uintptr_t address);
 uintptr_t GetCallbackAddress(x86emu_t* emu);
 int IsCallback(box86context_t* context, x86emu_t* cb);
+uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...);   // use a local stack from the stack of 128K
 
 #endif //__CALLBACK_H__

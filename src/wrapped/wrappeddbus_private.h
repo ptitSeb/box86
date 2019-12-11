@@ -20,7 +20,7 @@ GO(dbus_bus_remove_match, vFppp)
 GO(dbus_bus_request_name, iFppup)
 GO(dbus_bus_set_unique_name, iFpp)
 GO(dbus_bus_start_service_by_name, iFppupp)
-//GO(dbus_connection_add_filter, 
+GOM(dbus_connection_add_filter, iFEpppp)
 //GO(dbus_connection_allocate_data_slot, 
 //GO(dbus_connection_borrow_message, 
 GO(dbus_connection_close, vFp)
@@ -55,7 +55,7 @@ GO(dbus_connection_open_private, pFpp)
 //GO(dbus_connection_ref, 
 //GO(dbus_connection_register_fallback, 
 //GO(dbus_connection_register_object_path, 
-//GO(dbus_connection_remove_filter, 
+GOM(dbus_connection_remove_filter, vFEppp)
 //GO(dbus_connection_return_message, 
 //GO(dbus_connection_send, 
 //GO(dbus_connection_send_preallocated, 
@@ -79,10 +79,10 @@ GOM(dbus_connection_set_timeout_functions, iFEpppppp)
 //GO(dbus_connection_try_register_object_path, 
 GO(dbus_connection_unref, vFp)
 //GO(dbus_connection_unregister_object_path, 
-//GO(dbus_error_free, 
-//GO(dbus_error_has_name, 
-//GO(dbus_error_init, 
-//GO(dbus_error_is_set, 
+GO(dbus_error_free, vFp)
+GO(dbus_error_has_name, iFpp)
+GO(dbus_error_init, vFp)
+GO(dbus_error_is_set, iFp)
 //GO(dbus_free, 
 //GO(dbus_free_string_array, 
 //GO(dbus_get_local_machine_id, 
@@ -98,8 +98,8 @@ GO(dbus_connection_unref, vFp)
 //GO(dbus_message_demarshal, 
 //GO(dbus_message_demarshal_bytes_needed, 
 //GO(dbus_message_free_data_slot, 
-//GO(dbus_message_get_args, 
-//GO(dbus_message_get_args_valist, 
+GOM(dbus_message_get_args, iFEppiV)
+GOM(dbus_message_get_args_valist, iFEppiV)
 //GO(dbus_message_get_auto_start, 
 //GO(dbus_message_get_data, 
 //GO(dbus_message_get_destination, 
@@ -162,7 +162,7 @@ GO(dbus_message_iter_init_append, vFpp)
 //GO(dbus_message_type_from_string, 
 //GO(dbus_message_type_to_string, 
 //GO(dbus_message_unref, 
-//GO(dbus_move_error, 
+GO(dbus_move_error, vFpp)
 GO(dbus_parse_address, iFpppp)
 //GO(dbus_pending_call_allocate_data_slot, 
 //GO(dbus_pending_call_block, 
@@ -191,8 +191,8 @@ GO(dbus_parse_address, iFpppp)
 //GO(dbus_server_set_timeout_functions, 
 //GO(dbus_server_set_watch_functions, 
 //GO(dbus_server_unref, 
-//GO(dbus_set_error, 
-//GO(dbus_set_error_const, 
+GO(dbus_set_error, vFpppppppppp)    //vaarg
+GO(dbus_set_error_const, vFppp)
 //GO(dbus_set_error_from_message, 
 //GO(dbus_shutdown, 
 //GO(dbus_signature_iter_get_current_type, 
