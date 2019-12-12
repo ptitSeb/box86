@@ -697,6 +697,20 @@
             }
             GET_ED;
             switch((nextop>>3)&7) {
+                case 0:                 /* FXSAVE m512byte */
+                    // should save flags & all
+                    // copy MMX regs...
+                    memcpy(ED->dword+32/4, &emu->mmx[0], sizeof(emu->mmx));
+                    // copy SSE regs
+                    memcpy(ED->dword+160/4, &emu->xmm[0], sizeof(emu->xmm));
+                    break;
+                case 1:                 /* FXRSTOR m512byte */
+                    // should restore flags & all
+                    // copy MMX regs...
+                    memcpy(&emu->mmx[0], ED->dword+32/4, sizeof(emu->mmx));
+                    // copy SSE regs
+                    memcpy(&emu->xmm[0], ED->dword+160/4, sizeof(emu->xmm));
+                    break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr = ED->dword[0];
                     break;
