@@ -118,6 +118,9 @@ typedef struct x11_my_s {
     #endif
     pFpip_t         XESetWireToEvent;
     pFpip_t         XESetEventToWire;
+    iFp_t           XCloseDisplay;
+    pFp_t           XOpenDisplay;
+
 } x11_my_t;
 
 void* getX11My(library_t* lib)
@@ -146,6 +149,8 @@ void* getX11My(library_t* lib)
     #endif
     GO(XESetWireToEvent, pFpip_t)
     GO(XESetEventToWire, pFpip_t)
+    GO(XCloseDisplay, iFp_t)
+    GO(XOpenDisplay, pFp_t)
     #undef GO
     return my;
 }
@@ -180,17 +185,6 @@ void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
 #endif
 
 void* my_XVaCreateNestedList(int dummy, void* p);
-
-#define CUSTOM_INIT \
-    box86->x11lib = lib; \
-    lib->priv.w.p2 = getX11My(lib);
-
-#define CUSTOM_FINI \
-    freeX11My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);   \
-    ((box86context_t*)(lib->context))->x11lib = NULL; \
-
-#include "wrappedlib_init.h"
 
 static x86emu_t *errorhandlercb = NULL;
 static x86emu_t *ioerrorhandlercb = NULL;
@@ -252,8 +246,12 @@ EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
     if(old) {
         if(CheckBridged(lib->priv.w.bridge, old))
             ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-        else
-            ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
+        else {
+            if(old==my_errorhandle_callback)
+                ret = (void*)GetCallbackAddress(errorhandlercb);
+            else
+                ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
+        }
     }
     if(errorhandlercb) FreeCallback(errorhandlercb);
     errorhandlercb = cb;
@@ -276,8 +274,12 @@ EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
     }
     if(CheckBridged(lib->priv.w.bridge, old))
         ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else
-        ret = (void*)AddBridge(lib->priv.w.bridge, iFp, old, 0);
+    else {
+            if(old==my_ioerrorhandle_callback)
+                ret = (void*)GetCallbackAddress(ioerrorhandlercb);
+            else
+            ret = (void*)AddBridge(lib->priv.w.bridge, iFp, old, 0);
+    }
     if(ioerrorhandlercb) FreeCallback(ioerrorhandlercb);
     ioerrorhandlercb = cb;
     return ret;
@@ -298,8 +300,12 @@ EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void
     }
     if(CheckBridged(lib->priv.w.bridge, old))
         ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else
-        ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
+    else {
+        if(old==my_exterrorhandle_callback)
+            ret = (void*)GetCallbackAddress(exterrorhandlercb);
+        else
+            ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
+    }
     if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
     exterrorhandlercb = cb;
     return ret;
@@ -320,10 +326,15 @@ EXPORT void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extensio
     }
     if(CheckBridged(lib->priv.w.bridge, old))
         ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else
-        ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
+    else {
+        if(old==my_closedisplay_callback)
+            ret = (void*)GetCallbackAddress(extclosedisplaycb);
+        else
+            ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
+    }
     if(extclosedisplaycb) FreeCallback(extclosedisplaycb);
     extclosedisplaycb = cb;
+printf("XESetCloseDisplay(...) %p <= %p\n", handler, ret);
     return ret;
 }
 
@@ -765,4 +776,33 @@ EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_num
     uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
     if(!b)
         b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
-    return (void*)b;}
+    return (void*)b;
+}
+
+EXPORT int my_XCloseDisplay(x86emu_t* emu, void* display)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    int ret = my->XCloseDisplay(display);
+}
+
+EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    void* ret = my->XOpenDisplay(d);
+    return ret;
+}
+
+#define CUSTOM_INIT \
+    box86->x11lib = lib; \
+    lib->priv.w.p2 = getX11My(lib);
+
+#define CUSTOM_FINI \
+    freeX11My(lib->priv.w.p2); \
+    free(lib->priv.w.p2);   \
+    ((box86context_t*)(lib->context))->x11lib = NULL; \
+
+#include "wrappedlib_init.h"

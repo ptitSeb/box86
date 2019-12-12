@@ -71,7 +71,7 @@ GO(XCheckWindowEvent, iFppup)
 GO(XClearArea, iFppiiuui)
 GO(XClearWindow, iFpp)
 GO(XClipBox, iFpp)
-GO(XCloseDisplay, iFp)
+GOM(XCloseDisplay, iFEp)
 GO(XCloseIM, iFu)
 // _XCloseLC
 //GO(XCloseOM
@@ -814,7 +814,7 @@ GO(XNextEvent, iFpp)
 // _XNoticePutBitmap
 GO(XOffsetRegion, iFpii)
 //GO(XOMOfOC
-GO(XOpenDisplay, pFp)
+GOM(XOpenDisplay, pFEp)
 GO(XOpenIM, uFpppp)
 // _XOpenLC
 //GO(XOpenOM
