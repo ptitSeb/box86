@@ -204,6 +204,40 @@
         CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         NEXT;
 
+    _6f_0x3A:  // these are some SSE3 opcodes
+        opcode = F8;
+        switch(opcode) {
+            case 0x0F:          // PALIGNR
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                if(tmp8u>31)
+                    {EX->q[0] = EX->q[1] = 0;}
+                else if(tmp8u>15) {
+                    tmp8u=(tmp8u-16)*8;
+                    if (tmp8u < 64) {
+                        GX.q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
+                        GX.q[1] = (EX->q[1] >> tmp8u);
+                    } else {
+                        GX.q[0] = EX->q[1] >> (tmp8u - 64);
+                        GX.q[1] = 0;
+                    }                    
+                } else {
+                    tmp8u*=8;
+                    if (tmp8u < 64) {
+                        GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
+                        GX.q[1] = (GX.q[1] >> tmp8u) | (EX->q[0] << (64-tmp8u));
+                    } else {
+                        GX.q[0] = GX.q[1] >> (tmp8u - 64) | (EX->q[0] << (tmp8u));
+                        GX.q[1] = (EX->q[0] << (64-tmp8u)) | (EX->q[1] >> (tmp8u - 64));
+                    }                    
+                }
+                break;
+            default:
+                goto _default;
+        }
+        NEXT;
+
     _6f_0x50:                      /* MOVMSKPD Gd, Ex */
         nextop = F8;
         GET_EX;

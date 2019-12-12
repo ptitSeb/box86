@@ -197,6 +197,29 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             UFLAGS(1);
             break;
 
+        case 0x3A:  // these are some SSE3 opcodes
+            opcode = F8;
+            switch(opcode) {
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    u8 = F8;
+                    if(u8>31) {
+                        VEORQ(q0, q0, q0);    
+                    } else if(u8>15) {
+                        VEORQ(q0, q0, q0);
+                        VEXTQ_8(q0, q1, q0, u8-16);
+                    } else {
+                        VEXTQ_8(q0, q0, q1, u8);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
 
         #define GO(GETFLAGS, NO, YES)   \
             USEFLAG(1); \
