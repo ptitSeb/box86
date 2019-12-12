@@ -129,7 +129,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     dl->count[dl->lib_sz] = dl->count[dl->lib_sz]+1;
     dl->dlopened[dl->lib_sz] = dlopened;
     if(dlsym_error || box86_log>=LOG_DEBUG) {
-        printf_log(LOG_NONE, "dlopen: New handle %p (%s), dlopened=%d\n", (void*)(dl->lib_sz+1), filename, dlopened);
+        printf_log(LOG_NONE, "dlopen: New handle %p (%s), dlopened=%d\n", (void*)(dl->lib_sz+1), (char*)filename, dlopened);
     }
     return (void*)(++dl->lib_sz);
 }
