@@ -34,7 +34,7 @@ GO(XdbeSwapBuffers, iFppi)
 //GO(XeviGetVisualInfo, 
 //GO(XeviQueryExtension, 
 //GO(XeviQueryVersion, 
-GO(XextAddDisplay, pFppppip)
+GOM(XextAddDisplay, pFEppppip)
 GO(XextCreateExtension, pFv)
 GO(XextDestroyExtension, vFp)
 DATAB(_XExtensionErrorFunction, 4)

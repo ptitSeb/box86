@@ -25,8 +25,24 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img);
 void UnbridgeImageFunc(x86emu_t *emu, XImage *img);
 typedef int (*XextErrorHandler)(void *, void *, void*);
 
+typedef struct my_XExtensionHooks {
+    int (*create_gc)(void*, uint32_t, void*);
+    int (*copy_gc)(void*, uint32_t, void*);
+    int (*flush_gc)(void*, uint32_t, void*);
+    int (*free_gc)(void*, uint32_t, void*);
+    int (*create_font)(void*, void*, void*);
+    int (*free_font)(void*, void*, void*);
+    int (*close_display)(void*, void*);
+    int (*wire_to_event)(void*, void*, void*);
+    int (*event_to_wire)(void*, void*, void*);
+    int (*error)(void*, void*, void*, int*);
+    char *(*error_string)(void*, int, void*, void*, int);
+} my_XExtensionHooks;
+
+
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpppiiu_t)(void*, void*, void*, int32_t, int32_t, uint32_t);
+typedef int32_t (*pFppppip_t)(void*, void*, void*, void*, int32_t, void*);
 typedef void* (*pFppuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
 typedef int32_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
 
@@ -36,6 +52,7 @@ typedef struct xext_my_s {
     iFpppiiu_t          XShmGetImage;
     iFppppiiiiuui_t     XShmPutImage;
     pFp_t               XSetExtensionErrorHandler;
+    pFppppip_t          XextAddDisplay;
 } xext_my_t;
 
 void* getXextMy(library_t* lib)
@@ -46,6 +63,7 @@ void* getXextMy(library_t* lib)
     GO(XShmGetImage, iFpppiiu_t)
     GO(XShmPutImage, iFppppiiiiuui_t)
     GO(XSetExtensionErrorHandler, pFp_t)
+    GO(XextAddDisplay, pFppppip_t)
     #undef GO
     return my;
 }
@@ -133,6 +151,100 @@ EXPORT void* my_XSetExtensionErrorHandler(x86emu_t* emu, void* handler)
     }
     if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
     exterrorhandlercb = cb;
+    return ret;
+}
+
+static box86context_t *context = NULL;
+static uintptr_t my_hook_create_gc_fnc = 0;
+static uintptr_t my_hook_copy_gc_fnc = 0;
+static uintptr_t my_hook_flush_gc_fnc = 0;
+static uintptr_t my_hook_free_gc_fnc = 0;
+static uintptr_t my_hook_create_font_fnc = 0;
+static uintptr_t my_hook_free_font_fnc = 0;
+static uintptr_t my_hook_close_display_fnc = 0;
+static uintptr_t my_hook_wire_to_event_fnc = 0;
+static uintptr_t my_hook_event_to_wire_fnc = 0;
+static uintptr_t my_hook_error_fnc = 0;
+static uintptr_t my_hook_error_string_fnc = 0;
+static int  my_hook_create_gc(void* a, uint32_t b, void* c) {
+    if(my_hook_create_gc_fnc)
+        return (int)RunFunction(context, my_hook_create_gc_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_copy_gc(void* a, uint32_t b, void* c) {
+    if(my_hook_copy_gc_fnc)
+        return (int)RunFunction(context, my_hook_copy_gc_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_flush_gc(void* a, uint32_t b, void* c) {
+    if(my_hook_flush_gc_fnc)
+        return (int)RunFunction(context, my_hook_flush_gc_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_free_gc(void* a, uint32_t b, void* c) {
+    if(my_hook_free_gc_fnc)
+        return (int)RunFunction(context, my_hook_free_gc_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_create_font(void* a, void* b, void* c) {
+    if(my_hook_create_font_fnc)
+        return (int)RunFunction(context, my_hook_create_font_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_free_font(void* a, void* b, void* c) {
+    if(my_hook_free_font_fnc)
+        return (int)RunFunction(context, my_hook_free_font_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_close_display(void* a, void* b) {
+    if(my_hook_close_display_fnc)
+        return (int)RunFunction(context, my_hook_close_display_fnc, 2, a, b);
+    return 0;
+}
+static int  my_hook_wire_to_event(void* a, void* b, void* c) {
+    if(my_hook_wire_to_event_fnc)
+        return (int)RunFunction(context, my_hook_wire_to_event_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_event_to_wire(void* a, void* b, void* c) {
+    if(my_hook_event_to_wire_fnc)
+        return (int)RunFunction(context, my_hook_event_to_wire_fnc, 3, a, b, c);
+    return 0;
+}
+static int  my_hook_error(void* a, void* b, void* c, int* d) {
+    if(my_hook_error_fnc)
+        return (int)RunFunction(context, my_hook_error_fnc, 4, a, b, c, d);
+    return 0;
+}
+static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
+    if(my_hook_error_string_fnc)
+        return (char*)RunFunction(context, my_hook_error_string_fnc, 5, a, b, c, d, e);
+    return 0;
+}
+
+EXPORT int32_t my_XextAddDisplay(x86emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
+
+    if(!context)
+        context = emu->context;
+
+    my_XExtensionHooks natives = {0};
+    #define GO(A) if(hooks->A) {my_hook_##A##_fnc = (uintptr_t)hooks->A; natives.A = my_hook_##A;}
+    GO(create_gc)
+    GO(copy_gc)
+    GO(flush_gc)
+    GO(free_gc)
+    GO(create_font)
+    GO(free_font)
+    GO(close_display)
+    GO(wire_to_event)
+    GO(event_to_wire)
+    GO(error)
+    GO(error_string)
+    #undef GO
+    int32_t ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
     return ret;
 }
 
