@@ -66,6 +66,7 @@ GO("libgio-2.0.so.0", gio2)
 GO("libgmodule-2.0.so.0", gmodule2)
 GO("libgobject-2.0.so.0", gobject2)
 GO("libglib-2.0.so.0", glib2)
+GO("libdbusmenu-gtk.so.4", dbusmenugtk)
 
 //GO("libmono.so", monounity)
 
