@@ -204,6 +204,25 @@
         CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
         NEXT;
 
+    _6f_0x38:  // these are some SSE3 opcodes
+        opcode = F8;
+        switch(opcode) {
+            case 0x00:  // PSHUFB
+                nextop = F8;
+                GET_EX;
+                eax1 = GX;
+                for (int i=0; i<15; ++i) {
+                    if(EX->ub[i]&128)
+                        GX.ub[i] = 0;
+                    else
+                        GX.ub[i] = eax1.ub[EX->ub[i]&15];
+                }
+                break;
+            default:
+                goto _default;
+        }
+        NEXT;
+
     _6f_0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
