@@ -35,6 +35,8 @@ typedef struct callbacklist_s {
 
 onecallback_t* FindCallback(x86emu_t* emu)
 {
+    if(!emu)
+        return NULL;
     // find the callback first
     callbacklist_t *callbacks = emu->context->callbacks;
     khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)emu);
@@ -239,7 +241,7 @@ void FreeCallbackList(callbacklist_t** callbacks)
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
     uint32_t mystack[32*1024];  // 32K*4 = 128K stack
-    x86emu_t *emu = NewX86Emu(context, fnc, &mystack, 32*1024*4, 0);
+    x86emu_t *emu = NewX86Emu(context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
     SetupX86Emu(emu);
 
     R_ESP -= nargs*4;   // need to push in reverse order
