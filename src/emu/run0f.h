@@ -1049,7 +1049,12 @@
             GET_EM;
             GM.q = (~GM.q) & EM->q;
             NEXT;
-
+        _0f_0xE0:                   /* PAVGB Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<8; ++i)
+                    GM.ub[i] = (GM.ub[i]+EM->ub[i]+1)>>1;
+            NEXT;
         _0f_0xE1:                   /* PSRAW Gm, Em */
             nextop = F8;
             GET_EM;
@@ -1062,7 +1067,6 @@
                 }
             }
             NEXT;
-
         _0f_0xE2:                   /* PSRAD Gm, Em */
             nextop = F8;
             GET_EM;
@@ -1075,7 +1079,6 @@
                 }
             }
             NEXT;
-
         _0f_0xE3:                   /* PSRAQ Gm, Em */
             nextop = F8;
             GET_EM;

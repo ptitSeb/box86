@@ -902,7 +902,20 @@
             GX.ub[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
         }
         NEXT;
-
+    _6f_0xE9:  /* PSUBSW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX.sw[i] - EX->sw[i];
+            GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+        }
+        NEXT;
+    _6f_0xEA:  /* PMINSW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<8; ++i)
+            GX.sw[i] = (GX.sw[i]<EX->sw[i])?GX.sw[i]:EX->sw[i];
+        NEXT;
     _6f_0xEB:  /* POR Gx,Ex */
         nextop = F8;
         GET_EX;
@@ -972,7 +985,12 @@
         GX.q[1] = (uint64_t)EX->ud[2]*GX.ud[2];
         GX.q[0] = (uint64_t)EX->ud[0]*GX.ud[0];
         NEXT;
-
+    _6f_0xF5:  /* PMADDWD Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<4; ++i)
+            GX.sd[i] = (int32_t)(GX.sw[i*2+0])*EX->sw[i*2+0] + (int32_t)(GX.sw[i*2+1])*EX->sw[i*2+1];
+        NEXT;
     _6f_0xF6:  /* PSADBW Gx, Ex */
         nextop = F8;
         GET_EX;
