@@ -169,6 +169,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusmenugtk.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )

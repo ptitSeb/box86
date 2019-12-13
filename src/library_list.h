@@ -67,6 +67,7 @@ GO("libgmodule-2.0.so.0", gmodule2)
 GO("libgobject-2.0.so.0", gobject2)
 GO("libglib-2.0.so.0", glib2)
 GO("libdbusmenu-gtk.so.4", dbusmenugtk)
+GO("libfontconfig.so.1", fontconfig)
 
 //GO("libmono.so", monounity)
 
