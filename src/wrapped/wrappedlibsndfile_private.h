@@ -2,7 +2,7 @@
 #error Meh....
 #endif
 
-GO(sf_close, iFp)
+GOM(sf_close, iFEp)
 GO(sf_command, iFpipi)
 GO(sf_current_byterate, iFp)
 GO(sf_error, iFp)
@@ -16,7 +16,7 @@ GO(sf_get_string, pFpi)
 GO(sf_next_chunk_iterator, pFp)
 GO(sf_open, pFpip)
 GO(sf_open_fd, pFiipi)
-GO(sf_open_virtual, pFpipp)  // False, 1st pointer is a structure with 5 callbacks!
+GOM(sf_open_virtual, pFEpipp)
 GO(sf_perror, iFp)
 GO(sf_read_double, IFppI)
 GO(sf_readf_double, IFppI)

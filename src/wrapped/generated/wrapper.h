@@ -613,6 +613,7 @@ void uFppppp(x86emu_t *emu, uintptr_t fnc);
 void lFppiip(x86emu_t *emu, uintptr_t fnc);
 void pFEpiii(x86emu_t *emu, uintptr_t fnc);
 void pFEpipi(x86emu_t *emu, uintptr_t fnc);
+void pFEpipp(x86emu_t *emu, uintptr_t fnc);
 void pFEppii(x86emu_t *emu, uintptr_t fnc);
 void pFipipu(x86emu_t *emu, uintptr_t fnc);
 void pFuiiiu(x86emu_t *emu, uintptr_t fnc);
