@@ -279,16 +279,16 @@ GO(gtk_box_get_type, iFv)
 //GO(gtk_builder_set_translation_domain, 
 //GO(gtk_builder_value_from_string, 
 //GO(gtk_builder_value_from_string_type, 
-//GO(gtk_button_action_get_type, 
-//GO(gtk_button_box_get_child_ipadding, 
-//GO(gtk_button_box_get_child_secondary, 
-//GO(gtk_button_box_get_child_size, 
-//GO(gtk_button_box_get_layout, 
+GO(gtk_button_action_get_type, iFv)
+GO(gtk_button_box_get_child_ipadding, vFppp)
+GO(gtk_button_box_get_child_secondary, iFpp)
+GO(gtk_button_box_get_child_size, vFppp)
+GO(gtk_button_box_get_layout, iFp)
 GO(gtk_button_box_get_type, iFv)
-//GO(gtk_button_box_set_child_ipadding, 
-//GO(gtk_button_box_set_child_secondary, 
-//GO(gtk_button_box_set_child_size, 
-//GO(gtk_button_box_set_layout, 
+GO(gtk_button_box_set_child_ipadding, vFpii)
+GO(gtk_button_box_set_child_secondary, vFppi)
+GO(gtk_button_box_set_child_size, vFpii)
+GO(gtk_button_box_set_layout, vFpi)
 GO(gtk_button_box_style_get_type, iFv)
 //GO(gtk_button_clicked, 
 //GO(gtk_button_enter, 
@@ -571,21 +571,21 @@ GO(gtk_combo_box_entry_new, pFv)
 GO(gtk_combo_box_entry_new_text, pFv)
 GO(gtk_combo_box_entry_new_with_model, pFpi)
 GO(gtk_combo_box_entry_set_text_column, vFpi)
-//GO(gtk_combo_box_get_active, 
-//GO(gtk_combo_box_get_active_iter, 
-//GO(gtk_combo_box_get_active_text, 
+GO(gtk_combo_box_get_active, iFp)
+GO(gtk_combo_box_get_active_iter, iFpp)
+GO(gtk_combo_box_get_active_text, pFp)
 //GO(gtk_combo_box_get_add_tearoffs, 
 //GO(gtk_combo_box_get_button_sensitivity, 
 //GO(gtk_combo_box_get_column_span_column, 
 //GO(gtk_combo_box_get_entry_text_column, 
 //GO(gtk_combo_box_get_focus_on_click, 
 //GO(gtk_combo_box_get_has_entry, 
-//GO(gtk_combo_box_get_model, 
-//GO(gtk_combo_box_get_popup_accessible, 
+GO(gtk_combo_box_get_model, pFp)
+GO(gtk_combo_box_get_popup_accessible, pFp)
 //GO(gtk_combo_box_get_row_separator_func, 
 //GO(gtk_combo_box_get_row_span_column, 
 //GO(gtk_combo_box_get_title, 
-//GO(gtk_combo_box_get_type, 
+GO(gtk_combo_box_get_type, iFv)
 //GO(gtk_combo_box_get_wrap_width, 
 //GO(gtk_combo_box_insert_text, 
 //GO(gtk_combo_box_new, 
@@ -593,18 +593,18 @@ GO(gtk_combo_box_entry_set_text_column, vFpi)
 //GO(gtk_combo_box_new_with_entry, 
 //GO(gtk_combo_box_new_with_model, 
 //GO(gtk_combo_box_new_with_model_and_entry, 
-//GO(gtk_combo_box_popdown, 
-//GO(gtk_combo_box_popup, 
-//GO(gtk_combo_box_prepend_text, 
-//GO(gtk_combo_box_remove_text, 
-//GO(gtk_combo_box_set_active, 
-//GO(gtk_combo_box_set_active_iter, 
+GO(gtk_combo_box_popdown, vFp)
+GO(gtk_combo_box_popup, vFp)
+GO(gtk_combo_box_prepend_text, vFpp)
+GO(gtk_combo_box_remove_text, vFpi)
+GO(gtk_combo_box_set_active, vFpi)
+GO(gtk_combo_box_set_active_iter, vFpp)
 //GO(gtk_combo_box_set_add_tearoffs, 
 //GO(gtk_combo_box_set_button_sensitivity, 
 //GO(gtk_combo_box_set_column_span_column, 
 //GO(gtk_combo_box_set_entry_text_column, 
 //GO(gtk_combo_box_set_focus_on_click, 
-//GO(gtk_combo_box_set_model, 
+GO(gtk_combo_box_set_model, vFpp)
 //GO(gtk_combo_box_set_row_separator_func, 
 //GO(gtk_combo_box_set_row_span_column, 
 //GO(gtk_combo_box_set_title, 
@@ -753,7 +753,7 @@ GO(gtk_container_set_resize_mode, vFpi)
 //GO(gtk_dest_defaults_get_type, 
 GO(gtk_dialog_add_action_widget, vFppi)
 GO(gtk_dialog_add_button, pFppi)
-//GO(gtk_dialog_add_buttons, 
+GOM(gtk_dialog_add_buttons, vFEppV)
 //GO(gtk_dialog_flags_get_type, 
 //GO(gtk_dialog_get_action_area, 
 //GO(gtk_dialog_get_content_area, 
@@ -3002,7 +3002,7 @@ GOM(gtk_signal_connect_full, LFEppppppii)
 //GO(gtk_text_view_forward_display_line_end, 
 //GO(gtk_text_view_get_accepts_tab, 
 //GO(gtk_text_view_get_border_window_size, 
-//GO(gtk_text_view_get_buffer, 
+GO(gtk_text_view_get_buffer, pFp)
 //GO(gtk_text_view_get_cursor_visible, 
 //GO(gtk_text_view_get_default_attributes, 
 //GO(gtk_text_view_get_editable, 
@@ -3031,18 +3031,18 @@ GO(gtk_text_view_get_type, iFv)
 //GO(gtk_text_view_move_child, 
 //GO(gtk_text_view_move_mark_onscreen, 
 //GO(gtk_text_view_move_visually, 
-//GO(gtk_text_view_new, 
-//GO(gtk_text_view_new_with_buffer, 
+GO(gtk_text_view_new, pFv)
+GO(gtk_text_view_new_with_buffer, pFp)
 //GO(gtk_text_view_place_cursor_onscreen, 
 //GO(gtk_text_view_reset_im_context, 
 //GO(gtk_text_view_scroll_mark_onscreen, 
-//GO(gtk_text_view_scroll_to_iter, 
-//GO(gtk_text_view_scroll_to_mark, 
+GO(gtk_text_view_scroll_to_iter, iFppdidd)
+GO(gtk_text_view_scroll_to_mark, vFppdidd)
 //GO(gtk_text_view_set_accepts_tab, 
 //GO(gtk_text_view_set_border_window_size, 
-//GO(gtk_text_view_set_buffer, 
+GO(gtk_text_view_set_buffer, vFpp)
 GO(gtk_text_view_set_cursor_visible, vFpi)
-//GO(gtk_text_view_set_editable, 
+GO(gtk_text_view_set_editable, vFpi)
 //GO(gtk_text_view_set_indent, 
 //GO(gtk_text_view_set_justification, 
 //GO(gtk_text_view_set_left_margin, 
@@ -3684,7 +3684,7 @@ GO(gtk_widget_draw, vFpp)
 //GO(gtk_widget_get_no_show_all, 
 //GO(gtk_widget_get_pango_context, 
 //GO(gtk_widget_get_parent, 
-//GO(gtk_widget_get_parent_window, 
+GO(gtk_widget_get_parent_window, pFp)
 //GO(gtk_widget_get_pointer, 
 //GO(gtk_widget_get_realized, 
 //GO(gtk_widget_get_receives_default, 
@@ -3779,15 +3779,15 @@ GO(gtk_widget_queue_resize_no_redraw, vFp)
 //GO(gtk_widget_set_mapped, 
 //GO(gtk_widget_set_name, 
 //GO(gtk_widget_set_no_show_all, 
-//GO(gtk_widget_set_parent, 
-//GO(gtk_widget_set_parent_window, 
+GO(gtk_widget_set_parent, vFpp)
+GO(gtk_widget_set_parent_window, vFpp)
 //GO(gtk_widget_set_realized, 
 //GO(gtk_widget_set_receives_default, 
 //GO(gtk_widget_set_redraw_on_allocate, 
 //GO(gtk_widget_set_scroll_adjustments, 
-//GO(gtk_widget_set_sensitive, 
+GO(gtk_widget_set_sensitive, vFpi)
 //GO(gtk_widget_set_size_request, 
-//GO(gtk_widget_set_state, 
+GO(gtk_widget_set_state, vFpi)
 //GO(gtk_widget_set_style, 
 //GO(gtk_widget_set_tooltip_markup, 
 //GO(gtk_widget_set_tooltip_text, 
@@ -3843,7 +3843,7 @@ GO(gtk_widget_unref, vFp)
 //GO(gtk_window_get_mnemonic_modifier, 
 //GO(gtk_window_get_mnemonics_visible, 
 //GO(gtk_window_get_modal, 
-//GO(gtk_window_get_opacity, 
+GO(gtk_window_get_opacity, dFp)
 //GO(gtk_window_get_position, 
 //GO(gtk_window_get_resizable, 
 //GO(gtk_window_get_role, 
@@ -3853,7 +3853,7 @@ GO(gtk_widget_unref, vFp)
 //GO(gtk_window_get_skip_taskbar_hint, 
 //GO(gtk_window_get_title, 
 //GO(gtk_window_get_transient_for, 
-//GO(gtk_window_get_type, 
+GO(gtk_window_get_type, iFv)
 //GO(gtk_window_get_type_hint, 
 //GO(gtk_window_get_urgency_hint, 
 //GO(gtk_window_get_window_type, 
@@ -3883,13 +3883,13 @@ GO(gtk_window_new, pFi)
 //GO(gtk_window_reshow_with_initial_size, 
 //GO(gtk_window_resize, 
 //GO(gtk_window_set_accept_focus, 
-//GO(gtk_window_set_auto_startup_notification, 
+GO(gtk_window_set_auto_startup_notification, vFi)
 //GO(gtk_window_set_decorated, 
 //GO(gtk_window_set_default, 
-//GO(gtk_window_set_default_icon, 
+GO(gtk_window_set_default_icon, vFp)
 //GO(gtk_window_set_default_icon_from_file, 
 //GO(gtk_window_set_default_icon_list, 
-//GO(gtk_window_set_default_icon_name, 
+GO(gtk_window_set_default_icon_name, vFp)
 //GO(gtk_window_set_default_size, 
 //GO(gtk_window_set_deletable, 
 //GO(gtk_window_set_destroy_with_parent, 
@@ -3899,16 +3899,16 @@ GO(gtk_window_new, pFi)
 //GO(gtk_window_set_geometry_hints, 
 //GO(gtk_window_set_gravity, 
 //GO(gtk_window_set_has_frame, 
-//GO(gtk_window_set_icon, 
+GO(gtk_window_set_icon, vFpp)
 //GO(gtk_window_set_icon_from_file, 
-//GO(gtk_window_set_icon_list, 
-//GO(gtk_window_set_icon_name, 
+GO(gtk_window_set_icon_list, vFpp)
+GO(gtk_window_set_icon_name, vFpp)
 //GO(gtk_window_set_keep_above, 
 //GO(gtk_window_set_keep_below, 
 //GO(gtk_window_set_mnemonic_modifier, 
 //GO(gtk_window_set_mnemonics_visible, 
 //GO(gtk_window_set_modal, 
-//GO(gtk_window_set_opacity, 
+GO(gtk_window_set_opacity, vFpd)
 //GO(gtk_window_set_policy, 
 GO(gtk_window_set_position, vFpi)
 //GO(gtk_window_set_resizable, 

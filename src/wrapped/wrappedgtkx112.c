@@ -20,10 +20,12 @@
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 #define LIBNAME gtkx112
 
+typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
 
 #define SUPER() \
-    GO(gtk_signal_connect_full, LFppppppii_t)
+    GO(gtk_signal_connect_full, LFppppppii_t)   \
+    GO(gtk_dialog_add_button, pFppi_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -116,6 +118,18 @@ EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* n
     return ret;
 }
 
+EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    void* btn = first;
+    while(btn) {
+        int id = (int)*(b++);
+        my->gtk_dialog_add_button(dialog, btn, id);
+        btn = (void*)*(b++);
+    }
+}
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGtkx112My(lib); \

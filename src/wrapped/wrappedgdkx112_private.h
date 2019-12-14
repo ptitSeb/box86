@@ -235,7 +235,7 @@
 //GO(gdk_fill_get_type, 
 //GO(gdk_fill_rule_get_type, 
 //GO(gdk_filter_return_get_type, 
-//GO(gdk_flush, 
+GO(gdk_flush, vFv)
 //GO(gdk_font_equal, 
 //GO(gdk_font_from_description, 
 //GO(gdk_font_from_description_for_display, 
@@ -477,16 +477,16 @@
 //GO(gdk_screen_get_width, 
 //GO(gdk_screen_get_width_mm, 
 //GO(gdk_screen_get_window_stack, 
-//GO(gdk_screen_height, 
-//GO(gdk_screen_height_mm, 
+GO(gdk_screen_height, iFv)
+GO(gdk_screen_height_mm, iFv)
 //GO(gdk_screen_is_composited, 
 //GO(gdk_screen_list_visuals, 
 //GO(gdk_screen_make_display_name, 
 //GO(gdk_screen_set_default_colormap, 
 //GO(gdk_screen_set_font_options, 
 //GO(gdk_screen_set_resolution, 
-//GO(gdk_screen_width, 
-//GO(gdk_screen_width_mm, 
+GO(gdk_screen_width, iFv)
+GO(gdk_screen_width_mm, iFv)
 //GO(gdk_scroll_direction_get_type, 
 //GO(gdk_selection_convert, 
 //GO(gdk_selection_owner_get, 
