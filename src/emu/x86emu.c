@@ -282,6 +282,14 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
     char tmp[80];
     buff[0] = '\0';
+    if(trace_emm) {
+        // do emm reg is needed
+        for(int i=0; i<8; ++i) {
+            sprintf(tmp, "mm%d:%016llx", i, emu->mmx[i].q);
+            strcat(buff, tmp);
+            if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
+        }
+    }
     if(trace_xmm) {
         // do xmm reg is needed
         for(int i=0; i<8; ++i) {

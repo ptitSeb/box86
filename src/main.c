@@ -38,6 +38,7 @@ int box86_dynarec_forced = 0;
 #endif
 int dlsym_error = 0;
 int trace_xmm = 0;
+int trace_emm = 0;
 #ifdef HAVE_TRACE
 uint64_t start_cnt = 0;
 #ifdef DYNAREC
@@ -120,6 +121,13 @@ void LoadLogEnv()
         if(strlen(p)==1) {
             if(p[0]>='0' && p[1]<='0'+1)
                 trace_xmm = p[0]-'0';
+        }
+    }
+    p = getenv("BOX86_TRACE_EMM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                trace_emm = p[0]-'0';
         }
     }
     p = getenv("BOX86_TRACE_START");

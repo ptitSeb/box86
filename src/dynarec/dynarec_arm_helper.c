@@ -729,7 +729,7 @@ static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 old = i+1;  //+1 because VST1 with write back
             } else {
                 if(old!=i) {
-                    ADD_IMM8(s1, s1, (i-old)*16);
+                    ADD_IMM8(s1, s1, (i-old)*8);
                 }
                 old = i+1;
             }
@@ -748,12 +748,12 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
-                MOV32(s1, offsetof(x86emu_t, xmm[i]));
+                MOV32(s1, offsetof(x86emu_t, mmx[i]));
                 ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
                 old = i+1;
             } else {
                 if(old!=i) {
-                    ADD_IMM8(s1, s1, (i-old)*16);
+                    ADD_IMM8(s1, s1, (i-old)*8);
                 }
                 old = i+1;
             }
@@ -898,7 +898,8 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
-    // MMX is not shown in trace...
+    if(trace_emm)
+       mmx_reflectcache(dyn, ninst, s1);
     if(trace_xmm)
        sse_reflectcache(dyn, ninst, s1);
 }

@@ -42,7 +42,11 @@
     } else {    \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
         a = fpu_get_scratch_double(dyn); \
-        VLD1_32(a, ed);    \
+        VLD1_64(a, ed);    \
+    }
+#define PUTEM(a)    \
+    if((nextop&0xC0)!=0xC0) { \
+        VST1_64(a, ed);    \
     }
 
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -494,6 +498,60 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOVD(q0+0, v0);
             VMOVD(q0+1, v1);
             VQMOVN_S32(v0, q0);
+            break;
+
+        case 0x6E:
+            INST_NAME("MOVD Gm, Ed");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x3, gd);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX + (nextop&7);
+                VMOVfrDx_32(ed, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                s0 = fpu_get_single_reg(dyn, ninst, v0, 0);
+                VLDR_32(s0, ed, fixedaddress);
+                fpu_putback_single_reg(dyn, ninst, v0, 0, s0);
+            }
+            q0 = fpu_get_reg_quad(dyn);
+            VMOVL_U32(q0, v0);
+            VMOV_64(v0, q0);
+            break;
+        case 0x6F:
+            INST_NAME("MOVQ Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VMOVD(v0, v1);
+            break;
+
+        case 0x73:
+            nextop = F8;
+            GETEM(v0);
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLQ Em, Ib");
+                    u8 = F8;
+                    if(u8>63)
+                        {VEOR(v0, v0, v0);}
+                    else
+                        {VSHR_U64(v0, v0, u8);}
+                    PUTEM(v0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    u8 = F8;
+                    if(u8>63)
+                        {VEOR(v0, v0, v0);}
+                    else
+                        {VSHL_64(v0, v0, u8);}
+                    PUTEM(v0);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
             break;
 
         case 0x77:
@@ -1330,11 +1388,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xD4:
-            INST_NAME("ADDQ Gm,Em");
+            INST_NAME("PADDQ Gm,Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
             VADD_64(v0, v0, v1);
+            break;
+
+        case 0xEF:
+            INST_NAME("PXOR Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VEOR(v0, v0, v1);
             break;
 
         case 0xF4:
@@ -1342,7 +1408,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
-            VMULL_U64_U32(v0, v0, v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_U64_U32(q0, v0, v1);
+            VMOVD(v0, q0);
             break;
 
         default:

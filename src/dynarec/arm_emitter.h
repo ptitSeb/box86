@@ -449,7 +449,7 @@ Op is 20-27
 // Store to memory to double  VSTR Dd, [Rn, #+/-imm8], imm8&3 ignored!
 #define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Dd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((abs(Imm8)>>2)&255))
 // Store to memory to single  VSTR Sd, [Rn, #+/-imm8], imm8&3 ignored!
-#define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Sd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Sd)&15)<<12) | (0b1010<<8) | ((abs(Imm8)>>2)&255))
+#define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | (((Sd)&1)<<22) | (0<<20) | ((Rn)<<16) | ((((Sd)>>1)&15)<<12) | (0b1010<<8) | ((abs(Imm8)>>2)&255))
 
 // Convert from single Sm to double Dd
 #define VCVT_F64_F32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0111<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (0<<4) | (((Sm)>>1)&15))
