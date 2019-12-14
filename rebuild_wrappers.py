@@ -372,7 +372,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"*(void**)(R_ESP + {p}), ",       # p
 				"(void*)(R_ESP + {p}), ",         # V
 				"of_convert(*(int32_t*)(R_ESP + {p})), ",         # O
-				"io_convert((void*)(R_ESP + {p})), ",         # S
+				"io_convert(*(void**)(R_ESP + {p})), ",         # S
 			]
 			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S
 			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4]
