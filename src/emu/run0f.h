@@ -566,7 +566,7 @@
                             | 1<<15     // cmov
                             | 1<<19     // clflush (seems to be with SSE2)
                             | 1<<23     // mmx
-                            | 1<<24     // fxsr (fxsave, fxrestore)
+                            //| 1<<24     // fxsr (fxsave, fxrestore)
                             | 1<<25     // SSE
                             | 1<<26     // SSE2
                             ;
@@ -625,8 +625,8 @@
                     R_EDX = 0;
                     break;
                 case 0x7:   // extended bits...
-                    if(R_ECX==0)    R_EAX = 0;
-                    else R_EAX = R_ECX = R_EBX = R_EDX = 0;
+                    /*if(R_ECX==0)    R_EAX = 0;
+                    else*/ R_EAX = R_ECX = R_EBX = R_EDX = 0;
                     break;
 
                 case 0x80000000:        // max extended
