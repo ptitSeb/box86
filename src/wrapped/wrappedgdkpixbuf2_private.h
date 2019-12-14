@@ -74,7 +74,7 @@ GO(gdk_pixbuf_get_width, iFp)
 //GO(gdk_pixbuf_loader_write, 
 //GO(gdk_pixbuf_loader_write_bytes, 
 //GO(gdk_pixbuf_new, 
-//GO(gdk_pixbuf_new_from_data, 
+GOM(gdk_pixbuf_new_from_data, pFEpiiiiiipp)
 GO(gdk_pixbuf_new_from_file, pFpp)
 GO(gdk_pixbuf_new_from_file_at_scale, pFpiiip)
 GO(gdk_pixbuf_new_from_file_at_size, pFpiip)

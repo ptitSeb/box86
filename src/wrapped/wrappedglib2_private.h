@@ -359,12 +359,12 @@
 //GO(g_file_error_from_errno, 
 //GO(g_file_error_quark, 
 //GO(g_file_get_contents, 
-//GO(g_filename_display_basename, 
-//GO(g_filename_display_name, 
+GO(g_filename_display_basename, pFp)
+GO(g_filename_display_name, pFp)
 //GO(g_filename_from_uri, 
-//GO(g_filename_from_utf8, 
+GO(g_filename_from_utf8, pFpippp)
 //GO(g_filename_to_uri, 
-//GO(g_filename_to_utf8, 
+GO(g_filename_to_utf8, pFpippp)
 //GO(g_file_open_tmp, 
 //GO(g_file_read_link, 
 //GO(g_file_set_contents, 
@@ -375,16 +375,16 @@
 //GO(g_format_size_for_display, 
 //GO(g_format_size_full, 
 //GO(g_fprintf, 
-//GO(g_free, 
+GO(g_free, vFp)
 //GO(g_freopen, 
 //GO(g_get_application_name, 
-//GO(g_get_charset, 
-//GO(g_get_codeset, 
+GO(g_get_charset, iFp)
+GO(g_get_codeset, pFv)
 //GO(g_get_current_dir, 
 //GO(g_get_current_time, 
 //GO(g_getenv, 
 //GO(g_get_environ, 
-//GO(g_get_filename_charsets, 
+GO(g_get_filename_charsets, iFp)
 //GO(g_get_home_dir, 
 //GO(g_get_host_name, 
 //GO(g_get_language_names, 
@@ -604,7 +604,7 @@ GOM(g_list_free_full, vFEpp)
 //GO(g_list_reverse, 
 //GO(g_list_sort, 
 //GO(g_list_sort_with_data, 
-//GO(g_locale_from_utf8, 
+GO(g_locale_from_utf8, pFpippp)
 //GO(g_locale_to_utf8, 
 //GO(g_log, 
 //GO(g_log_default_handler, 

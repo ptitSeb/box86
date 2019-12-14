@@ -74,7 +74,7 @@ static int signal_cb(void* a, void* b, void* c, void* d)
             i = 4;
         }
     if(!i) {
-        printf_log(LOG_NONE, "Warnin, GObject2 signal callback but no data found!");
+        printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!");
         return 0;
     }
     SetCallbackNArg(emu, i);
@@ -96,7 +96,7 @@ static void signal_delete(void* a, void* b)
         SetCallbackNArg(emu, 2);
         SetCallbackArg(emu, 0, GetCallbackArg(emu, 7));
         SetCallbackArg(emu, 1, b);
-        SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
+        SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 9));
         RunCallback(emu);
     }
     FreeCallback(emu);
