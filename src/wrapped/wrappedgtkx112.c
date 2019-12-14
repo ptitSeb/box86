@@ -44,6 +44,7 @@ void* getGtkx112My(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
+    return my;
 }
 #undef SUPER
 

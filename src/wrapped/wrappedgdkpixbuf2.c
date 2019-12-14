@@ -38,6 +38,7 @@ void* getGdkpixbuf2My(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
+    return my;
 }
 #undef SUPER
 
@@ -72,4 +73,5 @@ EXPORT void my_gdk_pixbuf_new_from_data(x86emu_t* emu, void* data, int32_t color
 #define CUSTOM_FINI \
     freeGdkpixbuf2My(lib->priv.w.p2); \
     free(lib->priv.w.p2);
+
 #include "wrappedlib_init.h"
