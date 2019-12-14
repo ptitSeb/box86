@@ -1,7 +1,7 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -16,16 +16,20 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "emu/x86emu_private.h"
+#include "myalign.h"
 
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 #define LIBNAME gtkx112
 
+typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
+typedef int32_t       (*iFppp_t)(void*, void*, void*);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
 
 #define SUPER() \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
-    GO(gtk_dialog_add_button, pFppi_t)
+    GO(gtk_dialog_add_button, pFppi_t)  \
+    GO(gtk_message_dialog_format_secondary_text, vFpp_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -129,6 +133,25 @@ EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, 
         my->gtk_dialog_add_button(dialog, btn, id);
         btn = (void*)*(b++);
     }
+}
+
+EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dialog, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, emu->scratch);
+    #else
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, (const char*)fmt, b);
+    #endif
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    my->gtk_message_dialog_format_secondary_text(dialog, buf);
+    free(buf);
 }
 
 #define CUSTOM_INIT \

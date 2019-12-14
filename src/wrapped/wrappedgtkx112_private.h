@@ -408,9 +408,9 @@ GO(gtk_buttons_type_get_type, iFv)
 //GO(gtk_cell_view_set_displayed_row, 
 //GO(gtk_cell_view_set_model, 
 //GO(gtk_check_button_get_type, 
-//GO(gtk_check_button_new, 
-//GO(gtk_check_button_new_with_label, 
-//GO(gtk_check_button_new_with_mnemonic, 
+GO(gtk_check_button_new, pFv)
+GO(gtk_check_button_new_with_label, pFp)
+GO(gtk_check_button_new_with_mnemonic, pFp)
 //GO(gtk_check_menu_item_get_active, 
 //GO(gtk_check_menu_item_get_draw_as_radio, 
 //GO(gtk_check_menu_item_get_inconsistent, 
@@ -916,7 +916,7 @@ GO(gtk_entry_get_overwrite_mode, iFp)
 GO(gtk_entry_get_text, vFp)
 GO(gtk_entry_get_text_length, WFp)
 //GO(gtk_entry_get_text_window, 
-//GO(gtk_entry_get_type, 
+GO(gtk_entry_get_type, iFv)
 //GO(gtk_entry_get_visibility, 
 GO(gtk_entry_get_width_chars, iFp)
 //GO(gtk_entry_icon_position_get_type, 
@@ -1001,9 +1001,9 @@ GO(gtk_false, iFv)
 //GO(gtk_file_chooser_button_set_width_chars, 
 //GO(gtk_file_chooser_confirmation_get_type, 
 //GO(gtk_file_chooser_dialog_get_type, 
-//GO(gtk_file_chooser_dialog_new, 
-//GO(gtk_file_chooser_dialog_new_with_backend, 
-//GO(gtk_file_chooser_error_get_type, 
+GO(gtk_file_chooser_dialog_new, pFppipipipipipipip)  // vaargs (so pFppipV) with additionnal buttons, end with a NULL
+GO(gtk_file_chooser_dialog_new_with_backend, pFppippipipipipipip)   // same but pFppippV
+GO(gtk_file_chooser_error_get_type, iFv)
 //GO(gtk_file_chooser_error_quark, 
 //GO(gtk_file_chooser_get_action, 
 //GO(gtk_file_chooser_get_create_folders, 
@@ -1013,7 +1013,7 @@ GO(gtk_file_chooser_get_current_folder_uri, pFp)
 //GO(gtk_file_chooser_get_do_overwrite_confirmation, 
 //GO(gtk_file_chooser_get_extra_widget, 
 //GO(gtk_file_chooser_get_file, 
-//GO(gtk_file_chooser_get_filename, 
+GO(gtk_file_chooser_get_filename, pFp)
 //GO(gtk_file_chooser_get_filenames, 
 //GO(gtk_file_chooser_get_files, 
 //GO(gtk_file_chooser_get_filter, 
@@ -1165,7 +1165,7 @@ GO(gtk_grab_remove, vFp)
 //GO(gtk_handle_box_set_shadow_type, 
 //GO(gtk_handle_box_set_snap_edge, 
 //GO(gtk_hbox_get_type, 
-//GO(gtk_hbox_new, 
+GO(gtk_hbox_new, pFii)
 //GO(gtk_hbutton_box_get_layout_default, 
 //GO(gtk_hbutton_box_get_spacing_default, 
 //GO(gtk_hbutton_box_get_type, 
@@ -1487,7 +1487,7 @@ GO(gtk_label_get_layout_offsets, vFppp)
 //GO(gtk_label_get_single_line_mode, 
 //GO(gtk_label_get_text, 
 //GO(gtk_label_get_track_visited_links, 
-//GO(gtk_label_get_type, 
+GO(gtk_label_get_type, iFv)
 //GO(gtk_label_get_use_markup, 
 //GO(gtk_label_get_use_underline, 
 //GO(gtk_label_get_width_chars, 
@@ -1696,7 +1696,7 @@ GO(gtk_menu_shell_select_item, vFpp)
 //GO(gtk_menu_tool_button_set_arrow_tooltip_text, 
 //GO(gtk_menu_tool_button_set_menu, 
 //GO(gtk_message_dialog_format_secondary_markup, 
-//GO(gtk_message_dialog_format_secondary_text, 
+GOM(gtk_message_dialog_format_secondary_text, vFEppV)
 //GO(gtk_message_dialog_get_image, 
 //GO(gtk_message_dialog_get_message_area, 
 //GO(gtk_message_dialog_get_type, 
@@ -1721,11 +1721,11 @@ GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
 GO(gtk_movement_step_get_type, iFv)
 GO(gtk_notebook_append_page, iFppp)
 GO(gtk_notebook_append_page_menu, iFpppp)
-//GO(gtk_notebook_get_action_widget, 
+GO(gtk_notebook_get_action_widget, pFpi)
 GO(gtk_notebook_get_current_page, iFp)
-//GO(gtk_notebook_get_group, 
-//GO(gtk_notebook_get_group_id, 
-//GO(gtk_notebook_get_group_name, 
+GO(gtk_notebook_get_group, pFp)
+GO(gtk_notebook_get_group_id, iFp)
+GO(gtk_notebook_get_group_name, pFp)
 GO(gtk_notebook_get_menu_label, pFpp)
 //GO(gtk_notebook_get_menu_label_text, 
 GO(gtk_notebook_get_n_pages, iFp)
@@ -1754,11 +1754,11 @@ GO(gtk_notebook_prev_page, vFp)
 //GO(gtk_notebook_query_tab_label_packing, 
 GO(gtk_notebook_remove_page, vFpi)
 GO(gtk_notebook_reorder_child, vFppi)
-//GO(gtk_notebook_set_action_widget, 
-//GO(gtk_notebook_set_current_page, 
-//GO(gtk_notebook_set_group, 
-//GO(gtk_notebook_set_group_id, 
-//GO(gtk_notebook_set_group_name, 
+GO(gtk_notebook_set_action_widget, vFppi)
+GO(gtk_notebook_set_current_page, vFpi)
+GO(gtk_notebook_set_group, vFpp)
+GO(gtk_notebook_set_group_id, vFpi)
+GO(gtk_notebook_set_group_name, vFpp)
 //GO(gtk_notebook_set_homogeneous_tabs, 
 //GO(gtk_notebook_set_menu_label, 
 //GO(gtk_notebook_set_menu_label_text, 
@@ -1783,7 +1783,7 @@ GO(gtk_notebook_set_tab_pos, vFpi)
 //GO(gtk_object_get, 
 //GO(gtk_object_get_data, 
 //GO(gtk_object_get_data_by_id, 
-//GO(gtk_object_get_type, 
+GO(gtk_object_get_type, iFv)
 //GO(gtk_object_get_user_data, 
 //GO(gtk_object_new, 
 //GO(gtk_object_ref, 
@@ -3026,9 +3026,9 @@ GO(gtk_text_view_get_type, iFv)
 //GO(gtk_text_view_get_visible_rect, 
 //GO(gtk_text_view_get_window, 
 //GO(gtk_text_view_get_window_type, 
-//GO(gtk_text_view_get_wrap_mode, 
+GO(gtk_text_view_get_wrap_mode, iFp)
 //GO(gtk_text_view_im_context_filter_keypress, 
-//GO(gtk_text_view_move_child, 
+GO(gtk_text_view_move_child, vFppii)
 //GO(gtk_text_view_move_mark_onscreen, 
 //GO(gtk_text_view_move_visually, 
 GO(gtk_text_view_new, pFv)
@@ -3052,7 +3052,7 @@ GO(gtk_text_view_set_editable, vFpi)
 //GO(gtk_text_view_set_pixels_inside_wrap, 
 //GO(gtk_text_view_set_right_margin, 
 //GO(gtk_text_view_set_tabs, 
-//GO(gtk_text_view_set_wrap_mode, 
+GO(gtk_text_view_set_wrap_mode, vFpi)
 //GO(gtk_text_view_starts_display_line, 
 //GO(gtk_text_view_window_to_buffer_coords, 
 //GO(gtk_text_window_type_get_type, 
@@ -3078,7 +3078,7 @@ GO(gtk_text_view_set_editable, vFpi)
 GO(gtk_toggle_button_get_active, iFp)
 GO(gtk_toggle_button_get_inconsistent, iFp)
 GO(gtk_toggle_button_get_mode, iFp)
-//GO(gtk_toggle_button_get_type, 
+GO(gtk_toggle_button_get_type, iFv)
 GO(gtk_toggle_button_new, pFv)
 GO(gtk_toggle_button_new_with_label, pFp)
 GO(gtk_toggle_button_new_with_mnemonic, pFp)
@@ -3693,7 +3693,7 @@ GO(gtk_widget_get_parent_window, pFp)
 //GO(gtk_widget_get_screen, 
 //GO(gtk_widget_get_sensitive, 
 //GO(gtk_widget_get_settings, 
-//GO(gtk_widget_get_size_request, 
+GO(gtk_widget_get_size_request, vFppp)
 //GO(gtk_widget_get_snapshot, 
 //GO(gtk_widget_get_state, 
 //GO(gtk_widget_get_style, 
@@ -3705,8 +3705,8 @@ GO(gtk_widget_get_type, iFv)
 //GO(gtk_widget_get_visible, 
 //GO(gtk_widget_get_visual, 
 //GO(gtk_widget_get_window, 
-//GO(gtk_widget_grab_default, 
-//GO(gtk_widget_grab_focus, 
+GO(gtk_widget_grab_default, vFp)
+GO(gtk_widget_grab_focus, vFp)
 //GO(gtk_widget_has_default, 
 //GO(gtk_widget_has_focus, 
 //GO(gtk_widget_has_grab, 
@@ -3721,7 +3721,7 @@ GO(gtk_widget_hide_all, vFp)
 //GO(gtk_widget_is_ancestor, 
 //GO(gtk_widget_is_composited, 
 //GO(gtk_widget_is_drawable, 
-//GO(gtk_widget_is_focus, 
+GO(gtk_widget_is_focus, iFp)
 //GO(gtk_widget_is_sensitive, 
 //GO(gtk_widget_is_toplevel, 
 //GO(gtk_widget_keynav_failed, 
@@ -3786,7 +3786,7 @@ GO(gtk_widget_set_parent_window, vFpp)
 //GO(gtk_widget_set_redraw_on_allocate, 
 //GO(gtk_widget_set_scroll_adjustments, 
 GO(gtk_widget_set_sensitive, vFpi)
-//GO(gtk_widget_set_size_request, 
+GO(gtk_widget_set_size_request, vFpii)
 GO(gtk_widget_set_state, vFpi)
 //GO(gtk_widget_set_style, 
 //GO(gtk_widget_set_tooltip_markup, 
@@ -3909,9 +3909,9 @@ GO(gtk_window_set_icon_name, vFpp)
 //GO(gtk_window_set_mnemonics_visible, 
 //GO(gtk_window_set_modal, 
 GO(gtk_window_set_opacity, vFpd)
-//GO(gtk_window_set_policy, 
+GO(gtk_window_set_policy, vFpiii)
 GO(gtk_window_set_position, vFpi)
-//GO(gtk_window_set_resizable, 
+GO(gtk_window_set_resizable, vFpi)
 //GO(gtk_window_set_role, 
 //GO(gtk_window_set_screen, 
 //GO(gtk_window_set_skip_pager_hint, 

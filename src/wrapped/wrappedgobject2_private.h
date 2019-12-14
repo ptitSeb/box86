@@ -232,7 +232,7 @@ GOM(g_signal_connect_data, LFEpppppu)
 //GO(g_signal_emit_valist, 
 //GO(g_signal_get_invocation_hint, 
 //GO(g_signal_handler_block, 
-//GO(g_signal_handler_disconnect, 
+GO(g_signal_handler_disconnect, vFpL)
 //GO(g_signal_handler_find, 
 //GO(g_signal_handler_is_connected, 
 //GO(g_signal_handlers_block_matched, 

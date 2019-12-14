@@ -93,6 +93,7 @@ void vFpi(x86emu_t *emu, uintptr_t fnc);
 void vFpu(x86emu_t *emu, uintptr_t fnc);
 void vFpf(x86emu_t *emu, uintptr_t fnc);
 void vFpd(x86emu_t *emu, uintptr_t fnc);
+void vFpL(x86emu_t *emu, uintptr_t fnc);
 void vFpp(x86emu_t *emu, uintptr_t fnc);
 void vFpS(x86emu_t *emu, uintptr_t fnc);
 void vFSi(x86emu_t *emu, uintptr_t fnc);
@@ -958,6 +959,8 @@ void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
 void pFpuiippppppppppp(x86emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void uFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
+void pFppipipipipipipip(x86emu_t *emu, uintptr_t fnc);
+void pFppippipipipipipip(x86emu_t *emu, uintptr_t fnc);
 void vFppuiiiiipuiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 
