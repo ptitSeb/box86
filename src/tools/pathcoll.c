@@ -95,3 +95,34 @@ void AddPath(const char* path, path_collection_t* collection, int folder)
         collection->paths[collection->size++]=strdup(tmp);
     }
 }
+
+void AppendList(path_collection_t* collection, const char* List, int folder)
+{
+    if(!List)
+        return;
+        // and now split the paths...
+    char tmp[MAX_PATH];
+    const char *p = List;
+    int idx = 0;
+    while(p) {
+        const char *p2 = strchr(p, ':');
+        if(!p2) {
+            strncpy(tmp, p, MAX_PATH - 1);
+            p=NULL;
+        } else {
+            int l = (uintptr_t)p2 - (uintptr_t)p;
+            strncpy(tmp, p, l);
+            tmp[l]='\0';
+            p=p2+1;
+        }
+        // check if there is terminal '/', add it if not
+        int l = strlen(tmp);
+        // skip empty strings
+        if(l) {
+            if(folder && tmp[l-1]!='/')
+                strcat(tmp, "/");
+            AddPath(tmp, collection, folder);
+        }
+    }
+
+}

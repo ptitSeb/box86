@@ -350,6 +350,8 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/usr/lib32", 0))
         AddPath("/usr/lib32", &context->box86_ld_lib, 1);
+    if(getenv("LD_LIBRARY_PATH"))
+        AppendList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
     path_collection_t ld_preload = {0};
     if(getenv("BOX86_LD_PRELOAD")) {
         char* p = getenv("BOX86_LD_PRELOAD");
@@ -369,6 +371,8 @@ int main(int argc, const char **argv, const char **env) {
     }
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
+    if(getenv("PATH"))
+        AppendList(&context->box86_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
     // prepare all other env. var
     context->envc = CountEnv(env);
     printf_log(LOG_INFO, "Counted %d Env var\n", context->envc);
