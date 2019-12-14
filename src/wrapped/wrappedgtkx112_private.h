@@ -289,7 +289,7 @@ GO(gtk_button_box_get_type, iFv)
 //GO(gtk_button_box_set_child_secondary, 
 //GO(gtk_button_box_set_child_size, 
 //GO(gtk_button_box_set_layout, 
-//GO(gtk_button_box_style_get_type, 
+GO(gtk_button_box_style_get_type, iFv)
 //GO(gtk_button_clicked, 
 //GO(gtk_button_enter, 
 GO(gtk_button_get_alignment, vFppp)
@@ -297,27 +297,27 @@ GO(gtk_button_get_event_window, pFp)
 GO(gtk_button_get_focus_on_click, iFp)
 GO(gtk_button_get_image, pFp)
 GO(gtk_button_get_image_position, iFp)
-//GO(gtk_button_get_label, 
-//GO(gtk_button_get_relief, 
-//GO(gtk_button_get_type, 
-//GO(gtk_button_get_use_stock, 
-//GO(gtk_button_get_use_underline, 
-//GO(gtk_button_leave, 
-//GO(gtk_button_new, 
-//GO(gtk_button_new_from_stock, 
-//GO(gtk_button_new_with_label, 
-//GO(gtk_button_new_with_mnemonic, 
-//GO(gtk_button_pressed, 
-//GO(gtk_button_released, 
+GO(gtk_button_get_label, pFp)
+GO(gtk_button_get_relief, iFp)
+GO(gtk_button_get_type, iFv)
+GO(gtk_button_get_use_stock, iFp)
+GO(gtk_button_get_use_underline, iFp)
+GO(gtk_button_leave, vFp)
+GO(gtk_button_new, pFv)
+GO(gtk_button_new_from_stock, pFp)
+GO(gtk_button_new_with_label, pFp)
+GO(gtk_button_new_with_mnemonic, pFp)
+GO(gtk_button_pressed, vFp)
+GO(gtk_button_released, vFp)
 GO(gtk_button_set_alignment, vFpff)
 GO(gtk_button_set_focus_on_click, vFpi)
 GO(gtk_button_set_image, vFpp)
 GO(gtk_button_set_image_position, vFpi)
-//GO(gtk_button_set_label, 
-//GO(gtk_button_set_relief, 
-//GO(gtk_button_set_use_stock, 
-//GO(gtk_button_set_use_underline, 
-//GO(gtk_buttons_type_get_type, 
+GO(gtk_button_set_label, vFpp)
+GO(gtk_button_set_relief, vFpi)
+GO(gtk_button_set_use_stock, vFpi)
+GO(gtk_button_set_use_underline, vFpi)
+GO(gtk_buttons_type_get_type, iFv)
 //GO(gtk_calendar_clear_marks, 
 //GO(gtk_calendar_display_options, 
 //GO(gtk_calendar_display_options_get_type, 
@@ -565,12 +565,12 @@ GO(gtk_check_menu_item_toggled, vFp)
 //GO(gtk_color_selection_set_previous_color, 
 //GO(gtk_color_selection_set_update_policy, 
 //GO(gtk_combo_box_append_text, 
-//GO(gtk_combo_box_entry_get_text_column, 
-//GO(gtk_combo_box_entry_get_type, 
-//GO(gtk_combo_box_entry_new, 
-//GO(gtk_combo_box_entry_new_text, 
-//GO(gtk_combo_box_entry_new_with_model, 
-//GO(gtk_combo_box_entry_set_text_column, 
+GO(gtk_combo_box_entry_get_text_column, iFp)
+GO(gtk_combo_box_entry_get_type, iFv)
+GO(gtk_combo_box_entry_new, pFv)
+GO(gtk_combo_box_entry_new_text, pFv)
+GO(gtk_combo_box_entry_new_with_model, pFpi)
+GO(gtk_combo_box_entry_set_text_column, vFpi)
 //GO(gtk_combo_box_get_active, 
 //GO(gtk_combo_box_get_active_iter, 
 //GO(gtk_combo_box_get_active_text, 
@@ -834,20 +834,20 @@ GO(gtk_disable_setlocale, vFv)
 //GO(gtk_draw_string, 
 //GO(gtk_draw_tab, 
 //GO(gtk_draw_vline, 
-//GO(gtk_editable_copy_clipboard, 
-//GO(gtk_editable_cut_clipboard, 
-//GO(gtk_editable_delete_selection, 
-//GO(gtk_editable_delete_text, 
-//GO(gtk_editable_get_chars, 
-//GO(gtk_editable_get_editable, 
-//GO(gtk_editable_get_position, 
-//GO(gtk_editable_get_selection_bounds, 
-//GO(gtk_editable_get_type, 
-//GO(gtk_editable_insert_text, 
-//GO(gtk_editable_paste_clipboard, 
-//GO(gtk_editable_select_region, 
-//GO(gtk_editable_set_editable, 
-//GO(gtk_editable_set_position, 
+GO(gtk_editable_copy_clipboard, vFp)
+GO(gtk_editable_cut_clipboard, vFp)
+GO(gtk_editable_delete_selection, vFp)
+GO(gtk_editable_delete_text, vFpii)
+GO(gtk_editable_get_chars, pFpii)
+GO(gtk_editable_get_editable, iFp)
+GO(gtk_editable_get_position, iFp)
+GO(gtk_editable_get_selection_bounds, iFppp)
+GO(gtk_editable_get_type, iFv)
+GO(gtk_editable_insert_text, vFppip)
+GO(gtk_editable_paste_clipboard, vFp)
+GO(gtk_editable_select_region, vFpii)
+GO(gtk_editable_set_editable, vFpi)
+GO(gtk_editable_set_position, vFpi)
 GO(gtk_entry_append_text, vFpp)
 //GO(gtk_entry_buffer_delete_text, 
 //GO(gtk_entry_buffer_emit_deleted_text, 
@@ -1009,7 +1009,7 @@ GO(gtk_false, iFv)
 //GO(gtk_file_chooser_get_create_folders, 
 //GO(gtk_file_chooser_get_current_folder, 
 //GO(gtk_file_chooser_get_current_folder_file, 
-//GO(gtk_file_chooser_get_current_folder_uri, 
+GO(gtk_file_chooser_get_current_folder_uri, pFp)
 //GO(gtk_file_chooser_get_do_overwrite_confirmation, 
 //GO(gtk_file_chooser_get_extra_widget, 
 //GO(gtk_file_chooser_get_file, 
@@ -1025,7 +1025,7 @@ GO(gtk_false, iFv)
 //GO(gtk_file_chooser_get_preview_widget_active, 
 //GO(gtk_file_chooser_get_select_multiple, 
 //GO(gtk_file_chooser_get_show_hidden, 
-//GO(gtk_file_chooser_get_type, 
+GO(gtk_file_chooser_get_type, iFv)
 //GO(gtk_file_chooser_get_uri, 
 //GO(gtk_file_chooser_get_uris, 
 //GO(gtk_file_chooser_get_use_preview_label, 
@@ -1036,18 +1036,18 @@ GO(gtk_false, iFv)
 //GO(gtk_file_chooser_remove_shortcut_folder, 
 //GO(gtk_file_chooser_remove_shortcut_folder_uri, 
 //GO(gtk_file_chooser_select_all, 
-//GO(gtk_file_chooser_select_file, 
+GO(gtk_file_chooser_select_file, iFppp)
 //GO(gtk_file_chooser_select_filename, 
 //GO(gtk_file_chooser_select_uri, 
 //GO(gtk_file_chooser_set_action, 
 //GO(gtk_file_chooser_set_create_folders, 
-//GO(gtk_file_chooser_set_current_folder, 
-//GO(gtk_file_chooser_set_current_folder_file, 
-//GO(gtk_file_chooser_set_current_folder_uri, 
+GO(gtk_file_chooser_set_current_folder, iFpp)
+GO(gtk_file_chooser_set_current_folder_file, iFppp)
+GO(gtk_file_chooser_set_current_folder_uri, iFpp)
 //GO(gtk_file_chooser_set_current_name, 
 //GO(gtk_file_chooser_set_do_overwrite_confirmation, 
 //GO(gtk_file_chooser_set_extra_widget, 
-//GO(gtk_file_chooser_set_file, 
+GO(gtk_file_chooser_set_file, iFppp)
 //GO(gtk_file_chooser_set_filename, 
 //GO(gtk_file_chooser_set_filter, 
 //GO(gtk_file_chooser_set_local_only, 
@@ -1058,7 +1058,7 @@ GO(gtk_false, iFv)
 //GO(gtk_file_chooser_set_uri, 
 //GO(gtk_file_chooser_set_use_preview_label, 
 //GO(gtk_file_chooser_unselect_all, 
-//GO(gtk_file_chooser_unselect_file, 
+GO(gtk_file_chooser_unselect_file, vFpp)
 //GO(gtk_file_chooser_unselect_filename, 
 //GO(gtk_file_chooser_unselect_uri, 
 //GO(gtk_file_chooser_widget_get_type, 
@@ -1342,7 +1342,7 @@ GO(gtk_icon_theme_set_screen, vFpp)
 //GO(gtk_idle_add_priority, 
 //GO(gtk_idle_remove, 
 //GO(gtk_idle_remove_by_data, 
-//GO(gtk_image_clear, 
+GO(gtk_image_clear, vFp)
 //GO(gtk_image_get, 
 //GO(gtk_image_get_animation, 
 //GO(gtk_image_get_gicon, 
@@ -1367,26 +1367,26 @@ GO(gtk_icon_theme_set_screen, vFpp)
 //GO(gtk_image_menu_item_set_always_show_image, 
 //GO(gtk_image_menu_item_set_image, 
 //GO(gtk_image_menu_item_set_use_stock, 
-//GO(gtk_image_new, 
-//GO(gtk_image_new_from_animation, 
+GO(gtk_image_new, vFp)
+GO(gtk_image_new_from_animation, pFp)
 //GO(gtk_image_new_from_file, 
-//GO(gtk_image_new_from_gicon, 
-//GO(gtk_image_new_from_icon_name, 
-//GO(gtk_image_new_from_icon_set, 
-//GO(gtk_image_new_from_image, 
-//GO(gtk_image_new_from_pixbuf, 
-//GO(gtk_image_new_from_pixmap, 
-//GO(gtk_image_new_from_stock, 
-//GO(gtk_image_set, 
-//GO(gtk_image_set_from_animation, 
-//GO(gtk_image_set_from_file, 
-//GO(gtk_image_set_from_gicon, 
-//GO(gtk_image_set_from_icon_name, 
-//GO(gtk_image_set_from_icon_set, 
+GO(gtk_image_new_from_gicon, pFpi)
+GO(gtk_image_new_from_icon_name, pFpi)
+GO(gtk_image_new_from_icon_set, pFpi)
+GO(gtk_image_new_from_image, pFpp)
+GO(gtk_image_new_from_pixbuf, pFp)
+GO(gtk_image_new_from_pixmap, pFpp)
+GO(gtk_image_new_from_stock, pFpi)
+GO(gtk_image_set, vFppp)
+GO(gtk_image_set_from_animation, vFpp)
+GO(gtk_image_set_from_file, vFppp)
+GO(gtk_image_set_from_gicon, vFppi)
+GO(gtk_image_set_from_icon_name, vFppi)
+GO(gtk_image_set_from_icon_set, vFppi)
 //GO(gtk_image_set_from_image, 
-//GO(gtk_image_set_from_pixbuf, 
-//GO(gtk_image_set_from_pixmap, 
-//GO(gtk_image_set_from_stock, 
+GO(gtk_image_set_from_pixbuf, vFpp)
+GO(gtk_image_set_from_pixmap, vFppp)
+GO(gtk_image_set_from_stock, vFppi)
 //GO(gtk_image_set_pixel_size, 
 //GO(gtk_image_type_get_type, 
 //GO(gtk_im_context_delete_surrounding, 
@@ -1718,42 +1718,42 @@ GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
 //GO(gtk_mount_operation_new, 
 //GO(gtk_mount_operation_set_parent, 
 //GO(gtk_mount_operation_set_screen, 
-//GO(gtk_movement_step_get_type, 
-//GO(gtk_notebook_append_page, 
-//GO(gtk_notebook_append_page_menu, 
+GO(gtk_movement_step_get_type, iFv)
+GO(gtk_notebook_append_page, iFppp)
+GO(gtk_notebook_append_page_menu, iFpppp)
 //GO(gtk_notebook_get_action_widget, 
-//GO(gtk_notebook_get_current_page, 
+GO(gtk_notebook_get_current_page, iFp)
 //GO(gtk_notebook_get_group, 
 //GO(gtk_notebook_get_group_id, 
 //GO(gtk_notebook_get_group_name, 
-//GO(gtk_notebook_get_menu_label, 
+GO(gtk_notebook_get_menu_label, pFpp)
 //GO(gtk_notebook_get_menu_label_text, 
-//GO(gtk_notebook_get_n_pages, 
-//GO(gtk_notebook_get_nth_page, 
+GO(gtk_notebook_get_n_pages, iFp)
+GO(gtk_notebook_get_nth_page, pFpi)
 //GO(gtk_notebook_get_scrollable, 
 //GO(gtk_notebook_get_show_border, 
 //GO(gtk_notebook_get_show_tabs, 
 //GO(gtk_notebook_get_tab_detachable, 
 //GO(gtk_notebook_get_tab_hborder, 
-//GO(gtk_notebook_get_tab_label, 
+GO(gtk_notebook_get_tab_label, pFpp)
 //GO(gtk_notebook_get_tab_label_text, 
 //GO(gtk_notebook_get_tab_pos, 
 //GO(gtk_notebook_get_tab_reorderable, 
 //GO(gtk_notebook_get_tab_vborder, 
 //GO(gtk_notebook_get_type, 
-//GO(gtk_notebook_insert_page, 
-//GO(gtk_notebook_insert_page_menu, 
-//GO(gtk_notebook_new, 
-//GO(gtk_notebook_next_page, 
-//GO(gtk_notebook_page_num, 
-//GO(gtk_notebook_popup_disable, 
-//GO(gtk_notebook_popup_enable, 
-//GO(gtk_notebook_prepend_page, 
-//GO(gtk_notebook_prepend_page_menu, 
-//GO(gtk_notebook_prev_page, 
+GO(gtk_notebook_insert_page, iFpppi)
+GO(gtk_notebook_insert_page_menu, iFppppi)
+GO(gtk_notebook_new, pFv)
+GO(gtk_notebook_next_page, vFp)
+GO(gtk_notebook_page_num, iFpp)
+GO(gtk_notebook_popup_disable, vFp)
+GO(gtk_notebook_popup_enable, vFp)
+GO(gtk_notebook_prepend_page, iFppp)
+GO(gtk_notebook_prepend_page_menu, iFpppp)
+GO(gtk_notebook_prev_page, vFp)
 //GO(gtk_notebook_query_tab_label_packing, 
-//GO(gtk_notebook_remove_page, 
-//GO(gtk_notebook_reorder_child, 
+GO(gtk_notebook_remove_page, vFpi)
+GO(gtk_notebook_reorder_child, vFppi)
 //GO(gtk_notebook_set_action_widget, 
 //GO(gtk_notebook_set_current_page, 
 //GO(gtk_notebook_set_group, 
@@ -1762,16 +1762,16 @@ GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
 //GO(gtk_notebook_set_homogeneous_tabs, 
 //GO(gtk_notebook_set_menu_label, 
 //GO(gtk_notebook_set_menu_label_text, 
-//GO(gtk_notebook_set_scrollable, 
-//GO(gtk_notebook_set_show_border, 
-//GO(gtk_notebook_set_show_tabs, 
-//GO(gtk_notebook_set_tab_border, 
+GO(gtk_notebook_set_scrollable, vFpi)
+GO(gtk_notebook_set_show_border, vFpi)
+GO(gtk_notebook_set_show_tabs, vFpi)
+GO(gtk_notebook_set_tab_border, vFpu)
 //GO(gtk_notebook_set_tab_detachable, 
 //GO(gtk_notebook_set_tab_hborder, 
 //GO(gtk_notebook_set_tab_label, 
 //GO(gtk_notebook_set_tab_label_packing, 
 //GO(gtk_notebook_set_tab_label_text, 
-//GO(gtk_notebook_set_tab_pos, 
+GO(gtk_notebook_set_tab_pos, vFpi)
 //GO(gtk_notebook_set_tab_reorderable, 
 //GO(gtk_notebook_set_tab_vborder, 
 //GO(gtk_notebook_set_window_creation_hook, 
@@ -2186,33 +2186,33 @@ GO(gtk_parse_args, iFpp)
 //GO(gtk_print_unix_dialog_set_settings, 
 //GO(gtk_print_unix_dialog_set_support_selection, 
 //GO(gtk_private_flags_get_type, 
-//GO(gtk_progress_bar_get_ellipsize, 
-//GO(gtk_progress_bar_get_fraction, 
-//GO(gtk_progress_bar_get_orientation, 
-//GO(gtk_progress_bar_get_pulse_step, 
-//GO(gtk_progress_bar_get_text, 
+GO(gtk_progress_bar_get_ellipsize, iFp)
+GO(gtk_progress_bar_get_fraction, dFp)
+GO(gtk_progress_bar_get_orientation, iFp)
+GO(gtk_progress_bar_get_pulse_step, fFp)
+GO(gtk_progress_bar_get_text, pFp)
 GO(gtk_progress_bar_get_type, iFv)
-//GO(gtk_progress_bar_new, 
-//GO(gtk_progress_bar_new_with_adjustment, 
-//GO(gtk_progress_bar_orientation_get_type, 
-//GO(gtk_progress_bar_pulse, 
-//GO(gtk_progress_bar_set_activity_blocks, 
-//GO(gtk_progress_bar_set_activity_step, 
-//GO(gtk_progress_bar_set_bar_style, 
-//GO(gtk_progress_bar_set_discrete_blocks, 
-//GO(gtk_progress_bar_set_ellipsize, 
-//GO(gtk_progress_bar_set_fraction, 
-//GO(gtk_progress_bar_set_orientation, 
-//GO(gtk_progress_bar_set_pulse_step, 
-//GO(gtk_progress_bar_set_text, 
-//GO(gtk_progress_bar_style_get_type, 
-//GO(gtk_progress_bar_update, 
+GO(gtk_progress_bar_new, pFv)
+GO(gtk_progress_bar_new_with_adjustment, pFp)
+GO(gtk_progress_bar_orientation_get_type, iFv)
+GO(gtk_progress_bar_pulse, vFp)
+GO(gtk_progress_bar_set_activity_blocks, vFpu)
+GO(gtk_progress_bar_set_activity_step, vFpu)
+GO(gtk_progress_bar_set_bar_style, vFpi)
+GO(gtk_progress_bar_set_discrete_blocks, vFpu)
+GO(gtk_progress_bar_set_ellipsize, vFpi)
+GO(gtk_progress_bar_set_fraction, vFpd)
+GO(gtk_progress_bar_set_orientation, vFpi)
+GO(gtk_progress_bar_set_pulse_step, vFpd)
+GO(gtk_progress_bar_set_text, vFpp)
+GO(gtk_progress_bar_style_get_type, iFv)
+GO(gtk_progress_bar_update, vFpd)
 //GO(gtk_progress_configure, 
 //GO(gtk_progress_get_current_percentage, 
 //GO(gtk_progress_get_current_text, 
 //GO(gtk_progress_get_percentage_from_value, 
 //GO(gtk_progress_get_text_from_value, 
-//GO(gtk_progress_get_type, 
+GO(gtk_progress_get_type, iFv)
 //GO(gtk_progress_get_value, 
 //GO(gtk_progress_set_activity_mode, 
 //GO(gtk_progress_set_adjustment, 
@@ -2472,18 +2472,18 @@ GO(gtk_progress_bar_get_type, iFv)
 //GO(gtk_scale_set_value_pos, 
 //GO(gtk_scrollbar_get_type, 
 //GO(gtk_scrolled_window_add_with_viewport, 
-//GO(gtk_scrolled_window_get_hadjustment, 
-//GO(gtk_scrolled_window_get_hscrollbar, 
+GO(gtk_scrolled_window_get_hadjustment, pFp)
+GO(gtk_scrolled_window_get_hscrollbar, pFp)
 GO(gtk_scrolled_window_get_placement, iFp)
 GO(gtk_scrolled_window_get_policy, vFppp)
 GO(gtk_scrolled_window_get_shadow_type, iFp)
-//GO(gtk_scrolled_window_get_type, 
-//GO(gtk_scrolled_window_get_vadjustment, 
-//GO(gtk_scrolled_window_get_vscrollbar, 
-//GO(gtk_scrolled_window_new, 
+GO(gtk_scrolled_window_get_type, iFv)
+GO(gtk_scrolled_window_get_vadjustment, pFp)
+GO(gtk_scrolled_window_get_vscrollbar, pFp)
+GO(gtk_scrolled_window_new, pFpp)
 GO(gtk_scrolled_window_set_hadjustment, vFpp)
 GO(gtk_scrolled_window_set_placement, vFpi)
-//GO(gtk_scrolled_window_set_policy, 
+GO(gtk_scrolled_window_set_policy, vFpii)
 GO(gtk_scrolled_window_set_shadow_type, vFpi)
 GO(gtk_scrolled_window_set_vadjustment, vFpp)
 GO(gtk_scrolled_window_unset_placement, vFp)
@@ -3041,7 +3041,7 @@ GO(gtk_text_view_get_type, iFv)
 //GO(gtk_text_view_set_accepts_tab, 
 //GO(gtk_text_view_set_border_window_size, 
 //GO(gtk_text_view_set_buffer, 
-//GO(gtk_text_view_set_cursor_visible, 
+GO(gtk_text_view_set_cursor_visible, vFpi)
 //GO(gtk_text_view_set_editable, 
 //GO(gtk_text_view_set_indent, 
 //GO(gtk_text_view_set_justification, 

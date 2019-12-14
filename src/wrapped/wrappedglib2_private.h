@@ -679,8 +679,8 @@ GO(g_main_context_pending, iFp)
 //GO(g_markup_parse_context_push, 
 //GO(g_markup_parse_context_ref, 
 //GO(g_markup_parse_context_unref, 
-//GO(g_markup_printf_escaped, 
-//GO(g_markup_vprintf_escaped, 
+GOM(g_markup_printf_escaped, pFEpV)
+GOM(g_markup_vprintf_escaped, pFEpV)
 //GO(g_match_info_expand_references, 
 //GO(g_match_info_fetch, 
 //GO(g_match_info_fetch_all, 
