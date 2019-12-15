@@ -105,78 +105,78 @@
 //GO(pango_find_map, 
 //GO(pango_find_paragraph_boundary, 
 //GO(pango_font_describe, 
-//GO(pango_font_describe_with_absolute_size, 
-//GO(pango_font_description_better_match, 
-//GO(pango_font_description_copy, 
-//GO(pango_font_description_copy_static, 
-//GO(pango_font_description_equal, 
-//GO(pango_font_description_free, 
-//GO(pango_font_description_from_string, 
-//GO(pango_font_description_get_family, 
-//GO(pango_font_description_get_gravity, 
-//GO(pango_font_description_get_set_fields, 
-//GO(pango_font_description_get_size, 
-//GO(pango_font_description_get_size_is_absolute, 
-//GO(pango_font_description_get_stretch, 
-//GO(pango_font_description_get_style, 
-//GO(pango_font_description_get_type, 
-//GO(pango_font_description_get_variant, 
-//GO(pango_font_description_get_weight, 
-//GO(pango_font_description_hash, 
-//GO(pango_font_description_merge, 
-//GO(pango_font_description_merge_static, 
-//GO(pango_font_description_new, 
-//GO(pango_font_description_set_absolute_size, 
-//GO(pango_font_description_set_family, 
-//GO(pango_font_description_set_family_static, 
-//GO(pango_font_description_set_gravity, 
-//GO(pango_font_description_set_size, 
-//GO(pango_font_description_set_stretch, 
-//GO(pango_font_description_set_style, 
-//GO(pango_font_description_set_variant, 
-//GO(pango_font_description_set_weight, 
-//GO(pango_font_descriptions_free, 
-//GO(pango_font_description_to_filename, 
-//GO(pango_font_description_to_string, 
-//GO(pango_font_description_unset_fields, 
-//GO(pango_font_face_describe, 
-//GO(pango_font_face_get_face_name, 
-//GO(pango_font_face_get_type, 
-//GO(pango_font_face_is_synthesized, 
-//GO(pango_font_face_list_sizes, 
-//GO(pango_font_family_get_name, 
-//GO(pango_font_family_get_type, 
-//GO(pango_font_family_is_monospace, 
-//GO(pango_font_family_list_faces, 
-//GO(pango_font_find_shaper, 
-//GO(pango_font_get_coverage, 
-//GO(pango_font_get_font_map, 
-//GO(pango_font_get_glyph_extents, 
-//GO(pango_font_get_metrics, 
-//GO(pango_font_get_type, 
-//GO(pango_font_map_create_context, 
-//GO(pango_font_map_get_serial, 
+GO(pango_font_describe_with_absolute_size, pFp)
+GO(pango_font_description_better_match, iFppp)
+GO(pango_font_description_copy, pFp)
+GO(pango_font_description_copy_static, pFp)
+GO(pango_font_description_equal, iFpp)
+GO(pango_font_description_free, vFp)
+GO(pango_font_description_from_string, pFp)
+GO(pango_font_description_get_family, pFp)
+GO(pango_font_description_get_gravity, iFp)
+GO(pango_font_description_get_set_fields, iFp)
+GO(pango_font_description_get_size, iFp)
+GO(pango_font_description_get_size_is_absolute, iFp)
+GO(pango_font_description_get_stretch, iFp)
+GO(pango_font_description_get_style, iFp)
+GO(pango_font_description_get_type, iFv)
+GO(pango_font_description_get_variant, vFpi)
+GO(pango_font_description_get_weight, iFp)
+GO(pango_font_description_hash, uFp)
+GO(pango_font_description_merge, vFppi)
+GO(pango_font_description_merge_static, vFppi)
+GO(pango_font_description_new, pFv)
+GO(pango_font_description_set_absolute_size, vFpd)
+GO(pango_font_description_set_family, vFpp)
+GO(pango_font_description_set_family_static, vFpp)
+GO(pango_font_description_set_gravity, vFpi)
+GO(pango_font_description_set_size, vFpi)
+GO(pango_font_description_set_stretch, vFpi)
+GO(pango_font_description_set_style, vFpi)
+GO(pango_font_description_set_variant, vFpi)
+GO(pango_font_description_set_weight, vFpi)
+GO(pango_font_descriptions_free, vFpi)
+GO(pango_font_description_to_filename, pFp)
+GO(pango_font_description_to_string, pFp)
+GO(pango_font_description_unset_fields, vFpi)
+GO(pango_font_face_describe, pFp)
+GO(pango_font_face_get_face_name, pFp)
+GO(pango_font_face_get_type, iFv)
+GO(pango_font_face_is_synthesized, iFp)
+GO(pango_font_face_list_sizes, vFppp)
+GO(pango_font_family_get_name, pFp)
+GO(pango_font_family_get_type, iFv)
+GO(pango_font_family_is_monospace, iFp)
+GO(pango_font_family_list_faces, vFppp)
+GO(pango_font_find_shaper, pFppu)
+GO(pango_font_get_coverage, pFpp)
+GO(pango_font_get_font_map, pFp)
+GO(pango_font_get_glyph_extents, vFpppp)
+GO(pango_font_get_metrics, pFpp)
+GO(pango_font_get_type, iFv)
+GO(pango_font_map_create_context, pFp)
+GO(pango_font_map_get_serial, uFp)
 //GO(pango_font_map_get_shape_engine_type, 
-//GO(pango_font_map_get_type, 
-//GO(pango_font_map_list_families, 
-//GO(pango_font_map_load_font, 
-//GO(pango_font_map_load_fontset, 
-//GO(pango_font_mask_get_type, 
-//GO(pango_font_metrics_get_approximate_char_width, 
-//GO(pango_font_metrics_get_approximate_digit_width, 
-//GO(pango_font_metrics_get_ascent, 
-//GO(pango_font_metrics_get_descent, 
-//GO(pango_font_metrics_get_strikethrough_position, 
-//GO(pango_font_metrics_get_strikethrough_thickness, 
-//GO(pango_font_metrics_get_type, 
-//GO(pango_font_metrics_get_underline_position, 
-//GO(pango_font_metrics_get_underline_thickness, 
+GO(pango_font_map_get_type, iFv)
+GO(pango_font_map_list_families, vFppp)
+GO(pango_font_map_load_font, pFppp)
+GO(pango_font_map_load_fontset, pFpppp)
+GO(pango_font_mask_get_type, iFv)
+GO(pango_font_metrics_get_approximate_char_width, iFp)
+GO(pango_font_metrics_get_approximate_digit_width, iFp)
+GO(pango_font_metrics_get_ascent, iFp)
+GO(pango_font_metrics_get_descent, iFp)
+GO(pango_font_metrics_get_strikethrough_position, iFp)
+GO(pango_font_metrics_get_strikethrough_thickness, iFp)
+GO(pango_font_metrics_get_type, iFv)
+GO(pango_font_metrics_get_underline_position, iFp)
+GO(pango_font_metrics_get_underline_thickness, iFp)
 //GO(pango_font_metrics_new, 
-//GO(pango_font_metrics_ref, 
-//GO(pango_font_metrics_unref, 
+GO(pango_font_metrics_ref, pFp)
+GO(pango_font_metrics_unref, vFp)
 //GO(pango_fontset_foreach, 
-//GO(pango_fontset_get_font, 
-//GO(pango_fontset_get_metrics, 
+GO(pango_fontset_get_font, pFpu)
+GO(pango_fontset_get_metrics, pFp)
 //GO(pango_fontset_get_type, 
 //GO(pango_fontset_simple_append, 
 //GO(pango_fontset_simple_get_type, 

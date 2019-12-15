@@ -43,30 +43,30 @@
 //GO(g_assertion_message_error, 
 //GO(g_assertion_message_expr, 
 //GO(g_assert_warning, 
-//GO(g_async_queue_length, 
+GO(g_async_queue_length, iFp)
 //GO(g_async_queue_length_unlocked, 
-//GO(g_async_queue_lock, 
-//GO(g_async_queue_new, 
+GO(g_async_queue_lock, vFp)
+GO(g_async_queue_new, pFv)
 //GO(g_async_queue_new_full, 
-//GO(g_async_queue_pop, 
+GO(g_async_queue_pop, pFp)
 //GO(g_async_queue_pop_unlocked, 
-//GO(g_async_queue_push, 
+GO(g_async_queue_push, vFpp)
 //GO(g_async_queue_push_sorted, 
 //GO(g_async_queue_push_sorted_unlocked, 
-//GO(g_async_queue_push_unlocked, 
-//GO(g_async_queue_ref, 
+GO(g_async_queue_push_unlocked, vFpp)
+GO(g_async_queue_ref, vFp)
 //GO(g_async_queue_ref_unlocked, 
 //GO(g_async_queue_sort, 
 //GO(g_async_queue_sort_unlocked, 
 //GO(g_async_queue_timed_pop, 
 //GO(g_async_queue_timed_pop_unlocked, 
-//GO(g_async_queue_timeout_pop, 
-//GO(g_async_queue_timeout_pop_unlocked, 
-//GO(g_async_queue_try_pop, 
-//GO(g_async_queue_try_pop_unlocked, 
-//GO(g_async_queue_unlock, 
-//GO(g_async_queue_unref, 
-//GO(g_async_queue_unref_and_unlock, 
+GO(g_async_queue_timeout_pop, pFpU)
+GO(g_async_queue_timeout_pop_unlocked, pFpU)
+GO(g_async_queue_try_pop, pFp)
+GO(g_async_queue_try_pop_unlocked, pFp)
+GO(g_async_queue_unlock, vFp)
+GO(g_async_queue_unref, vFp)
+GO(g_async_queue_unref_and_unlock, vFp)
 //GO(g_atexit, 
 //GO(g_atomic_int_add, 
 //GO(g_atomic_int_and, 
@@ -715,13 +715,13 @@ GOM(g_markup_vprintf_escaped, pFEpV)
 //GO(g_mkdtemp_full, 
 //GO(g_mkstemp, 
 //GO(g_mkstemp_full, 
-//GO(g_mutex_clear, 
+GO(g_mutex_clear, vFp)
 //GO(g_mutex_free, 
-//GO(g_mutex_init, 
-//GO(g_mutex_lock, 
+GO(g_mutex_init, vFp)
+GO(g_mutex_lock, vFp)
 //GO(g_mutex_new, 
-//GO(g_mutex_trylock, 
-//GO(g_mutex_unlock, 
+GO(g_mutex_trylock, iFp)
+GO(g_mutex_unlock, vFp)
 //GO(g_node_child_index, 
 //GO(g_node_child_position, 
 //GO(g_node_children_foreach, 
@@ -1257,7 +1257,7 @@ GO(g_strfreev, vFp)
 //GO(g_thread_create, 
 //GO(g_thread_create_full, 
 //GO(g_thread_error_quark, 
-//GO(g_thread_exit, 
+GO(g_thread_exit, vFp)
 //GO(g_thread_foreach, 
 //GO(g_thread_get_initialized, 
 //GO(g_thread_init_glib, 
@@ -1278,7 +1278,7 @@ GO(g_strfreev, vFp)
 //GO(g_thread_pool_stop_unused_threads, 
 //GO(g_thread_pool_unprocessed, 
 //GO(g_thread_ref, 
-//GO(g_thread_self, 
+GO(g_thread_self, pFv)
 //GO(g_thread_set_priority, 
 //GO(g_thread_try_new, 
 //GO(g_thread_unref, 

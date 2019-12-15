@@ -163,15 +163,15 @@
 //GO(gdk_drawable_copy_to_image, 
 //GO(gdk_drawable_get_clip_region, 
 //GO(gdk_drawable_get_colormap, 
-//GO(gdk_drawable_get_data, 
+GO(gdk_drawable_get_data, pFpp)
 //GO(gdk_drawable_get_depth, 
-//GO(gdk_drawable_get_display, 
+GO(gdk_drawable_get_display, pFp)
 //GO(gdk_drawable_get_image, 
-//GO(gdk_drawable_get_screen, 
+GO(gdk_drawable_get_screen, pFp)
 //GO(gdk_drawable_get_size, 
-//GO(gdk_drawable_get_type, 
+GO(gdk_drawable_get_type, iFv)
 //GO(gdk_drawable_get_visible_region, 
-//GO(gdk_drawable_get_visual, 
+GO(gdk_drawable_get_visual, pFp)
 //GO(gdk_drawable_ref, 
 //GO(gdk_drawable_set_colormap, 
 //GO(gdk_drawable_set_data, 
@@ -591,7 +591,7 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_window_flush, 
 //GO(gdk_window_focus, 
 //GO(gdk_window_foreign_new, 
-//GO(gdk_window_foreign_new_for_display, 
+GO(gdk_window_foreign_new_for_display, pFpp)
 //GO(gdk_window_freeze_toplevel_updates_libgtk_only, 
 //GO(gdk_window_freeze_updates, 
 //GO(gdk_window_fullscreen, 
@@ -647,7 +647,7 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_window_is_viewable, 
 //GO(gdk_window_is_visible, 
 //GO(gdk_window_lookup, 
-//GO(gdk_window_lookup_for_display, 
+GO(gdk_window_lookup_for_display, pFpp)
 //GO(gdk_window_lower, 
 //GO(gdk_window_maximize, 
 //GO(gdk_window_merge_child_input_shapes, 
@@ -698,7 +698,7 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_window_set_startup_id, 
 //GO(gdk_window_set_static_gravities, 
 //GO(gdk_window_set_title, 
-//GO(gdk_window_set_transient_for, 
+GO(gdk_window_set_transient_for, vFpp)
 //GO(gdk_window_set_type_hint, 
 //GO(gdk_window_set_urgency_hint, 
 //GO(gdk_window_set_user_data, 

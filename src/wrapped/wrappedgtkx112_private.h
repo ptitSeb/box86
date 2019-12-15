@@ -1077,13 +1077,13 @@ GO(gtk_file_chooser_unselect_file, vFpp)
 //GO(gtk_file_filter_set_name, 
 //GO(gtk_file_selection_complete, 
 //GO(gtk_file_selection_get_filename, 
-//GO(gtk_file_selection_get_selections, 
+GO(gtk_file_selection_get_selections, pFp)
 //GO(gtk_file_selection_get_select_multiple, 
-//GO(gtk_file_selection_get_type, 
+GO(gtk_file_selection_get_type, iFv)
 //GO(gtk_file_selection_hide_fileop_buttons, 
-//GO(gtk_file_selection_new, 
-//GO(gtk_file_selection_set_filename, 
-//GO(gtk_file_selection_set_select_multiple, 
+GO(gtk_file_selection_new, pFp)
+GO(gtk_file_selection_set_filename, vFpp)
+GO(gtk_file_selection_set_select_multiple, vFpi)
 //GO(gtk_file_selection_show_fileop_buttons, 
 //GO(gtk_fixed_get_has_window, 
 //GO(gtk_fixed_get_type, 
@@ -2746,23 +2746,23 @@ GOM(gtk_signal_connect_full, LFEppppppii)
 //GO(gtk_text_buffer_begin_user_action, 
 //GO(gtk_text_buffer_copy_clipboard, 
 //GO(gtk_text_buffer_create_child_anchor, 
-//GO(gtk_text_buffer_create_mark, 
+GO(gtk_text_buffer_create_mark, pFpppi)
 //GO(gtk_text_buffer_create_tag, 
 //GO(gtk_text_buffer_cut_clipboard, 
 //GO(gtk_text_buffer_delete, 
 //GO(gtk_text_buffer_delete_interactive, 
-//GO(gtk_text_buffer_delete_mark, 
+GO(gtk_text_buffer_delete_mark, vFpp)
 //GO(gtk_text_buffer_delete_mark_by_name, 
 //GO(gtk_text_buffer_delete_selection, 
 //GO(gtk_text_buffer_deserialize, 
 //GO(gtk_text_buffer_deserialize_get_can_create_tags, 
 //GO(gtk_text_buffer_deserialize_set_can_create_tags, 
 //GO(gtk_text_buffer_end_user_action, 
-//GO(gtk_text_buffer_get_bounds, 
+GO(gtk_text_buffer_get_bounds, vFppp)
 //GO(gtk_text_buffer_get_char_count, 
 //GO(gtk_text_buffer_get_copy_target_list, 
 //GO(gtk_text_buffer_get_deserialize_formats, 
-//GO(gtk_text_buffer_get_end_iter, 
+GO(gtk_text_buffer_get_end_iter, vFpp)
 //GO(gtk_text_buffer_get_has_selection, 
 //GO(gtk_text_buffer_get_insert, 
 //GO(gtk_text_buffer_get_iter_at_child_anchor, 
@@ -2773,26 +2773,26 @@ GOM(gtk_signal_connect_full, LFEppppppii)
 //GO(gtk_text_buffer_get_iter_at_offset, 
 //GO(gtk_text_buffer_get_line_count, 
 //GO(gtk_text_buffer_get_mark, 
-//GO(gtk_text_buffer_get_modified, 
+GO(gtk_text_buffer_get_modified, iFp)
 //GO(gtk_text_buffer_get_paste_target_list, 
 //GO(gtk_text_buffer_get_selection_bound, 
 //GO(gtk_text_buffer_get_selection_bounds, 
 //GO(gtk_text_buffer_get_serialize_formats, 
 //GO(gtk_text_buffer_get_slice, 
-//GO(gtk_text_buffer_get_start_iter, 
+GO(gtk_text_buffer_get_start_iter, vFpp)
 //GO(gtk_text_buffer_get_tag_table, 
 //GO(gtk_text_buffer_get_text, 
 //GO(gtk_text_buffer_get_type, 
-//GO(gtk_text_buffer_insert, 
-//GO(gtk_text_buffer_insert_at_cursor, 
+GO(gtk_text_buffer_insert, vFpppi)
+GO(gtk_text_buffer_insert_at_cursor, vFppi)
 //GO(gtk_text_buffer_insert_child_anchor, 
-//GO(gtk_text_buffer_insert_interactive, 
-//GO(gtk_text_buffer_insert_interactive_at_cursor, 
+GO(gtk_text_buffer_insert_interactive, iFpppii)
+GO(gtk_text_buffer_insert_interactive_at_cursor, iFppii)
 //GO(gtk_text_buffer_insert_pixbuf, 
-//GO(gtk_text_buffer_insert_range, 
-//GO(gtk_text_buffer_insert_range_interactive, 
-//GO(gtk_text_buffer_insert_with_tags, 
-//GO(gtk_text_buffer_insert_with_tags_by_name, 
+GO(gtk_text_buffer_insert_range, vFpppp)
+GO(gtk_text_buffer_insert_range_interactive, iFppppi)
+GO(gtk_text_buffer_insert_with_tags, vFpppipppppppppppppp)
+GO(gtk_text_buffer_insert_with_tags_by_name, vFpppippppppppppp)
 //GO(gtk_text_buffer_move_mark, 
 //GO(gtk_text_buffer_move_mark_by_name, 
 //GO(gtk_text_buffer_new, 
@@ -3029,13 +3029,13 @@ GO(gtk_text_view_get_type, iFv)
 GO(gtk_text_view_get_wrap_mode, iFp)
 //GO(gtk_text_view_im_context_filter_keypress, 
 GO(gtk_text_view_move_child, vFppii)
-//GO(gtk_text_view_move_mark_onscreen, 
+GO(gtk_text_view_move_mark_onscreen, iFpp)
 //GO(gtk_text_view_move_visually, 
 GO(gtk_text_view_new, pFv)
 GO(gtk_text_view_new_with_buffer, pFp)
 //GO(gtk_text_view_place_cursor_onscreen, 
 //GO(gtk_text_view_reset_im_context, 
-//GO(gtk_text_view_scroll_mark_onscreen, 
+GO(gtk_text_view_scroll_mark_onscreen, vFpp)
 GO(gtk_text_view_scroll_to_iter, iFppdidd)
 GO(gtk_text_view_scroll_to_mark, vFppdidd)
 //GO(gtk_text_view_set_accepts_tab, 
@@ -3733,7 +3733,7 @@ GO(gtk_widget_map, vFp)
 //GO(gtk_widget_modify_bg, 
 //GO(gtk_widget_modify_cursor, 
 //GO(gtk_widget_modify_fg, 
-//GO(gtk_widget_modify_font, 
+GO(gtk_widget_modify_font, vFpp)
 //GO(gtk_widget_modify_style, 
 //GO(gtk_widget_modify_text, 
 //GO(gtk_widget_new, 
@@ -3834,7 +3834,7 @@ GO(gtk_widget_unref, vFp)
 //GO(gtk_window_get_focus, 
 //GO(gtk_window_get_focus_on_map, 
 //GO(gtk_window_get_frame_dimensions, 
-//GO(gtk_window_get_gravity, 
+GO(gtk_window_get_gravity, iFp)
 //GO(gtk_window_get_group, 
 //GO(gtk_window_get_has_frame, 
 //GO(gtk_window_get_icon, 
@@ -3890,14 +3890,14 @@ GO(gtk_window_set_default_icon, vFp)
 //GO(gtk_window_set_default_icon_from_file, 
 //GO(gtk_window_set_default_icon_list, 
 GO(gtk_window_set_default_icon_name, vFp)
-//GO(gtk_window_set_default_size, 
-//GO(gtk_window_set_deletable, 
+GO(gtk_window_set_default_size, vFpii)
+GO(gtk_window_set_deletable, vFpi)
 //GO(gtk_window_set_destroy_with_parent, 
 //GO(gtk_window_set_focus, 
 //GO(gtk_window_set_focus_on_map, 
 //GO(gtk_window_set_frame_dimensions, 
-//GO(gtk_window_set_geometry_hints, 
-//GO(gtk_window_set_gravity, 
+GO(gtk_window_set_geometry_hints, vFpppi)
+GO(gtk_window_set_gravity, vFpi)
 //GO(gtk_window_set_has_frame, 
 GO(gtk_window_set_icon, vFpp)
 //GO(gtk_window_set_icon_from_file, 
@@ -3907,7 +3907,7 @@ GO(gtk_window_set_icon_name, vFpp)
 //GO(gtk_window_set_keep_below, 
 //GO(gtk_window_set_mnemonic_modifier, 
 //GO(gtk_window_set_mnemonics_visible, 
-//GO(gtk_window_set_modal, 
+GO(gtk_window_set_modal, vFpi)
 GO(gtk_window_set_opacity, vFpd)
 GO(gtk_window_set_policy, vFpiii)
 GO(gtk_window_set_position, vFpi)
