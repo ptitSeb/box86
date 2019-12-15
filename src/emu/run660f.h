@@ -386,19 +386,19 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<16; ++i)
-            GX.sb[i] = (GX.sb[i]>EX->sb[i])?0xFF:0x00;
+            GX.ub[i] = (GX.sb[i]>EX->sb[i])?0xFF:0x00;
         NEXT;
     _6f_0x65:  /* PCMPGTW Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=0; i<8; ++i)
-            GX.sw[i] = (GX.sw[i]>EX->sw[i])?0xFFFF:0x0000;
+            GX.uw[i] = (GX.sw[i]>EX->sw[i])?0xFFFF:0x0000;
         NEXT;
     _6f_0x66:  /* PCMPGTD Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=0; i<4; ++i)
-            GX.sd[i] = (GX.sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
+            GX.ud[i] = (GX.sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
         NEXT;
     _6f_0x67:  /* PACKUSWB */
         nextop = F8;
@@ -411,6 +411,7 @@
     _6f_0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = F8;
         GET_EX;
+        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
         for(int i=0; i<8; ++i)
             GX.ub[2 * i] = GX.ub[i + 8];
         for(int i=0; i<8; ++i)
@@ -419,6 +420,7 @@
     _6f_0x69:  /* PUNPCKHWD Gx,Ex */
         nextop = F8;
         GET_EX;
+        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
         for(int i=0; i<4; ++i)
             GX.uw[2 * i] = GX.uw[i + 4];
         for(int i=0; i<4; ++i)
@@ -427,6 +429,7 @@
     _6f_0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;
         GET_EX;
+        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
         GX.ud[0] = GX.ud[2];
         GX.ud[2] = GX.ud[3];
         GX.ud[1] = EX->ud[2];
@@ -435,6 +438,7 @@
     _6f_0x6B:  /* PACKSSDW Gx,Ex */
         nextop = F8;
         GET_EX;
+        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
         for(int i=0; i<4; ++i)
             GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
         for(int i=0; i<4; ++i)
@@ -467,15 +471,9 @@
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        if(&GX!=EX)
-            for (int i=0; i<4; ++i)
-                GX.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
-        else {
-            for (int i=0; i<4; ++i)
-                eax1.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
-            GX.q[0] = eax1.q[0];
-            GX.q[1] = eax1.q[1];
-        }
+        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
+        for (int i=0; i<4; ++i)
+            GX.ud[i] = EX->ud[(tmp8u>>(i*2))&3];
         NEXT;
     _6f_0x71:  /* GRP */
         nextop = F8;
@@ -755,15 +753,15 @@
 
     _6f_0xC4:  /* PINSRW Gx,Ew,Ib */
         nextop = F8;
-        GET_EW;
+        GET_ED;
         tmp8u = F8;
-        GX.uw[tmp8u&7] = EW->word[0];
+        GX.uw[tmp8u&7] = ED->word[0];   // only low 16bits
         NEXT;
     _6f_0xC5:  /* PEXTRW Gw,Ex,Ib */
         nextop = F8;
         GET_EX;
         tmp8u = F8;
-        GW.word[0] = EX->uw[tmp8u&7];
+        GD.dword[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
         NEXT;
     _6f_0xC6:  /* SHUFPD Gx, Ex, Ib */
         nextop = F8;
@@ -781,7 +779,7 @@
         if(EX->q[0]>15)
             {GX.q[0] = GX.q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<8; ++i) GX.uw[i] >>= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX.uw[i] >>= tmp8u;}
         NEXT;
     _6f_0xD2:  /* PSRLD Gx, Ex */
         nextop = F8;
@@ -789,7 +787,7 @@
         if(EX->q[0]>31)
             {GX.q[0] = GX.q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.ud[i] >>= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX.ud[i] >>= tmp8u;}
         NEXT;
     _6f_0xD3:  /* PSRLQ Gx, Ex */
         nextop = F8;
@@ -797,7 +795,7 @@
         if(EX->q[0]>63)
             {GX.q[0] = GX.q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<2; ++i) GX.q[i] >>= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX.q[i] >>= tmp8u;}
         NEXT;
     _6f_0xD4:  /* PADDQ Gx,Ex */
         nextop = F8;
@@ -809,8 +807,8 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<8; ++i) {
-            tmp16s = (int32_t)GX.sw[i] * EX->sw[i];
-            GX.sw[i] = tmp16s;
+            tmp32s = (int32_t)GX.sw[i] * EX->sw[i];
+            GX.sw[i] = tmp32s;
         }
         NEXT;
     _6f_0xD6:  /* MOVQ Ex,Gx */
@@ -868,13 +866,13 @@
     _6f_0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GET_EX;
-        tmp8u=(EX->q[0]>15)?16:EX->q[0];
+        tmp8u=(EX->q[0]>15)?16:EX->ub[0];
         for (int i=0; i<8; ++i) GX.sw[i] >>= tmp8u;
         NEXT;
     _6f_0xE2:  /* PSRAD Gx, Ex */
         nextop = F8;
         GET_EX;
-        tmp8u=(EX->q[0]>31)?32:EX->q[0];
+        tmp8u=(EX->q[0]>31)?32:EX->ub[0];
         for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
         NEXT;
 
@@ -961,7 +959,7 @@
         if(EX->q[0]>15)
             {GX.q[0] = GX.q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<8; ++i) GX.uw[i] <<= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX.uw[i] <<= tmp8u;}
         NEXT;
     _6f_0xF2:  /* PSLLD Gx, Ex */
         nextop = F8;
@@ -969,7 +967,7 @@
         if(EX->q[0]>31)
             {GX.q[0] = GX.q[1] = 0;}
         else 
-            {tmp8u=EX->q[0]; for (int i=0; i<4; ++i) GX.ud[i] <<= tmp8u;}
+            {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX.ud[i] <<= tmp8u;}
         NEXT;
     _6f_0xF3:  /* PSLLQ Gx, Ex */
         nextop = F8;
@@ -996,11 +994,11 @@
         GET_EX;
         tmp32u = 0;
         for (int i=0; i<8; ++i)
-            tmp8u = (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
+            tmp32u += (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
         GX.q[0] = tmp32u;
         tmp32u = 0;
         for (int i=8; i<16; ++i)
-            tmp8u = (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
+            tmp32u += (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
         GX.q[1] = tmp32u;
         NEXT;
 

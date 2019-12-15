@@ -37,7 +37,7 @@ int Run(x86emu_t *emu, int step)
     float f;
     int64_t ll;
     sse_regs_t *opex, eax1;
-    mmx_regs_t *opem;
+    mmx_regs_t *opem, eam1;
 
     if(emu->quit)
         return 0;

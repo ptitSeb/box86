@@ -1053,7 +1053,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 wb1=1;
             }
             u8 = (F8)&7;
-            VST1LANE_16(v0+(u8/4), wback, u8&3);
+            VLD1LANE_16(v0+(u8/4), wback, u8&3);
             if(wback==xSP) {
                 ADD_IMM8(xSP, xSP, 4);
             }
