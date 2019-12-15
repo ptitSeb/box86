@@ -21,12 +21,14 @@
 const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
 
+typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 
 #define SUPER() \
     GO(g_list_free_full, vFpp_t)    \
-    GO(g_markup_vprintf_escaped, pFpp_t)
+    GO(g_markup_vprintf_escaped, pFpp_t)    \
+    GO(g_build_filenamev, pFp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -93,6 +95,19 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
     // other platform don't need that
     return my->g_markup_vprintf_escaped(fmt, *(uint32_t**)b);
     #endif
+}
+
+EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    int i = 0;
+    while (b[i++]);
+    void* array[i+1];   // +1 for 1st (NULL terminal already included)
+    array[0] = first;
+    memcpy(array+1, b, sizeof(void*)*i);
+    void* ret = my->g_build_filenamev(array);
+    return ret;
 }
 
 

@@ -139,8 +139,8 @@
 //GO(g_bookmark_file_set_visited, 
 //GO(g_bookmark_file_to_data, 
 //GO(g_bookmark_file_to_file, 
-//GO(g_build_filename, 
-//GO(g_build_filenamev, 
+GOM(g_build_filename, pFEpV)
+GO(g_build_filenamev, pFp)
 //GO(g_build_path, 
 //GO(g_build_pathv, 
 //GO(g_byte_array_append, 
@@ -1132,7 +1132,7 @@ GO(g_shell_unquote, pFpp)
 //GO(g_strconcat, 
 //GO(g_strdelimit, 
 //GO(g_strdown, 
-//GO(g_strdup, 
+GO(g_strdup, pFp)
 //GO(g_strdup_printf, 
 //GO(g_strdupv, 
 //GO(g_strdup_vprintf, 

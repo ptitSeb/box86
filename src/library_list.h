@@ -68,6 +68,12 @@ GO("libgobject-2.0.so.0", gobject2)
 GO("libglib-2.0.so.0", glib2)
 GO("libdbusmenu-gtk.so.4", dbusmenugtk)
 GO("libfontconfig.so.1", fontconfig)
+GO("libatk-1.0.so.0", atk)
+GO("libpangoft2-1.0.so.0", pangoft2)
+GO("libpangocairo-1.0.so.0", pangocairo)
+GO("libcairo.so.2", pangocairo)
+GO("libpango-1.0.so.0", pango)
+GO("libfreetype.so.6", freetype)
 
 //GO("libmono.so", monounity)
 
