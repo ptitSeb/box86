@@ -26,5 +26,13 @@ GO(png_set_rows, vFppp)
 GO(png_write_png, vFppip)
 GO(png_get_io_ptr, pFp)
 GOM(png_set_write_fn, vFEppp)
+GO(png_set_packing, vFp)
+GO(png_set_gray_to_rgb, vFp)
+GO(png_set_palette_to_rgb, vFp)
+GO(png_set_expand_gray_1_2_4_to_8, vFp)
+GO(png_set_add_alpha, vFpui)
+GO(png_set_tRNS_to_alpha, vFp)
+GO(png_set_strip_16, vFp)
+GO(png_get_valid, uFppu)
 
 #endif

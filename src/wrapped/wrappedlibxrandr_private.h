@@ -21,7 +21,7 @@ GO(XRRConfigRotations,uFp)
 GO(XRRFreeOutputInfo, vFp)
 GO(XRRUpdateConfiguration,iF)
 GO(XRRGetScreenResources, pFpp)
-GO(XRRConfigSizes,pFp)
+GO(XRRConfigSizes,pFpp)
 //GO(XRRQueryProviderProperty
 //GO(XRRDeleteOutputProperty
 //GO(XRRDeleteProviderProperty

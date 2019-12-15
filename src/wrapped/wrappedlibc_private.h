@@ -233,7 +233,7 @@ GO(endprotoent, vFv)
 GO(endpwent, vFv)
 // endrpcent
 // endservent
-// endspent
+GO(endspent, vFv)
 // endttyent
 // endusershell
 GOW(endutent, vFv)
@@ -582,9 +582,9 @@ GO(getsid, uFu)
 GOW(getsockname, iFipp)
 GOW(getsockopt, iFiiipp)
 // getsourcefilter
-// getspent
+GO(getspent, pFv)
 // getspent_r
-// getspnam
+GO(getspnam, pFp)
 // getspnam_r
 // getsubopt
 GOW(gettext, pFp)
@@ -1477,7 +1477,7 @@ GOM(_setjmp, iFEp)
 GO(setlinebuf, vFp)
 GO(setlocale, pFip)
 // setlogin
-// setlogmask
+GO(setlogmask, iFi)
 GOW(setmntent, pFpp)
 // __setmntent
 // setnetent
@@ -1499,7 +1499,7 @@ GO(setrlimit64, iFip)
 GOW(setsid, iFv)
 GOW(setsockopt, iFiiipu)
 // setsourcefilter
-// setspent
+GO(setspent, vFv)
 // setstate // Weak
 GOW(setstate_r, iFpp)
 GOW(settimeofday, iFpp)
@@ -1790,7 +1790,7 @@ DATAB(__timezone, 4)   // type B
 GO(tmpfile, pFv)
 GO(tmpfile64, pFv)
 GO(tmpnam, pFp)
-// tmpnam_r
+GO(tmpnam_r, pFp)
 GO(toascii, iFi)
 // __toascii_l  // Weak
 GO(tolower, iFi)
