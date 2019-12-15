@@ -1447,7 +1447,7 @@ GOW(semop, iFipu)
 GO(semtimedop, iFipup)
 GOW(send, iFipui)
 // __send   // Weak
-// sendfile
+GO(sendfile, iFiipu)
 GO(sendfile64, iFiipu)
 GOW(sendmsg, iFipi)
 GOM(__sendmmsg, iFEipuu)    // actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...

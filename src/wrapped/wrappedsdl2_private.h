@@ -125,7 +125,7 @@ GO(SDL_GameControllerAddMapping, iFp)
 GOM(SDL_GameControllerAddMappingsFromRW, iFEpi)
 GO(SDL_GameControllerClose, vFp)
 GO(SDL_GameControllerEventState, iFi)
-// SDL_GameControllerFromInstanceID
+GO(SDL_GameControllerFromInstanceID, pFi)
 GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
 GO(SDL_GameControllerGetAxisFromString, uFp)
@@ -574,7 +574,7 @@ GO(SDL_SetWindowMinimumSize, vFpii)
 // SDL_SetWindowModalFor
 // SDL_SetWindowOpacity
 GO(SDL_SetWindowPosition, vFpii)
-// SDL_SetWindowResizable
+GO(SDL_SetWindowResizable, vFpi)
 // SDL_SetWindowShape
 GO(SDL_SetWindowSize, vFpii)
 GO(SDL_SetWindowTitle, vFpp)
