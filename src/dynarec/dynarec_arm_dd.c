@@ -142,8 +142,15 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FLD double");
                     v1 = x87_do_push(dyn, ninst);
+                    #if 0
+                    // can bus error...
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
                     VLDR_64(v1, ed, fixedaddress);
+                    #else
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
+                    LDRD_IMM8(x2, ed, fixedaddress);
+                    VMOVtoV_D(v1, x2, x3);
+                    #endif
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");

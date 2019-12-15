@@ -1,6 +1,8 @@
     opcode = F8;
     goto *opcodes0f[opcode];
-
+        _0f_0x0B:                      /* UD2 */
+            kill(getpid(), SIGILL);              // this is undefined instruction
+            NEXT;
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
             GET_EX;
