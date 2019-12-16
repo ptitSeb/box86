@@ -212,7 +212,7 @@ GO(xcb_delete_property, pFppp)
 //GO(xcb_gcontext_next, 
 //GO(xcb_generate_id, 
 //GO(xcb_get_atom_name, 
-//GO(xcb_get_atom_name_name, 
+GO(xcb_get_atom_name_name, pFp)
 //GO(xcb_get_atom_name_name_end, 
 //GO(xcb_get_atom_name_name_length, 
 //GO(xcb_get_atom_name_reply, 
@@ -232,7 +232,7 @@ GO(xcb_get_geometry_reply, pFppp)
 //GO(xcb_get_image, 
 //GO(xcb_get_image_data, 
 //GO(xcb_get_image_data_end, 
-//GO(xcb_get_image_data_length, 
+GO(xcb_get_image_data_length, iFp)
 //GO(xcb_get_image_reply, 
 //GO(xcb_get_image_sizeof, 
 //GO(xcb_get_image_unchecked, 
@@ -242,14 +242,14 @@ GO(xcb_get_input_focus_reply, pFppp)
 //GO(xcb_get_keyboard_control, 
 //GO(xcb_get_keyboard_control_reply, 
 //GO(xcb_get_keyboard_control_unchecked, 
-//GO(xcb_get_keyboard_mapping, 
+GO(xcb_get_keyboard_mapping, uFpCC)
 //GO(xcb_get_keyboard_mapping_keysyms, 
 //GO(xcb_get_keyboard_mapping_keysyms_end, 
 //GO(xcb_get_keyboard_mapping_keysyms_length, 
-//GO(xcb_get_keyboard_mapping_reply, 
+GO(xcb_get_keyboard_mapping_reply, pFpup)
 //GO(xcb_get_keyboard_mapping_sizeof, 
 //GO(xcb_get_keyboard_mapping_unchecked, 
-//GO(xcb_get_maximum_request_length, 
+GO(xcb_get_maximum_request_length, uFp)
 //GO(xcb_get_modifier_mapping, 
 //GO(xcb_get_modifier_mapping_keycodes, 
 //GO(xcb_get_modifier_mapping_keycodes_end, 
@@ -295,8 +295,8 @@ GO(xcb_get_input_focus_reply, pFppp)
 //GO(xcb_grab_button, 
 //GO(xcb_grab_button_checked, 
 //GO(xcb_grab_key, 
-//GO(xcb_grab_keyboard, 
-//GO(xcb_grab_keyboard_reply, 
+GO(xcb_grab_keyboard, uFpCppCC)
+GO(xcb_grab_keyboard_reply, pFpup)
 //GO(xcb_grab_keyboard_unchecked, 
 //GO(xcb_grab_key_checked, 
 //GO(xcb_grab_pointer, 
@@ -513,7 +513,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_rectangle_end, 
 //GO(xcb_rectangle_next, 
 //GO(xcb_register_for_special_xge, 
-//GO(xcb_reparent_window, 
+GO(xcb_reparent_window, uFpppWW)
 //GO(xcb_reparent_window_checked, 
 //GO(xcb_request_check, 
 //GO(xcb_rgb_end, 
@@ -531,10 +531,10 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_screen_sizeof, 
 //GO(xcb_segment_end, 
 //GO(xcb_segment_next, 
-//GO(xcb_send_event, 
+GO(xcb_send_event, uFpCpup)
 //GO(xcb_send_event_checked, 
 //GO(xcb_send_fd, 
-//GO(xcb_send_request, 
+GO(xcb_send_request, iFpippp)
 //GO(xcb_send_request64, 
 //GO(xcb_send_request_with_fds, 
 //GO(xcb_send_request_with_fds64, 
@@ -559,7 +559,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_set_font_path_font_iterator, 
 //GO(xcb_set_font_path_font_length, 
 //GO(xcb_set_font_path_sizeof, 
-//GO(xcb_set_input_focus, 
+GO(xcb_set_input_focus, uFpCpu) // xcb_void_cookie_t is a struct with only 1 uint inside
 //GO(xcb_set_input_focus_checked, 
 //GO(xcb_set_modifier_mapping, 
 //GO(xcb_set_modifier_mapping_reply, 
@@ -571,7 +571,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_set_pointer_mapping_unchecked, 
 //GO(xcb_set_screen_saver, 
 //GO(xcb_set_screen_saver_checked, 
-//GO(xcb_set_selection_owner, 
+GO(xcb_set_selection_owner, uFpppu)
 //GO(xcb_set_selection_owner_checked, 
 //GO(xcb_setup_authenticate_end, 
 //GO(xcb_setup_authenticate_next, 
@@ -587,7 +587,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_setup_failed_reason_length, 
 //GO(xcb_setup_failed_sizeof, 
 //GO(xcb_setup_next, 
-//GO(xcb_setup_pixmap_formats, 
+GO(xcb_setup_pixmap_formats, pFp)
 //GO(xcb_setup_pixmap_formats_iterator, 
 //GO(xcb_setup_pixmap_formats_length, 
 //GO(xcb_setup_request_authorization_protocol_data, 
@@ -629,8 +629,8 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_timecoord_next, 
 //GO(xcb_timestamp_end, 
 //GO(xcb_timestamp_next, 
-//GO(xcb_translate_coordinates, 
-//GO(xcb_translate_coordinates_reply, 
+GO(xcb_translate_coordinates, uFpppWW)
+GO(xcb_translate_coordinates_reply, pFpup)
 //GO(xcb_translate_coordinates_unchecked, 
 //GO(xcb_ungrab_button, 
 //GO(xcb_ungrab_button_checked, 
@@ -653,7 +653,7 @@ GO(xcb_ungrab_key_checked, pFpCpupCC)
 //GO(xcb_visualid_next, 
 //GO(xcb_visualtype_end, 
 //GO(xcb_visualtype_next, 
-//GO(xcb_wait_for_event, 
+GO(xcb_wait_for_event, pFp)
 //GO(xcb_wait_for_reply, 
 //GO(xcb_wait_for_reply64, 
 //GO(xcb_wait_for_special_event, 
