@@ -503,20 +503,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
+            GETED;
             gd = (nextop&0x38)>>3;
             v0 = mmx_get_reg_empty(dyn, ninst, x3, gd);
-            if((nextop&0xC0)==0xC0) {
-                ed = xEAX + (nextop&7);
-                VMOVfrDx_32(ed, v0, 0);
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                s0 = fpu_get_single_reg(dyn, ninst, v0, 0);
-                VLDR_32(s0, ed, fixedaddress);
-                fpu_putback_single_reg(dyn, ninst, v0, 0, s0);
-            }
-            q0 = fpu_get_reg_quad(dyn);
-            VMOVL_U32(q0, v0);
-            VMOV_64(v0, q0);
+            VEOR(v0, v0, v0);
+            VMOVfrDx_32(ed, v0, 0);
             break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
