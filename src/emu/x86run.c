@@ -291,10 +291,10 @@ _trace:
             NEXT;
 
         _0x06:                      /* PUSH ES */
-            Push16(emu, emu->segs[_ES]);
+            Push(emu, emu->segs[_ES]);    // even if a segment is a 16bits, a 32bits push/pop is done
             NEXT;
         _0x07:                      /* POP ES */
-            emu->segs[_ES] = Pop16(emu);    // no check, no use....
+            emu->segs[_ES] = Pop(emu);    // no check, no use....
             NEXT;
 
         _0x0F:                      /* More instructions */
@@ -302,10 +302,10 @@ _trace:
             NEXT;
 
         _0x1E:                      /* PUSH DS */
-            Push16(emu, emu->segs[_DS]);
+            Push(emu, emu->segs[_DS]);  // even if a segment is a 16bits, a 32bits push/pop is done
             NEXT;
         _0x1F:                      /* POP DS */
-            emu->segs[_DS] = Pop16(emu);    // no check, no use....
+            emu->segs[_DS] = Pop(emu);    // no check, no use....
             NEXT;
 
         _0x27:                      /* DAA */
