@@ -1046,7 +1046,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             if((nextop&0xC0)==0xC0) {
                 wback = xEAX+(nextop&7);
-                PUSH(xSP, wback);
+                PUSH(xSP, (1<<wback));
                 wback = xSP;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
