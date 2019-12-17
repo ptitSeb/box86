@@ -1134,7 +1134,7 @@
         _0f_0xF2:                   /* PSLLD Gm, Em */
             nextop = F8;
             GET_EM;
-            if(EM->q>15)
+            if(EM->q>31)
                 GM.q = 0;
             else {
                 tmp8u = EM->ub[0];
