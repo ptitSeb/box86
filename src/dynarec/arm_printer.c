@@ -290,20 +290,20 @@ const char* arm_print(uint32_t opcode)
                 case 0:
                     rsize = 8;
                     index = (index_align>>1)&7;
-                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    sprintf(list, "{D%d[%d]}", Dd, index);
                     break;
                 case 1:
                     rsize = 16;
                     index = (index_align>>2)&3;
                     alignment += (index_align&1);
-                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    sprintf(list, "{D%d[%d]}", Dd, index);
                     break;
                 case 2:
                     rsize = 32;
                     index = (index_align>>3)&1;
                     if((index_align&3)!=0)
                         alignment = 4;
-                    sprintf(list, "{D%d[%d]}", Rn, index);
+                    sprintf(list, "{D%d[%d]}", Dd, index);
                     break;
                 case 3:
                     rsize = 8 <<((index_align>>2)&3);
