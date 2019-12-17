@@ -507,7 +507,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = (nextop&0x38)>>3;
             v0 = mmx_get_reg_empty(dyn, ninst, x3, gd);
             VEOR(v0, v0, v0);
-            VMOVfrDx_32(ed, v0, 0);
+            VMOVtoDx_32(v0, 0, ed);
             break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
