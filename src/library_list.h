@@ -74,6 +74,7 @@ GO("libpangocairo-1.0.so.0", pangocairo)
 GO("libcairo.so.2", pangocairo)
 GO("libpango-1.0.so.0", pango)
 GO("libfreetype.so.6", freetype)
+GO("libbz2.so.1", bz2)
 
 //GO("libmono.so", monounity)
 
