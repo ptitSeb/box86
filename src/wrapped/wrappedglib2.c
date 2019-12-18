@@ -24,11 +24,13 @@ const char* glib2Name = "libglib-2.0.so.0";
 typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 
 #define SUPER() \
     GO(g_list_free_full, vFpp_t)    \
     GO(g_markup_vprintf_escaped, pFpp_t)    \
-    GO(g_build_filenamev, pFp_t)
+    GO(g_build_filenamev, pFp_t)    \
+    GO(g_timeout_add, uFupp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -110,6 +112,22 @@ EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
     return ret;
 }
 
+static int my_gsourcefunc(void* data)
+{
+    x86emu_t* emu = (x86emu_t*)data;
+    int ret = RunCallback(emu);
+    if(!ret)
+        FreeCallback(emu);
+    return ret;
+}
+
+EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)func, 1, data, NULL, NULL, NULL);
+    return my->g_timeout_add(interval, my_gsourcefunc, cb);
+}
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGlib2My(lib);

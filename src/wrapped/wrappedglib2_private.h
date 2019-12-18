@@ -1283,7 +1283,7 @@ GO(g_thread_self, pFv)
 //GO(g_thread_try_new, 
 //GO(g_thread_unref, 
 //GO(g_thread_yield, 
-//GO(g_timeout_add, 
+GOM(g_timeout_add, uFEupp)
 //GO(g_timeout_add_full, 
 //GO(g_timeout_add_seconds, 
 //GO(g_timeout_add_seconds_full, 

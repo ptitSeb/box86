@@ -1369,7 +1369,7 @@ GO(gtk_image_clear, vFp)
 //GO(gtk_image_menu_item_set_use_stock, 
 GO(gtk_image_new, vFp)
 GO(gtk_image_new_from_animation, pFp)
-//GO(gtk_image_new_from_file, 
+GO(gtk_image_new_from_file, pFp)
 GO(gtk_image_new_from_gicon, pFpi)
 GO(gtk_image_new_from_icon_name, pFpi)
 GO(gtk_image_new_from_icon_set, pFpi)
