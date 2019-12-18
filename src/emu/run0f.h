@@ -1049,12 +1049,14 @@
         _0f_0xE2:                   /* PSRAD Gm, Em */
             nextop = F8;
             GET_EM;
-            if(EM->q>31)
-                tmp8u = 32;
-            else
+            if(EM->q>31) {
+                for(int i=0; i<2; ++i)
+                    GM.sd[i] = (GM.sd[i]<0)?-1:0;
+            } else {
                 tmp8u = EM->ub[0];
-            for(int i=0; i<2; ++i)
-                GM.sd[i] >>= tmp8u;
+                for(int i=0; i<2; ++i)
+                    GM.sd[i] >>= tmp8u;
+            }
             NEXT;
         _0f_0xE3:                   /* PSRAQ Gm, Em */
             nextop = F8;
