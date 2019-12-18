@@ -80,7 +80,7 @@ EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
     return my->g_markup_vprintf_escaped(fmt, emu->scratch);
     #else
     // other platform don't need that
-    return my->g_markup_vprintf_escaped((const char*)fmt, b);
+    return my->g_markup_vprintf_escaped(fmt, b);
     #endif
 }
 

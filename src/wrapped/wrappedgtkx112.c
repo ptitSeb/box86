@@ -148,7 +148,7 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dia
     f(&buf, fmt, emu->scratch);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, (const char*)fmt, b);
+    f(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     my->gtk_message_dialog_format_secondary_text(dialog, buf);

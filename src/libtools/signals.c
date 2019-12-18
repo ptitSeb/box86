@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <syscall.h>
+#include <stddef.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -121,7 +122,7 @@ struct kernel_sigaction {
 void my_sighandler(int32_t sig)
 {
     pthread_mutex_unlock(&context->mutex_trace);   // just in case
-    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
+    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
     Push32(context->signal_emus[sig], sig);
     DynaCall(context->signal_emus[sig], context->signals[sig]);
     if(context->restorer[sig]) {
@@ -134,7 +135,7 @@ void my_sighandler(int32_t sig)
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
-    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, context->signals[sig]);
+    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
     Push32(context->signal_emus[sig], (uintptr_t)ucntx);  // WRONG!!!
     Push32(context->signal_emus[sig], (uintptr_t)sigi);
     Push32(context->signal_emus[sig], sig);
@@ -241,7 +242,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
         struct kernel_sigaction newact = {0};
         struct kernel_sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%x\n", act->sa_flags, act->sa_mask);
+            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%x\n", act->sa_flags, *(uint32_t*)&act->sa_mask);
             memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>8)?8:sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
@@ -282,7 +283,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
         struct sigaction newact = {0};
         struct sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%x\n", act->sa_flags, act->sa_mask);
+            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%x\n", act->sa_flags, *(uint32_t*)&act->sa_mask);
             newact.sa_mask = act->sa_mask;
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
