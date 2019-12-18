@@ -35,10 +35,10 @@
 //GO(FTC_SBitCache_LookupScaler, 
 //GO(FTC_SBitCache_New, 
 //GO(FT_DivFix, 
-//GO(FT_Done_Face, 
-//GO(FT_Done_FreeType, 
+GO(FT_Done_Face, iFp)
+GO(FT_Done_FreeType, iFp)
 //GO(FT_Done_Glyph, 
-//GO(FT_Done_Library, 
+GO(FT_Done_Library, iFp)
 //GO(FT_Done_Size, 
 //GO(FT_Face_CheckTrueTypePatents, 
 //GO(FT_Face_GetCharsOfVariant, 
@@ -53,7 +53,7 @@
 //GO(FT_Get_Advances, 
 //GO(FT_Get_BDF_Charset_ID, 
 //GO(FT_Get_BDF_Property, 
-//GO(FT_Get_Char_Index, 
+GO(FT_Get_Char_Index, uFpL)
 //GO(FT_Get_Charmap_Index, 
 //GO(FT_Get_CID_From_Glyph_Index, 
 //GO(FT_Get_CID_Is_Internally_CID_Keyed, 
@@ -66,7 +66,7 @@
 //GO(FT_Get_Gasp, 
 //GO(FT_Get_Glyph, 
 //GO(FT_Get_Glyph_Name, 
-//GO(FT_Get_Kerning, 
+GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
 //GO(FT_Get_MM_Var, 
 //GO(FT_Get_Module, 
@@ -103,7 +103,7 @@
 //GO(FT_Glyph_Transform, 
 //GO(FT_Gzip_Uncompress, 
 //GO(FT_Has_PS_Glyph_Names, 
-//GO(FT_Init_FreeType, 
+GO(FT_Init_FreeType, iFp)
 //GO(FT_Library_SetLcdFilter, 
 //GO(FT_Library_SetLcdFilterWeights, 
 //GO(FT_Library_Version, 
@@ -114,16 +114,16 @@
 //GO(FT_List_Iterate, 
 //GO(FT_List_Remove, 
 //GO(FT_List_Up, 
-//GO(FT_Load_Char, 
-//GO(FT_Load_Glyph, 
+GO(FT_Load_Char, iFpLi)
+GO(FT_Load_Glyph, iFpui)
 //GO(FT_Load_Sfnt_Table, 
 //GO(FT_Matrix_Invert, 
 //GO(FT_Matrix_Multiply, 
 //GO(FT_MulDiv, 
 //GO(FT_MulFix, 
-//GO(FT_New_Face, 
+GO(FT_New_Face, iFpplp)
 //GO(FT_New_Library, 
-//GO(FT_New_Memory_Face, 
+GO(FT_New_Memory_Face, iFppllp)
 //GO(FT_New_Size, 
 //GO(FT_Open_Face, 
 //GO(FT_OpenType_Free, 
@@ -163,7 +163,7 @@
 //GO(FT_Set_Default_Properties, 
 //GO(FT_Set_MM_Blend_Coordinates, 
 //GO(FT_Set_MM_Design_Coordinates, 
-//GO(FT_Set_Pixel_Sizes, 
+GO(FT_Set_Pixel_Sizes, iFpuu)
 //GO(FT_Set_Renderer, 
 //GO(FT_Set_Transform, 
 //GO(FT_Set_Var_Blend_Coordinates, 
