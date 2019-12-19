@@ -13,11 +13,11 @@
 //GO(pa_channel_map_equal, 
 //GO(pa_channel_map_init, 
 //GO(pa_channel_map_init_auto, 
-//GO(pa_channel_map_init_extend, 
+GO(pa_channel_map_init_extend, pFpui)
 //GO(pa_channel_map_init_mono, 
 //GO(pa_channel_map_init_stereo, 
 //GO(pa_channel_map_parse, 
-//GO(pa_channel_map_snprint, 
+GO(pa_channel_map_snprint, pFpup)
 //GO(pa_channel_map_superset, 
 //GO(pa_channel_map_to_name, 
 //GO(pa_channel_map_to_pretty_name, 
@@ -25,10 +25,10 @@
 //GO(pa_channel_position_to_pretty_string, 
 //GO(pa_channel_position_to_string, 
 //GO(pa_context_add_autoload, 
-//GO(pa_context_connect, 
-//GO(pa_context_disconnect, 
+GOM(pa_context_connect, iFEppip)
+GO(pa_context_disconnect, vFp)
 //GO(pa_context_drain, 
-//GO(pa_context_errno, 
+GO(pa_context_errno, iFp)
 //GO(pa_context_exit_daemon, 
 //GO(pa_context_get_autoload_info_by_index, 
 //GO(pa_context_get_autoload_info_by_name, 
@@ -40,36 +40,36 @@
 //GO(pa_context_get_client_info_list, 
 //GO(pa_context_get_index, 
 //GO(pa_context_get_module_info, 
-//GO(pa_context_get_module_info_list, 
+GOM(pa_context_get_module_info_list, pFEppp)
 //GO(pa_context_get_protocol_version, 
 //GO(pa_context_get_sample_info_by_index, 
 //GO(pa_context_get_sample_info_by_name, 
 //GO(pa_context_get_sample_info_list, 
 //GO(pa_context_get_server, 
-//GO(pa_context_get_server_info, 
+GOM(pa_context_get_server_info, pFEppp)
 //GO(pa_context_get_server_protocol_version, 
 //GO(pa_context_get_sink_info_by_index, 
 //GO(pa_context_get_sink_info_by_name, 
-//GO(pa_context_get_sink_info_list, 
+GOM(pa_context_get_sink_info_list, pFEppp)
 //GO(pa_context_get_sink_input_info, 
-//GO(pa_context_get_sink_input_info_list, 
+GOM(pa_context_get_sink_input_info_list, pFEppp)
 //GO(pa_context_get_source_info_by_index, 
 //GO(pa_context_get_source_info_by_name, 
 //GO(pa_context_get_source_info_list, 
 //GO(pa_context_get_source_output_info, 
 //GO(pa_context_get_source_output_info_list, 
-//GO(pa_context_get_state, 
+GO(pa_context_get_state, iFp)
 //GO(pa_context_is_local, 
 //GO(pa_context_is_pending, 
 //GO(pa_context_kill_client, 
 //GO(pa_context_kill_sink_input, 
 //GO(pa_context_kill_source_output, 
-//GO(pa_context_load_module, 
-//GO(pa_context_move_sink_input_by_index, 
+GOM(pa_context_load_module, pFEppppp)
+GOM(pa_context_move_sink_input_by_index, pFEpuupp)
 //GO(pa_context_move_sink_input_by_name, 
 //GO(pa_context_move_source_output_by_index, 
 //GO(pa_context_move_source_output_by_name, 
-//GO(pa_context_new, 
+GOM(pa_context_new, pFEpp)
 //GO(pa_context_new_with_proplist, 
 //GO(pa_context_play_sample, 
 //GO(pa_context_play_sample_with_proplist, 
@@ -81,7 +81,7 @@
 //GO(pa_context_remove_sample, 
 //GO(pa_context_set_card_profile_by_index, 
 //GO(pa_context_set_card_profile_by_name, 
-//GO(pa_context_set_default_sink, 
+GOM(pa_context_set_default_sink, pFEpppp)
 //GO(pa_context_set_default_source, 
 //GO(pa_context_set_event_callback, 
 //GO(pa_context_set_name, 
@@ -95,7 +95,7 @@
 //GO(pa_context_set_source_mute_by_name, 
 //GO(pa_context_set_source_volume_by_index, 
 //GO(pa_context_set_source_volume_by_name, 
-//GO(pa_context_set_state_callback, 
+GOM(pa_context_set_state_callback, vFEppp)
 //GO(pa_context_set_subscribe_callback, 
 //GO(pa_context_stat, 
 //GO(pa_context_subscribe, 
@@ -103,8 +103,8 @@
 //GO(pa_context_suspend_sink_by_name, 
 //GO(pa_context_suspend_source_by_index, 
 //GO(pa_context_suspend_source_by_name, 
-//GO(pa_context_unload_module, 
-//GO(pa_context_unref, 
+GOM(pa_context_unload_module, pFEpupp)
+GO(pa_context_unref, vFp)
 //GO(pa_cvolume_avg, 
 //GO(pa_cvolume_channels_equal_to, 
 //GO(pa_cvolume_compatible, 
@@ -150,10 +150,10 @@ GO(pa_mainloop_run, iFpp)
 //GO(pa_mainloop_set_poll_func, vFpBp)  //B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
 GO(pa_mainloop_wakeup, vFp)
 //GO(pa_msleep, 
-//GO(pa_operation_cancel, 
-//GO(pa_operation_get_state, 
-//GO(pa_operation_ref, 
-//GO(pa_operation_unref, 
+GO(pa_operation_cancel, vFp)
+GO(pa_operation_get_state, iFp)
+GO(pa_operation_ref, pFp)
+GO(pa_operation_unref, vFp)
 //GO(pa_parse_sample_format, 
 //GO(pa_path_get_filename, 
 //GO(pa_proplist_clear, 
@@ -162,7 +162,7 @@ GO(pa_mainloop_wakeup, vFp)
 //GO(pa_proplist_free, 
 //GO(pa_proplist_from_string, 
 //GO(pa_proplist_get, 
-//GO(pa_proplist_gets, 
+GO(pa_proplist_gets, pFpp)
 //GO(pa_proplist_isempty, 
 //GO(pa_proplist_iterate, 
 //GO(pa_proplist_new, 
@@ -180,7 +180,7 @@ GO(pa_mainloop_wakeup, vFp)
 //GO(pa_sample_size_of_format, 
 //GO(pa_sample_spec_equal, 
 //GO(pa_sample_spec_init, 
-//GO(pa_sample_spec_snprint, 
+GO(pa_sample_spec_snprint, pFpup)
 //GO(pa_sample_spec_valid, 
 //GO(pa_signal_done, 
 //GO(pa_signal_free, 
@@ -188,55 +188,55 @@ GO(pa_mainloop_wakeup, vFp)
 //GO(pa_signal_new, 
 //GO(pa_signal_set_destroy, 
 //GO(pa_stream_connect_playback, iFpppipp)
-//GO(pa_stream_connect_record, iFpppipp)
+GO(pa_stream_connect_record, iFpppi)
 //GO(pa_stream_connect_upload, 
 //GO(pa_stream_cork, 
 //GO(pa_stream_disconnect, 
-//GOM(pa_stream_drain, pFEppp)
-//GO(pa_stream_drop, iFp)
+GOM(pa_stream_drain, pFEppp)
+GO(pa_stream_drop, iFp)
 //GO(pa_stream_finish_upload, 
-//GOM(pa_stream_flush, pFEppp)
+GOM(pa_stream_flush, pFEppp)
 //GO(pa_stream_get_buffer_attr, 
-//GO(pa_stream_get_channel_map, 
-//GO(pa_stream_get_context, 
-//GO(pa_stream_get_device_index, 
-//GO(pa_stream_get_device_name, 
+GO(pa_stream_get_channel_map, pFp)
+GO(pa_stream_get_context, pFp)
+GO(pa_stream_get_device_index, uFp)
+GO(pa_stream_get_device_name, pFp)
 //GO(pa_stream_get_index, 
-//GO(pa_stream_get_latency, iFppp)
+GO(pa_stream_get_latency, iFppp)
 //GO(pa_stream_get_monitor_stream, 
-//GO(pa_stream_get_sample_spec, 
-//GO(pa_stream_get_state, iFp)
+GO(pa_stream_get_sample_spec, pFp)
+GO(pa_stream_get_state, iFp)
 //GO(pa_stream_get_time, 
 //GO(pa_stream_get_timing_info, 
 //GO(pa_stream_is_corked, 
-//GO(pa_stream_is_suspended, 
-//GO(pa_stream_new, pFpppp)
+GO(pa_stream_is_suspended, iFp)
+GO(pa_stream_new, pFpppp)
 //GO(pa_stream_new_with_proplist, 
-//GO(pa_stream_peek, iFppp)
+GO(pa_stream_peek, iFppp)
 //GO(pa_stream_prebuf, 
 //GO(pa_stream_proplist_remove, 
 //GO(pa_stream_proplist_update, 
-//GO(pa_stream_readable_size, 
-//GO(pa_stream_ref, 
+GO(pa_stream_readable_size, uFp)
+GO(pa_stream_ref, pFp)
 //GO(pa_stream_set_buffer_attr, 
 //GO(pa_stream_set_buffer_attr_callback, 
 //GO(pa_stream_set_event_callback, 
-//GOM(pa_stream_set_latency_update_callback, vFEppp)
+GOM(pa_stream_set_latency_update_callback, vFEppp)
 //GO(pa_stream_set_monitor_stream, 
 //GO(pa_stream_set_moved_callback, 
 //GO(pa_stream_set_name, 
 //GO(pa_stream_set_overflow_callback, 
-//GOM(pa_stream_set_read_callback, vFEppp)
+GOM(pa_stream_set_read_callback, vFEppp)
 //GO(pa_stream_set_started_callback, 
-//GOM(pa_stream_set_state_callback, vFEppp)
+GOM(pa_stream_set_state_callback, vFEppp)
 //GO(pa_stream_set_suspended_callback, 
 //GO(pa_stream_set_underflow_callback, 
 //GOM(pa_stream_set_write_callback, vFEppp)
 //GO(pa_stream_trigger, 
-//GO(pa_stream_unref, 
+GO(pa_stream_unref, vFp)
 //GO(pa_stream_update_sample_rate, 
 //GO(pa_stream_update_timing_info, 
-//GO(pa_stream_writable_size, 
+GO(pa_stream_writable_size, uFp)
 //GO(pa_stream_write, 
 GO(pa_strerror, pFi)
 //GO(pa_sw_cvolume_divide, 
@@ -268,7 +268,7 @@ GO(pa_strerror, pFi)
 //GO(pa_timeval_load, 
 //GO(pa_timeval_store, 
 //GO(pa_timeval_sub, 
-//GO(pa_usec_to_bytes, 
+GO(pa_usec_to_bytes, uFUp)
 //GO(pa_utf8_filter, 
 //GO(pa_utf8_to_locale, 
 //GO(pa_utf8_valid, 
