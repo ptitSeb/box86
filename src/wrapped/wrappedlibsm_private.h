@@ -3,22 +3,22 @@
 #endif
 
 //GO(SmcClientID, 
-//GO(SmcCloseConnection, 
+GO(SmcCloseConnection, iFpip)
 //GO(_SmcDefaultErrorHandler, 
 //GO(SmcDeleteProperties, 
-//GO(SmcGetIceConnection, 
+GO(SmcGetIceConnection, pFp)
 //GO(SmcGetProperties, 
 //GO(SmcInteractDone, 
 //GO(SmcInteractRequest, 
 //GO(SmcModifyCallbacks, 
-//GO(SmcOpenConnection, 
+GOM(SmcOpenConnection, pFEppiiLpppip)
 //GO(_SmcProcessMessage, 
 //GO(SmcProtocolRevision, 
 //GO(SmcProtocolVersion, 
 //GO(SmcRelease, 
 //GO(SmcRequestSaveYourself, 
 //GO(SmcRequestSaveYourselfPhase2, 
-//GO(SmcSaveYourselfDone, 
+GO(SmcSaveYourselfDone, vFpi)
 //GO(SmcSetErrorHandler, 
 //GO(SmcSetProperties, 
 //GO(SmcVendor, 

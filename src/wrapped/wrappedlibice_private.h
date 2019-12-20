@@ -15,7 +15,7 @@
 //GO(IceCloseConnection, 
 //GO(IceComposeNetworkIdList, 
 //GO(_IceConnectionClosed, 
-//GO(IceConnectionNumber, 
+GO(IceConnectionNumber, iFp)
 //GO(_IceConnectionOpened, 
 //GO(IceConnectionStatus, 
 //GO(IceConnectionString, 
@@ -59,7 +59,7 @@
 //GO(_IcePaMagicCookie1Proc, 
 //GO(IcePing, 
 //GO(_IcePoMagicCookie1Proc, 
-//GO(IceProcessMessages, 
+GO(IceProcessMessages, iFppp)
 //GO(IceProtocolRevision, 
 //GO(IceProtocolSetup, 
 //GO(IceProtocolShutdown, 
