@@ -16,6 +16,7 @@
 #include "box86context.h"
 #include "librarian.h"
 #include "myalign.h"
+#include "khash.h"
 
 const char* pulseName = "libpulse.so.0";
 #define LIBNAME pulse
@@ -29,15 +30,8 @@ typedef struct my_pulse_context_cb_s {
     int        size;
     struct my_pulse_context_cb_s* next;
 } my_pulse_context_cb_t;
-typedef struct my_pulse_cblist_s {
-    void*                   context;
-    my_pulse_context_cb_t*  head;
-} my_pulse_cblist_t;
-typedef struct my_pulse_context_cblist_s {
-    my_pulse_cblist_t*  list;
-    int                 size;
-    int                 cap;
-} my_pulse_context_cblist_t;
+
+KHASH_MAP_INIT_INT(pulsecb, my_pulse_context_cb_t*);
 
 static void freeCB(my_pulse_context_cb_t* head) {
     if(!head)
@@ -46,26 +40,27 @@ static void freeCB(my_pulse_context_cb_t* head) {
     free(head);
 }
 
-static my_pulse_context_cb_t* checkContext(my_pulse_context_cblist_t* list, void* context) {
-    for (int i=0; i<list->size; ++i)
-        if(list->list[i].context == context)
-            return list->list[i].head;
+static my_pulse_context_cb_t* checkContext(kh_pulsecb_t* list, void* context) {
+    khint_t k;
+    k = kh_get(pulsecb, list, (uintptr_t)context);
+    if(k != kh_end(list) && kh_exist(list, k))
+        return kh_value(list, k);
     return NULL;
 }
 
 // get or insert a new context container
-static my_pulse_context_cb_t* getContext(my_pulse_context_cblist_t* list, void* context) {
-    for (int i=0; i<list->size; ++i)
-        if(list->list[i].context == context)
-            return list->list[i].head;
+static my_pulse_context_cb_t* getContext(kh_pulsecb_t* list, void* context) {
+    khint_t k;
+    int ret;
+    k = kh_get(pulsecb, list, (uintptr_t)context);
+    if(k != kh_end(list) && kh_exist(list, k))
+        return kh_value(list, k);
+
     // insert
-    if(list->size==list->cap) {
-        list->cap += 8;
-        list->list = (my_pulse_cblist_t*)realloc(list->list, sizeof(my_pulse_cblist_t)*list->size);
-    }
-    list->list[list->size].context = context;
-    list->list[list->size].head = (my_pulse_context_cb_t*)calloc(1, sizeof(my_pulse_context_cb_t));
-    return list->list[list->size++].head;
+    k = kh_put(pulsecb, list, (uintptr_t)context, &ret);
+    my_pulse_context_cb_t* p = kh_value(list, k) = (my_pulse_context_cb_t*)calloc(1, sizeof(my_pulse_context_cb_t));
+
+    return p;
 }
 static my_pulse_cb_t* insertCB(my_pulse_context_cb_t* cblist) {
     while(cblist->size==8) {
@@ -75,17 +70,15 @@ static my_pulse_cb_t* insertCB(my_pulse_context_cb_t* cblist) {
     }
     return cblist->cb+(cblist->size++);
 }
-static void freeContext(my_pulse_context_cblist_t* list, void* context) {
-    int idx = -1;
-    for (int i=0; i<list->size && idx==-1; ++i)
-        if(list->list[i].context == context)
-            idx = i;
-    if(idx==-1)
+static void freeContext(kh_pulsecb_t* list, void* context) {
+    khint_t k;
+    int ret;
+    k = kh_get(pulsecb, list, (uintptr_t)context);
+    if(k == kh_end(list) || !kh_exist(list, k))
         return;
-    freeCB(list->list[idx].head);
-    if(idx!=(list->size-1))
-        memmove(list->list+idx, list->list+(idx+1), list->size-idx);
-    --list->size;
+    my_pulse_context_cb_t* p = kh_value(list, k);
+    freeCB(p);
+    kh_del(pulsecb, list, (uintptr_t)context);
 }
 
 typedef int (*iFp_t)(void*);
@@ -132,7 +125,7 @@ typedef struct pulse_my_s {
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-    my_pulse_context_cblist_t   list;
+    kh_pulsecb_t   *list;
     // other
 } pulse_my_t;
 
@@ -145,9 +138,7 @@ void* getPulseMy(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
-    my->list.cap = 8;
-    my->list.size = 0;
-    my->list.list = (my_pulse_cblist_t*)malloc(sizeof(my_pulse_cblist_t)*my->list.cap);
+    my->list = kh_init(pulsecb);
     return my;
 }
 #undef SUPER
@@ -155,10 +146,12 @@ void* getPulseMy(library_t* lib)
 void freePulseMy(void* lib)
 {
     pulse_my_t *my = (pulse_my_t *)lib;
-    for (int i=0; i<my->list.size; ++i) {
-        freeCB(my->list.list[i].head);
-    }
-    free(my->list.list);
+
+    my_pulse_context_cb_t* p;
+    kh_foreach_value(my->list, p, 
+        freeCB(p);
+    );
+    kh_destroy(pulsecb, my->list);
 }
 
 // Context functions
@@ -360,10 +353,10 @@ static void my_state_context(void* context, void* data)
     int i = my->pa_context_get_state(context);
     if (i==6) {   // PA_CONTEXT_TERMINATED
         // clean the stream callbacks
-        freeContext(&my->list, context);
+        freeContext(my->list, context);
     }
 }
-static my_pulse_context_cb_t* my_check_context(my_pulse_context_cblist_t* list, void* context)
+static my_pulse_context_cb_t* my_check_context(kh_pulsecb_t* list, void* context)
 {
     // check if that context exist, if not create it and set state callback
     my_pulse_context_cb_t *ret = checkContext(list, context);
@@ -410,9 +403,9 @@ EXPORT void my_pa_context_set_state_callback(x86emu_t* emu, void* context, void*
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -423,9 +416,9 @@ EXPORT void my_pa_context_set_default_sink(x86emu_t* emu, void* context, void* n
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -436,9 +429,9 @@ EXPORT void* my_pa_context_move_sink_input_by_index(x86emu_t* emu, void* context
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -449,9 +442,9 @@ EXPORT void* my_pa_context_get_module_info_list(x86emu_t* emu, void* context, vo
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -462,9 +455,9 @@ EXPORT void* my_pa_context_get_server_info(x86emu_t* emu, void* context, void* c
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -475,9 +468,9 @@ EXPORT void* my_pa_context_get_sink_input_info_list(x86emu_t* emu, void* context
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -488,9 +481,9 @@ EXPORT void* my_pa_context_get_sink_info_list(x86emu_t* emu, void* context, void
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -501,9 +494,9 @@ EXPORT void* my_pa_context_unload_module(x86emu_t* emu, void* context, uint32_t 
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -514,9 +507,9 @@ EXPORT void* my_pa_context_load_module(x86emu_t* emu, void* context, void* name,
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_context(&my->list, context);
+    my_check_context(my->list, context);
     if(cb) {
-        c = insertCB(getContext(&my->list, context));
+        c = insertCB(getContext(my->list, context));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -535,12 +528,12 @@ static void my_stream_state(void* s, void* data)
     int i = my->pa_stream_get_state(s);
     if (i==4) {   // PA_TERMINATED
         // clean the stream callbacks
-        freeContext(&my->list, s);
+        freeContext(my->list, s);
     }
 }
 
 
-static my_pulse_context_cb_t* my_check_stream(my_pulse_context_cblist_t* list, void* stream)
+static my_pulse_context_cb_t* my_check_stream(kh_pulsecb_t* list, void* stream)
 {
     // check if that stream exist, if not create it and set state callback
     my_pulse_context_cb_t *ret = checkContext(list, stream);
@@ -562,9 +555,9 @@ EXPORT void* my_pa_stream_drain(x86emu_t* emu, void* stream, void* cb, void* dat
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_stream(&my->list, stream);
+    my_check_stream(my->list, stream);
     if(cb) {
-        c = insertCB(getContext(&my->list, stream));
+        c = insertCB(getContext(my->list, stream));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -575,9 +568,9 @@ EXPORT void* my_pa_stream_flush(x86emu_t* emu, void* stream, void* cb, void* dat
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_stream(&my->list, stream);
+    my_check_stream(my->list, stream);
     if(cb) {
-        c = insertCB(getContext(&my->list, stream));
+        c = insertCB(getContext(my->list, stream));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -593,9 +586,9 @@ EXPORT void my_pa_stream_set_latency_update_callback(x86emu_t* emu, void* stream
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_stream(&my->list, stream);
+    my_check_stream(my->list, stream);
     if(cb) {
-        c = insertCB(getContext(&my->list, stream));
+        c = insertCB(getContext(my->list, stream));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -611,9 +604,9 @@ EXPORT void my_pa_stream_set_read_callback(x86emu_t* emu, void* stream, void* cb
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_stream(&my->list, stream);
+    my_check_stream(my->list, stream);
     if(cb) {
-        c = insertCB(getContext(&my->list, stream));
+        c = insertCB(getContext(my->list, stream));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
@@ -624,9 +617,9 @@ EXPORT void my_pa_stream_set_state_callback(x86emu_t* emu, void* stream, void* c
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
     my_pulse_cb_t* c = NULL;
-    my_check_stream(&my->list, stream);
+    my_check_stream(my->list, stream);
     if(cb) {
-        c = insertCB(getContext(&my->list, stream));
+        c = insertCB(getContext(my->list, stream));
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
