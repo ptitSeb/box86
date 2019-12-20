@@ -169,6 +169,8 @@ scwrap_t syscallwrap[] = {
     { 252, __NR_exit_group, 1 },
     { 265, __NR_clock_gettime, 2 },
     //{ 270, __NR_tgkill, 3 },
+    { 311, __NR_set_robust_list, 2 },
+    { 312, __NR_get_robust_list, 4 },
 };
 
 struct mmap_arg_struct {
