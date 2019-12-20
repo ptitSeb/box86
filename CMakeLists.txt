@@ -201,6 +201,8 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpango.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfreetype.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedbz2.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsm.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibice.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
