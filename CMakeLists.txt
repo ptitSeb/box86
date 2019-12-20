@@ -6,6 +6,10 @@ enable_testing()
 enable_language(C)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
+option(PYRA "Set to ON if targeting an OpenPandora device" ${PYRA})
+option(RPI2 "Set to ON if targeting an RaspberryPI2 device" ${RPI2})
+option(RPI3 "Set to ON if targeting an RaspberryPI3 device" ${RPI3})
+option(RPI4 "Set to ON if targeting an RaspberryPI2 device" ${RPI4})
 option(GAMESHELL "Set to ON if targeting a Gameshell device" ${GAMESHELL})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
@@ -20,17 +24,6 @@ option(X86_CPP_LIBRARY_PRESENT "Set to ON if you have an accessible libstdc++.so
 find_package(PythonInterp)
 if(NOT PYTHONINTERP_FOUND)
     message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
-endif()
-
-# Pandora
-if(PANDORA)
-    add_definitions(-DPANDORA)
-    #add_definitions(-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp -ftree-vectorize -fsingle-precision-constant -ffast-math)
-endif()
-
-# Gameshell
-if(GAMESHELL)
-    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard )
 endif()
 
 if(LD80BITS)
@@ -69,6 +62,35 @@ if(USE_CCACHE)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
     endif()
+endif()
+
+# Pandora
+if(PANDORA)
+    add_definitions(-DPANDORA)
+    #add_definitions(-mcpu=cortex-a8 -mfpu=neon -mfloat-abi=softfp -ftree-vectorize -fsingle-precision-constant -ffast-math)
+endif()
+
+# Gameshell
+if(GAMESHELL)
+    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard -marm)
+endif()
+
+if(PYRA)
+    add_definitions(-mcpu=cortex-a15 -mfpu=neon -mfloat-abi=hard -marm)
+    set(CMAKE_ASM_FLAGS  "-marm -mcpu=cortex-a15 -mfpu=neon -mfloat-abi=hard")
+endif()
+
+if(RPI2)
+    add_definitions(-marm -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard)
+    set(CMAKE_ASM_FLAGS  "-marm -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard")
+endif()
+if(RPI3)
+    add_definitions(-marm -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard)
+    set(CMAKE_ASM_FLAGS  "-marm -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard")
+endif()
+if(RPI4)
+    add_definitions(-marm -march=armv8-a+crc -mtune=cortex-a72 -mfpu=neon-fp-armv8 -mfloat-abi=hard)
+    set(CMAKE_ASM_FLAGS  "-marm -march=armv8-a+crc -mtune=cortex-a72 -mfpu=neon-fp-armv8 -mfloat-abi=hard")
 endif()
 
 include_directories(
@@ -266,6 +288,9 @@ endif()
 if(NOT NOLOADADDR)
     target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x03800000)
 endif()
+
+install(TARGETS ${BOX86}
+    RUNTIME DESTINATION bin)
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
