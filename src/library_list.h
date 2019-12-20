@@ -79,6 +79,7 @@ GO("libfreetype.so.6", freetype)
 GO("libbz2.so.1", bz2)
 GO("libSM.so.6", libsm)
 GO("libICE.so.6", libice)
+GO("libusb-1.0.so.0", libusb1)
 
 //GO("libmono.so", monounity)
 
