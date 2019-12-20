@@ -37,7 +37,6 @@ typedef struct libsm_my_s {
 
 void* getSMMy(library_t* lib)
 {
-    my_context = lib->context;
     libsm_my_t* my = (libsm_my_t*)calloc(1, sizeof(libsm_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
@@ -116,6 +115,7 @@ EXPORT void* my_SmcOpenConnection(x86emu_t* emu, void* networkIdsList, void* con
 }
 
 #define CUSTOM_INIT \
+    my_context = box86;  \
     lib->priv.w.p2 = getSMMy(lib);
 
 #define CUSTOM_FINI \

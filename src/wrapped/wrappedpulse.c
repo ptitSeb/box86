@@ -133,7 +133,6 @@ static box86context_t *my_context = NULL;
 
 void* getPulseMy(library_t* lib)
 {
-    my_context = lib->context;
     pulse_my_t* my = (pulse_my_t*)calloc(1, sizeof(pulse_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
@@ -641,6 +640,7 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
 #endif
 
 #define CUSTOM_INIT \
+    my_context = box86; \
     lib->priv.w.p2 = getPulseMy(lib);
 
 #define CUSTOM_FINI \
