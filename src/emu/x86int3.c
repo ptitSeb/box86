@@ -209,6 +209,6 @@ void x86Int3(x86emu_t* emu)
         }
         return;
     }
-    printf_log(LOG_NONE, "Unsupported Int 3 call\n");
-    emu->quit = 1;
+    printf_log(LOG_INFO, "Warning, ignoring unsupported Int 3 call\n");
+    //emu->quit = 1;
 }
