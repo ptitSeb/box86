@@ -131,7 +131,7 @@ GO(FcInit, iFv)
 //GO(FcObjectSetCreate, 
 //GO(FcObjectSetDestroy, 
 //GO(FcObjectSetVaBuild, 
-GO(FcPatternAdd, iFpppppi)  // FcValue is a typedef with int+union, with biggest part is a double => so 3 "void*" on the stack
+GOM(FcPatternAdd, iFEppiuui)  // FcValue is a typedef with int+union, with biggest part is a double => so 3 "u32" on the stack
 //GO(FcPatternAddBool, 
 //GO(FcPatternAddCharSet, 
 //GO(FcPatternAddDouble, 
