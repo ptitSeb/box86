@@ -177,6 +177,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedudev0.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbus.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusglib1.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgudev1.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappediconv.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcrypto.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibssl.c"

@@ -607,6 +607,7 @@ typedef int32_t (*iFipipu_t)(int32_t, void*, int32_t, void*, uint32_t);
 typedef int32_t (*iFipuii_t)(int32_t, void*, uint32_t, int32_t, int32_t);
 typedef int32_t (*iFipuui_t)(int32_t, void*, uint32_t, uint32_t, int32_t);
 typedef int32_t (*iFippui_t)(int32_t, void*, void*, uint32_t, int32_t);
+typedef int32_t (*iFippup_t)(int32_t, void*, void*, uint32_t, void*);
 typedef int32_t (*iFipppi_t)(int32_t, void*, void*, void*, int32_t);
 typedef int32_t (*iFipppp_t)(int32_t, void*, void*, void*, void*);
 typedef int32_t (*iFuppup_t)(uint32_t, void*, void*, uint32_t, void*);
@@ -1630,6 +1631,7 @@ void iFipipu(x86emu_t *emu, uintptr_t fcn) { iFipipu_t fn = (iFipipu_t)fcn; R_EA
 void iFipuii(x86emu_t *emu, uintptr_t fcn) { iFipuii_t fn = (iFipuii_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
 void iFipuui(x86emu_t *emu, uintptr_t fcn) { iFipuui_t fn = (iFipuui_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
 void iFippui(x86emu_t *emu, uintptr_t fcn) { iFippui_t fn = (iFippui_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
+void iFippup(x86emu_t *emu, uintptr_t fcn) { iFippup_t fn = (iFippup_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void iFipppi(x86emu_t *emu, uintptr_t fcn) { iFipppi_t fn = (iFipppi_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
 void iFipppp(x86emu_t *emu, uintptr_t fcn) { iFipppp_t fn = (iFipppp_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void iFuppup(x86emu_t *emu, uintptr_t fcn) { iFuppup_t fn = (iFuppup_t)fcn; R_EAX=fn(*(uint32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(void**)(R_ESP + 20)); }

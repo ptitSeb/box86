@@ -543,11 +543,11 @@ GOW(getppid, uFv)
 GO(getpriority, iFii)
 GOM(getrandom, iFEpuu)
 GO(getprotobyname, pFp)
-// getprotobyname_r
+GO(getprotobyname_r, iFpppup)
 GO(getprotobynumber, pFi)
-// getprotobynumber_r
+GO(getprotobynumber_r, iFippup)
 GO(getprotoent, pFv)
-// getprotoent_r
+GO(getprotoent_r, iFppup)
 GOW(getpt, iFv)
 // getpublickey
 // getpw    // Weak
