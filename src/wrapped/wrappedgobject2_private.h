@@ -150,7 +150,7 @@ GO(g_object_ref_sink, pFp)
 //GO(g_object_replace_data, 
 //GO(g_object_replace_qdata, 
 //GO(g_object_run_dispose, 
-//GO(g_object_set, 
+GO(g_object_set, vFpppppppppppppppp)    //vaarg, and the g_object_setv function is only 2.54+
 GO(g_object_set_data, vFppp)
 //GO(g_object_set_data_full, 
 //GO(g_object_set_property, 
@@ -177,13 +177,13 @@ GO(g_object_unref, vFp)
 //GO(g_param_spec_get_nick, 
 //GO(g_param_spec_get_qdata, 
 //GO(g_param_spec_get_redirect_target, 
-//GO(g_param_spec_gtype, 
+GO(g_param_spec_gtype, pFpppii)
 //GO(g_param_spec_int, 
 //GO(g_param_spec_int64, 
 //GO(g_param_spec_internal, 
 //GO(g_param_spec_long, 
 //GO(g_param_spec_object, 
-//GO(g_param_spec_override, 
+GO(g_param_spec_override, pFpp)
 //GO(g_param_spec_param, 
 //GO(g_param_spec_pointer, 
 //GO(g_param_spec_pool_insert, 
@@ -203,10 +203,10 @@ GO(g_object_unref, vFp)
 //GO(g_param_spec_uint, 
 //GO(g_param_spec_uint64, 
 //GO(g_param_spec_ulong, 
-//GO(g_param_spec_unichar, 
+GO(g_param_spec_unichar, pFpppui)
 //GO(g_param_spec_unref, 
-//GO(g_param_spec_value_array, 
-//GO(g_param_spec_variant, 
+GO(g_param_spec_value_array, pFppppi)
+GO(g_param_spec_variant, pFpppppi)
 //GO(g_param_type_register_static, 
 //GO(g_param_value_convert, 
 //GO(g_param_value_defaults, 
@@ -285,7 +285,7 @@ GO(g_type_check_value_holds, iFpi)
 //GO(g_type_class_get_instance_private_offset, 
 //GO(g_type_class_get_private, 
 //GO(g_type_class_peek, 
-//GO(g_type_class_peek_parent, 
+GO(g_type_class_peek_parent, pFp)
 //GO(g_type_class_peek_static, 
 //GO(g_type_class_ref, 
 //GO(g_type_class_unref, 
@@ -355,7 +355,7 @@ GO(g_type_check_value_holds, iFpi)
 //GO(g_value_array_sort_with_data, 
 GO(g_value_copy, vFpp)
 //GO(g_value_dup_boxed, 
-//GO(g_value_dup_object, 
+GO(g_value_dup_object, pFp)
 //GO(g_value_dup_param, 
 //GO(g_value_dup_string, 
 //GO(g_value_dup_variant, 
@@ -371,7 +371,7 @@ GO(g_value_get_float, fFp)
 //GO(g_value_get_int, 
 //GO(g_value_get_int64, 
 //GO(g_value_get_long, 
-//GO(g_value_get_object, 
+GO(g_value_get_object, pFp)
 //GO(g_value_get_param, 
 //GO(g_value_get_pointer, 
 //GO(g_value_get_schar, 
@@ -400,8 +400,8 @@ GO(g_value_set_instance, vFpp)
 //GO(g_value_set_int, 
 //GO(g_value_set_int64, 
 //GO(g_value_set_long, 
-//GO(g_value_set_object, 
-//GO(g_value_set_object_take_ownership, 
+GO(g_value_set_object, vFpp)
+GO(g_value_set_object_take_ownership, vFpp)
 //GO(g_value_set_param, 
 //GO(g_value_set_param_take_ownership, 
 //GO(g_value_set_pointer, 

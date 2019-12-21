@@ -521,12 +521,12 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_proxy_call_with_unix_fd_list_finish, 
 //GO(g_dbus_proxy_call_with_unix_fd_list_sync, 
 //GO(g_dbus_proxy_flags_get_type, 
-//GO(g_dbus_proxy_get_cached_property, 
-//GO(g_dbus_proxy_get_cached_property_names, 
+GO(g_dbus_proxy_get_cached_property, pFpp)
+GO(g_dbus_proxy_get_cached_property_names, pFp)
 //GO(g_dbus_proxy_get_connection, 
 //GO(g_dbus_proxy_get_default_timeout, 
 //GO(g_dbus_proxy_get_flags, 
-//GO(g_dbus_proxy_get_interface_info, 
+GO(g_dbus_proxy_get_interface_info, pFp)
 //GO(g_dbus_proxy_get_interface_name, 
 //GO(g_dbus_proxy_get_name, 
 //GO(g_dbus_proxy_get_name_owner, 
@@ -538,9 +538,9 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_proxy_new_for_bus_finish, 
 //GO(g_dbus_proxy_new_for_bus_sync, 
 //GO(g_dbus_proxy_new_sync, 
-//GO(g_dbus_proxy_set_cached_property, 
+GO(g_dbus_proxy_set_cached_property, vFppp)
 //GO(g_dbus_proxy_set_default_timeout, 
-//GO(g_dbus_proxy_set_interface_info, 
+GO(g_dbus_proxy_set_interface_info, vFpp)
 //GO(g_dbus_send_message_flags_get_type, 
 //GO(g_dbus_server_flags_get_type, 
 //GO(g_dbus_server_get_client_address, 
