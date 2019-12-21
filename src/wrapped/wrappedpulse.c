@@ -90,6 +90,7 @@ typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
+typedef int (*iFppupIi_t)(void*, void*, uint32_t, void*, int64_t, int32_t);
 
 #if 0
 #ifdef NOALIGN
@@ -111,14 +112,20 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_context_get_server_info, pFppp_t)     \
     GO(pa_context_get_sink_input_info_list, pFppp_t)    \
     GO(pa_context_get_sink_info_list, pFppp_t)  \
+    GO(pa_context_get_source_info_list, pFppp_t)\
+    GO(pa_context_get_source_info_by_index, pFpupp_t)   \
+    GO(pa_context_get_sink_info_by_index, pFpupp_t)     \
     GO(pa_context_unload_module, pFpupp_t)      \
     GO(pa_context_load_module, pFppppp_t)       \
     GO(pa_context_connect, iFppip_t)            \
+    GO(pa_context_subscribe, pFpupp_t)          \
+    GO(pa_context_set_subscribe_callback, vFppp_t)      \
     GO(pa_stream_drain, pFppp_t)                \
     GO(pa_stream_flush, pFppp_t)                \
     GO(pa_stream_set_latency_update_callback, vFppp_t)  \
     GO(pa_stream_set_read_callback, vFppp_t)    \
-    GO(pa_stream_set_state_callback, vFppp_t)
+    GO(pa_stream_set_state_callback, vFppp_t)   \
+    GO(pa_stream_write, iFppupIi_t)
 
 typedef struct pulse_my_s {
     // functions
@@ -398,6 +405,37 @@ static void my_context_index(void* context, uint32_t idx, void* data)
     RunFunction(my_context, cb->fnc, 3, context, idx, cb->data);
 }
 
+static void my_subscribe_context(void* context, int t, uint32_t idx, void* data)
+{
+    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
+    RunFunction(my_context, cb->fnc, 4, context, t, idx, cb->data);
+}
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;   \
+static void my_free_##A(void* data)     \
+{                                       \
+    RunFunction(my_context, my_free_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findFreeFct(void* fct)
+{
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio free callback\n");
+    return NULL;
+}
+#undef SUPER
+
 EXPORT void my_pa_context_set_state_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
@@ -489,6 +527,46 @@ EXPORT void* my_pa_context_get_sink_info_list(x86emu_t* emu, void* context, void
     return my->pa_context_get_sink_info_list(context, cb?my_module_info:NULL, c);
 }
 
+EXPORT void* my_pa_context_get_source_info_list(x86emu_t* emu, void* context, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_source_info_list(context, cb?my_module_info:NULL, c);
+}
+
+
+EXPORT void* my_pa_context_get_sink_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_sink_info_by_index(context, idx, cb?my_module_info:NULL, c);
+}
+
+EXPORT void* my_pa_context_get_source_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_source_info_by_index(context, idx, cb?my_module_info:NULL, c);
+}
+
 EXPORT void* my_pa_context_unload_module(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
@@ -513,6 +591,32 @@ EXPORT void* my_pa_context_load_module(x86emu_t* emu, void* context, void* name,
         c->data = data;
     }
     return my->pa_context_load_module(context, name, arg, cb?my_context_index:NULL, c);
+}
+
+EXPORT void* my_pa_context_subscribe(x86emu_t* emu, void* context, uint32_t m, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_subscribe(context, m, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_subscribe_callback(x86emu_t* emu, void* context, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_set_subscribe_callback(context, cb?my_subscribe_context:NULL, c);
 }
 
 
@@ -623,6 +727,17 @@ EXPORT void my_pa_stream_set_state_callback(x86emu_t* emu, void* stream, void* c
         c->data = data;
     }
     my->pa_stream_set_state_callback(stream, my_stream_state, c);
+}
+
+EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nbytes, void* cb, int64_t offset, int seek)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_check_stream(my->list, stream);
+    void* nat = NULL;
+    if(cb) {
+        nat = findFreeFct(cb);
+    }
+    return my->pa_stream_write(stream, d, nbytes, nat, offset, seek);
 }
 
 #if 0
