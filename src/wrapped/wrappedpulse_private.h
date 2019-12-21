@@ -12,7 +12,7 @@
 //GO(pa_channel_map_compatible, 
 //GO(pa_channel_map_equal, 
 //GO(pa_channel_map_init, 
-//GO(pa_channel_map_init_auto, 
+GO(pa_channel_map_init_auto, pFpui)
 GO(pa_channel_map_init_extend, pFpui)
 //GO(pa_channel_map_init_mono, 
 //GO(pa_channel_map_init_stereo, 
@@ -48,14 +48,14 @@ GOM(pa_context_get_module_info_list, pFEppp)
 //GO(pa_context_get_server, 
 GOM(pa_context_get_server_info, pFEppp)
 //GO(pa_context_get_server_protocol_version, 
-//GO(pa_context_get_sink_info_by_index, 
+GOM(pa_context_get_sink_info_by_index, pFEpupp)
 //GO(pa_context_get_sink_info_by_name, 
 GOM(pa_context_get_sink_info_list, pFEppp)
 //GO(pa_context_get_sink_input_info, 
 GOM(pa_context_get_sink_input_info_list, pFEppp)
-//GO(pa_context_get_source_info_by_index, 
+GOM(pa_context_get_source_info_by_index, pFEpupp)
 //GO(pa_context_get_source_info_by_name, 
-//GO(pa_context_get_source_info_list, 
+GOM(pa_context_get_source_info_list, pFEppp)
 //GO(pa_context_get_source_output_info, 
 //GO(pa_context_get_source_output_info_list, 
 GO(pa_context_get_state, iFp)
@@ -96,9 +96,9 @@ GOM(pa_context_set_default_sink, pFEpppp)
 //GO(pa_context_set_source_volume_by_index, 
 //GO(pa_context_set_source_volume_by_name, 
 GOM(pa_context_set_state_callback, vFEppp)
-//GO(pa_context_set_subscribe_callback, 
+GOM(pa_context_set_subscribe_callback, vFEppp)
 //GO(pa_context_stat, 
-//GO(pa_context_subscribe, 
+GOM(pa_context_subscribe, pFEpupp)
 //GO(pa_context_suspend_sink_by_index, 
 //GO(pa_context_suspend_sink_by_name, 
 //GO(pa_context_suspend_source_by_index, 
@@ -132,7 +132,7 @@ GO(pa_context_unref, vFp)
 //GO(pa_get_fqdn, 
 //GO(pa_get_home_dir, 
 //GO(pa_get_host_name, 
-//GO(pa_get_library_version, 
+GO(pa_get_library_version, pFv)
 //GO(pa_gettimeofday, 
 //GO(pa_get_user_name, 
 //GO(pa_locale_to_utf8, 
@@ -187,11 +187,11 @@ GO(pa_sample_spec_snprint, pFpup)
 //GO(pa_signal_init, 
 //GO(pa_signal_new, 
 //GO(pa_signal_set_destroy, 
-//GO(pa_stream_connect_playback, iFpppipp)
+GO(pa_stream_connect_playback, iFpppipp)
 GO(pa_stream_connect_record, iFpppi)
 //GO(pa_stream_connect_upload, 
 //GO(pa_stream_cork, 
-//GO(pa_stream_disconnect, 
+GO(pa_stream_disconnect, iFp)
 GOM(pa_stream_drain, pFEppp)
 GO(pa_stream_drop, iFp)
 //GO(pa_stream_finish_upload, 
@@ -237,7 +237,7 @@ GO(pa_stream_unref, vFp)
 //GO(pa_stream_update_sample_rate, 
 //GO(pa_stream_update_timing_info, 
 GO(pa_stream_writable_size, uFp)
-//GO(pa_stream_write, 
+GOM(pa_stream_write, iFEppupIi)
 GO(pa_strerror, pFi)
 //GO(pa_sw_cvolume_divide, 
 //GO(pa_sw_cvolume_multiply, 
