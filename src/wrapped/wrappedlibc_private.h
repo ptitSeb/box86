@@ -269,13 +269,13 @@ GOW(error, vFiippppppppp)  // Simple attempt: there is a vararg, but the alignme
 // error_one_per_line   // type B
 // error_print_progname // type B
 GO(errx, vFippppppppp)
-// ether_aton
-// ether_aton_r
-// ether_hostton
-// ether_line
-// ether_ntoa
-// ether_ntoa_r
-// ether_ntohost
+GO(ether_aton, pFp)
+GO(ether_aton_r, pFpp)
+GO(ether_hostton, iFpp)
+GO(ether_line, iFppp)
+GO(ether_ntoa, pFp)
+GO(ether_ntoa_r, pFpp)
+GO(ether_ntohost, iFpp)
 GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
 GO(eventfd_read, iFip)

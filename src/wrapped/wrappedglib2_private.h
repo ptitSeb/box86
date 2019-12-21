@@ -405,7 +405,7 @@ GO(g_get_filename_charsets, iFp)
 //GO(g_get_user_special_dir, 
 //GO(g_hash_table_add, 
 //GO(g_hash_table_contains, 
-//GO(g_hash_table_destroy, 
+GO(g_hash_table_destroy, vFp)
 //GO(g_hash_table_find, 
 //GO(g_hash_table_foreach, 
 //GO(g_hash_table_foreach_remove, 
@@ -1136,11 +1136,11 @@ GO(g_strdup, pFp)
 //GO(g_strdup_printf, 
 //GO(g_strdupv, 
 //GO(g_strdup_vprintf, 
-//GO(g_str_equal, 
+GO(g_str_equal, iFpp)
 //GO(g_strerror, 
 //GO(g_strescape, 
 GO(g_strfreev, vFp)
-//GO(g_str_hash, 
+GO(g_str_hash, uFp)
 //GO(g_str_has_prefix, 
 //GO(g_str_has_suffix, 
 //GO(g_string_append, 
@@ -1418,7 +1418,7 @@ GOM(g_timeout_add, uFEupp)
 //GO(g_utf8_to_ucs4, 
 //GO(g_utf8_to_ucs4_fast, 
 //GO(g_utf8_to_utf16, 
-//GO(g_utf8_validate, 
+GO(g_utf8_validate, iFplp)
 //GO(g_utime, 
 //GO(g_variant_builder_add, 
 //GO(g_variant_builder_add_parsed, 
@@ -1599,3 +1599,5 @@ GOM(g_timeout_add, uFEupp)
 //GO(g_vsprintf, 
 //GO(g_warn_message, 
 //GO(_init, 
+
+DATA(g_ascii_table, 4)

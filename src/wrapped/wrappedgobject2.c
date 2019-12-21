@@ -20,10 +20,13 @@
 const char* gobject2Name = "libgobject-2.0.so.0";
 #define LIBNAME gobject2
 
+typedef int (*iFppp_t)(void*, void*, void*);
 typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
 
 #define SUPER() \
-    GO(g_signal_connect_data, LFpppppu_t)
+    GO(g_signal_connect_data, LFpppppu_t)   \
+    GO(g_boxed_type_register_static, iFppp_t)
+
 
 typedef struct gobject2_my_s {
     // functions
@@ -47,7 +50,7 @@ void freeGobject2My(void* lib)
     gobject2_my_t *my = (gobject2_my_t *)lib;
 }
 
-static box86context_t* context = NULL;
+static box86context_t* my_context = NULL;
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
     // signal can have many signature... so first job is to find the data!
@@ -55,22 +58,22 @@ static int signal_cb(void* a, void* b, void* c, void* d)
     x86emu_t* emu = NULL;
     int i = 0;
     if(a)
-        if(IsCallback(context, (x86emu_t*)a)) {
+        if(IsCallback(my_context, (x86emu_t*)a)) {
             emu = (x86emu_t*)a;
             i = 1;
         }
     if(!emu && b)
-        if(IsCallback(context, (x86emu_t*)b)) {
+        if(IsCallback(my_context, (x86emu_t*)b)) {
             emu = (x86emu_t*)b;
             i = 2;
         }
     if(!emu && c)
-        if(IsCallback(context, (x86emu_t*)c)) {
+        if(IsCallback(my_context, (x86emu_t*)c)) {
             emu = (x86emu_t*)c;
             i = 3;
         }
     if(!emu && d)
-        if(IsCallback(context, (x86emu_t*)d)) {
+        if(IsCallback(my_context, (x86emu_t*)d)) {
             emu = (x86emu_t*)d;
             i = 4;
         }
@@ -107,9 +110,6 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
-    if(!context)
-        context = emu->context;
-
     x86emu_t *cb = AddSmallCallback(emu, (uintptr_t)c_handler, 0, NULL, NULL, NULL, NULL);
     SetCallbackArg(cb, 7, data);
     SetCallbackArg(cb, 8, c_handler);
@@ -119,7 +119,66 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
 }
 
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+#define GO(A)   \
+static uintptr_t my_copy_fct_##A = 0;   \
+static void* my_copy_##A(void* data)     \
+{                                       \
+    return (void*)RunFunction(my_context, my_copy_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findCopyFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_copy_fct_##A == (uintptr_t)fct) return my_copy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_copy_fct_##A == 0) {my_copy_fct_##A = (uintptr_t)fct; return my_copy_##A; }
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Boxed Copy callback\n");
+    return NULL;
+}
+
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;   \
+static void my_free_##A(void* data)     \
+{                                       \
+    RunFunction(my_context, my_free_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findFreeFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Boxed Free callback\n");
+    return NULL;
+}
+#undef SUPER
+
+EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+    void* bc = findCopyFct(boxed_copy);
+    void* bf = findFreeFct(boxed_free);
+    return my->g_boxed_type_register_static(name, bc, bf);
+}
+
+
+
 #define CUSTOM_INIT \
+    my_context = box86;    \
     lib->priv.w.p2 = getGobject2My(lib); \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
