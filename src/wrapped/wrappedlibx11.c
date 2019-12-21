@@ -19,6 +19,8 @@
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
 
+extern int x11threads;
+
 typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
@@ -76,6 +78,7 @@ typedef struct _XImage {
     ximage_t f;
 } XImage;
 
+typedef uint32_t (*uFv_t)(void);
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
@@ -120,6 +123,7 @@ typedef struct x11_my_s {
     pFpip_t         XESetEventToWire;
     iFp_t           XCloseDisplay;
     pFp_t           XOpenDisplay;
+    uFv_t           XInitThreads;
 
 } x11_my_t;
 
@@ -151,6 +155,7 @@ void* getX11My(library_t* lib)
     GO(XESetEventToWire, pFpip_t)
     GO(XCloseDisplay, iFp_t)
     GO(XOpenDisplay, pFp_t)
+    GO(XInitThreads, uFv_t)
     #undef GO
     return my;
 }
@@ -798,7 +803,8 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
 
 #define CUSTOM_INIT \
     box86->x11lib = lib; \
-    lib->priv.w.p2 = getX11My(lib);
+    lib->priv.w.p2 = getX11My(lib); \
+    if(x11threads) ((x11_my_t*)lib->priv.w.p2)->XInitThreads();
 
 #define CUSTOM_FINI \
     freeX11My(lib->priv.w.p2); \

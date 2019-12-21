@@ -48,6 +48,7 @@ int box86_dynarec_trace = 0;
 #ifdef PANDORA
 int x11color16 = 0;
 #endif
+int x11threads = 0;
 char* libGL = NULL;
 
 FILE* ftrace = NULL;
@@ -175,6 +176,15 @@ void LoadLogEnv()
         printf_log(LOG_INFO, "Try to adjust X11 Color (32->16bits) : %s\n", x11color16?"Yes":"No");
     }
 #endif
+    p = getenv("BOX86_X11THREADS");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                x11threads = p[0]-'0';
+        }
+        if(x11threads)
+            printf_log(LOG_INFO, "Try to Call XInitThreads if libX11 is loaded\n");
+    }
     p = getenv("BOX86_LIBGL");
     if(p)
         libGL = strdup(p);
@@ -289,6 +299,7 @@ void PrintHelp() {
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
+    printf(" BOX86_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
 }

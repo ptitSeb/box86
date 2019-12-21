@@ -63,6 +63,11 @@ PANDORA only: to try convert X11 color from 32 bits to 16 bits (to avoid light g
 * 0 : default, don't touch X11 colors
 * 1 : Change colors arguments in XSetForeground, XSetBackground and XCreateGC
 
+#### BOX86_X11THREADS
+To call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)
+* 0 : default, don't force call XInitThreads
+* 1 : Call XInitThreads as soon as libX11 is loaded
+
 #### BOX86_DYNAREC_LOG
 Set level of DynaRec log
  * 0 :
