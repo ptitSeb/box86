@@ -1041,24 +1041,33 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         
         case 0xC4:
-            INST_NAME("PINSRW Gx,Ew,Ib");
+            INST_NAME("PINSRW Gx,Ed,Ib");
             nextop = F8;
             GETGX(v0);
             if((nextop&0xC0)==0xC0) {
-                wback = xEAX+(nextop&7);
-                PUSH(xSP, (1<<wback));
-                wback = xSP;
+                u8 = (F8)&7;
+                ed = xEAX+(nextop&7);
+                VMOVtoDx_16(v0+(u8/4), u8&3, ed);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
-                wb1=1;
-            }
-            u8 = (F8)&7;
-            VLD1LANE_16(v0+(u8/4), wback, u8&3);
-            if(wback==xSP) {
-                ADD_IMM8(xSP, xSP, 4);
+                u8 = (F8)&7;
+                VLD1LANE_16(v0+(u8/4), wback, u8&3);
             }
             break;
-
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Ex,Ib");
+            nextop = F8;
+            gd = xEAX+((nextop&0x38)>>3);
+            if((nextop&0xC0)==0xC0) {
+                GETEX(v0);
+                u8 = (F8)&7;
+                VMOVfrDx_U16(gd, v0+(u8/4), (u8&3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 63);
+                u8 = (F8)&7;
+                LDRH_IMM8(gd, wback, fixedaddress+u8*2);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPD Gx, Ex, Ib");
             nextop = F8;
