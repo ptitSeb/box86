@@ -27,18 +27,25 @@ typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
+typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
 
 #define SUPER() \
-    GO(g_list_free_full, vFpp_t)    \
-    GO(g_markup_vprintf_escaped, pFpp_t)    \
-    GO(g_build_filenamev, pFp_t)    \
-    GO(g_timeout_add, uFupp_t)      \
+    GO(g_list_free_full, vFpp_t)                \
+    GO(g_markup_vprintf_escaped, pFpp_t)        \
+    GO(g_build_filenamev, pFp_t)                \
+    GO(g_timeout_add, uFupp_t)                  \
     GO(g_datalist_id_set_data_full, vFpupp_t)   \
-    GO(g_datalist_id_dup_data, pFpupp_t)    \
-    GO(g_datalist_id_replace_data, iFpupppp_t)
+    GO(g_datalist_id_dup_data, pFpupp_t)        \
+    GO(g_datalist_id_replace_data, iFpupppp_t)  \
+    GO(g_variant_new_from_data, pFppuipp_t)     \
+    GO(g_variant_new_parsed_va, pFpp_t)         \
+    GO(g_variant_get_va, vFpppp_t)              \
+    GO(g_variant_new_va, pFppp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -207,6 +214,40 @@ EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t
     void* oldfc = findFreeFct(oldfree);
     void* newfc = findFreeFct(newfree);
     return my->g_datalist_id_replace_data(datalist, key, oldval, newval, oldfc, newfc);
+}
+
+EXPORT void* my_g_variant_new_from_data(x86emu_t* emu, void* type, void* data, uint32_t size, int trusted, void* freecb, void* datacb)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    void* fc = findFreeFct(freecb);
+    return my->g_variant_new_from_data(type, data, size, trusted, fc, datacb);
+}
+
+EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_variant_new_parsed_va(fmt, emu->scratch);
+    #else
+    return my->g_variant_new_parsed_va(fmt, b);
+    #endif
+}
+
+EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    my->g_variant_get_va(value, fmt, NULL, b);
+}
+
+EXPORT void* my_g_variant_new(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    return my->g_variant_new_va(fmt, NULL, b);
 }
 
 #define CUSTOM_INIT \

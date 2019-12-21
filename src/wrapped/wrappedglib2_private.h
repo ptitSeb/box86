@@ -1420,126 +1420,126 @@ GOM(g_timeout_add, uFEupp)
 //GO(g_utf8_to_utf16, 
 GO(g_utf8_validate, iFplp)
 //GO(g_utime, 
-//GO(g_variant_builder_add, 
-//GO(g_variant_builder_add_parsed, 
-//GO(g_variant_builder_add_value, 
-//GO(g_variant_builder_clear, 
-//GO(g_variant_builder_close, 
-//GO(g_variant_builder_end, 
-//GO(g_variant_builder_init, 
-//GO(g_variant_builder_new, 
-//GO(g_variant_builder_open, 
-//GO(g_variant_builder_ref, 
-//GO(g_variant_builder_unref, 
-//GO(g_variant_byteswap, 
-//GO(g_variant_check_format_string, 
-//GO(g_variant_classify, 
-//GO(g_variant_compare, 
-//GO(g_variant_dict_clear, 
-//GO(g_variant_dict_contains, 
-//GO(g_variant_dict_end, 
-//GO(g_variant_dict_init, 
-//GO(g_variant_dict_insert, 
-//GO(g_variant_dict_insert_value, 
-//GO(g_variant_dict_lookup, 
-//GO(g_variant_dict_lookup_value, 
-//GO(g_variant_dict_new, 
-//GO(g_variant_dict_ref, 
-//GO(g_variant_dict_remove, 
-//GO(g_variant_dict_unref, 
-//GO(g_variant_dup_bytestring, 
-//GO(g_variant_dup_bytestring_array, 
-//GO(g_variant_dup_objv, 
-//GO(g_variant_dup_string, 
-//GO(g_variant_dup_strv, 
-//GO(g_variant_equal, 
+GO(g_variant_builder_add, vFppppppppppp)    // vaarg
+GO(g_variant_builder_add_parsed, vFppppppppppp) //vaarg
+GO(g_variant_builder_add_value, vFpp)
+GO(g_variant_builder_clear, vFp)
+GO(g_variant_builder_close, vFp)
+GO(g_variant_builder_end, pFp)
+GO(g_variant_builder_init, vFpp)
+GO(g_variant_builder_new, pFp)
+GO(g_variant_builder_open, vFpp)
+GO(g_variant_builder_ref, pFp)
+GO(g_variant_builder_unref, vFp)
+GO(g_variant_byteswap, pFp)
+GO(g_variant_check_format_string, iFppi)
+GO(g_variant_classify, iFp)
+GO(g_variant_compare, iFpp)
+GO(g_variant_dict_clear, vFp)
+GO(g_variant_dict_contains, iFpp)
+GO(g_variant_dict_end, pFp)
+GO(g_variant_dict_init, vFpp)
+GO(g_variant_dict_insert, vFpppppppppppppp) //vaarg
+GO(g_variant_dict_insert_value, vFppp)
+GO(g_variant_dict_lookup, iFppppppppppppp)  //vaarg
+GO(g_variant_dict_lookup_value, pFppp)
+GO(g_variant_dict_new, pFp)
+GO(g_variant_dict_ref, pFp)
+GO(g_variant_dict_remove, iFpp)
+GO(g_variant_dict_unref, vFp)
+GO(g_variant_dup_bytestring, pFpp)
+GO(g_variant_dup_bytestring_array, pFpp)
+GO(g_variant_dup_objv, pFpp)
+GO(g_variant_dup_string, pFpp)
+GO(g_variant_dup_strv, pFpp)
+GO(g_variant_equal, iFpp)
 //GO(g_variant_format_string_scan, 
 //GO(g_variant_format_string_scan_type, 
-//GO(g_variant_get, 
-//GO(g_variant_get_boolean, 
-//GO(g_variant_get_byte, 
-//GO(g_variant_get_bytestring, 
-//GO(g_variant_get_bytestring_array, 
-//GO(g_variant_get_child, 
-//GO(g_variant_get_child_value, 
-//GO(g_variant_get_data, 
-//GO(g_variant_get_data_as_bytes, 
-//GO(g_variant_get_double, 
-//GO(g_variant_get_fixed_array, 
-//GO(g_variant_get_handle, 
-//GO(g_variant_get_int16, 
-//GO(g_variant_get_int32, 
-//GO(g_variant_get_int64, 
-//GO(g_variant_get_maybe, 
-//GO(g_variant_get_normal_form, 
-//GO(g_variant_get_objv, 
-//GO(g_variant_get_size, 
-//GO(g_variant_get_string, 
-//GO(g_variant_get_strv, 
-//GO(g_variant_get_type, 
-//GO(g_variant_get_type_string, 
-//GO(g_variant_get_uint16, 
-//GO(g_variant_get_uint32, 
-//GO(g_variant_get_uint64, 
-//GO(g_variant_get_va, 
-//GO(g_variant_get_variant, 
-//GO(g_variant_hash, 
-//GO(g_variant_is_container, 
-//GO(g_variant_is_floating, 
-//GO(g_variant_is_normal_form, 
-//GO(g_variant_is_object_path, 
-//GO(g_variant_is_of_type, 
-//GO(g_variant_is_signature, 
-//GO(g_variant_iter_copy, 
-//GO(g_variant_iter_free, 
-//GO(g_variant_iter_init, 
-//GO(g_variant_iter_loop, 
-//GO(g_variant_iter_n_children, 
-//GO(g_variant_iter_new, 
-//GO(g_variant_iter_next, 
-//GO(g_variant_iter_next_value, 
-//GO(g_variant_lookup, 
-//GO(g_variant_lookup_value, 
-//GO(g_variant_n_children, 
-//GO(g_variant_new, 
-//GO(g_variant_new_array, 
-//GO(g_variant_new_boolean, 
-//GO(g_variant_new_byte, 
-//GO(g_variant_new_bytestring, 
-//GO(g_variant_new_bytestring_array, 
-//GO(g_variant_new_dict_entry, 
-//GO(g_variant_new_double, 
-//GO(g_variant_new_fixed_array, 
-//GO(g_variant_new_from_bytes, 
-//GO(g_variant_new_from_data, 
-//GO(g_variant_new_handle, 
-//GO(g_variant_new_int16, 
-//GO(g_variant_new_int32, 
-//GO(g_variant_new_int64, 
-//GO(g_variant_new_maybe, 
-//GO(g_variant_new_object_path, 
-//GO(g_variant_new_objv, 
-//GO(g_variant_new_parsed, 
-//GO(g_variant_new_parsed_va, 
-//GO(g_variant_new_printf, 
-//GO(g_variant_new_signature, 
-//GO(g_variant_new_string, 
-//GO(g_variant_new_strv, 
-//GO(g_variant_new_take_string, 
-//GO(g_variant_new_tuple, 
-//GO(g_variant_new_uint16, 
-//GO(g_variant_new_uint32, 
-//GO(g_variant_new_uint64, 
-//GO(g_variant_new_va, 
-//GO(g_variant_new_variant, 
-//GO(g_variant_parse, 
-//GO(g_variant_parse_error_print_context, 
+GOM(g_variant_get, vFEppV)
+GO(g_variant_get_boolean, iFp)
+GO(g_variant_get_byte, CFp)
+GO(g_variant_get_bytestring, pFp)
+GO(g_variant_get_bytestring_array, pFpp)
+GO(g_variant_get_child, vFpuppppppppppp)    //vaarg here
+GO(g_variant_get_child_value, pFpu)
+GO(g_variant_get_data, pFp)
+GO(g_variant_get_data_as_bytes, pFp)
+GO(g_variant_get_double, dFp)
+GO(g_variant_get_fixed_array, pFppu)
+GO(g_variant_get_handle, iFp)
+GO(g_variant_get_int16, wFp)
+GO(g_variant_get_int32, iFp)
+GO(g_variant_get_int64, IFp)
+GO(g_variant_get_maybe, pFp)
+GO(g_variant_get_normal_form, pFp)
+GO(g_variant_get_objv, pFpp)
+GO(g_variant_get_size, uFp)
+GO(g_variant_get_string, pFpp)
+GO(g_variant_get_strv, pFpp)
+GO(g_variant_get_type, pFp)
+GO(g_variant_get_type_string, pFp)
+GO(g_variant_get_uint16, WFp)
+GO(g_variant_get_uint32, uFp)
+GO(g_variant_get_uint64, UFp)
+GO(g_variant_get_va, vFpppp)
+GO(g_variant_get_variant, pFp)
+GO(g_variant_hash, uFp)
+GO(g_variant_is_container, iFp)
+GO(g_variant_is_floating, iFp)
+GO(g_variant_is_normal_form, iFp)
+GO(g_variant_is_object_path, iFp)
+GO(g_variant_is_of_type, iFpp)
+GO(g_variant_is_signature, iFp)
+GO(g_variant_iter_copy, pFp)
+GO(g_variant_iter_free, vFp)
+GO(g_variant_iter_init, uFpp)
+GO(g_variant_iter_loop, iFpppppppppppp) // vaarg
+GO(g_variant_iter_n_children, uFp)
+GO(g_variant_iter_new, pFp)
+GO(g_variant_iter_next, iFpppppppppppp) // vaarg here
+GO(g_variant_iter_next_value, pFp)
+GO(g_variant_lookup, iFpppppppppppp)    // vaarg
+GO(g_variant_lookup_value, pFppp)
+GO(g_variant_n_children, uFp)
+GOM(g_variant_new, pFEpV)
+GO(g_variant_new_array, pFppu)
+GO(g_variant_new_boolean, pFi)
+GO(g_variant_new_byte, pFC)
+GO(g_variant_new_bytestring, pFp)
+GO(g_variant_new_bytestring_array, pFpi)
+GO(g_variant_new_dict_entry, pFpp)
+GO(g_variant_new_double, pFd)
+GO(g_variant_new_fixed_array, pFppuu)
+GO(g_variant_new_from_bytes, pFppi)
+GOM(g_variant_new_from_data, pFEppuipp)
+GO(g_variant_new_handle, pFi)
+GO(g_variant_new_int16, pFw)
+GO(g_variant_new_int32, pFi)
+GO(g_variant_new_int64, pFI)
+GO(g_variant_new_maybe, pFpp)
+GO(g_variant_new_object_path, pFp)
+GO(g_variant_new_objv, pFpi)
+GO2(g_variant_new_parsed, pFEpV, my_g_variant_new_parsed_va)
+GOM(g_variant_new_parsed_va, pFEpp)
+//GO(g_variant_new_printf,  // needs alignment.....
+GO(g_variant_new_signature, pFp)
+GO(g_variant_new_string, pFp)
+GO(g_variant_new_strv, pFpi)
+GO(g_variant_new_take_string, pFp)
+GO(g_variant_new_tuple, pFpu)
+GO(g_variant_new_uint16, pFW)
+GO(g_variant_new_uint32, pFu)
+GO(g_variant_new_uint64, pFU)
+GO(g_variant_new_va, pFppp)
+GO(g_variant_new_variant, pFp)
+GO(g_variant_parse, pFppppp)
+GO(g_variant_parse_error_print_context, pFpp)
 //GO(g_variant_parse_error_quark, 
 //GO(g_variant_parser_get_error_quark, 
-//GO(g_variant_print, 
-//GO(g_variant_print_string, 
-//GO(g_variant_ref, 
-//GO(g_variant_ref_sink, 
+GO(g_variant_print, pFpi)
+GO(g_variant_print_string, pFppi)
+GO(g_variant_ref, pFp)
+GO(g_variant_ref_sink, pFp)
 //GO(g_variant_serialised_byteswap, 
 //GO(g_variant_serialised_get_child, 
 //GO(g_variant_serialised_is_normal, 
@@ -1549,8 +1549,8 @@ GO(g_utf8_validate, iFplp)
 //GO(g_variant_serialiser_is_string, 
 //GO(g_variant_serialiser_needed_size, 
 //GO(g_variant_serialiser_serialise, 
-//GO(g_variant_store, 
-//GO(g_variant_take_ref, 
+GO(g_variant_store, vFp)
+GO(g_variant_take_ref, pFp)
 //GO(g_variant_type_checked_, 
 //GO(g_variant_type_copy, 
 //GO(g_variant_type_dup_string, 
@@ -1591,7 +1591,7 @@ GO(g_utf8_validate, iFplp)
 //GO(g_variant_type_string_is_valid, 
 //GO(g_variant_type_string_scan, 
 //GO(g_variant_type_value, 
-//GO(g_variant_unref, 
+GO(g_variant_unref, vFp)
 //GO(g_vasprintf, 
 //GO(g_vfprintf, 
 //GO(g_vprintf, 
