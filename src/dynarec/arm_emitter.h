@@ -441,9 +441,13 @@ Op is 20-27
 // Move between Dn[x] and Rt
 #define VMOVfrDx_32(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, x, 0))
 // Move between Dn[x] and Rt
-#define VMOVfrDx_16(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, (x)>>1, ((x)&1)<<1 | 1))
+#define VMOVfrDx_U16(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 1, (x)>>1, ((x)&1)<<1 | 1))
 // Move between Dn[x] and Rt
-#define VMOVfrDx_8(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, 2| (x)>>2, (x)&3))
+#define VMOVfrDx_U8(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 1, 2| (x)>>2, (x)&3))
+// Move between Dn[x] and Rt
+#define VMOVfrDx_S16(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, (x)>>1, ((x)&1)<<1 | 1))
+// Move between Dn[x] and Rt
+#define VMOVfrDx_S8(Rt, Dn, x) EMIT(c__ | VMOVfrDx_gen((Dn)&15, ((Dn)>>4)&1, Rt, 0, 2| (x)>>2, (x)&3))
 
 // Load from memory to double  VLDR Dd, [Rn, #+/-imm8], imm8&3 ignored!
 #define VLDR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Dd)>>4)&1)<<22) | (1<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((abs(Imm8)>>2)&255))
