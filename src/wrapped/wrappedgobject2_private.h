@@ -237,7 +237,7 @@ GO(g_signal_handler_disconnect, vFpL)
 //GO(g_signal_handler_is_connected, 
 //GO(g_signal_handlers_block_matched, 
 //GO(g_signal_handlers_destroy, 
-//GO(g_signal_handlers_disconnect_matched, 
+GO(g_signal_handlers_disconnect_matched, uFpiuuppp) // should wrap to tranform func pointer?
 //GO(g_signal_handlers_unblock_matched, 
 //GO(g_signal_handler_unblock, 
 //GO(g_signal_has_handler_pending, 

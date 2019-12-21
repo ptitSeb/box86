@@ -348,9 +348,9 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_dbus_error_set_dbus_error_valist, 
 //GO(g_dbus_error_strip_remote_error, 
 //GO(g_dbus_error_unregister_error, 
-//GO(g_dbus_generate_guid, 
-//GO(g_dbus_gvalue_to_gvariant, 
-//GO(g_dbus_gvariant_to_gvalue, 
+GO(g_dbus_generate_guid, pFv)
+GO(g_dbus_gvalue_to_gvariant, pFpp)
+GO(g_dbus_gvariant_to_gvalue, vFpp)
 //GO(g_dbus_interface_dup_object, 
 //GO(g_dbus_interface_get_info, 
 //GO(g_dbus_interface_get_object, 
@@ -381,12 +381,12 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_dbus_interface_skeleton_unexport, 
 //GO(g_dbus_interface_skeleton_unexport_from_connection, 
 //GO(g_dbus_is_address, 
-//GO(g_dbus_is_guid, 
-//GO(g_dbus_is_interface_name, 
-//GO(g_dbus_is_member_name, 
-//GO(g_dbus_is_name, 
+GO(g_dbus_is_guid, iFp)
+GO(g_dbus_is_interface_name, iFp)
+GO(g_dbus_is_member_name, iFp)
+GO(g_dbus_is_name, iFp)
 //GO(g_dbus_is_supported_address, 
-//GO(g_dbus_is_unique_name, 
+GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_menu_model_get, 
 //GO(g_dbus_menu_model_get_type, 
 //GO(g_dbus_message_byte_order_get_type, 
