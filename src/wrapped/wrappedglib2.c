@@ -21,16 +21,24 @@
 const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
 
+static box86context_t* my_context = NULL;
+
 typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
+typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
+typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 
 #define SUPER() \
     GO(g_list_free_full, vFpp_t)    \
     GO(g_markup_vprintf_escaped, pFpp_t)    \
     GO(g_build_filenamev, pFp_t)    \
-    GO(g_timeout_add, uFupp_t)
+    GO(g_timeout_add, uFupp_t)      \
+    GO(g_datalist_id_set_data_full, vFpupp_t)   \
+    GO(g_datalist_id_dup_data, pFpupp_t)    \
+    GO(g_datalist_id_replace_data, iFpupppp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -129,7 +137,80 @@ EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, v
     return my->g_timeout_add(interval, my_gsourcefunc, cb);
 }
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+#define GO(A)   \
+static uintptr_t my_copy_fct_##A = 0;   \
+static void* my_copy_##A(void* data)     \
+{                                       \
+    return (void*)RunFunction(my_context, my_copy_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findCopyFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_copy_fct_##A == (uintptr_t)fct) return my_copy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_copy_fct_##A == 0) {my_copy_fct_##A = (uintptr_t)fct; return my_copy_##A; }
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 Copy callback\n");
+    return NULL;
+}
+
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;   \
+static void my_free_##A(void* data)     \
+{                                       \
+    RunFunction(my_context, my_free_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findFreeFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 Free callback\n");
+    return NULL;
+}
+#undef SUPER
+
+EXPORT void my_g_datalist_id_set_data_full(x86emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    void* fc = findFreeFct(freecb);
+    my->g_datalist_id_set_data_full(datalist, key, data, fc);
+}
+
+EXPORT void* my_g_datalist_id_dup_data(x86emu_t* emu, void* datalist, uint32_t key, void* dupcb, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    void* cc = findFreeFct(dupcb);
+    return my->g_datalist_id_dup_data(datalist, key, cc, data);
+}
+
+EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t key, void* oldval, void* newval, void* oldfree, void* newfree)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    void* oldfc = findFreeFct(oldfree);
+    void* newfc = findFreeFct(newfree);
+    return my->g_datalist_id_replace_data(datalist, key, oldval, newval, oldfc, newfc);
+}
+
 #define CUSTOM_INIT \
+    my_context = box86; \
     lib->priv.w.p2 = getGlib2My(lib);
 
 #define CUSTOM_FINI \

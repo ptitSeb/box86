@@ -221,18 +221,18 @@ GO(g_build_filenamev, pFp)
 //GO(g_convert_with_fallback, 
 //GO(g_convert_with_iconv, 
 //GO(g_creat, 
-//GO(g_datalist_clear, 
-//GO(g_datalist_foreach, 
-//GO(g_datalist_get_data, 
-//GO(g_datalist_get_flags, 
-//GO(g_datalist_id_dup_data, 
-//GO(g_datalist_id_get_data, 
-//GO(g_datalist_id_remove_no_notify, 
-//GO(g_datalist_id_replace_data, 
-//GO(g_datalist_id_set_data_full, 
-//GO(g_datalist_init, 
-//GO(g_datalist_set_flags, 
-//GO(g_datalist_unset_flags, 
+GO(g_datalist_clear, vFp)
+//GOM(g_datalist_foreach, vFEppp)
+GO(g_datalist_get_data, pFpp)
+GO(g_datalist_get_flags, uFp)
+GOM(g_datalist_id_dup_data, pFEpupp)
+GO(g_datalist_id_get_data, pFpu)
+GO(g_datalist_id_remove_no_notify, pFpu)
+GOM(g_datalist_id_replace_data, iFEpupppp)
+GOM(g_datalist_id_set_data_full, vFEpupp)
+GO(g_datalist_init, vFp)
+GO(g_datalist_set_flags, vFpu)
+GO(g_datalist_unset_flags, vFpu)
 //GO(g_dataset_destroy, 
 //GO(g_dataset_foreach, 
 //GO(g_dataset_id_get_data, 
@@ -477,8 +477,8 @@ GO(g_hash_table_destroy, vFp)
 //GO(g_int64_equal, 
 //GO(g_int64_hash, 
 //GO(g_int_equal, 
-//GO(g_intern_static_string, 
-//GO(g_intern_string, 
+GO(g_intern_static_string, pFp)
+GO(g_intern_string, pFp)
 //GO(g_int_hash, 
 //GO(g_io_add_watch, 
 //GO(g_io_add_watch_full, 
@@ -831,10 +831,10 @@ GO(g_mutex_unlock, vFp)
 //GO(g_ptr_array_sort_with_data, 
 //GO(g_ptr_array_unref, 
 //GO(g_qsort_with_data, 
-//GO(g_quark_from_static_string, 
-//GO(g_quark_from_string, 
-//GO(g_quark_to_string, 
-//GO(g_quark_try_string, 
+GO(g_quark_from_static_string, uFp)
+GO(g_quark_from_string, uFp)
+GO(g_quark_to_string, pFu)
+GO(g_quark_try_string, uFp)
 //GO(g_queue_clear, 
 //GO(g_queue_copy, 
 //GO(g_queue_delete_link, 
