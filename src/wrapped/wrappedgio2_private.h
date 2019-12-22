@@ -487,10 +487,10 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_object_manager_client_new_for_bus_finish, 
 //GO(g_dbus_object_manager_client_new_for_bus_sync, 
 //GO(g_dbus_object_manager_client_new_sync, 
-//GO(g_dbus_object_manager_get_interface, 
-//GO(g_dbus_object_manager_get_object, 
-//GO(g_dbus_object_manager_get_object_path, 
-//GO(g_dbus_object_manager_get_objects, 
+//GOM(g_dbus_object_manager_get_interface, pFEppp)  //struct GDBusObjectManagerIface is full of callbacks
+GO(g_dbus_object_manager_get_object, pFpp)
+GO(g_dbus_object_manager_get_object_path, pFp)
+GO(g_dbus_object_manager_get_objects, pFp)
 //GO(g_dbus_object_manager_get_type, 
 //GO(g_dbus_object_manager_server_export, 
 //GO(g_dbus_object_manager_server_export_uniquely, 
@@ -515,7 +515,7 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_property_info_ref, 
 //GO(g_dbus_property_info_unref, 
 //GO(g_dbus_proxy_call, 
-//GO(g_dbus_proxy_call_finish, 
+GO(g_dbus_proxy_call_finish, pFppp)
 //GO(g_dbus_proxy_call_sync, 
 //GO(g_dbus_proxy_call_with_unix_fd_list, 
 //GO(g_dbus_proxy_call_with_unix_fd_list_finish, 
