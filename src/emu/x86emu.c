@@ -45,11 +45,8 @@ void* GetExit()
     return &EndEmuMarker;
 }
 
-x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
+static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
-
-    x86emu_t *emu = (x86emu_t*)calloc(1, sizeof(x86emu_t));
     emu->context = context;
     // setup cpu helpers
     for (int i=0; i<8; ++i)
@@ -83,6 +80,24 @@ x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, i
         if(!emu->dec)
             printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
     }
+}
+
+x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
+{
+    printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
+
+    x86emu_t *emu = (x86emu_t*)calloc(1, sizeof(x86emu_t));
+
+    internalX86Setup(emu, context, start, stack, stacksize, ownstack);
+
+    return emu;
+}
+
+x86emu_t *NewX86EmuFromStack(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
+{
+    printf_log(LOG_DEBUG, "New X86 Emu from stack, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
+
+    internalX86Setup(emu, context, start, stack, stacksize, ownstack);
     
     return emu;
 }
@@ -164,24 +179,41 @@ void CallAllCleanup(x86emu_t *emu)
     emu->clean_sz = 0;
 }
 
+static void internalFreeX86(x86emu_t* emu)
+{
+    // stop trace now
+    if(emu->dec)
+        DeleteX86TraceDecoder(&emu->dec);
+    emu->dec = NULL;
+    // call atexit and fini first!
+    CallAllCleanup(emu);
+    free(emu->cleanups);
+
+    free(emu->scratch);
+
+    free(emu->stack);
+}
+
 void FreeX86Emu(x86emu_t **emu)
 {
     if(!emu)
         return;
     printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *emu);
-    // stop trace now
-    if((*emu)->dec)
-        DeleteX86TraceDecoder(&(*emu)->dec);
-    (*emu)->dec = NULL;
-    // call atexit and fini first!
-    CallAllCleanup(*emu);
-    free((*emu)->cleanups);
 
-    free((*emu)->scratch);
-
-    free((*emu)->stack);
+    internalFreeX86(*emu);
 
     free(*emu);
+    *emu = NULL;
+}
+
+void FreeX86EmuFromStack(x86emu_t **emu)
+{
+    if(!emu)
+        return;
+    printf_log(LOG_DEBUG, "Free a X86 Emu from stack (%p)\n", *emu);
+
+    internalFreeX86(*emu);
+
     *emu = NULL;
 }
 

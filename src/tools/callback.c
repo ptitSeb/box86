@@ -241,7 +241,8 @@ void FreeCallbackList(callbacklist_t** callbacks)
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
     uint32_t mystack[32*1024];  // 32K*4 = 128K stack
-    x86emu_t *emu = NewX86Emu(context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
+    x86emu_t myemu = {0};
+    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
     SetupX86Emu(emu);
 
     R_ESP -= nargs*4;   // need to push in reverse order
@@ -260,7 +261,7 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
     R_ESP+=(nargs*4);
 
     uint32_t ret = R_EAX;
-    FreeX86Emu(&emu);
+    FreeX86EmuFromStack(&emu);
 
     return ret;
 }

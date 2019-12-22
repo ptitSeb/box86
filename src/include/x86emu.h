@@ -5,9 +5,11 @@ typedef struct x86emu_s x86emu_t;
 typedef struct box86context_s box86context_t;
 
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
+x86emu_t *NewX86EmuFromStack(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack);
 void SetupX86Emu(x86emu_t *emu);
 void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end);
 void FreeX86Emu(x86emu_t **x86emu);
+void FreeX86EmuFromStack(x86emu_t **emu);
 void CloneEmu(x86emu_t *newemu, const x86emu_t* emu);
 
 box86context_t* GetEmuContext(x86emu_t* emu);
