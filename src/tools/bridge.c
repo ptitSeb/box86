@@ -77,6 +77,14 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
     return kh_value(bridge->bridgemap, k);
 }
 
+uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
+{
+    uintptr_t ret = CheckBridged(bridge, fnc);
+    if(!ret)
+        ret = AddBridge(bridge, w, fnc, N);
+    return ret;
+}
+
 void* GetNativeFnc(uintptr_t fnc)
 {
     onebridge_t *b = (onebridge_t*)fnc;
