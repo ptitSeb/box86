@@ -136,9 +136,12 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_signal_new, pFipp_t)                  \
     GO(pa_signal_set_destroy, vFpp_t)           \
     GO(pa_context_new, pFpp_t)                  \
+    GO(pa_context_new_with_proplist, pFppp_t)   \
     GO(pa_context_get_state, iFp_t)             \
+    GO(pa_context_exit_daemon, pFppp_t)         \
     GO(pa_context_set_state_callback, vFppp_t)  \
     GO(pa_context_set_default_sink, pFpppp_t)   \
+    GO(pa_context_set_default_source, pFpppp_t) \
     GO(pa_context_move_sink_input_by_index, pFpuupp_t)  \
     GO(pa_context_get_module_info_list, pFppp_t)        \
     GO(pa_context_get_server_info, pFppp_t)     \
@@ -153,6 +156,12 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_context_subscribe, pFpupp_t)          \
     GO(pa_context_set_subscribe_callback, vFppp_t)      \
     GO(pa_context_drain, pFppp_t)               \
+    GO(pa_context_proplist_remove, pFpppp_t)    \
+    GO(pa_context_proplist_update, pFpippp_t)   \
+    GO(pa_context_set_event_callback, vFppp_t)  \
+    GO(pa_context_set_name, pFpppp_t)           \
+    GO(pa_context_set_source_volume_by_name, pFppppp_t) \
+    GO(pa_context_get_source_info_by_name, pFpppp_t)    \
     GO(pa_stream_get_state, iFp_t)              \
     GO(pa_stream_drain, pFppp_t)                \
     GO(pa_stream_flush, pFppp_t)                \
@@ -685,6 +694,13 @@ EXPORT void* my_pa_context_new(x86emu_t* emu, my_pa_mainloop_api_t* mainloop, vo
     return my->pa_context_new(mainloop, name);
 }
 
+EXPORT void* my_pa_context_new_with_proplist(x86emu_t* emu, my_pa_mainloop_api_t* mainloop, void* name, void* proplist)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
+    return my->pa_context_new_with_proplist(mainloop, name, proplist);
+}
+
 EXPORT int my_pa_signal_init(x86emu_t* emu, my_pa_mainloop_api_t* mainloop)
 {
     pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
@@ -805,6 +821,12 @@ static void my_success_context(void* context, int success, void* data)
     RunFunction(my_context, cb->fnc, 3, context, success, cb->data);
 }
 
+static void my_event_context(void* context, void* name, void* p, void* data)
+{
+    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
+    RunFunction(my_context, cb->fnc, 4, context, name, p, cb->data);
+}
+
 static void my_module_info(void* context, void* i, int eol, void* data)
 {
     my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
@@ -853,6 +875,19 @@ EXPORT void my_pa_context_set_default_sink(x86emu_t* emu, void* context, void* n
         c->data = data;
     }
     my->pa_context_set_default_sink(context, name, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_default_source(x86emu_t* emu, void* context, void* name, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_default_source(context, name, cb?my_success_context:NULL, c);
 }
 
 EXPORT void* my_pa_context_move_sink_input_by_index(x86emu_t* emu, void* context, uint32_t idx, uint32_t sink_idx, void* cb, void* data)
@@ -1023,6 +1058,97 @@ EXPORT void* my_pa_context_drain(x86emu_t* emu, void* context, void* cb, void* d
         c->data = data;
     }
     return my->pa_context_drain(context, cb?my_notify_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_exit_daemon(x86emu_t* emu, void* context, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_exit_daemon(context, cb?my_success_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_proplist_remove(x86emu_t* emu, void* context, void* keys, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_proplist_remove(context, keys, cb?my_success_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_proplist_update(x86emu_t* emu, void* context, int mode, void* p, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_proplist_update(context, mode, p, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_event_callback(x86emu_t* emu, void* context, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_event_callback(context, cb?my_event_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_set_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_set_name(context, name, cb?my_success_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_set_source_volume_by_name(x86emu_t* emu, void* context, void* name,void* volume, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_set_source_volume_by_name(context, name, volume, cb?my_success_context:NULL, c);
+}
+
+EXPORT void* my_pa_context_get_source_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_source_info_by_name(context, name, cb?my_module_info:NULL, c);
 }
 
 // Stream functions
