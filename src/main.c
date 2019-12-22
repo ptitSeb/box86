@@ -343,7 +343,7 @@ int main(int argc, const char **argv, const char **env) {
     const char *p;
     const char* prog = argv[1];
     // check BOX86_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box86_ld_lib, ".:lib", "BOX86_LD_LIBRARY_PATH");
+    LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA
     if(FileExist("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", 0))
         AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
