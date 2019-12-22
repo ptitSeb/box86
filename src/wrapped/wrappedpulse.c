@@ -130,6 +130,8 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
 #define SUPER() \
     GO(pa_mainloop_free, vFp_t)                 \
     GO(pa_mainloop_get_api, pFp_t)              \
+    GO(pa_threaded_mainloop_free, vFp_t)        \
+    GO(pa_threaded_mainloop_get_api, pFp_t)     \
     GO(pa_signal_init, iFp_t)                   \
     GO(pa_signal_new, pFipp_t)                  \
     GO(pa_signal_set_destroy, vFpp_t)           \
@@ -650,6 +652,23 @@ EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
     my_mainloop_ref = my_mainloop_orig = NULL;
 }
 EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
+{
+    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    pulse_my_t* my = lib->priv.w.p2;
+    my_pa_mainloop_api_t* api = my->pa_mainloop_get_api(mainloop);
+    bridgeMainloopAPI(lib->priv.w.bridge, api);
+    return my_mainloop_ref;
+}
+
+EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
+{
+    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    pulse_my_t* my = lib->priv.w.p2;
+    my->pa_mainloop_free(mainloop);
+    mainloop_inited = 0;
+    my_mainloop_ref = my_mainloop_orig = NULL;
+}
+EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
     library_t* lib = GetLib(emu->context->maplib, pulseName);
     pulse_my_t* my = lib->priv.w.p2;

@@ -249,18 +249,18 @@ GO(pa_sw_volume_multiply, uFuu)
 GO(pa_sw_volume_snprint_dB, pFpuu)
 GO(pa_sw_volume_to_dB, dFu)
 GO(pa_sw_volume_to_linear, dFu)
-//GO(pa_threaded_mainloop_accept, 
-//GO(pa_threaded_mainloop_free, 
-//GO(pa_threaded_mainloop_get_api, 
-//GO(pa_threaded_mainloop_get_retval, 
-//GO(pa_threaded_mainloop_in_thread, 
-//GO(pa_threaded_mainloop_lock, 
-//GO(pa_threaded_mainloop_new, 
-//GO(pa_threaded_mainloop_signal, 
-//GO(pa_threaded_mainloop_start, 
-//GO(pa_threaded_mainloop_stop, 
-//GO(pa_threaded_mainloop_unlock, 
-//GO(pa_threaded_mainloop_wait, 
+GO(pa_threaded_mainloop_accept, vFp)
+GOM(pa_threaded_mainloop_free, vFEp)
+GOM(pa_threaded_mainloop_get_api, pFEp)
+GO(pa_threaded_mainloop_get_retval, iFp)
+GO(pa_threaded_mainloop_in_thread, iFp)
+GO(pa_threaded_mainloop_lock, vFp)
+GO(pa_threaded_mainloop_new, pFv)
+GO(pa_threaded_mainloop_signal, vFpi)
+GO(pa_threaded_mainloop_start, iFp)
+GO(pa_threaded_mainloop_stop, vFp)
+GO(pa_threaded_mainloop_unlock, vFp)
+GO(pa_threaded_mainloop_wait, vFp)
 GO(pa_timeval_add, pFpU)
 GO(pa_timeval_age, UFp)
 GO(pa_timeval_cmp, iFpp)
@@ -272,7 +272,7 @@ GO(pa_usec_to_bytes, uFUp)
 GO(pa_utf8_filter, pFp)
 GO(pa_utf8_to_locale, pFp)
 GO(pa_utf8_valid, pFp)
-//GO(pa_volume_snprint, 
+GO(pa_volume_snprint, pFpuu)
 GO(pa_xfree, vFp)
 GO(pa_xmalloc, pFu)
 GO(pa_xmalloc0, pFu)
