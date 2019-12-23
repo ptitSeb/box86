@@ -7,8 +7,8 @@
 //GO(FT_Add_Module, 
 //GO(FT_Angle_Diff, 
 //GO(FT_Atan2, 
-//GO(FT_Attach_File, 
-//GO(FT_Attach_Stream, 
+GO(FT_Attach_File, iFpp)
+GO(FT_Attach_Stream, iFpp)
 //GO(FT_Bitmap_Convert, 
 //GO(FT_Bitmap_Copy, 
 //GO(FT_Bitmap_Done, 
@@ -37,7 +37,7 @@
 //GO(FT_DivFix, 
 GO(FT_Done_Face, iFp)
 GO(FT_Done_FreeType, iFp)
-//GO(FT_Done_Glyph, 
+GO(FT_Done_Glyph, vFp)
 GO(FT_Done_Library, iFp)
 //GO(FT_Done_Size, 
 //GO(FT_Face_CheckTrueTypePatents, 
@@ -64,8 +64,8 @@ GO(FT_Get_Char_Index, uFpL)
 //GO(FT_Get_Font_Format, 
 //GO(FT_Get_FSType_Flags, 
 //GO(FT_Get_Gasp, 
-//GO(FT_Get_Glyph, 
-//GO(FT_Get_Glyph_Name, 
+GO(FT_Get_Glyph, iFpp)
+GO(FT_Get_Glyph_Name, iFpupu)
 GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
 //GO(FT_Get_MM_Var, 
@@ -98,8 +98,8 @@ GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_GlyphSlot_Oblique, 
 //GO(FT_GlyphSlot_Own_Bitmap, 
 //GO(FT_Glyph_Stroke, 
-//GO(FT_Glyph_StrokeBorder, 
-//GO(FT_Glyph_To_Bitmap, 
+GO(FT_Glyph_StrokeBorder, iFppCC)
+GO(FT_Glyph_To_Bitmap, iFpipC)
 //GO(FT_Glyph_Transform, 
 //GO(FT_Gzip_Uncompress, 
 //GO(FT_Has_PS_Glyph_Names, 
@@ -128,25 +128,25 @@ GO(FT_New_Memory_Face, iFppllp)
 //GO(FT_Open_Face, 
 //GO(FT_OpenType_Free, 
 //GO(FT_OpenType_Validate, 
-//GO(FT_Outline_Check, 
-//GO(FT_Outline_Copy, 
-//GO(FT_Outline_Decompose, 
+GO(FT_Outline_Check, iFp)
+GO(FT_Outline_Copy, iFpp)
+GO(FT_Outline_Decompose, iFppp)
 //GO(FT_Outline_Done, 
 //GO(FT_Outline_Done_Internal, 
-//GO(FT_Outline_Embolden, 
-//GO(FT_Outline_EmboldenXY, 
-//GO(FT_Outline_Get_BBox, 
-//GO(FT_Outline_Get_Bitmap, 
-//GO(FT_Outline_Get_CBox, 
+GO(FT_Outline_Embolden, iFpl)
+GO(FT_Outline_EmboldenXY, iFpll)
+GO(FT_Outline_Get_BBox, iFpp)
+GO(FT_Outline_Get_Bitmap, iFppp)
+GO(FT_Outline_Get_CBox, vFpp)
 //GO(FT_Outline_GetInsideBorder, 
 //GO(FT_Outline_Get_Orientation, 
 //GO(FT_Outline_GetOutsideBorder, 
 //GO(FT_Outline_New, 
 //GO(FT_Outline_New_Internal, 
-//GO(FT_Outline_Render, 
-//GO(FT_Outline_Reverse, 
-//GO(FT_Outline_Transform, 
-//GO(FT_Outline_Translate, 
+GO(FT_Outline_Render, iFppp)
+GO(FT_Outline_Reverse, vFp)
+GO(FT_Outline_Transform, vFpp)
+GO(FT_Outline_Translate, vFpll)
 //GO(FT_Property_Get, 
 //GO(FT_Property_Set, 
 //GO(FT_Reference_Face, 
@@ -155,10 +155,10 @@ GO(FT_New_Memory_Face, iFppllp)
 //GO(FT_Render_Glyph, 
 //GO(FT_Request_Size, 
 //GO(FT_RoundFix, 
-//GO(FT_Select_Charmap, 
-//GO(FT_Select_Size, 
-//GO(FT_Set_Charmap, 
-//GO(FT_Set_Char_Size, 
+GO(FT_Select_Charmap, iFpi)
+GO(FT_Select_Size, iFpi)
+GO(FT_Set_Charmap, iFpp)
+GO(FT_Set_Char_Size, iFplluu)
 //GO(FT_Set_Debug_Hook, 
 //GO(FT_Set_Default_Properties, 
 //GO(FT_Set_MM_Blend_Coordinates, 
@@ -173,20 +173,20 @@ GO(FT_Set_Pixel_Sizes, iFpuu)
 //GO(FT_Stream_OpenBzip2, 
 //GO(FT_Stream_OpenGzip, 
 //GO(FT_Stream_OpenLZW, 
-//GO(FT_Stroker_BeginSubPath, 
-//GO(FT_Stroker_ConicTo, 
-//GO(FT_Stroker_CubicTo, 
-//GO(FT_Stroker_Done, 
-//GO(FT_Stroker_EndSubPath, 
-//GO(FT_Stroker_Export, 
-//GO(FT_Stroker_ExportBorder, 
-//GO(FT_Stroker_GetBorderCounts, 
-//GO(FT_Stroker_GetCounts, 
-//GO(FT_Stroker_LineTo, 
-//GO(FT_Stroker_New, 
-//GO(FT_Stroker_ParseOutline, 
-//GO(FT_Stroker_Rewind, 
-//GO(FT_Stroker_Set, 
+GO(FT_Stroker_BeginSubPath, iFppC)
+GO(FT_Stroker_ConicTo, iFppp)
+GO(FT_Stroker_CubicTo, iFpppp)
+GO(FT_Stroker_Done, vFp)
+GO(FT_Stroker_EndSubPath, iFp)
+GO(FT_Stroker_Export, vFpp)
+GO(FT_Stroker_ExportBorder, vFpip)
+GO(FT_Stroker_GetBorderCounts, iFpipp)
+GO(FT_Stroker_GetCounts, iFppp)
+GO(FT_Stroker_LineTo, iFpp)
+GO(FT_Stroker_New, iFpp)
+GO(FT_Stroker_ParseOutline, iFppC)
+GO(FT_Stroker_Rewind, vFp)
+GO(FT_Stroker_Set, vFpliil)
 //GO(FT_Tan, 
 //GO(FT_TrueTypeGX_Free, 
 //GO(FT_TrueTypeGX_Validate, 
