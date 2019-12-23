@@ -5,8 +5,8 @@
 //GO(FT_Activate_Size, 
 //GO(FT_Add_Default_Modules, 
 //GO(FT_Add_Module, 
-//GO(FT_Angle_Diff, 
-//GO(FT_Atan2, 
+GO(FT_Angle_Diff, lFll)
+GO(FT_Atan2, lFll)
 GO(FT_Attach_File, iFpp)
 GO(FT_Attach_Stream, iFpp)
 //GO(FT_Bitmap_Convert, 
@@ -30,7 +30,7 @@ GO(FT_Attach_Stream, iFpp)
 //GO(FTC_Manager_RemoveFaceID, 
 //GO(FTC_Manager_Reset, 
 //GO(FTC_Node_Unref, 
-//GO(FT_Cos, 
+GO(FT_Cos, lFl)
 //GO(FTC_SBitCache_Lookup, 
 //GO(FTC_SBitCache_LookupScaler, 
 //GO(FTC_SBitCache_New, 
@@ -76,15 +76,15 @@ GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_PFR_Advance, 
 //GO(FT_Get_PFR_Kerning, 
 //GO(FT_Get_PFR_Metrics, 
-//GO(FT_Get_Postscript_Name, 
-//GO(FT_Get_PS_Font_Info, 
+GO(FT_Get_Postscript_Name, pFp)
+GO(FT_Get_PS_Font_Info, iFpp)
 //GO(FT_Get_PS_Font_Private, 
 //GO(FT_Get_PS_Font_Value, 
 //GO(FT_Get_Renderer, 
 //GO(FT_Get_Sfnt_LangTag, 
 //GO(FT_Get_Sfnt_Name, 
 //GO(FT_Get_Sfnt_Name_Count, 
-//GO(FT_Get_Sfnt_Table, 
+GO(FT_Get_Sfnt_Table, pFpi)
 //GO(FT_Get_SubGlyph_Info, 
 //GO(FT_Get_Track_Kerning, 
 //GO(FT_Get_TrueType_Engine_Type, 
@@ -94,8 +94,8 @@ GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_X11_Font_Format, 
 //GO(FT_Glyph_Copy, 
 //GO(FT_Glyph_Get_CBox, 
-//GO(FT_GlyphSlot_Embolden, 
-//GO(FT_GlyphSlot_Oblique, 
+GO(FT_GlyphSlot_Embolden, vFp)
+GO(FT_GlyphSlot_Oblique, vFp)
 //GO(FT_GlyphSlot_Own_Bitmap, 
 //GO(FT_Glyph_Stroke, 
 GO(FT_Glyph_StrokeBorder, iFppCC)
@@ -116,11 +116,11 @@ GO(FT_Init_FreeType, iFp)
 //GO(FT_List_Up, 
 GO(FT_Load_Char, iFpLi)
 GO(FT_Load_Glyph, iFpui)
-//GO(FT_Load_Sfnt_Table, 
-//GO(FT_Matrix_Invert, 
-//GO(FT_Matrix_Multiply, 
-//GO(FT_MulDiv, 
-//GO(FT_MulFix, 
+GO(FT_Load_Sfnt_Table, iFpLlpp)
+GO(FT_Matrix_Invert, iFp)
+GO(FT_Matrix_Multiply, vFpp)
+GO(FT_MulDiv, lFlll)
+GO(FT_MulFix, lFll)
 GO(FT_New_Face, iFpplp)
 //GO(FT_New_Library, 
 GO(FT_New_Memory_Face, iFppllp)
@@ -165,11 +165,11 @@ GO(FT_Set_Char_Size, iFplluu)
 //GO(FT_Set_MM_Design_Coordinates, 
 GO(FT_Set_Pixel_Sizes, iFpuu)
 //GO(FT_Set_Renderer, 
-//GO(FT_Set_Transform, 
+GO(FT_Set_Transform, vFppp)
 //GO(FT_Set_Var_Blend_Coordinates, 
 //GO(FT_Set_Var_Design_Coordinates, 
 //GO(FT_Sfnt_Table_Info, 
-//GO(FT_Sin, 
+GO(FT_Sin, lFl)
 //GO(FT_Stream_OpenBzip2, 
 //GO(FT_Stream_OpenGzip, 
 //GO(FT_Stream_OpenLZW, 
@@ -187,14 +187,14 @@ GO(FT_Stroker_New, iFpp)
 GO(FT_Stroker_ParseOutline, iFppC)
 GO(FT_Stroker_Rewind, vFp)
 GO(FT_Stroker_Set, vFpliil)
-//GO(FT_Tan, 
+GO(FT_Tan, lFl)
 //GO(FT_TrueTypeGX_Free, 
 //GO(FT_TrueTypeGX_Validate, 
-//GO(FT_Vector_From_Polar, 
-//GO(FT_Vector_Length, 
-//GO(FT_Vector_Polarize, 
-//GO(FT_Vector_Rotate, 
-//GO(FT_Vector_Transform, 
-//GO(FT_Vector_Unit, 
+GO(FT_Vector_From_Polar, vFpll)
+GO(FT_Vector_Length, lFp)
+GO(FT_Vector_Polarize, vFppp)
+GO(FT_Vector_Rotate, vFpl)
+GO(FT_Vector_Transform, vFpp)
+GO(FT_Vector_Unit, vFpl)
 //GO(TT_New_Context, 
 //GO(TT_RunIns, 
