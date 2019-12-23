@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
 
 GO(png_create_write_struct, pFpppp)
 GOM(png_destroy_write_struct, vFEpp)
@@ -13,7 +15,7 @@ GO(png_create_info_struct, pFp)
 GO(png_init_io, vFpp)
 GO(png_set_PLTE, vFpppi)
 GO(png_write_info, vFpp)
-GO(png_destroy_read_struct, vFppp)
+GOM(png_destroy_read_struct, vFEppp)
 GO(png_get_IHDR, vFppppppppp)
 GO(png_free, vFpp)
 GO(png_malloc, pFpp)
@@ -46,5 +48,6 @@ GO(png_set_expand, vFp)
 GO(png_read_row, vFppp)
 GO(png_set_sig_bytes, vFpi)
 GO(png_get_PLTE, uFpppp)
-
-#endif
+GO(png_get_error_ptr, pFp)
+GOM(png_set_error_fn, vFEpppp)
+GOM(png_set_read_fn, vFEppp)

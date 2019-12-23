@@ -20,12 +20,21 @@
 const char* png12Name = "libpng12.so.0";
 #define LIBNAME png12
 
-typedef void (*vFpp_t)(void*, void*);
-typedef void (*vFppp_t)(void*, void*, void*);
+typedef void  (*vFpp_t)(void*, void*);
+typedef void  (*vFppp_t)(void*, void*, void*);
+typedef void  (*vFpppp_t)(void*, void*, void*, void*);
+
+#define SUPER() \
+    GO(png_set_write_fn, vFppp_t)           \
+    GO(png_destroy_write_struct, vFpp_t)    \
+    GO(png_set_read_fn, vFppp_t)            \
+    GO(png_destroy_read_struct, vFppp_t)    \
+    GO(png_set_error_fn, vFpppp_t)
 
 typedef struct png12_my_s {
-    vFppp_t     png_set_write_fn;
-    vFpp_t      png_destroy_write_struct;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
     // functions
 } png12_my_t;
 
@@ -33,16 +42,18 @@ void* getPng12My(library_t* lib)
 {
     png12_my_t* my = (png12_my_t*)calloc(1, sizeof(png12_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(png_set_write_fn, vFppp_t)
-    GO(png_destroy_write_struct, vFpp_t)
+    SUPER()
     #undef GO
     return my;
 }
+#undef SUPER
 
 void freePng12My(void* lib)
 {
     png12_my_t *my = (png12_my_t *)lib;
 }
+
+static box86context_t *my_context = NULL;
 
 static x86emu_t *emu_userdatawrite = NULL;
 static void* userwrite_pngptr = NULL;
@@ -118,11 +129,83 @@ EXPORT void my12_png_destroy_write_struct(x86emu_t* emu, void* png_ptr_ptr, void
     my->png_destroy_write_struct(png_ptr_ptr, info_ptr_ptr);
 }
 
+static x86emu_t *emu_userdataread = NULL;
+static void* userread_pngptr = NULL;
+static void my12_user_read_data(void* png_ptr, void* data, int32_t length)
+{
+    if(emu_userdataread) {
+        SetCallbackArg(emu_userdataread, 0, png_ptr);
+        SetCallbackArg(emu_userdataread, 1, data);
+        SetCallbackArg(emu_userdataread, 2, (void*)length);
+        RunCallback(emu_userdataread);
+    }
+}
+
+EXPORT void my12_png_set_read_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* read_fn)
+{
+    library_t * lib = GetLib(emu->context->maplib, png12Name);
+    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
+
+    if(read_fn && emu_userdataread) {
+        printf_log(LOG_NONE, "Warning, pn12 is using 2* png_set_read_fn without clearing\n");
+        FreeCallback(emu_userdataread);
+        emu_userdataread = NULL;
+        userread_pngptr = NULL;
+    }
+
+    if(read_fn) {
+        userread_pngptr = png_ptr;
+        emu_userdataread = AddCallback(emu, (uintptr_t)read_fn, 3, NULL, NULL, NULL, NULL);
+    }
+
+    my->png_set_read_fn(png_ptr, ioptr, (read_fn)?my12_user_read_data:NULL);
+}
+
+EXPORT void my12_png_destroy_read_struct(x86emu_t* emu, void* png_ptr_ptr, void* info_ptr_ptr, void* end_info_ptr_ptr)
+{
+    if(!png_ptr_ptr)
+        return;
+
+    library_t * lib = GetLib(emu->context->maplib, png12Name);
+    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
+    // clean up box86 stuff first
+    void* ptr = *(void**)png_ptr_ptr;
+    if(userread_pngptr == ptr) {
+        userread_pngptr = NULL;
+        FreeCallback(emu_userdataread);
+        emu_userdataread = NULL;
+    }
+    // ok, clean other stuffs now
+    my->png_destroy_read_struct(png_ptr_ptr, info_ptr_ptr, end_info_ptr_ptr);
+}
+
+static uintptr_t my12_error_fct = 0;
+static void my12_error_cb(void* a, void* b)
+{
+    RunFunction(my_context, my12_error_fct, 2, a, b);
+}
+static uintptr_t my12_warning_fct = 0;
+static void my12_warning_cb(void* a, void* b)
+{
+    RunFunction(my_context, my12_warning_fct, 2, a, b);
+}
+
+EXPORT void my12_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, void* error_fn, void* warning_fn)
+{
+    library_t * lib = GetLib(emu->context->maplib, png12Name);
+    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
+
+    my12_error_fct = (uintptr_t)error_fn;
+    my12_warning_fct = (uintptr_t)warning_fn;
+    my->png_set_error_fn(pngptr, errorptr, error_fn?my12_error_cb:NULL, warning_fn?my12_warning_cb:NULL);
+}
+
 // Maybe this is needed?
 //#define CUSTOM_INIT     lib->priv.w.altprefix=strdup("yes");
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getPng12My(lib); \
+    my_context = box86;                 \
+    lib->priv.w.p2 = getPng12My(lib);   \
     lib->altmy = strdup("my12_");
 
 #define CUSTOM_FINI \
