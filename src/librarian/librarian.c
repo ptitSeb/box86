@@ -205,14 +205,14 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
 
     // and now weak symbol, from older to newer
     // library for newer to older, weak only now
+    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
+        if(*start)
+            return 1;
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))    // only weak symbol haven't been found yet
             if(*start)
                 return 1;
     }
-    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
-        if(*start)
-            return 1;
     // nope, not found
     return 0;
 }
