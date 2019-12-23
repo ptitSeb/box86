@@ -77,7 +77,7 @@ GOM(pthread_create, iFEpppp)
 GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
 GO(pthread_exit, vFp)
-// pthread_getaffinity_np
+GO(pthread_getaffinity_np, iFpup)
 GO(pthread_getattr_np, iFup)
 GO(pthread_getconcurrency, iFv)
 GO(pthread_getcpuclockid, iFup)

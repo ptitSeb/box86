@@ -295,8 +295,8 @@ GO2(lgammal_r, KFKp, lgamma_r)
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
-// llrint   // Weak
-// llrintf  // Weak
+GOW(llrint, IFd)
+GOW(llrintf, IFf)
 // llrintl  // Weak
 // llround  // Weak
 // llroundf // Weak

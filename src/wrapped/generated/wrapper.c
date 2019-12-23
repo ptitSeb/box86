@@ -68,6 +68,8 @@ typedef int32_t (*iFf_t)(float);
 typedef int32_t (*iFd_t)(double);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFS_t)(void*);
+typedef int64_t (*IFf_t)(float);
+typedef int64_t (*IFd_t)(double);
 typedef int64_t (*IFp_t)(void*);
 typedef uint8_t (*CFp_t)(void*);
 typedef uint16_t (*WFi_t)(int32_t);
@@ -1127,6 +1129,8 @@ void iFf(x86emu_t *emu, uintptr_t fcn) { iFf_t fn = (iFf_t)fcn; R_EAX=fn(*(float
 void iFd(x86emu_t *emu, uintptr_t fcn) { iFd_t fn = (iFd_t)fcn; R_EAX=fn(*(double*)(R_ESP + 4)); }
 void iFp(x86emu_t *emu, uintptr_t fcn) { iFp_t fn = (iFp_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4)); }
 void iFS(x86emu_t *emu, uintptr_t fcn) { iFS_t fn = (iFS_t)fcn; R_EAX=fn(io_convert(*(void**)(R_ESP + 4))); }
+void IFf(x86emu_t *emu, uintptr_t fcn) { IFf_t fn = (IFf_t)fcn; ui64_t r; r.i=fn(*(float*)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
+void IFd(x86emu_t *emu, uintptr_t fcn) { IFd_t fn = (IFd_t)fcn; ui64_t r; r.i=fn(*(double*)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void IFp(x86emu_t *emu, uintptr_t fcn) { IFp_t fn = (IFp_t)fcn; ui64_t r; r.i=fn(*(void**)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void CFp(x86emu_t *emu, uintptr_t fcn) { CFp_t fn = (CFp_t)fcn; R_EAX=(unsigned char)fn(*(void**)(R_ESP + 4)); }
 void WFi(x86emu_t *emu, uintptr_t fcn) { WFi_t fn = (WFi_t)fcn; R_EAX=(unsigned short)fn(*(int32_t*)(R_ESP + 4)); }
