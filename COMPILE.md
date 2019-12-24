@@ -4,9 +4,21 @@ Compiling
 
  `mkdir build; cd build; cmake .. -DPANDORA=1; make`
 
+*for Pyra*
+
+ `mkdir build; cd build; cmake .. -DPYRA=1; make`
+
 *for Gameshell*
 
 `mkdir build; cd build; cmake .. -DGAMESHELL=1; make`
+
+*for RaspberryPI*
+
+  _a build for model 2, 3 and 4 can be done. Model 1 and 0 cannot (at least not with Dynarec, as they lack NEON support)_
+ 
+`mkdir build; cd build; cmake .. -DRPI4=1; make`
+ 
+  _For Pi4. Change to RPI2 or RPI3 for other models._
 
 *or for Other ARM Linux*
 
