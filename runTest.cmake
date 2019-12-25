@@ -13,6 +13,7 @@ if( NOT TEST_REFERENCE )
 endif( NOT TEST_REFERENCE )
 
 set(ENV{BOX86_LOG} 0)
+set(ENV{LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/x86lib)
 # run the test program, capture the stdout/stderr and the result var
 execute_process(
   COMMAND ${TEST_PROGRAM} ${TEST_ARGS} ${TEST_ARGS2}

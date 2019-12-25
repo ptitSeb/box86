@@ -19,7 +19,6 @@ option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" 
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
-option(X86_CPP_LIBRARY_PRESENT "Set to ON if you have an accessible libstdc++.so.6 32bit ELF lib in your PATH" ${X86_CPP_LIBRARY_PRESENT})
 
 find_package(PythonInterp)
 if(NOT PYTHONINTERP_FOUND)
@@ -294,8 +293,16 @@ if(NOT NOLOADADDR)
     target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x03800000)
 endif()
 
-install(TARGETS ${BOX86}
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
+
+if(NOT _x86 AND NOT _x86_64)
+  install(TARGETS ${BOX86}
     RUNTIME DESTINATION bin)
+  install(FILES ${CMAKE_SOURCE_DIR}/system/box86.conf DESTINATION /etc/binfmt.d/)
+  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
+  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
+endif()
 
 add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
@@ -342,12 +349,10 @@ add_test(test09 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref09.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-if(X86_CPP_LIBRARY_PRESENT)
-    add_test(test10 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
-        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test10 -D TEST_OUTPUT=tmpfile.txt 
-        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref10.txt
-        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-endif(X86_CPP_LIBRARY_PRESENT)
+add_test(test10 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test10 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref10.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(test11 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile.txt 
