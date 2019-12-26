@@ -1867,9 +1867,9 @@ GOM(vfprintf, iFEppVV)
 GOM(__vfprintf_chk, iFEpvpVV)
 GOM(vfscanf, iFEppV)  // Weak
 // __vfscanf
-// vfwprintf    // Weak
+GOM(vfwprintf, iFEppp)    // Weak
 // __vfwprintf_chk
-// vfwscanf // Weak
+GOW(vfwscanf, iFppp)
 // vhangup
 // vlimit
 // vmsplice
@@ -1891,9 +1891,9 @@ GO(__vsyslog_chk, vFiipV)
 // vtimes
 GOM(vwarn, vFEpVV)
 // vwarnx
-// vwprintf
+GOM(vwprintf, iFEpp)
 // __vwprintf_chk
-// vwscanf
+GO(vwscanf, iFpp)
 GOW(wait, iFp)
 GOW(__wait, iFp)
 GOW(wait3, iFpip)
@@ -1946,7 +1946,7 @@ GOW(wcsrtombs, uFppup)
 GO(wcsspn, uFpp)
 GO(wcsstr, pFpp)
 GO(wcstod, dFpp)
-// __wcstod_internal
+GO(__wcstod_internal, dFppi)
 // __wcstod_l
 // wcstod_l // Weak
 GO(wcstof, fFpp)
@@ -1971,7 +1971,7 @@ GO(wcstombs, uFppu)
 // __wcstombs_chk
 // wcstoq   // Weak
 GO(wcstoul, iFppi)
-// __wcstoul_internal
+GO(__wcstoul_internal, LFppii)
 GO(wcstoull, UFppi)
 // __wcstoul_l
 // wcstoul_l    // Weak

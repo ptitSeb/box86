@@ -300,6 +300,28 @@ EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
 }
 EXPORT int my___fwprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fwprintf")));
 
+EXPORT int my_vfwprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
+    #ifndef NOALIGN
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vfwprintf;
+    return ((iFppp_t)f)(F, fmt, emu->scratch);
+    #else
+    void* f = vfwprintf;
+    return ((iFppp_t)f)(F, fmt, b);
+    #endif
+}
+
+EXPORT int my_vwprintf(x86emu_t *emu, void* fmt, void* b) {
+    #ifndef NOALIGN
+    myStackAlignW((const char*)fmt, b, emu->scratch);
+    void* f = vwprintf;
+    return ((iFpp_t)f)(fmt, emu->scratch);
+    #else
+    void* f = vwprintf;
+    return ((iFpp_t)f)(fmt, b);
+    #endif
+}
+
 EXPORT void *my_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
     return result;
