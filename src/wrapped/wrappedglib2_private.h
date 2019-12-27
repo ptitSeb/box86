@@ -37,11 +37,15 @@ GO(g_ascii_strup, pFpi)
 GO(g_ascii_tolower, CFC)
 GO(g_ascii_toupper, CFC)
 GO(g_ascii_xdigit_value, iFC)
-//GO(g_assertion_message, 
-//GO(g_assertion_message_cmpnum, 
-//GO(g_assertion_message_cmpstr, 
-//GO(g_assertion_message_error, 
-//GO(g_assertion_message_expr, 
+GO(g_assertion_message, vFppipp)
+#ifdef HAVE_LD80BITS
+GO(g_assertion_message_cmpnum, vFppippDDC)
+#else
+GO(g_assertion_message_cmpnum, vFppippddC)
+#endif
+GO(g_assertion_message_cmpstr, vFppippppp)
+GO(g_assertion_message_error, vFppipppui)
+GO(g_assertion_message_expr, vFppipp)
 GO(g_assert_warning, vFppipp)
 GO(g_async_queue_length, iFp)
 //GO(g_async_queue_length_unlocked, 
@@ -606,14 +610,14 @@ GOM(g_list_free_full, vFEpp)
 //GO(g_list_sort_with_data, 
 GO(g_locale_from_utf8, pFpippp)
 //GO(g_locale_to_utf8, 
-//GO(g_log, 
-//GO(g_log_default_handler, 
-//GO(g_log_remove_handler, 
-//GO(g_log_set_always_fatal, 
-//GO(g_log_set_default_handler, 
-//GO(g_log_set_fatal_mask, 
-//GO(g_log_set_handler, 
-//GO(g_logv, 
+GO2(g_log, vFpppV, g_logv)
+GO(g_log_default_handler, vFpipp)
+GO(g_log_remove_handler, vFpu)
+GO(g_log_set_always_fatal, iFi)
+//GOM(g_log_set_default_handler, pFEBp)
+GO(g_log_set_fatal_mask, iFpi)
+//GOM(g_log_set_handler, uFpiBp)
+GO(g_logv, vFpppp)      // need align?
 //GO(g_lstat, 
 //GO(g_main_context_acquire, 
 //GO(g_main_context_add_poll, 
