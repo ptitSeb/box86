@@ -61,29 +61,29 @@ GO(pango_color_parse, iFpp)
 //GO(pango_color_to_string, 
 //GO(pango_config_key_get, 
 //GO(pango_config_key_get_system, 
-//GO(pango_context_changed, 
-//GO(pango_context_get_base_dir, 
-//GO(pango_context_get_base_gravity, 
-//GO(pango_context_get_font_description, 
-//GO(pango_context_get_font_map, 
-//GO(pango_context_get_gravity, 
-//GO(pango_context_get_gravity_hint, 
-//GO(pango_context_get_language, 
-//GO(pango_context_get_matrix, 
-//GO(pango_context_get_metrics, 
-//GO(pango_context_get_serial, 
-//GO(pango_context_get_type, 
-//GO(pango_context_list_families, 
-//GO(pango_context_load_font, 
-//GO(pango_context_load_fontset, 
-//GO(pango_context_new, 
-//GO(pango_context_set_base_dir, 
-//GO(pango_context_set_base_gravity, 
-//GO(pango_context_set_font_description, 
-//GO(pango_context_set_font_map, 
-//GO(pango_context_set_gravity_hint, 
-//GO(pango_context_set_language, 
-//GO(pango_context_set_matrix, 
+GO(pango_context_changed, vFp)
+GO(pango_context_get_base_dir, iFp)
+GO(pango_context_get_base_gravity, iFp)
+GO(pango_context_get_font_description, pFp)
+GO(pango_context_get_font_map, pFp)
+GO(pango_context_get_gravity, iFp)
+GO(pango_context_get_gravity_hint, iFp)
+GO(pango_context_get_language, pFp)
+GO(pango_context_get_matrix, pFp)
+GO(pango_context_get_metrics, pFppp)
+GO(pango_context_get_serial, uFp)
+GO(pango_context_get_type, iFv)
+GO(pango_context_list_families, vFppp)
+GO(pango_context_load_font, pFpp)
+GO(pango_context_load_fontset, pFppp)
+GO(pango_context_new, pFv)
+GO(pango_context_set_base_dir, vFpi)
+GO(pango_context_set_base_gravity, vFpi)
+GO(pango_context_set_font_description, vFpp)
+GO(pango_context_set_font_map, vFpp)
+GO(pango_context_set_gravity_hint, vFpi)
+GO(pango_context_set_language, vFpp)
+GO(pango_context_set_matrix, vFpp)
 //GO(pango_coverage_copy, 
 //GO(pango_coverage_from_bytes, 
 //GO(pango_coverage_get, 
