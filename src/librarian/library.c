@@ -1,8 +1,9 @@
+#define _GNU_SOURCE
+#define __USE_GNU
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -606,6 +607,8 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
         if(!noweak || !kh_value(lib->symbol2map, k).weak)
         {
             symbol = dlsym(lib->priv.w.lib, kh_value(lib->symbol2map, k).name);
+            if(!symbol)
+                symbol = dlsym(RTLD_DEFAULT, kh_value(lib->symbol2map, k).name);    // search globaly maybe
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->symbol2map, k).name, lib->name);
                 return 0;
