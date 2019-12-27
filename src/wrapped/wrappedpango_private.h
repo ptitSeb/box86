@@ -2,62 +2,62 @@
 #error meh!
 #endif
 
-//GO(pango_alignment_get_type, 
-//GO(pango_attr_background_new, 
-//GO(pango_attr_fallback_new, 
-//GO(pango_attr_family_new, 
-//GO(pango_attr_font_desc_new, 
-//GO(pango_attr_foreground_new, 
-//GO(pango_attr_gravity_hint_new, 
-//GO(pango_attr_gravity_new, 
-//GO(pango_attribute_copy, 
-//GO(pango_attribute_destroy, 
-//GO(pango_attribute_equal, 
-//GO(pango_attribute_init, 
-//GO(pango_attr_iterator_copy, 
-//GO(pango_attr_iterator_destroy, 
-//GO(pango_attr_iterator_get, 
-//GO(pango_attr_iterator_get_attrs, 
-//GO(pango_attr_iterator_get_font, 
-//GO(pango_attr_iterator_next, 
-//GO(pango_attr_iterator_range, 
-//GO(pango_attr_language_new, 
-//GO(pango_attr_letter_spacing_new, 
-//GO(pango_attr_list_change, 
-//GO(pango_attr_list_copy, 
-//GO(pango_attr_list_filter, 
-//GO(pango_attr_list_get_iterator, 
-//GO(pango_attr_list_get_type, 
-//GO(pango_attr_list_insert, 
-//GO(pango_attr_list_insert_before, 
-//GO(pango_attr_list_new, 
-//GO(pango_attr_list_ref, 
-//GO(pango_attr_list_splice, 
-//GO(pango_attr_list_unref, 
-//GO(pango_attr_rise_new, 
-//GO(pango_attr_scale_new, 
-//GO(pango_attr_shape_new, 
-//GO(pango_attr_shape_new_with_data, 
-//GO(pango_attr_size_new, 
-//GO(pango_attr_size_new_absolute, 
-//GO(pango_attr_stretch_new, 
-//GO(pango_attr_strikethrough_color_new, 
-//GO(pango_attr_strikethrough_new, 
-//GO(pango_attr_style_new, 
-//GO(pango_attr_type_get_name, 
-//GO(pango_attr_type_get_type, 
-//GO(pango_attr_type_register, 
-//GO(pango_attr_underline_color_new, 
-//GO(pango_attr_underline_new, 
-//GO(pango_attr_variant_new, 
-//GO(pango_attr_weight_new, 
+GO(pango_alignment_get_type, iFv)
+GO(pango_attr_background_new, pFWWW)
+GO(pango_attr_fallback_new, pFi)
+GO(pango_attr_family_new, pFp)
+GO(pango_attr_font_desc_new, pFp)
+GO(pango_attr_foreground_new, pFWWW)
+GO(pango_attr_gravity_hint_new, pFi)
+GO(pango_attr_gravity_new, pFi)
+GO(pango_attribute_copy, pFp)
+GO(pango_attribute_destroy, vFp)
+GO(pango_attribute_equal, iFpp)
+GO(pango_attribute_init, vFpp)
+GO(pango_attr_iterator_copy, pFp)
+GO(pango_attr_iterator_destroy, vFp)
+GO(pango_attr_iterator_get, pFpi)
+GO(pango_attr_iterator_get_attrs, pFp)
+GO(pango_attr_iterator_get_font, vFpppp)
+GO(pango_attr_iterator_next, iFp)
+GO(pango_attr_iterator_range, vFppp)
+GO(pango_attr_language_new, pFp)
+GO(pango_attr_letter_spacing_new, pFi)
+GO(pango_attr_list_change, vFpp)
+GO(pango_attr_list_copy, pFp)
+//GOM(pango_attr_list_filter, pFEpBp)
+GO(pango_attr_list_get_iterator, pFp)
+GO(pango_attr_list_get_type, iFv)
+GO(pango_attr_list_insert, vFpp)
+GO(pango_attr_list_insert_before, vFpp)
+GO(pango_attr_list_new, pFv)
+GO(pango_attr_list_ref, pFp)
+GO(pango_attr_list_splice, vFppii)
+GO(pango_attr_list_unref, vFp)
+GO(pango_attr_rise_new, pFi)
+GO(pango_attr_scale_new, pFd)
+GO(pango_attr_shape_new, pFpp)
+//GOM(pango_attr_shape_new_with_data, pFpppBB)
+GO(pango_attr_size_new, pFi)
+GO(pango_attr_size_new_absolute, pFi)
+GO(pango_attr_stretch_new, pFi)
+GO(pango_attr_strikethrough_color_new, pFWWW)
+GO(pango_attr_strikethrough_new, pFi)
+GO(pango_attr_style_new, pFi)
+GO(pango_attr_type_get_name, pFp)
+GO(pango_attr_type_get_type, iFv)
+GO(pango_attr_type_register, iFp)
+GO(pango_attr_underline_color_new, pFWWW)
+GO(pango_attr_underline_new, pFi)
+GO(pango_attr_variant_new, pFi)
+GO(pango_attr_weight_new, pFi)
 //GO(pango_bidi_type_for_unichar, 
 //GO(pango_bidi_type_get_type, 
 //GO(pango_break, 
-//GO(pango_color_copy, 
-//GO(pango_color_free, 
-//GO(pango_color_get_type, 
-//GO(pango_color_parse, 
+GO(pango_color_copy, pFp)
+GO(pango_color_free, vFp)
+GO(pango_color_get_type, iFv)
+GO(pango_color_parse, iFpp)
 //GO(pango_color_to_string, 
 //GO(pango_config_key_get, 
 //GO(pango_config_key_get_system, 
