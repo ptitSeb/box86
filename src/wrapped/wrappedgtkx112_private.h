@@ -3813,118 +3813,118 @@ GO(gtk_widget_unmap, vFp)
 GO(gtk_widget_unparent, vFp)
 GO(gtk_widget_unrealize, vFp)
 GO(gtk_widget_unref, vFp)
-//GO(gtk_window_activate_default, 
-//GO(gtk_window_activate_focus, 
-//GO(gtk_window_activate_key, 
-//GO(gtk_window_add_accel_group, 
-//GO(gtk_window_add_embedded_xid, 
-//GO(gtk_window_add_mnemonic, 
-//GO(gtk_window_begin_move_drag, 
-//GO(gtk_window_begin_resize_drag, 
-//GO(gtk_window_deiconify, 
-//GO(gtk_window_fullscreen, 
-//GO(gtk_window_get_accept_focus, 
-//GO(gtk_window_get_decorated, 
-//GO(gtk_window_get_default_icon_list, 
-//GO(gtk_window_get_default_icon_name, 
-//GO(gtk_window_get_default_size, 
-//GO(gtk_window_get_default_widget, 
-//GO(gtk_window_get_deletable, 
-//GO(gtk_window_get_destroy_with_parent, 
-//GO(gtk_window_get_focus, 
-//GO(gtk_window_get_focus_on_map, 
-//GO(gtk_window_get_frame_dimensions, 
+GO(gtk_window_activate_default, iFp)
+GO(gtk_window_activate_focus, iFp)
+GO(gtk_window_activate_key, iFpp)
+GO(gtk_window_add_accel_group, vFpp)
+GO(gtk_window_add_embedded_xid, vFpu)
+GO(gtk_window_add_mnemonic, vFpup)
+GO(gtk_window_begin_move_drag, vFpiiiu)
+GO(gtk_window_begin_resize_drag, vFpuiiiu)
+GO(gtk_window_deiconify, vFp)
+GO(gtk_window_fullscreen, vFp)
+GO(gtk_window_get_accept_focus, iFp)
+GO(gtk_window_get_decorated, iFp)
+GO(gtk_window_get_default_icon_list, pFv)
+GO(gtk_window_get_default_icon_name, pFv)
+GO(gtk_window_get_default_size, vFppp)
+GO(gtk_window_get_default_widget, pFp)
+GO(gtk_window_get_deletable, iFp)
+GO(gtk_window_get_destroy_with_parent, iFp)
+GO(gtk_window_get_focus, pFp)
+GO(gtk_window_get_focus_on_map, iFp)
+GO(gtk_window_get_frame_dimensions, vFppppp)
 GO(gtk_window_get_gravity, iFp)
-//GO(gtk_window_get_group, 
-//GO(gtk_window_get_has_frame, 
-//GO(gtk_window_get_icon, 
-//GO(gtk_window_get_icon_list, 
-//GO(gtk_window_get_icon_name, 
-//GO(gtk_window_get_mnemonic_modifier, 
-//GO(gtk_window_get_mnemonics_visible, 
-//GO(gtk_window_get_modal, 
+GO(gtk_window_get_group, pFp)
+GO(gtk_window_get_has_frame, iFp)
+GO(gtk_window_get_icon, pFp)
+GO(gtk_window_get_icon_list, pFp)
+GO(gtk_window_get_icon_name, pFp)
+GO(gtk_window_get_mnemonic_modifier, iFp)
+GO(gtk_window_get_mnemonics_visible, iFp)
+GO(gtk_window_get_modal, iFp)
 GO(gtk_window_get_opacity, dFp)
-//GO(gtk_window_get_position, 
-//GO(gtk_window_get_resizable, 
-//GO(gtk_window_get_role, 
-//GO(gtk_window_get_screen, 
-//GO(gtk_window_get_size, 
-//GO(gtk_window_get_skip_pager_hint, 
-//GO(gtk_window_get_skip_taskbar_hint, 
-//GO(gtk_window_get_title, 
-//GO(gtk_window_get_transient_for, 
+GO(gtk_window_get_position, vFppp)
+GO(gtk_window_get_resizable, iFp)
+GO(gtk_window_get_role, pFp)
+GO(gtk_window_get_screen, pFp)
+GO(gtk_window_get_size, vFppp)
+GO(gtk_window_get_skip_pager_hint, iFp)
+GO(gtk_window_get_skip_taskbar_hint, iFp)
+GO(gtk_window_get_title, pFp)
+GO(gtk_window_get_transient_for, pFp)
 GO(gtk_window_get_type, iFv)
-//GO(gtk_window_get_type_hint, 
-//GO(gtk_window_get_urgency_hint, 
-//GO(gtk_window_get_window_type, 
-//GO(gtk_window_group_add_window, 
-//GO(gtk_window_group_get_current_grab, 
-//GO(gtk_window_group_get_type, 
-//GO(gtk_window_group_list_windows, 
-//GO(gtk_window_group_new, 
-//GO(gtk_window_group_remove_window, 
-//GO(gtk_window_has_group, 
-//GO(gtk_window_has_toplevel_focus, 
-//GO(gtk_window_iconify, 
-//GO(gtk_window_is_active, 
-//GO(gtk_window_list_toplevels, 
-//GO(gtk_window_maximize, 
-//GO(gtk_window_mnemonic_activate, 
-//GO(gtk_window_move, 
+GO(gtk_window_get_type_hint, iFp)
+GO(gtk_window_get_urgency_hint, iFp)
+GO(gtk_window_get_window_type, uFp)
+GO(gtk_window_group_add_window, vFpp)
+GO(gtk_window_group_get_current_grab, pFp)
+GO(gtk_window_group_get_type, iFv)
+GO(gtk_window_group_list_windows, pFp)
+GO(gtk_window_group_new, pFv)
+GO(gtk_window_group_remove_window, vFpp)
+GO(gtk_window_has_group, iFp)
+GO(gtk_window_has_toplevel_focus, iFp)
+GO(gtk_window_iconify, vFp)
+GO(gtk_window_is_active, iFp)
+GO(gtk_window_list_toplevels, pFv)
+GO(gtk_window_maximize, vFp)
+GO(gtk_window_mnemonic_activate, iFpui)
+GO(gtk_window_move, vFpii)
 GO(gtk_window_new, pFi)
-//GO(gtk_window_parse_geometry, 
-//GO(gtk_window_position_get_type, 
-//GO(gtk_window_present, 
-//GO(gtk_window_present_with_time, 
-//GO(gtk_window_propagate_key_event, 
-//GO(gtk_window_remove_accel_group, 
-//GO(gtk_window_remove_embedded_xid, 
-//GO(gtk_window_remove_mnemonic, 
-//GO(gtk_window_reshow_with_initial_size, 
-//GO(gtk_window_resize, 
-//GO(gtk_window_set_accept_focus, 
+GO(gtk_window_parse_geometry, iFpp)
+GO(gtk_window_position_get_type, iFv)
+GO(gtk_window_present, vFp)
+GO(gtk_window_present_with_time, vFpu)
+GO(gtk_window_propagate_key_event, iFpp)
+GO(gtk_window_remove_accel_group, vFpp)
+GO(gtk_window_remove_embedded_xid, vFpu)
+GO(gtk_window_remove_mnemonic, vFpup)
+GO(gtk_window_reshow_with_initial_size, vFp)
+GO(gtk_window_resize, vFpii)
+GO(gtk_window_set_accept_focus, vFpi)
 GO(gtk_window_set_auto_startup_notification, vFi)
-//GO(gtk_window_set_decorated, 
-//GO(gtk_window_set_default, 
+GO(gtk_window_set_decorated, vFpi)
+GO(gtk_window_set_default, vFpp)
 GO(gtk_window_set_default_icon, vFp)
-//GO(gtk_window_set_default_icon_from_file, 
-//GO(gtk_window_set_default_icon_list, 
+GO(gtk_window_set_default_icon_from_file, iFpp)
+GO(gtk_window_set_default_icon_list, vFp)
 GO(gtk_window_set_default_icon_name, vFp)
 GO(gtk_window_set_default_size, vFpii)
 GO(gtk_window_set_deletable, vFpi)
-//GO(gtk_window_set_destroy_with_parent, 
-//GO(gtk_window_set_focus, 
-//GO(gtk_window_set_focus_on_map, 
-//GO(gtk_window_set_frame_dimensions, 
+GO(gtk_window_set_destroy_with_parent, vFpi)
+GO(gtk_window_set_focus, vFpp)
+GO(gtk_window_set_focus_on_map, vFpi)
+GO(gtk_window_set_frame_dimensions, vFpiiii)
 GO(gtk_window_set_geometry_hints, vFpppi)
 GO(gtk_window_set_gravity, vFpi)
-//GO(gtk_window_set_has_frame, 
+GO(gtk_window_set_has_frame, vFpi)
 GO(gtk_window_set_icon, vFpp)
-//GO(gtk_window_set_icon_from_file, 
+GO(gtk_window_set_icon_from_file, iFppp)
 GO(gtk_window_set_icon_list, vFpp)
 GO(gtk_window_set_icon_name, vFpp)
-//GO(gtk_window_set_keep_above, 
-//GO(gtk_window_set_keep_below, 
-//GO(gtk_window_set_mnemonic_modifier, 
-//GO(gtk_window_set_mnemonics_visible, 
+GO(gtk_window_set_keep_above, vFpi)
+GO(gtk_window_set_keep_below, vFpi)
+GO(gtk_window_set_mnemonic_modifier, vFpi)
+GO(gtk_window_set_mnemonics_visible, vFpi)
 GO(gtk_window_set_modal, vFpi)
 GO(gtk_window_set_opacity, vFpd)
 GO(gtk_window_set_policy, vFpiii)
 GO(gtk_window_set_position, vFpi)
 GO(gtk_window_set_resizable, vFpi)
-//GO(gtk_window_set_role, 
-//GO(gtk_window_set_screen, 
-//GO(gtk_window_set_skip_pager_hint, 
-//GO(gtk_window_set_skip_taskbar_hint, 
-//GO(gtk_window_set_startup_id, 
+GO(gtk_window_set_role, vFpp)
+GO(gtk_window_set_screen, vFpp)
+GO(gtk_window_set_skip_pager_hint, vFpi)
+GO(gtk_window_set_skip_taskbar_hint, vFpi)
+GO(gtk_window_set_startup_id, vFpp)
 GO(gtk_window_set_title, vFpp)
 GO(gtk_window_set_transient_for, vFpp)
-//GO(gtk_window_set_type_hint, 
-//GO(gtk_window_set_urgency_hint, 
+GO(gtk_window_set_type_hint, vFpi)
+GO(gtk_window_set_urgency_hint, vFpi)
 GO(gtk_window_set_wmclass, vFppp)
-//GO(gtk_window_stick, 
-//GO(gtk_window_type_get_type, 
-//GO(gtk_window_unfullscreen, 
-//GO(gtk_window_unmaximize, 
-//GO(gtk_window_unstick, 
-//GO(gtk_wrap_mode_get_type, 
+GO(gtk_window_stick, vFp)
+GO(gtk_window_type_get_type, iFv)
+GO(gtk_window_unfullscreen, vFp)
+GO(gtk_window_unmaximize, vFp)
+GO(gtk_window_unstick, vFp)
+GO(gtk_wrap_mode_get_type, iFv)
