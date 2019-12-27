@@ -24,25 +24,25 @@
 //GO(g_array_sort, 
 //GO(g_array_sort_with_data, 
 //GO(g_array_unref, 
-//GO(g_ascii_digit_value, 
-//GO(g_ascii_dtostr, 
-//GO(g_ascii_formatd, 
-//GO(g_ascii_strcasecmp, 
-//GO(g_ascii_strdown, 
-//GO(g_ascii_strncasecmp, 
-//GO(g_ascii_strtod, 
-//GO(g_ascii_strtoll, 
-//GO(g_ascii_strtoull, 
-//GO(g_ascii_strup, 
-//GO(g_ascii_tolower, 
-//GO(g_ascii_toupper, 
-//GO(g_ascii_xdigit_value, 
+GO(g_ascii_digit_value, iFC)
+GO(g_ascii_dtostr, pFpid)
+GO(g_ascii_formatd, pFpipd)
+GO(g_ascii_strcasecmp, iFpp)
+GO(g_ascii_strdown, pFpi)
+GO(g_ascii_strncasecmp, iFppu)
+GO(g_ascii_strtod, dFpp)
+GO(g_ascii_strtoll, IFppu)
+GO(g_ascii_strtoull, UFppu)
+GO(g_ascii_strup, pFpi)
+GO(g_ascii_tolower, CFC)
+GO(g_ascii_toupper, CFC)
+GO(g_ascii_xdigit_value, iFC)
 //GO(g_assertion_message, 
 //GO(g_assertion_message_cmpnum, 
 //GO(g_assertion_message_cmpstr, 
 //GO(g_assertion_message_error, 
 //GO(g_assertion_message_expr, 
-//GO(g_assert_warning, 
+GO(g_assert_warning, vFppipp)
 GO(g_async_queue_length, iFp)
 //GO(g_async_queue_length_unlocked, 
 GO(g_async_queue_lock, vFp)
@@ -374,7 +374,7 @@ GO(g_filename_to_utf8, pFpippp)
 //GO(g_format_size, 
 //GO(g_format_size_for_display, 
 //GO(g_format_size_full, 
-//GO(g_fprintf, 
+GO2(g_fprintf, iFppV, my_g_vfprintf)
 GO(g_free, vFp)
 //GO(g_freopen, 
 //GO(g_get_application_name, 
@@ -755,8 +755,8 @@ GO(g_mutex_unlock, vFp)
 //GO(g_once_init_enter, 
 //GO(g_once_init_enter_impl, 
 //GO(g_once_init_leave, 
-//GO(g_on_error_query, 
-//GO(g_on_error_stack_trace, 
+GO(g_on_error_query, vFp)
+GO(g_on_error_stack_trace, vFp)
 //GO(g_open, 
 //GO(g_option_context_add_group, 
 //GO(g_option_context_add_main_entries, 
@@ -803,8 +803,8 @@ GO(g_mutex_unlock, vFp)
 //GO(g_prefix_error, 
 //GO(g_print, 
 //GO(g_printerr, 
-//GO(g_printf, 
-//GO(g_printf_string_upper_bound, 
+GO2(g_printf, iFpV, my_g_vprintf)
+GOM(g_printf_string_upper_bound, uFEpp)
 //GO(g_private_get, 
 //GO(g_private_new, 
 //GO(g_private_replace, 
@@ -936,7 +936,7 @@ GO(g_quark_try_string, uFp)
 //GO(g_reload_user_special_dirs_cache, 
 //GO(g_remove, 
 //GO(g_rename, 
-//GO(g_return_if_fail_warning, 
+GO(g_return_if_fail_warning, vFppp)
 //GO(g_rmdir, 
 //GO(g_rw_lock_clear, 
 //GO(g_rw_lock_init, 
@@ -1054,7 +1054,7 @@ GO(g_shell_unquote, pFpp)
 //GO(g_slist_reverse, 
 //GO(g_slist_sort, 
 //GO(g_slist_sort_with_data, 
-//GO(g_snprintf, 
+GO2(g_snprintf, iFpLpV, my_g_vsnprintf)
 //GO(g_source_add_child_source, 
 //GO(g_source_add_poll, 
 //GO(g_source_add_unix_fd, 
@@ -1098,7 +1098,7 @@ GO(g_shell_unquote, pFpp)
 //GO(g_spawn_error_quark, 
 //GO(g_spawn_exit_error_quark, 
 //GO(g_spawn_sync, 
-//GO(g_sprintf, 
+GO2(g_sprintf, iFppV, my_g_vsprintf)
 //GO(g_stat, 
 //GO(g_static_mutex_free, 
 //GO(g_static_mutex_get_mutex_impl, 
@@ -1122,27 +1122,27 @@ GO(g_shell_unquote, pFpp)
 //GO(g_static_rw_lock_writer_lock, 
 //GO(g_static_rw_lock_writer_trylock, 
 //GO(g_static_rw_lock_writer_unlock, 
-//GO(g_stpcpy, 
-//GO(g_strcanon, 
-//GO(g_strcasecmp, 
-//GO(g_strchomp, 
-//GO(g_strchug, 
-//GO(g_strcmp0, 
-//GO(g_strcompress, 
-//GO(g_strconcat, 
-//GO(g_strdelimit, 
-//GO(g_strdown, 
+GO(g_stpcpy, pFpp)
+GO(g_strcanon, pFppC)
+GO(g_strcasecmp, iFpp)
+GO(g_strchomp, pFp)
+GO(g_strchug, pFp)
+GO(g_strcmp0, iFpp)
+GO(g_strcompress, pFp)
+GO(g_strconcat, pFppppppppppppp)    //vaarg, no va_list equivalent...
+GO(g_strdelimit, pFppC)
+GO(g_strdown, pFp)
 GO(g_strdup, pFp)
-//GO(g_strdup_printf, 
-//GO(g_strdupv, 
-//GO(g_strdup_vprintf, 
+GO2(g_strdup_printf, pFpV, my_g_strdup_vprintf)
+GO(g_strdupv, pFp)
+GOM(g_strdup_vprintf, pFEpp)
 GO(g_str_equal, iFpp)
-//GO(g_strerror, 
-//GO(g_strescape, 
+GO(g_strerror, pFi)
+GO(g_strescape, pFpp)
 GO(g_strfreev, vFp)
 GO(g_str_hash, uFp)
-//GO(g_str_has_prefix, 
-//GO(g_str_has_suffix, 
+GO(g_str_has_prefix, iFpp)
+GO(g_str_has_suffix, iFpp)
 //GO(g_string_append, 
 //GO(g_string_append_c, 
 //GO(g_string_append_len, 
@@ -1184,27 +1184,27 @@ GO(g_str_hash, uFp)
 //GO(g_string_up, 
 //GO(g_string_vprintf, 
 //GO(g_strip_context, 
-//GO(g_str_is_ascii, 
-//GO(g_strjoin, 
-//GO(g_strjoinv, 
-//GO(g_strlcat, 
-//GO(g_strlcpy, 
-//GO(g_str_match_string, 
-//GO(g_strncasecmp, 
-//GO(g_strndup, 
-//GO(g_strnfill, 
-//GO(g_strreverse, 
-//GO(g_strrstr, 
-//GO(g_strrstr_len, 
-//GO(g_strsignal, 
-//GO(g_strsplit, 
-//GO(g_strsplit_set, 
-//GO(g_strstr_len, 
-//GO(g_str_to_ascii, 
-//GO(g_strtod, 
-//GO(g_str_tokenize_and_fold, 
-//GO(g_strup, 
-//GO(g_strv_length, 
+GO(g_str_is_ascii, iFp)
+GO2(g_strjoin, pFpV, g_strjoinv)
+GO(g_strjoinv, pFpp)    // no need to align, ony string pointers here
+GO(g_strlcat, uFppu)
+GO(g_strlcpy, uFppu)
+GO(g_str_match_string, iFppi)
+GO(g_strncasecmp, iFppu)
+GO(g_strndup, pFpu)
+GO(g_strnfill, pFuC)
+GO(g_strreverse, pFp)
+GO(g_strrstr, pFpp)
+GO(g_strrstr_len, pFpip)
+GO(g_strsignal, pFi)
+GO(g_strsplit, pFppi)
+GO(g_strsplit_set, pFppi)
+GO(g_strstr_len, pFpip)
+GO(g_str_to_ascii, pFpp)
+GO(g_strtod, dFpp)
+GO(g_str_tokenize_and_fold, pFppp)
+GO(g_strup, pFp)
+GO(g_strv_length, uFp)
 //GO(g_test_add_data_func, 
 //GO(g_test_add_data_func_full, 
 //GO(g_test_add_func, 
@@ -1338,44 +1338,44 @@ GOM(g_timeout_add, uFEupp)
 //GO(g_try_realloc_n, 
 //GO(g_tuples_destroy, 
 //GO(g_tuples_index, 
-//GO(g_ucs4_to_utf16, 
-//GO(g_ucs4_to_utf8, 
-//GO(g_unichar_break_type, 
-//GO(g_unichar_combining_class, 
-//GO(g_unichar_compose, 
-//GO(g_unichar_decompose, 
-//GO(g_unichar_digit_value, 
-//GO(g_unichar_fully_decompose, 
-//GO(g_unichar_get_mirror_char, 
-//GO(g_unichar_get_script, 
-//GO(g_unichar_isalnum, 
-//GO(g_unichar_isalpha, 
-//GO(g_unichar_iscntrl, 
-//GO(g_unichar_isdefined, 
-//GO(g_unichar_isdigit, 
-//GO(g_unichar_isgraph, 
-//GO(g_unichar_islower, 
-//GO(g_unichar_ismark, 
-//GO(g_unichar_isprint, 
-//GO(g_unichar_ispunct, 
-//GO(g_unichar_isspace, 
-//GO(g_unichar_istitle, 
-//GO(g_unichar_isupper, 
-//GO(g_unichar_iswide, 
-//GO(g_unichar_iswide_cjk, 
-//GO(g_unichar_isxdigit, 
-//GO(g_unichar_iszerowidth, 
-//GO(g_unichar_tolower, 
-//GO(g_unichar_totitle, 
-//GO(g_unichar_toupper, 
-//GO(g_unichar_to_utf8, 
-//GO(g_unichar_type, 
-//GO(g_unichar_validate, 
-//GO(g_unichar_xdigit_value, 
-//GO(g_unicode_canonical_decomposition, 
-//GO(g_unicode_canonical_ordering, 
-//GO(g_unicode_script_from_iso15924, 
-//GO(g_unicode_script_to_iso15924, 
+GO(g_ucs4_to_utf16, pFplppp)
+GO(g_ucs4_to_utf8, pFplppp)
+GO(g_unichar_break_type, iFu)
+GO(g_unichar_combining_class, iFu)
+GO(g_unichar_compose, iFuup)
+GO(g_unichar_decompose, iFupp)
+GO(g_unichar_digit_value, iFu)
+GO(g_unichar_fully_decompose, iFuipu)
+GO(g_unichar_get_mirror_char, iFup)
+GO(g_unichar_get_script, iFu)
+GO(g_unichar_isalnum, iFu)
+GO(g_unichar_isalpha, iFu)
+GO(g_unichar_iscntrl, iFu)
+GO(g_unichar_isdefined, iFu)
+GO(g_unichar_isdigit, iFu)
+GO(g_unichar_isgraph, iFu)
+GO(g_unichar_islower, iFu)
+GO(g_unichar_ismark, iFu)
+GO(g_unichar_isprint, iFu)
+GO(g_unichar_ispunct, iFu)
+GO(g_unichar_isspace, iFu)
+GO(g_unichar_istitle, iFu)
+GO(g_unichar_isupper, iFu)
+GO(g_unichar_iswide, iFu)
+GO(g_unichar_iswide_cjk, iFu)
+GO(g_unichar_isxdigit, iFu)
+GO(g_unichar_iszerowidth, iFu)
+GO(g_unichar_tolower, uFu)
+GO(g_unichar_totitle, uFu)
+GO(g_unichar_toupper, uFu)
+GO(g_unichar_to_utf8, iFup)
+GO(g_unichar_type, iFu)
+GO(g_unichar_validate, iFu)
+GO(g_unichar_xdigit_value, iFu)
+GO(g_unicode_canonical_decomposition, pFup)
+GO(g_unicode_canonical_ordering, vFpu)
+GO(g_unicode_script_from_iso15924, iFu)
+GO(g_unicode_script_to_iso15924, uFi)
 //GO(g_unix_error_quark, 
 //GO(g_unix_fd_add, 
 //GO(g_unix_fd_add_full, 
@@ -1393,31 +1393,31 @@ GOM(g_timeout_add, uFEupp)
 //GO(g_uri_unescape_segment, 
 //GO(g_uri_unescape_string, 
 //GO(g_usleep, 
-//GO(g_utf16_to_ucs4, 
-//GO(g_utf16_to_utf8, 
-//GO(g_utf8_casefold, 
-//GO(g_utf8_collate, 
-//GO(g_utf8_collate_key, 
-//GO(g_utf8_collate_key_for_filename, 
-//GO(g_utf8_find_next_char, 
-//GO(g_utf8_find_prev_char, 
-//GO(g_utf8_get_char, 
-//GO(g_utf8_get_char_validated, 
-//GO(g_utf8_normalize, 
-//GO(g_utf8_offset_to_pointer, 
-//GO(g_utf8_pointer_to_offset, 
-//GO(g_utf8_prev_char, 
-//GO(g_utf8_strchr, 
-//GO(g_utf8_strdown, 
-//GO(g_utf8_strlen, 
-//GO(g_utf8_strncpy, 
-//GO(g_utf8_strrchr, 
-//GO(g_utf8_strreverse, 
-//GO(g_utf8_strup, 
-//GO(g_utf8_substring, 
-//GO(g_utf8_to_ucs4, 
-//GO(g_utf8_to_ucs4_fast, 
-//GO(g_utf8_to_utf16, 
+GO(g_utf16_to_ucs4, pFplppp)
+GO(g_utf16_to_utf8, pFplppp)
+GO(g_utf8_casefold, pFpi)
+GO(g_utf8_collate, iFpp)
+GO(g_utf8_collate_key, pFpi)
+GO(g_utf8_collate_key_for_filename, pFpi)
+GO(g_utf8_find_next_char, pFpp)
+GO(g_utf8_find_prev_char, pFpp)
+GO(g_utf8_get_char, uFp)
+GO(g_utf8_get_char_validated, uFpi)
+GO(g_utf8_normalize, pFpii)
+GO(g_utf8_offset_to_pointer, pFpl)
+GO(g_utf8_pointer_to_offset, lFpp)
+GO(g_utf8_prev_char, pFp)
+GO(g_utf8_strchr, pFpiu)
+GO(g_utf8_strdown, pFpi)
+GO(g_utf8_strlen, lFpi)
+GO(g_utf8_strncpy, pFppu)
+GO(g_utf8_strrchr, pFpiu)
+GO(g_utf8_strreverse, pFpi)
+GO(g_utf8_strup, pFpi)
+GO(g_utf8_substring, pFpll)
+GO(g_utf8_to_ucs4, pFplppp)
+GO(g_utf8_to_ucs4_fast, pFplp)
+GO(g_utf8_to_utf16, pFplppp)
 GO(g_utf8_validate, iFplp)
 //GO(g_utime, 
 GO(g_variant_builder_add, vFppppppppppp)    // vaarg
@@ -1592,12 +1592,12 @@ GO(g_variant_take_ref, pFp)
 //GO(g_variant_type_string_scan, 
 //GO(g_variant_type_value, 
 GO(g_variant_unref, vFp)
-//GO(g_vasprintf, 
-//GO(g_vfprintf, 
-//GO(g_vprintf, 
-//GO(g_vsnprintf, 
-//GO(g_vsprintf, 
-//GO(g_warn_message, 
+GOM(g_vasprintf, iFEppp)
+GOM(g_vfprintf, iFEppp)
+GOM(g_vprintf, iFEpp)
+GOM(g_vsnprintf, iFEpLpp)
+GOM(g_vsprintf, iFEppp)
+GO(g_warn_message, vFppipp)
 //GO(_init, 
 
 DATA(g_ascii_table, 4)

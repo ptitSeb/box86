@@ -25,11 +25,15 @@ static box86context_t* my_context = NULL;
 
 typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
+typedef int  (*iFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef uint32_t  (*uFpp_t)(void*, void*);
+typedef int  (*iFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
+typedef int (*iFpLpp_t)(void*, unsigned long, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
@@ -45,7 +49,14 @@ typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
     GO(g_variant_new_from_data, pFppuipp_t)     \
     GO(g_variant_new_parsed_va, pFpp_t)         \
     GO(g_variant_get_va, vFpppp_t)              \
-    GO(g_variant_new_va, pFppp_t)
+    GO(g_variant_new_va, pFppp_t)               \
+    GO(g_strdup_vprintf, pFpp_t)                \
+    GO(g_vprintf, iFpp_t)                       \
+    GO(g_vfprintf, iFppp_t)                     \
+    GO(g_vsprintf, iFppp_t)                     \
+    GO(g_vsnprintf, iFpLpp_t)                   \
+    GO(g_vasprintf, iFppp_t)                    \
+    GO(g_printf_string_upper_bound, uFpp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -249,6 +260,91 @@ EXPORT void* my_g_variant_new(x86emu_t* emu, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
     return my->g_variant_new_va(fmt, NULL, b);
 }
+
+EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_strdup_vprintf(fmt, emu->scratch);
+    #else
+    return my->g_strdup_vprintf(fmt, b);
+    #endif
+}
+
+EXPORT int my_g_vprintf(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_vprintf(fmt, emu->scratch);
+    #else
+    return my->g_vprintf(fmt, b);
+    #endif
+}
+
+EXPORT int my_g_vfprintf(x86emu_t* emu, void* F, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_vfprintf(F, fmt, emu->scratch);
+    #else
+    return my->g_vfprintf(F, fmt, b);
+    #endif
+}
+
+EXPORT int my_g_vsprintf(x86emu_t* emu, void* s, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_vsprintf(s, fmt, emu->scratch);
+    #else
+    return my->g_vsprintf(s, fmt, b);
+    #endif
+}
+
+EXPORT int my_g_vsnprintf(x86emu_t* emu, void* s, unsigned long n, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_vsnprintf(s, n, fmt, emu->scratch);
+    #else
+    return my->g_vsnprintf(s, n, fmt, b);
+    #endif
+}
+
+EXPORT int my_g_vasprintf(x86emu_t* emu, void* s, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_vasprintf(s, fmt, emu->scratch);
+    #else
+    return my->g_vasprintf(s, fmt, b);
+    #endif
+}
+
+EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_printf_string_upper_bound(fmt, emu->scratch);
+    #else
+    return my->g_printf_string_upper_bound(fmt, b);
+    #endif
+}
+
 
 #define CUSTOM_INIT \
     my_context = box86; \
