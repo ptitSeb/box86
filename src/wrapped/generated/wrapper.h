@@ -800,6 +800,7 @@ void vFpppppi(x86emu_t *emu, uintptr_t fnc);
 void vFpppppp(x86emu_t *emu, uintptr_t fnc);
 void iFEiippi(x86emu_t *emu, uintptr_t fnc);
 void iFEpiipp(x86emu_t *emu, uintptr_t fnc);
+void iFEpiipV(x86emu_t *emu, uintptr_t fnc);
 void iFEpippi(x86emu_t *emu, uintptr_t fnc);
 void iFEpipVV(x86emu_t *emu, uintptr_t fnc);
 void iFEpupVV(x86emu_t *emu, uintptr_t fnc);
