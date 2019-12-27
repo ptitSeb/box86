@@ -1536,59 +1536,59 @@ GO(gtk_label_set_width_chars, vFpi)
 //GO(gtk_link_button_set_uri, 
 //GO(gtk_link_button_set_uri_hook, 
 //GO(gtk_link_button_set_visited, 
-//GO(gtk_list_append_items, 
-//GO(gtk_list_child_position, 
-//GO(gtk_list_clear_items, 
-//GO(gtk_list_end_drag_selection, 
-//GO(gtk_list_end_selection, 
-//GO(gtk_list_extend_selection, 
-//GO(gtk_list_get_type, 
-//GO(gtk_list_insert_items, 
-//GO(gtk_list_item_deselect, 
-//GO(gtk_list_item_get_type, 
-//GO(gtk_list_item_new, 
-//GO(gtk_list_item_new_with_label, 
-//GO(gtk_list_item_select, 
-//GO(gtk_list_new, 
-//GO(gtk_list_prepend_items, 
-//GO(gtk_list_remove_items, 
-//GO(gtk_list_remove_items_no_unref, 
-//GO(gtk_list_scroll_horizontal, 
-//GO(gtk_list_scroll_vertical, 
-//GO(gtk_list_select_all, 
-//GO(gtk_list_select_child, 
-//GO(gtk_list_select_item, 
-//GO(gtk_list_set_selection_mode, 
-//GO(gtk_list_start_selection, 
-//GO(gtk_list_store_append, 
-//GO(gtk_list_store_clear, 
-//GO(gtk_list_store_get_type, 
-//GO(gtk_list_store_insert, 
-//GO(gtk_list_store_insert_after, 
-//GO(gtk_list_store_insert_before, 
-//GO(gtk_list_store_insert_with_values, 
-//GO(gtk_list_store_insert_with_valuesv, 
-//GO(gtk_list_store_iter_is_valid, 
-//GO(gtk_list_store_move_after, 
-//GO(gtk_list_store_move_before, 
-//GO(gtk_list_store_new, 
-//GO(gtk_list_store_newv, 
-//GO(gtk_list_store_prepend, 
-//GO(gtk_list_store_remove, 
-//GO(gtk_list_store_reorder, 
-//GO(gtk_list_store_set, 
-//GO(gtk_list_store_set_column_types, 
-//GO(gtk_list_store_set_valist, 
-//GO(gtk_list_store_set_value, 
-//GO(gtk_list_store_set_valuesv, 
-//GO(gtk_list_store_swap, 
-//GO(gtk_list_toggle_add_mode, 
-//GO(gtk_list_toggle_focus_row, 
-//GO(gtk_list_toggle_row, 
-//GO(gtk_list_undo_selection, 
-//GO(gtk_list_unselect_all, 
-//GO(gtk_list_unselect_child, 
-//GO(gtk_list_unselect_item, 
+GO(gtk_list_append_items, vFpp)
+GO(gtk_list_child_position, iFpp)
+GO(gtk_list_clear_items, vFpii)
+GO(gtk_list_end_drag_selection, vFp)
+GO(gtk_list_end_selection, vFp)
+GO(gtk_list_extend_selection, vFpifi)
+GO(gtk_list_get_type, iFv)
+GO(gtk_list_insert_items, vFppi)
+GO(gtk_list_item_deselect, vFp)
+GO(gtk_list_item_get_type, iFv)
+GO(gtk_list_item_new, pFv)
+GO(gtk_list_item_new_with_label, pFp)
+GO(gtk_list_item_select, vFp)
+GO(gtk_list_new, pFv)
+GO(gtk_list_prepend_items, vFpp)
+GO(gtk_list_remove_items, vFpp)
+GO(gtk_list_remove_items_no_unref, vFpp)
+GO(gtk_list_scroll_horizontal, vFpif)
+GO(gtk_list_scroll_vertical, vFpif)
+GO(gtk_list_select_all, vFp)
+GO(gtk_list_select_child, vFpp)
+GO(gtk_list_select_item, vFpi)
+GO(gtk_list_set_selection_mode, vFpi)
+GO(gtk_list_start_selection, vFp)
+GO(gtk_list_store_append, vFpp)
+GO(gtk_list_store_clear, vFp)
+GO(gtk_list_store_get_type, iFv)
+GO(gtk_list_store_insert, vFppi)
+GO(gtk_list_store_insert_after, vFppp)
+GO(gtk_list_store_insert_before, vFppp)
+//GOM(gtk_list_store_insert_with_values, vFppiV)    // wrap with gtk_list_store_insert_with_valuesv
+GO(gtk_list_store_insert_with_valuesv, vFppippi)
+GO(gtk_list_store_iter_is_valid, iFpp)
+GO(gtk_list_store_move_after, vFppp)
+GO(gtk_list_store_move_before, vFppp)
+GO2(gtk_list_store_new, pFiV, gtk_list_store_newv)
+GO(gtk_list_store_newv, pFip)
+GO(gtk_list_store_prepend, vFpp)
+GO(gtk_list_store_remove, iFpp)
+GO(gtk_list_store_reorder, vFpp)
+GO2(gtk_list_store_set, vFppV, gtk_list_store_set_valist)
+GO(gtk_list_store_set_column_types, vFpip)
+GO(gtk_list_store_set_valist, vFppp)
+GO(gtk_list_store_set_value, vFppip)
+GO(gtk_list_store_set_valuesv, vFppppi)
+GO(gtk_list_store_swap, vFppp)
+GO(gtk_list_toggle_add_mode, vFp)
+GO(gtk_list_toggle_focus_row, vFp)
+GO(gtk_list_toggle_row, vFpp)
+GO(gtk_list_undo_selection, vFp)
+GO(gtk_list_unselect_all, vFp)
+GO(gtk_list_unselect_child, vFpp)
+GO(gtk_list_unselect_item, vFpi)
 GO(gtk_main, vFv)
 //GO(gtk_main_do_event, 
 GO(gtk_main_iteration, iFv)
