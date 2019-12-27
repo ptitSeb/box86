@@ -85,6 +85,7 @@ GO("libICE.so.6", libice)
 GO("libusb-1.0.so.0", libusb1)
 GO("libncursesw.so.5", libncursesw)
 GO("libformw.so.5", libformw)
+GO("libtinfo.so.5", libtinfo)
 
 //GO("libmono.so", monounity)
 

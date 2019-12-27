@@ -70,6 +70,9 @@ EXPORT void my_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* f
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getNCurseswMy(lib); \
+    lib->priv.w.needed = 1; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libtinfo.so.5");
 
 #define CUSTOM_FINI \
     freeNCurseswMy(lib->priv.w.p2); \
