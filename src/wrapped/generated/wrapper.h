@@ -855,6 +855,7 @@ void iFppuiii(x86emu_t *emu, uintptr_t fnc);
 void iFppuiiu(x86emu_t *emu, uintptr_t fnc);
 void iFppuIII(x86emu_t *emu, uintptr_t fnc);
 void iFppuupp(x86emu_t *emu, uintptr_t fnc);
+void iFppuppp(x86emu_t *emu, uintptr_t fnc);
 void iFppdidd(x86emu_t *emu, uintptr_t fnc);
 void iFpppiuu(x86emu_t *emu, uintptr_t fnc);
 void iFpppipp(x86emu_t *emu, uintptr_t fnc);

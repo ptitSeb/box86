@@ -2828,97 +2828,97 @@ GO(gtk_text_buffer_unregister_serialize_format, vFpp)
 //GO(gtk_text_get_point, 
 //GO(gtk_text_get_type, 
 //GO(gtk_text_insert, 
-//GO(gtk_text_iter_backward_char, 
-//GO(gtk_text_iter_backward_chars, 
-//GO(gtk_text_iter_backward_cursor_position, 
-//GO(gtk_text_iter_backward_cursor_positions, 
-//GO(gtk_text_iter_backward_find_char, 
-//GO(gtk_text_iter_backward_line, 
-//GO(gtk_text_iter_backward_lines, 
-//GO(gtk_text_iter_backward_search, 
-//GO(gtk_text_iter_backward_sentence_start, 
-//GO(gtk_text_iter_backward_sentence_starts, 
-//GO(gtk_text_iter_backward_to_tag_toggle, 
-//GO(gtk_text_iter_backward_visible_cursor_position, 
-//GO(gtk_text_iter_backward_visible_cursor_positions, 
-//GO(gtk_text_iter_backward_visible_line, 
-//GO(gtk_text_iter_backward_visible_lines, 
-//GO(gtk_text_iter_backward_visible_word_start, 
-//GO(gtk_text_iter_backward_visible_word_starts, 
-//GO(gtk_text_iter_backward_word_start, 
-//GO(gtk_text_iter_backward_word_starts, 
-//GO(gtk_text_iter_begins_tag, 
-//GO(gtk_text_iter_can_insert, 
-//GO(gtk_text_iter_compare, 
-//GO(gtk_text_iter_copy, 
-//GO(gtk_text_iter_editable, 
-//GO(gtk_text_iter_ends_line, 
-//GO(gtk_text_iter_ends_sentence, 
-//GO(gtk_text_iter_ends_tag, 
-//GO(gtk_text_iter_ends_word, 
-//GO(gtk_text_iter_equal, 
-//GO(gtk_text_iter_forward_char, 
-//GO(gtk_text_iter_forward_chars, 
-//GO(gtk_text_iter_forward_cursor_position, 
-//GO(gtk_text_iter_forward_cursor_positions, 
-//GO(gtk_text_iter_forward_find_char, 
-//GO(gtk_text_iter_forward_line, 
-//GO(gtk_text_iter_forward_lines, 
-//GO(gtk_text_iter_forward_search, 
-//GO(gtk_text_iter_forward_sentence_end, 
-//GO(gtk_text_iter_forward_sentence_ends, 
-//GO(gtk_text_iter_forward_to_end, 
-//GO(gtk_text_iter_forward_to_line_end, 
-//GO(gtk_text_iter_forward_to_tag_toggle, 
-//GO(gtk_text_iter_forward_visible_cursor_position, 
-//GO(gtk_text_iter_forward_visible_cursor_positions, 
-//GO(gtk_text_iter_forward_visible_line, 
-//GO(gtk_text_iter_forward_visible_lines, 
-//GO(gtk_text_iter_forward_visible_word_end, 
-//GO(gtk_text_iter_forward_visible_word_ends, 
-//GO(gtk_text_iter_forward_word_end, 
-//GO(gtk_text_iter_forward_word_ends, 
-//GO(gtk_text_iter_free, 
-//GO(gtk_text_iter_get_attributes, 
-//GO(gtk_text_iter_get_buffer, 
-//GO(gtk_text_iter_get_bytes_in_line, 
-//GO(gtk_text_iter_get_char, 
-//GO(gtk_text_iter_get_chars_in_line, 
-//GO(gtk_text_iter_get_child_anchor, 
-//GO(gtk_text_iter_get_language, 
-//GO(gtk_text_iter_get_line, 
-//GO(gtk_text_iter_get_line_index, 
-//GO(gtk_text_iter_get_line_offset, 
-//GO(gtk_text_iter_get_marks, 
-//GO(gtk_text_iter_get_offset, 
-//GO(gtk_text_iter_get_pixbuf, 
-//GO(gtk_text_iter_get_slice, 
-//GO(gtk_text_iter_get_tags, 
-//GO(gtk_text_iter_get_text, 
-//GO(gtk_text_iter_get_toggled_tags, 
-//GO(gtk_text_iter_get_type, 
-//GO(gtk_text_iter_get_visible_line_index, 
-//GO(gtk_text_iter_get_visible_line_offset, 
-//GO(gtk_text_iter_get_visible_slice, 
-//GO(gtk_text_iter_get_visible_text, 
-//GO(gtk_text_iter_has_tag, 
-//GO(gtk_text_iter_in_range, 
-//GO(gtk_text_iter_inside_sentence, 
-//GO(gtk_text_iter_inside_word, 
-//GO(gtk_text_iter_is_cursor_position, 
-//GO(gtk_text_iter_is_end, 
-//GO(gtk_text_iter_is_start, 
-//GO(gtk_text_iter_order, 
-//GO(gtk_text_iter_set_line, 
-//GO(gtk_text_iter_set_line_index, 
-//GO(gtk_text_iter_set_line_offset, 
-//GO(gtk_text_iter_set_offset, 
-//GO(gtk_text_iter_set_visible_line_index, 
-//GO(gtk_text_iter_set_visible_line_offset, 
-//GO(gtk_text_iter_starts_line, 
-//GO(gtk_text_iter_starts_sentence, 
-//GO(gtk_text_iter_starts_word, 
-//GO(gtk_text_iter_toggles_tag, 
+GO(gtk_text_iter_backward_char, iFp)
+GO(gtk_text_iter_backward_chars, iFpi)
+GO(gtk_text_iter_backward_cursor_position, iFp)
+GO(gtk_text_iter_backward_cursor_positions, iFpi)
+//GOM(gtk_text_iter_backward_find_char, iFEpBpp)
+GO(gtk_text_iter_backward_line, iFp)
+GO(gtk_text_iter_backward_lines, iFpi)
+GO(gtk_text_iter_backward_search, iFppuppp)
+GO(gtk_text_iter_backward_sentence_start, iFp)
+GO(gtk_text_iter_backward_sentence_starts, iFpi)
+GO(gtk_text_iter_backward_to_tag_toggle, iFpp)
+GO(gtk_text_iter_backward_visible_cursor_position, iFp)
+GO(gtk_text_iter_backward_visible_cursor_positions, iFpi)
+GO(gtk_text_iter_backward_visible_line, iFp)
+GO(gtk_text_iter_backward_visible_lines, iFpi)
+GO(gtk_text_iter_backward_visible_word_start, iFp)
+GO(gtk_text_iter_backward_visible_word_starts, iFpi)
+GO(gtk_text_iter_backward_word_start, iFp)
+GO(gtk_text_iter_backward_word_starts, iFpi)
+GO(gtk_text_iter_begins_tag, iFpp)
+GO(gtk_text_iter_can_insert, iFpi)
+GO(gtk_text_iter_compare, iFpp)
+GO(gtk_text_iter_copy, pFp)
+GO(gtk_text_iter_editable, iFpi)
+GO(gtk_text_iter_ends_line, iFp)
+GO(gtk_text_iter_ends_sentence, iFp)
+GO(gtk_text_iter_ends_tag, iFpp)
+GO(gtk_text_iter_ends_word, iFp)
+GO(gtk_text_iter_equal, iFpp)
+GO(gtk_text_iter_forward_char, iFp)
+GO(gtk_text_iter_forward_chars, iFpi)
+GO(gtk_text_iter_forward_cursor_position, iFp)
+GO(gtk_text_iter_forward_cursor_positions, iFpi)
+//GOM(gtk_text_iter_forward_find_char, iFEpBpp)
+GO(gtk_text_iter_forward_line, iFp)
+GO(gtk_text_iter_forward_lines, iFpi)
+GO(gtk_text_iter_forward_search, iFppuppp)
+GO(gtk_text_iter_forward_sentence_end, iFp)
+GO(gtk_text_iter_forward_sentence_ends, iFpi)
+GO(gtk_text_iter_forward_to_end, iFp)
+GO(gtk_text_iter_forward_to_line_end, iFp)
+GO(gtk_text_iter_forward_to_tag_toggle, iFpp)
+GO(gtk_text_iter_forward_visible_cursor_position, iFp)
+GO(gtk_text_iter_forward_visible_cursor_positions, iFpi)
+GO(gtk_text_iter_forward_visible_line, iFp)
+GO(gtk_text_iter_forward_visible_lines, iFpi)
+GO(gtk_text_iter_forward_visible_word_end, iFp)
+GO(gtk_text_iter_forward_visible_word_ends, iFpi)
+GO(gtk_text_iter_forward_word_end, iFp)
+GO(gtk_text_iter_forward_word_ends, iFpi)
+GO(gtk_text_iter_free, vFp)
+GO(gtk_text_iter_get_attributes, iFpp)
+GO(gtk_text_iter_get_buffer, pFp)
+GO(gtk_text_iter_get_bytes_in_line, iFp)
+GO(gtk_text_iter_get_char, uFp)
+GO(gtk_text_iter_get_chars_in_line, iFp)
+GO(gtk_text_iter_get_child_anchor, pFp)
+GO(gtk_text_iter_get_language, pFp)
+GO(gtk_text_iter_get_line, iFp)
+GO(gtk_text_iter_get_line_index, iFp)
+GO(gtk_text_iter_get_line_offset, iFp)
+GO(gtk_text_iter_get_marks, pFp)
+GO(gtk_text_iter_get_offset, iFp)
+GO(gtk_text_iter_get_pixbuf, pFp)
+GO(gtk_text_iter_get_slice, pFpp)
+GO(gtk_text_iter_get_tags, pFp)
+GO(gtk_text_iter_get_text, pFpp)
+GO(gtk_text_iter_get_toggled_tags, pFpi)
+GO(gtk_text_iter_get_type, iFv)
+GO(gtk_text_iter_get_visible_line_index, iFp)
+GO(gtk_text_iter_get_visible_line_offset, iFp)
+GO(gtk_text_iter_get_visible_slice, pFpp)
+GO(gtk_text_iter_get_visible_text, pFpp)
+GO(gtk_text_iter_has_tag, iFpp)
+GO(gtk_text_iter_in_range, iFppp)
+GO(gtk_text_iter_inside_sentence, iFp)
+GO(gtk_text_iter_inside_word, iFp)
+GO(gtk_text_iter_is_cursor_position, iFp)
+GO(gtk_text_iter_is_end, iFp)
+GO(gtk_text_iter_is_start, iFp)
+GO(gtk_text_iter_order, vFpp)
+GO(gtk_text_iter_set_line, vFpi)
+GO(gtk_text_iter_set_line_index, vFpi)
+GO(gtk_text_iter_set_line_offset, vFpi)
+GO(gtk_text_iter_set_offset, vFpi)
+GO(gtk_text_iter_set_visible_line_index, vFpi)
+GO(gtk_text_iter_set_visible_line_offset, vFpi)
+GO(gtk_text_iter_starts_line, iFp)
+GO(gtk_text_iter_starts_sentence, iFp)
+GO(gtk_text_iter_starts_word, iFp)
+GO(gtk_text_iter_toggles_tag, iFpp)
 //GO(gtk_text_layout_changed, 
 //GO(gtk_text_layout_clamp_iter_to_vrange, 
 //GO(gtk_text_layout_cursors_changed, 
