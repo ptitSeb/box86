@@ -2,44 +2,44 @@
 #error meh!
 #endif
 
-//GO(SmcClientID, 
+GO(SmcClientID, pFp)
 GO(SmcCloseConnection, iFpip)
-//GO(_SmcDefaultErrorHandler, 
-//GO(SmcDeleteProperties, 
+GO(_SmcDefaultErrorHandler, vFpiiliip)
+GO(SmcDeleteProperties, vFpip)
 GO(SmcGetIceConnection, pFp)
-//GO(SmcGetProperties, 
-//GO(SmcInteractDone, 
-//GO(SmcInteractRequest, 
-//GO(SmcModifyCallbacks, 
+//GOM(SmcGetProperties, iFEpBp)
+GO(SmcInteractDone, iFpi)
+//GOM(SmcInteractRequest, iFEpiBp)
+//GOM(SmcModifyCallbacks, vFEpuB)
 GOM(SmcOpenConnection, pFEppiiLpppip)
 //GO(_SmcProcessMessage, 
-//GO(SmcProtocolRevision, 
-//GO(SmcProtocolVersion, 
-//GO(SmcRelease, 
-//GO(SmcRequestSaveYourself, 
-//GO(SmcRequestSaveYourselfPhase2, 
+GO(SmcProtocolRevision, iFp)
+GO(SmcProtocolVersion, iFp)
+GO(SmcRelease, pFp)
+GO(SmcRequestSaveYourself, vFpiiiii)
+//GOM(SmcRequestSaveYourselfPhase2, iFEpBp)
 GO(SmcSaveYourselfDone, vFpi)
-//GO(SmcSetErrorHandler, 
-//GO(SmcSetProperties, 
-//GO(SmcVendor, 
-//GO(SmFreeProperty, 
-//GO(SmFreeReasons, 
-//GO(SmsCleanUp, 
-//GO(SmsClientHostName, 
-//GO(SmsClientID, 
-//GO(_SmsDefaultErrorHandler, 
-//GO(SmsDie, 
-//GO(SmsGenerateClientID, 
-//GO(SmsGetIceConnection, 
-//GO(SmsInitialize, 
-//GO(SmsInteract, 
+//GOM(SmcSetErrorHandler, BFEB)
+GO(SmcSetProperties, vFpip)
+GO(SmcVendor, pFp)
+GO(SmFreeProperty, vFp)
+GO(SmFreeReasons, vFpp)
+GO(SmsCleanUp, vFp)
+GO(SmsClientHostName, pFp)
+GO(SmsClientID, pFp)
+GO(_SmsDefaultErrorHandler, vFpiiliip)
+GO(SmsDie, vFp)
+GO(SmsGenerateClientID, pFp)
+GO(SmsGetIceConnection, pFp)
+//GOM(SmsInitialize, iFppBpBip)
+GO(SmsInteract, vFp)
 //GO(_SmsProcessMessage, 
-//GO(SmsProtocolRevision, 
-//GO(SmsProtocolVersion, 
-//GO(SmsRegisterClientReply, 
-//GO(SmsReturnProperties, 
-//GO(SmsSaveComplete, 
-//GO(SmsSaveYourself, 
-//GO(SmsSaveYourselfPhase2, 
-//GO(SmsSetErrorHandler, 
-//GO(SmsShutdownCancelled, 
+GO(SmsProtocolRevision, iFp)
+GO(SmsProtocolVersion, iFp)
+GO(SmsRegisterClientReply, iFpp)
+GO(SmsReturnProperties, vFpip)
+GO(SmsSaveComplete, vFp)
+GO(SmsSaveYourself, vFpiiii)
+GO(SmsSaveYourselfPhase2, vFp)
+//GOM(SmsSetErrorHandler, BFEB)
+GO(SmsShutdownCancelled, vFp)
