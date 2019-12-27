@@ -3415,9 +3415,9 @@ GO(gtk_tooltips_set_tip, vFpppp)
 //GO(gtk_tree_store_swap, 
 //GO(gtk_tree_unselect_child, 
 //GO(gtk_tree_unselect_item, 
-//GO(gtk_tree_view_append_column, 
-//GO(gtk_tree_view_collapse_all, 
-//GO(gtk_tree_view_collapse_row, 
+GO(gtk_tree_view_append_column, iFpp)
+GO(gtk_tree_view_collapse_all, vFp)
+GO(gtk_tree_view_collapse_row, iFpp)
 GO(gtk_tree_view_column_add_attribute, vFpppi)
 GO(gtk_tree_view_column_cell_get_position, iFpppp)
 GO(gtk_tree_view_column_cell_get_size, vFpppppp)
@@ -3472,105 +3472,105 @@ GO(gtk_tree_view_column_set_title, vFpp)
 GO(gtk_tree_view_column_set_visible, vFpi)
 GO(gtk_tree_view_column_set_widget, vFpp)
 GO(gtk_tree_view_column_sizing_get_type, iFv)
-//GO(gtk_tree_view_convert_bin_window_to_tree_coords, 
-//GO(gtk_tree_view_convert_bin_window_to_widget_coords, 
-//GO(gtk_tree_view_convert_tree_to_bin_window_coords, 
-//GO(gtk_tree_view_convert_tree_to_widget_coords, 
-//GO(gtk_tree_view_convert_widget_to_bin_window_coords, 
-//GO(gtk_tree_view_convert_widget_to_tree_coords, 
-//GO(gtk_tree_view_create_row_drag_icon, 
-//GO(gtk_tree_view_drop_position_get_type, 
-//GO(gtk_tree_view_enable_model_drag_dest, 
-//GO(gtk_tree_view_enable_model_drag_source, 
-//GO(gtk_tree_view_expand_all, 
-//GO(gtk_tree_view_expand_row, 
-//GO(gtk_tree_view_expand_to_path, 
-//GO(gtk_tree_view_get_background_area, 
-//GO(gtk_tree_view_get_bin_window, 
-//GO(gtk_tree_view_get_cell_area, 
-//GO(gtk_tree_view_get_column, 
-//GO(gtk_tree_view_get_columns, 
-//GO(gtk_tree_view_get_cursor, 
-//GO(gtk_tree_view_get_dest_row_at_pos, 
-//GO(gtk_tree_view_get_drag_dest_row, 
-//GO(gtk_tree_view_get_enable_search, 
-//GO(gtk_tree_view_get_enable_tree_lines, 
-//GO(gtk_tree_view_get_expander_column, 
-//GO(gtk_tree_view_get_fixed_height_mode, 
-//GO(gtk_tree_view_get_grid_lines, 
-//GO(gtk_tree_view_get_hadjustment, 
-//GO(gtk_tree_view_get_headers_clickable, 
-//GO(gtk_tree_view_get_headers_visible, 
-//GO(gtk_tree_view_get_hover_expand, 
-//GO(gtk_tree_view_get_hover_selection, 
-//GO(gtk_tree_view_get_level_indentation, 
-//GO(gtk_tree_view_get_model, 
-//GO(gtk_tree_view_get_path_at_pos, 
-//GO(gtk_tree_view_get_reorderable, 
-//GO(gtk_tree_view_get_row_separator_func, 
-//GO(gtk_tree_view_get_rubber_banding, 
-//GO(gtk_tree_view_get_rules_hint, 
-//GO(gtk_tree_view_get_search_column, 
-//GO(gtk_tree_view_get_search_entry, 
-//GO(gtk_tree_view_get_search_equal_func, 
-//GO(gtk_tree_view_get_search_position_func, 
-//GO(gtk_tree_view_get_selection, 
-//GO(gtk_tree_view_get_show_expanders, 
-//GO(gtk_tree_view_get_tooltip_column, 
-//GO(gtk_tree_view_get_tooltip_context, 
-//GO(gtk_tree_view_get_type, 
-//GO(gtk_tree_view_get_vadjustment, 
-//GO(gtk_tree_view_get_visible_range, 
-//GO(gtk_tree_view_get_visible_rect, 
-//GO(gtk_tree_view_grid_lines_get_type, 
-//GO(gtk_tree_view_insert_column, 
-//GO(gtk_tree_view_insert_column_with_attributes, 
-//GO(gtk_tree_view_insert_column_with_data_func, 
-//GO(gtk_tree_view_is_rubber_banding_active, 
-//GO(gtk_tree_view_map_expanded_rows, 
-//GO(gtk_tree_view_mode_get_type, 
-//GO(gtk_tree_view_move_column_after, 
-//GO(gtk_tree_view_new, 
-//GO(gtk_tree_view_new_with_model, 
-//GO(gtk_tree_view_remove_column, 
-//GO(gtk_tree_view_row_activated, 
-//GO(gtk_tree_view_row_expanded, 
-//GO(gtk_tree_view_scroll_to_cell, 
-//GO(gtk_tree_view_scroll_to_point, 
-//GO(gtk_tree_view_set_column_drag_function, 
-//GO(gtk_tree_view_set_cursor, 
-//GO(gtk_tree_view_set_cursor_on_cell, 
-//GO(gtk_tree_view_set_destroy_count_func, 
-//GO(gtk_tree_view_set_drag_dest_row, 
-//GO(gtk_tree_view_set_enable_search, 
-//GO(gtk_tree_view_set_enable_tree_lines, 
-//GO(gtk_tree_view_set_expander_column, 
-//GO(gtk_tree_view_set_fixed_height_mode, 
-//GO(gtk_tree_view_set_grid_lines, 
-//GO(gtk_tree_view_set_hadjustment, 
-//GO(gtk_tree_view_set_headers_clickable, 
-//GO(gtk_tree_view_set_headers_visible, 
-//GO(gtk_tree_view_set_hover_expand, 
-//GO(gtk_tree_view_set_hover_selection, 
-//GO(gtk_tree_view_set_level_indentation, 
-//GO(gtk_tree_view_set_model, 
-//GO(gtk_tree_view_set_reorderable, 
-//GO(gtk_tree_view_set_row_separator_func, 
-//GO(gtk_tree_view_set_rubber_banding, 
-//GO(gtk_tree_view_set_rules_hint, 
-//GO(gtk_tree_view_set_search_column, 
-//GO(gtk_tree_view_set_search_entry, 
-//GO(gtk_tree_view_set_search_equal_func, 
-//GO(gtk_tree_view_set_search_position_func, 
-//GO(gtk_tree_view_set_show_expanders, 
-//GO(gtk_tree_view_set_tooltip_cell, 
-//GO(gtk_tree_view_set_tooltip_column, 
-//GO(gtk_tree_view_set_tooltip_row, 
-//GO(gtk_tree_view_set_vadjustment, 
-//GO(gtk_tree_view_tree_to_widget_coords, 
-//GO(gtk_tree_view_unset_rows_drag_dest, 
-//GO(gtk_tree_view_unset_rows_drag_source, 
-//GO(gtk_tree_view_widget_to_tree_coords, 
+GO(gtk_tree_view_convert_bin_window_to_tree_coords, vFpiipp)
+GO(gtk_tree_view_convert_bin_window_to_widget_coords, vFpiipp)
+GO(gtk_tree_view_convert_tree_to_bin_window_coords, vFpiipp)
+GO(gtk_tree_view_convert_tree_to_widget_coords, vFpiipp)
+GO(gtk_tree_view_convert_widget_to_bin_window_coords, vFpiipp)
+GO(gtk_tree_view_convert_widget_to_tree_coords, vFpiipp)
+GO(gtk_tree_view_create_row_drag_icon, pFpp)
+GO(gtk_tree_view_drop_position_get_type, iFv)
+GO(gtk_tree_view_enable_model_drag_dest, vFppiu)
+GO(gtk_tree_view_enable_model_drag_source, vFpipiu)
+GO(gtk_tree_view_expand_all, vFp)
+GO(gtk_tree_view_expand_row, iFppi)
+GO(gtk_tree_view_expand_to_path, vFpp)
+GO(gtk_tree_view_get_background_area, vFpppp)
+GO(gtk_tree_view_get_bin_window, pFp)
+GO(gtk_tree_view_get_cell_area, vFpppp)
+GO(gtk_tree_view_get_column, pFpi)
+GO(gtk_tree_view_get_columns, pFp)
+GO(gtk_tree_view_get_cursor, vFppp)
+GO(gtk_tree_view_get_dest_row_at_pos, iFpiipp)
+GO(gtk_tree_view_get_drag_dest_row, vFppp)
+GO(gtk_tree_view_get_enable_search, iFp)
+GO(gtk_tree_view_get_enable_tree_lines, iFp)
+GO(gtk_tree_view_get_expander_column, pFp)
+GO(gtk_tree_view_get_fixed_height_mode, iFp)
+GO(gtk_tree_view_get_grid_lines, iFp)
+GO(gtk_tree_view_get_hadjustment, pFp)
+GO(gtk_tree_view_get_headers_clickable, iFp)
+GO(gtk_tree_view_get_headers_visible, iFp)
+GO(gtk_tree_view_get_hover_expand, iFp)
+GO(gtk_tree_view_get_hover_selection, iFp)
+GO(gtk_tree_view_get_level_indentation, iFp)
+GO(gtk_tree_view_get_model, pFp)
+GO(gtk_tree_view_get_path_at_pos, iFpiipppp)
+GO(gtk_tree_view_get_reorderable, iFp)
+//GOM(gtk_tree_view_get_row_separator_func, BFEp)
+GO(gtk_tree_view_get_rubber_banding, iFp)
+GO(gtk_tree_view_get_rules_hint, iFp)
+GO(gtk_tree_view_get_search_column, iFp)
+GO(gtk_tree_view_get_search_entry, pFp)
+//GOM(gtk_tree_view_get_search_equal_func, BFEp)
+//GOM(gtk_tree_view_get_search_position_func, BFEp)
+GO(gtk_tree_view_get_selection, pFp)
+GO(gtk_tree_view_get_show_expanders, iFp)
+GO(gtk_tree_view_get_tooltip_column, iFp)
+GO(gtk_tree_view_get_tooltip_context, iFpppippp)
+GO(gtk_tree_view_get_type, iFv)
+GO(gtk_tree_view_get_vadjustment, pFp)
+GO(gtk_tree_view_get_visible_range, iFppp)
+GO(gtk_tree_view_get_visible_rect, vFpp)
+GO(gtk_tree_view_grid_lines_get_type, iFv)
+GO(gtk_tree_view_insert_column, iFppi)
+GO(gtk_tree_view_insert_column_with_attributes, iFpipppppppppppp) //vaarg
+//GOM(gtk_tree_view_insert_column_with_data_func, iFpippBpB)
+GO(gtk_tree_view_is_rubber_banding_active, iFp)
+//GOM(gtk_tree_view_map_expanded_rows, vFEpBp)
+GO(gtk_tree_view_mode_get_type, iFv)
+GO(gtk_tree_view_move_column_after, vFppp)
+GO(gtk_tree_view_new, pFv)
+GO(gtk_tree_view_new_with_model, pFp)
+GO(gtk_tree_view_remove_column, iFpp)
+GO(gtk_tree_view_row_activated, vFp)
+GO(gtk_tree_view_row_expanded, iFpp)
+GO(gtk_tree_view_scroll_to_cell, vFpppiff)
+GO(gtk_tree_view_scroll_to_point, vFpii)
+//GOM(gtk_tree_view_set_column_drag_function, vFEpBpB)
+GO(gtk_tree_view_set_cursor, vFpppi)
+GO(gtk_tree_view_set_cursor_on_cell, vFppppi)
+//GOM(gtk_tree_view_set_destroy_count_func, vFEpBpB)
+GO(gtk_tree_view_set_drag_dest_row, vFppi)
+GO(gtk_tree_view_set_enable_search, vFpi)
+GO(gtk_tree_view_set_enable_tree_lines, vFpi)
+GO(gtk_tree_view_set_expander_column, vFpp)
+GO(gtk_tree_view_set_fixed_height_mode, vFpi)
+GO(gtk_tree_view_set_grid_lines, vFpi)
+GO(gtk_tree_view_set_hadjustment, vFpp)
+GO(gtk_tree_view_set_headers_clickable, vFpi)
+GO(gtk_tree_view_set_headers_visible, vFpi)
+GO(gtk_tree_view_set_hover_expand, vFpi)
+GO(gtk_tree_view_set_hover_selection, vFpi)
+GO(gtk_tree_view_set_level_indentation, vFpi)
+GO(gtk_tree_view_set_model, vFpp)
+GO(gtk_tree_view_set_reorderable, vFpi)
+//GOM(gtk_tree_view_set_row_separator_func, vFEpBpB)
+GO(gtk_tree_view_set_rubber_banding, vFpi)
+GO(gtk_tree_view_set_rules_hint, vFpi)
+GO(gtk_tree_view_set_search_column, vFpi)
+GO(gtk_tree_view_set_search_entry, vFpp)
+//GOM(gtk_tree_view_set_search_equal_func, vFEpBpB)
+//GOM(gtk_tree_view_set_search_position_func, vFEpBpB)
+GO(gtk_tree_view_set_show_expanders, vFpi)
+GO(gtk_tree_view_set_tooltip_cell, vFppppp)
+GO(gtk_tree_view_set_tooltip_column, vFpi)
+GO(gtk_tree_view_set_tooltip_row, vFppp)
+GO(gtk_tree_view_set_vadjustment, vFpp)
+GO(gtk_tree_view_tree_to_widget_coords, vFpiipp)
+GO(gtk_tree_view_unset_rows_drag_dest, vFp)
+GO(gtk_tree_view_unset_rows_drag_source, vFp)
+GO(gtk_tree_view_widget_to_tree_coords, vFpiipp)
 GO(gtk_true, iFv)
 //GO(gtk_type_class, 
 //GO(gtk_type_enum_find_value, 
