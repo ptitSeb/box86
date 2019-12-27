@@ -408,29 +408,29 @@ GO(gdk_flush, vFv)
 //GO(gdk_prop_mode_get_type, 
 //GO(gdk_query_depths, 
 //GO(gdk_query_visual_types, 
-//GO(gdk_rectangle_get_type, 
-//GO(gdk_rectangle_intersect, 
-//GO(gdk_rectangle_union, 
-//GO(gdk_region_copy, 
-//GO(gdk_region_destroy, 
-//GO(gdk_region_empty, 
-//GO(gdk_region_equal, 
-//GO(gdk_region_get_clipbox, 
-//GO(gdk_region_get_rectangles, 
-//GO(gdk_region_intersect, 
-//GO(gdk_region_new, 
-//GO(gdk_region_offset, 
-//GO(gdk_region_point_in, 
-//GO(gdk_region_polygon, 
-//GO(gdk_region_rectangle, 
-//GO(gdk_region_rect_equal, 
-//GO(gdk_region_rect_in, 
-//GO(gdk_region_shrink, 
-//GO(gdk_region_spans_intersect_foreach, 
-//GO(gdk_region_subtract, 
-//GO(gdk_region_union, 
-//GO(gdk_region_union_with_rect, 
-//GO(gdk_region_xor, 
+GO(gdk_rectangle_get_type, iFv)
+GO(gdk_rectangle_intersect, iFppp)
+GO(gdk_rectangle_union, vFppp)
+GO(gdk_region_copy, pFp)
+GO(gdk_region_destroy, vFpp)
+GO(gdk_region_empty, iFp)
+GO(gdk_region_equal, iFpp)
+GO(gdk_region_get_clipbox, vFpp)
+GO(gdk_region_get_rectangles, vFppp)
+GO(gdk_region_intersect, vFpp)
+GO(gdk_region_new, pFv)
+GO(gdk_region_offset, vFpii)
+GO(gdk_region_point_in, iFpii)
+GO(gdk_region_polygon, pFpii)
+GO(gdk_region_rectangle, pFp)
+GO(gdk_region_rect_equal, iFpp)
+GO(gdk_region_rect_in, iFpp)
+GO(gdk_region_shrink, vFpii)
+//GOM(gdk_region_spans_intersect_foreach, vFppiiBp)
+GO(gdk_region_subtract, vFpp)
+GO(gdk_region_union, vFpp)
+GO(gdk_region_union_with_rect, vFpp)
+GO(gdk_region_xor, vFpp)
 //GO(gdk_rgb_cmap_free, 
 //GO(gdk_rgb_cmap_new, 
 //GO(gdk_rgb_colormap_ditherable, 
