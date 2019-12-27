@@ -207,6 +207,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibice.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibusb1.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibncursesw.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibformw.c"
 #    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
