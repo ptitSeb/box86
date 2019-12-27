@@ -83,8 +83,8 @@ GO("libbz2.so.1", bz2)
 GO("libSM.so.6", libsm)
 GO("libICE.so.6", libice)
 GO("libusb-1.0.so.0", libusb1)
+GO("libncursesw.so.5", libncursesw)
 
 //GO("libmono.so", monounity)
 
 GO("ld-linux.so.2", ldlinux)
-
