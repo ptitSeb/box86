@@ -357,23 +357,23 @@ GO(gdk_flush, vFv)
 //GO(gdk_offscreen_window_get_pixmap, 
 //GO(gdk_offscreen_window_get_type, 
 //GO(gdk_offscreen_window_set_embedder, 
-//GO(gdk_overlap_type_get_type, 
-//GO(gdk_owner_change_get_type, 
-//GO(gdk_pango_attr_emboss_color_new, 
-//GO(gdk_pango_attr_embossed_new, 
-//GO(gdk_pango_attr_stipple_new, 
-//GO(gdk_pango_context_get, 
-//GO(gdk_pango_context_get_for_screen, 
-//GO(gdk_pango_context_set_colormap, 
-//GO(gdk_pango_layout_get_clip_region, 
-//GO(gdk_pango_layout_line_get_clip_region, 
-//GO(gdk_pango_renderer_get_default, 
-//GO(gdk_pango_renderer_get_type, 
-//GO(gdk_pango_renderer_new, 
-//GO(gdk_pango_renderer_set_drawable, 
-//GO(gdk_pango_renderer_set_gc, 
-//GO(gdk_pango_renderer_set_override_color, 
-//GO(gdk_pango_renderer_set_stipple, 
+GO(gdk_overlap_type_get_type, iFv)
+GO(gdk_owner_change_get_type, iFv)
+GO(gdk_pango_attr_emboss_color_new, pFp)
+GO(gdk_pango_attr_embossed_new, pFi)
+GO(gdk_pango_attr_stipple_new, pFp)
+GO(gdk_pango_context_get, pFv)
+GO(gdk_pango_context_get_for_screen, pFp)
+GO(gdk_pango_context_set_colormap, vFpp)
+GO(gdk_pango_layout_get_clip_region, pFpiipi)
+GO(gdk_pango_layout_line_get_clip_region, pFpiipi)
+GO(gdk_pango_renderer_get_default, pFp)
+GO(gdk_pango_renderer_get_type, iFv)
+GO(gdk_pango_renderer_new, pFp)
+GO(gdk_pango_renderer_set_drawable, vFpp)
+GO(gdk_pango_renderer_set_gc, vFpp)
+GO(gdk_pango_renderer_set_override_color, vFpip)
+GO(gdk_pango_renderer_set_stipple, vFpip)
 //GO(gdk_parse_args, 
 //GO(gdk_pixbuf_get_from_drawable, 
 //GO(gdk_pixbuf_get_from_image, 
