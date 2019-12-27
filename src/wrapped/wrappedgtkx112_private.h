@@ -2738,81 +2738,81 @@ GO(gtk_style_unref, vFp)
 //GO(gtk_text_attributes_ref, 
 //GO(gtk_text_attributes_unref, 
 //GO(gtk_text_backward_delete, 
-//GO(gtk_text_buffer_add_mark, 
-//GO(gtk_text_buffer_add_selection_clipboard, 
-//GO(gtk_text_buffer_apply_tag, 
-//GO(gtk_text_buffer_apply_tag_by_name, 
-//GO(gtk_text_buffer_backspace, 
-//GO(gtk_text_buffer_begin_user_action, 
-//GO(gtk_text_buffer_copy_clipboard, 
-//GO(gtk_text_buffer_create_child_anchor, 
+GO(gtk_text_buffer_add_mark, vFpp)
+GO(gtk_text_buffer_add_selection_clipboard, vFpp)
+GO(gtk_text_buffer_apply_tag, vFpppp)
+GO(gtk_text_buffer_apply_tag_by_name, vFpp)
+GO(gtk_text_buffer_backspace, iFppii)
+GO(gtk_text_buffer_begin_user_action, vFp)
+GO(gtk_text_buffer_copy_clipboard, vFpp)
+GO(gtk_text_buffer_create_child_anchor, pFpp)
 GO(gtk_text_buffer_create_mark, pFpppi)
-//GO(gtk_text_buffer_create_tag, 
-//GO(gtk_text_buffer_cut_clipboard, 
-//GO(gtk_text_buffer_delete, 
-//GO(gtk_text_buffer_delete_interactive, 
+GO(gtk_text_buffer_create_tag, pFppppppppppppppp) //vaarg after 3 p
+GO(gtk_text_buffer_cut_clipboard, vFppi)
+GO(gtk_text_buffer_delete, vFppp)
+GO(gtk_text_buffer_delete_interactive, iFpppi)
 GO(gtk_text_buffer_delete_mark, vFpp)
-//GO(gtk_text_buffer_delete_mark_by_name, 
-//GO(gtk_text_buffer_delete_selection, 
-//GO(gtk_text_buffer_deserialize, 
-//GO(gtk_text_buffer_deserialize_get_can_create_tags, 
-//GO(gtk_text_buffer_deserialize_set_can_create_tags, 
-//GO(gtk_text_buffer_end_user_action, 
+GO(gtk_text_buffer_delete_mark_by_name, vFpp)
+GO(gtk_text_buffer_delete_selection, iFpii)
+GO(gtk_text_buffer_deserialize, iFpppppup)
+GO(gtk_text_buffer_deserialize_get_can_create_tags, iFpp)
+GO(gtk_text_buffer_deserialize_set_can_create_tags, vFppi)
+GO(gtk_text_buffer_end_user_action, vFp)
 GO(gtk_text_buffer_get_bounds, vFppp)
-//GO(gtk_text_buffer_get_char_count, 
-//GO(gtk_text_buffer_get_copy_target_list, 
-//GO(gtk_text_buffer_get_deserialize_formats, 
+GO(gtk_text_buffer_get_char_count, iFp)
+GO(gtk_text_buffer_get_copy_target_list, pFp)
+GO(gtk_text_buffer_get_deserialize_formats, pFpp)
 GO(gtk_text_buffer_get_end_iter, vFpp)
-//GO(gtk_text_buffer_get_has_selection, 
-//GO(gtk_text_buffer_get_insert, 
-//GO(gtk_text_buffer_get_iter_at_child_anchor, 
-//GO(gtk_text_buffer_get_iter_at_line, 
-//GO(gtk_text_buffer_get_iter_at_line_index, 
-//GO(gtk_text_buffer_get_iter_at_line_offset, 
-//GO(gtk_text_buffer_get_iter_at_mark, 
-//GO(gtk_text_buffer_get_iter_at_offset, 
-//GO(gtk_text_buffer_get_line_count, 
-//GO(gtk_text_buffer_get_mark, 
+GO(gtk_text_buffer_get_has_selection, iFp)
+GO(gtk_text_buffer_get_insert, pFp)
+GO(gtk_text_buffer_get_iter_at_child_anchor, vFppp)
+GO(gtk_text_buffer_get_iter_at_line, vFppi)
+GO(gtk_text_buffer_get_iter_at_line_index, vFppii)
+GO(gtk_text_buffer_get_iter_at_line_offset, vFppii)
+GO(gtk_text_buffer_get_iter_at_mark, vFppp)
+GO(gtk_text_buffer_get_iter_at_offset, vFppi)
+GO(gtk_text_buffer_get_line_count, iFp)
+GO(gtk_text_buffer_get_mark, pFpp)
 GO(gtk_text_buffer_get_modified, iFp)
-//GO(gtk_text_buffer_get_paste_target_list, 
-//GO(gtk_text_buffer_get_selection_bound, 
-//GO(gtk_text_buffer_get_selection_bounds, 
-//GO(gtk_text_buffer_get_serialize_formats, 
-//GO(gtk_text_buffer_get_slice, 
+GO(gtk_text_buffer_get_paste_target_list, pFp)
+GO(gtk_text_buffer_get_selection_bound, pFp)
+GO(gtk_text_buffer_get_selection_bounds, iFppp)
+GO(gtk_text_buffer_get_serialize_formats, pFpp)
+GO(gtk_text_buffer_get_slice, pFpppi)
 GO(gtk_text_buffer_get_start_iter, vFpp)
-//GO(gtk_text_buffer_get_tag_table, 
-//GO(gtk_text_buffer_get_text, 
-//GO(gtk_text_buffer_get_type, 
+GO(gtk_text_buffer_get_tag_table, pFp)
+GO(gtk_text_buffer_get_text, pFpppi)
+GO(gtk_text_buffer_get_type, iFv)
 GO(gtk_text_buffer_insert, vFpppi)
 GO(gtk_text_buffer_insert_at_cursor, vFppi)
-//GO(gtk_text_buffer_insert_child_anchor, 
+GO(gtk_text_buffer_insert_child_anchor, vFppp)
 GO(gtk_text_buffer_insert_interactive, iFpppii)
 GO(gtk_text_buffer_insert_interactive_at_cursor, iFppii)
-//GO(gtk_text_buffer_insert_pixbuf, 
+GO(gtk_text_buffer_insert_pixbuf, vFppp)
 GO(gtk_text_buffer_insert_range, vFpppp)
 GO(gtk_text_buffer_insert_range_interactive, iFppppi)
 GO(gtk_text_buffer_insert_with_tags, vFpppipppppppppppppp)
 GO(gtk_text_buffer_insert_with_tags_by_name, vFpppippppppppppp)
-//GO(gtk_text_buffer_move_mark, 
-//GO(gtk_text_buffer_move_mark_by_name, 
-//GO(gtk_text_buffer_new, 
-//GO(gtk_text_buffer_paste_clipboard, 
-//GO(gtk_text_buffer_place_cursor, 
-//GO(gtk_text_buffer_register_deserialize_format, 
-//GO(gtk_text_buffer_register_deserialize_tagset, 
-//GO(gtk_text_buffer_register_serialize_format, 
-//GO(gtk_text_buffer_register_serialize_tagset, 
-//GO(gtk_text_buffer_remove_all_tags, 
-//GO(gtk_text_buffer_remove_selection_clipboard, 
-//GO(gtk_text_buffer_remove_tag, 
-//GO(gtk_text_buffer_remove_tag_by_name, 
-//GO(gtk_text_buffer_select_range, 
-//GO(gtk_text_buffer_serialize, 
-//GO(gtk_text_buffer_set_modified, 
+GO(gtk_text_buffer_move_mark, vFppp)
+GO(gtk_text_buffer_move_mark_by_name, vFppp)
+GO(gtk_text_buffer_new, pFp)
+GO(gtk_text_buffer_paste_clipboard, vFpppi)
+GO(gtk_text_buffer_place_cursor, vFpp)
+//GOM(gtk_text_buffer_register_deserialize_format, pFEppBpB)
+GO(gtk_text_buffer_register_deserialize_tagset, pFpp)
+//GOM(gtk_text_buffer_register_serialize_format, pFppBpB)
+GO(gtk_text_buffer_register_serialize_tagset, pFpp)
+GO(gtk_text_buffer_remove_all_tags, vFppp)
+GO(gtk_text_buffer_remove_selection_clipboard, vFpp)
+GO(gtk_text_buffer_remove_tag, vFpppp)
+GO(gtk_text_buffer_remove_tag_by_name, vFpppp)
+GO(gtk_text_buffer_select_range, vFppp)
+GO(gtk_text_buffer_serialize, pFpppppp)
+GO(gtk_text_buffer_set_modified, vFpi)
 GO(gtk_text_buffer_set_text, vFppi)
-//GO(gtk_text_buffer_target_info_get_type, 
-//GO(gtk_text_buffer_unregister_deserialize_format, 
-//GO(gtk_text_buffer_unregister_serialize_format, 
+GO(gtk_text_buffer_target_info_get_type, iFv)
+GO(gtk_text_buffer_unregister_deserialize_format, vFpp)
+GO(gtk_text_buffer_unregister_serialize_format, vFpp)
 //GO(gtk_text_byte_begins_utf8_char, 
 //GO(gtk_text_child_anchor_get_deleted, 
 //GO(gtk_text_child_anchor_get_type, 
