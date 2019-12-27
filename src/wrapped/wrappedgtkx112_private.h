@@ -1146,11 +1146,11 @@ GO(gtk_file_selection_set_select_multiple, vFpi)
 //GO(gtk_gamma_curve_new, 
 //GO(gtk_gc_get, 
 //GO(gtk_gc_release, 
-//GO(gtk_get_current_event, 
-//GO(gtk_get_current_event_state, 
-//GO(gtk_get_current_event_time, 
+GO(gtk_get_current_event, pFv)
+GO(gtk_get_current_event_state, iFp)
+GO(gtk_get_current_event_time, uFv)
 GO(gtk_get_default_language, pFv)
-//GO(gtk_get_event_widget, 
+GO(gtk_get_event_widget, pFp)
 GO(gtk_get_option_group, pFi)
 GO(gtk_grab_add, vFp)
 GO(gtk_grab_get_current, pFv)
@@ -1337,11 +1337,11 @@ GO(gtk_icon_theme_set_screen, vFpp)
 //GO(gtk_icon_view_unset_model_drag_dest, 
 //GO(gtk_icon_view_unset_model_drag_source, 
 //GO(gtk_identifier_get_type, 
-//GO(gtk_idle_add, 
-//GO(gtk_idle_add_full, 
-//GO(gtk_idle_add_priority, 
-//GO(gtk_idle_remove, 
-//GO(gtk_idle_remove_by_data, 
+//GOM(gtk_idle_add, uFEBp)
+//GOM(gtk_idle_add_full, uFEiBppB)
+//GOM(gtk_idle_add_priority, uFEiBp)
+GO(gtk_idle_remove, vFu)
+GO(gtk_idle_remove_by_data, vFp)
 GO(gtk_image_clear, vFp)
 //GO(gtk_image_get, 
 //GO(gtk_image_get_animation, 
@@ -1428,10 +1428,10 @@ GO(gtk_init, vFpp)
 //GO(gtk_init_add, 
 GO(gtk_init_check, iFpp)
 GO(gtk_init_with_args, iFpppppp)
-//GO(gtk_input_add_full, 
-//GO(gtk_input_dialog_get_type, 
+//GOM(gtk_input_add_full, uFEiBBppB)
+GO(gtk_input_dialog_get_type, iFv)
 //GO(gtk_input_dialog_new, 
-//GO(gtk_input_remove, 
+GO(gtk_input_remove, vFu)
 //GO(gtk_invisible_get_screen, 
 //GO(gtk_invisible_get_type, 
 //GO(gtk_invisible_new, 
@@ -1466,8 +1466,8 @@ GO(gtk_init_with_args, iFpppppp)
 //GO(gtk_item_select, 
 //GO(gtk_item_toggle, 
 //GO(gtk_justification_get_type, 
-//GO(gtk_key_snooper_install, 
-//GO(gtk_key_snooper_remove, 
+//GOM(gtk_key_snooper_install, uFEBp)
+GO(gtk_key_snooper_remove, vFu)
 GO(gtk_label_get, vFpp)
 //GO(gtk_label_get_angle, 
 //GO(gtk_label_get_attributes, 
@@ -2221,12 +2221,12 @@ GO(gtk_progress_get_type, iFv)
 //GO(gtk_progress_set_show_text, 
 //GO(gtk_progress_set_text_alignment, 
 //GO(gtk_progress_set_value, 
-//GO(gtk_propagate_event, 
-//GO(gtk_quit_add, 
-//GO(gtk_quit_add_destroy, 
-//GO(gtk_quit_add_full, 
-//GO(gtk_quit_remove, 
-//GO(gtk_quit_remove_by_data, 
+GO(gtk_propagate_event, vFpp)
+//GOM(gtk_quit_add, iFEuBp)
+GO(gtk_quit_add_destroy, vFup)
+//GOM(gtk_quit_add_full, uFuBppB)
+GO(gtk_quit_remove, vFu)
+GO(gtk_quit_remove_by_data, vFp)
 //GO(gtk_radio_action_get_current_value, 
 //GO(gtk_radio_action_get_group, 
 //GO(gtk_radio_action_get_type, 
@@ -3059,10 +3059,10 @@ GO(gtk_text_view_set_wrap_mode, vFpi)
 //GO(gtk_theme_engine_create_rc_style, 
 //GO(gtk_theme_engine_get, 
 //GO(gtk_theme_engine_get_type, 
-//GO(gtk_timeout_add, 
-//GO(gtk_timeout_add_full, 
-//GO(gtk_timeout_remove, 
-//GO(gtk_tips_query_get_type, 
+//GOM(gtk_timeout_add, uFEuBp)
+//GOM(gtk_timeout_add_full, uFuBppB)
+GO(gtk_timeout_remove, vFu)
+GO(gtk_tips_query_get_type, iFv)
 //GO(gtk_tips_query_new, 
 //GO(gtk_tips_query_set_caller, 
 //GO(gtk_tips_query_set_labels, 
