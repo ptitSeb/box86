@@ -233,93 +233,93 @@ GO(pango_fontset_get_metrics, pFp)
 //GO(pango_language_includes_script, 
 //GO(pango_language_matches, 
 //GO(pango_language_to_string, 
-//GO(pango_layout_context_changed, 
-//GO(pango_layout_copy, 
-//GO(pango_layout_get_alignment, 
-//GO(pango_layout_get_attributes, 
-//GO(pango_layout_get_auto_dir, 
-//GO(pango_layout_get_baseline, 
-//GO(pango_layout_get_character_count, 
-//GO(pango_layout_get_context, 
-//GO(pango_layout_get_cursor_pos, 
-//GO(pango_layout_get_ellipsize, 
-//GO(pango_layout_get_extents, 
-//GO(pango_layout_get_font_description, 
-//GO(pango_layout_get_height, 
-//GO(pango_layout_get_indent, 
-//GO(pango_layout_get_iter, 
-//GO(pango_layout_get_justify, 
-//GO(pango_layout_get_line, 
-//GO(pango_layout_get_line_count, 
-//GO(pango_layout_get_line_readonly, 
-//GO(pango_layout_get_lines, 
-//GO(pango_layout_get_lines_readonly, 
-//GO(pango_layout_get_log_attrs, 
-//GO(pango_layout_get_log_attrs_readonly, 
-//GO(pango_layout_get_pixel_extents, 
-//GO(pango_layout_get_pixel_size, 
-//GO(pango_layout_get_serial, 
-//GO(pango_layout_get_single_paragraph_mode, 
-//GO(pango_layout_get_size, 
-//GO(pango_layout_get_spacing, 
-//GO(pango_layout_get_tabs, 
-//GO(pango_layout_get_text, 
-//GO(pango_layout_get_type, 
-//GO(pango_layout_get_unknown_glyphs_count, 
-//GO(pango_layout_get_width, 
-//GO(pango_layout_get_wrap, 
-//GO(pango_layout_index_to_line_x, 
-//GO(pango_layout_index_to_pos, 
-//GO(pango_layout_is_ellipsized, 
-//GO(pango_layout_is_wrapped, 
-//GO(pango_layout_iter_at_last_line, 
-//GO(pango_layout_iter_copy, 
-//GO(pango_layout_iter_free, 
-//GO(pango_layout_iter_get_baseline, 
-//GO(pango_layout_iter_get_char_extents, 
-//GO(pango_layout_iter_get_cluster_extents, 
-//GO(pango_layout_iter_get_index, 
-//GO(pango_layout_iter_get_layout, 
-//GO(pango_layout_iter_get_layout_extents, 
-//GO(pango_layout_iter_get_line, 
-//GO(pango_layout_iter_get_line_extents, 
-//GO(pango_layout_iter_get_line_readonly, 
-//GO(pango_layout_iter_get_line_yrange, 
-//GO(pango_layout_iter_get_run, 
-//GO(pango_layout_iter_get_run_extents, 
-//GO(pango_layout_iter_get_run_readonly, 
-//GO(pango_layout_iter_get_type, 
-//GO(pango_layout_iter_next_char, 
-//GO(pango_layout_iter_next_cluster, 
-//GO(pango_layout_iter_next_line, 
-//GO(pango_layout_iter_next_run, 
-//GO(pango_layout_line_get_extents, 
-//GO(pango_layout_line_get_pixel_extents, 
-//GO(pango_layout_line_get_type, 
-//GO(pango_layout_line_get_x_ranges, 
-//GO(pango_layout_line_index_to_x, 
-//GO(pango_layout_line_ref, 
-//GO(pango_layout_line_unref, 
-//GO(pango_layout_line_x_to_index, 
-//GO(pango_layout_move_cursor_visually, 
-//GO(pango_layout_new, 
-//GO(pango_layout_set_alignment, 
-//GO(pango_layout_set_attributes, 
-//GO(pango_layout_set_auto_dir, 
-//GO(pango_layout_set_ellipsize, 
-//GO(pango_layout_set_font_description, 
-//GO(pango_layout_set_height, 
-//GO(pango_layout_set_indent, 
-//GO(pango_layout_set_justify, 
-//GO(pango_layout_set_markup, 
-//GO(pango_layout_set_markup_with_accel, 
-//GO(pango_layout_set_single_paragraph_mode, 
-//GO(pango_layout_set_spacing, 
-//GO(pango_layout_set_tabs, 
-//GO(pango_layout_set_text, 
-//GO(pango_layout_set_width, 
-//GO(pango_layout_set_wrap, 
-//GO(pango_layout_xy_to_index, 
+GO(pango_layout_context_changed, vFp)
+GO(pango_layout_copy, pFp)
+GO(pango_layout_get_alignment, iFp)
+GO(pango_layout_get_attributes, pFp)
+GO(pango_layout_get_auto_dir, iFp)
+GO(pango_layout_get_baseline, iFp)
+GO(pango_layout_get_character_count, iFp)
+GO(pango_layout_get_context, pFp)
+GO(pango_layout_get_cursor_pos, vFpipp)
+GO(pango_layout_get_ellipsize, iFp)
+GO(pango_layout_get_extents, vFppp)
+GO(pango_layout_get_font_description, pFp)
+GO(pango_layout_get_height, iFp)
+GO(pango_layout_get_indent, iFp)
+GO(pango_layout_get_iter, pFp)
+GO(pango_layout_get_justify, iFp)
+GO(pango_layout_get_line, pFpi)
+GO(pango_layout_get_line_count, iFp)
+GO(pango_layout_get_line_readonly, pFpi)
+GO(pango_layout_get_lines, pFp)
+GO(pango_layout_get_lines_readonly, pFp)
+GO(pango_layout_get_log_attrs, vFppp)
+GO(pango_layout_get_log_attrs_readonly, pFpp)
+GO(pango_layout_get_pixel_extents, vFppp)
+GO(pango_layout_get_pixel_size, vFppp)
+GO(pango_layout_get_serial, uFp)
+GO(pango_layout_get_single_paragraph_mode, iFp)
+GO(pango_layout_get_size, vFppp)
+GO(pango_layout_get_spacing, iFp)
+GO(pango_layout_get_tabs, pFp)
+GO(pango_layout_get_text, pFp)
+GO(pango_layout_get_type, iFv)
+GO(pango_layout_get_unknown_glyphs_count, iFp)
+GO(pango_layout_get_width, iFp)
+GO(pango_layout_get_wrap, iFp)
+GO(pango_layout_index_to_line_x, vFpiipp)
+GO(pango_layout_index_to_pos, vFpip)
+GO(pango_layout_is_ellipsized, iFp)
+GO(pango_layout_is_wrapped, iFp)
+GO(pango_layout_iter_at_last_line, iFp)
+GO(pango_layout_iter_copy, pFp)
+GO(pango_layout_iter_free, vFp)
+GO(pango_layout_iter_get_baseline, iFp)
+GO(pango_layout_iter_get_char_extents, vFpp)
+GO(pango_layout_iter_get_cluster_extents, vFppp)
+GO(pango_layout_iter_get_index, iFp)
+GO(pango_layout_iter_get_layout, pFp)
+GO(pango_layout_iter_get_layout_extents, vFppp)
+GO(pango_layout_iter_get_line, pFp)
+GO(pango_layout_iter_get_line_extents, vFppp)
+GO(pango_layout_iter_get_line_readonly, pFp)
+GO(pango_layout_iter_get_line_yrange, vFppp)
+GO(pango_layout_iter_get_run, pFp)
+GO(pango_layout_iter_get_run_extents, vFppp)
+GO(pango_layout_iter_get_run_readonly, pFp)
+GO(pango_layout_iter_get_type, iFv)
+GO(pango_layout_iter_next_char, iFp)
+GO(pango_layout_iter_next_cluster, iFp)
+GO(pango_layout_iter_next_line, iFp)
+GO(pango_layout_iter_next_run, iFp)
+GO(pango_layout_line_get_extents, vFppp)
+GO(pango_layout_line_get_pixel_extents, vFppp)
+GO(pango_layout_line_get_type, iFv)
+GO(pango_layout_line_get_x_ranges, vFpiipp)
+GO(pango_layout_line_index_to_x, vFpiip)
+GO(pango_layout_line_ref, pFp)
+GO(pango_layout_line_unref, vFp)
+GO(pango_layout_line_x_to_index, iFpipp)
+GO(pango_layout_move_cursor_visually, vFpiiiipp)
+GO(pango_layout_new, pFp)
+GO(pango_layout_set_alignment, vFpi)
+GO(pango_layout_set_attributes, vFpp)
+GO(pango_layout_set_auto_dir, vFpi)
+GO(pango_layout_set_ellipsize, vFpi)
+GO(pango_layout_set_font_description, vFpp)
+GO(pango_layout_set_height, vFpi)
+GO(pango_layout_set_indent, vFpi)
+GO(pango_layout_set_justify, vFpi)
+GO(pango_layout_set_markup, vFppi)
+GO(pango_layout_set_markup_with_accel, vFppiup)
+GO(pango_layout_set_single_paragraph_mode, vFpi)
+GO(pango_layout_set_spacing, vFpi)
+GO(pango_layout_set_tabs, vFpp)
+GO(pango_layout_set_text, vFppi)
+GO(pango_layout_set_width, vFpi)
+GO(pango_layout_set_wrap, vFpi)
+GO(pango_layout_xy_to_index, iFpiipp)
 //GO(pango_log2vis_get_embedding_levels, 
 //GO(pango_lookup_aliases, 
 //GO(pango_map_get_engine, 
