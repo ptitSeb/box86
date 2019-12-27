@@ -3106,7 +3106,7 @@ GO(gtk_toggle_button_toggled, vFp)
 //GO(gtk_toolbar_get_show_arrow, 
 //GO(gtk_toolbar_get_style, 
 //GO(gtk_toolbar_get_tooltips, 
-//GO(gtk_toolbar_get_type, 
+GO(gtk_toolbar_get_type, iFv)
 //GO(gtk_toolbar_insert, 
 //GO(gtk_toolbar_insert_element, 
 //GO(gtk_toolbar_insert_item, 
@@ -3418,60 +3418,60 @@ GO(gtk_tooltips_set_tip, vFpppp)
 //GO(gtk_tree_view_append_column, 
 //GO(gtk_tree_view_collapse_all, 
 //GO(gtk_tree_view_collapse_row, 
-//GO(gtk_tree_view_column_add_attribute, 
-//GO(gtk_tree_view_column_cell_get_position, 
-//GO(gtk_tree_view_column_cell_get_size, 
-//GO(gtk_tree_view_column_cell_is_visible, 
-//GO(gtk_tree_view_column_cell_set_cell_data, 
-//GO(gtk_tree_view_column_clear, 
-//GO(gtk_tree_view_column_clear_attributes, 
-//GO(gtk_tree_view_column_clicked, 
-//GO(gtk_tree_view_column_focus_cell, 
-//GO(gtk_tree_view_column_get_alignment, 
-//GO(gtk_tree_view_column_get_cell_renderers, 
-//GO(gtk_tree_view_column_get_clickable, 
-//GO(gtk_tree_view_column_get_expand, 
-//GO(gtk_tree_view_column_get_fixed_width, 
-//GO(gtk_tree_view_column_get_max_width, 
-//GO(gtk_tree_view_column_get_min_width, 
-//GO(gtk_tree_view_column_get_reorderable, 
-//GO(gtk_tree_view_column_get_resizable, 
-//GO(gtk_tree_view_column_get_sizing, 
-//GO(gtk_tree_view_column_get_sort_column_id, 
-//GO(gtk_tree_view_column_get_sort_indicator, 
-//GO(gtk_tree_view_column_get_sort_order, 
-//GO(gtk_tree_view_column_get_spacing, 
-//GO(gtk_tree_view_column_get_title, 
-//GO(gtk_tree_view_column_get_tree_view, 
-//GO(gtk_tree_view_column_get_type, 
-//GO(gtk_tree_view_column_get_visible, 
-//GO(gtk_tree_view_column_get_widget, 
-//GO(gtk_tree_view_column_get_width, 
-//GO(gtk_tree_view_column_new, 
-//GO(gtk_tree_view_column_new_with_attributes, 
-//GO(gtk_tree_view_column_pack_end, 
-//GO(gtk_tree_view_column_pack_start, 
-//GO(gtk_tree_view_column_queue_resize, 
-//GO(gtk_tree_view_columns_autosize, 
-//GO(gtk_tree_view_column_set_alignment, 
-//GO(gtk_tree_view_column_set_attributes, 
-//GO(gtk_tree_view_column_set_cell_data_func, 
-//GO(gtk_tree_view_column_set_clickable, 
-//GO(gtk_tree_view_column_set_expand, 
-//GO(gtk_tree_view_column_set_fixed_width, 
-//GO(gtk_tree_view_column_set_max_width, 
-//GO(gtk_tree_view_column_set_min_width, 
-//GO(gtk_tree_view_column_set_reorderable, 
-//GO(gtk_tree_view_column_set_resizable, 
-//GO(gtk_tree_view_column_set_sizing, 
-//GO(gtk_tree_view_column_set_sort_column_id, 
-//GO(gtk_tree_view_column_set_sort_indicator, 
-//GO(gtk_tree_view_column_set_sort_order, 
-//GO(gtk_tree_view_column_set_spacing, 
-//GO(gtk_tree_view_column_set_title, 
-//GO(gtk_tree_view_column_set_visible, 
-//GO(gtk_tree_view_column_set_widget, 
-//GO(gtk_tree_view_column_sizing_get_type, 
+GO(gtk_tree_view_column_add_attribute, vFpppi)
+GO(gtk_tree_view_column_cell_get_position, iFpppp)
+GO(gtk_tree_view_column_cell_get_size, vFpppppp)
+GO(gtk_tree_view_column_cell_is_visible, iFp)
+GO(gtk_tree_view_column_cell_set_cell_data, vFpppii)
+GO(gtk_tree_view_column_clear, vFp)
+GO(gtk_tree_view_column_clear_attributes, vFpp)
+GO(gtk_tree_view_column_clicked, vFp)
+GO(gtk_tree_view_column_focus_cell, vFpp)
+GO(gtk_tree_view_column_get_alignment, fFp)
+GO(gtk_tree_view_column_get_cell_renderers, pFp)
+GO(gtk_tree_view_column_get_clickable, iFp)
+GO(gtk_tree_view_column_get_expand, iFp)
+GO(gtk_tree_view_column_get_fixed_width, iFp)
+GO(gtk_tree_view_column_get_max_width, iFp)
+GO(gtk_tree_view_column_get_min_width, iFp)
+GO(gtk_tree_view_column_get_reorderable, iFp)
+GO(gtk_tree_view_column_get_resizable, iFp)
+GO(gtk_tree_view_column_get_sizing, iFp)
+GO(gtk_tree_view_column_get_sort_column_id, iFp)
+GO(gtk_tree_view_column_get_sort_indicator, iFp)
+GO(gtk_tree_view_column_get_sort_order, iFp)
+GO(gtk_tree_view_column_get_spacing, iFp)
+GO(gtk_tree_view_column_get_title, pFp)
+GO(gtk_tree_view_column_get_tree_view, pFp)
+GO(gtk_tree_view_column_get_type, iFv)
+GO(gtk_tree_view_column_get_visible, iFp)
+GO(gtk_tree_view_column_get_widget, pFp)
+GO(gtk_tree_view_column_get_width, iFp)
+GO(gtk_tree_view_column_new, pFv)
+GO(gtk_tree_view_column_new_with_attributes, pFppppppppppppp)   //vaarg
+GO(gtk_tree_view_column_pack_end, vFppi)
+GO(gtk_tree_view_column_pack_start, vFppi)
+GO(gtk_tree_view_column_queue_resize, vFp)
+GO(gtk_tree_view_columns_autosize, vFp)
+GO(gtk_tree_view_column_set_alignment, vFpf)
+GO(gtk_tree_view_column_set_attributes, vFpppppppppppp) //vaarg
+//GOM(gtk_tree_view_column_set_cell_data_func, vFEppBpB)
+GO(gtk_tree_view_column_set_clickable, vFpi)
+GO(gtk_tree_view_column_set_expand, vFpi)
+GO(gtk_tree_view_column_set_fixed_width, vFpi)
+GO(gtk_tree_view_column_set_max_width, vFpi)
+GO(gtk_tree_view_column_set_min_width, vFpi)
+GO(gtk_tree_view_column_set_reorderable, vFpi)
+GO(gtk_tree_view_column_set_resizable, vFpi)
+GO(gtk_tree_view_column_set_sizing, vFpi)
+GO(gtk_tree_view_column_set_sort_column_id, iFp)
+GO(gtk_tree_view_column_set_sort_indicator, vFpi)
+GO(gtk_tree_view_column_set_sort_order, vFpi)
+GO(gtk_tree_view_column_set_spacing, vFpi)
+GO(gtk_tree_view_column_set_title, vFpp)
+GO(gtk_tree_view_column_set_visible, vFpi)
+GO(gtk_tree_view_column_set_widget, vFpp)
+GO(gtk_tree_view_column_sizing_get_type, iFv)
 //GO(gtk_tree_view_convert_bin_window_to_tree_coords, 
 //GO(gtk_tree_view_convert_bin_window_to_widget_coords, 
 //GO(gtk_tree_view_convert_tree_to_bin_window_coords, 

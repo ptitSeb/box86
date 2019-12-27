@@ -656,7 +656,7 @@ GO(gdk_window_lookup_for_display, pFpp)
 //GO(gdk_window_move_region, 
 //GO(gdk_window_move_resize, 
 //GO(gdk_window_new, 
-//GO(gdk_window_object_get_type, 
+GO(gdk_window_object_get_type, iFv)
 //GO(gdk_window_peek_children, 
 //GO(gdk_window_process_all_updates, 
 //GO(gdk_window_process_updates, 
