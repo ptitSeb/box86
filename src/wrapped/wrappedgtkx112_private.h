@@ -1404,11 +1404,11 @@ GO(gtk_image_set_from_stock, vFppi)
 //GO(gtk_im_context_simple_add_table, 
 //GO(gtk_im_context_simple_get_type, 
 //GO(gtk_im_context_simple_new, 
-//GO(gtk_im_multicontext_append_menuitems, 
-//GO(gtk_im_multicontext_get_context_id, 
-//GO(gtk_im_multicontext_get_type, 
-//GO(gtk_im_multicontext_new, 
-//GO(gtk_im_multicontext_set_context_id, 
+GO(gtk_im_multicontext_append_menuitems, vFpp)
+GO(gtk_im_multicontext_get_context_id, pFp)
+GO(gtk_im_multicontext_get_type, iFv)
+GO(gtk_im_multicontext_new, pFv)
+GO(gtk_im_multicontext_set_context_id, vFpp)
 //GO(gtk_im_preedit_style_get_type, 
 //GO(gtk_im_status_style_get_type, 
 //GO(gtk_info_bar_add_action_widget, 
