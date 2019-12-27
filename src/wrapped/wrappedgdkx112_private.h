@@ -240,7 +240,7 @@ GO(gdk_flush, vFv)
 //GO(gdk_font_from_description, 
 //GO(gdk_font_from_description_for_display, 
 //GO(gdk_font_get_display, 
-//GO(gdk_font_get_type, 
+GO(gdk_font_get_type, iFv)
 //GO(gdk_font_id, 
 //GO(gdk_font_load, 
 //GO(gdk_font_load_for_display, 
@@ -349,7 +349,7 @@ GO(gdk_flush, vFv)
 //GO(gdk_list_visuals, 
 //GO(gdk_mbstowcs, 
 //GO(gdk_modifier_type_get_type, 
-//GO(gdk_net_wm_supports, 
+GO(gdk_net_wm_supports, iFp)
 //GO(gdk_notify_startup_complete, 
 //GO(gdk_notify_startup_complete_with_id, 
 //GO(gdk_notify_type_get_type, 
@@ -387,14 +387,14 @@ GO(gdk_pango_renderer_set_stipple, vFpip)
 //GO(gdk_pixmap_create_from_data, 
 //GO(gdk_pixmap_create_from_xpm, 
 //GO(gdk_pixmap_create_from_xpm_d, 
-//GO(gdk_pixmap_foreign_new, 
-//GO(gdk_pixmap_foreign_new_for_display, 
-//GO(gdk_pixmap_foreign_new_for_screen, 
+GO(gdk_pixmap_foreign_new, pFp)
+GO(gdk_pixmap_foreign_new_for_display, pFpp)
+GO(gdk_pixmap_foreign_new_for_screen, pFppiii)
 //GO(gdk_pixmap_get_size, 
 //GO(gdk_pixmap_get_type, 
 //GO(gdk_pixmap_impl_x11_get_type, 
-//GO(gdk_pixmap_lookup, 
-//GO(gdk_pixmap_lookup_for_display, 
+GO(gdk_pixmap_lookup, pFp)
+GO(gdk_pixmap_lookup_for_display, pFpp)
 //GO(gdk_pixmap_new, 
 //GO(gdk_pointer_grab, 
 //GO(gdk_pointer_grab_info_libgtk_only, 
@@ -590,7 +590,7 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_window_ensure_native, 
 //GO(gdk_window_flush, 
 //GO(gdk_window_focus, 
-//GO(gdk_window_foreign_new, 
+GO(gdk_window_foreign_new, pFp)
 GO(gdk_window_foreign_new_for_display, pFpp)
 //GO(gdk_window_freeze_toplevel_updates_libgtk_only, 
 //GO(gdk_window_freeze_updates, 
@@ -646,7 +646,7 @@ GO(gdk_window_foreign_new_for_display, pFpp)
 //GO(gdk_window_is_shaped, 
 //GO(gdk_window_is_viewable, 
 //GO(gdk_window_is_visible, 
-//GO(gdk_window_lookup, 
+GO(gdk_window_lookup, pFp)
 GO(gdk_window_lookup_for_display, pFpp)
 //GO(gdk_window_lower, 
 //GO(gdk_window_maximize, 
@@ -718,63 +718,63 @@ GO(gdk_window_set_transient_for, vFpp)
 //GO(gdk_window_withdraw, 
 //GO(gdk_wm_decoration_get_type, 
 //GO(gdk_wm_function_get_type, 
-//GO(gdk_x11_atom_to_xatom, 
-//GO(gdk_x11_atom_to_xatom_for_display, 
-//GO(gdk_x11_colormap_foreign_new, 
-//GO(gdk_x11_colormap_get_xcolormap, 
-//GO(gdk_x11_colormap_get_xdisplay, 
-//GO(gdk_x11_cursor_get_xcursor, 
-//GO(gdk_x11_cursor_get_xdisplay, 
-//GO(gdk_x11_display_broadcast_startup_message, 
-//GO(gdk_x11_display_get_startup_notification_id, 
-//GO(gdk_x11_display_get_user_time, 
-//GO(gdk_x11_display_get_xdisplay, 
-//GO(gdk_x11_display_grab, 
-//GO(gdk_x11_display_set_cursor_theme, 
+GO(gdk_x11_atom_to_xatom, pFp)
+GO(gdk_x11_atom_to_xatom_for_display, pFpp)
+GO(gdk_x11_colormap_foreign_new, pFpp)
+GO(gdk_x11_colormap_get_xcolormap, pFp)
+GO(gdk_x11_colormap_get_xdisplay, pFp)
+GO(gdk_x11_cursor_get_xcursor, pFp)
+GO(gdk_x11_cursor_get_xdisplay, pFp)
+GO(gdk_x11_display_broadcast_startup_message, vFppppppppppppp)  //vaarg after 2 p
+GO(gdk_x11_display_get_startup_notification_id, pFp)
+GO(gdk_x11_display_get_user_time, uFp)
+GO(gdk_x11_display_get_xdisplay, pFp)
+GO(gdk_x11_display_grab, vFp)
+GO(gdk_x11_display_set_cursor_theme, vFppi)
 //GO(gdk_x11_display_string_to_compound_text, 
 //GO(gdk_x11_display_text_property_to_text_list, 
-//GO(gdk_x11_display_ungrab, 
+GO(gdk_x11_display_ungrab, vFp)
 //GO(gdk_x11_display_utf8_to_compound_text, 
-//GO(gdk_x11_drawable_get_xdisplay, 
-//GO(gdk_x11_drawable_get_xid, 
-//GO(gdk_x11_font_get_name, 
-//GO(gdk_x11_font_get_xdisplay, 
-//GO(gdk_x11_font_get_xfont, 
+GO(gdk_x11_drawable_get_xdisplay, pFp)
+GO(gdk_x11_drawable_get_xid, pFp)
+GO(gdk_x11_font_get_name, pFp)
+GO(gdk_x11_font_get_xdisplay, pFp)
+GO(gdk_x11_font_get_xfont, pFp)
 //GO(gdk_x11_free_compound_text, 
 //GO(gdk_x11_free_text_list, 
-//GO(gdk_x11_gc_get_xdisplay, 
-//GO(gdk_x11_gc_get_xgc, 
-//GO(gdk_x11_get_default_root_xwindow, 
-//GO(gdk_x11_get_default_screen, 
-//GO(gdk_x11_get_default_xdisplay, 
-//GO(gdk_x11_get_server_time, 
-//GO(gdk_x11_get_xatom_by_name, 
-//GO(gdk_x11_get_xatom_by_name_for_display, 
-//GO(gdk_x11_get_xatom_name, 
-//GO(gdk_x11_get_xatom_name_for_display, 
-//GO(gdk_x11_grab_server, 
-//GO(gdk_x11_image_get_xdisplay, 
-//GO(gdk_x11_image_get_ximage, 
-//GO(gdk_x11_lookup_xdisplay, 
+GO(gdk_x11_gc_get_xdisplay, pFp)
+GO(gdk_x11_gc_get_xgc, pFp)
+GO(gdk_x11_get_default_root_xwindow, pFv)
+GO(gdk_x11_get_default_screen, iFv)
+GO(gdk_x11_get_default_xdisplay, pFv)
+GO(gdk_x11_get_server_time, uFp)
+GO(gdk_x11_get_xatom_by_name, pFp)
+GO(gdk_x11_get_xatom_by_name_for_display, pFpp)
+GO(gdk_x11_get_xatom_name, pFp)
+GO(gdk_x11_get_xatom_name_for_display, pFpp)
+GO(gdk_x11_grab_server, vFv)
+GO(gdk_x11_image_get_xdisplay, pFp)
+GO(gdk_x11_image_get_ximage, pFp)
+GO(gdk_x11_lookup_xdisplay, pFp)
 //GO(gdk_x11_pixmap_get_drawable_impl, 
-//GO(gdk_x11_register_standard_event_type, 
-//GO(gdk_x11_screen_get_monitor_output, 
-//GO(gdk_x11_screen_get_screen_number, 
-//GO(gdk_x11_screen_get_window_manager_name, 
-//GO(gdk_x11_screen_get_xscreen, 
-//GO(gdk_x11_screen_lookup_visual, 
-//GO(gdk_x11_screen_supports_net_wm_hint, 
-//GO(gdk_x11_set_sm_client_id, 
-//GO(gdk_x11_ungrab_server, 
-//GO(gdk_x11_visual_get_xvisual, 
-//GO(gdk_x11_window_foreign_new_for_display, 
+GO(gdk_x11_register_standard_event_type, vFpii)
+GO(gdk_x11_screen_get_monitor_output, pFpi)
+GO(gdk_x11_screen_get_screen_number, iFp)
+GO(gdk_x11_screen_get_window_manager_name, pFp)
+GO(gdk_x11_screen_get_xscreen, pFp)
+GO(gdk_x11_screen_lookup_visual, pFpp)
+GO(gdk_x11_screen_supports_net_wm_hint, iFpp)
+GO(gdk_x11_set_sm_client_id, vFp)
+GO(gdk_x11_ungrab_server, vFv)
+GO(gdk_x11_visual_get_xvisual, pFp)
+GO(gdk_x11_window_foreign_new_for_display, pFpp)
 //GO(gdk_x11_window_get_drawable_impl, 
-//GO(gdk_x11_window_lookup_for_display, 
-//GO(gdk_x11_window_move_to_current_desktop, 
-//GO(gdk_x11_window_set_user_time, 
-//GO(gdk_x11_xatom_to_atom, 
-//GO(gdk_x11_xatom_to_atom_for_display, 
-//GO(gdkx_colormap_get, 
-//GO(gdk_xid_table_lookup, 
-//GO(gdk_xid_table_lookup_for_display, 
-//GO(gdkx_visual_get, 
+GO(gdk_x11_window_lookup_for_display, pFpp)
+GO(gdk_x11_window_move_to_current_desktop, vFp)
+GO(gdk_x11_window_set_user_time, vFpu)
+GO(gdk_x11_xatom_to_atom, pFp)
+GO(gdk_x11_xatom_to_atom_for_display, pFpp)
+GO(gdkx_colormap_get, pFu)
+GO(gdk_xid_table_lookup, pFp)
+GO(gdk_xid_table_lookup_for_display, pFpp)
+GO(gdkx_visual_get, pFp)
