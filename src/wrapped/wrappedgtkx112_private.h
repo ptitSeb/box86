@@ -2985,13 +2985,13 @@ GO(gtk_text_search_flags_get_type, iFv)
 GO(gtk_text_tag_get_type, iFv)
 //GO(gtk_text_tag_new, 
 //GO(gtk_text_tag_set_priority, 
-//GO(gtk_text_tag_table_add, 
-//GO(gtk_text_tag_table_foreach, 
-//GO(gtk_text_tag_table_get_size, 
+GO(gtk_text_tag_table_add, vFpp)
+//GOM(gtk_text_tag_table_foreach, vFEpBp)
+GO(gtk_text_tag_table_get_size, iFp)
 GO(gtk_text_tag_table_get_type, iFv)
-//GO(gtk_text_tag_table_lookup, 
-//GO(gtk_text_tag_table_new, 
-//GO(gtk_text_tag_table_remove, 
+GO(gtk_text_tag_table_lookup, pFpp)
+GO(gtk_text_tag_table_new, pFv)
+GO(gtk_text_tag_table_remove, vFpp)
 //GO(gtk_text_thaw, 
 //GO(gtk_text_view_add_child_at_anchor, 
 //GO(gtk_text_view_add_child_in_window, 
