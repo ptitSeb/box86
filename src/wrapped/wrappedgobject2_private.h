@@ -111,59 +111,59 @@ GO(g_clear_object, vFp)
 //GO(g_mapped_file_get_type, 
 //GO(g_markup_parse_context_get_type, 
 //GO(g_match_info_get_type, 
-//GO(g_object_add_toggle_ref, 
-//GO(g_object_add_weak_pointer, 
+//GOM(g_object_add_toggle_ref, vFEpBp)
+GO(g_object_add_weak_pointer, vFpp)
 //GO(g_object_bind_property, 
 //GO(g_object_bind_property_full, 
 //GO(g_object_bind_property_with_closures, 
-//GO(g_object_class_find_property, 
-//GO(g_object_class_install_properties, 
-//GO(g_object_class_install_property, 
-//GO(g_object_class_list_properties, 
-//GO(g_object_class_override_property, 
+GO(g_object_class_find_property, pFpp)
+GO(g_object_class_install_properties, vFpup)
+GO(g_object_class_install_property, vFpup)
+GO(g_object_class_list_properties, pFpp)
+GO(g_object_class_override_property, vFpup)
 //GO(g_object_compat_control, 
-//GO(g_object_connect, 
-//GO(g_object_disconnect, 
-//GO(g_object_dup_data, 
-//GO(g_object_dup_qdata, 
-//GO(g_object_force_floating, 
-//GO(g_object_freeze_notify, 
-//GO(g_object_get, 
+GO(g_object_connect, pFpppppppppppppppp)    //vaarg
+GO(g_object_disconnect, vFpppppppppppppppp)   // caarg
+//GOM(g_object_dup_data, pFEppBp)
+//GOM(g_object_dup_qdata, pFEppBp)
+GO(g_object_force_floating, vFp)
+GO(g_object_freeze_notify, vFp)
+GO2(g_object_get, vFppV, g_object_get_valist)
 GO(g_object_get_data, pFpp)
-//GO(g_object_get_property, 
-//GO(g_object_get_qdata, 
-//GO(g_object_get_type, 
-//GO(g_object_get_valist, 
-//GO(g_object_interface_find_property, 
-//GO(g_object_interface_install_property, 
-//GO(g_object_interface_list_properties, 
+GO(g_object_get_property, vFppp)
+GO(g_object_get_qdata, pFpp)
+GO(g_object_get_type, iFv)
+GO(g_object_get_valist, vFppp)
+GO(g_object_interface_find_property, pFpp)
+GO(g_object_interface_install_property, vFpp)
+GO(g_object_interface_list_properties, pFpp)
 GO(g_object_is_floating, iFp)
-//GO(g_object_new, 
-//GO(g_object_newv, 
-//GO(g_object_new_valist, 
-//GO(g_object_notify, 
-//GO(g_object_notify_by_pspec, 
+GOM(g_object_new, pFEipV)
+GO(g_object_newv, pFiup)
+GO(g_object_new_valist, pFipp)
+GO(g_object_notify, vFpp)
+GO(g_object_notify_by_pspec, vFpp)
 GO(g_object_ref, pFp)
 GO(g_object_ref_sink, pFp)
-//GO(g_object_remove_toggle_ref, 
-//GO(g_object_remove_weak_pointer, 
-//GO(g_object_replace_data, 
-//GO(g_object_replace_qdata, 
-//GO(g_object_run_dispose, 
-GO(g_object_set, vFpppppppppppppppp)    //vaarg, and the g_object_setv function is only 2.54+
+//GOM(g_object_remove_toggle_ref, vFEpBp)
+GO(g_object_remove_weak_pointer, vFpp)
+//GOM(g_object_replace_data, iFEppppBB)
+//GOM(g_object_replace_qdata, iFEppppBB)
+GO(g_object_run_dispose, vFp)
+GO2(g_object_set, vFppV, g_object_set_valist)
 GO(g_object_set_data, vFppp)
-//GO(g_object_set_data_full, 
-//GO(g_object_set_property, 
-//GO(g_object_set_qdata, 
-//GO(g_object_set_qdata_full, 
-//GO(g_object_set_valist, 
-//GO(g_object_steal_data, 
-//GO(g_object_steal_qdata, 
-//GO(g_object_thaw_notify, 
+//GOM(g_object_set_data_full, vFEpppB)
+GO(g_object_set_property, vFppp)
+GO(g_object_set_qdata, vFppp)
+//GOM(g_object_set_qdata_full, vFEpppB)
+GO(g_object_set_valist, vFppp)
+GO(g_object_steal_data, pFpp)
+GO(g_object_steal_qdata, pFpp)
+GO(g_object_thaw_notify, vFp)
 GO(g_object_unref, vFp)
-//GO(g_object_watch_closure, 
-//GO(g_object_weak_ref, 
-//GO(g_object_weak_unref, 
+GO(g_object_watch_closure, vFpp)
+//GOM(g_object_weak_ref, vFpBp)
+GO(g_object_weak_unref, vFpp)
 //GO(g_param_spec_boolean, 
 //GO(g_param_spec_boxed, 
 //GO(g_param_spec_char, 
@@ -268,8 +268,8 @@ GO(g_strdup_value_contents, pFp)
 GO(g_type_add_class_private, vFpiu)
 //GO(g_type_add_instance_private, 
 //GOM(g_type_add_interface_check, vFEpB)
-GO(g_type_add_interface_dynamic, vFiip)
-GO(g_type_add_interface_static, vFuup)
+//GOM(g_type_add_interface_dynamic, vFEiip)
+//GOM(g_type_add_interface_static, vFEuup)
 GO(g_type_check_class_cast, pFpi)
 GO(g_type_check_class_is_a, iFpi)
 GO(g_type_check_instance, iFp)
@@ -333,15 +333,15 @@ GO(g_type_interface_prerequisites, pFip)
 //GO(g_type_plugin_use, 
 //GO(g_type_qname, 
 //GO(g_type_query, 
-GO(type_register_dynamic, iFpippi)
-GO(g_type_register_fundamental, iFipppi)
-GO(g_type_register_static, iFippi)
+//GOM(type_register_dynamic, iFEpippi)
+GOM(g_type_register_fundamental, iFEipppi)
+GOM(g_type_register_static, iFEippi)
 //GOM(g_type_register_static_simple, iFEipuBuBi)
 //GOM(g_type_remove_class_cache_func, vFEpB)
 //GOM(g_type_remove_interface_check, vFEpB)
 //GO(g_type_set_qdata, 
 //GO(g_type_test_flags, 
-//GOM(g_type_value_table_peek, pFi)  // GTypeValueTable is full of callback
+//GOM(g_type_value_table_peek, pFEi)    //need to bridge GTypeValueTable
 //GO(g_value_array_append, 
 //GO(g_value_array_copy, 
 //GO(g_value_array_free, 
