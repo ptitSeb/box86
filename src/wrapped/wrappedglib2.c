@@ -60,7 +60,9 @@ typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
     GO(g_printf_string_upper_bound, uFpp_t)     \
     GO(g_source_new, pFpu_t)                    \
     GO(g_source_set_funcs, vFpp_t)              \
-    GO(g_source_remove_by_funcs_user_data, iFpp_t)
+    GO(g_source_remove_by_funcs_user_data, iFpp_t) \
+    GO(g_main_context_get_poll_func, pFp_t)     \
+    GO(g_main_context_set_poll_func, vFpp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -184,6 +186,7 @@ SUPER()
 static void* findCopyFct(void* fct)
 {
     if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_copy_fct_##A == (uintptr_t)fct) return my_copy_##A;
     SUPER()
     #undef GO
@@ -205,6 +208,7 @@ SUPER()
 static void* findFreeFct(void* fct)
 {
     if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
     #undef GO
@@ -214,7 +218,7 @@ static void* findFreeFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Free callback\n");
     return NULL;
 }
-
+// GSourceFuncs....
 // g_source_new callback. First the structure GSourceFuncs statics, with paired x86 source pointer
 #define GO(A) \
 static my_GSourceFuncs_t     my_gsourcefuncs_##A = {0};   \
@@ -273,6 +277,37 @@ static my_GSourceFuncs_t* findFreeGSourceFuncs(my_GSourceFuncs_t* fcts)
     return NULL;
 }
 
+// PollFunc ...
+#define GO(A)   \
+static uintptr_t my_poll_fct_##A = 0;   \
+static int my_poll_##A(void* ufds, uint32_t nfsd, int32_t timeout_)     \
+{                                       \
+    return RunFunction(my_context, my_poll_fct_##A, 3, ufds, nfsd, timeout_);\
+}
+SUPER()
+#undef GO
+static void* findPollFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_poll_fct_##A == 0) {my_poll_fct_##A = (uintptr_t)fct; return my_poll_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 Poll callback\n");
+    return NULL;
+}
+
+static void* reversePollFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
+    SUPER()
+    #undef GO
+    return NULL;
+}
 
 #undef SUPER
 
@@ -444,6 +479,26 @@ EXPORT int my_g_source_remove_by_funcs_user_data(x86emu_t* emu, my_GSourceFuncs_
     return my->g_source_remove_by_funcs_user_data(findFreeGSourceFuncs(source_funcs), data);
 }
 
+EXPORT void* my_g_main_context_get_poll_func(x86emu_t* emu, void* context)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    void* ret = my->g_main_context_get_poll_func(context);
+    if(!ret) return ret;
+    void* r = reversePollFct(ret);
+    if(r) return r;
+    // needs to bridge....
+    return (void*)AddCheckBridge(lib->priv.w.bridge, iFpui, r, 0);
+}
+    
+EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* func)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    my->g_main_context_set_poll_func(context, findPollFct(func));
+}
 
 #define CUSTOM_INIT \
     my_context = box86; \

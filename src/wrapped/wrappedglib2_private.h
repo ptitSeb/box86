@@ -627,7 +627,7 @@ GO(g_main_context_dispatch, vFp)
 //GOM(g_main_context_find_source_by_funcs_user_data, pFEppp)   // 2nd is a GSourceFuncs structures with callbacks..
 GO(g_main_context_find_source_by_id, pFpu)
 GO(g_main_context_find_source_by_user_data, pFpp)
-//GOM(g_main_context_get_poll_func, pFEp)
+GOM(g_main_context_get_poll_func, pFEp)
 GO(g_main_context_get_thread_default, pFv)
 //GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
 //GOM(g_main_context_invoke_full, vFpippB)  // 3rd is GSourceFuncs
@@ -643,7 +643,7 @@ GO(g_main_context_ref, pFp)
 GO(g_main_context_ref_thread_default, pFv)
 GO(g_main_context_release, vFp)
 GO(g_main_context_remove_poll, vFpp)
-//GOM(g_main_context_set_poll_func, vFpB)
+GOM(g_main_context_set_poll_func, vFpp)
 GO(g_main_context_unref, vFp)
 GO(g_main_context_wait, iFppp)
 GO(g_main_context_wakeup, vFp)
