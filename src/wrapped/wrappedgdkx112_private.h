@@ -375,13 +375,13 @@ GO(gdk_pango_renderer_set_gc, vFpp)
 GO(gdk_pango_renderer_set_override_color, vFpip)
 GO(gdk_pango_renderer_set_stipple, vFpip)
 //GO(gdk_parse_args, 
-//GO(gdk_pixbuf_get_from_drawable, 
-//GO(gdk_pixbuf_get_from_image, 
-//GO(gdk_pixbuf_render_pixmap_and_mask, 
-//GO(gdk_pixbuf_render_pixmap_and_mask_for_colormap, 
-//GO(gdk_pixbuf_render_threshold_alpha, 
-//GO(gdk_pixbuf_render_to_drawable, 
-//GO(gdk_pixbuf_render_to_drawable_alpha, 
+GO(gdk_pixbuf_get_from_drawable, pFpppiiiiii)
+GO(gdk_pixbuf_get_from_image, pFpppiiiiii)
+GO(gdk_pixbuf_render_pixmap_and_mask, vFpppi)
+GO(gdk_pixbuf_render_pixmap_and_mask_for_colormap, vFppppi)
+GO(gdk_pixbuf_render_threshold_alpha, vFppiiiiiii)
+GO(gdk_pixbuf_render_to_drawable, vFpppiiiiiiiii)
+GO(gdk_pixbuf_render_to_drawable_alpha, vFppiiiiiiiiiii)
 //GO(gdk_pixmap_colormap_create_from_xpm, 
 //GO(gdk_pixmap_colormap_create_from_xpm_d, 
 //GO(gdk_pixmap_create_from_data, 
