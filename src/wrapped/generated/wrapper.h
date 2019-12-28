@@ -1169,6 +1169,7 @@ void vFuuiiiiuuiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFfffffffffffffff(x86emu_t *emu, uintptr_t fnc);
 void vFpppippppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFpuiippppppppppp(x86emu_t *emu, uintptr_t fnc);
+void pFppipppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void vFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
@@ -1177,6 +1178,7 @@ void pFppipipipipipipip(x86emu_t *emu, uintptr_t fnc);
 void pFppippipipipipipip(x86emu_t *emu, uintptr_t fnc);
 void vFppuiiiiipuiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFpppipppppppppppppp(x86emu_t *emu, uintptr_t fnc);
+void vFpiiiiiiiiiiiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(PANDORA)

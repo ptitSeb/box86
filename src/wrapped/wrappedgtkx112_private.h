@@ -183,7 +183,7 @@ GO(gtk_alignment_get_type, iFv)
 GO(gtk_alignment_new, pFffff)
 GO(gtk_alignment_set, vFpffff)
 GO(gtk_alignment_set_padding, vFpuuuu)
-//GO(gtk_alternative_dialog_button_order, 
+GO(gtk_alternative_dialog_button_order, iFp)
 //GO(gtk_anchor_type_get_type, 
 //GO(gtk_arg_flags_get_type, 
 //GO(gtk_arrow_get_type, 
@@ -749,28 +749,28 @@ GO(gtk_container_set_resize_mode, vFpi)
 //GO(gtk_decorated_window_init, 
 //GO(gtk_decorated_window_move_resize_window, 
 //GO(gtk_decorated_window_set_title, 
-//GO(gtk_delete_type_get_type, 
-//GO(gtk_dest_defaults_get_type, 
+GO(gtk_delete_type_get_type, iFv)
+GO(gtk_dest_defaults_get_type, iFv)
 GO(gtk_dialog_add_action_widget, vFppi)
 GO(gtk_dialog_add_button, pFppi)
 GOM(gtk_dialog_add_buttons, vFEppV)
-//GO(gtk_dialog_flags_get_type, 
-//GO(gtk_dialog_get_action_area, 
-//GO(gtk_dialog_get_content_area, 
-//GO(gtk_dialog_get_has_separator, 
-//GO(gtk_dialog_get_response_for_widget, 
+GO(gtk_dialog_flags_get_type, iFv)
+GO(gtk_dialog_get_action_area, pFp)
+GO(gtk_dialog_get_content_area, pFp)
+GO(gtk_dialog_get_has_separator, iFp)
+GO(gtk_dialog_get_response_for_widget, iFpp)
 GO(gtk_dialog_get_type, iFv)
-//GO(gtk_dialog_get_widget_for_response, 
-//GO(gtk_dialog_new, 
-//GO(gtk_dialog_new_with_buttons, 
+GO(gtk_dialog_get_widget_for_response, pFpi)
+GO(gtk_dialog_new, pFv)
+GO(gtk_dialog_new_with_buttons, pFppipppppppppppp)    //vaarg
 GO(gtk_dialog_response, vFpi)
 GO(gtk_dialog_run, iFp)
-//GO(gtk_dialog_set_alternative_button_order, 
-//GO(gtk_dialog_set_alternative_button_order_from_array, 
+GO(gtk_dialog_set_alternative_button_order, vFpiiiiiiiiiiiiiiiiii)  // vaarg, should wrap using gtk_dialog_set_alternative_button_order_from_array
+GO(gtk_dialog_set_alternative_button_order_from_array, vFpip)
 GO(gtk_dialog_set_default_response, vFpi)
-//GO(gtk_dialog_set_has_separator, 
-//GO(gtk_dialog_set_response_sensitive, 
-//GO(gtk_direction_type_get_type, 
+GO(gtk_dialog_set_has_separator, vFpi)
+GO(gtk_dialog_set_response_sensitive, vFpii)
+GO(gtk_direction_type_get_type, iFv)
 GO(gtk_disable_setlocale, vFv)
 //GO(gtk_drag_begin, 
 //GO(gtk_drag_check_threshold, 
