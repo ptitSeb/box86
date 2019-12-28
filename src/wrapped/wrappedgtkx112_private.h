@@ -1808,13 +1808,13 @@ GO(gtk_offscreen_window_get_type, iFv)
 //GO(gtk_old_editable_changed, 
 //GO(gtk_old_editable_claim_selection, 
 GO(gtk_old_editable_get_type, iFv)
-//GO(gtk_option_menu_get_history, 
-//GO(gtk_option_menu_get_menu, 
+GO(gtk_option_menu_get_history, iFp)
+GO(gtk_option_menu_get_menu, pFp)
 GO(gtk_option_menu_get_type, iFv)
-//GO(gtk_option_menu_new, 
-//GO(gtk_option_menu_remove_menu, 
-//GO(gtk_option_menu_set_history, 
-//GO(gtk_option_menu_set_menu, 
+GO(gtk_option_menu_new, pFv)
+GO(gtk_option_menu_remove_menu, vFp)
+GO(gtk_option_menu_set_history, vFpu)
+GO(gtk_option_menu_set_menu, vFpp)
 //GO(gtk_orientable_get_orientation, 
 GO(gtk_orientable_get_type, iFv)
 //GO(gtk_orientable_set_orientation, 
