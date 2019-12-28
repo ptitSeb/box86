@@ -32,33 +32,33 @@
 //GO(gdk_char_measure, 
 //GO(gdk_char_width, 
 //GO(gdk_char_width_wc, 
-//GO(gdk_color_alloc, 
-//GO(gdk_color_black, 
-//GO(gdk_color_change, 
-//GO(gdk_color_copy, 
-//GO(gdk_color_equal, 
-//GO(gdk_color_free, 
-//GO(gdk_color_get_type, 
-//GO(gdk_color_hash, 
-//GO(gdk_colormap_alloc_color, 
-//GO(gdk_colormap_alloc_colors, 
-//GO(gdk_colormap_change, 
-//GO(gdk_colormap_free_colors, 
-//GO(gdk_colormap_get_screen, 
-//GO(gdk_colormap_get_system, 
-//GO(gdk_colormap_get_system_size, 
-//GO(gdk_colormap_get_type, 
-//GO(gdk_colormap_get_visual, 
-//GO(gdk_colormap_new, 
-//GO(gdk_colormap_query_color, 
-//GO(gdk_colormap_ref, 
-//GO(gdk_colormap_unref, 
-//GO(gdk_color_parse, 
-//GO(gdk_colors_alloc, 
-//GO(gdk_colors_free, 
-//GO(gdk_colors_store, 
-//GO(gdk_color_to_string, 
-//GO(gdk_color_white, 
+GO(gdk_color_alloc, iFpp)
+GO(gdk_color_black, iFpp)
+GO(gdk_color_change, iFpp)
+GO(gdk_color_copy, pFp)
+GO(gdk_color_equal, iFpp)
+GO(gdk_color_free, vFp)
+GO(gdk_color_get_type, iFv)
+GO(gdk_color_hash, uFp)
+GO(gdk_colormap_alloc_color, iFppii)
+GO(gdk_colormap_alloc_colors, iFppiiip)
+GO(gdk_colormap_change, vFpi)
+GO(gdk_colormap_free_colors, vFppi)
+GO(gdk_colormap_get_screen, pFp)
+GO(gdk_colormap_get_system, pFv)
+GO(gdk_colormap_get_system_size, iFv)
+GO(gdk_colormap_get_type, iFv)
+GO(gdk_colormap_get_visual, pFp)
+GO(gdk_colormap_new, pFpi)
+GO(gdk_colormap_query_color, vFpLp)
+GO(gdk_colormap_ref, pFp)
+GO(gdk_colormap_unref, vFp)
+GO(gdk_color_parse, iFpp)
+GO(gdk_colors_alloc, iFpipipi)
+GO(gdk_colors_free, vFppiL)
+GO(gdk_colors_store, vFppi)
+GO(gdk_color_to_string, pFp)
+GO(gdk_color_white, iFpp)
 //GO(gdk_crossing_mode_get_type, 
 //GO(gdk_cursor_get_cursor_type, 
 //GO(gdk_cursor_get_display, 
