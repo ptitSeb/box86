@@ -378,7 +378,7 @@ GO(g_filename_to_utf8, pFpippp)
 //GO(g_format_size, 
 //GO(g_format_size_for_display, 
 //GO(g_format_size_full, 
-GO2(g_fprintf, iFppV, my_g_vfprintf)
+GO2(g_fprintf, iFEppV, my_g_vfprintf)
 GO(g_free, vFp)
 //GO(g_freopen, 
 //GO(g_get_application_name, 
@@ -805,9 +805,9 @@ GO(g_on_error_stack_trace, vFp)
 //GO(g_pointer_bit_unlock, 
 GO(g_poll, iFpui)
 //GO(g_prefix_error, 
-//GO(g_print, 
-//GO(g_printerr, 
-GO2(g_printf, iFpV, my_g_vprintf)
+GOM(g_print, vFEpV)
+GOM(g_printerr, vFEpV)
+GO2(g_printf, iFEpV, my_g_vprintf)
 GOM(g_printf_string_upper_bound, uFEpp)
 //GO(g_private_get, 
 //GO(g_private_new, 
@@ -1013,8 +1013,8 @@ GO(g_return_if_fail_warning, vFppp)
 //GO(g_set_error, 
 //GO(g_set_error_literal, 
 //GO(g_set_prgname, 
-//GO(g_set_printerr_handler, 
-//GO(g_set_print_handler, 
+//GOM(g_set_printerr_handler, BFEB)
+//GOM(g_set_print_handler, BFEB)
 //GO(g_shell_error_quark, 
 GO(g_shell_parse_argv, iFpppp)
 GO(g_shell_quote, pFp)
@@ -1058,7 +1058,7 @@ GO(g_shell_unquote, pFpp)
 //GO(g_slist_reverse, 
 //GO(g_slist_sort, 
 //GO(g_slist_sort_with_data, 
-GO2(g_snprintf, iFpLpV, my_g_vsnprintf)
+GO2(g_snprintf, iFEpLpV, my_g_vsnprintf)
 GO(g_source_add_child_source, vFpp)
 GO(g_source_add_poll, vFpp)
 GO(g_source_add_unix_fd, pFpii)
@@ -1102,7 +1102,7 @@ GO(g_source_unref, vFp)
 //GO(g_spawn_error_quark, 
 //GO(g_spawn_exit_error_quark, 
 //GO(g_spawn_sync, 
-GO2(g_sprintf, iFppV, my_g_vsprintf)
+GO2(g_sprintf, iFEppV, my_g_vsprintf)
 //GO(g_stat, 
 //GO(g_static_mutex_free, 
 //GO(g_static_mutex_get_mutex_impl, 
@@ -1137,7 +1137,7 @@ GO(g_strconcat, pFppppppppppppp)    //vaarg, no va_list equivalent...
 GO(g_strdelimit, pFppC)
 GO(g_strdown, pFp)
 GO(g_strdup, pFp)
-GO2(g_strdup_printf, pFpV, my_g_strdup_vprintf)
+GO2(g_strdup_printf, pFEpV, my_g_strdup_vprintf)
 GO(g_strdupv, pFp)
 GOM(g_strdup_vprintf, pFEpp)
 GO(g_str_equal, iFpp)

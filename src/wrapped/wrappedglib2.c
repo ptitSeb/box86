@@ -1,7 +1,7 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -23,6 +23,7 @@ const char* glib2Name = "libglib-2.0.so.0";
 
 static box86context_t* my_context = NULL;
 
+typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef int  (*iFpp_t)(void*, void*);
@@ -62,7 +63,9 @@ typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
     GO(g_source_set_funcs, vFpp_t)              \
     GO(g_source_remove_by_funcs_user_data, iFpp_t) \
     GO(g_main_context_get_poll_func, pFp_t)     \
-    GO(g_main_context_set_poll_func, vFpp_t)
+    GO(g_main_context_set_poll_func, vFpp_t)    \
+    GO(g_print, vFp_t)                          \
+    GO(g_printerr, vFp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -452,6 +455,42 @@ EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b
     #else
     return my->g_printf_string_upper_bound(fmt, b);
     #endif
+}
+
+EXPORT void my_g_print(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, emu->scratch);
+    #else
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, b);
+    #endif
+    my->g_print(buf);
+    free(buf);
+}
+
+EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, emu->scratch);
+    #else
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, b);
+    #endif
+    my->g_printerr(buf);
+    free(buf);
 }
 
 EXPORT void* my_g_source_new(x86emu_t* emu, my_GSourceFuncs_t* source_funcs, uint32_t struct_size)
