@@ -111,6 +111,7 @@ void vFff(x86emu_t *emu, uintptr_t fnc);
 void vFfp(x86emu_t *emu, uintptr_t fnc);
 void vFdd(x86emu_t *emu, uintptr_t fnc);
 void vFpi(x86emu_t *emu, uintptr_t fnc);
+void vFpI(x86emu_t *emu, uintptr_t fnc);
 void vFpu(x86emu_t *emu, uintptr_t fnc);
 void vFpf(x86emu_t *emu, uintptr_t fnc);
 void vFpd(x86emu_t *emu, uintptr_t fnc);

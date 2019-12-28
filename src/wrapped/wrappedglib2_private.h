@@ -191,9 +191,9 @@ GO(g_build_filenamev, pFp)
 //GO(g_checksum_reset, 
 //GO(g_checksum_type_get_length, 
 //GO(g_checksum_update, 
-//GO(g_child_watch_add, 
-//GO(g_child_watch_add_full, 
-//GO(g_child_watch_source_new, 
+//GOM(g_child_watch_add, uFEiBp)
+//GOM(g_child_watch_add_full, uFEiiBpB)
+GO(g_child_watch_source_new, pFi)
 //GO(g_chmod, 
 //GO(g_clear_error, 
 //GO(g_clear_pointer, 
@@ -474,10 +474,10 @@ GO(g_hash_table_destroy, vFp)
 //GO(g_iconv, 
 //GO(g_iconv_close, 
 //GO(g_iconv_open, 
-//GO(g_idle_add, 
-//GO(g_idle_add_full, 
-//GO(g_idle_remove_by_data, 
-//GO(g_idle_source_new, 
+//GOM(g_idle_add, uFEBp)
+//GOM(g_idle_add_full, uFEiBpB)
+GO(g_idle_remove_by_data, iFp)
+GO(g_idle_source_new, pFv)
 //GO(g_int64_equal, 
 //GO(g_int64_hash, 
 //GO(g_int_equal, 
@@ -619,43 +619,43 @@ GO(g_log_set_fatal_mask, iFpi)
 //GOM(g_log_set_handler, uFpiBp)
 GO(g_logv, vFpppp)      // need align?
 //GO(g_lstat, 
-//GO(g_main_context_acquire, 
-//GO(g_main_context_add_poll, 
-//GO(g_main_context_check, 
+GO(g_main_context_acquire, iFp)
+GO(g_main_context_add_poll, vFppi)
+GO(g_main_context_check, iFpipi)
 GO(g_main_context_default, pFv)
-//GO(g_main_context_dispatch, 
-//GO(g_main_context_find_source_by_funcs_user_data, 
-//GO(g_main_context_find_source_by_id, 
-//GO(g_main_context_find_source_by_user_data, 
-//GO(g_main_context_get_poll_func, 
-//GO(g_main_context_get_thread_default, 
-//GO(g_main_context_invoke, 
-//GO(g_main_context_invoke_full, 
-//GO(g_main_context_is_owner, 
+GO(g_main_context_dispatch, vFp)
+//GOM(g_main_context_find_source_by_funcs_user_data, pFEppp)   // 2nd is a GSourceFuncs structures with callbacks..
+GO(g_main_context_find_source_by_id, pFpu)
+GO(g_main_context_find_source_by_user_data, pFpp)
+//GOM(g_main_context_get_poll_func, pFEp)
+GO(g_main_context_get_thread_default, pFv)
+//GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
+//GOM(g_main_context_invoke_full, vFpippB)  // 3rd is GSourceFuncs
+GO(g_main_context_is_owner, iFp)
 GO(g_main_context_iteration, iFpi)
-//GO(g_main_context_new, 
+GO(g_main_context_new, pFv)
 GO(g_main_context_pending, iFp)
-//GO(g_main_context_pop_thread_default, 
-//GO(g_main_context_prepare, 
-//GO(g_main_context_push_thread_default, 
-//GO(g_main_context_query, 
-//GO(g_main_context_ref, 
-//GO(g_main_context_ref_thread_default, 
-//GO(g_main_context_release, 
-//GO(g_main_context_remove_poll, 
-//GO(g_main_context_set_poll_func, 
-//GO(g_main_context_unref, 
-//GO(g_main_context_wait, 
-//GO(g_main_context_wakeup, 
-//GO(g_main_current_source, 
-//GO(g_main_depth, 
-//GO(g_main_loop_get_context, 
-//GO(g_main_loop_is_running, 
-//GO(g_main_loop_new, 
-//GO(g_main_loop_quit, 
-//GO(g_main_loop_ref, 
-//GO(g_main_loop_run, 
-//GO(g_main_loop_unref, 
+GO(g_main_context_pop_thread_default, vFp)
+GO(g_main_context_prepare, iFpp)
+GO(g_main_context_push_thread_default, vFp)
+GO(g_main_context_query, iFpippi)
+GO(g_main_context_ref, pFp)
+GO(g_main_context_ref_thread_default, pFv)
+GO(g_main_context_release, vFp)
+GO(g_main_context_remove_poll, vFpp)
+//GOM(g_main_context_set_poll_func, vFpB)
+GO(g_main_context_unref, vFp)
+GO(g_main_context_wait, iFppp)
+GO(g_main_context_wakeup, vFp)
+GO(g_main_current_source, pFv)
+GO(g_main_depth, iFv)
+GO(g_main_loop_get_context, pFp)
+GO(g_main_loop_is_running, iFp)
+GO(g_main_loop_new, pFpi)
+GO(g_main_loop_quit, vFp)
+GO(g_main_loop_ref, pFp)
+GO(g_main_loop_run, vFp)
+GO(g_main_loop_unref, vFp)
 //GO(g_malloc, 
 //GO(g_malloc0, 
 //GO(g_malloc0_n, 
@@ -803,7 +803,7 @@ GO(g_on_error_stack_trace, vFp)
 //GO(g_pointer_bit_lock, 
 //GO(g_pointer_bit_trylock, 
 //GO(g_pointer_bit_unlock, 
-//GO(g_poll, 
+GO(g_poll, iFpui)
 //GO(g_prefix_error, 
 //GO(g_print, 
 //GO(g_printerr, 
@@ -1059,39 +1059,39 @@ GO(g_shell_unquote, pFpp)
 //GO(g_slist_sort, 
 //GO(g_slist_sort_with_data, 
 GO2(g_snprintf, iFpLpV, my_g_vsnprintf)
-//GO(g_source_add_child_source, 
-//GO(g_source_add_poll, 
-//GO(g_source_add_unix_fd, 
-//GO(g_source_attach, 
-//GO(g_source_destroy, 
-//GO(g_source_get_can_recurse, 
-//GO(g_source_get_context, 
+GO(g_source_add_child_source, vFpp)
+GO(g_source_add_poll, vFpp)
+GO(g_source_add_unix_fd, pFpii)
+GO(g_source_attach, uFpp)
+GO(g_source_destroy, vFp)
+GO(g_source_get_can_recurse, iFp)
+GO(g_source_get_context, pFp)
 //GO(g_source_get_current_time, 
-//GO(g_source_get_id, 
-//GO(g_source_get_name, 
-//GO(g_source_get_priority, 
-//GO(g_source_get_ready_time, 
-//GO(g_source_get_time, 
-//GO(g_source_is_destroyed, 
-//GO(g_source_modify_unix_fd, 
-//GO(g_source_new, 
-//GO(g_source_query_unix_fd, 
-//GO(g_source_ref, 
-//GO(g_source_remove, 
-//GO(g_source_remove_by_funcs_user_data, 
-//GO(g_source_remove_by_user_data, 
-//GO(g_source_remove_child_source, 
-//GO(g_source_remove_poll, 
-//GO(g_source_remove_unix_fd, 
-//GO(g_source_set_callback, 
-//GO(g_source_set_callback_indirect, 
-//GO(g_source_set_can_recurse, 
-//GO(g_source_set_funcs, 
-//GO(g_source_set_name, 
-//GO(g_source_set_name_by_id, 
-//GO(g_source_set_priority, 
-//GO(g_source_set_ready_time, 
-//GO(g_source_unref, 
+GO(g_source_get_id, uFp)
+GO(g_source_get_name, pFp)
+GO(g_source_get_priority, iFp)
+GO(g_source_get_ready_time, IFp)
+GO(g_source_get_time, IFp)
+GO(g_source_is_destroyed, iFp)
+GO(g_source_modify_unix_fd, vFppi)
+//GOM(g_source_new, pFEBu)
+GO(g_source_query_unix_fd, iFpp)
+GO(g_source_ref, pFp)
+GO(g_source_remove, iFu)
+//GOM(g_source_remove_by_funcs_user_data, iFEBp)
+GO(g_source_remove_by_user_data, iFp)
+GO(g_source_remove_child_source, vFpp)
+GO(g_source_remove_poll, vFpp)
+GO(g_source_remove_unix_fd, vFpp)
+//GOM(g_source_set_callback, vFEpBpB)
+//GOM(g_source_set_callback_indirect, vFEppB)
+GO(g_source_set_can_recurse, vFpi)
+//GOM(g_source_set_funcs, vFEpB)
+GO(g_source_set_name, vFpp)
+GO(g_source_set_name_by_id, vFup)
+GO(g_source_set_priority, vFpi)
+GO(g_source_set_ready_time, vFpI)
+GO(g_source_unref, vFp)
 //GO(g_spaced_primes_closest, 
 //GO(g_spawn_async, 
 //GO(g_spawn_async_with_pipes, 
@@ -1288,11 +1288,11 @@ GO(g_thread_self, pFv)
 //GO(g_thread_unref, 
 //GO(g_thread_yield, 
 GOM(g_timeout_add, uFEupp)
-//GO(g_timeout_add_full, 
-//GO(g_timeout_add_seconds, 
-//GO(g_timeout_add_seconds_full, 
-//GO(g_timeout_source_new, 
-//GO(g_timeout_source_new_seconds, 
+//GOM(g_timeout_add_full, uFEiuBpB)
+//GOM(g_timeout_add_seconds, uFEuBp)
+//GOM(g_timeout_add_seconds_full, uFEiuBpB)
+GO(g_timeout_source_new, pFu)
+GO(g_timeout_source_new_seconds, pFu)
 //GO(g_timer_continue, 
 //GO(g_timer_destroy, 
 //GO(g_timer_elapsed, 
