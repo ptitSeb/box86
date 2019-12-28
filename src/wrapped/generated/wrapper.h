@@ -349,6 +349,7 @@ void LFpLp(x86emu_t *emu, uintptr_t fnc);
 void LFppi(x86emu_t *emu, uintptr_t fnc);
 void pFEip(x86emu_t *emu, uintptr_t fnc);
 void pFEpi(x86emu_t *emu, uintptr_t fnc);
+void pFEpu(x86emu_t *emu, uintptr_t fnc);
 void pFEpp(x86emu_t *emu, uintptr_t fnc);
 void pFEpV(x86emu_t *emu, uintptr_t fnc);
 void pFipi(x86emu_t *emu, uintptr_t fnc);
