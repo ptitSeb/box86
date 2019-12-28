@@ -264,12 +264,12 @@ GO(g_strdup_value_contents, pFp)
 //GO(g_strv_get_type, 
 //GO(g_thread_get_type, 
 //GO(g_time_zone_get_type, 
-//GO(g_type_add_class_cache_func, 
-//GO(g_type_add_class_private, 
+//GOM(g_type_add_class_cache_func, vFEpB)
+GO(g_type_add_class_private, vFpiu)
 //GO(g_type_add_instance_private, 
-//GO(g_type_add_interface_check, 
-//GO(g_type_add_interface_dynamic, 
-//GO(g_type_add_interface_static, 
+//GOM(g_type_add_interface_check, vFEpB)
+GO(g_type_add_interface_dynamic, vFiip)
+GO(g_type_add_interface_static, vFuup)
 GO(g_type_check_class_cast, pFpi)
 GO(g_type_check_class_is_a, iFpi)
 GO(g_type_check_instance, iFp)
@@ -280,37 +280,37 @@ GO(g_type_check_is_value_type, iFpi)
 GO(g_type_check_value, iFp)
 GO(g_type_check_value_holds, iFpi)
 //GO(g_type_children, 
-//GO(g_type_class_add_private, 
-//GO(g_type_class_adjust_private_offset, 
-//GO(g_type_class_get_instance_private_offset, 
-//GO(g_type_class_get_private, 
-//GO(g_type_class_peek, 
+GO(g_type_class_add_private, vFpu)
+GO(g_type_class_adjust_private_offset, vFpp)
+GO(g_type_class_get_instance_private_offset, iFp)
+GO(g_type_class_get_private, pFpi)
+GO(g_type_class_peek, pFi)
 GO(g_type_class_peek_parent, pFp)
-//GO(g_type_class_peek_static, 
-//GO(g_type_class_ref, 
-//GO(g_type_class_unref, 
-//GO(g_type_class_unref_uncached, 
-//GO(g_type_create_instance, 
+GO(g_type_class_peek_static, pFi)
+GO(g_type_class_ref, pFp)
+GO(g_type_class_unref, vFp)
+GO(g_type_class_unref_uncached, vFp)
+//GO(g_type_create_instance, pFi)
 //GO(g_type_default_interface_peek, 
 //GO(g_type_default_interface_ref, 
 //GO(g_type_default_interface_unref, 
 //GO(g_type_depth, 
-//GO(g_type_ensure, 
-//GO(g_type_free_instance, 
+GO(g_type_ensure, vFi)
+GO(g_type_free_instance, vFp)
 //GO(g_type_from_name, 
-//GO(g_type_fundamental, 
-//GO(g_type_fundamental_next, 
-//GO(g_type_get_plugin, 
+GO(g_type_fundamental, iFi)
+GO(g_type_fundamental_next, iFv)
+//GOM(g_type_get_plugin, pFEi)      // GTypePugin is a stuct with callback
 //GO(g_type_get_qdata, 
-//GO(g_type_get_type_registration_serial, 
+GO(g_type_get_type_registration_serial, uFv)
 //GO(g_type_init, 
 //GO(g_type_init_with_debug_flags, 
 //GO(g_type_instance_get_private, 
-//GO(g_type_interface_add_prerequisite, 
-//GO(g_type_interface_get_plugin, 
+GO(g_type_interface_add_prerequisite, vFii)
+//GOM(g_type_interface_get_plugin, pFEii) // return GTypePlugin*
 //GO(g_type_interface_peek, 
 //GO(g_type_interface_peek_parent, 
-//GO(g_type_interface_prerequisites, 
+GO(g_type_interface_prerequisites, pFip)
 //GO(g_type_interfaces, 
 //GO(g_type_is_a, 
 //GO(g_type_module_add_interface, 
@@ -333,15 +333,15 @@ GO(g_type_class_peek_parent, pFp)
 //GO(g_type_plugin_use, 
 //GO(g_type_qname, 
 //GO(g_type_query, 
-//GO(g_type_register_dynamic, 
-//GO(g_type_register_fundamental, 
-//GO(g_type_register_static, 
-//GO(g_type_register_static_simple, 
-//GO(g_type_remove_class_cache_func, 
-//GO(g_type_remove_interface_check, 
+GO(type_register_dynamic, iFpippi)
+GO(g_type_register_fundamental, iFipppi)
+GO(g_type_register_static, iFippi)
+//GOM(g_type_register_static_simple, iFEipuBuBi)
+//GOM(g_type_remove_class_cache_func, vFEpB)
+//GOM(g_type_remove_interface_check, vFEpB)
 //GO(g_type_set_qdata, 
 //GO(g_type_test_flags, 
-//GO(g_type_value_table_peek, 
+//GOM(g_type_value_table_peek, pFi)  // GTypeValueTable is full of callback
 //GO(g_value_array_append, 
 //GO(g_value_array_copy, 
 //GO(g_value_array_free, 
