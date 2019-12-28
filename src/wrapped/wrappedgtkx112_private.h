@@ -3356,27 +3356,27 @@ GO(gtk_tree_row_reference_new_proxy, pFppp)
 GO(gtk_tree_row_reference_reordered, vFpppp)
 GO(gtk_tree_row_reference_valid, iFp)
 //GO(gtk_tree_select_child, 
-//GO(gtk_tree_selection_count_selected_rows, 
-//GO(gtk_tree_selection_get_mode, 
-//GO(gtk_tree_selection_get_selected, 
-//GO(gtk_tree_selection_get_selected_rows, 
-//GO(gtk_tree_selection_get_select_function, 
-//GO(gtk_tree_selection_get_tree_view, 
+GO(gtk_tree_selection_count_selected_rows, iFp)
+GO(gtk_tree_selection_get_mode, iFp)
+GO(gtk_tree_selection_get_selected, iFppp)
+GO(gtk_tree_selection_get_selected_rows, pFpp)
+//GOM(gtk_tree_selection_get_select_function, BFEp)
+GO(gtk_tree_selection_get_tree_view, pFp)
 GO(gtk_tree_selection_get_type, iFv)
-//GO(gtk_tree_selection_get_user_data, 
-//GO(gtk_tree_selection_iter_is_selected, 
-//GO(gtk_tree_selection_path_is_selected, 
-//GO(gtk_tree_selection_select_all, 
-//GO(gtk_tree_selection_selected_foreach, 
-//GO(gtk_tree_selection_select_iter, 
-//GO(gtk_tree_selection_select_path, 
-//GO(gtk_tree_selection_select_range, 
-//GO(gtk_tree_selection_set_mode, 
-//GO(gtk_tree_selection_set_select_function, 
-//GO(gtk_tree_selection_unselect_all, 
-//GO(gtk_tree_selection_unselect_iter, 
-//GO(gtk_tree_selection_unselect_path, 
-//GO(gtk_tree_selection_unselect_range, 
+//GOM(gtk_tree_selection_get_user_data, pFEp)
+GO(gtk_tree_selection_iter_is_selected, iFpp)
+GO(gtk_tree_selection_path_is_selected, iFpp)
+GO(gtk_tree_selection_select_all, vFp)
+//GOM(gtk_tree_selection_selected_foreach, vFEpBp)
+GO(gtk_tree_selection_select_iter, vFpp)
+GO(gtk_tree_selection_select_path, vFpp)
+GO(gtk_tree_selection_select_range, vFppp)
+GO(gtk_tree_selection_set_mode, vFpi)
+//GOM(gtk_tree_selection_set_select_function, vFEpBpB)
+GO(gtk_tree_selection_unselect_all, vFp)
+GO(gtk_tree_selection_unselect_iter, vFpp)
+GO(gtk_tree_selection_unselect_path, vFpp)
+GO(gtk_tree_selection_unselect_range, vFppp)
 //GO(gtk_tree_select_item, 
 //GO(gtk_tree_set_row_drag_data, 
 //GO(gtk_tree_set_selection_mode, 
