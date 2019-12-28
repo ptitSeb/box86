@@ -217,47 +217,47 @@ GO(g_param_spec_variant, pFpppppi)
 //GO(g_pollfd_get_type, 
 //GO(g_ptr_array_get_type, 
 //GO(g_regex_get_type, 
-//GO(g_signal_accumulator_first_wins, 
-//GO(g_signal_accumulator_true_handled, 
-//GO(g_signal_add_emission_hook, 
-//GO(g_signal_chain_from_overridden, 
-//GO(g_signal_chain_from_overridden_handler, 
-//GO(g_signal_connect_closure, 
-//GO(g_signal_connect_closure_by_id, 
+GO(g_signal_accumulator_first_wins, iFpppp)
+GO(g_signal_accumulator_true_handled, iFpppp)
+//GOM(g_signal_add_emission_hook, LFEupBpB)
+GO(g_signal_chain_from_overridden, vFpp)
+GO(g_signal_chain_from_overridden_handler, vFpppppppppp)  //vaarg
+GO(g_signal_connect_closure, LFpppi)
+GO(g_signal_connect_closure_by_id, LFpuppi)
 GOM(g_signal_connect_data, LFEpppppu)
-//GO(g_signal_connect_object, 
+//GOM(g_signal_connect_object, LFEppBpi)
 GO2(g_signal_emit, vFpuuV, g_signal_emit_valist) // vaarg
 GO(g_signal_emit_by_name, vFppppppppppp)    //vaarg
 GO(g_signal_emitv, vFpuup)
 GO(g_signal_emit_valist, vFppup)    // va_list here
-//GO(g_signal_get_invocation_hint, 
-//GO(g_signal_handler_block, 
+GO(g_signal_get_invocation_hint, pFp)
+GO(g_signal_handler_block, vFpL)
 GO(g_signal_handler_disconnect, vFpL)
-//GO(g_signal_handler_find, 
-//GO(g_signal_handler_is_connected, 
-//GO(g_signal_handlers_block_matched, 
+GOM(g_signal_handler_find, LFEpiupppp)
+GO(g_signal_handler_is_connected, iFpL)
+GOM(g_signal_handlers_block_matched, uFEpiupppp)
 //GO(g_signal_handlers_destroy, 
-GO(g_signal_handlers_disconnect_matched, uFpiuuppp) // should wrap to tranform func pointer?
-//GO(g_signal_handlers_unblock_matched, 
-//GO(g_signal_handler_unblock, 
-//GO(g_signal_has_handler_pending, 
+GOM(g_signal_handlers_disconnect_matched, uFEpiupppp)
+GOM(g_signal_handlers_unblock_matched, uFEpiupppp)
+GO(g_signal_handler_unblock, vFpL)
+GO(g_signal_has_handler_pending, iFpupi)
 GO(g_signal_list_ids, pFip)
 GO(g_signal_lookup, uFpi)
 GO(g_signal_name, pFu)
-//GO(g_signal_new, 
-//GO(g_signal_new_class_handler, 
-//GO(g_signal_newv, 
-//GO(g_signal_new_valist, 
-//GO(g_signal_override_class_closure, 
-//GO(g_signal_override_class_handler, 
-//GO(g_signal_parse_name, 
+GOM(g_signal_new, uFEpiiupppiuV)
+//GOM(g_signal_new_class_handler, uFEpiupppppnV)
+GOM(g_signal_newv, uFEpiippppiup)
+GOM(g_signal_new_valist, uFEpiippppiup)
+GO(g_signal_override_class_closure, vFuip)
+//GOM(g_signal_override_class_handler, vFEppB)
+GO(g_signal_parse_name, iFpippi)
 GO(g_signal_query, vFup)
-//GO(g_signal_remove_emission_hook, 
-//GO(g_signal_set_va_marshaller, 
-//GO(g_signal_stop_emission, 
-//GO(g_signal_stop_emission_by_name, 
-//GO(g_signal_type_cclosure_new, 
-//GO(g_source_get_type, 
+GO(g_signal_remove_emission_hook, vFpL)
+//GOM(g_signal_set_va_marshaller, vFEuiB)
+GO(g_signal_stop_emission, vFpup)
+GO(g_signal_stop_emission_by_name, vFpp)
+GO(g_signal_type_cclosure_new, pFiu)    //should wrap?
+GO(g_source_get_type, iFv)
 //GO(g_source_set_closure, 
 //GO(g_source_set_dummy_callback, 
 GO(g_strdup_value_contents, pFp)

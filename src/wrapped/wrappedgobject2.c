@@ -22,11 +22,24 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 
 typedef int (*iFppp_t)(void*, void*, void*);
 typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
+typedef uint32_t (*uFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
+typedef unsigned long (*LFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFpiippppiup_t)(void*, int, int, void*, void*, void*, void*, int, uint32_t, void*);
+typedef uint32_t (*uFpiiupppiu_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t);
+typedef uint32_t (*uFpiiupppiup_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*);
+typedef uint32_t (*uFpiiupppiupp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*);
+typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*, void*);
 
 #define SUPER() \
-    GO(g_signal_connect_data, LFpppppu_t)   \
-    GO(g_boxed_type_register_static, iFppp_t)
-
+    GO(g_signal_connect_data, LFpppppu_t)       \
+    GO(g_boxed_type_register_static, iFppp_t)   \
+    GO(g_signal_new, uFpiiupppiu_t)             \
+    GO(g_signal_newv, uFpiippppiup_t)           \
+    GO(g_signal_new_valist, uFpiippppiup_t)     \
+    GO(g_signal_handlers_block_matched, uFpiupppp_t)        \
+    GO(g_signal_handlers_unblock_matched, uFpiupppp_t)      \
+    GO(g_signal_handlers_disconnect_matched, uFpiupppp_t)   \
+    GO(g_signal_handler_find, LFpiupppp_t)
 
 typedef struct gobject2_my_s {
     // functions
@@ -140,6 +153,7 @@ static void* findCopyFct(void* fct)
     SUPER()
     #undef GO
     #define GO(A) if(my_copy_fct_##A == 0) {my_copy_fct_##A = (uintptr_t)fct; return my_copy_##A; }
+    SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gobject Boxed Copy callback\n");
     return NULL;
@@ -160,10 +174,57 @@ static void* findFreeFct(void* fct)
     SUPER()
     #undef GO
     #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gobject Boxed Free callback\n");
     return NULL;
 }
+// GSignalAccumulator
+#define GO(A)   \
+static uintptr_t my_accumulator_fct_##A = 0;   \
+static int my_accumulator_##A(void* ihint, void* return_accu, void* handler_return, void* data)     \
+{                                       \
+    return RunFunction(my_context, my_accumulator_fct_##A, 4, ihint, return_accu, handler_return, data);\
+}
+SUPER()
+#undef GO
+static void* findAccumulatorFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_accumulator_fct_##A == (uintptr_t)fct) return my_accumulator_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_accumulator_fct_##A == 0) {my_accumulator_fct_##A = (uintptr_t)fct; return my_accumulator_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Signal Accumulator callback\n");
+    return NULL;
+}
+
+// GClosureMarshal
+#define GO(A)   \
+static uintptr_t my_marshal_fct_##A = 0;   \
+static int my_marshal_##A(void* closure, void* return_value, uint32_t n, void* values, void* hint, void* data)     \
+{                                       \
+    return RunFunction(my_context, my_marshal_fct_##A, 6, closure, return_value, n, values, hint, data);\
+}
+SUPER()
+#undef GO
+static void* findMarshalFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_marshal_fct_##A == (uintptr_t)fct) return my_marshal_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_marshal_fct_##A == 0) {my_marshal_fct_##A = (uintptr_t)fct; return my_marshal_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Closure Marshal callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
@@ -175,7 +236,83 @@ EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxe
     return my->g_boxed_type_register_static(name, bc, bf);
 }
 
+EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void** b)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+    
+    void* cb_acc = findAccumulatorFct(acc);
+    void* cb_marsh = findMarshalFct(marsh);
+    switch(n) {
+        case 0: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n);
+        case 1: return ((uFpiiupppiup_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0]);
+        case 2: return ((uFpiiupppiupp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1]);
+        case 3: return ((uFpiiupppiuppp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
+        default:
+            printf_log(LOG_NONE, "Warning, gobject g_signal_new called with too many parameters (%d)\n", n);
+    }
+    return ((uFpiiupppiuppp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
+}
 
+EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* types)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
+}
+
+EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* b)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, b);
+}
+
+EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    // NOTE that I have no idea of the fnc signature!...
+    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
+    fnc = findMarshalFct(fnc);  //... just in case
+    return my->g_signal_handlers_block_matched(instance, mask, signal, detail, closure, fnc, data);
+}
+
+EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    // NOTE that I have no idea of the fnc signature!...
+    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
+    fnc = findMarshalFct(fnc);  //... just in case
+    return my->g_signal_handlers_unblock_matched(instance, mask, signal, detail, closure, fnc, data);
+}
+
+EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    // NOTE that I have no idea of the fnc signature!...
+    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
+    fnc = findMarshalFct(fnc);  //... just in case
+    return my->g_signal_handlers_disconnect_matched(instance, mask, signal, detail, closure, fnc, data);
+}
+
+EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    // NOTE that I have no idea of the fnc signature!...
+    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handler_find called with non null function \n");
+    fnc = findMarshalFct(fnc);  //... just in case
+    return my->g_signal_handler_find(instance, mask, signal, detail, closure, fnc, data);
+}
 
 #define CUSTOM_INIT \
     my_context = box86;    \
