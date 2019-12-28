@@ -252,37 +252,37 @@ GO(gdk_font_get_type, iFv)
 //GO(gdk_free_compound_text, 
 //GO(gdk_free_text_list, 
 //GO(gdk_function_get_type, 
-//GO(gdk_gc_copy, 
-//GO(gdk_gc_get_colormap, 
-//GO(gdk_gc_get_screen, 
-//GO(gdk_gc_get_type, 
-//GO(gdk_gc_get_values, 
-//GO(gdk_gc_new, 
-//GO(gdk_gc_new_with_values, 
-//GO(gdk_gc_offset, 
-//GO(gdk_gc_ref, 
-//GO(gdk_gc_set_background, 
-//GO(gdk_gc_set_clip_mask, 
-//GO(gdk_gc_set_clip_origin, 
-//GO(gdk_gc_set_clip_rectangle, 
-//GO(gdk_gc_set_clip_region, 
-//GO(gdk_gc_set_colormap, 
-//GO(gdk_gc_set_dashes, 
-//GO(gdk_gc_set_exposures, 
-//GO(gdk_gc_set_fill, 
-//GO(gdk_gc_set_font, 
-//GO(gdk_gc_set_foreground, 
-//GO(gdk_gc_set_function, 
-//GO(gdk_gc_set_line_attributes, 
-//GO(gdk_gc_set_rgb_bg_color, 
-//GO(gdk_gc_set_rgb_fg_color, 
-//GO(gdk_gc_set_stipple, 
-//GO(gdk_gc_set_subwindow, 
-//GO(gdk_gc_set_tile, 
-//GO(gdk_gc_set_ts_origin, 
-//GO(gdk_gc_set_values, 
-//GO(gdk_gc_unref, 
-//GO(gdk_gc_values_mask_get_type, 
+GO(gdk_gc_copy, vFpp)
+GO(gdk_gc_get_colormap, pFp)
+GO(gdk_gc_get_screen, pFp)
+GO(gdk_gc_get_type, iFv)
+GO(gdk_gc_get_values, vFpp)
+GO(gdk_gc_new, pFp)
+GO(gdk_gc_new_with_values, pFppu)
+GO(gdk_gc_offset, vFpii)
+GO(gdk_gc_ref, pFp)
+GO(gdk_gc_set_background, vFpp)
+GO(gdk_gc_set_clip_mask, vFpp)
+GO(gdk_gc_set_clip_origin, vFpii)
+GO(gdk_gc_set_clip_rectangle, vFpp)
+GO(gdk_gc_set_clip_region, vFpp)
+GO(gdk_gc_set_colormap, vFpp)
+GO(gdk_gc_set_dashes, vFpipi)
+GO(gdk_gc_set_exposures, vFpi)
+GO(gdk_gc_set_fill, vFpi)
+GO(gdk_gc_set_font, vFpp)
+GO(gdk_gc_set_foreground, vFpp)
+GO(gdk_gc_set_function,vFpi) 
+GO(gdk_gc_set_line_attributes, vFpiiii)
+GO(gdk_gc_set_rgb_bg_color, vFpp)
+GO(gdk_gc_set_rgb_fg_color, vFpp)
+GO(gdk_gc_set_stipple, vFpp)
+GO(gdk_gc_set_subwindow, vFpi)
+GO(gdk_gc_set_tile, vFpp)
+GO(gdk_gc_set_ts_origin, vFpii)
+GO(gdk_gc_set_values, vFppu)
+GO(gdk_gc_unref, vFp)
+GO(gdk_gc_values_mask_get_type, iFv)
 GO(gdk_get_default_root_window, pFv)
 //GO(gdk_get_display, 
 //GO(gdk_get_display_arg_name, 
