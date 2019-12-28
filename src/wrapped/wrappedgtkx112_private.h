@@ -539,9 +539,9 @@ GO(gtk_color_button_get_type, iFv)
 //GO(gtk_color_button_set_color, 
 //GO(gtk_color_button_set_title, 
 //GO(gtk_color_button_set_use_alpha, 
-//GO(gtk_color_selection_dialog_get_color_selection, 
+GO(gtk_color_selection_dialog_get_color_selection, pFp)
 GO(gtk_color_selection_dialog_get_type, iFv)
-//GO(gtk_color_selection_dialog_new, 
+GO(gtk_color_selection_dialog_new, pFp)
 //GO(gtk_color_selection_get_color, 
 //GO(gtk_color_selection_get_current_alpha, 
 //GO(gtk_color_selection_get_current_color, 
