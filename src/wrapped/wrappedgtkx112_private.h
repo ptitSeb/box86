@@ -3268,9 +3268,9 @@ GO(gtk_tooltips_set_tip, vFpppp)
 //GO(gtk_tree_item_remove_subtree, 
 //GO(gtk_tree_item_select, 
 //GO(gtk_tree_item_set_subtree, 
-//GO(gtk_tree_iter_copy, 
-//GO(gtk_tree_iter_free, 
-//GO(gtk_tree_iter_get_type, 
+GO(gtk_tree_iter_copy, pFp)
+GO(gtk_tree_iter_free, vFp)
+GO(gtk_tree_iter_get_type, iFv)
 //GO(gtk_tree_model_filter_clear_cache, 
 //GO(gtk_tree_model_filter_convert_child_iter_to_iter, 
 //GO(gtk_tree_model_filter_convert_child_path_to_path, 
@@ -3284,31 +3284,31 @@ GO(gtk_tooltips_set_tip, vFpppp)
 //GO(gtk_tree_model_filter_set_visible_column, 
 //GO(gtk_tree_model_filter_set_visible_func, 
 //GO(gtk_tree_model_flags_get_type, 
-//GO(gtk_tree_model_foreach, 
-//GO(gtk_tree_model_get, 
-//GO(gtk_tree_model_get_column_type, 
-//GO(gtk_tree_model_get_flags, 
-//GO(gtk_tree_model_get_iter, 
-//GO(gtk_tree_model_get_iter_first, 
-//GO(gtk_tree_model_get_iter_from_string, 
-//GO(gtk_tree_model_get_n_columns, 
-//GO(gtk_tree_model_get_path, 
-//GO(gtk_tree_model_get_string_from_iter, 
-//GO(gtk_tree_model_get_type, 
-//GO(gtk_tree_model_get_valist, 
-//GO(gtk_tree_model_get_value, 
-//GO(gtk_tree_model_iter_children, 
-//GO(gtk_tree_model_iter_has_child, 
-//GO(gtk_tree_model_iter_n_children, 
-//GO(gtk_tree_model_iter_next, 
-//GO(gtk_tree_model_iter_nth_child, 
-//GO(gtk_tree_model_iter_parent, 
-//GO(gtk_tree_model_ref_node, 
-//GO(gtk_tree_model_row_changed, 
-//GO(gtk_tree_model_row_deleted, 
-//GO(gtk_tree_model_row_has_child_toggled, 
-//GO(gtk_tree_model_row_inserted, 
-//GO(gtk_tree_model_rows_reordered, 
+//GOM(gtk_tree_model_foreach, vFEpBp)
+GO2(gtk_tree_model_get, vFppV, gtk_tree_model_get_valist)
+GO(gtk_tree_model_get_column_type, iFpi)
+GO(gtk_tree_model_get_flags, iFp)
+GO(gtk_tree_model_get_iter, iFppp)
+GO(gtk_tree_model_get_iter_first, iFpp)
+GO(gtk_tree_model_get_iter_from_string, iFppp)
+GO(gtk_tree_model_get_n_columns, iFp)
+GO(gtk_tree_model_get_path, pFpp)
+GO(gtk_tree_model_get_string_from_iter, pFpp)
+GO(gtk_tree_model_get_type, iFv)
+GO(gtk_tree_model_get_valist, vFppp)
+GO(gtk_tree_model_get_value, vFppip)
+GO(gtk_tree_model_iter_children, iFppp)
+GO(gtk_tree_model_iter_has_child, iFpp)
+GO(gtk_tree_model_iter_n_children, iFpp)
+GO(gtk_tree_model_iter_next, iFpp)
+GO(gtk_tree_model_iter_nth_child, iFpppi)
+GO(gtk_tree_model_iter_parent, iFppp)
+GO(gtk_tree_model_ref_node, vFpp)
+GO(gtk_tree_model_row_changed, vFppp)
+GO(gtk_tree_model_row_deleted, vFpp)
+GO(gtk_tree_model_row_has_child_toggled, vFppp)
+GO(gtk_tree_model_row_inserted, vFppp)
+GO(gtk_tree_model_rows_reordered, vFpppp)
 //GO(gtk_tree_model_sort_clear_cache, 
 //GO(gtk_tree_model_sort_convert_child_iter_to_iter, 
 //GO(gtk_tree_model_sort_convert_child_path_to_path, 
@@ -3319,42 +3319,42 @@ GO(gtk_tooltips_set_tip, vFpppp)
 //GO(gtk_tree_model_sort_iter_is_valid, 
 //GO(gtk_tree_model_sort_new_with_model, 
 //GO(gtk_tree_model_sort_reset_default_sort_func, 
-//GO(gtk_tree_model_unref_node, 
+GO(gtk_tree_model_unref_node, vFpp)
 //GO(gtk_tree_new, 
-//GO(gtk_tree_path_append_index, 
-//GO(gtk_tree_path_compare, 
-//GO(gtk_tree_path_copy, 
-//GO(gtk_tree_path_down, 
-//GO(gtk_tree_path_free, 
-//GO(gtk_tree_path_get_depth, 
-//GO(gtk_tree_path_get_indices, 
-//GO(gtk_tree_path_get_indices_with_depth, 
-//GO(gtk_tree_path_get_type, 
-//GO(gtk_tree_path_is_ancestor, 
-//GO(gtk_tree_path_is_descendant, 
-//GO(gtk_tree_path_new, 
-//GO(gtk_tree_path_new_first, 
-//GO(gtk_tree_path_new_from_indices, 
-//GO(gtk_tree_path_new_from_string, 
-//GO(gtk_tree_path_next, 
-//GO(gtk_tree_path_prepend_index, 
-//GO(gtk_tree_path_prev, 
-//GO(gtk_tree_path_to_string, 
-//GO(gtk_tree_path_up, 
+GO(gtk_tree_path_append_index, vFpi)
+GO(gtk_tree_path_compare, iFpp)
+GO(gtk_tree_path_copy, pFp)
+GO(gtk_tree_path_down, vFp)
+GO(gtk_tree_path_free, vFp)
+GO(gtk_tree_path_get_depth, iFp)
+GO(gtk_tree_path_get_indices, pFp)
+GO(gtk_tree_path_get_indices_with_depth, pFpp)
+GO(gtk_tree_path_get_type, iFv)
+GO(gtk_tree_path_is_ancestor, iFpp)
+GO(gtk_tree_path_is_descendant, iFpp)
+GO(gtk_tree_path_new, pFv)
+GO(gtk_tree_path_new_first, pFv)
+GO(gtk_tree_path_new_from_indices, pFippppppppppppppppp)  // vaarg
+GO(gtk_tree_path_new_from_string, pFp)
+GO(gtk_tree_path_next, vFp)
+GO(gtk_tree_path_prepend_index, vFpi)
+GO(gtk_tree_path_prev, vFp)
+GO(gtk_tree_path_to_string, pFp)
+GO(gtk_tree_path_up, iFp)
 //GO(gtk_tree_prepend, 
 //GO(gtk_tree_remove_item, 
 //GO(gtk_tree_remove_items, 
-//GO(gtk_tree_row_reference_copy, 
-//GO(gtk_tree_row_reference_deleted, 
-//GO(gtk_tree_row_reference_free, 
-//GO(gtk_tree_row_reference_get_model, 
-//GO(gtk_tree_row_reference_get_path, 
-//GO(gtk_tree_row_reference_get_type, 
-//GO(gtk_tree_row_reference_inserted, 
-//GO(gtk_tree_row_reference_new, 
-//GO(gtk_tree_row_reference_new_proxy, 
-//GO(gtk_tree_row_reference_reordered, 
-//GO(gtk_tree_row_reference_valid, 
+GO(gtk_tree_row_reference_copy, pFp)
+GO(gtk_tree_row_reference_deleted, vFpp)
+GO(gtk_tree_row_reference_free, vFp)
+GO(gtk_tree_row_reference_get_model, pFp)
+GO(gtk_tree_row_reference_get_path, pFp)
+GO(gtk_tree_row_reference_get_type, iFv)
+GO(gtk_tree_row_reference_inserted, vFpp)
+GO(gtk_tree_row_reference_new, pFpp)
+GO(gtk_tree_row_reference_new_proxy, pFppp)
+GO(gtk_tree_row_reference_reordered, vFpppp)
+GO(gtk_tree_row_reference_valid, iFp)
 //GO(gtk_tree_select_child, 
 //GO(gtk_tree_selection_count_selected_rows, 
 //GO(gtk_tree_selection_get_mode, 
