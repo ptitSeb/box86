@@ -160,24 +160,24 @@
 //GO(gtk_activatable_set_related_action, 
 //GO(gtk_activatable_set_use_action_appearance, 
 //GO(gtk_activatable_sync_action_properties, 
-//GO(gtk_adjustment_changed, 
-//GO(gtk_adjustment_clamp_page, 
-//GO(gtk_adjustment_configure, 
-//GO(gtk_adjustment_get_lower, 
-//GO(gtk_adjustment_get_page_increment, 
-//GO(gtk_adjustment_get_page_size, 
-//GO(gtk_adjustment_get_step_increment, 
-//GO(gtk_adjustment_get_type, 
-//GO(gtk_adjustment_get_upper, 
-//GO(gtk_adjustment_get_value, 
-//GO(gtk_adjustment_new, 
-//GO(gtk_adjustment_set_lower, 
-//GO(gtk_adjustment_set_page_increment, 
-//GO(gtk_adjustment_set_page_size, 
-//GO(gtk_adjustment_set_step_increment, 
-//GO(gtk_adjustment_set_upper, 
-//GO(gtk_adjustment_set_value, 
-//GO(gtk_adjustment_value_changed, 
+GO(gtk_adjustment_changed, vFp)
+GO(gtk_adjustment_clamp_page, vFpdd)
+GO(gtk_adjustment_configure, vFpdddddd)
+GO(gtk_adjustment_get_lower, dFp)
+GO(gtk_adjustment_get_page_increment, dFp)
+GO(gtk_adjustment_get_page_size, dFp)
+GO(gtk_adjustment_get_step_increment, dFp)
+GO(gtk_adjustment_get_type, iFv)
+GO(gtk_adjustment_get_upper, dFp)
+GO(gtk_adjustment_get_value, dFp)
+GO(gtk_adjustment_new, pFdddddd)
+GO(gtk_adjustment_set_lower, vFpd)
+GO(gtk_adjustment_set_page_increment, vFp)
+GO(gtk_adjustment_set_page_size, vFpd)
+GO(gtk_adjustment_set_step_increment, vFpd)
+GO(gtk_adjustment_set_upper, vFpd)
+GO(gtk_adjustment_set_value, vFpd)
+GO(gtk_adjustment_value_changed, vFp)
 GO(gtk_alignment_get_padding, vFppppp)
 GO(gtk_alignment_get_type, iFv)
 GO(gtk_alignment_new, pFffff)
