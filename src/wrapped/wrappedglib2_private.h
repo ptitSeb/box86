@@ -574,40 +574,40 @@ GO(g_intern_string, pFp)
 //GO(glib_gettext, 
 //GO(glib_pgettext, 
 //GO(glib__private__, 
-//GO(g_list_alloc, 
-//GO(g_list_append, 
-//GO(g_list_concat, 
-//GO(g_list_copy, 
-//GO(g_list_copy_deep, 
-//GO(g_list_delete_link, 
+GO(g_list_alloc, pFv)
+GO(g_list_append, pFpp)
+GO(g_list_concat, pFpp)
+GO(g_list_copy, pFp)
+//GOM(g_list_copy_deep, pFEpBp)
+GO(g_list_delete_link, pFpp)
 //GO(g_listenv, 
-//GO(g_list_find, 
-//GO(g_list_find_custom, 
-//GO(g_list_first, 
-//GO(g_list_foreach, 
+GO(g_list_find, pFpp)
+//GOM(g_list_find_custom, pFEppB)
+GO(g_list_first, pFp)
+//GOM(g_list_foreach, vFEpBp)
 GO(g_list_free, vFp)
-//GO(g_list_free_1, 
+GO(g_list_free_1, vFp)
 GOM(g_list_free_full, vFEpp)
-//GO(g_list_index, 
-//GO(g_list_insert, 
-//GO(g_list_insert_before, 
-//GO(g_list_insert_sorted, 
-//GO(g_list_insert_sorted_with_data, 
-//GO(g_list_last, 
-//GO(g_list_length, 
-//GO(g_list_nth, 
-//GO(g_list_nth_data, 
-//GO(g_list_nth_prev, 
+GO(g_list_index, iFpp)
+GO(g_list_insert, pFppi)
+GO(g_list_insert_before, pFppp)
+//GOM(g_list_insert_sorted, pFEppB)
+//GO(g_list_insert_sorted_with_data, pFEppBp)
+GO(g_list_last, pFp)
+GO(g_list_length, uFp)
+GO(g_list_nth, pFpu)
+GO(g_list_nth_data, pFpu)
+GO(g_list_nth_prev, pFpu)
 //GO(g_list_pop_allocator, 
-//GO(g_list_position, 
-//GO(g_list_prepend, 
+GO(g_list_position, iFpp)
+GO(g_list_prepend, pFpp)
 //GO(g_list_push_allocator, 
-//GO(g_list_remove, 
-//GO(g_list_remove_all, 
-//GO(g_list_remove_link, 
-//GO(g_list_reverse, 
-//GO(g_list_sort, 
-//GO(g_list_sort_with_data, 
+GO(g_list_remove, pFpp)
+GO(g_list_remove_all, pFpp)
+GO(g_list_remove_link, pFpp)
+GO(g_list_reverse, pFp)
+//GOM(g_list_sort, pFEpB)
+//GOM(g_list_sort_with_data, pFEpBp)
 GO(g_locale_from_utf8, pFpippp)
 //GO(g_locale_to_utf8, 
 GO2(g_log, vFpppV, g_logv)
