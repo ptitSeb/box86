@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//GO(gdk_add_client_message_filter, 
+//GOM(gdk_add_client_message_filter, vFpBp)
 //GO(gdk_add_option_entries_libgtk_only, 
 //GO(gdk_app_launch_context_get_type, 
 //GO(gdk_app_launch_context_new, 
@@ -72,25 +72,25 @@ GO(gdk_color_white, iFpp)
 //GO(gdk_cursor_ref, 
 //GO(gdk_cursor_type_get_type, 
 //GO(gdk_cursor_unref, 
-//GO(gdk_device_free_history, 
-//GO(gdk_device_get_axis, 
-//GO(gdk_device_get_axis_use, 
-//GO(gdk_device_get_core_pointer, 
-//GO(gdk_device_get_has_cursor, 
-//GO(gdk_device_get_history, 
-//GO(gdk_device_get_key, 
-//GO(gdk_device_get_mode, 
-//GO(gdk_device_get_name, 
-//GO(gdk_device_get_n_axes, 
-//GO(gdk_device_get_n_keys, 
-//GO(gdk_device_get_source, 
-//GO(gdk_device_get_state, 
-//GO(gdk_device_get_type, 
-//GO(gdk_device_set_axis_use, 
-//GO(gdk_device_set_key, 
-//GO(gdk_device_set_mode, 
-//GO(gdk_device_set_source, 
-//GO(gdk_devices_list, 
+GO(gdk_device_free_history, vFpi)
+GO(gdk_device_get_axis, iFppip)
+GO(gdk_device_get_axis_use, iFpu)
+GO(gdk_device_get_core_pointer, pFv)
+GO(gdk_device_get_has_cursor, iFp)
+GO(gdk_device_get_history, iFppuupp)
+GO(gdk_device_get_key, vFpupp)
+GO(gdk_device_get_mode, iFp)
+GO(gdk_device_get_name, pFp)
+GO(gdk_device_get_n_axes, iFp)
+GO(gdk_device_get_n_keys, iFp)
+GO(gdk_device_get_source, iFp)
+GO(gdk_device_get_state, vFpppp)
+GO(gdk_device_get_type, iFv)
+GO(gdk_device_set_axis_use, vFpui)
+GO(gdk_device_set_key, vFpuui)
+GO(gdk_device_set_mode, vFpi)
+GO(gdk_device_set_source, vFpi)
+GO(gdk_devices_list, pFv)
 //GO(gdk_display_add_client_message_filter, 
 //GO(gdk_display_beep, 
 //GO(gdk_display_close, 
@@ -207,28 +207,28 @@ GO(gdk_draw_trapezoids, vFpppi)
 //GO(gdk_drop_reply, 
 //GO(gdk_error_trap_pop, 
 //GO(gdk_error_trap_push, 
-//GO(gdk_event_copy, 
-//GO(gdk_event_free, 
-//GO(gdk_event_get, 
-//GO(gdk_event_get_axis, 
-//GO(gdk_event_get_coords, 
-//GO(gdk_event_get_graphics_expose, 
-//GO(gdk_event_get_root_coords, 
-//GO(gdk_event_get_screen, 
-//GO(gdk_event_get_state, 
-//GO(gdk_event_get_time, 
-//GO(gdk_event_get_type, 
-//GO(gdk_event_handler_set, 
-//GO(gdk_event_mask_get_type, 
-//GO(gdk_event_new, 
-//GO(gdk_event_peek, 
-//GO(gdk_event_put, 
-//GO(gdk_event_request_motions, 
-//GO(gdk_event_send_client_message, 
-//GO(gdk_event_send_client_message_for_display, 
-//GO(gdk_event_send_clientmessage_toall, 
-//GO(gdk_event_set_screen, 
-//GO(gdk_events_pending, 
+GO(gdk_event_copy, pFp)
+GO(gdk_event_free, vFp)
+GO(gdk_event_get, pFv)
+GO(gdk_event_get_axis, iFpip)
+GO(gdk_event_get_coords, iFppp)
+GO(gdk_event_get_graphics_expose, pFp)
+GO(gdk_event_get_root_coords, iFppp)
+GO(gdk_event_get_screen, pFp)
+GO(gdk_event_get_state, iFpp)
+GO(gdk_event_get_time, uFp)
+GO(gdk_event_get_type, iFv)
+GOM(gdk_event_handler_set, vFEppp)
+GO(gdk_event_mask_get_type, iFv)
+GO(gdk_event_new, pFi)
+GO(gdk_event_peek, pFv)
+GO(gdk_event_put, vFp)
+GO(gdk_event_request_motions, vFp)
+GO(gdk_event_send_client_message, iFpp)
+GO(gdk_event_send_client_message_for_display, iFppp)
+GO(gdk_event_send_clientmessage_toall, vFp)
+GO(gdk_event_set_screen, vFpp)
+GO(gdk_events_pending, iFv)
 //GO(gdk_event_type_get_type, 
 //GO(gdk_exit, 
 //GO(gdk_extension_mode_get_type, 
@@ -287,7 +287,7 @@ GO(gdk_get_default_root_window, pFv)
 //GO(gdk_get_display, 
 //GO(gdk_get_display_arg_name, 
 //GO(gdk_get_program_class, 
-//GO(gdk_get_show_events, 
+GO(gdk_get_show_events, iFv)
 //GO(gdk_get_use_xshm, 
 //GO(gdk_grab_status_get_type, 
 //GO(gdk_gravity_get_type, 
@@ -319,7 +319,7 @@ GO(gdk_get_default_root_window, pFv)
 //GO(gdk_input_condition_get_type, 
 //GO(gdk_input_mode_get_type, 
 //GO(gdk_input_remove, 
-//GO(gdk_input_set_extension_events, 
+GO(gdk_input_set_extension_events, vFpii)
 //GO(gdk_input_source_get_type, 
 //GO(gdk_join_style_get_type, 
 //GO(gdk_keyboard_grab, 
@@ -500,10 +500,10 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_set_locale, 
 //GOM(gdk_set_pointer_hooks, BFEB)
 //GO(gdk_set_program_class, 
-//GO(gdk_set_show_events, 
+GO(gdk_set_show_events, vFi)
 //GO(gdk_set_sm_client_id, 
 //GO(gdk_setting_action_get_type, 
-//GO(gdk_setting_get, 
+GO(gdk_setting_get, iFpp)
 //GO(gdk_set_use_xshm, 
 //GO(gdk_spawn_command_line_on_screen, 
 //GO(gdk_spawn_on_screen, 

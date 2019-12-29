@@ -1430,7 +1430,7 @@ GO(gtk_init_check, iFpp)
 GO(gtk_init_with_args, iFpppppp)
 //GOM(gtk_input_add_full, uFEiBBppB)
 GO(gtk_input_dialog_get_type, iFv)
-//GO(gtk_input_dialog_new, 
+GO(gtk_input_dialog_new, pFv)
 GO(gtk_input_remove, vFu)
 //GO(gtk_invisible_get_screen, 
 GO(gtk_invisible_get_type, iFv)
