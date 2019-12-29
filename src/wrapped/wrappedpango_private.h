@@ -384,17 +384,17 @@ GO(pango_layout_xy_to_index, iFpiipp)
 //GO(pango_stretch_get_type, 
 //GO(pango_style_get_type, 
 //GO(pango_tab_align_get_type, 
-//GO(pango_tab_array_copy, 
-//GO(pango_tab_array_free, 
-//GO(pango_tab_array_get_positions_in_pixels, 
-//GO(pango_tab_array_get_size, 
-//GO(pango_tab_array_get_tab, 
-//GO(pango_tab_array_get_tabs, 
-//GO(pango_tab_array_get_type, 
-//GO(pango_tab_array_new, 
-//GO(pango_tab_array_new_with_positions, 
-//GO(pango_tab_array_resize, 
-//GO(pango_tab_array_set_tab, 
+GO(pango_tab_array_copy, pFp)
+GO(pango_tab_array_free, vFp)
+GO(pango_tab_array_get_positions_in_pixels, iFp)
+GO(pango_tab_array_get_size, iFp)
+GO(pango_tab_array_get_tab, vFpipp)
+GO(pango_tab_array_get_tabs, vFppp)
+GO(pango_tab_array_get_type, iFv)
+GO(pango_tab_array_new, pFii)
+GO(pango_tab_array_new_with_positions, pFiiiippppppppppppppp) //vaarg
+GO(pango_tab_array_resize, vFpi)
+GO(pango_tab_array_set_tab, vFpiii)
 //GO(pango_trim_string, 
 //GO(pango_underline_get_type, 
 //GO(pango_unichar_direction, 
