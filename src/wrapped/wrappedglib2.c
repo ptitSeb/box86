@@ -91,12 +91,11 @@ void freeGlib2My(void* lib)
     glib2_my_t *my = (glib2_my_t *)lib;
 }
 
-static void my_destroy_notify(void* data)
+static void my_destroy_notify(void* data)   // data should be arg 0
 {
     x86emu_t *emu = (x86emu_t*)data;
     uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
     if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
         SetCallbackNArg(emu, 1);
         SetCallbackAddress(emu, f);
         RunCallback(emu);

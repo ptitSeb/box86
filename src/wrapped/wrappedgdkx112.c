@@ -20,10 +20,12 @@
 const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 #define LIBNAME gdkx112
 
-typedef void (*vFppp_t)(void*, void*, void*);
+typedef void    (*vFppp_t)      (void*, void*, void*);
+typedef int     (*iFiippp_t)    (int, int, void*, void*, void*);
 
 #define SUPER() \
-    GO(gdk_event_handler_set, vFppp_t)
+    GO(gdk_event_handler_set, vFppp_t)          \
+    GO(gdk_input_add_full, iFiippp_t)
 
 typedef struct gdkx112_my_s {
     // functions
@@ -76,6 +78,52 @@ EXPORT void my_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, notify);
     my->gdk_event_handler_set(my_event_handler, cb, my_event_notify);
+}
+
+
+static void my_destroy_notify(void* data)
+{
+    x86emu_t *emu = (x86emu_t*)data;
+    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
+    if(f) {
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
+        SetCallbackNArg(emu, 1);
+        SetCallbackAddress(emu, f);
+        RunCallback(emu);
+    }
+    FreeCallback(emu);
+}
+
+static void my_input_function(x86emu_t* emu, int source, int condition)
+{
+    SetCallbackArg(emu, 1, (void*)source);
+    SetCallbackArg(emu, 2, (void*)condition);
+    RunCallback(emu);
+}
+
+EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        return my->gdk_input_add_full(source, condition, f, data, NULL);
+    
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, data, NULL, NULL, NULL);
+    return my->gdk_input_add_full(source, condition, my_input_function, cb, my_event_notify);
+}
+
+EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        return my->gdk_input_add_full(source, condition, f, data, notify);
+    
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, data, NULL, NULL, NULL);
+    SetCallbackArg(cb, 9, notify);
+    return my->gdk_input_add_full(source, condition, my_input_function, cb, my_event_notify);
 }
 
 #define CUSTOM_INIT \

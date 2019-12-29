@@ -12,11 +12,11 @@
 //GO(gdk_app_launch_context_set_icon_name, 
 //GO(gdk_app_launch_context_set_screen, 
 //GO(gdk_app_launch_context_set_timestamp, 
-//GO(gdk_atom_intern, 
-//GO(gdk_atom_intern_static_string, 
-//GO(gdk_atom_name, 
-//GO(gdk_axis_use_get_type, 
-//GO(gdk_beep, 
+GO(gdk_atom_intern, pFpi)
+GO(gdk_atom_intern_static_string, pFp)
+GO(gdk_atom_name, pFp)
+GO(gdk_axis_use_get_type, iFv)
+GO(gdk_beep, vFv)
 GO(gdk_bitmap_create_from_data, pFppii)
 //GO(gdk_byte_order_get_type, 
 //GO(gdk_cairo_create, 
@@ -59,19 +59,19 @@ GO(gdk_colors_free, vFppiL)
 GO(gdk_colors_store, vFppi)
 GO(gdk_color_to_string, pFp)
 GO(gdk_color_white, iFpp)
-//GO(gdk_crossing_mode_get_type, 
-//GO(gdk_cursor_get_cursor_type, 
-//GO(gdk_cursor_get_display, 
-//GO(gdk_cursor_get_image, 
-//GO(gdk_cursor_get_type, 
-//GO(gdk_cursor_new, 
-//GO(gdk_cursor_new_for_display, 
-//GO(gdk_cursor_new_from_name, 
-//GO(gdk_cursor_new_from_pixbuf, 
-//GO(gdk_cursor_new_from_pixmap, 
-//GO(gdk_cursor_ref, 
-//GO(gdk_cursor_type_get_type, 
-//GO(gdk_cursor_unref, 
+GO(gdk_crossing_mode_get_type, iFv)
+GO(gdk_cursor_get_cursor_type, iFp)
+GO(gdk_cursor_get_display, pFp)
+GO(gdk_cursor_get_image, pFp)
+GO(gdk_cursor_get_type, iFv)
+GO(gdk_cursor_new, pFi)
+GO(gdk_cursor_new_for_display, pFpi)
+GO(gdk_cursor_new_from_name, pFpp)
+GO(gdk_cursor_new_from_pixbuf, pFppii)
+GO(gdk_cursor_new_from_pixmap, pFppppii)
+GO(gdk_cursor_ref, pFp)
+GO(gdk_cursor_type_get_type, iFv)
+GO(gdk_cursor_unref, vFp)
 GO(gdk_device_free_history, vFpi)
 GO(gdk_device_get_axis, iFppip)
 GO(gdk_device_get_axis_use, iFpu)
@@ -91,75 +91,75 @@ GO(gdk_device_set_key, vFpuui)
 GO(gdk_device_set_mode, vFpi)
 GO(gdk_device_set_source, vFpi)
 GO(gdk_devices_list, pFv)
-//GO(gdk_display_add_client_message_filter, 
-//GO(gdk_display_beep, 
-//GO(gdk_display_close, 
-//GO(gdk_display_flush, 
-//GO(gdk_display_get_core_pointer, 
-//GO(gdk_display_get_default, 
-//GO(gdk_display_get_default_cursor_size, 
-//GO(gdk_display_get_default_group, 
-//GO(gdk_display_get_default_screen, 
-//GO(gdk_display_get_event, 
-//GO(gdk_display_get_maximal_cursor_size, 
-//GO(gdk_display_get_name, 
-//GO(gdk_display_get_n_screens, 
-//GO(gdk_display_get_pointer, 
-//GO(gdk_display_get_screen, 
-//GO(gdk_display_get_type, 
-//GO(gdk_display_get_window_at_pointer, 
-//GO(gdk_display_is_closed, 
-//GO(gdk_display_keyboard_ungrab, 
-//GO(gdk_display_list_devices, 
-//GO(gdk_display_manager_get, 
-//GO(gdk_display_manager_get_default_display, 
-//GO(gdk_display_manager_get_type, 
-//GO(gdk_display_manager_list_displays, 
-//GO(gdk_display_manager_set_default_display, 
-//GO(gdk_display_open, 
+//GOM(gdk_display_add_client_message_filter, vFEpppp)
+GO(gdk_display_beep, vFp)
+GO(gdk_display_close, vFp)
+GO(gdk_display_flush, vFp)
+GO(gdk_display_get_core_pointer, pFp)
+GO(gdk_display_get_default, pFv)
+GO(gdk_display_get_default_cursor_size, uFp)
+GO(gdk_display_get_default_group, pFp)
+GO(gdk_display_get_default_screen, pFp)
+GO(gdk_display_get_event, pFp)
+GO(gdk_display_get_maximal_cursor_size, vFpp)
+GO(gdk_display_get_name, pFp)
+GO(gdk_display_get_n_screens, iFp)
+GO(gdk_display_get_pointer, vFppppp)
+GO(gdk_display_get_screen, pFp)
+GO(gdk_display_get_type, iFv)
+GO(gdk_display_get_window_at_pointer, pFppp)
+GO(gdk_display_is_closed, iFp)
+GO(gdk_display_keyboard_ungrab, vFpu)
+GO(gdk_display_list_devices, pFp)
+GO(gdk_display_manager_get, pFv)
+GO(gdk_display_manager_get_default_display, pFp)
+GO(gdk_display_manager_get_type, iFv)
+GO(gdk_display_manager_list_displays, pFp)
+GO(gdk_display_manager_set_default_display, vFpp)
+GO(gdk_display_open, pFp)
 //GO(gdk_display_open_default_libgtk_only, 
-//GO(gdk_display_peek_event, 
-//GO(gdk_display_pointer_is_grabbed, 
-//GO(gdk_display_pointer_ungrab, 
-//GO(gdk_display_put_event, 
-//GO(gdk_display_request_selection_notification, 
-//GO(gdk_display_set_double_click_distance, 
-//GO(gdk_display_set_double_click_time, 
-//GO(gdk_display_set_pointer_hooks, 
-//GO(gdk_display_store_clipboard, 
-//GO(gdk_display_supports_clipboard_persistence, 
-//GO(gdk_display_supports_composite, 
-//GO(gdk_display_supports_cursor_alpha, 
-//GO(gdk_display_supports_cursor_color, 
-//GO(gdk_display_supports_input_shapes, 
-//GO(gdk_display_supports_selection_notification, 
-//GO(gdk_display_supports_shapes, 
-//GO(gdk_display_sync, 
-//GO(gdk_display_warp_pointer, 
-//GO(gdk_drag_abort, 
-//GO(gdk_drag_action_get_type, 
-//GO(gdk_drag_begin, 
-//GO(gdk_drag_context_get_actions, 
-//GO(gdk_drag_context_get_dest_window, 
-//GO(gdk_drag_context_get_protocol, 
-//GO(gdk_drag_context_get_selected_action, 
-//GO(gdk_drag_context_get_source_window, 
-//GO(gdk_drag_context_get_suggested_action, 
-//GO(gdk_drag_context_get_type, 
-//GO(gdk_drag_context_list_targets, 
-//GO(gdk_drag_context_new, 
-//GO(gdk_drag_context_ref, 
-//GO(gdk_drag_context_unref, 
-//GO(gdk_drag_drop, 
-//GO(gdk_drag_drop_succeeded, 
-//GO(gdk_drag_find_window, 
-//GO(gdk_drag_find_window_for_screen, 
-//GO(gdk_drag_get_protocol, 
-//GO(gdk_drag_get_protocol_for_display, 
-//GO(gdk_drag_get_selection, 
-//GO(gdk_drag_motion, 
-//GO(gdk_drag_protocol_get_type, 
-//GO(gdk_drag_status, 
+GO(gdk_display_peek_event, pFp)
+GO(gdk_display_pointer_is_grabbed, iFp)
+GO(gdk_display_pointer_ungrab, vFpu)
+GO(gdk_display_put_event, vFpp)
+GO(gdk_display_request_selection_notification, iFpp)
+GO(gdk_display_set_double_click_distance, vFpu)
+GO(gdk_display_set_double_click_time, vFpu)
+//GOM(gdk_display_set_pointer_hooks, pFEpp)     // GdkDisplayPointerHooks needs wrapping
+GO(gdk_display_store_clipboard, vFppupi)
+GO(gdk_display_supports_clipboard_persistence, iFp)
+GO(gdk_display_supports_composite, iFp)
+GO(gdk_display_supports_cursor_alpha, iFp)
+GO(gdk_display_supports_cursor_color, iFp)
+GO(gdk_display_supports_input_shapes, iFp)
+GO(gdk_display_supports_selection_notification, iFp)
+GO(gdk_display_supports_shapes, iFp)
+GO(gdk_display_sync, vFp)
+GO(gdk_display_warp_pointer, vFppii)
+GO(gdk_drag_abort, vFpu)
+GO(gdk_drag_action_get_type, iFv)
+GO(gdk_drag_begin, pFpp)
+GO(gdk_drag_context_get_actions, iFp)
+GO(gdk_drag_context_get_dest_window, pFp)
+GO(gdk_drag_context_get_protocol, iFp)
+GO(gdk_drag_context_get_selected_action, iFp)
+GO(gdk_drag_context_get_source_window, pFp)
+GO(gdk_drag_context_get_suggested_action, iFp)
+GO(gdk_drag_context_get_type, iFv)
+GO(gdk_drag_context_list_targets, pFp)
+GO(gdk_drag_context_new, pFv)
+GO(gdk_drag_context_ref, vFp)
+GO(gdk_drag_context_unref, vFp)
+GO(gdk_drag_drop, vFpu)
+GO(gdk_drag_drop_succeeded, iFp)
+GO(gdk_drag_find_window, vFppiipp)
+GO(gdk_drag_find_window_for_screen, vFpppiipp)
+GO(gdk_drag_get_protocol, pFpp)
+GO(gdk_drag_get_protocol_for_display, pFppp)
+GO(gdk_drag_get_selection, pFp)
+GO(gdk_drag_motion, iFppiiiiiu)
+GO(gdk_drag_protocol_get_type, iFv)
+GO(gdk_drag_status, vFpiu)
 GO(gdk_drawable_copy_to_image, pFppiiiiii)
 GO(gdk_drawable_get_clip_region, pFp)
 GO(gdk_drawable_get_colormap, pFp)
@@ -203,10 +203,10 @@ GO(gdk_draw_string, vFpppiip)
 GO(gdk_draw_text, vFpppiipi)
 GO(gdk_draw_text_wc, vFpppiipi)
 GO(gdk_draw_trapezoids, vFpppi)
-//GO(gdk_drop_finish, 
-//GO(gdk_drop_reply, 
-//GO(gdk_error_trap_pop, 
-//GO(gdk_error_trap_push, 
+GO(gdk_drop_finish, vFpiu)
+GO(gdk_drop_reply, vFpiu)
+GO(gdk_error_trap_pop, vFv)
+GO(gdk_error_trap_push, iFv)
 GO(gdk_event_copy, pFp)
 GO(gdk_event_free, vFp)
 GO(gdk_event_get, pFv)
@@ -230,7 +230,7 @@ GO(gdk_event_send_clientmessage_toall, vFp)
 GO(gdk_event_set_screen, vFpp)
 GO(gdk_events_pending, iFv)
 //GO(gdk_event_type_get_type, 
-//GO(gdk_exit, 
+GO(gdk_exit, vFi)
 //GO(gdk_extension_mode_get_type, 
 //GO(gdk_fill_get_type, 
 //GO(gdk_fill_rule_get_type, 
@@ -249,9 +249,9 @@ GO(gdk_font_get_type, iFv)
 //GO(gdk_fontset_load_for_display, 
 //GO(gdk_font_type_get_type, 
 //GO(gdk_font_unref, 
-//GO(gdk_free_compound_text, 
-//GO(gdk_free_text_list, 
-//GO(gdk_function_get_type, 
+GO(gdk_free_compound_text, vFp)
+GO(gdk_free_text_list, iFpipip)
+GO(gdk_function_get_type, iFv)
 GO(gdk_gc_copy, vFpp)
 GO(gdk_gc_get_colormap, pFp)
 GO(gdk_gc_get_screen, pFp)
@@ -284,75 +284,75 @@ GO(gdk_gc_set_values, vFppu)
 GO(gdk_gc_unref, vFp)
 GO(gdk_gc_values_mask_get_type, iFv)
 GO(gdk_get_default_root_window, pFv)
-//GO(gdk_get_display, 
-//GO(gdk_get_display_arg_name, 
-//GO(gdk_get_program_class, 
+GO(gdk_get_display, pFv)
+GO(gdk_get_display_arg_name, pFv)
+GO(gdk_get_program_class, vFp)
 GO(gdk_get_show_events, iFv)
-//GO(gdk_get_use_xshm, 
-//GO(gdk_grab_status_get_type, 
-//GO(gdk_gravity_get_type, 
-//GO(gdk_image_get, 
-//GO(gdk_image_get_bits_per_pixel, 
-//GO(gdk_image_get_byte_order, 
-//GO(gdk_image_get_bytes_per_line, 
-//GO(gdk_image_get_bytes_per_pixel, 
-//GO(gdk_image_get_colormap, 
-//GO(gdk_image_get_depth, 
-//GO(gdk_image_get_height, 
-//GO(gdk_image_get_image_type, 
-//GO(gdk_image_get_pixel, 
-//GO(gdk_image_get_pixels, 
-//GO(gdk_image_get_type, 
-//GO(gdk_image_get_visual, 
-//GO(gdk_image_get_width, 
-//GO(gdk_image_new, 
-//GO(gdk_image_new_bitmap, 
-//GO(gdk_image_put_pixel, 
-//GO(gdk_image_ref, 
-//GO(gdk_image_set_colormap, 
-//GO(gdk_image_type_get_type, 
-//GO(gdk_image_unref, 
-//GO(gdk_init, 
-//GO(gdk_init_check, 
-//GO(gdk_input_add, 
-//GO(gdk_input_add_full, 
-//GO(gdk_input_condition_get_type, 
-//GO(gdk_input_mode_get_type, 
-//GO(gdk_input_remove, 
+GO(gdk_get_use_xshm, iFv)
+GO(gdk_grab_status_get_type, iFv)
+GO(gdk_gravity_get_type, iFv)
+GO(gdk_image_get, pFpiiii)
+GO(gdk_image_get_bits_per_pixel, WFp)
+GO(gdk_image_get_byte_order, iFp)
+GO(gdk_image_get_bytes_per_line, WFp)
+GO(gdk_image_get_bytes_per_pixel, WFp)
+GO(gdk_image_get_colormap, pFp)
+GO(gdk_image_get_depth, WFp)
+GO(gdk_image_get_height, iFp)
+GO(gdk_image_get_image_type, iFp)
+GO(gdk_image_get_pixel, uFpii)
+GO(gdk_image_get_pixels, pFp)
+GO(gdk_image_get_type, iFv)
+GO(gdk_image_get_visual, pFp)
+GO(gdk_image_get_width, iFp)
+GO(gdk_image_new, pFipii)
+GO(gdk_image_new_bitmap, pFppii)
+GO(gdk_image_put_pixel, vFpiiu)
+GO(gdk_image_ref, pFp)
+GO(gdk_image_set_colormap, vFpp)
+GO(gdk_image_type_get_type, iFv)
+GO(gdk_image_unref, pFp)
+GO(gdk_init, vFpp)
+GO(gdk_init_check, iFpp)
+GOM(gdk_input_add, iFEiipp)
+GOM(gdk_input_add_full, iFEiippp)
+GO(gdk_input_condition_get_type, iFv)
+GO(gdk_input_mode_get_type, iFv)
+GO(gdk_input_remove, vFi)
 GO(gdk_input_set_extension_events, vFpii)
-//GO(gdk_input_source_get_type, 
-//GO(gdk_join_style_get_type, 
-//GO(gdk_keyboard_grab, 
+GO(gdk_input_source_get_type, iFv)
+GO(gdk_join_style_get_type, iFv)
+GO(gdk_keyboard_grab, iFpiu)
 //GO(gdk_keyboard_grab_info_libgtk_only, 
-//GO(gdk_keyboard_ungrab, 
-//GO(gdk_keymap_add_virtual_modifiers, 
-//GO(gdk_keymap_get_caps_lock_state, 
-//GO(gdk_keymap_get_default, 
-//GO(gdk_keymap_get_direction, 
-//GO(gdk_keymap_get_entries_for_keycode, 
-//GO(gdk_keymap_get_entries_for_keyval, 
-//GO(gdk_keymap_get_for_display, 
-//GO(gdk_keymap_get_type, 
-//GO(gdk_keymap_have_bidi_layouts, 
-//GO(gdk_keymap_lookup_key, 
-//GO(gdk_keymap_map_virtual_modifiers, 
-//GO(gdk_keymap_translate_keyboard_state, 
-//GO(gdk_keyval_convert_case, 
-//GO(gdk_keyval_from_name, 
-//GO(gdk_keyval_is_lower, 
-//GO(gdk_keyval_is_upper, 
-//GO(gdk_keyval_name, 
-//GO(gdk_keyval_to_lower, 
-//GO(gdk_keyval_to_unicode, 
-//GO(gdk_keyval_to_upper, 
-//GO(gdk_line_style_get_type, 
-//GO(gdk_list_visuals, 
+GO(gdk_keyboard_ungrab, vFu)
+GO(gdk_keymap_add_virtual_modifiers, vFpp)
+GO(gdk_keymap_get_caps_lock_state, iFp)
+GO(gdk_keymap_get_default, pFv)
+GO(gdk_keymap_get_direction, iFp)
+GO(gdk_keymap_get_entries_for_keycode, iFpuppp)
+GO(gdk_keymap_get_entries_for_keyval, iFpupp)
+GO(gdk_keymap_get_for_display, pFp)
+GO(gdk_keymap_get_type, iFv)
+GO(gdk_keymap_have_bidi_layouts, iFp)
+GO(gdk_keymap_lookup_key, uFpp)
+GO(gdk_keymap_map_virtual_modifiers, iFpp)
+GO(gdk_keymap_translate_keyboard_state, iFpuiipppp)
+GO(gdk_keyval_convert_case, vFupp)
+GO(gdk_keyval_from_name, uFp)
+GO(gdk_keyval_is_lower, iFu)
+GO(gdk_keyval_is_upper, iFu)
+GO(gdk_keyval_name, pFu)
+GO(gdk_keyval_to_lower, uFu)
+GO(gdk_keyval_to_unicode, uFu)
+GO(gdk_keyval_to_upper, uFu)
+GO(gdk_line_style_get_type, iFv)
+GO(gdk_list_visuals, pFv)
 //GO(gdk_mbstowcs, 
-//GO(gdk_modifier_type_get_type, 
+GO(gdk_modifier_type_get_type, iFv)
 GO(gdk_net_wm_supports, iFp)
-//GO(gdk_notify_startup_complete, 
-//GO(gdk_notify_startup_complete_with_id, 
-//GO(gdk_notify_type_get_type, 
+GO(gdk_notify_startup_complete, vFv)
+GO(gdk_notify_startup_complete_with_id, vFp)
+GO(gdk_notify_type_get_type, iFv)
 GO(gdk_offscreen_window_get_embedder, pFp)
 GO(gdk_offscreen_window_get_pixmap, pFp)
 GO(gdk_offscreen_window_get_type, iFv)
@@ -374,7 +374,7 @@ GO(gdk_pango_renderer_set_drawable, vFpp)
 GO(gdk_pango_renderer_set_gc, vFpp)
 GO(gdk_pango_renderer_set_override_color, vFpip)
 GO(gdk_pango_renderer_set_stipple, vFpip)
-//GO(gdk_parse_args, 
+GO(gdk_parse_args, vFpp)
 GO(gdk_pixbuf_get_from_drawable, pFpppiiiiii)
 GO(gdk_pixbuf_get_from_image, pFpppiiiiii)
 GO(gdk_pixbuf_render_pixmap_and_mask, vFpppi)
@@ -392,22 +392,22 @@ GO(gdk_pixmap_foreign_new_for_display, pFpp)
 GO(gdk_pixmap_foreign_new_for_screen, pFppiii)
 GO(gdk_pixmap_get_size, vFppp)
 GO(gdk_pixmap_get_type, iFv)
-//GO(gdk_pixmap_impl_x11_get_type, 
+GO(gdk_pixmap_impl_x11_get_type, iFv)
 GO(gdk_pixmap_lookup, pFp)
 GO(gdk_pixmap_lookup_for_display, pFpp)
 GO(gdk_pixmap_new, pFpiii)
-//GO(gdk_pointer_grab, 
+GO(gdk_pointer_grab, iFpiippu)
 //GO(gdk_pointer_grab_info_libgtk_only, 
-//GO(gdk_pointer_is_grabbed, 
-//GO(gdk_pointer_ungrab, 
+GO(gdk_pointer_is_grabbed, iFv)
+GO(gdk_pointer_ungrab, vFu)
 //GO(gdk_pre_parse_libgtk_only, 
-//GO(gdk_property_change, 
-//GO(gdk_property_delete, 
-//GO(gdk_property_get, 
-//GO(gdk_property_state_get_type, 
-//GO(gdk_prop_mode_get_type, 
-//GO(gdk_query_depths, 
-//GO(gdk_query_visual_types, 
+GO(gdk_property_change, vFpppiipi)
+GO(gdk_property_delete, vFpp)
+GO(gdk_property_get, iFpppLLipppp)
+GO(gdk_property_state_get_type, iFv)
+GO(gdk_prop_mode_get_type, iFv)
+GO(gdk_query_depths, vFpp)
+GO(gdk_query_visual_types, vFpp)
 GO(gdk_rectangle_get_type, iFv)
 GO(gdk_rectangle_intersect, iFppp)
 GO(gdk_rectangle_union, vFppp)
@@ -496,15 +496,15 @@ GO(gdk_screen_width_mm, iFv)
 //GO(gdk_selection_property_get, 
 //GO(gdk_selection_send_notify, 
 //GO(gdk_selection_send_notify_for_display, 
-//GO(gdk_set_double_click_time, 
-//GO(gdk_set_locale, 
+GO(gdk_set_double_click_time, vFu)
+GO(gdk_set_locale, pFv)
 //GOM(gdk_set_pointer_hooks, BFEB)
 //GO(gdk_set_program_class, 
 GO(gdk_set_show_events, vFi)
-//GO(gdk_set_sm_client_id, 
+GO(gdk_set_sm_client_id, vFp)
 //GO(gdk_setting_action_get_type, 
 GO(gdk_setting_get, iFpp)
-//GO(gdk_set_use_xshm, 
+GO(gdk_set_use_xshm, vFi)
 //GO(gdk_spawn_command_line_on_screen, 
 //GO(gdk_spawn_on_screen, 
 //GO(gdk_spawn_on_screen_with_pipes, 
@@ -512,8 +512,8 @@ GO(gdk_setting_get, iFpp)
 //GO(gdk_string_extents, 
 //GO(gdk_string_height, 
 //GO(gdk_string_measure, 
-//GO(gdk_string_to_compound_text, 
-//GO(gdk_string_to_compound_text_for_display, 
+GO(gdk_string_to_compound_text, iFppppp)
+GO(gdk_string_to_compound_text_for_display, iFpppppp)
 //GO(gdk_string_width, 
 //GO(gdk_subwindow_mode_get_type, 
 //GO(gdk_synthesize_window_state, 
@@ -524,45 +524,45 @@ GO(gdk_setting_get, iFpp)
 //GO(gdk_text_extents_wc, 
 //GO(gdk_text_height, 
 //GO(gdk_text_measure, 
-//GO(gdk_text_property_to_text_list, 
-//GO(gdk_text_property_to_text_list_for_display, 
-//GO(gdk_text_property_to_utf8_list, 
+GO(gdk_text_property_to_text_list, iFpipip)
+GO(gdk_text_property_to_text_list_for_display, iFppipip)
+GO(gdk_text_property_to_utf8_list, iFppipip)
 //GO(gdk_text_property_to_utf8_list_for_display, 
 //GO(gdk_text_width, 
 //GO(gdk_text_width_wc, 
-//GO(gdk_threads_add_idle, 
-//GO(gdk_threads_add_idle_full, 
-//GO(gdk_threads_add_timeout, 
-//GO(gdk_threads_add_timeout_full, 
-//GO(gdk_threads_add_timeout_seconds, 
-//GO(gdk_threads_add_timeout_seconds_full, 
-//GO(gdk_threads_enter, 
-//GO(gdk_threads_init, 
-//GO(gdk_threads_leave, 
-//GO(gdk_threads_set_lock_functions, 
-//GO(gdk_unicode_to_keyval, 
-//GO(gdk_utf8_to_compound_text, 
-//GO(gdk_utf8_to_compound_text_for_display, 
-//GO(gdk_utf8_to_string_target, 
-//GO(gdk_visibility_state_get_type, 
-//GO(gdk_visual_get_best, 
-//GO(gdk_visual_get_best_depth, 
-//GO(gdk_visual_get_best_type, 
-//GO(gdk_visual_get_best_with_both, 
-//GO(gdk_visual_get_best_with_depth, 
-//GO(gdk_visual_get_best_with_type, 
-//GO(gdk_visual_get_bits_per_rgb, 
-//GO(gdk_visual_get_blue_pixel_details, 
-//GO(gdk_visual_get_byte_order, 
-//GO(gdk_visual_get_colormap_size, 
-//GO(gdk_visual_get_depth, 
-//GO(gdk_visual_get_green_pixel_details, 
-//GO(gdk_visual_get_red_pixel_details, 
-//GO(gdk_visual_get_screen, 
-//GO(gdk_visual_get_system, 
-//GO(gdk_visual_get_type, 
-//GO(gdk_visual_get_visual_type, 
-//GO(gdk_visual_type_get_type, 
+//GOM(gdk_threads_add_idle, uFEpp)
+//GOM(gdk_threads_add_idle_full, uFEippp)
+//GOM(gdk_threads_add_timeout, uFEupp)
+//GOM(gdk_threads_add_timeout_full, uFEiuppp)
+//GOM(gdk_threads_add_timeout_seconds, uFEupp)
+//GOM(gdk_threads_add_timeout_seconds_full, uFEiuppp)
+GO(gdk_threads_enter, vFv)
+GO(gdk_threads_init, vFv)
+GO(gdk_threads_leave, vFv)
+//GOM(gdk_threads_set_lock_functions, vFEpp)
+GO(gdk_unicode_to_keyval, uFu)
+GO(gdk_utf8_to_compound_text, iFppppp)
+GO(gdk_utf8_to_compound_text_for_display, iFpppppp)
+GO(gdk_utf8_to_string_target, pFp)
+GO(gdk_visibility_state_get_type, iFv)
+GO(gdk_visual_get_best, pFv)
+GO(gdk_visual_get_best_depth, iFv)
+GO(gdk_visual_get_best_type, iFv)
+GO(gdk_visual_get_best_with_both, pFii)
+GO(gdk_visual_get_best_with_depth, pFi)
+GO(gdk_visual_get_best_with_type, pFi)
+GO(gdk_visual_get_bits_per_rgb, iFp)
+GO(gdk_visual_get_blue_pixel_details, vFpppp)
+GO(gdk_visual_get_byte_order, iFp)
+GO(gdk_visual_get_colormap_size, iFp)
+GO(gdk_visual_get_depth, iFp)
+GO(gdk_visual_get_green_pixel_details, vFpppp)
+GO(gdk_visual_get_red_pixel_details, vFpppp)
+GO(gdk_visual_get_screen, pFp)
+GO(gdk_visual_get_system, pFv)
+GO(gdk_visual_get_type, iFv)
+GO(gdk_visual_get_visual_type, iFp)
+GO(gdk_visual_type_get_type, iFv)
 //GO(gdk_wcstombs, 
 //GOM(gdk_window_add_filter, vFEpBp)
 GO(gdk_window_at_pointer, pFpp)
