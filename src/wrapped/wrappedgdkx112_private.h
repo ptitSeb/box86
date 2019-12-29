@@ -446,48 +446,48 @@ GO(gdk_rgb_set_install, vFi)
 GO(gdk_rgb_set_min_colors, vFi)
 GO(gdk_rgb_set_verbose, vFi)
 GO(gdk_rgb_xpixel_from_rgb, LFu)
-//GO(gdk_screen_broadcast_client_message, 
-//GO(gdk_screen_get_active_window, 
-//GO(gdk_screen_get_default, 
-//GO(gdk_screen_get_default_colormap, 
-//GO(gdk_screen_get_display, 
-//GO(gdk_screen_get_font_options, 
-//GO(gdk_screen_get_height, 
-//GO(gdk_screen_get_height_mm, 
-//GO(gdk_screen_get_monitor_at_point, 
-//GO(gdk_screen_get_monitor_at_window, 
-//GO(gdk_screen_get_monitor_geometry, 
-//GO(gdk_screen_get_monitor_height_mm, 
-//GO(gdk_screen_get_monitor_plug_name, 
-//GO(gdk_screen_get_monitor_width_mm, 
-//GO(gdk_screen_get_n_monitors, 
-//GO(gdk_screen_get_number, 
-//GO(gdk_screen_get_primary_monitor, 
-//GO(gdk_screen_get_resolution, 
-//GO(gdk_screen_get_rgba_colormap, 
-//GO(gdk_screen_get_rgba_visual, 
-//GO(gdk_screen_get_rgb_colormap, 
-//GO(gdk_screen_get_rgb_visual, 
-//GO(gdk_screen_get_root_window, 
-//GO(gdk_screen_get_setting, 
-//GO(gdk_screen_get_system_colormap, 
-//GO(gdk_screen_get_system_visual, 
-//GO(gdk_screen_get_toplevel_windows, 
-//GO(gdk_screen_get_type, 
-//GO(gdk_screen_get_width, 
-//GO(gdk_screen_get_width_mm, 
-//GO(gdk_screen_get_window_stack, 
+GO(gdk_screen_broadcast_client_message, vFpp)
+GO(gdk_screen_get_active_window, pFp)
+GO(gdk_screen_get_default, pFv)
+GO(gdk_screen_get_default_colormap, pFp)
+GO(gdk_screen_get_display, pFp)
+GO(gdk_screen_get_font_options, pFp)
+GO(gdk_screen_get_height, iFp)
+GO(gdk_screen_get_height_mm, iFp)
+GO(gdk_screen_get_monitor_at_point, iFpii)
+GO(gdk_screen_get_monitor_at_window, iFpp)
+GO(gdk_screen_get_monitor_geometry, vFpip)
+GO(gdk_screen_get_monitor_height_mm, iFpi)
+GO(gdk_screen_get_monitor_plug_name, pFpi)
+GO(gdk_screen_get_monitor_width_mm, iFpi)
+GO(gdk_screen_get_n_monitors, iFp)
+GO(gdk_screen_get_number, iFp)
+GO(gdk_screen_get_primary_monitor, iFp)
+GO(gdk_screen_get_resolution, dFp)
+GO(gdk_screen_get_rgba_colormap, pFp)
+GO(gdk_screen_get_rgba_visual, pFp)
+GO(gdk_screen_get_rgb_colormap, pFp)
+GO(gdk_screen_get_rgb_visual, pFp)
+GO(gdk_screen_get_root_window, pFp)
+GO(gdk_screen_get_setting, iFppp)
+GO(gdk_screen_get_system_colormap, pFp)
+GO(gdk_screen_get_system_visual, pFp)
+GO(gdk_screen_get_toplevel_windows, pFp)
+GO(gdk_screen_get_type, iFv)
+GO(gdk_screen_get_width, iFp)
+GO(gdk_screen_get_width_mm, iFp)
+GO(gdk_screen_get_window_stack, pFp)
 GO(gdk_screen_height, iFv)
 GO(gdk_screen_height_mm, iFv)
-//GO(gdk_screen_is_composited, 
-//GO(gdk_screen_list_visuals, 
-//GO(gdk_screen_make_display_name, 
-//GO(gdk_screen_set_default_colormap, 
-//GO(gdk_screen_set_font_options, 
-//GO(gdk_screen_set_resolution, 
+GO(gdk_screen_is_composited, iFp)
+GO(gdk_screen_list_visuals, pFp)
+GO(gdk_screen_make_display_name, pFp)
+GO(gdk_screen_set_default_colormap, vFpp)
+GO(gdk_screen_set_font_options, vFpp)
+GO(gdk_screen_set_resolution, vFpd)
 GO(gdk_screen_width, iFv)
 GO(gdk_screen_width_mm, iFv)
-//GO(gdk_scroll_direction_get_type, 
+GO(gdk_scroll_direction_get_type, iFv)
 //GO(gdk_selection_convert, 
 //GO(gdk_selection_owner_get, 
 //GO(gdk_selection_owner_get_for_display, 
@@ -502,13 +502,13 @@ GO(gdk_set_locale, pFv)
 //GO(gdk_set_program_class, 
 GO(gdk_set_show_events, vFi)
 GO(gdk_set_sm_client_id, vFp)
-//GO(gdk_setting_action_get_type, 
+GO(gdk_setting_action_get_type, iFv)
 GO(gdk_setting_get, iFpp)
 GO(gdk_set_use_xshm, vFi)
-//GO(gdk_spawn_command_line_on_screen, 
-//GO(gdk_spawn_on_screen, 
-//GO(gdk_spawn_on_screen_with_pipes, 
-//GO(gdk_status_get_type, 
+GO(gdk_spawn_command_line_on_screen, iFppp)
+//GOM(gdk_spawn_on_screen, iFEppppipppp)
+//GOM(gdk_spawn_on_screen_with_pipes, iFEppppippppppp)
+GO(gdk_status_get_type, iFv)
 //GO(gdk_string_extents, 
 //GO(gdk_string_height, 
 //GO(gdk_string_measure, 
@@ -778,3 +778,5 @@ GO(gdkx_colormap_get, pFu)
 GO(gdk_xid_table_lookup, pFp)
 GO(gdk_xid_table_lookup_for_display, pFpp)
 GO(gdkx_visual_get, pFp)
+
+DATA(gdk_display, 4)

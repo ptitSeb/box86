@@ -2,10 +2,10 @@
 #error meh!
 #endif
 
-//GO(gdk_colorspace_get_type, 
-//GO(gdk_interp_type_get_type, 
-//GO(gdk_pixbuf_add_alpha, 
-//GO(gdk_pixbuf_alpha_mode_get_type, 
+GO(gdk_colorspace_get_type, iFv)
+GO(gdk_interp_type_get_type, iFv)
+GO(gdk_pixbuf_add_alpha, pFpiCCC)
+GO(gdk_pixbuf_alpha_mode_get_type, iFv)
 //GO(gdk_pixbuf_animation_get_height, 
 //GO(gdk_pixbuf_animation_get_iter, 
 //GO(gdk_pixbuf_animation_get_static_image, 
@@ -24,15 +24,15 @@
 //GO(gdk_pixbuf_animation_new_from_stream_finish, 
 //GO(gdk_pixbuf_animation_ref, 
 //GO(gdk_pixbuf_animation_unref, 
-//GO(gdk_pixbuf_apply_embedded_orientation, 
+GO(gdk_pixbuf_apply_embedded_orientation, pFp)
 GO(gdk_pixbuf_composite, vFppiiiiddddii)
 GO(gdk_pixbuf_composite_color, vFppiiiiddddiiiiiuu)
 GO(gdk_pixbuf_composite_color_simple, pFpiiiiiuu)
 GO(gdk_pixbuf_copy, pFp)
-//GO(gdk_pixbuf_copy_area, 
+GO(gdk_pixbuf_copy_area, vFpiiiipii)
 GO(gdk_pixbuf_error_get_type, iFv)
 //GO(gdk_pixbuf_error_quark, 
-//GO(gdk_pixbuf_fill, 
+GO(gdk_pixbuf_fill, vFpu)
 GO(gdk_pixbuf_flip, pFpi)
 //GO(gdk_pixbuf_format_copy, 
 //GO(gdk_pixbuf_format_free, 
@@ -93,7 +93,7 @@ GO(gdk_pixbuf_new_subpixbuf, pFpiiii)
 GO(gdk_pixbuf_ref, pFp)
 GO(gdk_pixbuf_rotate_simple, pFpi)
 //GO(gdk_pixbuf_rotation_get_type, 
-//GO(gdk_pixbuf_saturate_and_pixelate, 
+GO(gdk_pixbuf_saturate_and_pixelate, vFppfi)
 //GO(gdk_pixbuf_save, 
 //GO(gdk_pixbuf_save_to_buffer, 
 //GO(gdk_pixbuf_save_to_bufferv, 
