@@ -17,7 +17,7 @@
 //GO(gdk_atom_name, 
 //GO(gdk_axis_use_get_type, 
 //GO(gdk_beep, 
-//GO(gdk_bitmap_create_from_data, 
+GO(gdk_bitmap_create_from_data, pFppii)
 //GO(gdk_byte_order_get_type, 
 //GO(gdk_cairo_create, 
 //GO(gdk_cairo_rectangle, 
@@ -382,20 +382,20 @@ GO(gdk_pixbuf_render_pixmap_and_mask_for_colormap, vFppppi)
 GO(gdk_pixbuf_render_threshold_alpha, vFppiiiiiii)
 GO(gdk_pixbuf_render_to_drawable, vFpppiiiiiiiii)
 GO(gdk_pixbuf_render_to_drawable_alpha, vFppiiiiiiiiiii)
-//GO(gdk_pixmap_colormap_create_from_xpm, 
-//GO(gdk_pixmap_colormap_create_from_xpm_d, 
-//GO(gdk_pixmap_create_from_data, 
-//GO(gdk_pixmap_create_from_xpm, 
-//GO(gdk_pixmap_create_from_xpm_d, 
+GO(gdk_pixmap_colormap_create_from_xpm, pFppppp)
+GO(gdk_pixmap_colormap_create_from_xpm_d, pFppppp)
+GO(gdk_pixmap_create_from_data, pFppiiipp)
+GO(gdk_pixmap_create_from_xpm, pFpppp)
+GO(gdk_pixmap_create_from_xpm_d, pFpppp)
 GO(gdk_pixmap_foreign_new, pFp)
 GO(gdk_pixmap_foreign_new_for_display, pFpp)
 GO(gdk_pixmap_foreign_new_for_screen, pFppiii)
-//GO(gdk_pixmap_get_size, 
-//GO(gdk_pixmap_get_type, 
+GO(gdk_pixmap_get_size, vFppp)
+GO(gdk_pixmap_get_type, iFv)
 //GO(gdk_pixmap_impl_x11_get_type, 
 GO(gdk_pixmap_lookup, pFp)
 GO(gdk_pixmap_lookup_for_display, pFpp)
-//GO(gdk_pixmap_new, 
+GO(gdk_pixmap_new, pFpiii)
 //GO(gdk_pointer_grab, 
 //GO(gdk_pointer_grab_info_libgtk_only, 
 //GO(gdk_pointer_is_grabbed, 

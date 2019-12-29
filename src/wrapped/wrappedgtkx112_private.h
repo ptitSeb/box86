@@ -821,8 +821,8 @@ GO(gtk_draw_focus, vFppiiii)
 GO(gtk_draw_handle, vFppiiiiiii)
 GO(gtk_draw_hline, vFppiiii)
 GO(gtk_drawing_area_get_type, iFv)
-//GO(gtk_drawing_area_new, 
-//GO(gtk_drawing_area_size, 
+GO(gtk_drawing_area_new, pFv)
+GO(gtk_drawing_area_size, vFpii)
 GO(gtk_draw_insertion_cursor, vFppppiii)
 GO(gtk_draw_layout, vFppiiiip)
 GO(gtk_draw_option, vFppiiiiii)
