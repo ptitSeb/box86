@@ -164,13 +164,13 @@ GO(g_object_unref, vFp)
 GO(g_object_watch_closure, vFpp)
 //GOM(g_object_weak_ref, vFpBp)
 GO(g_object_weak_unref, vFpp)
-//GO(g_param_spec_boolean, 
-//GO(g_param_spec_boxed, 
-//GO(g_param_spec_char, 
-//GO(g_param_spec_double, 
-//GO(g_param_spec_enum, 
-//GO(g_param_spec_flags, 
-//GO(g_param_spec_float, 
+GO(g_param_spec_boolean, pFpppii)
+GO(g_param_spec_boxed, pFpppii)
+GO(g_param_spec_char, pFpppccci)
+GO(g_param_spec_double, pFpppdddi)
+GO(g_param_spec_enum, pFpppiii)
+GO(g_param_spec_flags, pFpppiui)
+GO(g_param_spec_float, pFpppfffi)
 //GO(g_param_spec_get_blurb, 
 //GO(g_param_spec_get_default_value, 
 //GO(g_param_spec_get_name, 
@@ -178,14 +178,14 @@ GO(g_object_weak_unref, vFpp)
 //GO(g_param_spec_get_qdata, 
 //GO(g_param_spec_get_redirect_target, 
 GO(g_param_spec_gtype, pFpppii)
-//GO(g_param_spec_int, 
-//GO(g_param_spec_int64, 
+GO(g_param_spec_int, pFpppiiii)
+GO(g_param_spec_int64, pFpppIIIi)
 //GO(g_param_spec_internal, 
-//GO(g_param_spec_long, 
-//GO(g_param_spec_object, 
+GO(g_param_spec_long, pFpppllli)
+GO(g_param_spec_object, pFpppii)
 GO(g_param_spec_override, pFpp)
-//GO(g_param_spec_param, 
-//GO(g_param_spec_pointer, 
+GO(g_param_spec_param, pFpppii)
+GO(g_param_spec_pointer, pFpppi)
 //GO(g_param_spec_pool_insert, 
 //GO(g_param_spec_pool_list, 
 //GO(g_param_spec_pool_list_owned, 
@@ -198,11 +198,11 @@ GO(g_param_spec_override, pFpp)
 //GO(g_param_spec_set_qdata_full, 
 //GO(g_param_spec_sink, 
 //GO(g_param_spec_steal_qdata, 
-//GO(g_param_spec_string, 
-//GO(g_param_spec_uchar, 
-//GO(g_param_spec_uint, 
-//GO(g_param_spec_uint64, 
-//GO(g_param_spec_ulong, 
+GO(g_param_spec_string, pFppppi)
+GO(g_param_spec_uchar, pFpppCCCi)
+GO(g_param_spec_uint, pFpppuuui)
+GO(g_param_spec_uint64, pFpppUUUi)
+GO(g_param_spec_ulong, pFpppLLLi)
 GO(g_param_spec_unichar, pFpppui)
 //GO(g_param_spec_unref, 
 GO(g_param_spec_value_array, pFppppi)
@@ -219,7 +219,7 @@ GO(g_param_spec_variant, pFpppppi)
 //GO(g_regex_get_type, 
 GO(g_signal_accumulator_first_wins, iFpppp)
 GO(g_signal_accumulator_true_handled, iFpppp)
-//GOM(g_signal_add_emission_hook, LFEupBpB)
+GOM(g_signal_add_emission_hook, LFEupppp)
 GO(g_signal_chain_from_overridden, vFpp)
 GO(g_signal_chain_from_overridden_handler, vFpppppppppp)  //vaarg
 GO(g_signal_connect_closure, LFpppi)
@@ -354,72 +354,72 @@ GOM(g_type_register_static, iFEippi)
 //GO(g_value_array_sort, 
 //GO(g_value_array_sort_with_data, 
 GO(g_value_copy, vFpp)
-//GO(g_value_dup_boxed, 
+GO(g_value_dup_boxed, pFp)
 GO(g_value_dup_object, pFp)
-//GO(g_value_dup_param, 
-//GO(g_value_dup_string, 
-//GO(g_value_dup_variant, 
+GO(g_value_dup_param, pFp)
+GO(g_value_dup_string, pFp)
+GO(g_value_dup_variant, pFp)
 GO(g_value_fits_pointer, iFp)
-//GO(g_value_get_boolean, 
-//GO(g_value_get_boxed, 
-//GO(g_value_get_char, 
-//GO(g_value_get_double, 
-//GO(g_value_get_enum, 
-//GO(g_value_get_flags, 
+GO(g_value_get_boolean, iFp)
+GO(g_value_get_boxed, pFp)
+GO(g_value_get_char, CFp)
+GO(g_value_get_double, dFp)
+GO(g_value_get_enum, iFp)
+GO(g_value_get_flags, uFp)
 GO(g_value_get_float, fFp)
-//GO(g_value_get_gtype, 
-//GO(g_value_get_int, 
-//GO(g_value_get_int64, 
-//GO(g_value_get_long, 
+GO(g_value_get_gtype, iFp)
+GO(g_value_get_int, iFp)
+GO(g_value_get_int64, IFp)
+GO(g_value_get_long, lFp)
 GO(g_value_get_object, pFp)
-//GO(g_value_get_param, 
-//GO(g_value_get_pointer, 
-//GO(g_value_get_schar, 
-//GO(g_value_get_string, 
-//GO(g_value_get_type, 
-//GO(g_value_get_uchar, 
-//GO(g_value_get_uint, 
-//GO(g_value_get_uint64, 
-//GO(g_value_get_ulong, 
-//GO(g_value_get_variant, 
+GO(g_value_get_param, pFp)
+GO(g_value_get_pointer, pFp)
+GO(g_value_get_schar, cFp)
+GO(g_value_get_string, pFp)
+GO(g_value_get_type, iFv)
+GO(g_value_get_uchar, CFp)
+GO(g_value_get_uint, uFp)
+GO(g_value_get_uint64, UFp)
+GO(g_value_get_ulong, uFp)
+GO(g_value_get_variant, pFp)
 GO(g_value_init, pFpi)
 GO(g_value_init_from_instance, vFpp)
 GO(g_value_peek_pointer, pFp)
-//GOM(g_value_register_transform_func, vFEppp)
+GOM(g_value_register_transform_func, vFEiip)
 GO(g_value_reset, pFp)
-//GO(g_value_set_boolean, 
-//GO(g_value_set_boxed, 
-//GO(g_value_set_boxed_take_ownership, 
-//GO(g_value_set_char, 
-//GO(g_value_set_double, 
-//GO(g_value_set_enum, 
-//GO(g_value_set_flags, 
-//GO(g_value_set_float, 
-//GO(g_value_set_gtype, 
+GO(g_value_set_boolean, vFpi)
+GO(g_value_set_boxed, vFpp)
+GO(g_value_set_boxed_take_ownership, vFpp)
+GO(g_value_set_char, vFpC)
+GO(g_value_set_double, vFpd)
+GO(g_value_set_enum, vFpi)
+GO(g_value_set_flags, vFpu)
+GO(g_value_set_float, vFpf)
+GO(g_value_set_gtype, vFpi)
 GO(g_value_set_instance, vFpp)
-//GO(g_value_set_int, 
-//GO(g_value_set_int64, 
-//GO(g_value_set_long, 
+GO(g_value_set_int, vFpi)
+GO(g_value_set_int64, vFpI)
+GO(g_value_set_long, vFpl)
 GO(g_value_set_object, vFpp)
 GO(g_value_set_object_take_ownership, vFpp)
-//GO(g_value_set_param, 
-//GO(g_value_set_param_take_ownership, 
-//GO(g_value_set_pointer, 
-//GO(g_value_set_schar, 
-//GO(g_value_set_static_boxed, 
-//GO(g_value_set_static_string, 
-//GO(g_value_set_string, 
-//GO(g_value_set_string_take_ownership, 
-//GO(g_value_set_uchar, 
-//GO(g_value_set_uint, 
-//GO(g_value_set_uint64, 
-//GO(g_value_set_ulong, 
-//GO(g_value_set_variant, 
-//GO(g_value_take_boxed, 
-//GO(g_value_take_object, 
-//GO(g_value_take_param, 
-//GO(g_value_take_string, 
-//GO(g_value_take_variant, 
+GO(g_value_set_param, vFpp)
+GO(g_value_set_param_take_ownership, vFpp)
+GO(g_value_set_pointer, vFpp)
+GO(g_value_set_schar, vFpc)
+GO(g_value_set_static_boxed, vFpp)
+GO(g_value_set_static_string, vFpp)
+GO(g_value_set_string, vFpp)
+GO(g_value_set_string_take_ownership, vFpp)
+GO(g_value_set_uchar, vFpC)
+GO(g_value_set_uint, vFpu)
+GO(g_value_set_uint64, vFpU)
+GO(g_value_set_ulong, vFpu)
+GO(g_value_set_variant, vFpp)
+GO(g_value_take_boxed, vFpp)
+GO(g_value_take_object, vFpp)
+GO(g_value_take_param, vFpp)
+GO(g_value_take_string, vFpp)
+GO(g_value_take_variant, vFpp)
 GO(g_value_transform, iFpp)
 GO(g_value_type_compatible, iFii)
 GO(g_value_type_transformable, iFii)

@@ -33,6 +33,7 @@ typedef uint32_t  (*uFpp_t)(void*, void*);
 typedef int  (*iFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFippp_t)(int, void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFpLpp_t)(void*, unsigned long, void*, void*);
@@ -65,7 +66,8 @@ typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
     GO(g_main_context_get_poll_func, pFp_t)     \
     GO(g_main_context_set_poll_func, vFpp_t)    \
     GO(g_print, vFp_t)                          \
-    GO(g_printerr, vFp_t)
+    GO(g_printerr, vFp_t)                       \
+    GO(g_idle_add_full, uFippp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -87,6 +89,19 @@ void* getGlib2My(library_t* lib)
 void freeGlib2My(void* lib)
 {
     glib2_my_t *my = (glib2_my_t *)lib;
+}
+
+static void my_destroy_notify(void* data)
+{
+    x86emu_t *emu = (x86emu_t*)data;
+    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
+    if(f) {
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
+        SetCallbackNArg(emu, 1);
+        SetCallbackAddress(emu, f);
+        RunCallback(emu);
+    }
+    FreeCallback(emu);
 }
 
 x86emu_t* my_free_full_emu = NULL;
@@ -537,6 +552,23 @@ EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* 
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
     my->g_main_context_set_poll_func(context, findPollFct(func));
+}
+
+static int my_source_func(void* data)
+{
+    x86emu_t* emu = (x86emu_t*)data;
+    return (int)RunCallback(emu);
+}
+EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, glib2Name);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        my->g_idle_add_full(priority, f, data, notify);
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 1, data, NULL, NULL, NULL);
+    SetCallbackArg(cb, 9, notify);
+    return my->g_idle_add_full(priority, my_source_func, cb, my_destroy_notify);
 }
 
 #define CUSTOM_INIT \

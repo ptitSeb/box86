@@ -5,7 +5,7 @@
 //GO(__aeabi_d2lz, 
 //GO(__aeabi_d2ulz, 
 //GO(_fini, 
-//GO(g_access, 
+GO(g_access, iFpi)
 //GO(g_allocator_free, 
 //GO(g_allocator_new, 
 //GO(g_array_append_vals, 
@@ -71,7 +71,7 @@ GO(g_async_queue_try_pop_unlocked, pFp)
 GO(g_async_queue_unlock, vFp)
 GO(g_async_queue_unref, vFp)
 GO(g_async_queue_unref_and_unlock, vFp)
-//GO(g_atexit, 
+GO2(g_atexit, vFEp, my_atexit)
 //GO(g_atomic_int_add, 
 //GO(g_atomic_int_and, 
 //GO(g_atomic_int_compare_and_exchange, 
@@ -95,11 +95,11 @@ GO(g_async_queue_unref_and_unlock, vFp)
 //GO(g_base64_encode, 
 //GO(g_base64_encode_close, 
 //GO(g_base64_encode_step, 
-//GO(g_basename, 
+GO(g_basename, pFp)
 //GO(g_bit_lock, 
-//GO(g_bit_nth_lsf, 
-//GO(g_bit_nth_msf, 
-//GO(g_bit_storage, 
+GO(g_bit_nth_lsf, iFii)
+GO(g_bit_nth_msf, iFii)
+GO(g_bit_storage, iFi)
 //GO(g_bit_trylock, 
 //GO(g_bit_unlock, 
 //GO(g_blow_chunks, 
@@ -145,8 +145,8 @@ GO(g_async_queue_unref_and_unlock, vFp)
 //GO(g_bookmark_file_to_file, 
 GOM(g_build_filename, pFEpV)
 GO(g_build_filenamev, pFp)
-//GO(g_build_path, 
-//GO(g_build_pathv, 
+//GOM(g_build_path, pFEppV) // wrap using g_build_pathv
+GO(g_build_pathv, pFpp)
 //GO(g_byte_array_append, 
 //GO(g_byte_array_free, 
 //GO(g_byte_array_free_to_bytes, 
@@ -182,7 +182,7 @@ GO(g_build_filenamev, pFp)
 //GO(g_cache_new, 
 //GO(g_cache_remove, 
 //GO(g_cache_value_foreach, 
-//GO(g_chdir, 
+GO(g_chdir, iFp)
 //GO(g_checksum_copy, 
 //GO(g_checksum_free, 
 //GO(g_checksum_get_digest, 
@@ -194,10 +194,10 @@ GO(g_build_filenamev, pFp)
 //GOM(g_child_watch_add, uFEiBp)
 //GOM(g_child_watch_add_full, uFEiiBpB)
 GO(g_child_watch_source_new, pFi)
-//GO(g_chmod, 
+GO(g_chmod, iFpi)
 //GO(g_clear_error, 
-//GO(g_clear_pointer, 
-//GO(g_close, 
+//GOM(g_clear_pointer, vFEpp)
+GO(g_close, iFip)
 //GO(g_completion_add_items, 
 //GO(g_completion_clear_items, 
 //GO(g_completion_complete, 
@@ -224,7 +224,7 @@ GO(g_child_watch_source_new, pFi)
 //GO(g_convert_error_quark, 
 //GO(g_convert_with_fallback, 
 //GO(g_convert_with_iconv, 
-//GO(g_creat, 
+GO(g_creat, iFpi)
 GO(g_datalist_clear, vFp)
 //GOM(g_datalist_foreach, vFEppp)
 GO(g_datalist_get_data, pFpp)
@@ -339,74 +339,74 @@ GO(g_datalist_unset_flags, vFpu)
 //GO(g_date_valid_year, 
 //GO(g_dcgettext, 
 //GO(g_dgettext, 
-//GO(g_dir_close, 
+GO(g_dir_close, vFp)
 //GO(g_direct_equal, 
 //GO(g_direct_hash, 
-//GO(g_dir_make_tmp, 
-//GO(g_dir_open, 
+GO(g_dir_make_tmp, pFpp)
+GO(g_dir_open, pFp)
 //GO(g_dir_read_name, 
-//GO(g_dir_rewind, 
+GO(g_dir_rewind, vFp)
 //GO(g_dngettext, 
 //GO(g_double_equal, 
 //GO(g_double_hash, 
 //GO(g_dpgettext, 
 //GO(g_dpgettext2, 
-//GO(g_environ_getenv, 
-//GO(g_environ_setenv, 
-//GO(g_environ_unsetenv, 
+GO(g_environ_getenv, pFpp)      // should wrap?
+GO(g_environ_setenv, pFpppi)
+GO(g_environ_unsetenv, pFpp)
 //GO(g_error_copy, 
 //GO(g_error_free, 
 //GO(g_error_matches, 
 //GO(g_error_new, 
 //GO(g_error_new_literal, 
 //GO(g_error_new_valist, 
-//GO(g_file_error_from_errno, 
+GO(g_file_error_from_errno, iFi)
 //GO(g_file_error_quark, 
-//GO(g_file_get_contents, 
+GO(g_file_get_contents, iFpppp)
 GO(g_filename_display_basename, pFp)
 GO(g_filename_display_name, pFp)
-//GO(g_filename_from_uri, 
+GO(g_filename_from_uri, pFppp)
 GO(g_filename_from_utf8, pFpippp)
-//GO(g_filename_to_uri, 
+GO(g_filename_to_uri, pFppp)
 GO(g_filename_to_utf8, pFpippp)
-//GO(g_file_open_tmp, 
-//GO(g_file_read_link, 
-//GO(g_file_set_contents, 
-//GO(g_file_test, 
-//GO(g_find_program_in_path, 
-//GO(g_fopen, 
-//GO(g_format_size, 
-//GO(g_format_size_for_display, 
-//GO(g_format_size_full, 
+GO(g_file_open_tmp, iFppp)
+GO(g_file_read_link, pFpp)
+GO(g_file_set_contents, iFppip)
+GO(g_file_test, iFpi)
+GO(g_find_program_in_path, pFp) // need wrap?
+GO(g_fopen, pFpp)
+GO(g_format_size, pFU)
+GO(g_format_size_for_display, pFI)
+GO(g_format_size_full, pFUi)
 GO2(g_fprintf, iFEppV, my_g_vfprintf)
 GO(g_free, vFp)
-//GO(g_freopen, 
-//GO(g_get_application_name, 
+GO(g_freopen, pFppp)
+GO(g_get_application_name, pFv)
 GO(g_get_charset, iFp)
 GO(g_get_codeset, pFv)
-//GO(g_get_current_dir, 
+GO(g_get_current_dir, pFv)
 //GO(g_get_current_time, 
-//GO(g_getenv, 
-//GO(g_get_environ, 
+GO(g_getenv, pFp)       // should wrap?
+GO(g_get_environ, pFv)
 GO(g_get_filename_charsets, iFp)
-//GO(g_get_home_dir, 
-//GO(g_get_host_name, 
+GO(g_get_home_dir, pFv)
+GO(g_get_host_name, pFv)
 //GO(g_get_language_names, 
 //GO(g_get_locale_variants, 
 //GO(g_get_monotonic_time, 
 //GO(g_get_num_processors, 
-//GO(g_get_prgname, 
-//GO(g_get_real_name, 
+GO(g_get_prgname, pFv)
+GO(g_get_real_name, pFv)
 //GO(g_get_real_time, 
-//GO(g_get_system_config_dirs, 
-//GO(g_get_system_data_dirs, 
-//GO(g_get_tmp_dir, 
-//GO(g_get_user_cache_dir, 
-//GO(g_get_user_config_dir, 
-//GO(g_get_user_data_dir, 
-//GO(g_get_user_name, 
-//GO(g_get_user_runtime_dir, 
-//GO(g_get_user_special_dir, 
+GO(g_get_system_config_dirs, pFv)
+GO(g_get_system_data_dirs, pFv)
+GO(g_get_tmp_dir, pFv)
+GO(g_get_user_cache_dir, pFv)
+GO(g_get_user_config_dir, pFv)
+GO(g_get_user_data_dir, pFv)
+GO(g_get_user_name, pFv)
+GO(g_get_user_runtime_dir, pFv)
+GO(g_get_user_special_dir, pFi)
 //GO(g_hash_table_add, 
 //GO(g_hash_table_contains, 
 GO(g_hash_table_destroy, vFp)
@@ -475,7 +475,7 @@ GO(g_hash_table_destroy, vFp)
 //GO(g_iconv_close, 
 //GO(g_iconv_open, 
 //GOM(g_idle_add, uFEBp)
-//GOM(g_idle_add_full, uFEiBpB)
+GOM(g_idle_add_full, uFEippp)
 GO(g_idle_remove_by_data, iFp)
 GO(g_idle_source_new, pFv)
 //GO(g_int64_equal, 
@@ -580,7 +580,7 @@ GO(g_list_concat, pFpp)
 GO(g_list_copy, pFp)
 //GOM(g_list_copy_deep, pFEpBp)
 GO(g_list_delete_link, pFpp)
-//GO(g_listenv, 
+GO(g_listenv, pFv)
 GO(g_list_find, pFpp)
 //GOM(g_list_find_custom, pFEppB)
 GO(g_list_first, pFp)
@@ -618,7 +618,7 @@ GO(g_log_set_always_fatal, iFi)
 GO(g_log_set_fatal_mask, iFpi)
 //GOM(g_log_set_handler, uFpiBp)
 GO(g_logv, vFpppp)      // need align?
-//GO(g_lstat, 
+GO(g_lstat, iFpp)
 GO(g_main_context_acquire, iFp)
 GO(g_main_context_add_poll, vFppi)
 GO(g_main_context_check, iFpipi)
@@ -643,7 +643,7 @@ GO(g_main_context_ref, pFp)
 GO(g_main_context_ref_thread_default, pFv)
 GO(g_main_context_release, vFp)
 GO(g_main_context_remove_poll, vFpp)
-GOM(g_main_context_set_poll_func, vFpp)
+GOM(g_main_context_set_poll_func, vFEpp)
 GO(g_main_context_unref, vFp)
 GO(g_main_context_wait, iFppp)
 GO(g_main_context_wakeup, vFp)
@@ -656,18 +656,18 @@ GO(g_main_loop_quit, vFp)
 GO(g_main_loop_ref, pFp)
 GO(g_main_loop_run, vFp)
 GO(g_main_loop_unref, vFp)
-//GO(g_malloc, 
-//GO(g_malloc0, 
-//GO(g_malloc0_n, 
-//GO(g_malloc_n, 
-//GO(g_mapped_file_free, 
-//GO(g_mapped_file_get_bytes, 
-//GO(g_mapped_file_get_contents, 
-//GO(g_mapped_file_get_length, 
-//GO(g_mapped_file_new, 
-//GO(g_mapped_file_new_from_fd, 
-//GO(g_mapped_file_ref, 
-//GO(g_mapped_file_unref, 
+GO(g_malloc, pFL)
+GO(g_malloc0, pFL)
+GO(g_malloc0_n, pFLL)
+GO(g_malloc_n, pFLL)
+GO(g_mapped_file_free, vFp)
+GO(g_mapped_file_get_bytes, pFp)
+GO(g_mapped_file_get_contents, pFp)
+GO(g_mapped_file_get_length, uFp)
+GO(g_mapped_file_new, pFppp)
+GO(g_mapped_file_new_from_fd, pFiip)
+GO(g_mapped_file_ref, pFp)
+GO(g_mapped_file_unref, vFp)
 //GO(g_markup_collect_attributes, 
 //GO(g_markup_error_quark, 
 //GO(g_markup_escape_text, 
@@ -709,16 +709,16 @@ GOM(g_markup_vprintf_escaped, pFEpV)
 //GO(g_mem_chunk_new, 
 //GO(g_mem_chunk_print, 
 //GO(g_mem_chunk_reset, 
-//GO(g_memdup, 
-//GO(g_mem_is_system_malloc, 
-//GO(g_mem_profile, 
-//GO(g_mem_set_vtable, 
-//GO(g_mkdir, 
-//GO(g_mkdir_with_parents, 
-//GO(g_mkdtemp, 
-//GO(g_mkdtemp_full, 
-//GO(g_mkstemp, 
-//GO(g_mkstemp_full, 
+GO(g_memdup, pFpu)
+GO(g_mem_is_system_malloc, iFv)
+GO(g_mem_profile, vFv)
+//GOM(g_mem_set_vtable, vFEp)   // VMemTable needs wrapping
+GO(g_mkdir, iFpi)
+GO(g_mkdir_with_parents, iFpi)
+GO(g_mkdtemp, pFp)
+GO(g_mkdtemp_full, pFpi)
+GO(g_mkstemp, iFp)
+GO(g_mkstemp_full, iFpii)
 GO(g_mutex_clear, vFp)
 //GO(g_mutex_free, 
 GO(g_mutex_init, vFp)
@@ -754,14 +754,14 @@ GO(g_mutex_unlock, vFp)
 //GO(g_node_reverse_children, 
 //GO(g_node_traverse, 
 //GO(g_node_unlink, 
-//GO(g_nullify_pointer, 
+GO(g_nullify_pointer, vFp)
 //GO(g_once_impl, 
 //GO(g_once_init_enter, 
 //GO(g_once_init_enter_impl, 
 //GO(g_once_init_leave, 
 GO(g_on_error_query, vFp)
 GO(g_on_error_stack_trace, vFp)
-//GO(g_open, 
+GO(g_open, iFpii)
 //GO(g_option_context_add_group, 
 //GO(g_option_context_add_main_entries, 
 //GO(g_option_context_free, 
@@ -789,11 +789,11 @@ GO(g_on_error_stack_trace, vFp)
 //GO(g_option_group_set_parse_hooks, 
 //GO(g_option_group_set_translate_func, 
 //GO(g_option_group_set_translation_domain, 
-//GO(g_parse_debug_string, 
-//GO(g_path_get_basename, 
-//GO(g_path_get_dirname, 
-//GO(g_path_is_absolute, 
-//GO(g_path_skip_root, 
+GO(g_parse_debug_string, uFppi)
+GO(g_path_get_basename, pFp)
+GO(g_path_get_dirname, pFp)
+GO(g_path_is_absolute, iFp)
+GO(g_path_skip_root, pFp)
 //GO(g_pattern_match, 
 //GO(g_pattern_match_simple, 
 //GO(g_pattern_match_string, 
@@ -834,7 +834,7 @@ GOM(g_printf_string_upper_bound, uFEpp)
 //GO(g_ptr_array_sort, 
 //GO(g_ptr_array_sort_with_data, 
 //GO(g_ptr_array_unref, 
-//GO(g_qsort_with_data, 
+//GOM(g_qsort_with_data, vFEpiLpp)
 GO(g_quark_from_static_string, uFp)
 GO(g_quark_from_string, uFp)
 GO(g_quark_to_string, pFu)
@@ -895,8 +895,8 @@ GO(g_quark_try_string, uFp)
 //GO(g_random_set_seed, 
 //GO(g_rand_set_seed, 
 //GO(g_rand_set_seed_array, 
-//GO(g_realloc, 
-//GO(g_realloc_n, 
+GO(g_realloc, pFpL)
+GO(g_realloc_n, pFpLL)
 //GO(g_rec_mutex_clear, 
 //GO(g_rec_mutex_init, 
 //GO(g_rec_mutex_lock, 
@@ -938,10 +938,10 @@ GO(g_quark_try_string, uFp)
 //GO(g_relation_print, 
 //GO(g_relation_select, 
 //GO(g_reload_user_special_dirs_cache, 
-//GO(g_remove, 
-//GO(g_rename, 
+GO(g_remove, iFp)
+GO(g_rename, iFpp)
 GO(g_return_if_fail_warning, vFppp)
-//GO(g_rmdir, 
+GO(g_rmdir, iFp)
 //GO(g_rw_lock_clear, 
 //GO(g_rw_lock_init, 
 //GO(g_rw_lock_reader_lock, 
@@ -1008,11 +1008,11 @@ GO(g_return_if_fail_warning, vFppp)
 //GO(g_sequence_sort_changed_iter, 
 //GO(g_sequence_sort_iter, 
 //GO(g_sequence_swap, 
-//GO(g_set_application_name, 
-//GO(g_setenv, 
+GO(g_set_application_name, vFp)
+GO(g_setenv, iFppi)
 //GO(g_set_error, 
 //GO(g_set_error_literal, 
-//GO(g_set_prgname, 
+GO(g_set_prgname, vFp)
 //GOM(g_set_printerr_handler, BFEB)
 //GOM(g_set_print_handler, BFEB)
 //GO(g_shell_error_quark, 
@@ -1027,37 +1027,37 @@ GO(g_shell_unquote, pFpp)
 //GO(g_slice_get_config, 
 //GO(g_slice_get_config_state, 
 //GO(g_slice_set_config, 
-//GO(g_slist_alloc, 
-//GO(g_slist_append, 
-//GO(g_slist_concat, 
-//GO(g_slist_copy, 
-//GO(g_slist_copy_deep, 
-//GO(g_slist_delete_link, 
-//GO(g_slist_find, 
-//GO(g_slist_find_custom, 
-//GO(g_slist_foreach, 
-//GO(g_slist_free, 
-//GO(g_slist_free_1, 
-//GO(g_slist_free_full, 
-//GO(g_slist_index, 
-//GO(g_slist_insert, 
-//GO(g_slist_insert_before, 
-//GO(g_slist_insert_sorted, 
-//GO(g_slist_insert_sorted_with_data, 
-//GO(g_slist_last, 
-//GO(g_slist_length, 
-//GO(g_slist_nth, 
-//GO(g_slist_nth_data, 
+GO(g_slist_alloc, pFv)
+GO(g_slist_append, pFpp)
+GO(g_slist_concat, pFpp)
+GO(g_slist_copy, pFp)
+//GOM(g_slist_copy_deep, pFEppp)
+GO(g_slist_delete_link, pFpp)
+GO(g_slist_find, pFpp)
+//GOM(g_slist_find_custom, pFEppp)
+//GOM(g_slist_foreach, pFEppp)
+GO(g_slist_free, vFp)
+GO(g_slist_free_1, vFp)
+//GOM(g_slist_free_full, vFEpp)
+GO(g_slist_index, iFpp)
+GO(g_slist_insert, pFppi)
+GO(g_slist_insert_before, pFppp)
+//GOM(g_slist_insert_sorted, pFEppp)
+//GOM(g_slist_insert_sorted_with_data, pFEpppp)
+GO(g_slist_last, pFp)
+GO(g_slist_length, uFp)
+GO(g_slist_nth, pFpu)
+GO(g_slist_nth_data, pFpu)
 //GO(g_slist_pop_allocator, 
-//GO(g_slist_position, 
-//GO(g_slist_prepend, 
+GO(g_slist_position, iFpp)
+GO(g_slist_prepend, pFpp)
 //GO(g_slist_push_allocator, 
-//GO(g_slist_remove, 
-//GO(g_slist_remove_all, 
-//GO(g_slist_remove_link, 
-//GO(g_slist_reverse, 
-//GO(g_slist_sort, 
-//GO(g_slist_sort_with_data, 
+GO(g_slist_remove, pFpp)
+GO(g_slist_remove_all, pFpp)
+GO(g_slist_remove_link, pFpp)
+GO(g_slist_reverse, pFp)
+//GOM(g_slist_sort, pFEpp)
+//GOM(g_slist_sort_with_data, pFEppp)
 GO2(g_snprintf, iFEpLpV, my_g_vsnprintf)
 GO(g_source_add_child_source, vFpp)
 GO(g_source_add_poll, vFpp)
@@ -1092,7 +1092,7 @@ GO(g_source_set_name_by_id, vFup)
 GO(g_source_set_priority, vFpi)
 GO(g_source_set_ready_time, vFpI)
 GO(g_source_unref, vFp)
-//GO(g_spaced_primes_closest, 
+GO(g_spaced_primes_closest, uFu)
 //GO(g_spawn_async, 
 //GO(g_spawn_async_with_pipes, 
 //GO(g_spawn_check_exit_status, 
@@ -1103,7 +1103,7 @@ GO(g_source_unref, vFp)
 //GO(g_spawn_exit_error_quark, 
 //GO(g_spawn_sync, 
 GO2(g_sprintf, iFEppV, my_g_vsprintf)
-//GO(g_stat, 
+GO(g_stat, iFpp)
 //GO(g_static_mutex_free, 
 //GO(g_static_mutex_get_mutex_impl, 
 //GO(g_static_mutex_init, 
@@ -1334,12 +1334,12 @@ GO(g_timeout_source_new_seconds, pFu)
 //GO(g_tree_steal, 
 //GO(g_tree_traverse, 
 //GO(g_tree_unref, 
-//GO(g_try_malloc, 
-//GO(g_try_malloc0, 
-//GO(g_try_malloc0_n, 
-//GO(g_try_malloc_n, 
-//GO(g_try_realloc, 
-//GO(g_try_realloc_n, 
+GO(g_try_malloc, pFL)
+GO(g_try_malloc0, pFL)
+GO(g_try_malloc0_n, pFLL)
+GO(g_try_malloc_n, pFLL)
+GO(g_try_realloc, pFpL)
+GO(g_try_realloc_n, pFpLL)
 //GO(g_tuples_destroy, 
 //GO(g_tuples_index, 
 GO(g_ucs4_to_utf16, pFplppp)
@@ -1389,13 +1389,13 @@ GO(g_unicode_script_to_iso15924, uFi)
 //GO(g_unix_signal_add, 
 //GO(g_unix_signal_add_full, 
 //GO(g_unix_signal_source_new, 
-//GO(g_unlink, 
-//GO(g_unsetenv, 
-//GO(g_uri_escape_string, 
-//GO(g_uri_list_extract_uris, 
-//GO(g_uri_parse_scheme, 
-//GO(g_uri_unescape_segment, 
-//GO(g_uri_unescape_string, 
+GO(g_unlink, iFp)
+GO(g_unsetenv, vFp)
+GO(g_uri_escape_string, pFppi)
+GO(g_uri_list_extract_uris, pFp)
+GO(g_uri_parse_scheme, pFp)
+GO(g_uri_unescape_segment, pFppp)
+GO(g_uri_unescape_string, pFpp)
 //GO(g_usleep, 
 GO(g_utf16_to_ucs4, pFplppp)
 GO(g_utf16_to_utf8, pFplppp)
@@ -1423,7 +1423,7 @@ GO(g_utf8_to_ucs4, pFplppp)
 GO(g_utf8_to_ucs4_fast, pFplp)
 GO(g_utf8_to_utf16, pFplppp)
 GO(g_utf8_validate, iFplp)
-//GO(g_utime, 
+GO(g_utime, iFpp)
 GO(g_variant_builder_add, vFppppppppppp)    // vaarg
 GO(g_variant_builder_add_parsed, vFppppppppppp) //vaarg
 GO(g_variant_builder_add_value, vFpp)

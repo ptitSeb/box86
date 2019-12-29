@@ -26,8 +26,10 @@ typedef void* (*pFi_t)(int);
 typedef void* (*pFip_t)(int, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFipp_t)(int, void*, void*);
+typedef void (*vFiip_t)(int, int, void*);
 typedef int (*iFippi_t)(int, void*, void*, int);
 typedef int (*iFipppi_t)(int, void*, void*, void*, int);
+typedef unsigned long (*LFupppp_t)(uint32_t, void*, void*, void*, void*);
 typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
 typedef uint32_t (*uFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
 typedef unsigned long (*LFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
@@ -53,7 +55,10 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_object_new_valist, pFipp_t)            \
     GO(g_type_register_static, iFippi_t)        \
     GO(g_type_register_fundamental, iFipppi_t)  \
-    GO(g_type_value_table_peek, pFi_t)
+    GO(g_type_value_table_peek, pFi_t)          \
+    GO(g_value_register_transform_func, vFiip_t)\
+    GO(g_signal_add_emission_hook, LFupppp_t)
+
 
 typedef struct gobject2_my_s {
     // functions
@@ -78,6 +83,20 @@ void freeGobject2My(void* lib)
 }
 
 static box86context_t* my_context = NULL;
+
+static void my_destroy_notify(void* data)
+{
+    x86emu_t *emu = (x86emu_t*)data;
+    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
+    if(f) {
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
+        SetCallbackNArg(emu, 1);
+        SetCallbackAddress(emu, f);
+        RunCallback(emu);
+    }
+    FreeCallback(emu);
+}
+
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
     // signal can have many signature... so first job is to find the data!
@@ -239,6 +258,29 @@ static void* findMarshalFct(void* fct)
     return NULL;
 }
 
+// GValueTransform
+#define GO(A)   \
+static uintptr_t my_valuetransform_fct_##A = 0;                     \
+static void my_valuetransform_##A(void* src, void* dst)            \
+{                                                                   \
+    RunFunction(my_context, my_valuetransform_fct_##A, 2, src, dst);\
+}
+SUPER()
+#undef GO
+static void* findValueTransformFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_valuetransform_fct_##A == (uintptr_t)fct) return my_valuetransform_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_valuetransform_fct_##A == 0) {my_valuetransform_fct_##A = (uintptr_t)fct; return my_valuetransform_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
@@ -353,6 +395,35 @@ EXPORT int my_g_type_register_fundamental(x86emu_t* emu, int parent, void* name,
 
     return my->g_type_register_fundamental(parent, name, findFreeGTypeInfo(info, parent), finfo, flags);
 }
+
+EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, void* f)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
+}
+
+static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, void* data)
+{
+    x86emu_t* emu = (x86emu_t*)data;
+    SetCallbackArg(emu, 0, ihint);
+    SetCallbackArg(emu, 1, (void*)n);
+    SetCallbackArg(emu, 2, values);
+    return (int)RunCallback(emu);
+}
+EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        return my->g_signal_add_emission_hook(signal, detail, f, data, notify);
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
+    SetCallbackArg(cb, 9, notify);
+    return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, cb, my_destroy_notify);
+}
+
 
 #define CUSTOM_INIT \
     my_context = box86;                         \
