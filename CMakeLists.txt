@@ -106,6 +106,7 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/tools/fileutils.c"
     "${CMAKE_HOME_DIRECTORY}/src/tools/callback.c"
     "${CMAKE_HOME_DIRECTORY}/src/tools/box86stack.c"
+    "${CMAKE_HOME_DIRECTORY}/src/tools/gtkclass.c"
     "${CMAKE_HOME_DIRECTORY}/src/elfs/elfloader.c"
     "${CMAKE_HOME_DIRECTORY}/src/elfs/elfparser.c"
     "${CMAKE_HOME_DIRECTORY}/src/elfs/elfload_dump.c"

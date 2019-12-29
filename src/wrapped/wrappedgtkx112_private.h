@@ -1132,16 +1132,16 @@ GO(gtk_font_selection_get_type, iFv)
 //GO(gtk_font_selection_new, 
 //GO(gtk_font_selection_set_font_name, 
 //GO(gtk_font_selection_set_preview_text, 
-//GO(gtk_frame_get_label, 
-//GO(gtk_frame_get_label_align, 
-//GO(gtk_frame_get_label_widget, 
-//GO(gtk_frame_get_shadow_type, 
+GO(gtk_frame_get_label, pFp)
+GO(gtk_frame_get_label_align, vFppp)
+GO(gtk_frame_get_label_widget, pFp)
+GO(gtk_frame_get_shadow_type, iFp)
 GO(gtk_frame_get_type, iFv)
-//GO(gtk_frame_new, 
-//GO(gtk_frame_set_label, 
-//GO(gtk_frame_set_label_align, 
-//GO(gtk_frame_set_label_widget, 
-//GO(gtk_frame_set_shadow_type, 
+GO(gtk_frame_new, pFp)
+GO(gtk_frame_set_label, vFpp)
+GO(gtk_frame_set_label_align, vFpff)
+GO(gtk_frame_set_label_widget, vFpp)
+GO(gtk_frame_set_shadow_type, vFpi)
 GO(gtk_gamma_curve_get_type, iFv)
 //GO(gtk_gamma_curve_new, 
 //GO(gtk_gc_get, 
@@ -3572,14 +3572,14 @@ GO(gtk_tree_view_unset_rows_drag_dest, vFp)
 GO(gtk_tree_view_unset_rows_drag_source, vFp)
 GO(gtk_tree_view_widget_to_tree_coords, vFpiipp)
 GO(gtk_true, iFv)
-//GO(gtk_type_class, 
-//GO(gtk_type_enum_find_value, 
-//GO(gtk_type_enum_get_values, 
-//GO(gtk_type_flags_find_value, 
-//GO(gtk_type_flags_get_values, 
-//GO(gtk_type_init, 
-//GO(gtk_type_new, 
-//GO(gtk_type_unique, 
+GOM(gtk_type_class, pFEi)
+GO(gtk_type_enum_find_value, pFip)
+GO(gtk_type_enum_get_values, pFi)
+GO(gtk_type_flags_find_value, pFip)
+GO(gtk_type_flags_get_values, pFi)
+GO(gtk_type_init, vFi)
+GO(gtk_type_new, pFi)
+//GOM(gtk_type_unique, iFpp)    // GtkTypeInfo has callbacks
 //GO(gtk_ui_manager_add_ui, 
 //GO(gtk_ui_manager_add_ui_from_file, 
 //GO(gtk_ui_manager_add_ui_from_string, 

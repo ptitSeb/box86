@@ -321,7 +321,7 @@ GO(g_type_interface_prerequisites, pFip)
 //GO(g_type_module_set_name, 
 //GO(g_type_module_unuse, 
 //GO(g_type_module_use, 
-//GO(g_type_name, 
+GO(g_type_name, pFi)
 //GO(g_type_name_from_class, 
 //GO(g_type_name_from_instance, 
 //GO(g_type_next_base, 
@@ -433,3 +433,9 @@ GO(g_value_unset, vFp)
 //GO(g_weak_ref_init, 
 //GO(g_weak_ref_set, 
 //GO(_init, 
+
+// to have some wrapper created for gtkclass.c
+GO(dummy_set_property, vFpupp)  
+GO(dummy_drag_data_get, vFpppuu)
+GO(dummy_drag_motion, iFppiiu)
+GO(dummy_drag_data_received, vFppiipuu)

@@ -160,49 +160,49 @@ GO(gdk_color_white, iFpp)
 //GO(gdk_drag_motion, 
 //GO(gdk_drag_protocol_get_type, 
 //GO(gdk_drag_status, 
-//GO(gdk_drawable_copy_to_image, 
-//GO(gdk_drawable_get_clip_region, 
-//GO(gdk_drawable_get_colormap, 
+GO(gdk_drawable_copy_to_image, pFppiiiiii)
+GO(gdk_drawable_get_clip_region, pFp)
+GO(gdk_drawable_get_colormap, pFp)
 GO(gdk_drawable_get_data, pFpp)
-//GO(gdk_drawable_get_depth, 
+GO(gdk_drawable_get_depth, iFp)
 GO(gdk_drawable_get_display, pFp)
-//GO(gdk_drawable_get_image, 
+GO(gdk_drawable_get_image, pFpiiii)
 GO(gdk_drawable_get_screen, pFp)
-//GO(gdk_drawable_get_size, 
+GO(gdk_drawable_get_size, vFppp)
 GO(gdk_drawable_get_type, iFv)
-//GO(gdk_drawable_get_visible_region, 
+GO(gdk_drawable_get_visible_region, pFp)
 GO(gdk_drawable_get_visual, pFp)
-//GO(gdk_drawable_ref, 
-//GO(gdk_drawable_set_colormap, 
-//GO(gdk_drawable_set_data, 
-//GO(gdk_drawable_unref, 
-//GO(gdk_draw_arc, 
-//GO(gdk_draw_drawable, 
-//GO(gdk_draw_glyphs, 
-//GO(gdk_draw_glyphs_transformed, 
-//GO(gdk_draw_gray_image, 
-//GO(gdk_draw_image, 
-//GO(gdk_draw_indexed_image, 
-//GO(gdk_draw_layout, 
-//GO(gdk_draw_layout_line, 
-//GO(gdk_draw_layout_line_with_colors, 
-//GO(gdk_draw_layout_with_colors, 
-//GO(gdk_draw_line, 
-//GO(gdk_draw_lines, 
-//GO(gdk_draw_pixbuf, 
-//GO(gdk_draw_point, 
-//GO(gdk_draw_points, 
-//GO(gdk_draw_polygon, 
-//GO(gdk_draw_rectangle, 
-//GO(gdk_draw_rgb_32_image, 
-//GO(gdk_draw_rgb_32_image_dithalign, 
-//GO(gdk_draw_rgb_image, 
-//GO(gdk_draw_rgb_image_dithalign, 
-//GO(gdk_draw_segments, 
-//GO(gdk_draw_string, 
-//GO(gdk_draw_text, 
-//GO(gdk_draw_text_wc, 
-//GO(gdk_draw_trapezoids, 
+GO(gdk_drawable_ref, pFp)
+GO(gdk_drawable_set_colormap, vFpp)
+//GOM(gdk_drawable_set_data, vFEpppB)
+GO(gdk_drawable_unref, vFp)
+GO(gdk_draw_arc, vFppiiiiiii)
+GO(gdk_draw_drawable, vFpppiiiiii)
+GO(gdk_draw_glyphs, vFpppiip)
+GO(gdk_draw_glyphs_transformed, vFppppiip)
+GO(gdk_draw_gray_image, vFppiiiiipi)
+GO(gdk_draw_image, vFpppiiiiii)
+GO(gdk_draw_indexed_image, vFppiiiiipip)
+GO(gdk_draw_layout, vFppiip)
+GO(gdk_draw_layout_line, vFppiip)
+GO(gdk_draw_layout_line_with_colors, vFppiippp)
+GO(gdk_draw_layout_with_colors, vFppiippp)
+GO(gdk_draw_line, vFppiiii)
+GO(gdk_draw_lines, vFpppi)
+GO(gdk_draw_pixbuf, vFpppiiiiiiiii)
+GO(gdk_draw_point, vFppii)
+GO(gdk_draw_points, vFpppi)
+GO(gdk_draw_polygon, vFppipi)
+GO(gdk_draw_rectangle, vFppiiiii)
+GO(gdk_draw_rgb_32_image, vFppiiiiipi)
+GO(gdk_draw_rgb_32_image_dithalign, vFppiiiiipiii)
+GO(gdk_draw_rgb_image, vFppiiiiipi)
+GO(gdk_draw_rgb_image_dithalign, vFppiiiiipiii)
+GO(gdk_draw_segments, vFpppi)
+GO(gdk_draw_string, vFpppiip)
+GO(gdk_draw_text, vFpppiipi)
+GO(gdk_draw_text_wc, vFpppiipi)
+GO(gdk_draw_trapezoids, vFpppi)
 //GO(gdk_drop_finish, 
 //GO(gdk_drop_reply, 
 //GO(gdk_error_trap_pop, 
@@ -431,21 +431,21 @@ GO(gdk_region_subtract, vFpp)
 GO(gdk_region_union, vFpp)
 GO(gdk_region_union_with_rect, vFpp)
 GO(gdk_region_xor, vFpp)
-//GO(gdk_rgb_cmap_free, 
-//GO(gdk_rgb_cmap_new, 
-//GO(gdk_rgb_colormap_ditherable, 
-//GO(gdk_rgb_ditherable, 
-//GO(gdk_rgb_dither_get_type, 
-//GO(gdk_rgb_find_color, 
-//GO(gdk_rgb_gc_set_background, 
-//GO(gdk_rgb_gc_set_foreground, 
-//GO(gdk_rgb_get_colormap, 
-//GO(gdk_rgb_get_visual, 
-//GO(gdk_rgb_init, 
-//GO(gdk_rgb_set_install, 
-//GO(gdk_rgb_set_min_colors, 
-//GO(gdk_rgb_set_verbose, 
-//GO(gdk_rgb_xpixel_from_rgb, 
+GO(gdk_rgb_cmap_free, vFp)
+GO(gdk_rgb_cmap_new, pFpi)
+GO(gdk_rgb_colormap_ditherable, iFp)
+GO(gdk_rgb_ditherable, iFv)
+GO(gdk_rgb_dither_get_type, iFv)
+GO(gdk_rgb_find_color, vFpp)
+GO(gdk_rgb_gc_set_background, vFpu)
+GO(gdk_rgb_gc_set_foreground, vFpu)
+GO(gdk_rgb_get_colormap, pFv)
+GO(gdk_rgb_get_visual, pFv)
+GO(gdk_rgb_init, vFv)
+GO(gdk_rgb_set_install, vFi)
+GO(gdk_rgb_set_min_colors, vFi)
+GO(gdk_rgb_set_verbose, vFi)
+GO(gdk_rgb_xpixel_from_rgb, LFu)
 //GO(gdk_screen_broadcast_client_message, 
 //GO(gdk_screen_get_active_window, 
 //GO(gdk_screen_get_default, 

@@ -17,18 +17,24 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 #define LIBNAME gtkx112
 
+typedef int           (*iFv_t)(void);
+typedef void*         (*pFi_t)(int);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
 
 #define SUPER() \
+    GO(gtk_object_get_type, iFv_t)              \
+    GO(gtk_widget_get_type, iFv_t)              \
+    GO(gtk_type_class, pFi_t)                   \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
-    GO(gtk_dialog_add_button, pFppi_t)  \
+    GO(gtk_dialog_add_button, pFppi_t)          \
     GO(gtk_message_dialog_format_secondary_text, vFpp_t)
 
 typedef struct gtkx112_my_s {
@@ -155,8 +161,19 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dia
     free(buf);
 }
 
+EXPORT void* my_gtk_type_class(x86emu_t* emu, int type)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    void* class = my->gtk_type_class(type);
+    return wrapCopyGTKClass(class, type);
+}
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGtkx112My(lib); \
+    SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
+    SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");
