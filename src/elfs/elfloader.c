@@ -1,8 +1,10 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
 #include <sys/mman.h>
+#include <link.h>
 
 #include "box86version.h"
 #include "elfloader.h"

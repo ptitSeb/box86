@@ -153,4 +153,7 @@ void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* class, int type);
 
+void my_checkGlobalGdkDisplay(box86context_t* context);
+void my_setGlobalGThreadsInit(box86context_t* context);
+
 #endif //__GTKCLASS_H__

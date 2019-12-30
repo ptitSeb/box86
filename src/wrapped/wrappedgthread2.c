@@ -17,6 +17,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gthread2Name = "libglib-2.0.so.0";
 #define LIBNAME gthread2
@@ -51,6 +52,7 @@ void freeGthread2My(void* lib)
     gthread2_my_t *my = (gthread2_my_t *)lib;
 }
 
+EXPORT int g_threads_got_initialized;
 
 typedef struct my_GThreadFunctions_s
 {
@@ -79,6 +81,12 @@ typedef struct my_GThreadFunctions_s
 
 EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
+    if(g_threads_got_initialized) {
+        // no need to do it twice
+        my_setGlobalGThreadsInit(emu->context);
+        return;
+    }
+
     library_t * lib = GetLib(emu->context->maplib, gthread2Name);
     gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
 
@@ -88,10 +96,19 @@ EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
     printf_log(LOG_INFO, "Warning, vtable not NULL in g_thread_init not supported yet!\n");
     
     my->g_thread_init(vtable);
+
+    if(g_threads_got_initialized)
+        my_setGlobalGThreadsInit(emu->context);
 }
 
 EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
+    if(g_threads_got_initialized) {
+        // no need to do it twice
+        my_setGlobalGThreadsInit(emu->context);
+        return;
+    }
+
     library_t * lib = GetLib(emu->context->maplib, gthread2Name);
     gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
 
@@ -99,6 +116,9 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFu
         printf_log(LOG_NONE, "Warning, vtable is not NULL in g_thread_init_with_errorcheck_mutexes call!\n");
     
     my->g_thread_init_with_errorcheck_mutexes(vtable);  // will certainly crash here...
+
+    if(g_threads_got_initialized)
+        my_setGlobalGThreadsInit(emu->context);
 }
 
 

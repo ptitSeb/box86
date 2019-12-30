@@ -24,9 +24,11 @@ const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
+typedef int           (*iFpp_t)(void*, void*);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
+typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
 
 #define SUPER() \
@@ -35,7 +37,10 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_type_class, pFi_t)                   \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
     GO(gtk_dialog_add_button, pFppi_t)          \
-    GO(gtk_message_dialog_format_secondary_text, vFpp_t)
+    GO(gtk_message_dialog_format_secondary_text, vFpp_t)\
+    GO(gtk_init, vFpp_t)                        \
+    GO(gtk_init_check, iFpp_t)                  \
+    GO(gtk_init_with_args, iFpppppp_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -168,6 +173,35 @@ EXPORT void* my_gtk_type_class(x86emu_t* emu, int type)
 
     void* class = my->gtk_type_class(type);
     return wrapCopyGTKClass(class, type);
+}
+
+EXPORT void my_gtk_init(x86emu_t* emu, void* argc, void* argv)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_init(argc, argv);
+    my_checkGlobalGdkDisplay(emu->context);
+}
+
+EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    int ret = my->gtk_init_check(argc, argv);
+    my_checkGlobalGdkDisplay(emu->context);
+    return ret;
+}
+
+EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* param, void* entries, void* trans, void* error)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
+    my_checkGlobalGdkDisplay(emu->context);
+    return ret;
 }
 
 #define CUSTOM_INIT \

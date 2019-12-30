@@ -1424,10 +1424,10 @@ GO(gtk_info_bar_get_type, iFv)
 //GO(gtk_info_bar_set_default_response, 
 //GO(gtk_info_bar_set_message_type, 
 //GO(gtk_info_bar_set_response_sensitive, 
-GO(gtk_init, vFpp)
+GOM(gtk_init, vFEpp)
 //GO(gtk_init_add, 
-GO(gtk_init_check, iFpp)
-GO(gtk_init_with_args, iFpppppp)
+GOM(gtk_init_check, iFEpp)
+GOM(gtk_init_with_args, iFEpppppp)
 //GOM(gtk_input_add_full, uFEiBBppB)
 GO(gtk_input_dialog_get_type, iFv)
 GO(gtk_input_dialog_new, pFv)

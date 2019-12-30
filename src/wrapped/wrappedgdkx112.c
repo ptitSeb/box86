@@ -16,16 +16,21 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "emu/x86emu_private.h"
+#include "gtkclass.h"
 
 const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 #define LIBNAME gdkx112
 
+typedef int     (*iFpp_t)       (void*, void*);
+typedef void    (*vFpp_t)       (void*, void*);
 typedef void    (*vFppp_t)      (void*, void*, void*);
 typedef int     (*iFiippp_t)    (int, int, void*, void*, void*);
 
 #define SUPER() \
     GO(gdk_event_handler_set, vFppp_t)          \
-    GO(gdk_input_add_full, iFiippp_t)
+    GO(gdk_input_add_full, iFiippp_t)           \
+    GO(gdk_init, vFpp_t)                        \
+    GO(gdk_init_check, iFpp_t)
 
 typedef struct gdkx112_my_s {
     // functions
@@ -126,13 +131,34 @@ EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void*
     return my->gdk_input_add_full(source, condition, my_input_function, cb, my_event_notify);
 }
 
+EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    my->gdk_init(argc, argv);
+    my_checkGlobalGdkDisplay(emu->context);
+}
+
+EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    int ret = my->gdk_init_check(argc, argv);
+    my_checkGlobalGdkDisplay(emu->context);
+    return ret;
+}
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGdkX112My(lib);        \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0"); \
     lib->priv.w.neededlibs[1] = strdup("libgio-2.0.so.0");  \
-    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");
+    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");   \
+    void* tmp = dlsym(lib->priv.w.lib, "gdk_display");  \
+    printf_log(LOG_NONE, "gdk_display=%p(%p)\n", tmp, *(void**)tmp);
 
 #define CUSTOM_FINI \
     freeGdkX112My(lib->priv.w.p2); \

@@ -50,4 +50,5 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
 #endif
 void ResetSecialCaseMainElf(elfheader_t* h);
 
+
 #endif //__ELF_LOADER_H_

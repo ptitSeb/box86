@@ -11,7 +11,7 @@
 #include "bridge.h"
 #include "callback.h"
 #include "box86context.h"
-
+#include "librarian.h"
 #include "gtkclass.h"
 
 
@@ -557,4 +557,29 @@ void SetGTKWidgetID(int id)
 void SetGTypeName(void* f)
 {
     g_type_name = f;
+}
+
+// workaround for Globals symbols
+
+EXPORT void* gdk_display;   // in case it's used...
+    
+void my_checkGlobalGdkDisplay(box86context_t* context)
+{
+    // workaround, because gdk_display maybe declared as global in the calling program, but there is no way to send this info to the linker
+    uintptr_t globoffs, globend;
+    if (GetGlobalNoWeakSymbolStartEnd(context->maplib, "gdk_display", &globoffs, &globend)) {
+        printf_log(LOG_DEBUG, "Global gdk_display workaround, @%p <= %p\n", (void*)globoffs, gdk_display);
+        memcpy((void*)globoffs, &gdk_display, sizeof(gdk_display));
+    }
+}
+
+void my_setGlobalGThreadsInit(box86context_t* context)
+{
+    // workaround, because gdk_display maybe declared as global in the calling program, but there is no way to send this info to the linker
+    int val = 1;
+    uintptr_t globoffs, globend;
+    if (GetGlobalNoWeakSymbolStartEnd(context->maplib, "g_threads_got_initialized", &globoffs, &globend)) {
+        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, val);
+        memcpy((void*)globoffs, &val, sizeof(gdk_display));
+    }
 }
