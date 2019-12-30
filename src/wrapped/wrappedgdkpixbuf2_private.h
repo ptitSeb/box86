@@ -31,27 +31,27 @@ GO(gdk_pixbuf_composite_color_simple, pFpiiiiiuu)
 GO(gdk_pixbuf_copy, pFp)
 GO(gdk_pixbuf_copy_area, vFpiiiipii)
 GO(gdk_pixbuf_error_get_type, iFv)
-//GO(gdk_pixbuf_error_quark, 
+GO(gdk_pixbuf_error_quark, pFv)
 GO(gdk_pixbuf_fill, vFpu)
 GO(gdk_pixbuf_flip, pFpi)
-//GO(gdk_pixbuf_format_copy, 
-//GO(gdk_pixbuf_format_free, 
-//GO(gdk_pixbuf_format_get_description, 
-//GO(gdk_pixbuf_format_get_extensions, 
-//GO(gdk_pixbuf_format_get_license, 
-//GO(gdk_pixbuf_format_get_mime_types, 
-//GO(gdk_pixbuf_format_get_name, 
-//GO(gdk_pixbuf_format_get_type, 
-//GO(gdk_pixbuf_format_is_disabled, 
-//GO(gdk_pixbuf_format_is_scalable, 
-//GO(gdk_pixbuf_format_is_writable, 
-//GO(gdk_pixbuf_format_set_disabled, 
-//GO(gdk_pixbuf_from_pixdata, 
+GO(gdk_pixbuf_format_copy, pFp)
+GO(gdk_pixbuf_format_free, vFp)
+GO(gdk_pixbuf_format_get_description, pFp)
+GO(gdk_pixbuf_format_get_extensions, pFp)
+GO(gdk_pixbuf_format_get_license, pFp)
+GO(gdk_pixbuf_format_get_mime_types, pFp)
+GO(gdk_pixbuf_format_get_name, pFp)
+GO(gdk_pixbuf_format_get_type, iFv)
+GO(gdk_pixbuf_format_is_disabled, iFp)
+GO(gdk_pixbuf_format_is_scalable, iFp)
+GO(gdk_pixbuf_format_is_writable, iFp)
+GO(gdk_pixbuf_format_set_disabled, vFpi)
+GO(gdk_pixbuf_from_pixdata, pFpip)
 GO(gdk_pixbuf_get_bits_per_sample, iFp)
 GO(gdk_pixbuf_get_byte_length, uFp)
 GO(gdk_pixbuf_get_colorspace, uFp)
 GO(gdk_pixbuf_get_file_info, pFppp)
-//GO(gdk_pixbuf_get_formats, 
+GO(gdk_pixbuf_get_formats, pFv)
 GO(gdk_pixbuf_get_has_alpha, iFp)
 GO(gdk_pixbuf_get_height, iFp)
 GO(gdk_pixbuf_get_n_channels, iFp)
@@ -59,20 +59,20 @@ GO(gdk_pixbuf_get_option, pFpp)
 GO(gdk_pixbuf_get_pixels, pFp)
 GO(gdk_pixbuf_get_pixels_with_length, pFpp)
 GO(gdk_pixbuf_get_rowstride, iFp)
-//GO(gdk_pixbuf_gettext, 
+GO(gdk_pixbuf_gettext, pFp)
 GO(gdk_pixbuf_get_type, iFv)
 GO(gdk_pixbuf_get_width, iFp)
-//GO(gdk_pixbuf_loader_close, 
-//GO(gdk_pixbuf_loader_get_animation, 
-//GO(gdk_pixbuf_loader_get_format, 
-//GO(gdk_pixbuf_loader_get_pixbuf, 
-//GO(gdk_pixbuf_loader_get_type, 
-//GO(gdk_pixbuf_loader_new, 
-//GO(gdk_pixbuf_loader_new_with_mime_type, 
-//GO(gdk_pixbuf_loader_new_with_type, 
-//GO(gdk_pixbuf_loader_set_size, 
-//GO(gdk_pixbuf_loader_write, 
-//GO(gdk_pixbuf_loader_write_bytes, 
+GO(gdk_pixbuf_loader_close, iFpp)
+GO(gdk_pixbuf_loader_get_animation, pFp)
+GO(gdk_pixbuf_loader_get_format, pFp)
+GO(gdk_pixbuf_loader_get_pixbuf, pFp)
+GO(gdk_pixbuf_loader_get_type, iFv)
+GO(gdk_pixbuf_loader_new, pFv)
+GO(gdk_pixbuf_loader_new_with_mime_type, pFpp)
+GO(gdk_pixbuf_loader_new_with_type, pFpp)
+GO(gdk_pixbuf_loader_set_size, vFpii)
+GO(gdk_pixbuf_loader_write, iFppLp)
+GO(gdk_pixbuf_loader_write_bytes, iFppp)
 GO(gdk_pixbuf_new, pFiiiii)
 GOM(gdk_pixbuf_new_from_data, pFEpiiiiiipp)
 GO(gdk_pixbuf_new_from_file, pFpp)
@@ -94,15 +94,15 @@ GO(gdk_pixbuf_ref, pFp)
 GO(gdk_pixbuf_rotate_simple, pFpi)
 //GO(gdk_pixbuf_rotation_get_type, 
 GO(gdk_pixbuf_saturate_and_pixelate, vFppfi)
-//GO(gdk_pixbuf_save, 
-//GO(gdk_pixbuf_save_to_buffer, 
-//GO(gdk_pixbuf_save_to_bufferv, 
-//GO(gdk_pixbuf_save_to_callback, 
-//GO(gdk_pixbuf_save_to_callbackv, 
-//GO(gdk_pixbuf_save_to_stream, 
-//GO(gdk_pixbuf_save_to_stream_async, 
-//GO(gdk_pixbuf_save_to_stream_finish, 
-//GO(gdk_pixbuf_savev, 
+GO(gdk_pixbuf_save, iFpppppppppppppp)   // vaarg, wrap with gdk_pixbuf_save?
+GO(gdk_pixbuf_save_to_buffer, iFpppppppppppppp)   //vaarg, wrap with gdk_pixbuf_save_to_bufferv ?
+GO(gdk_pixbuf_save_to_bufferv, iFppppppp)
+//GOM(gdk_pixbuf_save_to_callback, iFEpppppV)   // wrap with gdk_pixbuf_save_to_callbackv
+//GOM(gdk_pixbuf_save_to_callbackv, iFEppppppp)
+GO(gdk_pixbuf_save_to_stream, iFpppppppppppppp) //vaarg, but gdk_pixbuf_save_to_streamv is fairly recent
+//GOM(gdk_pixbuf_save_to_stream_async, vFEppppppppppppppp)   //vaarg, and gdk_pixbuf_save_to_streamv_async is fairly recent
+GO(gdk_pixbuf_save_to_stream_finish, iFpp)
+GO(gdk_pixbuf_savev, iFpppppp)
 GO(gdk_pixbuf_scale, vFppiiiiddddi)
 GO(gdk_pixbuf_scaled_anim_get_type, iFv)
 GO(gdk_pixbuf_scaled_anim_iter_get_type, iFv)
@@ -115,7 +115,7 @@ GO(gdk_pixbuf_set_option, pFppp)
 //GO(gdk_pixbuf_simple_anim_new, 
 //GO(gdk_pixbuf_simple_anim_set_loop, 
 GO(gdk_pixbuf_unref, vFp)
-//GO(gdk_pixdata_deserialize, 
-//GO(gdk_pixdata_from_pixbuf, 
-//GO(gdk_pixdata_serialize, 
-//GO(gdk_pixdata_to_csource, 
+GO(gdk_pixdata_deserialize, iFpupp)
+GO(gdk_pixdata_from_pixbuf, pFppi)
+GO(gdk_pixdata_serialize, pFpp)
+GO(gdk_pixdata_to_csource, pFppi)

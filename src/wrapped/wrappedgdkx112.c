@@ -21,6 +21,8 @@
 const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 #define LIBNAME gdkx112
 
+static box86context_t* my_context = NULL;
+
 typedef int     (*iFpp_t)       (void*, void*);
 typedef void    (*vFpp_t)       (void*, void*);
 typedef void    (*vFppp_t)      (void*, void*, void*);
@@ -30,7 +32,9 @@ typedef int     (*iFiippp_t)    (int, int, void*, void*, void*);
     GO(gdk_event_handler_set, vFppp_t)          \
     GO(gdk_input_add_full, iFiippp_t)           \
     GO(gdk_init, vFpp_t)                        \
-    GO(gdk_init_check, iFpp_t)
+    GO(gdk_init_check, iFpp_t)                  \
+    GO(gdk_window_add_filter, vFppp_t)          \
+    GO(gdk_window_remove_filter, vFppp_t)
 
 typedef struct gdkx112_my_s {
     // functions
@@ -53,6 +57,36 @@ void freeGdkX112My(void* lib)
 {
     gdkx112_my_t *my = (gdkx112_my_t *)lib;
 }
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+// GdkFilterFunc
+#define GO(A)   \
+static uintptr_t my_filter_fct_##A = 0;   \
+static int my_filter_##A(void* xevent, void* event, void* data)     \
+{                                       \
+    return (int)RunFunction(my_context, my_filter_fct_##A, 3, xevent, event, data);\
+}
+SUPER()
+#undef GO
+static void* findFilterFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_filter_fct_##A == (uintptr_t)fct) return my_filter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_filter_fct_##A == 0) {my_filter_fct_##A = (uintptr_t)fct; return my_filter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GdkFilterFunc callback\n");
+    return NULL;
+}
+
 
 static void my_event_handler(void* event, void* data)
 {
@@ -150,7 +184,24 @@ EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
     return ret;
 }
 
+EXPORT void my_gdk_window_add_filter(x86emu_t* emu, void* window, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    my->gdk_window_add_filter(window, findFilterFct(f), data);
+}
+
+EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gdkx112Name);
+    gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
+
+    my->gdk_window_remove_filter(window, findFilterFct(f), data);
+}
+
 #define CUSTOM_INIT \
+    my_context = box86; \
     lib->priv.w.p2 = getGdkX112My(lib);        \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
