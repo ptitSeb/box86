@@ -796,7 +796,7 @@ GO(XmbSetWMProperties, vFpppppippp)
 // _Xmbstoutf8
 // _Xmbstowcs
 //GO(XmbTextEscapement
-//GO(XmbTextExtents
+GO(XmbTextExtents, uFppipp)
 //GO(XmbTextListToTextProperty
 // _XmbTextListToTextProperty
 //GO(XmbTextPerCharExtents
@@ -1087,7 +1087,7 @@ GO(XwcLookupString, iFuppipp)
 // _Xwcsncpy
 // _Xwcstombs
 //GO(XwcTextEscapement
-//GO(XwcTextExtents
+GO(XwcTextExtents, iFppipp)
 GO(XwcTextListToTextProperty, iFppiup)
 // _XwcTextListToTextProperty
 //GO(XwcTextPerCharExtents
