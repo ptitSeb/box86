@@ -440,3 +440,5 @@ GO(XtWindow, pFp)
 GO(XtWindowToWidget, pFpp)
 
 GO(_XtInherit, vFv)
+
+DATA(overrideShellClassRec, 96)    // real size? this is full of Callback function, so maybe wrap at some point?
