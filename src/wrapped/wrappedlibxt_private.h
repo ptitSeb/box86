@@ -90,7 +90,7 @@ GO(XtAppSetFallbackResources, vFpp)
 //GO(_XtCompileCallbackList, 
 //GO(_XtCompileResourceList, 
 //GO(_XtComputeLateBindings, 
-//GO(XtConfigureWidget, 
+GO(XtConfigureWidget, vFpiiuuu)
 //GO(_XtConstraintResDependencies, 
 //GO(XtConvert, 
 //GO(_XtConvert, 
@@ -229,11 +229,11 @@ GO(XtDisplayToApplicationContext, pFp)
 //GO(_XtGetTypeIndex, 
 //GO(_XtGetUserName, 
 //GO(XtGetValues, 
-//GO(XtGrabButton, 
+GO(XtGrabButton, vFpipiuiipp)
 //GO(_XtGrabInitialize, 
-//GO(XtGrabKey, 
-//GO(XtGrabKeyboard, 
-//GO(XtGrabPointer, 
+GO(XtGrabKey, vFpppiii)
+GO(XtGrabKeyboard, iFpiiiu)
+GO(XtGrabPointer, iFpiuiipp)
 //GO(_XtHandleFocus, 
 //GO(XtHasCallbacks, 
 //GO(_XtHeapAlloc, 
@@ -287,7 +287,7 @@ GO(XtManageChild, vFp)
 //GO(XtMenuPopupAction, 
 //GO(XtMergeArgLists, 
 //GO(_XtMergeTranslations, 
-//GO(XtMoveWidget, 
+GO(XtMoveWidget, vFpii)
 //GO(XtName, 
 //GO(XtNameToWidget, 
 //GO(XtNewString, 
@@ -306,11 +306,11 @@ GO(XtOpenDisplay, pFpppppupp)
 //GO(_XtPeekCallback, 
 //GO(XtPeekEvent, 
 //GO(XtPending, 
-//GO(XtPopdown, 
+GO(XtPopdown, vFp)
 //GO(XtPopup, 
 //GO(_XtPopup, 
 //GO(_XtPopupInitialize, 
-//GO(XtPopupSpringLoaded, 
+GO(XtPopupSpringLoaded, vFp)
 //GO(_XtPreparseCommandLine, 
 //GO(_XtPrintActions, 
 //GO(_XtPrintEventSeq, 
@@ -349,12 +349,12 @@ GO(XtRemoveEventHandler, vFpup)     // need to wrap to free event handler?
 //GO(XtRemoveRawEventHandler, 
 //GO(XtRemoveSignal, 
 //GO(_XtRemoveStateTreeByIndex, 
-//GO(XtRemoveTimeOut, 
+GO(XtRemoveTimeOut, vFp)
 //GO(_XtRemoveTranslations, 
 //GO(XtRemoveWorkProc, 
 //GO(XtReservePropertyAtom, 
-//GO(XtResizeWidget, 
-//GO(XtResizeWindow, 
+GO(XtResizeWidget, vFpuuu)
+GO(XtResizeWindow, vFp)
 //GO(XtResolvePathname, 
 //GO(_XtResourceConfigurationEH, 
 //GO(_XtResourceDependencies, 
@@ -401,10 +401,10 @@ GO(XtToolkitInitialize, vFv)
 //GO(_XtTraverseStateTree, 
 //GO(_XtUnbindActions, 
 //GO(_XtUngrabBadGrabs, 
-//GO(XtUngrabButton, 
-//GO(XtUngrabKey, 
-//GO(XtUngrabKeyboard, 
-//GO(XtUngrabPointer, 
+GO(XtUngrabButton, vFppp)
+GO(XtUngrabKey, vFppp)
+GO(XtUngrabKeyboard, vFpu)
+GO(XtUngrabPointer, vFpu)
 //GO(XtUninstallTranslations, 
 //GO(XtUnmanageChild, 
 //GO(XtUnmanageChildren, 

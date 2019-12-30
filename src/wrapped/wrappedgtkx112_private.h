@@ -1343,30 +1343,30 @@ GO(gtk_identifier_get_type, iFv)
 GO(gtk_idle_remove, vFu)
 GO(gtk_idle_remove_by_data, vFp)
 GO(gtk_image_clear, vFp)
-//GO(gtk_image_get, 
-//GO(gtk_image_get_animation, 
-//GO(gtk_image_get_gicon, 
-//GO(gtk_image_get_icon_name, 
-//GO(gtk_image_get_icon_set, 
-//GO(gtk_image_get_image, 
-//GO(gtk_image_get_pixbuf, 
-//GO(gtk_image_get_pixel_size, 
-//GO(gtk_image_get_pixmap, 
-//GO(gtk_image_get_stock, 
-//GO(gtk_image_get_storage_type, 
+GO(gtk_image_get, vFppp)
+GO(gtk_image_get_animation, pFp)
+GO(gtk_image_get_gicon, vFppp)
+GO(gtk_image_get_icon_name, vFppp)
+GO(gtk_image_get_icon_set, vFppp)
+GO(gtk_image_get_image, vFppp)
+GO(gtk_image_get_pixbuf, pFp)
+GO(gtk_image_get_pixel_size, iFp)
+GO(gtk_image_get_pixmap, vFppp)
+GO(gtk_image_get_stock, vFppp)
+GO(gtk_image_get_storage_type, iFp)
 GO(gtk_image_get_type, iFv)
-//GO(gtk_image_menu_item_get_always_show_image, 
-//GO(gtk_image_menu_item_get_image, 
+GO(gtk_image_menu_item_get_always_show_image, iFp)
+GO(gtk_image_menu_item_get_image, pFp)
 GO(gtk_image_menu_item_get_type, iFv)
-//GO(gtk_image_menu_item_get_use_stock, 
-//GO(gtk_image_menu_item_new, 
-//GO(gtk_image_menu_item_new_from_stock, 
-//GO(gtk_image_menu_item_new_with_label, 
-//GO(gtk_image_menu_item_new_with_mnemonic, 
-//GO(gtk_image_menu_item_set_accel_group, 
-//GO(gtk_image_menu_item_set_always_show_image, 
-//GO(gtk_image_menu_item_set_image, 
-//GO(gtk_image_menu_item_set_use_stock, 
+GO(gtk_image_menu_item_get_use_stock, iFp)
+GO(gtk_image_menu_item_new, pFv)
+GO(gtk_image_menu_item_new_from_stock, pFpp)
+GO(gtk_image_menu_item_new_with_label, pFp)
+GO(gtk_image_menu_item_new_with_mnemonic, pFp)
+GO(gtk_image_menu_item_set_accel_group, vFpp)
+GO(gtk_image_menu_item_set_always_show_image, vFpi)
+GO(gtk_image_menu_item_set_image, vFpp)
+GO(gtk_image_menu_item_set_use_stock, vFpi)
 GO(gtk_image_new, vFp)
 GO(gtk_image_new_from_animation, pFp)
 GO(gtk_image_new_from_file, pFp)
@@ -1383,11 +1383,11 @@ GO(gtk_image_set_from_file, vFppp)
 GO(gtk_image_set_from_gicon, vFppi)
 GO(gtk_image_set_from_icon_name, vFppi)
 GO(gtk_image_set_from_icon_set, vFppi)
-//GO(gtk_image_set_from_image, 
+GO(gtk_image_set_from_image, vFppp)
 GO(gtk_image_set_from_pixbuf, vFpp)
 GO(gtk_image_set_from_pixmap, vFppp)
 GO(gtk_image_set_from_stock, vFppi)
-//GO(gtk_image_set_pixel_size, 
+GO(gtk_image_set_pixel_size, vFpi)
 GO(gtk_image_type_get_type, iFv)
 //GO(gtk_im_context_delete_surrounding, 
 //GO(gtk_im_context_filter_keypress, 
