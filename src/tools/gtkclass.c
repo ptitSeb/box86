@@ -20,6 +20,7 @@ static bridge_t*        my_bridge       = NULL;
 static int              my_gobject      = -1;
 static int              my_gtkobject    = -1;
 static int              my_gtkwidget    = -1;
+static int              my_gtkcontainer = -1;
 static const char* (*g_type_name)(int)  = NULL;
 // ---- Defining the multiple functions now -----
 #define SUPER() \
@@ -552,6 +553,11 @@ void SetGTKObjectID(int id)
 void SetGTKWidgetID(int id)
 {
     my_gtkwidget = id;
+}
+
+void SetGTKContainerID(int id)
+{
+    my_gtkcontainer = id;
 }
 
 void SetGTypeName(void* f)

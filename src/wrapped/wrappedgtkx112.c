@@ -32,6 +32,7 @@ typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
 typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
+typedef void          (*vFpppp_t)(void*, void*, void*, void*);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef void          (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
@@ -40,6 +41,7 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
 #define SUPER() \
     GO(gtk_object_get_type, iFv_t)              \
     GO(gtk_widget_get_type, iFv_t)              \
+    GO(gtk_container_get_type, iFv_t)           \
     GO(gtk_type_class, pFi_t)                   \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
     GO(gtk_dialog_add_button, pFppi_t)          \
@@ -50,7 +52,9 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_menu_attach_to_widget, vFppp_t)      \
     GO(gtk_menu_popup, vFpppppuu_t)             \
     GO(gtk_timeout_add, uFupp_t)                \
-    GO(gtk_clipboard_set_with_data, iFppuppp_t)
+    GO(gtk_clipboard_set_with_data, iFppuppp_t) \
+    GO(gtk_stock_set_translate_func, vFpppp_t)  \
+    GO(gtk_container_forall, vFppp_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -265,6 +269,30 @@ static void* findClipboadClearFct(void* fct)
     return NULL;
 }
 
+// GtkCallback
+#define GO(A)   \
+static uintptr_t my_gtkcallback_fct_##A = 0;   \
+static void my_gtkcallback_##A(void* widget, void* data)     \
+{                                       \
+    RunFunction(my_context, my_gtkcallback_fct_##A, 2, widget, data);\
+}
+SUPER()
+#undef GO
+static void* findGtkCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_gtkcallback_fct_##A == (uintptr_t)fct) return my_gtkcallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_gtkcallback_fct_##A == 0) {my_gtkcallback_fct_##A = (uintptr_t)fct; return my_gtkcallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkCallback callback\n");
+    return NULL;
+}
+
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -361,20 +389,59 @@ EXPORT uint32_t my_gtk_timeout_add(x86emu_t* emu, uint32_t interval, void* f, vo
     return my->gtk_timeout_add(interval, findGtkFunctionFct(f), data);
 }
 
-EXPORT int my_gtk_clipboard_set_with_data(x86emu_t* emu,void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
+EXPORT int my_gtk_clipboard_set_with_data(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
     library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     return my->gtk_clipboard_set_with_data(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
-EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu,void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data) __attribute__((alias("my_gtk_clipboard_set_with_data")));
+EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data) __attribute__((alias("my_gtk_clipboard_set_with_data")));
+
+static void my_destroy_notify(void* data)
+{
+    x86emu_t *emu = (x86emu_t*)data;
+    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
+    if(f) {
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
+        SetCallbackNArg(emu, 1);
+        SetCallbackAddress(emu, f);
+        RunCallback(emu);
+    }
+    FreeCallback(emu);
+}
+
+static void* my_translate_func(void* path, x86emu_t* emu)
+{
+    SetCallbackArg(emu, 0, path);
+    return (void*)RunCallback(emu);
+}
+
+EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 2, NULL, data, NULL, NULL);
+    SetCallbackArg(cb, 9, notify);
+
+    my->gtk_stock_set_translate_func(domain, my_translate_func, cb, my_destroy_notify);
+}
+
+EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_container_forall(container, findGtkCallbackFct(f), data);
+}
 
 #define CUSTOM_INIT \
     my_context = box86; \
     lib->priv.w.p2 = getGtkx112My(lib); \
     SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
     SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
+    SetGTKContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");

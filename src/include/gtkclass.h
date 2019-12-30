@@ -149,6 +149,7 @@ void FiniGTKClass();
 void SetGObjectID(int id);
 void SetGTKObjectID(int id);
 void SetGTKWidgetID(int id);
+void SetGTKContainerID(int id);
 void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* class, int type);
