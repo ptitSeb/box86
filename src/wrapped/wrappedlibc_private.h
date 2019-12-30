@@ -1315,7 +1315,7 @@ GOM(pwritev64, iFEipiI)  // not always present
 GOM(qsort, vFEpuup)
 GOM(qsort_r, vFEpuupp)
 // query_module // Weak
-// quotactl
+GO(quotactl, iFipip)
 GO(raise, iFi)  // will need a GOM version once signal are implemented probably
 GO(rand, iFv)
 GOW(random, iFv)
@@ -1621,7 +1621,7 @@ GO(strerror, pFi)
 // strerror_l
 GO(__strerror_r, pFipu)
 GOW(strerror_r, pFipu)
-// strfmon
+GO(strfmon, lFpLpppppppppp) //vaarg, probably needs align, there are just double...
 // __strfmon_l
 // strfmon_l    // Weak
 // strfry
