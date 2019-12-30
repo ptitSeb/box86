@@ -22,13 +22,17 @@
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 #define LIBNAME gtkx112
 
+static box86context_t* my_context = NULL;
+
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
 typedef int           (*iFpp_t)(void*, void*);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
+typedef void          (*vFppp_t)(void*, void*, void*);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void          (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
 
 #define SUPER() \
@@ -40,7 +44,9 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_message_dialog_format_secondary_text, vFpp_t)\
     GO(gtk_init, vFpp_t)                        \
     GO(gtk_init_check, iFpp_t)                  \
-    GO(gtk_init_with_args, iFpppppp_t)
+    GO(gtk_init_with_args, iFpppppp_t)          \
+    GO(gtk_menu_attach_to_widget, vFppp_t)      \
+    GO(gtk_menu_popup, vFpppppuu_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -134,6 +140,60 @@ EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* n
     return ret;
 }
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+// GtkMenuDetachFunc
+#define GO(A)   \
+static uintptr_t my_menudetach_fct_##A = 0;   \
+static void my_menudetach_##A(void* widget, void* menu)     \
+{                                       \
+    RunFunction(my_context, my_menudetach_fct_##A, 2, widget, menu);\
+}
+SUPER()
+#undef GO
+static void* findMenuDetachFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_menudetach_fct_##A == (uintptr_t)fct) return my_menudetach_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_menudetach_fct_##A == 0) {my_menudetach_fct_##A = (uintptr_t)fct; return my_menudetach_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GMenuDetachFunc callback\n");
+    return NULL;
+}
+
+// GtkMenuPositionFunc
+#define GO(A)   \
+static uintptr_t my_menuposition_fct_##A = 0;   \
+static void my_menuposition_##A(void* menu, void* x, void* y, void* push_in, void* data)     \
+{                                       \
+    RunFunction(my_context, my_menuposition_fct_##A, 5, menu, x, y, push_in, data);\
+}
+SUPER()
+#undef GO
+static void* findMenuPositionFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_menuposition_fct_##A == (uintptr_t)fct) return my_menuposition_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_menuposition_fct_##A == 0) {my_menuposition_fct_##A = (uintptr_t)fct; return my_menuposition_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkMenuPositionFunc callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
 {
     library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
@@ -204,7 +264,24 @@ EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* pa
     return ret;
 }
 
+EXPORT void my_gtk_menu_attach_to_widget(x86emu_t* emu, void* menu, void* widget, void* f)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_menu_attach_to_widget(menu, widget, findMenuDetachFct(f));
+}
+
+EXPORT void my_gtk_menu_popup(x86emu_t* emu, void* menu, void* shell, void* item, void* f, void* data, uint32_t button, uint32_t time_)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_menu_popup(menu, shell, item, findMenuPositionFct(f), data, button, time_);
+}
+
 #define CUSTOM_INIT \
+    my_context = box86; \
     lib->priv.w.p2 = getGtkx112My(lib); \
     SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
     SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \

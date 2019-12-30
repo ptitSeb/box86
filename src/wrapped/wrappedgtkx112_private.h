@@ -424,35 +424,35 @@ GO(gtk_check_menu_item_set_active, vFpi)
 GO(gtk_check_menu_item_set_show_toggle, vFpi)
 GO(gtk_check_menu_item_toggled, vFp)
 //GO(gtk_check_version, 
-//GO(gtk_clipboard_clear, 
-//GO(gtk_clipboard_get, 
-//GO(gtk_clipboard_get_display, 
-//GO(gtk_clipboard_get_for_display, 
-//GO(gtk_clipboard_get_owner, 
+GO(gtk_clipboard_clear, vFp)
+GO(gtk_clipboard_get, pFp)
+GO(gtk_clipboard_get_display, pFp)
+GO(gtk_clipboard_get_for_display, pFpp)
+GO(gtk_clipboard_get_owner, pFp)
 GO(gtk_clipboard_get_type, iFv)
-//GO(gtk_clipboard_request_contents, 
-//GO(gtk_clipboard_request_image, 
-//GO(gtk_clipboard_request_rich_text, 
-//GO(gtk_clipboard_request_targets, 
-//GO(gtk_clipboard_request_text, 
-//GO(gtk_clipboard_request_uris, 
-//GO(gtk_clipboard_set_can_store, 
-//GO(gtk_clipboard_set_image, 
-//GO(gtk_clipboard_set_text, 
-//GO(gtk_clipboard_set_with_data, 
-//GO(gtk_clipboard_set_with_owner, 
-//GO(gtk_clipboard_store, 
-//GO(gtk_clipboard_wait_for_contents, 
-//GO(gtk_clipboard_wait_for_image, 
-//GO(gtk_clipboard_wait_for_rich_text, 
-//GO(gtk_clipboard_wait_for_targets, 
-//GO(gtk_clipboard_wait_for_text, 
-//GO(gtk_clipboard_wait_for_uris, 
-//GO(gtk_clipboard_wait_is_image_available, 
-//GO(gtk_clipboard_wait_is_rich_text_available, 
-//GO(gtk_clipboard_wait_is_target_available, 
-//GO(gtk_clipboard_wait_is_text_available, 
-//GO(gtk_clipboard_wait_is_uris_available, 
+//GOM(gtk_clipboard_request_contents, vFEpppp)
+//GOM(gtk_clipboard_request_image, vFEppp)
+//GOM(gtk_clipboard_request_rich_text, vFEpppp)
+//GOM(gtk_clipboard_request_targets, vFEppp)
+//GOM(gtk_clipboard_request_text, vFEppp)
+//GOM(gtk_clipboard_request_uris, vFEppp)
+GO(gtk_clipboard_set_can_store, vFppp)
+GO(gtk_clipboard_set_image, vFpp)
+GO(gtk_clipboard_set_text, vFppi)
+//GOM(gtk_clipboard_set_with_data, iFEppuppp)
+//GOM(gtk_clipboard_set_with_owner, iFppuppp)
+GO(gtk_clipboard_store, vFp)
+GO(gtk_clipboard_wait_for_contents, pFpp)
+GO(gtk_clipboard_wait_for_image, pFp)
+GO(gtk_clipboard_wait_for_rich_text, pFpppp)
+GO(gtk_clipboard_wait_for_targets, iFppp)
+GO(gtk_clipboard_wait_for_text, pFp)
+GO(gtk_clipboard_wait_for_uris, pFp)
+GO(gtk_clipboard_wait_is_image_available, iFp)
+GO(gtk_clipboard_wait_is_rich_text_available, iFpp)
+GO(gtk_clipboard_wait_is_target_available, iFpp)
+GO(gtk_clipboard_wait_is_text_available, iFp)
+GO(gtk_clipboard_wait_is_uris_available, iFp)
 //GO(gtk_clist_append, 
 //GO(gtk_clist_clear, 
 //GO(gtk_clist_columns_autosize, 
@@ -1623,27 +1623,27 @@ GO(gtk_main_quit, vFv)
 //GO(gtk_marshal_VOID__UINT_STRING, 
 GO(gtk_match_type_get_type, iFv)
 GO(gtk_menu_attach, vFppuuuu)
-//GO(gtk_menu_attach_to_widget, 
-//GO(gtk_menu_bar_get_child_pack_direction, 
-//GO(gtk_menu_bar_get_pack_direction, 
+GO(gtk_menu_attach_to_widget, vFEppp)
+GO(gtk_menu_bar_get_child_pack_direction, iFp)
+GO(gtk_menu_bar_get_pack_direction, iFp)
 GO(gtk_menu_bar_get_type, iFv)
-//GO(gtk_menu_bar_new, 
-//GO(gtk_menu_bar_set_child_pack_direction, 
-//GO(gtk_menu_bar_set_pack_direction, 
-//GO(gtk_menu_detach, 
+GO(gtk_menu_bar_new, pFv)
+GO(gtk_menu_bar_set_child_pack_direction, vFpi)
+GO(gtk_menu_bar_set_pack_direction, vFpi)
+GO(gtk_menu_detach, vFp)
 GO(gtk_menu_direction_type_get_type, iFv)
-//GO(gtk_menu_get_accel_group, 
-//GO(gtk_menu_get_accel_path, 
-//GO(gtk_menu_get_active, 
-//GO(gtk_menu_get_attach_widget, 
-//GO(gtk_menu_get_for_attach_widget, 
-//GO(gtk_menu_get_monitor, 
-//GO(gtk_menu_get_reserve_toggle_size, 
-//GO(gtk_menu_get_tearoff_state, 
-//GO(gtk_menu_get_title, 
+GO(gtk_menu_get_accel_group, pFp)
+GO(gtk_menu_get_accel_path, pFp)
+GO(gtk_menu_get_active, pFp)
+GO(gtk_menu_get_attach_widget, pFp)
+GO(gtk_menu_get_for_attach_widget, pFp)
+GO(gtk_menu_get_monitor, iFp)
+GO(gtk_menu_get_reserve_toggle_size, iFp)
+GO(gtk_menu_get_tearoff_state, iFp)
+GO(gtk_menu_get_title, pFp)
 GO(gtk_menu_get_type, iFv)
-//GO(gtk_menu_item_activate, 
-//GO(gtk_menu_item_deselect, 
+GO(gtk_menu_item_activate, vFp)
+GO(gtk_menu_item_deselect, vFp)
 GO(gtk_menu_item_get_accel_path, pFp)
 GO(gtk_menu_item_get_label, pFp)
 GO(gtk_menu_item_get_right_justified, iFp)
@@ -1663,18 +1663,18 @@ GO(gtk_menu_item_set_use_underline, iFp)
 GO(gtk_menu_item_toggle_size_allocate, vFpi)
 GO(gtk_menu_item_toggle_size_request, vFpp)
 GO(gtk_menu_new, pFv)
-//GO(gtk_menu_popdown, 
-//GO(gtk_menu_popup, 
+GO(gtk_menu_popdown, vFp)
+GOM(gtk_menu_popup, vFEpppppuu)
 GO(gtk_menu_reorder_child, vFppi)
-//GO(gtk_menu_reposition, 
-//GO(gtk_menu_set_accel_group, 
-//GO(gtk_menu_set_accel_path, 
-//GO(gtk_menu_set_active, 
-//GO(gtk_menu_set_monitor, 
-//GO(gtk_menu_set_reserve_toggle_size, 
+GO(gtk_menu_reposition, vFp)
+GO(gtk_menu_set_accel_group, vFpp)
+GO(gtk_menu_set_accel_path, vFpp)
+GO(gtk_menu_set_active, pFp)
+GO(gtk_menu_set_monitor, vFpi)
+GO(gtk_menu_set_reserve_toggle_size, vFpi)
 GO(gtk_menu_set_screen, vFpp)
-//GO(gtk_menu_set_tearoff_state, 
-//GO(gtk_menu_set_title, 
+GO(gtk_menu_set_tearoff_state, vFpi)
+GO(gtk_menu_set_title, vFpp)
 //GO(gtk_menu_shell_activate_item, 
 GO(gtk_menu_shell_append, vFpp)
 //GO(gtk_menu_shell_cancel, 

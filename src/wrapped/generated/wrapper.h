@@ -1060,6 +1060,7 @@ void pFpppLLLi(x86emu_t *emu, uintptr_t fnc);
 void pFppppuuu(x86emu_t *emu, uintptr_t fnc);
 void pFpppppuu(x86emu_t *emu, uintptr_t fnc);
 void pFppppppp(x86emu_t *emu, uintptr_t fnc);
+void vFEpppppuu(x86emu_t *emu, uintptr_t fnc);
 void vFiiiiuuip(x86emu_t *emu, uintptr_t fnc);
 void vFiupuiuup(x86emu_t *emu, uintptr_t fnc);
 void vFiupuuuup(x86emu_t *emu, uintptr_t fnc);
