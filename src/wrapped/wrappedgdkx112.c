@@ -156,9 +156,7 @@ EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0"); \
     lib->priv.w.neededlibs[1] = strdup("libgio-2.0.so.0");  \
-    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");   \
-    void* tmp = dlsym(lib->priv.w.lib, "gdk_display");  \
-    printf_log(LOG_NONE, "gdk_display=%p(%p)\n", tmp, *(void**)tmp);
+    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeGdkX112My(lib->priv.w.p2); \

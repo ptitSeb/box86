@@ -195,7 +195,7 @@ GO(g_chdir, iFp)
 //GOM(g_child_watch_add_full, uFEiiBpB)
 GO(g_child_watch_source_new, pFi)
 GO(g_chmod, iFpi)
-//GO(g_clear_error, 
+GO(g_clear_error, vFp)
 //GOM(g_clear_pointer, vFEpp)
 GO(g_close, iFip)
 //GO(g_completion_add_items, 
@@ -220,10 +220,10 @@ GO(g_close, iFip)
 //GO(g_cond_timed_wait, 
 //GO(g_cond_wait, 
 //GO(g_cond_wait_until, 
-//GO(g_convert, 
+GO(g_convert, pFplppppp)
 //GO(g_convert_error_quark, 
-//GO(g_convert_with_fallback, 
-//GO(g_convert_with_iconv, 
+GO(g_convert_with_fallback, pFplpppppp)
+GO(g_convert_with_iconv, pFplpppp)
 GO(g_creat, iFpi)
 GO(g_datalist_clear, vFp)
 //GOM(g_datalist_foreach, vFEppp)
@@ -340,28 +340,28 @@ GO(g_datalist_unset_flags, vFpu)
 //GO(g_dcgettext, 
 //GO(g_dgettext, 
 GO(g_dir_close, vFp)
-//GO(g_direct_equal, 
-//GO(g_direct_hash, 
+GO(g_direct_equal, iFpp)
+GO(g_direct_hash, uFp)
 GO(g_dir_make_tmp, pFpp)
 GO(g_dir_open, pFp)
 //GO(g_dir_read_name, 
 GO(g_dir_rewind, vFp)
 //GO(g_dngettext, 
-//GO(g_double_equal, 
-//GO(g_double_hash, 
+GO(g_double_equal, iFpp)
+GO(g_double_hash, uFp)
 //GO(g_dpgettext, 
 //GO(g_dpgettext2, 
 GO(g_environ_getenv, pFpp)      // should wrap?
 GO(g_environ_setenv, pFpppi)
 GO(g_environ_unsetenv, pFpp)
-//GO(g_error_copy, 
-//GO(g_error_free, 
-//GO(g_error_matches, 
-//GO(g_error_new, 
-//GO(g_error_new_literal, 
-//GO(g_error_new_valist, 
+GO(g_error_copy, pFp)
+GO(g_error_free, vFp)
+GO(g_error_matches, iFppi)
+GO2(g_error_new, pFpipV, g_error_new_valist)
+GO(g_error_new_literal, pFpip)
+GO(g_error_new_valist, pFpipp)
 GO(g_file_error_from_errno, iFi)
-//GO(g_file_error_quark, 
+GO(g_file_error_quark, pFv)
 GO(g_file_get_contents, iFpppp)
 GO(g_filename_display_basename, pFp)
 GO(g_filename_display_name, pFp)
@@ -407,35 +407,35 @@ GO(g_get_user_data_dir, pFv)
 GO(g_get_user_name, pFv)
 GO(g_get_user_runtime_dir, pFv)
 GO(g_get_user_special_dir, pFi)
-//GO(g_hash_table_add, 
-//GO(g_hash_table_contains, 
+GO(g_hash_table_add, iFpp)
+GO(g_hash_table_contains, iFpp)
 GO(g_hash_table_destroy, vFp)
-//GO(g_hash_table_find, 
-//GO(g_hash_table_foreach, 
-//GO(g_hash_table_foreach_remove, 
-//GO(g_hash_table_foreach_steal, 
-//GO(g_hash_table_get_keys, 
-//GO(g_hash_table_get_keys_as_array, 
-//GO(g_hash_table_get_values, 
-//GO(g_hash_table_insert, 
-//GO(g_hash_table_iter_get_hash_table, 
-//GO(g_hash_table_iter_init, 
-//GO(g_hash_table_iter_next, 
-//GO(g_hash_table_iter_remove, 
-//GO(g_hash_table_iter_replace, 
-//GO(g_hash_table_iter_steal, 
-//GO(g_hash_table_lookup, 
-//GO(g_hash_table_lookup_extended, 
-//GO(g_hash_table_new, 
-//GO(g_hash_table_new_full, 
-//GO(g_hash_table_ref, 
-//GO(g_hash_table_remove, 
-//GO(g_hash_table_remove_all, 
-//GO(g_hash_table_replace, 
-//GO(g_hash_table_size, 
-//GO(g_hash_table_steal, 
-//GO(g_hash_table_steal_all, 
-//GO(g_hash_table_unref, 
+GOM(g_hash_table_find, pFEppp)
+GOM(g_hash_table_foreach, vFEppp)
+GOM(g_hash_table_foreach_remove, uFEppp)
+GOM(g_hash_table_foreach_steal, uFEppp)
+GO(g_hash_table_get_keys, pFp)
+GO(g_hash_table_get_keys_as_array, pFpp)
+GO(g_hash_table_get_values, pFp)
+GO(g_hash_table_insert, iFppp)
+GO(g_hash_table_iter_get_hash_table, pFp)
+GO(g_hash_table_iter_init, vFpp)
+GO(g_hash_table_iter_next, iFppp)
+GO(g_hash_table_iter_remove, vFp)
+GO(g_hash_table_iter_replace, vFpp)
+GO(g_hash_table_iter_steal, vFp)
+GO(g_hash_table_lookup, pFpp)
+GO(g_hash_table_lookup_extended, iFpppp)
+GOM(g_hash_table_new, pFEpp)
+GOM(g_hash_table_new_full, pFEpppp)
+GO(g_hash_table_ref, pFp)
+GO(g_hash_table_remove, iFpp)
+GO(g_hash_table_remove_all, vFp)
+GO(g_hash_table_replace, iFppp)
+GO(g_hash_table_size, uFp)
+GO(g_hash_table_steal, iFpp)
+GO(g_hash_table_steal_all, vFp)
+GO(g_hash_table_unref, vFp)
 //GO(g_hmac_copy, 
 //GO(g_hmac_get_digest, 
 //GO(g_hmac_get_string, 
@@ -471,19 +471,19 @@ GO(g_hash_table_destroy, vFp)
 //GO(g_hostname_is_non_ascii, 
 //GO(g_hostname_to_ascii, 
 //GO(g_hostname_to_unicode, 
-//GO(g_iconv, 
-//GO(g_iconv_close, 
-//GO(g_iconv_open, 
+GO(g_iconv, LFppppp)
+GO(g_iconv_close, iFp)
+GO(g_iconv_open, pFpp)
 //GOM(g_idle_add, uFEBp)
 GOM(g_idle_add_full, uFEippp)
 GO(g_idle_remove_by_data, iFp)
 GO(g_idle_source_new, pFv)
-//GO(g_int64_equal, 
-//GO(g_int64_hash, 
-//GO(g_int_equal, 
+GO(g_int64_equal, iFpp)
+GO(g_int64_hash, uFp)
+GO(g_int_equal, iFpp)
 GO(g_intern_static_string, pFp)
 GO(g_intern_string, pFp)
-//GO(g_int_hash, 
+GO(g_int_hash, uFp)
 //GO(g_io_add_watch, 
 //GO(g_io_add_watch_full, 
 //GO(g_io_channel_close, 
@@ -608,8 +608,8 @@ GO(g_list_remove_link, pFpp)
 GO(g_list_reverse, pFp)
 //GOM(g_list_sort, pFEpB)
 //GOM(g_list_sort_with_data, pFEpBp)
-GO(g_locale_from_utf8, pFpippp)
-//GO(g_locale_to_utf8, 
+GO(g_locale_from_utf8, pFplppp)
+GO(g_locale_to_utf8, pFplppp)
 GO2(g_log, vFpppV, g_logv)
 GO(g_log_default_handler, vFpipp)
 GO(g_log_remove_handler, vFpu)
@@ -804,7 +804,7 @@ GO(g_path_skip_root, pFp)
 //GO(g_pointer_bit_trylock, 
 //GO(g_pointer_bit_unlock, 
 GO(g_poll, iFpui)
-//GO(g_prefix_error, 
+GO(g_prefix_error, vFpppppppppp)    //vaarg, should align?
 GOM(g_print, vFEpV)
 GOM(g_printerr, vFEpV)
 GO2(g_printf, iFEpV, my_g_vprintf)
@@ -813,8 +813,8 @@ GOM(g_printf_string_upper_bound, uFEpp)
 //GO(g_private_new, 
 //GO(g_private_replace, 
 //GO(g_private_set, 
-//GO(g_propagate_error, 
-//GO(g_propagate_prefixed_error, 
+GO(g_propagate_error, vFpp)
+GO(g_propagate_prefixed_error, vFpppppppppppp)  //vaarg, should align?
 //GO(g_ptr_array_add, 
 //GO(g_ptr_array_foreach, 
 //GO(g_ptr_array_free, 
@@ -1010,8 +1010,8 @@ GO(g_rmdir, iFp)
 //GO(g_sequence_swap, 
 GO(g_set_application_name, vFp)
 GO(g_setenv, iFppi)
-//GO(g_set_error, 
-//GO(g_set_error_literal, 
+GO(g_set_error, vFppipppppppppp)    // vaarg, and no valist equivalent it seems. Should wrap with literal version probably
+GO(g_set_error_literal, vFppip)
 GO(g_set_prgname, vFp)
 //GOM(g_set_printerr_handler, BFEB)
 //GOM(g_set_print_handler, BFEB)
@@ -1093,15 +1093,15 @@ GO(g_source_set_priority, vFpi)
 GO(g_source_set_ready_time, vFpI)
 GO(g_source_unref, vFp)
 GO(g_spaced_primes_closest, uFu)
-//GO(g_spawn_async, 
-//GO(g_spawn_async_with_pipes, 
-//GO(g_spawn_check_exit_status, 
-//GO(g_spawn_close_pid, 
-//GO(g_spawn_command_line_async, 
-//GO(g_spawn_command_line_sync, 
-//GO(g_spawn_error_quark, 
-//GO(g_spawn_exit_error_quark, 
-//GO(g_spawn_sync, 
+GOM(g_spawn_async, iFEpppipppp)
+GOM(g_spawn_async_with_pipes, iFEpppippppppp)
+GO(g_spawn_check_exit_status, iFip)
+GO(g_spawn_close_pid, vFp)
+GO(g_spawn_command_line_async, iFpp)
+GO(g_spawn_command_line_sync, iFppppp)
+GO(g_spawn_error_quark, pFv)
+GO(g_spawn_exit_error_quark, pFv)
+GOM(g_spawn_sync, iFEpppipppppp)
 GO2(g_sprintf, iFEppV, my_g_vsprintf)
 GO(g_stat, iFpp)
 //GO(g_static_mutex_free, 
