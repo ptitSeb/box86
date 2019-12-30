@@ -438,3 +438,5 @@ GO(XtWindow, pFp)
 //GO(_XtWindowedAncestor, 
 //GO(XtWindowOfObject, 
 GO(XtWindowToWidget, pFpp)
+
+GO(_XtInherit, vFv)
