@@ -1149,7 +1149,7 @@ GO(nice, iFi)
 // _nl_domain_bindings  // type B
 GO(nl_langinfo, pFu)
 GO(__nl_langinfo_l, pFup)
-// nl_langinfo_l    // Weak
+GOW(nl_langinfo_l, pFup)
 // _nl_msg_cat_cntr // type B
 // nrand48
 // nrand48_r    // Weak
@@ -1925,8 +1925,8 @@ GO(__wcscpy_chk, pFppu)
 GO(wcscspn, uFpp)
 GO(wcsdup, pFp)
 GO(wcsftime, uFpupp)
-GO(__wcsftime_l, uFpuppu)
-// wcsftime_l   // Weak
+GO(__wcsftime_l, LFpLppp)
+GOW(wcsftime_l, LFpLppp)
 GOW(wcslen, uFp)
 GOW(wcsncasecmp, iFppu)
 // __wcsncasecmp_l
