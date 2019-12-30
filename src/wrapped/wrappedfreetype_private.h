@@ -92,15 +92,15 @@ GO(FT_Get_Sfnt_Table, pFpi)
 //GO(FT_Get_Var_Design_Coordinates, 
 //GO(FT_Get_WinFNT_Header, 
 //GO(FT_Get_X11_Font_Format, 
-//GO(FT_Glyph_Copy, 
-//GO(FT_Glyph_Get_CBox, 
+GO(FT_Glyph_Copy, iFpp)
+GO(FT_Glyph_Get_CBox, vFpup)
 GO(FT_GlyphSlot_Embolden, vFp)
 GO(FT_GlyphSlot_Oblique, vFp)
 //GO(FT_GlyphSlot_Own_Bitmap, 
 //GO(FT_Glyph_Stroke, 
 GO(FT_Glyph_StrokeBorder, iFppCC)
 GO(FT_Glyph_To_Bitmap, iFpipC)
-//GO(FT_Glyph_Transform, 
+GO(FT_Glyph_Transform, iFppp)
 //GO(FT_Gzip_Uncompress, 
 //GO(FT_Has_PS_Glyph_Names, 
 GO(FT_Init_FreeType, iFp)

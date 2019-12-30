@@ -76,7 +76,7 @@ GO(FcDefaultSubstitute, vFp)
 //GO(FcFileIsDir, 
 //GO(FcFileScan, 
 //GO(FcFini, 
-//GO(FcFontList, 
+GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
 //GO(FcFontRenderPrepare, 
 //GO(FcFontSetAdd, 
@@ -110,7 +110,7 @@ GO(FcInit, iFv)
 //GO(FcLangSetEqual, 
 //GO(FcLangSetGetLangs, 
 //GO(FcLangSetHash, 
-//GO(FcLangSetHasLang, 
+GO(FcLangSetHasLang, iFpp)
 //GO(FcMatrixCopy, 
 //GO(FcMatrixEqual, 
 //GO(FcMatrixMultiply, 
@@ -127,21 +127,21 @@ GO(FcInit, iFv)
 //GO(FcNameUnregisterConstants, 
 //GO(FcNameUnregisterObjectTypes, 
 //GO(FcObjectSetAdd, 
-//GO(FcObjectSetBuild, 
+GO2(FcObjectSetBuild, pFpV, FcObjectSetVaBuild)
 //GO(FcObjectSetCreate, 
 //GO(FcObjectSetDestroy, 
-//GO(FcObjectSetVaBuild, 
+GO(FcObjectSetVaBuild, pFpp)
 GOM(FcPatternAdd, iFEppiuui)  // FcValue is a typedef with int+union, with biggest part is a double => so 3 "u32" on the stack
-//GO(FcPatternAddBool, 
-//GO(FcPatternAddCharSet, 
-//GO(FcPatternAddDouble, 
-//GO(FcPatternAddFTFace, 
-//GO(FcPatternAddInteger, 
-//GO(FcPatternAddLangSet, 
-//GO(FcPatternAddMatrix, 
-//GO(FcPatternAddString, 
+GO(FcPatternAddBool, iFppi)
+GO(FcPatternAddCharSet, iFppp)
+GO(FcPatternAddDouble, iFppd)
+GO(FcPatternAddFTFace, iFppp)
+GO(FcPatternAddInteger, iFppi)
+GO(FcPatternAddLangSet, iFppp)
+GO(FcPatternAddMatrix, iFppp)
+GO(FcPatternAddString, iFppp)
 //GO(FcPatternAddWeak, 
-//GO(FcPatternBuild, 
+GO2(FcPatternBuild, pFpV, FcPatternVaBuild)
 GO(FcPatternCreate, pFv)
 //GO(FcPatternDel, 
 GO(FcPatternDestroy, vFp)
@@ -163,9 +163,9 @@ GO(FcPatternGetString, iFppip)
 //GO(FcPatternPrint, 
 //GO(FcPatternReference, 
 //GO(FcPatternRemove, 
-//GO(FcPatternVaBuild, 
+GO(FcPatternVaBuild, pFpp)
 //GO(FcStrBasename, 
-//GO(FcStrCmp, 
+GO(FcStrCmp, iFpp)
 //GO(FcStrCmpIgnoreCase, 
 //GO(FcStrCopy, 
 //GO(FcStrCopyFilename, 
