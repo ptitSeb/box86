@@ -528,42 +528,42 @@ GO(gtk_clist_get_type, iFv)
 //GO(gtk_clist_undo_selection, 
 //GO(gtk_clist_unselect_all, 
 //GO(gtk_clist_unselect_row, 
-//GO(gtk_color_button_get_alpha, 
-//GO(gtk_color_button_get_color, 
-//GO(gtk_color_button_get_title, 
+GO(gtk_color_button_get_alpha, WFp)
+GO(gtk_color_button_get_color, vFpp)
+GO(gtk_color_button_get_title, pFp)
 GO(gtk_color_button_get_type, iFv)
-//GO(gtk_color_button_get_use_alpha, 
-//GO(gtk_color_button_new, 
-//GO(gtk_color_button_new_with_color, 
-//GO(gtk_color_button_set_alpha, 
-//GO(gtk_color_button_set_color, 
-//GO(gtk_color_button_set_title, 
-//GO(gtk_color_button_set_use_alpha, 
+GO(gtk_color_button_get_use_alpha, iFp)
+GO(gtk_color_button_new, pFv)
+GO(gtk_color_button_new_with_color, pFp)
+GO(gtk_color_button_set_alpha, vFpW)
+GO(gtk_color_button_set_color, vFpp)
+GO(gtk_color_button_set_title, vFpp)
+GO(gtk_color_button_set_use_alpha, vFpi)
 GO(gtk_color_selection_dialog_get_color_selection, pFp)
 GO(gtk_color_selection_dialog_get_type, iFv)
 GO(gtk_color_selection_dialog_new, pFp)
-//GO(gtk_color_selection_get_color, 
-//GO(gtk_color_selection_get_current_alpha, 
-//GO(gtk_color_selection_get_current_color, 
-//GO(gtk_color_selection_get_has_opacity_control, 
-//GO(gtk_color_selection_get_has_palette, 
-//GO(gtk_color_selection_get_previous_alpha, 
-//GO(gtk_color_selection_get_previous_color, 
+GO(gtk_color_selection_get_color, vFpp)
+GO(gtk_color_selection_get_current_alpha, WFp)
+GO(gtk_color_selection_get_current_color, vFpp)
+GO(gtk_color_selection_get_has_opacity_control, iFp)
+GO(gtk_color_selection_get_has_palette, iFp)
+GO(gtk_color_selection_get_previous_alpha, WFp)
+GO(gtk_color_selection_get_previous_color, vFpp)
 GO(gtk_color_selection_get_type, iFv)
-//GO(gtk_color_selection_is_adjusting, 
-//GO(gtk_color_selection_new, 
-//GO(gtk_color_selection_palette_from_string, 
-//GO(gtk_color_selection_palette_to_string, 
-//GO(gtk_color_selection_set_change_palette_hook, 
-//GO(gtk_color_selection_set_change_palette_with_screen_hook, 
-//GO(gtk_color_selection_set_color, 
-//GO(gtk_color_selection_set_current_alpha, 
-//GO(gtk_color_selection_set_current_color, 
-//GO(gtk_color_selection_set_has_opacity_control, 
-//GO(gtk_color_selection_set_has_palette, 
-//GO(gtk_color_selection_set_previous_alpha, 
-//GO(gtk_color_selection_set_previous_color, 
-//GO(gtk_color_selection_set_update_policy, 
+GO(gtk_color_selection_is_adjusting, iFp)
+GO(gtk_color_selection_new, pFv)
+GO(gtk_color_selection_palette_from_string, iFppp)
+GO(gtk_color_selection_palette_to_string, pFpi)
+//GOM(gtk_color_selection_set_change_palette_hook, pFEp)
+//GOM(gtk_color_selection_set_change_palette_with_screen_hook, pFEp)
+GO(gtk_color_selection_set_color, vFpp)
+GO(gtk_color_selection_set_current_alpha, vFpW)
+GO(gtk_color_selection_set_current_color, vFpp)
+GO(gtk_color_selection_set_has_opacity_control, vFpi)
+GO(gtk_color_selection_set_has_palette, vFpi)
+GO(gtk_color_selection_set_previous_alpha, vFpW)
+GO(gtk_color_selection_set_previous_color, vFpp)
+GO(gtk_color_selection_set_update_policy, vFpi)
 GO(gtk_combo_box_append_text, vFpp)
 GO(gtk_combo_box_entry_get_text_column, iFp)
 GO(gtk_combo_box_entry_get_type, iFv)
@@ -735,20 +735,20 @@ GO(gtk_ctree_pos_get_type, iFv)
 //GO(gtk_ctree_unselect, 
 //GO(gtk_ctree_unselect_recursive, 
 GO(gtk_curve_get_type, iFv)
-//GO(gtk_curve_get_vector, 
-//GO(gtk_curve_new, 
-//GO(gtk_curve_reset, 
-//GO(gtk_curve_set_curve_type, 
-//GO(gtk_curve_set_gamma, 
-//GO(gtk_curve_set_range, 
-//GO(gtk_curve_set_vector, 
+GO(gtk_curve_get_vector, vFpip)
+GO(gtk_curve_new, pFV)
+GO(gtk_curve_reset, vFp)
+GO(gtk_curve_set_curve_type, vFpi)
+GO(gtk_curve_set_gamma, vFpf)
+GO(gtk_curve_set_range, vFpffff)
+GO(gtk_curve_set_vector, vFpip)
 GO(gtk_curve_type_get_type, iFv)
 GO(gtk_custom_paper_unix_dialog_get_type, iFv)
 GO(gtk_debug_flag_get_type, iFv)
-//GO(gtk_decorated_window_calculate_frame_size, 
-//GO(gtk_decorated_window_init, 
-//GO(gtk_decorated_window_move_resize_window, 
-//GO(gtk_decorated_window_set_title, 
+GO(gtk_decorated_window_calculate_frame_size, vFp)
+GO(gtk_decorated_window_init, vFp)
+GO(gtk_decorated_window_move_resize_window, vFpiiii)
+GO(gtk_decorated_window_set_title, vFpp)
 GO(gtk_delete_type_get_type, iFv)
 GO(gtk_dest_defaults_get_type, iFv)
 GO(gtk_dialog_add_action_widget, vFppi)
@@ -772,43 +772,43 @@ GO(gtk_dialog_set_has_separator, vFpi)
 GO(gtk_dialog_set_response_sensitive, vFpii)
 GO(gtk_direction_type_get_type, iFv)
 GO(gtk_disable_setlocale, vFv)
-//GO(gtk_drag_begin, 
-//GO(gtk_drag_check_threshold, 
-//GO(gtk_drag_dest_add_image_targets, 
-//GO(gtk_drag_dest_add_text_targets, 
-//GO(gtk_drag_dest_add_uri_targets, 
-//GO(gtk_drag_dest_find_target, 
-//GO(gtk_drag_dest_get_target_list, 
-//GO(gtk_drag_dest_get_track_motion, 
-//GO(gtk_drag_dest_set, 
-//GO(gtk_drag_dest_set_proxy, 
-//GO(gtk_drag_dest_set_target_list, 
-//GO(gtk_drag_dest_set_track_motion, 
-//GO(gtk_drag_dest_unset, 
-//GO(gtk_drag_finish, 
-//GO(gtk_drag_get_data, 
-//GO(gtk_drag_get_source_widget, 
-//GO(gtk_drag_highlight, 
+GO(gtk_drag_begin, vFppiip)
+GO(gtk_drag_check_threshold, iFpiiii)
+GO(gtk_drag_dest_add_image_targets, vFp)
+GO(gtk_drag_dest_add_text_targets, vFp)
+GO(gtk_drag_dest_add_uri_targets, vFp)
+GO(gtk_drag_dest_find_target, pFppp)
+GO(gtk_drag_dest_get_target_list, pFp)
+GO(gtk_drag_dest_get_track_motion, iFp)
+GO(gtk_drag_dest_set, vFpipii)
+GO(gtk_drag_dest_set_proxy, vFppii)
+GO(gtk_drag_dest_set_target_list, vFpp)
+GO(gtk_drag_dest_set_track_motion, vFpi)
+GO(gtk_drag_dest_unset, vFp)
+GO(gtk_drag_finish, vFpiiu)
+GO(gtk_drag_get_data, vFpppu)
+GO(gtk_drag_get_source_widget, pFp)
+GO(gtk_drag_highlight, vFp)
 GO(gtk_drag_result_get_type, iFv)
-//GO(gtk_drag_set_default_icon, 
-//GO(gtk_drag_set_icon_default, 
-//GO(gtk_drag_set_icon_name, 
-//GO(gtk_drag_set_icon_pixbuf, 
-//GO(gtk_drag_set_icon_pixmap, 
-//GO(gtk_drag_set_icon_stock, 
-//GO(gtk_drag_set_icon_widget, 
-//GO(gtk_drag_source_add_image_targets, 
-//GO(gtk_drag_source_add_text_targets, 
-//GO(gtk_drag_source_add_uri_targets, 
-//GO(gtk_drag_source_get_target_list, 
-//GO(gtk_drag_source_set, 
-//GO(gtk_drag_source_set_icon, 
-//GO(gtk_drag_source_set_icon_name, 
-//GO(gtk_drag_source_set_icon_pixbuf, 
-//GO(gtk_drag_source_set_icon_stock, 
-//GO(gtk_drag_source_set_target_list, 
-//GO(gtk_drag_source_unset, 
-//GO(gtk_drag_unhighlight, 
+GO(gtk_drag_set_default_icon, vFpppii)
+GO(gtk_drag_set_icon_default, vFp)
+GO(gtk_drag_set_icon_name, vFppii)
+GO(gtk_drag_set_icon_pixbuf, vFppii)
+GO(gtk_drag_set_icon_pixmap, vFppppii)
+GO(gtk_drag_set_icon_stock, vFppii)
+GO(gtk_drag_set_icon_widget, vFppii)
+GO(gtk_drag_source_add_image_targets, vFp)
+GO(gtk_drag_source_add_text_targets, vFp)
+GO(gtk_drag_source_add_uri_targets, vFp)
+GO(gtk_drag_source_get_target_list, pFp)
+GO(gtk_drag_source_set, vFpipii)
+GO(gtk_drag_source_set_icon, vFpppp)
+GO(gtk_drag_source_set_icon_name, vFpp)
+GO(gtk_drag_source_set_icon_pixbuf, vFpp)
+GO(gtk_drag_source_set_icon_stock, vFpp)
+GO(gtk_drag_source_set_target_list, vFpp)
+GO(gtk_drag_source_unset, vFp)
+GO(gtk_drag_unhighlight, vFp)
 GO(gtk_draw_arrow, vFppiiiiiiii)
 GO(gtk_draw_box, vFppiiiiii)
 GO(gtk_draw_box_gap, vFppiiiiiiiii)
@@ -2564,12 +2564,12 @@ GO(gtk_size_group_mode_get_type, iFv)
 //GO(gtk_size_group_remove_widget, 
 //GO(gtk_size_group_set_ignore_hidden, 
 //GO(gtk_size_group_set_mode, 
-//GO(gtk_socket_add_id, 
-//GO(gtk_socket_get_id, 
-//GO(gtk_socket_get_plug_window, 
+GO(gtk_socket_add_id, vFpp)
+GO(gtk_socket_get_id, pFp)
+GO(gtk_socket_get_plug_window, pFp)
 GO(gtk_socket_get_type, iFv)
-//GO(gtk_socket_new, 
-//GO(gtk_socket_steal, 
+GO(gtk_socket_new, pFv)
+GO(gtk_socket_steal, vFpp)
 GO(gtk_sort_type_get_type, iFv)
 //GO(gtk_spin_button_configure, 
 //GO(gtk_spin_button_get_adjustment, 
@@ -3560,7 +3560,7 @@ GO(gtk_tree_view_set_rubber_banding, vFpi)
 GO(gtk_tree_view_set_rules_hint, vFpi)
 GO(gtk_tree_view_set_search_column, vFpi)
 GO(gtk_tree_view_set_search_entry, vFpp)
-//GOM(gtk_tree_view_set_search_equal_func, vFEpBpB)
+GOM(gtk_tree_view_set_search_equal_func, vFEpppp)
 //GOM(gtk_tree_view_set_search_position_func, vFEpBpB)
 GO(gtk_tree_view_set_show_expanders, vFpi)
 GO(gtk_tree_view_set_tooltip_cell, vFppppp)

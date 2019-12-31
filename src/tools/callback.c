@@ -265,3 +265,29 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 
     return ret;
 }
+
+void SetCallbackArgs(x86emu_t* emu, int nargs, ...)
+{
+     onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        va_list va;
+        va_start (va, nargs);
+        for (int i=0; i<nargs; ++i) {
+            cb->arg[i] = va_arg(va, void*);
+        }
+        va_end (va);
+    }
+}
+
+void SetCallbackNArgs(x86emu_t* emu, int N, int nargs, ...)
+{
+     onecallback_t *cb = FindCallback(emu);
+    if(cb) {
+        va_list va;
+        va_start (va, nargs);
+        for (int i=0; i<nargs; ++i) {
+            cb->arg[N+i] = va_arg(va, void*);
+        }
+        va_end (va);
+    }
+}

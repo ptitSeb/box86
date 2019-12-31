@@ -54,7 +54,8 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_timeout_add, uFupp_t)                \
     GO(gtk_clipboard_set_with_data, iFppuppp_t) \
     GO(gtk_stock_set_translate_func, vFpppp_t)  \
-    GO(gtk_container_forall, vFppp_t)
+    GO(gtk_container_forall, vFppp_t)           \
+    GO(gtk_tree_view_set_search_equal_func, vFpppp_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -403,7 +404,7 @@ static void my_destroy_notify(void* data)
     x86emu_t *emu = (x86emu_t*)data;
     uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
     if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
         SetCallbackNArg(emu, 1);
         SetCallbackAddress(emu, f);
         RunCallback(emu);
@@ -423,9 +424,9 @@ EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 2, NULL, data, NULL, NULL);
-    SetCallbackArg(cb, 9, notify);
+    SetCallbackNArgs(cb, 8, 2, data, notify);
 
-    my->gtk_stock_set_translate_func(domain, my_translate_func, cb, my_destroy_notify);
+    my->gtk_stock_set_translate_func(domain, f?my_translate_func:NULL, cb, my_destroy_notify);
 }
 
 EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
@@ -434,6 +435,24 @@ EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, voi
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     my->gtk_container_forall(container, findGtkCallbackFct(f), data);
+}
+
+static int my_tree_view_search_equal(void* model, int column, void* key, void* iter, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 4, model, column, key, iter);
+    return (int)RunCallback(emu);
+}
+
+EXPORT void my_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_view, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 5, NULL, NULL, NULL, NULL);
+    SetCallbackArg(cb, 4, data);
+    SetCallbackNArgs(cb, 8, 2, data, notify);
+
+    my->gtk_tree_view_set_search_equal_func(tree_view, f?my_tree_view_search_equal:NULL, cb, my_destroy_notify);
 }
 
 #define CUSTOM_INIT \

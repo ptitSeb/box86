@@ -79,6 +79,8 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 
 uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
+    if(!fnc)
+        return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
         ret = AddBridge(bridge, w, fnc, N);
