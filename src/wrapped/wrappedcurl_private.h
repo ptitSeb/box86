@@ -4,13 +4,13 @@
 
 GOM(curl_easy_cleanup, vFEp)
 //GO(curl_easy_duphandle, 
-//GO(curl_easy_escape, 
+GO(curl_easy_escape, pFppi)
 GO(curl_easy_getinfo, uFpppppp) //vararg
 GO(curl_easy_init, pFv)
 //GO(curl_easy_pause, 
 GO(curl_easy_perform, uFp)
 //GO(curl_easy_recv, 
-//GO(curl_easy_reset, 
+GO(curl_easy_reset, vFp)
 //GO(curl_easy_send, 
 GOM(curl_easy_setopt, uFEpup)   // can set many callbacks!
 GO(curl_easy_strerror, pFu)
@@ -46,8 +46,8 @@ GO(curl_global_init, uFu)
 GO(curl_multi_add_handle, uFpp)
 //GO(curl_multi_assign, 
 GO(curl_multi_cleanup, uFp)
-//GO(curl_multi_fdset, 
-//GO(curl_multi_info_read, 
+GO(curl_multi_fdset, uFppppp)
+GO(curl_multi_info_read, pFpp)
 GO(curl_multi_init, pFv)
 GO(curl_multi_perform, uFpp)
 GO(curl_multi_remove_handle, uFpp)
