@@ -384,8 +384,8 @@ GO(gtk_cell_renderer_spinner_get_type, iFv)
 GO(gtk_cell_renderer_state_get_type, iFv)
 //GO(gtk_cell_renderer_stop_editing, 
 GO(gtk_cell_renderer_text_get_type, iFv)
-//GO(gtk_cell_renderer_text_new, 
-//GO(gtk_cell_renderer_text_set_fixed_height_from_font, 
+GO(gtk_cell_renderer_text_new, pFv)
+GO(gtk_cell_renderer_text_set_fixed_height_from_font, vFpi)
 //GO(gtk_cell_renderer_toggle_get_activatable, 
 //GO(gtk_cell_renderer_toggle_get_active, 
 //GO(gtk_cell_renderer_toggle_get_radio, 
@@ -1085,53 +1085,53 @@ GO(gtk_file_selection_new, pFp)
 GO(gtk_file_selection_set_filename, vFpp)
 GO(gtk_file_selection_set_select_multiple, vFpi)
 GO(gtk_file_selection_show_fileop_buttons, vFp)
-//GO(gtk_fixed_get_has_window, 
+GO(gtk_fixed_get_has_window, iFp)
 GO(gtk_fixed_get_type, iFv)
-//GO(gtk_fixed_move, 
-//GO(gtk_fixed_new, 
-//GO(gtk_fixed_put, 
-//GO(gtk_fixed_set_has_window, 
-//GO(gtk_font_button_get_font_name, 
-//GO(gtk_font_button_get_show_size, 
-//GO(gtk_font_button_get_show_style, 
-//GO(gtk_font_button_get_title, 
+GO(gtk_fixed_move, vFppii)
+GO(gtk_fixed_new, pFv)
+GO(gtk_fixed_put, vFppii)
+GO(gtk_fixed_set_has_window, vFpi)
+GO(gtk_font_button_get_font_name, pFp)
+GO(gtk_font_button_get_show_size, iFp)
+GO(gtk_font_button_get_show_style, iFp)
+GO(gtk_font_button_get_title, pFp)
 GO(gtk_font_button_get_type, iFv)
-//GO(gtk_font_button_get_use_font, 
-//GO(gtk_font_button_get_use_size, 
-//GO(gtk_font_button_new, 
-//GO(gtk_font_button_new_with_font, 
-//GO(gtk_font_button_set_font_name, 
-//GO(gtk_font_button_set_show_size, 
-//GO(gtk_font_button_set_show_style, 
-//GO(gtk_font_button_set_title, 
-//GO(gtk_font_button_set_use_font, 
-//GO(gtk_font_button_set_use_size, 
-//GO(gtk_font_selection_dialog_get_apply_button, 
-//GO(gtk_font_selection_dialog_get_cancel_button, 
-//GO(gtk_font_selection_dialog_get_font, 
-//GO(gtk_font_selection_dialog_get_font_name, 
-//GO(gtk_font_selection_dialog_get_font_selection, 
-//GO(gtk_font_selection_dialog_get_ok_button, 
-//GO(gtk_font_selection_dialog_get_preview_text, 
+GO(gtk_font_button_get_use_font, iFp)
+GO(gtk_font_button_get_use_size, iFp)
+GO(gtk_font_button_new, pFv)
+GO(gtk_font_button_new_with_font, pFp)
+GO(gtk_font_button_set_font_name, iFpp)
+GO(gtk_font_button_set_show_size, vFpi)
+GO(gtk_font_button_set_show_style, vFpi)
+GO(gtk_font_button_set_title, vFpp)
+GO(gtk_font_button_set_use_font, vFpi)
+GO(gtk_font_button_set_use_size, vFpi)
+GO(gtk_font_selection_dialog_get_apply_button, pFp)
+GO(gtk_font_selection_dialog_get_cancel_button, pFp)
+GO(gtk_font_selection_dialog_get_font, pFp)
+GO(gtk_font_selection_dialog_get_font_name, pFp)
+GO(gtk_font_selection_dialog_get_font_selection, pFp)
+GO(gtk_font_selection_dialog_get_ok_button, pFp)
+GO(gtk_font_selection_dialog_get_preview_text, pFp)
 GO(gtk_font_selection_dialog_get_type, iFv)
-//GO(gtk_font_selection_dialog_new, 
-//GO(gtk_font_selection_dialog_set_font_name, 
-//GO(gtk_font_selection_dialog_set_preview_text, 
-//GO(gtk_font_selection_get_face, 
-//GO(gtk_font_selection_get_face_list, 
-//GO(gtk_font_selection_get_family, 
-//GO(gtk_font_selection_get_family_list, 
-//GO(gtk_font_selection_get_font, 
-//GO(gtk_font_selection_get_font_name, 
-//GO(gtk_font_selection_get_preview_entry, 
-//GO(gtk_font_selection_get_preview_text, 
-//GO(gtk_font_selection_get_size, 
-//GO(gtk_font_selection_get_size_entry, 
-//GO(gtk_font_selection_get_size_list, 
+GO(gtk_font_selection_dialog_new, pFp)
+GO(gtk_font_selection_dialog_set_font_name, vFpp)
+GO(gtk_font_selection_dialog_set_preview_text, vFpp)
+GO(gtk_font_selection_get_face, pFp)
+GO(gtk_font_selection_get_face_list, pFp)
+GO(gtk_font_selection_get_family, pFp)
+GO(gtk_font_selection_get_family_list, pFp)
+GO(gtk_font_selection_get_font, pFp)
+GO(gtk_font_selection_get_font_name, pFp)
+GO(gtk_font_selection_get_preview_entry, pFp)
+GO(gtk_font_selection_get_preview_text, pFp)
+GO(gtk_font_selection_get_size, iFp)
+GO(gtk_font_selection_get_size_entry, pFp)
+GO(gtk_font_selection_get_size_list, pFp)
 GO(gtk_font_selection_get_type, iFv)
-//GO(gtk_font_selection_new, 
-//GO(gtk_font_selection_set_font_name, 
-//GO(gtk_font_selection_set_preview_text, 
+GO(gtk_font_selection_new, pFv)
+GO(gtk_font_selection_set_font_name, iFpp)
+GO(gtk_font_selection_set_preview_text, vFpp)
 GO(gtk_frame_get_label, pFp)
 GO(gtk_frame_get_label_align, vFppp)
 GO(gtk_frame_get_label_widget, pFp)
@@ -1706,11 +1706,11 @@ GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
 //GO(gtk_message_dialog_set_markup, 
 GO(gtk_message_type_get_type, iFv)
 GO(gtk_metric_type_get_type, iFv)
-//GO(gtk_misc_get_alignment, 
-//GO(gtk_misc_get_padding, 
+GO(gtk_misc_get_alignment, vFppp)
+GO(gtk_misc_get_padding, vFppp)
 GO(gtk_misc_get_type, iFv)
-//GO(gtk_misc_set_alignment, 
-//GO(gtk_misc_set_padding, 
+GO(gtk_misc_set_alignment, vFpff)
+GO(gtk_misc_set_padding, vFpii)
 //GO(gtk_mount_operation_get_parent, 
 //GO(gtk_mount_operation_get_screen, 
 GO(gtk_mount_operation_get_type, iFv)

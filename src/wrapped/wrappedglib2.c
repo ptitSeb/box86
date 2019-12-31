@@ -155,11 +155,11 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_markup_vprintf_escaped(fmt, emu->scratch);
     #else
     // other platform don't need that
-    return my->g_markup_vprintf_escaped(fmt, *(uint32_t**)b);
+    return my->g_markup_vprintf_escaped(fmt, b);
     #endif
 }
 

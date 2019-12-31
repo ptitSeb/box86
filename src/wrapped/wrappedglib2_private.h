@@ -670,7 +670,7 @@ GO(g_mapped_file_ref, pFp)
 GO(g_mapped_file_unref, vFp)
 //GO(g_markup_collect_attributes, 
 //GO(g_markup_error_quark, 
-//GO(g_markup_escape_text, 
+GO(g_markup_escape_text, pFpl)
 //GO(g_markup_parse_context_end_parse, 
 //GO(g_markup_parse_context_free, 
 //GO(g_markup_parse_context_get_element, 
@@ -684,7 +684,7 @@ GO(g_mapped_file_unref, vFp)
 //GO(g_markup_parse_context_ref, 
 //GO(g_markup_parse_context_unref, 
 GOM(g_markup_printf_escaped, pFEpV)
-GOM(g_markup_vprintf_escaped, pFEpV)
+GOM(g_markup_vprintf_escaped, pFEpp)
 //GO(g_match_info_expand_references, 
 //GO(g_match_info_fetch, 
 //GO(g_match_info_fetch_all, 
