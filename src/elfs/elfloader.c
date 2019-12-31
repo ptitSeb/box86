@@ -916,10 +916,11 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     printf_log(LOG_INFO, "Warning: call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
     x86emu_t* cbemu = AddSharedCallback(emu, (uintptr_t)F, 3, NULL, NULL, data, NULL);
     box86context_t *context = GetEmuContext(emu);
+    const char* empty = "";
     for (int idx=0; idx<context->elfsize; ++idx) {
         my_dl_phdr_info_t info;
         info.dlpi_addr = GetBaseAddress(context->elfs[idx]);
-        info.dlpi_name = context->elfs[idx]->name;
+        info.dlpi_name = idx?context->elfs[idx]->name:empty;    //1st elf is program, and this one doesn't get a name
         info.dlpi_phdr = context->elfs[idx]->PHEntries;
         info.dlpi_phnum = context->elfs[idx]->numPHEntries;
         if(dl_iterate_phdr_callback(cbemu, &info, sizeof(info), data))
