@@ -299,6 +299,48 @@ static void unwrapGtkWidgetClass(my_GtkWidgetClass_t* class)
 }
 #undef SUPERGO
 
+// ----- GtkContainerClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(A, add, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(A, remove, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(A, check_resize, void, (void* container), 1, container);
+WRAPPER(A, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0), callback_data);
+WRAPPER(A, set_focus_child, void, (void* container, void* widget), 2, container, widget);
+WRAPPER(A, child_type, int, (void* container), 1, container);
+WRAPPER(A, composite_name, void*, (void* container, void* child), 2, container, child);
+WRAPPER(A, set_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+WRAPPER(A, get_child_property, void, (void* container, void* child, uint32_t property_id, void* value, void* pspec), 5, container, child, property_id, value, pspec);
+
+#define SUPERGO() \
+    GO(add, vFpp);                  \
+    GO(remove, vFpp);               \
+    GO(check_resize, vFp);          \
+    GO(forall, vFpipp);             \
+    GO(set_focus_child, vFpp);      \
+    GO(child_type, iFp);            \
+    GO(composite_name, pFpp);       \
+    GO(set_child_property, vFppupp);\
+    GO(get_child_property, vFppupp);
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkContainerClass(my_GtkContainerClass_t* class)
+{
+    wrapGtkWidgetClass(&class->parent_class);
+    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkContainerClass(my_GtkContainerClass_t* class)
+{   
+    unwrapGtkWidgetClass(&class->parent_class);
+    void* tmp;
+    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
@@ -306,7 +348,9 @@ static void unwrapGtkWidgetClass(my_GtkWidgetClass_t* class)
 
 static void wrapGTKClass(void* class, int type)
 {
-    if(type==my_gtkwidget)
+    if(type==my_gtkcontainer)
+        wrapGtkContainerClass((my_GtkContainerClass_t*)class);
+    else if(type==my_gtkwidget)
         wrapGtkWidgetClass((my_GtkWidgetClass_t*)class);
     else if(type==my_gtkobject)
         wrapGtkObjectClass((my_GtkObjectClass_t*)class);
@@ -319,7 +363,9 @@ static void wrapGTKClass(void* class, int type)
 
 static void unwrapGTKClass(void* class, int type)
 {
-    if(type==my_gtkwidget)
+    if(type==my_gtkcontainer)
+        unwrapGtkContainerClass((my_GtkContainerClass_t*)class);
+    else if(type==my_gtkwidget)
         unwrapGtkWidgetClass((my_GtkWidgetClass_t*)class);
     else if(type==my_gtkobject)
         unwrapGtkObjectClass((my_GtkObjectClass_t*)class);
@@ -346,7 +392,12 @@ void* wrapCopyGTKClass(void* class, int type)
         table_nat = (void**)realloc(table_nat, sizeof(void*)*table_cap);
     }
     table_ref[table_sz] = class;
-    if(type==my_gtkwidget) {
+    if(type==my_gtkcontainer) {
+        my_GtkContainerClass_t *tmp = (my_GtkContainerClass_t*)malloc(sizeof(my_GtkContainerClass_t));
+        memcpy(tmp, class, sizeof(my_GtkContainerClass_t));
+        wrapGtkContainerClass(tmp);
+        table_nat[table_sz] = tmp;
+    } else if(type==my_gtkwidget) {
         my_GtkWidgetClass_t *tmp = (my_GtkWidgetClass_t*)malloc(sizeof(my_GtkWidgetClass_t));
         memcpy(tmp, class, sizeof(my_GtkWidgetClass_t));
         wrapGtkWidgetClass(tmp);

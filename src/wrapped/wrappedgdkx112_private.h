@@ -780,3 +780,5 @@ GO(gdk_xid_table_lookup_for_display, pFpp)
 GO(gdkx_visual_get, pFp)
 
 //GLOB(gdk_display, 4)
+
+GO(dummy_set_child_property, vFppupp)       // to get vFppupp for gtkclass.c

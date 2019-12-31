@@ -108,6 +108,24 @@ typedef struct my_GtkWidgetClass_s
   void (*_gtk_reserved7) (void);
 } my_GtkWidgetClass_t;
 
+typedef struct my_GtkContainerClass_s 
+{
+  my_GtkWidgetClass_t parent_class;
+  void    (*add)                (void* container, void* widget);
+  void    (*remove)             (void* container, void* widget);
+  void    (*check_resize)       (void* container);
+  void    (*forall)             (void* container, int include_internals, void* callback, void* callback_data);
+  void    (*set_focus_child)    (void* container, void* widget);
+  int     (*child_type)         (void* container);
+  void*   (*composite_name)     (void* container, void* child);
+  void    (*set_child_property) (void* container, void* child, uint32_t property_id, void* value, void* pspec);
+  void    (*get_child_property) (void* container, void* child, uint32_t property_id, void* value, void* pspec);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkContainerClass_t;
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
