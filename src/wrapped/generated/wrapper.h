@@ -1110,6 +1110,7 @@ void vFppipppui(x86emu_t *emu, uintptr_t fnc);
 void vFppippppi(x86emu_t *emu, uintptr_t fnc);
 void vFppippppp(x86emu_t *emu, uintptr_t fnc);
 void vFppppiipi(x86emu_t *emu, uintptr_t fnc);
+void iFEipupupi(x86emu_t *emu, uintptr_t fnc);
 void iFEpippppp(x86emu_t *emu, uintptr_t fnc);
 void iFiiiiiiip(x86emu_t *emu, uintptr_t fnc);
 void iFiiippppp(x86emu_t *emu, uintptr_t fnc);

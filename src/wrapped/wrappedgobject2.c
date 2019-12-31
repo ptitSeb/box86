@@ -57,7 +57,7 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_type_register_fundamental, iFipppi_t)  \
     GO(g_type_value_table_peek, pFi_t)          \
     GO(g_value_register_transform_func, vFiip_t)\
-    GO(g_signal_add_emission_hook, LFupppp_t)
+    GO(g_signal_add_emission_hook, LFupppp_t)   \
 
 
 typedef struct gobject2_my_s {
@@ -422,6 +422,20 @@ EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signa
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
     SetCallbackArg(cb, 9, notify);
     return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, cb, my_destroy_notify);
+}
+
+EXPORT int my_g_type_register_static_simple(x86emu_t* emu, int parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, int flags)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    my_GTypeInfo_t info = {0};
+    info.class_size = class_size;
+    info.class_init = class_init;
+    info.instance_size = instance_size;
+    info.instance_init = instance_init;
+
+    return my->g_type_register_static(parent, name, &info, flags);
 }
 
 

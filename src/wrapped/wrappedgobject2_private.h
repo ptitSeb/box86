@@ -336,7 +336,7 @@ GO(g_type_name, pFi)
 //GOM(type_register_dynamic, iFEpippi)
 GOM(g_type_register_fundamental, iFEipppi)
 GOM(g_type_register_static, iFEippi)
-//GOM(g_type_register_static_simple, iFEipuBuBi)
+GOM(g_type_register_static_simple, iFEipupupi)
 //GOM(g_type_remove_class_cache_func, vFEpB)
 //GOM(g_type_remove_interface_check, vFEpB)
 //GO(g_type_set_qdata, 

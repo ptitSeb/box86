@@ -498,7 +498,8 @@ my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts)
 // First the structure my_GTypeInfo_t statics, with paired x86 source pointer
 #define GO(A) \
 static my_GTypeInfo_t     my_gtypeinfo_##A = {0};   \
-static my_GTypeInfo_t   *ref_gtypeinfo_##A = NULL;
+static my_GTypeInfo_t    ref_gtypeinfo_##A = {0};   \
+static int              used_gtypeinfo_##A = 0;
 SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
@@ -542,13 +543,13 @@ SUPER()
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
 {
     if(!fcts) return NULL;
-    #define GO(A) if(ref_gtypeinfo_##A == fcts) return &my_gtypeinfo_##A;
+    #define GO(A) if(used_gtypeinfo_##A==0 && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(ref_gtypeinfo_##A == 0) {          \
-        ref_gtypeinfo_##A = fcts;                       \
-        fct_parent_##A = parent;                        \
-        my_gtypeinfo_##A.class_size = fcts->class_size; \
+    #define GO(A) if(used_gtypeinfo_##A == 0) {                         \
+        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));            \
+        fct_parent_##A = parent;                                        \
+        my_gtypeinfo_##A.class_size = fcts->class_size;                 \
         my_gtypeinfo_##A.base_init = (fcts->base_init)?((GetNativeFnc((uintptr_t)fcts->base_init))?GetNativeFnc((uintptr_t)fcts->base_init):my_funcs_base_init_##A):NULL;    \
         fct_funcs_base_init_##A = (uintptr_t)fcts->base_init;           \
         my_gtypeinfo_##A.base_finalize = (fcts->base_finalize)?((GetNativeFnc((uintptr_t)fcts->base_finalize))?GetNativeFnc((uintptr_t)fcts->base_finalize):my_funcs_base_finalize_##A):NULL;    \
@@ -563,7 +564,7 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
         my_gtypeinfo_##A.instance_init = (fcts->instance_init)?((GetNativeFnc((uintptr_t)fcts->instance_init))?GetNativeFnc((uintptr_t)fcts->instance_init):my_funcs_instance_init_##A):NULL;    \
         fct_funcs_instance_init_##A = (uintptr_t)fcts->instance_init;   \
         my_gtypeinfo_##A.value_table = findFreeGTypeValueTable(fcts->value_table);           \
-        return &my_gtypeinfo_##A;                       \
+        return &my_gtypeinfo_##A;                                       \
     }
     SUPER()
     #undef GO
@@ -576,7 +577,8 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
 // First the structure my_GtkTypeInfo_t statics, with paired x86 source pointer
 #define GO(A) \
 static my_GtkTypeInfo_t     my_gtktypeinfo_##A = {0};   \
-static my_GtkTypeInfo_t   *ref_gtktypeinfo_##A = NULL;
+static my_GtkTypeInfo_t    ref_gtktypeinfo_##A = {0};  \
+static int                used_gtktypeinfo_##A = 0;
 SUPER()
 #undef GO
 // Then the static functions callback that may be used with the structure
@@ -604,11 +606,11 @@ SUPER()
 my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent)
 {
     if(!fcts) return NULL;
-    #define GO(A) if(ref_gtktypeinfo_##A == fcts) return &my_gtktypeinfo_##A;
+    #define GO(A) if(used_gtktypeinfo_##A && memcmp(&ref_gtktypeinfo_##A, fcts, sizeof(my_GtkTypeInfo_t))==0) return &my_gtktypeinfo_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(ref_gtktypeinfo_##A == 0) {          \
-        ref_gtktypeinfo_##A = fcts;                       \
+    #define GO(A) if(used_gtktypeinfo_##A == 0) {          \
+        memcpy(&ref_gtktypeinfo_##A, fcts, sizeof(my_GtkTypeInfo_t));        \
         fct_gtk_parent_##A = parent;                        \
         my_gtktypeinfo_##A.type_name = fcts->type_name; \
         my_gtktypeinfo_##A.object_size = fcts->object_size; \
