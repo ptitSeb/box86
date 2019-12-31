@@ -958,12 +958,12 @@ GO(gtk_entry_set_width_chars, uFp)
 //GO(gtk_entry_text_index_to_layout_index, 
 //GO(gtk_entry_unset_invisible_char, 
 //GO(gtk_enumerate_printers, 
-//GO(gtk_event_box_get_above_child, 
+GO(gtk_event_box_get_above_child, iFp)
 GO(gtk_event_box_get_type, iFv)
-//GO(gtk_event_box_get_visible_window, 
-//GO(gtk_event_box_new, 
-//GO(gtk_event_box_set_above_child, 
-//GO(gtk_event_box_set_visible_window, 
+GO(gtk_event_box_get_visible_window, iFp)
+GO(gtk_event_box_new, pFv)
+GO(gtk_event_box_set_above_child, vFpi)
+GO(gtk_event_box_set_visible_window, vFpi)
 GO(gtk_events_pending, iFv)
 GO(gtk_exit, vFi)
 //GO(gtk_expander_get_expanded, 
@@ -1143,9 +1143,9 @@ GO(gtk_frame_set_label_align, vFpff)
 GO(gtk_frame_set_label_widget, vFpp)
 GO(gtk_frame_set_shadow_type, vFpi)
 GO(gtk_gamma_curve_get_type, iFv)
-//GO(gtk_gamma_curve_new, 
-//GO(gtk_gc_get, 
-//GO(gtk_gc_release, 
+GO(gtk_gamma_curve_new, pFv)
+GO(gtk_gc_get, pFippu)
+GO(gtk_gc_release, vFp)
 GO(gtk_get_current_event, pFv)
 GO(gtk_get_current_event_state, iFp)
 GO(gtk_get_current_event_time, uFv)
@@ -1155,15 +1155,15 @@ GO(gtk_get_option_group, pFi)
 GO(gtk_grab_add, vFp)
 GO(gtk_grab_get_current, pFv)
 GO(gtk_grab_remove, vFp)
-//GO(gtk_handle_box_get_child_detached, 
-//GO(gtk_handle_box_get_handle_position, 
-//GO(gtk_handle_box_get_shadow_type, 
-//GO(gtk_handle_box_get_snap_edge, 
+GO(gtk_handle_box_get_child_detached, iFp)
+GO(gtk_handle_box_get_handle_position, iFp)
+GO(gtk_handle_box_get_shadow_type, iFp)
+GO(gtk_handle_box_get_snap_edge, iFp)
 GO(gtk_handle_box_get_type, iFv)
-//GO(gtk_handle_box_new, 
-//GO(gtk_handle_box_set_handle_position, 
-//GO(gtk_handle_box_set_shadow_type, 
-//GO(gtk_handle_box_set_snap_edge, 
+GO(gtk_handle_box_new, pFv)
+GO(gtk_handle_box_set_handle_position, vFpi)
+GO(gtk_handle_box_set_shadow_type, vFpi)
+GO(gtk_handle_box_set_snap_edge, vFpi)
 GO(gtk_hbox_get_type, iFv)
 GO(gtk_hbox_new, pFii)
 GO(gtk_hbutton_box_get_layout_default, iFv)
@@ -2571,36 +2571,36 @@ GO(gtk_socket_get_type, iFv)
 GO(gtk_socket_new, pFv)
 GO(gtk_socket_steal, vFpp)
 GO(gtk_sort_type_get_type, iFv)
-//GO(gtk_spin_button_configure, 
-//GO(gtk_spin_button_get_adjustment, 
-//GO(gtk_spin_button_get_digits, 
-//GO(gtk_spin_button_get_increments, 
-//GO(gtk_spin_button_get_numeric, 
-//GO(gtk_spin_button_get_range, 
-//GO(gtk_spin_button_get_snap_to_ticks, 
+GO(gtk_spin_button_configure, vFppdu)
+GO(gtk_spin_button_get_adjustment, pFp)
+GO(gtk_spin_button_get_digits, uFp)
+GO(gtk_spin_button_get_increments, vFppp)
+GO(gtk_spin_button_get_numeric, iFp)
+GO(gtk_spin_button_get_range, vFppp)
+GO(gtk_spin_button_get_snap_to_ticks, iFp)
 GO(gtk_spin_button_get_type, iFv)
-//GO(gtk_spin_button_get_update_policy, 
-//GO(gtk_spin_button_get_value, 
-//GO(gtk_spin_button_get_value_as_int, 
-//GO(gtk_spin_button_get_wrap, 
-//GO(gtk_spin_button_new, 
-//GO(gtk_spin_button_new_with_range, 
-//GO(gtk_spin_button_set_adjustment, 
-//GO(gtk_spin_button_set_digits, 
-//GO(gtk_spin_button_set_increments, 
-//GO(gtk_spin_button_set_numeric, 
-//GO(gtk_spin_button_set_range, 
-//GO(gtk_spin_button_set_snap_to_ticks, 
-//GO(gtk_spin_button_set_update_policy, 
-//GO(gtk_spin_button_set_value, 
-//GO(gtk_spin_button_set_wrap, 
-//GO(gtk_spin_button_spin, 
-//GO(gtk_spin_button_update, 
+GO(gtk_spin_button_get_update_policy, iFp)
+GO(gtk_spin_button_get_value, dFp)
+GO(gtk_spin_button_get_value_as_int, iFp)
+GO(gtk_spin_button_get_wrap, iFp)
+GO(gtk_spin_button_new, pFpdu)
+GO(gtk_spin_button_new_with_range, pFddd)
+GO(gtk_spin_button_set_adjustment, vFpp)
+GO(gtk_spin_button_set_digits, vFpu)
+GO(gtk_spin_button_set_increments, vFpdd)
+GO(gtk_spin_button_set_numeric, vFpi)
+GO(gtk_spin_button_set_range, vFpdd)
+GO(gtk_spin_button_set_snap_to_ticks, vFpi)
+GO(gtk_spin_button_set_update_policy, vFpi)
+GO(gtk_spin_button_set_value, vFpd)
+GO(gtk_spin_button_set_wrap, vFpi)
+GO(gtk_spin_button_spin, vFpid)
+GO(gtk_spin_button_update, vFp)
 GO(gtk_spin_button_update_policy_get_type, iFv)
 GO(gtk_spinner_get_type, iFv)
-//GO(gtk_spinner_new, 
-//GO(gtk_spinner_start, 
-//GO(gtk_spinner_stop, 
+GO(gtk_spinner_new, pFv)
+GO(gtk_spinner_start, vFp)
+GO(gtk_spinner_stop, vFp)
 GO(gtk_spin_type_get_type, iFv)
 GO(gtk_state_type_get_type, iFv)
 //GO(gtk_statusbar_get_context_id, 
@@ -2713,7 +2713,7 @@ GO(gtk_targets_include_uri, iFpi)
 GO(gtk_target_table_free, vFpi)
 GO(gtk_target_table_new_from_list, pFpp)
 GO(gtk_tearoff_menu_item_get_type, iFv)
-//GO(gtk_tearoff_menu_item_new, 
+GO(gtk_tearoff_menu_item_new, pFv)
 //GO(gtk_test_create_simple_window, 
 //GO(gtk_test_create_widget, 
 //GO(gtk_test_display_button_window, 
@@ -2832,7 +2832,7 @@ GO(gtk_text_iter_backward_char, iFp)
 GO(gtk_text_iter_backward_chars, iFpi)
 GO(gtk_text_iter_backward_cursor_position, iFp)
 GO(gtk_text_iter_backward_cursor_positions, iFpi)
-//GOM(gtk_text_iter_backward_find_char, iFEpBpp)
+GOM(gtk_text_iter_backward_find_char, iFEpppp)
 GO(gtk_text_iter_backward_line, iFp)
 GO(gtk_text_iter_backward_lines, iFpi)
 GO(gtk_text_iter_backward_search, iFppuppp)
@@ -2861,7 +2861,7 @@ GO(gtk_text_iter_forward_char, iFp)
 GO(gtk_text_iter_forward_chars, iFpi)
 GO(gtk_text_iter_forward_cursor_position, iFp)
 GO(gtk_text_iter_forward_cursor_positions, iFpi)
-//GOM(gtk_text_iter_forward_find_char, iFEpBpp)
+GOM(gtk_text_iter_forward_find_char, iFEpppp)
 GO(gtk_text_iter_forward_line, iFp)
 GO(gtk_text_iter_forward_lines, iFpi)
 GO(gtk_text_iter_forward_search, iFppuppp)

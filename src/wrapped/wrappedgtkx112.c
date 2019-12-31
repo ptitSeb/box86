@@ -32,6 +32,7 @@ typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
 typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
+typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
@@ -55,7 +56,9 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_clipboard_set_with_data, iFppuppp_t) \
     GO(gtk_stock_set_translate_func, vFpppp_t)  \
     GO(gtk_container_forall, vFppp_t)           \
-    GO(gtk_tree_view_set_search_equal_func, vFpppp_t)
+    GO(gtk_tree_view_set_search_equal_func, vFpppp_t)   \
+    GO(gtk_text_iter_backward_find_char, iFpppp_t)      \
+    GO(gtk_text_iter_forward_find_char, iFpppp_t)
 
 typedef struct gtkx112_my_s {
     // functions
@@ -293,6 +296,28 @@ static void* findGtkCallbackFct(void* fct)
     return NULL;
 }
 
+// GtkTextCharPredicate
+#define GO(A)   \
+static uintptr_t my_textcharpredicate_fct_##A = 0;   \
+static int my_textcharpredicate_##A(uint32_t ch, void* data)     \
+{                                       \
+    return (int)RunFunction(my_context, my_textcharpredicate_fct_##A, 2, ch, data);\
+}
+SUPER()
+#undef GO
+static void* findGtkTextCharPredicateFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_textcharpredicate_fct_##A == (uintptr_t)fct) return my_textcharpredicate_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_textcharpredicate_fct_##A == 0) {my_textcharpredicate_fct_##A = (uintptr_t)fct; return my_textcharpredicate_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTextCharPredicate callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -426,7 +451,7 @@ EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 2, NULL, data, NULL, NULL);
     SetCallbackNArgs(cb, 8, 2, data, notify);
 
-    my->gtk_stock_set_translate_func(domain, f?my_translate_func:NULL, cb, my_destroy_notify);
+    my->gtk_stock_set_translate_func(domain, my_translate_func, cb, my_destroy_notify);
 }
 
 EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
@@ -448,11 +473,30 @@ EXPORT void my_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_vie
     library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
+    if(!f)
+        my->gtk_tree_view_set_search_equal_func(tree_view, f, data, notify);    // notify will be NULL to right? But f can be NULL?
+
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 5, NULL, NULL, NULL, NULL);
     SetCallbackArg(cb, 4, data);
     SetCallbackNArgs(cb, 8, 2, data, notify);
 
-    my->gtk_tree_view_set_search_equal_func(tree_view, f?my_tree_view_search_equal:NULL, cb, my_destroy_notify);
+    my->gtk_tree_view_set_search_equal_func(tree_view, my_tree_view_search_equal, cb, my_destroy_notify);
+}
+
+EXPORT int my_gtk_text_iter_backward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_text_iter_backward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
+}
+
+EXPORT int my_gtk_text_iter_forward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_text_iter_forward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 #define CUSTOM_INIT \
