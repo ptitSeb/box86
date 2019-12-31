@@ -148,7 +148,7 @@ GO(SDL_GameControllerName, pFp)
 GO(SDL_GameControllerNameForIndex, pFi)
 // SDL_GameControllerNumMappings
 GO(SDL_GameControllerOpen, pFi)
-// SDL_GameControllerRumble
+GO(SDL_GameControllerRumble, iFpWWu)
 GO(SDL_GameControllerUpdate, vFv)
 // SDL_GetAssertionHandler
 // SDL_GetAssertionReport
@@ -344,7 +344,7 @@ GO(SDL_IsScreenSaverEnabled, iFv)
 GO(SDL_IsTextInputActive, iFv)
 // SDL_itoa
 GO(SDL_JoystickClose, vFp)
-// SDL_JoystickCurrentPowerLevel
+GO(SDL_JoystickCurrentPowerLevel, iFp)
 GO(SDL_JoystickEventState, iFi)
 // SDL_JoystickFromInstanceID
 GO(SDL_JoystickGetAttached, iFp)
@@ -353,7 +353,7 @@ GO(SDL_JoystickGetAxis, iFpi)
 // SDL_JoystickGetBall
 GO(SDL_JoystickGetButton, CFpi)
 GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
-// SDL_JoystickGetDeviceInstanceID
+GO(SDL_JoystickGetDeviceInstanceID, iFi)
 // SDL_JoystickGetDevicePlayerIndex
 GO(SDL_JoystickGetDeviceProduct, WFi)
 GO(SDL_JoystickGetDeviceProductVersion, WFi)
@@ -363,7 +363,7 @@ GOS(SDL_JoystickGetGUID, pFEpp)
 GOS(SDL_JoystickGetGUIDFromString, pFEpp)
 GO(SDL_JoystickGetGUIDString, vFupi)
 GO(SDL_JoystickGetHat, CFpi)
-// SDL_JoystickGetPlayerIndex
+GO(SDL_JoystickGetPlayerIndex, iFp)
 // SDL_JoystickGetProduct
 // SDL_JoystickGetProductVersion
 // SDL_JoystickGetType
@@ -377,7 +377,7 @@ GO(SDL_JoystickNumBalls, iFp)
 GO(SDL_JoystickNumButtons, iFp)
 GO(SDL_JoystickNumHats, iFp)
 GO(SDL_JoystickOpen, pFi)
-// SDL_JoystickRumble
+GO(SDL_JoystickRumble, iFpWWu)
 GO(SDL_JoystickUpdate, vFv)
 // SDL_LinuxSetThreadPriority
 // SDL_lltoa
