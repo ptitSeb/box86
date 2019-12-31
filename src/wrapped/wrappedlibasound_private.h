@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2)
+#if !(defined(GO) && defined(GOM) && defined(GO2))
+#error meh!
+#endif
 
 DATAB(alsa_lisp_nil, 4)
 DATAB(alsa_lisp_t, 4)
@@ -64,7 +66,7 @@ GOM(snd_async_add_handler, iFEpipp)
 //GO(snd_async_del_handler, iFp)
 //GO(snd_async_handler_get_fd, iFp)
 //GO(snd_async_handler_get_signo, iFp)
-GOM(snd_async_handler_get_callback_private, pFEp)
+GO(snd_async_handler_get_callback_private, pFp)
 GO(snd_shm_area_create, pFip)
 GO(snd_shm_area_share, pFp)
 GO(snd_shm_area_destroy, iFp)
@@ -152,7 +154,7 @@ GO(snd_pcm_format_mask_sizeof, uFv)
 GO(snd_pcm_subformat_mask_sizeof, uFv)
 GO(snd_pcm_status_sizeof, uFv)
 GOM(snd_async_add_pcm_handler, iFEpppp)
-//GO(snd_async_handler_get_pcm, pFp)
+GO(snd_async_handler_get_pcm, pFp)
 GO(snd_pcm_access_mask_any, vFp)
 GO(snd_pcm_access_mask_copy, vFpp)
 GO(snd_pcm_access_mask_empty, iFp)
@@ -1267,5 +1269,3 @@ GO(snd_seq_reset_pool_output, iFp)
 GO(snd_seq_reset_pool_input, iFp)
 GO(snd_seq_sync_output_queue, iFp)
 GO(snd_seq_parse_address, iFppp)
-
-#endif

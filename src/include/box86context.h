@@ -102,6 +102,7 @@ typedef struct box86context_s {
     library_t           *zlib;
     library_t           *vorbisfile;
     library_t           *vorbis;
+    library_t           *asound;
     library_t           *monounity;
 
     int                 deferedInit;
