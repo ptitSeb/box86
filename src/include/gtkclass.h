@@ -158,8 +158,24 @@ typedef struct my_GTypeInfo_s {
   my_GTypeValueTable_t*  value_table;
 } my_GTypeInfo_t;
 
+// GtkTypeInfo 
+typedef GBaseInitFunc           GtkClassInitFunc;
+typedef GInstanceInitFunc       GtkObjectInitFunc;
+
+typedef struct my_GtkTypeInfo_s {
+  void*              type_name;
+  uint32_t    			 object_size;
+  uint32_t    			 class_size;
+  GtkClassInitFunc	 class_init_func;
+  GtkObjectInitFunc	 object_init_func;
+  void*         		 reserved_1;
+  void*         		 reserved_2;
+  GtkClassInitFunc	 base_class_init_func;
+} my_GtkTypeInfo_t ;
+
 my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts);
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent);
+my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent);
 
 void InitGTKClass(box86context_t* context, bridge_t *bridge);
 void FiniGTKClass();

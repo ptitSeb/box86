@@ -567,7 +567,65 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
     }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for glib2 GTypeInfo callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo callback\n");
+    return NULL;
+}
+
+// ---- GtkTypeInfo ----
+
+// First the structure my_GtkTypeInfo_t statics, with paired x86 source pointer
+#define GO(A) \
+static my_GtkTypeInfo_t     my_gtktypeinfo_##A = {0};   \
+static my_GtkTypeInfo_t   *ref_gtktypeinfo_##A = NULL;
+SUPER()
+#undef GO
+// Then the static functions callback that may be used with the structure
+#define GO(A)   \
+static int fct_gtk_parent_##A = 0 ;                     \
+static uintptr_t fct_gtk_class_init_##A = 0;       \
+static int my_gtk_class_init_##A(void* g_class) {  \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_class_init_" #A " wrapper\n");             \
+    return (int)RunFunction(my_context, fct_gtk_class_init_##A, 1, g_class);    \
+}   \
+static uintptr_t fct_gtk_object_init_##A = 0;  \
+static int my_gtk_object_init_##A(void* object, void* data) {   \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_object_init_" #A " wrapper\n");             \
+    return (int)RunFunction(my_context, fct_gtk_object_init_##A, 2, object, data);    \
+}   \
+static uintptr_t fct_gtk_base_class_init_##A = 0;  \
+static int my_gtk_base_class_init_##A(void* instance, void* data) {   \
+    printf_log(LOG_DEBUG, "Calling fct_gtk_base_class_init_" #A " wrapper\n");             \
+    return (int)RunFunction(my_context, fct_gtk_base_class_init_##A, 2, instance, data);    \
+}
+
+SUPER()
+#undef GO
+// And now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
+my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent)
+{
+    if(!fcts) return NULL;
+    #define GO(A) if(ref_gtktypeinfo_##A == fcts) return &my_gtktypeinfo_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_gtktypeinfo_##A == 0) {          \
+        ref_gtktypeinfo_##A = fcts;                       \
+        fct_gtk_parent_##A = parent;                        \
+        my_gtktypeinfo_##A.type_name = fcts->type_name; \
+        my_gtktypeinfo_##A.object_size = fcts->object_size; \
+        my_gtktypeinfo_##A.class_size = fcts->class_size; \
+        my_gtktypeinfo_##A.class_init_func = (fcts->class_init_func)?((GetNativeFnc((uintptr_t)fcts->class_init_func))?GetNativeFnc((uintptr_t)fcts->class_init_func):my_gtk_class_init_##A):NULL;    \
+        fct_gtk_class_init_##A = (uintptr_t)fcts->class_init_func;           \
+        my_gtktypeinfo_##A.object_init_func = (fcts->object_init_func)?((GetNativeFnc((uintptr_t)fcts->object_init_func))?GetNativeFnc((uintptr_t)fcts->object_init_func):my_gtk_object_init_##A):NULL;    \
+        fct_gtk_object_init_##A = (uintptr_t)fcts->object_init_func;         \
+        my_gtktypeinfo_##A.reserved_1 = fcts->reserved_1;                 \
+        my_gtktypeinfo_##A.reserved_2 = fcts->reserved_2;                 \
+        my_gtktypeinfo_##A.base_class_init_func = (fcts->base_class_init_func)?((GetNativeFnc((uintptr_t)fcts->base_class_init_func))?GetNativeFnc((uintptr_t)fcts->base_class_init_func):my_gtk_base_class_init_##A):NULL;    \
+        fct_gtk_base_class_init_##A = (uintptr_t)fcts->base_class_init_func;   \
+        return &my_gtktypeinfo_##A;                       \
+    }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for GtkTypeInfo callback\n");
     return NULL;
 }
 

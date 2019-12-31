@@ -26,6 +26,7 @@ static box86context_t* my_context = NULL;
 
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
+typedef int           (*iFip_t)(int, void*);
 typedef int           (*iFpp_t)(void*, void*);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
@@ -34,10 +35,16 @@ typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
 typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
+typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
+typedef void*         (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int);
+typedef void*         (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
+typedef void*         (*pFpppppppi_t)(void*, void*, void*, void*, void*, void*, void*, int);
 typedef void          (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
 typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
+typedef void*         (*pFpippppppp_t)(void*, int, void*, void*, void*, void*, void*, void*, void*);
+typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, void*, void*, void*, int);
 
 #define SUPER() \
     GO(gtk_object_get_type, iFv_t)              \
@@ -58,7 +65,18 @@ typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, 
     GO(gtk_container_forall, vFppp_t)           \
     GO(gtk_tree_view_set_search_equal_func, vFpppp_t)   \
     GO(gtk_text_iter_backward_find_char, iFpppp_t)      \
-    GO(gtk_text_iter_forward_find_char, iFpppp_t)
+    GO(gtk_text_iter_forward_find_char, iFpppp_t)       \
+    GO(gtk_toolbar_append_item, pFppppppp_t)    \
+    GO(gtk_toolbar_prepend_item, pFppppppp_t)   \
+    GO(gtk_toolbar_insert_item, pFpppppppi_t)   \
+    GO(gtk_toolbar_append_element, pFpippppppp_t)       \
+    GO(gtk_toolbar_prepend_element, pFpippppppp_t)      \
+    GO(gtk_toolbar_insert_element, pFpipppppppi_t)      \
+    GO(gtk_toolbar_insert_stock, pFppppppi_t)   \
+    GO(gtk_tree_sortable_set_sort_func, vFpippp_t)      \
+    GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t)\
+    GO(gtk_type_unique, iFip_t)                 \
+
 
 typedef struct gtkx112_my_s {
     // functions
@@ -319,6 +337,29 @@ static void* findGtkTextCharPredicateFct(void* fct)
     return NULL;
 }
 
+// Toolbar
+#define GO(A)   \
+static uintptr_t my_toolbar_fct_##A = 0;   \
+static void my_toolbar_##A(void* widget, void* data)     \
+{                                       \
+    RunFunction(my_context, my_toolbar_fct_##A, 2, widget, data);\
+}
+SUPER()
+#undef GO
+static void* findToolbarFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_toolbar_fct_##A == (uintptr_t)fct) return my_toolbar_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_toolbar_fct_##A == 0) {my_toolbar_fct_##A = (uintptr_t)fct; return my_toolbar_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 Toolbar callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -497,6 +538,104 @@ EXPORT int my_gtk_text_iter_forward_find_char(x86emu_t* emu, void* iter, void* f
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     return my->gtk_text_iter_forward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
+}
+
+EXPORT void* my_gtk_toolbar_append_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_append_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
+}
+
+EXPORT void* my_gtk_toolbar_prepend_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_prepend_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
+}
+
+EXPORT void* my_gtk_toolbar_insert_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_insert_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
+}
+
+EXPORT void* my_gtk_toolbar_append_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_append_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
+}
+
+EXPORT void* my_gtk_toolbar_prepend_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_prepend_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
+}
+
+EXPORT void* my_gtk_toolbar_insert_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_insert_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
+}
+
+EXPORT void* my_gtk_toolbar_insert_stock(x86emu_t* emu, void* toolbar, void* stock_id, void* tooltip_text, void* tooltip_private, void* f, void* data, int position)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_toolbar_insert_stock(toolbar, stock_id, tooltip_text, tooltip_private, findToolbarFct(f), data, position);
+}
+
+static int my_tree_iter_compare(void* model, void* a, void* b, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 3, model, a, b);
+    return (int)RunCallback(emu);
+}
+
+EXPORT void my_gtk_tree_sortable_set_sort_func(x86emu_t* emu, void* sortable, int id, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        my->gtk_tree_sortable_set_sort_func(sortable, id, f, data, notify);
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
+    SetCallbackNArgs(cb, 8, 2, data, notify);
+
+    my->gtk_tree_sortable_set_sort_func(sortable, id, my_tree_iter_compare, cb, my_destroy_notify);
+}
+
+EXPORT void my_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sortable, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        my->gtk_tree_sortable_set_default_sort_func(sortable, f, data, notify);
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
+    SetCallbackNArgs(cb, 8, 2, data, notify);
+
+    my->gtk_tree_sortable_set_default_sort_func(sortable, my_tree_iter_compare, cb, my_destroy_notify);
+}
+
+EXPORT int my_gtk_type_unique(x86emu_t* emu, int parent, my_GtkTypeInfo_t* gtkinfo)
+{
+    library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_type_unique(parent, findFreeGtkTypeInfo(gtkinfo, parent));
 }
 
 #define CUSTOM_INIT \
