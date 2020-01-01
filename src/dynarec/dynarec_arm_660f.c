@@ -458,11 +458,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0);
             GETEX(v1);
-            VQMOVN_U16(v0, v0);
+            VQMOVUN_S16(v0, v0);
             if(v0==v1) {
                 VMOVD(v0+1, v0);
             } else {
-                VQMOVN_U16(v0+1, v1);
+                VQMOVUN_S16(v0+1, v1);
             }
             break;
         case 0x68:

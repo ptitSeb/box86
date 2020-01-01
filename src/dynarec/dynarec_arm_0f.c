@@ -551,7 +551,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VLD1_64(q0+1, ed);
             }
             VMOVD(q0, d0);
-            VQMOVN_U16(d0, q0);
+            VQMOVUN_S16(d0, q0);
             break;
         case 0x68:
             INST_NAME("PUNPCKHBW Gm,Em");
@@ -1572,6 +1572,50 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VADD_64(v0, v0, v1);
             break;
+        case 0xD5:
+            INST_NAME("PMULLW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VMUL_16(d0, d0, d1);
+            break;
+
+        case 0xD8:
+            INST_NAME("PSUBUSB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQSUB_U8(d0, d0, d1);
+            break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQSUB_U16(d0, d0, d1);
+            break;
+
+        case 0xDB:
+            INST_NAME("PAND Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VANDD(v0, v0, v1);
+            break;
+        case 0xDC:
+            INST_NAME("PADDUSB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQADD_U8(d0, d0, d1);
+            break;
+        case 0xDD:
+            INST_NAME("PADDUSW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQADD_U16(d0, d0, d1);
+            break;
 
         case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
@@ -1594,6 +1638,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOVD(v0, q0+1);
             break;
 
+        case 0xEB:
+            INST_NAME("POR Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VORRD(v0, v0, v1);
+            break;
+
         case 0xEF:
             INST_NAME("PXOR Gm, Em");
             nextop = F8;
@@ -1603,13 +1655,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xF4:
-            INST_NAME("PMULUDQ Gm,Em");
+            INST_NAME("PMULUDQ Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
             q0 = fpu_get_scratch_quad(dyn);
             VMULL_U64_U32(q0, v0, v1);
             VMOVD(v0, q0);
+            break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_S32_S16(q0, d0, d1);
+            VTRN_32(q0, q0+1);
+            VADD_32(d0, q0, q0+1);
             break;
 
         default:
