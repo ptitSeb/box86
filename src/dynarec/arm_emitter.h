@@ -739,6 +739,12 @@ Op is 20-27
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_U64_U32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VMUL_NEON_gen(op, D, size, Vn, Vd, N, Q, M, Vm)    (0b1111<<28 | 0b001<<25 | (op)<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+#define VMULQ_32(Dd, Dn, Dm)     EMIT(VMUL_NEON_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VMULQ_16(Dd, Dn, Dm)     EMIT(VMUL_NEON_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VMUL_32(Dd, Dn, Dm)      EMIT(VMUL_NEON_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VMUL_16(Dd, Dn, Dm)      EMIT(VMUL_NEON_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+
 #define VEXT_gen(D, Vn, Vd, imm4, N, Q, M, Vm)  (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (Vn)<<16 | (Vd)<<12 | (imm4)<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VEXT_8(Dd, Dn, Dm, imm4)    EMIT(VEXT_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, imm4, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VEXTQ_8(Dd, Dn, Dm, imm4)   EMIT(VEXT_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, imm4, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -782,38 +788,38 @@ Op is 20-27
 
 #define VQADD_gen(U, D, size, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12  | 0b0000<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 // Add with saturation unsigned 8bits
-#define VQADDQ_U8(Dd, Dm, Dn)   EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_U8(Dd, Dn, Dm)   EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation unsigned 16bits
-#define VQADDQ_U16(Dd, Dm, Dn)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_U16(Dd, Dn, Dm)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation unsigned 32bits
-#define VQADDQ_U32(Dd, Dm, Dn)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_U32(Dd, Dn, Dm)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation unsigned 64bits
-#define VQADDQ_U64(Dd, Dm, Dn)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_U64(Dd, Dn, Dm)  EMIT(VQADD_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation signed 8bits
-#define VQADDQ_S8(Dd, Dm, Dn)   EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_S8(Dd, Dn, Dm)   EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation signed 16bits
-#define VQADDQ_S16(Dd, Dm, Dn)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_S16(Dd, Dn, Dm)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation signed 32bits
-#define VQADDQ_S32(Dd, Dm, Dn)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_S32(Dd, Dn, Dm)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Add with saturation signed 64bits
-#define VQADDQ_S64(Dd, Dm, Dn)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQADDQ_S64(Dd, Dn, Dm)  EMIT(VQADD_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VQSUB_gen(U, D, size, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0010<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 // Substract with saturation unsigned 8bits
-#define VQSUBQ_U8(Dd, Dm, Dn)   EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_U8(Dd, Dn, Dm)   EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation unsigned 16bits
-#define VQSUBQ_U16(Dd, Dm, Dn)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_U16(Dd, Dn, Dm)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation unsigned 32bits
-#define VQSUBQ_U32(Dd, Dm, Dn)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_U32(Dd, Dn, Dm)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation unsigned 64bits
-#define VQSUBQ_U64(Dd, Dm, Dn)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_U64(Dd, Dn, Dm)  EMIT(VQSUB_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation signed 8bits
-#define VQSUBQ_S8(Dd, Dm, Dn)   EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_S8(Dd, Dn, Dm)   EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation signed 16bits
-#define VQSUBQ_S16(Dd, Dm, Dn)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_S16(Dd, Dn, Dm)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation signed 32bits
-#define VQSUBQ_S32(Dd, Dm, Dn)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_S32(Dd, Dn, Dm)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 // Substract with saturation signed 64bits
-#define VQSUBQ_S64(Dd, Dm, Dn)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQSUBQ_S64(Dd, Dn, Dm)  EMIT(VQSUB_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__
