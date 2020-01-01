@@ -89,6 +89,7 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 
 void* GetNativeFnc(uintptr_t fnc)
 {
+    if(!fnc) return NULL;
     onebridge_t *b = (onebridge_t*)fnc;
     if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
         return NULL;    // not a bridge?!

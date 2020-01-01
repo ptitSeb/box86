@@ -700,3 +700,22 @@ void my_setGlobalGThreadsInit(box86context_t* context)
         memcpy((void*)globoffs, &val, sizeof(gdk_display));
     }
 }
+
+my_signal_t* new_mysignal(void* f, void* data, void* destroy)
+{
+    my_signal_t* sig = (my_signal_t*)calloc(1, sizeof(my_signal_t));
+    sig->sign = SIGN;
+    sig->c_handler = (uintptr_t)f;
+    sig->destroy = (uintptr_t)destroy;
+    sig->data = data;
+    return sig;
+}
+void my_signal_delete(my_signal_t* sig)
+{
+    uintptr_t d = sig->destroy;
+    if(d) {
+        RunFunction(my_context, d, 1, sig->data);
+    }
+    printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, d);
+    free(sig);
+}

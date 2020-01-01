@@ -88,23 +88,9 @@ static void* findFilterFct(void* fct)
 }
 
 
-static void my_event_handler(void* event, void* data)
+static void my_event_handler(void* event, my_signal_t* sig)
 {
-    x86emu_t *emu = (x86emu_t*)data;
-    SetCallbackArg(emu, 0, event);
-    RunCallback(emu);
-}
-static void my_event_notify(void* data)
-{
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 3);
-    if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
-        SetCallbackNArg(emu, 1);
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
+    RunFunction(my_context, sig->c_handler, 2, event, sig->data);
 }
 
 EXPORT void my_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void* notify)
@@ -115,29 +101,14 @@ EXPORT void my_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void
     if(!func)
         return my->gdk_event_handler_set(func, data, notify);
 
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, notify);
-    my->gdk_event_handler_set(my_event_handler, cb, my_event_notify);
+    my_signal_t* sig = new_mysignal(func, data, notify);
+    my->gdk_event_handler_set(my_event_handler, sig, my_signal_delete);
 }
 
 
-static void my_destroy_notify(void* data)
+static void my_input_function(my_signal_t* sig, int source, int condition)
 {
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
-    if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
-        SetCallbackNArg(emu, 1);
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
-}
-
-static void my_input_function(x86emu_t* emu, int source, int condition)
-{
-    SetCallbackArg(emu, 1, (void*)source);
-    SetCallbackArg(emu, 2, (void*)condition);
-    RunCallback(emu);
+    RunFunction(my_context, sig->c_handler, 3, sig->data, source, condition);
 }
 
 EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, void* data)
@@ -147,9 +118,9 @@ EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, v
 
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, NULL);
-    
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, data, NULL, NULL, NULL);
-    return my->gdk_input_add_full(source, condition, my_input_function, cb, my_event_notify);
+
+    my_signal_t* sig = new_mysignal(f, data, NULL);
+    return my->gdk_input_add_full(source, condition, my_input_function, sig, my_signal_delete);
 }
 
 EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void* f, void* data, void* notify)
@@ -160,9 +131,8 @@ EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void*
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, notify);
     
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, data, NULL, NULL, NULL);
-    SetCallbackArg(cb, 9, notify);
-    return my->gdk_input_add_full(source, condition, my_input_function, cb, my_event_notify);
+    my_signal_t* sig = new_mysignal(f, data, notify);
+    return my->gdk_input_add_full(source, condition, my_input_function, sig, my_signal_delete);
 }
 
 EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)

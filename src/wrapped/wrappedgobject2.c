@@ -84,83 +84,66 @@ void freeGobject2My(void* lib)
 
 static box86context_t* my_context = NULL;
 
-static void my_destroy_notify(void* data)
-{
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
-    if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 1));
-        SetCallbackNArg(emu, 1);
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
-}
-
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
     // signal can have many signature... so first job is to find the data!
     // hopefully, no callback have more than 4 arguments...
-    x86emu_t* emu = NULL;
+    my_signal_t* sig = NULL;
     int i = 0;
     if(a)
-        if(IsCallback(my_context, (x86emu_t*)a)) {
-            emu = (x86emu_t*)a;
+        if(((my_signal_t*)a)->sign == SIGN) {
+            sig = (my_signal_t*)a;
             i = 1;
         }
-    if(!emu && b)
-        if(IsCallback(my_context, (x86emu_t*)b)) {
-            emu = (x86emu_t*)b;
+    if(!sig && b)
+        if(((my_signal_t*)b)->sign == SIGN) {
+            sig = (my_signal_t*)b;
             i = 2;
         }
-    if(!emu && c)
-        if(IsCallback(my_context, (x86emu_t*)c)) {
-            emu = (x86emu_t*)c;
+    if(!sig && c)
+        if(((my_signal_t*)c)->sign == SIGN) {
+            sig = (my_signal_t*)c;
             i = 3;
         }
-    if(!emu && d)
-        if(IsCallback(my_context, (x86emu_t*)d)) {
-            emu = (x86emu_t*)d;
+    if(!sig && d)
+        if(((my_signal_t*)d)->sign == SIGN) {
+            sig = (my_signal_t*)d;
             i = 4;
         }
-    if(!i) {
-        printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!");
-        return 0;
+    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, NArgs=%d\n", sig, i);
+    switch(i) {
+        case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
+        case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
+        case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
+        case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
     }
-    SetCallbackNArg(emu, i);
-    if(i>1)
-        SetCallbackArg(emu, 0, a);
-    if(i>2)
-        SetCallbackArg(emu, 1, b);
-    if(i>3)
-        SetCallbackArg(emu, 2, c);
-    SetCallbackArg(emu, i-1, GetCallbackArg(emu, 7));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
-    return RunCallback(emu);
+    printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!");
+    return 0;
 }
-static void signal_delete(void* a, void* b)
+static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
 {
-    x86emu_t* emu = (x86emu_t*)a;
-    void* d = (void*)GetCallbackArg(emu, 9);
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d);
+}
+static void signal_delete(my_signal_t* sig, void* b)
+{
+    uintptr_t d = sig->destroy;
     if(d) {
-        SetCallbackNArg(emu, 2);
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 7));
-        SetCallbackArg(emu, 1, b);
-        SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 9));
-        RunCallback(emu);
+        RunFunction(my_context, d, 2, sig->data, b);
     }
-    FreeCallback(emu);
+    printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, d);
+    free(sig);
 }
 EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
 {
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
-    x86emu_t *cb = AddSmallCallback(emu, (uintptr_t)c_handler, 0, NULL, NULL, NULL, NULL);
-    SetCallbackArg(cb, 7, data);
-    SetCallbackArg(cb, 8, c_handler);
-    SetCallbackArg(cb, 9, closure);
-    uintptr_t ret = my->g_signal_connect_data(instance, detailed, signal_cb, cb, signal_delete, flags);
+
+    my_signal_t *sig = new_mysignal(c_handler, data, closure);
+    uintptr_t ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
+    printf_log(LOG_DEBUG, "Connecting gobject2 %p signal \"%s\" with sig=%p to %p, flags=%d\n", instance, (char*)detailed, sig, c_handler, flags);
     return ret;
 }
 
@@ -404,24 +387,22 @@ EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, 
     my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
 }
 
-static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, void* data)
+static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, my_signal_t* sig)
 {
-    x86emu_t* emu = (x86emu_t*)data;
-    SetCallbackArg(emu, 0, ihint);
-    SetCallbackArg(emu, 1, (void*)n);
-    SetCallbackArg(emu, 2, values);
-    return (int)RunCallback(emu);
+    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, ihint, n, values, sig->data);
 }
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
 {
+    // there can be many signals connected, so something "light" is needed here
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     if(!f)
         return my->g_signal_add_emission_hook(signal, detail, f, data, notify);
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
-    SetCallbackArg(cb, 9, notify);
-    return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, cb, my_destroy_notify);
+    my_signal_t* sig = new_mysignal(f, data, notify);
+    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook \"%s\" created for %p, sig=%p\n", (char*)detail, f, sig);
+    return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, sig, my_signal_delete);
 }
 
 EXPORT int my_g_type_register_static_simple(x86emu_t* emu, int parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, int flags)

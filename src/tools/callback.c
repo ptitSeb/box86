@@ -244,6 +244,7 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
     x86emu_t myemu = {0};
     x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
     SetupX86Emu(emu);
+    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
 
     R_ESP -= nargs*4;   // need to push in reverse order
 

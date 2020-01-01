@@ -191,4 +191,16 @@ void* wrapCopyGTKClass(void* class, int type);
 void my_checkGlobalGdkDisplay(box86context_t* context);
 void my_setGlobalGThreadsInit(box86context_t* context);
 
+typedef struct my_signal_s {
+    uint32_t sign;  // signature
+    void* data;
+    uintptr_t c_handler;
+    uintptr_t destroy;
+} my_signal_t;
+// some random sign to identify a my_signal_t
+#define SIGN 0xFB3405EB
+
+my_signal_t* new_mysignal(void* f, void* data, void* destroy);
+void my_signal_delete(my_signal_t* sig);
+
 #endif //__GTKCLASS_H__

@@ -101,58 +101,42 @@ void freeGtkx112My(void* lib)
 }
 
 static box86context_t* context = NULL;
+
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
     // signal can have many signature... so first job is to find the data!
     // hopefully, no callback have more than 4 arguments...
-    x86emu_t* emu = NULL;
+    my_signal_t* sig = NULL;
     int i = 0;
     if(a)
-        if(IsCallback(context, (x86emu_t*)a)) {
-            emu = (x86emu_t*)a;
+        if(((my_signal_t*)a)->sign == SIGN) {
+            sig = (my_signal_t*)a;
             i = 1;
         }
-    if(!emu && b)
-        if(IsCallback(context, (x86emu_t*)b)) {
-            emu = (x86emu_t*)b;
+    if(!sig && b)
+        if(((my_signal_t*)b)->sign == SIGN) {
+            sig = (my_signal_t*)b;
             i = 2;
         }
-    if(!emu && c)
-        if(IsCallback(context, (x86emu_t*)c)) {
-            emu = (x86emu_t*)c;
+    if(!sig && c)
+        if(((my_signal_t*)c)->sign == SIGN) {
+            sig = (my_signal_t*)c;
             i = 3;
         }
-    if(!emu && d)
-        if(IsCallback(context, (x86emu_t*)d)) {
-            emu = (x86emu_t*)d;
+    if(!sig && d)
+        if(((my_signal_t*)d)->sign == SIGN) {
+            sig = (my_signal_t*)d;
             i = 4;
         }
-    if(!i) {
-        printf_log(LOG_NONE, "Warning, Gtk-x11-2 signal callback but no data found!");
-        return 0;
+    printf_log(LOG_DEBUG, "gtk Signal called, sig=%p, NArgs=%d\n", sig, i);
+    switch(i) {
+        case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
+        case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
+        case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
+        case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
     }
-    SetCallbackNArg(emu, i);
-    if(i>1)
-        SetCallbackArg(emu, 0, a);
-    if(i>2)
-        SetCallbackArg(emu, 1, b);
-    if(i>3)
-        SetCallbackArg(emu, 2, c);
-    SetCallbackArg(emu, i-1, GetCallbackArg(emu, 7));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
-    return RunCallback(emu);
-}
-static void signal_delete(void* a)
-{
-    x86emu_t* emu = (x86emu_t*)a;
-    void* d = (void*)GetCallbackArg(emu, 9);
-    if(d) {
-        SetCallbackNArg(emu, 1);
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 7));
-        SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 9));
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
+    printf_log(LOG_NONE, "Warning, Gtk-x11-2 signal callback but no data found!");
+    return 0;
 }
 EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* name, void* c_handler, void* unsupported, void* data, void* closure, uint32_t signal, int after)
 {
@@ -162,11 +146,9 @@ EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* n
     if(!context)
         context = emu->context;
 
-    x86emu_t *cb = AddSmallCallback(emu, (uintptr_t)c_handler, 0, NULL, NULL, NULL, NULL);
-    SetCallbackArg(cb, 7, data);
-    SetCallbackArg(cb, 8, c_handler);
-    SetCallbackArg(cb, 9, closure);
-    uintptr_t ret = my->gtk_signal_connect_full(object, name, signal_cb, NULL, cb, signal_delete, signal, after);
+    my_signal_t *sig = new_mysignal(c_handler, data, closure);
+    uintptr_t ret = my->gtk_signal_connect_full(object, name, signal_cb, NULL, sig, my_signal_delete, signal, after);
+    printf_log(LOG_DEBUG, "Connecting gtk signal \"%s\" with cb=%p\n", (char*)name, sig);
     return ret;
 }
 
@@ -465,23 +447,9 @@ EXPORT int my_gtk_clipboard_set_with_data(x86emu_t* emu, void* clipboard, void* 
 }
 EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data) __attribute__((alias("my_gtk_clipboard_set_with_data")));
 
-static void my_destroy_notify(void* data)
+static void* my_translate_func(void* path, my_signal_t* sig)
 {
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
-    if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
-        SetCallbackNArg(emu, 1);
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
-}
-
-static void* my_translate_func(void* path, x86emu_t* emu)
-{
-    SetCallbackArg(emu, 0, path);
-    return (void*)RunCallback(emu);
+    return (void*)RunFunction(my_context, sig->c_handler, 2, path, sig->data);
 }
 
 EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f, void* data, void* notify)
@@ -489,10 +457,8 @@ EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f
     library_t * lib = GetLib(emu->context->maplib, gtkx112Name);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 2, NULL, data, NULL, NULL);
-    SetCallbackNArgs(cb, 8, 2, data, notify);
-
-    my->gtk_stock_set_translate_func(domain, my_translate_func, cb, my_destroy_notify);
+    my_signal_t *sig = new_mysignal(f, data, notify);
+    my->gtk_stock_set_translate_func(domain, my_translate_func, sig, my_signal_delete);
 }
 
 EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
@@ -507,6 +473,19 @@ static int my_tree_view_search_equal(void* model, int column, void* key, void* i
 {
     SetCallbackArgs(emu, 4, model, column, key, iter);
     return (int)RunCallback(emu);
+}
+
+static void my_destroy_notify(void* data)
+{
+    x86emu_t *emu = (x86emu_t*)data;
+    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
+    if(f) {
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
+        SetCallbackNArg(emu, 1);
+        SetCallbackAddress(emu, f);
+        RunCallback(emu);
+    }
+    FreeCallback(emu);
 }
 
 EXPORT void my_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_view, void* f, void* data, void* notify)
@@ -609,6 +588,11 @@ EXPORT void my_gtk_tree_sortable_set_sort_func(x86emu_t* emu, void* sortable, in
 
     if(!f)
         my->gtk_tree_sortable_set_sort_func(sortable, id, f, data, notify);
+    
+    void* native_f = GetNativeFnc((uintptr_t)f);
+    void* native_notify = GetNativeFnc((uintptr_t)notify);
+    if(native_f && (native_notify || !notify))
+        return my->gtk_tree_sortable_set_sort_func(sortable, id, native_f, data, native_notify);
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
     SetCallbackNArgs(cb, 8, 2, data, notify);
@@ -623,6 +607,11 @@ EXPORT void my_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sort
 
     if(!f)
         my->gtk_tree_sortable_set_default_sort_func(sortable, f, data, notify);
+
+    void* native_f = GetNativeFnc((uintptr_t)f);
+    void* native_notify = GetNativeFnc((uintptr_t)notify);
+    if(native_f && (native_notify || !notify))
+        return my->gtk_tree_sortable_set_default_sort_func(sortable, native_f, data, native_notify);
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
     SetCallbackNArgs(cb, 8, 2, data, notify);
