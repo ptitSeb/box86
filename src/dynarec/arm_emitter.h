@@ -695,6 +695,13 @@ Op is 20-27
 #define VZIPQ_16(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VZIPQ_32(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VUZP_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0001<<8 | 0<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VUZP_8(Dd, Dm)     EMIT(VUZP_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VUZP_16(Dd, Dm)    EMIT(VUZP_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VUZPQ_8(Dd, Dm)    EMIT(VUZP_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VUZPQ_16(Dd, Dm)   EMIT(VUZP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VUZPQ_32(Dd, Dm)   EMIT(VUZP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #define VADD_F_gen(D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | (D)<<22 | 0<<20 | (Vn)<<16 | (Vd)<<12 | 0b1101<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VADD__F32(Dd, Dn, Dm)   EMIT(VADD_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VADDQ_F32(Dd, Dn, Dm)   EMIT(VADD_F_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -714,6 +721,8 @@ Op is 20-27
 #define VCVTn_S32_F32(Dd, Dm)   EMIT(VCVT_NEON_gen(((Dd)>>4)&1, 2, (Dd)&15, 0b10, 0, ((Dm)>>4)&1, (Dm)&15))
 
 #define VMULL_NEON_gen(U, D, size, Vn, Vd, op, N, M, Vm)    (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b11<<10 | (op)<<9 | (N)<<7 | (M)<<5 | (Vm))
+#define VMULL_S32_S16(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 1, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
+#define VMULL_U32_U16(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 1, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_U64_U32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 

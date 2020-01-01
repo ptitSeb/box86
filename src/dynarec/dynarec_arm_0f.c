@@ -517,6 +517,42 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOVD(v0, v1);
             break;
 
+        case 0x72:
+            nextop = F8;
+            GETEM(v0);
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLD Ex, Ib");
+                    u8 = F8;
+                    if (u8>31) {
+                        VEOR(q0, q0, q0);
+                    } else if(u8) {
+                        VSHR_U32(q0, q0, u8);
+                    }
+                    PUTEM(v0);
+                    break;
+                case 4:
+                    u8 = F8;
+                    if(u8) {
+                        VSHR_S32(q0, q0, u8&31);
+                    }
+                    PUTEM(v0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLD Ex, Ib");
+                    u8 = F8;
+                    if (u8>31) {
+                        VEOR(q0, q0, q0);
+                    } else {
+                        VSHL_32(q0, q0, u8);
+                    }
+                    PUTEM(v0);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
         case 0x73:
             nextop = F8;
             GETEM(v0);
@@ -1384,6 +1420,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGM(v0);
             GETEM(v1);
             VADD_64(v0, v0, v1);
+            break;
+
+        case 0xE4:
+            INST_NAME("PMULHUW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_U32_U16(q0, v0, v1);
+            VUZP_16(q0, q0+1);
+            VMOVD(v0, q0+1);
+            break;
+        case 0xE5:
+            INST_NAME("PMULHW Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_S32_S16(q0, v0, v1);
+            VUZP_16(q0, q0+1);
+            VMOVD(v0, q0+1);
             break;
 
         case 0xEF:
