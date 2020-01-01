@@ -834,6 +834,14 @@
             GX.ub[i] = (tmp16s<0)?0:((tmp16s>255)?255:tmp16s);
         }
         NEXT;
+    _6f_0xD9:  /* PSUBUSW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX.uw[i] - EX->uw[i];
+            GX.uw[i] = (tmp32s<0)?0:((tmp32s>0xffff)?0xffff:tmp32s);
+        }
+        NEXT;
 
     _6f_0xDB:  /* PAND Gx,Ex */
         nextop = F8;
