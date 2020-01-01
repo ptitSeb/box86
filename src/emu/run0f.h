@@ -475,7 +475,32 @@
                     goto _default;
             }
             NEXT;
-
+        _0f_0x72:  /* GRP */
+            nextop = F8;
+            GET_EM;
+            switch((nextop>>3)&7) {
+                case 2:                 /* PSRLD Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>31)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<2; ++i) EM->ud[i] >>= tmp8u;
+                    break;
+                case 4:                 /* PSRAD Em, Ib */
+                    tmp8u = F8;
+                    for (int i=0; i<2; ++i) EM->sd[i] >>= tmp8u;
+                    break;
+                case 6:                 /* PSLLD Em, Ib */
+                    tmp8u = F8;
+                    if(tmp8u>31)
+                        {EM->q = 0;}
+                    else
+                        for (int i=0; i<2; ++i) EM->ud[i] <<= tmp8u;
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
         _0f_0x73:  /* GRP */
             nextop = F8;
             GET_EM;
@@ -1067,7 +1092,14 @@
                 tmp8u = EM->ub[0];
             GM.sq >>= tmp8u;
             NEXT;
-
+        _0f_0xE4:                   /* PMULHUW Gm, Em */
+            nextop = F8;
+            GET_EM;
+            for(int i=0; i<4; ++i) {
+                tmp32u = (int32_t)GM.uw[i] * EM->uw[i];
+                GM.uw[i] = (tmp32u>>16)&0xffff;
+            }
+            NEXT;
         _0f_0xE5:                   /* PMULHW Gm, Em */
             nextop = F8;
             GET_EM;
