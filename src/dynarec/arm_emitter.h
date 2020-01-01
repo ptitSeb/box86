@@ -688,9 +688,13 @@ Op is 20-27
 #define VSHLQ_32(Dd, Dm, imm5)   EMIT(VSHL_gen(((Dd)>>4)&1, 0b1<<5 | (imm5+32), (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHLQ_64(Dd, Dm, imm6)   EMIT(VSHL_gen(((Dd)>>4)&1, (imm6), (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VTRN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VTRN_32(Dd, Dm)     EMIT(VTRN_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+
 #define VZIP_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0001<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VZIP_8(Dd, Dm)     EMIT(VZIP_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VZIP_16(Dd, Dm)    EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VZIP_32(Dd, Dm)    VTRN_32(Dd, Dm)
 #define VZIPQ_8(Dd, Dm)    EMIT(VZIP_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VZIPQ_16(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VZIPQ_32(Dd, Dm)   EMIT(VZIP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -698,6 +702,7 @@ Op is 20-27
 #define VUZP_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0001<<8 | 0<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VUZP_8(Dd, Dm)     EMIT(VUZP_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VUZP_16(Dd, Dm)    EMIT(VUZP_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VUZP_32(Dd, Dm)    VTRN_32(Dd, Dm)
 #define VUZPQ_8(Dd, Dm)    EMIT(VUZP_gen(((Dd)>>4)&1, 0, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VUZPQ_16(Dd, Dm)   EMIT(VUZP_gen(((Dd)>>4)&1, 1, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VUZPQ_32(Dd, Dm)   EMIT(VUZP_gen(((Dd)>>4)&1, 2, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -725,9 +730,6 @@ Op is 20-27
 #define VMULL_U32_U16(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 1, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_U64_U32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
-
-#define VTRN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
-#define VTRN_32(Dd, Dm)     EMIT(VTRN_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
 
 #define VEXT_gen(D, Vn, Vd, imm4, N, Q, M, Vm)  (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (Vn)<<16 | (Vd)<<12 | (imm4)<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VEXT_8(Dd, Dn, Dm, imm4)    EMIT(VEXT_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, imm4, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))

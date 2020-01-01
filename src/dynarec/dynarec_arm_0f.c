@@ -220,7 +220,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                v1 = fpu_get_reg_double(dyn);
+                v1 = fpu_get_scratch_double(dyn);
                 VLD1_32(v1, ed);
             }
             VCVTn_F32_S32(v0, v1);
@@ -235,7 +235,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                v1 = fpu_get_reg_double(dyn);
+                v1 = fpu_get_scratch_double(dyn);
                 VLD1_32(v1, ed);
             }
             VCVTn_S32_F32(v0, v1);
@@ -479,8 +479,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEX(v1);
             GETGX(v0);
-            q0 = fpu_get_reg_quad(dyn);
-            q1 = fpu_get_reg_quad(dyn);
+            q0 = fpu_get_scratch_quad(dyn);
+            q1 = fpu_get_scratch_quad(dyn);
             VRECPEQ_F32(q0, v1);
             VRECPSQ_F32(q1, q0, v1);
             VMULQ_F32(q0, q0, q1);
@@ -489,12 +489,46 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMULQ_F32(v0, v0, q0);
             break;
 
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_8(d0, v0);
+            break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_16(d0, v0);
+            break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_32(d0, v0);
+            break;
+
         case 0x6B:
             INST_NAME("PACKSSDW Gm,Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
-            q0 = fpu_get_reg_quad(dyn);
+            q0 = fpu_get_scratch_quad(dyn);
             VMOVD(q0+0, v0);
             VMOVD(q0+1, v1);
             VQMOVN_S32(v0, q0);
