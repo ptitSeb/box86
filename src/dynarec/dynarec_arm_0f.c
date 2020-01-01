@@ -538,6 +538,57 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VZIP_32(d0, v0);
             break;
 
+        case 0x67:
+            INST_NAME("PACKUSWB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            q0 = fpu_get_scratch_quad(dyn);
+            if((nextop&0xC0)==0xC0) {
+                d1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(q0+1, d1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                VLD1_64(q0+1, ed);
+            }
+            VMOVD(q0, d0);
+            VQMOVN_U16(d0, q0);
+            break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_8(d0, v0);
+            VMOVD(d0, v0);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_16(d0, v0);
+            VMOVD(d0, v0);
+            break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            if((nextop&0xC0)==0xC0) {
+                v0 = fpu_get_scratch_double(dyn);
+                VMOVD(v0, d1);
+            } else v0 = d1;
+            VZIP_32(d0, v0);
+            VMOVD(d0, v0);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gm,Em");
             nextop = F8;
