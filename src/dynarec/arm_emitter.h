@@ -395,6 +395,12 @@ Op is 20-27
 // Reverse bits of Rm, store result in Rd
 #define RBIT(Rd, Rm) EMIT(c__ | 0b01101111<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0011<<4 | (Rm))
 
+#define PLD_gen(U, R, Rn, Imm5, type, Rm) (0b1111<<28 | 0b0111<<24 | (U)<<23 | (R)<<22 | 0b01<<20 | (Rn)<<16 | 0b1111<<12 | (Imm5)<<7 | (type)<<5 | (Rm))
+// Preload Cache Rn+Rm
+#define PLD(Rn, Rm) EMIT(PLD_gen(1, 1, Rn, 0, 0, Rm))
+// Preload Cache Rn-Rm
+#define PLDn(Rn, Rm) EMIT(PLD_gen(0, 1, Rn, 0, 0, Rm))
+
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 
@@ -582,8 +588,10 @@ Op is 20-27
 #define VLD1LANE_16(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
 #define VLD1LANE_32(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
 
-#define VLD1ALL_32(Dd, Rn)      EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 3, 2<<2 , 15))
-#define VLD1QALL_32(Dd, Rn)     EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 3, 2<<2 | 1<<1, 15))
+#define VLD1ALL_gen(D, Rn, Vd, size, T, a, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b10<<20 | (Rn)<<16 | (Vd)<<12 | 0b11<<10| (size)<<6 | (T)<<5 | (a)<<4 | (Rm))
+#define VLD1ALL_16(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, 0 , 0, 15))
+#define VLD1ALL_32(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, 0 , 0, 15))
+#define VLD1QALL_32(Dd, Rn)     EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, 0 , 1, 15))
 
 #define VST1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b00<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))
 #define VST1LANE_8(Dd, Rn, index)    EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 0, (index)<<1, 15))

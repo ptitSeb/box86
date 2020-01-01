@@ -704,7 +704,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     u8 = F8;
                     if(u8) {
-                        VSHRQ_S32(q0, q0, u8&31);
+                        VSHRQ_S32(q0, q0, (u8>31)?0:u8);
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_32(q0, ed);

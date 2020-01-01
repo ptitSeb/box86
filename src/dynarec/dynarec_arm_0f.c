@@ -178,6 +178,21 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 STRD_IMM8(x2, ed, fixedaddress);
             }
             break;
+        case 0x18:
+            nextop = F8;
+            INST_NAME("PREFETCHh Ed");
+            if((nextop&0xC0)==0xC0) {
+                // meh?
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xffff, 0);
+                MOVW(x3, fixedaddress);
+                if(fixedaddress<0) {
+                    PLDn(ed, x3);
+                } else {
+                    PLD(ed, x3);
+                }
+            }
+            break;
 
         case 0x1F:
             INST_NAME("NOP (multibyte)");
@@ -550,37 +565,88 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VMOVD(v0, v1);
             break;
+        case 0x70:
+            INST_NAME("PSHUFW Gm,Em,Ib");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            i32 = -1;
+            v0 = mmx_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                u8 = F8;
+                v1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                // use stack as temporary storage
+                SUB_IMM8(xSP, xSP, 4);
+                if(v1==v0) {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOVD(d0, v1);
+                } else d0 = v1;
+                if (u8) {
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            VST1LANE_16(d0, xSP, idx);
+                            i32 = idx;
+                        }
+                        VLD1LANE_16(v0, xSP, i);
+                    }
+                } else {
+                    VST1LANE_16(v1, xSP, 0);
+                    VLD1ALL_16(v0, xSP);
+                }
+                ADD_IMM8(xSP, xSP, 4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                u8 = F8;
+                if (u8) {
+                    for (int i=0; i<4; ++i) {
+                        int32_t idx = (u8>>(i*2))&3;
+                        if(idx!=i32) {
+                            ADD_IMM8(x2, ed, idx*2);
+                            i32 = idx;
+                        }
+                        VLD1LANE_16(v0, x2, i);
+                    }
+                } else {
+                    VLD1ALL_16(v0, ed);
+                }
+            }
+            break;
 
         case 0x72:
             nextop = F8;
             GETEM(v0);
             switch((nextop>>3)&7) {
                 case 2:
-                    INST_NAME("PSRLD Ex, Ib");
-                    u8 = F8;
-                    if (u8>31) {
-                        VEOR(q0, q0, q0);
-                    } else if(u8) {
-                        VSHR_U32(q0, q0, u8);
-                    }
-                    PUTEM(v0);
-                    break;
-                case 4:
+                    INST_NAME("PSRLD Em, Ib");
                     u8 = F8;
                     if(u8) {
-                        VSHR_S32(q0, q0, u8&31);
+                        if (u8>31) {
+                            VEOR(v0, v0, v0);
+                        } else {
+                            VSHR_U32(v0, v0, u8);
+                        }
+                        PUTEM(v0);
                     }
-                    PUTEM(v0);
+                    break;
+                case 4:
+                    INST_NAME("PSRAD Em, Ib");
+                    u8 = F8;
+                    if(u8) {
+                        VSHR_S32(v0, v0, (u8>31)?0:u8);
+                        PUTEM(v0);
+                    }
                     break;
                 case 6:
-                    INST_NAME("PSLLD Ex, Ib");
+                    INST_NAME("PSLLD Em, Ib");
                     u8 = F8;
-                    if (u8>31) {
-                        VEOR(q0, q0, q0);
-                    } else {
-                        VSHL_32(q0, q0, u8);
+                    if (u8) {
+                        if (u8>31) {
+                            VEOR(v0, v0, v0);
+                        } else {
+                            VSHL_32(v0, v0, u8);
+                        }
+                        PUTEM(v0);
                     }
-                    PUTEM(v0);
                     break;
                 default:
                     *ok = 0;
