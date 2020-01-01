@@ -315,7 +315,7 @@ EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
+    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_block_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -326,7 +326,7 @@ EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instan
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
+    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_unblock_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -337,7 +337,7 @@ EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* ins
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
+    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handlers_disconnect_matched(instance, mask, signal, detail, closure, fnc, data);
 }
@@ -348,7 +348,7 @@ EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     // NOTE that I have no idea of the fnc signature!...
-    if (fnc) printf_log(LOG_NONE, "Warning, gobject g_signal_handler_find called with non null function \n");
+    if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handler_find called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
     return my->g_signal_handler_find(instance, mask, signal, detail, closure, fnc, data);
 }
