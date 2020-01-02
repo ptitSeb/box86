@@ -1581,6 +1581,34 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xC4:
+            INST_NAME("PINSRW Gm,Ed,Ib");
+            nextop = F8;
+            GETGM(d0);
+            if((nextop&0xC0)==0xC0) {
+                u8 = (F8)&3;
+                ed = xEAX+(nextop&7);
+                VMOVtoDx_16(d0, u8, ed);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                u8 = (F8)&3;
+                VLD1LANE_16(d0, wback, u8);
+            }
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Em,Ib");
+            nextop = F8;
+            gd = xEAX+((nextop&0x38)>>3);
+            if((nextop&0xC0)==0xC0) {
+                GETEM(d0);
+                u8 = (F8)&3;
+                VMOVfrDx_U16(gd, d0, u8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 63);
+                u8 = (F8)&3;
+                LDRH_IMM8(gd, wback, fixedaddress+u8*2);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
@@ -1771,12 +1799,26 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VADD_32(d0, q0, q0+1);
             break;
 
+        case 0xFC:
+            INST_NAME("PADDB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VADD_8(v0, v0, v1);
+            break;
         case 0xFD:
             INST_NAME("PADDW Gm, Em");
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
             VADD_16(v0, v0, v1);
+            break;
+        case 0xFE:
+            INST_NAME("PADDD Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VADD_32(v0, v0, v1);
             break;
 
         default:
