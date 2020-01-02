@@ -538,6 +538,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VZIP_32(d0, v0);
             break;
 
+        case 0x64:
+            INST_NAME("PCMPGTB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCGT_S8(d0, d0, d1);
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCGT_S16(d0, d0, d1);
+            break;
+        case 0x66:
+            INST_NAME("PCMPGTD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCGT_S32(d0, d0, d1);
+            break;
         case 0x67:
             INST_NAME("PACKUSWB Gm,Em");
             nextop = F8;
@@ -662,7 +683,69 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             }
             break;
-
+        case 0x71:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("PSRLW Em, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        d0 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        d0 = fpu_get_scratch_quad(dyn);
+                        VLD1_16(d0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>15) {
+                        VEOR(d0, d0, d0);
+                    } else if(u8) {
+                        VSHR_U16(d0, d0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1_16(d0, ed);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Em, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        d0 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        d0 = fpu_get_scratch_quad(dyn);
+                        VLD1_16(d0, ed);
+                    }
+                    u8 = F8;
+                    if(u8) {
+                        VSHR_S16(d0, d0, u8&31);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1_16(d0, ed);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Em, Ib");
+                    if((nextop&0xC0)==0xC0) {
+                        d0 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        d0 = fpu_get_scratch_quad(dyn);
+                        VLD1_16(d0, ed);
+                    }
+                    u8 = F8;
+                    if (u8>15) {
+                        VEOR(d0, d0, d0);
+                    } else {
+                        VSHL_16(d0, d0, u8);
+                    }
+                    if((nextop&0xC0)!=0xC0) {
+                        VST1_16(d0, ed);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
         case 0x72:
             nextop = F8;
             GETEM(v0);
@@ -732,6 +815,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0x75:
+            INST_NAME("PCMPEQW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCEQ_16(d0, d0, d1);
+            break;
+        case 0x76:
+            INST_NAME("PCMPEQD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCEQ_32(d0, d0, d1);
+            break;
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
@@ -1672,6 +1769,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMULL_S32_S16(q0, d0, d1);
             VTRN_32(q0, q0+1);
             VADD_32(d0, q0, q0+1);
+            break;
+
+        case 0xFD:
+            INST_NAME("PADDW Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VADD_16(v0, v0, v1);
             break;
 
         default:
