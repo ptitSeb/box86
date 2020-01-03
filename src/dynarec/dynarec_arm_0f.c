@@ -633,9 +633,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
-            GETGM(v0);
-            GETEM(v1);
-            VMOVD(v0, v1);
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                VLD1_64(v0, ed);
+            }
             break;
         case 0x70:
             INST_NAME("PSHUFW Gm,Em,Ib");
@@ -696,13 +702,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLD1_16(d0, ed);
                     }
                     u8 = F8;
-                    if (u8>15) {
-                        VEOR(d0, d0, d0);
-                    } else if(u8) {
-                        VSHR_U16(d0, d0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1_16(d0, ed);
+                    if(u8) {
+                        if (u8>15) {
+                            VEOR(d0, d0, d0);
+                        } else if(u8) {
+                            VSHR_U16(d0, d0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1_16(d0, ed);
+                        }
                     }
                     break;
                 case 4:
@@ -716,7 +724,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     u8 = F8;
                     if(u8) {
-                        VSHR_S16(d0, d0, u8&31);
+                        VSHR_S16(d0, d0, (u8>15)?16:u8);
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1_16(d0, ed);
@@ -732,13 +740,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLD1_16(d0, ed);
                     }
                     u8 = F8;
-                    if (u8>15) {
-                        VEOR(d0, d0, d0);
-                    } else {
-                        VSHL_16(d0, d0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1_16(d0, ed);
+                    if(u8) {
+                        if (u8>15) {
+                            VEOR(d0, d0, d0);
+                        } else {
+                            VSHL_16(d0, d0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1_16(d0, ed);
+                        }
                     }
                     break;
                 default:
@@ -766,7 +776,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("PSRAD Em, Ib");
                     u8 = F8;
                     if(u8) {
-                        VSHR_S32(v0, v0, (u8>31)?0:u8);
+                        VSHR_S32(v0, v0, (u8>31)?32:u8);
                         PUTEM(v0);
                     }
                     break;
@@ -794,20 +804,24 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("PSRLQ Em, Ib");
                     u8 = F8;
-                    if(u8>63)
-                        {VEOR(v0, v0, v0);}
-                    else
-                        {VSHR_U64(v0, v0, u8);}
-                    PUTEM(v0);
+                    if(u8) {
+                        if(u8>63)
+                            {VEOR(v0, v0, v0);}
+                        else
+                            {VSHR_U64(v0, v0, u8);}
+                        PUTEM(v0);
+                    }
                     break;
                 case 6:
                     INST_NAME("PSLLQ Em, Ib");
                     u8 = F8;
-                    if(u8>63)
-                        {VEOR(v0, v0, v0);}
-                    else
-                        {VSHL_64(v0, v0, u8);}
-                    PUTEM(v0);
+                    if(u8) {
+                        if(u8>63)
+                            {VEOR(v0, v0, v0);}
+                        else
+                            {VSHL_64(v0, v0, u8);}
+                        PUTEM(v0);
+                    }
                     break;
                 default:
                     *ok = 0;
@@ -844,9 +858,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX + (nextop&7);
                 VMOVfrDx_32(ed, v0, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                s0 = fpu_get_single_reg(dyn, ninst, v0, 0);
-                VSTR_32(s0, ed, fixedaddress);
+                VMOVfrDx_32(x2, v0, 0); // there can be some bus error is storing the VFPU reg directly
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                STR_IMM9(x2, ed, fixedaddress);
             }
             break;
         case 0x7F:
@@ -1604,7 +1618,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 u8 = (F8)&3;
                 VMOVfrDx_U16(gd, d0, u8);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 63);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-8, 0);
                 u8 = (F8)&3;
                 LDRH_IMM8(gd, wback, fixedaddress+u8*2);
             }
@@ -1690,6 +1704,44 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             REV(gd, gd);
             break;
 
+        case 0xD1:
+            INST_NAME("PSRLW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0, d1);
+            VMOVD(q0+1, d1);
+            VQMOVN_S64(q0, q0); // 2*d1 in 32bits now
+            VMOVD(q0+1, q0);
+            VQMOVN_S32(q0, q0); // 4*d1 in 16bits now
+            VNEGN_16(q0, q0);   // because we want SHR and not SHL
+            VSHL_U16(d0, d0, q0);
+            break;
+        case 0xD2:
+            INST_NAME("PSRLD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0, d1);
+            VMOVD(q0+1, d1);
+            VQMOVN_S64(q0, q0); // 2*d1 in 32bits now
+            VNEGN_32(q0, q0);   // because we want SHR and not SHL
+            VSHL_U32(d0, d0, q0);
+            break;
+        case 0xD3:
+            INST_NAME("PSRLQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0, d1);
+            VEOR(q0+1, q0+1, q0+1);
+            VQMOVN_S64(q0, q0); // d1 is 32bits now
+            VNEGN_32(q0, q0);   // because we want SHR and not SHL, and there is no neg in S64
+            VSHL_U64(d0, d0, q0);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gm,Em");
             nextop = F8;
@@ -1779,6 +1831,37 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VEOR(v0, v0, v1);
             break;
 
+        case 0xF1:
+            INST_NAME("PSLLW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0, d1);
+            VMOVD(q0+1, d1);
+            VQMOVN_S64(q0, q0); // 2*d1 in 32bits now
+            VMOVD(q0+1, q0);
+            VQMOVN_S32(q0, q0); // 4*d1 in 16bits now
+            VSHL_U16(d0, d0, q0);
+            break;
+        case 0xF2:
+            INST_NAME("PSLLD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0, d1);
+            VMOVD(q0+1, d1);
+            VQMOVN_S64(q0, q0); // 2*d1 in 32bits now
+            VSHL_U32(d0, d0, q0);
+            break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VSHL_U64(d0, d0, d1);   // no need to transform here
+            break;
         case 0xF4:
             INST_NAME("PMULUDQ Gm, Em");
             nextop = F8;
@@ -1799,6 +1882,28 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VADD_32(d0, q0, q0+1);
             break;
 
+        case 0xF8:
+            INST_NAME("PSUBB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VSUB_8(v0, v0, v1);
+            break;
+        case 0xF9:
+            INST_NAME("PSUBW Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VSUB_16(v0, v0, v1);
+            break;
+        case 0xFA:
+            INST_NAME("PSUBD Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VSUB_32(v0, v0, v1);
+            break;
+            
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;

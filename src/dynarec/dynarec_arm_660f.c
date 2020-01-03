@@ -621,13 +621,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_16(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>15) {
-                        VEORQ(q0, q0, q0);
-                    } else if(u8) {
-                        VSHRQ_U16(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_16(q0, ed);
+                    if(u8) {
+                        if (u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8) {
+                            VSHRQ_U16(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_16(q0, ed);
+                        }
                     }
                     break;
                 case 4:
@@ -641,7 +643,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     u8 = F8;
                     if(u8) {
-                        VSHRQ_S16(q0, q0, u8&31);
+                        VSHRQ_S16(q0, q0, (u8>15)?16:u8);
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_16(q0, ed);
@@ -657,13 +659,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_16(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>15) {
-                        VEORQ(q0, q0, q0);
-                    } else {
-                        VSHLQ_16(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_16(q0, ed);
+                    if(u8) {
+                        if (u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            VSHLQ_16(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_16(q0, ed);
+                        }
                     }
                     break;
                 default:
@@ -684,13 +688,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_32(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>31) {
-                        VEORQ(q0, q0, q0);
-                    } else if(u8) {
-                        VSHRQ_U32(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_32(q0, ed);
+                    if(u8) {
+                        if (u8>31) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8) {
+                            VSHRQ_U32(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_32(q0, ed);
+                        }
                     }
                     break;
                 case 4:
@@ -704,7 +710,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     u8 = F8;
                     if(u8) {
-                        VSHRQ_S32(q0, q0, (u8>31)?0:u8);
+                        VSHRQ_S32(q0, q0, (u8>31)?32:u8);
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_32(q0, ed);
@@ -720,13 +726,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_32(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>31) {
-                        VEORQ(q0, q0, q0);
-                    } else {
-                        VSHLQ_32(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_32(q0, ed);
+                    if(u8) {
+                        if (u8>31) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            VSHLQ_32(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_32(q0, ed);
+                        }
                     }
                     break;
                 default:
@@ -747,13 +755,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_64(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>63) {
-                        VEORQ(q0, q0, q0);
-                    } else if(u8) {
-                        VSHRQ_U64(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_64(q0, ed);
+                    if(u8) {
+                        if (u8>63) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8) {
+                            VSHRQ_U64(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_64(q0, ed);
+                        }
                     }
                     break;
                 case 3:
@@ -766,15 +776,17 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_64(q0, ed);
                     }
                     u8 = F8;
-                    if(u8>15) {
-                        VEORQ(q0, q0, q0);
-                    } else {
-                        q1 = fpu_get_scratch_quad(dyn);
-                        VEORQ(q1, q1, q1);
-                        VEXTQ_8(q0, q0, q1, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_64(q0, ed);
+                    if(u8) {
+                        if(u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            q1 = fpu_get_scratch_quad(dyn);
+                            VEORQ(q1, q1, q1);
+                            VEXTQ_8(q0, q0, q1, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_64(q0, ed);
+                        }
                     }
                     break;
                 case 6:
@@ -787,13 +799,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_64(q0, ed);
                     }
                     u8 = F8;
-                    if (u8>63) {
-                        VEORQ(q0, q0, q0);
-                    } else {
-                        VSHLQ_64(q0, q0, u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_64(q0, ed);
+                    if(u8) {
+                        if (u8>63) {
+                            VEORQ(q0, q0, q0);
+                        } else {
+                            VSHLQ_64(q0, q0, u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_64(q0, ed);
+                        }
                     }
                     break;
                 case 7:
@@ -806,15 +820,17 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VLD1Q_64(q0, ed);
                     }
                     u8 = F8;
-                    if(u8>15) {
-                        VEORQ(q0, q0, q0);
-                    } else if(u8>0) {
-                        q1 = fpu_get_scratch_quad(dyn);
-                        VEORQ(q1, q1, q1);
-                        VEXTQ_8(q0, q1, q0, 16-u8);
-                    }
-                    if((nextop&0xC0)!=0xC0) {
-                        VST1Q_64(q0, ed);
+                    if(u8) {
+                        if(u8>15) {
+                            VEORQ(q0, q0, q0);
+                        } else if(u8>0) {
+                            q1 = fpu_get_scratch_quad(dyn);
+                            VEORQ(q1, q1, q1);
+                            VEXTQ_8(q0, q1, q0, 16-u8);
+                        }
+                        if((nextop&0xC0)!=0xC0) {
+                            VST1Q_64(q0, ed);
+                        }
                     }
                     break;
                 default:
@@ -822,7 +838,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     DEFAULT;
             }
             break;
-            
+
         case 0x75:
             INST_NAME("PCMPEQW Gx,Ex");
             nextop = F8;
