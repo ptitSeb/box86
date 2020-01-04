@@ -90,22 +90,22 @@ static int signal_cb(void* a, void* b, void* c, void* d)
     // hopefully, no callback have more than 4 arguments...
     my_signal_t* sig = NULL;
     int i = 0;
-    if(a)
+    if((uintptr_t)a>0x10000)
         if(((my_signal_t*)a)->sign == SIGN) {
             sig = (my_signal_t*)a;
             i = 1;
         }
-    if(!sig && b)
+    if(!sig && (uintptr_t)b>0x10000)
         if(((my_signal_t*)b)->sign == SIGN) {
             sig = (my_signal_t*)b;
             i = 2;
         }
-    if(!sig && c)
+    if(!sig && (uintptr_t)c>0x10000)
         if(((my_signal_t*)c)->sign == SIGN) {
             sig = (my_signal_t*)c;
             i = 3;
         }
-    if(!sig && d)
+    if(!sig && (uintptr_t)d>0x10000)
         if(((my_signal_t*)d)->sign == SIGN) {
             sig = (my_signal_t*)d;
             i = 4;
