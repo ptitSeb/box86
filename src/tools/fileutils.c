@@ -66,3 +66,54 @@ int FileIsX86ELF(const char* filename)
         return 1;
     return 0;
 }
+
+#ifdef RPI
+void sanitize_mojosetup_gtk_background()
+{
+    // get GTK2_RC_FILES folder
+    const char* gtk2_rc = getenv("GTK2_RC_FILES");
+    // check if $GTK2_RC_FILES/pixmaps/background.png exist
+    char background[1000] = {0};
+    strcpy(background, gtk2_rc);
+    char* p = strrchr(background, '/'); // remove "/gtkrc"
+    // every error will just silently abort
+    if(!p)
+        return;
+    *p = 0;
+    strcat(background, "/pixmaps/background.png");
+    if(!FileExist(background, IS_FILE))
+        return;
+    // now open are read the header of the PNG to grab the width and height
+    //very crude reading here!
+    FILE* f = fopen(background, "rb");
+    if(!f)
+        return;
+    char sign[8];
+    if(fread(sign, 8, 1, f)!=1) {
+        fclose(f); return;
+    }
+    const char ref[8] = {'\211', 'P', 'N', 'G', '\r', '\n', '\032', '\n' };
+    if (memcmp(sign, ref, 8)) {
+        fclose(f); return;
+    }
+    int32_t width, height;
+    fseek(f, 16, SEEK_SET);
+    if(fread(&width, sizeof(width), 1, f)!=1) {
+        fclose(f); return;
+    }
+    if(fread(&height, sizeof(height), 1, f)!=1) {
+        fclose(f); return;
+    }
+    fclose(f);
+    // need to swap bitness!
+    width = __builtin_bswap32(width);
+    height = __builtin_bswap32(height);
+    printf_log(LOG_INFO, "Mojosetup detected, size of background picture is %dx%d\n", width, height);
+    if(width!=5000 || height!=3000)
+        return; // not a background that will cause any issue
+    // delete the file!
+    f = fopen(background, "r+b");
+    remove(background);
+    printf_log(LOG_INFO, "background deleted!\n");
+}
+#endif

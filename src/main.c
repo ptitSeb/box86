@@ -596,6 +596,12 @@ int main(int argc, const char **argv, const char **env) {
 #endif
     // get entrypoint
     context->ep = GetEntryPoint(context->maplib, elf_header);
+#ifdef RPI
+    // before launching emulation, let's check if this is a mojosetup from GOG
+    if (strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE") && getenv("GTK2_RC_FILES")) {
+        sanitize_mojosetup_gtk_background();
+    }
+#endif
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
