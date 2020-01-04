@@ -887,7 +887,7 @@ GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
 // __isoc99_scanf
 GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
 // __isoc99_swscanf
-// __isoc99_vfscanf
+GO(__isoc99_vfscanf, iFppp)
 // __isoc99_vfwscanf
 // __isoc99_vscanf
 GO(__isoc99_vsscanf, iFppp) // TODO: check if ok
@@ -1859,7 +1859,7 @@ GOM(__vasprintf_chk, iFEpipVV)
 // __vdprintf_chk
 GOM(verr, vFEpV)
 // verrx
-// versionsort
+GO(versionsort, iFpp)
 // versionsort64
 GOM(vfork, iFEv) // Weak
 // __vfork
