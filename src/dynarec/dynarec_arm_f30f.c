@@ -200,6 +200,50 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOV_64(v0, d1);
             }
             break;
+        case 0x52:
+            INST_NAME("RSQRTSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            if(v0<16)
+                d1 = v0;
+            else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v0);
+            }
+            s1 = fpu_get_scratch_single(dyn);
+            // so here: F32: Imm8 = abcd efgh that gives => aBbbbbbc defgh000 00000000 00000000
+            // and want 1.0f = 0x3f800000
+            // so 00111111 10000000 00000000 00000000
+            // a = 0, b = 1, c = 1, d = 1, efgh=0
+            // 0b01110000
+            VMOV_i_32(s1, 0b01110000);
+            VDIV_F32(s0, s1, s0);
+            VSQRT_F32(d1*2, s0);
+            if(v0!=d1) {
+                VMOV_64(v0, d1);
+            }
+            break;
+        case 0x53:
+            INST_NAME("RCPSS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(s0, d0);
+            if(v0<16)
+                d1 = v0;
+            else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v0);
+            }
+            s1 = fpu_get_scratch_single(dyn);
+            VMOV_i_32(s1, 0b01110000);
+            VDIV_F32(d1*2, s1, s0);
+            if(v0!=d1) {
+                VMOV_64(v0, d1);
+            }
+            break;
 
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");

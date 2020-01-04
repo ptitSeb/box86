@@ -1822,6 +1822,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VORRD(v0, v0, v1);
             break;
+        case 0xEC:
+            INST_NAME("PADDSB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQADD_S8(d0, d0, d1);
+            break;
+        case 0xED:
+            INST_NAME("PADDSW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQADD_S16(d0, d0, d1);
+            break;
 
         case 0xEF:
             INST_NAME("PXOR Gm, Em");
@@ -1903,7 +1917,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VSUB_32(v0, v0, v1);
             break;
-            
+
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;
