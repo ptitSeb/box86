@@ -126,3 +126,11 @@ void AppendList(path_collection_t* collection, const char* List, int folder)
     }
 
 }
+
+int FindInCollection(const char* path, path_collection_t* collection)
+{
+    for (int i=0; i<collection->size; ++i)
+        if(strcmp(path, collection->paths[i])==0)
+            return 1;
+    return 0;
+}

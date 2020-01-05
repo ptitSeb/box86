@@ -100,3 +100,7 @@ Set level of DynaRec log
  * XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary
  PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary
  
+#### BOX86_EMULATED_LIBS
+ * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)
+Some games use old version of some lib, with an ABI incompatible with native version.
+Note that LittleInforno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs

@@ -374,6 +374,16 @@ int main(int argc, const char **argv, const char **env) {
             printf_log(LOG_INFO, "\n");
         }
     }
+    if(getenv("BOX86_EMULATED_LIBS")) {
+        char* p = getenv("BOX86_EMULATED_LIBS");
+        ParseList(p, &context->box86_emulated_libs, 0);
+        if (context->box86_emulated_libs.size && box86_log) {
+            printf_log(LOG_INFO, "BOX86 will force the used of emulated libs for ");
+            for (int i=0; i<context->box86_emulated_libs.size; ++i)
+                printf_log(LOG_INFO, "%s ", context->box86_emulated_libs.paths[i]);
+            printf_log(LOG_INFO, "\n");
+        }
+    }
 
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
@@ -418,6 +428,12 @@ int main(int argc, const char **argv, const char **env) {
         context->argv[0] = strdup(prog);
     else
         context->argv[0] = ResolveFile(prog, &context->box86_path);
+
+    // special case for LittleInferno that use an old libvorbis
+    if(strstr(prog, "LittleInferno.bin.x86")) {
+        printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
+        AddPath("libvorbis.so.0", &context->box86_emulated_libs, 0);
+    }
 
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);

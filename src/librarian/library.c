@@ -19,6 +19,7 @@
 #include "fileutils.h"
 #include "librarian.h"
 #include "librarian_private.h"
+#include "pathcoll.h"
 
 #include "wrappedlibs.h"
 // create the native lib list
@@ -233,12 +234,17 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     lib->type = -1;
     lib->needed = kh_init(needed);
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
+    int notwrapped = FindInCollection(lib->name, &context->box86_emulated_libs);
     // And now, actually loading a library
     // look for native(wrapped) libs first
-    initNativeLib(lib, context);
+    if(!notwrapped)
+        initNativeLib(lib, context);
     // then look for a native one
     if(lib->type==-1)
         initEmulatedLib(path, lib, context);
+    // still not loaded but notwrapped indicated: use wrapped...
+    if(lib->type==-1 && notwrapped)
+        initNativeLib(lib, context);
     // nothing loaded, so error...
     if(lib->type==-1)
     {

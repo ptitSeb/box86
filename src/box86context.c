@@ -149,6 +149,7 @@ void FreeBox86Context(box86context_t** context)
 
     FreeCollection(&(*context)->box86_path);
     FreeCollection(&(*context)->box86_ld_lib);
+    FreeCollection(&(*context)->box86_emulated_libs);
     if((*context)->zydis)
         DeleteX86Trace(*context);
 
