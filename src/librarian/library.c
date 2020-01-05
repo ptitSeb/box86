@@ -131,26 +131,14 @@ int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32
     return 0;
 }
 
-library_t *NewLibrary(const char* path, box86context_t* context)
-{
-    printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
-    library_t *lib = (library_t*)calloc(1, sizeof(library_t));
-    lib->path = strdup(path);
-    lib->name = Path2Name(path);
-    lib->nbdot = NbDot(lib->name);
-    lib->type = -1;
-    lib->needed = kh_init(needed);
-    printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
-    // And now, actually loading a library
-    // look for native(wrapped) libs first
+static void initNativeLib(library_t *lib, box86context_t* context) {
     int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {
             if(wrappedlibs[i].init(lib, context)) {
                 // error!
                 printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", wrappedlibs[i].name, dlerror());
-                FreeLibrary(&lib);
-                return NULL;
+                return; // non blocker...
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", wrappedlibs[i].name);
             lib->priv.w.box86lib = context->box86lib;
@@ -164,77 +152,94 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             for(int i=0; i<lib->priv.w.needed; ++i) {
                 if(AddNeededLib(context->maplib, lib, lib->priv.w.neededlibs[i], context, 0)) {  // probably all native, not emulated, so that's fine
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
-                    return NULL;
+                    return;
                 }
             }
             break;
         }
     }
+}
+
+static void initEmulatedLib(const char* path, library_t *lib, box86context_t* context)
+{
+    char libname[MAX_PATH];
+    strcpy(libname, path);
+    int found = FileExist(libname, IS_FILE);
+    if(!found && !strchr(path, '/'))
+        for(int i=0; i<context->box86_ld_lib.size; ++i)
+        {
+            strcpy(libname, context->box86_ld_lib.paths[i]);
+            strcat(libname, path);
+            if(FileExist(libname, IS_FILE))
+                break;
+        }
+    if(FileExist(libname, IS_FILE))
+    {
+        FILE *f = fopen(libname, "rb");
+        if(!f) {
+            printf_log(LOG_NONE, "Error: Cannot open %s\n", libname);
+            return;
+        }
+        elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
+        if(!elf_header) {
+            printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+            fclose(f);
+            return;
+        }
+        int mainelf = AddElfHeader(context, elf_header);
+
+        if(CalcLoadAddr(elf_header)) {
+            printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+            fclose(f);
+            return;
+        }
+        // allocate memory
+        if(AllocElfMemory(context, elf_header, 0)) {
+            printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+            fclose(f);
+            return;
+        }
+        // Load elf into memory
+        if(LoadElfMemory(f, context, elf_header)) {
+            printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
+            fclose(f);
+            return;
+        }
+        // can close the file now
+        fclose(f);
+
+        lib->type = 1;
+        lib->context = context;
+        lib->fini = EmuLib_Fini;
+        lib->get = EmuLib_Get;
+        lib->getnoweak = EmuLib_GetNoWeak;
+        lib->getlocal = EmuLib_GetLocal;
+        lib->priv.n.elf_index = mainelf;
+        lib->priv.n.mapsymbols = kh_init(mapsymbols);
+        lib->priv.n.weaksymbols = kh_init(mapsymbols);
+        lib->priv.n.localsymbols = kh_init(mapsymbols);
+
+        printf_log(LOG_INFO, "Using emulated %s\n", libname);
+    }
+}
+
+library_t *NewLibrary(const char* path, box86context_t* context)
+{
+    printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
+    library_t *lib = (library_t*)calloc(1, sizeof(library_t));
+    lib->path = strdup(path);
+    lib->name = Path2Name(path);
+    lib->nbdot = NbDot(lib->name);
+    lib->type = -1;
+    lib->needed = kh_init(needed);
+    printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
+    // And now, actually loading a library
+    // look for native(wrapped) libs first
+    initNativeLib(lib, context);
     // then look for a native one
     if(lib->type==-1)
-    {
-        char libname[MAX_PATH];
-        strcpy(libname, path);
-        int found = FileExist(libname, IS_FILE);
-        if(!found && !strchr(path, '/'))
-            for(int i=0; i<context->box86_ld_lib.size; ++i)
-            {
-                strcpy(libname, context->box86_ld_lib.paths[i]);
-                strcat(libname, path);
-                if(FileExist(libname, IS_FILE))
-                    break;
-            }
-        if(FileExist(libname, IS_FILE))
-        {
-            FILE *f = fopen(libname, "rb");
-            if(!f) {
-                printf_log(LOG_NONE, "Error: Cannot open %s\n", libname);
-                return NULL;
-            }
-            elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
-            if(!elf_header) {
-                printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
-                fclose(f);
-                return NULL;
-            }
-            int mainelf = AddElfHeader(context, elf_header);
-
-            if(CalcLoadAddr(elf_header)) {
-                printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
-                fclose(f);
-                return NULL;
-            }
-            // allocate memory
-            if(AllocElfMemory(context, elf_header, 0)) {
-                printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
-                fclose(f);
-                return NULL;
-            }
-            // Load elf into memory
-            if(LoadElfMemory(f, context, elf_header)) {
-                printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
-                fclose(f);
-                return NULL;
-            }
-            // can close the file now
-            fclose(f);
-
-            lib->type = 1;
-            lib->context = context;
-            lib->fini = EmuLib_Fini;
-            lib->get = EmuLib_Get;
-            lib->getnoweak = EmuLib_GetNoWeak;
-            lib->getlocal = EmuLib_GetLocal;
-            lib->priv.n.elf_index = mainelf;
-            lib->priv.n.mapsymbols = kh_init(mapsymbols);
-            lib->priv.n.weaksymbols = kh_init(mapsymbols);
-            lib->priv.n.localsymbols = kh_init(mapsymbols);
-
-            printf_log(LOG_INFO, "Using emulated %s\n", libname);
-
-        }
-    }
-    // not implemented yet, so error...
+        initEmulatedLib(path, lib, context);
+    // nothing loaded, so error...
     if(lib->type==-1)
     {
         FreeLibrary(&lib);
