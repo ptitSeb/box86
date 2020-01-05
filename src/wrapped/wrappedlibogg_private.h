@@ -5,7 +5,7 @@
 // ogg_stream_state doesn't need align :)
 // oggpack_buffer probably doesn't need align
 
-//GO(oggpack_adv, 
+GO(oggpack_adv, vFpi)
 //GO(oggpack_adv1, 
 //GO(oggpackB_adv, 
 //GO(oggpackB_adv1, 
@@ -26,22 +26,22 @@ GO(oggpackB_writeclear, vFp)
 //GO(oggpackB_writecopy, 
 GO(oggpackB_writeinit, vFp)
 //GO(oggpackB_writetrunc, 
-//GO(oggpack_bytes, 
+GO(oggpack_bytes, lFp)
 //GO(ogg_packet_clear, 
-//GO(oggpack_get_buffer, 
-//GO(oggpack_look, 
+GO(oggpack_get_buffer, pFp)
+GO(oggpack_look, lFpi)
 //GO(oggpack_look1, 
-//GO(oggpack_read, 
+GO(oggpack_read, lFpi)
 //GO(oggpack_read1, 
-//GO(oggpack_readinit, 
-//GO(oggpack_reset, 
+GO(oggpack_readinit, vFppi)
+GO(oggpack_reset, vFp)
 GO(oggpack_write, vFpui)
 //GO(oggpack_writealign, 
 //GO(oggpack_writecheck, 
 GO(oggpack_writeclear, vFp)
 //GO(oggpack_writecopy, 
-//GO(oggpack_writeinit, 
-//GO(oggpack_writetrunc, 
+GO(oggpack_writeinit, vFp)
+GO(oggpack_writetrunc, vFpl)
 GO(ogg_page_bos, iFp)
 GO(ogg_page_checksum_set, iFp)
 GO(ogg_page_continued, iFp)
