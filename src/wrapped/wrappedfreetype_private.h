@@ -152,7 +152,7 @@ GO(FT_Outline_Translate, vFpll)
 //GO(FT_Reference_Face, 
 //GO(FT_Reference_Library, 
 //GO(FT_Remove_Module, 
-//GO(FT_Render_Glyph, 
+GO(FT_Render_Glyph, iFpi)
 //GO(FT_Request_Size, 
 //GO(FT_RoundFix, 
 GO(FT_Select_Charmap, iFpi)
