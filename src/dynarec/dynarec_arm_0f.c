@@ -76,10 +76,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVQ(v0, v1);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255-8, 0);
-                LDRD_IMM8(x2, ed, fixedaddress+0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0);
+                //LDRD also have alignment requirements
+                LDR_IMM9(x2, ed, fixedaddress+0);
+                LDR_IMM9(x3, ed, fixedaddress+4);
                 VMOVtoV_D(v0, x2, x3);
-                LDRD_IMM8(x2, ed, fixedaddress+8);
+                LDR_IMM9(x2, ed, fixedaddress+8);
+                LDR_IMM9(x3, ed, fixedaddress+12);
                 VMOVtoV_D(v0+1, x2, x3);
             }
             break;
@@ -92,11 +95,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255-8, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-16, 0);
                 VMOVfrV_D(x2, x3, v0);
-                STRD_IMM8(x2, ed, fixedaddress+0);
+                // cannot use STRD, this needs alignement too
+                STR_IMM9(x2, ed, fixedaddress+0);
+                STR_IMM9(x3, ed, fixedaddress+4);
                 VMOVfrV_D(x2, x3, v0+1);
-                STRD_IMM8(x2, ed, fixedaddress+8);
+                STR_IMM9(x2, ed, fixedaddress+8);
+                STR_IMM9(x3, ed, fixedaddress+12);
             }
             break;
         case 0x12:

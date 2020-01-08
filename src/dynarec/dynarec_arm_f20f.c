@@ -59,8 +59,9 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVD(v0, d0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                LDRD_IMM8(x2, ed, fixedaddress);   // to avoid bus errors
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                LDR_IMM9(x2, ed, fixedaddress+0);
+                LDR_IMM9(x3, ed, fixedaddress+4);
                 VMOVtoV_D(v0, x2, x3);
                 VEOR(v0+1, v0+1, v0+1); // upper 64bits set to 0
             }
@@ -75,8 +76,9 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVD(d0, v0);
             } else {
                 VMOVfrV_D(x2, x3, v0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                STRD_IMM8(x2, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                STR_IMM9(x2, ed, fixedaddress+0);
+                STR_IMM9(x3, ed, fixedaddress+4);
             }
             break;
         case 0x12:
@@ -89,8 +91,9 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVD(v0, d0);
                 VMOVD(v0+1, d0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                LDRD_IMM8(x2, ed, fixedaddress);   // to avoid bus errors
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                LDR_IMM9(x2, ed, fixedaddress+0);
+                LDR_IMM9(x3, ed, fixedaddress+4);
                 VMOVtoV_D(v0, x2, x3);
                 VMOVD(v0+1, v0);
             }
