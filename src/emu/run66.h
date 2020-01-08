@@ -25,8 +25,19 @@
     GO(0x30, xor)                   /* XOR 0x31 ~> 0x35 */
     //GO(0x38, cmp)                   /* CMP 0x39 ~> 0x3D */
     #undef GO
+    _66_0x06:                      /* PUSH ES */
+        Push16(emu, emu->segs[_ES]);
+        NEXT;
+    _66_0x07:                      /* POP ES */
+        emu->segs[_ES] = Pop16(emu);    // no check, no use....
+        NEXT;
+
     _66_0x0F:                      /* 66 0f prefix */
         #include "run660f.h"
+        
+    _66_0x26:                      /* ES: */
+        // ignored
+        NEXT;
     _66_0x2E:                      /* CS: */
         // ignored
         NEXT;
