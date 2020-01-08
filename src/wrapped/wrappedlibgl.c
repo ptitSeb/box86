@@ -16,39 +16,13 @@
 #include "librarian.h"
 #include "callback.h"
 
-void* my_glXGetProcAddress(x86emu_t* emu, void* name);
-void* my_glXGetProcAddressARB(x86emu_t* emu, void* name);
-void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param);
 char* libGL;
 
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
-#define CUSTOM_INIT lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");
 
-#include "wrappedlib_init.h"
-
-kh_symbolmap_t * fillGLProcWrapper()
-{
-    int cnt, ret;
-    khint_t k;
-    kh_symbolmap_t * symbolmap = kh_init(symbolmap);
-    // populates maps...
-    cnt = sizeof(libglsymbolmap)/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, symbolmap, libglsymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = libglsymbolmap[i].w;
-    }
-    return symbolmap;
-}
-void freeProcWrapper(kh_symbolmap_t** symbolmap)
-{
-    if(!symbolmap)
-        return;
-    if(!*symbolmap)
-        return
-    kh_destroy(symbolmap, *symbolmap);
-    *symbolmap = NULL;
-}
+kh_symbolmap_t * fillGLProcWrapper();
+void freeProcWrapper(kh_symbolmap_t** symbolmap);
 
 EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name) 
 {
@@ -138,4 +112,37 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     if(prod)
         debug_cb = AddCallback(emu, (uintptr_t)prod, 7, NULL, NULL, NULL, NULL);
     DebugMessageCallback(prod?debug_callback:NULL, param);
+}
+
+#define CUSTOM_INIT lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");
+
+#include "wrappedlib_init.h"
+
+kh_symbolmap_t * fillGLProcWrapper()
+{
+    int cnt, ret;
+    khint_t k;
+    kh_symbolmap_t * symbolmap = kh_init(symbolmap);
+    // populates maps...
+    cnt = sizeof(libglsymbolmap)/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, libglsymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = libglsymbolmap[i].w;
+    }
+    // and the my_ symbols map
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, libglmysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = libglmysymbolmap[i].w;
+    }
+    return symbolmap;
+}
+void freeProcWrapper(kh_symbolmap_t** symbolmap)
+{
+    if(!symbolmap)
+        return;
+    if(!*symbolmap)
+        return
+    kh_destroy(symbolmap, *symbolmap);
+    *symbolmap = NULL;
 }
