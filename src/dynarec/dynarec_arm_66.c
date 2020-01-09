@@ -73,6 +73,22 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAG_DF(x1, d_add16);
             UFLAGS(0);
             break;
+        case 0x06:
+            INST_NAME("PUSH ES");
+            MOVW(x1, offsetof(x86emu_t, segs[_ES]));
+            ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
+            LDRH_IMM8(x2, x1, 0);
+            SUB_IMM8(xESP, xESP, 2);
+            STRH_IMM8(x2, xESP, 0);
+            break;
+        case 0x07:
+            INST_NAME("POP ES");
+            MOVW(x1, offsetof(x86emu_t, segs[_ES]));
+            ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
+            LDRH_IMM8(x2, xESP, 0);
+            STRH_IMM8(x2, x1, 0);
+            ADD_IMM8(xESP, xESP, 2);
+            break;
 
         case 0x09:
             INST_NAME("OR Ew, Gw");
@@ -205,6 +221,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             BFI(xEAX, x2, 0, 16);
             UFLAG_DF(x1, d_and16);
             UFLAGS(0);
+            break;
+        case 0x26:
+            INST_NAME("ES:");
+            // ignored
             break;
 
         case 0x29:

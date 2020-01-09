@@ -116,7 +116,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
             ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
             LDRH_IMM8(x2, x1, 0);
-            SUB_IMM8(xESP, xESP, 2);
+            SUB_IMM8(xESP, xESP, 4);
             STRH_IMM8(x2, xESP, 0);
             break;
         case 0x07:
@@ -125,7 +125,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
             LDRH_IMM8(x2, xESP, 0);
             STRH_IMM8(x2, x1, 0);
-            ADD_IMM8(xESP, xESP, 2);
+            ADD_IMM8(xESP, xESP, 4);
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
@@ -393,7 +393,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAG_DF(x1, d_and32);
             UFLAGS(0);
             break;
-
+        case 0x26:
+            INST_NAME("ES:");
+            // ignored
+            break;
         case 0x27:
             INST_NAME("DAA");
             USEFLAG(0);
