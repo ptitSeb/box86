@@ -49,7 +49,7 @@ void freeXtstMy(void* lib)
 
 static box86context_t *my_context = NULL;
 
-uintptr_t* fnc_XRecordInterceptProc = 0;
+uintptr_t fnc_XRecordInterceptProc = 0;
 static void my_XRecordInterceptProc(void* closure, void *recorded_data)
 {
     RunFunction(my_context, fnc_XRecordInterceptProc, 2, closure, recorded_data);
