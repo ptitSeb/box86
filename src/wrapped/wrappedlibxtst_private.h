@@ -4,11 +4,11 @@
 
 GO(XRecordAllocRange, pFv)
 GO(XRecordCreateContext, LFpipipi)
-//GO(XRecordDisableContext, 
+GO(XRecordDisableContext, iFpL)
 //GO(XRecordEnableContext, 
-//GO(XRecordEnableContextAsync, 
+GOM(XRecordEnableContextAsync, iFEpppp)
 GO(XRecordFreeContext, iFpL)
-//GO(XRecordFreeData, 
+GO(XRecordFreeData, vFp)
 GO(XRecordFreeState, vFp)
 GO(XRecordGetContext, iFpLp)
 GO(XRecordIdBaseMask, uFp)
