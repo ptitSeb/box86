@@ -53,8 +53,8 @@ GOW(atanhl, DFD)
 GO2(atanhl, KFK, atanh)
 #endif
 // atanl    // Weak
-// cabs // Weak
-// cabsf    // Weak
+GOW(cabs, dFdd)     // only 1 arg, but is a double complex
+GOW(cabsf, fFff)    // only 1 arg, but is a float complex
 // cabsl    // Weak
 // cacos    // Weak
 // cacosf   // Weak
@@ -62,8 +62,8 @@ GO2(atanhl, KFK, atanh)
 // cacoshf  // Weak
 // cacoshl  // Weak
 // cacosl   // Weak
-// carg // Weak
-// cargf    // Weak
+GOW(carg, dFdd)     // 1arg, double complex
+GOW(cargf, fFff)    // 1arg, float complex
 // cargl    // Weak
 // casin    // Weak
 // casinf   // Weak
@@ -138,7 +138,7 @@ GO(__cosh_finite, dFd)
 // csinhl   // Weak
 // csinl    // Weak
 GOS(csqrt, pFpV)
-// csqrtf   // Weak
+GOS(csqrtf, pFpV)   // Weak
 // csqrtl   // Weak
 // ctan // Weak
 // ctanf    // Weak
@@ -211,8 +211,8 @@ GO(__finitef, iFf)
 GOW(floor, dFd)
 GOW(floorf, fFf)
 // floorl   // Weak
-// fma  // Weak
-// fmaf // Weak
+GOW(fma, dFddd)
+GOW(fmaf, fFfff)
 // fmal // Weak
 GOW(fmax, dFdd)
 GOW(fmaxf, fFff)
@@ -256,8 +256,8 @@ GOW(ilogbf, iFf)
 // __issignalingf
 // _ITM_deregisterTMCloneTable // Weak
 // _ITM_registerTMCloneTable   // Weak
-// j0
-// j0f
+GO(j0, dFd)
+GO(j0f, fFf)
 // __j0f_finite
 // __j0_finite
 // j0l

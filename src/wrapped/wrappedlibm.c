@@ -25,6 +25,12 @@ EXPORT void* my_csqrt(void* p, void* c)
     return p;
 }
 
+EXPORT void* my_csqrtf(void* p, void* c)
+{
+    *(float complex*)p = csqrtf(*(float complex*)c);
+    return p;
+}
+
 const char* libmName = "libm.so.6";
 #define LIBNAME libm
 
