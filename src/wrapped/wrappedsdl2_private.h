@@ -674,5 +674,8 @@ GOM(SDL_RWread, uFEppuu)
 GOM(SDL_RWwrite, uFEppuu)
 GOM(SDL_RWclose, iFEp)
 
+GO2(SDL_mutexP, iFp, SDL_LockMutex)
+GO2(SDL_mutexV, iFp, SDL_UnlockMutex)
+
 GO(SDL_doesntexist, IFpIi)
 
