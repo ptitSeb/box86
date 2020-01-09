@@ -32,7 +32,7 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         emu->context->glwrappers = fillGLProcWrapper();
     // check if glxprocaddress is filled, and search for lib and fill it if needed
     if(!emu->context->glxprocaddress) {
-        library_t* lib = GetLib(emu->context->maplib, libGL?libGL:libglName);
+        library_t* lib = GetLib(emu->context->maplib, libglName);
         if(!lib) {
             printf_log(LOG_NONE, "Warning, libGL not found in librarian?!\n");
             return NULL;
@@ -114,6 +114,7 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     DebugMessageCallback(prod?debug_callback:NULL, param);
 }
 
+#define PRE_INIT if(libGL) lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); else
 #define CUSTOM_INIT lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");
 
 #include "wrappedlib_init.h"
