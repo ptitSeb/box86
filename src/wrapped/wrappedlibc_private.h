@@ -2128,6 +2128,7 @@ GO2(fallocate64, iFiII, posix_fallocate64)
 DATAM(__libc_stack_end, 4)
 
 DATAM(___brk_addr, 4)
+DATA(__libc_enable_secure, 4)
 
 GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
