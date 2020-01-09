@@ -1269,3 +1269,5 @@ GO(snd_seq_reset_pool_output, iFp)
 GO(snd_seq_reset_pool_input, iFp)
 GO(snd_seq_sync_output_queue, iFp)
 GO(snd_seq_parse_address, iFppp)
+
+GO(snd_hwdep_info_get_iface, iFp)
