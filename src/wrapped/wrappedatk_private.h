@@ -14,22 +14,22 @@ GO(atk_action_set_description, pFpi)
 //GO(atk_add_global_event_listener, 
 //GO(atk_add_key_event_listener, 
 //GO(atk_attribute_set_free, 
-//GO(atk_component_add_focus_handler, 
-//GO(atk_component_contains, 
-//GO(atk_component_get_alpha, 
-//GO(atk_component_get_extents, 
-//GO(atk_component_get_layer, 
-//GO(atk_component_get_mdi_zorder, 
-//GO(atk_component_get_position, 
-//GO(atk_component_get_size, 
-//GO(atk_component_get_type, 
-//GO(atk_component_grab_focus, 
-//GO(atk_component_ref_accessible_at_point, 
-//GO(atk_component_remove_focus_handler, 
-//GO(atk_component_set_extents, 
-//GO(atk_component_set_position, 
-//GO(atk_component_set_size, 
-//GO(atk_coord_type_get_type, 
+//GOM(atk_component_add_focus_handler, uFpp)
+GO(atk_component_contains, iFpiii)
+GO(atk_component_get_alpha, dFp)
+GO(atk_component_get_extents, vFpppppi)
+GO(atk_component_get_layer, iFp)
+GO(atk_component_get_mdi_zorder, iFp)
+GO(atk_component_get_position, vFpppi)
+GO(atk_component_get_size, vFppp)
+GO(atk_component_get_type, iFv)
+GO(atk_component_grab_focus, iFp)
+GO(atk_component_ref_accessible_at_point, pFpiii)
+GO(atk_component_remove_focus_handler, vFpu)
+GO(atk_component_set_extents, iFpiiiii)
+GO(atk_component_set_position, iFpiii)
+GO(atk_component_set_size, iFpii)
+GO(atk_coord_type_get_type, iFv)
 //GO(atk_document_get_attributes, 
 //GO(atk_document_get_attribute_value, 
 //GO(atk_document_get_document, 
@@ -83,8 +83,8 @@ GO(atk_action_set_description, pFpi)
 //GO(atk_image_get_image_size, 
 //GO(atk_image_get_type, 
 //GO(atk_image_set_image_description, 
-//GO(atk_implementor_get_type, 
-//GO(atk_implementor_ref_accessible, 
+GO(atk_implementor_get_type, iFv)
+GO(atk_implementor_ref_accessible, pFp)
 //GO(atk_key_event_type_get_type, 
 //GO(atk_layer_get_type, 
 //GO(atk_marshal_VOID__INT_INT, 
@@ -99,34 +99,34 @@ GO(atk_action_set_description, pFpi)
 //GO(atk_no_op_object_factory_new, 
 //GO(atk_no_op_object_get_type, 
 //GO(atk_no_op_object_new, 
-//GO(atk_object_add_relationship, 
-//GO(atk_object_connect_property_change_handler, 
+GO(atk_object_add_relationship, iFpip)
+//GOM(atk_object_connect_property_change_handler, uFEpp)
 //GO(atk_object_factory_create_accessible, 
 //GO(atk_object_factory_get_accessible_type, 
 //GO(atk_object_factory_get_type, 
 //GO(atk_object_factory_invalidate, 
-//GO(atk_object_get_attributes, 
-//GO(atk_object_get_description, 
-//GO(atk_object_get_index_in_parent, 
-//GO(atk_object_get_layer, 
-//GO(atk_object_get_mdi_zorder, 
-//GO(atk_object_get_n_accessible_children, 
-//GO(atk_object_get_name, 
-//GO(atk_object_get_object_locale, 
-//GO(atk_object_get_parent, 
-//GO(atk_object_get_role, 
-//GO(atk_object_get_type, 
-//GO(atk_object_initialize, 
-//GO(atk_object_notify_state_change, 
-//GO(atk_object_ref_accessible_child, 
-//GO(atk_object_ref_relation_set, 
-//GO(atk_object_ref_state_set, 
-//GO(atk_object_remove_property_change_handler, 
-//GO(atk_object_remove_relationship, 
-//GO(atk_object_set_description, 
-//GO(atk_object_set_name, 
-//GO(atk_object_set_parent, 
-//GO(atk_object_set_role, 
+GO(atk_object_get_attributes, pFp)
+GO(atk_object_get_description, pFp)
+GO(atk_object_get_index_in_parent, iFp)
+GO(atk_object_get_layer, iFp)
+GO(atk_object_get_mdi_zorder, iFp)
+GO(atk_object_get_n_accessible_children, iFp)
+GO(atk_object_get_name, pFp)
+GO(atk_object_get_object_locale, pFp)
+GO(atk_object_get_parent, pFp)
+GO(atk_object_get_role, iFp)
+GO(atk_object_get_type, iFv)
+GO(atk_object_initialize, vFpp)
+GO(atk_object_notify_state_change, vFpii)
+GO(atk_object_ref_accessible_child, pFpi)
+GO(atk_object_ref_relation_set, pFp)
+GO(atk_object_ref_state_set, pFp)
+GO(atk_object_remove_property_change_handler, vFpu)
+GO(atk_object_remove_relationship, iFpip)
+GO(atk_object_set_description, vFpp)
+GO(atk_object_set_name, vFpp)
+GO(atk_object_set_parent, vFpp)
+GO(atk_object_set_role, vFpi)
 //GO(atk_plug_get_id, 
 //GO(atk_plug_get_type, 
 //GO(atk_plug_new, 
@@ -158,11 +158,11 @@ GO(atk_action_set_description, pFpi)
 //GO(atk_remove_focus_tracker, 
 //GO(atk_remove_global_event_listener, 
 //GO(atk_remove_key_event_listener, 
-//GO(atk_role_for_name, 
-//GO(atk_role_get_localized_name, 
-//GO(atk_role_get_name, 
-//GO(atk_role_get_type, 
-//GO(atk_role_register, 
+GO(atk_role_for_name, iFp)
+GO(atk_role_get_localized_name, pFp)
+GO(atk_role_get_name, pFp)
+GO(atk_role_get_type, iFv)
+GO(atk_role_register, iFp)
 //GO(atk_selection_add_selection, 
 //GO(atk_selection_clear_selection, 
 //GO(atk_selection_get_selection_count, 
@@ -255,7 +255,7 @@ GO(atk_action_set_description, pFpi)
 //GO(atk_text_remove_selection, 
 //GO(atk_text_set_caret_offset, 
 //GO(atk_text_set_selection, 
-//GO(atk_util_get_type, 
+GO(atk_util_get_type, iFv)
 //GO(atk_value_get_current_value, 
 //GO(atk_value_get_maximum_value, 
 //GO(atk_value_get_minimum_increment, 
