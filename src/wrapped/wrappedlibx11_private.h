@@ -332,7 +332,7 @@ GO(XEventsQueued, iFpi)
 // _XEventsQueued
 // _Xevent_to_mask  // type r
 // _XEventToWire
-//GO(XExtendedMaxRequestSize
+GO(XExtendedMaxRequestSize, lFp)
 //GO(XExtentsOfFontSet
 // _XF86BigfontFreeFontMetrics
 // _XF86LoadQueryLocaleFont
@@ -384,7 +384,7 @@ GO(_XGetAsyncData, vFpppiiii)
 GO(XGetAtomName, pFpp)
 //GO(XGetAtomNames
 // _XGetBitsPerPixel
-//GO(XGetClassHint
+GO(XGetClassHint, iFppp)
 GO(XGetCommand, iFpppp)
 GO(XGetDefault, pFppp)
 GO(XGetErrorDatabaseText, iFpppppi)
@@ -484,7 +484,7 @@ DATA(_XimXTransSocketUNIXFuncs, 4)
 DATAB(_XInitDisplayLock_fn, 4)
 // _XInitDynamicIM
 // _XInitDynamicOM
-//GO(XInitExtension
+GO(XInitExtension, pFpp)
 GOM(XInitImage, iFEp)
 // _XInitImageFuncPtrs
 // _XInitKeysymDB
@@ -830,7 +830,7 @@ GO(XPointInRegion, iFpp)
 // _XPollfdCacheAdd
 // _XPollfdCacheDel
 // _XPollfdCacheInit
-//GO(XPolygonRegion
+GO(XPolygonRegion, pFpii)
 //GO(XProcessInternalConnection
 // _XProcessInternalConnection
 // _XProcessWindowAttributes
@@ -1032,7 +1032,7 @@ GO(XTranslateCoordinates, iFpppiippp)
 // _XTryShapeBitmapCursor
 GO(XUndefineCursor, iFpp)
 //GO(XUngrabButton
-//GO(XUngrabKey
+GO(XUngrabKey, iFpiup)
 GO(XUngrabKeyboard, iFpu)
 GO(XUngrabPointer, iFpu)
 GO(XUngrabServer, iFp)
@@ -1066,7 +1066,7 @@ GO(Xutf8TextExtents, iFppipp)
 GO(Xutf8TextListToTextProperty, iFppiup)
 // _Xutf8TextListToTextProperty
 //GO(Xutf8TextPerCharExtents
-//GO(Xutf8TextPropertyToTextList
+GO(Xutf8TextPropertyToTextList, iFpppp)
 // _Xutf8TextPropertyToTextList
 GO(XVaCreateNestedList, pFipppppppppppppppppppppp)  // should recreate the function instead...
 //GO(XVendorRelease

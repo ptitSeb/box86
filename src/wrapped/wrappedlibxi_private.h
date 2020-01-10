@@ -6,15 +6,15 @@
 //GO(XChangeDeviceControl, 
 //GO(XChangeDeviceDontPropagateList, 
 //GO(XChangeDeviceKeyMapping, 
-//GO(XChangeDeviceProperty, 
+GO(XChangeDeviceProperty, vFppppiipi)
 //GO(XChangeFeedbackControl, 
 //GO(XChangeKeyboardDevice, 
 //GO(XChangePointerDevice, 
-//GO(XCloseDevice, 
-//GO(XDeleteDeviceProperty, 
+GO(XCloseDevice, iFpp)
+GO(XDeleteDeviceProperty, vFppp)
 //GO(XDeviceBell, 
 //GO(XFreeDeviceControl, 
-//GO(XFreeDeviceList, 
+GO(XFreeDeviceList, iFp)
 //GO(XFreeDeviceMotionEvents, 
 //GO(XFreeDeviceState, 
 //GO(XFreeFeedbackList, 
@@ -25,7 +25,7 @@
 //GO(XGetDeviceKeyMapping, 
 //GO(XGetDeviceModifierMapping, 
 //GO(XGetDeviceMotionEvents, 
-//GO(XGetDeviceProperty, 
+GO(XGetDeviceProperty, iFpppllipppppp)
 //GO(XGetExtensionVersion, 
 //GO(XGetFeedbackControl, 
 //GO(XGetSelectedExtensionEvents, 
@@ -37,16 +37,16 @@
 //GO(XIBarrierReleasePointer, 
 //GO(XIBarrierReleasePointers, 
 //GO(XIChangeHierarchy, 
-//GO(XIChangeProperty, 
+GO(XIChangeProperty, vFpippiipi)
 //GO(XIDefineCursor, 
-//GO(XIDeleteProperty, 
+GO(XIDeleteProperty, vFpip)
 GO(XIFreeDeviceInfo, vFp)
 //GO(XIGetClientPointer, 
 //GO(XIGetFocus, 
-//GO(XIGetProperty, 
+GO(XIGetProperty, iFpipllippppp)
 GO(XIGetSelectedEvents, iFpppi)
 //GO(XIGrabButton, 
-//GO(XIGrabDevice, 
+GO(XIGrabDevice, iFpipLpiiip)
 //GO(XIGrabEnter, 
 //GO(XIGrabFocusIn, 
 //GO(XIGrabKeycode, 
@@ -60,15 +60,15 @@ GO(XISelectEvents, iFpppi)
 //GO(XISetFocus, 
 //GO(XIUndefineCursor, 
 //GO(XIUngrabButton, 
-//GO(XIUngrabDevice, 
+GO(XIUngrabDevice, iFpiL)
 //GO(XIUngrabEnter, 
 //GO(XIUngrabFocusIn, 
 //GO(XIUngrabKeycode, 
 //GO(XIUngrabTouchBegin, 
 //GO(XIWarpPointer, 
 //GO(XListDeviceProperties, 
-//GO(XListInputDevices, 
-//GO(XOpenDevice, 
+GO(XListInputDevices, pFpp)
+GO(XOpenDevice, pFpp)
 //GO(XQueryDeviceState, 
 //GO(XSelectExtensionEvent, 
 //GO(XSendExtensionEvent, 

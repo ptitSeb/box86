@@ -43,7 +43,7 @@ GO(XRRFreePanning, vFp)
 //GO(XRRChangeProviderProperty
 GO(XRRGetPanning, pFppu)
 //GO(XRRSetProviderOffloadSink
-//GO(XRRGetScreenResourcesCurrent
+GO(XRRGetScreenResourcesCurrent, pFpp)
 GO(XRRConfigTimes,uFpp)
 //GO(XRRSetCrtcGamma
 //GO(XRRSetProviderOutputSource
