@@ -730,7 +730,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     u8 = F8;
                     if(u8) {
-                        VSHR_S16(d0, d0, (u8>15)?16:u8);
+                        VSHR_S16(d0, d0, (u8>15)?0:u8);
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1_16(d0, ed);
@@ -782,7 +782,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("PSRAD Em, Ib");
                     u8 = F8;
                     if(u8) {
-                        VSHR_S32(v0, v0, (u8>31)?32:u8);
+                        VSHR_S32(v0, v0, (u8>31)?0:u8);
                         PUTEM(v0);
                     }
                     break;
