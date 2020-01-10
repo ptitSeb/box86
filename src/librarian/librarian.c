@@ -34,7 +34,7 @@ void FreeLibrarian(lib_t **maplib)
 {
     // should that be in reverse order?
     for (int i=0; i<(*maplib)->libsz; ++i) {
-        FreeLibrary(&(*maplib)->libraries[i].lib);
+        Free1Library(&(*maplib)->libraries[i].lib);
     }
     free((*maplib)->libraries);
     (*maplib)->libraries = NULL;

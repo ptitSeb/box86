@@ -248,7 +248,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     // nothing loaded, so error...
     if(lib->type==-1)
     {
-        FreeLibrary(&lib);
+        Free1Library(&lib);
         return NULL;
     }
 
@@ -340,7 +340,7 @@ void InactiveLibrary(library_t* lib)
     lib->active = 0;
 }
 
-void FreeLibrary(library_t **lib)
+void Free1Library(library_t **lib)
 {
     if(!(*lib)) return;
 

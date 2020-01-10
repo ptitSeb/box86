@@ -12,7 +12,7 @@ int AddSymbolsLibrary(library_t* lib, x86emu_t* emu);
 int FinalizeLibrary(library_t* lib, x86emu_t* emu);
 int ReloadLibrary(library_t* lib, x86emu_t* emu);
 void InactiveLibrary(library_t* lib);
-void FreeLibrary(library_t **lib);
+void Free1Library(library_t **lib);
 
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
