@@ -46,7 +46,7 @@ GO(FT_Done_Library, iFp)
 //GO(FT_Face_GetCharVariantIsDefault, 
 //GO(FT_Face_GetVariantSelectors, 
 //GO(FT_Face_GetVariantsOfChar, 
-//GO(FT_Face_Properties, 
+GO(FT_Face_Properties, iFpup)
 //GO(FT_Face_SetUnpatentedHinting, 
 //GO(FT_FloorFix, 
 //GO(FT_Get_Advance, 
@@ -54,15 +54,15 @@ GO(FT_Done_Library, iFp)
 //GO(FT_Get_BDF_Charset_ID, 
 //GO(FT_Get_BDF_Property, 
 GO(FT_Get_Char_Index, uFpL)
-//GO(FT_Get_Charmap_Index, 
+GO(FT_Get_Charmap_Index, iFp)
 //GO(FT_Get_CID_From_Glyph_Index, 
 //GO(FT_Get_CID_Is_Internally_CID_Keyed, 
 //GO(FT_Get_CID_Registry_Ordering_Supplement, 
 //GO(FT_Get_CMap_Format, 
 //GO(FT_Get_CMap_Language_ID, 
-//GO(FT_Get_First_Char, 
+GO(FT_Get_First_Char, LFpp)
 //GO(FT_Get_Font_Format, 
-//GO(FT_Get_FSType_Flags, 
+GO(FT_Get_FSType_Flags, WFp)
 //GO(FT_Get_Gasp, 
 GO(FT_Get_Glyph, iFpp)
 GO(FT_Get_Glyph_Name, iFpupu)
@@ -71,8 +71,8 @@ GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_MM_Var, 
 //GO(FT_Get_Module, 
 //GO(FT_Get_Multi_Master, 
-//GO(FT_Get_Name_Index, 
-//GO(FT_Get_Next_Char, 
+GO(FT_Get_Name_Index, uFpp)
+GO(FT_Get_Next_Char, LFpLp)
 //GO(FT_Get_PFR_Advance, 
 //GO(FT_Get_PFR_Kerning, 
 //GO(FT_Get_PFR_Metrics, 
@@ -85,8 +85,8 @@ GO(FT_Get_PS_Font_Info, iFpp)
 //GO(FT_Get_Sfnt_Name, 
 //GO(FT_Get_Sfnt_Name_Count, 
 GO(FT_Get_Sfnt_Table, pFpi)
-//GO(FT_Get_SubGlyph_Info, 
-//GO(FT_Get_Track_Kerning, 
+GO(FT_Get_SubGlyph_Info, iFpuppppp)
+GO(FT_Get_Track_Kerning, iFplip)
 //GO(FT_Get_TrueType_Engine_Type, 
 //GO(FT_Get_Var_Blend_Coordinates, 
 //GO(FT_Get_Var_Design_Coordinates, 
@@ -125,7 +125,7 @@ GO(FT_New_Face, iFpplp)
 //GO(FT_New_Library, 
 GO(FT_New_Memory_Face, iFppllp)
 //GO(FT_New_Size, 
-//GO(FT_Open_Face, 
+GO(FT_Open_Face, iFpplp)
 //GO(FT_OpenType_Free, 
 //GO(FT_OpenType_Validate, 
 GO(FT_Outline_Check, iFp)
@@ -149,11 +149,11 @@ GO(FT_Outline_Transform, vFpp)
 GO(FT_Outline_Translate, vFpll)
 //GO(FT_Property_Get, 
 //GO(FT_Property_Set, 
-//GO(FT_Reference_Face, 
+GO(FT_Reference_Face, iFp)
 //GO(FT_Reference_Library, 
 //GO(FT_Remove_Module, 
 GO(FT_Render_Glyph, iFpi)
-//GO(FT_Request_Size, 
+GO(FT_Request_Size, iFpp)
 //GO(FT_RoundFix, 
 GO(FT_Select_Charmap, iFpi)
 GO(FT_Select_Size, iFpi)
