@@ -36,7 +36,7 @@ endif()
 
 # Gameshell
 if(GAMESHELL)
-    add_definitions(-march=armv7-a+fp -mfpu=neon -mfloat-abi=hard -marm)
+    add_definitions(-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -marm)
     set(ARM_DYNAREC ON)
     set(LD80BITS OFF)
     set(NOALIGN OFF)
