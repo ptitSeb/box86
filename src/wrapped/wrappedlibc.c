@@ -1344,9 +1344,11 @@ EXPORT void* my_reallocarray(void* ptr, size_t nmemb, size_t size)
     return realloc(ptr, nmemb*size);
 }
 
+#ifndef __OPEN_NEEDS_MODE
 # define __OPEN_NEEDS_MODE(oflag) \
   (((oflag) & O_CREAT) != 0)
 // || ((oflag) & __O_TMPFILE) == __O_TMPFILE)
+#endif
 EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
 {
     int mode = 0;
@@ -1354,7 +1356,6 @@ EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
         mode = b[0];
     return openat(AT_FDCWD, file, oflag, mode);
 }
-#undef __OPEN_NEEDS_MODE
 
 EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
 {

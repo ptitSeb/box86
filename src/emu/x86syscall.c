@@ -19,6 +19,7 @@
 #include <linux/net.h>
 #include <sys/socket.h>
 #endif
+#include <sys/resource.h>
 
 #include "debug.h"
 #include "box86stack.h"
