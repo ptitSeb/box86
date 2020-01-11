@@ -114,7 +114,11 @@ const char* sdl1imageName = "libSDL_image-1.2.so.0";
 
 #define CUSTOM_INIT \
     box86->sdl1imagelib = lib; \
-    lib->priv.w.p2 = getSDL1ImageMy(lib);
+    lib->priv.w.p2 = getSDL1ImageMy(lib);   \
+    lib->priv.w.needed = 2; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libSDL-1.2.so.0");                      \
+    lib->priv.w.neededlibs[1] = strdup("libz.so.1");
 
 #define CUSTOM_FINI \
     free(lib->priv.w.p2); \

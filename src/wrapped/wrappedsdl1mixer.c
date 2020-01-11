@@ -29,10 +29,13 @@ typedef struct sdl1mixer_my_s {
     vFpp_t  Mix_SetPostMix;
     vFp_t   Mix_ChannelFinished;
     vFpp_t  Mix_HookMusic;
+    vFp_t   Mix_HookMusicFinished;
 
     x86emu_t* PostCallback;
     x86emu_t* hookMusicCB;
 } sdl1mixer_my_t;
+
+static x86emu_t* hookMusicFinitCB = NULL;
 
 static void* getSDL1MixerMy(library_t* lib)
 {
@@ -44,6 +47,7 @@ static void* getSDL1MixerMy(library_t* lib)
     GO(Mix_SetPostMix,vFpp_t)
     GO(Mix_ChannelFinished,vFp_t)
     GO(Mix_HookMusic, vFpp_t)
+    GO(Mix_HookMusicFinished, vFp_t)
     #undef GO
     return my;
 }
@@ -152,6 +156,27 @@ EXPORT void my_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
     cb =  AddCallback(emu, (uintptr_t)f, 3, arg, NULL, NULL, NULL);
     my->hookMusicCB = cb;
     my->Mix_HookMusic(sdl1mixer_hookMusicCallback, cb);
+}
+
+static void sdl1mixer_hookMusicFinitCallback()
+{
+    x86emu_t *emu = hookMusicFinitCB;
+    if(emu)
+        RunCallback(emu);
+}
+
+EXPORT void my_Mix_HookMusicFinished(x86emu_t* emu, void* f)
+{
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
+    if(hookMusicFinitCB) {
+        my->Mix_HookMusicFinished(NULL);
+        FreeCallback(hookMusicFinitCB);
+        hookMusicFinitCB = NULL;
+    }
+    if(!f)
+        return;
+    hookMusicFinitCB =  AddCallback(emu, (uintptr_t)f, 0, NULL, NULL, NULL, NULL);
+    my->Mix_HookMusicFinished(sdl1mixer_hookMusicFinitCallback);
 }
 
 const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
