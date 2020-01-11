@@ -981,7 +981,7 @@ GOW(lchown, iFpuu)
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
 GOM(lfind, pFEpppup)
 GO(lgetxattr, iFpppu)
-GO(__libc_alloca_cutoff, iFu)
+GOM(__libc_alloca_cutoff, iFEL)
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
 // __libc_calloc
@@ -1561,6 +1561,7 @@ GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
 GOM(snprintf, iFEpupVV)
 GOM(__snprintf_chk, iFEpuvvpVV)
+GOM(__snprintf, iFEpupVV)
 // sockatmark
 GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
@@ -1618,7 +1619,7 @@ GO(strcspn, uFpp)
 GOW(strdup, pFp)
 GO(__strdup, pFp)
 GO(strerror, pFi)
-// strerror_l
+GO(strerror_l, pFip)
 GO(__strerror_r, pFipu)
 GOW(strerror_r, pFipu)
 GO(strfmon, lFpLpppppppppp) //vaarg, probably needs align, there are just double...
@@ -2106,6 +2107,12 @@ GOM(__fdelt_chk, iFi)
 
 GOM(getauxval, uFEu)  // implemented since glibc 2.16
 //GO(getauxval, uFu)
+
+GOM(prlimit64, lFpupp)
+GOM(reallocarray, pFpLL)
+GOM(__open_nocancel, iFEpOV)
+GO2(__read_nocancel, lFipL, read)
+GO2(__close_nocancel, iFi, close)
 
 // not found (libitm???), but it seems OK to declare dummies:
 

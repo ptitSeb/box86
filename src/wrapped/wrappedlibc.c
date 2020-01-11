@@ -63,6 +63,7 @@
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
+typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -338,6 +339,7 @@ EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void *
     #endif
 }
 EXPORT int my___snprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
+EXPORT int my___snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
 
 EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -1330,6 +1332,40 @@ EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read,
     SetCallbackArg(emu, 5, seek);
     SetCallbackArg(emu, 6, close);
     return fopencookie(cb, mode, io_funcs);
+}
+
+EXPORT long my_prlimit64(void* pid, uint32_t res, void* new_rlim, void* old_rlim)
+{
+    syscall(__NR_prlimit64, pid, res, new_rlim, old_rlim);
+}
+
+EXPORT void* my_reallocarray(void* ptr, size_t nmemb, size_t size)
+{
+    return realloc(ptr, nmemb*size);
+}
+
+# define __OPEN_NEEDS_MODE(oflag) \
+  (((oflag) & O_CREAT) != 0)
+// || ((oflag) & __O_TMPFILE) == __O_TMPFILE)
+EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
+{
+    int mode = 0;
+    if (__OPEN_NEEDS_MODE (oflag))
+        mode = b[0];
+    return openat(AT_FDCWD, file, oflag, mode);
+}
+#undef __OPEN_NEEDS_MODE
+
+EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
+{
+    // not always implemented on old linux version...
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "__libc_alloca_cutoff");
+    if(f)
+        return ((iFL_t)f)(size);
+    // approximate version but it's better than nothing....
+    return (size<=(65536*4));
 }
 
 #define CUSTOM_INIT \
