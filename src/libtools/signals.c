@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <syscall.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -15,6 +16,7 @@
 #include "signals.h"
 #include "box86stack.h"
 #include "dynarec.h"
+#include "callback.h"
 
 
 static box86context_t *context = NULL;  // global context, because signals are globals?
@@ -119,45 +121,69 @@ struct kernel_sigaction {
         unsigned long sa_mask2;
 };
 
+uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, int nargs, ...)
+{
+    uint32_t mystack[32*1024];
+    x86emu_t myemu = {0};
+    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
+    SetupX86Emu(emu);
+    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
+
+    R_ESP -= nargs*4;   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    va_list va;
+    va_start (va, nargs);
+    for (int i=0; i<nargs; ++i) {
+        *p = va_arg(va, uint32_t);
+        p++;
+    }
+    va_end (va);
+
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    if(exit)
+        *exit = emu->exit;
+
+    uint32_t ret = R_EAX;
+    FreeX86EmuFromStack(&emu);
+
+    return ret;
+}
+
+
 void my_sighandler(int32_t sig)
 {
     pthread_mutex_unlock(&context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
-    Push32(context->signal_emus[sig], sig);
-    DynaCall(context->signal_emus[sig], context->signals[sig]);
-    if(context->restorer[sig]) {
-        DynaCall(context->signal_emus[sig], context->restorer[sig]);
-    } else {
-        Pop32(context->signal_emus[sig]);
-    }
+    uintptr_t restorer = context->restorer[sig];
+    int exits = 0;
+    int ret = RunFunctionHandler(context, &exits, context->signals[sig], 1, sig);
+    if(exits)
+        exit(ret);
+    if(restorer)
+        RunFunction(context, restorer, 0);
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
-    Push32(context->signal_emus[sig], (uintptr_t)ucntx);  // WRONG!!!
-    Push32(context->signal_emus[sig], (uintptr_t)sigi);
-    Push32(context->signal_emus[sig], sig);
-    DynaCall(context->signal_emus[sig], context->signals[sig]);
-    if(context->restorer[sig]) {
-        DynaCall(context->signal_emus[sig], context->restorer[sig]);
-    } else {
-        Pop32(context->signal_emus[sig]);
-        Pop32(context->signal_emus[sig]);
-        Pop32(context->signal_emus[sig]);
-    }
+    uintptr_t restorer = context->restorer[sig];
+    int exits = 0;
+    int ret = RunFunctionHandler(context, &exits, context->signals[sig], 3, sig, sigi, ucntx);
+    if(exits)
+        exit(ret);
+    if(restorer)
+        RunFunction(context, restorer, 0);
 }
 
 static void CheckSignalContext(x86emu_t* emu, int sig)
 {
     if(!context) {
         context = emu->context;
-    }
-    if(!context->signal_emus[sig]) {
-        context->signal_emus[sig] = NewX86Emu(context, 0, (uintptr_t)malloc(1024*1024*2), 2*1024*1024, 1);
-        SetupX86Emu(context->signal_emus[sig]);
-        SetTraceEmu(context->signal_emus[sig], /*emu->trace_start, emu->trace_end*/0, 0);
     }
 }
 

@@ -62,7 +62,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->size_stack = stacksize;
     // set default value
     R_EIP = start;
-    R_ESP = stack + stacksize;
+    R_ESP = (stack + stacksize) & ~7;   // align stack start, always
     // fake init of segments...
     emu->segs[_CS] = 0x73;
     emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x7b;

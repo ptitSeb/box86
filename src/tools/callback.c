@@ -240,9 +240,9 @@ void FreeCallbackList(callbacklist_t** callbacks)
 
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
-    uint32_t mystack[64*1024];  // 64K*4 = 256K stack
+    uint32_t mystack[60*1024];  // there is a limit at 256K (and even less on not main thread) for object on the stack
     x86emu_t myemu = {0};
-    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
+    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 60*1024*4, 0);
     SetupX86Emu(emu);
     SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
 

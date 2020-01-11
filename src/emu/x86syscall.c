@@ -77,6 +77,8 @@ scwrap_t syscallwrap[] = {
     { 37, __NR_kill, 2 },
     { 38, __NR_rename, 2 },
     { 39, __NR_mkdir, 2 },
+    { 40, __NR_rmdir, 1 },
+    { 41, __NR_dup, 1 },
     { 42, __NR_pipe, 1 },
     { 45, __NR_brk, 1 },
     { 47, __NR_getgid, 0 },
@@ -276,6 +278,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
     switch (s) {
         case 1: // sys_exit
             emu->quit = 1;
+            emu->exit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
             break;
         case 5: // sys_open

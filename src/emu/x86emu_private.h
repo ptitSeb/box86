@@ -58,6 +58,7 @@ typedef struct x86emu_s {
     int         error;
     int         fork;   // quit because need to fork
     forkpty_t*  forkpty_info;
+    int         exit;
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;

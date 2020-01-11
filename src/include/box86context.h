@@ -134,7 +134,6 @@ typedef struct box86context_s {
 
     uintptr_t           signals[MAX_SIGNAL];
     uintptr_t           restorer[MAX_SIGNAL];
-    x86emu_t            *signal_emus[MAX_SIGNAL];
     int                 no_sigsegv;
 
 } box86context_t;
