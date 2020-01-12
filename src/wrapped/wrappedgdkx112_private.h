@@ -18,15 +18,15 @@ GO(gdk_atom_name, pFp)
 GO(gdk_axis_use_get_type, iFv)
 GO(gdk_beep, vFv)
 GO(gdk_bitmap_create_from_data, pFppii)
-//GO(gdk_byte_order_get_type, 
-//GO(gdk_cairo_create, 
-//GO(gdk_cairo_rectangle, 
-//GO(gdk_cairo_region, 
-//GO(gdk_cairo_reset_clip, 
-//GO(gdk_cairo_set_source_color, 
-//GO(gdk_cairo_set_source_pixbuf, 
-//GO(gdk_cairo_set_source_pixmap, 
-//GO(gdk_cairo_set_source_window, 
+GO(gdk_byte_order_get_type, iFv)
+GO(gdk_cairo_create, pFp)
+GO(gdk_cairo_rectangle, vFpp)
+GO(gdk_cairo_region, vFpp)
+GO(gdk_cairo_reset_clip, vFpp)
+GO(gdk_cairo_set_source_color, vFpp)
+GO(gdk_cairo_set_source_pixbuf, vFppdd)
+GO(gdk_cairo_set_source_pixmap, vFppdd)
+GO(gdk_cairo_set_source_window, vFppdd)
 //GO(gdk_cap_style_get_type, 
 //GO(gdk_char_height, 
 //GO(gdk_char_measure, 
@@ -580,7 +580,7 @@ GO(gdk_window_configure_finished, vFp)
 GO(gdk_window_constrain_size, vFpuiipp)
 GO(gdk_window_coords_from_parent, vFpddpp)
 GO(gdk_window_coords_to_parent, vFpddpp)
-//GO(gdk_window_create_similar_surface, 
+GO(gdk_window_create_similar_surface, pFpiii)
 GO(gdk_window_deiconify, vFp)
 GO(gdk_window_destroy, vFp)
 //GO(gdk_window_destroy_notify, 

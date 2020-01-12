@@ -191,8 +191,8 @@ GO(g_chdir, iFp)
 //GO(g_checksum_reset, 
 //GO(g_checksum_type_get_length, 
 //GO(g_checksum_update, 
-//GOM(g_child_watch_add, uFEiBp)
-//GOM(g_child_watch_add_full, uFEiiBpB)
+GOM(g_child_watch_add, uFEipp)
+GOM(g_child_watch_add_full, uFEiippp)
 GO(g_child_watch_source_new, pFi)
 GO(g_chmod, iFpi)
 GO(g_clear_error, vFp)
@@ -337,8 +337,8 @@ GO(g_datalist_unset_flags, vFpu)
 //GO(g_date_valid_month, 
 //GO(g_date_valid_weekday, 
 //GO(g_date_valid_year, 
-//GO(g_dcgettext, 
-//GO(g_dgettext, 
+GO(g_dcgettext, pFppi)
+GO(g_dgettext, pFpp)
 GO(g_dir_close, vFp)
 GO(g_direct_equal, iFpp)
 GO(g_direct_hash, uFp)
@@ -346,11 +346,11 @@ GO(g_dir_make_tmp, pFpp)
 GO(g_dir_open, pFp)
 //GO(g_dir_read_name, 
 GO(g_dir_rewind, vFp)
-//GO(g_dngettext, 
+GO(g_dngettext, pFpppL)
 GO(g_double_equal, iFpp)
 GO(g_double_hash, uFp)
-//GO(g_dpgettext, 
-//GO(g_dpgettext2, 
+GO(g_dpgettext, pFppL)
+GO(g_dpgettext2, pFppp)
 GO(g_environ_getenv, pFpp)      // should wrap?
 GO(g_environ_setenv, pFpppi)
 GO(g_environ_unsetenv, pFpp)
@@ -391,8 +391,8 @@ GO(g_get_environ, pFv)
 GO(g_get_filename_charsets, iFp)
 GO(g_get_home_dir, pFv)
 GO(g_get_host_name, pFv)
-//GO(g_get_language_names, 
-//GO(g_get_locale_variants, 
+GO(g_get_language_names, pFv)
+GO(g_get_locale_variants, pFp)
 //GO(g_get_monotonic_time, 
 //GO(g_get_num_processors, 
 GO(g_get_prgname, pFv)
@@ -1187,7 +1187,7 @@ GO(g_str_has_suffix, iFpp)
 //GO(g_string_truncate, 
 //GO(g_string_up, 
 //GO(g_string_vprintf, 
-//GO(g_strip_context, 
+GO(g_strip_context, pFpp)
 GO(g_str_is_ascii, iFp)
 GO2(g_strjoin, pFpV, g_strjoinv)
 GO(g_strjoinv, pFpp)    // no need to align, ony string pointers here

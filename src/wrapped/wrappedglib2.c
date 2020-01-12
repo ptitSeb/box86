@@ -32,6 +32,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpu_t)(void*, uint32_t);
 typedef uint32_t  (*uFpp_t)(void*, void*);
 typedef int  (*iFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFipp_t)(int, void*, void*);
 typedef uint32_t  (*uFppp_t)(void*, void*, void*);
 typedef void  (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
@@ -42,6 +43,7 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFpLpp_t)(void*, unsigned long, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
+typedef uint32_t (*uFiippp_t)(int, int, void*, void*, void*);
 typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
 typedef int (*iFpppipppp_t)(void*, void*, void*, int, void*, void*, void*, void*);
@@ -83,7 +85,9 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_hash_table_find, pFppp_t)              \
     GO(g_spawn_async_with_pipes, iFpppippppppp_t)\
     GO(g_spawn_async, iFpppipppp_t)             \
-    GO(g_spawn_sync, iFpppipppppp_t)
+    GO(g_spawn_sync, iFpppipppppp_t)            \
+    GO(g_child_watch_add, uFipp_t)              \
+    GO(g_child_watch_add_full, uFiippp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -668,7 +672,7 @@ EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* d
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
     if(!f)
-        my->g_idle_add_full(priority, f, data, notify);
+        return my->g_idle_add_full(priority, f, data, notify);
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 1, data, NULL, NULL, NULL);
     SetCallbackArg(cb, 9, notify);
     return my->g_idle_add_full(priority, my_source_func, cb, my_destroy_notify);
@@ -766,6 +770,35 @@ EXPORT int my_g_spawn_sync(x86emu_t* emu, void* dir, void* argv, void* envp, int
 
     return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
 }
+
+static void my_gchildwatchfunc(int pid, int status, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 2, pid, status);
+    RunCallback(emu);
+}
+EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    if(!f)
+        return my->g_child_watch_add(pid, f, data);
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
+
+    return my->g_child_watch_add_full(0, pid, my_gchildwatchfunc, cb, my_destroy_notify);
+}
+
+EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
+    SetCallbackArg(cb, 9, notify);
+    return my->g_idle_add_full(priority, f?my_gchildwatchfunc:NULL, cb, my_destroy_notify);
+}
+
 
 #define CUSTOM_INIT \
     my_context = box86; \

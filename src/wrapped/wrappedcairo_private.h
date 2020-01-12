@@ -5,18 +5,18 @@
 //GO(cairo_append_path, 
 //GO(cairo_arc, 
 //GO(cairo_arc_negative, 
-//GO(cairo_clip, 
-//GO(cairo_clip_extents, 
-//GO(cairo_clip_preserve, 
+GO(cairo_clip, vFp)
+GO(cairo_clip_extents, vFppppp)
+GO(cairo_clip_preserve, vFp)
 //GO(cairo_close_path, 
-//GO(cairo_copy_clip_rectangle_list, 
-//GO(cairo_copy_page, 
+GO(cairo_copy_clip_rectangle_list, pFp)
+GO(cairo_copy_page, vFp)
 //GO(cairo_copy_path, 
 //GO(cairo_copy_path_flat, 
-//GO(cairo_create, 
+GO(cairo_create, pFp)
 //GO(cairo_curve_to, 
 //GO(cairo_debug_reset_static_data, 
-//GO(cairo_destroy, 
+GO(cairo_destroy, vFp)
 //GO(cairo_device_acquire, 
 //GO(cairo_device_destroy, 
 //GO(cairo_device_finish, 
@@ -37,9 +37,9 @@
 //GO(cairo_device_status, 
 //GO(cairo_device_to_user, 
 //GO(cairo_device_to_user_distance, 
-//GO(cairo_fill, 
-//GO(cairo_fill_extents, 
-//GO(cairo_fill_preserve, 
+GO(cairo_fill, vFp)
+GO(cairo_fill_extents, vFppppp)
+GO(cairo_fill_preserve, vFp)
 //GO(cairo_font_extents, 
 //GO(cairo_font_face_destroy, 
 //GO(cairo_font_face_get_reference_count, 
@@ -72,27 +72,27 @@
 //GO(cairo_ft_font_options_substitute, 
 //GO(cairo_ft_scaled_font_lock_face, 
 //GO(cairo_ft_scaled_font_unlock_face, 
-//GO(cairo_get_antialias, 
+GO(cairo_get_antialias, iFp)
 //GO(cairo_get_current_point, 
-//GO(cairo_get_dash, 
-//GO(cairo_get_dash_count, 
-//GO(cairo_get_fill_rule, 
+GO(cairo_get_dash, vFppp)
+GO(cairo_get_dash_count, iFp)
+GO(cairo_get_fill_rule, iFp)
 //GO(cairo_get_font_face, 
 //GO(cairo_get_font_matrix, 
 //GO(cairo_get_font_options, 
-//GO(cairo_get_group_target, 
-//GO(cairo_get_line_cap, 
-//GO(cairo_get_line_join, 
-//GO(cairo_get_line_width, 
+GO(cairo_get_group_target, pFp)
+GO(cairo_get_line_cap, iFp)
+GO(cairo_get_line_join, iFp)
+GO(cairo_get_line_width, dFp)
 //GO(cairo_get_matrix, 
-//GO(cairo_get_miter_limit, 
-//GO(cairo_get_operator, 
-//GO(cairo_get_reference_count, 
+GO(cairo_get_miter_limit, dFp)
+GO(cairo_get_operator, iFp)
+GO(cairo_get_reference_count, uFp)
 //GO(cairo_get_scaled_font, 
-//GO(cairo_get_source, 
-//GO(cairo_get_target, 
-//GO(cairo_get_tolerance, 
-//GO(cairo_get_user_data, 
+GO(cairo_get_source, pFp)
+GO(cairo_get_target, pFp)
+GO(cairo_get_tolerance, dFp)
+GO(cairo_get_user_data, pFpp)
 //GO(cairo_glyph_allocate, 
 //GO(cairo_glyph_extents, 
 //GO(cairo_glyph_free, 
@@ -108,12 +108,12 @@
 //GO(cairo_image_surface_get_height, 
 //GO(cairo_image_surface_get_stride, 
 //GO(cairo_image_surface_get_width, 
-//GO(cairo_in_clip, 
-//GO(cairo_in_fill, 
-//GO(cairo_in_stroke, 
+GO(cairo_in_clip, iFpdd)
+GO(cairo_in_fill, iFpdd)
+GO(cairo_in_stroke, iFpdd)
 //GO(cairo_line_to, 
-//GO(cairo_mask, 
-//GO(cairo_mask_surface, 
+GO(cairo_mask, vFpp)
+GO(cairo_mask_surface, vFppdd)
 //GO(cairo_matrix_init, 
 //GO(cairo_matrix_init_identity, 
 //GO(cairo_matrix_init_rotate, 
@@ -141,8 +141,8 @@
 //GO(cairo_move_to, 
 //GO(cairo_new_path, 
 //GO(cairo_new_sub_path, 
-//GO(cairo_paint, 
-//GO(cairo_paint_with_alpha, 
+GO(cairo_paint, vFp)
+GO(cairo_paint_with_alpha, vFpd)
 //GO(cairo_path_destroy, 
 //GO(cairo_path_extents, 
 //GO(cairo_pattern_add_color_stop_rgb, 
@@ -179,8 +179,8 @@
 //GO(cairo_pdf_surface_restrict_to_version, 
 //GO(cairo_pdf_surface_set_size, 
 //GO(cairo_pdf_version_to_string, 
-//GO(cairo_pop_group, 
-//GO(cairo_pop_group_to_source, 
+GO(cairo_pop_group, pFp)
+GO(cairo_pop_group_to_source, vFp)
 //GO(cairo_ps_get_levels, 
 //GO(cairo_ps_level_to_string, 
 //GO(cairo_ps_surface_create, 
@@ -192,8 +192,8 @@
 //GO(cairo_ps_surface_restrict_to_level, 
 //GO(cairo_ps_surface_set_eps, 
 //GO(cairo_ps_surface_set_size, 
-//GO(cairo_push_group, 
-//GO(cairo_push_group_with_content, 
+GO(cairo_push_group, vFp)
+GO(cairo_push_group_with_content, vFpi)
 //GO(cairo_raster_source_pattern_get_acquire, 
 //GO(cairo_raster_source_pattern_get_callback_data, 
 //GO(cairo_raster_source_pattern_get_copy, 
@@ -208,8 +208,8 @@
 //GO(cairo_recording_surface_get_extents, 
 //GO(cairo_recording_surface_ink_extents, 
 //GO(cairo_rectangle, 
-//GO(cairo_rectangle_list_destroy, 
-//GO(cairo_reference, 
+GO(cairo_rectangle_list_destroy, vFp)
+GO(cairo_reference, pFp)
 //GO(cairo_region_contains_point, 
 //GO(cairo_region_contains_rectangle, 
 //GO(cairo_region_copy, 
@@ -236,10 +236,10 @@
 //GO(cairo_rel_curve_to, 
 //GO(cairo_rel_line_to, 
 //GO(cairo_rel_move_to, 
-//GO(cairo_reset_clip, 
-//GO(cairo_restore, 
+GO(cairo_reset_clip, vFp)
+GO(cairo_restore, vFp)
 //GO(cairo_rotate, 
-//GO(cairo_save, 
+GO(cairo_save, vFp)
 //GO(cairo_scale, 
 //GO(cairo_scaled_font_create, 
 //GO(cairo_scaled_font_destroy, 
@@ -267,35 +267,35 @@
 //GO(cairo_script_surface_create_for_target, 
 //GO(cairo_script_write_comment, 
 //GO(cairo_select_font_face, 
-//GO(cairo_set_antialias, 
-//GO(cairo_set_dash, 
-//GO(cairo_set_fill_rule, 
+GO(cairo_set_antialias, vFpi)
+GO(cairo_set_dash, vFppid)
+GO(cairo_set_fill_rule, vFpi)
 //GO(cairo_set_font_face, 
 //GO(cairo_set_font_matrix, 
 //GO(cairo_set_font_options, 
 //GO(cairo_set_font_size, 
-//GO(cairo_set_line_cap, 
-//GO(cairo_set_line_join, 
-//GO(cairo_set_line_width, 
+GO(cairo_set_line_cap, vFpi)
+GO(cairo_set_line_join, vFpi)
+GO(cairo_set_line_width, vFpd)
 //GO(cairo_set_matrix, 
-//GO(cairo_set_miter_limit, 
-//GO(cairo_set_operator, 
+GO(cairo_set_miter_limit, vFpd)
+GO(cairo_set_operator, vFpi)
 //GO(cairo_set_scaled_font, 
-//GO(cairo_set_source, 
-//GO(cairo_set_source_rgb, 
-//GO(cairo_set_source_rgba, 
-//GO(cairo_set_source_surface, 
-//GO(cairo_set_tolerance, 
-//GO(cairo_set_user_data, 
+GO(cairo_set_source, vFpp)
+GO(cairo_set_source_rgb, vFpddd)
+GO(cairo_set_source_rgba, vFpdddd)
+GO(cairo_set_source_surface, vFppdd)
+GO(cairo_set_tolerance, vFpd)
+//GOM(cairo_set_user_data, iFEpppp)
 //GO(cairo_show_glyphs, 
-//GO(cairo_show_page, 
+GO(cairo_show_page, vFp)
 //GO(cairo_show_text, 
 //GO(cairo_show_text_glyphs, 
-//GO(cairo_status, 
+GO(cairo_status, iFp)
 //GO(cairo_status_to_string, 
-//GO(cairo_stroke, 
-//GO(cairo_stroke_extents, 
-//GO(cairo_stroke_preserve, 
+GO(cairo_stroke, vFp)
+GO(cairo_stroke_extents, vFppppp)
+GO(cairo_stroke_preserve, vFp)
 //GO(cairo_surface_copy_page, 
 //GO(cairo_surface_create_for_rectangle, 
 //GO(cairo_surface_create_observer, 
