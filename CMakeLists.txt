@@ -188,6 +188,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxrender.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxi.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxss.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxpm.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxau.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxdmcp.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibx11xcb.c"
