@@ -251,17 +251,17 @@ GO(gtk_box_reorder_child, vFppi)
 GO(gtk_box_set_child_packing, vFppiiui)
 GO(gtk_box_set_homogeneous, vFpi)
 GO(gtk_box_set_spacing, vFpi)
-//GO(gtk_buildable_add_child, 
-//GO(gtk_buildable_construct_child, 
-//GO(gtk_buildable_custom_finished, 
-//GO(gtk_buildable_custom_tag_end, 
-//GO(gtk_buildable_custom_tag_start, 
-//GO(gtk_buildable_get_internal_child, 
-//GO(gtk_buildable_get_name, 
+GO(gtk_buildable_add_child, vFpppp)
+GO(gtk_buildable_construct_child, pFppp)
+GO(gtk_buildable_custom_finished, vFppppp)
+GO(gtk_buildable_custom_tag_end, vFppppp)
+GO(gtk_buildable_custom_tag_start, iFpppppp)
+GO(gtk_buildable_get_internal_child, pFppp)
+GO(gtk_buildable_get_name, pFp)
 GO(gtk_buildable_get_type, iFv)
-//GO(gtk_buildable_parser_finished, 
-//GO(gtk_buildable_set_buildable_property, 
-//GO(gtk_buildable_set_name, 
+GO(gtk_buildable_parser_finished, vFpp)
+GO(gtk_buildable_set_buildable_property, vFpppp)
+GO(gtk_buildable_set_name, vFpp)
 GO(gtk_builder_add_from_file, uFppp)
 GO(gtk_builder_add_from_string, iFppLp)
 GO(gtk_builder_add_objects_from_file, uFpppp)
