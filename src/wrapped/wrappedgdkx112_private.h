@@ -782,3 +782,9 @@ GO(gdkx_visual_get, pFp)
 //GLOB(gdk_display, 4)
 
 GO(dummy_set_child_property, vFppupp)       // to get vFppupp for gtkclass.c
+
+// from gdk-1.2
+GO2(gdk_pixmap_ref, pFp, g_object_ref)
+GO2(gdk_pixmap_unref, vFp, g_object_unref)
+GO2(gdk_bitmap_ref, pFp, g_object_ref)
+GO2(gdk_bitmap_unref, vFp, g_object_unref)

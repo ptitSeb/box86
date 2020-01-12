@@ -17,6 +17,7 @@
 #include "librarian.h"
 #include "myalign.h"
 
+static char* libname = NULL;
 
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
@@ -62,6 +63,7 @@ const char* openalName = "libopenal.so.1";
 #define LIBNAME openal
 
 #define CUSTOM_INIT \
+    libname = lib->name;                \
     lib->priv.w.p2 = getOpenALMy(lib);
 
 #define CUSTOM_FINI \
@@ -83,12 +85,18 @@ kh_symbolmap_t * fillALProcWrapper()
         k = kh_put(symbolmap, symbolmap, openalsymbolmap[i].name, &ret);
         kh_value(symbolmap, k) = openalsymbolmap[i].w;
     }
+    // and the my_ symbols map
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
+    }
     return symbolmap;
 }
 
 EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name) 
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, openalName)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alGetProcAddress(%s)\n", rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
@@ -103,6 +111,13 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         return (void*)ret; // already bridged
     // get wrapper    
     khint_t k = kh_get(symbolmap, emu->context->alwrappers, rname);
+    if(k==kh_end(emu->context->glwrappers)) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
+    }
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
@@ -113,7 +128,7 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
 
 EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, openalName)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alcGetProcAddress(%p, %s)\n", device, rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
@@ -148,7 +163,7 @@ static void my_RequestCallback(int32_t a, int32_t b)
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, openalName)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
     if(my->request)
         FreeCallback(my->request);
     request = my->request = AddCallback(emu, (uintptr_t)cb, 2, NULL, NULL, NULL, NULL);
@@ -157,7 +172,7 @@ EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count
 
 EXPORT void my_alRequestFoldbackStop(x86emu_t* emu)
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, openalName)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
     my->alRequestFoldbackStop();
     if(my->request)
         FreeCallback(my->request);

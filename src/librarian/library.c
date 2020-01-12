@@ -138,10 +138,10 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {
             if(wrappedlibs[i].init(lib, context)) {
                 // error!
-                printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", wrappedlibs[i].name, dlerror());
+                printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", lib->name, dlerror());
                 return; // non blocker...
             }
-            printf_log(LOG_INFO, "Using native(wrapped) %s\n", wrappedlibs[i].name);
+            printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
             lib->priv.w.box86lib = context->box86lib;
             lib->context = context;
             lib->fini = wrappedlibs[i].fini;

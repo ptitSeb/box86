@@ -453,81 +453,81 @@ GO(gtk_clipboard_wait_is_rich_text_available, iFpp)
 GO(gtk_clipboard_wait_is_target_available, iFpp)
 GO(gtk_clipboard_wait_is_text_available, iFp)
 GO(gtk_clipboard_wait_is_uris_available, iFp)
-//GO(gtk_clist_append, 
-//GO(gtk_clist_clear, 
-//GO(gtk_clist_columns_autosize, 
-//GO(gtk_clist_column_title_active, 
-//GO(gtk_clist_column_title_passive, 
-//GO(gtk_clist_column_titles_active, 
-//GO(gtk_clist_column_titles_hide, 
-//GO(gtk_clist_column_titles_passive, 
-//GO(gtk_clist_column_titles_show, 
+GO(gtk_clist_append, iFpp)
+GO(gtk_clist_clear, vFp)
+GO(gtk_clist_columns_autosize, iFp)
+GO(gtk_clist_column_title_active, vFpi)
+GO(gtk_clist_column_title_passive, vFpi)
+GO(gtk_clist_column_titles_active, vFp)
+GO(gtk_clist_column_titles_hide, vFp)
+GO(gtk_clist_column_titles_passive, vFp)
+GO(gtk_clist_column_titles_show, vFp)
 GO(gtk_clist_drag_pos_get_type, iFv)
-//GO(gtk_clist_find_row_from_data, 
-//GO(gtk_clist_freeze, 
-//GO(gtk_clist_get_cell_style, 
-//GO(gtk_clist_get_cell_type, 
-//GO(gtk_clist_get_column_title, 
-//GO(gtk_clist_get_column_widget, 
-//GO(gtk_clist_get_hadjustment, 
-//GO(gtk_clist_get_pixmap, 
-//GO(gtk_clist_get_pixtext, 
-//GO(gtk_clist_get_row_data, 
-//GO(gtk_clist_get_row_style, 
-//GO(gtk_clist_get_selectable, 
-//GO(gtk_clist_get_selection_info, 
-//GO(gtk_clist_get_text, 
+GO(gtk_clist_find_row_from_data, iFpp)
+GO(gtk_clist_freeze, vFp)
+GO(gtk_clist_get_cell_style, pFpii)
+GO(gtk_clist_get_cell_type, iFpii)
+GO(gtk_clist_get_column_title, pFpi)
+GO(gtk_clist_get_column_widget, pFpi)
+GO(gtk_clist_get_hadjustment, pFp)
+GO(gtk_clist_get_pixmap, iFpiipp)
+GO(gtk_clist_get_pixtext, iFpiipppp)
+GO(gtk_clist_get_row_data, pFpi)
+GO(gtk_clist_get_row_style, pFpi)
+GO(gtk_clist_get_selectable, iFpi)
+GO(gtk_clist_get_selection_info, iFpiipp)
+GO(gtk_clist_get_text, iFpiip)
 GO(gtk_clist_get_type, iFv)
-//GO(gtk_clist_get_vadjustment, 
-//GO(gtk_clist_insert, 
-//GO(gtk_clist_moveto, 
-//GO(gtk_clist_new, 
-//GO(gtk_clist_new_with_titles, 
-//GO(gtk_clist_optimal_column_width, 
-//GO(gtk_clist_prepend, 
-//GO(gtk_clist_remove, 
-//GO(gtk_clist_row_is_visible, 
-//GO(gtk_clist_row_move, 
-//GO(gtk_clist_select_all, 
-//GO(gtk_clist_select_row, 
-//GO(gtk_clist_set_auto_sort, 
-//GO(gtk_clist_set_background, 
-//GO(gtk_clist_set_button_actions, 
-//GO(gtk_clist_set_cell_style, 
-//GO(gtk_clist_set_column_auto_resize, 
-//GO(gtk_clist_set_column_justification, 
-//GO(gtk_clist_set_column_max_width, 
-//GO(gtk_clist_set_column_min_width, 
-//GO(gtk_clist_set_column_resizeable, 
-//GO(gtk_clist_set_column_title, 
-//GO(gtk_clist_set_column_visibility, 
-//GO(gtk_clist_set_column_widget, 
-//GO(gtk_clist_set_column_width, 
-//GO(gtk_clist_set_compare_func, 
-//GO(gtk_clist_set_foreground, 
-//GO(gtk_clist_set_hadjustment, 
-//GO(gtk_clist_set_pixmap, 
-//GO(gtk_clist_set_pixtext, 
-//GO(gtk_clist_set_reorderable, 
-//GO(gtk_clist_set_row_data, 
-//GO(gtk_clist_set_row_data_full, 
-//GO(gtk_clist_set_row_height, 
-//GO(gtk_clist_set_row_style, 
-//GO(gtk_clist_set_selectable, 
-//GO(gtk_clist_set_selection_mode, 
-//GO(gtk_clist_set_shadow_type, 
-//GO(gtk_clist_set_shift, 
-//GO(gtk_clist_set_sort_column, 
-//GO(gtk_clist_set_sort_type, 
-//GO(gtk_clist_set_text, 
-//GO(gtk_clist_set_use_drag_icons, 
-//GO(gtk_clist_set_vadjustment, 
-//GO(gtk_clist_sort, 
-//GO(gtk_clist_swap_rows, 
-//GO(gtk_clist_thaw, 
-//GO(gtk_clist_undo_selection, 
-//GO(gtk_clist_unselect_all, 
-//GO(gtk_clist_unselect_row, 
+GO(gtk_clist_get_vadjustment, pFp)
+GO(gtk_clist_insert, iFpip)
+GO(gtk_clist_moveto, vFpiiff)
+GO(gtk_clist_new, pFi)
+GO(gtk_clist_new_with_titles, pFip)
+GO(gtk_clist_optimal_column_width, iFpi)
+GO(gtk_clist_prepend, iFpp)
+GO(gtk_clist_remove, vFpi)
+GO(gtk_clist_row_is_visible, iFpi)
+GO(gtk_clist_row_move, vFpii)
+GO(gtk_clist_select_all, vFp)
+GO(gtk_clist_select_row, vFpii)
+GO(gtk_clist_set_auto_sort, vFpi)
+GO(gtk_clist_set_background, vFpip)
+GO(gtk_clist_set_button_actions, vFpiC)
+GO(gtk_clist_set_cell_style, vFpiip)
+GO(gtk_clist_set_column_auto_resize, iFpi)
+GO(gtk_clist_set_column_justification, vFpii)
+GO(gtk_clist_set_column_max_width, vFpii)
+GO(gtk_clist_set_column_min_width, vFpii)
+GO(gtk_clist_set_column_resizeable, vFpii)
+GO(gtk_clist_set_column_title, vFpip)
+GO(gtk_clist_set_column_visibility, vFpii)
+GO(gtk_clist_set_column_widget, vFpip)
+GO(gtk_clist_set_column_width, vFpii)
+//GOM(gtk_clist_set_compare_func, vFEpp)
+GO(gtk_clist_set_foreground, vFpip)
+GO(gtk_clist_set_hadjustment, vFpp)
+GO(gtk_clist_set_pixmap, vFpiipp)
+GO(gtk_clist_set_pixtext, vFpiipCpp)
+GO(gtk_clist_set_reorderable, vFpi)
+GO(gtk_clist_set_row_data, vFpip)
+//GOM(gtk_clist_set_row_data_full, vFpipp)
+GO(gtk_clist_set_row_height, vFpu)
+GO(gtk_clist_set_row_style, vFpip)
+GO(gtk_clist_set_selectable, vFpii)
+GO(gtk_clist_set_selection_mode, vFpi)
+GO(gtk_clist_set_shadow_type, vFpi)
+GO(gtk_clist_set_shift, vFpiiii)
+GO(gtk_clist_set_sort_column, vFpi)
+GO(gtk_clist_set_sort_type, vFpi)
+GO(gtk_clist_set_text, vFpiip)
+GO(gtk_clist_set_use_drag_icons, vFpi)
+GO(gtk_clist_set_vadjustment, vFpp)
+GO(gtk_clist_sort, vFp)
+GO(gtk_clist_swap_rows, vFpii)
+GO(gtk_clist_thaw, vFp)
+GO(gtk_clist_undo_selection, vFp)
+GO(gtk_clist_unselect_all, vFp)
+GO(gtk_clist_unselect_row, vFpii)
 GO(gtk_color_button_get_alpha, WFp)
 GO(gtk_color_button_get_color, vFpp)
 GO(gtk_color_button_get_title, pFp)
@@ -1795,7 +1795,7 @@ GO(gtk_object_set, vFppppppppppp)   //vaarg
 GO(gtk_object_set_data, vFppp)
 GO(gtk_object_set_data_by_id, vFppp)
 //GOM(gtk_object_set_data_by_id_full, vFEpppp)
-//GOM(gtk_object_set_data_full, vFEpppp)
+GOM(gtk_object_set_data_full, vFEpppp)
 GO(gtk_object_set_user_data, vFpp)
 GO(gtk_object_sink, vFp)
 GO(gtk_object_unref, vFp)
@@ -1877,17 +1877,17 @@ GO(gtk_paint_spinner, vFppipppuiiii)
 GO(gtk_paint_string, vFppipppiip)
 GO(gtk_paint_tab, vFppiipppiiii)
 GO(gtk_paint_vline, vFppipppiii)
-//GO(gtk_paned_add1, 
-//GO(gtk_paned_add2, 
-//GO(gtk_paned_compute_position, 
-//GO(gtk_paned_get_child1, 
-//GO(gtk_paned_get_child2, 
-//GO(gtk_paned_get_handle_window, 
-//GO(gtk_paned_get_position, 
+GO(gtk_paned_add1, vFpp)
+GO(gtk_paned_add2, vFpp)
+GO(gtk_paned_compute_position, vFpiii)
+GO(gtk_paned_get_child1, pFp)
+GO(gtk_paned_get_child2, pFp)
+GO(gtk_paned_get_handle_window, pFp)
+GO(gtk_paned_get_position, pFp)
 GO(gtk_paned_get_type, iFv)
-//GO(gtk_paned_pack1, 
-//GO(gtk_paned_pack2, 
-//GO(gtk_paned_set_position, 
+GO(gtk_paned_pack1, vFppii)
+GO(gtk_paned_pack2, vFppii)
+GO(gtk_paned_set_position, vFpi)
 //GO(gtk_paper_size_copy, 
 //GO(gtk_paper_size_free, 
 //GO(gtk_paper_size_get_default, 
@@ -1914,11 +1914,11 @@ GO(gtk_parse_args, iFpp)
 GO(gtk_path_bar_get_type, iFv)
 GO(gtk_path_priority_type_get_type, iFv)
 GO(gtk_path_type_get_type, iFv)
-//GO(gtk_pixmap_get, 
+GO(gtk_pixmap_get, vFppp)
 GO(gtk_pixmap_get_type, iFv)
-//GO(gtk_pixmap_new, 
-//GO(gtk_pixmap_set, 
-//GO(gtk_pixmap_set_build_insensitive, 
+GO(gtk_pixmap_new, pFpp)
+GO(gtk_pixmap_set, vFppp)
+GO(gtk_pixmap_set_build_insensitive, vFpi)
 GO(gtk_plug_construct, vFpp)
 GO(gtk_plug_construct_for_display, vFppp)
 GO(gtk_plug_get_embedded, iFp)
@@ -3928,3 +3928,9 @@ GO(gtk_window_unfullscreen, vFp)
 GO(gtk_window_unmaximize, vFp)
 GO(gtk_window_unstick, vFp)
 GO(gtk_wrap_mode_get_type, iFv)
+
+// from gtk-1.2
+GOM(gtk_signal_connect, LFEpppp)
+GO2(gtk_type_is_a, iFii, g_type_is_a)
+GOM(gtk_type_check_object_cast, pFEpi)
+GOM(gtk_spin_button_get_value_as_float, fFEp)
