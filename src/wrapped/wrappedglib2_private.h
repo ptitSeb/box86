@@ -522,54 +522,54 @@ GO(g_int_hash, uFp)
 //GO(g_io_channel_write_chars, 
 //GO(g_io_channel_write_unichar, 
 //GO(g_io_create_watch, 
-//GO(g_key_file_error_quark, 
-//GO(g_key_file_free, 
-//GO(g_key_file_get_boolean, 
-//GO(g_key_file_get_boolean_list, 
-//GO(g_key_file_get_comment, 
-//GO(g_key_file_get_double, 
-//GO(g_key_file_get_double_list, 
-//GO(g_key_file_get_groups, 
-//GO(g_key_file_get_int64, 
-//GO(g_key_file_get_integer, 
-//GO(g_key_file_get_integer_list, 
-//GO(g_key_file_get_keys, 
-//GO(g_key_file_get_locale_string, 
-//GO(g_key_file_get_locale_string_list, 
-//GO(g_key_file_get_start_group, 
-//GO(g_key_file_get_string, 
-//GO(g_key_file_get_string_list, 
-//GO(g_key_file_get_uint64, 
-//GO(g_key_file_get_value, 
-//GO(g_key_file_has_group, 
-//GO(g_key_file_has_key, 
-//GO(g_key_file_load_from_data, 
-//GO(g_key_file_load_from_data_dirs, 
-//GO(g_key_file_load_from_dirs, 
-//GO(g_key_file_load_from_file, 
-//GO(g_key_file_new, 
-//GO(g_key_file_ref, 
-//GO(g_key_file_remove_comment, 
-//GO(g_key_file_remove_group, 
-//GO(g_key_file_remove_key, 
-//GO(g_key_file_save_to_file, 
-//GO(g_key_file_set_boolean, 
-//GO(g_key_file_set_boolean_list, 
-//GO(g_key_file_set_comment, 
-//GO(g_key_file_set_double, 
-//GO(g_key_file_set_double_list, 
-//GO(g_key_file_set_int64, 
-//GO(g_key_file_set_integer, 
-//GO(g_key_file_set_integer_list, 
-//GO(g_key_file_set_list_separator, 
-//GO(g_key_file_set_locale_string, 
-//GO(g_key_file_set_locale_string_list, 
-//GO(g_key_file_set_string, 
-//GO(g_key_file_set_string_list, 
-//GO(g_key_file_set_uint64, 
-//GO(g_key_file_set_value, 
-//GO(g_key_file_to_data, 
-//GO(g_key_file_unref, 
+GO(g_key_file_error_quark, pFv)
+GO(g_key_file_free, vFp)
+GO(g_key_file_get_boolean, iFpppp)
+GO(g_key_file_get_boolean_list, pFppppp)
+GO(g_key_file_get_comment, pFpppp)
+GO(g_key_file_get_double, dFpppp)
+GO(g_key_file_get_double_list, pFppppp)
+GO(g_key_file_get_groups, pFpp)
+GO(g_key_file_get_int64, IFpppp)
+GO(g_key_file_get_integer, iFpppp)
+GO(g_key_file_get_integer_list, pFppppp)
+GO(g_key_file_get_keys, pFpppp)
+GO(g_key_file_get_locale_string, pFppppp)
+GO(g_key_file_get_locale_string_list, pFpppppp)
+GO(g_key_file_get_start_group, pFp)
+GO(g_key_file_get_string, pFpppp)
+GO(g_key_file_get_string_list, pFppppp)
+GO(g_key_file_get_uint64, UFpppp)
+GO(g_key_file_get_value, pFpppp)
+GO(g_key_file_has_group, iFpp)
+GO(g_key_file_has_key, iFpppp)
+GO(g_key_file_load_from_data, iFppLip)
+GO(g_key_file_load_from_data_dirs, iFpppip)
+GO(g_key_file_load_from_dirs, iFppppip)
+GO(g_key_file_load_from_file, iFppip)
+GO(g_key_file_new, pFv)
+GO(g_key_file_ref, pFp)
+GO(g_key_file_remove_comment, iFpppp)
+GO(g_key_file_remove_group, iFppp)
+GO(g_key_file_remove_key, iFpppp)
+GO(g_key_file_save_to_file, iFppp)
+GO(g_key_file_set_boolean, vFpppi)
+GO(g_key_file_set_boolean_list, vFppppL)
+GO(g_key_file_set_comment, iFppppp)
+GO(g_key_file_set_double, vFpppd)
+GO(g_key_file_set_double_list, vFppppL)
+GO(g_key_file_set_int64, vFpppI)
+GO(g_key_file_set_integer, vFpppi)
+GO(g_key_file_set_integer_list, vFppppL)
+GO(g_key_file_set_list_separator, vFpC)
+GO(g_key_file_set_locale_string, vFppppp)
+GO(g_key_file_set_locale_string_list, vFpppppL)
+GO(g_key_file_set_string, vFpppp)
+GO(g_key_file_set_string_list, vFppppL)
+GO(g_key_file_set_uint64, vFpppU)
+GO(g_key_file_set_value, vFpppp)
+GO(g_key_file_to_data, pFppp)
+GO(g_key_file_unref, vFp)
 //GO(glib_check_version, 
 //GO(glib_gettext, 
 //GO(glib_pgettext, 

@@ -86,6 +86,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t)\
     GO(gtk_type_unique, iFip_t)                 \
     GO(gtk_spin_button_get_value, dFp_t)        \
+    GO(gtk_builder_connect_signals_full, vFppp_t)       \
 
 
 typedef struct gtkx112_my_s {
@@ -352,6 +353,29 @@ static void* findToolbarFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 Toolbar callback\n");
+    return NULL;
+}
+
+// Builder
+#define GO(A)   \
+static uintptr_t my_builderconnect_fct_##A = 0;   \
+static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)     \
+{                                       \
+    RunFunction(my_context, my_builderconnect_fct_##A, 7, builder, object, signal, handler, connect, flags, data);\
+}
+SUPER()
+#undef GO
+static void* findBuilderConnectFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_builderconnect_fct_##A == (uintptr_t)fct) return my_builderconnect_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_builderconnect_fct_##A == 0) {my_builderconnect_fct_##A = (uintptr_t)fct; return my_builderconnect_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 BuilderConnect callback\n");
     return NULL;
 }
 
@@ -702,6 +726,14 @@ EXPORT void* my_gtk_type_check_object_cast(x86emu_t* emu, void* obj, int type)
     }
 
     return my->g_type_check_instance_cast(obj, gtk1Type(my, type));
+}
+
+EXPORT void my_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, void* f, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_builder_connect_signals_full(builder, findBuilderConnectFct(f), data);
 }
 
 #define CUSTOM_INIT \

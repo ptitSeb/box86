@@ -262,23 +262,23 @@ GO(gtk_buildable_get_type, iFv)
 //GO(gtk_buildable_parser_finished, 
 //GO(gtk_buildable_set_buildable_property, 
 //GO(gtk_buildable_set_name, 
-//GO(gtk_builder_add_from_file, 
-//GO(gtk_builder_add_from_string, 
-//GO(gtk_builder_add_objects_from_file, 
-//GO(gtk_builder_add_objects_from_string, 
-//GO(gtk_builder_connect_signals, 
-//GO(gtk_builder_connect_signals_full, 
+GO(gtk_builder_add_from_file, uFppp)
+GO(gtk_builder_add_from_string, iFppLp)
+GO(gtk_builder_add_objects_from_file, uFpppp)
+GO(gtk_builder_add_objects_from_string, uFppLpp)
+GO(gtk_builder_connect_signals, vFpp)
+GOM(gtk_builder_connect_signals_full, vFEppp)
 GO(gtk_builder_error_get_type, iFv)
-//GO(gtk_builder_error_quark, 
-//GO(gtk_builder_get_object, 
-//GO(gtk_builder_get_objects, 
-//GO(gtk_builder_get_translation_domain, 
+GO(gtk_builder_error_quark, pFv)
+GO(gtk_builder_get_object, pFpp)
+GO(gtk_builder_get_objects, pFp)
+GO(gtk_builder_get_translation_domain, pFp)
 GO(gtk_builder_get_type, iFv)
-//GO(gtk_builder_get_type_from_name, 
-//GO(gtk_builder_new, 
-//GO(gtk_builder_set_translation_domain, 
-//GO(gtk_builder_value_from_string, 
-//GO(gtk_builder_value_from_string_type, 
+GO(gtk_builder_get_type_from_name, iFpp)
+GO(gtk_builder_new, pFv)
+GO(gtk_builder_set_translation_domain, vFpp)
+GO(gtk_builder_value_from_string, iFppppp)
+GO(gtk_builder_value_from_string_type, iFpippp)
 GO(gtk_button_action_get_type, iFv)
 GO(gtk_button_box_get_child_ipadding, vFppp)
 GO(gtk_button_box_get_child_secondary, iFpp)
@@ -341,16 +341,16 @@ GO(gtk_calendar_get_type, iFv)
 GO(gtk_cell_editable_get_type, iFv)
 //GO(gtk_cell_editable_remove_widget, 
 //GO(gtk_cell_editable_start_editing, 
-//GO(gtk_cell_layout_add_attribute, 
-//GO(gtk_cell_layout_clear, 
-//GO(gtk_cell_layout_clear_attributes, 
-//GO(gtk_cell_layout_get_cells, 
+GO(gtk_cell_layout_add_attribute, vFpppi)
+GO(gtk_cell_layout_clear, vFp)
+GO(gtk_cell_layout_clear_attributes, vFpp)
+GO(gtk_cell_layout_get_cells, pFp)
 GO(gtk_cell_layout_get_type, iFv)
-//GO(gtk_cell_layout_pack_end, 
-//GO(gtk_cell_layout_pack_start, 
-//GO(gtk_cell_layout_reorder, 
-//GO(gtk_cell_layout_set_attributes, 
-//GO(gtk_cell_layout_set_cell_data_func, 
+GO(gtk_cell_layout_pack_end, vFppi)
+GO(gtk_cell_layout_pack_start, vFppi)
+GO(gtk_cell_layout_reorder, vFppi)
+GO(gtk_cell_layout_set_attributes, vFpppppppppp)  // vaarg
+//GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
 GO(gtk_cell_renderer_accel_get_type, iFv)
 GO(gtk_cell_renderer_accel_mode_get_type, iFv)
 //GO(gtk_cell_renderer_accel_new, 
