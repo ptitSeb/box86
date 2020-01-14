@@ -304,6 +304,70 @@ void PrintHelp() {
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
 }
 
+void LoadEnvVars(box86context_t *context)
+{
+    // check BOX86_LD_LIBRARY_PATH and load it
+    LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86", "BOX86_LD_LIBRARY_PATH");
+#ifdef PANDORA
+    if(FileExist("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/mnt/utmp/box86/lib/i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    //TODO: add relative path to box86 location
+#endif
+    if(FileExist("/lib/i386-linux-gnu", 0))
+        AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/i386-linux-gnu", 0))
+        AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/lib/i686-pc-linux-gnu", 0))
+        AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
+        AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib32", 0))
+        AddPath("/usr/lib32", &context->box86_ld_lib, 1);
+    if(getenv("LD_LIBRARY_PATH"))
+        AppendList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
+    if(getenv("BOX86_EMULATED_LIBS")) {
+        char* p = getenv("BOX86_EMULATED_LIBS");
+        ParseList(p, &context->box86_emulated_libs, 0);
+        if (context->box86_emulated_libs.size && box86_log) {
+            printf_log(LOG_INFO, "BOX86 will force the used of emulated libs for ");
+            for (int i=0; i<context->box86_emulated_libs.size; ++i)
+                printf_log(LOG_INFO, "%s ", context->box86_emulated_libs.paths[i]);
+            printf_log(LOG_INFO, "\n");
+        }
+    }
+
+    if(getenv("BOX86_NOSIGSEGV")) {
+        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
+            context->no_sigsegv = 1;
+            printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
+    }
+    // check BOX86_PATH and load it
+    LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
+    if(getenv("PATH"))
+        AppendList(&context->box86_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
+#ifdef HAVE_TRACE
+    char* p = getenv("BOX86_TRACE");
+    if(p) {
+        if (strcmp(p, "0"))
+            context->x86trace = 1;
+    }
+    p = getenv("BOX86_TRACE_INIT");
+    if(p) {
+        if (strcmp(p, "0"))
+            context->x86trace = 1;
+    }
+    if(context->x86trace) {
+        printf_log(LOG_INFO, "Initializing Zydis lib\n");
+        if(InitX86Trace(context)) {
+            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
+            context->x86trace = 0;
+        }
+    }
+#endif
+}
+
 #ifndef BUILD_LIB
 int main(int argc, const char **argv, const char **env) {
 
@@ -344,26 +408,18 @@ int main(int argc, const char **argv, const char **env) {
     const char *p;
     const char* prog = argv[1];
     // check BOX86_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86", "BOX86_LD_LIBRARY_PATH");
-#ifdef PANDORA
-    if(FileExist("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", 0))
-        AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
-    if(FileExist("/mnt/utmp/box86/lib/i386-linux-gnu", 0))
-        AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
-    //TODO: add relative path to box86 location
-#endif
-    if(FileExist("/lib/i386-linux-gnu", 0))
-        AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
-    if(FileExist("/usr/lib/i386-linux-gnu", 0))
-        AddPath("/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
-    if(FileExist("/lib/i686-pc-linux-gnu", 0))
-        AddPath("/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
-    if(FileExist("/usr/lib/i686-pc-linux-gnu", 0))
-        AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
-    if(FileExist("/usr/lib32", 0))
-        AddPath("/usr/lib32", &context->box86_ld_lib, 1);
-    if(getenv("LD_LIBRARY_PATH"))
-        AppendList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
+    LoadEnvVars(context);
+
+    // prepare all other env. var
+    context->envc = CountEnv(env);
+    printf_log(LOG_INFO, "Counted %d Env var\n", context->envc);
+    context->envv = (char**)calloc(context->envc, sizeof(char*));
+    GatherEnv(&context->envv, env, prog);
+    if(box86_log>=LOG_DUMP) {
+        for (int i=0; i<context->envc; ++i)
+            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, context->envv[i]);
+    }
+
     path_collection_t ld_preload = {0};
     if(getenv("BOX86_LD_PRELOAD")) {
         char* p = getenv("BOX86_LD_PRELOAD");
@@ -375,54 +431,6 @@ int main(int argc, const char **argv, const char **env) {
             printf_log(LOG_INFO, "\n");
         }
     }
-    if(getenv("BOX86_EMULATED_LIBS")) {
-        char* p = getenv("BOX86_EMULATED_LIBS");
-        ParseList(p, &context->box86_emulated_libs, 0);
-        if (context->box86_emulated_libs.size && box86_log) {
-            printf_log(LOG_INFO, "BOX86 will force the used of emulated libs for ");
-            for (int i=0; i<context->box86_emulated_libs.size; ++i)
-                printf_log(LOG_INFO, "%s ", context->box86_emulated_libs.paths[i]);
-            printf_log(LOG_INFO, "\n");
-        }
-    }
-
-    if(getenv("BOX86_NOSIGSEGV")) {
-        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
-            context->no_sigsegv = 1;
-            printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
-    }
-    // check BOX86_PATH and load it
-    LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
-    if(getenv("PATH"))
-        AppendList(&context->box86_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
-    // prepare all other env. var
-    context->envc = CountEnv(env);
-    printf_log(LOG_INFO, "Counted %d Env var\n", context->envc);
-    context->envv = (char**)calloc(context->envc, sizeof(char*));
-    GatherEnv(&context->envv, env, prog);
-    if(box86_log>=LOG_DUMP) {
-        for (int i=0; i<context->envc; ++i)
-            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, context->envv[i]);
-    }
-#ifdef HAVE_TRACE
-    p = getenv("BOX86_TRACE");
-    if(p) {
-        if (strcmp(p, "0"))
-            context->x86trace = 1;
-    }
-    p = getenv("BOX86_TRACE_INIT");
-    if(p) {
-        if (strcmp(p, "0"))
-            context->x86trace = 1;
-    }
-    if(context->x86trace) {
-        printf_log(LOG_INFO, "Initializing Zydis lib\n");
-        if(InitX86Trace(context)) {
-            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
-            context->x86trace = 0;
-        }
-    }
-#endif
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     if(strchr(prog, '/'))

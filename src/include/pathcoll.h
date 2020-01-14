@@ -4,7 +4,7 @@
 // utility to handle path collection (like BOX86_PATH or BOX86_LD_LIBRARY_PATH)
 
 // paths can be resized with realloc, so don't take address as invariant
-typedef struct path_collection_t
+typedef struct path_collection_s
 {
     int    size;
     int    cap;
