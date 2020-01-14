@@ -212,8 +212,6 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcurl.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedudev0.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbus.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusglib1.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgudev1.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappediconv.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcrypto.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibssl.c"
@@ -223,6 +221,7 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulsesimple.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulse.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsndfile.c"
+    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfreetype.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedbz2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsm.c"
@@ -245,13 +244,14 @@ set(WRAPPEDS ${WRAPPEDS}
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusmenugtk.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedatk.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangoft2.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangocairo.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgthread2.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcairo.c"
 "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpango.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusglib1.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgudev1.c"
 )
 endif()
 
