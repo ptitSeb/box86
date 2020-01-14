@@ -64,7 +64,6 @@ GO("libresolv.so.2", libresolv)
 GO("libpulse-simple.so.0", pulsesimple)
 GO("libpulse.so.0", pulse)
 GO("libsndfile.so.1", libsndfile)
-#ifndef NOGTK
 GO("libgtk-x11-2.0.so.0", gtkx112)
 //GO("libgtk-1.2.so.0", gtkx112)      // not working, struct sizes are diferents
 GO("libgdk-x11-2.0.so.0", gdkx112)
@@ -85,7 +84,6 @@ GO("libpangoft2-1.0.so.0", pangoft2)
 GO("libpangocairo-1.0.so.0", pangocairo)
 GO("libcairo.so.2", cairo)
 GO("libpango-1.0.so.0", pango)
-#endif
 GO("libfontconfig.so.1", fontconfig)
 GO("libfreetype.so.6", freetype)
 GO("libbz2.so.1", bz2)

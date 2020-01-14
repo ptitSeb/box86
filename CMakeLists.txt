@@ -105,10 +105,6 @@ if(NOGETCLOCK)
     add_definitions(-DNOGETCLOCK)
 endif()
 
-if(NOGTK)
-    add_definitions(-DNOGTK)
-endif()
-
 if(BOX86LIB)
     add_definitions(-DBUILD_LIB)
     if(NOT BOX86_ROOT)
@@ -165,14 +161,8 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX86_ROOT}/src/libtools/signals.c"
     "${BOX86_ROOT}/src/dynarec/dynarec.c"
+    "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )
-
-if(NOGTK)
-    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.c")
-else()
-    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${BOX86_ROOT}/src/wrapped/generated/wrappers.c")
-endif()
-
 
 set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
@@ -239,30 +229,25 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibncursesw.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibformw.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgdkx112.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgdkpixbuf2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgio2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgmodule2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgobject2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedglib2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappeddbusmenugtk.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedatk.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpangoft2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpangocairo.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgthread2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcairo.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpango.c"
+    "${BOX86_ROOT}/src/wrapped/wrappeddbusglib1.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"
 #    "${BOX86_ROOT}/src/wrapped/wrappedmonounity.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
-
-if(NOT NOGTK)
-set(WRAPPEDS ${WRAPPEDS}
-"${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgdkx112.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgdkpixbuf2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgio2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgmodule2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgobject2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedglib2.c"
-"${BOX86_ROOT}/src/wrapped/wrappeddbusmenugtk.c"
-"${BOX86_ROOT}/src/wrapped/wrappedatk.c"
-"${BOX86_ROOT}/src/wrapped/wrappedpangoft2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedpangocairo.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgthread2.c"
-"${BOX86_ROOT}/src/wrapped/wrappedcairo.c"
-"${BOX86_ROOT}/src/wrapped/wrappedpango.c"
-"${BOX86_ROOT}/src/wrapped/wrappeddbusglib1.c"
-"${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"
-)
-endif()
 
 set(WRAPPEDS_HEAD "")
 foreach(A ${WRAPPEDS})
@@ -270,11 +255,8 @@ foreach(A ${WRAPPEDS})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
 endforeach()
 
-if(NOGTK)
-    set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.c" "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.h")
-else()
-    set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrappers.c" "${BOX86_ROOT}/src/wrapped/generated/wrappers.h")
-endif()
+set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrapper.c" "${BOX86_ROOT}/src/wrapped/generated/wrapper.h")
+
 add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
 
 if(ARM_DYNAREC)
@@ -313,11 +295,7 @@ if(ARM_DYNAREC)
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_f30f.c"
     )
 
-    if(NOGTK)
-        set(DYNAREC_PASS "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.h" ${DYNAREC_PASS})
-    else()
-        set(DYNAREC_PASS "${BOX86_ROOT}/src/wrapped/generated/wrappers.h" ${DYNAREC_PASS})
-    endif()
+    set(DYNAREC_PASS "${BOX86_ROOT}/src/wrapped/generated/wrapper.h" ${DYNAREC_PASS})
 
     add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
 
