@@ -109,6 +109,15 @@ if(NOGTK)
     add_definitions(-DNOGTK)
 endif()
 
+if(BOX86LIB)
+    add_definitions(-DBUILD_LIB)
+    if(NOT BOX86_ROOT)
+        message(FATAL_ERROR "BOX86_ROOT not set when build as lib")
+    endif()
+else()
+    set(BOX86_ROOT ${CMAKE_HOME_DIRECTORY})
+endif()
+
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 
@@ -121,137 +130,137 @@ if(USE_CCACHE)
 endif()
 
 include_directories(
-    "${CMAKE_HOME_DIRECTORY}/src/include"
-    "${CMAKE_HOME_DIRECTORY}/src"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated"
+    "${BOX86_ROOT}/src/include"
+    "${BOX86_ROOT}/src"
+    "${BOX86_ROOT}/src/wrapped/generated"
 )
 
 set(ELFLOADER_SRC
-    "${CMAKE_HOME_DIRECTORY}/src/main.c"
-    "${CMAKE_HOME_DIRECTORY}/src/box86context.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/bridge.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/pathcoll.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/fileutils.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/callback.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/box86stack.c"
-    "${CMAKE_HOME_DIRECTORY}/src/tools/gtkclass.c"
-    "${CMAKE_HOME_DIRECTORY}/src/elfs/elfloader.c"
-    "${CMAKE_HOME_DIRECTORY}/src/elfs/elfparser.c"
-    "${CMAKE_HOME_DIRECTORY}/src/elfs/elfload_dump.c"
-    "${CMAKE_HOME_DIRECTORY}/src/librarian/library.c"
-    "${CMAKE_HOME_DIRECTORY}/src/librarian/librarian.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86emu.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86run.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86run66.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86run_private.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86syscall.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86primop.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86trace.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x86int3.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x87emu_private.c"
-    "${CMAKE_HOME_DIRECTORY}/src/emu/x87run.c"
-    "${CMAKE_HOME_DIRECTORY}/src/libtools/myalign.c"
-    "${CMAKE_HOME_DIRECTORY}/src/libtools/threads.c"
-    "${CMAKE_HOME_DIRECTORY}/src/libtools/sdl1rwops.c"
-    "${CMAKE_HOME_DIRECTORY}/src/libtools/sdl2rwops.c"
-    "${CMAKE_HOME_DIRECTORY}/src/libtools/signals.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec.c"
+    "${BOX86_ROOT}/src/main.c"
+    "${BOX86_ROOT}/src/box86context.c"
+    "${BOX86_ROOT}/src/tools/bridge.c"
+    "${BOX86_ROOT}/src/tools/pathcoll.c"
+    "${BOX86_ROOT}/src/tools/fileutils.c"
+    "${BOX86_ROOT}/src/tools/callback.c"
+    "${BOX86_ROOT}/src/tools/box86stack.c"
+    "${BOX86_ROOT}/src/tools/gtkclass.c"
+    "${BOX86_ROOT}/src/elfs/elfloader.c"
+    "${BOX86_ROOT}/src/elfs/elfparser.c"
+    "${BOX86_ROOT}/src/elfs/elfload_dump.c"
+    "${BOX86_ROOT}/src/librarian/library.c"
+    "${BOX86_ROOT}/src/librarian/librarian.c"
+    "${BOX86_ROOT}/src/emu/x86emu.c"
+    "${BOX86_ROOT}/src/emu/x86run.c"
+    "${BOX86_ROOT}/src/emu/x86run66.c"
+    "${BOX86_ROOT}/src/emu/x86run_private.c"
+    "${BOX86_ROOT}/src/emu/x86syscall.c"
+    "${BOX86_ROOT}/src/emu/x86primop.c"
+    "${BOX86_ROOT}/src/emu/x86trace.c"
+    "${BOX86_ROOT}/src/emu/x86int3.c"
+    "${BOX86_ROOT}/src/emu/x87emu_private.c"
+    "${BOX86_ROOT}/src/emu/x87run.c"
+    "${BOX86_ROOT}/src/libtools/myalign.c"
+    "${BOX86_ROOT}/src/libtools/threads.c"
+    "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
+    "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
+    "${BOX86_ROOT}/src/libtools/signals.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec.c"
 )
 
 if(NOGTK)
-    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.c")
+    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.c")
 else()
-    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.c")
+    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${BOX86_ROOT}/src/wrapped/generated/wrappers.c")
 endif()
 
 
 set(WRAPPEDS
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibc.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibpthread.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibrt.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibgl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibglu.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibx11.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibasound.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibdl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibm.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl1.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl1mixer.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl1image.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl1ttf.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2mixer.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsdl2image.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsmpeg.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedsmpeg2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedvorbisfile.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibvorbis.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibogg.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpng12.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpng16.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxxf86vm.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxrandr.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxext.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedxinerama.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxfixes.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxcursor.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxrender.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxi.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxss.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxpm.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxau.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxdmcp.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibx11xcb.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxcb.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxtst.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibxt.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibz.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedopenal.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedalut.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibjpeg.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcurl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedudev0.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbus.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappediconv.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcrypto.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibssl.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedutil.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibuuid.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibresolv.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulsesimple.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulse.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsndfile.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfreetype.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedbz2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsm.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibice.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibusb1.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibncursesw.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibformw.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibtinfo.c"
-#    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedmonounity.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibpthread.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibrt.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibgl.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibglu.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibx11.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibasound.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibdl.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibm.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl1.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl1mixer.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl1image.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl1ttf.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl2mixer.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl2image.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsmpeg.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsmpeg2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedvorbisfile.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibvorbis.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibogg.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpng12.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpng16.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxrandr.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxext.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedxinerama.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxfixes.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxcursor.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxrender.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxi.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxss.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxpm.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxau.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxdmcp.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibx11xcb.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxcb.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxtst.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxt.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibz.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedopenal.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedalut.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcurl.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedudev0.c"
+    "${BOX86_ROOT}/src/wrapped/wrappeddbus.c"
+    "${BOX86_ROOT}/src/wrapped/wrappediconv.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcrypto.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibssl.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedutil.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibuuid.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibresolv.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpulsesimple.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedpulse.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibsndfile.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedfontconfig.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedfreetype.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedbz2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibsm.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibice.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibusb1.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibncursesw.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibformw.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo.c"
+#    "${BOX86_ROOT}/src/wrapped/wrappedmonounity.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
 if(NOT NOGTK)
 set(WRAPPEDS ${WRAPPEDS}
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgtkx112.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkx112.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkpixbuf2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgio2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgmodule2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusmenugtk.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedatk.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangoft2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangocairo.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgthread2.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcairo.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpango.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusglib1.c"
-"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgudev1.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgdkx112.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgdkpixbuf2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgio2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgmodule2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgobject2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedglib2.c"
+"${BOX86_ROOT}/src/wrapped/wrappeddbusmenugtk.c"
+"${BOX86_ROOT}/src/wrapped/wrappedatk.c"
+"${BOX86_ROOT}/src/wrapped/wrappedpangoft2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedpangocairo.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgthread2.c"
+"${BOX86_ROOT}/src/wrapped/wrappedcairo.c"
+"${BOX86_ROOT}/src/wrapped/wrappedpango.c"
+"${BOX86_ROOT}/src/wrapped/wrappeddbusglib1.c"
+"${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"
 )
 endif()
 
@@ -262,52 +271,52 @@ foreach(A ${WRAPPEDS})
 endforeach()
 
 if(NOGTK)
-    set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.h")
+    set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.c" "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.h")
 else()
-    set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.h")
+    set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrappers.c" "${BOX86_ROOT}/src/wrapped/generated/wrappers.h")
 endif()
-add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
+add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynablock.c"
+        "${BOX86_ROOT}/src/dynarec/dynablock.c"
 
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_functions.c"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_printer.c"
+        "${BOX86_ROOT}/src/dynarec/dynarec_arm.c"
+        "${BOX86_ROOT}/src/dynarec/dynarec_arm_functions.c"
+        "${BOX86_ROOT}/src/dynarec/arm_printer.c"
 
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_prolog.S"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_epilog.S"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_linker.S"
-        "${CMAKE_HOME_DIRECTORY}/src/dynarec/arm_table.S"
+        "${BOX86_ROOT}/src/dynarec/arm_prolog.S"
+        "${BOX86_ROOT}/src/dynarec/arm_epilog.S"
+        "${BOX86_ROOT}/src/dynarec/arm_linker.S"
+        "${BOX86_ROOT}/src/dynarec/arm_table.S"
     )
 
     set(DYNAREC_PASS
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_helper.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_00.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_0f.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_65.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_66.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_67.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_d8.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_d9.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_da.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_db.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_dc.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_dd.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_de.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_df.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f0.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_660f.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f20f.c"
-    "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f30f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_helper.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_pass.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_00.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_0f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_65.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_66.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_67.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_d8.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_d9.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_da.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_db.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_dc.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_dd.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_de.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_df.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_f0.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_660f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_f20f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_f30f.c"
     )
 
     if(NOGTK)
-        set(DYNAREC_PASS "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.h" ${DYNAREC_PASS})
+        set(DYNAREC_PASS "${BOX86_ROOT}/src/wrapped/generated/wrappers_nogtk.h" ${DYNAREC_PASS})
     else()
-        set(DYNAREC_PASS "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.h" ${DYNAREC_PASS})
+        set(DYNAREC_PASS "${BOX86_ROOT}/src/wrapped/generated/wrappers.h" ${DYNAREC_PASS})
     endif()
 
     add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
@@ -329,6 +338,12 @@ if(ARM_DYNAREC)
         $<TARGET_OBJECTS:arm_pass3>
     )
 endif()
+
+if(BOX86LIB)
+#build a static lib...
+add_library(libbox86 STATIC ${ELFLOADER_SRC} ${WRAPPEDS})
+
+else(BOX86LIB)
 
 if(USE_FLOAT)
     set(BOX86 box86f)
@@ -432,3 +447,5 @@ foreach(file ${extension_tests})
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/extensions/${testname}.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
 endforeach()
+
+endif(BOX86LIB)

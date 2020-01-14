@@ -304,6 +304,7 @@ void PrintHelp() {
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
 }
 
+#ifndef BUILD_LIB
 int main(int argc, const char **argv, const char **env) {
 
     // trying to open and load 1st arg
@@ -639,3 +640,4 @@ int main(int argc, const char **argv, const char **env) {
 
     return ret;
 }
+#endif  //BUILD_LIB
