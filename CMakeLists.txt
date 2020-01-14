@@ -105,6 +105,10 @@ if(NOGETCLOCK)
     add_definitions(-DNOGETCLOCK)
 endif()
 
+if(NOGTK)
+    add_definitions(-DNOGTK)
+endif()
+
 
 add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
 
@@ -136,7 +140,6 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/elfs/elfload_dump.c"
     "${CMAKE_HOME_DIRECTORY}/src/librarian/library.c"
     "${CMAKE_HOME_DIRECTORY}/src/librarian/librarian.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.c"
     "${CMAKE_HOME_DIRECTORY}/src/emu/x86emu.c"
     "${CMAKE_HOME_DIRECTORY}/src/emu/x86run.c"
     "${CMAKE_HOME_DIRECTORY}/src/emu/x86run66.c"
@@ -154,6 +157,13 @@ set(ELFLOADER_SRC
     "${CMAKE_HOME_DIRECTORY}/src/libtools/signals.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec.c"
 )
+
+if(NOGTK)
+    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.c")
+else()
+    set(ELFLOADER_SRC ${ELFLOADER_SRC} "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.c")
+endif()
+
 
 set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibc.c"
@@ -213,21 +223,6 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulsesimple.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpulse.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsndfile.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgtkx112.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkx112.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkpixbuf2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgio2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgmodule2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusmenugtk.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedatk.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangoft2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangocairo.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgthread2.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcairo.c"
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpango.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfreetype.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedbz2.c"
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedlibsm.c"
@@ -240,13 +235,37 @@ set(WRAPPEDS
     "${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedldlinux.c"
 )
 
+if(NOT NOGTK)
+set(WRAPPEDS ${WRAPPEDS}
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgtkx112.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkx112.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgdkpixbuf2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgio2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgmodule2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgobject2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedglib2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappeddbusmenugtk.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedfontconfig.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedatk.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangoft2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpangocairo.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedgthread2.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedcairo.c"
+"${CMAKE_HOME_DIRECTORY}/src/wrapped/wrappedpango.c"
+)
+endif()
+
 set(WRAPPEDS_HEAD "")
 foreach(A ${WRAPPEDS})
     string(REPLACE ".c" "_private.h" B ${A})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
 endforeach()
 
-set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h")
+if(NOGTK)
+    set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.h")
+else()
+    set(WRAPPER "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.c" "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.h")
+endif()
 add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" "${CMAKE_HOME_DIRECTORY}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${CMAKE_HOME_DIRECTORY}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
 
 if(ARM_DYNAREC)
@@ -264,7 +283,6 @@ if(ARM_DYNAREC)
     )
 
     set(DYNAREC_PASS
-    "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrapper.h"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_helper.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_pass.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_00.c"
@@ -285,6 +303,12 @@ if(ARM_DYNAREC)
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f20f.c"
     "${CMAKE_HOME_DIRECTORY}/src/dynarec/dynarec_arm_f30f.c"
     )
+
+    if(NOGTK)
+        set(DYNAREC_PASS "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers_nogtk.h" ${DYNAREC_PASS})
+    else()
+        set(DYNAREC_PASS "${CMAKE_HOME_DIRECTORY}/src/wrapped/generated/wrappers.h" ${DYNAREC_PASS})
+    endif()
 
     add_library(dynarec_arm OBJECT ${DYNAREC_SRC})
 
