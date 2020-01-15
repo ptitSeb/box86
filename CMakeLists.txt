@@ -107,6 +107,7 @@ endif()
 
 if(BOX86LIB)
     add_definitions(-DBUILD_LIB)
+    add_definitions(-fPIC)
     if(NOT BOX86_ROOT)
         message(FATAL_ERROR "BOX86_ROOT not set when build as lib")
     endif()
