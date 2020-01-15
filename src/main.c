@@ -366,6 +366,11 @@ void LoadEnvVars(box86context_t *context)
         }
     }
 #endif
+#ifdef BUILD_LIB
+    context->argc = 1;  // need 1
+    context->argv = (char**)malloc(sizeof(char*));
+    context->argv[0] = strdup("dummy");
+#endif
 }
 
 #ifndef BUILD_LIB
