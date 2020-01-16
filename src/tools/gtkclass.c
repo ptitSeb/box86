@@ -696,7 +696,7 @@ void my_setGlobalGThreadsInit(box86context_t* context)
     int val = 1;
     uintptr_t globoffs, globend;
     if (GetGlobalNoWeakSymbolStartEnd(context->maplib, "g_threads_got_initialized", &globoffs, &globend)) {
-        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, val);
+        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, (void*)val);
         memcpy((void*)globoffs, &val, sizeof(gdk_display));
     }
 }
@@ -716,6 +716,6 @@ void my_signal_delete(my_signal_t* sig)
     if(d) {
         RunFunction(my_context, d, 1, sig->data);
     }
-    printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, d);
+    printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, (void*)d);
     free(sig);
 }

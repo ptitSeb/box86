@@ -132,7 +132,7 @@ static void signal_delete(my_signal_t* sig, void* b)
     if(d) {
         RunFunction(my_context, d, 2, sig->data, b);
     }
-    printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, d);
+    printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, (void*)d);
     free(sig);
 }
 EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
