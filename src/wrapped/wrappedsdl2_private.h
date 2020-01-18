@@ -339,7 +339,7 @@ GO(SDL_IsGameController, iFi)
 GO(SDL_IsScreenKeyboardShown, iFp)
 GO(SDL_IsScreenSaverEnabled, iFv)
 // SDL_IsShapedWindow
-// SDL_isspace
+GO(SDL_isspace, iFi)
 // SDL_IsTablet
 GO(SDL_IsTextInputActive, iFv)
 // SDL_itoa
@@ -428,7 +428,7 @@ GO(SDL_memmove, pFppu)
 GO(SDL_memset, pFpiu)
 GO(SDL_MinimizeWindow, vFp)
 GO(SDL_MixAudio, vFppui)
-// SDL_MixAudioFormat
+GO(SDL_MixAudioFormat, vFppWui)
 // SDL_MouseIsHaptic
 // SDL_NewAudioStream
 GO(SDL_NumHaptics, iFv)

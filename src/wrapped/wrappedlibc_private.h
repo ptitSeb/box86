@@ -1407,7 +1407,7 @@ GO(rpmatch, iFp)
 // ruserok_af
 // ruserpass
 // sbrk // Weak
-// __sbrk
+GO(__sbrk, pFl)
 // scalbn   // Weak
 // scalbnf  // Weak
 // scalbnl  // Weak

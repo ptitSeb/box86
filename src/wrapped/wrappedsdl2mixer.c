@@ -24,6 +24,7 @@ typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef int32_t (*iFippp_t)(int32_t, void*, void*, void*);
+typedef int   (*iFiwC_t)(int, int16_t, uint8_t);
 
 typedef struct sdl2mixer_my_s {
     pFpii_t     Mix_LoadMUSType_RW;
@@ -34,6 +35,7 @@ typedef struct sdl2mixer_my_s {
     vFp_t       Mix_ChannelFinished;
     vFpp_t      Mix_HookMusic;
     vFp_t       Mix_HookMusicFinished;
+    iFiwC_t     Mix_SetPosition;
 
     x86emu_t* PostCallback;
     x86emu_t* hookMusicCB;
@@ -55,6 +57,7 @@ static void* getSDL2MixerMy(library_t* lib)
     GO(Mix_ChannelFinished,vFp_t)
     GO(Mix_HookMusic, vFpp_t)
     GO(Mix_HookMusicFinished, vFp_t)
+    GO(Mix_SetPosition, iFiwC_t)
     #undef GO
     my->effectcb = kh_init(effectcb);
     return my;
@@ -253,6 +256,13 @@ EXPORT void my2_Mix_HookMusicFinished(x86emu_t* emu, void* f)
         return;
     hookMusicFinitCB =  AddCallback(emu, (uintptr_t)f, 0, NULL, NULL, NULL, NULL);
     my->Mix_HookMusicFinished(sdl2mixer_hookMusicFinitCallback);
+}
+
+// This is a hack for AntiChamber
+EXPORT int my2_MinorityMix_SetPosition(x86emu_t* emu, int channel, int16_t angle)
+{
+    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
+    my->Mix_SetPosition(channel, angle, 0);
 }
 
 const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";

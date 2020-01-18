@@ -1,4 +1,6 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
+#error meh!
+#endif
 
 DATA(__data_start, 4)
 DATA(_edata, 4)
@@ -70,7 +72,8 @@ GO(Mix_SetDistance,iFiu)
 GO(Mix_SetMusicCMD,iFp)
 GO(Mix_SetMusicPosition,iFd)
 GO(Mix_SetPanning,iFiuu)
-GO(Mix_SetPosition,iFiiu)
+GO(Mix_SetPosition,iFiwC)
+GOM(MinorityMix_SetPosition, iFEiw)
 GOM(Mix_SetPostMix,vFEpp)
 GO(Mix_SetReverseStereo,iFii)
 GO(Mix_SetSoundFonts,iFp)
@@ -81,4 +84,3 @@ GO(Mix_Volume,iFii)
 GO(Mix_VolumeChunk,iFpi)
 GO(Mix_VolumeMusic,iFi)
 
-#endif
