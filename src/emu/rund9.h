@@ -259,7 +259,7 @@
                 if(!(((uintptr_t)ED)&3))
                     ST0.d = *(float*)ED;
                 else {
-                    *(uint32_t*)&f = ED->dword[0];
+                    memcpy(&f, ED->dword, sizeof(float));
                     ST0.d = f;
                 }
                 #endif
@@ -273,7 +273,7 @@
                     *(float*)ED = ST0.d;
                 else {
                     f = ST0.d;
-                    ED->dword[0] = *(uint32_t*)&f;
+                    memcpy(ED->dword, &f, sizeof(float));
                 }
                 #endif
                 break;
@@ -286,7 +286,7 @@
                     *(float*)ED = ST0.d;
                 else {
                     f = ST0.d;
-                    ED->dword[0] = *(uint32_t*)&f;
+                    memcpy(ED->dword, &f, sizeof(float));
                 }
                 #endif
                 fpu_do_pop(emu);
