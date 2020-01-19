@@ -422,6 +422,21 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         #undef GO
 
+        case 0x53:
+            INST_NAME("RCPPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(q0 == v0)
+                v1 = fpu_get_scratch_quad(dyn);
+            else
+                v1 = v0;
+            v2 = fpu_get_scratch_quad(dyn);
+            VRECPEQ_F32(v2, q0);
+            VRECPSQ_F32(v1, v2, q0);
+            VMULQ_F32(v0, v2, v1);
+            break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
             nextop = F8;
