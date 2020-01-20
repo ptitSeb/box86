@@ -878,19 +878,19 @@ GO(XReparentWindow, iFpppii)
 GO(_XReply, iFppii)
 GO(XResetScreenSaver, iFp)
 GO(XResizeWindow, iFppuu)
-//GO(XResourceManagerString
+GO(XResourceManagerString, pFp)
 GO(XRestackWindows, iFppi)
 // _XReverse_Bytes
-//GO(XrmCombineDatabase
-//GO(XrmCombineFileDatabase
+GO(XrmCombineDatabase, vFppi)
+GO(XrmCombineFileDatabase, iFppi)
 // _XrmDefaultInitParseInfo
-//GO(XrmDestroyDatabase
-//GO(XrmEnumerateDatabase
-//GO(XrmGetDatabase
-//GO(XrmGetFileDatabase
-//GO(XrmGetResource
-//GO(XrmGetStringDatabase
-//GO(XrmInitialize
+GO(XrmDestroyDatabase, vFp)
+//GOM(XrmEnumerateDatabase
+GO(XrmGetDatabase, pFp)
+GO(XrmGetFileDatabase, pFp)
+GO(XrmGetResource, iFppppp)
+GO(XrmGetStringDatabase, pFp)
+GO(XrmInitialize, vFv)
 // _XrmInitParseInfo
 // _XrmInternalStringToQuark
 //GO(XrmLocaleOfDatabase
