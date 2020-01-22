@@ -292,3 +292,29 @@ void SetCallbackNArgs(x86emu_t* emu, int N, int nargs, ...)
         va_end (va);
     }
 }
+
+uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...)
+{
+    R_ESP -= nargs*4;   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    va_list va;
+    va_start (va, nargs);
+    for (int i=0; i<nargs; ++i) {
+        *p = va_arg(va, uint32_t);
+        p++;
+    }
+    va_end (va);
+
+    int old_quit = emu->quit;
+    emu->quit = 0;
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    emu->quit = old_quit;
+
+    uint32_t ret = R_EAX;
+
+    return ret;
+}
