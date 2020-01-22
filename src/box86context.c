@@ -1,7 +1,7 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <signal.h>
 
@@ -92,8 +92,11 @@ box86context_t *NewBox86Context(int argc)
     context->system = NewBridge();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
-
+#ifdef BUILD_LIB
+    context->box86lib = RTLD_DEFAULT;   // not ideal
+#else
     context->box86lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+#endif
     context->dlprivate = NewDLPrivate();
 
     context->callbacks = NewCallbackList();
@@ -156,8 +159,10 @@ void FreeBox86Context(box86context_t** context)
     if((*context)->deferedInitList)
         free((*context)->deferedInitList);
 
+#ifndef BUILD_LIB
     if((*context)->box86lib)
         dlclose((*context)->box86lib);
+#endif
 
     FreeDLPrivate(&(*context)->dlprivate);
 

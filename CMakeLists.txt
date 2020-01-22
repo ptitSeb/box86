@@ -320,7 +320,7 @@ endif()
 
 if(BOX86LIB)
 #build a static lib...
-add_library(libbox86 STATIC ${ELFLOADER_SRC} ${WRAPPEDS})
+add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
 
 else(BOX86LIB)
 
