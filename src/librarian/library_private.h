@@ -63,7 +63,6 @@ typedef struct library_s {
         nlib_t  n;
     }                   priv;  // private lib data
     box86context_t      *context;   // parent context
-    bridge_t            *brige;
     kh_bridgemap_t      *bridgemap;
     kh_symbolmap_t      *symbolmap;
     kh_symbolmap_t      *wsymbolmap;
