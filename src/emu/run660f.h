@@ -899,7 +899,12 @@
         GX.sd[1] = EX->d[1];
         GX.q[1] = 0;
         NEXT;
-
+    _6f_0xE7:                      /* MOVNTDQ Ex, Gx */
+        nextop = F8;
+        GET_EX;
+        EX->q[0] = GX.q[0];
+        EX->q[1] = GX.q[1];
+        NEXT;
     _6f_0xE8:  /* PSUBSB Gx,Ex */
         nextop = F8;
         GET_EX;

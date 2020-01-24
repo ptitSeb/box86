@@ -1170,6 +1170,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VBICQ(v0, q0, v0);
             break;
 
+        case 0xE7:
+            INST_NAME("MOVNTDQ Ex, Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                VST1Q_32(v0, ed);
+            }
+            break;
+
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
