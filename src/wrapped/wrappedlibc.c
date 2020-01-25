@@ -55,7 +55,10 @@
 #define __NR_accept4                    (__NR_SYSCALL_BASE+366)
 #endif
 #ifndef __NR_sendmmsg
-#define __NR_sendmmsg			(__NR_SYSCALL_BASE+374)
+#define __NR_sendmmsg			        (__NR_SYSCALL_BASE+374)
+#endif
+#ifndef __NR_prlimit64
+#define __NR_prlimit64                  (__NR_SYSCALL_BASE+369)
 #endif
 #endif
 
