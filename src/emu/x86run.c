@@ -39,7 +39,7 @@ int Run(x86emu_t *emu, int step)
     double d;
     float f;
     int64_t ll;
-    sse_regs_t *opex, eax1;
+    sse_regs_t *opex, eax1, *opx2;
     mmx_regs_t *opem, eam1;
 
     if(emu->quit)
@@ -197,7 +197,7 @@ int Run(x86emu_t *emu, int step)
     &&_6f_0xD8, &&_6f_0xD9, &&_default, &&_6f_0xDB, &&_6f_0xDC, &&_default, &&_6f_0xDE, &&_6f_0xDF, 
     &&_default, &&_6f_0xE1, &&_6f_0xE2, &&_default, &&_default, &&_6f_0xE5, &&_6f_0xE6, &&_6f_0xE7, 
     &&_6f_0xE8, &&_6f_0xE9, &&_6f_0xEA, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
-    &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_6f_0xF5, &&_6f_0xF6, &&_default, 
+    &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_6f_0xF5, &&_6f_0xF6, &&_6f_0xF7, 
     &&_default, &&_6f_0xF9, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_6f_0xFD, &&_6f_0xFE, &&_default
     };
 

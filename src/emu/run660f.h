@@ -1014,6 +1014,15 @@
             tmp32u += (GX.ub[i]>EX->ub[i])?(GX.ub[i] - EX->ub[i]):(EX->ub[i] - GX.ub[i]);
         GX.q[1] = tmp32u;
         NEXT;
+    _6f_0xF7:  /* MASKMOVDQU Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        opx2 = (sse_regs_t *)(R_EDI);
+        for (int i=0; i<16; ++i) {
+            if(EX->ub[i]&0x80)
+                opx2->ub[i] = GX.ub[i];
+        }
+        NEXT;
 
     _6f_0xF9:  /* PSUBW Gx,Ex */
         nextop = F8;
