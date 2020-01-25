@@ -78,7 +78,7 @@ static void freeContext(kh_pulsecb_t* list, void* context) {
         return;
     my_pulse_context_cb_t* p = kh_value(list, k);
     freeCB(p);
-    kh_del(pulsecb, list, (uintptr_t)context);
+    kh_del(pulsecb, list, k);
 }
 
 typedef struct my_pa_mainloop_api_s {
