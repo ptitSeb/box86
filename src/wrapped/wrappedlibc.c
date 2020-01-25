@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
+#include <setjmp.h>
 
 #include "wrappedlibs.h"
 
@@ -1226,23 +1227,15 @@ typedef struct jump_buff_i386_s {
  uint32_t save_eip;
 } jump_buff_i386_t;
 
-int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
-{
-    jump_buff_i386_t *jpbuff = (jump_buff_i386_t*)p;
-    // save the buffer
-    jpbuff->save_ebx = R_EBX;
-    jpbuff->save_esi = R_ESI;
-    jpbuff->save_edi = R_EDI;
-    jpbuff->save_ebp = R_EBP;
-    jpbuff->save_esp = R_ESP+4; // include "return address"
-     jpbuff->save_eip = *(uint32_t*)(R_ESP);
-    // and that's it.. Nothing more for now
-    return 0;
-}
+typedef struct __jmp_buf_tag_s {
+    jump_buff_i386_t __jmpbuf;
+    int              __mask_was_saved;
+    __sigset_t       __saved_mask;
+} __jmp_buf_tag_t;
 
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
 {
-    jump_buff_i386_t *jpbuff = (jump_buff_i386_t*)p;
+    jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
     //restore  regs
     R_EBX = jpbuff->save_ebx;
     R_ESI = jpbuff->save_esi;
@@ -1252,6 +1245,24 @@ void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
     // jmp to saved location, plus restore val to eax
     R_EAX = __val;
     R_EIP = jpbuff->save_eip;
+    if(emu->quitonlongjmp) {
+        emu->longjmp = 1;
+        emu->quit = 1;
+    }
+}
+
+int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
+{
+    jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
+    // save the buffer
+    jpbuff->save_ebx = R_EBX;
+    jpbuff->save_esi = R_ESI;
+    jpbuff->save_edi = R_EDI;
+    jpbuff->save_ebp = R_EBP;
+    jpbuff->save_esp = R_ESP+4; // include "return address"
+    jpbuff->save_eip = *(uint32_t*)(R_ESP);
+    // and that's it.. Nothing more for now
+    return 0;
 }
 
 EXPORT uint32_t my_getauxval(x86emu_t* emu, uint32_t type)

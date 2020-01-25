@@ -59,7 +59,7 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	if(attr) {
 		size_t stsize;
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
-			stacksize = stsize;
+			if(stacksize<stsize) stacksize = stsize;
 	}
 	void* stack = malloc(stacksize);
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));

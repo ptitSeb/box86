@@ -390,6 +390,7 @@ void UnimpOpcode(x86emu_t* emu)
 
 void EmuCall(x86emu_t* emu, uintptr_t addr)
 {
+    uint32_t old_esp = R_ESP;
     uint32_t old_ebx = R_EBX;
     uint32_t old_edi = R_EDI;
     uint32_t old_esi = R_ESI;
@@ -401,11 +402,16 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    R_EBX = old_ebx;
-    R_EDI = old_edi;
-    R_ESI = old_esi;
-    R_EBP = old_ebp;
-    R_EIP = old_eip;  // and set back instruction pointer
+    if(emu->quitonlongjmp && emu->longjmp) {
+        emu->longjmp = 0;   // don't change anything because of the longjmp
+    } else {
+        R_EBX = old_ebx;
+        R_EDI = old_edi;
+        R_ESI = old_esi;
+        R_EBP = old_ebp;
+        R_ESP = old_esp;
+        R_EIP = old_eip;  // and set back instruction pointer
+    }
 }
 
 #if defined(__ARM_ARCH)

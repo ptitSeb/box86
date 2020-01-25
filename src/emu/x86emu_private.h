@@ -59,6 +59,8 @@ typedef struct x86emu_s {
     int         fork;   // quit because need to fork
     forkpty_t*  forkpty_info;
     int         exit;
+    int         quitonlongjmp;  // quit if longjmp is called
+    int         longjmp;        // if quit because of longjmp
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;

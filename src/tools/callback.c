@@ -307,12 +307,20 @@ uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
+    uint32_t oldip = R_EIP;
     int old_quit = emu->quit;
+    int oldlong = emu->quitonlongjmp;
+
     emu->quit = 0;
+    emu->quitonlongjmp = 1;
+
     DynaCall(emu, fnc);
-    R_ESP+=(nargs*4);
+
+    if(oldip==R_EIP)
+        R_ESP+=(nargs*4);   // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
 
     emu->quit = old_quit;
+    emu->quitonlongjmp = oldlong;
 
     uint32_t ret = R_EAX;
 
