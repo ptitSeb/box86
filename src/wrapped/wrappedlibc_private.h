@@ -460,8 +460,8 @@ GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)
 GOW(getc_unlocked, iFp)
 GO(get_current_dir_name, pFv)
-GOW(getcwd, pFpu)
-// __getcwd_chk
+GOW(getcwd, pFpL)
+GO(__getcwd_chk, pFpLL)
 GO(getdate, pFp)
 // getdate_err  // type B
 // getdate_r    // Weak
@@ -1870,7 +1870,7 @@ GOM(__vfprintf_chk, iFEpvpVV)
 GOM(vfscanf, iFEppV)  // Weak
 // __vfscanf
 GOM(vfwprintf, iFEppp)    // Weak
-// __vfwprintf_chk
+GO2(__vfwprintf_chk, iFEpvpp, my_vfwprintf)
 GOW(vfwscanf, iFppp)
 // vhangup
 // vlimit
@@ -1894,7 +1894,7 @@ GO(__vsyslog_chk, vFiipV)
 GOM(vwarn, vFEpVV)
 // vwarnx
 GOM(vwprintf, iFEpp)
-// __vwprintf_chk
+GO2(__vwprintf_chk, iFEvpp, my_vwprintf)
 GO(vwscanf, iFpp)
 GOW(wait, iFp)
 GOW(__wait, iFp)

@@ -753,7 +753,7 @@ DATA(_XlcPublicMethods, 4)
 // _XlcVaToArgList
 // _Xlcwcstombs
 // _Xlcwctomb
-//GO(XListDepths
+GO(XListDepths, pFpii)
 GO(XListExtensions, pFpp)
 GO(XListFonts, pFppip)
 GO(XListFontsWithInfo, pFppipp)
