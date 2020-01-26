@@ -1659,7 +1659,7 @@ GO(strspn, uFpp)
 // __strspn_c3
 GO(strstr, pFpp)
 GO(strtod, dFpp)
-GO(__strtod_internal, dFppp)
+GO(__strtod_internal, dFppi)
 GO(__strtod_l, dFppp)
 GOW(strtod_l, dFppu)
 GO(strtof, fFpp)
@@ -1673,11 +1673,12 @@ GOW(strtok_r, pFppp)
 // __strtok_r_1c
 GO(strtol, iFppi)
 GO(strtold, DFpp)
-// __strtold_internal
 #ifdef HAVE_LD80BITS
+GO(__strtold_internal, DFppi)
 GO(__strtold_l, DFppip)
 GOW(strtold_l, DFppu)
 #else
+GO2(__strtold_internal, KFppi, __strtod_internal)
 GO2(__strtold_l, KFppip, __strtod_l)
 GO2(strtold_l, KFppu, strtod_l)
 #endif
