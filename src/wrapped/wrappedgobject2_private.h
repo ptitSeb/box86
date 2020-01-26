@@ -86,19 +86,19 @@ GO(g_clear_object, vFp)
 //GO(g_closure_set_meta_marshal, 
 //GO(g_closure_sink, 
 //GO(g_closure_unref, 
-//GO(g_date_get_type, 
-//GO(g_date_time_get_type, 
-//GO(g_enum_complete_type_info, 
-//GO(g_enum_get_value, 
-//GO(g_enum_get_value_by_name, 
-//GO(g_enum_get_value_by_nick, 
-//GO(g_enum_register_static, 
-//GO(g_error_get_type, 
-//GO(g_flags_complete_type_info, 
-//GO(g_flags_get_first_value, 
-//GO(g_flags_get_value_by_name, 
-//GO(g_flags_get_value_by_nick, 
-//GO(g_flags_register_static, 
+GO(g_date_get_type, iFv)
+GO(g_date_time_get_type, iFv)
+GO(g_enum_complete_type_info, vFipp)
+GO(g_enum_get_value, pFpi)
+GO(g_enum_get_value_by_name, pFpp)
+GO(g_enum_get_value_by_nick, pFpp)
+GO(g_enum_register_static, iFpp)
+GO(g_error_get_type, iFv)
+GO(g_flags_complete_type_info, vFipp)
+GO(g_flags_get_first_value, pFpi)
+GO(g_flags_get_value_by_name, pFpp)
+GO(g_flags_get_value_by_nick, pFpp)
+GO(g_flags_register_static, iFpp)
 //GO(g_gstring_get_type, 
 //GO(g_gtype_get_type, 
 //GO(g_hash_table_get_type, 
