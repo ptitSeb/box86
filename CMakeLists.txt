@@ -237,6 +237,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedgmodule2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgobject2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedglib2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgstreamer010.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgstinterfaces010.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbusmenugtk.c"
     "${BOX86_ROOT}/src/wrapped/wrappedatk.c"
     "${BOX86_ROOT}/src/wrapped/wrappedpangoft2.c"
