@@ -261,9 +261,9 @@ GO(g_source_get_type, iFv)
 //GO(g_source_set_closure, 
 //GO(g_source_set_dummy_callback, 
 GO(g_strdup_value_contents, pFp)
-//GO(g_strv_get_type, 
-//GO(g_thread_get_type, 
-//GO(g_time_zone_get_type, 
+GO(g_strv_get_type, iFv)
+GO(g_thread_get_type, iFv)
+GO(g_time_zone_get_type, iFv)
 //GOM(g_type_add_class_cache_func, vFEpB)
 GO(g_type_add_class_private, vFpiu)
 //GO(g_type_add_instance_private, 
@@ -305,7 +305,7 @@ GO(g_type_fundamental_next, iFv)
 GO(g_type_get_type_registration_serial, uFv)
 //GO(g_type_init, 
 //GO(g_type_init_with_debug_flags, 
-//GO(g_type_instance_get_private, 
+GO(g_type_instance_get_private, pFpi)
 GO(g_type_interface_add_prerequisite, vFii)
 //GOM(g_type_interface_get_plugin, pFEii) // return GTypePlugin*
 //GO(g_type_interface_peek, 

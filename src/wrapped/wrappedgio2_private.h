@@ -455,7 +455,7 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_method_invocation_get_parameters, 
 //GO(g_dbus_method_invocation_get_property_info, 
 //GO(g_dbus_method_invocation_get_sender, 
-//GO(g_dbus_method_invocation_get_type, 
+GO(g_dbus_method_invocation_get_type, iFv)
 //GO(g_dbus_method_invocation_get_user_data, 
 //GO(g_dbus_method_invocation_return_dbus_error, 
 //GO(g_dbus_method_invocation_return_error, 
@@ -471,22 +471,22 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_node_info_new_for_xml, 
 //GO(g_dbus_node_info_ref, 
 //GO(g_dbus_node_info_unref, 
-//GO(g_dbus_object_get_interface, 
-//GO(g_dbus_object_get_interfaces, 
-//GO(g_dbus_object_get_object_path, 
+GO(g_dbus_object_get_interface, pFpp)
+GO(g_dbus_object_get_interfaces, pFp)
+GO(g_dbus_object_get_object_path, pFp)
 //GO(g_dbus_object_get_type, 
 //GO(g_dbus_object_manager_client_flags_get_type, 
-//GO(g_dbus_object_manager_client_get_connection, 
-//GO(g_dbus_object_manager_client_get_flags, 
-//GO(g_dbus_object_manager_client_get_name, 
-//GO(g_dbus_object_manager_client_get_name_owner, 
-//GO(g_dbus_object_manager_client_get_type, 
-//GO(g_dbus_object_manager_client_new, 
-//GO(g_dbus_object_manager_client_new_finish, 
-//GO(g_dbus_object_manager_client_new_for_bus, 
-//GO(g_dbus_object_manager_client_new_for_bus_finish, 
-//GO(g_dbus_object_manager_client_new_for_bus_sync, 
-//GO(g_dbus_object_manager_client_new_sync, 
+GO(g_dbus_object_manager_client_get_connection, pFp)
+GO(g_dbus_object_manager_client_get_flags, iFp)
+GO(g_dbus_object_manager_client_get_name, pFp)
+GO(g_dbus_object_manager_client_get_name_owner, pFp)
+GO(g_dbus_object_manager_client_get_type, iFv)
+//GOM(g_dbus_object_manager_client_new, 
+GO(g_dbus_object_manager_client_new_finish, pFpp)
+//GOM(g_dbus_object_manager_client_new_for_bus, 
+GO(g_dbus_object_manager_client_new_for_bus_finish, pFpp)
+GOM(g_dbus_object_manager_client_new_for_bus_sync, pFEiippppppp)
+//GOM(g_dbus_object_manager_client_new_sync, 
 //GOM(g_dbus_object_manager_get_interface, pFEppp)  //struct GDBusObjectManagerIface is full of callbacks
 GO(g_dbus_object_manager_get_object, pFpp)
 GO(g_dbus_object_manager_get_object_path, pFp)
@@ -514,32 +514,32 @@ GO(g_dbus_object_manager_get_objects, pFp)
 //GO(g_dbus_property_info_get_type, 
 //GO(g_dbus_property_info_ref, 
 //GO(g_dbus_property_info_unref, 
-//GO(g_dbus_proxy_call, 
+GOM(g_dbus_proxy_call, vFEpppiippp)
 GO(g_dbus_proxy_call_finish, pFppp)
-//GO(g_dbus_proxy_call_sync, 
-//GO(g_dbus_proxy_call_with_unix_fd_list, 
-//GO(g_dbus_proxy_call_with_unix_fd_list_finish, 
-//GO(g_dbus_proxy_call_with_unix_fd_list_sync, 
-//GO(g_dbus_proxy_flags_get_type, 
+GO(g_dbus_proxy_call_sync, pFpppiipp)
+GOM(g_dbus_proxy_call_with_unix_fd_list, vFEpppiipppp)
+GO(g_dbus_proxy_call_with_unix_fd_list_finish, pFpppp)
+GO(g_dbus_proxy_call_with_unix_fd_list_sync, pFpppiipppp)
+GO(g_dbus_proxy_flags_get_type, iFv)
 GO(g_dbus_proxy_get_cached_property, pFpp)
 GO(g_dbus_proxy_get_cached_property_names, pFp)
-//GO(g_dbus_proxy_get_connection, 
-//GO(g_dbus_proxy_get_default_timeout, 
-//GO(g_dbus_proxy_get_flags, 
+GO(g_dbus_proxy_get_connection, pFp)
+GO(g_dbus_proxy_get_default_timeout, iFp)
+GO(g_dbus_proxy_get_flags, iFp)
 GO(g_dbus_proxy_get_interface_info, pFp)
-//GO(g_dbus_proxy_get_interface_name, 
-//GO(g_dbus_proxy_get_name, 
-//GO(g_dbus_proxy_get_name_owner, 
-//GO(g_dbus_proxy_get_object_path, 
-//GO(g_dbus_proxy_get_type, 
-//GO(g_dbus_proxy_new, 
-//GO(g_dbus_proxy_new_finish, 
-//GO(g_dbus_proxy_new_for_bus, 
-//GO(g_dbus_proxy_new_for_bus_finish, 
-//GO(g_dbus_proxy_new_for_bus_sync, 
-//GO(g_dbus_proxy_new_sync, 
+GO(g_dbus_proxy_get_interface_name, pFp)
+GO(g_dbus_proxy_get_name, pFp)
+GO(g_dbus_proxy_get_name_owner, pFp)
+GO(g_dbus_proxy_get_object_path, pFp)
+GO(g_dbus_proxy_get_type, iFv)
+GOM(g_dbus_proxy_new, vFEpippppppp)
+GO(g_dbus_proxy_new_finish, pFpp)
+GOM(g_dbus_proxy_new_for_bus, vFEiippppppp)
+GO(g_dbus_proxy_new_for_bus_finish, pFpp)
+GO(g_dbus_proxy_new_for_bus_sync, pFiipppppp)
+GO(g_dbus_proxy_new_sync, pFpipppppp)
 GO(g_dbus_proxy_set_cached_property, vFppp)
-//GO(g_dbus_proxy_set_default_timeout, 
+GO(g_dbus_proxy_set_default_timeout, vFpi)
 GO(g_dbus_proxy_set_interface_info, vFpp)
 //GO(g_dbus_send_message_flags_get_type, 
 //GO(g_dbus_server_flags_get_type, 
