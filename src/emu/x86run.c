@@ -102,7 +102,7 @@ int Run(x86emu_t *emu, int step)
     &&_0f_0x10, &&_0f_0x11, &&_0f_0x12, &&_0f_0x13, &&_0f_0x14, &&_0f_0x15, &&_0f_0x16, &&_0f_0x17, //0x10-0x17 
     &&_0f_0x18, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_0f_0x1F, //0x18-0x1F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x20-0x27
-    &&_0f_0x28, &&_0f_0x29, &&_0f_0x2A, &&_default, &&_0f_0x2C, &&_0f_0x2D, &&_0f_0x2E, &&_0f_0x2F, 
+    &&_0f_0x28, &&_0f_0x29, &&_0f_0x2A, &&_0f_0x2B, &&_0f_0x2C, &&_0f_0x2D, &&_0f_0x2E, &&_0f_0x2F, 
     &&_default, &&_0f_0x31, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x30-0x37
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x38-0x3F
     &&_0f_0x40_0, &&_0f_0x40_1, &&_0f_0x40_2, &&_0f_0x40_3, &&_0f_0x40_4, &&_0f_0x40_5, &&_0f_0x40_6, &&_0f_0x40_7,

@@ -80,7 +80,12 @@
             GX.f[0] = EM->sd[0];
             GX.f[1] = EM->sd[1];
             NEXT;
-
+        _0f_0x2B:                      /* MOVNTPS Ex,Gx */
+            nextop = F8;
+            GET_EX;
+            EX->q[0] = GX.q[0];
+            EX->q[1] = GX.q[1];
+            NEXT;
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
             nextop = F8;
             GET_EX;
