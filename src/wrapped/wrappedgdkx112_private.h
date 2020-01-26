@@ -488,14 +488,14 @@ GO(gdk_screen_set_resolution, vFpd)
 GO(gdk_screen_width, iFv)
 GO(gdk_screen_width_mm, iFv)
 GO(gdk_scroll_direction_get_type, iFv)
-//GO(gdk_selection_convert, 
-//GO(gdk_selection_owner_get, 
-//GO(gdk_selection_owner_get_for_display, 
-//GO(gdk_selection_owner_set, 
-//GO(gdk_selection_owner_set_for_display, 
-//GO(gdk_selection_property_get, 
-//GO(gdk_selection_send_notify, 
-//GO(gdk_selection_send_notify_for_display, 
+GO(gdk_selection_convert, vFpppu)
+GO(gdk_selection_owner_get, pFp)
+GO(gdk_selection_owner_get_for_display, pFpp)
+GO(gdk_selection_owner_set, iFppui)
+GO(gdk_selection_owner_set_for_display, iFpppui)
+GO(gdk_selection_property_get, iFpppp)
+GO(gdk_selection_send_notify, vFppppu)
+GO(gdk_selection_send_notify_for_display, vFpppppu)
 GO(gdk_set_double_click_time, vFu)
 GO(gdk_set_locale, pFv)
 //GOM(gdk_set_pointer_hooks, BFEB)
@@ -756,7 +756,7 @@ GO(gdk_x11_grab_server, vFv)
 GO(gdk_x11_image_get_xdisplay, pFp)
 GO(gdk_x11_image_get_ximage, pFp)
 GO(gdk_x11_lookup_xdisplay, pFp)
-//GO(gdk_x11_pixmap_get_drawable_impl, 
+GO(gdk_x11_pixmap_get_drawable_impl, pFp)
 GO(gdk_x11_register_standard_event_type, vFpii)
 GO(gdk_x11_screen_get_monitor_output, pFpi)
 GO(gdk_x11_screen_get_screen_number, iFp)
@@ -768,7 +768,7 @@ GO(gdk_x11_set_sm_client_id, vFp)
 GO(gdk_x11_ungrab_server, vFv)
 GO(gdk_x11_visual_get_xvisual, pFp)
 GO(gdk_x11_window_foreign_new_for_display, pFpp)
-//GO(gdk_x11_window_get_drawable_impl, 
+GO(gdk_x11_window_get_drawable_impl, pFp)
 GO(gdk_x11_window_lookup_for_display, pFpp)
 GO(gdk_x11_window_move_to_current_desktop, vFp)
 GO(gdk_x11_window_set_user_time, vFpu)
@@ -780,6 +780,8 @@ GO(gdk_xid_table_lookup_for_display, pFpp)
 GO(gdkx_visual_get, pFp)
 
 //GLOB(gdk_display, 4)
+DATA(gdk_threads_lock, 4)
+DATA(gdk_threads_unlock, 4)
 
 GO(dummy_set_child_property, vFppupp)       // to get vFppupp for gtkclass.c
 
