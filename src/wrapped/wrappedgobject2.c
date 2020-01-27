@@ -401,7 +401,7 @@ EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signa
     if(!f)
         return my->g_signal_add_emission_hook(signal, detail, f, data, notify);
     my_signal_t* sig = new_mysignal(f, data, notify);
-    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook \"%s\" created for %p, sig=%p\n", (char*)detail, f, sig);
+    printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook for signal %d created for %p, sig=%p\n", signal, f, sig);
     return my->g_signal_add_emission_hook(signal, detail, my_signal_emission_hook, sig, my_signal_delete);
 }
 

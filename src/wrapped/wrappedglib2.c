@@ -40,6 +40,7 @@ typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFuppp_t)(uint32_t, void*, void*, void*);
 typedef uint32_t (*uFippp_t)(int, void*, void*, void*);
+typedef uint32_t (*uFiuppp_t)(int, uint32_t, void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
@@ -56,7 +57,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_list_free_full, vFpp_t)                \
     GO(g_markup_vprintf_escaped, pFpp_t)        \
     GO(g_build_filenamev, pFp_t)                \
-    GO(g_timeout_add_full, uFuppp_t)            \
+    GO(g_timeout_add_full, uFiuppp_t)            \
     GO(g_datalist_id_set_data_full, vFpupp_t)   \
     GO(g_datalist_id_dup_data, pFpupp_t)        \
     GO(g_datalist_id_replace_data, iFpupppp_t)  \
@@ -184,13 +185,17 @@ EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
     return ret;
 }
 
+static int my_timeout_cb(my_signal_t* sig)
+{
+    return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
+}
 EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
 {
     library_t * lib = GetLib(emu->context->maplib, libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
     my_signal_t *sig = new_mysignal(func, data, NULL);
-    return my->g_timeout_add_full(interval, my_signal_cb, sig, my_signal_delete);
+    return my->g_timeout_add_full(0, interval, my_timeout_cb, sig, my_signal_delete);
 }
 typedef int (*GSourceFunc) (void* user_data);
 
@@ -688,7 +693,8 @@ EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* d
         return my->g_idle_add_full(priority, f, data, notify);
 
     my_signal_t *sig = new_mysignal(f, data, notify);
-    return my->g_idle_add_full(priority, my_signal_cb, sig, my_signal_delete);
+    printf_log(LOG_DEBUG, "glib2 Idle CB with priority %d created for %p, sig=%p\n", priority, f, sig);
+    return my->g_idle_add_full(priority, my_timeout_cb, sig, my_signal_delete);
 }
 
 EXPORT void* my_g_hash_table_new(x86emu_t* emu, void* hash, void* equal)

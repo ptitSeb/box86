@@ -15,9 +15,9 @@ GO(oggpackB_get_buffer, pFp)
 //GO(oggpack_bits, 
 //GO(oggpackB_look, 
 //GO(oggpackB_look1, 
-//GO(oggpackB_read, 
+GO(oggpackB_read, lFpi)
 //GO(oggpackB_read1, 
-//GO(oggpackB_readinit, 
+GO(oggpackB_readinit, vFppi)
 GO(oggpackB_reset, vFp)
 GO(oggpackB_write, vFpui)
 //GO(oggpackB_writealign, 
