@@ -72,7 +72,7 @@ GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu)
 GO(SDL_CreateRGBSurfaceWithFormat, pFuiiiu)
 GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu)
 GO(SDL_CreateSemaphore, pFu)
-// SDL_CreateShapedWindow
+GO(SDL_CreateShapedWindow, pFpuuuuu)
 GO(SDL_CreateSoftwareRenderer, pFp)
 GO(SDL_CreateSystemCursor, pFu)
 GO(SDL_CreateTexture, pFpuiii)
@@ -215,7 +215,7 @@ GO(SDL_GetRenderDrawBlendMode, iFpp)
 GO(SDL_GetRenderDriverInfo, iFip)
 // SDL_GetRenderer
 GO(SDL_GetRendererInfo, iFpp)
-// SDL_GetRendererOutputSize
+GO(SDL_GetRendererOutputSize, iFppp)
 // SDL_GetRenderTarget
 // SDL_GetRevision
 // SDL_GetRevisionNumber
@@ -278,7 +278,7 @@ GO(SDL_GL_SetAttribute, iFui)
 GO(SDL_GL_SetSwapInterval, iFi)
 GO(SDL_GL_SwapWindow, vFp)
 // SDL_GL_UnbindTexture
-// SDL_GL_UnloadLibrary
+GO(SDL_GL_UnloadLibrary, vFv)
 GO(SDL_HapticClose, vFp)
 GO(SDL_HapticDestroyEffect, vFpi)
 GO(SDL_HapticEffectSupported, iFpp)
@@ -446,7 +446,7 @@ GO(SDL_powf, fFff)
 GO(SDL_PumpEvents, vFv)
 GO(SDL_PushEvent, iFp)
 // SDL_qsort
-// SDL_QueryTexture
+GO(SDL_QueryTexture, iFppppp)
 // SDL_QueueAudio
 GO(SDL_Quit, vFv)
 GO(SDL_QuitSubSystem, vFu)
@@ -575,7 +575,7 @@ GO(SDL_SetWindowMinimumSize, vFpii)
 // SDL_SetWindowOpacity
 GO(SDL_SetWindowPosition, vFpii)
 GO(SDL_SetWindowResizable, vFpi)
-// SDL_SetWindowShape
+GO(SDL_SetWindowShape, iFppp)
 GO(SDL_SetWindowSize, vFpii)
 GO(SDL_SetWindowTitle, vFpp)
 // SDL_SetYUVConversionMode
