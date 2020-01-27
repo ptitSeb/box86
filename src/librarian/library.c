@@ -273,6 +273,8 @@ int AddSymbolsLibrary(library_t* lib, x86emu_t* emu)
 }
 int FinalizeLibrary(library_t* lib, x86emu_t* emu)
 {
+    if(!lib)
+        return 0;
     if(lib->type==1) {
         if(lib->priv.n.finalized)
             return 0;

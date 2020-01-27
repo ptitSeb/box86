@@ -597,7 +597,8 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86contex
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
             if(AddNeededLib(maplib, parent, needed, box86, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
-                return 1;   //error...
+                if(!allow_missing_libs)
+                    return 1;   //error...
             }
         }
     return 0;

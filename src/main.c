@@ -49,6 +49,7 @@ int box86_dynarec_trace = 0;
 int x11color16 = 0;
 #endif
 int x11threads = 0;
+int allow_missing_libs = 0;
 char* libGL = NULL;
 
 FILE* ftrace = NULL;
@@ -196,6 +197,16 @@ void LoadLogEnv()
     if(libGL) {
         printf_log(LOG_INFO, "BOX86 using \"%s\" as libGL.so.1\n", p);
     }
+    p = getenv("BOX86_ALLOWMISSINGLIBS");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                allow_missing_libs = p[0]-'0';
+        }
+        if(allow_missing_libs)
+            printf_log(LOG_INFO, "Allow missing needed libs\n");
+    }
+
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
@@ -302,6 +313,7 @@ void PrintHelp() {
     printf(" BOX86_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
+    printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
 }
 
 void LoadEnvVars(box86context_t *context)

@@ -104,3 +104,9 @@ Set level of DynaRec log
  * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)
 Some games use old version of some lib, with an ABI incompatible with native version.
 Note that LittleInforno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs
+
+#### BOX86_ALLOWMISSINGLIBS
+Allow box86 to continue even if a lib is missing
+ * 0 : default, stop if a lib cannot be loaded
+ * 1 : continue even if a needed lib cannot be loaded. Unadvised, this will, in most cases, crash later on.
+
