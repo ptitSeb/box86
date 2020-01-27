@@ -17,6 +17,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
@@ -37,6 +38,7 @@ typedef uint32_t  (*uFppp_t)(void*, void*, void*);
 typedef void  (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFuppp_t)(uint32_t, void*, void*, void*);
 typedef uint32_t (*uFippp_t)(int, void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
@@ -54,7 +56,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_list_free_full, vFpp_t)                \
     GO(g_markup_vprintf_escaped, pFpp_t)        \
     GO(g_build_filenamev, pFp_t)                \
-    GO(g_timeout_add, uFupp_t)                  \
+    GO(g_timeout_add_full, uFuppp_t)            \
     GO(g_datalist_id_set_data_full, vFpupp_t)   \
     GO(g_datalist_id_dup_data, pFpupp_t)        \
     GO(g_datalist_id_replace_data, iFpupppp_t)  \
@@ -111,12 +113,13 @@ void freeGlib2My(void* lib)
     glib2_my_t *my = (glib2_my_t *)lib;
 }
 
-static void my_destroy_notify(void* data)   // data should be arg 0
+static void my_destroy_notify(void* data)   // data should be arg 8
 {
     x86emu_t *emu = (x86emu_t*)data;
     uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
     if(f) {
         SetCallbackNArg(emu, 1);
+        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
         SetCallbackAddress(emu, f);
         RunCallback(emu);
     }
@@ -181,21 +184,13 @@ EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
     return ret;
 }
 
-static int my_gsourcefunc(void* data)
-{
-    x86emu_t* emu = (x86emu_t*)data;
-    int ret = RunCallback(emu);
-    if(!ret)
-        FreeCallback(emu);
-    return ret;
-}
-
 EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
 {
     library_t * lib = GetLib(emu->context->maplib, libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)func, 1, data, NULL, NULL, NULL);
-    return my->g_timeout_add(interval, my_gsourcefunc, cb);
+
+    my_signal_t *sig = new_mysignal(func, data, NULL);
+    return my->g_timeout_add_full(interval, my_signal_cb, sig, my_signal_delete);
 }
 typedef int (*GSourceFunc) (void* user_data);
 
@@ -212,6 +207,7 @@ GO(1)   \
 GO(2)   \
 GO(3)
 
+// GCopyFct
 #define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;   \
 static void* my_copy_##A(void* data)     \
@@ -233,7 +229,7 @@ static void* findCopyFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Copy callback\n");
     return NULL;
 }
-
+// GFreeFct
 #define GO(A)   \
 static uintptr_t my_free_fct_##A = 0;   \
 static void my_free_##A(void* data)     \
@@ -255,6 +251,28 @@ static void* findFreeFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Free callback\n");
     return NULL;
 }
+// GDuplicateFct
+#define GO(A)   \
+static uintptr_t my_duplicate_fct_##A = 0;   \
+static void* my_duplicate_##A(void* data)     \
+{                                       \
+    return (void*)RunFunction(my_context, my_duplicate_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findDuplicateFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_duplicate_fct_##A == (uintptr_t)fct) return my_duplicate_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_duplicate_fct_##A == 0) {my_duplicate_fct_##A = (uintptr_t)fct; return my_duplicate_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 Duplicate callback\n");
+    return NULL;
+}
 // GSourceFuncs....
 // g_source_new callback. First the structure GSourceFuncs statics, with paired x86 source pointer
 #define GO(A) \
@@ -273,8 +291,8 @@ static int my_funcs_check_##A(void* source) {   \
     return (int)RunFunction(my_context, fct_funcs_check_##A, 1, source);    \
 }   \
 static uintptr_t fct_funcs_dispatch_cb_##A = 0; \
-static int my_funcs_dispatch_cb_##A(void* source) {   \
-    return (int)RunFunction(my_context, fct_funcs_dispatch_cb_##A, 1);    \
+static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {   \
+    return (int)RunFunction(my_context, fct_funcs_dispatch_cb_##A, 4, a, b, c, d);    \
 }   \
 static uintptr_t fct_funcs_dispatch_##A = 0;  \
 static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {   \
@@ -448,7 +466,7 @@ EXPORT void* my_g_datalist_id_dup_data(x86emu_t* emu, void* datalist, uint32_t k
 {
     library_t * lib = GetLib(emu->context->maplib, libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
-    void* cc = findFreeFct(dupcb);
+    void* cc = findDuplicateFct(dupcb);
     return my->g_datalist_id_dup_data(datalist, key, cc, data);
 }
 
@@ -661,11 +679,6 @@ EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* 
     my->g_main_context_set_poll_func(context, findPollFct(func));
 }
 
-static int my_source_func(void* data)
-{
-    x86emu_t* emu = (x86emu_t*)data;
-    return (int)RunCallback(emu);
-}
 EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* data, void* notify)
 {
     library_t * lib = GetLib(emu->context->maplib, libname);
@@ -673,9 +686,9 @@ EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* d
 
     if(!f)
         return my->g_idle_add_full(priority, f, data, notify);
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 1, data, NULL, NULL, NULL);
-    SetCallbackArg(cb, 9, notify);
-    return my->g_idle_add_full(priority, my_source_func, cb, my_destroy_notify);
+
+    my_signal_t *sig = new_mysignal(f, data, notify);
+    return my->g_idle_add_full(priority, my_signal_cb, sig, my_signal_delete);
 }
 
 EXPORT void* my_g_hash_table_new(x86emu_t* emu, void* hash, void* equal)
@@ -696,8 +709,7 @@ EXPORT void* my_g_hash_table_new_full(x86emu_t* emu, void* hash, void* equal, vo
 
 static void my_ghfunc(void* key, void* value, x86emu_t* emu)
 {
-    SetCallbackArg(emu, 0, key);
-    SetCallbackArg(emu, 1, value);
+    SetCallbackArgs(emu, 2, key, value);
     RunCallback(emu);
 }
 EXPORT void my_g_hash_table_foreach(x86emu_t* emu, void* table, void* f, void* data)
@@ -712,8 +724,7 @@ EXPORT void my_g_hash_table_foreach(x86emu_t* emu, void* table, void* f, void* d
 
 static int my_ghrfunc(void* key, void* value, x86emu_t* emu)
 {
-    SetCallbackArg(emu, 0, key);
-    SetCallbackArg(emu, 1, value);
+    SetCallbackArgs(emu, 2, key, value);
     return RunCallback(emu);
 }
 EXPORT uint32_t my_g_hash_table_foreach_remove(x86emu_t* emu, void* table, void* f, void* data)
@@ -785,7 +796,8 @@ EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data
         return my->g_child_watch_add(pid, f, data);
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-
+    SetCallbackArg(cb, 9, NULL);
+    SetCallbackArg(cb, 8, data);
     return my->g_child_watch_add_full(0, pid, my_gchildwatchfunc, cb, my_destroy_notify);
 }
 
@@ -796,6 +808,7 @@ EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, 
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     SetCallbackArg(cb, 9, notify);
+    SetCallbackArg(cb, 8, data);
     return my->g_idle_add_full(priority, f?my_gchildwatchfunc:NULL, cb, my_destroy_notify);
 }
 

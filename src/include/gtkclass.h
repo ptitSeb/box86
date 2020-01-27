@@ -202,5 +202,6 @@ typedef struct my_signal_s {
 
 my_signal_t* new_mysignal(void* f, void* data, void* destroy);
 void my_signal_delete(my_signal_t* sig);
+int my_signal_cb(void* a, void* b, void* c, void* d);
 
 #endif //__GTKCLASS_H__

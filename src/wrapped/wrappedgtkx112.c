@@ -70,6 +70,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_menu_popup, vFpppppuu_t)             \
     GO(gtk_timeout_add, uFupp_t)                \
     GO(gtk_clipboard_set_with_data, iFppuppp_t) \
+    GO(gtk_clipboard_set_with_owner, iFppuppp_t)\
     GO(gtk_stock_set_translate_func, vFpppp_t)  \
     GO(gtk_container_forall, vFppp_t)           \
     GO(gtk_tree_view_set_search_equal_func, vFpppp_t)   \
@@ -116,42 +117,6 @@ void freeGtkx112My(void* lib)
 
 static box86context_t* context = NULL;
 
-static int signal_cb(void* a, void* b, void* c, void* d)
-{
-    // signal can have many signature... so first job is to find the data!
-    // hopefully, no callback have more than 4 arguments...
-    my_signal_t* sig = NULL;
-    int i = 0;
-    if(a)
-        if(((my_signal_t*)a)->sign == SIGN) {
-            sig = (my_signal_t*)a;
-            i = 1;
-        }
-    if(!sig && b)
-        if(((my_signal_t*)b)->sign == SIGN) {
-            sig = (my_signal_t*)b;
-            i = 2;
-        }
-    if(!sig && c)
-        if(((my_signal_t*)c)->sign == SIGN) {
-            sig = (my_signal_t*)c;
-            i = 3;
-        }
-    if(!sig && d)
-        if(((my_signal_t*)d)->sign == SIGN) {
-            sig = (my_signal_t*)d;
-            i = 4;
-        }
-    printf_log(LOG_DEBUG, "gtk Signal called, sig=%p, NArgs=%d\n", sig, i);
-    switch(i) {
-        case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
-        case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
-        case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
-        case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
-    }
-    printf_log(LOG_NONE, "Warning, Gtk-x11-2 signal callback but no data found!");
-    return 0;
-}
 EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* name, void* c_handler, void* unsupported, void* data, void* closure, uint32_t signal, int after)
 {
     library_t * lib = GetLib(emu->context->maplib, libname);
@@ -161,7 +126,7 @@ EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* n
         context = emu->context;
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
-    uintptr_t ret = my->gtk_signal_connect_full(object, name, signal_cb, NULL, sig, my_signal_delete, signal, after);
+    uintptr_t ret = my->gtk_signal_connect_full(object, name, my_signal_cb, NULL, sig, my_signal_delete, signal, after);
     printf_log(LOG_DEBUG, "Connecting gtk signal \"%s\" with cb=%p\n", (char*)name, sig);
     return ret;
 }
@@ -221,9 +186,9 @@ static void* findMenuPositionFct(void* fct)
 // GtkFunction
 #define GO(A)   \
 static uintptr_t my_gtkfunction_fct_##A = 0;   \
-static void my_gtkfunction_##A(void* data)     \
+static int my_gtkfunction_##A(void* data)     \
 {                                       \
-    RunFunction(my_context, my_gtkfunction_fct_##A, 1, data);\
+    return RunFunction(my_context, my_gtkfunction_fct_##A, 1, data);\
 }
 SUPER()
 #undef GO
@@ -482,7 +447,14 @@ EXPORT int my_gtk_clipboard_set_with_data(x86emu_t* emu, void* clipboard, void* 
 
     return my->gtk_clipboard_set_with_data(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
-EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data) __attribute__((alias("my_gtk_clipboard_set_with_data")));
+
+EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_clipboard_set_with_owner(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
+}
 
 static void* my_translate_func(void* path, my_signal_t* sig)
 {

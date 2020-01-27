@@ -719,3 +719,40 @@ void my_signal_delete(my_signal_t* sig)
     printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, (void*)d);
     free(sig);
 }
+
+int my_signal_cb(void* a, void* b, void* c, void* d)
+{
+    // signal can have many signature... so first job is to find the data!
+    // hopefully, no callback have more than 4 arguments...
+    my_signal_t* sig = NULL;
+    int i = 0;
+    if(a)
+        if(((my_signal_t*)a)->sign == SIGN) {
+            sig = (my_signal_t*)a;
+            i = 1;
+        }
+    if(!sig && b)
+        if(((my_signal_t*)b)->sign == SIGN) {
+            sig = (my_signal_t*)b;
+            i = 2;
+        }
+    if(!sig && c)
+        if(((my_signal_t*)c)->sign == SIGN) {
+            sig = (my_signal_t*)c;
+            i = 3;
+        }
+    if(!sig && d)
+        if(((my_signal_t*)d)->sign == SIGN) {
+            sig = (my_signal_t*)d;
+            i = 4;
+        }
+    printf_log(LOG_DEBUG, "gtk Signal called, sig=%p, NArgs=%d\n", sig, i);
+    switch(i) {
+        case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
+        case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
+        case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
+        case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
+    }
+    printf_log(LOG_NONE, "Warning, Gtk signal callback but no data found!");
+    return 0;
+}

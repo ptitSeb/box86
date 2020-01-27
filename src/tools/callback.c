@@ -47,6 +47,8 @@ onecallback_t* FindCallback(x86emu_t* emu)
 
 int IsCallback(box86context_t* context, x86emu_t* cb)
 {
+    if(!cb)
+        return 0;
     callbacklist_t *callbacks = context->callbacks;
     khint_t k = kh_get(callbacks, callbacks->list, (uintptr_t)cb);
     if(k==kh_end(callbacks->list) || !kh_exist(callbacks->list, k))
