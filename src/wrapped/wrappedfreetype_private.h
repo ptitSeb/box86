@@ -125,7 +125,7 @@ GO(FT_New_Face, iFpplp)
 //GO(FT_New_Library, 
 GO(FT_New_Memory_Face, iFppllp)
 //GO(FT_New_Size, 
-GO(FT_Open_Face, iFpplp)
+GOM(FT_Open_Face, iFEpplp)
 //GO(FT_OpenType_Free, 
 //GO(FT_OpenType_Validate, 
 GO(FT_Outline_Check, iFp)
