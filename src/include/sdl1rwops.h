@@ -7,16 +7,6 @@ typedef struct x86emu_s x86emu_t;
 typedef SDL1_RWops_t* (*sdl1_allocrw)();
 typedef void (*sdl1_freerw)(SDL1_RWops_t*);
 
-typedef struct SDL1RWSave_s {
-    int   anyEmu;
-    void* seek;
-    void* read;
-    void* write;
-    void* close;
-    void* s1;
-    void* s2;
-} SDL2RWSave_t;
-
 // each function will be added to dictionary, and each native functions will be wrapped so they run in emulated world
 SDL1_RWops_t* AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops);
 SDL1_RWops_t* RWNativeStart(x86emu_t* emu, SDL1_RWops_t* ops);   // put Native RW function, wrapping emulated (callback style) ones if needed
@@ -26,5 +16,6 @@ int32_t RWNativeSeek(SDL1_RWops_t *ops, int32_t offset, int32_t whence);
 uint32_t RWNativeRead(SDL1_RWops_t* ops, void* ptr, uint32_t size, uint32_t maxnum);
 int32_t RWNativeWrite(SDL1_RWops_t *ops, const void *ptr, int32_t size, int32_t num);
 int32_t RWNativeClose(SDL1_RWops_t* ops);
+void RWSetType(SDL1_RWops_t* r, int t);
 
 #endif

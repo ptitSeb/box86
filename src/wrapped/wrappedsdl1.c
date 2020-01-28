@@ -357,29 +357,34 @@ uint32_t EXPORT my_SDL_WriteLE64(x86emu_t* emu, void* a, uint64_t v)
     return r;
 }
 
+// SDL1 doesn't really used rw_ops->type, but box86 does, so set sensible value (from SDL2)....
 void EXPORT *my_SDL_RWFromConstMem(x86emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    void* r = my->SDL_RWFromConstMem(a, b);
-    return AddNativeRW(emu, (SDL1_RWops_t*)r);
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromConstMem(a, b);
+    RWSetType(r, 5);
+    return AddNativeRW(emu, r);
 }
 void EXPORT *my_SDL_RWFromFP(x86emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    void* r = my->SDL_RWFromFP(a, b);
-    return AddNativeRW(emu, (SDL1_RWops_t*)r);
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFP(a, b);
+    RWSetType(r, 2);
+    return AddNativeRW(emu, r);
 }
 void EXPORT *my_SDL_RWFromFile(x86emu_t* emu, void* a, void* b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    void* r = my->SDL_RWFromFile(a, b);
-    return AddNativeRW(emu, (SDL1_RWops_t*)r);
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFile(a, b);
+    RWSetType(r, 2);
+    return AddNativeRW(emu, r);
 }
 void EXPORT *my_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    void* r = my->SDL_RWFromMem(a, b);
-    return AddNativeRW(emu, (SDL1_RWops_t*)r);
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromMem(a, b);
+    RWSetType(r, 4);
+    return AddNativeRW(emu, r);
 }
 
 uint32_t EXPORT my_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
