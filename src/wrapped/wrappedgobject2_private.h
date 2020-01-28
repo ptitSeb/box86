@@ -122,7 +122,7 @@ GO(g_object_class_install_property, vFpup)
 GO(g_object_class_list_properties, pFpp)
 GO(g_object_class_override_property, vFpup)
 //GO(g_object_compat_control, 
-GO(g_object_connect, pFpppppppppppppppp)    //vaarg
+GOM(g_object_connect, pFEppV)
 GO(g_object_disconnect, vFpppppppppppppppp)   // caarg
 //GOM(g_object_dup_data, pFEppBp)
 //GOM(g_object_dup_qdata, pFEppBp)

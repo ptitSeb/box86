@@ -126,6 +126,30 @@ static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
     printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d);
 }
+static int signal_cb_5(void* a, void* b, void* c, void* d, my_signal_t* sig)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, d, sig->data);
+}
+static int signal_cb_swapped_5(my_signal_t* sig, void* b, void* c, void* d, void* e)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d, e);
+}
+static int signal_cb_6(void* a, void* b, void* c, void* d, void* e, my_signal_t* sig)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, d, e, sig->data);
+}
+static int signal_cb_swapped_6(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d, e, f);
+}
 static void signal_delete(my_signal_t* sig, void* b)
 {
     uintptr_t d = sig->destroy;
@@ -142,9 +166,48 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
 
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
-    uintptr_t ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
+    uintptr_t ret = 0;
+    if(strcmp((const char*)detailed, "query-tooltip")==0)
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "selection-get")==0)
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
+    else
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
+    
     printf_log(LOG_DEBUG, "Connecting gobject2 %p signal \"%s\" with sig=%p to %p, flags=%d\n", instance, (char*)detailed, sig, c_handler, flags);
     return ret;
+}
+
+EXPORT void* my_g_object_connect(x86emu_t* emu, void* object, void* signal_spec, void** b)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    char* spec = (char*)signal_spec;
+    while(spec) {
+        // loop on each triplet...
+        if(strstr(spec, "signal::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("signal::"), b[0], b[1], NULL, 0);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "swapped_signal::")==spec || strstr(spec, "swapped-signal::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal::"), b[0], b[1], NULL, 2);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "signal_after::")==spec || strstr(spec, "signal-after::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("signal_after::"), b[0], b[1], NULL, 1);
+            b+=2;
+            spec = (char*)*(b++);
+        } else if(strstr(spec, "swapped_signal_after::")==spec || strstr(spec, "swapped-signal-after::")==spec) {
+            my_g_signal_connect_data(emu, object, spec+strlen("swapped_signal_after::"), b[0], b[1], NULL, 1|2);
+            b+=2;
+            spec = (char*)*(b++);
+        } else {
+            printf_log(LOG_NONE, "Warning, don't know how to handle signal spec \"%s\" in g_object_connect\n", spec);
+            spec = NULL;
+        }
+    }
+    return object;
 }
 
 
@@ -279,6 +342,8 @@ EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags,
 {
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    printf_log(LOG_DEBUG, "g_signal_new for \"%s\", with offset=%d and %d args\n", (const char*)name, offset, n);
     
     void* cb_acc = findAccumulatorFct(acc);
     void* cb_marsh = findMarshalFct(marsh);
@@ -298,6 +363,8 @@ EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
+    printf_log(LOG_DEBUG, "g_signal_newv for \"%s\", with %d args\n", (const char*)name, n);
+    
     return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
 }
 
@@ -306,6 +373,8 @@ EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
+    printf_log(LOG_DEBUG, "g_signal_new_valist for \"%s\", with %d args\n", (const char*)name, n);
+    
     return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, b);
 }
 
