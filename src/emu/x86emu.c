@@ -70,10 +70,6 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);
-    // that should be enough
-    emu->scratch = (uint32_t*)calloc(200, sizeof(uint32_t));
-
-
     // if trace is activated
     if(context->x86trace) {
         emu->dec = InitX86TraceDecoder(context);
@@ -188,8 +184,6 @@ static void internalFreeX86(x86emu_t* emu)
     // call atexit and fini first!
     CallAllCleanup(emu);
     free(emu->cleanups);
-
-    free(emu->scratch);
 
     free(emu->stack);
 }
