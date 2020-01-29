@@ -21,6 +21,7 @@
 #include <sys/socket.h>
 #endif
 #include <sys/resource.h>
+#include <poll.h>
 
 #include "debug.h"
 #include "box86stack.h"
@@ -138,6 +139,7 @@ scwrap_t syscallwrap[] = {
     { 110, __NR_iopl, 1 },
 #endif
     { 114, __NR_wait4, 4 }, //TODO: check struct rusage alignment
+    { 117, __NR_ipc, 6 },
     //{ 119, __NR_sigreturn, 0},
     //{ 120, __NR_clone, 5 },    // need works
     //{ 122, __NR_uname, 1 },
@@ -157,7 +159,7 @@ scwrap_t syscallwrap[] = {
     { 158, __NR_sched_yield, 0 },
     { 162, __NR_nanosleep, 2 },
     { 164, __NR_setresuid, 3 },
-    { 168, __NR_poll, 3 },
+    //{ 168, __NR_poll, 3 },    // wrapped to allow SA_RESTART wrapping by libc
     { 172, __NR_prctl, 5 },
     //{ 173, __NR_rt_sigreturn, 0 },
     { 175, __NR_rt_sigprocmask, 4 },
@@ -457,6 +459,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     strcpy(old->machine, "i686");
                 }
             }
+            break;
+        case 168: // sys_poll
+            R_EAX = (uint32_t)poll((void*)R_EBX, R_ECX, (int)R_EDX);
             break;
         case 173: // sys_rt_sigreturn
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
