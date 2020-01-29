@@ -139,7 +139,9 @@ scwrap_t syscallwrap[] = {
     { 110, __NR_iopl, 1 },
 #endif
     { 114, __NR_wait4, 4 }, //TODO: check struct rusage alignment
+#ifdef __NR_ipc
     { 117, __NR_ipc, 6 },
+#endif
     //{ 119, __NR_sigreturn, 0},
     //{ 120, __NR_clone, 5 },    // need works
     //{ 122, __NR_uname, 1 },
