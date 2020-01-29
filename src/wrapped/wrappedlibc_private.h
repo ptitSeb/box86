@@ -614,7 +614,7 @@ GO(getwd, pFp)
 // __getwd_chk
 GO(getxattr, iFpppu)
 GOM(glob, iFEpipp)
-// glob64
+GOM(glob64, iFEpipp)
 GO(globfree, vFp)
 GO(globfree64, vFp)
 // glob_pattern_p   // Weak

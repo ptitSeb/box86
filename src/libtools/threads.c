@@ -197,12 +197,13 @@ static pthread_cond_t* add_cond(void* cond)
 	int ret;
 	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
 	pthread_cond_t *c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+	*(uint32_t*)cond = 0;
 	return c;
 }
 static pthread_cond_t* get_cond(void* cond)
 {
 	if(!mapcond)
-		return cond;
+		return (pthread_cond_t*)cond;
 	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 	if(k==kh_end(mapcond))
 		return (pthread_cond_t*)cond;
@@ -232,7 +233,7 @@ EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
-	del_cond(cond);
+	if(c!=cond) del_cond(cond);
 	return ret;
 }
 EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)

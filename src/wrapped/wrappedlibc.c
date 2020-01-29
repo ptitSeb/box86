@@ -792,6 +792,26 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     return r;
 }
 
+x86emu_t *glob64emu = NULL;   // issue with multi threads...
+static int glob64_errfnccallback(const char* epath, int no)
+{
+    if(glob64emu) {
+        SetCallbackArg(glob64emu, 0, (void*)epath);
+        SetCallbackArg(glob64emu, 1, (void*)no);
+        return (int32_t)RunCallback(glob64emu);
+    }
+    return 0;
+}
+EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pblog)
+{
+    if(errfnc)
+        globemu = AddSharedCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
+    int32_t r = glob64((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob64_t*)pblog);
+    if(glob64emu)
+        glob64emu = FreeCallback(glob64emu);
+    return r;
+}
+
 x86emu_t *scandir64emu1 = NULL;
 static int scandir64_selcb1(const struct dirent64* dir)
 {
