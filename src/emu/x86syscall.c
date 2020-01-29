@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <asm/stat.h>
 #include <errno.h>
 #include <sched.h>
@@ -49,6 +50,13 @@ int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
 int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
+// cannot include <fcntl.h>, it conflict with some asm includes...
+#ifndef O_NONBLOCK
+#define O_NONBLOCK 04000
+#endif
+#undef fcntl
+int fcntl(int fd, int cmd, ... /* arg */ );
+
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
     int x86s;
@@ -58,10 +66,10 @@ typedef struct scwrap_s {
 
 scwrap_t syscallwrap[] = {
     { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
-    { 3, __NR_read, 3 },
-    { 4, __NR_write, 3 },
+    //{ 3, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
+    //{ 4, __NR_write, 3 }, // same
     //{ 5, __NR_open, 3 },  // flags need transformation
-    { 6, __NR_close, 1 },
+    //{ 6, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
 #ifdef __NR_waitpid
     { 7, __NR_waitpid, 3 },
 #endif
@@ -84,8 +92,8 @@ scwrap_t syscallwrap[] = {
     { 47, __NR_getgid, 0 },
     { 49, __NR_geteuid, 0 },
     { 50, __NR_getegid, 0 },
-    { 54, __NR_ioctl, 5 },
-    { 55, __NR_fcntl, 3 },
+    //{ 54, __NR_ioctl, 5 },    // wrapped to allow SA_RESTART handling by libc
+    //{ 55, __NR_fcntl, 3 },    // wrapped to allow filter of F_SETFD
     { 60, __NR_umask, 1 },
     { 63, __NR_dup2, 2 },
     { 64, __NR_getppid, 0 },
@@ -166,7 +174,7 @@ scwrap_t syscallwrap[] = {
     { 202, __NR_getegid32, 0 },
     { 208, __NR_setresuid32, 3 },
     { 220, __NR_getdents64, 3 },
-    { 221, __NR_fcntl64, 3 },
+    //{ 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
@@ -281,10 +289,19 @@ void EXPORT x86Syscall(x86emu_t *emu)
             emu->exit = 1;
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
             break;
+        case 3:  // sys_read
+            R_EAX = (uint32_t)read((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
+            break;
+        case 4:  // sys_write
+            R_EAX = (uint32_t)write((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
+            break;
         case 5: // sys_open
             if(s==5) {printf_log(LOG_DUMP, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
-            R_EAX = syscall(__NR_open, (void*)R_EBX, of_convert(R_ECX), R_EDX);
-            //my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
+            //R_EAX = (uint32_t)open((void*)R_EBX, of_convert(R_ECX), R_EDX);
+            R_EAX = (uint32_t)my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
+            break;
+        case 6:  // sys_close
+            R_EAX = (uint32_t)close((int)R_EBX);
             break;
 #ifndef __NR_waitpid
         case 7: //sys_waitpid
@@ -305,6 +322,17 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = time(NULL);
             break;
 #endif
+        case 54: // sys_ioctl
+            R_EAX = (uint32_t)ioctl((int)R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+            break;
+        case 55: // sys_fcntl
+            if(R_ECX==4) {
+                // filter out O_NONBLOCK so old stacally linked games that access X11 don't get EAGAIN error sometimes
+                int tmp = of_convert((int)R_EDX)&(~O_NONBLOCK);
+                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, tmp);
+            } else
+                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
+            break;
 #ifndef __NR_getrlimit
         case 76:    // sys_getrlimit... this is the old version, using the new one. Maybe some tranform is needed?
             R_EAX = getrlimit(R_EBX, (void*)R_ECX);
@@ -460,6 +488,13 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
+            break;
+        case 221: // sys_fcntl64
+            if(R_ECX==4) {
+                int tmp = of_convert((int)R_EDX);
+                R_EAX = (uint32_t)fcntl((int)R_EBX, R_ECX, tmp);
+            } else
+                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
             break;
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);

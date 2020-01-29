@@ -232,10 +232,9 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     newemu->mxcsr = emu->mxcsr;
-    memcpy(&newemu->zero, &emu->zero, sizeof(emu->zero));
-    memcpy(newemu->sbiidx, emu->sbiidx, sizeof(emu->sbiidx));
     newemu->quit = emu->quit;
     newemu->error = emu->error;
+    SetTraceEmu(newemu, emu->trace_start, emu->trace_end);
     // addapt R_ESP to new stack frame
     uintptr_t oldst = (uintptr_t)((emu->stack)?emu->stack:emu->context->stack);
     uintptr_t newst = (uintptr_t)((newemu->stack)?newemu->stack:newemu->context->stack);
