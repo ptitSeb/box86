@@ -26,6 +26,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t opcode = F8;
     uint8_t nextop;
     int32_t i32;
+    uint32_t u32;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     int fixedaddress;
