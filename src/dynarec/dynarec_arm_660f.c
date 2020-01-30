@@ -1218,6 +1218,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMULL_U64_U32(v0, q0, q1);
             break;
 
+        case 0xF8:
+            INST_NAME("PSUBB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VSUBQ_8(v0, v0, q0);
+            break;
         case 0xF9:
             INST_NAME("PSUBW Gx,Ex");
             nextop = F8;
