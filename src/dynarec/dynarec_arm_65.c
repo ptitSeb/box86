@@ -42,6 +42,19 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UFLAGS(0);
             break;
 
+        case 0x89:
+            grab_tlsdata(dyn, addr, ninst, x12);
+            INST_NAME("MOV GS:Ed, Gd");
+            nextop=F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {   // reg <= reg
+                MOV_REG(xEAX+(nextop&7), gd);
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                STR_REG_LSL_IMM5(gd, ed, x12, 0);
+            }
+            break;
+
         case 0x8B:
             grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("MOV Gd, GS:Ed");
@@ -67,6 +80,32 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDR_IMM9(xEAX, x1, 0);
             }
             break;
+
+        case 0xA3:
+            grab_tlsdata(dyn, addr, ninst, x1);
+            INST_NAME("MOV GS:Od, EAX");
+            u32 = F32;
+            MOV32(x2, u32);
+            ADD_REG_LSL_IMM5(x2, x1, x2, 0);
+            STR_IMM9(xEAX, x2, 0);
+            break;
+
+        case 0xC7:
+            grab_tlsdata(dyn, addr, ninst, x12);
+            INST_NAME("MOV GS:Ed, Id");
+            nextop=F8;
+            if((nextop&0xC0)==0xC0) {   // reg <= i32
+                i32 = F32S;
+                ed = xEAX+(nextop&7);
+                MOV32(ed, i32);
+            } else {                    // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                i32 = F32S;
+                MOV32(x3, i32);
+                STR_REG_LSL_IMM5(x3, ed, x12, 0);
+            }
+            break;
+
         default:
             *ok = 0;
             DEFAULT;
