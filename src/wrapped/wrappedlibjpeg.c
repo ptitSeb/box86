@@ -28,6 +28,7 @@ static bridge_t* my_bridge = NULL;
 typedef void*   (*pFp_t)    (void*);
 typedef int     (*iFp_t)    (void*);
 typedef int     (*iFpi_t)   (void*, int);
+typedef void    (*vFpip_t)  (void*, int, void*);
 typedef void    (*vFpiL_t)  (void*, int, unsigned long);
 typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
 
@@ -37,7 +38,8 @@ typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
     GO(jpeg_start_decompress, iFp_t)    \
     GO(jpeg_read_scanlines, uFppu_t)    \
     GO(jpeg_finish_decompress, iFp_t)   \
-    GO(jpeg_std_error, pFp_t)
+    GO(jpeg_std_error, pFp_t)           \
+    GO(jpeg_set_marker_processor, vFpip_t)
 
 typedef struct jpeg_my_s {
     // functions
@@ -257,6 +259,29 @@ static void* is_reset_error_mgrFct(void* fct)
     return NULL;
 }
 
+// jpeg_marker_parser_method
+#define GO(A)   \
+static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
+static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
+{                                       \
+    return (int)RunFunction(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+}
+SUPER()
+#undef GO
+static void* findjpeg_marker_parser_methodFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_jpeg_marker_parser_method_fct_##A == (uintptr_t)fct) return my_jpeg_marker_parser_method_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_jpeg_marker_parser_method_fct_##A == 0) {my_jpeg_marker_parser_method_fct_##A = (uintptr_t)fct; return my_jpeg_marker_parser_method_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng12 jpeg_marker_parser_method callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 #define SUPER() \
@@ -370,6 +395,17 @@ EXPORT int my_jpeg_finish_decompress(x86emu_t* emu, jpeg_common_struct_t* cinfo)
     int ret = my->jpeg_finish_decompress(cinfo);
     wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
     return ret;
+}
+
+EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* cinfo, int marker, void* routine)
+{
+    library_t * lib = GetLib(emu->context->maplib, libname);
+    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
+
+    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    my_jpegcb_emu = emu;
+    my->jpeg_set_marker_processor(cinfo, marker, findjpeg_marker_parser_methodFct(routine));
+    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
 }
 
 #define CUSTOM_INIT \
