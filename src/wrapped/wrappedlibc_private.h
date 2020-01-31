@@ -53,15 +53,15 @@ DATA(argp_err_exit_status, 4)
 // __argz_count
 // argz_count   // Weak
 // argz_create  // Weak
-// argz_create_sep  // Weak
+GOW(argz_create_sep, iFpipp)
 // argz_delete
 // argz_extract // Weak
-// argz_insert  // Weak
+GOW(argz_insert, iFpppp)
 // __argz_next
-// argz_next    // Weak
+GOW(argz_next, pFpLp)
 // argz_replace // Weak
 // __argz_stringify
-// argz_stringify   // Weak
+GOW(argz_stringify, vFpLi)
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
 GOM(asprintf, iFEppVV) // Weak
