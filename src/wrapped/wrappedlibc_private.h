@@ -848,7 +848,7 @@ GO(isalnum, iFi)
 GO(isalpha, iFi)
 // __isalpha_l
 // isalpha_l    // Weak
-// isascii
+GO(isascii, iFi)
 // __isascii_l  // Weak
 // isastream
 GOW(isatty, iFi)
