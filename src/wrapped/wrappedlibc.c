@@ -1405,6 +1405,14 @@ EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
     return (size<=(65536*4));
 }
 
+#ifndef NOALIGN
+// wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
+EXPORT void* my_malloc(unsigned long size)
+{
+    return calloc(1, size);
+}
+#endif
+
 #define CUSTOM_INIT \
     InitCpuModel(); \
     ctSetup(); \

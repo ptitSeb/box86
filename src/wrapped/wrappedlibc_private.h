@@ -1048,7 +1048,11 @@ GOM(__lxstat64, iFEipp)
 GO(madvise, iFpui)
 GOM(makecontext, iFEppiV)
 GOW(mallinfo, pFv)
-GO(malloc, pFu)
+#ifdef NOALIGN
+GO(malloc, pFL)
+#else
+GOM(malloc, pFL)
+#endif
 // malloc_get_state // Weak
 DATAV(__malloc_hook, 4)
 DATAV(__malloc_initialize_hook, 4)
