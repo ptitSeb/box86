@@ -25,7 +25,6 @@
 #include "bridge.h"
 #include "khash.h"
 
-
 static box86context_t *my_context = NULL;
 
 // kh_ftsent_t store each ftsent conversion from native -> x86
@@ -116,13 +115,15 @@ x86_ftsent_t* getFtsent(kh_ftsent_t* ftsentMap, FTSENT* ftsent, int dolink)
     x86_ftsent_t *x86ftsent = kh_value(ftsentMap, k) = (x86_ftsent_t*)malloc(sizeof(x86_ftsent_t));
     UnalignFTSENT(x86ftsent, ftsent);   // unalign
     // handle the 3 embedded ftsent...
-    if(ftsent->fts_info & FTS_DC)
-        x86ftsent->fts_cycle = getFtsent(ftsentMap, ftsent->fts_cycle, dolink);
-    if(ftsent->fts_level>=0)
-        x86ftsent->fts_parent = getFtsent(ftsentMap, ftsent->fts_parent, dolink);
-    if(dolink)
-        x86ftsent->fts_link = getFtsent(ftsentMap, ftsent->fts_link, dolink);
-
+    if(ftsent->fts_info<=14 && ftsent->fts_info!=7) {   //14 is max value, 7 is err
+        if(ftsent->fts_info == FTS_DC)
+            x86ftsent->fts_cycle = getFtsent(ftsentMap, ftsent->fts_cycle, dolink);
+        if(ftsent->fts_level>=0) {
+            x86ftsent->fts_parent = getFtsent(ftsentMap, ftsent->fts_parent, dolink);
+            if(dolink)
+                x86ftsent->fts_link = getFtsent(ftsentMap, ftsent->fts_link, dolink);
+        }
+    }
     return x86ftsent;
 }
 
