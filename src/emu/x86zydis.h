@@ -929,6 +929,9 @@ typedef struct ZydisFormatter_
      * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_DECORATOR` function.
      */
     ZydisFormatterDecoratorFunc func_print_decorator;
+
+    // ummy padding, in case the structure growth...
+    uint32_t    padding[20];
 } ZydisFormatter;
 
 /**
