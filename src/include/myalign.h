@@ -221,3 +221,29 @@ typedef struct my_SMPEG_Info_s {
     double current_time;
     double total_time;
 } my_SMPEG_Info_t;
+
+typedef struct  __attribute__((packed)) x86_ftsent_s {
+        struct x86_ftsent_s *fts_cycle;
+        struct x86_ftsent_s *fts_parent;
+        struct x86_ftsent_s *fts_link;
+        long fts_number;
+        void *fts_pointer;
+        char *fts_accpath;
+        char *fts_path;
+        int fts_errno;
+        int fts_symfd;
+        uint16_t fts_pathlen;
+        uint16_t fts_namelen;
+        uintptr_t fts_ino;
+        uint64_t fts_dev;
+        uint32_t fts_nlink;
+        int16_t fts_level;
+        uint16_t fts_info;
+        uint16_t fts_flags;
+        uint16_t fts_instr;
+        struct stat *fts_statp;
+        char fts_name[1];
+} x86_ftsent_t;
+
+void UnalignFTSENT(void* dest, void* source); // Arm -> x86
+void AlignFTSENT(void* dest, void* source);   // x86 -> Arm

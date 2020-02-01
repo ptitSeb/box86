@@ -15,6 +15,7 @@
 #include "library.h"
 #include "callback.h"
 #include "wrapper.h"
+#include "myfts.h"
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
@@ -116,6 +117,7 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_mmap, NULL);
     context->dynablocks = NewDynablockList(0, 0, 0);
 #endif
+    InitFTSMap(context);
 
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
@@ -131,6 +133,8 @@ void FreeBox86Context(box86context_t** context)
     
     if(--(*context)->forked >= 0)
         return;
+
+    FreeFTSMap(*context);
 
     if((*context)->maplib)
         FreeLibrarian(&(*context)->maplib);

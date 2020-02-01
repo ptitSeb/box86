@@ -157,10 +157,11 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/emu/x87emu_private.c"
     "${BOX86_ROOT}/src/emu/x87run.c"
     "${BOX86_ROOT}/src/libtools/myalign.c"
-    "${BOX86_ROOT}/src/libtools/threads.c"
+    "${BOX86_ROOT}/src/libtools/myfts.c"
     "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
     "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX86_ROOT}/src/libtools/signals.c"
+    "${BOX86_ROOT}/src/libtools/threads.c"
     "${BOX86_ROOT}/src/dynarec/dynarec.c"
     "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )

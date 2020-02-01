@@ -5,6 +5,7 @@
 #include <asm/stat.h>
 #include <wchar.h>
 #include <sys/epoll.h>
+#include <fts.h>
 
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
@@ -676,5 +677,51 @@ void AlignSmpegInfo(void* dest, void* source)
     #define GOM(A, S) memcpy(&((my_SMPEG_Info_t*)dest)->A, &((x86_SMPEG_Info_t*)source)->A, S);
     TRANSFERT
     #undef GO
+    #undef GOM
+}
+#undef TRANSFERT
+
+#define TRANSFERT   \
+GOV(fts_cycle)      \
+GOV(fts_parent)     \
+GOV(fts_link)       \
+GO(fts_number)      \
+GO(fts_pointer)     \
+GO(fts_accpath)     \
+GO(fts_path)        \
+GO(fts_errno)       \
+GO(fts_symfd)       \
+GO(fts_pathlen)     \
+GO(fts_namelen)     \
+GO(fts_ino)         \
+GO(fts_dev)         \
+GO(fts_nlink)       \
+GO(fts_level)       \
+GO(fts_info)        \
+GO(fts_flags)       \
+GO(fts_instr)       \
+GO(fts_statp)       \
+GOM(fts_name, sizeof(void*))
+
+// Arm -> x86
+void UnalignFTSENT(void* dest, void* source)
+{
+    #define GO(A) ((x86_ftsent_t*)dest)->A = ((FTSENT*)source)->A;
+    #define GOV(A) ((x86_ftsent_t*)dest)->A = (void*)((FTSENT*)source)->A;
+    #define GOM(A, S) memcpy(&((x86_ftsent_t*)dest)->A, &((FTSENT*)source)->A, S);
+    TRANSFERT
+    #undef GO
+    #undef GOV
+    #undef GOM
+}
+// x86 -> Arm
+void AlignFTSENT(void* dest, void* source)
+{
+    #define GO(A) ((FTSENT*)dest)->A = ((x86_ftsent_t*)source)->A;
+    #define GOV(A) ((FTSENT*)dest)->A = (void*)((x86_ftsent_t*)source)->A;
+    #define GOM(A, S) memcpy(&((FTSENT*)dest)->A, &((x86_ftsent_t*)source)->A, S);
+    TRANSFERT
+    #undef GO
+    #undef GOV
     #undef GOM
 }

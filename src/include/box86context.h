@@ -14,6 +14,7 @@ typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct callbacklist_s callbacklist_t;
 typedef struct library_s library_t;
+typedef struct kh_fts_s kh_fts_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
     uintptr_t parent;
@@ -122,6 +123,9 @@ typedef struct box86context_s {
     dynablocklist_t     *dynablocks;
     mmaplist_t          *mmaplist;
     int                 mmapsize;
+#endif
+#ifndef NOALIGN
+    kh_fts_t            *ftsmap;
 #endif
 
     int                 forked;         //  how many forks... cleanup only when < 0

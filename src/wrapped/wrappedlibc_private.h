@@ -419,10 +419,10 @@ GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
 GOW(ftruncate64, iFiU)
 GOW(ftrylockfile, iFp)
-// fts_children
-// fts_close
-// fts_open
-GO(fts_read, pFp)
+GOM(fts_children, pFEpi)
+GOM(fts_close, iFEp)
+GOM(fts_open, pFEpip)
+GOM(fts_read, pFEp)
 // fts_set
 // ftw
 GOM(ftw64, iFEppi)

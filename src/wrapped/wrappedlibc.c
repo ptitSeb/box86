@@ -151,6 +151,8 @@ int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2);
 
 // All signal and context functions defined in signals.c
 
+// All fts function defined in myfts.c
+
 // this one is defined in elfloader.c
 int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data);
 
