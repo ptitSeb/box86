@@ -36,7 +36,7 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz)
     ret->base = base;
     ret->text = text;
     ret->textsz = textsz;
-    pthread_mutex_init(&ret->mutex_blocks, NULL);
+    pthread_rwlock_init(&ret->rwlock_blocks, NULL);
 
     return ret;
 }
@@ -58,7 +58,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         free((*dynablocks)->direct);
     (*dynablocks)->direct = 0;
 
-    pthread_mutex_destroy(&(*dynablocks)->mutex_blocks);
+    pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
 
     free(*dynablocks);
     *dynablocks = NULL;
@@ -124,13 +124,13 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
         block = dynablocks->direct[addr-dynablocks->text];
     if(block)
         return block;
-    // nope, put mutex and check hash
-    pthread_mutex_lock(&dynablocks->mutex_blocks);
+    // nope, put rwlock in read mode and check hash
+    pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
     // but first, check again just in case it has been created while waiting for mutex
     if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
         block = dynablocks->direct[addr-dynablocks->text];
     if(block) {
-        pthread_mutex_unlock(&dynablocks->mutex_blocks);
+        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
         return block;
     }
     // check if the block exist
@@ -139,14 +139,16 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     if(k!=kh_end(dynablocks->blocks)) {
         /*atomic_store(&dynalock, 0);*/
         block = kh_value(dynablocks->blocks, k);
-        pthread_mutex_unlock(&dynablocks->mutex_blocks);
+        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
         return block;
     }
+    // unlock now
+    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
     // Blocks doesn't exist. If creation is not allow, just return NULL
-    if(!create) {
-        pthread_mutex_unlock(&dynablocks->mutex_blocks);
+    if(!create)
         return block;
-    }
+    // Lock as write now!
+    pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
     if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
@@ -157,7 +159,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
         if(!ret) {
             // Ooops, block is already there? retreive it and bail out
             block = kh_value(dynablocks->blocks, k);    
-            pthread_mutex_unlock(&dynablocks->mutex_blocks);
+            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             return block;
         }
         block = kh_value(dynablocks->blocks, k) = (dynablock_t*)calloc(1, sizeof(dynablock_t));
@@ -167,7 +169,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     }
     block->parent = dynablocks;
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    pthread_mutex_unlock(&dynablocks->mutex_blocks);
+    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
 
     // fill the block
     FillBlock(emu, block, addr);
