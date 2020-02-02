@@ -20,6 +20,7 @@
 #include "x86emu.h"
 #include "box86stack.h"
 #include "callback.h"
+#include "dynarec.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -636,13 +637,13 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     Push32(emu, (uintptr_t)context->envv);
     Push32(emu, (uintptr_t)context->argv);
     Push32(emu, context->argc);
-    EmuCall(emu, p);
+    DynaCall(emu, p);
     printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        EmuCall(emu, (uintptr_t)addr[i]);
+        DynaCall(emu, (uintptr_t)addr[i]);
     }
     Pop32(emu);
     Pop32(emu);
@@ -676,12 +677,12 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
     Push32(emu, (uintptr_t)GetEmuContext(emu)->envv);
     Push32(emu, (uintptr_t)GetEmuContext(emu)->argv);
     Push32(emu, GetEmuContext(emu)->argc);
-    EmuCall(emu, p);
+    DynaCall(emu, p);
     // and check fini array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
     for (int i=0; i<h->finiarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        EmuCall(emu, (uintptr_t)addr[i]);
+        DynaCall(emu, (uintptr_t)addr[i]);
     }
     SetESP(emu, sESP);
     h->fini_done = 1;
