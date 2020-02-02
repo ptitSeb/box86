@@ -604,20 +604,24 @@ _trace:
         _0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
             GET_EB;
-            pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             tmp8u = GB;
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
-            pthread_mutex_unlock(&emu->context->mutex_lock);
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
             NEXT;
         _0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
             GET_ED;
-            pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             tmp32u = GD.dword[0];
             GD.dword[0] = ED->dword[0];
             ED->dword[0] = tmp32u;
-            pthread_mutex_unlock(&emu->context->mutex_lock);
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
             NEXT;
         _0x88:                      /* MOV Eb,Gb */
             nextop = F8;
