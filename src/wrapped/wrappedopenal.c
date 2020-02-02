@@ -111,12 +111,12 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         return (void*)ret; // already bridged
     // get wrapper    
     khint_t k = kh_get(symbolmap, emu->context->alwrappers, rname);
-    if(k==kh_end(emu->context->glwrappers)) {
+    if(k==kh_end(emu->context->alwrappers)) {
         // try again, by using custom "my_" now...
         char tmp[200];
         strcpy(tmp, "my_");
         strcat(tmp, rname);
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
+        k = kh_get(symbolmap, emu->context->alwrappers, tmp);
     }
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
@@ -137,12 +137,18 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
     void* symbol = my->alcGetProcAddress(device, name);
     if(!symbol)
         return NULL;    // easy
-    // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret)
         return (void*)ret; // already bridged
     // get wrapper    
     khint_t k = kh_get(symbolmap, emu->context->alwrappers, rname);
+    if(k==kh_end(emu->context->alwrappers)) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        k = kh_get(symbolmap, emu->context->alwrappers, tmp);
+    }
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
