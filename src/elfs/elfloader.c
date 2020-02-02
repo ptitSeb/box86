@@ -932,7 +932,7 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     return 0;
 }
 
-void ResetSecialCaseMainElf(elfheader_t* h)
+void ResetSpecialCaseMainElf(elfheader_t* h)
 {
     Elf32_Sym *sym = NULL;
      for (int i=0; i<h->numDynSym; ++i) {

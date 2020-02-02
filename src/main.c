@@ -609,7 +609,7 @@ int main(int argc, const char **argv, const char **env) {
     // defered init
     RunDeferedElfInit(context->emu);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
-    ResetSecialCaseMainElf(elf_header);
+    ResetSpecialCaseMainElf(elf_header);
     // init...
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE");
