@@ -1,10 +1,18 @@
 Current version
 =======
-* Dynarec!!! Only for ARM
-* added real support for getcontext/set/context/makecontext/swapcontext
+* Dynarec!!! Only for ARM (note that dynarec doesn't support JITed code for now)
+* Added real support for getcontext/set/context/makecontext/swapcontext
 * Preliminary signal handling
 * Fixes to SDL(1/2) Image and SDL1 Mixer, and to SDL1.2 RWops usage
 * Fixed numerous issues in opcodes (both interpretor and dynarec). FTL works fine now, among many others
+* Added wrapped gtk support (still ongoing, many libs involved)
+* Make loading of libs more configurable
+* If a wrapped native libs is not found, try to use emulated one
+* Add en env. var. to force use of emulated lib for certain libs
+* Add an env. var. to define wich libGL to use
+* Added Install / Uninstall target (using systemd binfmt)
+* Added more hardware target (RPis, GameShell...)
+* Wrapped more libs (including FreeType, smpeg, ncurses, sndfile...)
 
 v0.0.4
 =======
