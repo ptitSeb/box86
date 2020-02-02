@@ -165,6 +165,7 @@ void freeX11My(void* lib)
     x11_my_t *my = (x11_my_t *)lib;
 }
 
+static box86context_t *my_context = NULL;
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
@@ -668,28 +669,7 @@ EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* 
 }
 #endif
 
-#define GO(A)   \
-static x86emu_t* wire_to_event_cb_##A = NULL;   \
-static int my_WireToEvent_CB_##A (void* dpy, void* re, void* event) \
-{   \
-    if(!wire_to_event_cb_##A)   \
-        return 0;   \
-    SetCallbackArg(wire_to_event_cb_##A, 0, dpy); \
-    SetCallbackArg(wire_to_event_cb_##A, 1, re); \
-    SetCallbackArg(wire_to_event_cb_##A, 2, event); \
-    return RunCallback(wire_to_event_cb_##A);   \
-}   \
-static x86emu_t* event_to_wire_cb_##A = NULL;   \
-static int my_EventToWire_CB_##A(void* dpy, void* re, void* event)  \
-{ \
-    if(!event_to_wire_cb_##A)   \
-        return 0;   \
-    SetCallbackArg(event_to_wire_cb_##A, 0, dpy);   \
-    SetCallbackArg(event_to_wire_cb_##A, 1, re);    \
-    SetCallbackArg(event_to_wire_cb_##A, 2, event); \
-    return RunCallback(event_to_wire_cb_##A);   \
-}
-#define SUPERGO() \
+#define SUPER() \
 GO(0)   \
 GO(1)   \
 GO(2)   \
@@ -707,52 +687,60 @@ GO(13)  \
 GO(14)  \
 GO(15)  
 
-SUPERGO()
+// wire_to_event
+#define GO(A)   \
+static uintptr_t my_wire_to_event_fct_##A = 0;                      \
+static int my_wire_to_event_##A(void* dpy, void* re, void* event)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_wire_to_event_fct_##A, 3, dpy, re, event);\
+}
+SUPER()
 #undef GO
-static void* getNextWireToEvent(x86emu_t* emu)
+static void* findwire_to_eventFct(void* fct)
 {
-    #define GO(A)   \
-    if(!wire_to_event_cb_##A) { \
-        wire_to_event_cb_##A = emu; \
-        return my_WireToEvent_CB_##A; \
-    }
-    SUPERGO()
-    return NULL;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_wire_to_event_fct_##A == (uintptr_t)fct) return my_wire_to_event_##A;
+    SUPER()
     #undef GO
+    #define GO(A) if(my_wire_to_event_fct_##A == 0) {my_wire_to_event_fct_##A = (uintptr_t)fct; return my_wire_to_event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 wire_to_event callback\n");
+    return NULL;
 }
-static void* getNextEventToWire(x86emu_t* emu)
+// event_to_wire
+#define GO(A)   \
+static uintptr_t my_event_to_wire_fct_##A = 0;                      \
+static int my_event_to_wire_##A(void* dpy, void* re, void* event)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_event_to_wire_fct_##A, 3, dpy, re, event);\
+}
+SUPER()
+#undef GO
+static void* findevent_to_wireFct(void* fct)
 {
-    #define GO(A)   \
-    if(!event_to_wire_cb_##A) { \
-        event_to_wire_cb_##A = emu; \
-        return my_EventToWire_CB_##A; \
-    }
-    SUPERGO()
-    return NULL;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_event_to_wire_fct_##A == (uintptr_t)fct) return my_event_to_wire_##A;
+    SUPER()
     #undef GO
+    #define GO(A) if(my_event_to_wire_fct_##A == 0) {my_event_to_wire_fct_##A = (uintptr_t)fct; return my_event_to_wire_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 event_to_wire callback\n");
+    return NULL;
 }
+
 
 EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
-    printf_log(LOG_INFO, "BOX86: Warning, called partly implemented XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
-
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     void* ret = NULL;
-    // check if putting things back...
-    if(GetNativeFnc((uintptr_t)proc)) {
-        ret = my->XESetWireToEvent(display, event_number, GetNativeFnc((uintptr_t)proc));
-        //wire_to_event_cb = NULL;
-    } else {
-        x86emu_t *cb_emu = AddCallback(emu, (uintptr_t)proc, 3, NULL, NULL, NULL, NULL);
-        void* ptr = getNextWireToEvent(cb_emu);
-        if(!ptr) {
-            printf_log(LOG_NONE, "BOX86: Error, to many call to XESetWireToEvent(%p, %d, %p)\n", display, event_number, proc);
-            emu->quit = 1;
-            return NULL;
-        }
-        ret = my->XESetWireToEvent(display, event_number, ptr);
-    }
+
+    ret = my->XESetWireToEvent(display, event_number, findwire_to_eventFct(proc));
+
     uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
     if(!b)
         b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
@@ -760,24 +748,12 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 }
 EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
-    printf_log(LOG_INFO, "BOX86: Warning, called partly implemented XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
     void* ret = NULL;
-    // check if putting things back...
-    if(GetNativeFnc((uintptr_t)proc)) {
-        ret = my->XESetEventToWire(display, event_number, GetNativeFnc((uintptr_t)proc));
-        //event_to_wire_cb = NULL;
-    } else {
-        x86emu_t *emu_cb = AddCallback(emu, (uintptr_t)proc, 3, NULL, NULL, NULL, NULL);
-        void* ptr = getNextEventToWire(emu_cb);
-        if(!ptr) {
-            printf_log(LOG_NONE, "BOX86: Error, to many call to XESetEventToWire(%p, %d, %p)\n", display, event_number, proc);
-            emu->quit = 1;
-            return NULL;
-        }
-        ret = my->XESetEventToWire(display, event_number, ptr);
-    }
+
+    ret = my->XESetEventToWire(display, event_number, findevent_to_wireFct(proc));
+
     uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
     if(!b)
         b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
@@ -801,8 +777,9 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
     return ret;
 }
 
-#define CUSTOM_INIT \
-    box86->x11lib = lib; \
+#define CUSTOM_INIT                 \
+    box86->x11lib = lib;            \
+    my_context = box86;             \
     lib->priv.w.p2 = getX11My(lib); \
     if(x11threads) ((x11_my_t*)lib->priv.w.p2)->XInitThreads();
 
