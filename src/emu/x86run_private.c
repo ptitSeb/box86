@@ -606,6 +606,20 @@ uintptr_t GetGSBaseEmu(x86emu_t* emu)
 #ifdef HAVE_TRACE
 extern uint64_t start_cnt;
 #define PK(a)   *(uint8_t*)(ip+a)
+#define PK32(a)   *(uint32_t*)(uint8_t*)(ip+a)
+
+static void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
+{
+    uint32_t sz = 0;
+    uintptr_t start = 0;
+    const char* symbname = FindNearestSymbolName(FindElfAddress(emu->context, nextaddr), (void*)nextaddr, &start, &sz);
+    if(symbname && nextaddr>=start && nextaddr<(start+sz)) {
+        if(nextaddr==start)
+            printf_log(LOG_NONE, " (%s%s)", text, symbname);
+        else
+            printf_log(LOG_NONE, " (%s%s + 0x%x)", text, symbname, nextaddr - start);
+    }
+}
 
 void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
 {
@@ -640,8 +654,18 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             uint8_t peek = PK(0);
             if(peek==0xC3 || peek==0xC2) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
+                printFunctionAddr(emu, *(uintptr_t*)(R_ESP), "=> ");
             } else if(peek==0x55) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
+                printFunctionAddr(emu, ip, "here: ");
+            } else if(peek==0xE8) { // Call
+                uintptr_t nextaddr = ip + PK32(1);
+                printFunctionAddr(emu, nextaddr, "=> ");
+            } else if(peek==0xFF) {
+                if(PK(1)==0x25) {
+                    uintptr_t nextaddr = ip + PK32(2);
+                    printFunctionAddr(emu, nextaddr, "=> ");
+                }
             }
             printf_log(LOG_NONE, "\n");
         }
