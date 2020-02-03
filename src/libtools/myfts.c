@@ -175,7 +175,7 @@ EXPORT void* my_fts_read(x86emu_t* emu, void* ftsp)
 EXPORT void* my_fts_children(x86emu_t* emu, void* ftsp, int options)
 {
     #ifdef NOALIGN
-    return fts_children(ftsp, options)
+    return fts_children(ftsp, options);
     #else
     return getFtsent(getFtsentMap(emu->context, ftsp), fts_children(ftsp, options), 1);
     #endif
