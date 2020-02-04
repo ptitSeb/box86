@@ -99,7 +99,15 @@ void SetupInitialStack(box86context_t *context)
 
     // push the AuxVector themselves
     Push(emu, 0); Push(emu, 0);         //AT_NULL(0)=0
-    Push(emu, p_386); Push(emu, 15);    //AT_PLATFORM(15)=p_386
+    Push(emu, p_386); Push(emu, 15);    //AT_PLATFORM(15)=p_386*
+    Push(emu, 0); Push(emu, 66);        //AT_HWCAP2(26)=0
+    // Push HWCAP:
+    //  FPU: 1<<0 ; VME: 1<<1 ; DE : 1<<2 ; PSE: 1<<3 ; TSC: 1<<4
+    //  MSR: 1<<5 : PAE: 1<<6 : MCE: 1<<7 ; CX8: 1<<8 : APIC:1<<9
+    //  SEP: 1<<11: MTRR:1<<12: PGE: 1<<13: MCA: 1<<14; CMOV:1<<15; FCMOV: 1<<16
+    //  MMX: 1<<23:OSFXR:1<<24: XMM: 1<<25:XMM2: 1<<26;AMD3D:1<<31
+    Push(emu, (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<8)  | (1<<15) | (1<<16) | (1<<23) | (1<<25) | (1<<26));
+    Push(emu, 16);                      //AT_HWCAP(16)=...
     Push(emu, p_arg0); Push(emu, 31);   //AT_EXECFN(31)=p_arg0
     Push(emu, p_random); Push(emu, 25); //AT_RANDOM(25)=p_random
     Push(emu, 0); Push(emu, 23);        //AT_SECURE(23)=0
