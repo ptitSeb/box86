@@ -1,4 +1,4 @@
-Current version
+v0.1.0
 =======
 * Dynarec!!! Only for ARM (note that dynarec doesn't support JITed code for now)
 * Added real support for getcontext/set/context/makecontext/swapcontext
