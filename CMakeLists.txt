@@ -36,7 +36,8 @@ endif()
 
 # Gameshell
 if(GAMESHELL)
-    add_definitions(-mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard -marm)
+    add_definitions(-marm -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard)
+    set(CMAKE_ASM_FLAGS  "-marm -mcpu=cortex-a7 -mfpu=neon-vfpv4 -mfloat-abi=hard")
     set(ARM_DYNAREC ON)
     set(LD80BITS OFF)
     set(NOALIGN OFF)
