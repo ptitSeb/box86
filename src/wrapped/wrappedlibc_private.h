@@ -2111,7 +2111,6 @@ GOM(_Jv_RegisterClasses, vFv)   // dummy
 GOM(__fdelt_chk, iFi)
 
 GOM(getauxval, uFEu)  // implemented since glibc 2.16
-//GO(getauxval, uFu)
 
 GOM(prlimit64, lFpupp)
 GOM(reallocarray, pFpLL)

@@ -44,6 +44,7 @@
 #include "myalign.h"
 #include "signals.h"
 #include "fileutils.h"
+#include "auxval.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -152,6 +153,9 @@ int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2);
 // All signal and context functions defined in signals.c
 
 // All fts function defined in myfts.c
+
+// getauxval implemented in auxval.c
+
 
 // this one is defined in elfloader.c
 int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data);
@@ -1285,12 +1289,6 @@ int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
     jpbuff->save_eip = *(uint32_t*)(R_ESP);
     // and that's it.. Nothing more for now
     return 0;
-}
-
-EXPORT uint32_t my_getauxval(x86emu_t* emu, uint32_t type)
-{
-    printf_log(LOG_INFO, "Warning, getauxval(%d) called\n", type);
-    return ENOENT;
 }
 
 EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)

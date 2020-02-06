@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "emu/x86emu_private.h"
 #include "emu/x86run_private.h"
+#include "auxval.h"
 
 int CalcStackSize(box86context_t *context)
 {
@@ -111,12 +112,14 @@ void SetupInitialStack(box86context_t *context)
     Push(emu, p_arg0); Push(emu, 31);   //AT_EXECFN(31)=p_arg0
     Push(emu, p_random); Push(emu, 25); //AT_RANDOM(25)=p_random
     Push(emu, 0); Push(emu, 23);        //AT_SECURE(23)=0
-    Push(emu, 1000); Push(emu, 14);     //AT_EGID(14)=1000 TODO
-    Push(emu, 1000); Push(emu, 13);     //AT_GID(13)=1000 TODO
-    Push(emu, 1000); Push(emu, 12);     //AT_EUID(12)=1000 TODO
-    Push(emu, 1000); Push(emu, 11);     //AT_UID(11)=1000 TODO
+    Push(emu, real_getauxval(14)); Push(emu, 14);     //AT_EGID(14)
+    Push(emu, real_getauxval(13)); Push(emu, 13);     //AT_GID(13)
+    Push(emu, real_getauxval(12)); Push(emu, 12);     //AT_EUID(12)
+    Push(emu, real_getauxval(11)); Push(emu, 11);     //AT_UID(11)
     Push(emu, R_EIP); Push(emu, 9);     //AT_ENTRY(9)=entrypoint
     Push(emu, 0/*context->vsyscall*/); Push(emu, 32);      //AT_SYSINFO(32)=vsyscall
+    if(!emu->context->auxval_start)       // store auxval start if needed
+        emu->context->auxval_start = (uintptr_t*)R_ESP;
     // TODO: continue
 
     // push nil / envs / nil / args / argc

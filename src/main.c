@@ -28,6 +28,7 @@
 #include "x86trace.h"
 #include "librarian.h"
 #include "library.h"
+#include "auxval.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
 #ifdef DYNAREC
@@ -388,6 +389,7 @@ void LoadEnvVars(box86context_t *context)
 #ifndef BUILD_LIB
 int main(int argc, const char **argv, const char **env) {
 
+    init_auxval(argc, argv, env);
     // trying to open and load 1st arg
     if(argc==1) {
         printf("Box86%s%s%s v%d.%d.%d\n", 
