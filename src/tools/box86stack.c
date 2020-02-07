@@ -90,9 +90,12 @@ void SetupInitialStack(box86context_t *context)
     // push some AuxVector stuffs
     PushString(emu, "i686");
     uintptr_t p_386 = R_ESP;
-    for (int i=0; i<4; ++i)
-        Push(emu, random());
-    uintptr_t p_random = R_ESP;
+    uintptr_t p_random = real_getauxval(25);
+    if(!p_random) {
+        for (int i=0; i<4; ++i)
+            Push(emu, random());
+        p_random = R_ESP;
+    }
     // align
     tmp = (R_ESP)&~(context->stackalign-1);
     memset((void*)tmp, 0, R_ESP-tmp);
@@ -111,7 +114,7 @@ void SetupInitialStack(box86context_t *context)
     Push(emu, 16);                      //AT_HWCAP(16)=...
     Push(emu, p_arg0); Push(emu, 31);   //AT_EXECFN(31)=p_arg0
     Push(emu, p_random); Push(emu, 25); //AT_RANDOM(25)=p_random
-    Push(emu, 0); Push(emu, 23);        //AT_SECURE(23)=0
+    Push(emu, real_getauxval(23)); Push(emu, 23);        //AT_SECURE(23)=0
     Push(emu, real_getauxval(14)); Push(emu, 14);     //AT_EGID(14)
     Push(emu, real_getauxval(13)); Push(emu, 13);     //AT_GID(13)
     Push(emu, real_getauxval(12)); Push(emu, 12);     //AT_EUID(12)
