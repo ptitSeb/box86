@@ -16,6 +16,12 @@
 #include <time.h>
 #include <limits.h>
 #include <errno.h>
+#ifdef DYNAREC
+#ifdef ARM
+#include <sys/auxv.h>
+#include <asm/hwcap.h>
+#endif
+#endif
 
 #include "box86version.h"
 #include "debug.h"
@@ -36,6 +42,11 @@ int box86_dynarec_log = LOG_NONE;
 int box86_dynarec = 1;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
+#ifdef ARM
+int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
+int arm_swap = 0;
+int arm_div = 0;
+#endif
 #endif
 int dlsym_error = 0;
 int trace_xmm = 0;
@@ -54,6 +65,62 @@ int allow_missing_libs = 0;
 char* libGL = NULL;
 
 FILE* ftrace = NULL;
+
+#ifdef DYNAREC
+void GatherDynarecExtensions()
+{
+    if(box86_dynarec==0)    // no need to check if no dynarec
+        return;
+#ifdef ARM
+    unsigned long hwcap = real_getauxval(AT_HWCAP);
+    // first, check all needed extensions, lif half, edsp and fastmult
+    if(hwcap&HWCAP_HALF == 0) {
+        printf_log(LOG_INFO, "Missing HALF cpu support, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_FAST_MULT == 0) {
+        printf_log(LOG_INFO, "Missing FAST_MULT cpu support, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_EDSP == 0) {
+        printf_log(LOG_INFO, "Missing EDSP cpu support, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_NEON == 0) {
+        printf_log(LOG_INFO, "Missing NEON support, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_VFPv3D16) {
+        printf_log(LOG_INFO, "VFPU only have 16 registers, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_VFPv3)
+        arm_vfp = 3;
+    if(hwcap&HWCAP_VFPv4)
+        arm_vfp = 4;
+    if(!arm_vfp) {
+        printf_log(LOG_INFO, "VFPUv3+ not detected, disabling Dynarec\n");
+        box86_dynarec=0;
+        return;
+    }
+    if(hwcap&HWCAP_SWP)
+        arm_swap = 1;
+    if(hwcap&HWCAP_IDIVA)
+        arm_div = 1;
+    printf_log(LOG_INFO, "Dynarec for ARM, with extension: HALF FAST_MULT EDSP NEON VFPv%d", arm_vfp);
+    if(arm_swap)
+        printf_log(LOG_INFO, " SWP");
+    if(arm_div)
+        printf_log(LOG_INFO, " IDIVA");
+    printf_log(LOG_INFO, "\n");
+#endif
+}
+#endif
 
 void LoadLogEnv()
 {
@@ -207,7 +274,9 @@ void LoadLogEnv()
         if(allow_missing_libs)
             printf_log(LOG_INFO, "Allow missing needed libs\n");
     }
-
+#ifdef DYNAREC
+    GatherDynarecExtensions();
+#endif
 }
 
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)

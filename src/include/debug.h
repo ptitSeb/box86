@@ -8,6 +8,11 @@ extern int box86_dynarec;
 extern int box86_dynarec_linker;
 extern int box86_dynarec_trace;
 extern int box86_dynarec_forced;
+#ifdef ARM
+extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
+extern int arm_swap;
+extern int arm_div;
+#endif
 #endif
 extern int dlsym_error;  // log dlsym error
 extern int trace_xmm;    // include XMM reg in trace?
