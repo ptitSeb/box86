@@ -407,6 +407,14 @@ Op is 20-27
 // SWAP Byte (atomic) [Rn]->Rt2 / Rt->[Rn], Rt can be same as Rt2, Byte is zero extended
 #define SWPB(Rt, Rt2, Rn)   EMIT(SWP_gen(c__, 1, Rn, Rt, Rt2))
 
+#define SDIV_gen(cond, Rd, Rm, Rn)  (cond | 0b0111<<24 | 0b0001<<20 | (Rd)<<16 | 0b1111<<12 | (Rm)<<8 | 0b0001<<4 | (Rn))
+// Signed Div Rd <- Rn/Rm
+#define SDIV(Rd, Rm, Rn)    EMIT(SDIV_gen(c__, Rd, Rm, Rn))
+
+#define UDIV_gen(cond, Rd, Rm, Rn)  (cond | 0b0111<<24 | 0b0011<<20 | (Rd)<<16 | 0b1111<<12 | (Rm)<<8 | 0b0001<<4 | (Rn))
+// Unsigned Div Rd <- Rn/Rm
+#define UDIV(Rd, Rm, Rn)    EMIT(UDIV_gen(c__, Rd, Rm, Rn))
+
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 

@@ -2652,7 +2652,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("DIV Ed");
                     GETEDH(x1);
                     if(ed!=x1) {MOV_REG(x1, ed);}
-                    // need to store/restore ECX too, or use 2 instructions?
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                     CALL(div32, -1, 0);
                     LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
