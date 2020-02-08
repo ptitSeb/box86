@@ -1132,39 +1132,57 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gb1, x1, gb2*8, 8);
                 BFI(eb1, x12, eb2*8, 8);
             } else {
-                // Lock
-                LOCK;
-                // do the swap
-                GETGB(x12);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
-                LDRB_IMM9(x1, ed, fixedaddress);    // 1 gets eb
-                // do the swap 12 -> strb(ed), 1 -> gd
-                BFI(gb1, x1, gb2*8, 8);
-                STRB_IMM9(x12, ed, fixedaddress);
-                // Unlock
-                UNLOCK;
+                if(arm_swap) {
+                    // use atomic swap...
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                    GETGB(x12);
+                    SWPB(x12, x12, ed);
+                    BFI(gb1, x12, gb2*8, 8);
+                } else {
+                    // Lock
+                    LOCK;
+                    // do the swap
+                    GETGB(x12);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                    LDRB_IMM9(x1, ed, fixedaddress);    // 1 gets eb
+                    // do the swap 12 -> strb(ed), 1 -> gd
+                    BFI(gb1, x1, gb2*8, 8);
+                    STRB_IMM9(x12, ed, fixedaddress);
+                    // Unlock
+                    UNLOCK;
+                }
             }
             break;
         case 0x87:
             INST_NAME("(LOCK)XCHG Ed, Gd");
-            // Do the swap
             nextop = F8;
-            if((nextop&0xC0)!=0xC0) {
-                // Lock
-                LOCK;
-            }
-            GETGD;
-            GETED;
-            // xor swap to avoid one more tmp reg
-            if(gd!=ed) {
-                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
-                XOR_REG_LSL_IMM8(ed, gd, ed, 0);
-                XOR_REG_LSL_IMM8(gd, gd, ed, 0);
-            }
-            WBACK;
-            if((nextop&0xC0)!=0xC0) {
-                // Unlock
-                UNLOCK;
+            if((nextop&0xC0)==0xC0) {
+                GETGD;
+                GETED;
+                if(gd!=ed) {
+                    XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                    XOR_REG_LSL_IMM8(ed, gd, ed, 0);
+                    XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                }
+            } else {
+                if(arm_swap) {
+                    GETGD;
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                    // use atomic swap
+                    SWP(gd, gd, ed);
+                } else {
+                    LOCK;
+                    GETGD;
+                    GETED;
+                    // xor swap to avoid one more tmp reg
+                    if(gd!=ed) {
+                        XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                        XOR_REG_LSL_IMM8(ed, gd, ed, 0);
+                        XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+                    }
+                    WBACK;
+                    UNLOCK;
+                }
             }
             break;
         case 0x88:

@@ -401,6 +401,12 @@ Op is 20-27
 // Preload Cache Rn-Rm
 #define PLDn(Rn, Rm) EMIT(PLD_gen(0, 1, Rn, 0, 0, Rm))
 
+#define SWP_gen(cond, B, Rn, Rt, Rt2)   (cond | 0b0001<<24 | (B)<<22 | (Rn)<<16 | (Rt)<<12 | 0b1001<<4 | (Rt2))
+// SWAP (atomic) [Rn]->Rt2 / Rt->[Rn], Rt can be same as Rt2
+#define SWP(Rt, Rt2, Rn)    EMIT(SWP_gen(c__, 0, Rn, Rt, Rt2))
+// SWAP Byte (atomic) [Rn]->Rt2 / Rt->[Rn], Rt can be same as Rt2, Byte is zero extended
+#define SWPB(Rt, Rt2, Rn)   EMIT(SWP_gen(c__, 1, Rn, Rt, Rt2))
+
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 
