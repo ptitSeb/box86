@@ -128,7 +128,9 @@ uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, i
     x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
     SetupX86Emu(emu);
     SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
-
+    
+    pthread_mutex_unlock(&emu->context->mutex_trace);   // unlock trace, just in case
+    
     R_ESP -= nargs*4;   // need to push in reverse order
 
     uint32_t *p = (uint32_t*)R_ESP;

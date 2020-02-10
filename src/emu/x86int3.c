@@ -156,7 +156,8 @@ void x86Int3(x86emu_t* emu)
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
                 } else  if(strstr(s, "fprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "fprintf", *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
+                    pu32 = *(uint32_t**)(R_ESP+8);  // can be null sometime?
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "fprintf", *(uint32_t*)(R_ESP+4), pu32?*(char**)(R_ESP+8):"nil");
                 } else if(strstr(s, "XCreateWindow")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, %u, %p)", tid, *(void**)(R_ESP), "XCreateWindow", *(void**)(R_ESP+4), *(void**)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(uint32_t*)(R_ESP+20), *(uint32_t*)(R_ESP+24), *(uint32_t*)(R_ESP+28), *(int32_t*)(R_ESP+32), *(uint32_t*)(R_ESP+36), *(void**)(R_ESP+40), *(uint32_t*)(R_ESP+44), *(void**)(R_ESP+48));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
