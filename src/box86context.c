@@ -16,6 +16,7 @@
 #include "callback.h"
 #include "wrapper.h"
 #include "myfts.h"
+#include "threads.h"
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
@@ -154,6 +155,7 @@ void FreeBox86Context(box86context_t** context)
     if((*context)->emu)
         FreeX86Emu(&(*context)->emu);
 
+    CleanStackSize(*context);
     FreeCollection(&(*context)->box86_path);
     FreeCollection(&(*context)->box86_ld_lib);
     FreeCollection(&(*context)->box86_emulated_libs);

@@ -26,6 +26,60 @@ typedef struct emuthread_s {
 	void*	arg;
 } emuthread_t;
 
+typedef struct threadstack_s {
+	void* 	stack;
+	size_t 	stacksize;
+} threadstack_t;
+
+KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
+
+void CleanStackSize(box86context_t* context)
+{
+	threadstack_t *ts;
+	if(!context->stacksizes)
+		return;
+	kh_foreach_value(context->stacksizes, ts, free(ts));
+	kh_destroy(threadstack, context->stacksizes);
+	context->stacksizes = NULL;
+}
+
+void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
+{
+	khint_t k = kh_get(threadstack, map, attr);
+	if(k==kh_end(map))
+		return;
+	free(kh_value(map, k));
+	kh_del(threadstack, map, k);
+}
+
+void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t stacksize)
+{
+	khint_t k;
+	int ret;
+	k = kh_put(threadstack, map, attr, &ret);
+	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)calloc(1, sizeof(threadstack_t));
+	ts->stack = stack;
+	ts->stacksize = stacksize;
+}
+
+// return stack from attr (or from current emu if attr is not found..., wich is wrong but approximate enough?)
+int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
+{
+	if(emu->context->stacksizes && attr) {
+		khint_t k = kh_get(threadstack, emu->context->stacksizes, attr);
+		if(k!=kh_end(emu->context->stacksizes)) {
+			threadstack_t* ts = kh_value(emu->context->stacksizes, k);
+			*stack = ts->stack;
+			*stacksize = ts->stacksize;
+			return 1;
+		}
+	}
+	// should a Warning be emited?
+	*stack = emu->init_stack;
+	*stacksize = emu->size_stack;
+	return 0;
+}
+
 static void pthread_clean_routine(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
@@ -52,7 +106,31 @@ static void* pthread_routine(void* p)
 	return r;
 }
 
-int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
+EXPORT int my_pthread_attr_destroy(x86emu_t* emu, void* attr)
+{
+	if(emu->context->stacksizes)
+		FreeStackSize(emu->context->stacksizes, (uintptr_t)attr);
+	return pthread_attr_destroy(attr);
+}
+
+EXPORT int my_pthread_attr_getstack(x86emu_t* emu, void* attr, void* stackaddr, size_t* stacksize)
+{
+	int ret = pthread_attr_getstack(attr, stackaddr, stacksize);
+	if (ret==0)
+		GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize);
+	return ret;
+}
+
+EXPORT int my_pthread_attr_setstack(x86emu_t* emu, void* attr, void* stackaddr, size_t stacksize)
+{
+	if(!emu->context->stacksizes) {
+		emu->context->stacksizes = kh_init(threadstack);
+	}
+	AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
+	return pthread_attr_setstack(attr, stackaddr, stacksize);
+}
+
+EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
 	pthread_mutex_lock(&emu->context->mutex_lock);
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
@@ -61,9 +139,21 @@ int EXPORT my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
 			if(stacksize<stsize) stacksize = stsize;
 	}
-	void* stack = malloc(stacksize);
+	void* attr_stack;
+	size_t attr_stacksize;
+	int own;
+	void* stack;
+	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
+	{
+		stack = attr_stack;
+		stacksize = attr_stacksize;
+		own = 0;
+	} else {
+		stack = malloc(stacksize);
+		own = 1;
+	}
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
-    x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, 1);
+    x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
     emuthread->trace_start = emu->trace_start;
     emuthread->trace_end = emu->trace_end;

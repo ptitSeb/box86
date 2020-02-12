@@ -14,7 +14,7 @@
 // __libc_current_sigrtmin
 GOM(pthread_atfork, iFEppp)
 GOM(__pthread_atfork, iFppp)
-GO(pthread_attr_destroy, iFp)
+GOM(pthread_attr_destroy, iFEp)
 // pthread_attr_getaffinity_np
 GO(pthread_attr_getdetachstate, iFpp)
 GO(pthread_attr_getguardsize, iFpp)
@@ -22,7 +22,7 @@ GO(pthread_attr_getinheritsched, iFpp)
 GO(pthread_attr_getschedparam, iFpp)
 GO(pthread_attr_getschedpolicy, iFpp)
 GO(pthread_attr_getscope, iFpp)
-GO(pthread_attr_getstack, iFppp)
+GOM(pthread_attr_getstack, iFEppp)
 GO(pthread_attr_getstackaddr, iFpp)
 GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
@@ -45,7 +45,7 @@ GO(pthread_attr_setscope, iFpi)
 #else
 GOM(pthread_attr_setscope, iFEpi)
 #endif
-GO(pthread_attr_setstack, iFppu)
+GOM(pthread_attr_setstack, iFEppu)
 GO(pthread_attr_setstackaddr, iFpp)
 GO(pthread_attr_setstacksize, iFpp)
 GO(pthread_barrierattr_destroy, iFp)

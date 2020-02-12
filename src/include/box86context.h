@@ -15,6 +15,7 @@ typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct callbacklist_s callbacklist_t;
 typedef struct library_s library_t;
 typedef struct kh_fts_s kh_fts_t;
+typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
     uintptr_t parent;
@@ -73,6 +74,7 @@ typedef struct box86context_s {
 
     lib_t               *maplib;        // lib and symbols handling
 
+    kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *threads;       // threads
     bridge_t            *system;        // other bridges
     uintptr_t           vsyscall;       // vsyscall bridge value
