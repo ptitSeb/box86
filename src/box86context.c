@@ -106,6 +106,8 @@ box86context_t *NewBox86Context(int argc)
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
+    InitCancelThread(context);
+
     pthread_mutex_init(&context->mutex_once, NULL);
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
@@ -213,6 +215,8 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);
     pthread_mutex_destroy(&(*context)->mutex_lock);
+
+    FreeCancelThread(*context);
 
     if((*context)->atfork_sz) {
         free((*context)->atforks);

@@ -31,7 +31,32 @@ typedef struct threadstack_s {
 	size_t 	stacksize;
 } threadstack_t;
 
+// longjmp / setjmp
+typedef struct jump_buff_i386_s {
+ uint32_t save_ebx;
+ uint32_t save_esi;
+ uint32_t save_edi;
+ uint32_t save_ebp;
+ uint32_t save_esp;
+ uint32_t save_eip;
+} jump_buff_i386_t;
+
+typedef struct __jmp_buf_tag_s {
+    jump_buff_i386_t __jmpbuf;
+    int              __mask_was_saved;
+    __sigset_t       __saved_mask;
+} __jmp_buf_tag_t;
+
+typedef struct x86_unwind_buff_s {
+	struct {
+		jump_buff_i386_t	__cancel_jmp_buf;	
+		int					__mask_was_saved;
+	} __cancel_jmp_buf[1];
+	void *__pad[4];
+} x86_unwind_buff_t __attribute__((__aligned__));
+
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
+KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
 
 void CleanStackSize(box86context_t* context)
 {
@@ -78,6 +103,36 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	*stack = emu->init_stack;
 	*stacksize = emu->size_stack;
 	return 0;
+}
+
+void InitCancelThread(box86context_t* context)
+{
+	context->cancelthread = kh_init(cancelthread);
+}
+
+void FreeCancelThread(box86context_t* context)
+{
+	__pthread_unwind_buf_t* buff;
+	kh_foreach_value(context->cancelthread, buff, free(buff))
+	kh_destroy(cancelthread, context->cancelthread);
+	context->cancelthread = NULL;
+}
+__pthread_unwind_buf_t* AddCancelThread(box86context_t* context, uintptr_t buff)
+{
+	int ret;
+	khint_t k = kh_put(cancelthread, context->cancelthread, buff, &ret);
+	if(ret)
+		kh_value(context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	return kh_value(context->cancelthread, k);
+}
+
+void DelCancelThread(box86context_t* context, uintptr_t buff)
+{
+	khint_t k = kh_get(cancelthread, context->cancelthread, buff);
+	if(k==kh_end(context->cancelthread))
+		return;
+	free(kh_value(context->cancelthread, k));
+	kh_del(cancelthread, context->cancelthread, k);
 }
 
 static void pthread_clean_routine(void* p)
@@ -166,6 +221,28 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		pthread_routine, et);
 }
 
+void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+EXPORT void my___pthread_register_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
+
+	int not_first_call = __sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0);
+	if(not_first_call) {
+		my_longjmp(emu, pbuff, not_first_call);
+		return;
+	}
+
+	__pthread_register_cancel(pbuff);
+}
+
+EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
+
+	__pthread_unregister_cancel(pbuff);
+
+	DelCancelThread(emu->context, (uintptr_t)buff);
+}
 
 
 
