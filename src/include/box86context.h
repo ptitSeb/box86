@@ -82,8 +82,10 @@ typedef struct box86context_s {
     uintptr_t           vsyscall;       // vsyscall bridge value
     dlprivate_t         *dlprivate;     // dlopen library map
     kh_symbolmap_t      *glwrappers;    // the map of wrapper for glProcs (for GLX or SDL1/2)
+    kh_symbolmap_t      *glmymap;       // link to the mysymbolmap of libGL
     procaddess_t        glxprocaddress;
     kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
+    kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
 
     callbacklist_t      *callbacks;     // all callbacks
 

@@ -21,34 +21,38 @@ char* libGL;
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
 
-kh_symbolmap_t * fillGLProcWrapper();
+void fillGLProcWrapper(box86context_t*);
 void freeProcWrapper(kh_symbolmap_t** symbolmap);
 
 EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name) 
 {
+    khint_t k;
     const char* rname = (const char*)name;
-    printf_log(LOG_DEBUG, "Calling glXGetProcAddress(%s)\n", rname);
+    printf_log(LOG_DEBUG, "Calling glXGetProcAddress(\"%s\")\n", rname);
     if(!emu->context->glwrappers)
-        emu->context->glwrappers = fillGLProcWrapper();
+        fillGLProcWrapper(emu->context);
     // check if glxprocaddress is filled, and search for lib and fill it if needed
-    if(!emu->context->glxprocaddress) {
-        library_t* lib = GetLib(emu->context->maplib, libglName);
-        if(!lib) {
-            printf_log(LOG_NONE, "Warning, libGL not found in librarian?!\n");
-            return NULL;
-        }
-        emu->context->glxprocaddress = lib->priv.w.priv;
-    }
     // get proc adress using actual glXGetProcAddress
-    void* symbol = emu->context->glxprocaddress(rname);
+    k = kh_get(symbolmap, emu->context->glmymap, rname);
+    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
+    void* symbol;
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box86lib, tmp);
+    } else 
+        symbol = emu->context->glxprocaddress(rname);
     if(!symbol)
         return NULL;    // easy
     // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
+    if(ret) {
         return (void*)ret; // already bridged
+    }
     // get wrapper    
-    khint_t k = kh_get(symbolmap, emu->context->glwrappers, rname);
+    k = kh_get(symbolmap, emu->context->glwrappers, rname);
     if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
         // try again, adding ARB at the end if not present
         char tmp[200];
@@ -61,13 +65,6 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         char tmp[200];
         strcpy(tmp, rname);
         strcat(tmp, "EXT");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers)) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }
     if(k==kh_end(emu->context->glwrappers)) {
@@ -100,7 +97,7 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     static vFpp_t DebugMessageCallback = NULL;
     static int init = 1;
     if(init) {
-        DebugMessageCallback = my_glXGetProcAddress(emu, "glDebugMessageCallback");
+        DebugMessageCallback = emu->context->glxprocaddress("glDebugMessageCallback");
         init = 0;
     }
     if(!DebugMessageCallback)
@@ -115,11 +112,14 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
 }
 
 #define PRE_INIT if(libGL) lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); else
-#define CUSTOM_INIT lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");
+#define CUSTOM_INIT \
+    lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress"); \
+    box86->glxprocaddress = lib->priv.w.priv;
+
 
 #include "wrappedlib_init.h"
 
-kh_symbolmap_t * fillGLProcWrapper()
+void fillGLProcWrapper(box86context_t* context)
 {
     int cnt, ret;
     khint_t k;
@@ -136,14 +136,24 @@ kh_symbolmap_t * fillGLProcWrapper()
         k = kh_put(symbolmap, symbolmap, libglmysymbolmap[i].name, &ret);
         kh_value(symbolmap, k) = libglmysymbolmap[i].w;
     }
-    return symbolmap;
+    context->glwrappers = symbolmap;
+    // my_* map
+    symbolmap = kh_init(symbolmap);
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, libglmysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = libglmysymbolmap[i].w;
+    }
+    context->glmymap = symbolmap;
 }
-void freeProcWrapper(kh_symbolmap_t** symbolmap)
+void freeGLProcWrapper(box86context_t* context)
 {
-    if(!symbolmap)
+    if(!context)
         return;
-    if(!*symbolmap)
-        return
-    kh_destroy(symbolmap, *symbolmap);
-    *symbolmap = NULL;
+    if(context->glwrappers)
+        kh_destroy(symbolmap, context->glwrappers);
+    if(context->glmymap)
+        kh_destroy(symbolmap, context->glmymap);
+    context->glwrappers = NULL;
+    context->glmymap = NULL;
 }

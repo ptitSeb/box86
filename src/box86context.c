@@ -194,10 +194,8 @@ void FreeBox86Context(box86context_t** context)
 
     FreeBridge(&(*context)->system);
 
-    if((*context)->glwrappers)
-        freeProcWrapper(&(*context)->glwrappers);
-    if((*context)->alwrappers)
-        freeProcWrapper(&(*context)->alwrappers);
+    freeGLProcWrapper(*context);
+    freeALProcWrapper(*context);
 
     FreeCallbackList(&(*context)->callbacks);
 

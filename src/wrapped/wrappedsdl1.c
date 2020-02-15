@@ -487,17 +487,28 @@ void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
     }
 }
 
-kh_symbolmap_t * fillGLProcWrapper();
+void fillGLProcWrapper(box86context_t* context);
 EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
 {
+    khint_t k;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     // check if glxprocaddress is filled, and search for lib and fill it if needed
     if(!emu->context->glwrappers)
-        emu->context->glwrappers = fillGLProcWrapper();
+        fillGLProcWrapper(emu->context);
     // get proc adress using actual glXGetProcAddress
-    void* symbol = my->SDL_GL_GetProcAddress(name);
+    k = kh_get(symbolmap, emu->context->glmymap, rname);
+    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
+    void* symbol;
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box86lib, tmp);
+    } else 
+        symbol = my->SDL_GL_GetProcAddress(name);
     if(!symbol)
         return NULL;    // easy
     // check if alread bridged
@@ -505,7 +516,7 @@ EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
     if(ret)
         return (void*)ret; // already bridged
     // get wrapper    
-    khint_t k = kh_get(symbolmap, emu->context->glwrappers, rname);
+    k = kh_get(symbolmap, emu->context->glwrappers, rname);
     if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
         // try again, adding ARB at the end if not present
         char tmp[200];
