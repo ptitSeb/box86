@@ -125,8 +125,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     if(block)
         return block;
     // nope, put rwlock in read mode and check hash
-    if(!pthread_rwlock_tryrdlock(&dynablocks->rwlock_blocks))
-        return NULL;
+    pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
     // but first, check again just in case it has been created while waiting for mutex
     if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
         block = dynablocks->direct[addr-dynablocks->text];
@@ -149,8 +148,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     if(!create)
         return block;
     // Lock as write now!
-    if(!pthread_rwlock_trywrlock(&dynablocks->rwlock_blocks))
-        return NULL;
+    pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
     if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
