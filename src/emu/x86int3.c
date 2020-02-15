@@ -136,7 +136,7 @@ void x86Int3(x86emu_t* emu)
                 } else  if(strstr(s, "strcmp")==s || strstr(s, "__strcmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "strcmp", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "strstr")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "strstr", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%.127s\", \"%.127s\")", tid, *(void**)(R_ESP), "strstr", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "strlen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"))", tid, *(void**)(R_ESP), "strlen", *(char**)(R_ESP+4), ((R_ESP+4))?(*(char**)(R_ESP+4)):"nil");
                 } else  if(strstr(s, "vsnprintf")==s) {

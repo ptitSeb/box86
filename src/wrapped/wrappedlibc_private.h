@@ -2118,6 +2118,8 @@ GOM(__open_nocancel, iFEpOV)
 GO2(__read_nocancel, lFipL, read)
 GO2(__close_nocancel, iFi, close)
 
+GOM(mkstemps64, iFEpi)   // not always implemented
+
 // not found (libitm???), but it seems OK to declare dummies:
 
 GOM(_ITM_RU1, uFp)

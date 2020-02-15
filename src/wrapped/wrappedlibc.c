@@ -71,6 +71,7 @@ const char* libcName = "libc.so.6";
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
@@ -725,6 +726,27 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         return tmp;
     }
     return open64(pathname, flags, mode);
+}
+
+EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
+{
+    library_t* lib = GetLib(emu->context->maplib, libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "mkstemps64");
+    if(f)
+        return ((iFpi_t)f)(template, suffixlen);
+    // implement own version...
+    // TODO: check size of template, and if really XXXXXX is there
+    char* fname = strdup(template);
+    do {
+        strcpy(fname, template);
+        char num[7] = {0};
+        sprintf(num, "%06d", rand()%999999);
+        memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
+    } while(!FileExist(fname, -1));
+    int ret = open64(fname, O_EXCL);
+    free(fname);
+    return ret;
 }
 
 typedef int32_t (*nftw_fn) (const char *, const struct stat *, int, struct FTW *);
