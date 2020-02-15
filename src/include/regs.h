@@ -21,12 +21,7 @@ typedef union {
 } reg32_t;
 
 typedef struct {
-    uint32_t m1;
-    uint32_t m2;
-    uint16_t m3;
-
-    uint16_t d1;
-    uint32_t d2;
+    uint32_t tag;
 } fpu_p_reg_t;
 
 typedef enum {

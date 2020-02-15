@@ -449,7 +449,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
         }
 }
 
-static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
@@ -483,6 +483,17 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
         LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     }
     if(ret!=0) {
+        // --- set tags to full...
+        MOVW(s4, 0);
+        MOVW(s1, offsetof(x86emu_t, p_regs));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+        for (int i=0; i<8; ++i)
+            if(dyn->x87cache[i]!=-1) {
+                ADD_IMM8(s3, s2, dyn->x87cache[i]);
+                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
+                STR_REG_LSL_IMM5(s4, s1, s3, 2);    // save the value
+            }
+        // --- set values
         // prepare offset to fpu => s1
         MOVW(s1, offsetof(x86emu_t, fpu));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
@@ -886,9 +897,9 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     MESSAGE(LOG_DUMP, "\t------- Pop FPU Cache (%d)\n", n);
 }
 
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    x87_purgecache(dyn, ninst, s1, s2, s3);
+    x87_purgecache(dyn, ninst, s1, s2, s3, s4);
     mmx_purgecache(dyn, ninst, s1);
     sse_purgecache(dyn, ninst, s1);
     fpu_reset_reg(dyn);

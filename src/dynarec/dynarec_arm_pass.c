@@ -74,14 +74,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         INST_EPILOG;
 
         if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
-            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            fpu_purgecache(dyn, ninst, x1, x2, x3, x12);
             if(dyn->insts[ninst+1].x86.barrier!=2)
                 dyn->cleanflags = 0;
         }
         ++ninst;
     }
     if(need_epilog) {
-        fpu_purgecache(dyn, ninst, x1, x2, x3);
+        fpu_purgecache(dyn, ninst, x1, x2, x3, x12);
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }
     FINI;

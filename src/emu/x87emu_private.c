@@ -17,6 +17,8 @@ void reset_fpu(x86emu_t* emu)
     emu->sw.x16 = 0x0000;
     emu->top = 0;
     emu->fpu_stack = 0;
+    for(int i=0; i<9; ++i)
+        emu->p_regs[i].tag = 0b11;  // STx is empty
 }
 
 void fpu_fbst(x86emu_t* emu, uint8_t* d) {
@@ -226,11 +228,10 @@ void fpu_loadenv(x86emu_t* emu, char* p, int b16)
     emu->top = emu->sw.f.F87_TOP;
     p+=(b16)?2:4;
     // tagword: 2bits*8
-    // simplied tags... just reading back the top pointer
+    // tags... (only full = 0b11 / free = 0b00)
     uint16_t tags = *(uint16_t*)p;
-    for (emu->fpu_stack=0; emu->fpu_stack<8; ++emu->fpu_stack)
-        if(tags & (3<<(emu->fpu_stack*2)))
-            break; 
+    for(int i=0; i<8; ++i)
+        emu->p_regs[i].tag = (tags>>(i*2))&0b11;
     // intruction pointer: 16bits
     // data (operand) pointer: 16bits
     // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
@@ -246,11 +247,10 @@ void fpu_savenv(x86emu_t* emu, char* p, int b16)
     p+=2;
     if(!b16) {*(uint16_t*)p = 0; p+=2;}
     // tagword: 2bits*8
-    // simplied tags...
+    // tags...
     uint16_t tags = 0;
     for (int i=0; i<8; ++i)
-        if(i>=emu->fpu_stack)
-            tags |= (3)<<(i*2);
+        tags |= (emu->p_regs[i].tag)<<(i*2);
     *(uint16_t*)p = tags;
     // other stuff are not pushed....
 }

@@ -9,7 +9,8 @@
     case 0xC5:
     case 0xC6:
     case 0xC7:
-        break;  // not handling Tag...
+        fpu_do_free(emu, nextop-0xC0);
+        break;
 
     case 0xD0:  /* FST ST0, STx */
     case 0xD1:
