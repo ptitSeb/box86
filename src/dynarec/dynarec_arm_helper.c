@@ -449,7 +449,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
         }
 }
 
-static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
@@ -457,7 +457,7 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
             ret = 1;
     if(!ret && !dyn->x87stack)    // nothing to do
         return;
-    MESSAGE(LOG_DUMP, "\tPurge x87 Cache and Synch Stackcount (%d)\n", dyn->x87stack);
+    MESSAGE(LOG_DUMP, "\tPurge x87 Cache and Synch Stackcount (%+d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     if(a!=0) {
         // reset x87stack
@@ -472,27 +472,33 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
         LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        // update tags (and top at the same time)
         if(a>0) {
-            SUB_IMM8(s2, s2, a);
+            // new tag to fulls
+            MOVW(s3, 0);
+            MOVW(s1, offsetof(x86emu_t, p_regs));
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            for (int i=0; i<a; ++i) {
+                SUB_IMM8(s2, s2, 1);
+                AND_IMM8(s2, s2, 7);    // (emu->top + st)&7
+                STR_REG_LSL_IMM5(s3, s1, s2, 2);    // that slot is full
+            }
         } else {
-            ADD_IMM8(s2, s2, -a);
+            // empty tags
+            MOVW(s3, 0b11);
+            MOVW(s1, offsetof(x86emu_t, p_regs));
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            for (int i=0; i<-a; ++i) {
+                STR_REG_LSL_IMM5(s3, s1, s2, 2);    // empty slot before leaving it
+                ADD_IMM8(s2, s2, 1);
+                AND_IMM8(s2, s2, 7);    // (emu->top + st)&7
+            }
         }
-        AND_IMM8(s2, s2, 7);
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     } else {
         LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     }
     if(ret!=0) {
-        // --- set tags to full...
-        MOVW(s4, 0);
-        MOVW(s1, offsetof(x86emu_t, p_regs));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-        for (int i=0; i<8; ++i)
-            if(dyn->x87cache[i]!=-1) {
-                ADD_IMM8(s3, s2, dyn->x87cache[i]);
-                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
-                STR_REG_LSL_IMM5(s4, s1, s3, 2);    // save the value
-            }
         // --- set values
         // prepare offset to fpu => s1
         MOVW(s1, offsetof(x86emu_t, fpu));
@@ -897,9 +903,9 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     MESSAGE(LOG_DUMP, "\t------- Pop FPU Cache (%d)\n", n);
 }
 
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-    x87_purgecache(dyn, ninst, s1, s2, s3, s4);
+    x87_purgecache(dyn, ninst, s1, s2, s3);
     mmx_purgecache(dyn, ninst, s1);
     sse_purgecache(dyn, ninst, s1);
     fpu_reset_reg(dyn);

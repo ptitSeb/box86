@@ -115,7 +115,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE3:
             INST_NAME("FNINIT");
-            fpu_purgecache(dyn, ninst, x1, x2, x3, x12); // maybe only x87, not SSE?
+            fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
             CALL(reset_fpu, -1, 0);
             break;
         case 0xE8:
