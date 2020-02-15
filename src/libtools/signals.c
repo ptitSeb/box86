@@ -143,7 +143,7 @@ uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, i
     }
     va_end (va);
 
-    DynaCall(emu, fnc);
+    EmuCall(emu, fnc);  // avoid DynaCall for now
     R_ESP+=(nargs*4);
 
     if(exit)
