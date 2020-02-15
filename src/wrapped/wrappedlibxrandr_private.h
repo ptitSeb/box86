@@ -45,7 +45,7 @@ GO(XRRGetPanning, pFppu)
 //GO(XRRSetProviderOffloadSink
 GO(XRRGetScreenResourcesCurrent, pFpp)
 GO(XRRConfigTimes,uFpp)
-//GO(XRRSetCrtcGamma
+GO(XRRSetCrtcGamma, vFppp)
 //GO(XRRSetProviderOutputSource
 GO(XRRGetScreenSizeRange, iFpppppp)
 GO(XRRRates,pFpiip)

@@ -25,7 +25,7 @@ GOM(dbus_connection_add_filter, iFEpppp)
 //GO(dbus_connection_borrow_message, 
 GO(dbus_connection_close, vFp)
 //GO(dbus_connection_dispatch, 
-//GO(dbus_connection_flush, 
+GO(dbus_connection_flush, vFp)
 //GO(dbus_connection_free_data_slot, 
 //GO(dbus_connection_free_preallocated_send, 
 //GO(dbus_connection_get_adt_audit_session_data, 
@@ -57,10 +57,10 @@ GO(dbus_connection_open_private, pFpp)
 //GO(dbus_connection_register_object_path, 
 GOM(dbus_connection_remove_filter, vFEppp)
 //GO(dbus_connection_return_message, 
-//GO(dbus_connection_send, 
+GO(dbus_connection_send, iFppp)
 //GO(dbus_connection_send_preallocated, 
 //GO(dbus_connection_send_with_reply, 
-//GO(dbus_connection_send_with_reply_and_block, 
+GO(dbus_connection_send_with_reply_and_block, pFppip)
 //GO(dbus_connection_set_allow_anonymous, 
 //GO(dbus_connection_set_change_sigpipe, 
 //GO(dbus_connection_set_data, 
@@ -92,8 +92,8 @@ GO(dbus_error_is_set, iFp)
 //GO(dbus_malloc, 
 //GO(dbus_malloc0, 
 //GO(dbus_message_allocate_data_slot, 
-//GO(dbus_message_append_args, 
-//GO(dbus_message_append_args_valist, 
+GO2(dbus_message_append_args, iFpiV, dbus_message_append_args_valist)
+GO(dbus_message_append_args_valist, iFpip)
 //GO(dbus_message_copy, 
 //GO(dbus_message_demarshal, 
 //GO(dbus_message_demarshal_bytes_needed, 
@@ -144,7 +144,7 @@ GO(dbus_message_iter_init_append, vFpp)
 //GO(dbus_message_new, 
 //GO(dbus_message_new_error, 
 //GO(dbus_message_new_error_printf, 
-//GO(dbus_message_new_method_call, 
+GO(dbus_message_new_method_call, pFpppp)
 //GO(dbus_message_new_method_return, 
 //GO(dbus_message_new_signal, 
 //GO(dbus_message_ref, 
@@ -161,7 +161,7 @@ GO(dbus_message_iter_init_append, vFpp)
 //GO(dbus_message_set_serial, 
 //GO(dbus_message_type_from_string, 
 //GO(dbus_message_type_to_string, 
-//GO(dbus_message_unref, 
+GO(dbus_message_unref, vFp)
 GO(dbus_move_error, vFpp)
 GO(dbus_parse_address, iFpppp)
 //GO(dbus_pending_call_allocate_data_slot, 

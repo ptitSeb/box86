@@ -305,6 +305,7 @@ void iFpii(x86emu_t *emu, uintptr_t fnc);
 void iFpiu(x86emu_t *emu, uintptr_t fnc);
 void iFpiL(x86emu_t *emu, uintptr_t fnc);
 void iFpip(x86emu_t *emu, uintptr_t fnc);
+void iFpiV(x86emu_t *emu, uintptr_t fnc);
 void iFpIi(x86emu_t *emu, uintptr_t fnc);
 void iFpCp(x86emu_t *emu, uintptr_t fnc);
 void iFpui(x86emu_t *emu, uintptr_t fnc);
