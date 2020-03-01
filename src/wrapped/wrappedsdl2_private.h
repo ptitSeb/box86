@@ -380,9 +380,9 @@ GO(SDL_JoystickOpen, pFi)
 GO(SDL_JoystickRumble, iFpWWu)
 GO(SDL_JoystickUpdate, vFv)
 // SDL_LinuxSetThreadPriority
-// SDL_lltoa
+GO(SDL_lltoa, pFIpi)
 GOM(SDL_LoadBMP_RW, pFEpi)
-// SDL_LoadDollarTemplates
+GO(SDL_LoadDollarTemplates, iFip)
 GOM(SDL_LoadFile_RW, pFEppi)
 GOM(SDL_LoadFunction, pFEpp)
 GOM(SDL_LoadObject, pFEp)
@@ -392,8 +392,8 @@ GO(SDL_LockAudioDevice, vFi)
 GO(SDL_LockJoysticks, vFv)
 GO(SDL_LockMutex, iFp)
 GO(SDL_LockSurface, iFp)
-// SDL_LockTexture
-// SDL_log
+GO(SDL_LockTexture, iFpppp)
+GO(SDL_log, dFd)
 GOM(SDL_Log, vFEpV)
 // SDL_log10
 // SDL_log10f
