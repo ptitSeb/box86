@@ -297,7 +297,7 @@ GO(g_type_class_unref_uncached, vFp)
 //GO(g_type_depth, 
 GO(g_type_ensure, vFi)
 GO(g_type_free_instance, vFp)
-//GO(g_type_from_name, 
+GO(g_type_from_name, iFp)
 GO(g_type_fundamental, iFi)
 GO(g_type_fundamental_next, iFv)
 //GOM(g_type_get_plugin, pFEi)      // GTypePugin is a stuct with callback

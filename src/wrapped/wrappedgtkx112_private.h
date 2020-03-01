@@ -913,7 +913,7 @@ GO(gtk_entry_get_layout_offsets, vFppp)
 GO(gtk_entry_get_overwrite_mode, iFp)
 //GO(gtk_entry_get_progress_fraction, 
 //GO(gtk_entry_get_progress_pulse_step, 
-GO(gtk_entry_get_text, vFp)
+GO(gtk_entry_get_text, pFp)
 GO(gtk_entry_get_text_length, WFp)
 //GO(gtk_entry_get_text_window, 
 GO(gtk_entry_get_type, iFv)
