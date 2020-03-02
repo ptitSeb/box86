@@ -36,6 +36,7 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu);
 void RunElfFini(elfheader_t* h, x86emu_t *emu);
 void RunDeferedElfInit(x86emu_t *emu);
 void* GetBaseAddress(elfheader_t* h);
+void* GetElfDelta(elfheader_t* h);
 uint32_t GetBaseSize(elfheader_t* h);
 int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr);
 elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr);

@@ -704,6 +704,11 @@ void* GetBaseAddress(elfheader_t* h)
     return h->memory;
 }
 
+void* GetElfDelta(elfheader_t* h)
+{
+    return (void*)h->delta;
+}
+
 uint32_t GetBaseSize(elfheader_t* h)
 {
     return h->memsz;
@@ -908,8 +913,20 @@ typedef struct my_dl_phdr_info_s {
 
 static int dl_iterate_phdr_callback(x86emu_t *emu, my_dl_phdr_info_t *info, size_t size, void* data)
 {
-    SetCallbackArg(emu, 0, info);
-    SetCallbackArg(emu, 1, (void*)size);
+    SetCallbackArgs(emu, 2, info, size);
+    int ret = RunCallback(emu);
+    return ret;
+}
+
+static int dl_iterate_phdr_native(struct dl_phdr_info* info, size_t size, void* data)
+{
+    if(!info->dlpi_name)
+        return 0;
+    if(!info->dlpi_name[0]) // don't send informations about box86 itself
+        return 0;
+
+    x86emu_t* emu = (x86emu_t*)data;
+    SetCallbackArgs(emu, 2, info, size);
     int ret = RunCallback(emu);
     return ret;
 }
@@ -919,17 +936,23 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     x86emu_t* cbemu = AddSharedCallback(emu, (uintptr_t)F, 3, NULL, NULL, data, NULL);
     box86context_t *context = GetEmuContext(emu);
     const char* empty = "";
+    int ret = 0;
     for (int idx=0; idx<context->elfsize; ++idx) {
         my_dl_phdr_info_t info;
-        info.dlpi_addr = GetBaseAddress(context->elfs[idx]);
+        info.dlpi_addr = GetElfDelta(context->elfs[idx]);
         info.dlpi_name = idx?context->elfs[idx]->name:empty;    //1st elf is program, and this one doesn't get a name
         info.dlpi_phdr = context->elfs[idx]->PHEntries;
         info.dlpi_phnum = context->elfs[idx]->numPHEntries;
-        if(dl_iterate_phdr_callback(cbemu, &info, sizeof(info), data))
-            break;
+        if((ret = dl_iterate_phdr_callback(cbemu, &info, sizeof(info), data))) {
+            FreeCallback(cbemu);
+            return ret;
+        }
     }
+    // and now, go on native version
+    ret = dl_iterate_phdr(dl_iterate_phdr_native, cbemu);
+    // all done
     FreeCallback(cbemu);
-    return 0;
+    return ret;
 }
 
 void ResetSpecialCaseMainElf(elfheader_t* h)
