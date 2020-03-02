@@ -49,7 +49,7 @@ GO(pa_context_get_server, pFp)
 GOM(pa_context_get_server_info, pFEppp)
 GO(pa_context_get_server_protocol_version, uFp)
 GOM(pa_context_get_sink_info_by_index, pFEpupp)
-//GO(pa_context_get_sink_info_by_name, 
+GOM(pa_context_get_sink_info_by_name, pFEpppp)
 GOM(pa_context_get_sink_info_list, pFEppp)
 //GO(pa_context_get_sink_input_info, 
 GOM(pa_context_get_sink_input_info_list, pFEppp)
@@ -128,13 +128,13 @@ GO(pa_cvolume_valid, iFp)
 //GO(pa_ext_stream_restore_test, 
 //GO(pa_ext_stream_restore_write, 
 GO(pa_frame_size, uFp)
-//GO(pa_get_binary_name, 
-//GO(pa_get_fqdn, 
-//GO(pa_get_home_dir, 
-//GO(pa_get_host_name, 
+GO(pa_get_binary_name, pFpL)
+GO(pa_get_fqdn, pFpL)
+GO(pa_get_home_dir, pFpL)
+GO(pa_get_host_name, pFpL)
 GO(pa_get_library_version, pFv)
 GO(pa_gettimeofday, pFp)
-//GO(pa_get_user_name, 
+GO(pa_get_user_name, pFpL)
 //GO(pa_locale_to_utf8, 
 //GO(pa_mainloop_api_once, 
 GO(pa_mainloop_dispatch, iFp)
@@ -155,11 +155,11 @@ GO(pa_operation_get_state, iFp)
 GO(pa_operation_ref, pFp)
 GO(pa_operation_unref, vFp)
 GO(pa_parse_sample_format, iFp)
-//GO(pa_path_get_filename, 
+GO(pa_path_get_filename, pFp)
 //GO(pa_proplist_clear, 
 //GO(pa_proplist_contains, 
 //GO(pa_proplist_copy, 
-//GO(pa_proplist_free, 
+GO(pa_proplist_free, vFp)
 //GO(pa_proplist_from_string, 
 //GO(pa_proplist_get, 
 GO(pa_proplist_gets, pFpp)
@@ -280,5 +280,7 @@ GO(pa_xmemdup, pFpu)
 GO(pa_xrealloc, pFpu)
 GO(pa_xstrdup, pFp)
 GO(pa_xstrndup, pFpu)
+
+GO(pa_stream_begin_write, iFppp)	// 0.9.16+
 
 GO(dummy_io_new, pFpiipp)   // dumy function to create Wrapper

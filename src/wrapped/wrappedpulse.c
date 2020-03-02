@@ -147,6 +147,7 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_context_get_server_info, pFppp_t)     \
     GO(pa_context_get_sink_input_info_list, pFppp_t)    \
     GO(pa_context_get_sink_info_list, pFppp_t)  \
+    GO(pa_context_get_sink_info_by_name, pFpppp_t)      \
     GO(pa_context_get_source_info_list, pFppp_t)\
     GO(pa_context_get_source_info_by_index, pFpupp_t)   \
     GO(pa_context_get_sink_info_by_index, pFpupp_t)     \
@@ -953,6 +954,19 @@ EXPORT void* my_pa_context_get_sink_info_list(x86emu_t* emu, void* context, void
         c->data = data;
     }
     return my->pa_context_get_sink_info_list(context, cb?my_module_info:NULL, c);
+}
+
+EXPORT void* my_pa_context_get_sink_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)GetLib(emu->context->maplib, pulseName)->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_sink_info_by_name(context, name, cb?my_module_info:NULL, c);
 }
 
 EXPORT void* my_pa_context_get_source_info_list(x86emu_t* emu, void* context, void* cb, void* data)
