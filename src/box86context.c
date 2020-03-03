@@ -118,7 +118,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynablocks = NewDynablockList(0, 0, 0);
+    context->dynablocks = NewDynablockList(0, 0, 0, 0);
 #endif
     InitFTSMap(context);
 

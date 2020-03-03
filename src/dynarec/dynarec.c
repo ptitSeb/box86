@@ -53,8 +53,8 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         #endif
         return arm_epilog;
     }
-    if(!block->block) {
-        // null block, but done, go to epilog
+    if(!block->block || block->parent->nolinker) {
+        // null block, but done, or block that doesn't allow linker: go to epilog, no linker here
         #ifdef ARM
         r = arm_tableupdate(arm_epilog, addr, table);
         if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);

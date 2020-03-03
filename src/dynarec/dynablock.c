@@ -29,13 +29,14 @@
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 
 
-dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz)
+dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker)
 {
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->blocks = kh_init(dynablocks);
     ret->base = base;
     ret->text = text;
     ret->textsz = textsz;
+    ret->nolinker = nolinker;
     pthread_rwlock_init(&ret->rwlock_blocks, NULL);
 
     return ret;

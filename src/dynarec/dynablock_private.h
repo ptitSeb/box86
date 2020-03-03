@@ -20,6 +20,7 @@ typedef struct dynablocklist_s {
     uintptr_t           base;
     uintptr_t           text;
     int                 textsz;
+    int                 nolinker;    // in case this dynablock can disapear
     dynablock_t         **direct;    // direct mapping (waste of space, so not always there)
 } dynablocklist_t;
 

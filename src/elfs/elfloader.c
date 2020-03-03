@@ -154,7 +154,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     head->tlsbase = AddTLSPartition(context, head->tlssize);
 
 #ifdef DYNAREC
-    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz);
+    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz, 0);
 #endif
 
     return 0;

@@ -35,6 +35,7 @@ typedef struct dynarec_arm_s {
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
     int                 fpu_reg;    // x87/sse/mmx reg counter
+    int                 nolinker;   // disable use of (smart) linker in the block
 } dynarec_arm_t;
 
 

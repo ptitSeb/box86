@@ -50,6 +50,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     // init the helper
     dynarec_arm_t helper = {0};
     helper.emu = emu;
+    helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
     arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);

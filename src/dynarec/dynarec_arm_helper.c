@@ -199,7 +199,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
     int i32;
-    if(!box86_dynarec_linker) {
+    if(dyn->nolinker) {
         jump_to_epilog(dyn, ip, reg, ninst);
     } else {
         if(reg) {
@@ -245,7 +245,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 // using linker here doesn't seem to bring any significant speed improvment. To much change in the jump table probably
 #if 0
     int i32;
-    if(!box86_dynarec_linker) {
+    if(dyn->nolinker) {
 #endif
         MESSAGE(LOG_DUMP, "Ret epilog\n");
         POP(xESP, 1<<xEIP);
@@ -283,7 +283,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
     int i32;
-    if(!box86_dynarec_linker) {
+    if(dyn->nolinker) {
         MESSAGE(LOG_DUMP, "Retn epilog\n");
         POP(xESP, 1<<xEIP);
         ADD_IMM8(xESP, xESP, n);
