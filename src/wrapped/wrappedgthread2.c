@@ -19,7 +19,7 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-const char* gthread2Name = "libglib-2.0.so.0";
+const char* gthread2Name = "libgthread-2.0.so.0";
 #define LIBNAME gthread2
 
 static box86context_t* my_context = NULL;
