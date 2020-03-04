@@ -103,7 +103,7 @@ Set level of DynaRec log
 #### BOX86_EMULATED_LIBS
  * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)
 Some games use old version of some lib, with an ABI incompatible with native version.
-Note that LittleInforno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs
+Note that LittleInferno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs (Don't Starve may need that on SDL2 too)
 
 #### BOX86_ALLOWMISSINGLIBS
 Allow box86 to continue even if a lib is missing
