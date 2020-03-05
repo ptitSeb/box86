@@ -154,7 +154,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     head->tlsbase = AddTLSPartition(context, head->tlssize);
 
 #ifdef DYNAREC
-    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz, 0);
+    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz, 0, mainbin);
 #endif
 
     return 0;
@@ -895,6 +895,9 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(!elf) {
         if((*(uint8_t*)addr)==0xCC)
             return context->dynablocks;
+        dynablocklist_t* ret = getDBFromAddress(context, addr);
+        if(ret)
+            return ret;
         if(box86_dynarec_forced)
             return context->dynablocks;
         dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", addr);

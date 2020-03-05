@@ -1113,8 +1113,8 @@ GO(mktemp, pFp)
 GO(mktime, uFp)
 GO(mlock, iFpu)
 GO(mlockall, iFi)
-GOW(mmap, pFpuiiii)
-GOW(mmap64, pFpuiiiI)
+GOM(mmap, pFEpLiiii)
+GOW(mmap64, pFpLiiiI)
 // modf // Weak
 // modff    // Weak
 // modfl    // Weak
@@ -1124,10 +1124,10 @@ GOW(mmap64, pFpuiiiI)
 DATA(__morecore, 4)
 GOW(mount, iFpppup)
 // mprobe
-GOW(mprotect, iFpui)
+GOM(mprotect, iFEpLi)
 // mrand48
 // mrand48_r
-GOW(mremap, pFpuui)
+GOW(mremap, pFpuuip)	// 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
 // msgctl
 // msgget   // Weak
 // msgrcv   // Weak
@@ -1136,7 +1136,7 @@ GOW(msync, iFpui)
 // mtrace
 GO(munlock, iFpu)
 GO(munlockall, iFv)
-GOW(munmap, iFpu)
+GOM(munmap, iFEpL)
 // muntrace
 GOW(nanosleep, iFpp)
 // __nanosleep  // Weak

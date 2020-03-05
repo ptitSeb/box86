@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
-
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -29,7 +29,7 @@
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 
 
-dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker)
+dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker, int direct)
 {
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->blocks = kh_init(dynablocks);
@@ -38,8 +38,20 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
     ret->textsz = textsz;
     ret->nolinker = nolinker;
     pthread_rwlock_init(&ret->rwlock_blocks, NULL);
+    if(direct && textsz)
+        ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
 
     return ret;
+}
+
+void FreeDynablock(dynablock_t* db, int nolinker)
+{
+    if(db) {
+        free(db->table);
+        free(db);
+        if(nolinker)
+            munmap(db->block, db->size);
+    }
 }
 
 void FreeDynablockList(dynablocklist_t** dynablocks)
@@ -48,15 +60,19 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets)%s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), ((*dynablocks)->direct)?" With Direct mapping enabled":"");
+    int nolinker = (*dynablocks)->nolinker;
+    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
-    kh_foreach_value((*dynablocks)->blocks, db,
-        free(db->table);
-        free(db);
+    kh_foreach_value((*dynablocks)->blocks, db, 
+        FreeDynablock(db, nolinker);
     );
     kh_destroy(dynablocks, (*dynablocks)->blocks);
-    if((*dynablocks)->direct)
+    if((*dynablocks)->direct) {
+        for (int i=0; i<(*dynablocks)->textsz; ++i) {
+            FreeDynablock((*dynablocks)->direct[i], nolinker);
+        }
         free((*dynablocks)->direct);
+    }
     (*dynablocks)->direct = 0;
 
     pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
@@ -64,6 +80,37 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     free(*dynablocks);
     *dynablocks = NULL;
 }
+
+uintptr_t StartDynablockList(dynablocklist_t* db)
+{
+    if(db)
+        return db->text;
+    return 0;
+}
+uintptr_t EndDynablockList(dynablocklist_t* db)
+{
+    if(db)
+        return db->text+db->textsz;
+    return 0;
+}
+void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
+{
+    uintptr_t startdb = dynablocks->text;
+    uintptr_t enddb = dynablocks->text + dynablocks->textsz;
+    uintptr_t start = addr;
+    uintptr_t end = addr+size;
+    if(start<startdb)
+        start = startdb;
+    if(end>enddb)
+        end = enddb;
+    if(end>startdb && start<enddb)
+        for(uintptr_t i = start; i<end; ++i)
+            if(dynablocks->direct[i-startdb]) {
+                FreeDynablock(dynablocks->direct[i-startdb], dynablocks->nolinker);
+                dynablocks->direct[i-startdb] = NULL;
+            }
+}
+
 
 void ConvertHash2Direct(dynablocklist_t* dynablocks)
 {
@@ -107,12 +154,12 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     dynablock_t* block = NULL;
     if(current) {
         dynablocks = current->parent;    
-        if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz) {
+        if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz))) {
             block = dynablocks->direct[addr-dynablocks->text];
             if(block)
                 return block;
         }
-        if(!(addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz))
+        if(!(addr>=dynablocks->text && addr<=(dynablocks->text+dynablocks->textsz)))
             dynablocks = NULL;
     }
     // nope, lets do the long way
@@ -121,14 +168,14 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     if(!dynablocks)
         return NULL;
     // check direct first, without lock
-    if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
+    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz)))
         block = dynablocks->direct[addr-dynablocks->text];
     if(block)
         return block;
     // nope, put rwlock in read mode and check hash
     pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
     // but first, check again just in case it has been created while waiting for mutex
-    if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
+    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz)))
         block = dynablocks->direct[addr-dynablocks->text];
     if(block) {
         pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
@@ -152,8 +199,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
-    if(dynablocks->direct && addr>=dynablocks->text && addr<=dynablocks->text+dynablocks->textsz)
-    {
+    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
         k = kh_put(dynablocks, dynablocks->blocks, addr-dynablocks->base, &ret);

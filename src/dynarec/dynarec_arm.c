@@ -100,7 +100,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     arm_pass2(&helper, addr);
     // ok, now allocate mapped memory, with executable flag on
     int sz = helper.arm_size;
-    void* p = (void*)AllocDynarecMap(emu->context, sz);
+    void* p = (void*)AllocDynarecMap(emu->context, sz, block->parent->nolinker);
     if(p==NULL) {
         free(helper.insts);
         return;

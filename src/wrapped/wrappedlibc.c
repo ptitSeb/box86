@@ -1264,6 +1264,7 @@ EXPORT void* my____brk_addr = NULL;
 #undef pwrite
 #undef creat
 #undef scandir
+#undef mmap
 
 // longjmp / setjmp
 typedef struct jump_buff_i386_s {
@@ -1335,6 +1336,41 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
     } else
         ret = realpath(path, resolved_path);
     return ret;
+}
+
+EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
+{
+    printf_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
+    void* ret = mmap(addr, length, prot, flags, fd, offset);
+    printf_log(LOG_DEBUG, "%p\n", ret);
+    #ifdef DYNAREC
+    if(prot& PROT_EXEC)
+        addDBFromAddressRange(emu->context, (uintptr_t)ret, length);
+    else
+        cleanDBFromAddressRange(emu->context, (uintptr_t)ret, length);
+    #endif
+    return ret;
+}
+
+EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
+{
+    printf_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
+    #ifdef DYNAREC
+    cleanDBFromAddressRange(emu->context, (uintptr_t)addr, length);
+    #endif
+    return munmap(addr, length);
+}
+
+EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
+{
+    printf_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
+    #ifdef DYNAREC
+    if(prot& PROT_EXEC)
+        addDBFromAddressRange(emu->context, (uintptr_t)addr, len);
+    else
+        cleanDBFromAddressRange(emu->context, (uintptr_t)addr, len);
+    #endif
+    return mprotect(addr, len, prot);
 }
 
 static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)

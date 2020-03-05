@@ -28,8 +28,16 @@ typedef struct mmaplist_s {
 
 #define MMAPSIZE (4*1024*1024)       // allocate 4Mo sized blocks
 
-uintptr_t AllocDynarecMap(box86context_t *context, int size)
+uintptr_t AllocDynarecMap(box86context_t *context, int size, int nolinker)
 {
+    if(nolinker) {
+        void* p = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if(p==MAP_FAILED) {
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            return 0;
+        }
+        return (uintptr_t)p;
+    }
     // make size 0x10 bytes aligned
     size = (size+0x0f)&~0x0f;
     pthread_mutex_lock(&context->mutex_mmap);
@@ -58,6 +66,54 @@ uintptr_t AllocDynarecMap(box86context_t *context, int size)
     pthread_mutex_unlock(&context->mutex_mmap);
     return (uintptr_t)p;
 }
+
+// each dynmap is 64k of size
+typedef struct dynmap_s {
+    dynablocklist_t* dynablocks;    // the dynabockist of the block
+} dynmap_t;
+
+dynablocklist_t* getDBFromAddress(box86context_t* context, uintptr_t addr)
+{
+    int idx = (addr>>16);
+    if(!context->dynmap[idx]) {
+        return NULL;
+    }
+    return context->dynmap[idx]->dynablocks;
+}
+
+void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size));
+    int idx = (addr>>16);
+    int end = ((addr+size)>>16);
+    for (int i=idx; i<=end; ++i) {
+        if(!context->dynmap[i]) {
+            context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
+            context->dynmap[i]->dynablocks = NewDynablockList(0, i<<16, 65536, 1, 1);
+        }
+    }
+}
+
+void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size));
+    int idx = (addr>>16);
+    int end = ((addr+size)>>16);
+    for (int i=idx; i<=end; ++i) {
+        dynmap_t* dynmap = context->dynmap[i];
+        if(dynmap) {
+            uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
+            uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
+            if(addr<=startdb && (addr+size)>=enddb) {
+                context->dynmap[i] = NULL;
+                FreeDynablockList(&dynmap->dynablocks);
+                free(dynmap);
+            } else
+                FreeDirectDynablock(dynmap->dynablocks, addr, addr+size);
+        }
+    }
+}
+
 #endif
 
 void x86Syscall(x86emu_t *emu);
@@ -118,7 +174,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynablocks = NewDynablockList(0, 0, 0, 0);
+    context->dynablocks = NewDynablockList(0, 0, 0, 0, 0);
 #endif
     InitFTSMap(context);
 
@@ -152,6 +208,8 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->mmaplist);
     pthread_mutex_destroy(&(*context)->mutex_blocks);
     pthread_mutex_destroy(&(*context)->mutex_mmap);
+    dynarec_log(LOG_INFO, "Free dynamic Dynarecblocks\n");
+    cleanDBFromAddressRange(*context, 0, 0xffffffff);
 #endif
     
     if((*context)->emu)
