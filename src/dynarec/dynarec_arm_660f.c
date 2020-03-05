@@ -1177,6 +1177,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VBICQ(v0, q0, v0);
             break;
 
+        case 0xE5:
+            INST_NAME("PMULHW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_S32_S16(q0, v0, v1);
+            VUZP_16(q0, q0+1);
+            VMOVD(v0, q0+1);
+            VMULL_S32_S16(q0, v0+1, v1+1);
+            VUZP_16(q0, q0+1);
+            VMOVD(v0+1, q0+1);
+            break;
+
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
             nextop = F8;
@@ -1191,12 +1205,28 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0xE9:
+            INST_NAME("PSUBSW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VQSUBQ_S16(v0, v0, q0);
+            break;
+
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
             GETGX(v0);
             GETEX(q0);
             VORRQ(v0, v0, q0);
+            break;
+
+        case 0xED:
+            INST_NAME("PADDSW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VQADDQ_S16(v0, v0, q0);
             break;
 
         case 0xEF:
@@ -1224,12 +1254,23 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VTRN_32(q1, q1+1);  // transpose EX
             VMULL_U64_U32(v0, q0, q1);
             break;
-        /*case 0xF5:
+        case 0xF5:
             INST_NAME("PMADDWD Gx, Ex");
             nextop = F8;
             GETGX(v0);
-            GETEX(v1);*/
-
+            GETEX(v1);
+            if((nextop&0xC0)==0xC0) {
+                q1 = fpu_get_scratch_quad(dyn);
+                VMOVQ(q1, v1);
+            } else {
+                q1 = v1;
+            }
+            VUZP_16(v0, v0+1);
+            VUZP_16(q1, q1+1);
+            VSWP(v0, q1+1);
+            VMULL_S32_S16(q1, q1, q1+1);
+            VMULL_S32_S16(v0, v0, v0+1);
+            VADDQ_32(v0, v0, q1);
             break;
 
         case 0xF8:

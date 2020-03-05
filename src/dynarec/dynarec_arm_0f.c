@@ -1839,7 +1839,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VQADD_U16(d0, d0, d1);
             break;
 
-        case 0xE4:
+         case 0xDF:
+            INST_NAME("PANDN Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VBICD(v0, v1, v0);
+            break;
+
+       case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
             nextop = F8;
             GETGM(v0);
