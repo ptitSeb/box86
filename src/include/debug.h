@@ -3,6 +3,7 @@
 
 extern int box86_log;    // log level
 #ifdef DYNAREC
+extern int box86_dynarec_dump;
 extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_dynarec_linker;

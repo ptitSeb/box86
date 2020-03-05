@@ -68,6 +68,10 @@ To call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)
 * 0 : default, don't force call XInitThreads
 * 1 : Call XInitThreads as soon as libX11 is loaded
 
+#### BOX86_DYNAREC_DUMP
+ * 0 : Disable Dynarec blocks dump (default)
+ * 1 : Enable Dynarec blocks dump
+
 #### BOX86_DYNAREC_LOG
 Set level of DynaRec log
  * 0 :
@@ -77,7 +81,7 @@ Set level of DynaRec log
  * 2 :
  * DEBUG : Debug Log for Dynarec (with detail on block created / executed)
  * 3 :
- * DUMP : All above plus dump of the x86 -> native opcode conversions
+ * VERBOSE : All above plus more
 
 #### BOX86_DYNAREC
  * 0 : Disable Dynarec

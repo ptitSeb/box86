@@ -38,6 +38,7 @@
 
 int box86_log = LOG_INFO;//LOG_NONE;
 #ifdef DYNAREC
+int box86_dynarec_dump = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_dynarec = 1;
 int box86_dynarec_linker = 1;
@@ -142,6 +143,14 @@ void LoadLogEnv()
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
 #ifdef DYNAREC
+    p = getenv("BOX86_DYNAREC_DUMP");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dynarec_dump = p[0]-'0';
+        }
+        if (box86_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped\n");
+    }
     p = getenv("BOX86_DYNAREC_LOG");
     if(p) {
         if(strlen(p)==1) {
@@ -154,7 +163,7 @@ void LoadLogEnv()
                 box86_dynarec_log = LOG_INFO;
             else if(!strcasecmp(p, "DEBUG"))
                 box86_dynarec_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "DUMP"))
+            else if(!strcasecmp(p, "VERBOSE"))
                 box86_dynarec_log = LOG_DUMP;
         }
         printf_log(LOG_INFO, "Dynarec log level is %d\n", box86_dynarec_log);
