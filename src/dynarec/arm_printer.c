@@ -911,6 +911,19 @@ const char* arm_print(uint32_t opcode)
                         if(imm8)
                             sprintf(offset, ", #%d", u?imm8:-imm8);
                         sprintf(ret, "V%s%s %s%d, [%s%s]", ldr?"LDR":"STR", cond, notsingle?"D":"S", vd, regname[rn], offset);
+                    } else
+                    if(((opcode>>23)&0b111111111)==0b111100100 && (((opcode>>8)&0b1111)==0b1111) && (((opcode>>4)&0b1)==0b0)) {
+                        // VMIN/VMAX
+                        int op = (opcode>>21)&1;
+                        int sz = (opcode>>20)&1;
+                        int Q = (opcode>>6)&1;
+                        int D = (opcode>>22)&1;
+                        int Vd = (opcode>>12)&15;
+                        int N = (opcode>>7)&1;
+                        int Vn = (opcode>>16)&15;
+                        int M = (opcode>>5)&1;
+                        int Vm = (opcode)&15;
+                        sprintf(ret, "V%s%s.F32 %c%d, %c%d, %c%d", op?"MIN":"MAX", Q?"Q":"", Q?'Q':'D', (D<<4 | Vd), Q?'Q':'D', (N<<4 | Vn), Q?'Q':'D', (M<<4 | Vm));
                     }
                     break;
                 default:

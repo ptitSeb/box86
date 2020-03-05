@@ -917,4 +917,8 @@ Op is 20-27
 #define VNEGN_F32(Dd, Dm)   EMIT(VNEGN_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VNEGNQ_F32(Dd, Dm)  EMIT(VNEGN_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VMINMAXF_gen(D, op, sz, Vn, Vd, N, Q, M, Vm)    (0b1111<<28 | 0b0010<<24 | (D)<<22 | (op)<<21 | (sz)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1111<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VMINQ_F32(Dd, Dn, Dm)   EMIT(VMINMAXF_gen(((Dd)>>4)&1, 1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VMAXQ_F32(Dd, Dn, Dm)   EMIT(VMINMAXF_gen(((Dd)>>4)&1, 0, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__

@@ -404,6 +404,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             fpu_putback_single_reg(dyn, ninst, v0, 1, s0);
             VEOR(v0+1, v0+1, v0+1);
             break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VCVTQ_F32_S32(v0, v1);
+            break;
 
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
@@ -1216,6 +1223,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             VTRN_32(q1, q1+1);  // transpose EX
             VMULL_U64_U32(v0, q0, q1);
+            break;
+        /*case 0xF5:
+            INST_NAME("PMADDWD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);*/
+
             break;
 
         case 0xF8:

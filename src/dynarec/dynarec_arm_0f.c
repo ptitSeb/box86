@@ -521,7 +521,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGX(v0);
             VSUBQ_F32(v0, v0, q0);
             break;
-
+        case 0x5D:
+            INST_NAME("MINPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VMINQ_F32(v0, v0, v1);
+            break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
@@ -536,7 +542,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMULQ_F32(q0, q0, q1);
             VMULQ_F32(v0, v0, q0);
             break;
-
+        case 0x5F:
+            INST_NAME("MAXPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VMAXQ_F32(v0, v0, v1);
+            break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gm,Em");
             nextop = F8;
