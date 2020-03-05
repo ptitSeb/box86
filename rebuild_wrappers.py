@@ -6,12 +6,8 @@ import sys
 
 values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', "O", "S"]
 def splitchar(s):
-	ret = [len(s)]
-	i = 0
-	for c in s:
-		i = i + 1
-		if i == 2:
-			continue
+	ret = [len(s), values.index(s[0])]
+	for c in s[2:]:
 		ret.append(values.index(c))
 	return ret
 
@@ -36,16 +32,20 @@ def splitdef(dnf, defines):
 def invert(define):
 	return define[1:] if define.startswith("!") else ("!" + define)
 
-def main(root, defines, ver):
-	# Initialize variables: gbl for all values, vals for file-per-file values, redirects for redirections
+def main(root, defines, files, ver):
+	try:
+		os.remove(os.path.join(root, "src", "wrapped", "generated", "generated_mark.txt"))
+	except OSError:
+		# The file does not exists
+		pass
+	
+	# Initialize variables: gbl for all values, redirects for redirections
 	gbl = {}
-	vals = {}
 	redirects = {}
 	
 	# First read the files inside the headers
-	for filepath in glob.glob(os.path.join(root, "src/wrapped/", "wrapped*_private.h")):
+	for filepath in files:
 		filename = filepath.split("/")[-1]
-		locval = {}
 		dependants = []
 		with open(filepath, 'r') as file:
 			for line in file:
@@ -69,7 +69,7 @@ def main(root, defines, ver):
 							dependants.append("defined(" + preproc_cmd[5:].strip() + ")")
 						elif preproc_cmd.startswith("ifndef"):
 							if preproc_cmd[5:].strip() not in defines:
-								raise KeyError(preproc_cmd[5:].strip())
+								raise KeyError(preproc_cmd[6:].strip())
 							dependants.append("!defined(" + preproc_cmd[6:].strip() + ")")
 						elif preproc_cmd.startswith("else"):
 							dependants[-1] = invert(dependants[-1])
@@ -103,17 +103,9 @@ def main(root, defines, ver):
 						redirects.setdefault(" && ".join(dependants), {})
 						redirects[" && ".join(dependants)][old] = ln
 					# Simply append the function name if it's not yet existing
-					locval.setdefault(" && ".join(dependants), [])
 					gbl.setdefault(" && ".join(dependants), [])
-					if ln not in locval[" && ".join(dependants)]:
-						locval[" && ".join(dependants)].append(ln)
 					if ln not in gbl[" && ".join(dependants)]:
 						gbl[" && ".join(dependants)].append(ln)
-		
-		# Sort the file local values and add it to the dictionary
-		for k in locval:
-			locval[k].sort(key=splitchar)
-		vals[filename] = locval
 	
 	gbl_vals = {}
 	for k in gbl:
@@ -198,6 +190,29 @@ def main(root, defines, ver):
 		else:
 			ret = str(l)
 		return ret
+	
+	# Check if there was any new functions
+	functions_list = ""
+	for k in ["()"] + gbl_idxs:
+		for v in gbl[k]:
+			functions_list = functions_list + "#" + k + " " + ''.join(v) + "\n"
+	for k in ["()"] + redirects_idxs:
+		for v in redirects[k]:
+			functions_list = functions_list + "#" + k + " " + ''.join(v) + "\n"
+	
+	# functions_list is a unique string, compare it with the last run
+	try:
+		last_run = ""
+		with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'r') as file:
+			last_run = file.read()
+		if last_run == functions_list:
+			# Mark as OK for CMake
+			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
+				file.write(functions_list)
+			return 0
+	except IOError:
+		# The file does not exist yet, first run
+		pass
 	
 	# Now the files rebuilding part
 	# File headers and guards
@@ -289,7 +304,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		gbl[k] = [[c for c in v] for v in gbl[k]]
 	
 	# Rewrite the wrapper.h file:
-	with open(os.path.join(root, "src/wrapped/generated/", "wrapper.h"), 'w') as file:
+	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
 		file.write(files_headers["wrapper.h"] % ver)
 		for v in gbl["()"]:
 			file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
@@ -311,7 +326,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		file.write(files_guards["wrapper.h"])
 	
 	# Rewrite the wrapper.c file:
-	with open(os.path.join(root, "src/wrapped/generated/", "wrapper.c"), 'w') as file:
+	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
 		file.write(files_headers["wrapper.c"] % ver)
 		
 		# First part: typedefs
@@ -431,9 +446,17 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		file.write(files_guards["wrapper.c"])
 	
+	# Save the string for the next iteration, writing was successful
+	with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
+		file.write(functions_list)
+	
 	return 0
 
 if __name__ == '__main__':
-	if main(sys.argv[1], sys.argv[2:], "1.1.1.06") != 0:
+	limit = []
+	for i, v in enumerate(sys.argv):
+		if v == "--":
+			limit.append(i)
+	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.2.0.08") != 0:
 		exit(2)
 	exit(0)

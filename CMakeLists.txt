@@ -263,7 +263,15 @@ endforeach()
 
 set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrapper.c" "${BOX86_ROOT}/src/wrapped/generated/wrapper.h")
 
-add_custom_command(OUTPUT ${WRAPPER} COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py" DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD})
+add_custom_command(
+    OUTPUT "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt"
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" "--" ${WRAPPEDS_HEAD}
+    MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py"
+    DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
+    BYPRODUCTS ${WRAPPER}
+)
+
+add_custom_target(WRAPPERS DEPENDS "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt")
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
@@ -313,6 +321,10 @@ if(ARM_DYNAREC)
     set_target_properties(arm_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
     add_library(arm_pass3 OBJECT ${DYNAREC_PASS})
     set_target_properties(arm_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_dependencies(arm_pass0 WRAPPERS)
+    add_dependencies(arm_pass1 WRAPPERS)
+    add_dependencies(arm_pass2 WRAPPERS)
+    add_dependencies(arm_pass3 WRAPPERS)
 
     add_library(dynarec STATIC 
         $<TARGET_OBJECTS:dynarec_arm> 
@@ -326,6 +338,7 @@ endif()
 if(BOX86LIB)
 #build a static lib...
 add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
+add_dependencies(box86 WRAPPERS)
 
 else(BOX86LIB)
 
@@ -338,6 +351,7 @@ else()
 endif()
 
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
+add_dependencies(${BOX86} WRAPPERS)
 target_link_libraries(${BOX86} m dl rt pthread)
 if(ARM_DYNAREC)
     target_link_libraries(${BOX86} dynarec)
