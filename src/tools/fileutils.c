@@ -20,7 +20,7 @@ static const char* x86sign = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x00" "\x00" "\x
 int FileExist(const char* filename, int flags)
 {
     struct stat sb;
-    if (lstat(filename, &sb) == -1)
+    if (stat(filename, &sb) == -1)
         return 0;
     if(flags==-1)
         return 1;
