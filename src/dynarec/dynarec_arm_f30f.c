@@ -465,6 +465,24 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0xBC:
+            INST_NAME("TZCNT Gd, Ed");
+            nextop = F8;
+            GETED;
+            GETGD;
+            TSTS_REG_LSL_IMM8(ed, ed, 0);
+            RBIT(x1, ed);   // reverse
+            CLZ(gd, x1);    // x2 gets leading 0 == TZCNT
+            MOVW_COND(cEQ, x1, 1);
+            MOVW_COND(cNE, x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            RSB_IMM8(x1, x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            UFLAGS(1);
+            break;
+
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex");
             nextop = F8;
