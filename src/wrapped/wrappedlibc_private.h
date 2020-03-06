@@ -1993,7 +1993,7 @@ GOW(wcsxfrm_l, uFppup)
 GO(__wcsxfrm_l, uFppup)
 GO(wctob, iFi)
 GO(wctomb, iFpi)
-// __wctomb_chk
+GO(__wctomb_chk, iFpuL)
 // wctrans  // Weak
 // __wctrans_l
 // wctrans_l    // Weak

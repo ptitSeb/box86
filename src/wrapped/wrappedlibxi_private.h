@@ -15,8 +15,8 @@ GO(XDeleteDeviceProperty, vFppp)
 //GO(XDeviceBell, 
 //GO(XFreeDeviceControl, 
 GO(XFreeDeviceList, iFp)
-//GO(XFreeDeviceMotionEvents, 
-//GO(XFreeDeviceState, 
+GO(XFreeDeviceMotionEvents, iFv)
+GO(XFreeDeviceState, vFp)
 //GO(XFreeFeedbackList, 
 //GO(XGetDeviceButtonMapping, 
 //GO(XGetDeviceControl, 
@@ -24,12 +24,12 @@ GO(XFreeDeviceList, iFp)
 //GO(XGetDeviceFocus, 
 //GO(XGetDeviceKeyMapping, 
 //GO(XGetDeviceModifierMapping, 
-//GO(XGetDeviceMotionEvents, 
+GO(XGetDeviceMotionEvents, pFppuuppp)
 GO(XGetDeviceProperty, iFpppllipppppp)
 //GO(XGetExtensionVersion, 
 //GO(XGetFeedbackControl, 
 //GO(XGetSelectedExtensionEvents, 
-//GO(XGrabDevice, 
+GO(XGrabDevice, iFpppiipiiu)
 //GO(XGrabDeviceButton, 
 //GO(XGrabDeviceKey, 
 //GO(XIAllowEvents, 
@@ -69,15 +69,15 @@ GO(XIUngrabDevice, iFpiL)
 //GO(XListDeviceProperties, 
 GO(XListInputDevices, pFpp)
 GO(XOpenDevice, pFpp)
-//GO(XQueryDeviceState, 
-//GO(XSelectExtensionEvent, 
+GO(XQueryDeviceState, pFpp)
+GO(XSelectExtensionEvent, iFpppi)
 //GO(XSendExtensionEvent, 
 //GO(XSetDeviceButtonMapping, 
 //GO(XSetDeviceFocus, 
 //GO(XSetDeviceMode, 
 //GO(XSetDeviceModifierMapping, 
 //GO(XSetDeviceValuators, 
-//GO(XUngrabDevice, 
+GO(XUngrabDevice, iFppu)
 //GO(XUngrabDeviceButton, 
 //GO(XUngrabDeviceKey, 
 //GO(_XiGetDevicePresenceNotifyEvent, 

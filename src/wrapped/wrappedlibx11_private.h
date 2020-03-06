@@ -28,7 +28,7 @@ GO(XAddExtension, pFp)
 //GO(XAddToSaveSet
 GO(XAllocClassHint, pFv)
 GO(XAllocColor, iFppp)
-//GO(XAllocColorCells
+GO(XAllocColorCells, iFppipipi)
 //GO(XAllocColorPlanes
 //GO(XAllocIconSize
 // _XAllocID
@@ -44,7 +44,7 @@ GO(XAllPlanes, uFv)
 // _XAsyncErrorHandler
 GO(XAutoRepeatOff, iFp)
 GO(XAutoRepeatOn, iFp)
-//GO(XBaseFontNameListOfFontSet
+GO(XBaseFontNameListOfFontSet, pFp)
 GO(XBell, iFpi)
 //GO(XBitmapBitOrder
 //GO(XBitmapPad
@@ -352,7 +352,7 @@ GO(XFlush, iFp)
 GO(_XFlush, vFp)
 GO(XFlushGC, vFpp)
 GO(_XFlushGCCache, vFpp)
-//GO(XFontsOfFontSet
+GO(XFontsOfFontSet, iFppp)
 GO(XForceScreenSaver, iFpi)
 GO(XFree, iFp)
 // _XFreeAtomTable
@@ -405,7 +405,7 @@ GO(XGetKeyboardControl, iFpp)
 GO(XGetKeyboardMapping, pFppip)
 // _XGetLCValues
 GO(XGetModifierMapping, pFp)
-//GO(XGetMotionEvents
+GO(XGetMotionEvents, pFppuup)
 //GO(XGetNormalHints
 //GO(XGetOCValues
 //GO(XGetOMValues
@@ -787,7 +787,7 @@ GO(XMatchVisualInfo, iFpiiip)
 //GO(XMaxCmapsOfScreen
 GO(XMaxRequestSize, iFp)
 //GO(XmbDrawImageString
-//GO(XmbDrawString
+GO(XmbDrawString, vFppppiipi)
 //GO(XmbDrawText
 // _Xmblen
 GO(XmbLookupString, iFuppipp)
@@ -795,12 +795,12 @@ GO(XmbResetIC, pFu)
 GO(XmbSetWMProperties, vFpppppippp)
 // _Xmbstoutf8
 // _Xmbstowcs
-//GO(XmbTextEscapement
+GO(XmbTextEscapement, iFppi)
 GO(XmbTextExtents, uFppipp)
-//GO(XmbTextListToTextProperty
+GO(XmbTextListToTextProperty, iFppiip)
 // _XmbTextListToTextProperty
 //GO(XmbTextPerCharExtents
-//GO(XmbTextPropertyToTextList
+GO(XmbTextPropertyToTextList, iFpppp)
 // _XmbTextPropertyToTextList
 // _Xmbtowc
 //GO(XMinCmapsOfScreen
@@ -925,7 +925,7 @@ GO(XScreenOfDisplay, pFpi)
 GO(XSelectInput, iFppi)
 GO(_XSend, vFppi)
 GO(XSendEvent, uFppiip)
-//GO(XServerVendor
+GO(XServerVendor, pFp)
 GO(XSetAccessControl, iFpi)
 //GO(XSetAfterFunction
 GO(XSetArcMode, iFppi)
@@ -958,9 +958,9 @@ GO(XSetGraphicsExposures, iFppu)
 GO(XSetICFocus, vFu)
 GO(XSetIconName, iFppp)
 //GO(XSetIconSizes
-GO(XSetICValues, pFpppppp)          // use vargarg
+GO(XSetICValues, pFpppppp)          // use vaarg
 // _XSetImage
-//GO(XSetIMValues
+GO(XSetIMValues, pFppppppppppppp)	// use vaarg
 GO(XSetInputFocus, iFppii)
 GOM(XSetIOErrorHandler, pFEp)
 GO(_XSetLastRequestRead, uFpp)
@@ -1011,7 +1011,7 @@ GO(XStoreColors, iFpppi)
 GO(XStoreName, iFppp)
 //GO(XStoreNamedColor
 GO(XStringListToTextProperty, iFpip)
-//GO(XStringToKeysym
+GO(XStringToKeysym, uFp)
 //GOM(XSubImage, pFEpiiuu)    // need unbridging
 GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
 GO(XSubtractRegion, iFppp)
@@ -1074,7 +1074,7 @@ GO(XVaCreateNestedList, pFipppppppppppppppppppppp)  // should recreate the funct
 GO(XVisualIDFromVisual, uFp)
 GO(XWarpPointer, iFpppiiuuii)
 //GO(XwcDrawImageString
-//GO(XwcDrawString
+GO(XwcDrawString, vFppppiipi)
 //GO(XwcDrawText
 //GO(XwcFreeStringList
 // _XwcFreeStringList
@@ -1086,9 +1086,9 @@ GO(XwcLookupString, iFuppipp)
 // _Xwcsncmp
 // _Xwcsncpy
 // _Xwcstombs
-//GO(XwcTextEscapement
+GO(XwcTextEscapement, iFppi)
 GO(XwcTextExtents, iFppipp)
-GO(XwcTextListToTextProperty, iFppiup)
+GO(XwcTextListToTextProperty, iFppiip)
 // _XwcTextListToTextProperty
 //GO(XwcTextPerCharExtents
 //GO(XwcTextPropertyToTextList
