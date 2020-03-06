@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import glob
 import sys
 
 values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', "O", "S"]
