@@ -540,6 +540,11 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
         AddPath("libvorbis.so.0", &context->box86_emulated_libs, 0);
     }
+    // special case for dontstarve that use an old SDL2
+    if(strstr(prog, "dontstarve")) {
+        printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
+        AddPath("libSDL2-2.0.so.0", &context->box86_emulated_libs, 0);
+    }
 
     for(int i=1; i<context->argc; ++i)
         context->argv[i] = strdup(argv[i+1]);
