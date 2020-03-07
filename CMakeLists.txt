@@ -259,6 +259,7 @@ set(WRAPPEDS_HEAD "")
 foreach(A ${WRAPPEDS})
     string(REPLACE ".c" "_private.h" B ${A})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
+    set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
 endforeach()
 
 set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrapper.c" "${BOX86_ROOT}/src/wrapped/generated/wrapper.h")
