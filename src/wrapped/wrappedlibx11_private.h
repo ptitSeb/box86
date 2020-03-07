@@ -868,7 +868,7 @@ GO(XRefreshKeyboardMapping, iFp)
 // _XRefreshKeyboardMapping
 // _XRegisterFilterByMask
 // _XRegisterFilterByType
-//GO(XRegisterIMInstantiateCallback
+GOM(XRegisterIMInstantiateCallback, iFEpppppp)
 // _XRegisterInternalConnection
 //GO(XRemoveConnectionWatch
 //GO(XRemoveFromSaveSet
@@ -1049,7 +1049,7 @@ DATAB(_XUnlockMutex_fn, 4)
 GO(XUnmapSubwindows, iFpp)
 GO(XUnmapWindow, iFpp)
 // _XUnregisterFilter
-//GO(XUnregisterIMInstantiateCallback
+GOM(XUnregisterIMInstantiateCallback, iFEpppppp)
 // _XUnregisterInternalConnection
 // _XUnresolveColor
 GO(XUnsetICFocus, vFu)

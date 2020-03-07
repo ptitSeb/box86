@@ -45,6 +45,20 @@ onecallback_t* FindCallback(x86emu_t* emu)
     return kh_value(callbacks->list, k);
 }
 
+x86emu_t* FindCallbackFnc1Arg(x86emu_t* emu, uintptr_t fnc, int argn, void* arg)
+{
+    if(!emu)
+        return NULL;
+    // find the callback first
+    callbacklist_t *callbacks = emu->context->callbacks;
+    onecallback_t* cb;
+    kh_foreach_value(callbacks->list, cb, 
+        if(cb->fnc==fnc && cb->arg[argn]==arg)
+            return cb->emu;
+    );
+    return NULL;
+}
+
 int IsCallback(box86context_t* context, x86emu_t* cb)
 {
     if(!cb)

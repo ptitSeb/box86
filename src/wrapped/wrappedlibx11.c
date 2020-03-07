@@ -96,6 +96,7 @@ typedef void* (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t
 typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
 typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
+typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
 typedef struct x11_my_s {
     // functions
@@ -124,6 +125,8 @@ typedef struct x11_my_s {
     iFp_t           XCloseDisplay;
     pFp_t           XOpenDisplay;
     uFv_t           XInitThreads;
+    iFpppppp_t      XRegisterIMInstantiateCallback;
+    iFpppppp_t      XUnregisterIMInstantiateCallback;
 
 } x11_my_t;
 
@@ -156,6 +159,8 @@ void* getX11My(library_t* lib)
     GO(XCloseDisplay, iFp_t)
     GO(XOpenDisplay, pFp_t)
     GO(XInitThreads, uFv_t)
+    GO(XRegisterIMInstantiateCallback, iFpppppp_t)
+    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)
     #undef GO
     return my;
 }
@@ -776,6 +781,32 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
     void* ret = my->XOpenDisplay(d);
     return ret;
 }
+
+static void my_xidproc(void* d, void* p, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 2, d, p);
+    RunCallback(emu);
+}
+
+EXPORT int my_XRegisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    x86emu_t *cbemu = cb?AddCallback(emu, (uintptr_t)cb, 3, NULL, NULL, data, NULL):NULL;
+    return my->XRegisterIMInstantiateCallback(d, db, res_name, res_class, cb?my_xidproc:NULL, cb?cbemu:data);
+}
+    
+EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    x86emu_t* cbemu = FindCallbackFnc1Arg(emu, (uintptr_t)cb, 2, data);
+
+    return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, cbemu?my_xidproc:cb, cbemu?cbemu:data);
+}
+
 
 #define CUSTOM_INIT                 \
     box86->x11lib = lib;            \
