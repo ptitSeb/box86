@@ -45,14 +45,14 @@ GO(FcConfigAppFontAddFile, iFpp)
 //GO(FcConfigDestroy, 
 //GO(FcConfigEnableHome, 
 //GO(FcConfigFilename, 
-//GO(FcConfigGetBlanks, 
+GO(FcConfigGetBlanks, pFp)
 //GO(FcConfigGetCache, 
 //GO(FcConfigGetCacheDirs, 
 //GO(FcConfigGetConfigDirs, 
 //GO(FcConfigGetConfigFiles, 
 //GO(FcConfigGetCurrent, 
 //GO(FcConfigGetFontDirs, 
-//GO(FcConfigGetFonts, 
+GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigGetRescanInterval, 
 //GO(FcConfigGetRescanInverval, 
 //GO(FcConfigHome, 
@@ -79,7 +79,7 @@ GO(FcDefaultSubstitute, vFp)
 GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
 //GO(FcFontRenderPrepare, 
-//GO(FcFontSetAdd, 
+GO(FcFontSetAdd, iFpp)
 //GO(FcFontSetCreate, 
 GO(FcFontSetDestroy, vFp)
 //GO(FcFontSetList, 
@@ -91,8 +91,8 @@ GO(FcFontSort, pFppipp)
 //GO(FcFreeTypeCharIndex, 
 //GO(FcFreeTypeCharSet, 
 //GO(FcFreeTypeCharSetAndSpacing, 
-//GO(FcFreeTypeQuery, 
-//GO(FcFreeTypeQueryFace, 
+GO(FcFreeTypeQuery, pFpipp)
+GO(FcFreeTypeQueryFace, pFppip)
 //GO(FcGetLangs, 
 //GO(FcGetVersion, 
 GO(FcInit, iFv)
@@ -101,12 +101,12 @@ GO(FcInit, iFv)
 //GO(FcInitLoadConfigAndFonts, 
 //GO(FcInitReinitialize, 
 //GO(FcLangGetCharSet, 
-//GO(FcLangSetAdd, 
+GO(FcLangSetAdd, iFpp)
 //GO(FcLangSetCompare, 
 //GO(FcLangSetContains, 
 //GO(FcLangSetCopy, 
-//GO(FcLangSetCreate, 
-//GO(FcLangSetDestroy, 
+GO(FcLangSetCreate, pFv)
+GO(FcLangSetDestroy, vFp)
 //GO(FcLangSetEqual, 
 //GO(FcLangSetGetLangs, 
 //GO(FcLangSetHash, 
@@ -126,10 +126,10 @@ GO(FcLangSetHasLang, iFpp)
 //GO(FcNameUnparse, 
 //GO(FcNameUnregisterConstants, 
 //GO(FcNameUnregisterObjectTypes, 
-//GO(FcObjectSetAdd, 
+GO(FcObjectSetAdd, iFpp)
 GO2(FcObjectSetBuild, pFpV, FcObjectSetVaBuild)
-//GO(FcObjectSetCreate, 
-//GO(FcObjectSetDestroy, 
+GO(FcObjectSetCreate, pFv)
+GO(FcObjectSetDestroy, vFp)
 GO(FcObjectSetVaBuild, pFpp)
 GOM(FcPatternAdd, iFEppiuui)  // FcValue is a typedef with int+union, with biggest part is a double => so 3 "u32" on the stack
 GO(FcPatternAddBool, iFppi)
@@ -140,10 +140,10 @@ GO(FcPatternAddInteger, iFppi)
 GO(FcPatternAddLangSet, iFppp)
 GO(FcPatternAddMatrix, iFppp)
 GO(FcPatternAddString, iFppp)
-//GO(FcPatternAddWeak, 
+GO(FcPatternAddWeak, iFppiuui)
 GO2(FcPatternBuild, pFpV, FcPatternVaBuild)
 GO(FcPatternCreate, pFv)
-//GO(FcPatternDel, 
+GO(FcPatternDel, iFpp)
 GO(FcPatternDestroy, vFp)
 //GO(FcPatternDuplicate, 
 //GO(FcPatternEqual, 
