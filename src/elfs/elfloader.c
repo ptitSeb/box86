@@ -748,7 +748,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         uintptr_t offs = h->SymTab[i].st_value + h->delta;
 
-        if(offs<addr) {
+        if(offs<=addr) {
             if(distance>addr-offs) {
                 distance = addr-offs;
                 ret = symname;
@@ -761,7 +761,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         uintptr_t offs = h->DynSym[i].st_value + h->delta;
 
-        if(offs<addr) {
+        if(offs<=addr) {
             if(distance>addr-offs) {
                 distance = addr-offs;
                 ret = symname;
