@@ -109,6 +109,7 @@ typedef struct box86context_s {
     library_t           *sdl2imagelib;
     library_t           *sdl2ttflib;
     library_t           *x11lib;
+    library_t           *libxcb;
     library_t           *zlib;
     library_t           *vorbisfile;
     library_t           *vorbis;

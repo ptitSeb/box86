@@ -328,7 +328,6 @@
 #() uFpii
 #() uFpiu
 #() uFpip
-#() uFpCC
 #() uFpup
 #() uFppi
 #() uFppu
@@ -378,6 +377,7 @@
 #() pFpui
 #() pFpuu
 #() pFpup
+#() pFpUp
 #() pFpdu
 #() pFpll
 #() pFplp
@@ -574,7 +574,6 @@
 #() uFuuuu
 #() uFpipp
 #() uFpCCC
-#() uFpCpu
 #() uFpuip
 #() uFpuuu
 #() uFpuup
@@ -582,7 +581,6 @@
 #() uFppip
 #() uFppup
 #() uFpppi
-#() uFpppu
 #() uFpppp
 #() UFppii
 #() UFppip
@@ -600,6 +598,7 @@
 #() pFEpii
 #() pFEpip
 #() pFEppi
+#() pFEppu
 #() pFEppp
 #() pFEppV
 #() pFiiii
@@ -796,14 +795,12 @@
 #() uFuiiiu
 #() uFupppp
 #() uFpCCCC
-#() uFpCpup
 #() uFpuuuu
 #() uFpuuup
 #() uFppiip
 #() uFppipp
 #() uFppuup
 #() uFppLpp
-#() uFpppWW
 #() uFppppp
 #() lFppiip
 #() LFEpppp
@@ -815,6 +812,8 @@
 #() pFEpipp
 #() pFEpupp
 #() pFEppii
+#() pFEppCC
+#() pFEppup
 #() pFEpppp
 #() pFiiiii
 #() pFipipu
@@ -971,13 +970,17 @@
 #() iFpppppu
 #() iFpppppp
 #() uFEiippp
-#() uFpCppCC
 #() uFpppppp
 #() uFSpuiip
 #() LFEupppp
 #() LFpipipi
 #() pFEpippp
 #() pFEpuupp
+#() pFEppCWp
+#() pFEppCuW
+#() pFEppCuu
+#() pFEppuWp
+#() pFEppuuu
 #() pFEppuup
 #() pFEpppup
 #() pFEppppp
@@ -1091,12 +1094,14 @@
 #() uFuippppp
 #() LFEpppppu
 #() pFEpLiiii
+#() pFEppCuup
 #() pFEppuipp
+#() pFEppuuWW
+#() pFEppuuup
 #() pFEppppip
 #() pFEpppppp
 #() pFifffppp
 #() pFuupupup
-#() pFpCpupCC
 #() pFplppppp
 #() pFppiiipp
 #() pFppipipp
@@ -1171,6 +1176,9 @@
 #() uFEpiupppp
 #() uFuipppppp
 #() LFEpiupppp
+#() pFEppCuuCC
+#() pFEppCuuWW
+#() pFEppuuuuu
 #() pFEppppppi
 #() pFEppppppp
 #() pFiipppppp
@@ -1227,6 +1235,8 @@
 #() uFppppppppp
 #() LFEppppppii
 #() pFEppiiuuui
+#() pFEppCuwwWW
+#() pFEppCuuuuu
 #() pFEppuippuu
 #() pFEpppppppi
 #() pFpiiiiuuuu
@@ -1272,6 +1282,8 @@
 #() pFEiippppppp
 #() pFEpiiiiiipp
 #() pFEpippppppp
+#() pFEppCuwwWWu
+#() pFEppCuuuCup
 #() pFppuiipuuii
 #() vFiippppppppp
 #() vFuiiiiiiiiip
@@ -1302,7 +1314,9 @@
 #() uFEpiippppiup
 #() pFEpipppppppi
 #() pFEppiiLpppip
+#() pFEppCuWCCuuu
 #() pFEppuiipuuii
+#() pFEppuuwwWWww
 #() pFppppppppppp
 #() vFuuiiiiiiiuip
 #() vFuuiiiiiiiuup
@@ -1323,6 +1337,7 @@
 #() iFpppppppppppp
 #() lFpLpppppppppp
 #() pFEppiiuuuipii
+#() pFEppuuuwwwwWW
 #() pFppiiuuuiupup
 #() vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu
@@ -1344,10 +1359,13 @@
 #() vFpppppppppppppp
 #() iFpipppppppppppp
 #() iFpppppppppppppp
+#() pFEppCuuWWwwCCup
+#() pFEppuuuWWWWWWWW
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
 #() vFpppippppppppppp
 #() vFppppppppppppppp
+#() pFEppCuuwwWWWWuup
 #() pFpuiippppppppppp
 #() pFppipppppppppppp
 #() pFppppppppppppppp
@@ -1363,7 +1381,6 @@
 #() vFpiiiiiiiiiiiiiiiiii
 #() pFiiiippppppppppppppp
 #() pFipppppppppppppppppppppp
-#defined(PANDORA) pFEppup
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) dFpi
 #defined(NOALIGN) iFppiiiip
