@@ -186,10 +186,10 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
         }
         if(head->PHEntries[i].p_type == PT_TLS) {
             Elf32_Phdr * e = &head->PHEntries[i];
-            char* dest = (char*)context->tlsdata;
+            char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
-            fseek(f, e->p_offset, SEEK_SET);
             if(e->p_filesz) {
+                fseek(f, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%d\n", i);
                     return 1;
@@ -779,70 +779,52 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     return ret;
 }
 
+#define POS_TLS     0x50
+
+static tlsdatasize_t* setupTLSData(box86context_t* context)
+{
+    // Setup the GS segment:
+    int dtsize = context->elfsize*8;
+    void *ptr = (char*)malloc(context->tlssize+4+POS_TLS+dtsize);
+    memcpy(ptr, context->tlsdata, context->tlssize);
+    tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
+    data->tlsdata = ptr;
+    data->tlssize = context->tlssize;
+    pthread_setspecific(context->tlskey, data);
+    // copy canary...
+    memset((void*)((uintptr_t)ptr+context->tlssize), 0, POS_TLS+dtsize);            // set to 0 remining bytes
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);      // put canary in place
+    uintptr_t tlsptr = (uintptr_t)ptr+context->tlssize;
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, 4);
+    uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
+    memcpy((void*)(tlsptr+0x4), &dtp, 4);
+    if(dtsize) {
+        for (int i=0; i<context->elfsize; ++i) {
+            // set pointer
+            dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
+            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8), &dtp, 4);
+            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8+4), &i, 4); // index
+        }
+    }
+    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+    return data;
+}
+
 static void* fillTLSData(box86context_t *context)
 {
-        void* ptr = NULL;
         pthread_mutex_lock(&context->mutex_lock);
-        // Setup the GS segment:
-        int dtsize = context->elfsize*8;
-        ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
-        memcpy(ptr, context->tlsdata, context->tlssize);
-        tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
-        data->tlsdata = ptr;
-        data->tlssize = context->tlssize;
-        pthread_setspecific(context->tlskey, data);
-        // copy canary...
-        memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
-        uintptr_t unknown = (uintptr_t)ptr+context->tlssize;
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &unknown, 4);
-        uintptr_t dtp = (uintptr_t)ptr+context->tlssize+0x50;
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x4), &dtp, 4);
-        if(dtsize) {
-            for (int i=0; i<context->elfsize; ++i) {
-                // set pointer
-                dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8), &dtp, 4);
-                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8+4), &i, 4); // index
-            }
-        }
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        tlsdatasize_t *data = setupTLSData(context);
         pthread_mutex_unlock(&context->mutex_lock);
         return data;
 }
 
 static void* resizeTLSData(box86context_t *context, void* oldptr)
 {
-        void* ptr = NULL;
         pthread_mutex_lock(&context->mutex_lock);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
-        tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
-        // Setup the GS segment:
-        int dtsize = context->elfsize*8;
-        ptr = (char*)malloc(context->tlssize+0x50+dtsize+24); // plan a 8*4 dtp table
-        data->tlsdata = ptr;
-        data->tlssize = context->tlssize;
-
-        memcpy(ptr, context->tlsdata, context->tlssize);
-        pthread_setspecific(context->tlskey, data);
-        // copy canary...
-        memset((void*)((uintptr_t)ptr+context->tlssize), 0, 0x50+dtsize+24);        // set to 0 remining bytes
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);  // put canary in place
-        uintptr_t unknown = (uintptr_t)ptr+context->tlssize;
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &unknown, 4);
-        uintptr_t dtp = (uintptr_t)ptr+context->tlssize+0x50;
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x4), &dtp, 4);
-        if(dtsize) {
-            for (int i=0; i<context->elfsize; ++i) {
-                // set pointer
-                dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8), &dtp, 4);
-                memcpy((void*)((uintptr_t)ptr+context->tlssize+0x50+i*8+4), &i, 4); // index
-            }
-        }
-        memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
+        tlsdatasize_t *data = setupTLSData(context);
         // copy the relevent old part, in case something changed
-        memcpy((void*)((uintptr_t)ptr+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
+        memcpy((void*)((uintptr_t)data->tlsdata+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
         // all done, update new size, free old pointer and exit
         pthread_mutex_unlock(&context->mutex_lock);
         free_tlsdatasize(oldptr);

@@ -304,7 +304,10 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
 }
 
 int AddTLSPartition(box86context_t* context, int tlssize) {
+    int oldsize = context->tlssize;
     context->tlssize += tlssize;
     context->tlsdata = realloc(context->tlsdata, context->tlssize);
+    memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
+    memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
     return -context->tlssize;   // negative offset
 }
