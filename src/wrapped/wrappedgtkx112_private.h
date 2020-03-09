@@ -1271,71 +1271,71 @@ GO(gtk_icon_theme_new, pFv)
 GO(gtk_icon_theme_rescan_if_needed, iFp)
 GO(gtk_icon_theme_set_custom_theme, vFpp)
 GO(gtk_icon_theme_set_screen, vFpp)
-//GO(gtk_icon_theme_set_search_path, 
-//GO(gtk_icon_view_convert_widget_to_bin_window_coords, 
-//GO(gtk_icon_view_create_drag_icon, 
+GO(gtk_icon_theme_set_search_path, vFppi)
+GO(gtk_icon_view_convert_widget_to_bin_window_coords, vFpiipp)
+GO(gtk_icon_view_create_drag_icon, pFpp)
 GO(gtk_icon_view_drop_position_get_type, iFv)
-//GO(gtk_icon_view_enable_model_drag_dest, 
-//GO(gtk_icon_view_enable_model_drag_source, 
-//GO(gtk_icon_view_get_columns, 
-//GO(gtk_icon_view_get_column_spacing, 
-//GO(gtk_icon_view_get_cursor, 
-//GO(gtk_icon_view_get_dest_item_at_pos, 
-//GO(gtk_icon_view_get_drag_dest_item, 
-//GO(gtk_icon_view_get_item_at_pos, 
-//GO(gtk_icon_view_get_item_column, 
-//GO(gtk_icon_view_get_item_orientation, 
-//GO(gtk_icon_view_get_item_padding, 
-//GO(gtk_icon_view_get_item_row, 
-//GO(gtk_icon_view_get_item_width, 
-//GO(gtk_icon_view_get_margin, 
-//GO(gtk_icon_view_get_markup_column, 
-//GO(gtk_icon_view_get_model, 
-//GO(gtk_icon_view_get_orientation, 
-//GO(gtk_icon_view_get_path_at_pos, 
-//GO(gtk_icon_view_get_pixbuf_column, 
-//GO(gtk_icon_view_get_reorderable, 
-//GO(gtk_icon_view_get_row_spacing, 
-//GO(gtk_icon_view_get_selected_items, 
-//GO(gtk_icon_view_get_selection_mode, 
-//GO(gtk_icon_view_get_spacing, 
-//GO(gtk_icon_view_get_text_column, 
-//GO(gtk_icon_view_get_tooltip_column, 
-//GO(gtk_icon_view_get_tooltip_context, 
+GO(gtk_icon_view_enable_model_drag_dest, vFppii)
+GO(gtk_icon_view_enable_model_drag_source, vFpipii)
+GO(gtk_icon_view_get_columns, iFp)
+GO(gtk_icon_view_get_column_spacing, iFp)
+GO(gtk_icon_view_get_cursor, iFppp)
+GO(gtk_icon_view_get_dest_item_at_pos, iFpiipp)
+GO(gtk_icon_view_get_drag_dest_item, vFppp)
+GO(gtk_icon_view_get_item_at_pos, iFpiipp)
+GO(gtk_icon_view_get_item_column, iFpp)
+GO(gtk_icon_view_get_item_orientation, iFp)
+GO(gtk_icon_view_get_item_padding, iFp)
+GO(gtk_icon_view_get_item_row, iFpp)
+GO(gtk_icon_view_get_item_width, iFp)
+GO(gtk_icon_view_get_margin, iFp)
+GO(gtk_icon_view_get_markup_column, iFp)
+GO(gtk_icon_view_get_model, pFp)
+GO(gtk_icon_view_get_orientation, iFp)
+GO(gtk_icon_view_get_path_at_pos, pFpii)
+GO(gtk_icon_view_get_pixbuf_column, iFp)
+GO(gtk_icon_view_get_reorderable, iFp)
+GO(gtk_icon_view_get_row_spacing, iFp)
+GO(gtk_icon_view_get_selected_items, pFp)
+GO(gtk_icon_view_get_selection_mode, iFp)
+GO(gtk_icon_view_get_spacing, iFp)
+GO(gtk_icon_view_get_text_column, iFp)
+GO(gtk_icon_view_get_tooltip_column, iFp)
+GO(gtk_icon_view_get_tooltip_context, iFpppippp)
 GO(gtk_icon_view_get_type, iFv)
-//GO(gtk_icon_view_get_visible_range, 
-//GO(gtk_icon_view_item_activated, 
-//GO(gtk_icon_view_new, 
-//GO(gtk_icon_view_new_with_model, 
-//GO(gtk_icon_view_path_is_selected, 
-//GO(gtk_icon_view_scroll_to_path, 
-//GO(gtk_icon_view_select_all, 
-//GO(gtk_icon_view_selected_foreach, 
-//GO(gtk_icon_view_select_path, 
-//GO(gtk_icon_view_set_columns, 
-//GO(gtk_icon_view_set_column_spacing, 
-//GO(gtk_icon_view_set_cursor, 
-//GO(gtk_icon_view_set_drag_dest_item, 
-//GO(gtk_icon_view_set_item_orientation, 
-//GO(gtk_icon_view_set_item_padding, 
-//GO(gtk_icon_view_set_item_width, 
-//GO(gtk_icon_view_set_margin, 
-//GO(gtk_icon_view_set_markup_column, 
-//GO(gtk_icon_view_set_model, 
-//GO(gtk_icon_view_set_orientation, 
-//GO(gtk_icon_view_set_pixbuf_column, 
-//GO(gtk_icon_view_set_reorderable, 
-//GO(gtk_icon_view_set_row_spacing, 
-//GO(gtk_icon_view_set_selection_mode, 
-//GO(gtk_icon_view_set_spacing, 
-//GO(gtk_icon_view_set_text_column, 
-//GO(gtk_icon_view_set_tooltip_cell, 
-//GO(gtk_icon_view_set_tooltip_column, 
-//GO(gtk_icon_view_set_tooltip_item, 
-//GO(gtk_icon_view_unselect_all, 
-//GO(gtk_icon_view_unselect_path, 
-//GO(gtk_icon_view_unset_model_drag_dest, 
-//GO(gtk_icon_view_unset_model_drag_source, 
+GO(gtk_icon_view_get_visible_range, iFppp)
+GO(gtk_icon_view_item_activated, vFpp)
+GO(gtk_icon_view_new, pFv)
+GO(gtk_icon_view_new_with_model, pFp)
+GO(gtk_icon_view_path_is_selected, iFpp)
+GO(gtk_icon_view_scroll_to_path, vFppiff)
+GO(gtk_icon_view_select_all, vFp)
+//GOM(gtk_icon_view_selected_foreach, vFpBp)
+GO(gtk_icon_view_select_path, vFpp)
+GO(gtk_icon_view_set_columns, vFpi)
+GO(gtk_icon_view_set_column_spacing, vFpi)
+GO(gtk_icon_view_set_cursor, vFpppi)
+GO(gtk_icon_view_set_drag_dest_item, vFppi)
+GO(gtk_icon_view_set_item_orientation, vFpi)
+GO(gtk_icon_view_set_item_padding, vFpi)
+GO(gtk_icon_view_set_item_width, vFpi)
+GO(gtk_icon_view_set_margin, vFpi)
+GO(gtk_icon_view_set_markup_column, vFpi)
+GO(gtk_icon_view_set_model, vFpp)
+GO(gtk_icon_view_set_orientation, vFpi)
+GO(gtk_icon_view_set_pixbuf_column, vFpi)
+GO(gtk_icon_view_set_reorderable, vFpi)
+GO(gtk_icon_view_set_row_spacing, vFpi)
+GO(gtk_icon_view_set_selection_mode, vFpi)
+GO(gtk_icon_view_set_spacing, vFpi)
+GO(gtk_icon_view_set_text_column, vFpi)
+GO(gtk_icon_view_set_tooltip_cell, vFpppp)
+GO(gtk_icon_view_set_tooltip_column, vFpi)
+GO(gtk_icon_view_set_tooltip_item, vFppp)
+GO(gtk_icon_view_unselect_all, vFp)
+GO(gtk_icon_view_unselect_path, vFpp)
+GO(gtk_icon_view_unset_model_drag_dest, vFp)
+GO(gtk_icon_view_unset_model_drag_source, vFp)
 GO(gtk_identifier_get_type, iFv)
 //GOM(gtk_idle_add, uFEBp)
 //GOM(gtk_idle_add_full, uFEiBppB)
