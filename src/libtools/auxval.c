@@ -36,6 +36,8 @@ __attribute__((section(".init_array"))) static void *init_auxval_constructor = &
 
 unsigned long real_getauxval(unsigned long type)
 {
+    if(!auxval_start)
+        return 0;
     uintptr_t* p = auxval_start;
     while(*p) {
         if(*p == type)

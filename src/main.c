@@ -74,6 +74,8 @@ void GatherDynarecExtensions()
         return;
 #ifdef ARM
     unsigned long hwcap = real_getauxval(AT_HWCAP);
+    if(!hwcap)  // no HWCap: provide a default...
+        hwcap = HWCAP_HALF|HWCAP_FAST_MULT|HWCAP_EDSP|HWCAP_NEON|HWCAP_VFPv3;
     // first, check all needed extensions, lif half, edsp and fastmult
     if(hwcap&HWCAP_HALF == 0) {
         printf_log(LOG_INFO, "Missing HALF cpu support, disabling Dynarec\n");
