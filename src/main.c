@@ -466,6 +466,69 @@ void LoadEnvVars(box86context_t *context)
 #endif
 }
 
+void setupTraceInit(box86context_t* context)
+{
+#ifdef HAVE_TRACE
+    char* p = getenv("BOX86_TRACE_INIT");
+    if(p) {
+        setbuf(stdout, NULL);
+        uintptr_t trace_start=0, trace_end=0;
+        if (strcmp(p, "1")==0)
+            SetTraceEmu(context->emu, 0, 0);
+        else if (strchr(p,'-')) {
+            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            }
+            if(trace_start)
+                SetTraceEmu(context->emu, trace_start, trace_end);
+        } else {
+            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
+                SetTraceEmu(context->emu, trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            } else {
+                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
+            }
+        }
+    } else {
+        p = getenv("BOX86_TRACE");
+        if(p)
+            if (strcmp(p, "0"))
+                SetTraceEmu(context->emu, 0, 1);
+    }
+#endif
+}
+
+void setupTrace(box86context_t* context)
+{
+#ifdef HAVE_TRACE
+    char* p = getenv("BOX86_TRACE");
+    if(p) {
+        setbuf(stdout, NULL);
+        uintptr_t trace_start=0, trace_end=0;
+        if (strcmp(p, "1")==0)
+            SetTraceEmu(context->emu, 0, 0);
+        else if (strchr(p,'-')) {
+            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
+                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
+                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            }
+            if(trace_start)
+                SetTraceEmu(context->emu, trace_start, trace_end);
+        } else {
+            if (GetGlobalSymbolStartEnd(context->maplib, p, &trace_start, &trace_end)) {
+                SetTraceEmu(context->emu, trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            } else {
+                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
+            }
+        }
+    }
+#endif
+}
+
 #ifndef BUILD_LIB
 int main(int argc, const char **argv, const char **env) {
 
@@ -623,36 +686,7 @@ int main(int argc, const char **argv, const char **env) {
     SetupX86Emu(context->emu);
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
-#ifdef HAVE_TRACE
-    p = getenv("BOX86_TRACE_INIT");
-    if(p) {
-        setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
-        if (strcmp(p, "1")==0)
-            SetTraceEmu(context->emu, 0, 0);
-        else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
-            }
-            if(trace_start)
-                SetTraceEmu(context->emu, trace_start, trace_end);
-        } else {
-            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
-                SetTraceEmu(context->emu, trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
-            }
-        }
-    } else {
-        p = getenv("BOX86_TRACE");
-        if(p)
-            if (strcmp(p, "0"))
-                SetTraceEmu(context->emu, 0, 1);
-    }
-#endif
+    setupTraceInit(context);
     // export symbols
     AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
     // pre-load lib if needed
@@ -698,31 +732,7 @@ int main(int argc, const char **argv, const char **env) {
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
-#ifdef HAVE_TRACE
-    p = getenv("BOX86_TRACE");
-    if(p) {
-        setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
-        if (strcmp(p, "1")==0)
-            SetTraceEmu(context->emu, 0, 0);
-        else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
-            }
-            if(trace_start)
-                SetTraceEmu(context->emu, trace_start, trace_end);
-        } else {
-            if (GetGlobalSymbolStartEnd(context->maplib, p, &trace_start, &trace_end)) {
-                SetTraceEmu(context->emu, trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
-            }
-        }
-    }
-#endif
+    setupTrace(context);
     // get entrypoint
     context->ep = GetEntryPoint(context->maplib, elf_header);
 #ifdef RPI

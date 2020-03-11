@@ -617,7 +617,7 @@ static void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* tex
         if(nextaddr==start)
             printf_log(LOG_NONE, " (%s%s)", text, symbname);
         else
-            printf_log(LOG_NONE, " (%s%s + 0x%x)", text, symbname, nextaddr - start);
+            printf_log(LOG_NONE, " (%s%s + %d)", text, symbname, nextaddr - start);
     }
 }
 
