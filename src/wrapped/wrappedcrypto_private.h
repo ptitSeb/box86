@@ -2947,7 +2947,7 @@ GO(PKCS12_parse, iFppppp)
 //GO(PROXY_CERT_INFO_EXTENSION_new, 
 //GO(PROXY_POLICY_free, 
 //GO(PROXY_POLICY_new, 
-//GO(RAND_add, 
+GO(RAND_add, vFpid)
 //GO(RAND_bytes, 
 //GO(RAND_cleanup, 
 //GO(RAND_egd, 
@@ -2958,11 +2958,11 @@ GO(PKCS12_parse, iFppppp)
 //GO(RAND_poll, 
 //GO(RAND_pseudo_bytes, 
 //GO(RAND_query_egd_bytes, 
-//GO(RAND_seed, 
+GO(RAND_seed, vFpi)
 //GO(RAND_set_rand_engine, 
 //GO(RAND_set_rand_method, 
 //GO(RAND_SSLeay, 
-//GO(RAND_status, 
+GO(RAND_status, iFv)
 //GO(RAND_write_file, 
 //GO(RC2_cbc_encrypt, 
 //GO(RC2_cfb64_encrypt, 
@@ -3047,33 +3047,33 @@ GO(PKCS12_parse, iFppppp)
 //GO(SEED_ofb128_encrypt, 
 //GO(SEED_set_key, 
 //GO(SHA, 
-//GO(SHA1, 
+GO(SHA1, pFpLp)
 //GO(sha1_block_data_order, 
-//GO(SHA1_Final, 
-//GO(SHA1_Init, 
+GO(SHA1_Final, iFpp)
+GO(SHA1_Init, iFp)
 //GO(SHA1_Transform, 
-//GO(SHA1_Update, 
-//GO(SHA224, 
-//GO(SHA224_Final, 
-//GO(SHA224_Init, 
-//GO(SHA224_Update, 
-//GO(SHA256, 
+GO(SHA1_Update, iFppL)
+GO(SHA224, pFpLp)
+GO(SHA224_Final, iFpp)
+GO(SHA224_Init, iFp)
+GO(SHA224_Update, iFppL)
+GO(SHA256, pFpLp)
 //GO(sha256_block_data_order, 
 //GO(sha256_block_data_order_neon, 
-//GO(SHA256_Final, 
-//GO(SHA256_Init, 
+GO(SHA256_Final, iFpp)
+GO(SHA256_Init, iFp)
 //GO(SHA256_Transform, 
-//GO(SHA256_Update, 
-//GO(SHA384, 
-//GO(SHA384_Final, 
-//GO(SHA384_Init, 
-//GO(SHA384_Update, 
-//GO(SHA512, 
+GO(SHA256_Update, iFppL)
+GO(SHA384, pFpLp)
+GO(SHA384_Final, iFpp)
+GO(SHA384_Init, iFp)
+GO(SHA384_Update, iFppL)
+GO(SHA512, pFpLp)
 //GO(sha512_block_data_order, 
-//GO(SHA512_Final, 
-//GO(SHA512_Init, 
+GO(SHA512_Final, iFpp)
+GO(SHA512_Init, iFp)
 //GO(SHA512_Transform, 
-//GO(SHA512_Update, 
+GO(SHA512_Update, iFppL)
 //GO(SHA_Final, 
 //GO(SHA_Init, 
 //GO(SHA_Transform, 
