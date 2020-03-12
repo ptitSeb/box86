@@ -1038,7 +1038,7 @@ EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
     }
     void** params = (void**)calloc(n, sizeof(void*));
     params[0] = b;
-    memcpy(params+4, c, n*sizeof(void*));
+    memcpy(params+1, c, (n-1)*sizeof(void*));
     int32_t r = my_execv(emu, a, (char* const*)params);
     free(params);
     return r;
@@ -1054,7 +1054,7 @@ EXPORT int32_t my_execle(x86emu_t* emu, void* a, void* b, void* c, va_list v)
     }
     void** params = (void**)calloc(n, sizeof(void*));
     params[0] = b;
-    memcpy(params+4, c, n*sizeof(void*));
+    memcpy(params+1, c, (n-1)*sizeof(void*));
     int32_t r = execve(a, (char* const*)params, *((void**)c+(n+1)));
     free(params);
     return r;
