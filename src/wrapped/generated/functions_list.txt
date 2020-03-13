@@ -240,6 +240,7 @@
 #() vFpdd
 #() vFpll
 #() vFpLi
+#() vFpLL
 #() vFpLp
 #() vFppi
 #() vFppu
@@ -349,6 +350,7 @@
 #() lFlll
 #() lFppi
 #() LFpii
+#() LFpLi
 #() LFpLp
 #() LFppi
 #() pFEip
@@ -458,6 +460,7 @@
 #() vFpupp
 #() vFpdii
 #() vFpddd
+#() vFpLLL
 #() vFppii
 #() vFppiu
 #() vFppid

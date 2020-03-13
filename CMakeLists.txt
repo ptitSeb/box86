@@ -209,6 +209,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibxtst.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxt.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcomposite.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxdamage.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibz.c"
     "${BOX86_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX86_ROOT}/src/wrapped/wrappedalut.c"
