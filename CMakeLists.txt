@@ -253,7 +253,6 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedpango.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbusglib1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"
-#    "${BOX86_ROOT}/src/wrapped/wrappedmonounity.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
