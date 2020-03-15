@@ -285,7 +285,7 @@ int my_dladdr(x86emu_t* emu, void *addr, void *i)
     //emu->quit = 1;
     info->dli_saddr = NULL;
     info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase);
-    return (info->dli_sname)?0:-1;
+    return (info->dli_sname)?1:0;   // success is non-null here...
 }
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version)
 {
