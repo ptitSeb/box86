@@ -914,7 +914,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGM(v0);
             if((nextop&0xC0)==0xC0) {
                 v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
-                VMOVQ(v1, v0);
+                VMOVD(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
                 VSTR_64(v0, ed, fixedaddress);
