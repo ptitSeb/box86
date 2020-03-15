@@ -629,7 +629,7 @@ int main(int argc, const char **argv, const char **env) {
     context->fullpath = (char*)calloc(PATH_MAX, 1);
     if(!realpath(context->argv[0], context->fullpath))
         strcpy(context->fullpath, context->argv[0]);
-    FILE *f = fopen(context->argv[0], "rb");
+    FILE *f = fopen64(context->argv[0], "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
         FreeBox86Context(&context);

@@ -173,7 +173,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
             printf_log(LOG_DEBUG, "Loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
-            fseek(f, e->p_offset, SEEK_SET);
+            fseeko64(f, e->p_offset, SEEK_SET);
             if(e->p_filesz) {
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
                     printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
@@ -189,7 +189,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
-                fseek(f, e->p_offset, SEEK_SET);
+                fseeko64(f, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%d\n", i);
                     return 1;
@@ -210,7 +210,7 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
             printf_log(LOG_DEBUG, "Re-loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
-            fseek(f, e->p_offset, SEEK_SET);
+            fseeko64(f, e->p_offset, SEEK_SET);
             if(e->p_filesz) {
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
                     printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
