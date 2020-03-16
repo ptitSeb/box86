@@ -276,13 +276,13 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_dbus_address_get_stream, 
 //GO(g_dbus_address_get_stream_finish, 
 //GO(g_dbus_address_get_stream_sync, 
-//GO(g_dbus_annotation_info_get_type, 
-//GO(g_dbus_annotation_info_lookup, 
-//GO(g_dbus_annotation_info_ref, 
-//GO(g_dbus_annotation_info_unref, 
-//GO(g_dbus_arg_info_get_type, 
-//GO(g_dbus_arg_info_ref, 
-//GO(g_dbus_arg_info_unref, 
+GO(g_dbus_annotation_info_get_type, iFv)
+GO(g_dbus_annotation_info_lookup, pFpp)
+GO(g_dbus_annotation_info_ref, pFp)
+GO(g_dbus_annotation_info_unref, vFp)
+GO(g_dbus_arg_info_get_type, iFv)
+GO(g_dbus_arg_info_ref, pFp)
+GO(g_dbus_arg_info_unref, vFp)
 //GO(g_dbus_auth_observer_allow_mechanism, 
 //GO(g_dbus_auth_observer_authorize_authenticated_peer, 
 //GO(g_dbus_auth_observer_get_type, 
@@ -355,15 +355,15 @@ GO(g_dbus_gvariant_to_gvalue, vFpp)
 //GO(g_dbus_interface_get_info, 
 //GO(g_dbus_interface_get_object, 
 //GO(g_dbus_interface_get_type, 
-//GO(g_dbus_interface_info_cache_build, 
-//GO(g_dbus_interface_info_cache_release, 
-//GO(g_dbus_interface_info_generate_xml, 
-//GO(g_dbus_interface_info_get_type, 
-//GO(g_dbus_interface_info_lookup_method, 
-//GO(g_dbus_interface_info_lookup_property, 
-//GO(g_dbus_interface_info_lookup_signal, 
-//GO(g_dbus_interface_info_ref, 
-//GO(g_dbus_interface_info_unref, 
+GO(g_dbus_interface_info_cache_build, vFp)
+GO(g_dbus_interface_info_cache_release, vFp)
+GO(g_dbus_interface_info_generate_xml, vFpup)
+GO(g_dbus_interface_info_get_type, iFv)
+GO(g_dbus_interface_info_lookup_method, pFpp)
+GO(g_dbus_interface_info_lookup_property, pFpp)
+GO(g_dbus_interface_info_lookup_signal, pFpp)
+GO(g_dbus_interface_info_ref, pFp)
+GO(g_dbus_interface_info_unref, vFp)
 //GO(g_dbus_interface_set_object, 
 //GO(g_dbus_interface_skeleton_export, 
 //GO(g_dbus_interface_skeleton_flags_get_type, 
@@ -443,9 +443,9 @@ GO(g_dbus_is_unique_name, iFp)
 //GO(g_dbus_message_to_blob, 
 //GO(g_dbus_message_to_gerror, 
 //GO(g_dbus_message_type_get_type, 
-//GO(g_dbus_method_info_get_type, 
-//GO(g_dbus_method_info_ref, 
-//GO(g_dbus_method_info_unref, 
+GO(g_dbus_method_info_get_type, iFv)
+GO(g_dbus_method_info_ref, pFp)
+GO(g_dbus_method_info_unref, vFp)
 //GO(g_dbus_method_invocation_get_connection, 
 //GO(g_dbus_method_invocation_get_interface_name, 
 //GO(g_dbus_method_invocation_get_message, 
@@ -465,17 +465,17 @@ GO(g_dbus_method_invocation_get_type, iFv)
 //GO(g_dbus_method_invocation_return_value, 
 //GO(g_dbus_method_invocation_return_value_with_unix_fd_list, 
 //GO(g_dbus_method_invocation_take_error, 
-//GO(g_dbus_node_info_generate_xml, 
-//GO(g_dbus_node_info_get_type, 
-//GO(g_dbus_node_info_lookup_interface, 
+GO(g_dbus_node_info_generate_xml, vFpup)
+GO(g_dbus_node_info_get_type, iFv)
+GO(g_dbus_node_info_lookup_interface, pFpp)
 //GO(g_dbus_node_info_new_for_xml, 
-//GO(g_dbus_node_info_ref, 
-//GO(g_dbus_node_info_unref, 
+GO(g_dbus_node_info_ref, pFp)
+GO(g_dbus_node_info_unref, vFp)
 GO(g_dbus_object_get_interface, pFpp)
 GO(g_dbus_object_get_interfaces, pFp)
 GO(g_dbus_object_get_object_path, pFp)
-//GO(g_dbus_object_get_type, 
-//GO(g_dbus_object_manager_client_flags_get_type, 
+GO(g_dbus_object_get_type, iFv)
+GO(g_dbus_object_manager_client_flags_get_type, iFv)
 GO(g_dbus_object_manager_client_get_connection, pFp)
 GO(g_dbus_object_manager_client_get_flags, iFp)
 GO(g_dbus_object_manager_client_get_name, pFp)
@@ -511,9 +511,9 @@ GO(g_dbus_object_manager_get_objects, pFp)
 //GO(g_dbus_object_skeleton_remove_interface_by_name, 
 //GO(g_dbus_object_skeleton_set_object_path, 
 //GO(g_dbus_property_info_flags_get_type, 
-//GO(g_dbus_property_info_get_type, 
-//GO(g_dbus_property_info_ref, 
-//GO(g_dbus_property_info_unref, 
+GO(g_dbus_property_info_get_type, iFv)
+GO(g_dbus_property_info_ref, pFp)
+GO(g_dbus_property_info_unref, vFp)
 GOM(g_dbus_proxy_call, vFEpppiippp)
 GO(g_dbus_proxy_call_finish, pFppp)
 GO(g_dbus_proxy_call_sync, pFpppiipp)
@@ -552,10 +552,10 @@ GO(g_dbus_proxy_set_interface_info, vFpp)
 //GO(g_dbus_server_start, 
 //GO(g_dbus_server_stop, 
 //GO(g_dbus_signal_flags_get_type, 
-//GO(g_dbus_signal_info_get_type, 
-//GO(g_dbus_signal_info_ref, 
-//GO(g_dbus_signal_info_unref, 
-//GO(g_dbus_subtree_flags_get_type, 
+GO(g_dbus_signal_info_get_type, iFv)
+GO(g_dbus_signal_info_ref, pFp)
+GO(g_dbus_signal_info_unref, vFp)
+GO(g_dbus_subtree_flags_get_type, iFv)
 //GO(g_desktop_app_info_get_action_name, 
 //GO(g_desktop_app_info_get_boolean, 
 GO(g_desktop_app_info_get_categories, pFp)
