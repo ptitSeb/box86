@@ -147,35 +147,35 @@ GOM(g_build_filename, pFEpV)
 GO(g_build_filenamev, pFp)
 //GOM(g_build_path, pFEppV) // wrap using g_build_pathv
 GO(g_build_pathv, pFpp)
-//GO(g_byte_array_append, 
-//GO(g_byte_array_free, 
-//GO(g_byte_array_free_to_bytes, 
-//GO(g_byte_array_new, 
-//GO(g_byte_array_new_take, 
-//GO(g_byte_array_prepend, 
-//GO(g_byte_array_ref, 
-//GO(g_byte_array_remove_index, 
-//GO(g_byte_array_remove_index_fast, 
-//GO(g_byte_array_remove_range, 
-//GO(g_byte_array_set_size, 
-//GO(g_byte_array_sized_new, 
-//GO(g_byte_array_sort, 
-//GO(g_byte_array_sort_with_data, 
-//GO(g_byte_array_unref, 
-//GO(g_bytes_compare, 
-//GO(g_bytes_equal, 
-//GO(g_bytes_get_data, 
-//GO(g_bytes_get_size, 
-//GO(g_bytes_hash, 
-//GO(g_bytes_new, 
-//GO(g_bytes_new_from_bytes, 
-//GO(g_bytes_new_static, 
-//GO(g_bytes_new_take, 
-//GO(g_bytes_new_with_free_func, 
-//GO(g_bytes_ref, 
-//GO(g_bytes_unref, 
-//GO(g_bytes_unref_to_array, 
-//GO(g_bytes_unref_to_data, 
+GO(g_byte_array_append, pFppu)
+GO(g_byte_array_free, pFpi)
+GO(g_byte_array_free_to_bytes, pFp)
+GO(g_byte_array_new, pFv)
+GO(g_byte_array_new_take, pFpL)
+GO(g_byte_array_prepend, pFppu)
+GO(g_byte_array_ref, pFp)
+GO(g_byte_array_remove_index, pFpu)
+GO(g_byte_array_remove_index_fast, pFpu)
+GO(g_byte_array_remove_range, pFpuu)
+GO(g_byte_array_set_size, pFpu)
+GO(g_byte_array_sized_new, pFu)
+//GOM(g_byte_array_sort, vFpB)
+//GOM(g_byte_array_sort_with_data, vFpBp)
+GO(g_byte_array_unref, vFp)
+GO(g_bytes_compare, iFpp)
+GO(g_bytes_equal, iFpp)
+GO(g_bytes_get_data, pFpL)
+GO(g_bytes_get_size, LFp)
+GO(g_bytes_hash, uFp)
+GO(g_bytes_new, pFpL)
+GO(g_bytes_new_from_bytes, pFpLL)
+GO(g_bytes_new_static, pFpL)
+GO(g_bytes_new_take, pFpL)
+//GOM(g_bytes_new_with_free_func, pFppLBp)
+GO(g_bytes_ref, pFp)
+GO(g_bytes_unref, vFp)
+GO(g_bytes_unref_to_array, pFp)
+GO(g_bytes_unref_to_data, pFpp)
 //GO(g_cache_destroy, 
 //GO(g_cache_insert, 
 //GO(g_cache_key_foreach, 

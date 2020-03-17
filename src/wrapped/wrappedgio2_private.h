@@ -932,10 +932,10 @@ GO(g_icon_to_string, pFp)
 //GO(g_inet_socket_address_new, 
 //GO(g_inet_socket_address_new_from_string, 
 //GO(g_initable_get_type, 
-//GO(g_initable_init, 
-//GO(g_initable_new, 
-//GO(g_initable_newv, 
-//GO(g_initable_new_valist, 
+GO(g_initable_init, iFppp)
+GO(g_initable_new, pFippppppppppppppp)    // vaarg, should vrap with g_initable_new_valist
+GO(g_initable_newv, pFpippp)
+GO(g_initable_new_valist, pFipppp)
 //GO(g_input_stream_clear_pending, 
 //GO(g_input_stream_close, 
 //GO(g_input_stream_close_async, 

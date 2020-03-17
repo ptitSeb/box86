@@ -60,10 +60,10 @@
 //GO(dbus_g_thread_init, 
 //GO(dbus_g_type_collection_get_fixed, 
 //GO(dbus_g_type_collection_peek_vtable, 
-//GO(dbus_g_type_collection_value_iterate, 
+//GO(dbus_g_type_collection_value_iterate, vFpBp)
 //GO(dbus_g_type_get_collection, 
 //GO(dbus_g_type_get_collection_specialization, 
-//GO(dbus_g_type_get_map, 
+GO(dbus_g_type_get_map, iFpii)
 //GO(dbus_g_type_get_map_key_specialization, 
 //GO(dbus_g_type_get_map_value_specialization, 
 //GO(dbus_g_type_get_struct, 
