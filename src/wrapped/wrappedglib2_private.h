@@ -756,9 +756,9 @@ GO(g_mutex_unlock, vFp)
 //GO(g_node_unlink, 
 GO(g_nullify_pointer, vFp)
 //GO(g_once_impl, 
-//GO(g_once_init_enter, 
+GO(g_once_init_enter, iFp)
 //GO(g_once_init_enter_impl, 
-//GO(g_once_init_leave, 
+GO(g_once_init_leave, vFpL)
 GO(g_on_error_query, vFp)
 GO(g_on_error_stack_trace, vFp)
 GO(g_open, iFpii)
@@ -809,10 +809,10 @@ GOM(g_print, vFEpV)
 GOM(g_printerr, vFEpV)
 GO2(g_printf, iFEpV, my_g_vprintf)
 GOM(g_printf_string_upper_bound, uFEpp)
-//GO(g_private_get, 
+GO(g_private_get, pFp)
 //GO(g_private_new, 
-//GO(g_private_replace, 
-//GO(g_private_set, 
+GO(g_private_replace, vFpp)
+GO(g_private_set, vFpp)
 GO(g_propagate_error, vFpp)
 GO(g_propagate_prefixed_error, vFpppppppppppp)  //vaarg, should align?
 //GO(g_ptr_array_add, 
