@@ -269,7 +269,7 @@ GO(g_type_add_class_private, vFpiu)
 //GO(g_type_add_instance_private, 
 //GOM(g_type_add_interface_check, vFEpB)
 //GOM(g_type_add_interface_dynamic, vFEiip)
-//GOM(g_type_add_interface_static, vFEuup)
+GOM(g_type_add_interface_static, vFEiip)
 GO(g_type_check_class_cast, pFpi)
 GO(g_type_check_class_is_a, iFpi)
 GO(g_type_check_instance, iFp)

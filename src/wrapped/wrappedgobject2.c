@@ -24,6 +24,7 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 typedef int   (*iFv_t)(void);
 typedef void* (*pFi_t)(int);
 typedef void* (*pFip_t)(int, void*);
+typedef void (*vFiip_t)(int, int, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFipp_t)(int, void*, void*);
 typedef void (*vFiip_t)(int, int, void*);
@@ -58,6 +59,7 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_type_value_table_peek, pFi_t)          \
     GO(g_value_register_transform_func, vFiip_t)\
     GO(g_signal_add_emission_hook, LFupppp_t)   \
+    GO(g_type_add_interface_static, vFiip_t)    \
 
 
 typedef struct gobject2_my_s {
@@ -326,6 +328,50 @@ static void* findValueTransformFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
     return NULL;
 }
+// GInterfaceInitFunc
+#define GO(A)   \
+static uintptr_t my_GInterfaceInitFunc_fct_##A = 0;                     \
+static void my_GInterfaceInitFunc_##A(void* src, void* dst)            \
+{                                                                   \
+    RunFunction(my_context, my_GInterfaceInitFunc_fct_##A, 2, src, dst);\
+}
+SUPER()
+#undef GO
+static void* findGInterfaceInitFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == (uintptr_t)fct) return my_GInterfaceInitFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == 0) {my_GInterfaceInitFunc_fct_##A = (uintptr_t)fct; return my_GInterfaceInitFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GInterfaceInitFunc callback\n");
+    return NULL;
+}
+// GInterfaceFinalizeFunc
+#define GO(A)   \
+static uintptr_t my_GInterfaceFinalizeFunc_fct_##A = 0;                     \
+static void my_GInterfaceFinalizeFunc_##A(void* src, void* dst)            \
+{                                                                   \
+    RunFunction(my_context, my_GInterfaceFinalizeFunc_fct_##A, 2, src, dst);\
+}
+SUPER()
+#undef GO
+static void* findGInterfaceFinalizeFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GInterfaceFinalizeFunc_fct_##A == (uintptr_t)fct) return my_GInterfaceFinalizeFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GInterfaceFinalizeFunc_fct_##A == 0) {my_GInterfaceFinalizeFunc_fct_##A = (uintptr_t)fct; return my_GInterfaceFinalizeFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GInterfaceFinalizeFunc callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -486,6 +532,24 @@ EXPORT int my_g_type_register_static_simple(x86emu_t* emu, int parent, void* nam
     info.instance_init = instance_init;
 
     return my->g_type_register_static(parent, name, &info, flags);
+}
+
+typedef struct my_GInterfaceInfo_s {
+    void* interface_init;
+    void* interface_finalize;
+    void* data;
+} my_GInterfaceInfo_t;
+
+EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int interface_type, my_GInterfaceInfo_t* info)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    my_GInterfaceInfo_t i = {0};
+    i.interface_init = findGInterfaceInitFuncFct(info->interface_init);
+    i.interface_finalize = findGInterfaceFinalizeFuncFct(info->interface_finalize);
+    i.data = info->data;
+    my->g_type_add_interface_static(instance_type, interface_type, &i);
 }
 
 
