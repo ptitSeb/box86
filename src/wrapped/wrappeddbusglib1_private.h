@@ -5,17 +5,17 @@
 //GO(dbus_connection_get_g_connection, 
 //GO(dbus_connection_get_g_type, 
 //GO(dbus_connection_setup_with_g_main, 
-//GO(dbus_g_bus_get, 
-//GO(dbus_g_bus_get_private, 
-//GO(dbus_g_connection_flush, 
-//GO(dbus_g_connection_get_connection, 
-//GO(dbus_g_connection_get_g_type, 
-//GO(dbus_g_connection_lookup_g_object, 
-//GO(dbus_g_connection_open, 
-//GO(dbus_g_connection_ref, 
-//GO(dbus_g_connection_register_g_object, 
-//GO(dbus_g_connection_unref, 
-//GO(dbus_g_connection_unregister_g_object, 
+GO(dbus_g_bus_get, pFip)
+GO(dbus_g_bus_get_private, pFipp)
+GO(dbus_g_connection_flush, vFp)
+GO(dbus_g_connection_get_connection, pFp)
+GO(dbus_g_connection_get_g_type, iFv)
+GO(dbus_g_connection_lookup_g_object, pFpp)
+GO(dbus_g_connection_open, pFpp)
+GO(dbus_g_connection_ref, pFp)
+GO(dbus_g_connection_register_g_object, vFppp)
+GO(dbus_g_connection_unref, vFp)
+GO(dbus_g_connection_unregister_g_object, vFpp)
 //GO(dbus_g_error_domain_register, 
 //GO(dbus_g_error_get_name, 
 //GO(dbus_g_error_has_name, 
@@ -57,7 +57,7 @@
 //GO(dbus_g_proxy_set_default_timeout, 
 //GO(dbus_g_proxy_set_interface, 
 //GO(dbus_g_signature_get_g_type, 
-//GO(dbus_g_thread_init, 
+GO(dbus_g_thread_init, vFv)
 //GO(dbus_g_type_collection_get_fixed, 
 //GO(dbus_g_type_collection_peek_vtable, 
 //GO(dbus_g_type_collection_value_iterate, vFpBp)
