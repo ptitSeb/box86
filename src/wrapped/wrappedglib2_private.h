@@ -1555,7 +1555,7 @@ GO(g_variant_ref_sink, pFp)
 //GO(g_variant_serialiser_serialise, 
 GO(g_variant_store, vFp)
 GO(g_variant_take_ref, pFp)
-//GO(g_variant_type_checked_, 
+GO(g_variant_type_checked_, pFp)
 //GO(g_variant_type_copy, 
 //GO(g_variant_type_dup_string, 
 //GO(g_variant_type_element, 
