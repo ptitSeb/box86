@@ -114,6 +114,7 @@ typedef struct box86context_s {
     library_t           *vorbisfile;
     library_t           *vorbis;
     library_t           *asound;
+    library_t           *pulse;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;
