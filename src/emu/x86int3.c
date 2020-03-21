@@ -175,6 +175,9 @@ void x86Int3(x86emu_t* emu)
                 } else if(strstr(s, "SDL_GetWindowSurface")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), "SDL_GetWindowSurface", *(void**)(R_ESP+4));
+                } else if(strstr(s, "udev_monitor_new_from_netlink")==s) {
+                    post = 5;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), "udev_monitor_new_from_netlink", *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
