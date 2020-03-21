@@ -22,6 +22,7 @@ int CalcStackSize(box86context_t *context)
         printf_log(LOG_NONE, "Cannot allocate aligned memory (0x%x/0x%x) for stack\n", context->stacksz, context->stackalign);
         return 1;
     }
+    memset(context->stack, 0, context->stacksz);
     printf_log(LOG_DEBUG, "Stack is @%p size=0x%x align=0x%x\n", context->stack, context->stacksz, context->stackalign);
 
     return 0;

@@ -73,7 +73,7 @@ int IsCallback(box86context_t* context, x86emu_t* cb)
 x86emu_t* AddVariableCallback(x86emu_t* emu, int stsize, uintptr_t fnc, int nb_args, void* arg1, void* arg2, void* arg3, void* arg4)
 {
     callbacklist_t *callbacks = emu->context->callbacks;
-    void* stack = malloc(stsize);
+    void* stack = calloc(1, stsize);
     if(!stack) {
         printf_log(LOG_NONE, "BOX86: Error, cannot allocate %d KB Stack for callback\n", stsize/1024);
     }
@@ -256,7 +256,7 @@ void FreeCallbackList(callbacklist_t** callbacks)
 
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
-    uint32_t mystack[60*1024];  // there is a limit at 256K (and even less on not main thread) for object on the stack
+    uint32_t mystack[60*1024] = {0};  // there is a limit at 256K (and even less on not main thread) for object on the stack
     x86emu_t myemu = {0};
     x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 60*1024*4, 0);
     SetupX86Emu(emu);
