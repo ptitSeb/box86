@@ -217,7 +217,11 @@ EXPORT void* my_g_object_connect(x86emu_t* emu, void* object, void* signal_spec,
 GO(0)   \
 GO(1)   \
 GO(2)   \
-GO(3)
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)
 
 #define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;   \
