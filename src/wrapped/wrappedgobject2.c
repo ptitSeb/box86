@@ -531,7 +531,7 @@ EXPORT int my_g_type_register_static_simple(x86emu_t* emu, int parent, void* nam
     info.instance_size = instance_size;
     info.instance_init = instance_init;
 
-    return my->g_type_register_static(parent, name, &info, flags);
+    return my_g_type_register_static(emu, parent, name, &info, flags);
 }
 
 typedef struct my_GInterfaceInfo_s {
