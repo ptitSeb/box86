@@ -600,15 +600,25 @@ int main(int argc, const char **argv, const char **env) {
     else
         context->argv[0] = ResolveFile(prog, &context->box86_path);
 
+    const char* prgname = strrchr(prog, '/');
+    if(!prgname)
+        prgname = prog;
+    else
+        ++prgname;
     // special case for LittleInferno that use an old libvorbis
-    if(strstr(prog, "LittleInferno.bin.x86")) {
+    if(strstr(prgname, "LittleInferno.bin.x86")==prgname) {
         printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
         AddPath("libvorbis.so.0", &context->box86_emulated_libs, 0);
     }
     // special case for dontstarve that use an old SDL2
-    if(strstr(prog, "dontstarve")) {
+    if(strstr(prgname, "dontstarve")) {
         printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
         AddPath("libSDL2-2.0.so.0", &context->box86_emulated_libs, 0);
+    }
+    // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
+    if(strstr(prgname, "steam")==prgname) {
+        printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
+        AddPath("libudev.so.0", &context->box86_emulated_libs, 0);
     }
 
     for(int i=1; i<context->argc; ++i)
