@@ -19,52 +19,54 @@
 GOM(g_boxed_type_register_static, iFEppp)
 //GO(g_byte_array_get_type, 
 //GO(g_bytes_get_type, 
-//GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXED, 
-//GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv, 
-//GO(g_cclosure_marshal_BOOLEAN__FLAGS, 
-//GO(g_cclosure_marshal_BOOLEAN__FLAGSv, 
-//GO(g_cclosure_marshal_generic, 
-//GO(g_cclosure_marshal_generic_va, 
-//GO(g_cclosure_marshal_STRING__OBJECT_POINTER, 
-//GO(g_cclosure_marshal_STRING__OBJECT_POINTERv, 
-//GO(g_cclosure_marshal_VOID__BOOLEAN, 
-//GO(g_cclosure_marshal_VOID__BOOLEANv, 
-//GO(g_cclosure_marshal_VOID__BOXED, 
-//GO(g_cclosure_marshal_VOID__BOXEDv, 
-//GO(g_cclosure_marshal_VOID__CHAR, 
-//GO(g_cclosure_marshal_VOID__CHARv, 
-//GO(g_cclosure_marshal_VOID__DOUBLE, 
-//GO(g_cclosure_marshal_VOID__DOUBLEv, 
-//GO(g_cclosure_marshal_VOID__ENUM, 
-//GO(g_cclosure_marshal_VOID__ENUMv, 
-//GO(g_cclosure_marshal_VOID__FLAGS, 
-//GO(g_cclosure_marshal_VOID__FLAGSv, 
-//GO(g_cclosure_marshal_VOID__FLOAT, 
-//GO(g_cclosure_marshal_VOID__FLOATv, 
-//GO(g_cclosure_marshal_VOID__INT, 
-//GO(g_cclosure_marshal_VOID__INTv, 
-//GO(g_cclosure_marshal_VOID__LONG, 
-//GO(g_cclosure_marshal_VOID__LONGv, 
-//GO(g_cclosure_marshal_VOID__OBJECT, 
-//GO(g_cclosure_marshal_VOID__OBJECTv, 
-//GO(g_cclosure_marshal_VOID__PARAM, 
-//GO(g_cclosure_marshal_VOID__PARAMv, 
-//GO(g_cclosure_marshal_VOID__POINTER, 
-//GO(g_cclosure_marshal_VOID__POINTERv, 
-GO(g_cclosure_marshal_VOID__STRING, vFppuppp)
-//GO(g_cclosure_marshal_VOID__STRINGv, 
-//GO(g_cclosure_marshal_VOID__UCHAR, 
-//GO(g_cclosure_marshal_VOID__UCHARv, 
-//GO(g_cclosure_marshal_VOID__UINT, 
-//GO(g_cclosure_marshal_VOID__UINT_POINTER, 
-//GO(g_cclosure_marshal_VOID__UINT_POINTERv, 
-//GO(g_cclosure_marshal_VOID__UINTv, 
-//GO(g_cclosure_marshal_VOID__ULONG, 
-//GO(g_cclosure_marshal_VOID__ULONGv, 
-//GO(g_cclosure_marshal_VOID__VARIANT, 
-//GO(g_cclosure_marshal_VOID__VARIANTv, 
-GO(g_cclosure_marshal_VOID__VOID, vFppuppp)
-//GO(g_cclosure_marshal_VOID__VOIDv, 
+DATA(g_cclosure_marshal_BOOLEAN__BOXED_BOXED, 4)    // set all cclosure_marshal as data, so they can be used "as-is" in cclosure parameter (not-wrapped)
+DATA(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv, 4)
+DATA(g_cclosure_marshal_BOOLEAN__FLAGS, 4)
+DATA(g_cclosure_marshal_BOOLEAN__FLAGSv, 4)
+DATA(g_cclosure_marshal_generic, 4)
+DATA(g_cclosure_marshal_generic_va, 4)
+DATA(g_cclosure_marshal_STRING__OBJECT_POINTER, 4)
+DATA(g_cclosure_marshal_STRING__OBJECT_POINTERv, 4)
+DATA(g_cclosure_marshal_VOID__BOOLEAN, 4)
+DATA(g_cclosure_marshal_VOID__BOOLEANv, 4)
+DATA(g_cclosure_marshal_VOID__BOXED, 4)
+DATA(g_cclosure_marshal_VOID__BOXEDv, 4)
+DATA(g_cclosure_marshal_VOID__CHAR, 4)
+DATA(g_cclosure_marshal_VOID__CHARv, 4)
+DATA(g_cclosure_marshal_VOID__DOUBLE, 4)
+DATA(g_cclosure_marshal_VOID__DOUBLEv, 4)
+DATA(g_cclosure_marshal_VOID__ENUM, 4)
+DATA(g_cclosure_marshal_VOID__ENUMv, 4)
+DATA(g_cclosure_marshal_VOID__FLAGS, 4)
+DATA(g_cclosure_marshal_VOID__FLAGSv, 4)
+DATA(g_cclosure_marshal_VOID__FLOAT, 4)
+DATA(g_cclosure_marshal_VOID__FLOATv, 4)
+DATA(g_cclosure_marshal_VOID__INT, 4)
+DATA(g_cclosure_marshal_VOID__INTv, 4)
+DATA(g_cclosure_marshal_VOID__LONG, 4)
+DATA(g_cclosure_marshal_VOID__LONGv, 4)
+DATA(g_cclosure_marshal_VOID__OBJECT, 4)
+DATA(g_cclosure_marshal_VOID__OBJECTv, 4)
+DATA(g_cclosure_marshal_VOID__PARAM, 4)
+DATA(g_cclosure_marshal_VOID__PARAMv, 4)
+DATA(g_cclosure_marshal_VOID__POINTER, 4)
+DATA(g_cclosure_marshal_VOID__POINTERv, 4)
+DATA(g_cclosure_marshal_VOID__STRING, 4)
+DATA(g_cclosure_marshal_VOID__STRINGv, 4)
+DATA(g_cclosure_marshal_VOID__UCHAR, 4)
+DATA(g_cclosure_marshal_VOID__UCHARv, 4)
+DATA(g_cclosure_marshal_VOID__UINT, 4)
+DATA(g_cclosure_marshal_VOID__UINT_POINTER, 4)
+DATA(g_cclosure_marshal_VOID__UINT_POINTERv, 4)
+DATA(g_cclosure_marshal_VOID__UINTv, 4)
+DATA(g_cclosure_marshal_VOID__ULONG, 4)
+DATA(g_cclosure_marshal_VOID__ULONGv, 4)
+DATA(g_cclosure_marshal_VOID__VARIANT, 4)
+DATA(g_cclosure_marshal_VOID__VARIANTv, 4)
+DATA(g_cclosure_marshal_VOID__VOID, 4)
+DATA(g_cclosure_marshal_VOID__VOIDv, 4)
+//GO(g_cclosure_marshal_VOID__STRING, vFppuppp) //old closure definition
+//GO(g_cclosure_marshal_VOID__VOID, vFppuppp) //old closure definition
 //GO(g_cclosure_new, 
 //GO(g_cclosure_new_object, 
 //GO(g_cclosure_new_object_swap, 

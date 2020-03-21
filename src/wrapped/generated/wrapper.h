@@ -940,7 +940,6 @@ void vFppiipp(x86emu_t *emu, uintptr_t fnc);
 void vFppippi(x86emu_t *emu, uintptr_t fnc);
 void vFppuuuu(x86emu_t *emu, uintptr_t fnc);
 void vFppupii(x86emu_t *emu, uintptr_t fnc);
-void vFppuppp(x86emu_t *emu, uintptr_t fnc);
 void vFppdidd(x86emu_t *emu, uintptr_t fnc);
 void vFpppiii(x86emu_t *emu, uintptr_t fnc);
 void vFpppiip(x86emu_t *emu, uintptr_t fnc);
