@@ -621,9 +621,9 @@ GO(globfree64, vFp)
 GO(gmtime, pFp)
 GO(__gmtime_r, pFpp)
 GOW(gmtime_r, pFpp)
-// gnu_dev_major
-GO(gnu_dev_makedev, UFuu)
-// gnu_dev_minor
+GO(gnu_dev_major, uFU)
+GO(gnu_dev_makedev, UFii)       // dev_t seems to be a u64
+GO(gnu_dev_minor, uFU)
 GOW(gnu_get_libc_release, pFv)
 GOW(gnu_get_libc_version, pFv)
 // __gnu_mcount_nc
