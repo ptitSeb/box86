@@ -279,7 +279,7 @@ GO(g_type_check_instance_is_fundamentally_a, iFpi)
 GO(g_type_check_is_value_type, iFpi)
 GO(g_type_check_value, iFp)
 GO(g_type_check_value_holds, iFpi)
-//GO(g_type_children, 
+GO(g_type_children, pFip)
 GO(g_type_class_add_private, vFpu)
 GO(g_type_class_adjust_private_offset, vFpp)
 GO(g_type_class_get_instance_private_offset, iFp)
@@ -290,29 +290,29 @@ GO(g_type_class_peek_static, pFi)
 GO(g_type_class_ref, pFp)
 GO(g_type_class_unref, vFp)
 GO(g_type_class_unref_uncached, vFp)
-//GO(g_type_create_instance, pFi)
-//GO(g_type_default_interface_peek, 
-//GO(g_type_default_interface_ref, 
-//GO(g_type_default_interface_unref, 
-//GO(g_type_depth, 
+GO(g_type_create_instance, pFi)
+GO(g_type_default_interface_peek, pFi)
+GO(g_type_default_interface_ref, pFi)
+GO(g_type_default_interface_unref, vFp)
+GO(g_type_depth, uFi)
 GO(g_type_ensure, vFi)
 GO(g_type_free_instance, vFp)
 GO(g_type_from_name, iFp)
 GO(g_type_fundamental, iFi)
 GO(g_type_fundamental_next, iFv)
 //GOM(g_type_get_plugin, pFEi)      // GTypePugin is a stuct with callback
-//GO(g_type_get_qdata, 
+GO(g_type_get_qdata, pFip)
 GO(g_type_get_type_registration_serial, uFv)
-//GO(g_type_init, 
-//GO(g_type_init_with_debug_flags, 
+GO(g_type_init, vFv)
+GO(g_type_init_with_debug_flags, vFi)
 GO(g_type_instance_get_private, pFpi)
 GO(g_type_interface_add_prerequisite, vFii)
 //GOM(g_type_interface_get_plugin, pFEii) // return GTypePlugin*
-//GO(g_type_interface_peek, 
-//GO(g_type_interface_peek_parent, 
+GO(g_type_interface_peek, pFpi)
+GO(g_type_interface_peek_parent, pFp)
 GO(g_type_interface_prerequisites, pFip)
-//GO(g_type_interfaces, 
-//GO(g_type_is_a, 
+GO(g_type_interfaces, pFip)
+GO(g_type_is_a, iFii)
 //GO(g_type_module_add_interface, 
 //GO(g_type_module_get_type, 
 //GO(g_type_module_register_enum, 
@@ -324,22 +324,22 @@ GO(g_type_interface_prerequisites, pFip)
 GO(g_type_name, pFi)
 //GO(g_type_name_from_class, 
 //GO(g_type_name_from_instance, 
-//GO(g_type_next_base, 
-//GO(g_type_parent, 
+GO(g_type_next_base, iFii)
+GO(g_type_parent, iFi)
 //GO(g_type_plugin_complete_interface_info, 
 //GO(g_type_plugin_complete_type_info, 
 //GO(g_type_plugin_get_type, 
 //GO(g_type_plugin_unuse, 
 //GO(g_type_plugin_use, 
-//GO(g_type_qname, 
-//GO(g_type_query, 
+GO(g_type_qname, pFi)
+GO(g_type_query, vFip)
 //GOM(type_register_dynamic, iFEpippi)
 GOM(g_type_register_fundamental, iFEipppi)
 GOM(g_type_register_static, iFEippi)
 GOM(g_type_register_static_simple, iFEipupupi)
 //GOM(g_type_remove_class_cache_func, vFEpB)
 //GOM(g_type_remove_interface_check, vFEpB)
-//GO(g_type_set_qdata, 
+GO(g_type_set_qdata, vFipp)
 //GO(g_type_test_flags, 
 //GOM(g_type_value_table_peek, pFEi)    //need to bridge GTypeValueTable
 //GO(g_value_array_append, 
