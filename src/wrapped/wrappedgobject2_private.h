@@ -5,20 +5,20 @@
 //GO(__aeabi_f2lz, 
 //GO(__aeabi_f2ulz, 
 //GO(_fini, 
-//GO(g_array_get_type, 
-//GO(g_binding_flags_get_type, 
+GO(g_array_get_type, iFv)
+GO(g_binding_flags_get_type, iFv)
 //GO(g_binding_get_flags, 
 //GO(g_binding_get_source, 
 //GO(g_binding_get_source_property, 
 //GO(g_binding_get_target, 
 //GO(g_binding_get_target_property, 
-//GO(g_binding_get_type, 
+GO(g_binding_get_type, iFv)
 //GO(g_binding_unbind, 
-//GO(g_boxed_copy, 
-//GO(g_boxed_free, 
+GO(g_boxed_copy, pFip)
+GO(g_boxed_free, vFip)
 GOM(g_boxed_type_register_static, iFEppp)
-//GO(g_byte_array_get_type, 
-//GO(g_bytes_get_type, 
+GO(g_byte_array_get_type, iFv)
+GO(g_bytes_get_type, iFv)
 DATA(g_cclosure_marshal_BOOLEAN__BOXED_BOXED, 4)    // set all cclosure_marshal as data, so they can be used "as-is" in cclosure parameter (not-wrapped)
 DATA(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv, 4)
 DATA(g_cclosure_marshal_BOOLEAN__FLAGS, 4)
@@ -101,18 +101,18 @@ GO(g_flags_get_first_value, pFpi)
 GO(g_flags_get_value_by_name, pFpp)
 GO(g_flags_get_value_by_nick, pFpp)
 GO(g_flags_register_static, iFpp)
-//GO(g_gstring_get_type, 
-//GO(g_gtype_get_type, 
-//GO(g_hash_table_get_type, 
-//GO(g_initially_unowned_get_type, 
-//GO(g_io_channel_get_type, 
-//GO(g_io_condition_get_type, 
-//GO(g_key_file_get_type, 
-//GO(g_main_context_get_type, 
-//GO(g_main_loop_get_type, 
-//GO(g_mapped_file_get_type, 
-//GO(g_markup_parse_context_get_type, 
-//GO(g_match_info_get_type, 
+GO(g_gstring_get_type, iFv)
+GO(g_gtype_get_type, iFv)
+GO(g_hash_table_get_type, iFv)
+GO(g_initially_unowned_get_type, iFv)
+GO(g_io_channel_get_type, iFv)
+GO(g_io_condition_get_type, iFv)
+GO(g_key_file_get_type, iFv)
+GO(g_main_context_get_type, iFv)
+GO(g_main_loop_get_type, iFv)
+GO(g_mapped_file_get_type, iFv)
+GO(g_markup_parse_context_get_type, iFv)
+GO(g_match_info_get_type, iFv)
 //GOM(g_object_add_toggle_ref, vFEpBp)
 GO(g_object_add_weak_pointer, vFpp)
 //GO(g_object_bind_property, 
@@ -154,7 +154,7 @@ GO(g_object_remove_weak_pointer, vFpp)
 GO(g_object_run_dispose, vFp)
 GO2(g_object_set, vFppV, g_object_set_valist)
 GO(g_object_set_data, vFppp)
-//GOM(g_object_set_data_full, vFEpppB)
+GOM(g_object_set_data_full, vFEpppp)
 GO(g_object_set_property, vFppp)
 GO(g_object_set_qdata, vFppp)
 //GOM(g_object_set_qdata_full, vFEpppB)
@@ -173,48 +173,48 @@ GO(g_param_spec_double, pFpppdddi)
 GO(g_param_spec_enum, pFpppiii)
 GO(g_param_spec_flags, pFpppiui)
 GO(g_param_spec_float, pFpppfffi)
-//GO(g_param_spec_get_blurb, 
-//GO(g_param_spec_get_default_value, 
-//GO(g_param_spec_get_name, 
-//GO(g_param_spec_get_nick, 
-//GO(g_param_spec_get_qdata, 
-//GO(g_param_spec_get_redirect_target, 
+GO(g_param_spec_get_blurb, pFp)
+GO(g_param_spec_get_default_value, pFp)
+GO(g_param_spec_get_name, pFp)
+GO(g_param_spec_get_nick, pFp)
+GO(g_param_spec_get_qdata, pFpu)
+GO(g_param_spec_get_redirect_target, pFp)
 GO(g_param_spec_gtype, pFpppii)
 GO(g_param_spec_int, pFpppiiii)
 GO(g_param_spec_int64, pFpppIIIi)
-//GO(g_param_spec_internal, 
+GO(g_param_spec_internal, pFipppu)
 GO(g_param_spec_long, pFpppllli)
 GO(g_param_spec_object, pFpppii)
 GO(g_param_spec_override, pFpp)
 GO(g_param_spec_param, pFpppii)
 GO(g_param_spec_pointer, pFpppi)
-//GO(g_param_spec_pool_insert, 
-//GO(g_param_spec_pool_list, 
-//GO(g_param_spec_pool_list_owned, 
-//GO(g_param_spec_pool_lookup, 
-//GO(g_param_spec_pool_new, 
-//GO(g_param_spec_pool_remove, 
-//GO(g_param_spec_ref, 
-//GO(g_param_spec_ref_sink, 
-//GO(g_param_spec_set_qdata, 
-//GO(g_param_spec_set_qdata_full, 
-//GO(g_param_spec_sink, 
-//GO(g_param_spec_steal_qdata, 
+GO(g_param_spec_pool_insert, vFppi)
+GO(g_param_spec_pool_list, pFpip)
+GO(g_param_spec_pool_list_owned, pFpi)
+GO(g_param_spec_pool_lookup, pFppii)
+GO(g_param_spec_pool_new, pFi)
+GO(g_param_spec_pool_remove, vFpp)
+GO(g_param_spec_ref, pFp)
+GO(g_param_spec_ref_sink, pFp)
+GO(g_param_spec_set_qdata, vFpup)
+GOM(g_param_spec_set_qdata_full, vFEpupp)
+GO(g_param_spec_sink, vFp)
+GO(g_param_spec_steal_qdata, pFpu)
 GO(g_param_spec_string, pFppppi)
 GO(g_param_spec_uchar, pFpppCCCi)
 GO(g_param_spec_uint, pFpppuuui)
 GO(g_param_spec_uint64, pFpppUUUi)
 GO(g_param_spec_ulong, pFpppLLLi)
 GO(g_param_spec_unichar, pFpppui)
-//GO(g_param_spec_unref, 
+GO(g_param_spec_unref, vFp)
 GO(g_param_spec_value_array, pFppppi)
 GO(g_param_spec_variant, pFpppppi)
-//GO(g_param_type_register_static, 
-//GO(g_param_value_convert, 
-//GO(g_param_value_defaults, 
-//GO(g_param_values_cmp, 
-//GO(g_param_value_set_default, 
-//GO(g_param_value_validate, 
+GOM(g_param_type_register_static, iFEpp)
+GO(g_param_value_convert, iFpppi)
+GO(g_param_value_defaults, iFpp)
+GO(g_param_values_cmp, iFppp)
+GO(g_param_value_set_default, vFpp)
+GO(g_param_value_validate, iFpp)
 //GO(g_pointer_type_register_static, 
 //GO(g_pollfd_get_type, 
 //GO(g_ptr_array_get_type, 
@@ -342,19 +342,19 @@ GOM(g_type_register_static_simple, iFEipupupi)
 //GOM(g_type_remove_class_cache_func, vFEpB)
 //GOM(g_type_remove_interface_check, vFEpB)
 GO(g_type_set_qdata, vFipp)
-//GO(g_type_test_flags, 
+GO(g_type_test_flags, iFiu)
 //GOM(g_type_value_table_peek, pFEi)    //need to bridge GTypeValueTable
-//GO(g_value_array_append, 
-//GO(g_value_array_copy, 
-//GO(g_value_array_free, 
-//GO(g_value_array_get_nth, 
-//GO(g_value_array_get_type, 
-//GO(g_value_array_insert, 
-//GO(g_value_array_new, 
-//GO(g_value_array_prepend, 
-//GO(g_value_array_remove, 
-//GO(g_value_array_sort, 
-//GO(g_value_array_sort_with_data, 
+GO(g_value_array_append, pFpp)
+GO(g_value_array_copy, pFp)
+GO(g_value_array_free, vFp)
+GO(g_value_array_get_nth, pFpu)
+GO(g_value_array_get_type, iFv)
+GO(g_value_array_insert, pFpup)
+GO(g_value_array_new, pFu)
+GO(g_value_array_prepend, pFpp)
+GO(g_value_array_remove, pFpu)
+GOM(g_value_array_sort, pFEpp)
+GOM(g_value_array_sort_with_data, pFEppp)
 GO(g_value_copy, vFpp)
 GO(g_value_dup_boxed, pFp)
 GO(g_value_dup_object, pFp)

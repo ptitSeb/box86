@@ -127,13 +127,13 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_application_unmark_busy, 
 //GO(g_application_withdraw_notification, 
 //GO(g_ask_password_flags_get_type, 
-//GO(g_async_initable_get_type, 
-//GO(g_async_initable_init_async, 
-//GO(g_async_initable_init_finish, 
-//GO(g_async_initable_new_async, 
-//GO(g_async_initable_new_finish, 
-//GO(g_async_initable_new_valist_async, 
-//GO(g_async_initable_newv_async, 
+GO(g_async_initable_get_type, iFv)
+GOM(g_async_initable_init_async, vFEpippp)
+GO(g_async_initable_init_finish, iFppp)
+GOM(g_async_initable_new_async, vFEiippppV)
+GO(g_async_initable_new_finish, pFppp)
+GOM(g_async_initable_new_valist_async, vFEippippp)
+GOM(g_async_initable_newv_async, vFEiupippp)
 //GO(g_async_result_get_source_object, 
 //GO(g_async_result_get_type, 
 //GO(g_async_result_get_user_data, 
@@ -177,23 +177,23 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_bytes_icon_get_bytes, 
 //GO(g_bytes_icon_get_type, 
 //GO(g_bytes_icon_new, 
-//GO(g_cancellable_cancel, 
-//GO(g_cancellable_connect, 
-//GO(g_cancellable_disconnect, 
-//GO(g_cancellable_get_current, 
-//GO(g_cancellable_get_fd, 
-//GO(g_cancellable_get_type, 
-//GO(g_cancellable_is_cancelled, 
-//GO(g_cancellable_make_pollfd, 
-//GO(g_cancellable_new, 
-//GO(g_cancellable_pop_current, 
-//GO(g_cancellable_push_current, 
-//GO(g_cancellable_release_fd, 
-//GO(g_cancellable_reset, 
-//GO(g_cancellable_set_error_if_cancelled, 
-//GO(g_cancellable_source_new, 
+GO(g_cancellable_cancel, vFp)
+GOM(g_cancellable_connect, LFEpppp)
+GO(g_cancellable_disconnect, vFpL)
+GO(g_cancellable_get_current, pFv)
+GO(g_cancellable_get_fd, iFp)
+GO(g_cancellable_get_type, iFv)
+GO(g_cancellable_is_cancelled, iFp)
+GO(g_cancellable_make_pollfd, iFpp)
+GO(g_cancellable_new, pFv)
+GO(g_cancellable_pop_current, vFp)
+GO(g_cancellable_push_current, vFp)
+GO(g_cancellable_release_fd, vFp)
+GO(g_cancellable_reset, vFp)
+GO(g_cancellable_set_error_if_cancelled, iFpp)
+GO(g_cancellable_source_new, pFp)
 //GO(g_charset_converter_get_num_fallbacks, 
-//GO(g_charset_converter_get_type, 
+GO(g_charset_converter_get_type, iFv)
 //GO(g_charset_converter_get_use_fallback, 
 //GO(g_charset_converter_new, 
 //GO(g_charset_converter_set_use_fallback, 
@@ -931,7 +931,7 @@ GO(g_icon_to_string, pFp)
 //GO(g_inet_socket_address_get_type, 
 //GO(g_inet_socket_address_new, 
 //GO(g_inet_socket_address_new_from_string, 
-//GO(g_initable_get_type, 
+GO(g_initable_get_type, iFv)
 GO(g_initable_init, iFppp)
 GO(g_initable_new, pFippppppppppppppp)    // vaarg, should vrap with g_initable_new_valist
 GO(g_initable_newv, pFpippp)
@@ -1374,35 +1374,35 @@ GO(g_initable_new_valist, pFipppp)
 //GO(g_simple_action_new_stateful, 
 //GO(g_simple_action_set_enabled, 
 //GO(g_simple_action_set_state, 
-//GO(g_simple_async_report_error_in_idle, 
-//GO(g_simple_async_report_gerror_in_idle, 
-//GO(g_simple_async_report_take_gerror_in_idle, 
-//GO(g_simple_async_result_complete, 
-//GO(g_simple_async_result_complete_in_idle, 
-//GO(g_simple_async_result_get_op_res_gboolean, 
-//GO(g_simple_async_result_get_op_res_gpointer, 
-//GO(g_simple_async_result_get_op_res_gssize, 
-//GO(g_simple_async_result_get_source_tag, 
-//GO(g_simple_async_result_get_type, 
-//GO(g_simple_async_result_is_valid, 
-//GO(g_simple_async_result_new, 
-//GO(g_simple_async_result_new_error, 
-//GO(g_simple_async_result_new_from_error, 
-//GO(g_simple_async_result_new_take_error, 
-//GO(g_simple_async_result_propagate_error, 
-//GO(g_simple_async_result_run_in_thread, 
-//GO(g_simple_async_result_set_check_cancellable, 
-//GO(g_simple_async_result_set_error, 
-//GO(g_simple_async_result_set_error_va, 
-//GO(g_simple_async_result_set_from_error, 
-//GO(g_simple_async_result_set_handle_cancellation, 
-//GO(g_simple_async_result_set_op_res_gboolean, 
-//GO(g_simple_async_result_set_op_res_gpointer, 
-//GO(g_simple_async_result_set_op_res_gssize, 
-//GO(g_simple_async_result_take_error, 
-//GO(g_simple_permission_get_type, 
+GOM(g_simple_async_report_error_in_idle, vFEpppuipV)
+GOM(g_simple_async_report_gerror_in_idle, vFEpppp)
+GOM(g_simple_async_report_take_gerror_in_idle, vFEpppp)
+GO(g_simple_async_result_complete, vFp)
+GO(g_simple_async_result_complete_in_idle, vFp)
+GO(g_simple_async_result_get_op_res_gboolean, iFp)
+GO(g_simple_async_result_get_op_res_gpointer, pFp)
+GO(g_simple_async_result_get_op_res_gssize, lFp)
+GO(g_simple_async_result_get_source_tag, pFp)
+GO(g_simple_async_result_get_type, iFv)
+GO(g_simple_async_result_is_valid, iFppp)
+GOM(g_simple_async_result_new, pFEpppp)
+GOM(g_simple_async_result_new_error, pFEpppuipV)
+GOM(g_simple_async_result_new_from_error, pFEpppp)
+GOM(g_simple_async_result_new_take_error, pFEpppp)
+GO(g_simple_async_result_propagate_error, iFpp)
+GOM(g_simple_async_result_run_in_thread, vFEppip)
+GO(g_simple_async_result_set_check_cancellable, vFpp)
+GO2(g_simple_async_result_set_error, vFpuipV, g_simple_async_result_set_error_va)   // should align?
+GO(g_simple_async_result_set_error_va, vFpuipp)
+GO(g_simple_async_result_set_from_error, vFpp)
+GO(g_simple_async_result_set_handle_cancellation, vFpi)
+GO(g_simple_async_result_set_op_res_gboolean, vFpi)
+GOM(g_simple_async_result_set_op_res_gpointer, vFEppp)
+GO(g_simple_async_result_set_op_res_gssize, vFpl)
+GO(g_simple_async_result_take_error, vFpp)
+GO(g_simple_permission_get_type, iFv)
 //GO(g_simple_permission_new, 
-//GO(g_simple_proxy_resolver_get_type, 
+GO(g_simple_proxy_resolver_get_type, iFv)
 //GO(g_simple_proxy_resolver_new, 
 //GO(g_simple_proxy_resolver_set_default_proxy, 
 //GO(g_simple_proxy_resolver_set_ignore_hosts, 

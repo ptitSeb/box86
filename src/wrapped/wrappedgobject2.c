@@ -23,12 +23,16 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 
 typedef int   (*iFv_t)(void);
 typedef void* (*pFi_t)(int);
+typedef int (*iFpp_t)(void*, void*);
 typedef void* (*pFip_t)(int, void*);
 typedef void (*vFiip_t)(int, int, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void* (*pFipp_t)(int, void*, void*);
 typedef void (*vFiip_t)(int, int, void*);
 typedef int (*iFippi_t)(int, void*, void*, int);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFipppi_t)(int, void*, void*, void*, int);
 typedef unsigned long (*LFupppp_t)(uint32_t, void*, void*, void*, void*);
 typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
@@ -60,6 +64,10 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_value_register_transform_func, vFiip_t)\
     GO(g_signal_add_emission_hook, LFupppp_t)   \
     GO(g_type_add_interface_static, vFiip_t)    \
+    GO(g_param_spec_set_qdata_full, vFpupp_t)   \
+    GO(g_param_type_register_static, iFpp_t)    \
+    GO(g_value_array_sort_with_data, pFppp_t)   \
+    GO(g_object_set_data_full, vFpppp_t)
 
 
 typedef struct gobject2_my_s {
@@ -332,6 +340,77 @@ static void* findValueTransformFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
     return NULL;
 }
+// GParamSpecTypeInfo....
+// First the structure GParamSpecTypeInfo statics, with paired x86 source pointer
+typedef struct my_GParamSpecTypeInfo_s {
+  /* type system portion */
+  uint16_t  instance_size;
+  uint16_t  n_preallocs;
+  void      (*instance_init)    (void* pspec);
+  int       value_type;
+  void      (*finalize)         (void* pspec);
+  void      (*value_set_default)(void* pspec, void* value);
+  int       (*value_validate)   (void* pspec, void* value);
+  int       (*values_cmp)       (void* pspec, void* value1, void* value2);
+} my_GParamSpecTypeInfo_t;
+
+#define GO(A) \
+static my_GParamSpecTypeInfo_t     my_GParamSpecTypeInfo_##A = {0};   \
+static my_GParamSpecTypeInfo_t   *ref_GParamSpecTypeInfo_##A = NULL;
+SUPER()
+#undef GO
+// then the static functions callback that may be used with the structure, but dispatch also have a callback...
+#define GO(A)   \
+static uintptr_t fct_funcs_instance_init_##A = 0;                   \
+static void my_funcs_instance_init_##A(void* pspec) {               \
+    RunFunction(my_context, fct_funcs_instance_init_##A, 1, pspec); \
+}   \
+static uintptr_t fct_funcs_finalize_##A = 0;                        \
+static void my_funcs_finalize_##A(void* pspec) {                    \
+    RunFunction(my_context, fct_funcs_finalize_##A, 1, pspec);      \
+}   \
+static uintptr_t fct_funcs_value_set_default_##A = 0;               \
+static void my_funcs_value_set_default_##A(void* pspec, void* value) {          \
+    RunFunction(my_context, fct_funcs_value_set_default_##A, 2, pspec, value);  \
+}   \
+static uintptr_t fct_funcs_value_validate_##A = 0;                  \
+static int my_funcs_value_validate_##A(void* pspec, void* value) {  \
+    return (int)RunFunction(my_context, fct_funcs_value_validate_##A, 2, pspec, value); \
+}   \
+static uintptr_t fct_funcs_values_cmp_##A = 0;                      \
+static int my_funcs_values_cmp_##A(void* pspec, void* value1, void* value2) {   \
+    return (int)RunFunction(my_context, fct_funcs_values_cmp_##A, 3, pspec, value1, value2);    \
+}
+
+SUPER()
+#undef GO
+// and now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
+static my_GParamSpecTypeInfo_t* findFreeGParamSpecTypeInfo(my_GParamSpecTypeInfo_t* fcts)
+{
+    if(!fcts) return fcts;
+    #define GO(A) if(ref_GParamSpecTypeInfo_##A == fcts) return &my_GParamSpecTypeInfo_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_GParamSpecTypeInfo_##A == 0) {   \
+        ref_GParamSpecTypeInfo_##A = fcts;                 \
+        my_GParamSpecTypeInfo_##A.instance_init = (fcts->instance_init)?((GetNativeFnc((uintptr_t)fcts->instance_init))?GetNativeFnc((uintptr_t)fcts->instance_init):my_funcs_instance_init_##A):NULL;    \
+        fct_funcs_instance_init_##A = (uintptr_t)fcts->instance_init;                            \
+        my_GParamSpecTypeInfo_##A.finalize = (fcts->finalize)?((GetNativeFnc((uintptr_t)fcts->finalize))?GetNativeFnc((uintptr_t)fcts->finalize):my_funcs_finalize_##A):NULL;    \
+        fct_funcs_finalize_##A = (uintptr_t)fcts->finalize;                            \
+        my_GParamSpecTypeInfo_##A.value_set_default = (fcts->value_set_default)?((GetNativeFnc((uintptr_t)fcts->value_set_default))?GetNativeFnc((uintptr_t)fcts->value_set_default):my_funcs_value_set_default_##A):NULL;    \
+        fct_funcs_value_set_default_##A = (uintptr_t)fcts->value_set_default;                            \
+        my_GParamSpecTypeInfo_##A.value_validate = (fcts->value_validate)?((GetNativeFnc((uintptr_t)fcts->value_validate))?GetNativeFnc((uintptr_t)fcts->value_validate):my_funcs_value_validate_##A):NULL;    \
+        fct_funcs_value_validate_##A = (uintptr_t)fcts->value_validate;                            \
+        my_GParamSpecTypeInfo_##A.values_cmp = (fcts->values_cmp)?((GetNativeFnc((uintptr_t)fcts->values_cmp))?GetNativeFnc((uintptr_t)fcts->values_cmp):my_funcs_values_cmp_##A):NULL;    \
+        fct_funcs_values_cmp_##A = (uintptr_t)fcts->values_cmp;                            \
+        return &my_GParamSpecTypeInfo_##A;                \
+    }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject2 GParamSpecTypeInfo callback\n");
+    return NULL;
+}
+
 // GInterfaceInitFunc
 #define GO(A)   \
 static uintptr_t my_GInterfaceInitFunc_fct_##A = 0;                     \
@@ -556,6 +635,54 @@ EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int
     my->g_type_add_interface_static(instance_type, interface_type, &i);
 }
 
+EXPORT void my_g_param_spec_set_qdata_full(x86emu_t* emu, void* pspec, uint32_t quark, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    my->g_param_spec_set_qdata_full(pspec, quark, data, findFreeFct(notify));
+}
+
+EXPORT int my_g_param_type_register_static(x86emu_t* emu, void* name, void* pspec_info)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    return my->g_param_type_register_static(name, findFreeGParamSpecTypeInfo(pspec_info));
+}
+
+static int my_compare_fnc(void* a, void* b, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 2, a, b);
+    return RunCallback(emu);
+}
+EXPORT void* my_g_value_array_sort(x86emu_t* emu, void* array, void* comp)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
+    void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
+    FreeCallback(emucb);
+}
+
+EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
+    void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
+    FreeCallback(emucb);
+}
+
+EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
+{
+    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    my->g_object_set_data_full(object, key, data, findFreeFct(notify));
+}
 
 #define CUSTOM_INIT \
     my_context = box86;                         \
