@@ -1250,7 +1250,7 @@ GO(gtk_icon_source_set_size_wildcarded, vFpi)
 GO(gtk_icon_source_set_state, vFpi)
 GO(gtk_icon_source_set_state_wildcarded, vFpi)
 GO(gtk_icon_theme_add_builtin_icon, vFpip)
-//GO(gtk_icon_theme_append_search_path, 
+GO(gtk_icon_theme_append_search_path, vFpp)
 GO(gtk_icon_theme_choose_icon, pFppiu)
 GO(gtk_icon_theme_error_get_type, iFv)
 //GO(gtk_icon_theme_error_quark, 
@@ -1258,7 +1258,7 @@ GO(gtk_icon_theme_get_default, pFv)
 GO(gtk_icon_theme_get_example_icon_name, pFp)
 GO(gtk_icon_theme_get_for_screen, pFp)
 GO(gtk_icon_theme_get_icon_sizes, pFpp)
-//GO(gtk_icon_theme_get_search_path, 
+GO(gtk_icon_theme_get_search_path, vFppp)
 GO(gtk_icon_theme_get_type, iFv)
 GO(gtk_icon_theme_has_icon, iFpp)
 GO(gtk_icon_theme_list_contexts, pFp)
@@ -2613,44 +2613,44 @@ GO(gtk_statusbar_get_type, iFv)
 //GO(gtk_statusbar_remove, 
 //GO(gtk_statusbar_remove_all, 
 //GO(gtk_statusbar_set_has_resize_grip, 
-//GO(gtk_status_icon_get_blinking, 
-//GO(gtk_status_icon_get_geometry, 
-//GO(gtk_status_icon_get_gicon, 
-//GO(gtk_status_icon_get_has_tooltip, 
-//GO(gtk_status_icon_get_icon_name, 
-//GO(gtk_status_icon_get_pixbuf, 
-//GO(gtk_status_icon_get_screen, 
-//GO(gtk_status_icon_get_size, 
-//GO(gtk_status_icon_get_stock, 
-//GO(gtk_status_icon_get_storage_type, 
-//GO(gtk_status_icon_get_title, 
-//GO(gtk_status_icon_get_tooltip_markup, 
-//GO(gtk_status_icon_get_tooltip_text, 
+GO(gtk_status_icon_get_blinking, iFp)
+GO(gtk_status_icon_get_geometry, iFpppp)
+GO(gtk_status_icon_get_gicon, pFp)
+GO(gtk_status_icon_get_has_tooltip, iFp)
+GO(gtk_status_icon_get_icon_name, pFp)
+GO(gtk_status_icon_get_pixbuf, pFp)
+GO(gtk_status_icon_get_screen, pFp)
+GO(gtk_status_icon_get_size, iFp)
+GO(gtk_status_icon_get_stock, pFp)
+GO(gtk_status_icon_get_storage_type, iFp)
+GO(gtk_status_icon_get_title, pFp)
+GO(gtk_status_icon_get_tooltip_markup, pFp)
+GO(gtk_status_icon_get_tooltip_text, pFp)
 GO(gtk_status_icon_get_type, iFv)
-//GO(gtk_status_icon_get_visible, 
-//GO(gtk_status_icon_get_x11_window_id, 
-//GO(gtk_status_icon_is_embedded, 
-//GO(gtk_status_icon_new, 
-//GO(gtk_status_icon_new_from_file, 
-//GO(gtk_status_icon_new_from_gicon, 
-//GO(gtk_status_icon_new_from_icon_name, 
-//GO(gtk_status_icon_new_from_pixbuf, 
-//GO(gtk_status_icon_new_from_stock, 
-//GO(gtk_status_icon_position_menu, 
-//GO(gtk_status_icon_set_blinking, 
-//GO(gtk_status_icon_set_from_file, 
-//GO(gtk_status_icon_set_from_gicon, 
-//GO(gtk_status_icon_set_from_icon_name, 
-//GO(gtk_status_icon_set_from_pixbuf, 
-//GO(gtk_status_icon_set_from_stock, 
-//GO(gtk_status_icon_set_has_tooltip, 
-//GO(gtk_status_icon_set_name, 
-//GO(gtk_status_icon_set_screen, 
-//GO(gtk_status_icon_set_title, 
-//GO(gtk_status_icon_set_tooltip, 
-//GO(gtk_status_icon_set_tooltip_markup, 
-//GO(gtk_status_icon_set_tooltip_text, 
-//GO(gtk_status_icon_set_visible, 
+GO(gtk_status_icon_get_visible, iFp)
+GO(gtk_status_icon_get_x11_window_id, uFp)
+GO(gtk_status_icon_is_embedded, iFp)
+GO(gtk_status_icon_new, pFv)
+GO(gtk_status_icon_new_from_file, pFp)
+GO(gtk_status_icon_new_from_gicon, pFp)
+GO(gtk_status_icon_new_from_icon_name, pFp)
+GO(gtk_status_icon_new_from_pixbuf, pFp)
+GO(gtk_status_icon_new_from_stock, pFp)
+GO(gtk_status_icon_position_menu, vFppppp)
+GO(gtk_status_icon_set_blinking, vFpi)
+GO(gtk_status_icon_set_from_file, vFpp)
+GO(gtk_status_icon_set_from_gicon, vFpp)
+GO(gtk_status_icon_set_from_icon_name, vFpp)
+GO(gtk_status_icon_set_from_pixbuf, vFpp)
+GO(gtk_status_icon_set_from_stock, vFpp)
+GO(gtk_status_icon_set_has_tooltip, vFpi)
+GO(gtk_status_icon_set_name, vFpp)
+GO(gtk_status_icon_set_screen, vFpp)
+GO(gtk_status_icon_set_title, vFpp)
+GO(gtk_status_icon_set_tooltip, vFpp)
+GO(gtk_status_icon_set_tooltip_markup, vFpp)
+GO(gtk_status_icon_set_tooltip_text, vFpp)
+GO(gtk_status_icon_set_visible, vFpi)
 GO(gtk_stock_add, vFpu)
 GO(gtk_stock_add_static, vFpu)
 GO(gtk_stock_item_copy, pFp)
