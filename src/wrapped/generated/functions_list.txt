@@ -870,6 +870,7 @@
 #() pFpippp
 #() pFpuiii
 #() pFpuuip
+#() pFpuppp
 #() pFplppp
 #() pFppiii
 #() pFppiip
@@ -1001,6 +1002,7 @@
 #() iFppuIII
 #() iFppuupp
 #() iFppuppp
+#() iFppUupp
 #() iFppdidd
 #() iFpppiuu
 #() iFpppipp
