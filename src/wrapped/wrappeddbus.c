@@ -32,14 +32,20 @@ typedef void(* DBusTimeoutToggledFunction) (void *timeout, void *data);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+
+static box86context_t *my_context = NULL;
 
 #define SUPER() \
     GO(dbus_timeout_set_data, vFppp_t)  \
     GO(dbus_connection_set_timeout_functions, iFpppppp_t)   \
     GO(dbus_connection_add_filter, iFpppp_t)    \
     GO(dbus_connection_remove_filter, vFppp_t)  \
-    GO(dbus_message_get_args_valist, iFppip_t)
+    GO(dbus_message_get_args_valist, iFppip_t)  \
+    GO(dbus_message_set_data, iFpipp_t)         \
+    GO(dbus_pending_call_set_notify, iFpppp_t)  \
+    GO(dbus_pending_call_set_data, iFpipp_t)
 
 typedef struct dbus_my_s {
     // functions
@@ -180,7 +186,49 @@ static void freeFilter(uintptr_t fnc) {
     SUPER()
     #undef GO
 }
+// free
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;   \
+static void my_free_##A(void* data)     \
+{                                       \
+    RunFunction(my_context, my_free_fct_##A, 1, data);\
+}
+SUPER()
+#undef GO
+static void* findFreeFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus free callback\n");
+    return NULL;
+}
 
+// DBusPendingCallNotifyFunction
+#define GO(A)   \
+static uintptr_t my_DBusPendingCallNotifyFunction_fct_##A = 0;   \
+static void my_DBusPendingCallNotifyFunction_##A(void* pending, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusPendingCallNotifyFunction_fct_##A, 2, pending, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusPendingCallNotifyFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_DBusPendingCallNotifyFunction_fct_##A == (uintptr_t)fct) return my_DBusPendingCallNotifyFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusPendingCallNotifyFunction_fct_##A == 0) {my_DBusPendingCallNotifyFunction_fct_##A = (uintptr_t)fct; return my_DBusPendingCallNotifyFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusPendingCallNotifyFunction callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* fnc, void* data, void* fr)
@@ -244,10 +292,36 @@ EXPORT int my_dbus_message_get_args(x86emu_t* emu, void* message, void* e, int a
     #endif
 }
 
+EXPORT int my_dbus_message_set_data(x86emu_t* emu, void* message, int32_t slot, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    return my->dbus_message_set_data(message, slot, data, findFreeFct(free_func));
+}
+
+EXPORT int my_dbus_pending_call_set_notify(x86emu_t* emu, void* pending, void* func, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    return my->dbus_pending_call_set_notify(pending, findDBusPendingCallNotifyFunctionFct(func), data, findFreeFct(free_func));
+}
+
+EXPORT int my_dbus_pending_call_set_data(x86emu_t* emu, void* pending, int32_t slot, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    return my->dbus_pending_call_set_data(pending, slot, data, findFreeFct(free_func));
+}
+
 #define CUSTOM_INIT \
+    my_context = box86;                 \
     lib->priv.w.p2 = getDBusMy(lib);
 
 #define CUSTOM_FINI \
+    my_context = NULL;          \
     freeDBusMy(lib->priv.w.p2); \
     free(lib->priv.w.p2);
 

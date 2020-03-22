@@ -35,7 +35,7 @@ typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t)
 typedef uint32_t (*uFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
 typedef unsigned long (*LFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFpiippppiup_t)(void*, int, int, void*, void*, void*, void*, int, uint32_t, void*);
-typedef uint32_t (*uFpiiupppiu_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t);
+typedef uint32_t (*uFpiiupppiuV_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, ...);
 typedef uint32_t (*uFpiiupppiup_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*);
 typedef uint32_t (*uFpiiupppiupp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*);
 typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*, void*);
@@ -45,7 +45,7 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_type_name, pFi_t)                      \
     GO(g_signal_connect_data, LFpppppu_t)       \
     GO(g_boxed_type_register_static, iFppp_t)   \
-    GO(g_signal_new, uFpiiupppiu_t)             \
+    GO(g_signal_new, uFpiiupppiuV_t)            \
     GO(g_signal_newv, uFpiippppiup_t)           \
     GO(g_signal_new_valist, uFpiippppiup_t)     \
     GO(g_signal_handlers_block_matched, uFpiupppp_t)        \
@@ -399,9 +399,9 @@ EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags,
     void* cb_marsh = findMarshalFct(marsh);
     switch(n) {
         case 0: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n);
-        case 1: return ((uFpiiupppiup_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0]);
-        case 2: return ((uFpiiupppiupp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1]);
-        case 3: return ((uFpiiupppiuppp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
+        case 1: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0]);
+        case 2: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1]);
+        case 3: return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
         default:
             printf_log(LOG_NONE, "Warning, gobject g_signal_new called with too many parameters (%d)\n", n);
     }

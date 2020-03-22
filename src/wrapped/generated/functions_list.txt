@@ -856,6 +856,7 @@
 #() vFEpippp
 #() vFEpuipp
 #() vFEpuupp
+#() vFEppppp
 #() vFiiiiii
 #() vFiuippp
 #() vFiffiff
@@ -1187,6 +1188,7 @@
 #() pFEppCuuCC
 #() pFEppCuuWW
 #() pFEppuuuuu
+#() pFEpppppiV
 #() pFEppppppi
 #() pFEppppppp
 #() pFiipppppp
@@ -1246,6 +1248,7 @@
 #() pFEppCuwwWW
 #() pFEppCuuuuu
 #() pFEppuippuu
+#() pFEpppppiiV
 #() pFEpppppppi
 #() pFpiiiiuuuu
 #() pFppiiiiiip
@@ -1272,6 +1275,7 @@
 #() vFuffiiffiip
 #() vFuddiiddiip
 #() vFffffffffff
+#() vFpipppppppp
 #() vFppiiiiiiii
 #() vFppiiiiipip
 #() vFppiipppiip
@@ -1312,6 +1316,7 @@
 #() vFppiipppiiii
 #() vFppipppiiiii
 #() vFppipppuiiii
+#() vFppipppppppp
 #() vFppppppppppp
 #() iFEpppipppppp
 #() iFEppppiiiiuu
@@ -1347,6 +1352,7 @@
 #() pFEppiiuuuipii
 #() pFEppuuuwwwwWW
 #() pFppiiuuuiupup
+#() pFpppppppppppp
 #() vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu
 #() vFuffffffffffff
@@ -1358,7 +1364,9 @@
 #() vFppppppppppppp
 #() iFddddpppddpppp
 #() iFpippuuuiipppp
+#() iFpippppppppppp
 #() iFpupiiiipppppp
+#() iFpuppppppppppp
 #() iFppppppppppppp
 #() pFppppppppppppp
 #() vFuffiiffiiffiip
@@ -1366,11 +1374,13 @@
 #() vFppiipppiiiiiii
 #() vFpppppppppppppp
 #() iFpipppppppppppp
+#() iFpupppppppppppp
 #() iFpppppppppppppp
 #() pFEppCuuWWwwCCup
 #() pFEppuuuWWWWWWWW
 #() vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff
+#() vFppipppppppppppp
 #() vFpppippppppppppp
 #() vFppppppppppppppp
 #() pFEppCuuwwWWWWuup
@@ -1383,11 +1393,14 @@
 #() pFippppppppppppppp
 #() pFppipipipipipipip
 #() vFppiiiiddddiiiiiuu
+#() iFppipipppppppppppp
+#() iFpppippppppppppppp
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
+#() iFpppippppppppppppppp
 #() pFiiiippppppppppppppp
 #() pFipppppppppppppppppppppp
 #defined(NOALIGN) IFpi
