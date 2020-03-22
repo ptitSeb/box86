@@ -2,41 +2,41 @@
 #error Meh....
 #endif
 
-//GO(g_udev_client_get_type, 
-//GO(g_udev_client_new, 
-//GO(g_udev_client_query_by_device_file, 
-//GO(g_udev_client_query_by_device_number, 
-//GO(g_udev_client_query_by_subsystem, 
-//GO(g_udev_client_query_by_subsystem_and_name, 
-//GO(g_udev_client_query_by_sysfs_path, 
-//GO(g_udev_device_get_action, 
-//GO(g_udev_device_get_device_file, 
-//GO(g_udev_device_get_device_file_symlinks, 
-//GO(g_udev_device_get_device_number, 
-//GO(g_udev_device_get_device_type, 
-//GO(g_udev_device_get_devtype, 
-//GO(g_udev_device_get_driver, 
-//GO(g_udev_device_get_name, 
-//GO(g_udev_device_get_number, 
-//GO(g_udev_device_get_parent, 
-//GO(g_udev_device_get_parent_with_subsystem, 
-//GO(g_udev_device_get_property, 
-//GO(g_udev_device_get_property_as_boolean, 
-//GO(g_udev_device_get_property_as_double, 
-//GO(g_udev_device_get_property_as_int, 
-//GO(g_udev_device_get_property_as_strv, 
-//GO(g_udev_device_get_property_as_uint64, 
-//GO(g_udev_device_get_property_keys, 
-//GO(g_udev_device_get_seqnum, 
-//GO(g_udev_device_get_subsystem, 
-//GO(g_udev_device_get_sysfs_attr, 
-//GO(g_udev_device_get_sysfs_attr_as_boolean, 
-//GO(g_udev_device_get_sysfs_attr_as_double, 
-//GO(g_udev_device_get_sysfs_attr_as_int, 
-//GO(g_udev_device_get_sysfs_attr_as_strv, 
-//GO(g_udev_device_get_sysfs_attr_as_uint64, 
-//GO(g_udev_device_get_sysfs_path, 
-//GO(g_udev_device_get_type, 
-//GO(g_udev_device_has_property, 
-//GO(g_udev_device_type_get_type, 
-//GO(g_udev_marshal_VOID__STRING_OBJECT, 
+GO(g_udev_client_get_type, iFv)
+GO(g_udev_client_new, pFp)
+GO(g_udev_client_query_by_device_file, pFpp)
+GO(g_udev_client_query_by_device_number, pFpiU)
+GO(g_udev_client_query_by_subsystem, pFpp)
+GO(g_udev_client_query_by_subsystem_and_name, pFppp)
+GO(g_udev_client_query_by_sysfs_path, pFpp)
+GO(g_udev_device_get_action, pFp)
+GO(g_udev_device_get_device_file, pFp)
+GO(g_udev_device_get_device_file_symlinks, pFp)
+GO(g_udev_device_get_device_number, UFp)
+GO(g_udev_device_get_device_type, iFp)
+GO(g_udev_device_get_devtype, pFp)
+GO(g_udev_device_get_driver, pFp)
+GO(g_udev_device_get_name, pFp)
+GO(g_udev_device_get_number, pFp)
+GO(g_udev_device_get_parent, pFp)
+GO(g_udev_device_get_parent_with_subsystem, pFp)
+GO(g_udev_device_get_property, pFpp)
+GO(g_udev_device_get_property_as_boolean, iFpp)
+GO(g_udev_device_get_property_as_double, dFpp)
+GO(g_udev_device_get_property_as_int, iFpp)
+GO(g_udev_device_get_property_as_strv, pFpp)
+GO(g_udev_device_get_property_as_uint64, UFpp)
+GO(g_udev_device_get_property_keys, pFp)
+GO(g_udev_device_get_seqnum, UFp)
+GO(g_udev_device_get_subsystem, pFp)
+GO(g_udev_device_get_sysfs_attr, pFpp)
+GO(g_udev_device_get_sysfs_attr_as_boolean, iFpp)
+GO(g_udev_device_get_sysfs_attr_as_double, dFpp)
+GO(g_udev_device_get_sysfs_attr_as_int, iFpp)
+GO(g_udev_device_get_sysfs_attr_as_strv, pFpp)
+GO(g_udev_device_get_sysfs_attr_as_uint64, UFpp)
+GO(g_udev_device_get_sysfs_path, pFp)
+GO(g_udev_device_get_type, iFv)
+GO(g_udev_device_has_property, iFpp)
+GO(g_udev_device_type_get_type, iFv)
+DATA(g_udev_marshal_VOID__STRING_OBJECT, 4)
