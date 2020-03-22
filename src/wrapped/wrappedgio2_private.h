@@ -38,7 +38,7 @@
 GO(g_app_info_add_supports_type, iFppp)
 GO(g_app_info_can_delete, iFp)
 GO(g_app_info_can_remove_supports_type, iFp)
-//GO(g_app_info_create_flags_get_type, 
+GO(g_app_info_create_flags_get_type, iFv)
 GO(g_app_info_create_from_commandline, pFppup)
 GO(g_app_info_delete, iFp)
 GO(g_app_info_dup, pFp)
@@ -57,12 +57,12 @@ GO(g_app_info_get_id, pFp)
 GO(g_app_info_get_name, pFp)
 GO(g_app_info_get_recommended_for_type, pFp)
 GO(g_app_info_get_supported_types, pFp)
-//GO(g_app_info_get_type, 
+GO(g_app_info_get_type, iFv)
 GO(g_app_info_launch, iFpppp)
 GO(g_app_info_launch_default_for_uri, iFppp)
 GO(g_app_info_launch_uris, iFpppp)
 //GO(g_app_info_monitor_get, 
-//GO(g_app_info_monitor_get_type, 
+GO(g_app_info_monitor_get_type, iFv)
 GO(g_app_info_remove_supports_type, iFppp)
 GO(g_app_info_reset_type_associations, vFp)
 GO(g_app_info_set_as_default_for_extension, iFppp)
@@ -74,7 +74,7 @@ GO(g_app_info_supports_uris, iFp)
 //GO(g_app_launch_context_get_display, 
 //GO(g_app_launch_context_get_environment, 
 //GO(g_app_launch_context_get_startup_notify_id, 
-//GO(g_app_launch_context_get_type, 
+GO(g_app_launch_context_get_type, iFv)
 //GO(g_app_launch_context_launch_failed, 
 //GO(g_app_launch_context_new, 
 //GO(g_app_launch_context_setenv, 
@@ -158,22 +158,22 @@ GOM(g_async_initable_newv_async, vFEiupippp)
 //GO(g_buffered_output_stream_new_sized, 
 //GO(g_buffered_output_stream_set_auto_grow, 
 //GO(g_buffered_output_stream_set_buffer_size, 
-//GO(g_bus_get, 
-//GO(g_bus_get_finish, 
-//GO(g_bus_get_sync, 
-//GO(g_bus_name_owner_flags_get_type, 
-//GO(g_bus_name_watcher_flags_get_type, 
-//GO(g_bus_own_name, 
-//GO(g_bus_own_name_on_connection, 
-//GO(g_bus_own_name_on_connection_with_closures, 
-//GO(g_bus_own_name_with_closures, 
-//GO(g_bus_type_get_type, 
-//GO(g_bus_unown_name, 
-//GO(g_bus_unwatch_name, 
-//GO(g_bus_watch_name, 
-//GO(g_bus_watch_name_on_connection, 
-//GO(g_bus_watch_name_on_connection_with_closures, 
-//GO(g_bus_watch_name_with_closures, 
+GOM(g_bus_get, vFEippp)
+GO(g_bus_get_finish, pFpp)
+GO(g_bus_get_sync, pFipp)
+GO(g_bus_name_owner_flags_get_type, iFv)
+GO(g_bus_name_watcher_flags_get_type, iFv)
+GOM(g_bus_own_name, uFEipippppp)
+GOM(g_bus_own_name_on_connection, uFEppipppp)
+GO(g_bus_own_name_on_connection_with_closures, uFppipp)
+GO(g_bus_own_name_with_closures, uFppippp)
+GO(g_bus_type_get_type, iFv)
+GO(g_bus_unown_name, vFu)
+GO(g_bus_unwatch_name, vFu)
+GOM(g_bus_watch_name, uFEipipppp)
+GOM(g_bus_watch_name_on_connection, uFEppipppp)
+GO(g_bus_watch_name_on_connection_with_closures, uFppipp)   // mmm closure, wrapped or unwrapped?
+GO(g_bus_watch_name_with_closures, uFipipp)
 //GO(g_bytes_icon_get_bytes, 
 //GO(g_bytes_icon_get_type, 
 //GO(g_bytes_icon_new, 
@@ -287,55 +287,55 @@ GO(g_dbus_arg_info_unref, vFp)
 //GO(g_dbus_auth_observer_authorize_authenticated_peer, 
 //GO(g_dbus_auth_observer_get_type, 
 //GO(g_dbus_auth_observer_new, 
-//GO(g_dbus_call_flags_get_type, 
-//GO(g_dbus_capability_flags_get_type, 
-//GO(g_dbus_connection_add_filter, 
-//GO(g_dbus_connection_call, 
-//GO(g_dbus_connection_call_finish, 
-//GO(g_dbus_connection_call_sync, 
+GO(g_dbus_call_flags_get_type, iFv)
+GO(g_dbus_capability_flags_get_type, iFv)
+GOM(g_dbus_connection_add_filter, uFEpppp)
+GOM(g_dbus_connection_call, vFEpppppppiippp)
+GO(g_dbus_connection_call_finish, pFppp)
+GO(g_dbus_connection_call_sync, pFpppppppiipp)
 //GO(g_dbus_connection_call_with_unix_fd_list, 
 //GO(g_dbus_connection_call_with_unix_fd_list_finish, 
 //GO(g_dbus_connection_call_with_unix_fd_list_sync, 
-//GO(g_dbus_connection_close, 
-//GO(g_dbus_connection_close_finish, 
-//GO(g_dbus_connection_close_sync, 
-//GO(g_dbus_connection_emit_signal, 
+GOM(g_dbus_connection_close, vFEpppp)
+GO(g_dbus_connection_close_finish, iFppp)
+GO(g_dbus_connection_close_sync, iFppp)
+GO(g_dbus_connection_emit_signal, iFppppppp)
 //GO(g_dbus_connection_export_action_group, 
 //GO(g_dbus_connection_export_menu_model, 
-//GO(g_dbus_connection_flags_get_type, 
-//GO(g_dbus_connection_flush, 
-//GO(g_dbus_connection_flush_finish, 
-//GO(g_dbus_connection_flush_sync, 
-//GO(g_dbus_connection_get_capabilities, 
-//GO(g_dbus_connection_get_exit_on_close, 
-//GO(g_dbus_connection_get_guid, 
-//GO(g_dbus_connection_get_last_serial, 
-//GO(g_dbus_connection_get_peer_credentials, 
-//GO(g_dbus_connection_get_stream, 
-//GO(g_dbus_connection_get_type, 
-//GO(g_dbus_connection_get_unique_name, 
-//GO(g_dbus_connection_is_closed, 
-//GO(g_dbus_connection_new, 
-//GO(g_dbus_connection_new_finish, 
-//GO(g_dbus_connection_new_for_address, 
-//GO(g_dbus_connection_new_for_address_finish, 
-//GO(g_dbus_connection_new_for_address_sync, 
-//GO(g_dbus_connection_new_sync, 
-//GO(g_dbus_connection_register_object, 
-//GO(g_dbus_connection_register_subtree, 
-//GO(g_dbus_connection_remove_filter, 
-//GO(g_dbus_connection_send_message, 
-//GO(g_dbus_connection_send_message_with_reply, 
-//GO(g_dbus_connection_send_message_with_reply_finish, 
-//GO(g_dbus_connection_send_message_with_reply_sync, 
-//GO(g_dbus_connection_set_exit_on_close, 
-//GO(g_dbus_connection_signal_subscribe, 
-//GO(g_dbus_connection_signal_unsubscribe, 
-//GO(g_dbus_connection_start_message_processing, 
+GO(g_dbus_connection_flags_get_type, iFv)
+GOM(g_dbus_connection_flush, vFEpppp)
+GO(g_dbus_connection_flush_finish, iFppp)
+GO(g_dbus_connection_flush_sync, iFppp)
+GO(g_dbus_connection_get_capabilities, iFp)
+GO(g_dbus_connection_get_exit_on_close, iFp)
+GO(g_dbus_connection_get_guid, pFp)
+GO(g_dbus_connection_get_last_serial, uFp)
+GO(g_dbus_connection_get_peer_credentials, pFp)
+GO(g_dbus_connection_get_stream, pFp)
+GO(g_dbus_connection_get_type, iFv)
+GO(g_dbus_connection_get_unique_name, pFp)
+GO(g_dbus_connection_is_closed, iFp)
+GOM(g_dbus_connection_new, vFEppipppp)
+GO(g_dbus_connection_new_finish, pFpp)
+GOM(g_dbus_connection_new_for_address, vFEpipppp)
+GO(g_dbus_connection_new_for_address_finish, pFpp)
+GO(g_dbus_connection_new_for_address_sync, pFpippp)
+GO(g_dbus_connection_new_sync, pFppippp)
+GOM(g_dbus_connection_register_object, uFEppppppp)
+//GOM(g_dbus_connection_register_subtree, uFEppppppp)   // vtable need wrapping
+GO(g_dbus_connection_remove_filter, vFpu)
+GO(g_dbus_connection_send_message, iFppipp)     //TODO: there is an argument as "volatile".. does that change anything???
+GOM(g_dbus_connection_send_message_with_reply, vFEppiipppp) //TODO: same volatile argument...
+GO(g_dbus_connection_send_message_with_reply_finish, pFppp)
+GO(g_dbus_connection_send_message_with_reply_sync, pFppiippp)   //TODO: same volatile
+GO(g_dbus_connection_set_exit_on_close, vFpi)
+GOM(g_dbus_connection_signal_subscribe, uFEppppppippp)
+GO(g_dbus_connection_signal_unsubscribe, vFpu)
+GO(g_dbus_connection_start_message_processing, vFp)
 //GO(g_dbus_connection_unexport_action_group, 
 //GO(g_dbus_connection_unexport_menu_model, 
-//GO(g_dbus_connection_unregister_object, 
-//GO(g_dbus_connection_unregister_subtree, 
+GO(g_dbus_connection_unregister_object, iFpu)
+GO(g_dbus_connection_unregister_subtree, iFpu)
 //GO(g_dbus_error_encode_gerror, 
 //GO(g_dbus_error_get_remote_error, 
 //GO(g_dbus_error_get_type, 
@@ -380,95 +380,95 @@ GO(g_dbus_interface_info_unref, vFp)
 //GO(g_dbus_interface_skeleton_set_flags, 
 //GO(g_dbus_interface_skeleton_unexport, 
 //GO(g_dbus_interface_skeleton_unexport_from_connection, 
-//GO(g_dbus_is_address, 
+GO(g_dbus_is_address, iFp)
 GO(g_dbus_is_guid, iFp)
 GO(g_dbus_is_interface_name, iFp)
 GO(g_dbus_is_member_name, iFp)
 GO(g_dbus_is_name, iFp)
-//GO(g_dbus_is_supported_address, 
+GO(g_dbus_is_supported_address, iFpp)
 GO(g_dbus_is_unique_name, iFp)
-//GO(g_dbus_menu_model_get, 
-//GO(g_dbus_menu_model_get_type, 
-//GO(g_dbus_message_byte_order_get_type, 
-//GO(g_dbus_message_bytes_needed, 
-//GO(g_dbus_message_copy, 
-//GO(g_dbus_message_flags_get_type, 
-//GO(g_dbus_message_get_arg0, 
-//GO(g_dbus_message_get_body, 
-//GO(g_dbus_message_get_byte_order, 
-//GO(g_dbus_message_get_destination, 
-//GO(g_dbus_message_get_error_name, 
-//GO(g_dbus_message_get_flags, 
-//GO(g_dbus_message_get_header, 
-//GO(g_dbus_message_get_header_fields, 
-//GO(g_dbus_message_get_interface, 
-//GO(g_dbus_message_get_locked, 
-//GO(g_dbus_message_get_member, 
-//GO(g_dbus_message_get_message_type, 
-//GO(g_dbus_message_get_num_unix_fds, 
-//GO(g_dbus_message_get_path, 
-//GO(g_dbus_message_get_reply_serial, 
-//GO(g_dbus_message_get_sender, 
-//GO(g_dbus_message_get_serial, 
-//GO(g_dbus_message_get_signature, 
-//GO(g_dbus_message_get_type, 
-//GO(g_dbus_message_get_unix_fd_list, 
-//GO(g_dbus_message_header_field_get_type, 
-//GO(g_dbus_message_lock, 
-//GO(g_dbus_message_new, 
-//GO(g_dbus_message_new_from_blob, 
-//GO(g_dbus_message_new_method_call, 
-//GO(g_dbus_message_new_method_error, 
-//GO(g_dbus_message_new_method_error_literal, 
-//GO(g_dbus_message_new_method_error_valist, 
-//GO(g_dbus_message_new_method_reply, 
-//GO(g_dbus_message_new_signal, 
-//GO(g_dbus_message_print, 
-//GO(g_dbus_message_set_body, 
-//GO(g_dbus_message_set_byte_order, 
-//GO(g_dbus_message_set_destination, 
-//GO(g_dbus_message_set_error_name, 
-//GO(g_dbus_message_set_flags, 
-//GO(g_dbus_message_set_header, 
-//GO(g_dbus_message_set_interface, 
-//GO(g_dbus_message_set_member, 
-//GO(g_dbus_message_set_message_type, 
-//GO(g_dbus_message_set_num_unix_fds, 
-//GO(g_dbus_message_set_path, 
-//GO(g_dbus_message_set_reply_serial, 
-//GO(g_dbus_message_set_sender, 
-//GO(g_dbus_message_set_serial, 
-//GO(g_dbus_message_set_signature, 
-//GO(g_dbus_message_set_unix_fd_list, 
-//GO(g_dbus_message_to_blob, 
-//GO(g_dbus_message_to_gerror, 
-//GO(g_dbus_message_type_get_type, 
+GO(g_dbus_menu_model_get, pFppp)
+GO(g_dbus_menu_model_get_type, iFv)
+GO(g_dbus_message_byte_order_get_type, iFv)
+GO(g_dbus_message_bytes_needed, lFpLp)
+GO(g_dbus_message_copy, pFpp)
+GO(g_dbus_message_flags_get_type, iFv)
+GO(g_dbus_message_get_arg0, pFp)
+GO(g_dbus_message_get_body, pFp)
+GO(g_dbus_message_get_byte_order, iFp)
+GO(g_dbus_message_get_destination, pFp)
+GO(g_dbus_message_get_error_name, pFp)
+GO(g_dbus_message_get_flags, iFp)
+GO(g_dbus_message_get_header, pFpi)
+GO(g_dbus_message_get_header_fields, pFp)
+GO(g_dbus_message_get_interface, pFp)
+GO(g_dbus_message_get_locked, iFp)
+GO(g_dbus_message_get_member, pFp)
+GO(g_dbus_message_get_message_type, iFp)
+GO(g_dbus_message_get_num_unix_fds, uFp)
+GO(g_dbus_message_get_path, pFp)
+GO(g_dbus_message_get_reply_serial, uFp)
+GO(g_dbus_message_get_sender, pFp)
+GO(g_dbus_message_get_serial, uFp)
+GO(g_dbus_message_get_signature, pFp)
+GO(g_dbus_message_get_type, iFv)
+GO(g_dbus_message_get_unix_fd_list, pFp)
+GO(g_dbus_message_header_field_get_type, iFv)
+GO(g_dbus_message_lock, vFp)
+GO(g_dbus_message_new, pFv)
+GO(g_dbus_message_new_from_blob, pFpLip)
+GO(g_dbus_message_new_method_call, pFpppp)
+GO2(g_dbus_message_new_method_error, pFpppV, g_dbus_message_new_method_error_valist)
+GO(g_dbus_message_new_method_error_literal, pFppp)
+GO(g_dbus_message_new_method_error_valist, pFpppp)
+GO(g_dbus_message_new_method_reply, pFp)
+GO(g_dbus_message_new_signal, pFppp)
+GO(g_dbus_message_print, pFpu)
+GO(g_dbus_message_set_body, vFpp)
+GO(g_dbus_message_set_byte_order, iFp)
+GO(g_dbus_message_set_destination, vFpp)
+GO(g_dbus_message_set_error_name, vFpp)
+GO(g_dbus_message_set_flags, vFpi)
+GO(g_dbus_message_set_header, vFpip)
+GO(g_dbus_message_set_interface, vFpp)
+GO(g_dbus_message_set_member, vFpp)
+GO(g_dbus_message_set_message_type, vFpi)
+GO(g_dbus_message_set_num_unix_fds, vFpu)
+GO(g_dbus_message_set_path, vFpp)
+GO(g_dbus_message_set_reply_serial, vFpu)
+GO(g_dbus_message_set_sender, vFpp)
+GO(g_dbus_message_set_serial, vFpu)
+GO(g_dbus_message_set_signature, vFpp)
+GO(g_dbus_message_set_unix_fd_list, vFpp)
+GO(g_dbus_message_to_blob, pFppip)
+GO(g_dbus_message_to_gerror, iFpp)
+GO(g_dbus_message_type_get_type, iFv)
 GO(g_dbus_method_info_get_type, iFv)
 GO(g_dbus_method_info_ref, pFp)
 GO(g_dbus_method_info_unref, vFp)
-//GO(g_dbus_method_invocation_get_connection, 
-//GO(g_dbus_method_invocation_get_interface_name, 
-//GO(g_dbus_method_invocation_get_message, 
-//GO(g_dbus_method_invocation_get_method_info, 
-//GO(g_dbus_method_invocation_get_method_name, 
-//GO(g_dbus_method_invocation_get_object_path, 
-//GO(g_dbus_method_invocation_get_parameters, 
-//GO(g_dbus_method_invocation_get_property_info, 
-//GO(g_dbus_method_invocation_get_sender, 
+GO(g_dbus_method_invocation_get_connection, pFp)
+GO(g_dbus_method_invocation_get_interface_name, pFp)
+GO(g_dbus_method_invocation_get_message, pFp)
+GO(g_dbus_method_invocation_get_method_info, pFp)
+GO(g_dbus_method_invocation_get_method_name, pFp)
+GO(g_dbus_method_invocation_get_object_path, pFp)
+GO(g_dbus_method_invocation_get_parameters, pFp)
+GO(g_dbus_method_invocation_get_property_info, pFp)
+GO(g_dbus_method_invocation_get_sender, pFp)
 GO(g_dbus_method_invocation_get_type, iFv)
-//GO(g_dbus_method_invocation_get_user_data, 
-//GO(g_dbus_method_invocation_return_dbus_error, 
-//GO(g_dbus_method_invocation_return_error, 
-//GO(g_dbus_method_invocation_return_error_literal, 
-//GO(g_dbus_method_invocation_return_error_valist, 
-//GO(g_dbus_method_invocation_return_gerror, 
-//GO(g_dbus_method_invocation_return_value, 
-//GO(g_dbus_method_invocation_return_value_with_unix_fd_list, 
-//GO(g_dbus_method_invocation_take_error, 
+GO(g_dbus_method_invocation_get_user_data, pFp)
+GO(g_dbus_method_invocation_return_dbus_error, vFppp)
+GO2(g_dbus_method_invocation_return_error, vFpuipV, g_dbus_method_invocation_return_error_valist)
+GO(g_dbus_method_invocation_return_error_literal, vFpuip)
+GO(g_dbus_method_invocation_return_error_valist, vFpuipp)
+GO(g_dbus_method_invocation_return_gerror, vFpp)
+GO(g_dbus_method_invocation_return_value, vFpp)
+GO(g_dbus_method_invocation_return_value_with_unix_fd_list, vFppp)
+GO(g_dbus_method_invocation_take_error, vFpp)
 GO(g_dbus_node_info_generate_xml, vFpup)
 GO(g_dbus_node_info_get_type, iFv)
 GO(g_dbus_node_info_lookup_interface, pFpp)
-//GO(g_dbus_node_info_new_for_xml, 
+GO(g_dbus_node_info_new_for_xml, pFpp)
 GO(g_dbus_node_info_ref, pFp)
 GO(g_dbus_node_info_unref, vFp)
 GO(g_dbus_object_get_interface, pFpp)
@@ -1651,13 +1651,13 @@ GO(g_simple_proxy_resolver_get_type, iFv)
 //GO(g_test_dbus_stop, 
 //GO(g_test_dbus_unset, 
 //GO(g_test_dbus_up, 
-//GO(g_themed_icon_append_name, 
-//GO(g_themed_icon_get_names, 
+GO(g_themed_icon_append_name, vFpp)
+GO(g_themed_icon_get_names, pFp)
 GO(g_themed_icon_get_type, iFv)
-//GO(g_themed_icon_new, 
-//GO(g_themed_icon_new_from_names, 
-//GO(g_themed_icon_new_with_default_fallbacks, 
-//GO(g_themed_icon_prepend_name, 
+GO(g_themed_icon_new, pFp)
+GO(g_themed_icon_new_from_names, pFpi)
+GO(g_themed_icon_new_with_default_fallbacks, pFp)
+GO(g_themed_icon_prepend_name, vFpp)
 //GO(g_threaded_resolver_get_type, 
 //GO(g_threaded_socket_service_get_type, 
 //GO(g_threaded_socket_service_new, 
