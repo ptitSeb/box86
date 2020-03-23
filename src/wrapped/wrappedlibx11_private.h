@@ -610,7 +610,7 @@ GO(XkbGetMap, pFpuu)
 //GO(XkbGetMapChanges
 //GO(XkbGetNamedDeviceIndicator
 //GO(XkbGetNamedGeometry
-//GO(XkbGetNamedIndicator
+GO(XkbGetNamedIndicator, iFpuppppp)
 //GO(XkbGetNames
 //GO(XkbGetPerClientControls
 // _XkbGetReadBufferCountedString
