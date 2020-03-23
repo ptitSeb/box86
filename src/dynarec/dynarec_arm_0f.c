@@ -916,8 +916,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = mmx_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVD(v1, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                VSTR_64(v0, ed, fixedaddress);
+                VMOVfrV_D(x2, x3, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
+                // there can be some bus error if storing directly the V reg
+                //VSTR_64(v0, ed, fixedaddress);
+                STRD_IMM8(x2, ed, fixedaddress);
             }
             break;
 
