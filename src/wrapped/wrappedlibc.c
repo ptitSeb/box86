@@ -1199,6 +1199,8 @@ void InitCpuModel()
                                      | (1<<FEATURE_MMX) 
                                      | (1<<FEATURE_SSE) 
                                      | (1<<FEATURE_SSE2) 
+                                     | (1<<FEATURE_SSE3)
+                                     | (1<<FEATURE_SSSE3)
                                      | (1<<FEATURE_MOVBE)
                                      | (1<<FEATURE_ADX);
 }

@@ -159,9 +159,11 @@ void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
                     ;
-            R_ECX =   1<<12     // fma
+            R_ECX =   1<<0      // SSE3
+                    | 1<<9      // SSE3
+                    | 1<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
-                    ;           // also 1<<0 is SSE3 and 1<<9 is SSSE3
+                    ;           
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
             R_EAX = 0x665B5001;

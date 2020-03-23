@@ -29,7 +29,7 @@ int EXPORT my2_SDL_HasNEON() __attribute__((alias("sdl_No")));   // No neon in x
 int EXPORT my2_SDL_HasRDTSC() __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE() __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE2() __attribute__((alias("sdl_Yes")));
-int EXPORT my2_SDL_HasSSE3() __attribute__((alias("sdl_No")));
+int EXPORT my2_SDL_HasSSE3() __attribute__((alias("sdl_Yes")));
 int EXPORT my2_SDL_HasSSE41() __attribute__((alias("sdl_No")));
 int EXPORT my2_SDL_HasSSE42() __attribute__((alias("sdl_No")));
 
