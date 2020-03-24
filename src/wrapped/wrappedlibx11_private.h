@@ -1076,7 +1076,7 @@ GO(XWarpPointer, iFpppiiuuii)
 //GO(XwcDrawImageString
 GO(XwcDrawString, vFppppiipi)
 //GO(XwcDrawText
-//GO(XwcFreeStringList
+GO(XwcFreeStringList, vFp)
 // _XwcFreeStringList
 GO(XwcLookupString, iFuppipp)
 //GO(XwcResetIC
@@ -1091,7 +1091,7 @@ GO(XwcTextExtents, iFppipp)
 GO(XwcTextListToTextProperty, iFppiip)
 // _XwcTextListToTextProperty
 //GO(XwcTextPerCharExtents
-//GO(XwcTextPropertyToTextList
+GO(XwcTextPropertyToTextList, iFpppp)
 // _XwcTextPropertyToTextList
 // _Xwctomb
 //GO(XWhitePixel
