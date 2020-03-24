@@ -75,6 +75,7 @@ scwrap_t syscallwrap[] = {
     { 7, __NR_waitpid, 3 },
 #endif
     { 10, __NR_unlink, 1 },
+    { 12, __NR_chdir, 1 },
 #ifdef __NR_time
     { 13, __NR_time, 1 },
 #endif
