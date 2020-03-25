@@ -967,7 +967,7 @@ GO(_XSetLastRequestRead, uFpp)
 GO(XSetLineAttributes, iFppuiii)
 GO(XSetLocaleModifiers, pFp)
 //GO(XSetModifierMapping
-//GO(XSetNormalHints
+GO(XSetNormalHints, iFpppp)
 //GO(XSetOCValues
 //GO(XSetOMValues
 //GO(XSetPlaneMask
