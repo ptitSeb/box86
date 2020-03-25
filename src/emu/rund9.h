@@ -161,17 +161,49 @@
 
         case 0xF8:  /* FPREM */
             #ifdef USE_FLOAT
-            tmp32s = ST0.f / ST1.f;
-            ST0.f -= ST1.f * tmp32s;
+            ll = ST0.f / ST1.f;
+            ST0.f -= ST1.f * ll;
             #else
-            tmp32s = ST0.d / ST1.d;
-            ST0.d -= ST1.d * tmp32s;
+            ll = ST0.d / ST1.d;
+            ST0.d -= ST1.d * ll;
             #endif
             emu->sw.f.F87_C2 = 0;
-            emu->sw.f.F87_C0 = (tmp32s&1);
-            emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
-            emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+            emu->sw.f.F87_C0 = (ll&1);
+            emu->sw.f.F87_C3 = ((ll>>1)&1);
+            emu->sw.f.F87_C1 = ((ll>>2)&1);
             break;
+        case 0xF5:  /* FPREM1 */
+            // get exponant(ST(0))-exponant(ST(1)) in temp32s
+            #ifdef USE_FLOAT
+            tmp32s = ((ST0.ll&0x7f700000)>>23) - ((ST1.ll&0x7f700000)>>23);
+            #else
+            tmp32s = ((ST0.ll&0x7ff0000000000000LL)>>52) - ((ST1.ll&0x7ff0000000000000LL)>>52);
+            #endif
+            if(tmp32s<64)
+            {
+                #ifdef USE_FLOAT
+                ll = (int64_t)round(ST0.f)/ST1.f;
+                ST0.f = ST0.f - (ST1.f*ll);
+                #else
+                ll = (int64_t)round(ST0.d)/ST1.d;
+                ST0.d = ST0.d - (ST1.d*ll);
+                #endif
+                emu->sw.f.F87_C2 = 0;
+                emu->sw.f.F87_C1 = (ll&1)?1:0;
+                emu->sw.f.F87_C2 = (ll&2)?1:0;
+                emu->sw.f.F87_C0 = (ll&4)?1:0;
+            } else {
+                #ifdef USE_FLOAT
+                ll = (int64_t)floor((ST0.f/ST1.f)/powf(2, 32));
+                ST0.f = ST0.f - ST1.f*ll*powf(2, 32);
+                #else
+                ll = (int64_t)floor((ST0.d/ST1.d)/pow(2, 32));
+                ST0.d = ST0.d - ST1.d*ll*pow(2, 32);
+                #endif
+                emu->sw.f.F87_C2 = 1;
+            }
+            break;
+
         case 0xF9:  /* FYL2XP1 */
             #ifdef USE_FLOAT
             ST(1).f = log2f(ST0.f + 1.0f)*ST(1).f;
@@ -244,7 +276,6 @@
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF5:
         case 0xF6:
         case 0xF7:
             goto _default;
