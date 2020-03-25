@@ -1007,6 +1007,7 @@ void iFipppup(x86emu_t *emu, uintptr_t fnc);
 void iFippppp(x86emu_t *emu, uintptr_t fnc);
 void iFuppipp(x86emu_t *emu, uintptr_t fnc);
 void iFuppppp(x86emu_t *emu, uintptr_t fnc);
+void iFdipppL(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpiiipp(x86emu_t *emu, uintptr_t fnc);
 void iFpiippu(x86emu_t *emu, uintptr_t fnc);
@@ -1514,6 +1515,7 @@ void DFDp(x86emu_t *emu, uintptr_t fnc);
 void DFppi(x86emu_t *emu, uintptr_t fnc);
 void DFppu(x86emu_t *emu, uintptr_t fnc);
 void DFppip(x86emu_t *emu, uintptr_t fnc);
+void iFDipppL(x86emu_t *emu, uintptr_t fnc);
 void vFppippDDC(x86emu_t *emu, uintptr_t fnc);
 #endif
 
@@ -1524,6 +1526,7 @@ void KFKp(x86emu_t *emu, uintptr_t fnc);
 void KFppi(x86emu_t *emu, uintptr_t fnc);
 void KFppu(x86emu_t *emu, uintptr_t fnc);
 void KFppip(x86emu_t *emu, uintptr_t fnc);
+void iFKipppL(x86emu_t *emu, uintptr_t fnc);
 void vFppippddC(x86emu_t *emu, uintptr_t fnc);
 #endif
 

@@ -220,7 +220,7 @@ GO(__duplocale, pFp)
 GOW(eaccess, iFpi)
 // ecb_crypt
 // ecvt
-// ecvt_r
+GO(ecvt_r, iFdipppL)
 // endaliasent
 // endfsent
 GO(endgrent, vFv)
@@ -305,7 +305,7 @@ GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
 GOW(__fcntl, iFiiuuuuuu)
 GOM(fcntl64, iFEiiuuuuuu)
 GO(fcvt, pFdipp)
-// fcvt_r
+GO(fcvt_r, iFdipppL)
 GO(fdatasync, iFi)
 // fdetach
 GO(fdopen, pFip)
@@ -1312,9 +1312,17 @@ GOW(pwrite64, iFiuI)
 // __pwrite64   // Weak
 GOM(pwritev64, iFEipiI)  // not always present
 // qecvt
-// qecvt_r
+#ifdef HAVE_LD80BITS
+GO(qecvt_r, iFDipppL)
+#else
+GO(qecvt_r, iFKipppL)
+#endif
 // qfcvt
-// qfcvt_r
+#ifdef HAVE_LD80BITS
+GO(qfcvt_r, iFDipppL)
+#else
+GO(qfcvt_r, iFKipppL)
+#endif
 // qgcvt
 GOM(qsort, vFEpuup)
 GOM(qsort_r, vFEpuupp)
