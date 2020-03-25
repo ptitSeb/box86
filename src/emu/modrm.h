@@ -51,6 +51,10 @@
     if((nextop&0xC0)==0xC0) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
     } else getecommon(A, reg32_t)
+#define getebo(A, O)          \
+    if((nextop&0xC0)==0xC0) { \
+        A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
+    } else getecommono(A, reg32_t, O)
 #define geted(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->regs[(nextop&7)]; \
@@ -71,6 +75,7 @@
 #define GET_EB      geteb(oped)
 #define GET_ED      geted(oped)
 #define GET_ED_OFFS(o) getedo(oped, o)
+#define GET_EB_OFFS(o) getebo(oped, o)
 #define GET_EM      getem(opem)
 #define GET_EX      getex(opex)
 #define EB          oped

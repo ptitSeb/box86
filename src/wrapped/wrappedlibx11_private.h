@@ -1069,7 +1069,7 @@ GO(Xutf8TextListToTextProperty, iFppiup)
 GO(Xutf8TextPropertyToTextList, iFpppp)
 // _Xutf8TextPropertyToTextList
 GO(XVaCreateNestedList, pFipppppppppppppppppppppp)  // should recreate the function instead...
-//GO(XVendorRelease
+GO(XVendorRelease, iFp)
 // _XVIDtoVisual
 GO(XVisualIDFromVisual, uFp)
 GO(XWarpPointer, iFpppiiuuii)

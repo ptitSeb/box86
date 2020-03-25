@@ -376,6 +376,22 @@ void RunGS(x86emu_t *emu)
             tmp32u = F32;
             GD.dword[0] = imul32(emu, ED->dword[0], tmp32u);
             break;
+        case 0x80:             /* GRP Eb,Ib */
+        case 0x82:             // 0x82 and 0x80 are the same opcodes it seems?
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            tmp8u = F8;
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = add8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] =  or8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = adc8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = sbb8(emu, EB->byte[0], tmp8u); break;
+                case 4: EB->byte[0] = and8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = sub8(emu, EB->byte[0], tmp8u); break;
+                case 6: EB->byte[0] = xor8(emu, EB->byte[0], tmp8u); break;
+                case 7:               cmp8(emu, EB->byte[0], tmp8u); break;
+            }
+            break;
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
@@ -419,6 +435,27 @@ void RunGS(x86emu_t *emu)
             *(uint32_t*)((tlsdata) + tmp32s) = R_EAX;
             break;
 
+        case 0xC0:             /* GRP2 Eb,Ib */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            tmp8u = F8/* & 0x1f*/; // masking done in each functions
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
+                case 4:
+                case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
+            }
+            break;
+
+        case 0xC6:              /* MOV Eb,Ib */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            EB->byte[0] = F8;
+            break;
         case 0xC7:              /* MOV Ed,Id */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
