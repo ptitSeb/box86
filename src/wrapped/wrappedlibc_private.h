@@ -1154,7 +1154,7 @@ GO(nice, iFi)
 GO(nl_langinfo, pFu)
 GO(__nl_langinfo_l, pFup)
 GOW(nl_langinfo_l, pFup)
-// _nl_msg_cat_cntr // type B
+DATAB(_nl_msg_cat_cntr, 4) // type B
 // nrand48
 // nrand48_r    // Weak
 // __nss_configure_lookup
