@@ -947,15 +947,15 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
         if(h->DynSym[i].st_info == 17) {
             sym = h->DynSym+i;
             const char * symname = h->DynStr+sym->st_name;
-            if(strcmp(symname, "_IO_2_1_stderr_")==0) {
+            if(strcmp(symname, "_IO_2_1_stderr_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
                 my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
             } else
-            if(strcmp(symname, "_IO_2_1_stdin_")==0) {
+            if(strcmp(symname, "_IO_2_1_stdin_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
                 my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
             } else
-            if(strcmp(symname, "_IO_2_1_stdout_")==0) {
+            if(strcmp(symname, "_IO_2_1_stdout_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
             }
