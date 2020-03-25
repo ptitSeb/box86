@@ -885,6 +885,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         #undef GO
         
         case 0x80:
+        case 0x82:
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0: //ADD
