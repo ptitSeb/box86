@@ -67,6 +67,8 @@ typedef struct
 
 // TODO: put the wrapper type in a dedicate include
 typedef void* (*pFv_t)();
+typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFip_t)(int32_t, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFS_t)(SDL_JoystickGUID);
@@ -142,6 +144,8 @@ typedef struct sdl2_my_s {
     vFpp_t     SDL_AddEventWatch;
     vFpp_t     SDL_DelEventWatch;
     pFS_t      SDL_GameControllerMappingForGUID;
+    iFp_t      SDL_SaveAllDollarTemplates;
+    iFip_t     SDL_SaveDollarTemplate;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -202,6 +206,8 @@ void* getSDL2My(library_t* lib)
     GO(SDL_AddEventWatch, vFpp_t)
     GO(SDL_DelEventWatch, vFpp_t)
     GO(SDL_GameControllerMappingForGUID, pFS_t)
+    GO(SDL_SaveAllDollarTemplates, iFp_t)
+    GO(SDL_SaveDollarTemplate, iFip_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -547,6 +553,24 @@ EXPORT int my2_SDL_RWclose(x86emu_t* emu, void* a)
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     return RWNativeClose2(rw);
+}
+
+EXPORT int my2_SDL_SaveAllDollarTemplates(x86emu_t* emu, void* a)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint32_t ret = my->SDL_SaveAllDollarTemplates(rw);
+    RWNativeEnd2(rw);
+    return ret;
+}
+
+EXPORT int my2_SDL_SaveDollarTemplate(x86emu_t* emu, int gesture, void* a)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint32_t ret = my->SDL_SaveDollarTemplate(gesture, rw);
+    RWNativeEnd2(rw);
+    return ret;
 }
 
 EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
