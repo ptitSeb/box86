@@ -161,50 +161,39 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
     }
 }
 
-static void initEmulatedLib(const char* path, library_t *lib, box86context_t* context)
+static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* context)
 {
-    char libname[MAX_PATH];
-    strcpy(libname, path);
-    int found = FileExist(libname, IS_FILE);
-    if(!found && !strchr(path, '/'))
-        for(int i=0; i<context->box86_ld_lib.size; ++i)
-        {
-            strcpy(libname, context->box86_ld_lib.paths[i]);
-            strcat(libname, path);
-            if(FileExist(libname, IS_FILE))
-                break;
-        }
     if(FileExist(libname, IS_FILE))
     {
         FILE *f = fopen(libname, "rb");
         if(!f) {
             printf_log(LOG_NONE, "Error: Cannot open %s\n", libname);
-            return;
+            return 0;
         }
         elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
         if(!elf_header) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
             fclose(f);
-            return;
+            return 0;
         }
         int mainelf = AddElfHeader(context, elf_header);
 
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
             fclose(f);
-            return;
+            return 0;
         }
         // allocate memory
         if(AllocElfMemory(context, elf_header, 0)) {
             printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
             fclose(f);
-            return;
+            return 0;
         }
         // Load elf into memory
         if(LoadElfMemory(f, context, elf_header)) {
             printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
             fclose(f);
-            return;
+            return 0;
         }
         // can close the file now
         fclose(f);
@@ -221,7 +210,27 @@ static void initEmulatedLib(const char* path, library_t *lib, box86context_t* co
         lib->priv.n.localsymbols = kh_init(mapsymbols);
 
         printf_log(LOG_INFO, "Using emulated %s\n", libname);
+        return 1;
     }
+    return 0;
+}
+
+static void initEmulatedLib(const char* path, library_t *lib, box86context_t* context)
+{
+    char libname[MAX_PATH];
+    strcpy(libname, path);
+    int found = FileExist(libname, IS_FILE);
+    if(!found && !strchr(path, '/'))
+        for(int i=0; i<context->box86_ld_lib.size; ++i)
+        {
+            strcpy(libname, context->box86_ld_lib.paths[i]);
+            strcat(libname, path);
+            if(FileExist(libname, IS_FILE))
+                if(loadEmulatedLib(libname, lib, context))
+                    return;
+        }
+    else
+        loadEmulatedLib(libname, lib, context);
 }
 
 library_t *NewLibrary(const char* path, box86context_t* context)
