@@ -66,7 +66,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int s0, s1;
     int fixedaddress;
     switch(opcode) {
-
+        case 0x0B:
+            INST_NAME("UD2");
+            CALL(arm_ud, -1, 0);
+            break;
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;

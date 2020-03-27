@@ -5,6 +5,9 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -226,6 +229,11 @@ void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
             printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
             R_EAX = 0;
     }   
+}
+
+void arm_ud(x86emu_t* emu)
+{
+    kill(getpid(), SIGILL);
 }
 
 // Get a FPU single scratch reg

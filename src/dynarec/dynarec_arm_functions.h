@@ -27,6 +27,7 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed);
 void arm_fld(x86emu_t* emu, uint8_t* ed);
 
 void arm_cpuid(x86emu_t* emu, uint32_t tmp32u);
+void arm_ud(x86emu_t* emu);
 
 // Get an FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn);
