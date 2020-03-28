@@ -470,7 +470,14 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             } else q1 = q0;
             VZIPQ_32(v0, q1);
             break;
-
+        case 0x63:
+            INST_NAME("PACKSSWB Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            VQMOVN_S16(q0+0, q0);
+            VQMOVN_S16(q0+1, q1);
+            break;
         case 0x64:
             INST_NAME("PCMPGTB Gx,Ex");
             nextop = F8;
@@ -908,10 +915,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX + (nextop&7);
                 VMOVfrDx_32(ed, v0, 0);
             } else {
-                d0 = fpu_get_scratch_double(dyn);
-                VMOVD(d0, v0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                VSTR_32(d0*2, ed, fixedaddress);
+                VMOVfrDx_32(x2, v0, 0); // to avoid Bus Error, using regular store
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                STR_IMM9(x2, ed, fixedaddress);
             }
             break;
         case 0x7F:
