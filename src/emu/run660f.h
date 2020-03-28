@@ -207,7 +207,7 @@
     _6f_0x38:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
-            case 0x00:  // PSHUFB
+            case 0x00:  /* PSHUFB */
                 nextop = F8;
                 GET_EX;
                 eax1 = GX;
@@ -216,6 +216,14 @@
                         GX.ub[i] = 0;
                     else
                         GX.ub[i] = eax1.ub[EX->ub[i]&15];
+                }
+                break;
+            case 0x04:  /* PMADDUBSW Gx,Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<8; ++i) {
+                    tmp32s = (int32_t)(GX.ub[i*2+0])*EX->ub[i*2+0] + (int32_t)(GX.ub[i*2+1])*EX->ub[i*2+1];
+                    GX.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
                 }
                 break;
             default:

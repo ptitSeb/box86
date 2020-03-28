@@ -139,6 +139,22 @@
             R_EAX = tmp64u&0xFFFFFFFF;
             NEXT;
         
+        _0f_0x38:  // these are some SSE3 opcodes
+            opcode = F8;
+            switch(opcode) {
+                case 0x04:  /* PMADDUBSW Gm,Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = (int32_t)(GM.ub[i*2+0])*EM->ub[i*2+0] + (int32_t)(GM.ub[i*2+1])*EM->ub[i*2+1];
+                        GM.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
+                    }
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
+            
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
         _0f_##BASE##_0:                          \
             PREFIX                              \
