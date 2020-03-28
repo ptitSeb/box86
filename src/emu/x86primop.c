@@ -1153,7 +1153,7 @@ Implements the IDIV instruction and side effects.
 ****************************************************************************/
 void idiv8(x86emu_t *emu, uint8_t s)
 {
-    int32_t dvd, div, mod;
+    int32_t dvd, quot, mod;
 	RESET_FLAGS(emu);
 
 	dvd = (int16_t)R_AX;
@@ -1161,13 +1161,14 @@ void idiv8(x86emu_t *emu, uint8_t s)
 		INTR_RAISE_DIV0(emu);
         return;
 	}
-	div = dvd / (int8_t)s;
-	mod = dvd % (int8_t)s;
-	if (abs(div) > 0x7f) {
+	div_t p = div(dvd, (int8_t)s);
+	quot = p.quot;
+	mod = p.rem;
+	if (abs(quot) > 0x7f) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	R_AL = (int8_t) div;
+	R_AL = (int8_t) quot;
 	R_AH = (int8_t) mod;
 }
 
@@ -1177,25 +1178,26 @@ Implements the IDIV instruction and side effects.
 ****************************************************************************/
 void idiv16(x86emu_t *emu, uint16_t s)
 {
-	int32_t dvd, div, mod;
+	int32_t dvd, quot, mod;
 
 	dvd = (((int32_t)R_DX) << 16) | R_AX;
 	if (s == 0) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	div = dvd / (int16_t)s;
-	mod = dvd % (int16_t)s;
-	if (abs(div) > 0x7fff) {
+	div_t p = div(dvd, (int16_t)s);
+	quot = p.quot;
+	mod = p.rem;
+	if (abs(quot) > 0x7fff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
 	CLEAR_FLAG(F_CF);
 	CLEAR_FLAG(F_SF);
-	CONDITIONAL_SET_FLAG(div == 0, F_ZF);
+	CONDITIONAL_SET_FLAG(quot == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
-	R_AX = (uint16_t)div;
+	R_AX = (uint16_t)quot;
 	R_DX = (uint16_t)mod;
 }
 
@@ -1205,7 +1207,7 @@ Implements the IDIV instruction and side effects.
 ****************************************************************************/
 void idiv32(x86emu_t *emu, uint32_t s)
 {
-	int64_t dvd, div, mod;
+	int64_t dvd, quot, mod;
 	RESET_FLAGS(emu);
 
 	dvd = (((int64_t)R_EDX) << 32) | R_EAX;
@@ -1213,9 +1215,10 @@ void idiv32(x86emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	div = dvd / (int32_t)s;
-	mod = dvd % (int32_t)s;
-	if (llabs(div) > 0x7fffffff) {
+	lldiv_t p = lldiv(dvd, (int32_t)s);
+	quot = p.quot;
+	mod = p.rem;
+	if (llabs(quot) > 0x7fffffff) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1225,7 +1228,7 @@ void idiv32(x86emu_t *emu, uint32_t s)
 	SET_FLAG(F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
-	R_EAX = (uint32_t)div;
+	R_EAX = (uint32_t)quot;
 	R_EDX = (uint32_t)mod;
 }
 
