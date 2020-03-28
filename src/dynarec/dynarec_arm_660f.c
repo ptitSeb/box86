@@ -187,6 +187,34 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0x38:  // SSE3 opcodes
+            nextop = F8;
+            switch(nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB");
+                    nextop = F8;
+                    GETGX(q0);
+                    q1 = fpu_get_scratch_quad(dyn);
+                    if((nextop&0xC0)==0xC0) {
+                        v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                        VMOVQ(q1, v0);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        VLD1Q_64(q1, ed);
+                    }
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ_8(v1, 0b10001111);
+                    VANDQ(q1, q1, v1);  // mask the index
+                    VMOVQ(v1, q0);
+                    VTBL2_8(q0+0, v1, q1+0);
+                    VTBL2_8(q0+1, v1, q1+1);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+
         case 0x2E:
             // no special check...
         case 0x2F:
