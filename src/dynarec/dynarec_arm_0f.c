@@ -315,6 +315,26 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG(xEDX, x1);
             break;
 
+        case 0x38:
+            //SSE3
+            nextop=F8;
+            switch(nextop) {
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gm,Em");
+                    nextop = F8;
+                    GETGM(d0);
+                    GETEM(d1);
+                    v0 = fpu_get_scratch_quad(dyn);
+                    VMULL_U16_U8(v0, d0, d1);
+                    VPADDLQ_U16(v0, v0);
+                    VQMOVN_S32(d0, v0);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+
         
         #define GO(GETFLAGS, NO, YES)   \
             USEFLAG(1); \

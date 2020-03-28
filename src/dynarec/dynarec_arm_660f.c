@@ -29,7 +29,7 @@
     } else {                    \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0); \
         a = fpu_get_scratch_quad(dyn); \
-        VLD1Q_64(a, ed);       \
+        VLD1Q_8(a, ed);       \
     }
 #define GETGX(a)    \
     gd = (nextop&0x38)>>3;  \
@@ -191,7 +191,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             switch(nextop) {
                 case 0x00:
-                    INST_NAME("PSHUFB");
+                    INST_NAME("PSHUFB Gx, Ex");
                     nextop = F8;
                     GETGX(q0);
                     q1 = fpu_get_scratch_quad(dyn);
@@ -208,6 +208,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVQ(v1, q0);
                     VTBL2_8(q0+0, v1, q1+0);
                     VTBL2_8(q0+1, v1, q1+1);
+                    break;
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    v0 = fpu_get_scratch_quad(dyn);
+                    VMULL_U16_U8(v0, q0+0, q1+0);
+                    VPADDLQ_U16(v0, v0);
+                    VQMOVN_S32(q0+0, v0);
+                    VMULL_U16_U8(v0, q0+1, q1+1);
+                    VPADDLQ_U16(v0, v0);
+                    VQMOVN_S32(q0+1, v0);
                     break;
                 default:
                     *ok = 0;
