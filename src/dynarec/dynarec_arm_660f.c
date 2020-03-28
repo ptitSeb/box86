@@ -877,7 +877,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     DEFAULT;
             }
             break;
-
+        case 0x74:
+            INST_NAME("PCMPEQB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VCEQQ_8(v0, v0, q0);
+            break;
         case 0x75:
             INST_NAME("PCMPEQW Gx,Ex");
             nextop = F8;
