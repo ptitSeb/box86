@@ -1196,6 +1196,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VANDQ(v0, v0, q0);
             break;
+        case 0xDC:
+            INST_NAME("PADDUSB Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            VQADDQ_U8(q0, q0, q1);
+            break;
 
         case 0xDE:
             INST_NAME("PMAXUB Gx, Ex");
