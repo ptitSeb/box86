@@ -998,7 +998,7 @@ GO(__libc_current_sigrtmin, iFv)
 // __libc_fork
 // __libc_free
 // __libc_freeres
-// __libc_init_first
+GOM(__libc_init_first, vFEipV)
 // _libc_intl_domainname    // type R
 // __libc_longjmp
 // __libc_mallinfo
