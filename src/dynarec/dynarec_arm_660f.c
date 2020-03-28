@@ -1197,6 +1197,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VANDQ(v0, v0, q0);
             break;
 
+        case 0xDE:
+            INST_NAME("PMAXUB Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            VMAXQ_U8(q0, q0, q1);
+            break;
         case 0xDF:
             INST_NAME("PANDN Gx,Ex");
             nextop = F8;
@@ -1299,6 +1306,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMULL_S32_S16(q1, q1, q1+1);
             VMULL_S32_S16(v0, v0, v0+1);
             VADDQ_32(v0, v0, q1);
+            break;
+        case 0xF6:
+            INST_NAME("PSADBW Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            VABDQ_U8(q0, q0, q1);
+            VPADDLQ_U8(q0, q0);
+            VPADDLQ_U16(q0, q0);
+            VPADDLQ_U32(q0, q0);
             break;
 
         case 0xF8:

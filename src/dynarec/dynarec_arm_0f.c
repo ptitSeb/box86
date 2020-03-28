@@ -1954,6 +1954,16 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VTRN_32(q0, q0+1);
             VADD_32(d0, q0, q0+1);
             break;
+        case 0xF6:
+            INST_NAME("PSADBW Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VABD_U8(d0, d0, d1);
+            VPADDL_U8(d0, d0);
+            VPADDL_U16(d0, d0);
+            VPADDL_U32(d0, d0);
+            break;
 
         case 0xF8:
             INST_NAME("PSUBB Gm, Em");

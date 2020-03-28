@@ -927,4 +927,95 @@ Op is 20-27
 #define VMINQ_F32(Dd, Dn, Dm)   EMIT(VMINMAXF_gen(((Dd)>>4)&1, 1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VMAXQ_F32(Dd, Dn, Dm)   EMIT(VMINMAXF_gen(((Dd)>>4)&1, 0, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VABD_gen(U, D, size, Vn, Vd, N, Q, M, Vm)   (0b1111<<28 | 1<<25 | (U)<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0111<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Compute absolute difference of U8
+#define VABD_U8(Dd, Dn, Dm)     EMIT(VABD_gen(1, ((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VABDQ_U8(Dd, Dn, Dm)    EMIT(VABD_gen(1, ((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VPADAL_gen(D, size, Vd, op, Q, M, Vm)   (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0110<<8 | (op)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Add pair of U8 from Dm, Add result in U16 in Dd (some position as U8U8)
+#define VPADAL_U8(Dd, Dm)   EMIT(VPADAL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U16 from Dm, Add result in U32 in Dd
+#define VPADAL_U16(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U32 from Dm, Add result in U64 in Dd
+#define VPADAL_U32(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S8 from Dm, Add result in S16 in Dd (some position as S8S8)
+#define VPADAL_S8(Dd, Dm)   EMIT(VPADAL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S16 from Dm, Add result in S32 in Dd
+#define VPADAL_S16(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S32 from Dm, Add result in S64 in Dd
+#define VPADAL_S32(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U8 from Dm, Add result in U16 in Dd (some position as U8U8)
+#define VPADALQ_U8(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U16 from Dm, Add result in U32 in Dd
+#define VPADALQ_U16(Dd, Dm) EMIT(VPADAL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U32 from Dm, Add result in U64 in Dd
+#define VPADALQ_U32(Dd, Dm) EMIT(VPADAL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S8 from Dm, Add result in S16 in Dd (some position as S8S8)
+#define VPADALQ_S8(Dd, Dm)  EMIT(VPADAL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S16 from Dm, Add result in S32 in Dd
+#define VPADALQ_S16(Dd, Dm) EMIT(VPADAL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S32 from Dm, Add result in S64 in Dd
+#define VPADALQ_S32(Dd, Dm) EMIT(VPADAL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VPADDL_gen(D, size, Vd, op, Q, M, Vm)   (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0010<<8 | (op)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Add pair of U8, store result in U16
+#define VPADDL_U8(Dd, Dm)   EMIT(VPADDL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U16, store result in U32
+#define VPADDL_U16(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U32, store result in U64
+#define VPADDL_U32(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S8, store result in S16
+#define VPADDL_S8(Dd, Dm)   EMIT(VPADDL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S16, store result in S32
+#define VPADDL_S16(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S32, store result in S64
+#define VPADDL_S32(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U8, store result in U16
+#define VPADDLQ_U8(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U16, store result in U32
+#define VPADDLQ_U16(Dd, Dm) EMIT(VPADDL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of U32, store result in U64
+#define VPADDLQ_U32(Dd, Dm) EMIT(VPADDL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S8, store result in S16
+#define VPADDLQ_S8(Dd, Dm)  EMIT(VPADDL_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S16, store result in S32
+#define VPADDLQ_S16(Dd, Dm) EMIT(VPADDL_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+// Add pair of S32, store result in S64
+#define VPADDLQ_S32(Dd, Dm) EMIT(VPADDL_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VMINMAX_gen(U, D, size, Vn, Vd, N, Q, M, op, Vm)    (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (op)<<4 | (Vm))
+#define VMIN_U8(Dd, Dn, Dm)     EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_U16(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_U32(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_U64(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_S8(Dd, Dn, Dm)     EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_S16(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_S32(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMIN_S64(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_U8(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_U16(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_U32(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_U64(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_S8(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_S16(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_S32(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMINQ_S64(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 1, (Dm)&15))
+#define VMAX_U8(Dd, Dn, Dm)     EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_U16(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_U32(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_U64(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_S8(Dd, Dn, Dm)     EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_S16(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_S32(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAX_S64(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_U8(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_U16(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_U32(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_U64(Dd, Dn, Dm)   EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_S8(Dd, Dn, Dm)    EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_S16(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_S32(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+#define VMAXQ_S64(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__
