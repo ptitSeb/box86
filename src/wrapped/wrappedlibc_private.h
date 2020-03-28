@@ -424,7 +424,7 @@ GOM(fts_close, iFEp)
 GOM(fts_open, pFEpip)
 GOM(fts_read, pFEp)
 // fts_set
-// ftw
+GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
 GO(futimens, iFip)

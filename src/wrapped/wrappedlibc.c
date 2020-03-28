@@ -80,20 +80,28 @@ typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
+#define SUPER() \
+    GO(_ITM_addUserCommitAction, iFpup_t)   \
+    GO(_IO_file_stat, iFpp_t)
+
+
 typedef struct libc_my_s {
-    iFpup_t         _ITM_addUserCommitAction;
-    iFpp_t          _IO_file_stat;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } libc_my_t;
+
+static box86context_t *my_context = NULL;
 
 void* getLIBCMy(library_t* lib)
 {
     libc_my_t* my = (libc_my_t*)calloc(1, sizeof(libc_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(_ITM_addUserCommitAction, iFpup_t)
-    GO(_IO_file_stat, iFpp_t)
+    SUPER()
     #undef GO
     return my;
 }
+#undef SUPER
 
 void freeLIBCMy(void* lib)
 {
@@ -106,6 +114,213 @@ void libc1ArgCallback(void *userdata)
     RunCallback(emu);
 }
 
+// utility functions
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)
+
+// compare
+#define GO(A)   \
+static uintptr_t my_compare_fct_##A = 0;        \
+static int my_compare_##A(void* a, void* b)     \
+{                                               \
+    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findcompareFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_compare_fct_##A == (uintptr_t)fct) return my_compare_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_compare_fct_##A == 0) {my_compare_fct_##A = (uintptr_t)fct; return my_compare_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
+    return NULL;
+}
+// compare_r
+#define GO(A)   \
+static uintptr_t my_compare_r_fct_##A = 0;                                      \
+static int my_compare_r_##A(void* a, void* b, void* data)                       \
+{                                                                               \
+    return (int)RunFunction(my_context, my_compare_r_fct_##A, 3, a, b, data);   \
+}
+SUPER()
+#undef GO
+static void* findcompare_rFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_compare_r_fct_##A == (uintptr_t)fct) return my_compare_r_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_compare_r_fct_##A == 0) {my_compare_r_fct_##A = (uintptr_t)fct; return my_compare_r_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc compare_r callback\n");
+    return NULL;
+}
+
+// ftw
+#define GO(A)   \
+static uintptr_t my_ftw_fct_##A = 0;                                      \
+static int my_ftw_##A(void* fpath, void* sb, int flag)                       \
+{                                                                               \
+    return (int)RunFunction(my_context, my_ftw_fct_##A, 3, fpath, sb, flag);   \
+}
+SUPER()
+#undef GO
+static void* findftwFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_ftw_fct_##A == (uintptr_t)fct) return my_ftw_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ftw_fct_##A == 0) {my_ftw_fct_##A = (uintptr_t)fct; return my_ftw_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc ftw callback\n");
+    return NULL;
+}
+
+// nftw
+#define GO(A)   \
+static uintptr_t my_nftw_fct_##A = 0;                                      \
+static int my_nftw_##A(void* fpath, void* sb, int flag)                       \
+{                                                                               \
+    return (int)RunFunction(my_context, my_nftw_fct_##A, 3, fpath, sb, flag);   \
+}
+SUPER()
+#undef GO
+static void* findnftwFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_nftw_fct_##A == (uintptr_t)fct) return my_nftw_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_nftw_fct_##A == 0) {my_nftw_fct_##A = (uintptr_t)fct; return my_nftw_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc nftw callback\n");
+    return NULL;
+}
+
+// globerr
+#define GO(A)   \
+static uintptr_t my_globerr_fct_##A = 0;                                        \
+static int my_globerr_##A(void* epath, int eerrno)                              \
+{                                                                               \
+    return (int)RunFunction(my_context, my_globerr_fct_##A, 2, epath, eerrno);  \
+}
+SUPER()
+#undef GO
+static void* findgloberrFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_globerr_fct_##A == (uintptr_t)fct) return my_globerr_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_globerr_fct_##A == 0) {my_globerr_fct_##A = (uintptr_t)fct; return my_globerr_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc globerr callback\n");
+    return NULL;
+}
+#undef dirent
+// filter_dir
+#define GO(A)   \
+static uintptr_t my_filter_dir_fct_##A = 0;                               \
+static int my_filter_dir_##A(const struct dirent* a)                    \
+{                                                                       \
+    return (int)RunFunction(my_context, my_filter_dir_fct_##A, 1, a);     \
+}
+SUPER()
+#undef GO
+static void* findfilter_dirFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_filter_dir_fct_##A == (uintptr_t)fct) return my_filter_dir_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_filter_dir_fct_##A == 0) {my_filter_dir_fct_##A = (uintptr_t)fct; return my_filter_dir_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc filter_dir callback\n");
+    return NULL;
+}
+// compare_dir
+#define GO(A)   \
+static uintptr_t my_compare_dir_fct_##A = 0;                                  \
+static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)    \
+{                                                                           \
+    return (int)RunFunction(my_context, my_compare_dir_fct_##A, 2, a, b);     \
+}
+SUPER()
+#undef GO
+static void* findcompare_dirFct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_compare_dir_fct_##A == (uintptr_t)fct) return my_compare_dir_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_compare_dir_fct_##A == 0) {my_compare_dir_fct_##A = (uintptr_t)fct; return my_compare_dir_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc compare_dir callback\n");
+    return NULL;
+}
+
+// filter64
+#define GO(A)   \
+static uintptr_t my_filter64_fct_##A = 0;                               \
+static int my_filter64_##A(const struct dirent64* a)                    \
+{                                                                       \
+    return (int)RunFunction(my_context, my_filter64_fct_##A, 1, a);     \
+}
+SUPER()
+#undef GO
+static void* findfilter64Fct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_filter64_fct_##A == (uintptr_t)fct) return my_filter64_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_filter64_fct_##A == 0) {my_filter64_fct_##A = (uintptr_t)fct; return my_filter64_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc filter64 callback\n");
+    return NULL;
+}
+// compare64
+#define GO(A)   \
+static uintptr_t my_compare64_fct_##A = 0;                                      \
+static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
+{                                                                               \
+    return (int)RunFunction(my_context, my_compare64_fct_##A, 2, a, b);         \
+}
+SUPER()
+#undef GO
+static void* findcompare64Fct(void* fct)
+{
+    if(!fct) return NULL;
+    #define GO(A) if(my_compare64_fct_##A == (uintptr_t)fct) return my_compare64_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_compare64_fct_##A == 0) {my_compare64_fct_##A = (uintptr_t)fct; return my_compare64_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 // some my_XXX declare and defines
 int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
@@ -599,61 +814,27 @@ EXPORT int my__IO_file_stat(x86emu_t* emu, void* f, void* buf)
     return r;
 }
 
-static int qsort_cmp(const void* a, const void* b, void* e)
-{
-    x86emu_t* emu = (x86emu_t*)e;
-    SetCallbackArg(emu, 0, (void*)a);
-    SetCallbackArg(emu, 1, (void*)b);
-    return (int)RunCallback(emu);
-}
-
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
-    // use a temporary callback
-    x86emu_t *cbemu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    qsort_r(base, nmemb, size, qsort_cmp, cbemu);
-    FreeCallback(cbemu);
+    qsort(base, nmemb, size, findcompareFct(fnc));
 }
 EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* arg)
 {
-    // use a temporary callback
-    x86emu_t *cbemu = AddSharedCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
-    qsort_r(base, nmemb, size, qsort_cmp, cbemu);
-    FreeCallback(cbemu);
-}
-
-static x86emu_t *bsearch_emu = NULL;
-static int bsearch_cmp(const void* a, const void* b)
-{
-    SetCallbackArg(bsearch_emu, 0, (void*)a);
-    SetCallbackArg(bsearch_emu, 1, (void*)b);
-    return (int)RunCallback(bsearch_emu);
+    qsort_r(base, nmemb, size, findcompare_rFct(fnc), arg);
 }
 
 EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
-    // use a temporary callback, but global because there is no bsearch_r...
-    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    void* ret = bsearch(key, base, nmemb, size, bsearch_cmp);
-    bsearch_emu = FreeCallback(bsearch_emu);
-    return ret;
+    return bsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 
 EXPORT void* my_lsearch(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
-    // use a temporary callback, but global because there is no bsearch_r...
-    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    void* ret = lsearch(key, base, nmemb, size, bsearch_cmp);
-    bsearch_emu = FreeCallback(bsearch_emu);
-    return ret;
+    return lsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
-    // use a temporary callback, but global because there is no bsearch_r...
-    bsearch_emu = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    void* ret = lfind(key, base, nmemb, size, bsearch_cmp);
-    bsearch_emu = FreeCallback(bsearch_emu);
-    return ret;
+    return lfind(key, base, nmemb, size, findcompareFct(fnc));
 }
 
 EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
@@ -754,31 +935,16 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
     return ret;
 }
 
-typedef int32_t (*nftw_fn) (const char *, const struct stat *, int, struct FTW *);
-x86emu_t* nftw_emu = NULL;
-static int32_t nftw_callback(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+#undef ftw
+#undef nftw
+EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
-    if(!nftw_emu)
-        return 0;
-    SetCallbackArg(nftw_emu, 0, (void*)fpath);
-    SetCallbackArg(nftw_emu, 1, (void*)sb);
-    SetCallbackArg(nftw_emu, 2, (void*)typeflag);
-    SetCallbackArg(nftw_emu, 3, (void*)ftwbuf);
-    return (int32_t)RunCallback(nftw_emu);
+    return ftw(pathname, findftwFct(B), nopenfd);
 }
 
 EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    if(nftw_emu) {
-        printf_log(LOG_NONE, "ERROR: nftw called 2 times at the same time\n");
-        return -1;
-    }
-    if(B)
-        nftw_emu = AddSharedCallback(emu, (uintptr_t)B, 4, NULL, NULL, NULL, NULL);
-    int32_t ret = nftw(pathname, B?nftw_callback:B, nopenfd, flags);
-    if(B)
-        nftw_emu = FreeCallback(nftw_emu);
-    return ret;
+    return nftw(pathname, findnftwFct(B), nopenfd, flags);
 }
 
 EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
@@ -805,188 +971,31 @@ EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t 
 }
 #endif
 
-x86emu_t *globemu = NULL;   // issue with multi threads...
-static int glob_errfnccallback(const char* epath, int no)
+#undef glob
+EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    if(globemu) {
-        SetCallbackArg(globemu, 0, (void*)epath);
-        SetCallbackArg(globemu, 1, (void*)no);
-        return (int32_t)RunCallback(globemu);
-    }
-    return 0;
-}
-EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pblog)
-{
-    if(errfnc)
-        globemu = AddSharedCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
-    int32_t r = glob((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob_t*)pblog);
-    if(globemu)
-        globemu = FreeCallback(globemu);
-    return r;
+    return glob(pat, flags, findgloberrFct(errfnc), pglob);
 }
 
-x86emu_t *glob64emu = NULL;   // issue with multi threads...
-static int glob64_errfnccallback(const char* epath, int no)
+EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    if(glob64emu) {
-        SetCallbackArg(glob64emu, 0, (void*)epath);
-        SetCallbackArg(glob64emu, 1, (void*)no);
-        return (int32_t)RunCallback(glob64emu);
-    }
-    return 0;
-}
-EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pblog)
-{
-    if(errfnc)
-        globemu = AddSharedCallback(emu, (uintptr_t)errfnc, 2, NULL, NULL, NULL, NULL);
-    int32_t r = glob64((const char*)pat, flags, globemu?glob_errfnccallback:NULL, (glob64_t*)pblog);
-    if(glob64emu)
-        glob64emu = FreeCallback(glob64emu);
-    return r;
-}
-
-x86emu_t *scandir64emu1 = NULL;
-static int scandir64_selcb1(const struct dirent64* dir)
-{
-    if(scandir64emu1) {
-        SetCallbackNArg(scandir64emu1, 1);
-        SetCallbackAddress(scandir64emu1, (uintptr_t)GetCallbackArg(scandir64emu1, 3));
-        SetCallbackArg(scandir64emu1, 0, (void*)dir);
-        return (int32_t)RunCallback(scandir64emu1);
-    }
-    return 0;
-}
-#ifdef PANDORA
-static int scandir64_compcb1(const void* a, const void* b)
-#else
-static int scandir64_compcb1(const struct dirent64** a, const struct dirent64** b)
-#endif
-{
-    if(scandir64emu1) {
-        SetCallbackNArg(scandir64emu1, 2);
-        SetCallbackAddress(scandir64emu1, (uintptr_t)GetCallbackArg(scandir64emu1, 4));
-        SetCallbackArg(scandir64emu1, 0, (void*)a);
-        SetCallbackArg(scandir64emu1, 1, (void*)b);
-        return (int32_t)RunCallback(scandir64emu1);
-    }
-    return 0;
-}
-x86emu_t *scandir64emu2 = NULL;
-static int scandir64_selcb2(const struct dirent64* dir)
-{
-    if(scandir64emu2) {
-        SetCallbackNArg(scandir64emu2, 1);
-        SetCallbackAddress(scandir64emu2, (uintptr_t)GetCallbackArg(scandir64emu2, 3));
-        SetCallbackArg(scandir64emu2, 0, (void*)dir);
-        return (int32_t)RunCallback(scandir64emu2);
-    }
-    return 0;
-}
-#ifdef PANDORA
-static int scandir64_compcb2(const void* a, const void* b)
-#else
-static int scandir64_compcb2(const struct dirent64** a, const struct dirent64** b)
-#endif
-{
-    if(scandir64emu2) {
-        SetCallbackNArg(scandir64emu2, 2);
-        SetCallbackAddress(scandir64emu2, (uintptr_t)GetCallbackArg(scandir64emu2, 4));
-        SetCallbackArg(scandir64emu2, 0, (void*)a);
-        SetCallbackArg(scandir64emu2, 1, (void*)b);
-        return (int32_t)RunCallback(scandir64emu2);
-    }
-    return 0;
+    return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
 
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
-    int ret = 0;
-    // cleanup first
-    if(scandir64emu1 && !IsCallback(emu->context, scandir64emu1))
-        scandir64emu1 = NULL;
-    if(scandir64emu2 && !IsCallback(emu->context, scandir64emu2))
-        scandir64emu2 = NULL;
-    
-    if(scandir64emu1 && (scandir64emu1!=emu)) {
-        // in case there are 2 concurent call!
-        if(scandir64emu2 && (scandir64emu2!=emu)) {
-                printf_log(LOG_NONE, "Warning, more than 2 concurent call to scandir64\n");
-        }
-        scandir64emu2 = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-        SetCallbackArg(scandir64emu2, 3, sel);
-        SetCallbackArg(scandir64emu2, 4, comp);
-        SetCallbackArg(scandir64emu2, 5, my_scandir64);
-        ret = scandir64(dir, namelist, scandir64_selcb2, scandir64_compcb2);
-        scandir64emu2 = FreeCallback(scandir64emu2);
-        if(scandir64emu2 && GetCallbackArg(scandir64emu2, 5)!=my_scandir64)
-            scandir64emu2 = NULL;
-    } else {
-        scandir64emu1 = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-        SetCallbackArg(scandir64emu1, 3, sel);
-        SetCallbackArg(scandir64emu1, 4, comp);
-        SetCallbackArg(scandir64emu1, 5, my_scandir64);
-        ret = scandir64(dir, namelist, scandir64_selcb1, scandir64_compcb1);
-        scandir64emu1 = FreeCallback(scandir64emu1);    // this chain stuff is in case a scandir64 is called inside one of the 2 callback
-        if(scandir64emu1 && GetCallbackArg(scandir64emu1, 5)!=my_scandir64)
-                scandir64emu1 = NULL;
-    }
-    return ret;
+    return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
-x86emu_t *scandiremu = NULL;
-static int scandir_selcb(const struct dirent* dir)
-{
-    if(scandiremu) {
-        SetCallbackNArg(scandiremu, 1);
-        SetCallbackAddress(scandiremu, (uintptr_t)GetCallbackArg(scandiremu, 3));
-        SetCallbackArg(scandiremu, 0, (void*)dir);
-        return (int32_t)RunCallback(scandiremu);
-    }
-    return 0;
-}
-#ifdef PANDORA
-static int scandir_compcb(const void* a, const void* b)
-#else
-static int scandir_compcb(const struct dirent** a, const struct dirent** b)
-#endif
-{
-    if(scandiremu) {
-        SetCallbackNArg(scandiremu, 1);
-        SetCallbackAddress(scandiremu, (uintptr_t)GetCallbackArg(scandiremu, 3));
-        SetCallbackArg(scandiremu, 0, (void*)a);
-        SetCallbackArg(scandiremu, 1, (void*)b);
-        return (int32_t)RunCallback(scandiremu);
-    }
-    return 0;
-}
+#undef scandir
 EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
-    scandiremu = AddSharedCallback(emu, (uintptr_t)sel, 1, NULL, NULL, NULL, NULL);
-    SetCallbackArg(scandiremu, 3, sel);
-    SetCallbackArg(scandiremu, 4, comp);
-    int ret = scandir(dir, namelist, scandir_selcb, scandir_compcb);
-    scandiremu = FreeCallback(scandiremu);
-    return ret;
+    return scandir(dir, namelist, findfilter_dirFct(sel), findcompare_dirFct(comp));
 }
 
-static x86emu_t* ftw64emu = NULL;
-static int my_ftw64_cb (const char *filename, const struct stat64 * st64, int flags)
-{
-    if(!ftw64emu)
-        return 0;
-    struct i386_stat64 i386st;
-    UnalignStat64(st64, &i386st);
-    SetCallbackArg(ftw64emu, 0, (void*)filename);
-    SetCallbackArg(ftw64emu, 1, &i386st);
-    SetCallbackArg(ftw64emu, 2, (void*)flags);
-    return (int)RunCallback(ftw64emu);
-}
 EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
 {
-    ftw64emu = AddSharedCallback(emu, (uintptr_t)func, 3, NULL, NULL, NULL, NULL);
-    int ret = ftw64(filename, my_ftw64_cb, descriptors);
-    ftw64emu = FreeCallback(ftw64emu);
-    return ret;
+    return ftw64(filename, findftwFct(func), descriptors);
 }
 
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
@@ -1476,11 +1485,12 @@ EXPORT void* my_malloc(unsigned long size)
 }
 #endif
 
-#define CUSTOM_INIT \
-    InitCpuModel(); \
-    ctSetup(); \
-    stSetup(box86); \
-    box86->libclib = lib; \
+#define CUSTOM_INIT         \
+    my_context = box86;     \
+    InitCpuModel();         \
+    ctSetup();              \
+    stSetup(box86);         \
+    box86->libclib = lib;   \
     lib->priv.w.p2 = getLIBCMy(lib); \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
