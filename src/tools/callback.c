@@ -283,6 +283,35 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
     return ret;
 }
 
+uint32_t RunFunctionFast(box86context_t *context, uintptr_t fnc, int nargs, ...)
+{
+    uint32_t mystack[30*1024];
+    x86emu_t myemu = {0};
+    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 30*1024*4, 0);
+    SetupX86Emu(emu);
+    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
+
+    R_ESP -= nargs*4;   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    va_list va;
+    va_start (va, nargs);
+    for (int i=0; i<nargs; ++i) {
+        *p = va_arg(va, uint32_t);
+        p++;
+    }
+    va_end (va);
+
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    uint32_t ret = R_EAX;
+    FreeX86EmuFromStack(&emu);
+
+    return ret;
+}
+
 void SetCallbackArgs(x86emu_t* emu, int nargs, ...)
 {
     onecallback_t *cb = FindCallback(emu);

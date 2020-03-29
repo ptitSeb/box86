@@ -26,8 +26,10 @@ void SetCallbackNArg(x86emu_t* emu, int narg);
 void SetCallbackAddress(x86emu_t* emu, uintptr_t address);
 uintptr_t GetCallbackAddress(x86emu_t* emu);
 int IsCallback(box86context_t* context, x86emu_t* cb);
-// use a local stack from the stack of 128K
+// use a local stack from the stack of 60K
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...);
+// use a un-zero'd local stack of 30K
+uint32_t RunFunctionFast(box86context_t *context, uintptr_t fnc, int nargs, ...);
 // use emu state to run function
 uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...);
 // Find a cb using FNC address and argN as a key
