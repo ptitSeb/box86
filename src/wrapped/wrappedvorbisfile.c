@@ -16,10 +16,16 @@
 #include "box86context.h"
 #include "librarian.h"
 #include "myalign.h"
+#include "bridge.h"
 
+#ifdef PANDORA
+const char* vorbisfileName = "libvorbisifile.so.1";
+#else
 const char* vorbisfileName = "libvorbisfile.so.3";
+#endif
 #define LIBNAME vorbisfile
 
+box86context_t *my_context = NULL;
 
 typedef void*   (*pFpi_t)(void*, int32_t);
 typedef int32_t (*iFp_t)(void*);
@@ -390,117 +396,127 @@ EXPORT double my_ov_time_total(x86emu_t* emu, void* vf, int32_t i) {
 #endif  //!NOALIGN
 
 #define CUSTOM_INIT \
-    box86->vorbisfile = lib; \
+    my_context = box86;     \
+    box86->vorbisfile = lib;\
     lib->priv.w.p2 = getVorbisfileMy(lib);
 
 #define CUSTOM_FINI \
-    freeVorbisfileMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
+    my_context = NULL;                  \
+    freeVorbisfileMy(lib->priv.w.p2);   \
+    free(lib->priv.w.p2);               \
     lib->context->vorbisfile = NULL;
 
 #include "wrappedlib_init.h"
 
-static size_t my_read_func(x86emu_t* emu, void *ptr, size_t size, size_t nmemb, void *datasource)
-{
-    SetCallbackNArg(emu, 4);
-    SetCallbackArg(emu, 0, ptr);
-    SetCallbackArg(emu, 1, (void*)size);
-    SetCallbackArg(emu, 2, (void*)nmemb);
-    SetCallbackArg(emu, 3, datasource);
-    void* fnc = GetCallbackArg(emu, 5);
-    SetCallbackAddress(emu, (uintptr_t)fnc);
-    return RunCallback(emu);
+#define SUPER() \
+GO(0)           \
+GO(1)           \
+GO(2)           \
+GO(3)           \
+GO(4)           \
+GO(5)           \
+GO(6)           \
+GO(7)
+
+// read
+#define GO(A)   \
+static uintptr_t my_read_fct_##A = 0;   \
+static unsigned long my_read_##A(void* ptr, unsigned long size, unsigned long nmemb, void* datasource)     \
+{                                       \
+    return (unsigned long)RunFunction(my_context, my_read_fct_##A, 4, ptr, size, nmemb, datasource);\
 }
-static int my_seek_func(x86emu_t* emu, void *datasource, int64_t offset, int whence)
+SUPER()
+#undef GO
+static void* findreadFct(void* fct)
 {
-    SetCallbackNArg(emu, 4);    // because offset is 64bits...
-    SetCallbackArg(emu, 0, datasource);
-    SetCallbackArg(emu, 1, (void*)(uintptr_t)(offset&0xffffffff));
-    SetCallbackArg(emu, 2, (void*)(uintptr_t)(offset>>32));
-    SetCallbackArg(emu, 3, (void*)whence);
-    void* fnc = GetCallbackArg(emu, 6);
-    SetCallbackAddress(emu, (uintptr_t)fnc);
-    return RunCallback(emu);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_read_fct_##A == (uintptr_t)fct) return my_read_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_read_fct_##A == 0) {my_read_fct_##A = (uintptr_t)fct; return my_read_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for vorbisfile read callback\n");
+    return NULL;
 }
-static int my_close_func(x86emu_t* emu, void *datasource)
-{
-    SetCallbackNArg(emu, 1);
-    SetCallbackArg(emu, 0, datasource);
-    void* fnc = GetCallbackArg(emu, 7);
-    int r = 0;
-    if(fnc) {
-        SetCallbackAddress(emu, (uintptr_t)fnc);
-        r = RunCallback(emu);
-    }
-    FreeCallback(emu);
-    return r;
+// seek
+#define GO(A)   \
+static uintptr_t my_seek_fct_##A = 0;   \
+static int my_seek_##A(void* ptr, int64_t offset, int whence)     \
+{                                       \
+    return (int)RunFunction(my_context, my_seek_fct_##A, 4, ptr, (uintptr_t)(offset&0xffffffff), (uintptr_t)(offset>>32), whence);\
 }
-static long my_tell_func(x86emu_t* emu, void *datasource)
+SUPER()
+#undef GO
+static void* findseekFct(void* fct)
 {
-    SetCallbackNArg(emu, 1);
-    SetCallbackArg(emu, 0, datasource);
-    void* fnc = GetCallbackArg(emu, 8);
-    SetCallbackAddress(emu, (uintptr_t)fnc);
-    return RunCallback(emu);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_seek_fct_##A == (uintptr_t)fct) return my_seek_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_seek_fct_##A == 0) {my_seek_fct_##A = (uintptr_t)fct; return my_seek_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for vorbisfile seek callback\n");
+    return NULL;
+}
+// close
+#define GO(A)   \
+static uintptr_t my_close_fct_##A = 0;   \
+static int my_close_##A(void* ptr)     \
+{                   \
+    return (int)RunFunction(my_context, my_close_fct_##A, 1, ptr);\
+}
+SUPER()
+#undef GO
+static void* findcloseFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_close_fct_##A == (uintptr_t)fct) return my_close_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_close_fct_##A == 0) {my_close_fct_##A = (uintptr_t)fct; return my_close_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for vorbisfile close callback\n");
+    return NULL;
+}
+// tell
+#define GO(A)   \
+static uintptr_t my_tell_fct_##A = 0;   \
+static long my_tell_##A(void* ptr)     \
+{                                       \
+    return (long)RunFunction(my_context, my_tell_fct_##A, 1, ptr);\
+}
+SUPER()
+#undef GO
+static void* findtellFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_tell_fct_##A == (uintptr_t)fct) return my_tell_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_tell_fct_##A == 0) {my_tell_fct_##A = (uintptr_t)fct; return my_tell_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for vorbisfile tell callback\n");
+    return NULL;
 }
 
-#define NMAX 8
-static x86emu_t *cb_emu[NMAX] = {0};
-static int cb_used[NMAX] = {0}; // probably need some mutex?
-#define GO(A) \
-static size_t my_read_func_##A(void *ptr, size_t size, size_t nmemb, void *datasource) {return my_read_func(cb_emu[A], ptr, size, nmemb, datasource);} \
-static int my_seek_func_##A(void *datasource, int64_t offset, int whence) {return my_seek_func(cb_emu[A], datasource, offset, whence);} \
-static int my_close_func_##A(void *datasource) { \
-int ret = my_close_func(cb_emu[A], datasource); \
-cb_used[A] = 0; \
-return ret; \
-}\
-static long my_tell_func_##A(void *datasource) {return my_tell_func(cb_emu[A], datasource);}
-GO(0)
-GO(1)
-GO(2)
-GO(3)
-GO(4)
-GO(5)
-GO(6)
-GO(7)
-#undef GO
-#define GO(A) {my_read_func_##A, my_seek_func_##A, my_close_func_##A, my_tell_func_##A},
-static ov_callbacks my_ov_callbacks[] = {
-GO(0)
-GO(1)
-GO(2)
-GO(3)
-GO(4)
-GO(5)
-GO(6)
-GO(7)
-};
-#undef GO
+#undef SUPER
 
 EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
     vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
-    // search for free slot
-    int slot = 0;
-    while(slot<NMAX && cb_used[slot]) ++slot;
-    if(slot==NMAX) {
-        printf_log(LOG_NONE, "BOX86: Error, no more slot in ov_open_callbacks\n");
-        //emu->quit = 1;
-        return -1;
-    }
-    cb_used[slot] = 1;
-    // wrap all callbacks, add close if not there to free the callbackemu
     ov_callbacks cbs = {0};
-    cb_emu[slot] = AddCallback(emu, (uintptr_t)read_fnc, 4, NULL, NULL, NULL, NULL);
-    SetCallbackArg(cb_emu[slot], 5, read_fnc);
-    SetCallbackArg(cb_emu[slot], 6, seek_fnc);
-    SetCallbackArg(cb_emu[slot], 7, close_fnc);
-    SetCallbackArg(cb_emu[slot], 8, tell_fnc);
-    cbs.read_func = my_ov_callbacks[slot].read_func;
-    if(seek_fnc) cbs.seek_func = my_ov_callbacks[slot].seek_func;
-    cbs.close_func = my_ov_callbacks[slot].close_func;
-    if(tell_fnc) cbs.tell_func = my_ov_callbacks[slot].tell_func;
+    cbs.read_func = findreadFct(read_fnc);
+    cbs.seek_func = findseekFct(seek_fnc);
+    cbs.close_func = findcloseFct(close_fnc);
+    cbs.tell_func = findtellFct(tell_fnc);
     OggVorbis oggvorbis;
     AlignOggVorbis(&oggvorbis, vf);
     int32_t ret =  my->ov_open_callbacks(datasource, &oggvorbis, initial, ibytes, cbs);
