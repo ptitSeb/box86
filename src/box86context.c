@@ -33,7 +33,7 @@ uintptr_t AllocDynarecMap(box86context_t *context, int size, int nolinker)
     if(nolinker) {
         void* p = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         if(p==MAP_FAILED) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            dynarec_log(LOG_DEBUG, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
         return (uintptr_t)p;
@@ -56,7 +56,7 @@ uintptr_t AllocDynarecMap(box86context_t *context, int size, int nolinker)
     context->mmaplist = (mmaplist_t*)realloc(context->mmaplist, context->mmapsize*sizeof(mmaplist_t));
     void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if(p==MAP_FAILED) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        dynarec_log(LOG_DEBUG, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
         --context->mmapsize;
         pthread_mutex_unlock(&context->mutex_mmap);
         return 0;
@@ -199,7 +199,7 @@ void FreeBox86Context(box86context_t** context)
         FreeLibrarian(&(*context)->maplib);
 
 #ifdef DYNAREC
-    dynarec_log(LOG_INFO, "Free global Dynarecblocks\n");
+    dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
     if((*context)->dynablocks)
         FreeDynablockList(&(*context)->dynablocks);
     for (int i=0; i<(*context)->mmapsize; ++i)
@@ -208,7 +208,7 @@ void FreeBox86Context(box86context_t** context)
     free((*context)->mmaplist);
     pthread_mutex_destroy(&(*context)->mutex_blocks);
     pthread_mutex_destroy(&(*context)->mutex_mmap);
-    dynarec_log(LOG_INFO, "Free dynamic Dynarecblocks\n");
+    dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(*context, 0, 0xffffffff);
 #endif
     

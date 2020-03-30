@@ -1437,9 +1437,23 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
-    printf_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
+    dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
     void* ret = mmap(addr, length, prot, flags, fd, offset);
-    printf_log(LOG_DEBUG, "%p\n", ret);
+    dynarec_log(LOG_DEBUG, "%p\n", ret);
+    #ifdef DYNAREC
+    if(prot& PROT_EXEC)
+        addDBFromAddressRange(emu->context, (uintptr_t)ret, length);
+    else
+        cleanDBFromAddressRange(emu->context, (uintptr_t)ret, length);
+    #endif
+    return ret;
+}
+
+EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
+{
+    dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);
+    void* ret = mmap64(addr, length, prot, flags, fd, offset);
+    dynarec_log(LOG_DEBUG, "%p\n", ret);
     #ifdef DYNAREC
     if(prot& PROT_EXEC)
         addDBFromAddressRange(emu->context, (uintptr_t)ret, length);
@@ -1451,7 +1465,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
 
 EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 {
-    printf_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
+    dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     cleanDBFromAddressRange(emu->context, (uintptr_t)addr, length);
     #endif
@@ -1460,7 +1474,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 
 EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
 {
-    printf_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
+    dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
     #ifdef DYNAREC
     if(prot& PROT_EXEC)
         addDBFromAddressRange(emu->context, (uintptr_t)addr, len);

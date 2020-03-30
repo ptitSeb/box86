@@ -1114,7 +1114,7 @@ GO(mktime, uFp)
 GO(mlock, iFpu)
 GO(mlockall, iFi)
 GOM(mmap, pFEpLiiii)
-GOW(mmap64, pFpLiiiI)
+GOM(mmap64, pFEpLiiiI)
 // modf // Weak
 // modff    // Weak
 // modfl    // Weak
