@@ -1548,7 +1548,7 @@ typedef double (*KFppi_t)(void*, void*, int32_t);
 typedef double (*KFppu_t)(void*, void*, uint32_t);
 typedef double (*KFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFKipppL_t)(double, int32_t, void*, void*, void*, uintptr_t);
-typedef void (*vFppippddC_t)(void*, void*, int32_t, void*, void*, double, double, uint8_t);
+typedef void (*vFppippKKC_t)(void*, void*, int32_t, void*, void*, double, double, uint8_t);
 #endif
 
 void iF(x86emu_t *emu, uintptr_t fcn) { iF_t fn = (iF_t)fcn; R_EAX=fn(); }
@@ -3055,7 +3055,7 @@ void KFppi(x86emu_t *emu, uintptr_t fcn) { KFppi_t fn = (KFppi_t)fcn; double db=
 void KFppu(x86emu_t *emu, uintptr_t fcn) { KFppu_t fn = (KFppu_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12)); fpu_do_push(emu); ST0val = db; }
 void KFppip(x86emu_t *emu, uintptr_t fcn) { KFppip_t fn = (KFppip_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16)); fpu_do_push(emu); ST0val = db; }
 void iFKipppL(x86emu_t *emu, uintptr_t fcn) { iFKipppL_t fn = (iFKipppL_t)fcn; R_EAX=fn(FromLD((void*)(R_ESP + 4)), *(int32_t*)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28), *(uintptr_t*)(R_ESP + 32)); }
-void vFppippddC(x86emu_t *emu, uintptr_t fcn) { vFppippddC_t fn = (vFppippddC_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), *(double*)(R_ESP + 24), *(double*)(R_ESP + 32), *(uint8_t*)(R_ESP + 40)); }
+void vFppippKKC(x86emu_t *emu, uintptr_t fcn) { vFppippKKC_t fn = (vFppippKKC_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), FromLD((void*)(R_ESP + 24)), FromLD((void*)(R_ESP + 36)), *(uint8_t*)(R_ESP + 48)); }
 #endif
 
 void iFEp0pVV(x86emu_t *emu, uintptr_t fcn) { iFEpppVV_t fn = (iFEpppVV_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), (void*)(R_ESP + 8), *(void**)(R_ESP + 12), (void*)(R_ESP + 16), (void*)(R_ESP + 16)); }

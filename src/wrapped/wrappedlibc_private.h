@@ -735,7 +735,7 @@ GO(_IO_file_close_it, iFS)
 GO(_IO_file_doallocate, iFS)
 // _IO_file_finish
 GO(_IO_file_fopen, pFSppi)
-GO(_IO_file_init, vFp)
+GO(_IO_file_init, vFS)
 DATA(_IO_file_jumps, 4)
 GO(_IO_file_open, pFSpiiii)
 GO(_IO_file_overflow, iFSi)

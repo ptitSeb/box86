@@ -41,7 +41,7 @@ GO(g_assertion_message, vFppipp)
 #ifdef HAVE_LD80BITS
 GO(g_assertion_message_cmpnum, vFppippDDC)
 #else
-GO(g_assertion_message_cmpnum, vFppippddC)
+GO(g_assertion_message_cmpnum, vFppippKKC)
 #endif
 GO(g_assertion_message_cmpstr, vFppippppp)
 GO(g_assertion_message_error, vFppipppui)

@@ -1529,7 +1529,7 @@ void KFppi(x86emu_t *emu, uintptr_t fnc);
 void KFppu(x86emu_t *emu, uintptr_t fnc);
 void KFppip(x86emu_t *emu, uintptr_t fnc);
 void iFKipppL(x86emu_t *emu, uintptr_t fnc);
-void vFppippddC(x86emu_t *emu, uintptr_t fnc);
+void vFppippKKC(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 void iFEp0pVV(x86emu_t *emu, uintptr_t fnc);

@@ -950,14 +950,17 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
             if(strcmp(symname, "_IO_2_1_stderr_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
                 my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stderr_ to %p\n", my__IO_2_1_stderr_);
             } else
             if(strcmp(symname, "_IO_2_1_stdin_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
                 my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdin_ to %p\n", my__IO_2_1_stdin_);
             } else
             if(strcmp(symname, "_IO_2_1_stdout_")==0 && ((void*)sym->st_value+h->delta)) {
                 memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
     }
