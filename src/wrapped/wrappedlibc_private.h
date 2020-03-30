@@ -1146,7 +1146,7 @@ GOW(newlocale, pFipp)
 GO(__newlocale, pFipp)
 // nfsservctl
 GOM(nftw, iFEppii)
-// nftw64
+GOM(nftw64, iFEppii)
 GOW(ngettext, pFppu)
 GO(nice, iFi)
 // _nl_default_dirname  // type R

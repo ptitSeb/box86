@@ -123,7 +123,15 @@ GO(3)   \
 GO(4)   \
 GO(5)   \
 GO(6)   \
-GO(7)
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
+GO(15)
 
 // compare
 #define GO(A)   \
@@ -137,6 +145,8 @@ SUPER()
 static void* findcompareFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_compare_fct_##A == (uintptr_t)fct) return my_compare_##A;
     SUPER()
     #undef GO
@@ -158,6 +168,8 @@ SUPER()
 static void* findcompare_rFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_compare_r_fct_##A == (uintptr_t)fct) return my_compare_r_##A;
     SUPER()
     #undef GO
@@ -180,6 +192,8 @@ SUPER()
 static void* findftwFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_ftw_fct_##A == (uintptr_t)fct) return my_ftw_##A;
     SUPER()
     #undef GO
@@ -190,18 +204,45 @@ static void* findftwFct(void* fct)
     return NULL;
 }
 
+// ftw64
+#define GO(A)   \
+static uintptr_t my_ftw64_fct_##A = 0;                      \
+static int my_ftw64_##A(void* fpath, void* sb, int flag)    \
+{                                                           \
+    struct i386_stat64 i386st;                              \
+    UnalignStat64(sb, &i386st);                             \
+    return (int)RunFunctionFast(my_context, my_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
+}
+SUPER()
+#undef GO
+static void* findftw64Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    #define GO(A) if(my_ftw64_fct_##A == (uintptr_t)fct) return my_ftw64_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ftw64_fct_##A == 0) {my_ftw64_fct_##A = (uintptr_t)fct; return my_ftw64_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc ftw64 callback\n");
+    return NULL;
+}
+
 // nftw
 #define GO(A)   \
-static uintptr_t my_nftw_fct_##A = 0;                                      \
-static int my_nftw_##A(void* fpath, void* sb, int flag)                       \
-{                                                                               \
-    return (int)RunFunctionFast(my_context, my_nftw_fct_##A, 3, fpath, sb, flag);   \
+static uintptr_t my_nftw_fct_##A = 0;                                   \
+static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)  \
+{                                                                       \
+    return (int)RunFunctionFast(my_context, my_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
 static void* findnftwFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_nftw_fct_##A == (uintptr_t)fct) return my_nftw_##A;
     SUPER()
     #undef GO
@@ -209,6 +250,31 @@ static void* findnftwFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libc nftw callback\n");
+    return NULL;
+}
+
+// nftw64
+#define GO(A)   \
+static uintptr_t my_nftw64_fct_##A = 0;                                     \
+static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
+{                                                                           \
+    struct i386_stat64 i386st;                                              \
+    UnalignStat64(sb, &i386st);                                             \
+    return (int)RunFunctionFast(my_context, my_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
+}
+SUPER()
+#undef GO
+static void* findnftw64Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    #define GO(A) if(my_nftw64_fct_##A == (uintptr_t)fct) return my_nftw64_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_nftw64_fct_##A == 0) {my_nftw64_fct_##A = (uintptr_t)fct; return my_nftw64_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc nftw64 callback\n");
     return NULL;
 }
 
@@ -224,6 +290,8 @@ SUPER()
 static void* findgloberrFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_globerr_fct_##A == (uintptr_t)fct) return my_globerr_##A;
     SUPER()
     #undef GO
@@ -246,6 +314,8 @@ SUPER()
 static void* findfilter_dirFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_filter_dir_fct_##A == (uintptr_t)fct) return my_filter_dir_##A;
     SUPER()
     #undef GO
@@ -267,6 +337,8 @@ SUPER()
 static void* findcompare_dirFct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_compare_dir_fct_##A == (uintptr_t)fct) return my_compare_dir_##A;
     SUPER()
     #undef GO
@@ -289,6 +361,8 @@ SUPER()
 static void* findfilter64Fct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_filter64_fct_##A == (uintptr_t)fct) return my_filter64_##A;
     SUPER()
     #undef GO
@@ -310,6 +384,8 @@ SUPER()
 static void* findcompare64Fct(void* fct)
 {
     if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
     #define GO(A) if(my_compare64_fct_##A == (uintptr_t)fct) return my_compare64_##A;
     SUPER()
     #undef GO
@@ -995,7 +1071,12 @@ EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void*
 
 EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
 {
-    return ftw64(filename, findftwFct(func), descriptors);
+    return ftw64(filename, findftw64Fct(func), descriptors);
+}
+
+EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
+{
+    return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
@@ -1010,7 +1091,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
         newargv[0] = emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
-        int ret = execv(newargv[0], argv);
+        int ret = execv(newargv[0], newargv);
         free(newargv);
         return ret;
     }
