@@ -319,7 +319,9 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
-    PUSH(xSP, (1<<xEmu) | mask);
+    if(ret!=-2) {
+        PUSH(xSP, (1<<xEmu) | mask);
+    }
     fpu_pushcache(dyn, ninst, reg);
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
@@ -327,7 +329,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
     if(ret>=0) {
         MOV_REG(ret, 0);
     }
-    POP(xSP, (1<<xEmu) | mask);
+    if(ret!=-2) {
+        POP(xSP, (1<<xEmu) | mask);
+    }
 }
 
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
@@ -360,7 +364,7 @@ void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
     LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
     MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
     ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
-    CALL(pthread_mutex_lock, -1, 0);
+    CALL(pthread_mutex_lock, -2, 0);
     POP(xSP, (1<<xEmu));
 }
 
@@ -371,7 +375,7 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
     LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
     MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
     ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
-    CALL(pthread_mutex_unlock, -1, 0);
+    CALL(pthread_mutex_unlock, -2, 0);
     POP(xSP, (1<<xEmu));
 }
 

@@ -1357,7 +1357,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             UXTB(x1, xEAX, 0);
             // Use a quick CMP, without setting A or P...
             CMPS_REG_LSL_IMM5(x1, ed, 0);
-            MOVW_COND(cCC, x1, 1);
+            MOVW_COND(cEQ, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
             // AL == Eb
@@ -1390,7 +1390,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGD;
             // Use a quick CMP, without setting A or P...
             CMPS_REG_LSL_IMM5(xEAX, ed, 0);
-            MOVW_COND(cCC, x1, 1);
+            MOVW_COND(cEQ, x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
             // EAX == Ed
