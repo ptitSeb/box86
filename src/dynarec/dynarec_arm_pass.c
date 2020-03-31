@@ -24,8 +24,6 @@
 #error No STEP defined
 #endif
 
-#include "dynarec_arm_helper.h"
-
 void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 {
     uint8_t nextop, opcode;
