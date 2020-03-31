@@ -77,7 +77,7 @@ EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cp
 
 EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 {
-    printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(...) ignored\n");
+    printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(%p, %p[%d]) ignored\n", attr, param, param?(*(int*)param):-1);
     return 0;   // faking success
 }
 
