@@ -19,7 +19,9 @@
 #include "bridge.h"
 
 #ifdef PANDORA
-const char* vorbisfileName = "libvorbisifile.so.1";
+const char* vorbisfileNameAlt = "libvorbisifile.so.1";
+const char* vorbisfileNameReg = "libvorbisfile.so.3";
+const char* vorbisfileName = NULL;
 #else
 const char* vorbisfileName = "libvorbisfile.so.3";
 #endif
@@ -394,6 +396,12 @@ EXPORT double my_ov_time_total(x86emu_t* emu, void* vf, int32_t i) {
     return ret;
 }
 #endif  //!NOALIGN
+
+#ifdef PANDORA
+// No really ok, because it will depends on the order of initialisation
+#define PRE_INIT \
+    vorbisfileName = (box86->sdl1mixerlib || box86->sdl2mixerlib)?vorbisfileNameAlt:vorbisfileNameReg;
+#endif
 
 #define CUSTOM_INIT \
     my_context = box86;     \
