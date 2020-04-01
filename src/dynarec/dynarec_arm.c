@@ -110,7 +110,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     if(helper.tablesz)
         helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     // pass 3, emit (log emit arm opcode)
-    dynarec_log(LOG_DEBUG, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
+    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
     // all done...
