@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -41,6 +42,45 @@ void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const cha
     }
 }
 
+void add_next(dynarec_arm_t *dyn, uintptr_t addr) {
+    if(dyn->next_sz == dyn->next_cap) {
+        dyn->next_cap += 16;
+        dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+    }
+    for(int i=0; i<dyn->next_sz; ++i)
+        if(dyn->next[i]==addr)
+            return;
+    dyn->next[dyn->next_sz++] = addr;
+}
+uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
+    // get closest, but no addresses befores
+    uintptr_t best = 0;
+    int i = 0;
+    while((i<dyn->next_sz) && (best!=addr)) {
+        if(dyn->next[i]<addr) { // remove the address, it's before current address
+            memmove(dyn->next+i, dyn->next+i+1, (dyn->next_sz-i-1)*sizeof(uintptr_t));
+            --dyn->next_sz;
+        } else {
+            if((dyn->next[i]<best) || !best)
+                best = dyn->next[i];
+            ++i;
+        }
+    }
+    return best;
+}
+int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
+{
+    #define PK(A) (*((uint8_t*)(addr+(A))))
+    if(!n)
+        return 1;
+    if (PK(0)==0x90)
+        return is_nops(dyn, addr+1, n-1);
+    if(n>1 && PK(0)==0x66 && PK(1)==0x90)
+        return is_nops(dyn, addr+2, n-2);
+    return 0;
+    #undef PK
+}
+
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -51,10 +91,12 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     dynarec_arm_t helper = {0};
     helper.emu = emu;
     helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
+    helper.start = addr;
     arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
+        free(helper.next);
         return;
     }
     helper.cap = helper.size+3; // needs epilog handling
@@ -103,6 +145,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     void* p = (void*)AllocDynarecMap(emu->context, sz, block->parent->nolinker);
     if(p==NULL) {
         free(helper.insts);
+        free(helper.next);
         return;
     }
     helper.block = p;
@@ -116,6 +159,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     // all done...
     __builtin___clear_cache(p, p+helper.arm_size);   // need to clear the cache before execution...
     free(helper.insts);
+    free(helper.next);
     block->table = helper.table;
     block->tablesz = helper.tablesz;
     block->size = sz;

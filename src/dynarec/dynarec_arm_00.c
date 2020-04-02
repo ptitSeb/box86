@@ -2361,7 +2361,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0xC3:
                         INST_NAME("(REPZ) RET");
                         BARRIER(2);
-                        ret_to_epilog(dyn, 0);
+                        ret_to_epilog(dyn, ninst);
                         *need_epilog = 0;
                         *ok = 0;
                         break;

@@ -76,6 +76,16 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             if(dyn->insts[ninst+1].x86.barrier!=2)
                 dyn->cleanflags = 0;
         }
+        if(!ok && !need_epilog && dyn->insts && (addr < (dyn->start+dyn->isize))) {
+            ok = 1;
+        }
+        if(!ok && !need_epilog && !dyn->insts) {   // check if need to continue
+            uintptr_t next = get_closest_next(dyn, addr);
+            if(next && ((next-addr)<15) && is_nops(dyn, addr, next-addr)) {
+                dynarec_log(LOG_DEBUG, "Extend block, %p -> %p\n", (void*)addr, (void*)next);
+                ok = 1;
+            }
+        }
         ++ninst;
     }
     if(need_epilog) {

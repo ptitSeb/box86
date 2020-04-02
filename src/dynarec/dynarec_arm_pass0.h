@@ -5,6 +5,7 @@
 #define EMIT(A)     
 #define UFLAGS(A)          {}
 #define USEFLAGS(A)        {}
+#define JUMP(A)         add_next(dyn, (uintptr_t)A)
 #define NEW_INST        ++dyn->size
 #define INST_EPILOG         
 #define INST_NAME(name) 

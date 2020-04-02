@@ -36,7 +36,13 @@ typedef struct dynarec_arm_s {
     int                 fpu_scratch;// scratch counter
     int                 fpu_reg;    // x87/sse/mmx reg counter
     int                 nolinker;   // disable use of (smart) linker in the block
+    uintptr_t*          next;       // variable array of "next" jump address
+    int                 next_sz;
+    int                 next_cap;
 } dynarec_arm_t;
 
+void add_next(dynarec_arm_t *dyn, uintptr_t addr);
+uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
+int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

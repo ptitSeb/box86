@@ -188,10 +188,10 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOV_REG(xEIP, reg);
         }
     } else {
-        MOV32(xEIP, ip);
+        MOV32_(xEIP, ip);
     }
     void* epilog = arm_epilog;
-    MOV32(2, (uintptr_t)epilog);
+    MOV32_(2, (uintptr_t)epilog);
     BX(2);
 }
 
@@ -225,7 +225,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
             CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
-            MOV32(x2, (uintptr_t)arm_linker);
+            MOV32_(x2, (uintptr_t)arm_linker);
             MOV_REG(x3, x12);
             STREXD(x12, x1, x2); // nope, putting back linker & IP in place
             // x12 now contain success / falure for write
@@ -250,7 +250,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         MESSAGE(LOG_DUMP, "Ret epilog\n");
         POP(xESP, 1<<xEIP);
         void* epilog = arm_epilog;
-        MOV32(x2, (uintptr_t)epilog);
+        MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
 #if 0
     } else {
@@ -268,7 +268,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
-        MOV32(x2, (uintptr_t)arm_linker);
+        MOV32_(x2, (uintptr_t)arm_linker);
         MOV_REG(x3, x12);
         STREXD(x12, x1, x2); // nope, putting back linker & IP in place
         // x12 now contain success / falure for write
@@ -288,7 +288,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         POP(xESP, 1<<xEIP);
         ADD_IMM8(xESP, xESP, n);
         void* epilog = arm_epilog;
-        MOV32(x2, (uintptr_t)epilog);
+        MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
     } else {
         MESSAGE(LOG_DUMP, "Retn epilog with linker\n");
@@ -306,7 +306,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
-        MOV32(x2, (uintptr_t)arm_linker);
+        MOV32_(x2, (uintptr_t)arm_linker);
         MOV_REG(x3, x12);
         STREXD(x12, x1, x2); // nope, putting back linker & IP in place
         // x12 now contain success / falure for write
