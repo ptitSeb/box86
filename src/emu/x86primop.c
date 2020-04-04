@@ -714,7 +714,7 @@ uint8_t rol8(x86emu_t *emu, uint8_t d, uint8_t s)
 	if((cnt = s % 8) != 0) {
 	d = (d << cnt) + ((d >> (8 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -741,7 +741,7 @@ uint16_t rol16(x86emu_t *emu, uint16_t d, uint8_t s)
 	if((cnt = s % 16) != 0) {
 	d = (d << cnt) + ((d >> (16 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -768,7 +768,7 @@ uint32_t rol32(x86emu_t *emu, uint32_t d, uint8_t s)
 	if((cnt = s % 32) != 0) {
 	d = (d << cnt) + ((d >> (32 - cnt)) & ((1 << cnt) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = CF _XOR_ MSB of result */
 	if(s == 1) {
@@ -795,7 +795,7 @@ uint8_t ror8(x86emu_t *emu, uint8_t d, uint8_t s)
 	if((cnt = s % 8) != 0) {
 	d = (d << (8 - cnt)) + ((d >> (cnt)) & ((1 << (8 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
@@ -822,7 +822,7 @@ uint16_t ror16(x86emu_t *emu, uint16_t d, uint8_t s)
 	if((cnt = s % 16) != 0) {
 	d = (d << (16 - cnt)) + ((d >> (cnt)) & ((1 << (16 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {
@@ -849,7 +849,7 @@ uint32_t ror32(x86emu_t *emu, uint32_t d, uint8_t s)
 	if((cnt = s % 32) != 0) {
 	d = (d << (32 - cnt)) + ((d >> (cnt)) & ((1 << (32 - cnt)) - 1));
 	}
-	CHECK_FLAGS(emu);
+	RESET_FLAGS(emu);
 
 	/* OF flag is set if s == 1; OF = MSB _XOR_ (M-1)SB of result */
 	if(s == 1) {

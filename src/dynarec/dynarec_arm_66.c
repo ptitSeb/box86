@@ -705,7 +705,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -715,7 +714,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    UFLAGS(0);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -811,7 +809,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROL Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(rol16, x1, (1<<x3));
                     EWBACK;
@@ -825,7 +822,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROR Ew, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    UFLAGS(0);
                     GETEW(x1);
                     CALL_(ror16, x1, (1<<x3));
                     EWBACK;

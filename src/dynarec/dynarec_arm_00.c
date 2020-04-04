@@ -1508,7 +1508,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    USEFLAG(0);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1518,7 +1517,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
-                    USEFLAG(1);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1600,7 +1598,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    UFLAG_IF{ USEFLAG(1); }
                     GETEDW(x12, x2);
                     u8 = (F8)&0x1f;
                     if(u8) {
@@ -1622,7 +1619,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    UFLAG_IF{ USEFLAG(1); }
                     GETEDW(x12, x2);
                     u8 = (F8)&0x1f;
                     if(u8) {
@@ -1947,7 +1943,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0:
-                    UFLAG_IF{ USEFLAG(1); }
                     INST_NAME("ROL Ed, 1");
                     GETEDW(x12, x2);
                     MOV_REG_ROR_IMM5(ed, ed, 0x1f);
@@ -2045,7 +2040,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0:
-                    UFLAG_IF{ USEFLAG(1); }
                     INST_NAME("ROL Ed, CL");
                     AND_IMM8(x3, xECX, 0x1f);
                     TSTS_REG_LSL_IMM8(x3, x3, 0);
@@ -2070,7 +2064,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAGS(1);
                     break;
                 case 1:
-                    UFLAG_IF{ USEFLAG(1); }
                     INST_NAME("ROR Ed, CL");
                     AND_IMM8(x3, xECX, 0x1f);
                     TSTS_REG_LSL_IMM8(x3, x3, 0);
