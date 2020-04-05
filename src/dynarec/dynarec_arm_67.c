@@ -54,7 +54,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
         case 0xE0:
             INST_NAME("LOOPNZ (16bits)");
-            USEFLAG(1);
+            READFLAGS(X_ZF);
             i8 = F8S;
             UXTH(x1, xECX, 0);
             SUBS_IMM8(x1, x1, 1);
@@ -66,7 +66,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE1:
             INST_NAME("LOOPZ (16bits)");
-            USEFLAG(1);
+            READFLAGS(X_ZF);
             i8 = F8S;
             UXTH(x1, xECX, 0);
             SUBS_IMM8(x1, x1, 1);
@@ -78,7 +78,6 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE2:
             INST_NAME("LOOP (16bits)");
-            USEFLAG(1);
             i8 = F8S;
             UXTH(x1, xECX, 0);
             SUBS_IMM8(x1, x1, 1);
@@ -87,7 +86,6 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE3:
             INST_NAME("JCXZ");
-            USEFLAG(1);
             i8 = F8S;
             UXTH(x1, xECX, 0);
             TSTS_REG_LSL_IMM8(x1, x1, 0);

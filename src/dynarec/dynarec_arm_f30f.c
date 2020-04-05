@@ -467,6 +467,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
+            SETFLAGS(X_CF|X_ZF, SF_SET);
             nextop = F8;
             GETED;
             GETGD;
@@ -480,7 +481,6 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
-            UFLAGS(1);
             break;
 
         case 0xC2:

@@ -91,6 +91,41 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
     #undef PK
 }
 
+uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
+{
+    if(ninst == dyn->size || (recurse==5))
+        return X_ALL; // no more instructions, or too many jmp loop, stop
+    uint32_t needed = dyn->insts[ninst].x86.need_flags;
+    if(dyn->insts[ninst].x86.use_flags) {
+        needed |= dyn->insts[ninst].x86.use_flags;  // what flags are still usefull
+        setf &= ~dyn->insts[ninst].x86.use_flags;
+        if(!setf)   // all flags already used, no need to continue
+            return needed;
+    }
+
+    if(dyn->insts[ninst].x86.set_flags)
+        if((setf & ~dyn->insts[ninst].x86.set_flags) == 0)
+            return needed;    // all done, gives all the flags needed
+        setf |= dyn->insts[ninst].x86.set_flags;    // add new flags to continue
+
+    if(dyn->insts[ninst].x86.need_flags)    // already treated
+        return dyn->insts[ninst].x86.need_flags;
+
+    int jinst = dyn->insts[ninst].x86.jmp_insts;
+    if(dyn->insts[ninst].x86.jmp) {
+        if(jinst==-1) {
+            dyn->insts[ninst].x86.need_flags = X_ALL;
+            return X_ALL;
+        }
+        if(!dyn->insts[ninst].x86.use_flags)  // conditionnal jump
+            dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1) | needed_flags(dyn, ninst+1, setf, recurse);
+        else
+            dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1);
+    } else
+        dyn->insts[ninst].x86.need_flags = needed_flags(dyn, ninst+1, setf, recurse);
+    return needed | dyn->insts[ninst].x86.need_flags;
+}
+
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -133,21 +168,10 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
                 helper.insts[i].x86.jmp_insts = k;
             }
         }
-    // remove useless flags calulation
     for(int i=0; i<helper.size; ++i)
-        if(helper.insts[i].x86.flags==X86_FLAGS_CHANGE) {
-            int done = 0;
-            for(int i2=i+1; i2<helper.size+1 && done==0; ++i2) {
-                if(helper.insts[i2].x86.barrier || helper.insts[i2].x86.jmp)
-                    done = 1;
-                else if(helper.insts[i2].x86.flags==X86_FLAGS_USE)
-                    done = 1;
-                else if(helper.insts[i2].x86.flags==X86_FLAGS_CHANGE) {
-                    done = 1;
-                    helper.insts[i].x86.flags=X86_FLAGS_NONE;
-                }
-            }
-        }
+        if(helper.insts[i].x86.set_flags && !helper.insts[i].x86.need_flags)
+            helper.insts[i].x86.need_flags = needed_flags(&helper, i+1, helper.insts[i].x86.set_flags, 0);
+    
     // pass 2, instruction size
     arm_pass2(&helper, addr);
     // ok, now allocate mapped memory, with executable flag on

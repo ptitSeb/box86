@@ -2,9 +2,9 @@
 #define INIT    uintptr_t sav_addr=addr
 #define FINI    dyn->isize = addr-sav_addr
 #define MESSAGE(A, ...)  
+#define SETFLAGS(A, B)  
+#define READFLAGS(A)    
 #define EMIT(A)     
-#define UFLAGS(A)          {}
-#define USEFLAGS(A)        {}
 #define JUMP(A)         add_next(dyn, (uintptr_t)A)
 #define NEW_INST        ++dyn->size
 #define INST_EPILOG         

@@ -34,13 +34,13 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x33:
             grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("GS:XOR Gd, Ed");
+            SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             GETGD;
             GETEDO(x12);
             XOR_REG_LSL_IMM8(gd, gd, ed, 0);
             UFLAG_RES(gd);
             UFLAG_DF(1, d_xor32);
-            UFLAGS(0);
             break;
 
         case 0x89:

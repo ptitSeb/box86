@@ -1,17 +1,30 @@
 #ifndef __DYNAREC_PRIVATE_H_
 #define __DYNAREC_PRIVATE_H_
 
-#define X86_FLAGS_NONE      0
-#define X86_FLAGS_CHANGE    1
-#define X86_FLAGS_USE       2
+// all flags for the use_flags field
+#define X_CF    (1<<0)
+#define X_PF    (1<<1)
+#define X_AF    (1<<2)
+#define X_ZF    (1<<3)
+#define X_SF    (1<<4)
+#define X_OF    (1<<5)
+#define X_ALL   (0xff)
+
+// all state flags
+#define SF_UNKNOWN  0
+#define SF_SET      1
+#define SF_PENDING  2
 
 typedef struct instruction_x86_s {
     uintptr_t   addr;   //address of the instruction
     int32_t     size;   // size of the instruction
-    int         flags;  // flags for this instruction (see X86_FLAGS_XXXX)
     int         barrier; // next instruction is a jump point, so no optim allowed
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
+    uint32_t    use_flags;  // 0 or combination of X_?F
+    uint32_t    set_flags;  // 0 or combination of X_?F
+    uint32_t    need_flags; // calculated
+    int         state_flags; // One of SF_XXX state
 } instruction_x86_t;
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);

@@ -233,34 +233,33 @@
     STR_IMM9(s2, xEmu, offsetof(x86emu_t, df));
 
 
-#ifndef UFLAGS
-#define UFLAGS(A)  dyn->cleanflags=A
-#endif
-#ifndef USEFLAG
-// USEFLAG will check status of defered flags the call update flags if needed. x3 will be used
-#define USEFLAG(A)   \
-    if(!dyn->cleanflags) {  \
-        if(A) {             \
+#ifndef READFLAGS
+#define READFLAGS(A) \
+    if(dyn->state_flags==0 || dyn->state_flags==2) {    \
+        if(dyn->state_flags==0) {                       \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM8(x3, x3, 0);               \
             i32 = (GETMARKF)-(dyn->arm_size+8);         \
             Bcond(cEQ, i32);                            \
-            CALL_(UpdateFlags, -1, 0);                  \
-            MARKF;                                      \
-            dyn->cleanflags=1;                          \
-        }                   \
+        }                                               \
+        CALL_(UpdateFlags, -1, 0);                      \
+        MARKF;                                          \
+        dyn->state_flags = 2;                           \
     }
+#endif
+#ifndef SETFLAGS
+#define SETFLAGS(A, B)      dyn->state_flags = B
 #endif
 #ifndef JUMP
 #define JUMP(A) 
 #endif
 #define BARRIER(A) if (dyn->insts && !dyn->insts[ninst].x86.barrier) dyn->insts[ninst].x86.barrier = A
-#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
-#define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.flags)
+#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
+#define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.need_flags)
 #ifndef DEFAULT
 #define DEFAULT      BARRIER(2)
 #endif

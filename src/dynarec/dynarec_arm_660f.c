@@ -232,14 +232,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
-            UFLAGS(0);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(q0);
             VCMP_F64(v0, q0);
             FCOMI(x1, x2);
-            UFLAGS(1);
             break;
 
         case 0x3A:  // these are some SSE3 opcodes
@@ -266,8 +265,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
-        #define GO(GETFLAGS, NO, YES)   \
-            USEFLAG(1); \
+        #define GO(GETFLAGS, NO, YES, F)    \
+            READFLAGS(F);                   \
             GETFLAGS;   \
             nextop=F8;  \
             GETGD;      \
@@ -284,89 +283,89 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("CMOVO Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ)
+                , cNE, cEQ, X_OF)
             break;
         case 0x41:
             INST_NAME("CMOVNO Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
                 CMPS_IMM8(x2, 1)
-                , cEQ, cNE)
+                , cEQ, cNE, X_OF)
             break;
         case 0x42:
             INST_NAME("CMOVC Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ)
+                , cNE, cEQ, X_CF)
             break;
         case 0x43:
             INST_NAME("CMOVNC Gw, Ew");
             GO( LDR_IMM9(2, 0, offsetof(x86emu_t, flags[F_CF]));
                 CMPS_IMM8(2, 1)
-                , cEQ, cNE)
+                , cEQ, cNE, X_CF)
             break;
         case 0x44:
             INST_NAME("CMOVZ Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ)
+                , cNE, cEQ, X_ZF)
             break;
         case 0x45:
             INST_NAME("CMOVNZ Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 CMPS_IMM8(x2, 1)
-                , cEQ, cNE)
+                , cEQ, cNE, X_ZF)
             break;
         case 0x46:
             INST_NAME("CMOVBE Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
-                , cEQ, cNE)
+                , cEQ, cNE, X_CF|X_ZF)
             break;
         case 0x47:
             INST_NAME("CMOVNBE Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
                 LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 ORRS_REG_LSL_IMM8(x2, x2, x3, 0);
-                , cNE, cEQ)
+                , cNE, cEQ, X_CF|X_ZF)
             break;
         case 0x48:
             INST_NAME("CMOVS Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ)
+                , cNE, cEQ, X_SF)
             break;
         case 0x49:
             INST_NAME("CMOVNS Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 CMPS_IMM8(x2, 1)
-                , cEQ, cNE)
+                , cEQ, cNE, X_SF)
             break;
         case 0x4A:
             INST_NAME("CMOVP Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ)
+                , cNE, cEQ, X_PF)
             break;
         case 0x4B:
             INST_NAME("CMOVNP Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
                 CMPS_IMM8(x2, 1)
-                , cEQ, cNE)
+                , cEQ, cNE, X_PF)
             break;
         case 0x4C:
             INST_NAME("CMOVL Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
                 CMPS_REG_LSL_IMM5(x1, x2, 0)
-                , cEQ, cNE)
+                , cEQ, cNE, X_OF|X_SF)
             break;
         case 0x4D:
             INST_NAME("CMOVGE Gw, Ew");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
                 LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
                 CMPS_REG_LSL_IMM5(x1, x2, 0)
-                , cNE, cEQ)
+                , cNE, cEQ, X_OF|X_SF)
             break;
         case 0x4E:
             INST_NAME("CMOVLE Gw, Ew");
@@ -375,7 +374,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 XOR_REG_LSL_IMM8(x1, x1, x2, 0);
                 LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
-                , cEQ, cNE)
+                , cEQ, cNE, X_OF|X_SF|X_ZF)
             break;
         case 0x4F:
             INST_NAME("CMOVG Gw, Ew");
@@ -384,7 +383,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 XOR_REG_LSL_IMM8(x1, x1, x2, 0);
                 LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 ORRS_REG_LSL_IMM8(x2, x1, x2, 0);
-                , cNE, cEQ)
+                , cNE, cEQ, X_OF|X_SF|X_ZF)
             break;
         #undef GO
 
@@ -948,8 +947,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
             nextop = F8;
-            USEFLAG(1);
             GETGD;  // there is an AND below, so 32bits is the same (no need for GETGW)
             GETEW(x1);
             AND_IMM8(x2, gd, 15);
@@ -966,6 +965,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHLD Ew, Gw, CL");
                 UXTB(x3, xECX, 0);
             }
+            SETFLAGS(X_ALL, SF_SET);
             GETEWW(x12, x1);
             GETGW(x2);
             if(opcode==0xA4) {
@@ -974,13 +974,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             CALL(shld16, x1, (1<<wback));
             EWBACKW(x1);
-            UFLAGS(1);
             break;
 
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
             nextop = F8;
-            USEFLAG(1);
             GETGD;  // there is an AND below, to 32bits is the same
             GETEW(x12);
             AND_IMM8(x2, gd, 15);
@@ -1001,6 +1000,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHRD Ew, Gw, CL");
                 UXTB(x3, xECX, 0);
             }
+            SETFLAGS(X_ALL, SF_SET);
             GETEWW(x12, x1);
             GETGW(x2);
             if(opcode==0xAC) {
@@ -1009,11 +1009,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             CALL(shrd16, x1, (1<<wback));
             EWBACKW(x1);
-            UFLAGS(1);
             break;
 
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
+            SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             UFLAG_DF(x1, d_imul16);
             if((nextop&0xC0)==0xC0) {
@@ -1027,13 +1027,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SMULBB(x2, gd, ed);
             UFLAG_RES(x2);
             BFI((xEAX+((nextop&0x38)>>3)), x2, 0, 16);
-            UFLAGS(0);
             break;
 
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
             nextop = F8;
-            USEFLAG(1);
             GETGD;  // there is an AND below, to 32bits is the same
             GETEW(x12);
             AND_IMM8(x2, gd, 15);
@@ -1064,8 +1063,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
+            SETFLAGS(X_CF, SF_SET);
             nextop = F8;
-            USEFLAG(1);
             GETGD;  // there is an AND below, to 32bits is the same
             GETEW(x12);
             AND_IMM8(x2, gd, 15);
@@ -1078,6 +1077,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0xBC:
             INST_NAME("BSF Ew,Gw");
+            SETFLAGS(X_ZF, SF_SET);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM8(x1, x1, 0);
@@ -1091,10 +1091,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
-            UFLAGS(1);
             break;
         case 0xBD:
             INST_NAME("BSR Ew,Gw");
+            SETFLAGS(X_ZF, SF_SET);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM8(x1, x1, 0);
@@ -1109,7 +1109,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
-            UFLAGS(1);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");

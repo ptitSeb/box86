@@ -47,7 +47,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FCMOVB ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_CF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
@@ -63,7 +63,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCE:
         case 0xCF:
             INST_NAME("FCMOVE ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -79,7 +79,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD6:
         case 0xD7:
             INST_NAME("FCMOVBE ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_CF|X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -96,7 +96,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDE:
         case 0xDF:
             INST_NAME("FCMOVU ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_PF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));

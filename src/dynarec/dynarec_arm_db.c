@@ -49,7 +49,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FCMOVNB ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_CF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
@@ -65,7 +65,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCE:
         case 0xCF:
             INST_NAME("FCMOVNE ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -81,7 +81,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD6:
         case 0xD7:
             INST_NAME("FCMOVNBE ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_CF|X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -98,7 +98,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDE:
         case 0xDF:
             INST_NAME("FCMOVNU ST0, STx");
-            USEFLAG(1);
+            READFLAGS(X_PF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
@@ -127,12 +127,11 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMI ST0, STx");
-            UFLAGS(0);
+            SETFLAGS(X_ALL, SF_SET);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
-            UFLAGS(1);
             break;
         case 0xF0:  
         case 0xF1:
@@ -143,12 +142,11 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF6:
         case 0xF7:
             INST_NAME("FCOMI ST0, STx");
-            UFLAGS(0);
+            SETFLAGS(X_ALL, SF_SET);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
-            UFLAGS(1);
             break;
 
         case 0xE0:
