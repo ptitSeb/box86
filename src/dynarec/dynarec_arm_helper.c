@@ -1013,25 +1013,39 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     MOVW(s4, 0);
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUBS_IMM8(s3, s1, 0);   // res = s1 - 0
-    // first the easy flags, also found on ARM
-    MOVW_COND(cEQ, s4, 1);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    UBFX(s4, s3, 31, 1);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
-    MOVW(s4, 0);    // no overflow
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    IFX(X_ZF) {
+        // first the easy flags, also found on ARM
+        MOVW_COND(cEQ, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_SF) {
+        UBFX(s4, s3, 31, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    }
+    IFX(X_OF) {
+        IFX(X_ZF|X_SF) {
+            MOVW(s4, 0);    // no overflow
+        }
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
     // and now the tricky ones (and mostly unused), PF and AF
     // bc = (res & (~d | s)) | (~d & s) => is 0 here...
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x80000000
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
-    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-    AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-    LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-    AND_IMM8(s3, s1, 31);
-    MVN_REG_LSR_REG(s4, s4, s3);
-    AND_IMM8(s4, s4, 1);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    IFX(X_CF) {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x80000000
+    }
+    IFX(X_AF) {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    }
+    IFX(X_PF) {
+        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
+        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+        AND_IMM8(s3, s1, 31);
+        MVN_REG_LSR_REG(s4, s4, s3);
+        AND_IMM8(s4, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    }
 }
 
 // emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
