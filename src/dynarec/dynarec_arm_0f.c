@@ -377,13 +377,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CMOVZ Gd, Ed");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_CF)
+                , cNE, cEQ, X_ZF)
             break;
         case 0x45:
             INST_NAME("CMOVNZ Gd, Ed");
             GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
                 CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_CF)
+                , cEQ, cNE, X_ZF)
             break;
         case 0x46:
             INST_NAME("CMOVBE Gd, Ed");
