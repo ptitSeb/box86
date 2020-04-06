@@ -25,19 +25,19 @@ void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const cha
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
         uint32_t a = *(uint32_t*)(ip+3);
         if(a==0) {
-            dynarec_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
+            dynarec_log(LOG_NONE, "%s%p: Exit x86emu%s\n", (box86_dynarec_dump>1)?"\e[1m":"", (void*)ip, (box86_dynarec_dump>1)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%p: Native call to %p\n", (void*)ip, (void*)a);
+            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (box86_dynarec_dump>1)?"\e[1m":"", (void*)ip, (void*)a, (box86_dynarec_dump>1)?"\e[m":"");
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%p: %s\n", inst->addr, DecodeX86Trace(dec, inst->addr));
+            dynarec_log(LOG_NONE, "%s%p: %s%s\n", (box86_dynarec_dump>1)?"\e[1m":"", inst->addr, DecodeX86Trace(dec, inst->addr), (box86_dynarec_dump>1)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%p: ", inst->addr);
+            dynarec_log(LOG_NONE, "%s%p: ", (box86_dynarec_dump>1)?"\e[1m":"", inst->addr);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
-            dynarec_log(LOG_NONE, " %s\n", name);
+            dynarec_log(LOG_NONE, " %s%s\n", name, (box86_dynarec_dump>1)?"\e[m":"");
         }
     }
 }
