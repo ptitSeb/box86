@@ -243,8 +243,8 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(dyn->state_flags==0 || dyn->state_flags==2) {    \
-        if(dyn->state_flags==0) {                       \
+    if(dyn->state_flags!=SF_SET) {                      \
+        if(dyn->state_flags!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM8(x3, x3, 0);               \
             i32 = (GETMARKF)-(dyn->arm_size+8);         \

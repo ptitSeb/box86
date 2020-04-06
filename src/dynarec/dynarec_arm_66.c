@@ -304,7 +304,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            CALL(cmp16, -1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x12);
             break;
         case 0x3B:
             INST_NAME("CMP Gw, Ew");
@@ -312,7 +312,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            CALL(cmp16, -1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x12);
             break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
@@ -320,7 +320,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F16;
             MOVW(x2, i32);
             UXTH(x1, xEAX, 0);
-            CALL(cmp16, -1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x12);
             break;
 
         case 0x40:

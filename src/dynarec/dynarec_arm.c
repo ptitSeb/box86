@@ -95,21 +95,18 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
 {
     if(ninst == dyn->size || (recurse==5))
         return X_ALL; // no more instructions, or too many jmp loop, stop
-    uint32_t needed = dyn->insts[ninst].x86.need_flags;
-    if(dyn->insts[ninst].x86.use_flags) {
-        needed |= dyn->insts[ninst].x86.use_flags;  // what flags are still usefull
-        setf &= ~dyn->insts[ninst].x86.use_flags;
+    uint32_t needed = dyn->insts[ninst].x86.use_flags;
+    if(needed) {
+        setf &= ~needed;
         if(!setf)   // all flags already used, no need to continue
             return needed;
     }
 
-    if(dyn->insts[ninst].x86.set_flags)
+    if(dyn->insts[ninst].x86.set_flags && (dyn->insts[ninst].x86.state_flags!=SF_MAYSET)) {
         if((setf & ~dyn->insts[ninst].x86.set_flags) == 0)
             return needed;    // all done, gives all the flags needed
         setf |= dyn->insts[ninst].x86.set_flags;    // add new flags to continue
-
-    if(dyn->insts[ninst].x86.need_flags)    // already treated
-        return dyn->insts[ninst].x86.need_flags;
+    }
 
     int jinst = dyn->insts[ninst].x86.jmp_insts;
     if(dyn->insts[ninst].x86.jmp) {
@@ -117,13 +114,15 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
             dyn->insts[ninst].x86.need_flags = X_ALL;
             return X_ALL;
         }
-        if(!dyn->insts[ninst].x86.use_flags)  // conditionnal jump
+        if(dyn->insts[ninst].x86.use_flags)  // conditionnal jump
             dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1) | needed_flags(dyn, ninst+1, setf, recurse);
         else
             dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1);
     } else
         dyn->insts[ninst].x86.need_flags = needed_flags(dyn, ninst+1, setf, recurse);
-    return needed | dyn->insts[ninst].x86.need_flags;
+    if(dyn->insts[ninst].x86.state_flags==SF_MAYSET)
+        return needed | dyn->insts[ninst].x86.need_flags;
+    return needed | (dyn->insts[ninst].x86.need_flags & ~dyn->insts[ninst].x86.set_flags);
 }
 
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);

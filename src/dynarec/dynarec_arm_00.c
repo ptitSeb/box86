@@ -2363,7 +2363,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xA6:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_MAYSET);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
@@ -2387,7 +2387,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xA7:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_MAYSET);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
@@ -2452,7 +2452,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xAE:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_MAYSET);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
@@ -2476,7 +2476,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_MAYSET);
                         TSTS_REG_LSL_IMM8(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
