@@ -203,6 +203,7 @@
     Bcond(cond, i32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))
+#define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A)))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2)    \
@@ -225,15 +226,15 @@
     MOVW_COND(cEQ, s1, 0b100); /* zero */                   \
     MOVW_COND(cGT, s1, 0b000); /* greater than */           \
     MOVW_COND(cLO, s1, 0b001); /* less than */              \
-    IFX(X_CF) {                                             \
+    IFX(X_CF|X_PEND) {                                      \
         UBFX(s2, s1, 0, 1);                                 \
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_CF]));\
     }                                                       \
-    IFX(X_PF) {                                             \
+    IFX(X_PF|X_PEND) {                                      \
         UBFX(s2, s1, 1, 1);                                 \
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_PF]));\
     }                                                       \
-    IFX(X_ZF) {                                             \
+    IFX(X_ZF|X_PEND) {                                      \
         UBFX(s2, s1, 2, 1);                                 \
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]));\
     }                                                       \

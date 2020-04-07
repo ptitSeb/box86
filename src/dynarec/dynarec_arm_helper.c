@@ -955,24 +955,36 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
 // emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MOVW(s4, 0);
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
+        MOVW(s4, d_cmp32);
+    } else {
+        MOVW(s4, 0);
+    }
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUBS_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
+        IFX(X_PEND) {
+            MOVW(s4, 0);
+        }
         // first the easy flag, also found on ARM
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
-    IFX(X_SF) {
-        UBFX(s4, s3, 31, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
-    }
     IFX(X_OF) {
-        IFX(X_ZF|X_SF) {
+        IFX(X_ZF|X_PEND) {
             MOVW(s4, 0);
         }
         MOVW_COND(cVS, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
+    IFX(X_SF) {
+        UBFX(s4, s3, 31, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     // and now the tricky ones (and mostly unused), PF and AF
     IFX(X_CF|X_AF) {
@@ -1011,19 +1023,16 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     MOVW(s4, 0);
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, op2));
+        MOVW(s4, d_cmp32);
+    }
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUBS_IMM8(s3, s1, 0);   // res = s1 - 0
-    IFX(X_ZF) {
-        // first the easy flags, also found on ARM
-        MOVW_COND(cEQ, s4, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
-    IFX(X_SF) {
-        UBFX(s4, s3, 31, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
-    }
-    IFX(X_ZF|X_SF) {
-        IFX(X_OF|X_CF|X_AF) {
+    IFX(X_PEND) {
+        IFX(X_ZF|X_OF|X_CF|X_AF) {
             MOVW(s4, 0);
         }
     }
@@ -1037,6 +1046,15 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
+    IFX(X_ZF) {
+        // first the easy flags, also found on ARM
+        MOVW_COND(cEQ, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_SF) {
+        UBFX(s4, s3, 31, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     IFX(X_PF) {
         // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
@@ -1053,9 +1071,18 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MOVW(s3, 0);
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
+        MOVW(s3, d_cmp16);
+    } else {
+        MOVW(s3, 0);
+    }
     STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
         MOVW(s4, 0xffff);
         TSTS_REG_LSL_IMM8(s3, s4, 0);
@@ -1111,22 +1138,15 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     MOVW(s3, 0);
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        MOVW(s3, d_cmp16);
+    }
     STR_IMM9(s3, xEmu, offsetof(x86emu_t, df)); // reset flags
-    IFX(X_ZF) {
-        MOVW(s4, 0xffff);
-        TSTS_REG_LSL_IMM8(s1, s4, 0);
+    IFX(X_OF|X_CF|X_AF) {
         MOVW(s4, 0);
-        MOVW_COND(cEQ, s4, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
-    IFX(X_SF) {
-        UBFX(s4, s1, 15, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
-    }
-    IFX(X_ZF|X_SF) {
-        IFX(X_OF|X_CF|X_AF) {
-            MOVW(s4, 0);
-        }
     }
     // bc = (res & (~d | s)) | (~d & s) = 0
     IFX(X_CF) {
@@ -1137,6 +1157,17 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 14) ^ ((bc>>14)>>1)) & 1
+    }
+    IFX(X_ZF) {
+        MOVW(s4, 0xffff);
+        TSTS_REG_LSL_IMM8(s1, s4, 0);
+        MOVW(s4, 0);
+        MOVW_COND(cEQ, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_SF) {
+        UBFX(s4, s1, 15, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
@@ -1152,10 +1183,22 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MOVW(s4, 0);
+    IFX(X_PEND) {
+        MOVW(s4, d_cmp8);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
+    } else {
+        MOVW(s4, 0);
+    }
     STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     SUB_REG_LSL_IMM8(s3, s1, s2, 0);   // res = s1 - s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
+        IFX(X_PEND) {
+            MOVW(s4, 0);
+        }
         TSTS_IMM8(s3, 0xff);
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -1205,20 +1248,14 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     MOVW(s4, 0);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
-    IFX(X_ZF) {
-        TSTS_IMM8(s1, 0xff);
-        MOVW_COND(cEQ, s4, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
-    IFX(X_SF) {
-        UBFX(s4, s1, 7, 1);
-        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
-    }
-    IFX(X_ZF|X_SF) {
-        IFX(X_OF|X_CF|X_AF) {
-            MOVW(s4, 0);
-        }
+    IFX(X_PEND) {
+        MOVW(s3, d_cmp8);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, op2));
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    } else {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
     }
     // bc = (res & (~d | s)) | (~d & s) = 0
     IFX(X_CF) {
@@ -1229,6 +1266,15 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+    }
+    IFX(X_ZF) {
+        TSTS_IMM8(s1, 0xff);
+        MOVW_COND(cEQ, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_SF) {
+        UBFX(s4, s1, 7, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
@@ -1242,11 +1288,16 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit TEST32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit TEST32 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     MOVW(s4, 0);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    IFX(X_PEND) {
+        MOVW(s3, d_tst32);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    } else {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
@@ -1254,6 +1305,9 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -1275,11 +1329,16 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit TEST16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit TEST16 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     MOVW(s4, 0);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    IFX(X_PEND) {
+        MOVW(s3, d_tst16);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    } else {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
@@ -1287,6 +1346,9 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
@@ -1308,11 +1370,16 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit TEST8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
+// emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     MOVW(s4, 0);
-    STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    IFX(X_PEND) {
+        MOVW(s3, d_tst8);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    } else {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df)); // reset flags
+    }
     IFX(X_OF) {
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
@@ -1320,6 +1387,9 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
+    IFX(X_PEND) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
+    }
     IFX(X_ZF) {
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));

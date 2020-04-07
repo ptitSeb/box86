@@ -9,6 +9,7 @@
 #define X_SF    (1<<4)
 #define X_OF    (1<<5)
 #define X_ALL   (0xff)
+#define X_PEND  (0x1000)
 
 // all state flags
 #define SF_UNKNOWN  0

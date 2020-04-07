@@ -73,7 +73,7 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
     #define PK(A) (*((uint8_t*)(addr+(A))))
     if(!n)
         return 1;
-    if (PK(0)==0x90)
+    if(PK(0)==0x90)
         return is_nops(dyn, addr+1, n-1);
     if(n>1 && PK(0)==0x66)  // if opcode start with 0x66, and there is more after, than is *can* be a NOP
         return is_nops(dyn, addr+1, n-1);
@@ -81,8 +81,12 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
         return is_nops(dyn, addr+3, n-3);
     if(n>3 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x40 && PK(3)==0x00)
         return is_nops(dyn, addr+4, n-4);
+    if(n>3 && PK(0)==0x8d && PK(1)==0x74 && PK(2)==0x26 && PK(3)==0x00)
+        return is_nops(dyn, addr+4, n-4);
     if(n>4 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x44 && PK(3)==0x00 && PK(4)==0x00)
         return is_nops(dyn, addr+5, n-5);
+    if(n>5 && PK(0)==0x8d && PK(1)==0xb6 && PK(2)==0x00 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00)
+        return is_nops(dyn, addr+6, n-6);
     if(n>6 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x80 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00)
         return is_nops(dyn, addr+7, n-7);
     if(n>7 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x84 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00 && PK(7)==0x00)
@@ -110,19 +114,18 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
 
     int jinst = dyn->insts[ninst].x86.jmp_insts;
     if(dyn->insts[ninst].x86.jmp) {
-        if(jinst==-1) {
-            dyn->insts[ninst].x86.need_flags = X_ALL;
-            return X_ALL;
-        }
+        dyn->insts[ninst].x86.need_flags = (jinst==-1)?X_PEND:needed_flags(dyn, jinst, setf, recurse+1);
         if(dyn->insts[ninst].x86.use_flags)  // conditionnal jump
-            dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1) | needed_flags(dyn, ninst+1, setf, recurse);
-        else
-            dyn->insts[ninst].x86.need_flags = needed_flags(dyn, jinst, setf, recurse+1);
+             dyn->insts[ninst].x86.need_flags |= needed_flags(dyn, ninst+1, setf, recurse);
     } else
         dyn->insts[ninst].x86.need_flags = needed_flags(dyn, ninst+1, setf, recurse);
     if(dyn->insts[ninst].x86.state_flags==SF_MAYSET)
-        return needed | dyn->insts[ninst].x86.need_flags;
-    return needed | (dyn->insts[ninst].x86.need_flags & ~dyn->insts[ninst].x86.set_flags);
+        needed |= dyn->insts[ninst].x86.need_flags;
+    else
+        needed |= (dyn->insts[ninst].x86.need_flags & ~dyn->insts[ninst].x86.set_flags);
+    if(needed == (X_PEND|X_ALL))
+        needed = X_ALL;
+    return needed;
 }
 
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
@@ -168,8 +171,13 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
             }
         }
     for(int i=0; i<helper.size; ++i)
-        if(helper.insts[i].x86.set_flags && !helper.insts[i].x86.need_flags)
+        if(helper.insts[i].x86.set_flags && !helper.insts[i].x86.need_flags) {
             helper.insts[i].x86.need_flags = needed_flags(&helper, i+1, helper.insts[i].x86.set_flags, 0);
+            if((helper.insts[i].x86.need_flags&X_PEND) && (helper.insts[i].x86.state_flags==SF_MAYSET))
+                helper.insts[i].x86.need_flags = X_ALL;
+            else if((helper.insts[i].x86.need_flags&X_PEND) && (helper.insts[i].x86.state_flags==SF_SET))
+                helper.insts[i].x86.state_flags = SF_MAYSET;
+        }
     
     // pass 2, instruction size
     arm_pass2(&helper, addr);

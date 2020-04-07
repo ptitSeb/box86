@@ -2644,13 +2644,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF8:
             INST_NAME("CLC");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_MAYSET);
+            READFLAGS(X_ZF|X_OF|X_SF);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
         case 0xF9:
             INST_NAME("STC");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_MAYSET);
+            READFLAGS(X_ZF|X_OF|X_SF);
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;

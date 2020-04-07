@@ -72,7 +72,13 @@ typedef enum {
 	d_xor8,
 	d_xor16,
 	d_xor32,
-	d_unknown	//40
+	d_cmp8,		//40	// thoses are used only with Dynarec
+	d_cmp16,
+	d_cmp32,
+	d_tst8,
+	d_tst16,
+	d_tst32,
+	d_unknown	//46
 } defered_flags_t;
 
 #pragma pack(push, 1)

@@ -537,6 +537,56 @@ void UpdateFlags(x86emu_t *emu)
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_AF);
             break;
+        case d_cmp8:
+            CLEAR_FLAG(F_CF);
+            CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
+            CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+            bc = (emu->res & (~emu->op1 | emu->op2)) | (~emu->op1 & emu->op2);
+            CONDITIONAL_SET_FLAG(bc & 0x80, F_CF);
+            CONDITIONAL_SET_FLAG(XOR2(bc >> 6), F_OF);
+            CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
+            break;
+        case d_cmp16:
+            CONDITIONAL_SET_FLAG(emu->res & 0x8000, F_SF);
+            CONDITIONAL_SET_FLAG((emu->res & 0xffff) == 0, F_ZF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+            bc = (emu->res & (~emu->op1 | emu->op2)) | (~emu->op1 & emu->op2);
+            CONDITIONAL_SET_FLAG(bc & 0x8000, F_CF);
+            CONDITIONAL_SET_FLAG(XOR2(bc >> 14), F_OF);
+            CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
+            break;
+        case d_cmp32:
+        	CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
+        	CONDITIONAL_SET_FLAG(!emu->res, F_ZF);
+        	CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+        	bc = (emu->res & (~emu->op1 | emu->op2)) | (~emu->op1 & emu->op2);
+        	CONDITIONAL_SET_FLAG(bc & 0x80000000, F_CF);
+        	CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
+        	CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
+            break;
+        case d_tst8:
+        	CLEAR_FLAG(F_OF);
+        	CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
+        	CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
+        	CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+        	CLEAR_FLAG(F_CF);
+            break;
+        case d_tst16:
+            CLEAR_FLAG(F_OF);
+            CONDITIONAL_SET_FLAG(emu->res & 0x8000, F_SF);
+            CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
+            CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+            CLEAR_FLAG(F_CF);
+            break;
+        case d_tst32:
+        	CLEAR_FLAG(F_OF);
+        	CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
+        	CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
+        	CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+        	CLEAR_FLAG(F_CF);
+            break;
+
         case d_unknown:
             printf_log(LOG_NONE, "Box86: %p trying to evaluate Unknown defered Flags\n", (void*)R_EIP);
             break;
