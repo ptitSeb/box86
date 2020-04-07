@@ -982,22 +982,25 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOVW_COND(cVS, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
+    IFX(X_CF) {
+        IFX(X_ZF|X_OF|X_PEND) {
+            MOVW(s4, 0);
+        }
+        MOVW_COND(cCC, s4, 1);      // Carry flags on ARM is reversed compared to x86 one
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
     IFX(X_SF) {
         UBFX(s4, s3, 31, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     // and now the tricky ones (and mostly unused), PF and AF
-    IFX(X_CF|X_AF) {
+    IFX(X_AF) {
         // bc = (res & (~d | s)) | (~d & s)
         MVN_REG_LSL_IMM8(s4, s1, 0);        // s4 = ~d
         ORR_REG_LSL_IMM8(s4, s4, s2, 0);    // s4 = ~d | s
         AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = res & (~d | s)
         BIC_REG_LSL_IMM8(s3, s2, s1, 0);    // loosing res... s3 = s & ~d
         ORR_REG_LSL_IMM8(s3, s4, s3, 0);    // s3 = (res & (~d | s)) | (s & ~d)
-        IFX(X_CF) {
-            UBFX(s4, s3, 31, 1);
-            STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x80000000
-        }
         IFX(X_AF) {
             UBFX(s4, s3, 3, 1);
             STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
