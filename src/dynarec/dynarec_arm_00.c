@@ -130,14 +130,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x09:
             INST_NAME("OR Ed, Gd");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            ORR_REG_LSL_IMM8(ed, ed, gd, 0);
+            emit_or32(dyn, ninst, ed, gd, x3, x12);
             WBACK;
-            UFLAG_RES(ed);
-            UFLAG_DF(x1, d_or32);
             break;
         case 0x0A:
             INST_NAME("OR Gb, Eb");
@@ -152,13 +150,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x0B:
             INST_NAME("OR Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            ORR_REG_LSL_IMM8(gd, gd, ed, 0);
-            UFLAG_RES(gd);
-            UFLAG_DF(x1, d_or32);
+            emit_or32(dyn, ninst, gd, ed, x3, x12);
             break;
         case 0x0C:
             INST_NAME("OR AL, Ib");
@@ -172,12 +168,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             i32 = F32S;
-            MOV32(x1, i32);
-            ORR_REG_LSL_IMM8(xEAX, xEAX, x1, 0);
-            UFLAG_RES(xEAX);
-            UFLAG_DF(x1, d_or32);
+            emit_or32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
 
         case 0x0F:
@@ -334,14 +327,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            AND_REG_LSL_IMM5(ed, ed, gd, 0);
+            emit_and32(dyn, ninst, ed, gd, x3, x12);
             WBACK;
-            UFLAG_RES(ed);
-            UFLAG_DF(x1, d_and32);
             break;
         case 0x22:
             INST_NAME("AND Gb, Eb");
@@ -356,13 +347,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x23:
             INST_NAME("AND Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            AND_REG_LSL_IMM5(gd, gd, ed, 0);
-            UFLAG_RES(gd);
-            UFLAG_DF(x1, d_and32);
+            emit_and32(dyn, ninst, gd, ed, x3, x12);
             break;
         case 0x24:
             INST_NAME("AND AL, Ib");
@@ -376,12 +365,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x25:
             INST_NAME("AND EAX, Id");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             i32 = F32S;
             MOV32(x1, i32);
-            AND_REG_LSL_IMM5(xEAX, xEAX, x1, 0);
-            UFLAG_RES(xEAX);
-            UFLAG_DF(x1, d_and32);
+            emit_and32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
         case 0x26:
             INST_NAME("ES:");
@@ -484,14 +471,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            XOR_REG_LSL_IMM8(ed, ed, gd, 0);
+            emit_xor32(dyn, ninst, ed, gd, x3, x12);
             WBACK;
-            UFLAG_RES(ed);
-            UFLAG_DF(x1, d_xor32);
             break;
         case 0x32:
             INST_NAME("XOR Gb, Eb");
@@ -506,13 +491,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x33:
             INST_NAME("XOR Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            XOR_REG_LSL_IMM8(gd, gd, ed, 0);
-            UFLAG_RES(gd);
-            UFLAG_DF(x1, d_xor32);
+            emit_xor32(dyn, ninst, gd, ed, x3, x12);
             break;
         case 0x34:
             INST_NAME("XOR AL, Ib");
@@ -526,12 +509,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x35:
             INST_NAME("XOR EAX, Id");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             i32 = F32S;
-            MOV32(x1, i32);
-            XOR_REG_LSL_IMM8(xEAX, xEAX, x1, 0);
-            UFLAG_RES(xEAX);
-            UFLAG_DF(x1, d_xor32);
+            emit_xor32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
 
         case 0x37:
@@ -966,18 +946,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED;
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        ORR_IMM8(ed, ed, i32, 0);
-                    } else {
-                        MOV32(x3, i32);
-                        ORR_REG_LSL_IMM8(ed, ed, x3, 0);
-                    }
+                    emit_or32c(dyn, ninst, ed, i32, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_or32);
                     break;
                 case 2: //ADC
                     if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
@@ -1004,15 +977,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETED;
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        AND_IMM8(ed, ed, i32);
-                    } else {
-                        MOV32(x3, i32);
-                        AND_REG_LSL_IMM5(ed, ed, x3, 0);
-                    }
+                    emit_and32c(dyn, ninst, ed, i32, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_and32);
                     break;
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
@@ -1024,18 +990,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED;
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    if(i32>0 && i32<256) {
-                        XOR_IMM8(ed, ed, i32);
-                    } else {
-                        MOV32(x3, i32);
-                        XOR_REG_LSL_IMM8(ed, ed, x3, 0);
-                    }
+                    emit_xor32c(dyn, ninst, ed, i32, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_xor32);
                     break;
                 case 7: //CMP
                     if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}

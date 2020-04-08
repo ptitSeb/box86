@@ -191,6 +191,9 @@ Op is 20-27
 // orr dst, src1, #imm8
 #define ORR_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// orr.s dst, src1, #imm8
+#define ORRS_IMM8(dst, src, imm8, rot) \
+    EMIT(0xe3900000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // orr dst, src1, src2, lsl #rs
 #define ORR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
@@ -203,6 +206,8 @@ Op is 20-27
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+#define XORS_IMM8(dst, src, imm8) \
+    EMIT(0xe2300000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // xor.cond dst, src, #(imm8)
 #define XOR_IMM8_COND(cond, dst, src, imm8) \
     EMIT(cond | 0x02200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
