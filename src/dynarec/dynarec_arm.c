@@ -175,8 +175,6 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
             helper.insts[i].x86.need_flags = needed_flags(&helper, i+1, helper.insts[i].x86.set_flags, 0);
             if((helper.insts[i].x86.need_flags&X_PEND) && (helper.insts[i].x86.state_flags==SF_MAYSET))
                 helper.insts[i].x86.need_flags = X_ALL;
-            else if((helper.insts[i].x86.need_flags&X_PEND) && (helper.insts[i].x86.state_flags==SF_SET))
-                helper.insts[i].x86.state_flags = SF_MAYSET;
         }
     
     // pass 2, instruction size

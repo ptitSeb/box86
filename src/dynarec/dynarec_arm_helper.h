@@ -204,6 +204,7 @@
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))
 #define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A)))
+#define IFX2X(A, B) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A) || dyn->insts[ninst].x86.need_flags==(B) || dyn->insts[ninst].x86.need_flags==((A)|(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2)    \
@@ -324,9 +325,13 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_cmp8_0     STEPNAME(emit_cmp8_0)
 #define emit_cmp16_0    STEPNAME(emit_cmp16_0)
 #define emit_cmp32_0    STEPNAME(emit_cmp32_0)
-#define emit_test8     STEPNAME(emit_test8)
+#define emit_test8      STEPNAME(emit_test8)
 #define emit_test16     STEPNAME(emit_test16)
 #define emit_test32     STEPNAME(emit_test32)
+#define emit_add32      STEPNAME(emit_add32)
+#define emit_add32c     STEPNAME(emit_add32c)
+#define emit_sub32      STEPNAME(emit_sub32)
+#define emit_sub32c     STEPNAME(emit_sub32c)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -382,6 +387,10 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_add32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
