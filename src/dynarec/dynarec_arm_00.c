@@ -44,15 +44,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x00:
             INST_NAME("ADD Eb, Gb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            UFLAG_OP12(x1, x2);
-            ADD_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_add8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
-            UFLAG_DF(x3, d_add8);
             break;
         case 0x01:
             INST_NAME("ADD Ed, Gd");
@@ -65,15 +62,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x02:
             INST_NAME("ADD Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            UFLAG_OP12(x1, x2);
-            ADD_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_add8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
-            UFLAG_DF(x3, d_add8);
             break;
         case 0x03:
             INST_NAME("ADD Gd, Ed");
@@ -85,15 +79,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x04:
             INST_NAME("ADD AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            MOVW(x2, u8);
-            UFLAG_OP12(x1, x2);
-            ADD_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_add8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
-            UFLAG_DF(x3, d_add8);
             break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
@@ -384,15 +374,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            UFLAG_OP12(x1, x2);
-            SUB_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_sub8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
-            UFLAG_DF(x3, d_sub8);
             break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
@@ -405,15 +392,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x2A:
             INST_NAME("SUB Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            UFLAG_OP12(x1, x2);
-            SUB_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_sub8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
-            UFLAG_DF(x3, d_sub8);
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Ed");
@@ -425,19 +409,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x2C:
             INST_NAME("SUB AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            UFLAG_IF {
-                MOVW(x2, u8);
-                UFLAG_OP12(x1, x2);
-                SUB_REG_LSL_IMM8(x1, x1, x2, 0);
-                UFLAG_RES(x1);
-            } else {
-                SUB_IMM8(x1, x1, u8);
-            }
+            emit_sub8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
-            UFLAG_DF(x3, d_sub8);
             break;
         case 0x2D:
             INST_NAME("SUB EAX, Id");
@@ -844,12 +820,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     INST_NAME("ADD Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    UFLAG_IF{MOVW(x12, u8); UFLAG_OP12(x1, x12); UFLAG_DF(x12, d_add8);}
-                    ADD_IMM8(x1, x1, u8);
-                    UFLAG_RES(x1);
+                    emit_add8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
                     break;
                 case 1: //OR
@@ -864,7 +838,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     READFLAGS(X_CF);
                     GETEB(x1);
                     u8 = F8;
@@ -875,7 +849,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3: //SBB
                     INST_NAME("SBB Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     READFLAGS(X_CF);
                     GETEB(x1);
                     u8 = F8;
@@ -896,12 +870,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5: //SUB
                     INST_NAME("SUB Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    UFLAG_IF{MOV32(x12, u8); UFLAG_OP12(x1, x12); UFLAG_DF(x12, d_sub8);}
-                    SUB_IMM8(x1, x1, u8);
-                    UFLAG_RES(x1);
+                    emit_sub8c(dyn, ninst, x1, u8, x3, x12);
                     EBBACK;
                     break;
                 case 6: //XOR

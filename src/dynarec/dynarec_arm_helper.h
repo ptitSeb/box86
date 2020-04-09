@@ -330,8 +330,12 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_test32     STEPNAME(emit_test32)
 #define emit_add32      STEPNAME(emit_add32)
 #define emit_add32c     STEPNAME(emit_add32c)
+#define emit_add8       STEPNAME(emit_add8)
+#define emit_add8c      STEPNAME(emit_add8c)
 #define emit_sub32      STEPNAME(emit_sub32)
 #define emit_sub32c     STEPNAME(emit_sub32c)
+#define emit_sub8       STEPNAME(emit_sub8)
+#define emit_sub8c      STEPNAME(emit_sub8c)
 #define emit_or32       STEPNAME(emit_or32)
 #define emit_or32c      STEPNAME(emit_or32c)
 #define emit_xor32      STEPNAME(emit_xor32)
@@ -395,8 +399,12 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_add32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_or32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_xor32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
