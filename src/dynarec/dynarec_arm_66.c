@@ -39,27 +39,21 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         
         case 0x01:
             INST_NAME("ADD Ew, Gw");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            UFLAG_OP12(ed, gd);
-            ADD_REG_LSL_IMM5(ed, ed, gd, 0);
+            emit_add16(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
-            UFLAG_RES(ed);
-            UFLAG_DF(x1, d_add16);
             break;
         case 0x03:
             INST_NAME("ADD Gw, Ew");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            UFLAG_OP12(gd, ed);
-            ADD_REG_LSL_IMM5(gd, gd, ed, 0);
-            UFLAG_RES(gd);
+            emit_add16(dyn, ninst, x1, x2, x3, x12, 0);
             GWBACK;
-            UFLAG_DF(x1, d_add16);
             break;
         case 0x05:
             INST_NAME("ADD AX, Iw");
@@ -67,11 +61,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F16;
             MOVW(x2, i32);
             UXTH(x1, xEAX, 0);
-            UFLAG_OP12(x1, x2);
-            ADD_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_add16c(dyn, ninst, x1, i32, x3, x12);
             BFI(xEAX, x1, 0, 16);
-            UFLAG_DF(x1, d_add16);
             break;
         case 0x06:
             INST_NAME("PUSH ES");
@@ -434,23 +425,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         INST_NAME("ADD Ew, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    UFLAG_OP1(ed);
-                    if(i16>=0 && i16<256) {
-                        UFLAG_IF{
-                            MOVW(x2, i16); UFLAG_OP2(x2);
-                        };
-                        ADD_IMM8(ed, ed, i16);
-                    } else {
-                        MOVW(x2, i16);
-                        UFLAG_OP2(x2);
-                        ADD_REG_LSL_IMM5(ed, ed, x2, 0);
-                    }
+                    emit_add16c(dyn, ninst, ed, i16, x2, x12);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_add16);
                     break;
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
