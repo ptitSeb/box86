@@ -220,39 +220,29 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x29:
             INST_NAME("SUB Ew, Gw");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            UFLAG_OP12(ed, gd);
-            SUB_REG_LSL_IMM8(ed, ed, gd, 0);
+            emit_sub16(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
-            UFLAG_RES(ed);
-            UFLAG_DF(x1, d_sub16);
             break;
         case 0x2B:
             INST_NAME("SUB Gw, Ew");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            GETGW(1);
-            GETEW(2);
-            UFLAG_OP12(gd, ed);
-            SUB_REG_LSL_IMM8(gd, gd, ed, 0);
-            UFLAG_RES(gd);
+            GETGW(x1);
+            GETEW(x2);
+            emit_sub16(dyn, ninst, x1, x2, x3, x12, 0);
             GWBACK;
-            UFLAG_DF(x1, d_sub16);
             break;
         case 0x2D:
             INST_NAME("SUB AX, Iw");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             i32 = F16;
-            MOV32(x1, i32);
-            UXTH(x2, xEAX, 0);
-            UFLAG_OP12(x2, x1);
+            emit_sub16c(dyn, ninst, x1, i32, x3, x12);
             SUB_REG_LSL_IMM8(x2, x2, x1, 0);
-            UFLAG_RES(x2);
             BFI(xEAX, x2, 0, 16);
-            UFLAG_DF(x1, d_sub16);
             break;
 
         case 0x31:
@@ -483,23 +473,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    UFLAG_OP1(ed);
-                    if(i16>0 && i16<256) {
-                        UFLAG_IF{
-                            MOVW(x2, i16); UFLAG_OP2(x2);
-                        }
-                        SUB_IMM8(ed, ed, i16);
-                    } else {
-                        MOVW(x2, i16);
-                        UFLAG_OP2(x2);
-                        SUB_REG_LSL_IMM8(ed, ed, x2, 0);
-                    }
+                    emit_sub16c(dyn, ninst, x1, i16, x2, x12);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sub16);
                     break;
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
