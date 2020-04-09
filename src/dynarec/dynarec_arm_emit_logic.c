@@ -38,32 +38,27 @@ void emit_or32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_ALL) {
         ORRS_REG_LSL_IMM8(s1, s1, s2, 0);
+        IFX(X_CF|X_ZF|X_OF|X_AF) {
+            MOVW(s3, 0);
+        }
     } else {
         ORR_REG_LSL_IMM8(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
@@ -102,36 +97,31 @@ void emit_or32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
             ORR_IMM8(s1, s1, c, 0);
         }
     } else {
+        IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
             ORRS_REG_LSL_IMM8(s1, s1, s3, 0);
         } else {
-            MOV32(s3, c);
             ORR_REG_LSL_IMM8(s1, s1, s3, 0);
         }
+    }
+    IFX(X_CF|X_ZF|X_OF|X_AF) {
+        MOVW(s3, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
@@ -164,32 +154,27 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_ALL) {
         XORS_REG_LSL_IMM8(s1, s1, s2, 0);
+        IFX(X_CF|X_ZF|X_OF|X_AF) {
+            MOVW(s3, 0);
+        }
     } else {
         XOR_REG_LSL_IMM8(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
@@ -228,36 +213,31 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             XOR_IMM8(s1, s1, c);
         }
     } else {
+        IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
             XORS_REG_LSL_IMM8(s1, s1, s3, 0);
         } else {
-            MOV32(s3, c);
             XOR_REG_LSL_IMM8(s1, s1, s3, 0);
         }
+    }
+    IFX(X_CF|X_ZF|X_OF|X_AF) {
+        MOVW(s3, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
@@ -290,32 +270,27 @@ void emit_and32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_ALL) {
         ANDS_REG_LSL_IMM5(s1, s1, s2, 0);
+        IFX(X_CF|X_ZF|X_OF|X_AF) {
+            MOVW(s3, 0);
+        }
     } else {
         AND_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
@@ -354,36 +329,31 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             AND_IMM8(s1, s1, c);
         }
     } else {
+        IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
             ANDS_REG_LSL_IMM5(s1, s1, s3, 0);
         } else {
-            MOV32(s3, c);
             AND_REG_LSL_IMM5(s1, s1, s3, 0);
         }
+    }
+    IFX(X_CF|X_ZF|X_OF|X_AF) {
+        MOVW(s3, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
-    IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-    }
     IFX(X_CF) {
-        MOVW(s3, 0);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        IFX(X_CF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
     }
     IFX(X_AF) {
-        IFX(X_CF|X_AF) { } else {
-            MOVW(s3, 0);
-        }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_AF]));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
         UBFX(s3, s1, 31, 1);
