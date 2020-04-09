@@ -258,7 +258,7 @@
     }
 #endif
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)      dyn->state_flags = B
+#define SETFLAGS(A, B)      dyn->next_state = B
 #endif
 #ifndef JUMP
 #define JUMP(A) 
@@ -364,6 +364,8 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_dec32      STEPNAME(emit_dec32)
 #define emit_dec16      STEPNAME(emit_dec16)
 #define emit_dec8       STEPNAME(emit_dec8)
+#define emit_adc32      STEPNAME(emit_adc32)
+#define emit_adc32c     STEPNAME(emit_adc32c)
 
 
 #define x87_do_push     STEPNAME(x87_do_push)
@@ -456,6 +458,8 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_dec32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call

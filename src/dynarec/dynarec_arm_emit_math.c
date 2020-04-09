@@ -1229,3 +1229,151 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
     }
 }
+
+// emit ADC32 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch
+void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOVW(s3, d_add32);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
+    } else IFX(X_ALL) {
+        MOVW(s3, d_none);
+    }
+    IFX(X_PEND|X_ALL) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    }
+    IFX(X_AF) {
+        MOV_REG(s4, s1);
+    }
+    LDR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF])); // load CC
+    MOVS_REG_LSR_IMM5(s3, s3, 1);    // load into ARM CF
+    IFX(X_ALL) {
+        ADCS_REG_LSL_IMM5(s1, s1, s2, 0);
+    } else {
+        ADC_REG_LSL_IMM5(s1, s1, s2, 0);
+    }
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_AF) {
+        ORR_REG_LSL_IMM8(s3, s4, s2, 0);    // s3 = op1 | op2
+        AND_REG_LSL_IMM5(s4, s4, s2, 0);    // s4 = op1 & op2
+        BIC_REG_LSL_IMM8(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
+        ORR_REG_LSL_IMM8(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
+        UBFX(s4, s3, 3, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cNE, s3, 0);
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_CF) {
+        MOVW_COND(cCS, s4, 1);
+        MOVW_COND(cCC, s4, 0);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
+    IFX(X_OF) {
+        MOVW_COND(cVC, s4, 0);
+        MOVW_COND(cVS, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
+    IFX(X_SF) {
+        UBFX(s3, s1, 31, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    }
+    IFX(X_PF) {
+        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
+        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+        AND_IMM8(s3, s1, 31);
+        MVN_REG_LSR_REG(s4, s4, s3);
+        AND_IMM8(s4, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    }
+}
+
+// emit ADC32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOV32(s3, c);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        MOVW(s4, d_add32);
+    } else IFX(X_ALL) {
+        MOVW(s4, d_none);
+    }
+    IFX(X_PEND|X_ALL) {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df));
+    }
+    IFX(X_AF) {
+        MOV_REG(s4, s1);
+    }
+    LDR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF])); // load CC
+    MOVS_REG_LSR_IMM5(s3, s3, 1);    // load into ARM CF
+    if(c>=0 && c<256) {
+        IFX(X_ALL) {
+            ADCS_IMM8(s1, s1, c);
+        } else {
+            ADC_IMM8(s1, s1, c);
+        }
+    } else {
+        MOV32(s3, c);
+        IFX(X_ALL) {
+            ADCS_REG_LSL_IMM5(s1, s1, s3, 0);
+        } else {
+            ADC_REG_LSL_IMM5(s1, s1, s3, 0);
+        }
+    }
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_AF) {
+        if(c>=0 && c<256) {
+            ORR_IMM8(s3, s4, c, 0);     // s3 = op1 | op2
+            AND_IMM8(s4, s4, c);        // s4 = op1 & op2
+        } else {
+            ORR_REG_LSL_IMM8(s3, s3, s4, 0);    // s3 = op1 | op2
+            PUSH(xSP, 1<<s3);
+            MOVW(s3, c);
+            AND_REG_LSL_IMM5(s4, s4, s3, 0);    // s4 = op1 & op2
+            POP(xSP, 1<<s3);
+        }
+        BIC_REG_LSL_IMM8(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
+        ORR_REG_LSL_IMM8(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
+        UBFX(s4, s3, 3, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cNE, s3, 0);
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_CF) {
+        MOVW_COND(cCS, s4, 1);
+        MOVW_COND(cCC, s4, 0);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
+    IFX(X_OF) {
+        MOVW_COND(cVC, s4, 0);
+        MOVW_COND(cVS, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
+    IFX(X_SF) {
+        UBFX(s3, s1, 31, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    }
+    IFX(X_PF) {
+        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
+        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+        AND_IMM8(s3, s1, 31);
+        MVN_REG_LSR_REG(s4, s4, s3);
+        AND_IMM8(s4, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    }
+}
