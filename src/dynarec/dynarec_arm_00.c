@@ -553,12 +553,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC reg");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             gd = xEAX+(opcode&0x07);
-            UFLAG_OP1(gd);
-            ADD_IMM8(gd, gd, 1);
-            UFLAG_RES(gd);
-            UFLAG_DF(x1, d_inc32);
+            emit_add32c(dyn, ninst, gd, 1, x3, x12);
             break;
         case 0x48:
         case 0x49:
@@ -569,12 +566,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC reg");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             gd = xEAX+(opcode&0x07);
-            UFLAG_OP1(gd);
-            SUB_IMM8(gd, gd, 1);
-            UFLAG_RES(gd);
-            UFLAG_DF(x1, d_dec32);
+            emit_sub32c(dyn, ninst, gd, 1, x3, x12);
             break;
         case 0x50:
         case 0x51:
@@ -2538,23 +2532,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
-                    UFLAG_OP1(x1);
-                    ADD_IMM8(x1, x1, 1);
+                    emit_add8c(dyn, ninst, x1, 1, x2, x12);
                     EBBACK;
-                    UFLAG_RES(x1);
-                    UFLAG_DF(x1, d_inc8);
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
-                    UFLAG_OP1(x1);
-                    SUB_IMM8(x1, x1, 1);
+                    emit_sub8c(dyn, ninst, x1, 1, x2, x12);
                     EBBACK;
-                    UFLAG_RES(x1);
-                    UFLAG_DF(x1, d_dec8);
                     break;
                 default:
                     INST_NAME("Grp5 Ed");
@@ -2567,23 +2555,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED;
-                    UFLAG_OP1(ed);
-                    ADD_IMM8(ed, ed, 1);
+                    emit_add32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x1, d_inc32);
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED;
-                    UFLAG_OP1(ed);
-                    SUB_IMM8(ed, ed, 1);
+                    emit_sub32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x1, d_dec32);
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
