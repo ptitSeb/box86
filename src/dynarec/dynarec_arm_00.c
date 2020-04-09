@@ -113,7 +113,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x12, x12, (wb1 && (wback==x3))?1:0);
+            emit_or8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
             break;
         case 0x09:
@@ -553,9 +553,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC reg");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SET);
             gd = xEAX+(opcode&0x07);
-            emit_add32c(dyn, ninst, gd, 1, x3, x12);
+            emit_inc32(dyn, ninst, gd, x3, x12);
             break;
         case 0x48:
         case 0x49:
@@ -566,9 +566,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC reg");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SET);
             gd = xEAX+(opcode&0x07);
-            emit_sub32c(dyn, ninst, gd, 1, x3, x12);
+            emit_dec32(dyn, ninst, gd, x3, x12);
             break;
         case 0x50:
         case 0x51:
@@ -2532,16 +2532,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETEB(x1);
-                    emit_add8c(dyn, ninst, x1, 1, x2, x12);
+                    emit_inc8(dyn, ninst, x1, x2, x12);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETEB(x1);
-                    emit_sub8c(dyn, ninst, x1, 1, x2, x12);
+                    emit_dec8(dyn, ninst, x1, x2, x12);
                     EBBACK;
                     break;
                 default:
@@ -2555,16 +2555,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETED;
-                    emit_add32c(dyn, ninst, ed, 1, x3, x12);
+                    emit_dec32(dyn, ninst, ed, x3, x12);
                     WBACK;
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETED;
-                    emit_sub32c(dyn, ninst, ed, 1, x3, x12);
+                    emit_dec32(dyn, ninst, ed, x3, x12);
                     WBACK;
                     break;
                 case 2: // CALL Ed

@@ -291,10 +291,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg16");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SET);
             gd = xEAX+(opcode&7);
             UXTH(x1, gd, 0);
-            emit_add16c(dyn, ninst, x1, 1, x3, x12);
+            emit_inc16(dyn, ninst, x1, x3, x12);
             BFI(gd, x1, 0, 16);
             break;
         case 0x48:
@@ -306,10 +306,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg16");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SET);
             gd = xEAX+(opcode&7);
             UXTH(x1, gd, 0);
-            emit_sub16c(dyn, ninst, x1, 1, x3, x12);
+            emit_dec16(dyn, ninst, x1, x3, x12);
             BFI(gd, x1, 0, 16);
             break;
         case 0x50:
@@ -880,16 +880,16 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Ew");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETEW(x1);
-                    emit_add16c(dyn, ninst, x1, 1, x2, x12);
+                    emit_inc16(dyn, ninst, x1, x2, x12);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Ew");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SET);
                     GETEW(x1);
-                    emit_sub16c(dyn, ninst, x1, 1, x2, x12);
+                    emit_dec16(dyn, ninst, x1, x2, x12);
                     EWBACK;
                     break;
                 default:
