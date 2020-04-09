@@ -1610,31 +1610,26 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC0:
             INST_NAME("XADD Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            UFLAG_OP12(gd, ed);
+            BFI(gb1, ed, gb2*8, 8); // gb <- eb
+            emit_add8(dyn, ninst, ed, gd, x12, x3, 1);
             ADD_REG_LSL_IMM5(x12, ed, gd, 0);
-            UFLAG_RES(x12);
-            gd = ed;
-            GBBACK;
-            ed = x12;
             EBBACK;
-            UFLAG_DF(x3, d_add8);
             break;
         case 0xC1:
             INST_NAME("XADD Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
             GETED;
-            UFLAG_OP12(gd, ed);
-            ADD_REG_LSL_IMM5(x12, gd, ed, 0);
-            UFLAG_RES(x12);
-            MOV_REG(gd, ed);
-            SBACK(x12);
-            UFLAG_DF(x1, d_add32);
+            XOR_REG_LSL_IMM8(gd, gd, ed, 0);    // swap gd, ed
+            XOR_REG_LSL_IMM8(ed, gd, ed, 0);
+            XOR_REG_LSL_IMM8(gd, gd, ed, 0);
+            emit_add32(dyn, ninst, ed, gd, x3, x12);
+            WBACK;
             break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex");
