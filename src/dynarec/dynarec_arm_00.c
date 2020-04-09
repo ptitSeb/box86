@@ -109,14 +109,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            ORR_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_or8(dyn, ninst, x1, x2, x12, x12, (wb1 && (wback==x3))?1:0);
             EBBACK;
-            UFLAG_DF(x3, d_or8);
             break;
         case 0x09:
             INST_NAME("OR Ed, Gd");
@@ -129,14 +127,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x0A:
             INST_NAME("OR Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            ORR_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_or8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
-            UFLAG_DF(x3, d_or8);
             break;
         case 0x0B:
             INST_NAME("OR Gd, Ed");
@@ -148,13 +144,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x0C:
             INST_NAME("OR AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            ORR_IMM8(x1, x1, u8, 0);
-            UFLAG_RES(x1);
+            emit_or8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
-            UFLAG_DF(x3, d_or8);
             break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
@@ -306,14 +300,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            AND_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_and8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
-            UFLAG_DF(x3, d_and8);
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
@@ -326,14 +318,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x22:
             INST_NAME("AND Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            AND_REG_LSL_IMM5(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_and8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
-            UFLAG_DF(x3, d_and8);
             break;
         case 0x23:
             INST_NAME("AND Gd, Ed");
@@ -348,10 +338,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_PENDING);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            AND_IMM8(x1, x1, u8);
-            UFLAG_RES(x1);
+            emit_and8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
-            UFLAG_DF(x3, d_and8);
             break;
         case 0x25:
             INST_NAME("AND EAX, Id");
@@ -436,14 +424,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x30:
             INST_NAME("XOR Eb, Gb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            XOR_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_xor8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
-            UFLAG_DF(x3, d_xor8);
             break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
@@ -456,14 +442,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x32:
             INST_NAME("XOR Gb, Eb");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            XOR_REG_LSL_IMM8(x1, x1, x2, 0);
-            UFLAG_RES(x1);
+            emit_xor8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
-            UFLAG_DF(x3, d_xor8);
             break;
         case 0x33:
             INST_NAME("XOR Gd, Ed");
@@ -475,13 +459,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x34:
             INST_NAME("XOR AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            XOR_IMM8(x1, x1, u8);
-            UFLAG_RES(x1);
+            emit_xor8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
-            UFLAG_DF(x3, d_xor8);
             break;
         case 0x35:
             INST_NAME("XOR EAX, Id");
@@ -828,13 +810,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1: //OR
                     INST_NAME("OR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    ORR_IMM8(x1, x1, u8, 0);
-                    UFLAG_RES(x1);
+                    emit_or8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
-                    UFLAG_DF(x3, d_or8);
                     break;
                 case 2: //ADC
                     INST_NAME("ADC Eb, Ib");
@@ -860,31 +840,27 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: //AND
                     INST_NAME("AND Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    AND_IMM8(x1, x1, u8);
-                    UFLAG_RES(x1);
+                    emit_and8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
-                    UFLAG_DF(x3, d_and8);
                     break;
                 case 5: //SUB
                     INST_NAME("SUB Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    emit_sub8c(dyn, ninst, x1, u8, x3, x12);
+                    emit_sub8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
                     break;
                 case 6: //XOR
                     INST_NAME("XOR Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     u8 = F8;
-                    XOR_IMM8(x1, x1, u8);
-                    UFLAG_RES(x1);
+                    emit_xor8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
-                    UFLAG_DF(x3, d_xor8);
                     break;
                 case 7: //CMP
                     INST_NAME("CMP Eb, Ib");

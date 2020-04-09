@@ -342,6 +342,12 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_xor32c     STEPNAME(emit_xor32c)
 #define emit_and32      STEPNAME(emit_and32)
 #define emit_and32c     STEPNAME(emit_and32c)
+#define emit_or8        STEPNAME(emit_or8)
+#define emit_or8c       STEPNAME(emit_or8c)
+#define emit_xor8       STEPNAME(emit_xor8)
+#define emit_xor8c      STEPNAME(emit_xor8c)
+#define emit_and8       STEPNAME(emit_and8)
+#define emit_and8c      STEPNAME(emit_and8c)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -411,6 +417,12 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_and32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
