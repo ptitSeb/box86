@@ -117,7 +117,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            CALL_(adc16, x1, (1<<x3));
+            emit_adc16(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
             break;
         case 0x13:
@@ -127,7 +127,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            CALL_(adc16, x1, (1<<x3));
+            emit_adc16(dyn, ninst, x1, x2, x12, x3, 0);
             GWBACK;
             break;
         case 0x15:
@@ -135,9 +135,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET);
             READFLAGS(X_CF);
             i32 = F16;
-            MOV32(x2, i32);
             UXTH(x1, xEAX, 0);
-            CALL_(adc16, x1, (1<<x3));
+            emit_adc16c(dyn, ninst, x1, i32, x3, x12);
             BFI(xEAX, x1, 0, 16);
             break;
 
@@ -407,8 +406,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     READFLAGS(X_CF);
                     GETEW(x1);
                     if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    MOVW(x2, i16);
-                    CALL(adc16, ed, ((wback<xEAX)?(1<<wback):0));
+                    emit_adc16c(dyn, ninst, x1, i16, x2, x12);
                     EWBACK;
                     break;
                 case 3: //SBB
