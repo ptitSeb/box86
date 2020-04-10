@@ -224,7 +224,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            CALL_(sbb8, x1, (1<<x3));
+            emit_sbb8(dyn, ninst, x1, x2, x12, x3, (wb1 && (wback==x3))?1:0);
             EBBACK;
             break;
         case 0x19:
@@ -244,7 +244,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            CALL_(sbb8, x1, 0);
+            emit_sbb8(dyn, ninst, x1, x2, x3, x12, 0);
             GBBACK;
             break;
         case 0x1B:
@@ -262,8 +262,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             u8 = F8;
             UXTB(x1, xEAX, 0);
-            MOVW(x2, u8);
-            CALL_(sbb8, x1, 0);
+            emit_sbb8c(dyn, ninst, x1, u8, x3, x12);
             BFI(xEAX, x1, 0, 8);
             break;
         case 0x1D:
@@ -816,9 +815,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     READFLAGS(X_CF);
                     GETEB(x1);
                     u8 = F8;
-                    MOVW(x2, u8);
-                    CALL_(sbb8, x1, (1<<x3));
-                    UFLAG_RES(x1);
+                    emit_sbb8c(dyn, ninst, x1, u8, x2, x12);
                     EBBACK;
                     break;
                 case 4: //AND
