@@ -121,16 +121,25 @@ Op is 20-27
 // sub.s dst, src, #(imm8)
 #define SUBS_IMM8(dst, src, imm8) \
     EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
-// add dst, src1, src2, lsl #imm
+// sub dst, src1, src2, lsl #imm
 #define SUB_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0400000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
-// add.s dst, src1, src2, lsl #imm
+// sub.s dst, src1, src2, lsl #imm
 #define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
 // sbc dst, src, #(imm8)
 #define SBC_IMM8(dst, src, imm8) \
     EMIT(0xe2c00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// sbc.s dst, src, #(imm8)
+#define SBCS_IMM8(dst, src, imm8) \
+    EMIT(0xe2d00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// sbc dst, src1, src2, lsl #imm
+#define SBC_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+// sbc.s dst, src1, src2, lsl #imm
+#define SBCS_REG_LSL_IMM8(dst, src1, src2, imm8) \
+    EMIT(0xe0d00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
 
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \

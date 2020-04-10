@@ -233,9 +233,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             nextop = F8;
             GETGD;
-            GETEDW(x12, x1);
-            MOV_REG(x2, gd);
-            CALL_(sbb32, ed, (1<<x12));
+            GETED;
+            emit_sbb32(dyn, ninst, ed, gd, x3, x12);
             WBACK;
             break;
         case 0x1A:
@@ -254,9 +253,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             nextop = F8;
             GETGD;
-            GETEDW(x12, x2);
-            MOV_REG(x1, gd);
-            CALL_(sbb32, gd, 0);
+            GETED;
+            emit_sbb32(dyn, ninst, gd, ed, x3, x12);
             break;
         case 0x1C:
             INST_NAME("SBB AL, Ib");
@@ -273,9 +271,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET);
             READFLAGS(X_CF);
             i32 = F32S;
-            MOV_REG(x1, xEAX);
-            MOV32(x2, i32);
-            CALL_(sbb32, xEAX, 0);
+            emit_sbb32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
         case 0x1E:
             INST_NAME("PUSH DS");
@@ -900,11 +896,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
                     READFLAGS(X_CF);
-                    GETEDW(x3, x1);
+                    GETED;
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    MOV32(x2, i32);
-                    CALL(sbb32, ed, (wback?(1<<wback):0));
-                    WBACK;
+                    emit_sbb32c(dyn, ninst, ed, i32, x3, x12);
                     break;
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
