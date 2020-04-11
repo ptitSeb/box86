@@ -376,7 +376,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_sbb8c      STEPNAME(emit_sbb8c)
 #define emit_sbb16      STEPNAME(emit_sbb16)
 #define emit_sbb16c     STEPNAME(emit_sbb16c)
-
+#define emit_neg32      STEPNAME(emit_neg32)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -480,6 +480,7 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
 void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call

@@ -144,6 +144,9 @@ Op is 20-27
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \
     EMIT(0xe2600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// rsb.s dst, src, #(imm8)
+#define RSBS_IMM8(dst, src, imm8) \
+    EMIT(0xe2700000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // rsb cond dst, src, #(imm8)
 #define RSB_COND_IMM8(cond, dst, src, imm8) \
     EMIT((cond) | 0x02600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
