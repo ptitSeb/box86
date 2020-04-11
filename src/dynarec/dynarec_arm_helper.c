@@ -343,10 +343,14 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
+    if(!addr)
+        return 0;
     if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
         uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
         addr = *(uint32_t*)a1; 
     }
+    if(!addr)
+        return 0;
     onebridge_t *b = (onebridge_t*)(addr);
     if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0) {
         // found !
