@@ -51,7 +51,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             VMOVcond_64(cNE, v1, v2);   // F_CF==1
             break;
         case 0xC8:
@@ -67,7 +67,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             VMOVcond_64(cNE, v1, v2);   // F_ZF==1
             break;
         case 0xD0:
@@ -84,7 +84,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            ORRS_REG_LSL_IMM8(x1, x1, x2, 0);
+            ORRS_REG_LSL_IMM5(x1, x1, x2, 0);
             VMOVcond_64(cNE, v1, v2);   // F_CF==1 | F_ZF==1
             break;
         case 0xD8:
@@ -100,7 +100,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             VMOVcond_64(cNE, v1, v2);   // F_PF==1
             break;       
         case 0xE9:

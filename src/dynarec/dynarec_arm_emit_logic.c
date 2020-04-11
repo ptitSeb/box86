@@ -37,12 +37,12 @@ void emit_or32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        ORRS_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORRS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             MOVW(s3, 0);
         }
     } else {
-        ORR_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -99,9 +99,9 @@ void emit_or32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
     } else {
         IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
-            ORRS_REG_LSL_IMM8(s1, s1, s3, 0);
+            ORRS_REG_LSL_IMM5(s1, s1, s3, 0);
         } else {
-            ORR_REG_LSL_IMM8(s1, s1, s3, 0);
+            ORR_REG_LSL_IMM5(s1, s1, s3, 0);
         }
     }
     IFX(X_CF|X_ZF|X_OF|X_AF) {
@@ -153,12 +153,12 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        XORS_REG_LSL_IMM8(s1, s1, s2, 0);
+        XORS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             MOVW(s3, 0);
         }
     } else {
-        XOR_REG_LSL_IMM8(s1, s1, s2, 0);
+        XOR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -215,9 +215,9 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     } else {
         IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
-            XORS_REG_LSL_IMM8(s1, s1, s3, 0);
+            XORS_REG_LSL_IMM5(s1, s1, s3, 0);
         } else {
-            XOR_REG_LSL_IMM8(s1, s1, s3, 0);
+            XOR_REG_LSL_IMM5(s1, s1, s3, 0);
         }
     }
     IFX(X_CF|X_ZF|X_OF|X_AF) {
@@ -385,14 +385,14 @@ void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        ORRS_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORRS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             IFX(X_PEND) {
                 MOVW(s3, 0);
             }
         }
     } else {
-        ORR_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -496,14 +496,14 @@ void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        XORS_REG_LSL_IMM8(s1, s1, s2, 0);
+        XORS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             IFX(X_PEND) {
                 MOVW(s3, 0);
             }
         }
     } else {
-        XOR_REG_LSL_IMM8(s1, s1, s2, 0);
+        XOR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -719,14 +719,14 @@ void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        ORRS_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORRS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             IFX(X_PEND) {
                 MOVW(s3, 0);
             }
         }
     } else {
-        ORR_REG_LSL_IMM8(s1, s1, s2, 0);
+        ORR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -785,9 +785,9 @@ void emit_or16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
     } else {
         IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
-            ORRS_REG_LSL_IMM8(s1, s1, s3, 0);
+            ORRS_REG_LSL_IMM5(s1, s1, s3, 0);
         } else {
-            ORR_REG_LSL_IMM8(s1, s1, s3, 0);
+            ORR_REG_LSL_IMM5(s1, s1, s3, 0);
         }
     }
     IFX(X_CF|X_ZF|X_OF|X_AF) {
@@ -839,14 +839,14 @@ void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
     }
     IFX(X_ALL) {
-        XORS_REG_LSL_IMM8(s1, s1, s2, 0);
+        XORS_REG_LSL_IMM5(s1, s1, s2, 0);
         IFX(X_CF|X_ZF|X_OF|X_AF) {
             IFX(X_PEND) {
                 MOVW(s3, 0);
             }
         }
     } else {
-        XOR_REG_LSL_IMM8(s1, s1, s2, 0);
+        XOR_REG_LSL_IMM5(s1, s1, s2, 0);
     }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -905,9 +905,9 @@ void emit_xor16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     } else {
         IFX(X_PEND) {} else {MOV32(s3, c);}
         IFX(X_ALL) {
-            XORS_REG_LSL_IMM8(s1, s1, s3, 0);
+            XORS_REG_LSL_IMM5(s1, s1, s3, 0);
         } else {
-            XOR_REG_LSL_IMM8(s1, s1, s3, 0);
+            XOR_REG_LSL_IMM5(s1, s1, s3, 0);
         }
     }
     IFX(X_CF|X_ZF|X_OF|X_AF) {

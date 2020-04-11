@@ -211,18 +211,18 @@
     VMRS_APSR();    /* 0b0100011100000000 */                                    \
     LDRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw));   /*offset is 8bits right?*/   \
     MOVW(s1, 0b0100011100000000);                                               \
-    BIC_REG_LSL_IMM8(s2, s2, s1, 0);                                            \
+    BIC_REG_LSL_IMM5(s2, s2, s1, 0);                                            \
     MOVW_COND(cVS, s1, 0b0100010100000000); /* unordered */                     \
     MOVW_COND(cEQ, s1, 0b0100000000000000); /* zero */                          \
     MOVW_COND(cGT, s1, 0b0000000000000000); /* greater than */                  \
     MOVW_COND(cLO, s1, 0b0000000100000000); /* less than */                     \
-    ORR_REG_LSL_IMM8(s2, s2, s1, 0);                                            \
+    ORR_REG_LSL_IMM5(s2, s2, s1, 0);                                            \
     STRH_IMM8(s2, xEmu, offsetof(x86emu_t, sw))
 
 // Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOMI(s1, s2)    \
     VMRS_APSR();    /* 0b111 */                             \
-    XOR_REG_LSL_IMM8(s2, s2, s2, 0);                        \
+    XOR_REG_LSL_IMM5(s2, s2, s2, 0);                        \
     MOVW_COND(cVS, s1, 0b111); /* unordered */              \
     MOVW_COND(cEQ, s1, 0b100); /* zero */                   \
     MOVW_COND(cGT, s1, 0b000); /* greater than */           \
@@ -248,17 +248,17 @@
     if(dyn->state_flags!=SF_SET) {                      \
         if(dyn->state_flags!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
-            TSTS_REG_LSL_IMM8(x3, x3, 0);               \
+            TSTS_REG_LSL_IMM5(x3, x3, 0);               \
             i32 = (GETMARKF)-(dyn->arm_size+8);         \
             Bcond(cEQ, i32);                            \
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
-        dyn->state_flags = 2;                           \
+        dyn->state_flags = SF_SET;                      \
     }
 #endif
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)      dyn->next_state = B
+#define SETFLAGS(A, B)      dyn->state_flags = B
 #endif
 #ifndef JUMP
 #define JUMP(A) 

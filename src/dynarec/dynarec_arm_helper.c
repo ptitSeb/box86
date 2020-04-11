@@ -80,15 +80,15 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             MOV32(scratch, u32);
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
+                    SUB_REG_LSL_IMM5(scratch, xEAX+(sib&0x07), scratch ,0);
                     ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                 } else {
                     int tmp = xEAX+(sib&0x07);
-                    SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                    SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                 }
             } else {
                 int tmp = xEAX+(nextop&0x07);
-                SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
             }
         } else {
             if(nextop&0x80)
@@ -125,7 +125,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     if((nextop&7)==4) {
                         if (sib_reg!=4) {
                             if(sub) {
-                                SUB_REG_LSL_IMM8(scratch, xEAX+(sib&0x07), scratch ,0);
+                                SUB_REG_LSL_IMM5(scratch, xEAX+(sib&0x07), scratch ,0);
                             } else {
                                 ADD_REG_LSL_IMM5(scratch, scratch, xEAX+(sib&0x07), 0);
                             }
@@ -133,7 +133,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         } else {
                             int tmp = xEAX+(sib&0x07);
                             if(sub) {
-                                SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                                SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                             } else {
                                 ADD_REG_LSL_IMM5(ret, tmp, scratch, 0);
                             }
@@ -141,7 +141,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     } else {
                         int tmp = xEAX+(nextop&0x07);
                         if(sub) {
-                            SUB_REG_LSL_IMM8(ret, tmp, scratch, 0);
+                            SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                         } else {
                             ADD_REG_LSL_IMM5(ret, tmp, scratch, 0);
                         }
@@ -867,7 +867,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
     MESSAGE(LOG_DUMP, "\tPush FPU Cache (%d)------\n", n);
     if(n>=8) {
         MOVW(s1, n*8);
-        SUB_REG_LSL_IMM8(xSP, xSP, s1, 0);
+        SUB_REG_LSL_IMM5(xSP, xSP, s1, 0);
     } else {
         SUB_IMM8(xSP, xSP, n*8);
     }

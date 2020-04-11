@@ -605,10 +605,10 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
             break;
         case d_adc32:
-            if(emu->res == (emu->op1+emu->op2+1)) {
-                lo = 1 + (emu->op1 & 0xFFFF) + (emu->op2 & 0xFFFF);
-            } else {
+            if(emu->res == (emu->op1+emu->op2)) {
                 lo = (emu->op1 & 0xFFFF) + (emu->op2 & 0xFFFF);
+            } else {
+                lo = 1 + (emu->op1 & 0xFFFF) + (emu->op2 & 0xFFFF);
             }
             hi = (lo >> 16) + (emu->op1 >> 16) + (emu->op2 >> 16);
             CONDITIONAL_SET_FLAG(hi & 0x10000, F_CF);

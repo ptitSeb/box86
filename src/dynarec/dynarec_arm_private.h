@@ -27,7 +27,6 @@ typedef struct dynarec_arm_s {
     int                 tablesz;    // size of the jump table
     int                 tablei;     // index
     int                 state_flags;// actual state for on-demand flags
-    int                 next_state; // bext instruction state for on-demand flags
     int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
     int                 x87reg[8];  // reg used for x87cache entry
     int                 mmxcache[8];// cache status for the 8 MMX registers

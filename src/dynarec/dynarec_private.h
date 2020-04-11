@@ -8,7 +8,7 @@
 #define X_ZF    (1<<3)
 #define X_SF    (1<<4)
 #define X_OF    (1<<5)
-#define X_ALL   (0xff)
+#define X_ALL   ((1<<6)-1)
 #define X_PEND  (0x1000)
 
 // all state flags

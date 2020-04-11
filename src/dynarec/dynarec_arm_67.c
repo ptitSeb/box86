@@ -61,7 +61,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             BFI(xECX, x1, 0, 16);
             B_NEXT(cEQ);    // CX is 0, no LOOP
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             GO(cNE, cEQ);
             break;
         case 0xE1:
@@ -73,7 +73,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             BFI(xECX, x1, 0, 16);
             B_NEXT(cEQ);    // CX is 0, no LOOP
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             GO(cEQ, cNE);
             break;
         case 0xE2:
@@ -88,7 +88,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("JCXZ");
             i8 = F8S;
             UXTH(x1, xECX, 0);
-            TSTS_REG_LSL_IMM8(x1, x1, 0);
+            TSTS_REG_LSL_IMM5(x1, x1, 0);
             GO(cNE, cEQ);
             break;
         #undef GO

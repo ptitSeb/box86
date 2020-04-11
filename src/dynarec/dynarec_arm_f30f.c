@@ -471,7 +471,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETED;
             GETGD;
-            TSTS_REG_LSL_IMM8(ed, ed, 0);
+            TSTS_REG_LSL_IMM5(ed, ed, 0);
             RBIT(x1, ed);   // reverse
             CLZ(gd, x1);    // x2 gets leading 0 == TZCNT
             MOVW_COND(cEQ, x1, 1);
@@ -500,14 +500,14 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             MOVW(x2, 0);
             u8 = F8;
             switch(u8&7) {
-                case 0: MVN_COND_REG_LSL_IMM8(cEQ, x2, x2, 0); break;   // Equal
-                case 1: MVN_COND_REG_LSL_IMM8(cCC, x2, x2, 0); break;   // Less than
-                case 2: MVN_COND_REG_LSL_IMM8(cLS, x2, x2, 0); break;   // Less or equal
-                case 3: MVN_COND_REG_LSL_IMM8(cVS, x2, x2, 0); break;   // NaN
-                case 4: MVN_COND_REG_LSL_IMM8(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
-                case 5: MVN_COND_REG_LSL_IMM8(cPL, x2, x2, 0); break;   // Greater or equal or unordered
-                case 6: MVN_COND_REG_LSL_IMM8(cHI, x2, x2, 0); break;   // Greater or unordered
-                case 7: MVN_COND_REG_LSL_IMM8(cVC, x2, x2, 0); break;   // not NaN
+                case 0: MVN_COND_REG_LSL_IMM5(cEQ, x2, x2, 0); break;   // Equal
+                case 1: MVN_COND_REG_LSL_IMM5(cCC, x2, x2, 0); break;   // Less than
+                case 2: MVN_COND_REG_LSL_IMM5(cLS, x2, x2, 0); break;   // Less or equal
+                case 3: MVN_COND_REG_LSL_IMM5(cVS, x2, x2, 0); break;   // NaN
+                case 4: MVN_COND_REG_LSL_IMM5(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                case 5: MVN_COND_REG_LSL_IMM5(cPL, x2, x2, 0); break;   // Greater or equal or unordered
+                case 6: MVN_COND_REG_LSL_IMM5(cHI, x2, x2, 0); break;   // Greater or unordered
+                case 7: MVN_COND_REG_LSL_IMM5(cVC, x2, x2, 0); break;   // not NaN
             }
             VMOVtoDx_32(v0, 0, x2);
             break;

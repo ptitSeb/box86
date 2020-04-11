@@ -122,11 +122,11 @@ Op is 20-27
 #define SUBS_IMM8(dst, src, imm8) \
     EMIT(0xe2500000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // sub dst, src1, src2, lsl #imm
-#define SUB_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0400000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define SUB_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0400000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // sub.s dst, src1, src2, lsl #imm
-#define SUBS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define SUBS_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0500000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 
 // sbc dst, src, #(imm8)
 #define SBC_IMM8(dst, src, imm8) \
@@ -135,11 +135,11 @@ Op is 20-27
 #define SBCS_IMM8(dst, src, imm8) \
     EMIT(0xe2d00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // sbc dst, src1, src2, lsl #imm
-#define SBC_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define SBC_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // sbc.s dst, src1, src2, lsl #imm
-#define SBCS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0d00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define SBCS_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0d00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 
 // rsb dst, src, #(imm8)
 #define RSB_IMM8(dst, src, imm8) \
@@ -199,8 +199,8 @@ Op is 20-27
 #define CMPS_IMM8(src, imm8) \
     EMIT(0xe3500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
 // tst.s dst, src1, src2, lsl #imm
-#define TSTS_REG_LSL_IMM8(src1, src2, imm8) \
-    EMIT(0xe1100000 | ((0) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define TSTS_REG_LSL_IMM5(src1, src2, imm5) \
+    EMIT(0xe1100000 | ((0) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // tst.s dst, src1, #imm
 #define TSTS_IMM8(src, imm8) \
     EMIT(0xe3100000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -208,11 +208,11 @@ Op is 20-27
 #define TSTS_IMM8_ROR(src, imm8, rot) \
     EMIT(0xe3100000 | ((0) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
 // orr dst, src1, src2, lsl #imm
-#define ORR_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define ORR_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // orr.s dst, src1, src2, lsl #imm
-#define ORRS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define ORRS_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // orr dst, src1, #imm8
 #define ORR_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
@@ -223,11 +223,11 @@ Op is 20-27
 #define ORR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // xor dst, src1, src2, lsl #imm
-#define XOR_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define XOR_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // xor.s dst, src1, src2, lsl #imm
-#define XORS_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define XORS_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -243,8 +243,8 @@ Op is 20-27
 #define XOR_REG_LSR_IMM8(dst, src1, src2, imm8) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm8, src2) )
 // bic dst, src1, src2, lsl #imm
-#define BIC_REG_LSL_IMM8(dst, src1, src2, imm8) \
-    EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm8, src2) )
+#define BIC_REG_LSL_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // bic dst, src, IMM8
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
@@ -255,8 +255,8 @@ Op is 20-27
 #define BIC_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // mvn dst, src1, src2, lsl #imm
-#define MVN_REG_LSL_IMM8(dst, rm, imm8) \
-    EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm8, rm) )
+#define MVN_REG_LSL_IMM5(dst, rm, imm5) \
+    EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm5, rm) )
 // mvn dst, src, IMM8
 #define MVN_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3e00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
@@ -267,8 +267,8 @@ Op is 20-27
 #define MVN_REG_LSR_REG(dst, rm, rs) \
     EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | (1<<4) | (1<<5) | (rs<<8) | (rm) )
 // mvn with condition dst, src1, src2, lsl #imm
-#define MVN_COND_REG_LSL_IMM8(cond, dst, rm, imm8) \
-    EMIT(cond | 0x01e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm8, rm) )
+#define MVN_COND_REG_LSL_IMM5(cond, dst, rm, imm5) \
+    EMIT(cond | 0x01e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm5, rm) )
 
 // Single data transfert construction
 #define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
