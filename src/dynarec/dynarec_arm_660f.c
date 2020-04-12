@@ -451,6 +451,14 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(v1);
             VCVTQ_F32_S32(v0, v1);
             break;
+        case 0x5C:
+            INST_NAME("SUBPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VSUB_F64(v0, v0, q0);
+            VSUB_F64(v0+1, v0+1, q0+1);
+            break;
 
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
@@ -1170,6 +1178,35 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0xD1:
+            INST_NAME("PSRLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VMOVD(v0+1, q1);
+            VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
+            VNEGN_16(v0, v0);   // because we want SHR and not SHL
+            VMOVD(v0+1, v0);
+            VSHLQ_U16(q0, q0, v0);
+            break;
+        case 0xD2:
+            INST_NAME("PSRLD Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VNEGN_32(v0, v0);   // because we want SHR and not SHL
+            VMOVD(v0+1, v0);
+            VSHLQ_U32(q0, q0, v0);
+            break;
+
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
             nextop = F8;
@@ -1249,7 +1286,34 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VRHADDQ_U8(v0, v0, q0);
             break;
-
+        case 0xE1:
+            INST_NAME("PSRAW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VMOVD(v0+1, q1);
+            VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
+            VNEGN_16(v0, v0);   // because we want SHR and not SHL
+            VMOVD(v0+1, v0);
+            VSHLQ_S16(q0, q0, v0);
+            break;
+        case 0xE2:
+            INST_NAME("PSRAD Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VNEGN_32(v0, v0);   // because we want SHR and not SHL
+            VMOVD(v0+1, v0);
+            VSHLQ_S32(q0, q0, v0);
+            break;
         case 0xE3:
             INST_NAME("PAVGW Gx,Ex");
             nextop = F8;
