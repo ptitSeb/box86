@@ -290,7 +290,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg16");
-            SETFLAGS(X_ALL&~X_CF, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xEAX+(opcode&7);
             UXTH(x1, gd, 0);
             emit_inc16(dyn, ninst, x1, x3, x12);
@@ -305,7 +305,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg16");
-            SETFLAGS(X_ALL&~X_CF, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xEAX+(opcode&7);
             UXTH(x1, gd, 0);
             emit_dec16(dyn, ninst, x1, x3, x12);
@@ -877,7 +877,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Ew");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEW(x1);
                     emit_inc16(dyn, ninst, x1, x2, x12);
                     EWBACK;

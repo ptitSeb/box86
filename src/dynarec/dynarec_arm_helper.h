@@ -258,7 +258,10 @@
     }
 #endif
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)      dyn->state_flags = B
+#define SETFLAGS(A, B)  \
+    if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~(A|X_PEND)))) \
+        READFLAGS(dyn->insts[ninst].x86.need_flags&(~A));    \
+    dyn->state_flags = (B==SF_SUBSET)?SF_SET:B
 #endif
 #ifndef JUMP
 #define JUMP(A) 

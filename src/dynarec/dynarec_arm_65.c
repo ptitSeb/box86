@@ -32,9 +32,9 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int fixedaddress;
     switch(opcode) {
         case 0x33:
-            grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("XOR Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET);
+            grab_tlsdata(dyn, addr, ninst, x12);
             nextop = F8;
             GETGD;
             GETEDO(x12);
@@ -42,8 +42,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0x89:
-            grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("MOV GS:Ed, Gd");
+            grab_tlsdata(dyn, addr, ninst, x12);
             nextop=F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {   // reg <= reg
@@ -55,8 +55,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0x8B:
-            grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("MOV Gd, GS:Ed");
+            grab_tlsdata(dyn, addr, ninst, x12);
             nextop=F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {   // reg <= reg
@@ -68,8 +68,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xA1:
-            grab_tlsdata(dyn, addr, ninst, x1);
             INST_NAME("MOV EAX, GS:Id");
+            grab_tlsdata(dyn, addr, ninst, x1);
             i32 = F32S;
             if(i32>-4096 && i32<4096) {
                 LDR_IMM9(xEAX, x1, i32);
@@ -81,8 +81,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xA3:
-            grab_tlsdata(dyn, addr, ninst, x1);
             INST_NAME("MOV GS:Od, EAX");
+            grab_tlsdata(dyn, addr, ninst, x1);
             u32 = F32;
             MOV32(x2, u32);
             ADD_REG_LSL_IMM5(x2, x1, x2, 0);
@@ -90,8 +90,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xC7:
-            grab_tlsdata(dyn, addr, ninst, x12);
             INST_NAME("MOV GS:Ed, Id");
+            grab_tlsdata(dyn, addr, ninst, x12);
             nextop=F8;
             if((nextop&0xC0)==0xC0) {   // reg <= i32
                 i32 = F32S;

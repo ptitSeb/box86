@@ -542,7 +542,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC reg");
-            SETFLAGS(X_ALL&~X_CF, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xEAX+(opcode&0x07);
             emit_inc32(dyn, ninst, gd, x3, x12);
             break;
@@ -555,7 +555,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC reg");
-            SETFLAGS(X_ALL&~X_CF, SF_SET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
             gd = xEAX+(opcode&0x07);
             emit_dec32(dyn, ninst, gd, x3, x12);
             break;
@@ -2492,13 +2492,24 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF8:
             INST_NAME("CLC");
-            SETFLAGS(X_CF, SF_MAYSET);
-            MOVW(x1, 0);
+            i32 = dyn->state_flags; //TODO: find a better way to do this
+            SETFLAGS(X_CF, SF_SUBSET);
+            if(i32!=SF_SET) {
+                MOVW(x1, d_none);
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            } else {
+                MOVW(x1, 0);
+            }
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
         case 0xF9:
             INST_NAME("STC");
-            SETFLAGS(X_CF, SF_MAYSET);
+            i32 = dyn->state_flags; //TODO: find a better way to do this
+            SETFLAGS(X_CF, SF_SUBSET);
+            if(i32!=SF_SET) {
+                MOVW(x1, d_none);
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            }
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
@@ -2519,14 +2530,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEB(x1);
                     emit_inc8(dyn, ninst, x1, x2, x12);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEB(x1);
                     emit_dec8(dyn, ninst, x1, x2, x12);
                     EBBACK;
@@ -2542,14 +2553,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETED;
                     emit_inc32(dyn, ninst, ed, x3, x12);
                     WBACK;
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETED;
                     emit_dec32(dyn, ninst, ed, x3, x12);
                     WBACK;
