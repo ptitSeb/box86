@@ -1242,6 +1242,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VBICQ(v0, q0, v0);
             break;
+        case 0xE0:
+            INST_NAME("PAVGB Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VRHADDQ_U8(v0, v0, q0);
+            break;
+
+        case 0xE3:
+            INST_NAME("PAVGW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VRHADDQ_U16(v0, v0, q0);
+            break;
 
         case 0xE5:
             INST_NAME("PMULHW Gx,Ex");

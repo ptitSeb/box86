@@ -1062,4 +1062,19 @@ Op is 20-27
 #define VMAXQ_S32(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
 #define VMAXQ_S64(Dd, Dn, Dm)   EMIT(VMINMAX_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, 0, (Dm)&15))
 
+#define VRHADD_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 1<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Dd <= (Dn + Dm + 1)>>1
+#define VRHADD_U8(Dd, Dn, Dm)   EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADD_U16(Dd, Dn, Dm)  EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADD_U32(Dd, Dn, Dm)  EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADD_S8(Dd, Dn, Dm)   EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADD_S16(Dd, Dn, Dm)  EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADD_S32(Dd, Dn, Dm)  EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_U8(Dd, Dn, Dm)  EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_U16(Dd, Dn, Dm) EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_U32(Dd, Dn, Dm) EMIT(VRHADD_gen(1, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_S8(Dd, Dn, Dm)  EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_S16(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VRHADDQ_S32(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__

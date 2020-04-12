@@ -878,7 +878,11 @@
         GX.q[0] = (~GX.q[0]) & EX->q[0];
         GX.q[1] = (~GX.q[1]) & EX->q[1];
         NEXT;
-
+    _6f_0xE0:  /* PAVGB Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<16; ++i) GX.ub[i] = ((uint16_t)GX.ub[i] + EX->ub[i] + 1)>>1;
+        NEXT;
     _6f_0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GET_EX;
@@ -890,6 +894,11 @@
         GET_EX;
         tmp8u=(EX->q[0]>31)?32:EX->ub[0];
         for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
+        NEXT;
+    _6f_0xE3:  /* PAVGW Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<8; ++i) GX.uw[i] = ((uint16_t)GX.uw[i] + EX->uw[i] + 1)>>1;
         NEXT;
 
     _6f_0xE5:  /* PMULHW Gx, Ex */
