@@ -284,6 +284,18 @@ void DumpDynamicNeeded(elfheader_t *h)
     }
 }
 
+void DumpDynamicRPath(elfheader_t *h)
+{
+    if(box86_log>=LOG_DUMP && h->DynStrTab) {
+        printf_log(LOG_DUMP, "ELF Dump DT_RPATH=====\n");
+        for (int i=0; i<h->numDynamic; ++i)
+            if(h->Dynamic[i].d_tag==DT_RPATH) {
+                printf_log(LOG_DUMP, "  RPATH : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
+            }
+        printf_log(LOG_DUMP, "ELF Dump DT_RPATH=====\n");
+    }
+}
+
 void DumpRelTable(elfheader_t *h, int cnt, Elf32_Rel *rel, const char* name)
 {
     if(box86_log>=LOG_DUMP) {

@@ -591,8 +591,20 @@ expansion, see “System Specific Shared Objects”
 */
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86context_t *box86, x86emu_t* emu)
 {
-   DumpDynamicNeeded(h);
-   for (int i=0; i<h->numDynamic; ++i)
+    DumpDynamicRPath(h);
+    // update RPATH first
+    for (int i=0; i<h->numDynamic; ++i)
+        if(h->Dynamic[i].d_tag==DT_RPATH) {
+            char *rpath = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+            if(strchr(rpath, '$')) {
+                printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
+            } else {
+                AddPath(rpath, &box86->box86_ld_lib, 1);
+            }
+        }
+
+    DumpDynamicNeeded(h);
+    for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
