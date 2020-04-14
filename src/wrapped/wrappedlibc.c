@@ -45,6 +45,7 @@
 #include "signals.h"
 #include "fileutils.h"
 #include "auxval.h"
+#include "elfloader.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -948,7 +949,7 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         lseek(tmp, 0, SEEK_SET);
         #else
         int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode);
+        if(tmp<0) return open(pathname, flags, mode);
         shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         for (int i=1; i<emu->context->argc; ++i)
@@ -989,6 +990,21 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
     }
     return open64(pathname, flags, mode);
 }
+#define TMP_MEMMAP "box86_tmpmemmap"
+EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
+{
+    if(strcmp((const char*)path, "/proc/self/maps")==0) {
+        // special case for self memory map
+        int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen(path, mode); // error fallback
+        shm_unlink(TMP_MEMMAP);    // remove the shm file, but it will still exist because it's currently in use
+        CreateMemorymapFile(emu->context, tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
+    return fopen(path, mode);
+}
+
 
 EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 {

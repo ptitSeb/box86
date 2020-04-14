@@ -50,6 +50,7 @@ void* GetDTatOffset(box86context_t* context, int index, int offset);
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
 #endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
+void CreateMemorymapFile(box86context_t* context, int fd);
 
 
 #endif //__ELF_LOADER_H_

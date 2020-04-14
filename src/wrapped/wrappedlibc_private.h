@@ -358,7 +358,7 @@ GOW(_flushlbf, vFv)
 GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
-GO(fopen, pFpp)
+GOM(fopen, pFEpp)
 GOW(fopen64, pFpp)
 GOM(fopencookie, pFEpppppp)   // last 4p are a struct with 4 callbacks...
 GOM(fork, iFEv) // Weak

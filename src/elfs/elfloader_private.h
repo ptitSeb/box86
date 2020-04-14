@@ -9,6 +9,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 
 struct elfheader_s {
     char*       name;
+    char*       path;   // Resolved path to file
     int         numPHEntries;
     Elf32_Phdr  *PHEntries;
     int         numSHEntries;

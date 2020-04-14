@@ -4,7 +4,10 @@
 #include <string.h>
 #include <elf.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <link.h>
+#include <unistd.h>
 
 #include "box86version.h"
 #include "elfloader.h"
@@ -44,6 +47,11 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     if(!h)
         return NULL;
 
+    // Should be PATH_MAX + 1...
+    h->path = malloc(1024 * sizeof(char));
+    if (realpath(name, h->path) != h->path) {
+        h->path[0] = '\0';
+    }
     return h;
 }
 
@@ -53,10 +61,11 @@ void FreeElfHeader(elfheader_t** head)
         return;
     elfheader_t *h = *head;
 #ifdef DYNAREC
-    dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->name);
+    dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
     FreeDynablockList(&h->blocks);
 #endif
     free(h->name);
+    free(h->path);
     free(h->PHEntries);
     free(h->SHEntries);
     free(h->SHStrTab);
@@ -975,5 +984,34 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
                 printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
+    }
+}
+
+
+void CreateMemorymapFile(box86context_t* context, int fd)
+{
+    char buff[1024];
+    struct stat st;
+    int dummy;
+
+    elfheader_t *h = context->elfs[0];
+    for (int i=0; i<h->numPHEntries; ++i) {
+        if (h->PHEntries[i].p_memsz == 0) continue;
+        
+        if (stat(h->path, &st)) {
+            printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
+            // Some constants, to have "valid" values
+            st.st_dev = makedev(0x03, 0x00);
+            st.st_ino = 0;
+        }
+
+        sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %d %s\n", (uintptr_t)h->PHEntries[i].p_vaddr + h->delta,
+            (uintptr_t)h->PHEntries[i].p_vaddr + h->PHEntries[i].p_memsz + h->delta,
+            (h->PHEntries[i].p_type & (PF_R|PF_X) ? 'r':'-'), (h->PHEntries[i].p_type & PF_W ? 'w':'-'),
+            (h->PHEntries[i].p_type & PF_X ? 'x':'-'), 'p', // p for private or s for shared
+            (uintptr_t)h->PHEntries[i].p_offset,
+            major(st.st_dev), minor(st.st_dev), st.st_ino, h->path);
+        
+        dummy = write(fd, buff, strlen(buff));
     }
 }
