@@ -1187,7 +1187,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVD(v0, q1);
             VMOVD(v0+1, q1);
             VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
-            VMOVD(v0+1, q1);
+            VMOVD(v0+1, v0);
             VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
             VNEGN_16(v0, v0);   // because we want SHR and not SHL
             VMOVD(v0+1, v0);
@@ -1295,7 +1295,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVD(v0, q1);
             VMOVD(v0+1, q1);
             VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
-            VMOVD(v0+1, q1);
+            VMOVD(v0+1, v0);
             VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
             VNEGN_16(v0, v0);   // because we want SHR and not SHL
             VMOVD(v0+1, v0);
