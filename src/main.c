@@ -63,6 +63,7 @@ int x11color16 = 0;
 #endif
 int x11threads = 0;
 int allow_missing_libs = 0;
+int box86_steam = 0;
 char* libGL = NULL;
 
 FILE* ftrace = NULL;
@@ -617,8 +618,9 @@ int main(int argc, const char **argv, const char **env) {
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {
-        printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
+        printf_log(LOG_INFO, "steam detected, forcing emulated libudev, disabling SSSE3, faking 64bits OS\n");
         AddPath("libudev.so.0", &context->box86_emulated_libs, 0);
+        box86_steam = 1;
     }
 
     for(int i=1; i<context->argc; ++i)

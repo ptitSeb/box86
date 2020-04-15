@@ -19,6 +19,7 @@ extern int dlsym_error;  // log dlsym error
 extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
 extern int allow_missing_libs;
+extern int box86_steam;
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

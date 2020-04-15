@@ -187,7 +187,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
-        case 0x38:  // SSE3 opcodes
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETEX(q0);
+            VCMP_F64(v0, q0);
+            FCOMI(x1, x2);
+            break;
+
+        case 0x38:  // SSSE3 opcodes
             nextop = F8;
             switch(nextop) {
                 case 0x00:
@@ -228,20 +241,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
-        case 0x2E:
-            // no special check...
-        case 0x2F:
-            if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET);
-            nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(q0);
-            VCMP_F64(v0, q0);
-            FCOMI(x1, x2);
-            break;
-
-        case 0x3A:  // these are some SSE3 opcodes
+        case 0x3A:  // these are some more SSSE3 opcodes
             opcode = F8;
             switch(opcode) {
                 case 0x0F:
