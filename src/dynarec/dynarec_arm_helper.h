@@ -381,6 +381,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_sbb16c     STEPNAME(emit_sbb16c)
 #define emit_neg32      STEPNAME(emit_neg32)
 #define emit_neg16      STEPNAME(emit_neg16)
+#define emit_neg8       STEPNAME(emit_neg8)
 #define emit_shl32c     STEPNAME(emit_shl32c)
 
 #define x87_do_push     STEPNAME(x87_do_push)
@@ -487,6 +488,7 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 
 // x87 helper

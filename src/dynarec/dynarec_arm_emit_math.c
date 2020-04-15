@@ -2227,3 +2227,65 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
     }
 }
+
+// emit NEG8 instruction, from s1, store result in s1 using s3 and s4 as scratch
+void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        MOVW(s3, d_neg8);
+    } else IFX(X_ALL) {
+        MOVW(s3, d_none);
+    }
+    IFX(X_PEND|X_ALL) {
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, df));
+    }
+    IFX(X_CF) {
+        TSTS_REG_LSL_IMM5(s1, s1, 0);
+        MOVW_COND(cNE, s3, 1);
+        MOVW_COND(cEQ, s3, 0);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
+    IFX(X_AF|X_OF) {
+        MOV_REG_LSL_IMM5(s3, s1, 0);
+    }
+    RSB_IMM8(s1, s1, 0);
+    IFX(X_ZF) {
+        ANDS_IMM8(s1, s1, 0xff);
+        MOVW_COND(cEQ, s4, 1);
+        MOVW_COND(cNE, s4, 0);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_OF) {
+        MOVW_COND(cVC, s4, 0);
+        MOVW_COND(cVS, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+    }
+    IFX(X_AF|X_OF) {
+        ORR_REG_LSL_IMM5(s3, s3, s1, 0);                        // bc = op1 | res
+        IFX(X_AF) {
+            UBFX(s4, s3, 3, 1);
+            STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
+        }
+        IFX(X_OF) {
+            MOV_REG_LSR_IMM5(s4, s3, 6);
+            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+            AND_IMM8(s4, s4, 1);
+            STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+        }
+   }
+    IFX(X_SF) {
+        UBFX(s3, s1, 7, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    }
+    IFX(X_PF) {
+        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
+        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+        AND_IMM8(s3, s1, 31);
+        MVN_REG_LSR_REG(s4, s4, s3);
+        AND_IMM8(s4, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    }
+}

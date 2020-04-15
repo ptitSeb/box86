@@ -2375,11 +2375,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("NEG Eb");
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1);
-                    UFLAG_OP1(x1);
-                    RSB_IMM8(x1, x1, 0);
-                    UFLAG_RES(x1);
+                    emit_neg8(dyn, ninst, x1, x2, x12);
                     EBBACK;
-                    UFLAG_DF(x2, d_neg8);
                     break;
                 case 4:
                     INST_NAME("MUL AL, Ed");
