@@ -827,13 +827,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("NEG Ew");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1);
-                    UFLAG_OP1(ed);
-                    RSB_IMM8(ed, ed, 0);
+                    emit_neg16(dyn, ninst, ed, x2, x12);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x2, d_neg16);
                     break;
                 case 4:
                     INST_NAME("MUL AX, Ew");

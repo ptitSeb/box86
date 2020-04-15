@@ -2435,7 +2435,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("NEG Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED;
                     emit_neg32(dyn, ninst, ed, x3, x12);
                     WBACK;
