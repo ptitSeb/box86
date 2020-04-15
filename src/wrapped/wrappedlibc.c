@@ -65,6 +65,41 @@
 #endif
 #endif
 
+// need to undef all read / read64 stuffs!
+#undef pread
+#undef pwrite
+#undef lseek
+#undef fseeko
+#undef ftello
+#undef fseekpos
+#undef fsetpos
+#undef fgetpos
+#undef fopen
+#undef statfs
+#undef fstatfs
+#undef freopen
+#undef truncate
+#undef ftruncate
+#undef tmpfile
+#undef lockf
+#undef fscanf
+#undef scanf
+#undef sscanf
+#undef vfscanf
+#undef vscanf
+#undef vsscanf
+#undef getc
+#undef putc
+#undef mkstemp
+#undef mkstemps
+#undef mkostemp
+#undef mkostemps
+#undef pread
+#undef pwrite
+#undef creat
+#undef scandir
+#undef mmap
+#undef fcntl
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
@@ -1246,18 +1281,29 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 
+int of_convert(int flag);
 EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
     library_t* lib = GetLib(emu->context->maplib, libcName);
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "fcntl64");
+    if(b==F_SETFL)
+        d1 = of_convert(d1);
     if(f)
         return ((iFiiuuuuuu_t)f)(a, b, d1, d2, d3, d4, d5, d6);
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1, d2, d3, d4);   // should be enough
     return fcntl(a, b, d1, d2, d3, d4, d5, d6);
 }
+
+EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+{
+    if(b==F_SETFL)
+        d1 = of_convert(d1);
+    return fcntl(a, b, d1, d2, d3, d4, d5, d6);
+}
+EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
 
 EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
@@ -1343,41 +1389,6 @@ EXPORT void* my___deregister_frame_info(void* a)
 }
 
 EXPORT void* my____brk_addr = NULL;
-
-// need to undef all read / read64 stuffs!
-#undef pread
-#undef pwrite
-#undef lseek
-#undef fseeko
-#undef ftello
-#undef fseekpos
-#undef fsetpos
-#undef fgetpos
-#undef fopen
-#undef statfs
-#undef fstatfs
-#undef freopen
-#undef truncate
-#undef ftruncate
-#undef tmpfile
-#undef lockf
-#undef fscanf
-#undef scanf
-#undef sscanf
-#undef vfscanf
-#undef vscanf
-#undef vsscanf
-#undef getc
-#undef putc
-#undef mkstemp
-#undef mkstemps
-#undef mkostemp
-#undef mkostemps
-#undef pread
-#undef pwrite
-#undef creat
-#undef scandir
-#undef mmap
 
 // longjmp / setjmp
 typedef struct jump_buff_i386_s {

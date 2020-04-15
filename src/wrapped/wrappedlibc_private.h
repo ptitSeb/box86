@@ -301,8 +301,8 @@ GOW(fchown, iFiuu)
 GO(fchownat, iFipuii)
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
-GOW(fcntl, iFiiuuuuuu)  // this also use a vararg for 3rd argument
-GOW(__fcntl, iFiiuuuuuu)
+GOM(fcntl, iFEiiuuuuuu)  // this also use a vararg for 3rd argument
+GOM(__fcntl, iFEiiuuuuuu)
 GOM(fcntl64, iFEiiuuuuuu)
 GO(fcvt, pFdipp)
 GO(fcvt_r, iFdipppL)
