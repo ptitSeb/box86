@@ -1625,9 +1625,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGD;
             GETED;
-            XOR_REG_LSL_IMM5(gd, gd, ed, 0);    // swap gd, ed
-            XOR_REG_LSL_IMM5(ed, gd, ed, 0);
-            XOR_REG_LSL_IMM5(gd, gd, ed, 0);
+            if(gd!=ed) {
+                XOR_REG_LSL_IMM5(gd, gd, ed, 0);    // swap gd, ed
+                XOR_REG_LSL_IMM5(ed, gd, ed, 0);
+                XOR_REG_LSL_IMM5(gd, gd, ed, 0);
+            }
             emit_add32(dyn, ninst, ed, gd, x3, x12);
             WBACK;
             break;

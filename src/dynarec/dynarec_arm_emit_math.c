@@ -2127,7 +2127,7 @@ void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_AF) {
-        MOV_REG_LSR_IMM5(s3, s1, 0);
+        MOV_REG_LSL_IMM5(s3, s1, 0);
     }
     IFX(X_ZF|X_OF) {
         RSBS_IMM8(s1, s1, 0);
