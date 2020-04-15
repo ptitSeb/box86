@@ -297,6 +297,7 @@ if(ARM_DYNAREC)
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_emit_tests.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_emit_math.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_emit_logic.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_emit_shift.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_pass.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_00.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_0f.c"

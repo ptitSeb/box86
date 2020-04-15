@@ -1494,17 +1494,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SET);
                     GETED;
                     u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32(x12, u8); UFLAG_OP2(x12)
-                    };
-                    UFLAG_OP1(ed);
-                    MOV_REG_LSL_IMM5(ed, ed, u8);
+                    emit_shl32c(dyn, ninst, ed, u8, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl32);
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
@@ -1831,16 +1825,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SET);
                     GETED;
-                    UFLAG_IF {
-                        MOVW(x3, 1);
-                        UFLAG_OP12(ed, x3);
-                    }
-                    MOV_REG_LSL_IMM5(ed, ed, 1);
+                    emit_shl32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl32);
                     break;
                 case 5:
                     INST_NAME("SHR Ed, 1");

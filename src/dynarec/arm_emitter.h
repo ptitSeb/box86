@@ -100,8 +100,14 @@ Op is 20-27
 #define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | (imm5<<7))
 // mov dst, src ror imm5
 #define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | (imm5<<7))
+// mov.s dst, src lsl imm5
+#define MOVS_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | (imm5<<7))
 // mov.s dst, src lsr imm5
 #define MOVS_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | (imm5<<7))
+// mov.s dst, src asr imm5
+#define MOVS_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | (imm5<<7))
+// mov.s dst, src ror imm5
+#define MOVS_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | (imm5<<7))
 
 // mov dst, src lsl rs
 #define MOV_REG_LSL_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (0<<5) | (rs<<8))
@@ -231,6 +237,8 @@ Op is 20-27
 // xor.s dst, src1, src2, lsl #imm
 #define XORS_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0300000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
+#define XOR_REG_LSL_IMM5_COND(cond, dst, src1, src2, imm5) \
+    EMIT((cond) | 0x00200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // xor dst, src, #(imm8)
 #define XOR_IMM8(dst, src, imm8) \
     EMIT(0xe2200000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
