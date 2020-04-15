@@ -1299,6 +1299,15 @@ EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
 
 EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
+    if(b==F_SETFL && d1==0xFFFFF7FF) {
+        // special case for ~O_NONBLOCK...
+        int flags = fcntl(a, F_GETFL);
+        if(flags&O_NONBLOCK) {
+            flags &= ~O_NONBLOCK;
+            return fcntl(a, b, flags);
+        }
+        return 0;
+    }
     if(b==F_SETFL)
         d1 = of_convert(d1);
     return fcntl(a, b, d1, d2, d3, d4, d5, d6);

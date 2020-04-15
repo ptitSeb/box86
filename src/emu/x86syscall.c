@@ -335,6 +335,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             if(R_ECX==4) {
                 // filter out O_NONBLOCK so old stacally linked games that access X11 don't get EAGAIN error sometimes
                 int tmp = of_convert((int)R_EDX)&(~O_NONBLOCK);
+                if(R_EDX==0xFFFFF7FF) {
+                    // special case for ~O_NONBLOCK...
+                    int flags = fcntl(R_EBX, 3);
+                    tmp = flags&~O_NONBLOCK;
+                }
                 R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, tmp);
             } else
                 R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
