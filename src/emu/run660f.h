@@ -255,8 +255,9 @@
                         GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
                         GX.q[1] = (GX.q[1] >> tmp8u) | (EX->q[0] << (64-tmp8u));
                     } else {
-                        GX.q[0] = GX.q[1] >> (tmp8u - 64) | (EX->q[0] << (tmp8u));
-                        GX.q[1] = (EX->q[0] << (64-tmp8u)) | (EX->q[1] >> (tmp8u - 64));
+                        tmp8u -= 64;
+                        GX.q[0] = (GX.q[1] >> tmp8u) | (EX->q[0] << (64 - tmp8u));
+                        GX.q[1] = (EX->q[0] >> tmp8u) | (EX->q[1] >> (64 - tmp8u));
                     }                    
                 }
                 break;
