@@ -386,13 +386,16 @@ void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
 // x87 stuffs
 static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
+#if STEP > 1
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
     dyn->x87stack = 0;
+#endif
 }
 
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
+#if STEP > 1
     if(!dyn->x87stack)
         return;
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
@@ -417,10 +420,12 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     // reset x87stack
     dyn->x87stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+#endif
 }
 
 int x87_do_push(dynarec_arm_t* dyn, int ninst)
 {
+#if STEP > 1
     dyn->x87stack+=1;
     // move all regs in cache, and find a free one
     int ret = -1;
@@ -432,9 +437,13 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
             ret=dyn->x87reg[i]=fpu_get_reg_double(dyn);
         }
     return ret;
+#else
+    return 0;
+#endif
 }
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     dyn->x87stack+=1;
     // move all regs in cache
     for(int i=0; i<8; ++i)
@@ -442,9 +451,11 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
             ++dyn->x87cache[i];
     if(s1)
         x87_stackcount(dyn, ninst, s1);
+#endif
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst)
 {
+#if STEP > 1
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
     for(int i=0; i<8; ++i)
@@ -455,10 +466,12 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
                 dyn->x87reg[i] = -1;
             }
         }
+#endif
 }
 
 static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
+#if STEP > 1
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
         if(dyn->x87cache[i] != -1)
@@ -524,11 +537,13 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
                 dyn->x87cache[i] = -1;
             }
     }
+#endif
 }
 
 #ifdef HAVE_TRACE
 static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
+#if STEP > 1
     x87_stackcount(dyn, ninst, s1);
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
@@ -549,11 +564,13 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
             ADD_REG_LSL_IMM5(s3, s1, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
             VSTR_64(dyn->x87reg[i], s3, 0);    // save the value
         }
+#endif
 }
 #endif
 
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+#if STEP > 1
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st)
@@ -582,16 +599,24 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 
     return ret;
+#else
+    return 0;
+#endif
 }
 
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a)
 {
+#if STEP > 1
     return dyn->x87reg[x87_get_cache(dyn, ninst, s1, s2, a)];
+#else
+    return 0;
+#endif
 }
 
 
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+#if STEP > 1
     x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -613,10 +638,12 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(dyn->x87reg[ret], s2, 0);    // save the value
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
+#endif
 }
 
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+#if STEP > 1
     x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -642,10 +669,12 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     fpu_free_reg_double(dyn, dyn->x87reg[ret]);
     dyn->x87cache[ret] = -1;
     dyn->x87reg[ret] = -1;
+#endif
 }
 
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
+#if STEP > 1
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -690,8 +719,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);
     VLDR_64(dyn->x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
-
-    return;
+#endif
 }
 
 static int round_map[] = {0, 2, 1, 3};  // map x86 -> arm round flag
@@ -719,12 +747,15 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 // MMX helpers
 static void mmx_reset(dynarec_arm_t* dyn, int ninst)
 {
+#if STEP > 1
     for (int i=0; i<8; ++i)
         dyn->mmxcache[i] = -1;
+#endif
 }
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+#if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
@@ -732,18 +763,24 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     VLD1_32(ret, s1);
     return ret;
+#endif
 }
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
 int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+#if STEP > 1
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
     return ret;
+#else
+    return 0;
+#endif
 }
 // purge the MMX cache only(needs 3 scratch registers)
 static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
@@ -765,10 +802,12 @@ static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
+#endif
 }
 #ifdef HAVE_TRACE
 static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
@@ -784,6 +823,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             }
             VST1_32_W(dyn->mmxcache[i], s1);
         }
+#endif
 }
 #endif
 
@@ -791,12 +831,15 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 // SSE / SSE2 helpers
 static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
+#if STEP > 1
     for (int i=0; i<8; ++i)
         dyn->ssecache[i] = -1;
+#endif
 }
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+#if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
     int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
@@ -804,18 +847,26 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     VLD1Q_32(ret, s1);
     return ret;
+#else
+    return 0;
+#endif
 }
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
+#if STEP > 1
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
     int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
     return ret;
+#else
+    return 0;
+#endif
 }
 // purge the SSE cache only(needs 3 scratch registers)
 static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]!=-1) {
@@ -837,10 +888,12 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
+#endif
 }
 #ifdef HAVE_TRACE
 static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]!=-1) {
@@ -856,11 +909,13 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             }
             VST1Q_32_W(dyn->ssecache[i], s1);
         }
+#endif
 }
 #endif
 
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     // only need to push 16-31...
     int n=0;
     for (int i=8; i<24; i++)
@@ -883,10 +938,12 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
         }
     }
     MESSAGE(LOG_DUMP, "\t------- Push FPU Cache (%d)\n", n);
+#endif
 }
 
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
+#if STEP > 1
     // only need to push 16-31...
     int n=0;
     for (int i=8; i<24; i++)
@@ -909,6 +966,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
         ADD_IMM8(xSP, xSP, n*8);
     }
     MESSAGE(LOG_DUMP, "\t------- Pop FPU Cache (%d)\n", n);
+#endif
 }
 
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -941,11 +999,15 @@ void fpu_reset(dynarec_arm_t* dyn, int ninst)
 // get the single reg that from the double "reg" (so Dx[idx])
 int fpu_get_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx)
 {
+#if STEP > 1
     if(reg<16)
         return reg*2+idx;
     int a = fpu_get_scratch_double(dyn);
     VMOV_64(a, reg);
     return a*2+idx;
+#else
+    return 0;
+#endif
 }
 // put back (if needed) the single reg in place
 void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int s)

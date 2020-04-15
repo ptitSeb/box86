@@ -48,6 +48,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // ok, go now
     INIT;
     while(ok) {
+if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
         NEW_INST;
         fpu_reset_scratch(dyn);
@@ -82,7 +83,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(!ok && !need_epilog && !dyn->insts) {   // check if need to continue
             uintptr_t next = get_closest_next(dyn, addr);
             if(next && ((next-addr)<15) && is_nops(dyn, addr, next-addr)) {
-                dynarec_log(LOG_DEBUG, "Extend block, %p -> %p\n", (void*)addr, (void*)next);
+                dynarec_log(LOG_DEBUG, "Extend block %p, %p -> %p (ninst=%d)\n", dyn, (void*)addr, (void*)next, ninst);
                 ok = 1;
             }
         }
