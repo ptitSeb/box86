@@ -37,9 +37,9 @@
 #include "auxval.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
+int box86_dynarec_log = LOG_NONE;
 #ifdef DYNAREC
 int box86_dynarec_dump = 0;
-int box86_dynarec_log = LOG_NONE;
 int box86_dynarec = 1;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;

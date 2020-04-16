@@ -875,6 +875,10 @@ Op is 20-27
 #define VTBL1_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b00, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 // Vector Table lookup, take elements from Dn/Dn+1, and using lookup table Dm, put elements in Dd
 #define VTBL2_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b01, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+// Vector Table lookup eXtension, take elements from Dn, and using lookup table Dm, put elements in Dd, outer element untouched
+#define VTBLX1_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b00, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+// Vector Table lookup eXtension, take elements from Dn/Dn+1, and using lookup table Dm, put elements in Dd, outer element untouched
+#define VTBLX2_8(Dd, Dn, Dm) EMIT(VTBL_gen(((Dd)>>4)&1, (Dn)&15, (Dd)&15, 0b01, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VRECPE_gen(D, size, Vd, F, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b010<<9 | (F)<<8 | (Q)<<6 | (M)<<5 | (Vm))
 // Vector Reciprocal Estimate of Dm to Dd
