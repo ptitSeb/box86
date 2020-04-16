@@ -106,15 +106,12 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
             return needed;
     }
 
-    if(!needed && !dyn->insts[ninst].x86.set_flags) {
+    if(!needed && !dyn->insts[ninst].x86.set_flags && !dyn->insts[ninst].x86.jmp_insts) {
         int start = ninst;
-        int end = ninst+1;
-        while(end<dyn->size && !dyn->insts[end].x86.use_flags && !dyn->insts[end].x86.set_flags)
+        int end = ninst;
+        while(end<dyn->size && !dyn->insts[end].x86.use_flags && !dyn->insts[end].x86.set_flags && !dyn->insts[end].x86.jmp_insts)
             ++end;
-        if(end==dyn->size)
-            needed = X_ALL;
-        else
-            needed = needed_flags(dyn, end, setf, recurse);
+        needed = needed_flags(dyn, end, setf, recurse);
         for(int i=start; i<end; ++i)
             dyn->insts[i].x86.need_flags = needed;
         return needed;
