@@ -15,6 +15,7 @@ void ParseList(const char* List, path_collection_t* collection, int folder);
 void FreeCollection(path_collection_t* collection);
 void CopyCollection(path_collection_t* to, path_collection_t* from);
 void AddPath(const char* path, path_collection_t* collection, int folder);
+void PrependPath(const char* path, path_collection_t* collection, int folder);
 void AppendList(path_collection_t* collection, const char* List, int folder);
 int FindInCollection(const char* path, path_collection_t* collection);
 

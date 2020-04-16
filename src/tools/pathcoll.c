@@ -95,6 +95,24 @@ void AddPath(const char* path, path_collection_t* collection, int folder)
         collection->paths[collection->size++]=strdup(tmp);
     }
 }
+void PrependPath(const char* path, path_collection_t* collection, int folder)
+{
+    char tmp[MAX_PATH];
+    strcpy(tmp, path);
+    int l = strlen(tmp);
+    // skip empty strings
+    if(l) {
+        if(folder && tmp[l-1]!='/')
+            strcat(tmp, "/");
+        if(collection->size==collection->cap) {
+            collection->cap += 4;
+            collection->paths = (char**)realloc(collection->paths, collection->cap*sizeof(char*));
+        }
+        memmove(collection->paths+1, collection->paths, sizeof(char*)*collection->size);
+        collection->paths[0]=strdup(tmp);
+        ++collection->size;
+    }
+}
 
 void AppendList(path_collection_t* collection, const char* List, int folder)
 {

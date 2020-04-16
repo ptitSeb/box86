@@ -605,12 +605,29 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86contex
     // update RPATH first
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_RPATH) {
-            char *rpath = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+            char *rpathref = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+            char* rpath = rpathref;
+            while(strstr(rpath, "$ORIGIN")) {
+                char* origin = strdup(h->path);
+                char* p = strrchr(origin, '/');
+                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin));
+                p = strstr(rpath, "$ORIGIN");
+                memcpy(tmp, rpath, p-rpath);
+                strcat(tmp, origin);
+                strcat(tmp, p+strlen("$ORIGIN"));
+                if(rpath!=rpathref)
+                    free(rpath);
+                rpath = tmp;
+            }
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
-                AddPath(rpath, &box86->box86_ld_lib, 1);
+                printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX86_LD_LIBRARY_PATH\n", rpath);
+                PrependPath(rpath, &box86->box86_ld_lib, 1);
             }
+            if(rpath!=rpathref)
+                free(rpath);
         }
 
     DumpDynamicNeeded(h);
@@ -998,7 +1015,7 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     elfheader_t *h = context->elfs[0];
     for (int i=0; i<h->numPHEntries; ++i) {
         if (h->PHEntries[i].p_memsz == 0) continue;
-        
+
         if (stat(h->path, &st)) {
             printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
             // Some constants, to have "valid" values
