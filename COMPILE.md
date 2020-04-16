@@ -20,9 +20,13 @@ Compiling
  
   _For Pi4. Change to RPI2 or RPI3 for other models._
 
+#### for ODROID
+
+`mkdir build; cd build; cmake .. -DODROID=1; make`
+
 #### for Other ARM Linux
 
- `mkdir build; cd build; cmake .. ; make`
+ `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON; make`
 
 #### for x86 Linux
 
