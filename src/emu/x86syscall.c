@@ -510,6 +510,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             } else
                 R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
             break;
+        case 243: // set_thread_area
+            printf_log(LOG_INFO, "Warning, set_thread_area syscall unsupported yet\n");
+            errno = ENOSYS;
+            R_EAX = (uint32_t)-1;
+            break;
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
             break;
