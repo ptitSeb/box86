@@ -1168,43 +1168,6 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     }
     return execvp(path, argv);
 }
-EXPORT int32_t my_execlp(x86emu_t* emu, void* a, void* b, va_list v)
-{
-    // align?
-    return my_execvp(emu, a, b);
-}
-
-EXPORT int32_t my_execl(x86emu_t* emu, void* a, void* b, void* c, va_list v)
-{
-    int n=1;
-    if(b) {
-        ++n;
-        void** cnt = (void**)c;
-        while(cnt[n]) ++n;
-    }
-    void** params = (void**)calloc(n, sizeof(void*));
-    params[0] = b;
-    memcpy(params+1, c, (n-1)*sizeof(void*));
-    int32_t r = my_execv(emu, a, (char* const*)params);
-    free(params);
-    return r;
-}
-
-EXPORT int32_t my_execle(x86emu_t* emu, void* a, void* b, void* c, va_list v)
-{
-    int n=1;
-    if(b) {
-        ++n;
-        void** cnt = (void**)c;
-        while(cnt[n]) ++n;
-    }
-    void** params = (void**)calloc(n, sizeof(void*));
-    params[0] = b;
-    memcpy(params+1, c, (n-1)*sizeof(void*));
-    int32_t r = execve(a, (char* const*)params, *((void**)c+(n+1)));
-    free(params);
-    return r;
-}
 
 EXPORT void my__Jv_RegisterClasses() {}
 
