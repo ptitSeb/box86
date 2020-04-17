@@ -1512,19 +1512,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF, SF_SET);
                     GETED;
                     u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32(x12, u8); UFLAG_OP2(x12)
-                    };
-                    UFLAG_OP1(ed);
+                    emit_sar32c(dyn, ninst, ed, u8, x3, x12);
                     if(u8) {
-                        MOV_REG_ASR_IMM5(ed, ed, u8);
                         WBACK;
                     }
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar32);
                     break;
                 default:
                     INST_NAME("GRP3 Ed, Ib");
@@ -1833,16 +1827,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("SAR Ed, 1");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF, SF_SET);
                     GETED;
-                    UFLAG_IF {
-                        MOVW(x3, 1);
-                        UFLAG_OP12(ed, x3);
-                    }
-                    MOV_REG_ASR_IMM5(ed, ed, 1);
+                    emit_sar32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar32);
                     break;
             }
             break;
