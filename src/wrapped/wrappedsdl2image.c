@@ -18,7 +18,9 @@
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
+typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef void* (*pFppip_t)(void*, void*, int32_t, void*);
 
 typedef struct sdl2image_my_s {
     pFp_t       IMG_LoadBMP_RW;
@@ -39,6 +41,8 @@ typedef struct sdl2image_my_s {
     pFp_t       IMG_LoadXV_RW;
     pFpi_t      IMG_Load_RW;
     iFppi_t     IMG_SavePNG_RW;
+    pFppi_t     IMG_LoadTexture_RW;
+    pFppip_t    IMG_LoadTextureTyped_RW;
 } sdl2image_my_t;
 
 static void* getSDL2ImageMy(library_t* lib)
@@ -63,6 +67,8 @@ static void* getSDL2ImageMy(library_t* lib)
     GO(IMG_LoadXV_RW,pFp_t)
     GO(IMG_Load_RW,pFpi_t)
     GO(IMG_SavePNG_RW, iFppi_t)
+    GO(IMG_LoadTexture_RW, pFppi_t)
+    GO(IMG_LoadTextureTyped_RW, pFppip_t)
     #undef GO
     return my;
 }
@@ -117,6 +123,26 @@ EXPORT int32_t my2_IMG_SavePNG_RW(x86emu_t* emu, void* a, void* surf, int32_t co
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     int32_t r = my->IMG_SavePNG_RW(rw, surf, compression);
     RWNativeEnd2(rw);
+    return r;
+}
+
+EXPORT void* my2_IMG_LoadTexture_RW(x86emu_t* emu, void* rend, void* a, int32_t b)
+{
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    void* r = my->IMG_LoadTexture_RW(rend, rw, b);
+    if(b==0)
+        RWNativeEnd2(rw);
+    return r;
+}
+
+EXPORT void* my2_IMG_LoadTextureTyped_RW(x86emu_t* emu, void* rend, void* a, int32_t b, void* type)
+{
+    sdl2image_my_t *my = (sdl2image_my_t *)emu->context->sdl2imagelib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    void* r = my->IMG_LoadTextureTyped_RW(rend, rw, b, type);
+    if(b==0)
+        RWNativeEnd2(rw);
     return r;
 }
 

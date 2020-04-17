@@ -46,9 +46,9 @@ GO(IMG_isXV,iFp)
 // IMG_InitWEBP
 // IMG_isSVG
 // IMG_LoadSVG_RW
-// IMG_LoadTexture
-// IMG_LoadTexture_RW
-// IMG_LoadTextureTyped_RW
+GO(IMG_LoadTexture, pFpp)
+GOM(IMG_LoadTexture_RW, pFEppi)
+GOM(IMG_LoadTextureTyped_RW, pFEppip)
 // IMG_QuitJPG
 // IMG_QuitPNG
 // IMG_QuitTIF
