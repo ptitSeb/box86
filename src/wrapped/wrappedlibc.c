@@ -1142,6 +1142,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
         newargv[0] = emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret = execv(newargv[0], newargv);
         free(newargv);
         return ret;
@@ -1153,7 +1154,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX86_PATH / PATH here...
     int x86 = FileIsX86ELF(path);
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p), IsX86=%d\n", path, argv, x86);
+    printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d\n", path, argv, x86);
     if (x86) {
         // count argv...
         int i=0;
@@ -1162,6 +1163,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         newargv[0] = emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
+        printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret = execvp(newargv[0], argv);
         free(newargv);
         return ret;
