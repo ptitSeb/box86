@@ -68,6 +68,10 @@ struct elfheader_s {
     int         fini_done;
 
     char*       memory; // char* and not void* to allow math on memory pointer
+    void**      multiblock;
+    uintptr_t*  multiblock_offs;
+    uint32_t*   multiblock_size;
+    int         multiblock_n;
 #ifdef DYNAREC
     dynablocklist_t *blocks;
 #endif

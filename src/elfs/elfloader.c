@@ -148,18 +148,86 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     }
     if(!offs)
         offs = head->vaddr;
-    printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
-    void* p = mmap((void*)offs, head->memsz
-        , PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS | ((offs)?MAP_FIXED:0)
-        , -1, 0);
-    if(p==MAP_FAILED) {
-        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
-        return 1;
+    if(head->vaddr) {
+        head->multiblock_n = 0; // count PHEntrie with LOAD
+        for (int i=0; i<head->numPHEntries; ++i) 
+            if(head->PHEntries[i].p_type == PT_LOAD)
+                ++head->multiblock_n;
+        head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
+        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        // and now, create all individual blocks
+        head->memory = (char*)0xffffffff;
+        int n = 0;
+        for (int i=0; i<head->numPHEntries; ++i) 
+            if(head->PHEntries[i].p_type == PT_LOAD) {
+                Elf32_Phdr * e = &head->PHEntries[i];
+                uintptr_t bstart = e->p_vaddr;
+                uint32_t bsize = e->p_memsz;
+                uintptr_t balign = e->p_align;
+                if (balign) balign = balign-1; else balign = 1;
+                if(balign<4095) balign = 4095;
+                uintptr_t bend = (bstart + bsize + balign)&(~balign);
+                bstart &= ~balign;
+                int ok = 0;
+                for (int j=0; !ok && j<n; ++j) {
+                    uintptr_t start = head->multiblock_offs[j];
+                    uintptr_t end = head->multiblock_offs[j] + head->multiblock_size[j];
+                    start &= ~balign;
+                    if(((bstart>=start) && (bstart<=end)) || ((bend>=start) && (bend<=end)) || ((bstart<start) && (bend>end))) {
+                        // merge
+                        ok = 1;
+                        if(bstart<start)
+                            head->multiblock_offs[j] = bstart;
+                        head->multiblock_size[j] = ((bend>end)?bend:end) - head->multiblock_offs[j];
+                        --head->multiblock_n;
+                    }
+                }
+                if(!ok) {
+                    head->multiblock_offs[n] = bstart;
+                    head->multiblock_size[n] = bend - head->multiblock_offs[n];
+                    ++n;
+                }
+            }
+        for (int i=0; i<head->multiblock_n; ++i) {
+            
+            printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
+            void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
+                , PROT_READ | PROT_WRITE | PROT_EXEC
+                , MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED
+                , -1, 0);
+            if(p==MAP_FAILED) {
+                printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
+                return 1;
+            }
+            head->multiblock[i] = p;
+            if(p<(void*)head->memory)
+                head->memory = (char*)p;
+        }
+    } else {
+        // vaddr is 0, load everything has a One block
+        printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+        void* p = mmap((void*)offs, head->memsz
+            , PROT_READ | PROT_WRITE | PROT_EXEC
+            , MAP_PRIVATE | MAP_ANONYMOUS | (((offs)?MAP_FIXED:0))
+            , -1, 0);
+        if(p==MAP_FAILED) {
+            printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
+            return 1;
+        }
+        head->memory = p;
+        memset(p, 0, head->memsz);
+        head->delta = (intptr_t)p - (intptr_t)head->vaddr;
+        printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
+
+        head->multiblock_n = 1;
+        head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
+        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        head->multiblock_size[0] = head->memsz;
+        head->multiblock_offs[0] = (uintptr_t)p;
+        head->multiblock[0] = p;
     }
-    head->memory = p;
-    memset(p, 0, head->memsz);
-    head->delta = (intptr_t)p - (intptr_t)head->vaddr;
-    printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
     head->tlsbase = AddTLSPartition(context, head->tlssize);
 
@@ -172,8 +240,13 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 
 void FreeElfMemory(elfheader_t* head)
 {
-    if(head->memory)
-        munmap((void*)head->memory, head->memsz);
+    if(head->multiblock_n) {
+        for(int i=0; i<head->multiblock_n; ++i)
+            munmap(head->multiblock[i], head->multiblock_size[i]);
+        free(head->multiblock);
+        free(head->multiblock_size);
+        free(head->multiblock_offs);
+    }
 }
 
 int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
@@ -757,10 +830,13 @@ int IsAddressInElfSpace(elfheader_t* h, uintptr_t addr)
 {
     if(!h)
         return 0;
-    uintptr_t base = (uintptr_t)GetBaseAddress(h);
-    uintptr_t end = GetLastByte(h);
-    if(addr>=base && addr<=end)
-        return 1;
+    for(int i=0; i<h->multiblock_n; ++i) {
+        uintptr_t base = h->multiblock_offs[i];
+        uintptr_t end = h->multiblock_offs[i] + h->multiblock_size[i] - 1;
+        if(addr>=base && addr<=end)
+            return 1;
+        
+    }
     return 0;
 }
 elfheader_t* FindElfAddress(box86context_t *context, uintptr_t addr)
