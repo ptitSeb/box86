@@ -19,6 +19,7 @@
 #include "emu/x86run_private.h"
 #include "x86trace.h"
 #include "dynarec.h"
+#include "bridge.h"
 
 typedef struct emuthread_s {
 	x86emu_t *emu;
