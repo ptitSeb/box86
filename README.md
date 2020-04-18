@@ -2,8 +2,6 @@
 
 Linux Userspace x86 Emulator with a twist
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=LU8Y2T62ZWFHU)
-
 Box86 will let you run x86 Linux programs (games) on non-x86 Linux, like ARM (host system needs to be 32bit little-endian).
 
 Because Box86 uses the native version for some "system" libraries, like libc, libm, or SDL and OpenGL, it's easy to integrate and use, and performances can be surprinsigly high in some cases.
