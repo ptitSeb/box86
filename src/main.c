@@ -35,6 +35,7 @@
 #include "librarian.h"
 #include "library.h"
 #include "auxval.h"
+#include "threads.h"
 
 int box86_log = LOG_INFO;//LOG_NONE;
 int box86_dynarec_log = LOG_NONE;
@@ -68,6 +69,10 @@ char* libGL = NULL;
 
 FILE* ftrace = NULL;
 
+void initAllHelpers(box86context_t *context)
+{
+    init_pthread_helper(context);
+}
 #ifdef DYNAREC
 void GatherDynarecExtensions()
 {
@@ -699,6 +704,7 @@ int main(int argc, const char **argv, const char **env) {
     SetEAX(context->emu, context->argc);
     SetEBX(context->emu, (uint32_t)context->argv);
     setupTraceInit(context);
+    initAllHelpers(context);
     // export symbols
     AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
     // pre-load lib if needed

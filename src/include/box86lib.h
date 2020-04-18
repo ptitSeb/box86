@@ -11,5 +11,6 @@ int GatherEnv(char*** dest, const char** env, const char* prog);
 void LoadEnvVars(box86context_t *context);
 void setupTraceInit(box86context_t* context);
 void setupTrace(box86context_t* context);
+void initAllHelpers(box86context_t* context);
 
 #endif //_BOX86LIB_H_

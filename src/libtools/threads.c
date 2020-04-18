@@ -248,102 +248,82 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 
 KHASH_MAP_INIT_INT(once, int)
 
-#define nb_dtor	16
-typedef void(*key_dtor)(void*);
-static x86emu_t *dtor_emu[nb_dtor] = {0};
-static void key_dtor_callback(int n, void* a)
-{
-	if(dtor_emu[n]) {
-		SetCallbackArg(dtor_emu[n], 0, a);
-		RunCallback(dtor_emu[n]);
-	}
-}
-#define GO(N) \
-void key_dtor_callback_##N(void* a) \
-{ \
-	key_dtor_callback(N, a); \
-}
-GO(0)
-GO(1)
-GO(2)
-GO(3)
-GO(4)
-GO(5)
-GO(6)
-GO(7)
-GO(8)
-GO(9)
-GO(10)
-GO(11)
-GO(12)
-GO(13)
-GO(14)
+static box86context_t *my_context = NULL;
+
+#define SUPER() \
+GO(0)			\
+GO(1)			\
+GO(2)			\
+GO(3)			\
+GO(4)			\
+GO(5)			\
+GO(6)			\
+GO(7)			\
+GO(8)			\
+GO(9)			\
+GO(10)			\
+GO(11)			\
+GO(12)			\
+GO(13)			\
+GO(14)			\
 GO(15)
+
+// once_callback
+#define GO(A)   \
+static uintptr_t my_once_callback_fct_##A = 0;  \
+static void my_once_callback_##A()    			\
+{                                       		\
+    RunFunction(my_context, my_once_callback_fct_##A, 0, 0);\
+}
+SUPER()
 #undef GO
-static const key_dtor dtor_cb[nb_dtor] = {
-	 key_dtor_callback_0, key_dtor_callback_1, key_dtor_callback_2, key_dtor_callback_3
-	,key_dtor_callback_4, key_dtor_callback_5, key_dtor_callback_6, key_dtor_callback_7
-	,key_dtor_callback_8, key_dtor_callback_9, key_dtor_callback_10,key_dtor_callback_11
-	,key_dtor_callback_12,key_dtor_callback_13,key_dtor_callback_14,key_dtor_callback_15
-};
-// TODO: put all this in libpthread private stuff...
-static __thread x86emu_t *once_emu = NULL;
-static __thread uintptr_t once_fnc = 0;
-static void my_thread_once_callback()
+static void* findonce_callbackFct(void* fct)
 {
-	if(!once_emu)
-		return;
-	EmuCall(once_emu, once_fnc);
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_once_callback_fct_##A == (uintptr_t)fct) return my_once_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_once_callback_fct_##A == 0) {my_once_callback_fct_##A = (uintptr_t)fct; return my_once_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pthread once_callback callback\n");
+    return NULL;
 }
-static __thread x86emu_t *once2_emu = NULL;
-static __thread uintptr_t once2_fnc = 0;
-static void my_thread_once2_callback()
+// key_destructor
+#define GO(A)   \
+static uintptr_t my_key_destructor_fct_##A = 0;  \
+static void my_key_destructor_##A(void* a)    			\
+{                                       		\
+    RunFunction(my_context, my_key_destructor_fct_##A, 1, a);\
+}
+SUPER()
+#undef GO
+static void* findkey_destructorFct(void* fct)
 {
-	if(!once2_emu)
-		return;
-	EmuCall(once2_emu, once2_fnc);
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_key_destructor_fct_##A == (uintptr_t)fct) return my_key_destructor_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_key_destructor_fct_##A == 0) {my_key_destructor_fct_##A = (uintptr_t)fct; return my_key_destructor_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pthread key_destructor callback\n");
+    return NULL;
 }
+
+#undef SUPER
 
 int EXPORT my_pthread_once(x86emu_t* emu, void* once, void* cb)
 {
-	if(pthread_mutex_trylock(&emu->context->mutex_once)==EBUSY)
-	{
-		// 2nd level...
-		pthread_mutex_lock(&emu->context->mutex_once2);
-		once2_emu = emu;
-		once2_fnc = (uintptr_t)cb;
-		int ret = pthread_once(once, my_thread_once2_callback);
-		once_emu = NULL;
-		pthread_mutex_unlock(&emu->context->mutex_once2);
-		return ret;
-	} else {
-		once_emu = emu;
-		once_fnc = (uintptr_t)cb;
-		int ret = pthread_once(once, my_thread_once_callback);
-		once_emu = NULL;
-
-		pthread_mutex_unlock(&emu->context->mutex_once);
-		return ret;
-	}
+	return pthread_once(once, findonce_callbackFct(cb));
 }
 EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 
 EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 {
-	if(!dtor)
-		return pthread_key_create((pthread_key_t*)key, NULL);
-	int n = 0;
-	while (n<nb_dtor) {
-		if(!dtor_emu[n] || GetCallbackAddress(dtor_emu[n])==((uintptr_t)dtor)) {
-			if(!dtor_emu[n]) 
-				dtor_emu[n] = AddSmallCallback(emu, (uintptr_t)dtor, 1, NULL, NULL, NULL, NULL);
-			return pthread_key_create((pthread_key_t*)key, dtor_cb[n]);
-		}
-		++n;
-	}
-	printf_log(LOG_NONE, "Error: pthread_key_create with destructor: no more slot!\n");
-	emu->quit = 1;
-	return -1;
+	return pthread_key_create(key, findkey_destructorFct(dtor));
 }
 EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
@@ -470,4 +450,14 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
     if(thread==NULL && sig==0)
         return pthread_kill(pthread_self(), 0);
     return pthread_kill((pthread_t)thread, sig);
+}
+
+void init_pthread_helper(box86context_t* context)
+{
+	my_context = context;
+}
+
+void fini_pthread_helper()
+{
+	my_context = NULL;
 }
