@@ -182,7 +182,7 @@ GO(sem_close, iFp)
 GO(sem_destroy, iFp)
 GO(sem_getvalue, iFpp)
 GO(sem_init, iFpiu)
-GO(sem_open, pFpiuu)    // there is 2 versions?
+GO(sem_open, pFpiuuuuuuu)    // use a vararg at 3rd arg, so putting lots of args to be sure, even if only 2 are needed
 GO(sem_post, iFp)
 GO(sem_timedwait, iFpp)
 GO(sem_trywait, iFp)

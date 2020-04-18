@@ -77,6 +77,15 @@ EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cp
 
 EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 {
+    int policy;
+    pthread_attr_getschedpolicy(attr, &policy);
+    int pmin = sched_get_priority_min(policy);
+    int pmax = sched_get_priority_max(policy);
+    if(param) {
+        int p = *(int*)param;
+        if(p>=pmin && p<=pmax)
+            return pthread_attr_setschedparam(attr, param);
+    }
     printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(%p, %p[%d]) ignored\n", attr, param, param?(*(int*)param):-1);
     return 0;   // faking success
 }
