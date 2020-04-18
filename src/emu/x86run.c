@@ -396,22 +396,10 @@ _trace:
             R_EAX = Pop(emu);
             NEXT;
         _0x64:                      /* FS: */
-
-            switch(F8)
-            {
-            case 0xA1:
-                tmp32s = F32S;
-                R_EAX = *(uint32_t*)((emu->segs[_FS]) + tmp32s);
-                break;
-            case 0x89:
-                nextop = F8;
-                GET_ED_OFFS(emu->segs[_FS]);
-                ED->dword[0] = GD.dword[0];
-                break;
-            default:
-                UnimpOpcode(emu);
-            }
-
+            emu->old_ip = old_ip;
+            R_EIP = ip;
+            RunFS(emu); // implemented in Run66.c
+            ip = R_EIP;
             if(emu->quit) goto fini;
             NEXT;
         _0x65:                      /* GS: */
