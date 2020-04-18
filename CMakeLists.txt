@@ -376,7 +376,7 @@ if(ARM_DYNAREC)
 endif()
 
 if(NOT NOLOADADDR)
-    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x03800000)
+    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x73800000)
 endif()
 
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
