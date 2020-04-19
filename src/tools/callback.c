@@ -338,7 +338,7 @@ void SetCallbackNArgs(x86emu_t* emu, int N, int nargs, ...)
     }
 }
 
-uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...)
+uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
 {
     R_ESP -= nargs*4;   // need to push in reverse order
 
@@ -357,7 +357,7 @@ uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...)
     int oldlong = emu->quitonlongjmp;
 
     emu->quit = 0;
-    emu->quitonlongjmp = 1;
+    emu->quitonlongjmp = QuitOnLongJump;
 
     DynaCall(emu, fnc);
 

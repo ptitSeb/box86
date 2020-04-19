@@ -56,8 +56,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->packed_eflags.x32 = 0x202; // default flags?
     UnpackFlags(emu);
     // own stack?
-    if(ownstack)
-        emu->stack = (void*)stack;
+    emu->stack2free = (ownstack)?(void*)stack:NULL;
     emu->init_stack = (void*)stack;
     emu->size_stack = stacksize;
     // set default value
@@ -185,7 +184,7 @@ static void internalFreeX86(x86emu_t* emu)
     CallAllCleanup(emu);
     free(emu->cleanups);
 
-    free(emu->stack);
+    free(emu->stack2free);
 }
 
 void FreeX86Emu(x86emu_t **emu)
@@ -207,8 +206,6 @@ void FreeX86EmuFromStack(x86emu_t **emu)
     printf_log(LOG_DEBUG, "Free a X86 Emu from stack (%p)\n", *emu);
 
     internalFreeX86(*emu);
-
-    *emu = NULL;
 }
 
 void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
@@ -235,9 +232,9 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     newemu->quit = emu->quit;
     newemu->error = emu->error;
     SetTraceEmu(newemu, emu->trace_start, emu->trace_end);
-    // addapt R_ESP to new stack frame
-    uintptr_t oldst = (uintptr_t)((emu->stack)?emu->stack:emu->context->stack);
-    uintptr_t newst = (uintptr_t)((newemu->stack)?newemu->stack:newemu->context->stack);
+    // adapt R_ESP to new stack frame
+    uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
+    uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);
     newemu->regs[_SP].dword[0] = emu->regs[_SP].dword[0] + (intptr_t)(newst - oldst);
 }
 

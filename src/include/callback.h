@@ -31,7 +31,7 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...);
 // use a un-zero'd local stack of 30K
 uint32_t RunFunctionFast(box86context_t *context, uintptr_t fnc, int nargs, ...);
 // use emu state to run function
-uint32_t RunFunctionWithEmu(x86emu_t *emu, uintptr_t fnc, int nargs, ...);
+uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...);
 // Find a cb using FNC address and argN as a key
 x86emu_t* FindCallbackFnc1Arg(x86emu_t* emu, uintptr_t fnc, int argn, void* arg);
 

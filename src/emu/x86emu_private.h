@@ -76,7 +76,7 @@ typedef struct x86emu_s {
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint32_t    scratch[200];
     // local stack, do be deleted when emu is freed
-    void*       stack;
+    void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
 

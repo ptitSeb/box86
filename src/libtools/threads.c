@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
 // __USE_UNIX98 is needed for sttype / gettype definition
 #define __USE_UNIX98
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <signal.h>
 #include <errno.h>
@@ -20,6 +21,9 @@
 #include "x86trace.h"
 #include "dynarec.h"
 #include "bridge.h"
+
+void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
+void _pthread_cleanup_pop_restore(void* buffer, int exec);
 
 typedef struct emuthread_s {
 	x86emu_t *emu;
@@ -149,15 +153,12 @@ static void* pthread_routine(void* p)
 
 	emuthread_t *et = (emuthread_t*)p;
 	
-	pthread_cleanup_push(pthread_clean_routine, p);
+	pthread_cleanup_push_defer_np(pthread_clean_routine, p);
 
 	x86emu_t *emu = et->emu;
-	Push(emu, (uint32_t)et->arg);
-	DynaCall(emu, et->fnc);
-	R_ESP+=4;
-	r = (void*)R_EAX;
+	r = (void*)RunFunctionWithEmu(emu, 0, et->fnc, 1, et->arg);
 
-	pthread_cleanup_pop(1);
+	pthread_cleanup_pop_restore_np(1);
 
 	return r;
 }
@@ -183,7 +184,9 @@ EXPORT int my_pthread_attr_setstack(x86emu_t* emu, void* attr, void* stackaddr, 
 		emu->context->stacksizes = kh_init(threadstack);
 	}
 	AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
-	return pthread_attr_setstack(attr, stackaddr, stacksize);
+	//Don't call actual setstack...
+	//return pthread_attr_setstack(attr, stackaddr, stacksize);
+	return pthread_attr_setstacksize(attr, stacksize);
 }
 
 EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
@@ -193,7 +196,7 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	if(attr) {
 		size_t stsize;
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
-			if(stacksize<stsize) stacksize = stsize;
+			stacksize = stsize;
 	}
 	void* attr_stack;
 	size_t attr_stacksize;
@@ -313,6 +316,28 @@ static void* findkey_destructorFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for pthread key_destructor callback\n");
     return NULL;
 }
+// cleanup_routine
+#define GO(A)   \
+static uintptr_t my_cleanup_routine_fct_##A = 0;  \
+static void my_cleanup_routine_##A(void* a)    			\
+{                                       		\
+    RunFunction(my_context, my_cleanup_routine_fct_##A, 1, a);\
+}
+SUPER()
+#undef GO
+static void* findcleanup_routineFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_cleanup_routine_fct_##A == (uintptr_t)fct) return my_cleanup_routine_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cleanup_routine_fct_##A == 0) {my_cleanup_routine_fct_##A = (uintptr_t)fct; return my_cleanup_routine_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pthread cleanup_routine callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -421,22 +446,9 @@ EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
     // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
 }
 
-static void my_cleanup_routine(void* arg)
-{
-    if(!arg)
-        return;
-    x86emu_t *emu = (x86emu_t*)arg;
-    RunCallback(emu);
-	FreeCallback(emu);
-}
-void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare the function that should be in pthread lib
-void _pthread_cleanup_pop_restore(void* buffer, int exec);
-
 EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg)
 {
-    // create a callback...
-    x86emu_t* cbemu = AddCallback(emu, (uintptr_t)routine, 1, arg, NULL, NULL, NULL);
-	_pthread_cleanup_push_defer(buffer, my_cleanup_routine, cbemu);
+	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec)

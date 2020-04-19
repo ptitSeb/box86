@@ -108,7 +108,7 @@ static uintptr_t my_error_exit_fct_##A = 0;   \
 static void my_error_exit_##A(jpeg_common_struct_t* cinfo)     \
 {                                       \
     wrapErrorMgr(my_bridge, cinfo->err);                      \
-    RunFunctionWithEmu(my_jpegcb_emu, my_error_exit_fct_##A, 1, cinfo);   \
+    RunFunctionWithEmu(my_jpegcb_emu, 1, my_error_exit_fct_##A, 1, cinfo);   \
     unwrapErrorMgr(my_bridge, cinfo->err);                        \
 }
 SUPER()
@@ -140,7 +140,7 @@ static void* is_error_exitFct(void* fct)
 static uintptr_t my_emit_message_fct_##A = 0;   \
 static void my_emit_message_##A(void* cinfo, int msg_level)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, my_emit_message_fct_##A, 2, cinfo, msg_level);\
+    RunFunctionWithEmu(my_jpegcb_emu, 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
 }
 SUPER()
 #undef GO
@@ -171,7 +171,7 @@ static void* is_emit_messageFct(void* fct)
 static uintptr_t my_output_message_fct_##A = 0;   \
 static void my_output_message_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, my_output_message_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu(my_jpegcb_emu, 1, my_output_message_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -202,7 +202,7 @@ static void* is_output_messageFct(void* fct)
 static uintptr_t my_format_message_fct_##A = 0;   \
 static void my_format_message_##A(void* cinfo, char* buffer)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, my_format_message_fct_##A, 2, cinfo, buffer);\
+    RunFunctionWithEmu(my_jpegcb_emu, 1, my_format_message_fct_##A, 2, cinfo, buffer);\
 }
 SUPER()
 #undef GO
@@ -233,7 +233,7 @@ static void* is_format_messageFct(void* fct)
 static uintptr_t my_reset_error_mgr_fct_##A = 0;   \
 static void my_reset_error_mgr_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, my_reset_error_mgr_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu(my_jpegcb_emu, 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
