@@ -638,9 +638,8 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    context->fullpath = (char*)calloc(PATH_MAX, 1);
-    if(!realpath(context->argv[0], context->fullpath))
-        strcpy(context->fullpath, context->argv[0]);
+    if(!(context->fullpath = realpath(context->argv[0], NULL)))
+        context->fullpath = strdup(context->argv[0]);
     FILE *f = fopen64(context->argv[0], "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
