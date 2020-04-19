@@ -520,7 +520,7 @@ int EXPORT my_uname(struct utsname *buf)
 {
     // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
     int ret = uname(buf);
-    strcpy(buf->machine, (box86_steam)?"x86_64":"i686");    // faking 64bis OS for Steam
+    strcpy(buf->machine, /*(box86_steam)?"x86_64":*/"i686");
     return ret;
 }
 
