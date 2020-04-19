@@ -288,7 +288,7 @@ GOW(execve, iFppp)   // and this one too...
 GOW(execvp, iFpp)
 GO(exit, vFi)
 GO(_exit, vFi)
-GO(_Exit, vFi)    // Weak
+GOW(_Exit, vFi)
 GOM(__explicit_bzero_chk, vFEpuu)    // not always defined
 GO(faccessat, iFipii)
 // fattach

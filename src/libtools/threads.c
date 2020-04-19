@@ -226,13 +226,16 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 }
 
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+
 EXPORT void my___pthread_register_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
 {
+	// on i386, tht function as __cleanup_fct_attribute attribute: so 1st parameter is in register
+	buff = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
-
 	int not_first_call = __sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0);
 	if(not_first_call) {
-		my_longjmp(emu, pbuff, not_first_call);
+		DelCancelThread(emu->context, (uintptr_t)buff);
+		my_longjmp(emu, buff->__cancel_jmp_buf, not_first_call);
 		return;
 	}
 
@@ -241,8 +244,9 @@ EXPORT void my___pthread_register_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
 
 EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
 {
+	// on i386, tht function as __cleanup_fct_attribute attribute: so 1st parameter is in register
+	buff = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
-
 	__pthread_unregister_cancel(pbuff);
 
 	DelCancelThread(emu->context, (uintptr_t)buff);
