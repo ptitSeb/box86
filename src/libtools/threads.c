@@ -60,17 +60,19 @@ typedef struct x86_unwind_buff_s {
 	void *__pad[4];
 } x86_unwind_buff_t __attribute__((__aligned__));
 
+static box86context_t *my_context = NULL;
+
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
 KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
 
-void CleanStackSize(box86context_t* context)
+void CleanStackSize()
 {
 	threadstack_t *ts;
-	if(!context->stacksizes)
+	if(!my_context->stacksizes)
 		return;
-	kh_foreach_value(context->stacksizes, ts, free(ts));
-	kh_destroy(threadstack, context->stacksizes);
-	context->stacksizes = NULL;
+	kh_foreach_value(my_context->stacksizes, ts, free(ts));
+	kh_destroy(threadstack, my_context->stacksizes);
+	my_context->stacksizes = NULL;
 }
 
 void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
@@ -110,34 +112,34 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	return 0;
 }
 
-void InitCancelThread(box86context_t* context)
+void InitCancelThread()
 {
-	context->cancelthread = kh_init(cancelthread);
+	my_context->cancelthread = kh_init(cancelthread);
 }
 
-void FreeCancelThread(box86context_t* context)
+void FreeCancelThread()
 {
 	__pthread_unwind_buf_t* buff;
-	kh_foreach_value(context->cancelthread, buff, free(buff))
-	kh_destroy(cancelthread, context->cancelthread);
-	context->cancelthread = NULL;
+	kh_foreach_value(my_context->cancelthread, buff, free(buff))
+	kh_destroy(cancelthread, my_context->cancelthread);
+	my_context->cancelthread = NULL;
 }
-__pthread_unwind_buf_t* AddCancelThread(box86context_t* context, uintptr_t buff)
+__pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
 {
 	int ret;
-	khint_t k = kh_put(cancelthread, context->cancelthread, buff, &ret);
+	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
 	if(ret)
-		kh_value(context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
-	return kh_value(context->cancelthread, k);
+		kh_value(my_context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	return kh_value(my_context->cancelthread, k);
 }
 
-void DelCancelThread(box86context_t* context, uintptr_t buff)
+void DelCancelThread(uintptr_t buff)
 {
-	khint_t k = kh_get(cancelthread, context->cancelthread, buff);
-	if(k==kh_end(context->cancelthread))
+	khint_t k = kh_get(cancelthread, my_context->cancelthread, buff);
+	if(k==kh_end(my_context->cancelthread))
 		return;
-	free(kh_value(context->cancelthread, k));
-	kh_del(cancelthread, context->cancelthread, k);
+	free(kh_value(my_context->cancelthread, k));
+	kh_del(cancelthread, my_context->cancelthread, k);
 }
 
 static void pthread_clean_routine(void* p)
@@ -231,10 +233,10 @@ EXPORT void my___pthread_register_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
 {
 	// on i386, tht function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	int not_first_call = __sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0);
 	if(not_first_call) {
-		DelCancelThread(emu->context, (uintptr_t)buff);
+		DelCancelThread((uintptr_t)buff);
 		my_longjmp(emu, buff->__cancel_jmp_buf, not_first_call);
 		return;
 	}
@@ -246,17 +248,15 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 {
 	// on i386, tht function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = AddCancelThread(emu->context, (uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	__pthread_unregister_cancel(pbuff);
 
-	DelCancelThread(emu->context, (uintptr_t)buff);
+	DelCancelThread((uintptr_t)buff);
 }
 
 
 
 KHASH_MAP_INIT_INT(once, int)
-
-static box86context_t *my_context = NULL;
 
 #define SUPER() \
 GO(0)			\
@@ -472,9 +472,12 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 void init_pthread_helper(box86context_t* context)
 {
 	my_context = context;
+	InitCancelThread();
 }
 
 void fini_pthread_helper()
 {
+	FreeCancelThread();
+	CleanStackSize();
 	my_context = NULL;
 }

@@ -116,6 +116,15 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
 
 #endif
 
+void initAllHelpers(box86context_t *context)
+{
+    static int inited = 0;
+    if(inited)
+        return;
+    init_pthread_helper(context);
+    inited = 1;
+}
+
 void x86Syscall(x86emu_t *emu);
 
 /// maxval not inclusive
@@ -162,8 +171,6 @@ box86context_t *NewBox86Context(int argc)
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
-    InitCancelThread(context);
-
     pthread_mutex_init(&context->mutex_once, NULL);
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
@@ -181,6 +188,8 @@ box86context_t *NewBox86Context(int argc)
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
+
+    initAllHelpers(context);
 
     return context;
 }
