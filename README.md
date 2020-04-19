@@ -21,7 +21,7 @@ Here are 6 videos, the first 2 of "Airline Tycoon Deluxe" and "Heretic 2" runnin
 
 [![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/MM7kWYts7IA/3.jpg)](https://www.youtube.com/watch?v=MM7kWYts7IA) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg) [![Play on Youtube](https://img.youtube.com/vi/B4YN37z3-ws/1.jpg)](https://www.youtube.com/watch?v=B4YN37z3-ws) [![Play on Youtube](https://img.youtube.com/vi/xk8Q30mxqPg/1.jpg)](https://www.youtube.com/watch?v=xk8Q30mxqPg) [![Play on Youtube](https://img.youtube.com/vi/_QMRMVvYrqU/1.jpg)](https://www.youtube.com/watch?v=_QMRMVvYrqU)
 
-You can find many more box86 video on [![PI Lab Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)].
+You can find many more box86 video on [![PI Lab Channel](https://yt3.ggpht.com/a/AATXAJyMeWrgCjs78gr6To6yX4KtDPUCS7hsbX1rRA=s100-c-k-c0xffffffff-no-rj-mo)](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g).
 
 ----
 
