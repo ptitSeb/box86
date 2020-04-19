@@ -684,7 +684,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86contex
                 char* origin = strdup(h->path);
                 char* p = strrchr(origin, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin));
+                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
                 p = strstr(rpath, "$ORIGIN");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, origin);
