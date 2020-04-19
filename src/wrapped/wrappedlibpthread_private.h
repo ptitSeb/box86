@@ -174,7 +174,7 @@ GO(pthread_tryjoin_np, iFpp)
 GOM(__pthread_unregister_cancel, vFEp)
 // __pthread_unregister_cancel_restore
 // __pthread_unwind
-GO(__pthread_unwind_next, vFp)
+GOM(__pthread_unwind_next, vFEp)
 GO(pthread_yield, iFv)
 // raise
 // __res_state

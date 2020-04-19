@@ -239,7 +239,7 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 	x86_unwind_buff_t* buff = cancel_buff = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
-		DelCancelThread((uintptr_t)cancel_buff);
+		//DelCancelThread((uintptr_t)cancel_buff);	// no del here, it will be delete by unwind_next...
 		my_longjmp(cancel_emu, cancel_buff->__cancel_jmp_buf, 1);
 		return;
 	}
@@ -257,7 +257,14 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 	DelCancelThread((uintptr_t)buff);
 }
 
-
+EXPORT __attribute__((noreturn)) void my___pthread_unwind_next(x86emu_t* emu, void* p)
+{
+	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
+	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
+	__pthread_unwind_buf_t pbuff = *AddCancelThread((uintptr_t)buff);
+	DelCancelThread((uintptr_t)buff);
+	__pthread_unwind_next(&pbuff);
+}
 
 KHASH_MAP_INIT_INT(once, int)
 
