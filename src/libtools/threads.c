@@ -229,18 +229,29 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
-static __thread x86emu_t* cancel_emu = NULL;
-static __thread x86_unwind_buff_t* cancel_buff = NULL;
+#define CANCEL_MAX 8
+static __thread x86emu_t* cancel_emu[CANCEL_MAX] = {0};
+static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
+static __thread int cancel_deep = 0;
 EXPORT void my___pthread_register_cancel(void* E, void* B)
 {
 	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
-	x86emu_t* emu = cancel_emu = (x86emu_t*)E;
+	if(cancel_deep<0) {
+		printf_log(LOG_INFO, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
+		cancel_deep = 0;
+	}
+	if(cancel_deep!=CANCEL_MAX-1) 
+		++cancel_deep;
+	else
+		{printf_log(LOG_INFO, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
+	x86emu_t* emu = cancel_emu[cancel_deep] = (x86emu_t*)E;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	x86_unwind_buff_t* buff = cancel_buff = (x86_unwind_buff_t*)R_EAX;
+	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
 		//DelCancelThread((uintptr_t)cancel_buff);	// no del here, it will be delete by unwind_next...
-		my_longjmp(cancel_emu, cancel_buff->__cancel_jmp_buf, 1);
+		int i = cancel_deep--;
+		my_longjmp(cancel_emu[i], cancel_buff[i]->__cancel_jmp_buf, 1);
 		return;
 	}
 
@@ -254,6 +265,7 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	__pthread_unregister_cancel(pbuff);
 
+	--cancel_deep;
 	DelCancelThread((uintptr_t)buff);
 }
 
