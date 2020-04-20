@@ -48,9 +48,8 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     if(!h)
         return NULL;
 
-    // Should be PATH_MAX + 1...
-    h->path = malloc(1024 * sizeof(char));
-    if (realpath(name, h->path) != h->path) {
+    if ((h->path = realpath(name, NULL)) == NULL) {
+        h->path = (char*)malloc(1);
         h->path[0] = '\0';
     }
     return h;
@@ -1089,15 +1088,16 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     int dummy;
 
     elfheader_t *h = context->elfs[0];
+
+    if (stat(h->path, &st)) {
+        printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
+        // Some constants, to have "valid" values
+        st.st_dev = makedev(0x03, 0x00);
+        st.st_ino = 0;
+    }
+
     for (int i=0; i<h->numPHEntries; ++i) {
         if (h->PHEntries[i].p_memsz == 0) continue;
-
-        if (stat(h->path, &st)) {
-            printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
-            // Some constants, to have "valid" values
-            st.st_dev = makedev(0x03, 0x00);
-            st.st_ino = 0;
-        }
 
         sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %d %s\n", (uintptr_t)h->PHEntries[i].p_vaddr + h->delta,
             (uintptr_t)h->PHEntries[i].p_vaddr + h->PHEntries[i].p_memsz + h->delta,
