@@ -1432,23 +1432,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("ROL Ed, Ib");
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    GETEDW(x12, x2);
+                    GETED;
                     u8 = (F8)&0x1f;
-                    if(u8) {
-                        MOV_REG_ROR_IMM5(ed, ed, (32-u8));
-                        WBACK;
-                        UFLAG_IF {  // calculate flags directly
-                            AND_IMM8(x1, ed, 0x1);
-                            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                            if(u8==1) {
-                                MOV_REG_LSR_IMM5(x1, ed, 31);
-                                ADD_REG_LSL_IMM5(x1, x1, ed, 0);
-                                AND_IMM8(x1, x1, 1);
-                                STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            UFLAG_DF(x2, d_none);
-                        }
-                    }
+                    emit_rol32c(dyn, ninst, ed, u8, x3, x12);
+                    if(u8) { WBACK; }
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
@@ -1761,19 +1748,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("ROL Ed, 1");
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    GETEDW(x12, x2);
-                    MOV_REG_ROR_IMM5(ed, ed, 0x1f);
+                    GETED;
+                    emit_rol32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_IF {  // calculate flags directly
-                        MOV_REG_LSR_IMM5(x1, ed, 31);
-                        ADD_REG_LSL_IMM5(x1, x1, ed, 0);
-                        AND_IMM8(x1, x1, 1);
-                        STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-
-                        AND_IMM8(x1, ed, 0x1);
-                        STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                        UFLAG_DF(x2, d_none);
-                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");

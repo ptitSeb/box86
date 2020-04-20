@@ -646,6 +646,24 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
             CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
             break;
+        case d_rol8:
+            if(emu->op2 == 1) {
+                CONDITIONAL_SET_FLAG((emu->res + (emu->res >> 7)) & 1, F_OF);
+            }
+        	CONDITIONAL_SET_FLAG(emu->res & 0x1, F_CF);
+            break;
+        case d_rol16:
+            if(emu->op2 == 1) {
+                CONDITIONAL_SET_FLAG((emu->res + (emu->res >> 15)) & 1, F_OF);
+            }
+        	CONDITIONAL_SET_FLAG(emu->res & 0x1, F_CF);
+            break;
+        case d_rol32:
+            if(emu->op2 == 1) {
+                CONDITIONAL_SET_FLAG((emu->res + (emu->res >> 31)) & 1, F_OF);
+            }
+        	CONDITIONAL_SET_FLAG(emu->res & 0x1, F_CF);
+            break;
 
         case d_unknown:
             printf_log(LOG_NONE, "Box86: %p trying to evaluate Unknown defered Flags\n", (void*)R_EIP);

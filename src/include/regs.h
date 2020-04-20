@@ -84,6 +84,18 @@ typedef enum {
 	d_sbb8,
 	d_sbb16, 
 	d_sbb32,
+	d_rol8,
+	d_rol16,
+	d_rol32,
+	d_ror8,
+	d_ror16,
+	d_ror32,
+	d_rcl8,
+	d_rcl16,
+	d_rcl32,
+	d_rcr8,
+	d_rcr16,
+	d_rcr32,
 	d_unknown	//46
 } defered_flags_t;
 
