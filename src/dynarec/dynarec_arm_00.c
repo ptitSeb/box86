@@ -1442,7 +1442,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETED;
                     u8 = (F8)&0x1f;
-                    emit_rol32c(dyn, ninst, ed, u8, x3, x12);
+                    emit_ror32c(dyn, ninst, ed, u8, x3, x12);
                     if(u8) { WBACK; }
                     break;
                 case 2:
