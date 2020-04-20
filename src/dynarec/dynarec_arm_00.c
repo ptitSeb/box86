@@ -1440,23 +1440,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("ROR Ed, Ib");
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    GETEDW(x12, x2);
+                    GETED;
                     u8 = (F8)&0x1f;
-                    if(u8) {
-                        MOV_REG_ROR_IMM5(ed, ed, u8);
-                        WBACK;
-                        UFLAG_IF {  // calculate flags directly
-                            MOV_REG_LSR_IMM5(x1, ed, 31);
-                            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                            if(u8==1) {
-                                MOV_REG_LSR_IMM5(x1, ed, 30); // x1 = d>>30
-                                XOR_REG_LSR_IMM8(x1, x1, x1, 1); // x1 = ((d>>30) ^ ((d>>30)>>1))
-                                AND_IMM8(x1, x1, 1);    // x1 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
-                                STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                            }
-                            UFLAG_DF(x2, d_none);
-                        }
-                    }
+                    emit_rol32c(dyn, ninst, ed, u8, x3, x12);
+                    if(u8) { WBACK; }
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
@@ -1755,19 +1742,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("ROR Ed, 1");
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    GETEDW(x12, x2);
-                    MOV_REG_ROR_IMM5(ed, ed, 1);
+                    GETED;
+                    emit_ror32c(dyn, ninst, ed, 1, x3, x12);
                     WBACK;
-                    UFLAG_IF {  // calculate flags directly
-                        MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
-                        XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
-                        AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
-                        STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-
-                        MOV_REG_LSR_IMM5(x2, ed, 31);
-                        STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                        UFLAG_DF(x2, d_none);
-                    }
                     break;
                 case 2:
                     INST_NAME("RCL Ed, 1");

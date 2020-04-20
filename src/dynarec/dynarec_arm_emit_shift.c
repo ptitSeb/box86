@@ -234,8 +234,47 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
     }
     IFX(X_OF) {
-        ADD_REG_LSR_IMM5(s3, s1, s1, 31);
-        AND_IMM8(s3, s3, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
+        if(c==1) {
+            ADD_REG_LSR_IMM5(s3, s1, s1, 31);
+            AND_IMM8(s3, s3, 1);
+            STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_OF]));
+        }
+    }
+}
+
+// emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOVW(s3, c);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        MOVW(s4, d_ror32);
+    } else IFX(X_ALL) {
+        MOVW(s4, d_none);
+    }
+    IFX(X_PEND|X_ALL) {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df));
+    }
+    if(!c) {
+        IFX(X_PEND) {
+            STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        }
+        return;
+    }
+    MOV_REG_ROR_IMM5(s1, s1, c);
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_CF) {
+        UBFX(s3, s1, 31, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
+    IFX(X_OF) {
+        if(c==1) {
+            MOV_REG_LSR_IMM5(s4, s1, 30);
+            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+            AND_IMM8(s4, s4, 1);
+            STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+        }
     }
 }

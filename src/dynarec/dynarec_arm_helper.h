@@ -386,6 +386,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define emit_shr32c     STEPNAME(emit_shr32c)
 #define emit_sar32c     STEPNAME(emit_sar32c)
 #define emit_rol32c     STEPNAME(emit_rol32c)
+#define emit_ror32c     STEPNAME(emit_ror32c)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -496,6 +497,7 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 void emit_shr32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sar32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
