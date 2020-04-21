@@ -242,14 +242,17 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 		++cancel_deep;
 	else
 		{printf_log(LOG_INFO, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
-	x86emu_t* emu = cancel_emu[cancel_deep] = (x86emu_t*)E;
+		
+	cancel_emu[cancel_deep] = (x86emu_t*)E;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)R_EAX;
+	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)((x86emu_t*)E)->regs[_AX].dword[0];
 	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
 		//DelCancelThread((uintptr_t)cancel_buff);	// no del here, it will be delete by unwind_next...
 		int i = cancel_deep--;
-		my_longjmp(cancel_emu[i], cancel_buff[i]->__cancel_jmp_buf, 1);
+		x86emu_t* emu = cancel_emu[i];
+		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
+		DynaRun(emu);	// resume execution
 		return;
 	}
 
@@ -267,13 +270,17 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 	DelCancelThread((uintptr_t)buff);
 }
 
-EXPORT __attribute__((noreturn)) void my___pthread_unwind_next(x86emu_t* emu, void* p)
+EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t pbuff = *AddCancelThread((uintptr_t)buff);
+	__pthread_unwind_buf_t *pbuff = AddCancelThread((uintptr_t)buff);
+	// function is noreturn, so putting stuff on the stack is not a good idea
+	__pthread_unwind_next(pbuff);
+	// just in case it does return
+	// no clear way to clean up this, unless it does return...
 	DelCancelThread((uintptr_t)buff);
-	__pthread_unwind_next(&pbuff);
+	emu->quit = 1;
 }
 
 KHASH_MAP_INIT_INT(once, int)
