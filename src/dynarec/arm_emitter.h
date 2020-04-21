@@ -33,16 +33,16 @@ Op is 20-27
 #define xSP     13      
 
 // barel roll operations (4 possibles)
-#define brLSL(i, r) (0<<4 | 0<<5 | ((i&31)<<7) | r)
-#define brLSR(i, r) (0<<4 | 1<<5 | ((i&31)<<7) | r)
-#define brASR(i, r) (0<<4 | 2<<5 | ((i&31)<<7) | r)
-#define brROR(i, r) (0<<4 | 3<<5 | ((i&31)<<7) | r)
+#define brLSL(i, r) (0<<4 | 0<<5 | (((i)&31)<<7) | (r))
+#define brLSR(i, r) (0<<4 | 1<<5 | (((i)&31)<<7) | (r))
+#define brASR(i, r) (0<<4 | 2<<5 | (((i)&31)<<7) | (r))
+#define brROR(i, r) (0<<4 | 3<<5 | (((i)&31)<<7) | (r))
 #define brIMM(r)    (abs(r))
 // barel roll with a register
-#define brRLSL(i, r) (1<<4 | 0<<5 | ((i&15)<<8) | r)
-#define brRLSR(i, r) (1<<4 | 1<<5 | ((i&15)<<8) | r)
-#define brRASR(i, r) (1<<4 | 2<<5 | ((i&15)<<8) | r)
-#define brRROR(i, r) (1<<4 | 3<<5 | ((i&15)<<8) | r)
+#define brRLSL(i, r) (1<<4 | 0<<5 | (((i)&15)<<8) | (r))
+#define brRLSR(i, r) (1<<4 | 1<<5 | (((i)&15)<<8) | (r))
+#define brRASR(i, r) (1<<4 | 2<<5 | (((i)&15)<<8) | (r))
+#define brRROR(i, r) (1<<4 | 3<<5 | (((i)&15)<<8) | (r))
 
 
 // conditions
@@ -93,30 +93,30 @@ Op is 20-27
 #define MOV_IMM_COND(cond, dst, imm8, rimm4) EMIT(cond | 0x03a00000 | ((dst) << 12) | (imm8) | ((rimm4) << 8) )
 
 // mov dst, src lsl imm5
-#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | (imm5<<7))
+#define MOV_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | ((imm5)<<7))
 // mov dst, src lsr imm5
-#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | (imm5<<7))
+#define MOV_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | ((imm5)<<7))
 // mov dst, src asr imm5
-#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | (imm5<<7))
+#define MOV_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | ((imm5)<<7))
 // mov dst, src ror imm5
-#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | (imm5<<7))
+#define MOV_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | ((imm5)<<7))
 // mov.s dst, src lsl imm5
-#define MOVS_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | (imm5<<7))
+#define MOVS_REG_LSL_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (0<<5) | ((imm5)<<7))
 // mov.s dst, src lsr imm5
-#define MOVS_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | (imm5<<7))
+#define MOVS_REG_LSR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (1<<5) | ((imm5)<<7))
 // mov.s dst, src asr imm5
-#define MOVS_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | (imm5<<7))
+#define MOVS_REG_ASR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (2<<5) | ((imm5)<<7))
 // mov.s dst, src ror imm5
-#define MOVS_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | (imm5<<7))
+#define MOVS_REG_ROR_IMM5(dst, src, imm5) EMIT(0xe1b00000 | ((dst) << 12) | (src) | (0<<4) | (3<<5) | ((imm5)<<7))
 
 // mov dst, src lsl rs
-#define MOV_REG_LSL_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (0<<5) | (rs<<8))
+#define MOV_REG_LSL_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (0<<5) | ((rs)<<8))
 // mov dst, src lsr rs
-#define MOV_REG_LSR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (1<<5) | (rs<<8))
+#define MOV_REG_LSR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (1<<5) | ((rs)<<8))
 // mov dst, src asr rs
-#define MOV_REG_ASR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (2<<5) | (rs<<8))
+#define MOV_REG_ASR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (2<<5) | ((rs)<<8))
 // mov dst, src ror rs
-#define MOV_REG_ROR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (3<<5) | (rs<<8))
+#define MOV_REG_ROR_REG(dst, src, rs) EMIT(0xe1a00000 | ((dst) << 12) | (src) | (1<<4) | (3<<5) | ((rs)<<8))
 
 // sub dst, src, #(imm8)
 #define SUB_IMM8(dst, src, imm8) \
@@ -337,33 +337,33 @@ Op is 20-27
 #define BLX(reg) EMIT(0xe12fff30 | (reg) )
 
 // b cond offset
-#define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | ((O)>>2)&0xffffff)
+#define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | (((O)>>2)&0xffffff))
 
 // bl cond offset
-#define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | ((O)>>2)&0xffffff)
+#define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | (((O)>>2)&0xffffff))
 
 // push reg!, {list}
 //                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
-#define PUSH(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (1<<21) | (0<<20) | (reg<<16) | (list))
+#define PUSH(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (1<<21) | (0<<20) | ((reg)<<16) | (list))
 
 // pop reg!, {list}
 //                           all |    const    |postindex|  add    | no PSR  |writeback|  load   |   base    |reg list
-#define POP(reg, list)  EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (1<<21) | (1<<20) | (reg<<16) | (list))
+#define POP(reg, list)  EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (1<<21) | (1<<20) | ((reg)<<16) | (list))
 
 // STMDB reg, {list}
 //                            all |    const    |pre-index| subs    | no PSR  |  no wb  | store   |   base    |reg list
-#define STMDB(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (0<<21) | (0<<20) | (reg<<16) | (list))
+#define STMDB(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (0<<21) | (0<<20) | ((reg)<<16) | (list))
 // STMia reg, {list}
 //                          all |    const    |postindex|   add   | no PSR  |  no wb  |  store  |   base    |reg list
-#define STM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (0<<20) | (reg<<16) | (list))
+#define STM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (0<<20) | ((reg)<<16) | (list))
 // LDMia reg, {list}
 //                          all |    const    |postindex|   add   | no PSR  |  no wb  |  load   |   base    |reg list
-#define LDM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (1<<20) | (reg<<16) | (list))
+#define LDM(reg, list) EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (0<<21) | (1<<20) | ((reg)<<16) | (list))
 
 
 // Half Word and signed data transfert construction
-#define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | (0b000<<25) | (P<<24) | (U<<23) | (0<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | Rm)
-#define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | (0b000<<25) | (P<<24) | (U<<23) | (1<<22) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ((Imm8&0xf0)<<(8-4)) | (1<<7) | (S<<6) | (H<<5) | (1<<4) | (Imm8&0x0f))
+#define HWS_REG(Cond, P, U, W, L, Rn, Rd, S, H, Rm)     (Cond | 0b000<<25 | (P)<<24 | (U)<<23 | 0<<22 | (W)<<21 | (L)<<20 | (Rn)<<16 | (Rd)<<12 | 1<<7 | (S)<<6 | (H)<<5 | 1<<4 | (Rm))
+#define HWS_OFF(Cond, P, U, W, L, Rn, Rd, S, H, Imm8)   (Cond | 0b000<<25 | (P)<<24 | (U)<<23 | 1<<22 | (W)<<21 | (L)<<20 | (Rn)<<16 | (Rd)<<12 | ((Imm8)&0xf0)<<(8-4) | 1<<7 | (S)<<6 | (H)<<5 | 1<<4 | ((Imm8)&0x0f))
 
 #define LDRSB_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 1, addr, reg, 1, 0, abs(imm8)))
 #define LDRSH_IMM8(reg, addr, imm8) EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 0, 1, addr, reg, 1, 1, abs(imm8)))
@@ -376,13 +376,13 @@ Op is 20-27
 #define STRHAI_REG_LSL_IMM5(reg, addr, rm) EMIT(HWS_REG(c__, 0, 1, 0, 0, addr, reg, 0, 1, rm))
 
 // Mul Long construction
-#define MULLONG(Cond, U, A, S, RdHi, RdLo, Rs, Rm)     (Cond | (0b00001<<23) | (U<<22) | (A<<21) | (S<<20) | (RdHi<<16) | (RdLo<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
+#define MULLONG(Cond, U, A, S, RdHi, RdLo, Rs, Rm)     (Cond | 0b00001<<23 | (U)<<22 | (A)<<21 | (S)<<20 | (RdHi)<<16 | (RdLo)<<12 | (Rs)<<8 | 0b1001<<4 | (Rm))
 
 #define UMULL(RdHi, RdLo, Rs, Rm)   EMIT(MULLONG(c__, 0, 0, 0, RdHi, RdLo, Rs, Rm))
 #define SMULL(RdHi, RdLo, Rs, Rm)   EMIT(MULLONG(c__, 1, 0, 0, RdHi, RdLo, Rs, Rm))
 
 // Mul and MulA
-#define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | (0b000000<<22) | (A<<21) | (S<<20) | (Rd<<16) | (Rn<<12) | (Rs<<8) | (0b1001<<4) | (Rm))
+#define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | 0b000000<<22 | (A)<<21 | (S)<<20 | (Rd)<<16 | (Rn)<<12 | (Rs)<<8 | 0b1001<<4 | (Rm))
 #define MUL(Rd, Rm, Rn)     EMIT(MULMULA(c__, 0, 0, (Rd), 0, (Rm), (Rn)))
 
 #define SMUL_16_gen(cond, Rd, Rm, M, N, Rn) (cond | 0b00010110<<20 | (Rd)<<16 | (Rm)<<8 | 1<<7 | (M)<<6 | (N)<<5 | (Rn))
@@ -548,16 +548,16 @@ Op is 20-27
 #define VCVT_S16_F64(Dd)    EMIT(VCVT_16_gen(c__, ((Dd)>>4)&1, 1, 0, (Dd)&15, 1, 0, 16&1, (16>>1)&15))
 
 // Mutiply F64 Dd = Dn*Dm
-#define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Divide F64 Dd = Dn/Dm
-#define VDIV_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b00<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VDIV_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b00<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Add F64 Dd = Dn + Dm
-#define VADD_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (0<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VADD_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | (0<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Sub F64 Dd = Dn + Dm
-#define VSUB_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (((Dn>>4)&1)<<7) | (1<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VSUB_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Mutiply F32 Sd = Sn*Sm
 #define VMUL_F32(Sd, Sn, Sm)    EMIT(c__ | (0b1110<<24) | (0<<23) | (((Sd)&1)<<22) | (0b10<<20) | ((((Sn)>>1)&15)<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (((Sn)&1)<<7) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
@@ -572,7 +572,7 @@ Op is 20-27
 #define VSUB_F32(Sd, Sn, Sm)    EMIT(c__ | (0b1110<<24) | (0<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Sn)>>1)&15)<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (((Sn)&1)<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
 // Cmp between 2 double Dd and Dm
-#define VCMP_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0100<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VCMP_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0100<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Cmp between 1 double Dd and 0.0
 #define VCMP_F64_0(Dd)      EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0101<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | (0<<5) | (0) )
 // Cmp between 2 single Sd and Sm
@@ -581,10 +581,10 @@ Op is 20-27
 #define VCMP_F32_0(Sd)      EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b11<<20) | (0b0101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0<<7) | (1<<6) | (0<<5) | (0) )
 
 // Neg F64 Dd = - Dm
-#define VNEG_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VNEG_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Sqrt F64 Dd = - Dm
-#define VSQRT_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | (((Dm>>4)&1)<<5) | ((Dm)&15) )
+#define VSQRT_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Sqrt F32 Dd = - Dm
 #define VSQRT_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b11<<20) | (0b0001<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
