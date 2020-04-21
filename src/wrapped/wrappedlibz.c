@@ -57,7 +57,7 @@ void* getZMy(library_t* lib)
 
 void freeZMy(void* lib)
 {
-    libz_my_t *my = (libz_my_t *)lib;
+    //libz_my_t *my = (libz_my_t *)lib;
 }
 
 

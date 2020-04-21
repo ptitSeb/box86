@@ -23,7 +23,6 @@ const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
 
 static char* libname = NULL;
-static box86context_t* my_context = NULL;
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
@@ -134,7 +133,7 @@ void* getGlib2My(library_t* lib)
 
 void freeGlib2My(void* lib)
 {
-    glib2_my_t *my = (glib2_my_t *)lib;
+    //glib2_my_t *my = (glib2_my_t *)lib;
 }
 
 static void my_destroy_notify(void* data)   // data should be arg 8
@@ -236,7 +235,7 @@ GO(2)   \
 GO(3)
 
 // GCopyFct
-#define GO(A)   \
+/*#define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;   \
 static void* my_copy_##A(void* data)     \
 {                                       \
@@ -256,7 +255,7 @@ static void* findCopyFct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Copy callback\n");
     return NULL;
-}
+}*/
 // GFreeFct
 #define GO(A)   \
 static uintptr_t my_free_fct_##A = 0;   \
@@ -1099,7 +1098,6 @@ EXPORT uint32_t my_g_idle_add(x86emu_t* emu, void* func, void* data)
 }
 
 #define CUSTOM_INIT \
-    my_context = box86; \
     libname = lib->name;\
     lib->priv.w.p2 = getGlib2My(lib);
 

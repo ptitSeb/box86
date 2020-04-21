@@ -23,7 +23,6 @@ const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2
 
 static char* libname = NULL;
-static box86context_t* my_context = NULL;
 
 typedef void    (*vFppp_t)          (void*, void*, void*);
 typedef void    (*vFppip_t)         (void*, void*, int, void*);
@@ -106,7 +105,7 @@ void* getGio2My(library_t* lib)
 
 void freeGio2My(void* lib)
 {
-    gio2_my_t *my = (gio2_my_t *)lib;
+    //gio2_my_t *my = (gio2_my_t *)lib;
 }
 
 
@@ -716,7 +715,6 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x86emu_t* emu, void* connection,
 
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     libname = lib->name;                \
     lib->priv.w.p2 = getGio2My(lib);   \
     lib->priv.w.needed = 1;             \

@@ -51,10 +51,8 @@ void* getPng12My(library_t* lib)
 
 void freePng12My(void* lib)
 {
-    png12_my_t *my = (png12_my_t *)lib;
+    //png12_my_t *my = (png12_my_t *)lib;
 }
-
-static box86context_t *my_context = NULL;
 
 #define SUPER() \
 GO(0)   \
@@ -224,7 +222,7 @@ EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, 
     library_t * lib = GetLib(emu->context->maplib, png12Name);
     png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
 
-    my->png_set_write_fn(png_ptr, finduser_writeFct(write_fn), finduser_writeFct(flush_fn));
+    my->png_set_write_fn(png_ptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 EXPORT void my12_png_set_read_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* read_fn)
@@ -263,7 +261,6 @@ EXPORT void* my12_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, v
 //#define CUSTOM_INIT     lib->priv.w.altprefix=strdup("yes");
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     lib->priv.w.p2 = getPng12My(lib);   \
     lib->altmy = strdup("my12_");
 

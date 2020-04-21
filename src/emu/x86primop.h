@@ -81,8 +81,6 @@ Implements the AND instruction and side effects.
 ****************************************************************************/
 static inline uint32_t and32(x86emu_t *emu, uint32_t d, uint32_t s)
 {
-	register uint32_t res;   /* all operands in native machine order */
-
 	emu->res = d & s;
 	emu->df = d_and32;
 
@@ -507,7 +505,7 @@ static inline uint32_t xor32(x86emu_t *emu, uint32_t d, uint32_t s)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static void imul8(x86emu_t *emu, uint8_t s)
+static inline void imul8(x86emu_t *emu, uint8_t s)
 {
 	emu->df = d_imul8;
 	R_AX = emu->res = (int16_t)(int8_t)R_AL * (int8_t)s;
@@ -516,7 +514,7 @@ static void imul8(x86emu_t *emu, uint8_t s)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static void imul16_eax(x86emu_t *emu, uint16_t s)
+static inline void imul16_eax(x86emu_t *emu, uint16_t s)
 {
 	emu->df = d_imul16;
 	emu->res = (int32_t)(int16_t)R_AX * (int16_t)s;
@@ -527,7 +525,7 @@ static void imul16_eax(x86emu_t *emu, uint16_t s)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
+static inline uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
 {
 	emu->df = d_imul16;
 	emu->res = (int32_t)(int16_t)op1 * (int16_t)op2;
@@ -537,7 +535,7 @@ static uint16_t imul16(x86emu_t *emu, uint16_t op1, uint16_t op2)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, uint32_t s)
+static inline void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, uint32_t s)
 {
 	int64_t res = (int64_t)(int32_t)d * (int32_t)s;
 
@@ -548,7 +546,7 @@ static void imul32_direct(uint32_t *res_lo, uint32_t* res_hi,uint32_t d, uint32_
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
+static inline uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
 {
 	emu->df = d_imul32;
 	imul32_direct(&emu->res,&emu->op1,op1,op2);
@@ -558,7 +556,7 @@ static uint32_t imul32(x86emu_t *emu, uint32_t op1, uint32_t op2)
 REMARKS:
 Implements the IMUL instruction and side effects.
 ****************************************************************************/
-static void imul32_eax(x86emu_t *emu, uint32_t s)
+static inline void imul32_eax(x86emu_t *emu, uint32_t s)
 {
 	emu->df = d_imul32;
 	imul32_direct(&R_EAX,&R_EDX,R_EAX,s);
@@ -569,7 +567,7 @@ static void imul32_eax(x86emu_t *emu, uint32_t s)
 REMARKS:
 Implements the MUL instruction and side effects.
 ****************************************************************************/
-static void mul8(x86emu_t *emu, uint8_t s)
+static inline void mul8(x86emu_t *emu, uint8_t s)
 {
 	emu->df = d_mul8;
 	R_AX = emu->res = (uint16_t)(R_AL) * s;
@@ -578,7 +576,7 @@ static void mul8(x86emu_t *emu, uint8_t s)
 REMARKS:
 Implements the MUL instruction and side effects.
 ****************************************************************************/
-static void mul16(x86emu_t *emu, uint16_t s)
+static inline void mul16(x86emu_t *emu, uint16_t s)
 {
 	emu->df = d_mul16;
 	emu->res = (uint32_t)R_AX * s;
@@ -589,7 +587,7 @@ static void mul16(x86emu_t *emu, uint16_t s)
 REMARKS:
 Implements the MUL instruction and side effects.
 ****************************************************************************/
-static void mul32_eax(x86emu_t *emu, uint32_t s)
+static inline void mul32_eax(x86emu_t *emu, uint32_t s)
 {
 	emu->df = d_mul32;
 	uint64_t res = (uint64_t)R_EAX * s;

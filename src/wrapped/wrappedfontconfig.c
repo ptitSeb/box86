@@ -21,8 +21,6 @@
 const char* fontconfigName = "libfontconfig.so.1";
 #define LIBNAME fontconfig
 
-static box86context_t* my_context = NULL;
-
 typedef struct FcValue_s {
     int      type;
     union {
@@ -62,7 +60,7 @@ void* getFontconfigMy(library_t* lib)
 
 void freeFontconfigMy(void* lib)
 {
-    fontconfig_my_t *my = (fontconfig_my_t *)lib;
+    //fontconfig_my_t *my = (fontconfig_my_t *)lib;
 }
 
 EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint32_t t1, uint32_t t2, int append)
@@ -78,7 +76,6 @@ EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint3
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;  \
     lib->priv.w.p2 = getFontconfigMy(lib);
 
 #define CUSTOM_FINI \

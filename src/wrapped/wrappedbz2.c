@@ -53,7 +53,7 @@ void* getBz2My(library_t* lib)
 
 void freeBz2My(void* lib)
 {
-    bz2_my_t *my = (bz2_my_t *)lib;
+    //bz2_my_t *my = (bz2_my_t *)lib;
 }
 
 typedef struct {

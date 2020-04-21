@@ -23,8 +23,6 @@ const char* gtkx112Name = "libgtk-x11-2.0.so.0";
 static char* libname = NULL;
 #define LIBNAME gtkx112
 
-static box86context_t* my_context = NULL;
-
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
 typedef void*         (*pFp_t)(void*);
@@ -112,7 +110,7 @@ void* getGtkx112My(library_t* lib)
 
 void freeGtkx112My(void* lib)
 {
-    gtkx112_my_t *my = (gtkx112_my_t *)lib;
+    //gtkx112_my_t *my = (gtkx112_my_t *)lib;
 }
 
 static box86context_t* context = NULL;
@@ -393,7 +391,7 @@ EXPORT void my_gtk_init(x86emu_t* emu, void* argc, void* argv)
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     my->gtk_init(argc, argv);
-    my_checkGlobalGdkDisplay(emu->context);
+    my_checkGlobalGdkDisplay();
 }
 
 EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
@@ -402,7 +400,7 @@ EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     int ret = my->gtk_init_check(argc, argv);
-    my_checkGlobalGdkDisplay(emu->context);
+    my_checkGlobalGdkDisplay();
     return ret;
 }
 
@@ -412,7 +410,7 @@ EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* pa
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
-    my_checkGlobalGdkDisplay(emu->context);
+    my_checkGlobalGdkDisplay();
     return ret;
 }
 
@@ -709,7 +707,6 @@ EXPORT void my_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, vo
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     libname = lib->name;                \
     lib->priv.w.p2 = getGtkx112My(lib); \
     SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \

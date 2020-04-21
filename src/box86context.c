@@ -116,12 +116,13 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
 
 #endif
 
-void initAllHelpers(box86context_t *context)
+void initAllHelpers(box86context_t* context)
 {
     static int inited = 0;
     if(inited)
         return;
-    init_pthread_helper(context);
+    my_context = context;
+    init_pthread_helper();
     inited = 1;
 }
 
@@ -280,8 +281,6 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);
     pthread_mutex_destroy(&(*context)->mutex_lock);
-
-    FreeCancelThread(*context);
 
     if((*context)->atfork_sz) {
         free((*context)->atforks);

@@ -44,7 +44,7 @@ void* getGdkpixbuf2My(library_t* lib)
 
 void freeGdkpixbuf2My(void* lib)
 {
-    gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t *)lib;
+    //gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t *)lib;
 }
 
 static void my_destroy_pixbuf(void* pixels, void* data)

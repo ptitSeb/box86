@@ -40,7 +40,7 @@ void* getCryptoMy(library_t* lib)
 
 void freeCryptoMy(void* lib)
 {
-    crypto_my_t *my = (crypto_my_t *)lib;
+    //crypto_my_t *my = (crypto_my_t *)lib;
 }
 
 x86emu_t* engine_ctrl_emu = NULL;

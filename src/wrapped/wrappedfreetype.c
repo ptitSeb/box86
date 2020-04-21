@@ -21,8 +21,6 @@
 const char* freetypeName = "libfreetype.so.6";
 #define LIBNAME freetype
 
-static box86context_t* my_context = NULL;
-
 typedef union  FT_StreamDesc_s
 {
     long   value;
@@ -83,7 +81,7 @@ void* getFreeTypeMy(library_t* lib)
 
 void freeFreeTypeMy(void* lib)
 {
-    freetype_my_t *my = (freetype_my_t *)lib;
+    //freetype_my_t *my = (freetype_my_t *)lib;
 }
 
 
@@ -123,7 +121,6 @@ EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, l
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;  \
     lib->priv.w.p2 = getFreeTypeMy(lib);
 
 #define CUSTOM_FINI \

@@ -121,7 +121,6 @@ void AppendList(path_collection_t* collection, const char* List, int folder)
         // and now split the paths...
     char tmp[MAX_PATH];
     const char *p = List;
-    int idx = 0;
     while(p) {
         const char *p2 = strchr(p, ':');
         if(!p2) {

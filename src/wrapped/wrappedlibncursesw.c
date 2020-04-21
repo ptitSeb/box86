@@ -46,7 +46,7 @@ void* getNCurseswMy(library_t* lib)
 
 void freeNCurseswMy(void* lib)
 {
-    libncursesw_my_t *my = (libncursesw_my_t *)lib;
+    //libncursesw_my_t *my = (libncursesw_my_t *)lib;
 }
 
 EXPORT void my_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)

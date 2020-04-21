@@ -57,14 +57,14 @@ int FileIsX86ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[sizeof(x86sign)] = {0};
-    int sz = fread(head, sizeof(x86sign), 1, f);
+    char head[sizeof(*x86sign)] = {0};
+    int sz = fread(head, sizeof(*x86sign), 1, f);
     if(sz!=1) {
         fclose(f);
         return 0;
     }
     fclose(f);
-    if(memcmp(head, x86sign, sizeof(x86sign))==0)
+    if(memcmp(head, x86sign, sizeof(*x86sign))==0)
         return 1;
     return 0;
 }

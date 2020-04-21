@@ -192,7 +192,9 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
+#ifdef CUSTOM_FAIL
     void* symbol = NULL;
+#endif
 //PRE
     if (!getSymbolInMaps(lib, name, 0, &addr, &size)) {
 #ifdef CUSTOM_FAIL
@@ -213,7 +215,9 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
+#ifdef CUSTOM_FAIL
     void* symbol = NULL;
+#endif
 //PRE
     if (!getSymbolInMaps(lib, name, 1, &addr, &size)) {
 #ifdef CUSTOM_FAIL

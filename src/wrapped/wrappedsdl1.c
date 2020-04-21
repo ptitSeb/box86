@@ -152,7 +152,7 @@ void* getSDL1My(library_t* lib)
 void freeSDL1My(void* lib)
 {
     sdl1_my_t *my = (sdl1_my_t *)lib;
-    x86emu_t *x;
+    //x86emu_t *x;
     /*kh_foreach_value(my->timercb, x, 
         FreeCallback(x);
     );*/

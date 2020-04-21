@@ -35,8 +35,6 @@ typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
-static box86context_t *my_context = NULL;
-
 #define SUPER() \
     GO(dbus_timeout_set_data, vFppp_t)  \
     GO(dbus_connection_set_timeout_functions, iFpppppp_t)   \
@@ -66,7 +64,7 @@ static void* getDBusMy(library_t* lib)
 
 static void freeDBusMy(void* lib)
 {
-    dbus_my_t *my = (dbus_my_t *)lib;
+    //dbus_my_t *my = (dbus_my_t *)lib;
 }
 
 x86emu_t* dbus_timeout_free_emu = NULL;
@@ -245,6 +243,7 @@ EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* 
         return my->dbus_connection_add_filter(connection, cbfnc, data, fr?cbfree:NULL);
     }
     printf_log(LOG_NONE, "Error: no more slot for dbus_connection_add_filter\n");
+    return 0;
 }
 
 EXPORT void my_dbus_connection_remove_filter(x86emu_t* emu, void* connection, void* fnc, void* data)
@@ -317,11 +316,9 @@ EXPORT int my_dbus_pending_call_set_data(x86emu_t* emu, void* pending, int32_t s
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     lib->priv.w.p2 = getDBusMy(lib);
 
 #define CUSTOM_FINI \
-    my_context = NULL;          \
     freeDBusMy(lib->priv.w.p2); \
     free(lib->priv.w.p2);
 

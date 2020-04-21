@@ -177,7 +177,7 @@ my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts);
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent);
 my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent);
 
-void InitGTKClass(box86context_t* context, bridge_t *bridge);
+void InitGTKClass(bridge_t *bridge);
 void FiniGTKClass();
 
 void SetGObjectID(int id);
@@ -188,8 +188,8 @@ void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* class, int type);
 
-void my_checkGlobalGdkDisplay(box86context_t* context);
-void my_setGlobalGThreadsInit(box86context_t* context);
+void my_checkGlobalGdkDisplay();
+void my_setGlobalGThreadsInit();
 
 typedef struct my_signal_s {
     uint32_t sign;  // signature

@@ -151,12 +151,12 @@ EXPORT void my2_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 
 EXPORT int32_t my2_Mix_RegisterEffect(x86emu_t*emu, int32_t channel, void* cb_effect, void* cb_done, void* arg)
 {
+    #if 0
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     x86emu_t *effect = NULL;
     khint_t k;
     void* cb1 = NULL;
     void* cb2 = NULL;
-    #if 0
     // best way to do it would probably be to create only 1 effect and done callback, and do the registering / per channel stuff there directly
     if(channel == -2) {
         effect = AddCallback(emu, (uintptr_t)cb_effect, 4, NULL, NULL, NULL, arg);
@@ -262,7 +262,7 @@ EXPORT void my2_Mix_HookMusicFinished(x86emu_t* emu, void* f)
 EXPORT int my2_MinorityMix_SetPosition(x86emu_t* emu, int channel, int16_t angle)
 {
     sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-    my->Mix_SetPosition(channel, angle, 0);
+    return my->Mix_SetPosition(channel, angle, 0);
 }
 
 const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";

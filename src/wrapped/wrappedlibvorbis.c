@@ -82,7 +82,7 @@ void* getVorbisMy(library_t* lib)
 
 void freeVorbisMy(void* lib)
 {
-    vorbis_my_t *my = (vorbis_my_t *)lib;
+    //vorbis_my_t *my = (vorbis_my_t *)lib;
 }
 
 #ifndef NOALIGN

@@ -32,6 +32,7 @@ static my_XF86VidModeGamma_t current_gamma = {0};
 EXPORT int my_XF86VidModeGetGamma(void* display, int screen, my_XF86VidModeGamma_t* gamma)
 {
     memcpy(gamma, &current_gamma, sizeof(current_gamma));
+    return 1;
 }
 
 EXPORT int my_XF86VidModeSetGamma(void* display, int screen, my_XF86VidModeGamma_t* gamma)
@@ -44,6 +45,7 @@ EXPORT int my_XF86VidModeSetGamma(void* display, int screen, my_XF86VidModeGamma
     else
         sprintf(buf, "sudo /usr/pandora/scripts/op_gamma.sh %.2f", mean);
     system(buf);
+    return 1;
 }
 #endif
 

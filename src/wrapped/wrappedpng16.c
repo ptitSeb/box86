@@ -47,7 +47,7 @@ void* getPng16My(library_t* lib)
 
 void freePng16My(void* lib)
 {
-    png16_my_t *my = (png16_my_t *)lib;
+    //png16_my_t *my = (png16_my_t *)lib;
 }
 
 // TODO: remove those static and create a proprer map, png_ptr as key....

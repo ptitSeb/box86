@@ -22,8 +22,6 @@ typedef int32_t (*sdl1_read)(SDL1_RWops_t *context, void *ptr, int32_t size, int
 typedef int32_t (*sdl1_write)(SDL1_RWops_t *context, const void *ptr, int32_t size, int32_t num);
 typedef int32_t (*sdl1_close)(SDL1_RWops_t *context);
 
-static box86context_t* my_context = NULL;
-
 #define BOX86RW 0xBECF4172 // random signature value
 
 typedef struct SDL1_RWops_s {
@@ -95,8 +93,6 @@ SDL1_RWops_t* AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops)
 {
     if(!ops)
         return NULL;
-    if(!my_context)
-        my_context = emu->context;
 
     uintptr_t fnc;
     bridge_t* system = emu->context->system;
@@ -130,8 +126,6 @@ SDL1_RWops_t* RWNativeStart(x86emu_t* emu, SDL1_RWops_t* ops)
 {
     if(!ops)
         return NULL;
-    if(!my_context)
-        my_context = emu->context;
     if(ops->type == BOX86RW)
         return ops->hidden.my.orig;
 

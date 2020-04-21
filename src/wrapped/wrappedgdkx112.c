@@ -22,7 +22,6 @@ const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 #define LIBNAME gdkx112
 
 static char* libname = NULL;
-static box86context_t* my_context = NULL;
 
 typedef int     (*iFpp_t)       (void*, void*);
 typedef void    (*vFpp_t)       (void*, void*);
@@ -56,7 +55,7 @@ void* getGdkX112My(library_t* lib)
 
 void freeGdkX112My(void* lib)
 {
-    gdkx112_my_t *my = (gdkx112_my_t *)lib;
+    //gdkx112_my_t *my = (gdkx112_my_t *)lib;
 }
 
 #define SUPER() \
@@ -142,7 +141,7 @@ EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     my->gdk_init(argc, argv);
-    my_checkGlobalGdkDisplay(emu->context);
+    my_checkGlobalGdkDisplay();
 }
 
 EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
@@ -151,7 +150,7 @@ EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     int ret = my->gdk_init_check(argc, argv);
-    my_checkGlobalGdkDisplay(emu->context);
+    my_checkGlobalGdkDisplay();
     return ret;
 }
 
@@ -172,7 +171,6 @@ EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, vo
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                         \
     libname = lib->name;                        \
     lib->priv.w.p2 = getGdkX112My(lib);         \
     lib->priv.w.needed = 3;                     \

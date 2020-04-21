@@ -22,7 +22,6 @@ const char* libjpegName = "libjpeg.so.8";
 #define LIBNAME libjpeg
 
 static char* libname = NULL;
-static box86context_t* my_context = NULL;
 static bridge_t* my_bridge = NULL;
 
 typedef void*   (*pFp_t)    (void*);
@@ -60,7 +59,7 @@ void* getJpegMy(library_t* lib)
 
 void freeJpegMy(void* lib)
 {
-    jpeg_my_t *my = (jpeg_my_t *)lib;
+    //jpeg_my_t *my = (jpeg_my_t *)lib;
 }
 
 typedef struct jpeg_error_mgr_s {
@@ -409,7 +408,6 @@ EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* ci
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     my_bridge = lib->priv.w.bridge;     \
     libname = lib->name;                \
     lib->priv.w.p2 = getJpegMy(lib);

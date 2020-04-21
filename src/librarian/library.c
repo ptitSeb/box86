@@ -504,7 +504,6 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
     if(!lib->active)
         return 0;
     khint_t k;
-    int ret;
     void* symbol;
     // check in datamap
     k = kh_get(datamap, lib->datamap, name);
@@ -646,7 +645,6 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
 
 void LibAddNeededLib(library_t* lib, library_t* needed)
 {
-    khint_t k;
     int ret;
     kh_put(needed, lib->needed, (uintptr_t)needed, &ret);
 }

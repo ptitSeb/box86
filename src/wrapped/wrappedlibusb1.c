@@ -22,8 +22,6 @@ const char* libusb1Name = "libusb-1.0.so.0";
 #define LIBNAME libusb1
 
 #if 0
-static box86context_t* my_context = NULL;
-
 typedef void* (*pFppiiLpppip_t)(void*, void*, int, int, unsigned long, void*, void*, void*, int, void*);
 
 #define SUPER() \
@@ -53,7 +51,6 @@ void freeUsb1My(void* lib)
 
 
 #define CUSTOM_INIT \
-    my_context = box86;  \
     lib->priv.w.p2 = getUsb1My(lib);
 
 #define CUSTOM_FINI \

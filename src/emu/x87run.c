@@ -19,12 +19,7 @@
 void Run66D9(x86emu_t *emu)
 {
     uint8_t nextop;
-    reg32_t *op1, *op2;
-    reg32_t ea1, ea2;
-    float f;
-    double d;
-    long double ld;
-    int64_t ll;
+    reg32_t *op1;
     nextop = Fetch8(emu);
     switch (nextop) {
         case 0xC0:
@@ -94,11 +89,7 @@ void Run66D9(x86emu_t *emu)
 void Run66DD(x86emu_t *emu)
 {
     uint8_t nextop;
-    reg32_t *op1, *op2;
-    reg32_t ea1, ea2;
-    float f;
-    double d;
-    long double ld;
+    reg32_t *op1;
     nextop = Fetch8(emu);
     switch(nextop) {
     

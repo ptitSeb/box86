@@ -89,10 +89,8 @@ void* getGobject2My(library_t* lib)
 
 void freeGobject2My(void* lib)
 {
-    gobject2_my_t *my = (gobject2_my_t *)lib;
+    //gobject2_my_t *my = (gobject2_my_t *)lib;
 }
-
-static box86context_t* my_context = NULL;
 
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
@@ -190,8 +188,8 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
 
 EXPORT void* my_g_object_connect(x86emu_t* emu, void* object, void* signal_spec, void** b)
 {
-    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
-    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+    //library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    //gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     char* spec = (char*)signal_spec;
     while(spec) {
@@ -605,8 +603,8 @@ EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signa
 
 EXPORT int my_g_type_register_static_simple(x86emu_t* emu, int parent, void* name, uint32_t class_size, void* class_init, uint32_t instance_size, void* instance_init, int flags)
 {
-    library_t * lib = GetLib(emu->context->maplib, gobject2Name);
-    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+    //library_t * lib = GetLib(emu->context->maplib, gobject2Name);
+    //gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
     my_GTypeInfo_t info = {0};
     info.class_size = class_size;
@@ -664,6 +662,7 @@ EXPORT void* my_g_value_array_sort(x86emu_t* emu, void* array, void* comp)
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
     void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
     FreeCallback(emucb);
+    return ret;
 }
 
 EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
@@ -674,6 +673,7 @@ EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* c
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
     void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
     FreeCallback(emucb);
+    return ret;
 }
 
 EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
@@ -685,8 +685,7 @@ EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, vo
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                         \
-    InitGTKClass(box86, lib->priv.w.bridge);    \
+    InitGTKClass(lib->priv.w.bridge);    \
     lib->priv.w.p2 = getGobject2My(lib);        \
     SetGObjectID(((gobject2_my_t*)lib->priv.w.p2)->g_object_get_type());        \
     SetGTypeName(((gobject2_my_t*)lib->priv.w.p2)->g_type_name);                \

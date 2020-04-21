@@ -54,7 +54,7 @@ static void* getSMPEG2My(library_t* lib)
 
 static void freeSMPEG2My(void* lib)
 {
-    smpeg2_my_t *my = (smpeg2_my_t *)lib;
+    //smpeg2_my_t *my = (smpeg2_my_t *)lib;
 }
 
 static void smpeg_dispcallback(void* data, void* frame)

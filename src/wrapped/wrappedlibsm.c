@@ -21,8 +21,6 @@
 const char* libsmName = "libSM.so.6";
 #define LIBNAME libsm
 
-static box86context_t* my_context = NULL;
-
 typedef void* (*pFppiiLpppip_t)(void*, void*, int, int, unsigned long, void*, void*, void*, int, void*);
 
 #define SUPER() \
@@ -47,7 +45,7 @@ void* getSMMy(library_t* lib)
 
 void freeSMMy(void* lib)
 {
-    libsm_my_t *my = (libsm_my_t *)lib;
+    //libsm_my_t *my = (libsm_my_t *)lib;
 }
 
 typedef struct my_SmcCallbacks_s {
@@ -115,7 +113,6 @@ EXPORT void* my_SmcOpenConnection(x86emu_t* emu, void* networkIdsList, void* con
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;  \
     lib->priv.w.p2 = getSMMy(lib);
 
 #define CUSTOM_FINI \

@@ -21,8 +21,6 @@
 const char* dbusglib1Name = "libdbus-glib-1.so.2";
 #define LIBNAME dbusglib1
 
-static box86context_t* my_context = NULL;
-
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
@@ -56,7 +54,7 @@ static void* getDBusGLib1My(library_t* lib)
 
 static void freeDBusGLib1My(void* lib)
 {
-    dbusglib1_my_t *my = (dbusglib1_my_t *)lib;
+    //dbusglib1_my_t *my = (dbusglib1_my_t *)lib;
 }
 
 #define SUPER() \
@@ -239,11 +237,9 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* 
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                     \
     lib->priv.w.p2 = getDBusGLib1My(lib);
 
 #define CUSTOM_FINI \
-    my_context = NULL;              \
     freeDBusGLib1My(lib->priv.w.p2);\
     free(lib->priv.w.p2);
 

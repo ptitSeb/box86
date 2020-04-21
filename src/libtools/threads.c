@@ -60,8 +60,6 @@ typedef struct x86_unwind_buff_s {
 	void *__pad[4];
 } x86_unwind_buff_t __attribute__((__aligned__));
 
-static box86context_t *my_context = NULL;
-
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
 KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
 
@@ -112,19 +110,19 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	return 0;
 }
 
-void InitCancelThread()
+static void InitCancelThread()
 {
 	my_context->cancelthread = kh_init(cancelthread);
 }
 
-void FreeCancelThread()
+static void FreeCancelThread()
 {
 	__pthread_unwind_buf_t* buff;
 	kh_foreach_value(my_context->cancelthread, buff, free(buff))
 	kh_destroy(cancelthread, my_context->cancelthread);
 	my_context->cancelthread = NULL;
 }
-__pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
+static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
 {
 	int ret;
 	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
@@ -133,7 +131,7 @@ __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
 	return kh_value(my_context->cancelthread, k);
 }
 
-void DelCancelThread(uintptr_t buff)
+static void DelCancelThread(uintptr_t buff)
 {
 	khint_t k = kh_get(cancelthread, my_context->cancelthread, buff);
 	if(k==kh_end(my_context->cancelthread))
@@ -491,9 +489,8 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
     return pthread_kill((pthread_t)thread, sig);
 }
 
-void init_pthread_helper(box86context_t* context)
+void init_pthread_helper()
 {
-	my_context = context;
 	InitCancelThread();
 }
 
@@ -501,5 +498,4 @@ void fini_pthread_helper()
 {
 	FreeCancelThread();
 	CleanStackSize();
-	my_context = NULL;
 }

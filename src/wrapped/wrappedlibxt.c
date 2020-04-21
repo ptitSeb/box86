@@ -44,10 +44,8 @@ void* getXtMy(library_t* lib)
 
 void freeXtMy(void* lib)
 {
-    libxt_my_t *my = (libxt_my_t *)lib;
+    //libxt_my_t *my = (libxt_my_t *)lib;
 }
-
-static box86context_t *my_context = NULL;
 
 #define SUPER() \
 GO(0)   \
@@ -92,7 +90,6 @@ EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t 
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     lib->priv.w.p2 = getXtMy(lib);   \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \

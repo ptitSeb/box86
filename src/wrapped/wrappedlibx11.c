@@ -167,10 +167,8 @@ void* getX11My(library_t* lib)
 
 void freeX11My(void* lib)
 {
-    x11_my_t *my = (x11_my_t *)lib;
+    // x11_my_t *my = (x11_my_t *)lib;
 }
-
-static box86context_t *my_context = NULL;
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
@@ -416,8 +414,6 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
 
 void UnbridgeImageFunc(x86emu_t *emu, XImage *img)
 {
-    bridge_t* system = emu->context->system;
-
     #define GO(A, W) \
     fnc = GetNativeFnc((uintptr_t)img->f.A); \
     if(fnc) \
@@ -771,6 +767,7 @@ EXPORT int my_XCloseDisplay(x86emu_t* emu, void* display)
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     int ret = my->XCloseDisplay(display);
+    return ret;
 }
 
 EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
@@ -810,7 +807,6 @@ EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db,
 
 #define CUSTOM_INIT                 \
     box86->x11lib = lib;            \
-    my_context = box86;             \
     lib->priv.w.p2 = getX11My(lib); \
     if(x11threads) ((x11_my_t*)lib->priv.w.p2)->XInitThreads();
 

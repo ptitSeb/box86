@@ -22,8 +22,6 @@
 const char* gthread2Name = "libgthread-2.0.so.0";
 #define LIBNAME gthread2
 
-static box86context_t* my_context = NULL;
-
 typedef void  (*vFp_t)(void*);
 
 #define SUPER() \
@@ -49,7 +47,7 @@ void* getGthread2My(library_t* lib)
 
 void freeGthread2My(void* lib)
 {
-    gthread2_my_t *my = (gthread2_my_t *)lib;
+    //gthread2_my_t *my = (gthread2_my_t *)lib;
 }
 
 EXPORT int g_threads_got_initialized;
@@ -83,7 +81,7 @@ EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
     if(g_threads_got_initialized) {
         // no need to do it twice
-        my_setGlobalGThreadsInit(emu->context);
+        my_setGlobalGThreadsInit();
         return;
     }
 
@@ -98,14 +96,14 @@ EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
     my->g_thread_init(vtable);
 
     if(g_threads_got_initialized)
-        my_setGlobalGThreadsInit(emu->context);
+        my_setGlobalGThreadsInit();
 }
 
 EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
     if(g_threads_got_initialized) {
         // no need to do it twice
-        my_setGlobalGThreadsInit(emu->context);
+        my_setGlobalGThreadsInit();
         return;
     }
 
@@ -118,12 +116,11 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFu
     my->g_thread_init_with_errorcheck_mutexes(vtable);  // will certainly crash here...
 
     if(g_threads_got_initialized)
-        my_setGlobalGThreadsInit(emu->context);
+        my_setGlobalGThreadsInit();
 }
 
 
 #define CUSTOM_INIT \
-    my_context = box86; \
     lib->priv.w.p2 = getGthread2My(lib);
 
 #define CUSTOM_FINI \

@@ -146,10 +146,8 @@ void* getXcbMy(library_t* lib)
 
 void freeXcbMy(void* lib)
 {
-    xcb_my_t *my = (xcb_my_t *)lib;
+    //xcb_my_t *my = (xcb_my_t *)lib;
 }
-
-static box86context_t *my_context = NULL;
 
 #define SUPER(F, P, ...)                                            \
     EXPORT void* my_##F P                                           \
@@ -258,7 +256,6 @@ EXPORT void* my_xcb_setup_roots_iterator(x86emu_t* emu, void* ret, void* R)
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     box86->libxcb = lib;                \
     lib->priv.w.p2 = getXcbMy(lib);
 

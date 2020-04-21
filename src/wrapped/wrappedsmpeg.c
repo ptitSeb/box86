@@ -53,7 +53,7 @@ static void* getSMPEGMy(library_t* lib)
 
 static void freeSMPEGMy(void* lib)
 {
-    smpeg_my_t *my = (smpeg_my_t *)lib;
+    //smpeg_my_t *my = (smpeg_my_t *)lib;
 }
 
 

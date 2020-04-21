@@ -44,10 +44,8 @@ void* getXtstMy(library_t* lib)
 
 void freeXtstMy(void* lib)
 {
-    libxtst_my_t *my = (libxtst_my_t *)lib;
+    //libxtst_my_t *my = (libxtst_my_t *)lib;
 }
-
-static box86context_t *my_context = NULL;
 
 uintptr_t fnc_XRecordInterceptProc = 0;
 static void my_XRecordInterceptProc(void* closure, void *recorded_data)
@@ -70,7 +68,6 @@ EXPORT int my_XRecordEnableContextAsync(x86emu_t* emu, void* display, void* cont
 }
 
 #define CUSTOM_INIT \
-    my_context = box86;              \
     lib->priv.w.p2 = getXtstMy(lib);   \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \

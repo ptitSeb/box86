@@ -127,8 +127,6 @@ typedef struct libc_my_s {
     #undef GO
 } libc_my_t;
 
-static box86context_t *my_context = NULL;
-
 void* getLIBCMy(library_t* lib)
 {
     libc_my_t* my = (libc_my_t*)calloc(1, sizeof(libc_my_t));
@@ -254,7 +252,6 @@ SUPER()
 static void* findftw64Fct(void* fct)
 {
     if(!fct) return NULL;
-    void* p;
     #define GO(A) if(my_ftw64_fct_##A == (uintptr_t)fct) return my_ftw64_##A;
     SUPER()
     #undef GO
@@ -303,7 +300,6 @@ SUPER()
 static void* findnftw64Fct(void* fct)
 {
     if(!fct) return NULL;
-    void* p;
     #define GO(A) if(my_nftw64_fct_##A == (uintptr_t)fct) return my_nftw64_##A;
     SUPER()
     #undef GO
@@ -987,6 +983,7 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         if(tmp<0) return open(pathname, flags, mode);
         shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        (void)dummy;
         for (int i=1; i<emu->context->argc; ++i)
             dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
@@ -1017,6 +1014,7 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         if(tmp<0) return open64(pathname, flags, mode);
         shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        (void)dummy;
         for (int i=1; i<emu->context->argc; ++i)
             dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
@@ -1053,7 +1051,7 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
     char* fname = strdup(template);
     do {
         strcpy(fname, template);
-        char num[7] = {0};
+        char num[8];
         sprintf(num, "%06d", rand()%999999);
         memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
     } while(!FileExist(fname, -1));
@@ -1540,7 +1538,7 @@ EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read,
 
 EXPORT long my_prlimit64(void* pid, uint32_t res, void* new_rlim, void* old_rlim)
 {
-    syscall(__NR_prlimit64, pid, res, new_rlim, old_rlim);
+    return syscall(__NR_prlimit64, pid, res, new_rlim, old_rlim);
 }
 
 EXPORT void* my_reallocarray(void* ptr, size_t nmemb, size_t size)
@@ -1582,7 +1580,6 @@ EXPORT void* my_malloc(unsigned long size)
 #endif
 
 #define CUSTOM_INIT         \
-    my_context = box86;     \
     InitCpuModel();         \
     ctSetup();              \
     stSetup(box86);         \

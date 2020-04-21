@@ -27,8 +27,6 @@ const char* vorbisfileName = "libvorbisfile.so.3";
 #endif
 #define LIBNAME vorbisfile
 
-box86context_t *my_context = NULL;
-
 typedef void*   (*pFpi_t)(void*, int32_t);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
@@ -126,7 +124,7 @@ void* getVorbisfileMy(library_t* lib)
 
 void freeVorbisfileMy(void* lib)
 {
-    vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
+    //vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
 }
 
 int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read, void* seek, void* close, void* tell);
@@ -404,12 +402,10 @@ EXPORT double my_ov_time_total(x86emu_t* emu, void* vf, int32_t i) {
 #endif
 
 #define CUSTOM_INIT \
-    my_context = box86;     \
     box86->vorbisfile = lib;\
     lib->priv.w.p2 = getVorbisfileMy(lib);
 
 #define CUSTOM_FINI \
-    my_context = NULL;                  \
     freeVorbisfileMy(lib->priv.w.p2);   \
     free(lib->priv.w.p2);               \
     lib->context->vorbisfile = NULL;

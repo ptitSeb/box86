@@ -25,8 +25,6 @@
 #include "bridge.h"
 #include "khash.h"
 
-static box86context_t *my_context = NULL;
-
 // kh_ftsent_t store each ftsent conversion from native -> x86
 KHASH_MAP_INIT_INT(ftsent, x86_ftsent_t*)
 
@@ -148,10 +146,6 @@ void freeFts(box86context_t* context, void* ftsp)
 #endif
 EXPORT void* my_fts_open(x86emu_t* emu, void* path, int options, void* compare_fn)
 {
-    #ifndef NOALIGN
-    if(!my_context)
-        my_context = emu->context;
-    #endif
     return fts_open(path, options, findcompareFct(compare_fn));
 }
 

@@ -23,8 +23,6 @@
 const char* librtName = "librt.so.1";
 #define LIBNAME librt
 
-static box86context_t *my_context = NULL;
-
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -67,11 +65,5 @@ EXPORT int my_timer_create(x86emu_t* emu, uint32_t clockid, void* sevp, timer_t*
 
     return timer_create(clockid, &sevent, timerid);
 }
-
-#define CUSTOM_INIT \
-    my_context = box86;
-
-#define CUSTOM_FINI \
-    my_context = NULL;
 
 #include "wrappedlib_init.h"

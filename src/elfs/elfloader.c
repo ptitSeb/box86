@@ -312,12 +312,10 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
-        int type = ELF32_ST_TYPE(sym->st_info);
         int bind = ELF32_ST_BIND(sym->st_info);
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
-        uint32_t sz = 0;
         uintptr_t end = 0;
         if(bind==STB_LOCAL)
             GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head);
@@ -458,7 +456,6 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
         const char* symname = SymName(head, sym);
         uint32_t *p = (uint32_t*)(rela[i].r_offset + head->delta);
         uintptr_t offs = 0;
-        uint32_t sz = 0;
         uintptr_t end = 0;
         switch(ELF32_R_TYPE(rela[i].r_info)) {
             case R_386_NONE:
@@ -996,7 +993,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
             return ret;
         if(box86_dynarec_forced)
             return context->dynablocks;
-        dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", addr);
+        dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
         return NULL;
     }
     return elf->blocks;
@@ -1086,6 +1083,7 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     char buff[1024];
     struct stat st;
     int dummy;
+    (void)dummy;
 
     elfheader_t *h = context->elfs[0];
 
@@ -1099,7 +1097,7 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     for (int i=0; i<h->numPHEntries; ++i) {
         if (h->PHEntries[i].p_memsz == 0) continue;
 
-        sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %d %s\n", (uintptr_t)h->PHEntries[i].p_vaddr + h->delta,
+        sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %ld %s\n", (uintptr_t)h->PHEntries[i].p_vaddr + h->delta,
             (uintptr_t)h->PHEntries[i].p_vaddr + h->PHEntries[i].p_memsz + h->delta,
             (h->PHEntries[i].p_type & (PF_R|PF_X) ? 'r':'-'), (h->PHEntries[i].p_type & PF_W ? 'w':'-'),
             (h->PHEntries[i].p_type & PF_X ? 'x':'-'), 'p', // p for private or s for shared

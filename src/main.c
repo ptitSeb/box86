@@ -36,6 +36,7 @@
 #include "library.h"
 #include "auxval.h"
 
+box86context_t *my_context = NULL;
 int box86_log = LOG_INFO;//LOG_NONE;
 int box86_dynarec_log = LOG_NONE;
 #ifdef DYNAREC
@@ -78,22 +79,22 @@ void GatherDynarecExtensions()
     if(!hwcap)  // no HWCap: provide a default...
         hwcap = HWCAP_HALF|HWCAP_FAST_MULT|HWCAP_EDSP|HWCAP_NEON|HWCAP_VFPv3;
     // first, check all needed extensions, lif half, edsp and fastmult
-    if(hwcap&HWCAP_HALF == 0) {
+    if((hwcap&HWCAP_HALF) == 0) {
         printf_log(LOG_INFO, "Missing HALF cpu support, disabling Dynarec\n");
         box86_dynarec=0;
         return;
     }
-    if(hwcap&HWCAP_FAST_MULT == 0) {
+    if((hwcap&HWCAP_FAST_MULT) == 0) {
         printf_log(LOG_INFO, "Missing FAST_MULT cpu support, disabling Dynarec\n");
         box86_dynarec=0;
         return;
     }
-    if(hwcap&HWCAP_EDSP == 0) {
+    if((hwcap&HWCAP_EDSP) == 0) {
         printf_log(LOG_INFO, "Missing EDSP cpu support, disabling Dynarec\n");
         box86_dynarec=0;
         return;
     }
-    if(hwcap&HWCAP_NEON == 0) {
+    if((hwcap&HWCAP_NEON) == 0) {
         printf_log(LOG_INFO, "Missing NEON support, disabling Dynarec\n");
         box86_dynarec=0;
         return;
@@ -424,7 +425,7 @@ void LoadEnvVars(box86context_t *context)
     if(getenv("BOX86_EMULATED_LIBS")) {
         char* p = getenv("BOX86_EMULATED_LIBS");
         ParseList(p, &context->box86_emulated_libs, 0);
-        if (context->box86_emulated_libs.size && box86_log) {
+        if (my_context->box86_emulated_libs.size && box86_log) {
             printf_log(LOG_INFO, "BOX86 will force the used of emulated libs for ");
             for (int i=0; i<context->box86_emulated_libs.size; ++i)
                 printf_log(LOG_INFO, "%s ", context->box86_emulated_libs.paths[i]);
@@ -452,9 +453,9 @@ void LoadEnvVars(box86context_t *context)
         if (strcmp(p, "0"))
             context->x86trace = 1;
     }
-    if(context->x86trace) {
+    if(my_context->x86trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
-        if(InitX86Trace(context)) {
+        if(InitX86Trace(my_context)) {
             printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
             context->x86trace = 0;
         }
@@ -475,28 +476,28 @@ void setupTraceInit(box86context_t* context)
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
         if (strcmp(p, "1")==0)
-            SetTraceEmu(context->emu, 0, 0);
+            SetTraceEmu(my_context->emu, 0, 0);
         else if (strchr(p,'-')) {
             if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
             if(trace_start)
-                SetTraceEmu(context->emu, trace_start, trace_end);
+                SetTraceEmu(my_context->emu, trace_start, trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(context->maplib), p, &trace_start, &trace_end)) {
-                SetTraceEmu(context->emu, trace_start, trace_end);
+            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)) {
+                SetTraceEmu(my_context->emu, trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
+                SetTraceEmu(my_context->emu, 0, 100);  // disabling trace, mostly
             }
         }
     } else {
         p = getenv("BOX86_TRACE");
         if(p)
             if (strcmp(p, "0"))
-                SetTraceEmu(context->emu, 0, 1);
+                SetTraceEmu(my_context->emu, 0, 1);
     }
 #endif
 }
@@ -509,21 +510,21 @@ void setupTrace(box86context_t* context)
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
         if (strcmp(p, "1")==0)
-            SetTraceEmu(context->emu, 0, 0);
+            SetTraceEmu(my_context->emu, 0, 0);
         else if (strchr(p,'-')) {
             if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
             if(trace_start)
-                SetTraceEmu(context->emu, trace_start, trace_end);
+                SetTraceEmu(my_context->emu, trace_start, trace_end);
         } else {
-            if (GetGlobalSymbolStartEnd(context->maplib, p, &trace_start, &trace_end)) {
-                SetTraceEmu(context->emu, trace_start, trace_end);
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
+                SetTraceEmu(my_context->emu, trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(context->emu, 0, 100);  // disabling trace, mostly
+                SetTraceEmu(my_context->emu, 0, 100);  // disabling trace, mostly
             }
         }
     }
@@ -565,22 +566,21 @@ int main(int argc, const char **argv, const char **env) {
     LoadLogEnv();
     
     // Create a new context
-    box86context_t *context = NewBox86Context(argc - 1);
-    context->box86path = strdup(argv[0]);
+    my_context = NewBox86Context(argc - 1);
+    my_context->box86path = strdup(argv[0]);
 
-    const char *p;
     const char* prog = argv[1];
     // check BOX86_LD_LIBRARY_PATH and load it
-    LoadEnvVars(context);
+    LoadEnvVars(my_context);
 
     // prepare all other env. var
-    context->envc = CountEnv(env);
-    printf_log(LOG_INFO, "Counted %d Env var\n", context->envc);
-    context->envv = (char**)calloc(context->envc, sizeof(char*));
-    GatherEnv(&context->envv, env, prog);
+    my_context->envc = CountEnv(env);
+    printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
+    my_context->envv = (char**)calloc(my_context->envc, sizeof(char*));
+    GatherEnv(&my_context->envv, env, prog);
     if(box86_log>=LOG_DUMP) {
-        for (int i=0; i<context->envc; ++i)
-            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, context->envv[i]);
+        for (int i=0; i<my_context->envc; ++i)
+            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
@@ -597,9 +597,9 @@ int main(int argc, const char **argv, const char **env) {
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     if(strchr(prog, '/'))
-        context->argv[0] = strdup(prog);
+        my_context->argv[0] = strdup(prog);
     else
-        context->argv[0] = ResolveFile(prog, &context->box86_path);
+        my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
 
     const char* prgname = strrchr(prog, '/');
     if(!prgname)
@@ -609,143 +609,143 @@ int main(int argc, const char **argv, const char **env) {
     // special case for LittleInferno that use an old libvorbis
     if(strstr(prgname, "LittleInferno.bin.x86")==prgname) {
         printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
-        AddPath("libvorbis.so.0", &context->box86_emulated_libs, 0);
+        AddPath("libvorbis.so.0", &my_context->box86_emulated_libs, 0);
     }
     // special case for dontstarve that use an old SDL2
     if(strstr(prgname, "dontstarve")) {
         printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
-        AddPath("libSDL2-2.0.so.0", &context->box86_emulated_libs, 0);
+        AddPath("libSDL2-2.0.so.0", &my_context->box86_emulated_libs, 0);
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {
         printf_log(LOG_INFO, "steam detected, forcing emulated libudev, disabling SSSE3, faking 64bits OS\n");
-        AddPath("libudev.so.0", &context->box86_emulated_libs, 0);
+        AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
     }
 
-    for(int i=1; i<context->argc; ++i)
-        context->argv[i] = strdup(argv[i+1]);
+    for(int i=1; i<my_context->argc; ++i)
+        my_context->argv[i] = strdup(argv[i+1]);
     // check if file exist
-    if(!context->argv[0]) {
+    if(!my_context->argv[0]) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(!FileExist(context->argv[0], IS_FILE|IS_EXECUTABLE)) {
-        printf_log(LOG_NONE, "Error: %s is not an executable file\n", context->argv[0]);
-        FreeBox86Context(&context);
+    if(!FileExist(my_context->argv[0], IS_FILE|IS_EXECUTABLE)) {
+        printf_log(LOG_NONE, "Error: %s is not an executable file\n", my_context->argv[0]);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(!(context->fullpath = realpath(context->argv[0], NULL)))
-        context->fullpath = strdup(context->argv[0]);
-    FILE *f = fopen64(context->argv[0], "rb");
+    if(!(my_context->fullpath = realpath(my_context->argv[0], NULL)))
+        my_context->fullpath = strdup(my_context->argv[0]);
+    FILE *f = fopen64(my_context->argv[0], "rb");
     if(!f) {
-        printf_log(LOG_NONE, "Error: Cannot open %s\n", context->argv[0]);
-        FreeBox86Context(&context);
+        printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->argv[0]);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    elfheader_t *elf_header = LoadAndCheckElfHeader(f, context->argv[0], 1);
+    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
         fclose(f);
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    int mainelf = AddElfHeader(context, elf_header);
+    AddElfHeader(my_context, elf_header);
 
     if(CalcLoadAddr(elf_header)) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s\n", context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
         fclose(f);
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // allocate memory
-    if(AllocElfMemory(context, elf_header, 1)) {
-        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", context->argv[0]);
+    if(AllocElfMemory(my_context, elf_header, 1)) {
+        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->argv[0]);
         fclose(f);
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // Load elf into memory
-    if(LoadElfMemory(f, context, elf_header)) {
-        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", context->argv[0]);
+    if(LoadElfMemory(f, my_context, elf_header)) {
+        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->argv[0]);
         fclose(f);
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // can close the file now
     fclose(f);
     // get and alloc stack size and align
-    if(CalcStackSize(context)) {
+    if(CalcStackSize(my_context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
-        FreeBox86Context(&context);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // init x86 emu
-    context->emu = NewX86Emu(context, context->ep, (uintptr_t)context->stack, context->stacksz, 0);
+    my_context->emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
-    SetupInitialStack(context);
+    SetupInitialStack(my_context);
     // this is probably useless
-    SetupX86Emu(context->emu);
-    SetEAX(context->emu, context->argc);
-    SetEBX(context->emu, (uint32_t)context->argv);
-    setupTraceInit(context);
+    SetupX86Emu(my_context->emu);
+    SetEAX(my_context->emu, my_context->argc);
+    SetEBX(my_context->emu, (uint32_t)my_context->argv);
+    setupTraceInit(my_context);
     // export symbols
-    AddSymbols(context->maplib, GetMapSymbol(context->maplib), GetWeakSymbol(context->maplib), GetLocalSymbol(context->maplib), elf_header);
+    AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
-            if(AddNeededLib(context->maplib, NULL, ld_preload.paths[i], context, context->emu)) {
+            if(AddNeededLib(my_context->maplib, NULL, ld_preload.paths[i], my_context, my_context->emu)) {
                 printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, context->maplib, NULL, context, context->emu)) {
-        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", context->argv[0]);
-        FreeBox86Context(&context);
+    if(LoadNeededLibs(elf_header, my_context->maplib, NULL, my_context, my_context->emu)) {
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
-            if(FinalizeLibrary(GetLib(context->maplib, ld_preload.paths[i]), context->emu)) {
+            if(FinalizeLibrary(GetLib(my_context->maplib, ld_preload.paths[i]), my_context->emu)) {
                 printf_log(LOG_INFO, "Warning, cannot finalize pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }
-    if(FinalizeNeededLibs(elf_header, context->maplib, context, context->emu)) {
-        printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", context->argv[0]);
-        FreeBox86Context(&context);
+    if(FinalizeNeededLibs(elf_header, my_context->maplib, my_context, my_context->emu)) {
+        printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", my_context->argv[0]);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // reloc...
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
-    if(RelocateElf(context->maplib, elf_header)) {
-        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", context->argv[0]);
-        FreeBox86Context(&context);
+    if(RelocateElf(my_context->maplib, elf_header)) {
+        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->argv[0]);
+        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     // and handle PLT
-    RelocateElfPlt(context, context->maplib, elf_header);
+    RelocateElfPlt(my_context, my_context->maplib, elf_header);
     // defered init
-    RunDeferedElfInit(context->emu);
+    RunDeferedElfInit(my_context->emu);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
-    setupTrace(context);
+    setupTrace(my_context);
     // get entrypoint
-    context->ep = GetEntryPoint(context->maplib, elf_header);
+    my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
 #ifdef RPI
     // before launching emulation, let's check if this is a mojosetup from GOG
     if (((strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
@@ -756,18 +756,18 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
-    SetEAX(context->emu, context->argc);
-    SetEBX(context->emu, (uint32_t)context->argv);
-    SetEIP(context->emu, context->ep);
-    ResetFlags(context->emu);
-    Run(context->emu, 0);
+    SetEAX(my_context->emu, my_context->argc);
+    SetEBX(my_context->emu, (uint32_t)my_context->argv);
+    SetEIP(my_context->emu, my_context->ep);
+    ResetFlags(my_context->emu);
+    Run(my_context->emu, 0);
     // Get EAX
-    int ret = GetEAX(context->emu);
+    int ret = GetEAX(my_context->emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
 
     // all done, free context
-    FreeBox86Context(&context);
+    FreeBox86Context(&my_context);
     if(libGL)
         free(libGL);
     FreeCollection(&ld_preload);

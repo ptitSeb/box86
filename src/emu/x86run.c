@@ -26,7 +26,6 @@ int Run(x86emu_t *emu, int step)
     uint8_t opcode;
     uint8_t nextop;
     reg32_t *oped;
-    reg32_t ea1;
     uint8_t tmp8u, tmp8u2;
     int8_t tmp8s;
     uint16_t tmp16u, tmp16u2;

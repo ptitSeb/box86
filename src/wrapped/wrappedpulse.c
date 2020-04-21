@@ -72,7 +72,6 @@ static my_pulse_cb_t* insertCB(my_pulse_context_cb_t* cblist) {
 }
 static void freeContext(kh_pulsecb_t* list, void* context) {
     khint_t k;
-    int ret;
     k = kh_get(pulsecb, list, (uintptr_t)context);
     if(k == kh_end(list) || !kh_exist(list, k))
         return;
@@ -198,8 +197,6 @@ typedef struct pulse_my_s {
     kh_pulsecb_t   *list;
     // other
 } pulse_my_t;
-
-static box86context_t *my_context = NULL;
 
 void* getPulseMy(library_t* lib)
 {
@@ -433,7 +430,7 @@ static void native_quit(void* api, int retval)
 static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
 {
     uintptr_t b = (uintptr_t)cb;
-    pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
+    //pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
 
     void* fnc = GetNativeFnc((uintptr_t)my_mainloop_ref->io_new);
     if(fnc) {
@@ -489,7 +486,7 @@ static void my_io_set_destroy(void* e, void* cb)
 static void* my_time_new(void* api, void* tv, void* cb, void* data)
 {
     uintptr_t b = (uintptr_t)cb;
-    pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
+    //pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
 
     void* fnc = GetNativeFnc((uintptr_t)my_mainloop_ref->time_new);
     if(fnc) {
@@ -546,7 +543,7 @@ static void my_time_set_destroy(void* e, void* cb)
 static void* my_defer_new(void* api, void* cb, void* data)
 {
     uintptr_t b = (uintptr_t)cb;
-    pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
+    //pulse_my_t* my = (pulse_my_t*)my_context->pulse->priv.w.p2;
 
     void* fnc = GetNativeFnc((uintptr_t)my_mainloop_ref->defer_new);
     if(fnc) {
@@ -638,14 +635,14 @@ static void bridgeMainloopAPI(bridge_t* bridge, my_pa_mainloop_api_t* api)
     my_mainloop_ref = &my_mainloop_api;
     return;
 }
-static my_pa_mainloop_api_t* backMainloopAPI(my_pa_mainloop_api_t* mainloop)
+/*static my_pa_mainloop_api_t* backMainloopAPI(my_pa_mainloop_api_t* mainloop)
 {
     if(my_mainloop_ref!=mainloop) {
         printf_log(LOG_NONE, "Warning, Pulse mainloop_api is not expected value\n");
         return mainloop;
     }
     return my_mainloop_orig;
-}
+}*/
 
 // mainloop_api: all the functions are wrapped, with custom function used...
 // and a copy is sent to the emulated software. copy use wrapped function
@@ -1206,7 +1203,7 @@ EXPORT void* my_pa_stream_drain(x86emu_t* emu, void* stream, void* cb, void* dat
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
-    my->pa_stream_drain(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_drain(stream, cb?my_stream_success:NULL, c);
 }
 
 EXPORT void* my_pa_stream_flush(x86emu_t* emu, void* stream, void* cb, void* data)
@@ -1219,7 +1216,7 @@ EXPORT void* my_pa_stream_flush(x86emu_t* emu, void* stream, void* cb, void* dat
         c->fnc = (uintptr_t)cb;
         c->data = data;
     }
-    my->pa_stream_flush(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_flush(stream, cb?my_stream_success:NULL, c);
 }
 
 static void my_stream_notify(void* s, void* data)
@@ -1542,7 +1539,6 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
 #endif
 
 #define CUSTOM_INIT \
-    my_context = box86;                 \
     lib->priv.w.p2 = getPulseMy(lib);   \
     box86->pulse = lib;
 

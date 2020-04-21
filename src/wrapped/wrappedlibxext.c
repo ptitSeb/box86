@@ -70,7 +70,7 @@ void* getXextMy(library_t* lib)
 
 void freeXextMy(void* lib)
 {
-    xext_my_t *my = (xext_my_t *)lib;
+    //xext_my_t *my = (xext_my_t *)lib;
 }
 
 EXPORT void* my_XShmCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt

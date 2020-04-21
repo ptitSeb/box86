@@ -4,10 +4,8 @@
 typedef struct box86context_s box86context_t;
 
 void CleanStackSize();
-void InitCancelThread();
-void FreeCancelThread();
 
-void init_pthread_helper(box86context_t* context);
+void init_pthread_helper();
 void fini_pthread_helper();
 
 #endif //_THREADS_H_

@@ -407,7 +407,7 @@ static int32_t my_seek_callback(void* userdata, int64_t off, int32_t origin)
     SetCallbackArg(emu, 3, (void*)origin);
     return (int32_t)RunCallback(emu);
 }
-
+/*
 static size_t my_header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
 {
     x86emu_t *emu = (x86emu_t*)userdata;
@@ -416,7 +416,7 @@ static size_t my_header_callback(char* buffer, size_t size, size_t nitems, void*
     SetCallbackArg(emu, 2, (void*)nitems);
     return RunCallback(emu);
 }
-
+*/
 
 EXPORT void my_curl_easy_cleanup(x86emu_t* emu, void* handle)
 {

@@ -21,8 +21,6 @@
 #define LIBNAME libasound
 const char* libasoundName = "libasound.so.2";
 
-static box86context_t* my_context = NULL;
-
 typedef int     (*iFp_t)        (void*);
 typedef void*   (*pFp_t)        (void*);
 typedef int     (*iFpipp_t)     (void*, int, void*, void*);
@@ -52,7 +50,7 @@ void* getAsoundMy(library_t* lib)
 
 void freeAsoundMy(void* lib)
 {
-    asound_my_t *my = (asound_my_t *)lib;
+    // asound_my_t *my = (asound_my_t *)lib;
 }
 
 #define SUPER() \
@@ -134,7 +132,6 @@ EXPORT int my_snd_lib_error_set_handler(x86emu_t* emu, void* handler)
 }
 
 #define CUSTOM_INIT                     \
-    my_context = box86;                 \
     box86->asound = lib;                \
     lib->priv.w.p2 = getAsoundMy(lib);
 
