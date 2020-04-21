@@ -39,17 +39,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, i32_;
-    int16_t i16;
-    uint16_t u16;
+    int32_t i32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1;
     uint8_t eb1, eb2;
     int v0, v1;
     int q0, q1;
-    int d0, d1;
-    int s0, s1;
+    int d0;
+    int s0;
     int fixedaddress;
+
+    MAYUSE(d0);
+    MAYUSE(q1);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
+
     switch(opcode) {
 
         case 0x10:
@@ -1168,10 +1172,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             GETEX(v1);
             u8 = F8;
+            q0 = fpu_get_scratch_quad(dyn);
             if(v0==v1 && u8==0) {
                 VMOVD(q0+1, q0);
             } else {
-                q0 = fpu_get_scratch_quad(dyn);
                 VMOVD(q0, v0+(u8&1));
                 VMOVD(q0+1, v1+((u8>>1)&1));
                 VMOVQ(v0, q0);

@@ -34,17 +34,17 @@ static double d_0   = 0.0;
 uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
-    uint8_t u8;
-    uint32_t u32;
-    int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t ed;
+    uint8_t wback, wb1;
     int fixedaddress;
-    int v1, v2, v3;
-    int s0, s1, s2;
+    int v1, v2;
+    int s0;
     int i1, i2, i3;
+
+    MAYUSE(s0);
+    MAYUSE(v2);
+    MAYUSE(v1);
+
     switch(nextop) {
 
         case 0xC0:

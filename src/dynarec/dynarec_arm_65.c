@@ -28,7 +28,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback;
     int fixedaddress;
     switch(opcode) {
         case 0x33:

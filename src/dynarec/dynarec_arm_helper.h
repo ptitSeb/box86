@@ -259,8 +259,8 @@
 #endif
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)  \
-    if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~(A|X_PEND)))) \
-        READFLAGS(dyn->insts[ninst].x86.need_flags&(~A));    \
+    if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~((A)|X_PEND)))) \
+        READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)));    \
     dyn->state_flags = (B==SF_SUBSET)?SF_SET:B
 #endif
 #ifndef JUMP
@@ -569,5 +569,23 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+
+#if STEP < 2
+#define PASS2(A)
+#else
+#define PASS2(A)   A
+#endif
+
+#if STEP < 3
+#define PASS3(A)
+#else
+#define PASS3(A)   A
+#endif
+
+#if STEP < 3
+#define MAYUSE(A)   (void)A
+#else
+#define MAYUSE(A)   
+#endif
 
 #endif //__DYNAREC_ARM_HELPER_H__

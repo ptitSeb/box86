@@ -54,8 +54,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     int32_t i32, i32_;
-    int16_t i16;
-    uint16_t u16;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
@@ -63,8 +61,16 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int v0, v1, v2;
     int q0, q1;
     int d0, d1;
-    int s0, s1;
+    int s0;
     int fixedaddress;
+    MAYUSE(s0);
+    MAYUSE(q1);
+    MAYUSE(v2);
+    MAYUSE(gb2);
+    MAYUSE(gb1);
+    MAYUSE(eb2);
+    MAYUSE(eb1);
+    MAYUSE(wb2);
     switch(opcode) {
         case 0x0B:
             INST_NAME("UD2");

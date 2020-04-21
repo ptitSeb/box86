@@ -26,21 +26,10 @@
 
 void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 {
-    uint8_t nextop, opcode;
     int ok = 1;
     int ninst = 0;
     uintptr_t ip = addr;
-    uintptr_t natcall;
-    int retn;
-    uint8_t gd, ed;
-    int8_t i8;
-    int32_t i32, tmp;
-    uint8_t u8;
-    uint8_t gb1, gb2, eb1, eb2;
-    uint32_t u32;
     int need_epilog = 1;
-    uint8_t wback, wb1, wb2;
-    int fixedaddress;
     dyn->tablei = 0;
     // Clean up (because there are multiple passes)
     dyn->state_flags = 0;

@@ -32,6 +32,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     if(hint>0) ret = hint;
     if(hint>0 && hint<xEAX) scratch = hint;
     if(hint==xEIP) scratch = hint;  // allow this one as a scratch and return register
+    MAYUSE(scratch);
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
@@ -64,7 +65,6 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         }
     } else {
         int32_t i32;
-        uint32_t u32;
         uint8_t sib = 0;
         int sib_reg = 0;
         if((nextop&7)==4) {
@@ -72,27 +72,25 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             sib_reg = (sib>>3)&7;
         }
         if(nextop&0x80)
-            u32 = F32;
+            i32 = F32S;
         else 
             i32 = F8S;
-        if(u32==0x80000000) {
+        if(i32==(int32_t)0x80000000) {
             // special case...
-            MOV32(scratch, u32);
+            MOV32(scratch, 0x80000000);
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     SUB_REG_LSL_IMM5(scratch, xEAX+(sib&0x07), scratch ,0);
                     ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                 } else {
-                    int tmp = xEAX+(sib&0x07);
+                    PASS3(int tmp = xEAX+(sib&0x07));
                     SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                 }
             } else {
-                int tmp = xEAX+(nextop&0x07);
+                PASS3(int tmp = xEAX+(nextop&0x07));
                 SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
             }
         } else {
-            if(nextop&0x80)
-                i32=(int32_t)u32;
             if(i32==0 || (abs(i32)<=absmax && !(i32&mask))) {
                 *fixaddress = i32;
                 if((nextop&7)==4) {
@@ -131,7 +129,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                             }
                             ADD_REG_LSL_IMM5(ret, scratch, xEAX+sib_reg, (sib>>6));
                         } else {
-                            int tmp = xEAX+(sib&0x07);
+                            PASS3(int tmp = xEAX+(sib&0x07));
                             if(sub) {
                                 SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                             } else {
@@ -139,7 +137,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                             }
                         }
                     } else {
-                        int tmp = xEAX+(nextop&0x07);
+                        PASS3(int tmp = xEAX+(nextop&0x07));
                         if(sub) {
                             SUB_REG_LSL_IMM5(ret, tmp, scratch, 0);
                         } else {
@@ -160,7 +158,6 @@ uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
             if((sib&0x7)==5) {
                 addr+=4;
             }
@@ -190,7 +187,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         MOV32_(xEIP, ip);
     }
-    void* epilog = arm_epilog;
+    PASS3(void* epilog = arm_epilog);
     MOV32_(2, (uintptr_t)epilog);
     BX(2);
 }
@@ -199,6 +196,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
     int i32;
+    MAYUSE(i32);
     if(dyn->nolinker) {
         jump_to_epilog(dyn, ip, reg, ninst);
     } else {
@@ -249,7 +247,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 #endif
         MESSAGE(LOG_DUMP, "Ret epilog\n");
         POP(xESP, 1<<xEIP);
-        void* epilog = arm_epilog;
+        PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
 #if 0
@@ -283,11 +281,12 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
     int i32;
+    MAYUSE(i32);
     if(dyn->nolinker) {
         MESSAGE(LOG_DUMP, "Retn epilog\n");
         POP(xESP, 1<<xEIP);
         ADD_IMM8(xESP, xESP, n);
-        void* epilog = arm_epilog;
+        PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
     } else {
@@ -763,6 +762,8 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     VLD1_32(ret, s1);
     return ret;
+#else
+    return 0;
 #endif
 }
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
@@ -933,7 +934,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
     MOV_REG(s1, xSP);
     for (int i=0; i<n; ++i) {   // should use VSTM?
         if(dyn->fpuused[i+8]) {
-            int a = 16+i;
+            PASS3(int a = 16+i);
             VST1_32_W(a, s1);
         }
     }
@@ -955,7 +956,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     MOV_REG(s1, xSP);
     for (int i=0; i<n; ++i) {
         if(dyn->fpuused[i+8]) {
-            int a = 16+i;
+            PASS3(int a = 16+i);
             VLD1_32_W(a, s1);
         }
     }

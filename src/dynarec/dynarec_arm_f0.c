@@ -25,14 +25,6 @@
 uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = PK(0); // don't increment addr
-    uint8_t u8;
-    uint32_t u32;
-    int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
-    int fixedaddress;
     int locked = 0;
     switch(nextop) {
         // generic case

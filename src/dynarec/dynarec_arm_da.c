@@ -26,17 +26,21 @@
 uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
-    uint8_t u8;
-    uint32_t u32;
     int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t ed;
+    uint8_t wback;
     int v1, v2;
     int d0;
     int s0;
     int fixedaddress;
+
+    MAYUSE(s0);
+    MAYUSE(d0);
+    MAYUSE(v2);
+    MAYUSE(v1);
+    MAYUSE(ed);
+    MAYUSE(i32);
+
     switch(nextop) {
         case 0xC0:
         case 0xC1:

@@ -101,10 +101,10 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "Calling Interpretor @%p, emu=%p\n", R_EIP, emu);
+                dynarec_log(LOG_DEBUG, "Calling Interpretor @%p, emu=%p\n", (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
+                dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) emu=%p\n", (void*)R_EIP, block->block, emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
@@ -148,10 +148,10 @@ int DynaRun(x86emu_t* emu)
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "Running Interpretor @%p, emu=%p\n", R_EIP, emu);
+                dynarec_log(LOG_DEBUG, "Running Interpretor @%p, emu=%p\n", (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "Running DynaRec Block @%p (%p) emu=%p\n", R_EIP, block->block, emu);
+                dynarec_log(LOG_DEBUG, "Running DynaRec Block @%p (%p) emu=%p\n", (void*)R_EIP, block->block, emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);

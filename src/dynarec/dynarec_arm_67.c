@@ -24,17 +24,12 @@
 
 uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uint8_t opcode = F8;
-    uint8_t nextop, u8;
+    uint8_t nextop;
     int8_t  i8;
-    uint32_t u32;
     int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
-    int fixedaddress;
-    switch(opcode) {
+    MAYUSE(i32);
+    nextop = F8;
+    switch(nextop) {
        
 
         #define GO(NO, YES)   \

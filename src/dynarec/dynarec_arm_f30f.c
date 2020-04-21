@@ -43,18 +43,19 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, i32_;
+    int32_t i32;
     uint32_t u32;
-    int16_t i16;
-    uint16_t u16;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
-    uint8_t eb1, eb2;
+    uint8_t wback;
     int fixedaddress;
     int v0, v1;
     int s0, s1;
     int d0, d1;
-    int q0, q1;
+    int q0;
+
+    MAYUSE(s1);
+    MAYUSE(i32);
+
     switch(opcode) {
 
         case 0x10:

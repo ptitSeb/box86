@@ -27,15 +27,12 @@
 uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
-    uint8_t u8;
-    uint32_t u32;
-    int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
     int fixedaddress;
-    int v1, v2, v3;
+    uint8_t ed;
+    int v1, v2;
+
+    MAYUSE(v2);
+    MAYUSE(v1);
 
     switch(nextop) {
         case 0xC0:

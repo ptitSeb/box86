@@ -36,18 +36,18 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 {
     uint8_t nextop = F8;
     uint8_t u8;
-    int32_t i32, i32_;
-    int16_t i16;
     uint32_t u32;
-    uint16_t u16;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
-    uint8_t eb1, eb2;
+    uint8_t wback;
     int v0, v1;
-    int q0, q1;
     int d0, d1;
-    int s0, s1;
+    int s0;
     int fixedaddress;
+
+    MAYUSE(s0);
+    MAYUSE(d1);
+    MAYUSE(d0);
+
     switch(nextop) {
         
         case 0x10:

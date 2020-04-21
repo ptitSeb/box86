@@ -39,6 +39,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int fixedaddress;
 
     opcode = F8;
+    MAYUSE(eb1);
+    MAYUSE(eb2);
+    MAYUSE(tmp);
 
     switch(opcode) {
 

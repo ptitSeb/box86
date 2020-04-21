@@ -28,16 +28,17 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t nextop = F8;
     uint8_t u8;
-    uint32_t u32;
     int32_t i32;
-    int16_t i16;
-    uint16_t u16;
-    uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
-    int v1, v2, v3;
-    int s0, s1;
-    int d0;
+    uint8_t wback;
+    uint8_t ed;
+    int v1, v2;
+    int s0;
     int fixedaddress;
+
+    MAYUSE(s0);
+    MAYUSE(v2);
+    MAYUSE(v1);
+    MAYUSE(i32);
 
     switch(nextop) {
         case 0xE0:
