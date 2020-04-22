@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
-#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -50,7 +49,7 @@ void FreeDynablock(dynablock_t* db, int nolinker)
         free(db->table);
         free(db);
         if(nolinker)
-            munmap(db->block, db->size);
+            FreeDynarecMap((uintptr_t)db->block, db->size);
     }
 }
 
@@ -198,7 +197,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     // Lock as write now!
     pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
-    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", addr);
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block creation @%p\n", (void*)addr);
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
@@ -220,7 +219,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
 
     // fill the block
     FillBlock(emu, block, addr);
-    dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", addr, block->block, block->size);
+    dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", (void*)addr, block->block, block->size);
 
     return block;
 }

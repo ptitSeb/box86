@@ -36,7 +36,7 @@ int fpu_get_scratch_double(dynarec_arm_t* dyn);
 // Get an FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn);
 // Reset scratch regs counter
-int fpu_reset_scratch(dynarec_arm_t* dyn);
+void fpu_reset_scratch(dynarec_arm_t* dyn);
 // Get an FPU double reg
 int fpu_get_reg_double(dynarec_arm_t* dyn);
 // Free a FPU double reg
@@ -46,6 +46,6 @@ int fpu_get_reg_quad(dynarec_arm_t* dyn);
 // Free a FPU quad reg
 void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg);
 // Reset fpu regs counter
-int fpu_reset_reg(dynarec_arm_t* dyn);
+void fpu_reset_reg(dynarec_arm_t* dyn);
 
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

@@ -258,7 +258,7 @@ int fpu_get_scratch_quad(dynarec_arm_t* dyn)
     return i/2; // Return a Dx, not a Qx
 }
 // Reset scratch regs counter
-int fpu_reset_scratch(dynarec_arm_t* dyn)
+void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->fpu_scratch = 0;
 }
@@ -294,7 +294,7 @@ void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
     dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
 }
 // Reset fpu regs counter
-int fpu_reset_reg(dynarec_arm_t* dyn)
+void fpu_reset_reg(dynarec_arm_t* dyn)
 {
     dyn->fpu_reg = 0;
     for (int i=0; i<24; ++i)

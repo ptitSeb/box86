@@ -31,9 +31,9 @@ void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const cha
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s%s\n", (box86_dynarec_dump>1)?"\e[1m":"", inst->addr, DecodeX86Trace(dec, inst->addr), (box86_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: %s%s\n", (box86_dynarec_dump>1)?"\e[1m":"", (void*)inst->addr, DecodeX86Trace(dec, inst->addr), (box86_dynarec_dump>1)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%s%p: ", (box86_dynarec_dump>1)?"\e[1m":"", inst->addr);
+            dynarec_log(LOG_NONE, "%s%p: ", (box86_dynarec_dump>1)?"\e[1m":"", (void*)inst->addr);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
@@ -192,7 +192,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     arm_pass2(&helper, addr);
     // ok, now allocate mapped memory, with executable flag on
     int sz = helper.arm_size;
-    void* p = (void*)AllocDynarecMap(emu->context, sz, block->parent->nolinker);
+    void* p = (void*)AllocDynarecMap(sz, block->parent->nolinker);
     if(p==NULL) {
         free(helper.insts);
         free(helper.next);

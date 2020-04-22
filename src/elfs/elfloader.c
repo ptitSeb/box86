@@ -988,7 +988,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(!elf) {
         if((*(uint8_t*)addr)==0xCC)
             return context->dynablocks;
-        dynablocklist_t* ret = getDBFromAddress(context, addr);
+        dynablocklist_t* ret = getDBFromAddress(addr);
         if(ret)
             return ret;
         if(box86_dynarec_forced)

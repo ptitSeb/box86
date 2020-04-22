@@ -164,11 +164,12 @@ int AddTLSPartition(box86context_t* context, int tlssize);
 
 #ifdef DYNAREC
 // the nolinker specified if static map or dynamic (can be deleted) has to be used
-uintptr_t AllocDynarecMap(box86context_t *context, int size, int nolinker);
+uintptr_t AllocDynarecMap(int size, int nolinker);
+void FreeDynarecMap(uintptr_t addr, uint32_t size);
 
-dynablocklist_t* getDBFromAddress(box86context_t* context, uintptr_t addr);
-void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size);
-void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size);
+dynablocklist_t* getDBFromAddress(uintptr_t addr);
+void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
+void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size);
 #endif
 
 #endif //__BOX86CONTEXT_H_
