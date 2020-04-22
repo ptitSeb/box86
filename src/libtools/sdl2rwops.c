@@ -174,7 +174,6 @@ SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops)
         return ops->hidden.my.orig;
 
     sdl2_allocrw Alloc = (sdl2_allocrw)emu->context->sdl2allocrw;
-    sdl2_freerw Free = (sdl2_freerw)emu->context->sdl2freerw;
 
     SDL2_RWops_t* newrw = Alloc();
     newrw->type = BOX86RW;

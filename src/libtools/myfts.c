@@ -128,7 +128,6 @@ x86_ftsent_t* getFtsent(kh_ftsent_t* ftsentMap, FTSENT* ftsent, int dolink)
 void freeFts(box86context_t* context, void* ftsp)
 {
     khint_t k;
-    int ret;
 
     kh_fts_t *ftsmap = context->ftsmap;
     
@@ -186,6 +185,7 @@ void FreeFTSMap(box86context_t* context)
 #ifndef NOALIGN
     uintptr_t ptr;
     kh_ftsent_t *ftsentMap;
+    (void)ftsentMap;
     kh_foreach(context->ftsmap, ptr, ftsentMap, freeFts(context, (FTSENT*)ptr));
     kh_destroy(fts, context->ftsmap);
 #endif

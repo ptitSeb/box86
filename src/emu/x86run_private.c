@@ -791,9 +791,9 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
         if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
             uint32_t a = *(uint32_t*)(ip+3);
             if(a==0) {
-                printf_log(LOG_NONE, "0x%p: Exit x86emu\n", (void*)ip);
+                printf_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log(LOG_NONE, "0x%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
+                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
             }
         } else {
             printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
