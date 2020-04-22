@@ -25,13 +25,13 @@ static box86context_t *context = NULL;  // global context, because signals are g
 enum
 {
   REG_GS = 0,
-# define REG_GS                REG_GS
+# define REG_GS         REG_GS
   REG_FS,
-# define REG_FS                REG_FS
+# define REG_FS         REG_FS
   REG_ES,
-# define REG_ES                REG_ES
+# define REG_ES         REG_ES
   REG_DS,
-# define REG_DS                REG_DS
+# define REG_DS         REG_DS
   REG_EDI,
 # define REG_EDI        REG_EDI
   REG_ESI,
@@ -199,7 +199,6 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 
     CheckSignalContext(emu, signum);
 
-    sighandler_t ret = NULL;
     if(handler!=NULL && handler!=(sighandler_t)1) {
         // create a new handler
         context->signals[signum] = (uintptr_t)handler;
