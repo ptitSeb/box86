@@ -75,7 +75,7 @@ const char* print_shift(int shift, int comma) {
 
 const char* arm_print(uint32_t opcode)
 {
-    static __thread char ret[100];
+    static __thread char ret[128];
     memset(ret, 0, sizeof(ret));
     if((opcode & (0b1111<<28))==(0b1111<<28)) {
         // NEON?
@@ -351,7 +351,6 @@ const char* arm_print(uint32_t opcode)
             int Q = (opcode>>6)&1;
             int M = (opcode>>5)&1;
             int Vm = (opcode)&15;
-            int size = 0;
             int Dd = (D<<4) | Vd;
             int Dn = (N<<4) | Vn;
             int Dm = (M<<4) | Vm;
@@ -370,7 +369,6 @@ const char* arm_print(uint32_t opcode)
             int Q = (opcode>>6)&1;
             int M = (opcode>>5)&1;
             int Vm = (opcode)&15;
-            int size = 0;
             int Dd = (D<<4) | Vd;
             int Dn = (N<<4) | Vn;
             int Dm = (M<<4) | Vm;
@@ -389,7 +387,6 @@ const char* arm_print(uint32_t opcode)
             int Q = (opcode>>6)&1;
             int M = (opcode>>5)&1;
             int Vm = (opcode)&15;
-            int size = 0;
             int Dd = (D<<4) | Vd;
             int Dn = (N<<4) | Vn;
             int Dm = (M<<4) | Vm;
@@ -408,7 +405,6 @@ const char* arm_print(uint32_t opcode)
             int Q = (opcode>>6)&1;
             int M = (opcode>>5)&1;
             int Vm = (opcode)&15;
-            int size = 0;
             int Dd = (D<<4) | Vd;
             int Dn = (N<<4) | Vn;
             int Dm = (M<<4) | Vm;
@@ -463,11 +459,11 @@ const char* arm_print(uint32_t opcode)
             int rm = (opcode)&15;
             sprintf(ret, "BSWAP%s %s, %s", cond, regname[rd], regname[rm]);
         } else if((opcode&0b00001111111100000000000000000000)==0b00000011000000000000000000000000) {
-            uint16_t imm16 = opcode&0x0fff | ((opcode>>4)&0xf000);
+            uint16_t imm16 = (opcode&0x0fff) | ((opcode>>4)&0xf000);
             int rn = (opcode>>12)&15;
             sprintf(ret, "MOVW%s %s, #0x%x", cond, regname[rn], imm16);
         } else if((opcode&0b00001111111100000000000000000000)==0b00000011010000000000000000000000) {
-            uint16_t imm16 = opcode&0x0fff | ((opcode>>4)&0xf000);
+            uint16_t imm16 = (opcode&0x0fff) | ((opcode>>4)&0xf000);
             int rn = (opcode>>12)&15;
             sprintf(ret, "MOVT%s %s, #0x%x", cond, regname[rn], imm16);
         } else
@@ -537,8 +533,9 @@ const char* arm_print(uint32_t opcode)
                         } else {
                             sprintf(addr, "[%s], %s", regname[rn], op2);
                         }
-                        sprintf("%s%sD%s %s, %s, %s", (rt&1)?"!!":"", s?"STR":"LDR", cond, regname[rt], regname[rt+1], addr);
+                        sprintf(ret, "%s%s%s %s, %s, %s", (rt&1)?"!!":"", s?"STRD":"LDRD", cond, regname[rt], regname[rt+1], addr);
                     }
+                    break;
 
                 case 0b001:
                      // data operation
@@ -868,8 +865,8 @@ const char* arm_print(uint32_t opcode)
                             int vm = ((opcode>>5)&1)<<4 | (opcode&15);
                             sprintf(ret, "VCVT%s.F32.F64 S%d, D%d", cond, vd, vm);
                         } else {
-                            int vd = (opcode>>12)&15 | ((opcode>>22)&1)<<4;
-                            int vm = ((opcode>>5)&1) | (opcode&15)<<1;
+                            int vd = ((opcode>>12)&15) | (((opcode>>22)&1)<<4);
+                            int vm = ((opcode>>5)&1) | ((opcode&15)<<1);
                             sprintf(ret, "VCVT%s.F64.F32 D%d, S%d", cond, vd, vm);
                         }
                     }
@@ -923,7 +920,7 @@ const char* arm_print(uint32_t opcode)
                         int Vn = (opcode>>16)&15;
                         int M = (opcode>>5)&1;
                         int Vm = (opcode)&15;
-                        sprintf(ret, "V%s%s.F32 %c%d, %c%d, %c%d", op?"MIN":"MAX", Q?"Q":"", Q?'Q':'D', (D<<4 | Vd), Q?'Q':'D', (N<<4 | Vn), Q?'Q':'D', (M<<4 | Vm));
+                        sprintf(ret, "%sV%s%s.F32 %c%d, %c%d, %c%d", sz?"!!":"", op?"MIN":"MAX", Q?"Q":"", Q?'Q':'D', (D<<4 | Vd), Q?'Q':'D', (N<<4 | Vn), Q?'Q':'D', (M<<4 | Vm));
                     }
                     break;
                 default:
