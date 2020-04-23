@@ -247,3 +247,22 @@ typedef struct  __attribute__((packed)) x86_ftsent_s {
 
 void UnalignFTSENT(void* dest, void* source); // Arm -> x86
 void AlignFTSENT(void* dest, void* source);   // x86 -> Arm
+
+typedef struct my_flock64_s {
+	uint16_t  l_type;
+	uint16_t  l_whence;
+	int64_t   l_start;
+	int64_t   l_len;
+	int       l_pid;
+} my_flock64_t;
+
+typedef struct __attribute__((packed)) x86_flock64_s {
+	uint16_t  l_type;
+	uint16_t  l_whence;
+	int64_t   l_start;
+	int64_t   l_len;
+	int       l_pid;
+} x86_flock64_t;
+
+void UnalignFlock64(void* dest, void* source); // Arm -> x86
+void AlignFlock64(void* dest, void* source);   // x86 -> Arm

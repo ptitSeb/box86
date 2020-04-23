@@ -726,3 +726,28 @@ void AlignFTSENT(void* dest, void* source)
     #undef GOM
 }
 #undef TRANSFERT
+
+
+#define TRANSFERT   \
+GO(l_type)          \
+GO(l_whence)        \
+GO(l_start)         \
+GO(l_len)           \
+GO(l_pid)
+
+// Arm -> x86
+void UnalignFlock64(void* dest, void* source)
+{
+    #define GO(A) ((x86_flock64_t*)dest)->A = ((my_flock64_t*)source)->A;
+    TRANSFERT
+    #undef GO
+}
+
+// x86 -> Arm
+void AlignFlock64(void* dest, void* source)
+{
+    #define GO(A) ((my_flock64_t*)dest)->A = ((x86_flock64_t*)source)->A;
+    TRANSFERT
+    #undef GO
+}
+#undef TRANSFERT

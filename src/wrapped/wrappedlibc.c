@@ -1243,7 +1243,9 @@ EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
         return ((iFiiuuuuuu_t)f)(a, b, d1, d2, d3, d4, d5, d6);
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1, d2, d3, d4);   // should be enough
-    return fcntl(a, b, d1, d2, d3, d4, d5, d6);
+    int ret = fcntl(a, b, d1, d2, d3, d4, d5, d6);
+
+    return ret;
 }
 
 EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
@@ -1259,6 +1261,14 @@ EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
     }
     if(b==F_SETFL)
         d1 = of_convert(d1);
+    if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
+    {
+        my_flock64_t fl;
+        AlignFlock64(&fl, (void*)d1);
+        int ret = fcntl(a, b, &fl);
+        UnalignFlock64((void*)d1, &fl);
+        return ret;
+    }
     return fcntl(a, b, d1, d2, d3, d4, d5, d6);
 }
 EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
