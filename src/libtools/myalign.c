@@ -725,3 +725,4 @@ void AlignFTSENT(void* dest, void* source)
     #undef GOV
     #undef GOM
 }
+#undef TRANSFERT
