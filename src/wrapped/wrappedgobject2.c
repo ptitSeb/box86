@@ -131,32 +131,44 @@ static int signal_cb(void* a, void* b, void* c, void* d)
 static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
 {
     // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
+    printf_log(LOG_DEBUG, "gobject2 swaped4 Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d);
 }
 static int signal_cb_5(void* a, void* b, void* c, void* d, my_signal_t* sig)
 {
     // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, d, sig->data);
+    printf_log(LOG_DEBUG, "gobject2 5 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 5, a, b, c, d, sig->data);
 }
 static int signal_cb_swapped_5(my_signal_t* sig, void* b, void* c, void* d, void* e)
 {
     // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d, e);
+    printf_log(LOG_DEBUG, "gobject2 swaped5 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 5, sig->data, b, c, d, e);
 }
 static int signal_cb_6(void* a, void* b, void* c, void* d, void* e, my_signal_t* sig)
 {
     // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, d, e, sig->data);
+    printf_log(LOG_DEBUG, "gobject2 6 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 6, a, b, c, d, e, sig->data);
 }
 static int signal_cb_swapped_6(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f)
 {
     // data is in front here...
-    printf_log(LOG_DEBUG, "gobject2 swaped Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d, e, f);
+    printf_log(LOG_DEBUG, "gobject2 swaped6 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 6, sig->data, b, c, d, e, f);
+}
+static int signal_cb_8(void* a, void* b, void* c, void* d, void* e, void* f, void* g, my_signal_t* sig)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 8 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 8, a, b, c, d, e, f, g, sig->data);
+}
+static int signal_cb_swapped_8(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f, void* g, void* h)
+{
+    // data is in front here...
+    printf_log(LOG_DEBUG, "gobject2 swaped8 Signal called, sig=%p\n", sig);
+    return (int)RunFunction(my_context, sig->c_handler, 8, sig->data, b, c, d, e, f, g, h);
 }
 static void signal_delete(my_signal_t* sig, void* b)
 {
@@ -172,13 +184,22 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
     library_t * lib = GetLib(emu->context->maplib, gobject2Name);
     gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
 
+    //TODO: get the type of instance to be more precise below
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
     uintptr_t ret = 0;
-    if(strcmp((const char*)detailed, "query-tooltip")==0)
+    if(strcmp((const char*)detailed, "query-tooltip")==0)   // GtkWidget
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "selection-get")==0)
+    else if(strcmp((const char*)detailed, "selection-get")==0)  // GtkWidget
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "drag-data-get")==0)  // GtkWidget
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "drag-data-received")==0)  // Gtkwidget
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_8):((void*)signal_cb_8), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "drag-drop")==0)  // Gtkwidget
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "drag-motion")==0)  // Gtkwidget
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
     
