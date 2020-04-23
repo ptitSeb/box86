@@ -18,6 +18,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
+#undef aio_suspend
+#undef aio_return
+#undef aio_write
+#undef aio_read
+#undef aio_error
+
 #undef clock_gettime
 
 const char* librtName = "librt.so.1";
