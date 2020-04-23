@@ -188,6 +188,7 @@ scwrap_t syscallwrap[] = {
     //{ 270, __NR_tgkill, 3 },
     { 311, __NR_set_robust_list, 2 },
     { 312, __NR_get_robust_list, 4 },
+    { 355, __NR_getrandom, 3 },
 };
 
 struct mmap_arg_struct {
