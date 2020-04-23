@@ -190,29 +190,6 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
     return NULL;
 }
-// compare_r
-#define GO(A)   \
-static uintptr_t my_compare_r_fct_##A = 0;                                      \
-static int my_compare_r_##A(void* a, void* b, void* data)                       \
-{                                                                               \
-    return (int)RunFunctionFast(my_context, my_compare_r_fct_##A, 3, a, b, data);   \
-}
-SUPER()
-#undef GO
-static void* findcompare_rFct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_compare_r_fct_##A == (uintptr_t)fct) return my_compare_r_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_compare_r_fct_##A == 0) {my_compare_r_fct_##A = (uintptr_t)fct; return my_compare_r_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libc compare_r callback\n");
-    return NULL;
-}
 
 // ftw
 #define GO(A)   \
@@ -922,13 +899,22 @@ EXPORT int my__IO_file_stat(x86emu_t* emu, void* f, void* buf)
     return r;
 }
 
+static int my_compare_r_cb(void* a, void* b, x86emu_t* emu)
+{
+    SetCallbackArgs(emu, 2, a, b);
+    return RunCallback(emu);
+}
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
-    qsort(base, nmemb, size, findcompareFct(fnc));
+    x86emu_t *emucb = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
+    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, emucb);
+    FreeCallback(emucb);
 }
 EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* arg)
 {
-    qsort_r(base, nmemb, size, findcompare_rFct(fnc), arg);
+    x86emu_t *emucb = AddSharedCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
+    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, emucb);
+    FreeCallback(emucb);
 }
 
 EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
