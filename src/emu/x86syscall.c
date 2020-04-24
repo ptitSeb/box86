@@ -570,15 +570,12 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return u32(4); // faking the syscall here, we don't want to really terminate the program now
         case 3:  // sys_read
             return (uint32_t)read(i32(4), p(8), u32(12));
-            break;
         case 4:  // sys_write
             return (uint32_t)write(i32(4), p(8), u32(12));
-            break;
         case 5: // sys_open
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
-            break;
         case 270: //_NR_tgkill
             if(!u32(12)) {
                 //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
@@ -589,6 +586,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));
             }
             return 0;
+#ifndef __NR_getrandom
+        case 355:  // getrandom
+            return (uint32_t)my_getrandom(emu, p(4), u32(8), u32(12));
+#endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
             emu->quit = 1;
