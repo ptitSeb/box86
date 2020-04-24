@@ -228,6 +228,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedudev0.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX86_ROOT}/src/wrapped/wrappediconv.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibdrm.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcrypto.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibssl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedutil.c"
