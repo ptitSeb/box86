@@ -9,9 +9,10 @@
 #define NEW_INST        ++dyn->size
 #define INST_EPILOG         
 #define INST_NAME(name) 
-#define DEFAULT         \
-        --dyn->size;    \
+#define DEFAULT                         \
+        --dyn->size;                    \
+        *ok = -1;                       \
         dynarec_log(LOG_INFO, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X\n", \
-        (void*)ip, PKip(0),            \
-        PKip(1), PKip(2), PKip(3),     \
+        (void*)ip, PKip(0),             \
+        PKip(1), PKip(2), PKip(3),      \
         PKip(4), PKip(5), PKip(6))

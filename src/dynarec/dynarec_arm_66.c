@@ -889,13 +889,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     EWBACK;
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
 
         default:
-            *ok = 0;
             DEFAULT;
     }
     return addr;

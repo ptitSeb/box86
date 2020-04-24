@@ -274,7 +274,7 @@
 #define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
 #define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.need_flags)
 #ifndef DEFAULT
-#define DEFAULT      BARRIER(2)
+#define DEFAULT      *ok = -1; BARRIER(2)
 #endif
 // Emit the LOCK mutex (x1, x2 and x3 are lost)
 #define LOCK        emit_lock(dyn, addr, ninst)

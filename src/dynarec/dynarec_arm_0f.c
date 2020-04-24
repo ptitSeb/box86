@@ -336,7 +336,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VQMOVN_S32(d0, v0);
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -826,7 +825,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -867,7 +865,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -898,7 +895,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -1328,7 +1324,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         }
                         break;
                     default:
-                        *ok = 0;
                         DEFAULT;
                 }
             }
@@ -1524,7 +1519,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     MARK3;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -2030,7 +2024,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         default:
-            *ok = 0;
             DEFAULT;
     }
     return addr;

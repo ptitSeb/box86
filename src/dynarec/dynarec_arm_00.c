@@ -1094,7 +1094,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop=F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {   // reg <= reg? that's an invalid operation
-                ok=0;
                 DEFAULT;
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0);
@@ -1499,7 +1498,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 default:
                     INST_NAME("GRP3 Ed, Ib");
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -1594,7 +1592,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else {
                 INST_NAME("INT 3");
-                *ok = 0;
                 DEFAULT;
             }
             break;
@@ -1618,7 +1615,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 jump_to_epilog(dyn, 0, 12, ninst);
             } else {
                 INST_NAME("INT Ib");
-                *ok = 0;
                 DEFAULT;
             }
             break;
@@ -2092,7 +2088,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     default:
                         INST_NAME("F2/F3 66 ...");
-                        *ok = 0;
                         DEFAULT;
                 }
             } else {
@@ -2272,7 +2267,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     default:
                         INST_NAME("F2/F3 ...");
-                        *ok = 0;
                         DEFAULT;
                 }
             }
@@ -2462,7 +2456,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 default:
                     INST_NAME("Grp5 Ed");
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -2510,13 +2503,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
                 default:
                     INST_NAME("Grp5 Ed");
-                    *ok = 0;
                     DEFAULT;
             }
             break;
 
         default:
-            *ok = 0;
             DEFAULT;
     }
  

@@ -99,7 +99,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 // access register instead of memory is bad opcode!
                 *ok = 0;
-                DEFAULT;
                 return addr;
             }
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
@@ -112,7 +111,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 // access register instead of memory is bad opcode!
                 *ok = 0;
-                DEFAULT;
                 return addr;
             }
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
@@ -138,7 +136,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 // access register instead of memory is bad opcode!
                 *ok = 0;
-                DEFAULT;
                 return addr;
             }
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
@@ -151,7 +148,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 // access register instead of memory is bad opcode!
                 *ok = 0;
-                DEFAULT;
                 return addr;
             }
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
@@ -240,7 +236,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VQMOVN_S32(q0+1, v0);
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;

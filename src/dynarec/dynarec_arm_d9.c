@@ -262,7 +262,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF5:
         case 0xF6:
         case 0xF7:
-            *ok = 0;
             DEFAULT;
             break;
              
@@ -318,7 +317,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     EWBACK;
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
     }

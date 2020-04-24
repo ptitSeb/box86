@@ -514,7 +514,6 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
 
         default:
-            *ok = 0;
             DEFAULT;
     }
     return addr;

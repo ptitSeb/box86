@@ -140,7 +140,6 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDD:
         case 0xDE:
         case 0xDF:
-            *ok = 0;
             DEFAULT;
             break;
 
@@ -148,7 +147,6 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         default:
             switch((nextop>>3)&7) {
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
     }

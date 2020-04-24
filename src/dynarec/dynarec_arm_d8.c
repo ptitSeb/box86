@@ -234,7 +234,6 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VDIV_F64(v1, d1, v1);
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
     }

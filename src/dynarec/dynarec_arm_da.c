@@ -127,7 +127,6 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF8:
         case 0xF9:
         case 0xFD:
-            *ok = 0;
             DEFAULT;
             break;
 

@@ -89,7 +89,6 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         #undef GO
 
         default:
-            *ok = 0;
             DEFAULT;
     }
     return addr;

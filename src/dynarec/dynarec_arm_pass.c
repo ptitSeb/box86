@@ -76,6 +76,7 @@ if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many in
                 ok = 1;
             }
         }
+        if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
     }
     if(need_epilog) {

@@ -130,7 +130,6 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFD:
         case 0xFE:
         case 0xFF:
-            *ok = 0;
             DEFAULT;
             break;
 
@@ -171,7 +170,6 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_do_pop(dyn, ninst);
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
     }
