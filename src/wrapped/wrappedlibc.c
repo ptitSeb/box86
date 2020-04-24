@@ -1181,7 +1181,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     if(f)
         return ((iFpuu_t)f)(buf, buflen, flags);
     // do what should not be done, but it's better then nothing....
-    FILE * rnd = fopen("/dev/random", "rb");
+    FILE * rnd = fopen("/dev/urandom", "rb");
     uint32_t r = fread(buf, 1, buflen, rnd);
     fclose(rnd);
     return r;
