@@ -360,6 +360,8 @@ void FreeBox86Context(box86context_t** context)
             signal(i, SIG_DFL);
         }
 
+    if((*context)->emu_sig)
+        FreeX86Emu(&(*context)->emu_sig);
 
     free(*context);
     *context = NULL;

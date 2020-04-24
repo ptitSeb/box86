@@ -19,8 +19,6 @@
 #include "callback.h"
 
 
-static box86context_t *context = NULL;  // global context, because signals are globals?
-
 /* Definitions taken from the kernel headers.  */
 enum
 {
@@ -121,13 +119,9 @@ struct kernel_sigaction {
         unsigned long sa_mask2;
 };
 
-uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, int nargs, ...)
+uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
-    uint32_t mystack[32*1024];
-    x86emu_t myemu = {0};
-    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 32*1024*4, 0);
-    SetupX86Emu(emu);
-    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
+    x86emu_t *emu = my_context->emu_sig;
     
     pthread_mutex_unlock(&emu->context->mutex_trace);   // unlock trace, just in case
     
@@ -150,7 +144,6 @@ uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, i
         *exit = emu->exit;
 
     uint32_t ret = R_EAX;
-    FreeX86EmuFromStack(&emu);
 
     return ret;
 }
@@ -158,34 +151,37 @@ uint32_t RunFunctionHandler(box86context_t *context, int* exit, uintptr_t fnc, i
 
 void my_sighandler(int32_t sig)
 {
-    pthread_mutex_unlock(&context->mutex_trace);   // just in case
-    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
-    uintptr_t restorer = context->restorer[sig];
+    pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
+    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
+    uintptr_t restorer = my_context->restorer[sig];
     int exits = 0;
-    int ret = RunFunctionHandler(context, &exits, context->signals[sig], 1, sig);
+    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 1, sig);
     if(exits)
         exit(ret);
     if(restorer)
-        RunFunction(context, restorer, 0);
+        RunFunctionHandler(&exits, restorer, 0);
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
-    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)context->signals[sig]);
-    uintptr_t restorer = context->restorer[sig];
+    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
+    uintptr_t restorer = my_context->restorer[sig];
     int exits = 0;
-    int ret = RunFunctionHandler(context, &exits, context->signals[sig], 3, sig, sigi, ucntx);
+    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, sigi, ucntx);
     if(exits)
         exit(ret);
     if(restorer)
-        RunFunction(context, restorer, 0);
+        RunFunctionHandler(&exits, restorer, 0);
 }
 
 static void CheckSignalContext(x86emu_t* emu, int sig)
 {
-    if(!context) {
-        context = emu->context;
+    if(!my_context->emu_sig) {
+        const int stsize = 2*1024*1024;
+        void* stack = calloc(1, stsize);
+        my_context->emu_sig = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
+        SetTraceEmu(my_context->emu_sig, 0/*my_context->emu->trace_start*/, 0/*my_context->emu->trace_end*/);
     }
 }
 
@@ -201,8 +197,8 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 
     if(handler!=NULL && handler!=(sighandler_t)1) {
         // create a new handler
-        context->signals[signum] = (uintptr_t)handler;
-        context->restorer[signum] = 0;
+        my_context->signals[signum] = (uintptr_t)handler;
+        my_context->restorer[signum] = 0;
         handler = my_sighandler;
     }
     return signal(signum, handler);
@@ -227,16 +223,16 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
         if(act->sa_flags&0x04) {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
                 newact.sa_sigaction = my_sigactionhandler;
             }
         } else {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                 newact.sa_handler = my_sighandler;
             }
         }
-        context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+        my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
     int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
@@ -274,20 +270,20 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                    my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
                     newact.k_sa_handler = (void*)my_sigactionhandler;
                 } else {
                     newact.k_sa_handler = (void*)act->_u._sa_sigaction;
                 }
             } else {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                     newact.k_sa_handler = my_sighandler;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
                 }
             }
-            context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+            my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
         }
 
         if(oldact) {
@@ -315,20 +311,20 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                    my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
                     newact.sa_sigaction = my_sigactionhandler;
                 } else {
                     newact.sa_sigaction = act->_u._sa_sigaction;
                 }
             } else {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                     newact.sa_handler = my_sighandler;
                 } else {
                     newact.sa_handler = act->_u._sa_handler;
                 }
             }
-            context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+            my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
         }
 
         if(oldact) {
