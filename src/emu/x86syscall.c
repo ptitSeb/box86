@@ -188,7 +188,9 @@ scwrap_t syscallwrap[] = {
     //{ 270, __NR_tgkill, 3 },
     { 311, __NR_set_robust_list, 2 },
     { 312, __NR_get_robust_list, 4 },
+#ifdef __NR_getrandom
     { 355, __NR_getrandom, 3 },
+#endif
 };
 
 struct mmap_arg_struct {
@@ -519,9 +521,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
             break;
-        case 355:  // get_random
+#ifndef __NR_getrandom
+        case 355:  // getrandom
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
             break;
+#endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
