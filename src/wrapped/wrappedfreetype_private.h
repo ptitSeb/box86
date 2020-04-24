@@ -104,7 +104,7 @@ GO(FT_Glyph_Transform, iFppp)
 //GO(FT_Gzip_Uncompress, 
 //GO(FT_Has_PS_Glyph_Names, 
 GO(FT_Init_FreeType, iFp)
-//GO(FT_Library_SetLcdFilter, 
+GO(FT_Library_SetLcdFilter, iFpi)
 //GO(FT_Library_SetLcdFilterWeights, 
 //GO(FT_Library_Version, 
 //GO(FT_List_Add, 

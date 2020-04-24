@@ -34,6 +34,8 @@ typedef struct my_xcb_cookie_s {
 } my_xcb_cookie_t;
 
 typedef my_xcb_cookie_t (*XFp_t)(void*);
+typedef my_xcb_cookie_t (*XFpC_t)(void*, uint8_t);
+typedef my_xcb_cookie_t (*XFpp_t)(void*, void*);
 typedef my_xcb_cookie_t (*XFpu_t)(void*, uint32_t);
 typedef my_xcb_cookie_t (*XFppp_t)(void*, void*, void*);
 typedef my_xcb_cookie_t (*XFpup_t)(void*, uint32_t, void*);
@@ -44,6 +46,7 @@ typedef my_xcb_cookie_t (*XFpuWp_t)(void*, uint32_t, uint16_t, void*);
 typedef my_xcb_cookie_t (*XFpCuW_t)(void*, uint8_t, uint32_t, uint16_t);
 typedef my_xcb_cookie_t (*XFpCuu_t)(void*, uint8_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*XFpuuu_t)(void*, uint32_t, uint32_t, uint32_t);
+typedef my_xcb_cookie_t (*XFpCppp_t)(void*, uint8_t, void*, void*, void*);
 typedef my_xcb_cookie_t (*XFpCuup_t)(void*, uint8_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*XFpuuup_t)(void*, uint32_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*XFpuuWW_t)(void*, uint32_t, uint32_t, uint16_t, uint16_t);
@@ -97,12 +100,14 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_get_property, XFpCuuuuu_t)               \
     GO(xcb_get_property_unchecked, XFpCuuuuu_t)     \
     GO(xcb_get_selection_owner, XFpu_t)             \
+    GO(xcb_get_selection_owner_unchecked, XFpu_t)   \
     GO(xcb_get_window_attributes, XFpu_t)           \
     GO(xcb_get_window_attributes_unchecked, XFpu_t) \
     GO(xcb_grab_keyboard, XFpCuuCC_t)               \
     GO(xcb_grab_pointer, XFpCuWCCuuu_t)             \
     GO(xcb_grab_server, XFp_t)                      \
     GO(xcb_intern_atom, XFpCWp_t)                   \
+    GO(xcb_intern_atom_unchecked, XFpCWp_t)         \
     GO(xcb_map_window, XFpu_t)                      \
     GO(xcb_open_font, XFpuWp_t)                     \
     GO(xcb_put_image, XFpCuuWWwwCCup_t)             \
@@ -125,7 +130,10 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_depth_visuals_iterator, S1Fp_t)          \
     GO(xcb_screen_allowed_depths_iterator, S1Fp_t)  \
     GO(xcb_setup_pixmap_formats_iterator, S1Fp_t)   \
-    GO(xcb_setup_roots_iterator, S1Fp_t)
+    GO(xcb_setup_roots_iterator, S1Fp_t)            \
+    GO(xcb_create_colormap, XFpCppp_t)              \
+    GO(xcb_bell, XFpC_t)                            \
+    GO(xcb_free_cursor, XFpp_t)
 
 typedef struct xcb_my_s {
     #define GO(A, B)    B   A;
@@ -191,12 +199,14 @@ SUPER(xcb_get_modifier_mapping, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), 
 SUPER(xcb_get_property, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t _del, uint32_t w, uint32_t p, uint32_t type, uint32_t off, uint32_t len), c, _del, w, p, type, off, len)
 SUPER(xcb_get_property_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t _del, uint32_t w, uint32_t p, uint32_t type, uint32_t off, uint32_t len), c, _del, w, p, type, off, len)
 SUPER(xcb_get_selection_owner, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t sel), c, sel)
+SUPER(xcb_get_selection_owner_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t sel), c, sel)
 SUPER(xcb_get_window_attributes, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_get_window_attributes_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_grab_keyboard, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t owner, uint32_t g, uint32_t time, uint8_t pointer, uint32_t keyboard), c, owner, g, time, pointer, keyboard)
 SUPER(xcb_grab_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t owner, uint32_t g, uint16_t event, uint8_t pointer, uint8_t keyboard, uint32_t confine, uint32_t cursor, uint32_t time), c, owner, g, event, pointer, keyboard, confine, cursor, time)
 SUPER(xcb_grab_server, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
 SUPER(xcb_intern_atom, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
+SUPER(xcb_intern_atom_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
 SUPER(xcb_map_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_open_font, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t fid, uint16_t len, void* name), c, fid, len, name)
 SUPER(xcb_put_image, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t format, uint32_t d, uint32_t gc, uint16_t w, uint16_t h, int16_t dx, int16_t dy, uint8_t pad, uint8_t depth, uint32_t len, void* data), c, format, d, gc, w, h, dx, dy, pad, depth, len, data)
@@ -216,7 +226,9 @@ SUPER(xcb_ungrab_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_
 SUPER(xcb_ungrab_server, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
 SUPER(xcb_unmap_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_warp_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t swin, uint32_t dwin, int16_t sx, int16_t sy, uint16_t sw, uint16_t sh, int16_t dx, int16_t dy), c, swin, dwin, sx, sy, sw, sh, dx, dy)
-
+SUPER(xcb_create_colormap, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t alloc, void* mid, void* win, void* vis), c, alloc, mid, win, vis)
+SUPER(xcb_bell, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t percent), c, percent)
+SUPER(xcb_free_cursor, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, void* cursor), c, cursor)
 #undef SUPER
 
 EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)

@@ -21,10 +21,14 @@
 const char* libsmName = "libSM.so.6";
 #define LIBNAME libsm
 
-typedef void* (*pFppiiLpppip_t)(void*, void*, int, int, unsigned long, void*, void*, void*, int, void*);
+typedef int     (*iFppp_t)          (void*, void*, void*);
+typedef int     (*iFpipp_t)         (void*, int, void*, void*);
+typedef void*   (*pFppiiLpppip_t)   (void*, void*, int, int, unsigned long, void*, void*, void*, int, void*);
 
 #define SUPER() \
-    GO(SmcOpenConnection, pFppiiLpppip_t)
+    GO(SmcOpenConnection, pFppiiLpppip_t)   \
+    GO(SmcInteractRequest, iFpipp_t)        \
+    GO(SmcRequestSaveYourselfPhase2, iFppp_t)
 
 typedef struct libsm_my_s {
     // functions
@@ -110,6 +114,54 @@ EXPORT void* my_SmcOpenConnection(x86emu_t* emu, void* networkIdsList, void* con
     GO(SmcShutdownCancelledProcMask, shutdown_cancelled)
     #undef GO
     return my->SmcOpenConnection(networkIdsList, context, major, minor, mask, &nat, previousId, clientIdRet, errorLength, errorRet);
+}
+
+// utility functions
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// Request
+#define GO(A)   \
+static uintptr_t my_Request_fct_##A = 0;        \
+static void my_Request_##A(void* a, void* b)     \
+{                                               \
+    RunFunctionFast(my_context, my_Request_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findRequestFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_Request_fct_##A == (uintptr_t)fct) return my_Request_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_Request_fct_##A == 0) {my_Request_fct_##A = (uintptr_t)fct; return my_Request_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSM Request callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
+EXPORT int my_SmcInteractRequest(x86emu_t* emu, void* smcConn, int f, void* cb, void* data)
+{
+    libsm_my_t* my = (libsm_my_t*)GetLib(my_context->maplib, libsmName)->priv.w.p2;
+
+    return my->SmcInteractRequest(smcConn, f, findRequestFct(cb), data);
+}
+
+EXPORT int my_SmcRequestSaveYourselfPhase2(x86emu_t* emu, void* smcConn, void* cb, void* data)
+{
+    libsm_my_t* my = (libsm_my_t*)GetLib(my_context->maplib, libsmName)->priv.w.p2;
+
+    return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
 }
 
 #define CUSTOM_INIT \

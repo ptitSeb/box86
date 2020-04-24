@@ -32,7 +32,7 @@
 //GO(xcb_arc_next, 
 //GO(xcb_atom_end, 
 //GO(xcb_atom_next, 
-//GO(xcb_bell, 
+GOS(xcb_bell, pFEppC)
 //GO(xcb_bell_checked, 
 //GO(xcb_big_requests_enable, 
 //GO(xcb_big_requests_enable_reply, 
@@ -132,7 +132,7 @@ GOS(xcb_copy_area, pFEppuuuwwwwWW)
 //GO(xcb_copy_gc_checked, 
 //GO(xcb_copy_plane, 
 //GO(xcb_copy_plane_checked, 
-//GO(xcb_create_colormap, 
+GOS(xcb_create_colormap, pFEppCppp)
 //GO(xcb_create_colormap_checked, 
 GOS(xcb_create_cursor, pFEppuuuWWWWWWWW)
 //GO(xcb_create_cursor_checked, 
@@ -202,7 +202,7 @@ GO(xcb_format_next, vFp)
 //GO(xcb_free_colors_pixels_end, 
 //GO(xcb_free_colors_pixels_length, 
 //GO(xcb_free_colors_sizeof, 
-//GO(xcb_free_cursor, 
+GOS(xcb_free_cursor, pFEppp)
 //GO(xcb_free_cursor_checked, 
 GOS(xcb_free_gc, pFEppu)
 //GO(xcb_free_gc_checked, 
@@ -287,7 +287,7 @@ GO(xcb_get_property_value_length, iFp)
 //GO(xcb_get_screen_saver_unchecked, 
 GOS(xcb_get_selection_owner, pFEppu)
 GO(xcb_get_selection_owner_reply, pFpup)
-//GO(xcb_get_selection_owner_unchecked, 
+GOS(xcb_get_selection_owner_unchecked, pFEppu)
 GO(xcb_get_setup, pFp)
 GOS(xcb_get_window_attributes, pFEppu)
 GO(xcb_get_window_attributes_reply, pFpup)
@@ -327,7 +327,7 @@ GOS(xcb_grab_server, pFEpp)
 GOS(xcb_intern_atom, pFEppCWp)
 GO(xcb_intern_atom_reply, pFpup)
 //GO(xcb_intern_atom_sizeof, 
-//GO(xcb_intern_atom_unchecked, 
+GOS(xcb_intern_atom_unchecked, pFEppCWp)
 //GO(xcb_keycode32_end, 
 //GO(xcb_keycode32_next, 
 //GO(xcb_keycode_end, 

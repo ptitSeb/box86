@@ -99,7 +99,7 @@ GO(FcInit, iFv)
 //GO(FcInitBringUptoDate, 
 //GO(FcInitLoadConfig, 
 //GO(FcInitLoadConfigAndFonts, 
-//GO(FcInitReinitialize, 
+GO(FcInitReinitialize, iFv)
 //GO(FcLangGetCharSet, 
 GO(FcLangSetAdd, iFpp)
 //GO(FcLangSetCompare, 
