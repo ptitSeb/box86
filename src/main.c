@@ -390,6 +390,7 @@ void PrintHelp() {
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
+    printf(" BOX86_NOSIGILL=1  to disable handling of SigILL\n");
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
@@ -437,6 +438,11 @@ void LoadEnvVars(box86context_t *context)
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
             context->no_sigsegv = 1;
             printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
+    }
+    if(getenv("BOX86_NOSIGILL")) {
+        if (strcmp(getenv("BOX86_NOSIGILL"), "1")==0)
+            context->no_sigill = 1;
+            printf_log(LOG_INFO, "BOX86: Disabling handling of SigILL\n");
     }
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");

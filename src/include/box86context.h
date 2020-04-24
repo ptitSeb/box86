@@ -151,6 +151,7 @@ typedef struct box86context_s {
     uintptr_t           restorer[MAX_SIGNAL];
     x86emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
+    int                 no_sigill;
 
 } box86context_t;
 

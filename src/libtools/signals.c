@@ -181,7 +181,7 @@ static void CheckSignalContext(x86emu_t* emu, int sig)
         const int stsize = 2*1024*1024;
         void* stack = calloc(1, stsize);
         my_context->emu_sig = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        SetTraceEmu(my_context->emu_sig, 0/*my_context->emu->trace_start*/, 0/*my_context->emu->trace_end*/);
+        SetTraceEmu(my_context->emu_sig, my_context->emu->trace_start, my_context->emu->trace_end);
     }
 }
 
@@ -212,6 +212,9 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         return -1;
     
     if(signum==SIGSEGV && emu->context->no_sigsegv)
+        return 0;
+
+    if(signum==SIGILL && emu->context->no_sigill)
         return 0;
 
     CheckSignalContext(emu, signum);

@@ -58,6 +58,11 @@ To disable handling of SigSEGV (to ease debugging mainly)
 * 0 : default, let x86 program set sighandler for SEGV
 * 1 : disable handling of SigSEGV
 
+#### BOX86_NOSIGILL
+To disable handling of SigILL (to ease debugging mainly)
+* 0 : default, let x86 program set sighandler for Illegal Instruction
+* 1 : disable handling of SigILL
+
 #### BOX86_X11COLOR16
 PANDORA only: to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows
 * 0 : default, don't touch X11 colors
