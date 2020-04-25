@@ -194,7 +194,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
-    MESSAGE(LOG_DUMP, "Jump to linker (#%d)\n", dyn->tablei);
+    MESSAGE(LOG_DUMP, "Jump to linker (#%d) nolinker=%d\n", dyn->tablei, dyn->nolinker);
     int i32;
     MAYUSE(i32);
     if(dyn->nolinker) {
@@ -213,11 +213,11 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             table[0] = (uintptr_t)arm_linker;
             table[1] = ip;
         }
-        dyn->tablei+=2; // smart linker or not, we keep table correctly alligned for LDREXD/STREXD access
+        dyn->tablei+=4; // smart linker or not, we keep table correctly alligned for LDREXD/STREXD access
         MOV32_(x1, (uintptr_t)table);
         // TODO: This is not thread safe.
         if(!ip) {   // no IP, jump address in a reg, so need smart linker
-            dyn->tablei+=2; // smart linker
+            dyn->tablei+=4; // smart linker
             MOV32_(x1, (uintptr_t)table);
             MARK;
             LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
@@ -260,7 +260,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
             table[0] = (uintptr_t)arm_linker;
             table[1] = 0;
         }
-        dyn->tablei+=2; // smart linker
+        dyn->tablei+=4; // smart linker
         MOV32_(x1, (uintptr_t)table);
         MARK;
         LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
@@ -299,7 +299,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
             table[0] = (uintptr_t)arm_linker;
             table[1] = 0;
         }
-        dyn->tablei+=2; // smart linker
+        dyn->tablei+=4; // smart linker
         MOV32_(x1, (uintptr_t)table);
         MARK;
         LDREXD(x1, x2); // load dest address in x2 and planned ip in x3

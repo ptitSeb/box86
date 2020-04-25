@@ -10,6 +10,7 @@ typedef struct dynablock_s {
     uintptr_t*  table;
     int         tablesz;
     int         done;
+    int         isize;
 } dynablock_t;
 
 typedef struct kh_dynablocks_s kh_dynablocks_t;

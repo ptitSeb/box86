@@ -74,6 +74,8 @@ if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many in
             if(next && ((next-addr)<15) && is_nops(dyn, addr, next-addr)) {
                 dynarec_log(LOG_DEBUG, "Extend block %p, %p -> %p (ninst=%d)\n", dyn, (void*)addr, (void*)next, ninst);
                 ok = 1;
+            } else if(next && (next-addr)<15) {
+                dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4));
             }
         }
         if(ok<0)  {ok = 0; need_epilog=1;}
