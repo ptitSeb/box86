@@ -21,6 +21,7 @@ typedef struct dynarec_arm_s {
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x86 instructions included
     void*               block;      // memory pointer where next instruction is emited
+    uintptr_t           arm_start;  // start of the arm code
     int                 arm_size;   // size of emitted arm code
     x86emu_t*           emu;
     uintptr_t*          table;      // jump table

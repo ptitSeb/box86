@@ -11,6 +11,11 @@ typedef struct i386_ucontext_s i386_ucontext_t;
 #define ERR_DIVBY0  2
 #define ERR_ILLEGAL 4
 
+#ifdef DYNAREC
+#define CSTACK      32
+#define CSTACKMASK  31
+#endif
+
 typedef struct cleanup_s cleanup_t;
 
 typedef struct forkpty_s {
@@ -61,6 +66,10 @@ typedef struct x86emu_s {
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
     int         longjmp;        // if quit because of longjmp
+    #ifdef DYNAREC
+    int         cstacki;            // current index
+    uint64_t    cstack[CSTACK+1];   // pair of x86 address / native address for call/ret, using uint64_t for alignement, +1 for allignment
+    #endif
     // trace
     zydis_dec_t *dec;
     uintptr_t   trace_start, trace_end;

@@ -37,7 +37,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // ok, go now
     INIT;
     while(ok) {
-if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
+        if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
         NEW_INST;
         fpu_reset_scratch(dyn);

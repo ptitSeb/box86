@@ -199,6 +199,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
         return;
     }
     helper.block = p;
+    helper.arm_start = (uintptr_t)p;
     helper.tablesz = helper.tablei;
     if(helper.tablesz)
         helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));

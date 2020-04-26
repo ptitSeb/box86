@@ -79,12 +79,12 @@ Op is 20-27
 // pseudo insruction: mov reg, #imm with imm a 32bits value
 #define MOV32(dst, imm32)                   \
     MOVW(dst, ((uint32_t)imm32)&0xffff);    \
-    if (((uint32_t)imm32)>>16) {            \
+    if (((uint32_t)(imm32))>>16) {            \
         MOVT(dst, (((uint32_t)imm32)>>16)); }
 // pseudo insruction: mov reg, #imm with imm a 32bits value, fixed size
 #define MOV32_(dst, imm32)                   \
-    MOVW(dst, ((uint32_t)imm32)&0xffff);    \
-    MOVT(dst, (((uint32_t)imm32)>>16))
+    MOVW(dst, ((uint32_t)(imm32))&0xffff);    \
+    MOVT(dst, (((uint32_t)(imm32))>>16))
 // movw.cond dst, #imm16
 #define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 // mov dst #imm8 ror imm4*2
@@ -181,6 +181,9 @@ Op is 20-27
 // add.s dst, src, #(imm8)
 #define ADDS_IMM8(dst, src, imm8) \
     EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add.c dst, src, #(imm8)
+#define ADD_IMM8_cond(cond, dst, src, imm8) \
+    EMIT((cond) | 0x02800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add dst, src1, src2, lsl #imm
 #define ADD_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
@@ -308,6 +311,8 @@ Op is 20-27
 #define LDRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6d00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // ldrd reg, reg+1, [addr, #+/-imm9], reg must be even, reg+1 is implicit
 #define LDRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24  | (((imm8)<0)?0:1)<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((abs(imm8))&0xf0)<<(8-4) | (0b1101<<4) | ((abs(imm8))&0x0f) )
+// ldrd reg, reg+1, [addr, +rm], reg must be even, reg+1 is implicit
+#define LDRD_REG(reg, addr, rm) EMIT(c__ | 0b000<<25 | 1<<24  | 1<<23 | 0<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | 0b1101<<4 | (rm) )
 
 // str reg, [addr, #+/-imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -327,6 +332,8 @@ Op is 20-27
 #define STRBAI_REG_LSL_IMM5(reg, addr, rm, imm5) EMIT(0xe6c00000 | ((reg) << 12) | ((addr) << 16) | (1<<25) | brLSL(imm5, rm) )
 // strd reg, reg+1, [addr, #+/-imm8], reg must be even, reg+1 is implicit
 #define STRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24 | (((imm8)<0)?0:1)<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((abs(imm8))&0xf0)<<(8-4) | (0b1111<<4) | ((abs(imm8))&0x0f) )
+// strd reg, reg+1, [addr, +rm], reg must be even, reg+1 is implicit
+#define STRD_REG(reg, addr, rm) EMIT(c__ | 0b000<<25 | 1<<24 | 1<<23 | 0<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | 0b1111<<4 | (rm) )
 
 // bx reg
 #define BX(reg) EMIT(0xe12fff10 | (reg) )

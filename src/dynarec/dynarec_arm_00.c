@@ -1570,7 +1570,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x12, ip+1+2);
                     STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
-                    MOV32(x1, 1);
+                    MOVW(x1, 1);
                     STR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                     *ok = 0;
                     *need_epilog = 1;
@@ -2010,13 +2010,20 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 gd = xEAX+((u8&0x38)>>3);
                 MOV32(gd, addr);
             } else {
-                BARRIER(2);
-                MOV32(x2, addr);
-                PUSH(xESP, 1<<x2);
                 // regular call
+                if(!dyn->nolinker) {
+                    BARRIER(1);
+                    PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
+                    //cstatck_push put addr in x2, don't need to put it again
+                } else {
+                    BARRIER(2);
+                    PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
+                    *need_epilog = 0;
+                    *ok = 0;
+                    MOV32(x2, addr);
+                }
+                PUSH(xESP, 1<<x2);
                 jump_to_linker(dyn, addr+i32, 0, ninst);
-                *need_epilog = 0;
-                *ok = 0;
             }
             break;
         case 0xE9:
@@ -2479,13 +2486,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
                     SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
-                    BARRIER(2);
                     GETEDH(xEIP);
+                    if(!dyn->nolinker) {
+                        BARRIER(1);
+                        PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
+                    } else {
+                        BARRIER(2);
+                        PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
                     MOV32(x3, addr);
                     PUSH(xESP, 1<<x3);
                     jump_to_linker(dyn, 0, ed, ninst);  // smart linker
-                    *need_epilog = 0;
-                    *ok = 0;
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");

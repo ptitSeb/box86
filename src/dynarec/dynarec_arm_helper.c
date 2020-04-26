@@ -243,10 +243,12 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 // using linker here doesn't seem to bring any significant speed improvment. To much change in the jump table probably
 #if 0
     int i32;
+    MAYUSE(i32);
     if(dyn->nolinker) {
 #endif
         MESSAGE(LOG_DUMP, "Ret epilog\n");
         POP(xESP, 1<<xEIP);
+        cstack_pop(dyn, ninst, xEIP, x1, x2);
         PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
@@ -280,15 +282,19 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
+#if 0
     int i32;
     MAYUSE(i32);
     if(dyn->nolinker) {
+#endif
         MESSAGE(LOG_DUMP, "Retn epilog\n");
         POP(xESP, 1<<xEIP);
         ADD_IMM8(xESP, xESP, n);
+        cstack_pop(dyn, ninst, xEIP, x1, x2);
         PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
         BX(x2);
+#if 0
     } else {
         MESSAGE(LOG_DUMP, "Retn epilog with linker\n");
         POP(xESP, 1<<xEIP);
@@ -314,6 +320,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         B_MARK(cEQ);
         BX(x2); // go to linker
     }
+#endif
 }
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
@@ -1016,4 +1023,51 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
     if(reg>=16) {
         VMOV_64(reg, s/2);
     }
+}
+
+
+// PUSH a x86/native couple of address in cstack, using s1, s2, s2+1
+void cstack_push(dynarec_arm_t* dyn, int ninst, uintptr_t x86ip, uintptr_t armip, int s1, int s2)
+{
+    if(x86ip)
+        armip+=dyn->arm_start;
+    MESSAGE(LOG_DUMP, "CStack PUSH %p/%p-----\n", (void*)x86ip, (void*)armip);
+    // load current indice
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, cstacki));
+    // calcule offset in the cstack
+    MOV32(s1, offsetof(x86emu_t, cstack));
+    TSTS_IMM8(xEmu, 0x04);              // test if x86emu_t struct is not 0x8 aligned
+    ADD_IMM8_cond(cNE, s1, s1, 4);      // align...
+    ADD_REG_LSL_IMM5(s1, s1, s2, 3);    //*8, because it's a pair of address
+    // increment (mod mask) and save back index
+    ADD_IMM8(s2, s2, 1);
+    AND_IMM8(s2, s2, CSTACKMASK);
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, cstacki));
+    // push the pair of address
+    MOV32(s2, x86ip);
+    MOV32_(s2+1, armip);
+    STRD_REG(s2, xEmu, s1);
+    MESSAGE(LOG_DUMP, "--------------CStack PUSH\n");
+}
+
+// POP a x86/native couple of address from cstack, and generate the jump is x86 address is s0, use s1, s2 and s2+1 as scratch
+void cstack_pop(dynarec_arm_t* dyn, int ninst, int s0, int s1, int s2)
+{
+    MESSAGE(LOG_DUMP, "CStack POP----------------\n");
+    // load current indice
+    LDR_IMM9(s1, xEmu, offsetof(x86emu_t, cstacki));
+    // decrement (mod mask) and save back index
+    SUB_IMM8(s1, s1, 1);
+    AND_IMM8(s1, s1, CSTACKMASK);
+    STR_IMM9(s1, xEmu, offsetof(x86emu_t, cstacki));
+    // calcule offset in the cstack
+    MOV32(s2, offsetof(x86emu_t, cstack));
+    TSTS_IMM8(xEmu, 0x04);              // test if x86emu_t struct is not 0x8 aligned
+    ADD_IMM8_cond(cNE, s2, s2, 4);      // align...
+    ADD_REG_LSL_IMM5(s1, s2, s1, 3);    //*8, because it's a pair of address
+    // pop the pair of address
+    LDRD_REG(s2, xEmu, s1);
+    CMPS_REG_LSL_IMM5(s0, s2, 0);
+    BXcond(cEQ, s2+1);
+    MESSAGE(LOG_DUMP, "----------------CStack POP\n");
 }
