@@ -213,7 +213,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     block->table = helper.table;
     block->tablesz = helper.tablesz;
     for (int i=0; i<helper.tablei/4; ++i)
-        block->table[i*4+2] = (void*)block;
+        block->table[i*4+2] = (uintptr_t)block;
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
