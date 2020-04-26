@@ -28,11 +28,11 @@ void RunDF(x86emu_t *emu);
 static inline void fpu_do_push(x86emu_t* emu)
 {
     int newtop = (emu->top-1)&7;
-    if(emu->p_regs[newtop].tag!=0b11) {// not empty, overflow!
+    /*if(emu->p_regs[newtop].tag!=0b11) {// not empty, overflow!
         printf_log(LOG_NONE, "Warning: %p: FPU Stack overflow\n", (void*)emu->old_ip);    // probably better to raise something
         //emu->quit = 1;
         return;
-    }
+    }*/
     if(emu->fpu_stack<8)
         ++emu->fpu_stack; 
     emu->p_regs[newtop].tag = 0;    // full
@@ -42,11 +42,11 @@ static inline void fpu_do_push(x86emu_t* emu)
 static inline void fpu_do_pop(x86emu_t* emu)
 {
     int curtop = (emu->top)&7;
-    if(emu->p_regs[(emu->top)&7].tag==0b11) {// underflow
+    /*if(emu->p_regs[(emu->top)&7].tag==0b11) {// underflow
         printf_log(LOG_NONE, "Warning: %p: FPU Stack underflow\n", (void*)emu->old_ip);    // probably better to raise something
         //emu->quit = 1;
         return;
-    }
+    }*/
     if(emu->fpu_stack>0)
         --emu->fpu_stack;
     
