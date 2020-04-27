@@ -23,6 +23,8 @@ Here are 6 videos, the first 2 of "Airline Tycoon Deluxe" and "Heretic 2" runnin
 
 You can find many more box86 video on [PI Lab Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) [![PI Lab Channel](https://yt3.ggpht.com/a/AATXAJyMeWrgCjs78gr6To6yX4KtDPUCS7hsbX1rRA=s100-c-k-c0xffffffff-no-rj-mo)](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g).
 
+Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list/issues
+
 ----
 
 Compiling
