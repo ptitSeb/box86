@@ -670,7 +670,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MUL(gd, ed, x12);
             }
             break;
-            
+
         #define GO(GETFLAGS, NO, YES, F)    \
             READFLAGS(F);                   \
             i8 = F8S;   \
@@ -1666,29 +1666,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     EBBACK;
                     break;
                 case 2:
-                    if(opcode==0xD0) {
-                        INST_NAME("RCL Eb, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("RCL Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    if(opcode==0xD0) {INST_NAME("RCL Eb, 1");} else {INST_NAME("RCL Eb, CL");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
                     GETEB(x1);
                     CALL_(rcl8, x1, (1<<x3));
                     EBBACK;
                     break;
                 case 3:
-                    if(opcode==0xD0) {
-                        INST_NAME("RCR Eb, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("RCR Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    if(opcode==0xD0) {INST_NAME("RCR Eb, 1");} else {INST_NAME("RCR Eb, CL");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
                     GETEB(x1);
                     CALL_(rcr8, x1, (1<<x3));
                     EBBACK;
@@ -2027,7 +2017,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(gd, addr);
             } else {
                 // regular call
-                if(!dyn->nolinker && ninst!=dyn->size-1) {
+                if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
                     BARRIER(1);
                     PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     //cstatck_push put addr in x2, don't need to put it again
@@ -2503,7 +2493,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("CALL Ed");
                     SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     GETEDH(xEIP);
-                    if(!dyn->nolinker && ninst!=dyn->size-1) {
+                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
                         BARRIER(1);
                         PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {

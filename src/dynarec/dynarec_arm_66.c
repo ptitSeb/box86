@@ -730,29 +730,19 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     EWBACK;
                     break;
                 case 2:
-                    if(opcode==0xD1) {
-                        INST_NAME("RCL Ew, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("RCL Ew, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    if(opcode==0xD1) {INST_NAME("RCL Ew, 1"); } else { INST_NAME("RCL Ew, CL");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD1) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
                     EWBACK;
                     break;
                 case 3:
-                    if(opcode==0xD1) {
-                        INST_NAME("RCR Ew, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("RCR Ew, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    if(opcode==0xD1) {INST_NAME("RCR Ew, 1");} else {INST_NAME("RCR Ew, CL");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(opcode==0xD1) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
                     EWBACK;
