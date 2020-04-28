@@ -44,7 +44,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(tmp);
 
     switch(opcode) {
-
         case 0x00:
             INST_NAME("ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
@@ -589,14 +588,31 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x60:
             INST_NAME("PUSHAD");
             MOV_REG(x1, xESP);
-            PUSH(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
+            // cannot use PUSH (STMdb!) because order of regs are reversed!
+            //PUSH(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
+            PUSH(x1, (1<<xEAX));
+            PUSH(x1, (1<<xECX));
+            PUSH(x1, (1<<xEDX));
+            PUSH(x1, (1<<xEBX));
+            PUSH(x1, (1<<xESP));
+            PUSH(x1, (1<<xEBP));
+            PUSH(x1, (1<<xESI));
+            PUSH(x1, (1<<xEDI));
             MOV_REG(xESP, x1);
             break;
         case 0x61:
             INST_NAME("POPAD");
-            MOV_REG(x1, xESP);
-            POP(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
-            MOV_REG(xESP, x1);
+            //MOV_REG(x1, xESP);
+            //POP(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
+            POP(xESP, (1<<xEDI));
+            POP(xESP, (1<<xESI));
+            POP(xESP, (1<<xEBP));
+            ADD_IMM8(xESP, xESP, 4);    //POP(xESP, (1<<xESP));
+            POP(xESP, (1<<xEBX));
+            POP(xESP, (1<<xEDX));
+            POP(xESP, (1<<xECX));
+            POP(xESP, (1<<xEAX));
+            //MOV_REG(xESP, x1);
             break;
 
         case 0x65:
@@ -654,7 +670,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MUL(gd, ed, x12);
             }
             break;
-
+            
         #define GO(GETFLAGS, NO, YES, F)    \
             READFLAGS(F);                   \
             i8 = F8S;   \
@@ -2011,7 +2027,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(gd, addr);
             } else {
                 // regular call
-                if(!dyn->nolinker) {
+                if(!dyn->nolinker && ninst!=dyn->size-1) {
                     BARRIER(1);
                     PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     //cstatck_push put addr in x2, don't need to put it again
@@ -2487,7 +2503,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("CALL Ed");
                     SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     GETEDH(xEIP);
-                    if(!dyn->nolinker) {
+                    if(!dyn->nolinker && ninst!=dyn->size-1) {
                         BARRIER(1);
                         PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {
