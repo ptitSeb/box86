@@ -24,6 +24,7 @@ typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFpipi_t)(void*, int, void*, int);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
@@ -35,12 +36,21 @@ typedef uint32_t (*uFpW_t)(void*, uint16_t);
 typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
+typedef int     (*iFpiiiiipi_t)(void*, int, int, int, int, int, void*, int);
+
+#define SUPER() \
+    GO(inflateInit_, iFppi_t)           \
+    GO(inflateInit, iFp_t)              \
+    GO(inflateEnd, iFp_t)               \
+    GO(deflateEnd, iFp_t)               \
+    GO(deflateInit_, iFpipi_t)          \
+    GO(deflateInit2_, iFpiiiiipi_t)
 
 typedef struct libz_my_s {
     // functions
-    iFppi_t      inflateInit_;
-    iFp_t        inflateInit;
-    iFp_t        inflateEnd;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } libz_my_t;
 
 
@@ -48,12 +58,11 @@ void* getZMy(library_t* lib)
 {
     libz_my_t* my = (libz_my_t*)calloc(1, sizeof(libz_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(inflateInit_, iFppi_t)
-    GO(inflateInit, iFp_t)
-    GO(inflateEnd, iFp_t)
+    SUPER()
     #undef GO
     return my;
 }
+#undef SUPER
 
 void freeZMy(void* lib)
 {
@@ -138,6 +147,35 @@ EXPORT int32_t my_inflateEnd(x86emu_t* emu, void* str)
     }
     return r;
 }
+
+EXPORT int32_t my_deflateInit_(x86emu_t* emu, void* str, int level, void* version, int stream_size)
+{
+    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
+    wrapper_stream_z(emu, str);
+    return my->deflateInit_(str, level, version, stream_size);
+}
+
+EXPORT int32_t my_deflateInit2_(x86emu_t* emu, void* str, int level, int method, int windowBits, int memLevel, int strategy, void* version, int stream_size)
+{
+    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
+    wrapper_stream_z(emu, str);
+    return my->deflateInit2_(str, level, method, windowBits, memLevel, strategy, version, stream_size);
+}
+
+EXPORT int32_t my_deflateEnd(x86emu_t* emu, void* str)
+{
+    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
+    z_stream *stream = (z_stream*)str;
+    // check if function need changing...
+    x86emu_t *cb = (x86emu_t*)stream->opaque;
+    int32_t r = my->deflateEnd(str);
+    if(cb) {
+        stream->opaque = GetCallbackArg(cb, 0);
+        FreeCallback(cb);   // will do nothing if cb is not a callback emu
+    }
+    return r;
+}
+
 
 #define CUSTOM_INIT \
     box86->zlib = lib; \
