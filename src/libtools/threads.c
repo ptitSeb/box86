@@ -431,7 +431,6 @@ static void del_cond(void* cond)
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
-	sched_yield();
 	return pthread_cond_broadcast(c);
 }
 EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
