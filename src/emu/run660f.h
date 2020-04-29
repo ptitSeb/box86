@@ -1041,7 +1041,12 @@
                 opx2->ub[i] = GX.ub[i];
         }
         NEXT;
-
+    _6f_0xF8:  /* PSUBB Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<16; ++i)
+            GX.ub[i] -= EX->ub[i];
+        NEXT;
     _6f_0xF9:  /* PSUBW Gx,Ex */
         nextop = F8;
         GET_EX;
