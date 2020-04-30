@@ -1309,7 +1309,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("FXSAVE Ed");
-                        fpu_reflectcache(dyn, ninst, x1, x2, x3);
+                        fpu_purgecache(dyn, ninst, x1, x2, x3);
                         GETEDW(x2, x1);
                         CALL(arm_fxsave, -1, 0);
                         break;
