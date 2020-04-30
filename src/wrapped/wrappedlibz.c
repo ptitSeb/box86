@@ -43,6 +43,7 @@ typedef int     (*iFpiiiiipi_t)(void*, int, int, int, int, int, void*, int);
     GO(inflateInit, iFp_t)              \
     GO(inflateEnd, iFp_t)               \
     GO(deflateEnd, iFp_t)               \
+    GO(inflateInit2_, iFpipi_t)         \
     GO(deflateInit_, iFpipi_t)          \
     GO(deflateInit2_, iFpiiiiipi_t)
 
@@ -132,6 +133,13 @@ EXPORT int32_t my_inflateInit(x86emu_t* emu, void* str)
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflateInit(str);
+}
+
+EXPORT int32_t my_inflateInit2_(x86emu_t* emu, void* str, int windowBits, void* version, int stream_size)
+{
+    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
+    wrapper_stream_z(emu, str);
+    return my->inflateInit2_(str, windowBits, version, stream_size);
 }
 
 EXPORT int32_t my_inflateEnd(x86emu_t* emu, void* str)
