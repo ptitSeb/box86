@@ -25,12 +25,6 @@
 void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop_restore(void* buffer, int exec);
 
-typedef struct emuthread_s {
-	x86emu_t *emu;
-	uintptr_t fnc;
-	void*	arg;
-} emuthread_t;
-
 typedef struct threadstack_s {
 	void* 	stack;
 	size_t 	stacksize;
@@ -140,27 +134,34 @@ static void DelCancelThread(uintptr_t buff)
 	kh_del(cancelthread, my_context->cancelthread, k);
 }
 
-static void pthread_clean_routine(void* p)
+typedef struct emuthread_s {
+	uintptr_t 	fnc;
+	void*		arg;
+	x86emu_t*	emu;
+} emuthread_t;
+
+static void emuthread_destroy(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
 	FreeX86Emu(&et->emu);
 	free(et);
 }
 
+static pthread_key_t thread_key;
+static pthread_once_t thread_key_once = PTHREAD_ONCE_INIT;
+
+static void thread_key_alloc() {
+	pthread_key_create(&thread_key, emuthread_destroy);
+}
+
 static void* pthread_routine(void* p)
 {
-	void* r = NULL;
-
 	emuthread_t *et = (emuthread_t*)p;
-	
-	pthread_cleanup_push_defer_np(pthread_clean_routine, p);
-
-	x86emu_t *emu = et->emu;
-	r = (void*)RunFunctionWithEmu(emu, 0, et->fnc, 1, et->arg);
-
-	pthread_cleanup_pop_restore_np(1);
-
-	return r;
+	// create the key
+	pthread_once(&thread_key_once, thread_key_alloc);
+	pthread_setspecific(thread_key, p);
+	// call the function
+	return (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 }
 
 EXPORT int my_pthread_attr_destroy(x86emu_t* emu, void* attr)
