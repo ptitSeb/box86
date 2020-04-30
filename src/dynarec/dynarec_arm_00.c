@@ -1608,7 +1608,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else {
                 INST_NAME("INT 3");
-                DEFAULT;
+                //nothing specific done...
+                break;
             }
             break;
         case 0xCD:

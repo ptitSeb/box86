@@ -238,6 +238,24 @@ void arm_ud(x86emu_t* emu)
     kill(getpid(), SIGILL);
 }
 
+void arm_fxsave(x86emu_t* emu, uint8_t* ed)
+{
+    // should save flags & all
+    // copy MMX regs...
+    memcpy(ed+32/4, &emu->mmx[0], sizeof(emu->mmx));
+    // copy SSE regs
+    memcpy(ed+160/4, &emu->xmm[0], sizeof(emu->xmm));
+}
+
+void arm_fxrstor(x86emu_t* emu, uint8_t* ed)
+{
+    // should restore flags & all
+    // copy MMX regs...
+    memcpy(&emu->mmx[0], ed+32/4, sizeof(emu->mmx));
+    // copy SSE regs
+    memcpy(&emu->xmm[0], ed+160/4, sizeof(emu->xmm));
+}
+
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
 {
