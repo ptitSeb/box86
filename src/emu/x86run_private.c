@@ -694,12 +694,13 @@ void UpdateFlags(x86emu_t *emu)
 void PackFlags(x86emu_t* emu)
 {
     #define GO(A) emu->packed_eflags.f.F__##A = emu->flags[F_##A];
+    #define GOC(A, C) emu->packed_eflags.f.F__##A = C;
     GO(CF);
-    GO(res1);
+    GOC(res1, 1);
     GO(PF);
-    GO(res2);
+    GOC(res2, 0);
     GO(AF);
-    GO(res3);
+    GOC(res3, 0);
     GO(ZF);
     GO(SF);
     GO(TF);
@@ -708,24 +709,26 @@ void PackFlags(x86emu_t* emu)
     GO(OF);
     GO(IOPL);
     GO(NT);
-    GO(dummy);
+    GOC(dummy, 0);
     GO(RF);
     GO(VM);
     GO(AC);
     GO(VIF);
     GO(VIP);
-    GO(ID);
+    GOC(ID, 1); //ID is CPUID presence
     #undef GO
+    #undef GOC
 }
 void UnpackFlags(x86emu_t* emu)
 {
     #define GO(A) emu->flags[F_##A] = emu->packed_eflags.f.F__##A;
+    #define GOC(A, C) emu->flags[F_##A] = C;
     GO(CF);
-    GO(res1);
+    GOC(res1, 1);
     GO(PF);
-    GO(res2);
+    GOC(res2, 0);
     GO(AF);
-    GO(res3);
+    GOC(res3, 0);
     GO(ZF);
     GO(SF);
     GO(TF);
@@ -734,14 +737,15 @@ void UnpackFlags(x86emu_t* emu)
     GO(OF);
     GO(IOPL);
     GO(NT);
-    GO(dummy);
+    GOC(dummy, 0);
     GO(RF);
     GO(VM);
     GO(AC);
     GO(VIF);
     GO(VIP);
-    GO(ID);
+    GOC(ID, 1);
     #undef GO
+    #undef GOC
 }
 
 uintptr_t GetGSBaseEmu(x86emu_t* emu)
