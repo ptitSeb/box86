@@ -2984,7 +2984,7 @@ GO(RAND_status, iFv)
 //GO(RSA_blinding_on, 
 //GO(RSA_check_key, 
 //GO(RSA_flags, 
-//GO(RSA_free, 
+GO(RSA_free, vFp)
 //GO(RSA_generate_key, 
 //GO(RSA_generate_key_ex, 
 //GO(RSA_get_default_method, 
@@ -2992,7 +2992,7 @@ GO(RAND_status, iFv)
 //GO(RSA_get_ex_new_index, 
 //GO(RSA_get_method, 
 //GO(RSA_memory_lock, 
-//GO(RSA_new, 
+GO(RSA_new, pFv)
 //GO(RSA_new_method, 
 //GO(RSA_null_method, 
 //GO(RSA_OAEP_PARAMS_free, 
@@ -3028,11 +3028,11 @@ GO(RAND_status, iFv)
 //GO(RSA_set_ex_data, 
 //GO(RSA_set_method, 
 //GO(RSA_setup_blinding, 
-//GO(RSA_sign, 
+GO(RSA_sign, iFipuppp)
 //GO(RSA_sign_ASN1_OCTET_STRING, 
-//GO(RSA_size, 
+GO(RSA_size, iFp)
 //GO(RSA_up_ref, 
-//GO(RSA_verify, 
+GO(RSA_verify, iFipupup)
 //GO(RSA_verify_ASN1_OCTET_STRING, 
 //GO(RSA_verify_PKCS1_PSS, 
 //GO(RSA_verify_PKCS1_PSS_mgf1, 
