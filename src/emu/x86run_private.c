@@ -755,12 +755,7 @@ uintptr_t GetGSBaseEmu(x86emu_t* emu)
     return (uintptr_t)GetGSBase(emu->context);
 }
 
-#ifdef HAVE_TRACE
-extern uint64_t start_cnt;
-#define PK(a)   (*(uint8_t*)(ip+a))
-#define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
-
-static void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
+void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
 {
     uint32_t sz = 0;
     uintptr_t start = 0;
@@ -772,6 +767,11 @@ static void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* tex
             printf_log(LOG_NONE, " (%s%s + %d)", text, symbname, nextaddr - start);
     }
 }
+
+#ifdef HAVE_TRACE
+extern uint64_t start_cnt;
+#define PK(a)   (*(uint8_t*)(ip+a))
+#define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
 
 void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
 {

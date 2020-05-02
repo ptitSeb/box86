@@ -1530,6 +1530,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(ed, wback, fixedaddress);
                     }
                     MARK3;
+                    break;
                 default:
                     DEFAULT;
             }

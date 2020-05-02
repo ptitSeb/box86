@@ -12,4 +12,6 @@ zydis_dec_t* InitX86TraceDecoder(box86context_t *context);
 void DeleteX86TraceDecoder(zydis_dec_t **dec);
 const char* DecodeX86Trace(zydis_dec_t *dec, uint32_t p);
 
+#define ZYDIS_RUNTIME_ADDRESS_NONE (uint64_t)(-1)
+
 #endif //__X86TRACE_H_

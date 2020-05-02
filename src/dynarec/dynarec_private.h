@@ -30,6 +30,6 @@ typedef struct instruction_x86_s {
     int         state_flags; // One of SF_XXX state
 } instruction_x86_t;
 
-void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);
+void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* inst, const char* name);
 
 #endif //__DYNAREC_PRIVATE_H_

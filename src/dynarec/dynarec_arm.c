@@ -20,7 +20,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 
-void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
+void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
         uint32_t a = *(uint32_t*)(ip+3);
@@ -31,14 +31,26 @@ void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const cha
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s%s\n", (box86_dynarec_dump>1)?"\e[1m":"", (void*)inst->addr, DecodeX86Trace(dec, inst->addr), (box86_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: %s", (box86_dynarec_dump>1)?"\e[1m":"", ip, DecodeX86Trace(dec, inst->addr));
         } else {
-            dynarec_log(LOG_NONE, "%s%p: ", (box86_dynarec_dump>1)?"\e[1m":"", (void*)inst->addr);
+            dynarec_log(LOG_NONE, "%s%p: ", (box86_dynarec_dump>1)?"\e[1m":"", ip);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
             dynarec_log(LOG_NONE, " %s%s\n", name, (box86_dynarec_dump>1)?"\e[m":"");
         }
+        // print Call function name if possible
+        if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
+            uintptr_t nextaddr = (uintptr_t)ip + 5 + *((int32_t*)(ip+1));
+            printFunctionAddr(emu, nextaddr, "=> ");
+        } else if(ip[0]==0xFF) {
+            if(ip[1]==0x25) {
+                uintptr_t nextaddr = (uintptr_t)ip + 6 + *((int32_t*)(ip+2));
+                printFunctionAddr(emu, nextaddr, "=> ");
+            }
+        }
+        // end of line and colors
+        dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
     }
 }
 
@@ -204,7 +216,11 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     if(helper.tablesz)
         helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     // pass 3, emit (log emit arm opcode)
-    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Emitting %d bytes for %d x86 bytes\n", helper.arm_size, helper.isize);
+    if(box86_dynarec_dump) {
+        dynarec_log(LOG_NONE, "Emitting %d bytes for %d x86 bytes", helper.arm_size, helper.isize); 
+        printFunctionAddr(emu, helper.start, " => ");
+        dynarec_log(LOG_NONE, "\n");
+    }
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
     // all done...

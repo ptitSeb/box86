@@ -108,9 +108,9 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOVcond_64(cNE, v1, v2);   // F_PF==1
             break;       
         case 0xE9:
-            INST_NAME("FUCOMPP ST0, STx");
+            INST_NAME("FUCOMPP ST0, ST1");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v2 = x87_get_st(dyn, ninst, x1, x2, 1);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
             x87_do_pop(dyn, ninst);
