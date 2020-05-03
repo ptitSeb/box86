@@ -412,7 +412,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CALL_(das8, x1, 0);
             BFI(xEAX, x1, 0, 8);
             break;
-
         case 0x30:
             INST_NAME("XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
@@ -797,7 +796,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
         #undef GO
-        
         case 0x80:
         case 0x82:
             nextop = F8;
@@ -2051,7 +2049,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     // inside the block
                     tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                    Bcond(c__, tmp);
+                    if(tmp==-4) {
+                        NOP;
+                    } else {
+                        Bcond(c__, tmp);
+                    }
                 }
             }
             *need_epilog = 0;
