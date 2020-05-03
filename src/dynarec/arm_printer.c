@@ -545,9 +545,11 @@ const char* arm_print(uint32_t opcode)
                         int op2 = opcode&0xfff;
                         char tmp[40] = {0};
                         if(i) { // op2 is immediate
-                            uint8_t imm = op2&255;
+                            uint32_t imm = op2&255;
                             int rot = (op2>>8)&0xf;
-                            sprintf(tmp, "#%d", imm<<(rot*2));
+                            int cnt = rot*2;
+                            uint32_t d = (imm << (32 - cnt)) + ((imm >> (cnt)) & ((1 << (32 - cnt)) - 1));  //ror
+                            sprintf(tmp, "#%d", d);
                         } else {
                             int rm = op2&15;
                             int shift = op2>>4;
