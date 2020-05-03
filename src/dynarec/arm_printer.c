@@ -471,8 +471,9 @@ const char* arm_print(uint32_t opcode)
         uint32_t cat = (opcode>>25)&0b111;
             switch (cat) {
                 case 0b000:
+                case 0b001:
                     // many things are in here, but Branches are already printed, so only exchange and hlf data tranfert are left
-                    if(((opcode>>5)&3)!=0 && ((opcode>>4)&0b1001)==0b1001) {
+                    if(((opcode>>5)&3)!=0 && ((opcode>>4)&0b1001)==0b1001 && cat==0) {
                         int p = (opcode>>24)&1;
                         int u = (opcode>>23)&1;
                         int o = (opcode>>22)&1;
@@ -534,11 +535,7 @@ const char* arm_print(uint32_t opcode)
                             sprintf(addr, "[%s], %s", regname[rn], op2);
                         }
                         sprintf(ret, "%s%s%s %s, %s, %s", (rt&1)?"!!":"", s?"STRD":"LDRD", cond, regname[rt], regname[rt+1], addr);
-                    }
-                    break;
-
-                case 0b001:
-                     // data operation
+                    } else
                     {
                         int i = (opcode>>25)&1;
                         int s = (opcode>>20)&1;
