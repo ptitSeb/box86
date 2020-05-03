@@ -715,8 +715,8 @@ void PackFlags(x86emu_t* emu)
     GO(AC);
     GO(VIF);
     GO(VIP);
-    //GOC(ID, 1); //ID is CPUID presence
-    GO(ID);
+    GOC(ID, 1); //ID is CPUID presence
+    //GO(ID);
     #undef GO
     #undef GOC
 }
@@ -744,8 +744,8 @@ void UnpackFlags(x86emu_t* emu)
     GO(AC);
     GO(VIF);
     GO(VIP);
-    //GOC(ID, 1);
-    GO(ID);
+    GOC(ID, 1);
+    //GO(ID);
     #undef GO
     #undef GOC
 }
@@ -760,7 +760,7 @@ void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
     uint32_t sz = 0;
     uintptr_t start = 0;
     const char* symbname = FindNearestSymbolName(FindElfAddress(emu->context, nextaddr), (void*)nextaddr, &start, &sz);
-    if(symbname && nextaddr>=start && nextaddr<(start+sz)) {
+    if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
         if(nextaddr==start)
             printf_log(LOG_NONE, " (%s%s)", text, symbname);
         else
