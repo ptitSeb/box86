@@ -150,7 +150,7 @@ void arm_cpuid(x86emu_t* emu, uint32_t tmp32u)
             R_ECX = 0x6C65746E;
             break;
         case 0x1:
-            R_EAX = 0x00000101; // familly and all
+            R_EAX = 0x00000601; // familly and all
             R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
             R_EDX =   1         // fpu 
                     | 1<<8      // cmpxchg8
