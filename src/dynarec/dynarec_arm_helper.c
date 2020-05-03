@@ -606,12 +606,14 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     }
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
-    if(a<0) {
-        SUB_IMM8(s2, s2, -a);
-    } else {
-        ADD_IMM8(s2, s2, a);
+    if(a) {
+        if(a<0) {
+            SUB_IMM8(s2, s2, -a);
+        } else {
+            ADD_IMM8(s2, s2, a);
+        }
+        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     }
-    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);
     VLDR_64(dyn->x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
