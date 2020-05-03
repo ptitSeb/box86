@@ -528,8 +528,12 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
     if(ret!=0) {
         // --- set values
         // prepare offset to fpu => s1
-        MOVW(s1, offsetof(x86emu_t, fpu));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+        if(offsetof(x86emu_t, fpu)<256) {
+            ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+        } else {
+            MOVW(s1, offsetof(x86emu_t, fpu));
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+        }
         // Get top
         // loop all cache entries
         for (int i=0; i<8; ++i)
@@ -558,8 +562,12 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // prepare offset to fpu => s1
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    if(offsetof(x86emu_t, fpu)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    } else {
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // loop all cache entries
@@ -590,8 +598,12 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    if(offsetof(x86emu_t, fpu)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    } else {
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
@@ -632,8 +644,12 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    if(offsetof(x86emu_t, fpu)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    } else {
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -659,8 +675,12 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    if(offsetof(x86emu_t, fpu)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    } else {
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -686,8 +706,12 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         if(dyn->x87cache[i]==st) {
             // refresh the value
         MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
-            MOVW(s1, offsetof(x86emu_t, fpu));
-            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            if(offsetof(x86emu_t, fpu)<256) {
+                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+            } else {
+                MOVW(s1, offsetof(x86emu_t, fpu));
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            }
             LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
             int a = st - dyn->x87stack;
             if(a<0) {
@@ -712,8 +736,12 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    MOVW(s1, offsetof(x86emu_t, fpu));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    if(offsetof(x86emu_t, fpu)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    } else {
+        MOVW(s1, offsetof(x86emu_t, fpu));
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
