@@ -19,6 +19,7 @@
 #include "dynablock_private.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
+#include "elfloader.h"
 
 void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -37,7 +38,7 @@ void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* 
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log(LOG_NONE, "%02X ", ip[i]);
             }
-            dynarec_log(LOG_NONE, " %s%s\n", name, (box86_dynarec_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, " %s", name);
         }
         // print Call function name if possible
         if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
@@ -223,8 +224,9 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     }
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
+    if(sz!=helper.arm_size) {printf_log(LOG_NONE, "BOX86: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size);}
     // all done...
-    __builtin___clear_cache(p, p+helper.arm_size);   // need to clear the cache before execution...
+    __builtin___clear_cache(p, p+sz);   // need to clear the cache before execution...
     free(helper.insts);
     free(helper.next);
     block->table = helper.table;
