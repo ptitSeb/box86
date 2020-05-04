@@ -31,9 +31,9 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     //TODO: register rtld_fini
     //TODO: register fini
     // let's cheat and set all args...
-    Push(emu, (uint32_t)emu->context->envv);
-    Push(emu, (uint32_t)emu->context->argv);
-    Push(emu, (uint32_t)emu->context->argc);
+    Push(emu, (uint32_t)my_context->envv);
+    Push(emu, (uint32_t)my_context->argv);
+    Push(emu, (uint32_t)my_context->argc);
     if(init) {
         PushExit(emu);
         R_EIP=(uint32_t)*init;
@@ -43,7 +43,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
             return 0;
         emu->quit = 0;
     }
-    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", emu->context->argc, emu->context->argv, emu->context->envv, main);
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
     // call main and finish
     PushExit(emu);
     R_EIP=(uint32_t)main;
@@ -56,7 +56,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
 const char* GetNativeName(x86emu_t* emu, void* p)
 {
     static char unknown[10] = "???";
-    const char *ret = GetNameOffset(emu->context->maplib, p);
+    const char *ret = GetNameOffset(my_context->maplib, p);
     if(ret)
         return ret;
 
@@ -752,14 +752,14 @@ void UnpackFlags(x86emu_t* emu)
 
 uintptr_t GetGSBaseEmu(x86emu_t* emu)
 {
-    return (uintptr_t)GetGSBase(emu->context);
+    return (uintptr_t)GetGSBase(my_context);
 }
 
 void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
 {
     uint32_t sz = 0;
     uintptr_t start = 0;
-    const char* symbname = FindNearestSymbolName(FindElfAddress(emu->context, nextaddr), (void*)nextaddr, &start, &sz);
+    const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, nextaddr), (void*)nextaddr, &start, &sz);
     if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
         if(nextaddr==start)
             printf_log(LOG_NONE, " (%s%s)", text, symbname);
@@ -777,20 +777,20 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
 {
     if(start_cnt) --start_cnt;
     if(!start_cnt && emu->dec && (
-            (emu->trace_end == 0) 
-            || ((ip >= emu->trace_start) && (ip < emu->trace_end))) ) {
-        pthread_mutex_lock(&emu->context->mutex_trace);
+            (trace_end == 0) 
+            || ((ip >= trace_start) && (ip < trace_end))) ) {
+        pthread_mutex_lock(&my_context->mutex_trace);
         int tid = syscall(SYS_gettid);
 #ifdef DYNAREC
-        if((emu->context->trace_tid != tid) || (emu->context->trace_dynarec!=dynarec)) {
+        if((my_context->trace_tid != tid) || (my_context->trace_dynarec!=dynarec)) {
             printf_log(LOG_NONE, "Thread %04d| (%s) |\n", tid, dynarec?"dyn":"int");
-            emu->context->trace_tid = tid;
-            emu->context->trace_dynarec = dynarec;
+            my_context->trace_tid = tid;
+            my_context->trace_dynarec = dynarec;
         }
 #else
-        if(emu->context->trace_tid != tid) {
+        if(my_context->trace_tid != tid) {
             printf_log(LOG_NONE, "Thread %04d|\n", tid);
-            emu->context->trace_tid = tid;
+            my_context->trace_tid = tid;
         }
 #endif
         printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
@@ -821,7 +821,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             }
             printf_log(LOG_NONE, "\n");
         }
-        pthread_mutex_unlock(&emu->context->mutex_trace);
+        pthread_mutex_unlock(&my_context->mutex_trace);
     }
 }
 

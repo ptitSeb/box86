@@ -43,8 +43,8 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         fpu_reset_scratch(dyn);
 #ifdef HAVE_TRACE
         if(dyn->emu->dec && box86_dynarec_trace) {
-        if((dyn->emu->trace_end == 0) 
-            || ((ip >= dyn->emu->trace_start) && (ip <= dyn->emu->trace_end)))  {
+        if((trace_end == 0) 
+            || ((ip >= trace_start) && (ip <= trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 MOV32(1, ip);

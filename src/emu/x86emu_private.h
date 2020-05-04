@@ -72,7 +72,6 @@ typedef struct x86emu_s {
     #endif
     // trace
     zydis_dec_t *dec;
-    uintptr_t   trace_start, trace_end;
     // parent context
     box86context_t *context;
     // cpu helpers

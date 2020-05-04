@@ -209,8 +209,8 @@ _trace:
     emu->prev_ip = old_ip;
     old_ip = ip;
     if(emu->dec && (
-        (emu->trace_end == 0) 
-        || ((ip >= emu->trace_start) && (ip < emu->trace_end))) )
+        (trace_end == 0) 
+        || ((ip >= trace_start) && (ip < trace_end))) )
             PrintTrace(emu, ip, 0);
 
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;

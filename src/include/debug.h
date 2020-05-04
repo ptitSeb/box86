@@ -1,5 +1,6 @@
 #ifndef __DEBUG_H_
 #define __DEBUG_H_
+#include <stdint.h>
 
 typedef struct box86context_s box86context_t;
 int box86_log;    // log level
@@ -21,6 +22,7 @@ int trace_xmm;    // include XMM reg in trace?
 int trace_emm;    // include EMM reg in trace?
 int allow_missing_libs;
 int box86_steam;
+uintptr_t   trace_start, trace_end;
 box86context_t *my_context; // global context
 #define LOG_NONE 0
 #define LOG_INFO 1

@@ -102,19 +102,19 @@ void SetupX86Emu(x86emu_t *emu)
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
 }
 
-void SetTraceEmu(x86emu_t *emu, uintptr_t trace_start, uintptr_t trace_end)
+void SetTraceEmu(uintptr_t start, uintptr_t end)
 {
-    if(emu->dec) {
-        if (trace_end == 0) {
+    if(my_context->zydis) {
+        if (end == 0) {
             printf_log(LOG_INFO, "Setting trace\n");
         } else {
             if(trace_end!=1) {  // 0-1 is basically no trace, so don't printf it...
-                printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)trace_start, (void*)trace_end);
+                printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)start, (void*)end);
             }
         }
     }
-    emu->trace_start = trace_start;
-    emu->trace_end = trace_end;
+    trace_start = start;
+    trace_end = end;
 }
 
 void AddCleanup(x86emu_t *emu, void *p)
@@ -231,7 +231,6 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
-    SetTraceEmu(newemu, emu->trace_start, emu->trace_end);
     // adapt R_ESP to new stack frame
     uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
     uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);

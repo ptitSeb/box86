@@ -181,7 +181,7 @@ static void CheckSignalContext(x86emu_t* emu, int sig)
         const int stsize = 2*1024*1024;
         void* stack = calloc(1, stsize);
         my_context->emu_sig = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        SetTraceEmu(my_context->emu_sig, my_context->emu->trace_start, my_context->emu->trace_end);
+        my_context->emu_sig->dec = NULL;    // No tracing inside a signal handler...
     }
 }
 

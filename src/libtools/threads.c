@@ -215,8 +215,6 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
-    emuthread->trace_start = emu->trace_start;
-    emuthread->trace_end = emu->trace_end;
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;

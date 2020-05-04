@@ -66,6 +66,7 @@ int x11threads = 0;
 int allow_missing_libs = 0;
 int box86_steam = 0;
 char* libGL = NULL;
+uintptr_t   trace_start = 0, trace_end = 0;
 
 FILE* ftrace = NULL;
 
@@ -482,28 +483,28 @@ void setupTraceInit(box86context_t* context)
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
         if (strcmp(p, "1")==0)
-            SetTraceEmu(my_context->emu, 0, 0);
+            SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
             if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
             if(trace_start)
-                SetTraceEmu(my_context->emu, trace_start, trace_end);
+                SetTraceEmu(trace_start, trace_end);
         } else {
             if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)) {
-                SetTraceEmu(my_context->emu, trace_start, trace_end);
+                SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(my_context->emu, 0, 100);  // disabling trace, mostly
+                SetTraceEmu(0, 100);  // disabling trace, mostly
             }
         }
     } else {
         p = getenv("BOX86_TRACE");
         if(p)
             if (strcmp(p, "0"))
-                SetTraceEmu(my_context->emu, 0, 1);
+                SetTraceEmu(0, 1);
     }
 #endif
 }
@@ -516,21 +517,21 @@ void setupTrace(box86context_t* context)
         setbuf(stdout, NULL);
         uintptr_t trace_start=0, trace_end=0;
         if (strcmp(p, "1")==0)
-            SetTraceEmu(my_context->emu, 0, 0);
+            SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
             if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
             if(trace_start)
-                SetTraceEmu(my_context->emu, trace_start, trace_end);
+                SetTraceEmu(trace_start, trace_end);
         } else {
             if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
-                SetTraceEmu(my_context->emu, trace_start, trace_end);
+                SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
-                SetTraceEmu(my_context->emu, 0, 100);  // disabling trace, mostly
+                SetTraceEmu(0, 1);  // disabling trace, mostly
             }
         }
     }

@@ -79,8 +79,6 @@ x86emu_t* AddVariableCallback(x86emu_t* emu, int stsize, uintptr_t fnc, int nb_a
     }
     x86emu_t * newemu = NewX86Emu(emu->context, fnc, (uintptr_t)stack, stsize, 1);
 	SetupX86Emu(newemu);
-    newemu->trace_start = emu->trace_start;
-    newemu->trace_end = emu->trace_end;
 
     onecallback_t * cb;
     int ret;
@@ -258,7 +256,6 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
     x86emu_t myemu = {0};
     x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 60*1024*4, 0);
     SetupX86Emu(emu);
-    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
 
     R_ESP -= nargs*4;   // need to push in reverse order
 
@@ -287,7 +284,6 @@ uint32_t RunFunctionFast(box86context_t *context, uintptr_t fnc, int nargs, ...)
     x86emu_t myemu = {0};
     x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 30*1024*4, 0);
     SetupX86Emu(emu);
-    SetTraceEmu(emu, context->emu->trace_start, context->emu->trace_end);
 
     R_ESP -= nargs*4;   // need to push in reverse order
 
