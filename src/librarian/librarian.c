@@ -191,7 +191,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     // nope, not found
     return 0;
 }
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
+static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
     // search non-weak symbol, from newer to older
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
@@ -214,6 +214,24 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                 return 1;
     }
     // nope, not found
+    return 0;
+}
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
+{
+    if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end)) {
+        if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
+            uintptr_t start2, end2;
+            char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
+            strcpy(buff, name);
+            strcat(buff, "_END");
+            if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2)) {
+                if(end2>*end && start2==end2)
+                    *end = end2;
+            }
+            free(buff);
+        }
+        return 1;
+    }
     return 0;
 }
 
