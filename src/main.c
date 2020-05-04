@@ -67,6 +67,7 @@ int allow_missing_libs = 0;
 int box86_steam = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
+char* trace_func = NULL;
 
 FILE* ftrace = NULL;
 
@@ -530,8 +531,9 @@ void setupTrace(box86context_t* context)
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
+                trace_func = strdup(p);
             }
         }
     }
@@ -772,6 +774,8 @@ int main(int argc, const char **argv, const char **env) {
     int ret = GetEAX(my_context->emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
+    if(trace_func) 
+        free(trace_func);
 
     // all done, free context
     FreeBox86Context(&my_context);

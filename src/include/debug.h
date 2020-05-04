@@ -24,6 +24,7 @@ int allow_missing_libs;
 int box86_steam;
 uintptr_t   trace_start, trace_end;
 box86context_t *my_context; // global context
+char* trace_func;
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

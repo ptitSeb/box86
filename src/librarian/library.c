@@ -20,6 +20,7 @@
 #include "librarian.h"
 #include "librarian_private.h"
 #include "pathcoll.h"
+#include "x86emu.h"
 
 #include "wrappedlibs.h"
 // create the native lib list
@@ -302,6 +303,14 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
         RelocateElfPlt(lib->context, lib->context->maplib, elf_header);
         // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
+    }
+    if(trace_func) {
+        if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end)) {
+            SetTraceEmu(trace_start, trace_end);
+            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
+            free(trace_func);
+            trace_func = NULL;
+        }
     }
     return 0;
 }
