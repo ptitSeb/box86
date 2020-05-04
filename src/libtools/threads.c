@@ -62,41 +62,50 @@ void CleanStackSize()
 	threadstack_t *ts;
 	if(!my_context->stacksizes)
 		return;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	kh_foreach_value(my_context->stacksizes, ts, free(ts));
 	kh_destroy(threadstack, my_context->stacksizes);
 	my_context->stacksizes = NULL;
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
 {
+	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(threadstack, map, attr);
-	if(k==kh_end(map))
-		return;
-	free(kh_value(map, k));
-	kh_del(threadstack, map, k);
+	if(k!=kh_end(map)) {
+		free(kh_value(map, k));
+		kh_del(threadstack, map, k);
+	}
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t stacksize)
 {
 	khint_t k;
 	int ret;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	k = kh_put(threadstack, map, attr, &ret);
 	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)calloc(1, sizeof(threadstack_t));
 	ts->stack = stack;
 	ts->stacksize = stacksize;
+	pthread_mutex_lock(&my_context->mutex_thread);
 }
 
 // return stack from attr (or from current emu if attr is not found..., wich is wrong but approximate enough?)
 int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 {
 	if(emu->context->stacksizes && attr) {
+		pthread_mutex_lock(&my_context->mutex_thread);
 		khint_t k = kh_get(threadstack, emu->context->stacksizes, attr);
 		if(k!=kh_end(emu->context->stacksizes)) {
 			threadstack_t* ts = kh_value(emu->context->stacksizes, k);
 			*stack = ts->stack;
 			*stacksize = ts->stacksize;
+			pthread_mutex_unlock(&my_context->mutex_thread);
 			return 1;
 		}
+		pthread_mutex_unlock(&my_context->mutex_thread);
 	}
 	// should a Warning be emited?
 	*stack = emu->init_stack;
@@ -106,14 +115,18 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 
 static void InitCancelThread()
 {
+	pthread_mutex_lock(&my_context->mutex_thread);
 	my_context->cancelthread = kh_init(cancelthread);
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 static void FreeCancelThread()
 {
 	__pthread_unwind_buf_t* buff;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	kh_foreach_value(my_context->cancelthread, buff, free(buff))
 	kh_destroy(cancelthread, my_context->cancelthread);
+	pthread_mutex_unlock(&my_context->mutex_thread);
 	my_context->cancelthread = NULL;
 }
 static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
@@ -122,16 +135,19 @@ static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
 	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
 	if(ret)
 		kh_value(my_context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
-	return kh_value(my_context->cancelthread, k);
+	__pthread_unwind_buf_t* r = kh_value(my_context->cancelthread, k);
+	return r;
 }
 
 static void DelCancelThread(uintptr_t buff)
 {
+	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(cancelthread, my_context->cancelthread, buff);
-	if(k==kh_end(my_context->cancelthread))
-		return;
-	free(kh_value(my_context->cancelthread, k));
-	kh_del(cancelthread, my_context->cancelthread, k);
+	if(k!=kh_end(my_context->cancelthread)) {
+		free(kh_value(my_context->cancelthread, k));
+		kh_del(cancelthread, my_context->cancelthread, k);
+	}
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 typedef struct emuthread_s {
@@ -192,17 +208,17 @@ EXPORT int my_pthread_attr_setstack(x86emu_t* emu, void* attr, void* stackaddr, 
 
 EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
 {
-	pthread_mutex_lock(&emu->context->mutex_lock);
 	int stacksize = 2*1024*1024;	//default stack size is 2Mo
+	void* attr_stack;
+	size_t attr_stacksize;
+	int own;
+	void* stack;
+
 	if(attr) {
 		size_t stsize;
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
 			stacksize = stsize;
 	}
-	void* attr_stack;
-	size_t attr_stacksize;
-	int own;
-	void* stack;
 	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
 	{
 		stack = attr_stack;
@@ -212,13 +228,13 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		stack = malloc(stacksize);
 		own = 1;
 	}
+
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
-	pthread_mutex_unlock(&emu->context->mutex_lock);
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, et);
@@ -394,6 +410,7 @@ kh_mapcond_t *mapcond = NULL;
 
 static pthread_cond_t* add_cond(void* cond)
 {
+	pthread_mutex_lock(&my_context->mutex_thread);
 	if(!mapcond)
 		mapcond = kh_init(mapcond);
 	khint_t k;
@@ -401,21 +418,28 @@ static pthread_cond_t* add_cond(void* cond)
 	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
 	pthread_cond_t *c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
 	*(uint32_t*)cond = 0;
+	pthread_mutex_unlock(&my_context->mutex_thread);
 	return c;
 }
 static pthread_cond_t* get_cond(void* cond)
 {
 	if(!mapcond)
 		return (pthread_cond_t*)cond;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
+	pthread_cond_t* ret;
 	if(k==kh_end(mapcond))
-		return (pthread_cond_t*)cond;
-	return kh_value(mapcond, k);
+		ret = (pthread_cond_t*)cond;
+	else
+		ret = kh_value(mapcond, k);
+	pthread_mutex_unlock(&my_context->mutex_thread);
+	return ret;
 }
 static void del_cond(void* cond)
 {
 	if(!mapcond)
 		return;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 	if(k!=kh_end(mapcond)) {
 		free(kh_value(mapcond, k));
@@ -425,6 +449,7 @@ static void del_cond(void* cond)
 			mapcond = NULL;
 		}
 	}
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)

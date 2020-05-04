@@ -243,6 +243,7 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
+    pthread_mutex_init(&context->mutex_thread, NULL);
 
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
@@ -348,6 +349,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);
     pthread_mutex_destroy(&(*context)->mutex_lock);
+    pthread_mutex_destroy(&(*context)->mutex_thread);
 
     if((*context)->atfork_sz) {
         free((*context)->atforks);
