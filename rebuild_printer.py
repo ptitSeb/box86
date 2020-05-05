@@ -207,6 +207,46 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					inner.append("((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ")")
 				append("if (" + " || ".join(inner) + ") {\n")
 		
+		def parse_var_requirements():
+			"""
+			Parse the `/` restrictions on the bit fields
+			"""
+			nonlocal req
+			
+			while req != '':
+				key = req[0]
+				req = req[1:]
+				if key == '=':
+					if len(req) < ocurBit - curBit:
+						fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
+					for i in range(ocurBit - curBit):
+						if req[0] == 'x':
+							req = req[1:]
+							continue
+						elif (req[0] != '0') and (req[0] != '1'):
+							fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
+						mask[32 - ocurBit + i] = 1
+						correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
+						req = req[1:]
+				elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
+					if req == '':
+						fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
+							val + ")")
+					elif (req[0] != '0') and (req[0] != '1'):
+						fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
+					mask[31 - curBit + ord('0') - ord(key)] = 1
+					correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
+					req = req[1:]
+				elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
+					if req == '':
+						fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
+							val + ")")
+					elif (req[0] != '0') and (req[0] != '1'):
+						fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
+					mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
+					correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
+					req = req[1:]
+		
 		def add_custom_variables():
 			nonlocal curSplt
 			
@@ -492,41 +532,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
 					
-					while req != '':
-						key = req[0]
-						req = req[1:]
-						if key == '=':
-							if len(req) < ocurBit - curBit:
-								fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
-							for i in range(ocurBit - curBit):
-								if req[0] == 'x':
-									req = req[1:]
-									continue
-								elif (req[0] != '0') and (req[0] != '1'):
-									fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
-								mask[32 - ocurBit + i] = 1
-								correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
-								req = req[1:]
-						elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('0') - ord(key)] = 1
-							correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-						elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
-							correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-					
 					curSplt = i + 2
+					parse_var_requirements()
+					
 					if curBit == 0:
 						break
 					elif curBit < 0:
@@ -784,41 +792,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
 					
-					while req != '':
-						key = req[0]
-						req = req[1:]
-						if key == '=':
-							if len(req) < ocurBit - curBit:
-								fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
-							for i in range(ocurBit - curBit):
-								if req[0] == 'x':
-									req = req[1:]
-									continue
-								elif (req[0] != '0') and (req[0] != '1'):
-									fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
-								mask[32 - ocurBit + i] = 1
-								correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
-								req = req[1:]
-						elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('0') - ord(key)] = 1
-							correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-						elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
-							correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-					
 					curSplt = i + 2
+					parse_var_requirements()
+					
 					if curBit == 0:
 						break
 					elif curBit < 0:
@@ -1056,41 +1032,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
 					
-					while req != '':
-						key = req[0]
-						req = req[1:]
-						if key == '=':
-							if len(req) < ocurBit - curBit:
-								fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
-							for i in range(ocurBit - curBit):
-								if req[0] == 'x':
-									req = req[1:]
-									continue
-								elif (req[0] != '0') and (req[0] != '1'):
-									fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
-								mask[32 - ocurBit + i] = 1
-								correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
-								req = req[1:]
-						elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('0') - ord(key)] = 1
-							correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-						elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
-							correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-					
 					curSplt = i + 2
+					parse_var_requirements()
+					
 					if curBit == 0:
 						break
 					elif curBit < 0:
@@ -1426,41 +1370,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
 					
-					while req != '':
-						key = req[0]
-						req = req[1:]
-						if key == '=':
-							if len(req) < ocurBit - curBit:
-								fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
-							for i in range(ocurBit - curBit):
-								if req[0] == 'x':
-									req = req[1:]
-									continue
-								elif (req[0] != '0') and (req[0] != '1'):
-									fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
-								mask[32 - ocurBit + i] = 1
-								correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
-								req = req[1:]
-						elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('0') - ord(key)] = 1
-							correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-						elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
-							correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-					
 					curSplt = i + 2
+					parse_var_requirements()
+					
 					if curBit == 0:
 						break
 					elif curBit < 0:
@@ -1719,41 +1631,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
 					
-					while req != '':
-						key = req[0]
-						req = req[1:]
-						if key == '=':
-							if len(req) < ocurBit - curBit:
-								fail(KeyError, "Not enough data in constraint value (type '=' for val " + val + ")")
-							for i in range(ocurBit - curBit):
-								if req[0] == 'x':
-									req = req[1:]
-									continue
-								elif (req[0] != '0') and (req[0] != '1'):
-									fail(KeyError, "Invalid constraint '" + key + "..." + req[0] + "'")
-								mask[32 - ocurBit + i] = 1
-								correctBits[32 - ocurBit + i] = ord(req[0]) - ord('0')
-								req = req[1:]
-						elif (ord(key) >= ord('0')) and (ord(key) <= ord('9')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('0') - ord(key)] = 1
-							correctBits[31 - curBit + ord('0') - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-						elif (ord(key) >= ord('A')) and (ord(key) <= ord('F')):
-							if req == '':
-								fail(KeyError, "Not enough data in constraint value (type '" + key + "' for val " + \
-									val + ")")
-							elif (req[0] != '0') and (req[0] != '1'):
-								fail(KeyError, "Invalid constraint '" + key + req[0] + "'")
-							mask[31 - curBit + ord('A') + 10 - ord(key)] = 1
-							correctBits[31 - curBit + ord('A') + 10 - ord(key)] = ord(req[0]) - ord('0')
-							req = req[1:]
-					
 					curSplt = i + 2
+					parse_var_requirements()
+					
 					if curBit == 0:
 						break
 					elif curBit < 0:
