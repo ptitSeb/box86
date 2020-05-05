@@ -715,8 +715,7 @@ void PackFlags(x86emu_t* emu)
     GO(AC);
     GO(VIF);
     GO(VIP);
-    //GOC(ID, 1); //ID is CPUID presence
-    GO(ID);
+    GOC(ID, 1); //ID is CPUID presence
     #undef GO
     #undef GOC
 }
@@ -744,8 +743,7 @@ void UnpackFlags(x86emu_t* emu)
     GO(AC);
     GO(VIF);
     GO(VIP);
-    //GOC(ID, 1);
-    GO(ID);
+    GOC(ID, 1);
     #undef GO
     #undef GOC
 }

@@ -312,6 +312,11 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
             trace_func = NULL;
         }
     }
+    if(box86_dynarec && strcmp(lib->name, "libfmod.so")==0) {
+        if (GetGlobalSymbolStartEnd(my_context->maplib, "FSOUND_Mixer_FPU_Ramp", &fmod_smc_start, &fmod_smc_end)) {
+            printf_log(LOG_INFO, "Detected libfmod with potential SMC part, applying workaround in Dynarec\n");
+        }
+    }
     return 0;
 }
 

@@ -40,8 +40,8 @@ box86context_t *my_context = NULL;
 int box86_log = LOG_INFO;//LOG_NONE;
 int box86_dynarec_log = LOG_NONE;
 #ifdef DYNAREC
-int box86_dynarec_dump = 0;
 int box86_dynarec = 1;
+int box86_dynarec_dump = 0;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
 #ifdef ARM
@@ -49,6 +49,8 @@ int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
 int arm_div = 0;
 #endif
+#else   //DYNAREC
+int box86_dynarec = 0;
 #endif
 int dlsym_error = 0;
 int trace_xmm = 0;
@@ -68,6 +70,8 @@ int box86_steam = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
+uintptr_t fmod_smc_start = 0;
+uintptr_t fmod_smc_end = 0;
 
 FILE* ftrace = NULL;
 

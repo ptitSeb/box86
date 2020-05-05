@@ -5,9 +5,9 @@
 typedef struct box86context_s box86context_t;
 int box86_log;    // log level
 int box86_dynarec_log;
+int box86_dynarec;
 #ifdef DYNAREC
 int box86_dynarec_dump;
-int box86_dynarec;
 int box86_dynarec_linker;
 int box86_dynarec_trace;
 int box86_dynarec_forced;
@@ -25,6 +25,7 @@ int box86_steam;
 uintptr_t   trace_start, trace_end;
 box86context_t *my_context; // global context
 char* trace_func;
+uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

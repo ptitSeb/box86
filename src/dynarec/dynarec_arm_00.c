@@ -942,12 +942,20 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET);
                     GETEDH(x1);
-                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                    if(i32) {
-                        MOV32(x2, i32);
+                    if(opcode==0x81 && fmod_smc_start && ip>=fmod_smc_start && ip<=fmod_smc_end) {
+                        //In libfmod from Unreal, there can be some SMC here, so getching the address instead of using a constant...
+                        MOV32(x2, addr);
+                        addr+=4;
+                        LDR_IMM9(x2, x2, 0);
                         emit_cmp32(dyn, ninst, ed, x2, x3, x12);
                     } else {
-                        emit_cmp32_0(dyn, ninst, ed, x3, x12);
+                        if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        if(i32) {
+                            MOV32(x2, i32);
+                            emit_cmp32(dyn, ninst, ed, x2, x3, x12);
+                        } else {
+                            emit_cmp32_0(dyn, ninst, ed, x3, x12);
+                        }
                     }
                     break;
             }
