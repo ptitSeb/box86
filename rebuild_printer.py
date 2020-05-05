@@ -299,15 +299,15 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							if len(spltln) == curSplt:
 								fail(KeyError, "End of '=' switch not found!")
 						
-						# Test for non-empty statement
+						# If the statement is empty just add a blank line
 						if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
-							fail(ValueError, "Empty set statement")
-						
-						append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
+							append("\n")
+						else:
+							append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
 						
 						curSplt = curSplt + 1
 					else:
-						fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
+						fail(KeyError, "Unknown custom statement type '" + spltln[curSplt] + "'")
 				curSplt = curSplt + 1
 		
 		spltln = ln.split(' ')
