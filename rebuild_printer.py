@@ -5,6 +5,7 @@ import re
 import sys
 from math import ceil
 
+# Helper class to avoid displaying '\x1b[' on errors
 class string(str):
 	def __repr__(self):
 		return str(self)
@@ -58,11 +59,16 @@ def main(root, ver, __debug_forceAllDebugging=False):
 		output = output + strg[-1]
 	
 	insts = None
-	# Open the input file
+	# Read the instruction and exit if nothing changed since last run
 	with open(os.path.join(root, "src", "dynarec", "arm_instructions.txt"), 'r') as file:
 		insts = file.read()
+		
+		# Get all actual instructions
+		# Ignore white lines and lines beginning with either !, ; or #
 		insts = list(filter(lambda l: not re.match("^\s*$", l) and not re.match("^([!;#])", l), insts.split('\n')))
+		
 		try:
+			# Do not open with `with` to be able to open it in writing mode
 			last = open(os.path.join(root, "src", "dynarec", "last_run.txt"), 'r')
 			if '\n'.join(insts) == last.read():
 				last.close()
@@ -78,9 +84,17 @@ def main(root, ver, __debug_forceAllDebugging=False):
 		ln = line.strip()
 		
 		def fail(errType, reas, allow_use_curSplt=True):
+			"""
+			Throw an error of type `errType`, with `reas` as the reason.
+			Appends the line number and the erroring line.
+			
+			`allow_use_curSplt` is a boolean, set to False if you want to ignore `curSplt` (no colored line)
+			"""
 			try:
 				nonlocal curSplt
 				if allow_use_curSplt and (curSplt >= 0):
+					# Get a colorized line
+					# (Blah blah [CSI-color change][Here is the error][CSI-color change] blah)
 					line = ""
 					alreadyChanged = 0
 					csp = 0
@@ -126,19 +140,74 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								line = line + spltln[csp] + ">"
 								alreadyChanged = 1
 						csp = csp + 1
-					raise errType(string(reas + " (" + str(lnno + 1) + ": " + line[:-1] + ")"))
+					raise errType(string(str(reas) + " (" + str(lnno + 1) + ": " + line[:-1] + ")"))
 				else:
-					raise errType(reas + " (" + str(lnno + 1) + ": " + ln + ")")
+					# No colored line
+					raise errType(str(reas) + " (" + str(lnno + 1) + ": " + ln + ")")
 			except errType as e:
+				# Raise a BaseException as an error wrapper
+				# (otherwise it will be caught and the line will be re-appended)
 				raise BaseException("[Error wrapper]") from e
 		
-		def add_custom_variables(parm):
+		spltln = ln.split(' ')
+		curSplt = -1
+		
+		mask = [0] * 32
+		correctBits = [0] * 32
+		
+		def generate_bin_test(positions=[], specifics=[]):
+			"""
+			Generates the if statement at the beginning.
+			
+			You may use positions and specifics to implement a "multiple choice if":
+			- positions is an array that contains a bit position (MSB = 0)
+			- specifics is an array of arrays the same length as positions that contains a tuple (mask, correctBit)
+			  that is at position positions[current_pos]
+			"""
+			if len(positions) != len(specifics):
+				fail(
+					AssertionError,
+					"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
+						len(positions), len(specifics)
+					)
+				)
+			
+			if specifics == []:
+				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+			else:
+				l = len(positions)
+				if any(map(lambda v: (v < 0) or (v > 31), positions)):
+					fail(
+						AssertionError,
+						"generate_bin_tests requires a valid positions ({}) and specifics ({})!".format(
+							len(positions), len(specifics)
+						)
+					)
+				if any(map(lambda s: len(s) != l, specifics)):
+					fail(
+						AssertionError,
+						"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
+							len(positions), len(specifics)
+						)
+					)
+				
+				inner = []
+				for specific in specifics:
+					for i, (m, c) in zip(positions, specific):
+						mask[i] = m
+						correctBits[i] = c
+					inner.append("((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ")")
+				append("if (" + " || ".join(inner) + ") {\n")
+		
+		def add_custom_variables():
 			nonlocal curSplt
 			
 			# Check for any custom variables
 			if len(parm) == 1:
+				# One parameter, name it param
 				append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
 			else:
+				# Multiple parameters, name them "param" paramNr "_" paramBitsSize
 				for i, p in enumerate(parm):
 					append(
 						"int param" + str(i + 1) + "_" + str(p[1]) + " = (opcode >> " + \
@@ -309,56 +378,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					else:
 						fail(KeyError, "Unknown custom statement type '" + spltln[curSplt] + "'")
 				curSplt = curSplt + 1
-		
-		spltln = ln.split(' ')
-		curSplt = -1
-		
-		mask = [0] * 32
-		correctBits = [0] * 32
-		
-		def generate_bin_test(positions=[], specifics=[]):
-			"""
-			Generates the if statement at the beginning.
-			
-			You may use positions and specifics to implement a "multiple choice if":
-			- positions is an array that contains a bit position (MSB = 0)
-			- specifics is an array of arrays the same length as positions that contains a tuple (mask, correctBit)
-			  that is at position positions[current_pos]
-			"""
-			if len(positions) != len(specifics):
-				fail(
-					AssertionError,
-					"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
-						len(positions), len(specifics)
-					)
-				)
-			
-			if specifics == []:
-				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
-			else:
-				l = len(positions)
-				if any(map(lambda v: (v < 0) or (v > 31), positions)):
-					fail(
-						AssertionError,
-						"generate_bin_tests requires a valid positions ({}) and specifics ({})!".format(
-							len(positions), len(specifics)
-						)
-					)
-				if any(map(lambda s: len(s) != l, specifics)):
-					fail(
-						AssertionError,
-						"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
-							len(positions), len(specifics)
-						)
-					)
-				
-				inner = []
-				for specific in specifics:
-					for i, (m, c) in zip(positions, specific):
-						mask[i] = m
-						correctBits[i] = c
-					append("((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ")")
-				append("if (" + " || ".join(inner) + ") {\n")
 		
 		try:
 			if spltln[0] == "ARM_":
@@ -1682,7 +1701,8 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# All instructions matching left are invalid
 				
 				# Constant -- set to True when debugging output
-				numeroteInvalids = __debug_forceAllDebugging
+				# Appends a `#n` (with n being the number of INVALIDATEs before + 1) after `???`
+				numberInvalids = __debug_forceAllDebugging
 				
 				curBit = 32
 				
@@ -1763,7 +1783,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					# No C variable since we're invalidating!
 					
 					# Now print the invalidation, numerote if debugging
-					if numeroteInvalids:
+					if numberInvalids:
 						append("strcpy(ret, \"??? #" + str(invalidationCount) + "\");\n} else ")
 						invalidationCount = invalidationCount + 1
 					else:
@@ -1778,6 +1798,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			else:
 				fail(NotImplementedError, spltln[0] + " is not implemented")
 		except Exception as e:
+			# Add the failing line in case of error (BaseException is not caught!)
 			raise Exception(str(lnno + 1) + ": " + ln) from e
 	
 	# Now the files rebuilding part
@@ -2070,8 +2091,8 @@ const char* arm_print(uint32_t opcode) {
 }
 """}
 	
-	# Save the string for the next iteration, writing was successful
 	for f in files_header:
+	# Save the string for the next iteration, writing was successful
 		with open(os.path.join(root, "src", "dynarec", f), 'w') as file:
 			file.write(header.format(version = ver))
 			file.write(files_header[f])
