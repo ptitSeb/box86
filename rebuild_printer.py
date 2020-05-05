@@ -154,6 +154,14 @@ def main(root, ver, __debug_forceAllDebugging=False):
 		
 		mask = [0] * 32
 		correctBits = [0] * 32
+		curBit = 32
+		ocurBit = -1
+		req = ''
+		
+		imms = [] # Immediates
+		parm = [] # Custom variable length parameters
+		
+		variables = {}
 		
 		def generate_bin_test(positions=[], specifics=[]):
 			"""
@@ -383,31 +391,26 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			if spltln[0] == "ARM_":
 				# ARM instruction
 				
-				cond = -1
-				imms = []
-				d = [-1, -1, -1, -1, -1] # Register: #, ##, Rd, RdLo, RdHi
-				t = [-1, -1, -1] # Register: #, ##, Rt
-				n = [-1, -1, -1] # Register: #, ##, Rn
-				m = [-1, -1, -1] # Register: #, ##, Rm
-				a = [-1, -1, -1] # Register: #, ##, Ra
-				reglist16 = -1 # Register list (16-bits)
+				variables["cond"] = -1
+				variables["registers"] = {
+					"d": [-1, -1, -1, -1, -1], # Register: #, ##, Rd, RdLo, RdHi
+					"t": [-1, -1, -1], # Register: #, ##, Rt
+					"n": [-1, -1, -1], # Register: #, ##, Rn
+					"m": [-1, -1, -1], # Register: #, ##, Rm
+					"a": [-1, -1, -1]  # Register: #, ##, Ra
+				}
+				variables["reglist16"] = -1 # Register list (16-bits)
 				
-				s = -1 # Set flags
+				variables["s"] = -1 # Set flags
 				
-				u = -1 # Unsigned
+				variables["u"] = -1 # Unsigned
 				
-				r = -1 # Rotate
+				variables["r"] = -1 # Rotate
 				
-				sb = [-1, -1, -1] # lsb, msb
+				variables["sb"] = [-1, -1, -1] # lsb, msb
 				
-				w = -1 # wback
+				variables["w"] = -1 # wback
 				
-				parm = [] # Variable length custom parameter
-				
-				curBit = 32
-				
-				ocurBit = -1
-				req = ''
 				for i, val in enumerate(spltln[1:]):
 					if '/' in val:
 						ocurBit = curBit
@@ -426,52 +429,52 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						curBit = curBit - 1
 					elif val == 'cond':
 						curBit = curBit - 4
-						cond = curBit
+						variables["cond"] = curBit
 					elif val == 'Rd':
 						curBit = curBit - 4
-						d[2] = curBit
+						variables["registers"]["d"][2] = curBit
 					elif val == 'RdLo':
 						curBit = curBit - 4
-						d[3] = curBit
+						variables["registers"]["d"][3] = curBit
 					elif val == 'RdHi':
 						curBit = curBit - 4
-						d[4] = curBit
+						variables["registers"]["d"][4] = curBit
 					elif val == 'Rt':
 						curBit = curBit - 4
-						t[2] = curBit
+						variables["registers"]["t"][2] = curBit
 					elif val == 'Rn':
 						curBit = curBit - 4
-						n[2] = curBit
+						variables["registers"]["n"][2] = curBit
 					elif val == 'Rm':
 						curBit = curBit - 4
-						m[2] = curBit
+						variables["registers"]["m"][2] = curBit
 					elif val == 'Ra':
 						curBit = curBit - 4
-						a[2] = curBit
+						variables["registers"]["a"][2] = curBit
 					elif val == 'S':
 						curBit = curBit - 1
-						s = curBit
+						variables["s"] = curBit
 					elif val == 'U':
 						curBit = curBit - 1
-						u = curBit
+						variables["u"] = curBit
 					elif val == 'W':
 						curBit = curBit - 1
-						w = curBit
+						variables["w"] = curBit
 					elif val == 'rotate':
 						curBit = curBit - 2
-						r = curBit
+						variables["r"] = curBit
 					elif val == 'lsb':
 						curBit = curBit - 5
-						sb[0] = curBit
+						variables["sb"][0] = curBit
 					elif val == 'msb':
 						curBit = curBit - 5
-						sb[1] = curBit
+						variables["sb"][1] = curBit
 					elif val == 'widthm1':
 						curBit = curBit - 5
-						sb[2] = curBit
+						variables["sb"][2] = curBit
 					elif val == 'register_list':
 						curBit = curBit - 16
-						reglist16 = curBit
+						variables["reglist16"] = curBit
 					elif val == 'sat_imm':
 						curBit = curBit - 4
 						imms.append([curBit, 4])
@@ -535,42 +538,42 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				generate_bin_test()
 				
 				# Add C variables
-				if s != -1:
-					append("int s = (opcode >> " + str(s) + ") & 1;\n")
-				if cond != -1:
-					if mask[31 - cond] == 0:
-						append("const char* cond = conds[(opcode >> " + str(cond) + ") & 0xF];\n")
+				if variables["s"] != -1:
+					append("int s = (opcode >> " + str(variables["s"]) + ") & 1;\n")
+				if variables["cond"] != -1:
+					if mask[31 - variables["cond"]] == 0:
+						append("const char* cond = conds[(opcode >> " + str(variables["cond"]) + ") & 0xF];\n")
 					else:
-						cond = -2
-				if d[2] != -1:
-					append("int rd = (opcode >> " + str(d[2]) + ") & 0xF;\n")
-				if d[3] != -1:
-					assert(d[4] != -1)
-					append("int rdlo = (opcode >> " + str(d[3]) + ") & 0xF;\n")
-					append("int rdhi = (opcode >> " + str(d[4]) + ") & 0xF;\n")
-				if t[2] != -1:
-					append("int rt = (opcode >> " + str(t[2]) + ") & 0xF;\n")
-				if n[2] != -1:
-					append("int rn = (opcode >> " + str(n[2]) + ") & 0xF;\n")
-				if m[2] != -1:
-					append("int rm = (opcode >> " + str(m[2]) + ") & 0xF;\n")
-				if a[2] != -1:
-					append("int ra = (opcode >> " + str(a[2]) + ") & 0xF;\n")
-				if u != -1:
-					append("int u = (opcode >> " + str(u) + ") & 1;\n")
-				if w != -1:
-					append("int w = (opcode >> " + str(w) + ") & 1;\n")
-				if r != -1:
-					append("int rot = (opcode >> " + str(r) + ") & 3;\nchar tmprot[8] = {0};\n")
+						variables["cond"] = -2
+				if variables["registers"]["d"][2] != -1:
+					append("int rd = (opcode >> " + str(variables["registers"]["d"][2]) + ") & 0xF;\n")
+				if variables["registers"]["d"][3] != -1:
+					assert(variables["registers"]["d"][4] != -1)
+					append("int rdlo = (opcode >> " + str(variables["registers"]["d"][3]) + ") & 0xF;\n")
+					append("int rdhi = (opcode >> " + str(variables["registers"]["d"][4]) + ") & 0xF;\n")
+				if variables["registers"]["t"][2] != -1:
+					append("int rt = (opcode >> " + str(variables["registers"]["t"][2]) + ") & 0xF;\n")
+				if variables["registers"]["n"][2] != -1:
+					append("int rn = (opcode >> " + str(variables["registers"]["n"][2]) + ") & 0xF;\n")
+				if variables["registers"]["m"][2] != -1:
+					append("int rm = (opcode >> " + str(variables["registers"]["m"][2]) + ") & 0xF;\n")
+				if variables["registers"]["a"][2] != -1:
+					append("int ra = (opcode >> " + str(variables["registers"]["a"][2]) + ") & 0xF;\n")
+				if variables["u"] != -1:
+					append("int u = (opcode >> " + str(variables["u"]) + ") & 1;\n")
+				if variables["w"] != -1:
+					append("int w = (opcode >> " + str(variables["w"]) + ") & 1;\n")
+				if variables["r"] != -1:
+					append("int rot = (opcode >> " + str(variables["r"]) + ") & 3;\nchar tmprot[8] = {0};\n")
 					append("if (rot) {\nsprintf(tmprot, \" ror %d\", rot * 8);\n}\n")
-				if sb[0] != -1:
-					append("int lsb = (opcode >> " + str(sb[0]) + ") & 0xF;\n")
-				if sb[1] != -1:
-					append("int msb = (opcode >> " + str(sb[1]) + ") & 0xF;\n")
-				if sb[2] != -1:
-					append("int widthm1 = (opcode >> " + str(sb[2]) + ") & 0xF;\n")
-				if reglist16 != -1:
-					append("int reglist = (opcode >> " + str(reglist16) + ") & 0xFFFF;\n")
+				if variables["sb"][0] != -1:
+					append("int lsb = (opcode >> " + str(variables["sb"][0]) + ") & 0xF;\n")
+				if variables["sb"][1] != -1:
+					append("int msb = (opcode >> " + str(variables["sb"][1]) + ") & 0xF;\n")
+				if variables["sb"][2] != -1:
+					append("int widthm1 = (opcode >> " + str(variables["sb"][2]) + ") & 0xF;\n")
+				if variables["reglist16"] != -1:
+					append("int reglist = (opcode >> " + str(variables["reglist16"]) + ") & 0xFFFF;\n")
 				if imms != []:
 					immssz = sum(map(lambda v: v[1], imms))
 					tmp = "(" * len(imms)
@@ -583,7 +586,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					# Destroy imms since we don't need it anymore, but we do need immssz
 					imms = immssz
 				
-				add_custom_variables(parm)
+				add_custom_variables()
 				
 				append("\nsprintf(ret, \"")
 				
@@ -608,7 +611,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					
 					if idx % 2:
 						if text == "c":
-							if cond != -1:
+							if variables["cond"] != -1:
 								append("%s")
 								printf_args = printf_args + ", cond"
 						elif text == "Rd":
@@ -652,7 +655,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", lsb"
 						elif text == "width":
 							append("%d")
-							printf_args = printf_args + (", msb - lsb + 1" if sb[1] != -1 else ", widthm1 + 1")
+							printf_args = printf_args + (", msb - lsb + 1" if variables["sb"][1] != -1 else ", widthm1 + 1")
 						elif text == "registers":
 							append("%s")
 							printf_args = printf_args + ", print_register_list(reglist, 16)"
@@ -662,7 +665,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", imm" + str(imms)
 							
 						elif text.startswith("imm"):
-							if u != -1:
+							if variables["u"] != -1:
 								append("%d")
 							else:
 								#append("0x%0" + str(ceil(int(text[3:]) / 4)) + "x")
@@ -701,25 +704,22 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# ARM Shift instruction
 				# ARMs is only with immediate, ARM$ is only with register
 				
-				cond = -1
-				imms = []
-				d = [-1, -1, -1] # Register: #, ##, Rd
-				t = [-1, -1, -1] # Register: #, ##, Rt
-				n = [-1, -1, -1] # Register: #, ##, Rn
-				m = [-1, -1, -1] # Register: #, ##, Rm
+				variables["cond"] = -1
+				variables["registers"] = {
+					"d": [-1, -1, -1], # Register: #, ##, Rd
+					"t": [-1, -1, -1], # Register: #, ##, Rt
+					"n": [-1, -1, -1], # Register: #, ##, Rn
+					"m": [-1, -1, -1]  # Register: #, ##, Rm
+				}
 				
-				s = -1 # Set flags
+				variables["s"] = -1 # Set flags
 				
-				u = -1 # Unsigned shift
-				shift = False # Shift already detected?
+				variables["u"] = -1 # Unsigned shift
 				
-				w = -1 # wback (used in adressing)
+				variables["w"] = -1 # wback (used in adressing)
 				
-				parm = [] # Variable length custom parameter
+				variables["shift"] = False # Shift already detected?
 				
-				curBit = 32
-				ocurBit = -1
-				req = ''
 				for i, val in enumerate(spltln[1:]):
 					if '/' in val:
 						ocurBit = curBit
@@ -738,32 +738,32 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						curBit = curBit - 1
 					elif val == 'cond':
 						curBit = curBit - 4
-						cond = curBit
+						variables["cond"] = curBit
 					elif val == 'Rd':
 						curBit = curBit - 4
-						d[2] = curBit
+						variables["registers"]["d"][2] = curBit
 					elif val == 'Rt':
 						curBit = curBit - 4
-						t[2] = curBit
+						variables["registers"]["t"][2] = curBit
 					elif val == 'Rn':
 						curBit = curBit - 4
-						n[2] = curBit
+						variables["registers"]["n"][2] = curBit
 					elif val == 'Rm':
 						curBit = curBit - 4
-						m[2] = curBit
+						variables["registers"]["m"][2] = curBit
 					elif val == 'S':
 						curBit = curBit - 1
-						s = curBit
+						variables["s"] = curBit
 					elif val == 'U':
 						curBit = curBit - 1
-						u = curBit
+						variables["u"] = curBit
 					elif val == 'W':
 						curBit = curBit - 1
-						w = curBit
+						variables["w"] = curBit
 					elif val == 'type':
 						curBit = curBit - 2
 						imms.append([curBit, 2])
-						shift = True
+						variables["shift"] = True
 					elif val == 'sat_imm':
 						curBit = curBit - 5
 						imms.append([curBit, 5, True])
@@ -775,11 +775,11 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						curBit = curBit - parmlen
 						parm.append([curBit, parmlen])
 					elif val.startswith('imm'):
-						if shift: fail(ValueError, "Immediate after a 'type' value detected")
+						if variables["shift"]: fail(ValueError, "Immediate after a 'type' value detected")
 						immsz = int(val[3:])
 						curBit = curBit - immsz
 						imms.append([curBit, immsz])
-						shift = immsz == 12
+						variables["shift"] = immsz == 12
 						
 					else:
 						fail(KeyError, "Unknown value '" + val + "'")
@@ -827,7 +827,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if curSplt == -1:
 					fail(KeyError, "Not enough arguments")
 				# There is not necessarily an explicit shift when using an ARMs
-				elif not shift and (spltln[0] == "ARMS"):
+				elif not variables["shift"] and (spltln[0] == "ARMS"):
 					fail(KeyError, "No shift detected")
 				
 				# Assumption:
@@ -842,32 +842,32 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					generate_bin_test()
 				
 				# Add C variables
-				if s != -1:
-					append("int s = (opcode >> " + str(s) + ") & 1;\n")
-				if cond != -1:
-					if mask[31 - cond] == 0:
-						append("const char* cond = conds[(opcode >> " + str(cond) + ") & 0xF];\n")
+				if variables["s"] != -1:
+					append("int s = (opcode >> " + str(variables["s"]) + ") & 1;\n")
+				if variables["cond"] != -1:
+					if mask[31 - variables["cond"]] == 0:
+						append("const char* cond = conds[(opcode >> " + str(variables["cond"]) + ") & 0xF];\n")
 					else:
-						cond = -2
-				if d[2] != -1:
-					append("int rd = (opcode >> " + str(d[2]) + ") & 0xF;\n")
-				if t[2] != -1:
-					append("int rt = (opcode >> " + str(t[2]) + ") & 0xF;\n")
-				if n[2] != -1:
-					append("int rn = (opcode >> " + str(n[2]) + ") & 0xF;\n")
-				if m[2] != -1:
-					append("int rm = (opcode >> " + str(m[2]) + ") & 0xF;\n")
-				if u != -1:
-					append("int u = (opcode >> " + str(u) + ") & 1;\n")
-				if w != -1:
-					append("int w = (opcode >> " + str(w) + ") & 1;\n")
+						variables["cond"] = -2
+				if variables["registers"]["d"][2] != -1:
+					append("int rd = (opcode >> " + str(variables["registers"]["d"][2]) + ") & 0xF;\n")
+				if variables["registers"]["t"][2] != -1:
+					append("int rt = (opcode >> " + str(variables["registers"]["t"][2]) + ") & 0xF;\n")
+				if variables["registers"]["n"][2] != -1:
+					append("int rn = (opcode >> " + str(variables["registers"]["n"][2]) + ") & 0xF;\n")
+				if variables["registers"]["m"][2] != -1:
+					append("int rm = (opcode >> " + str(variables["registers"]["m"][2]) + ") & 0xF;\n")
+				if variables["u"] != -1:
+					append("int u = (opcode >> " + str(variables["u"]) + ") & 1;\n")
+				if variables["w"] != -1:
+					append("int w = (opcode >> " + str(variables["w"]) + ") & 1;\n")
 				if (len(imms) == 2) and (len(imms[0]) == 3):
 					append("uint8_t imm = ((opcode >> " + str(imms[0][0]) + ") & 0x1F) + 1;\n")
 				append("uint8_t shift = ((opcode >> 4) & " + \
 					("0xFF)" if (spltln[0] == "ARMS") else ("0xFE)" if (spltln[0] == "ARM$") else "0xFF) | 0x01")) + \
 					";\n")
 				
-				add_custom_variables(parm)
+				add_custom_variables()
 				
 				append("\nsprintf(ret, \"")
 				
@@ -892,7 +892,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					
 					if idx % 2:
 						if text == "c":
-							if cond != -1:
+							if variables["cond"] != -1:
 								append("%s")
 								printf_args = printf_args + ", cond"
 						elif text == "Rd":
@@ -953,30 +953,26 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					
 					curSplt = curSplt + 1
 				append("\"" + printf_args + ");\n} else ")
+				
 			elif spltln[0] == "NEON":
 				# NEON (advanced SIMD) instruction
 				
-				imms = []
-				d = [-1, -1, -1] # Register: D, Vd, ##
-				t = [-1, -1, -1] # Register: #, ##, Rt
-				n = [-1, -1, -1] # Register: N, Vn, ##
-				m = [-1, -1, -1] # Register: M, Vm, ##
+				variables["registers"] = {
+					"d": [-1, -1, -1], # Register: D, Vd, ##
+					"t": [-1, -1, -1], # Register: #, ##, Rt
+					"n": [-1, -1, -1], # Register: N, Vn, ##
+					"m": [-1, -1, -1]  # Register: M, Vm, ##
+				}
 				
-				op = -1 # Operation
-				u = -1 # Unsigned
-				f = -1 # Floating-point
-				sz = [-1, 0] # Operation size: pos, len
+				variables["op"] = -1 # Operation
+				variables["u"] = -1 # Unsigned
+				variables["f"] = -1 # Floating-point
+				variables["sz"] = [-1, 0] # Operation size: pos, len
 				
-				cmode = -1 # Used with immediates
+				variables["cmode"] = -1 # Used with immediates
 				
-				q = -1 # Quadword
+				variables["q"] = -1 # Quadword
 				
-				parm = [] # Variable length custom parameter(s)
-				
-				curBit = 32
-				
-				ocurBit = -1
-				req = ''
 				for i, val in enumerate(spltln[1:]):
 					if '/' in val:
 						ocurBit = curBit
@@ -995,52 +991,52 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						curBit = curBit - 1
 					elif val == 'D':
 						curBit = curBit - 1
-						d[0] = curBit
+						variables["registers"]["d"][0] = curBit
 					elif val == 'Vd':
 						curBit = curBit - 4
-						d[1] = curBit
+						variables["registers"]["d"][1] = curBit
 					elif val == 'Rt':
 						curBit = curBit - 4
-						t[2] = curBit
+						variables["registers"]["t"][2] = curBit
 					elif val == 'N':
 						curBit = curBit - 1
-						n[0] = curBit
+						variables["registers"]["n"][0] = curBit
 					elif val == 'Vn':
 						curBit = curBit - 4
-						n[1] = curBit
+						variables["registers"]["n"][1] = curBit
 					elif val == 'Rn':
 						curBit = curBit - 4
-						n[2] = curBit
+						variables["registers"]["n"][2] = curBit
 					elif val == 'M':
 						curBit = curBit - 1
-						m[0] = curBit
+						variables["registers"]["m"][0] = curBit
 					elif val == 'Vm':
 						curBit = curBit - 4
-						m[1] = curBit
+						variables["registers"]["m"][1] = curBit
 					elif val == 'Rm':
 						curBit = curBit - 4
-						m[2] = curBit
+						variables["registers"]["m"][2] = curBit
 					elif val == 'U':
 						curBit = curBit - 1
-						u = curBit
+						variables["u"] = curBit
 					elif val == 'F':
 						curBit = curBit - 1
-						f = curBit
+						variables["f"] = curBit
 					elif val == 'op':
 						curBit = curBit - 1
-						op = curBit
+						variables["op"] = curBit
 					elif val == 'cmode':
 						curBit = curBit - 4
-						cmode = curBit
+						variables["cmode"] = curBit
 					elif val == 'size':
 						curBit = curBit - 2
-						sz = [curBit, 2]
+						variables["sz"] = [curBit, 2]
 					elif val == 'sz':
 						curBit = curBit - 1
-						sz = [curBit, 1]
+						variables["sz"] = [curBit, 1]
 					elif val == 'Q':
 						curBit = curBit - 1
-						q = curBit
+						variables["q"] = curBit
 					elif val == 'i':
 						curBit = curBit - 1
 						imms.append([curBit, 1, val])
@@ -1106,46 +1102,46 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				generate_bin_test()
 				
 				# Add C variables
-				if op != -1:
-					append("int op = (opcode >> " + str(op) + ") & 1;\n")
-				if (u != -1) and (f != -1):
+				if variables["op"] != -1:
+					append("int op = (opcode >> " + str(variables["op"]) + ") & 1;\n")
+				if (variables["u"] != -1) and (variables["f"] != -1):
 					fail(ValueError, "Cannot have both unsigned and floating-point", False)
-				if u != -1:
-					append("int u = (opcode >> " + str(u) + ") & 1;\n")
-				if f != -1:
-					append("int f = (opcode >> " + str(f) + ") & 1;\n")
-				if sz[0] != -1:
-					if mask[31 - sz[0]] == 0:
-						append("int size = (opcode >> " + str(sz[0]) + ") & " + sz2str(sz[1]) + ";\n")
+				if variables["u"] != -1:
+					append("int u = (opcode >> " + str(variables["u"]) + ") & 1;\n")
+				if variables["f"] != -1:
+					append("int f = (opcode >> " + str(variables["f"]) + ") & 1;\n")
+				if variables["sz"][0] != -1:
+					if (mask[31 - variables["sz"][0]] == 0) and ((variables["sz"][1] == 1) or (mask[30 - variables["sz"][0]] == 0)):
+						append("int size = (opcode >> " + str(variables["sz"][0]) + ") & " + sz2str(variables["sz"][1]) + ";\n")
 					else:
-						sz[0] = -2
-				if q != -1:
-					if mask[31 - q] == 0:
-						append("int q = (opcode >> " + str(q) + ") & 1;\n")
+						variables["sz"][0] = -2
+				if variables["q"] != -1:
+					if mask[31 - variables["q"]] == 0:
+						append("int q = (opcode >> " + str(variables["q"]) + ") & 1;\n")
 					else:
-						q = -2
-				if d[0] != -1:
-					assert(d[1] != -1)
-					append("int d = ((opcode >> " + str(d[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(d[1]) + ") & 0xF);\n")
-				if t[2] != -1:
-					append("int rt = (opcode >> " + str(t[2]) + ") & 0xF;\n")
-				if n[0] != -1:
-					assert(n[1] != -1)
-					append("int n = ((opcode >> " + str(n[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(n[1]) + ") & 0xF);\n")
-				if n[2] != -1:
-					append("int rn = (opcode >> " + str(n[2]) + ") & 0xF;\n")
-				if m[0] != -1:
-					assert(m[1] != -1)
-					append("int m = ((opcode >> " + str(m[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(m[1]) + ") & 0xF);\n")
-				if m[2] != -1:
-					append("int rm = (opcode >> " + str(m[2]) + ") & 0xF;\n")
-				if cmode != -1:
-					append("int cmode = (opcode >> " + str(cmode) + ") & 0xF;\n")
+						variables["q"] = -2
+				if variables["registers"]["d"][0] != -1:
+					assert(variables["registers"]["d"][1] != -1)
+					append("int d = ((opcode >> " + str(variables["registers"]["d"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["d"][1]) + ") & 0xF);\n")
+				if variables["registers"]["t"][2] != -1:
+					append("int rt = (opcode >> " + str(variables["registers"]["t"][2]) + ") & 0xF;\n")
+				if variables["registers"]["n"][0] != -1:
+					assert(variables["registers"]["n"][1] != -1)
+					append("int n = ((opcode >> " + str(variables["registers"]["n"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["n"][1]) + ") & 0xF);\n")
+				if variables["registers"]["n"][2] != -1:
+					append("int rn = (opcode >> " + str(variables["registers"]["n"][2]) + ") & 0xF;\n")
+				if variables["registers"]["m"][0] != -1:
+					assert(variables["registers"]["m"][1] != -1)
+					append("int m = ((opcode >> " + str(variables["registers"]["m"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["m"][1]) + ") & 0xF);\n")
+				if variables["registers"]["m"][2] != -1:
+					append("int rm = (opcode >> " + str(variables["registers"]["m"][2]) + ") & 0xF;\n")
+				if variables["cmode"] != -1:
+					append("int cmode = (opcode >> " + str(variables["cmode"]) + ") & 0xF;\n")
 				if imms != []:
-					if (cmode != -1) and (op != -1):
+					if (variables["cmode"] != -1) and (variables["op"] != -1):
 						# Modified immediate value
 						
 						# Assert unique imms pattern since this is a NEON instruction, reduce the result's length
@@ -1201,7 +1197,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						
 						imms = [2, immssz] + imms
 				
-				add_custom_variables(parm)
+				add_custom_variables()
 				
 				append("\nsprintf(ret, \"")
 				
@@ -1227,13 +1223,13 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						elif text == "dt":
 							append("%s")
 							if imms == []:
-								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if f != -1 else "")
-								printf_args = printf_args + ("(u << 2) + " if u != -1 else "") + "size]"
+								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if variables["f"] != -1 else "")
+								printf_args = printf_args + ("(u << 2) + " if variables["u"] != -1 else "") + "size]"
 							elif imms[0] == 0:
 								printf_args = printf_args + ", decodedImm"
 							elif imms[0] == 1:
-								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if f != -1 else "")
-								printf_args = printf_args + ("(u << 2) + " if u != -1 else "") + "size]"
+								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if variables["f"] != -1 else "")
+								printf_args = printf_args + ("(u << 2) + " if variables["u"] != -1 else "") + "size]"
 							else:
 								fail(ValueError, "Unsupported immediate type {} (on dt)".format(imms[0]))
 						elif text == "size":
@@ -1244,7 +1240,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								fail(ValueError, "Unsupported immediate type {} (on size)".format(imms[0]))
 						elif text == "Qd":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if q != -1 else "0x40") + " + d]"
+							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if variables["q"] != -1 else "0x40") + " + d]"
 						elif text == "qd":
 							append("%s")
 							printf_args = printf_args + ", vecname[0x40 + d]"
@@ -1256,7 +1252,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", regname[rt]"
 						elif text == "Qn":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if q != -1 else "0x40") + " + n]"
+							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if variables["q"] != -1 else "0x40") + " + n]"
 						elif text == "Dn":
 							append("%s")
 							printf_args = printf_args + ", vecname[0x20 + n]"
@@ -1265,7 +1261,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", regname[rn]"
 						elif text == "Qm":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if q != -1 else "0x40") + " + m]"
+							printf_args = printf_args + ", vecname[" + ("(q << 5) + 0x20" if variables["q"] != -1 else "0x40") + " + m]"
 						elif text == "Dm":
 							append("%s")
 							printf_args = printf_args + ", vecname[0x20 + m]"
@@ -1322,30 +1318,25 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			elif spltln[0] == "VFPU":
 				# vFPU instruction
 				
-				cond = -1
-				imms = []
-				d = [-1, -1, -1] # Register: D, Vd, ##
-				t = [-1, -1, -1] # Register: #, ##, Rt
-				n = [-1, -1, -1] # Register: N, Vn, Rn
-				m = [-1, -1, -1] # Register: M, Vm, ##
+				variables["cond"] = -1
+				variables["registers"] = {
+					"d": [-1, -1, -1], # Register: D, Vd, ##
+					"t": [-1, -1, -1], # Register: #, ##, Rt
+					"n": [-1, -1, -1], # Register: N, Vn, Rn
+					"m": [-1, -1, -1]  # Register: M, Vm, ##
+				}
 				
-				op = -1 # Operation
-				u = -1 # Unsigned
-				f = -1 # Floating-point
-				sz = [-1, 0] # Operation size: pos, len
+				variables["op"] = -1 # Operation
+				variables["u"] = -1 # Unsigned
+				variables["f"] = -1 # Floating-point
+				variables["sz"] = [-1, 0] # Operation size: pos, len
 				
-				cmode = -1 # Used with immediates
+				variables["cmode"] = -1 # Used with immediates
 				
-				q = -1 # Quadword
+				variables["q"] = -1 # Quadword
 				
-				w = -1 # wback
+				variables["w"] = -1 # wback
 				
-				parm = [] # Variable length custom parameter(s)
-				
-				curBit = 32
-				
-				ocurBit = -1
-				req = ''
 				for i, val in enumerate(spltln[1:]):
 					if '/' in val:
 						ocurBit = curBit
@@ -1364,58 +1355,58 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						curBit = curBit - 1
 					elif val == 'cond':
 						curBit = curBit - 4
-						cond = curBit
+						variables["cond"] = curBit
 					elif val == 'D':
 						curBit = curBit - 1
-						d[0] = curBit
+						variables["registers"]["d"][0] = curBit
 					elif val == 'Vd':
 						curBit = curBit - 4
-						d[1] = curBit
+						variables["registers"]["d"][1] = curBit
 					elif val == 'Rt':
 						curBit = curBit - 4
-						t[2] = curBit
+						variables["registers"]["t"][2] = curBit
 					elif val == 'N':
 						curBit = curBit - 1
-						n[0] = curBit
+						variables["registers"]["n"][0] = curBit
 					elif val == 'Vn':
 						curBit = curBit - 4
-						n[1] = curBit
+						variables["registers"]["n"][1] = curBit
 					elif val == 'Rn':
 						curBit = curBit - 4
-						n[2] = curBit
+						variables["registers"]["n"][2] = curBit
 					elif val == 'M':
 						curBit = curBit - 1
-						m[0] = curBit
+						variables["registers"]["m"][0] = curBit
 					elif val == 'Vm':
 						curBit = curBit - 4
-						m[1] = curBit
+						variables["registers"]["m"][1] = curBit
 					elif val == 'Rm':
 						curBit = curBit - 4
-						m[2] = curBit
+						variables["registers"]["m"][2] = curBit
 					elif val == 'U':
 						curBit = curBit - 1
-						u = curBit
+						variables["u"] = curBit
 					elif val == 'F':
 						curBit = curBit - 1
-						f = curBit
+						variables["f"] = curBit
 					elif val == 'W':
 						curBit = curBit - 1
-						w = curBit
+						variables["w"] = curBit
 					elif val == 'op':
 						curBit = curBit - 1
-						op = curBit
+						variables["op"] = curBit
 					elif val == 'cmode':
 						curBit = curBit - 4
-						cmode = curBit
+						variables["cmode"] = curBit
 					elif val == 'size':
 						curBit = curBit - 2
-						sz = [curBit, 2]
+						variables["sz"] = [curBit, 2]
 					elif val == 'sz':
 						curBit = curBit - 1
-						sz = [curBit, 1]
+						variables["sz"] = [curBit, 1]
 					elif val == 'Q':
 						curBit = curBit - 1
-						q = curBit
+						variables["q"] = curBit
 					elif val == 'i':
 						curBit = curBit - 1
 						imms.append([curBit, 1, val])
@@ -1481,51 +1472,51 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				generate_bin_test()
 				
 				# Add C variables
-				if cond != -1:
-					if mask[31 - cond] == 0:
-						append("const char* cond = conds[(opcode >> " + str(cond) + ") & 0xF];\n")
+				if variables["cond"] != -1:
+					if mask[31 - variables["cond"]] == 0:
+						append("const char* cond = conds[(opcode >> " + str(variables["cond"]) + ") & 0xF];\n")
 					else:
-						cond = -2
-				if op != -1:
-					append("int op = (opcode >> " + str(op) + ") & 1;\n")
-				if (u != -1) and (f != -1):
+						variables["cond"] = -2
+				if variables["op"] != -1:
+					append("int op = (opcode >> " + str(variables["op"]) + ") & 1;\n")
+				if (variables["u"] != -1) and (variables["f"] != -1):
 					fail(ValueError, "Cannot have both unsigned and floating-point", False)
-				if u != -1:
-					append("int u = (opcode >> " + str(u) + ") & 1;\n")
-				if f != -1:
-					append("int f = (opcode >> " + str(f) + ") & 1;\n")
-				if sz[0] != -1:
-					if mask[31 - sz[0]] == 0:
-						append("int size = (opcode >> " + str(sz[0]) + ") & " + sz2str(sz[1]) + ";\n")
+				if variables["u"] != -1:
+					append("int u = (opcode >> " + str(variables["u"]) + ") & 1;\n")
+				if variables["f"] != -1:
+					append("int f = (opcode >> " + str(variables["f"]) + ") & 1;\n")
+				if variables["sz"][0] != -1:
+					if (mask[31 - variables["sz"][0]] == 0) and ((variables["sz"][1] == 1) or (mask[30 - variables["sz"][0]] == 0)):
+						append("int size = (opcode >> " + str(variables["sz"][0]) + ") & " + sz2str(variables["sz"][1]) + ";\n")
 					else:
-						sz[0] = -2
-				if q != -1:
-					if mask[31 - q] == 0:
-						append("int q = (opcode >> " + str(q) + ") & 1;\n")
+						variables["sz"][0] = -2
+				if variables["q"] != -1:
+					if mask[31 - variables["q"]] == 0:
+						append("int q = (opcode >> " + str(variables["q"]) + ") & 1;\n")
 					else:
-						q = -2
-				if d[0] != -1:
-					assert(d[1] != -1)
-					append("int d = ((opcode >> " + str(d[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(d[1]) + ") & 0xF);\n")
-				if t[2] != -1:
-					append("int rt = (opcode >> " + str(t[2]) + ") & 0xF;\n")
-				if n[0] != -1:
-					assert(n[1] != -1)
-					append("int n = ((opcode >> " + str(n[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(n[1]) + ") & 0xF);\n")
-				if n[2] != -1:
-					append("int rn = (opcode >> " + str(n[2]) + ") & 0xF;\n")
-				if m[0] != -1:
-					assert(m[1] != -1)
-					append("int m = ((opcode >> " + str(m[0]) + ") & 1) << 4 " + \
-						"| ((opcode >> " + str(m[1]) + ") & 0xF);\n")
-				if m[2] != -1:
-					append("int rm = (opcode >> " + str(m[2]) + ") & 0xF;\n")
-				if w != -1:
-					append("int w = (opcode >> " + str(w) + ") & 1;\n")
-				if cmode != -1:
-					append("int cmode = (opcode >> " + str(cmode) + ") & 0xF;\n")
+						variables["q"] = -2
+				if variables["registers"]["d"][0] != -1:
+					assert(variables["registers"]["d"][1] != -1)
+					append("int d = ((opcode >> " + str(variables["registers"]["d"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["d"][1]) + ") & 0xF);\n")
+				if variables["registers"]["t"][2] != -1:
+					append("int rt = (opcode >> " + str(variables["registers"]["t"][2]) + ") & 0xF;\n")
+				if variables["registers"]["n"][0] != -1:
+					assert(variables["registers"]["n"][1] != -1)
+					append("int n = ((opcode >> " + str(variables["registers"]["n"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["n"][1]) + ") & 0xF);\n")
+				if variables["registers"]["n"][2] != -1:
+					append("int rn = (opcode >> " + str(variables["registers"]["n"][2]) + ") & 0xF;\n")
+				if variables["registers"]["m"][0] != -1:
+					assert(variables["registers"]["m"][1] != -1)
+					append("int m = ((opcode >> " + str(variables["registers"]["m"][0]) + ") & 1) << 4 " + \
+						"| ((opcode >> " + str(variables["registers"]["m"][1]) + ") & 0xF);\n")
+				if variables["registers"]["m"][2] != -1:
+					append("int rm = (opcode >> " + str(variables["registers"]["m"][2]) + ") & 0xF;\n")
+				if variables["w"] != -1:
+					append("int w = (opcode >> " + str(variables["w"]) + ") & 1;\n")
+				if variables["cmode"] != -1:
+					append("int cmode = (opcode >> " + str(variables["cmode"]) + ") & 0xF;\n")
 				if imms != []:
 					immssz = sum(map(lambda v: v[1], imms))
 					tmp = "(" * len(imms)
@@ -1538,7 +1529,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					# Destroy imms since we don't need it anymore, but we do need immssz
 					imms = [-1, immssz] + imms
 				
-				add_custom_variables(parm)
+				add_custom_variables()
 				
 				append("\nsprintf(ret, \"")
 				
@@ -1576,14 +1567,14 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					
 					if idx % 2:
 						if text == "c":
-							if cond != -1:
+							if variables["cond"] != -1:
 								append("%s")
 								printf_args = printf_args + ", cond"
 						elif text == "dt":
 							append("%s")
 							if imms == []:
-								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if f != -1 else "")
-								printf_args = printf_args + ("(u << 2) + " if u != -1 else "") + "size]"
+								printf_args = printf_args + ", dts[" + ("0x8 + (f << 2) + " if variables["f"] != -1 else "")
+								printf_args = printf_args + ("(u << 2) + " if variables["u"] != -1 else "") + "size]"
 							else:
 								fail(ValueError, "Unsupported immediate type {} (on dt)".format(imms[0]))
 						elif text == "size":
@@ -1594,17 +1585,17 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								fail(ValueError, "Unsupported immediate type {} (on size)".format(imms[0]))
 						elif text == "Qd":
 							# VDUP (ARM core register) only
-							assert(q != -1)
-							assert((t[0:2] == [-1, -1]) and (t[2] != -1))
+							assert(variables["q"] != -1)
+							assert((variables["registers"]["t"][0:2] == [-1, -1]) and (variables["registers"]["t"][2] != -1))
 							append("%s")
 							printf_args = printf_args + ", vecname[(q << 5) + 0x20 + d]"
 						elif text == "Dd":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(size << 5)" if sz[0] != -1 else "0x20")
+							printf_args = printf_args + ", vecname[" + ("(size << 5)" if variables["sz"][0] != -1 else "0x20")
 							printf_args = printf_args + " + d]"
 						elif text == "Dd[x]":
 							append("%s[%d]")
-							printf_args = printf_args + ", vecname[" + ("(size << 5)" if sz[0] != -1 else "0x20")
+							printf_args = printf_args + ", vecname[" + ("(size << 5)" if variables["sz"][0] != -1 else "0x20")
 							printf_args = printf_args + " + d], decodedImm"
 						elif text == "dd":
 							append("%s")
@@ -1617,11 +1608,11 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", regname[rt]"
 						elif text == "Dn":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(size << 5)" if sz[0] != -1 else "0x20")
+							printf_args = printf_args + ", vecname[" + ("(size << 5)" if variables["sz"][0] != -1 else "0x20")
 							printf_args = printf_args + " + n]"
 						elif text == "Dn[x]":
 							append("%s[%d]")
-							printf_args = printf_args + ", vecname[" + ("(size << 5)" if sz[0] != -1 else "0x20")
+							printf_args = printf_args + ", vecname[" + ("(size << 5)" if variables["sz"][0] != -1 else "0x20")
 							printf_args = printf_args + " + n], decodedImm"
 						elif text == "Sn":
 							append("%s")
@@ -1631,7 +1622,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							printf_args = printf_args + ", regname[rn]"
 						elif text == "Dm":
 							append("%s")
-							printf_args = printf_args + ", vecname[" + ("(size << 5)" if sz[0] != -1 else "0x20")
+							printf_args = printf_args + ", vecname[" + ("(size << 5)" if variables["sz"][0] != -1 else "0x20")
 							printf_args = printf_args + " + m]"
 						elif text == "Sm":
 							append("%s")
@@ -1652,7 +1643,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							if (imms[0] != -1) or ((imms[1] != 8) and (imms[1] != 24)):
 								fail(AssertionError, "Unsupported case (label A)")
 							if imms[1] == 8:
-								if u == -1:
+								if variables["u"] == -1:
 									fail(AssertionError, "Unsupported case (label 1.B)")
 								append("%s%d")
 								printf_args = printf_args + ", (u ? \"\" : \"-\"), imm8 + 2"
@@ -1660,11 +1651,11 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								append("%+d")
 								printf_args = printf_args + ", (imm24 & 0x800000 ? imm24 | 0xFF000000 : imm24) + 2"
 						elif text.lower() == "list":
-							if (text == "list") and (sz == -1):
+							if (text == "list") and (variables["sz"] == -1):
 								fail(AssertionError, "Unsupported case (list A)")
 							if (imms[0] != -1) or (imms[1] != 8):
 								fail(AssertionError, "Unsupported case (list B)")
-							if d[0] + d[1] == -2:
+							if variables["registers"]["d"][0] + variables["registers"]["d"][1] == -2:
 								fail(AssertionError, "Unsupported case (list C)")
 							
 							append("%s")
@@ -1704,10 +1695,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# Appends a `#n` (with n being the number of INVALIDATEs before + 1) after `???`
 				numberInvalids = __debug_forceAllDebugging
 				
-				curBit = 32
-				
-				ocurBit = -1
-				req = ''
 				for i, val in enumerate(spltln[1:]):
 					if '/' in val:
 						ocurBit = curBit
