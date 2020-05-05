@@ -21,9 +21,20 @@ option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOA
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 
-find_package(PythonInterp)
-if(NOT PYTHONINTERP_FOUND)
-    message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
+    find_package(PythonInterp)
+    if(NOT PYTHONINTERP_FOUND)
+        message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+    endif()
+    if(${PYTHON_MAJOR_VERSION} LESS 3)
+        message( FATAL_ERROR "You need a Python 3 interpretor, CMake will exit." )
+    endif()
+else()
+    find_package(Python3)
+    if(NOT Python3_Interpreter_FOUND)
+        message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+    endif()
+    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE INTERNAL "The Python3 executable" FORCE)
 endif()
 
 # Pandora
