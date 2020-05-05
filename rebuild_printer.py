@@ -28,7 +28,7 @@ def arr2hex(a, forceBin=False):
 		return "0b" + ''.join(map(str, a))
 	else:
 		al = len(a)
-		return int2hex(sum([v * 2**(al - i - 1) for i, v in enumerate(a)]), ceil(al / 4))
+		return int2hex(sum(v * 2**(al - i - 1) for i, v in enumerate(a)), ceil(al / 4))
 
 def sz2str(sz, forceBin=False):
 	return int2hex(2 ** sz - 1) if not forceBin else ("0b" + "1" * sz)
@@ -234,31 +234,38 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								statements.append(statement[:-1])
 								curSplt = curSplt + 1
 							
-							# Now get the (correct!) remainder and glue everything together
+							# Now get the (correct!) remainder(s)
 							dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-							if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
+							if any(len(dynvar) != len(statements) + 2 for dynvar in dynvars):
 								fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
+							dynvars = list(map(lambda i: [dv[i] for dv in dynvars], range(len(dynvars[0]))))
 							
-							for i, stmt in enumerate(statements):
+							# Glue everything together
+							for stmt, vals in zip(statements, dynvars[1:]):
 								append("if (" + stmt + ") {\n")
-								for dynvar in dynvars:
-									append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
+								for var, val in zip(dynvars[0], vals):
+									append(var + " = " + val + ";\n")
 								append("} else ")
 							append("{\n")
-							for dynvar in dynvars:
-								append(dynvar[0] + " = " + dynvar[-1] + ";\n")
+							for var, val in zip(dynvars[0], dynvars[-1]):
+								append(var + " = " + val + ";\n")
 							append("}\n")
 							curSplt = curSplt + 1
 						else:
-							# Simple string switch (true then op = str1, false then op = str2, separated by commas)
-							if len(dynvar) != len(eq) + 1:
+							# Standard if, standard statement
+							dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
+							dynvars[-1][-1] = dynvars[-1][-1][:-1]
+							if any(len(dynvar) != len(eq) + 1 for dynvar in dynvars):
 								fail(ValueError, "Not enough/too many possibilities in string switch")
+							dynvars = list(map(lambda i: [dv[i] for dv in dynvars], range(len(dynvars[0]))))
 							
-							for e, dv in zip(eq[1:], dynvar[1:-1]):
+							for e, vals in zip(eq[1:], dynvars[1:]):
 								append("if (" + eq[0] + " == " + e + ") {\n")
-								append(dynvar[0] + " = " + dv + ";\n} else ")
+								for var, val in zip(dynvars[0], vals):
+									append(var + " = " + val + ";\n} else ")
 							append("{\n")
-							append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
+							for var, val in zip(dynvars[0], dynvars[-1]):
+								append(var + " = " + val + ";\n}\n")
 							curSplt = curSplt + 1
 					elif spltln[curSplt] == "set":
 						# Set a (new?) variable
