@@ -1,84 +1,3 @@
-; TYPE fields separated by spaces Assembler syntax
-; When there are mutiple assembler syntax (like for LDR (immediate)), separate them based on the bytes
-; E.G. for LDR (immediate), there are 3 lines with the 3 different asm syntaxes
-
-# Field options:
-# --------------
-# Syntax: ... field/coption1(coption2)* ... (inside fields)
-# Where each c correspond to the option character
-#  and optionN to the Nth option value
-# ---
-# c = '0'..'9'/'A'..'F': option=[01]
-# Force the cth bit (hex) of the field (starting from LSB) to be <option>
-# c = '=': option=[01x]{field_len}
-# Force the field to have the given bits (where x = anything, starts from MSB)
-
-# Post-fields option:
-# -------------------
-# Syntax: [fields] @ typeoption1 args1 typeoption2 args2 @ [Assembler syntax]
-# ---
-# typeoption contains '=' (l=r): args1=((.*) )?([^, ]*),([^, ]*),([^, ]*)@
-# Changes a value between two other depending on whether l == r
-
-# \2 is init (suffixed by ';', optional), \3 is set to \4 if true or \5 if false
-# (cf VMOV/VORR aka V\op\, VEOR/VBIF/VBIT/VBSL aka V\op\)
-
-# The 'true regex' is typeoption=([^= ]*)(=([^= ]*))+
-# args1=((.*) )?([^, ]*),(([^, ]*),)+([^, ]*)@
-# with the number of typeoption:\2 being equal to the number of args1:\4
-# <a>=<b>[=<c>...] <initialization> <variable-changed>,<changed-into-if-a=b>[,<changed-into-if-a=c>...],<changed-into-else>@
-
-# OR
-
-# typeoption is discarded and must be set to '=', args1=((.*) )?(@@ (( ?.*[^@])*)@ )+([^, ]*),(([^, ]*),)+([^, ]*)
-# \2 is init (suffixed by ';', optional), \6 is set to \7 if true or \8 if false
-# The difference with the simple switch is that \4 is the test (inside the `if`)
-# If there are multiple @@s, there are multiple `if`s (separated by `else`s)
-
-# The 'true regex' is [DISCARDED]typeoption==
-# args1=((.*) )?(@@ (( ?.*[^@])*)@ )+([^, ]*),([^, ]*),([^, ]*)
-# <.>=<.>[=<c>...] <initialization> @@ <test>@[ @@ <test2>@...] <variable-changed>,<changed-into-if-a=b>,<changed-into-else>
-
-# OR
-
-# args1=((.*) )?!@(( [^%]*[^%@])*)%(( ?[^%]*[^%@])*)@(( .*[^@])*)@(( .*[^@])*)@
-# Replaced by '\1; if (<equality>) { \3\7\5; } else { \3\9\5; }'
-# Meaning, <.=.> <initialization> !@ <common-left-part>%<common-right-part>@ <substitute-true>@ <substitute-false>@ <...>
-# (cf VMOV/VORR, aka V\op\ with the lastop variable)
-# You can also add more '=' with corresponding substitutes.
-# You can also add more '%' with corresponding substitutes.
-
-# ----
-# Inside the assembler syntax, you can add \var\ to mark a variable to be replaced
-# (Meaning, %s and `var` as argument to printf)
-# Full syntax: \\(%[0-9+]*.)?(.*)\\
-# If \1 != "", add \1 to the string in printf, and in any case append \2 as argument to printf
-
-! HACKS: (list of notable differences between the doc and this file)
-! ------
-! In theory, (0) and (1) bits are as important as 0 and 1:
-! > An instruction is UNPREDICTABLE if:
-! > • It is declared as UNPREDICTABLE in an instruction description or in this chapter.
-! > • The pseudocode for that encoding does not indicate that a different special case applies, and a bit marked (0)
-!     or (1) in the encoding diagram of an instruction is not 0 or 1 respectively.
-! - ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
-! In practice, they are ignored here.
-
-! SWP, SWPB, VMOV  (VFPU): Rt2 (field and assembly) -> Rn (field and assembly)
-! BKPT: must be AL, so cond (field) -> cond/=1110 (constrained field)
-! PKHBT and PKHTB: {, LSL/ASR #<imm>} (assembly) -> {, <shift>} (assembly)
-! PKHBT and PKHTB: immediate shift but shift & 1 -> ARMs (type)
-! All NEON operations (advanced SIMD): limited, so multiply the lines
-! VMOV (register): Vm ... Vm VMOV (field, assembly) -> Vn ... Vm @ m=n ...@ @ V\op\ (field, switchable var, assembly)
-! VMOV is VORR constrained -> (removed VORR)
-! VEOR, VBSL, VBIT, VBIF differ only depending on 2 bits: 0/1 0/1 ... VEOR -> @<2> ... @ ... @ V\op\ (field, switchable var, assembly)
-! Three registers of different lengths (when having L and W variants): op (field) -> Q (field)
-
-; ========== BEGINNING OF REGISTERED INSTRUCTIONS =========
-
-# This instruction changes the instruction set to Thumb! Disabled (but valid)
-#ARM_ 1 1 1 1 1 0 1 @<1> imm24 @ set imm24 = (imm24 << 2) + (param << 1)@ @ BLX <label>
-
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 op 0 N Q M 0 Vm VH\(op ? "SUB" : "ADD")\<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 0 0 N Q M 1 Vm VQADD<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 0 1 N Q M 0 Vm VRHADD<c>.<dt> <Qd>, <Qn>, <Qm>
@@ -119,7 +38,6 @@ NEON 1 1 1 1 0 0 1 1 0 D op sz/=0 Vn Vd 1 1 1 1 N Q M 0 Vm @ op=0 const char* op
 NEON 1 1 1 1 0 0 1 0 0 D 0 sz/=0 Vn Vd 1 1 1 1 N Q M 1 Vm VRECPS.F32 <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 0 0 D 1 sz/=0 Vn Vd 1 1 1 1 N Q M 1 Vm VRSQRTS.F32 <Qd>, <Qn>, <Qm>
 INVALIDATE 1 1 1 1 0 0 1 <1> 0 <23>
-
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx0 0 Q op/=0 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx1 0 Q op/=0 1 imm4 VORR<c>.<dt> <Qd>, #<imm>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x0 0 Q op/=0 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
@@ -131,17 +49,13 @@ NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x0 0 Q op/=1 1 imm4 VMVN<c>.<dt>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x1 0 Q op/=1 1 imm4 BIC<c>.<dt> <Qd>, #<imm>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=110x 0 Q op/=1 1 imm4 VMVN<c>.<dt> <Qd>, #<imm>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=1110 0 Q op/=1 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
-;INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 0 0 <3> <4> <4>/=1111 0 <1> <1>/=1 1 <4>
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 0 0 <11> 0 <2> 1 <4>
-
-# Special case for VMOVL (harder to do it on the documented place)
 NEON 1 1 1 1 0 0 1 0 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S8 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 0 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S16 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 0 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S32 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U8 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U16 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U32 <Qd>, <Qm>
-
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 0 L Q M 1 Vm VSHR<c>.<dt> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 1 L Q M 1 Vm VSRA<c>.<dt> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 1 0 L Q M 1 Vm VRSHR<c>.<dt> <Qd>, <Qm>, #<imm>
@@ -156,17 +70,13 @@ NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 0 M 1 Vm VQSHR\((u & op) ? "U" : "")
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 1 M 1 Vm VQRSHR\((u & op) ? "U" : "")\N<c>.<dt> <Dd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 1 0 0 M 1 Vm VSHLL<c>.<dt> <Qd>, <Dm>, #\%d8 &l&l size\
 NEON 1 1 1 1 0 0 1 U 1 D Imm6 Vd 1 0 1 0 0 0 M 1 Vm VSHLL<c>.<dt> <Qd>, <Dm>, #<imm>
-; VCVT: if imm6 IN "0xxxxx" then UNDEFINED;
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 <9> 1 1 1 <1> 0 <2> 1 <4>
 NEON 1 1 1 1 0 0 1 0 1 D IMM6 Vd 1 1 1 0 0 Q M 1 Vm VCVT<c>.F32.S32 <Qd>, <Qm>, #<fbits>
 NEON 1 1 1 1 0 0 1 0 1 D IMM6 Vd 1 1 1 1 0 Q M 1 Vm VCVT<c>.S32.F32 <Qd>, <Qm>, #<fbits>
 NEON 1 1 1 1 0 0 1 1 1 D IMM6 Vd 1 1 1 0 0 Q M 1 Vm VCVT<c>.F32.U32 <Qd>, <Qm>, #<fbits>
 NEON 1 1 1 1 0 0 1 1 1 D IMM6 Vd 1 1 1 1 0 Q M 1 Vm VCVT<c>.U32.F32 <Qd>, <Qm>, #<fbits>
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <18> 1 <4>
-
 NEON 1 1 1 1 0 0 1 0 1 D 1 1 Vn Vd IMM4 N Q M 0 Vm VEXT<c>.8 <Qd>, <Qn>, <Qm>, #<imm>
-
-# size + param < 3
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=11 0 0 <4> 0 0 0 <2> <2> 0 <4>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/11 <2> 0 <4>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/01 <2> 0 <4>
@@ -205,11 +115,8 @@ NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 0 1 Q M 0 Vm VCVT<c>.S32.F32 
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 1 0 Q M 0 Vm VCVT<c>.F32.U32 <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 1 1 Q M 0 Vm VCVT<c>.U32.F32 <Qd>, <Qm>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <8> 0 <6> 0 <4>
-
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 Vn Vd 1 0 @<2> N op M 0 Vm @ param=0b00 char list[10] !@ sprintf(list, %)@ "{%s}", vecname[0x20 + n]@ "{%s-%s}", vecname[0x20 + n], vecname[0x20 + n + param]@ @ VTB\(op ? "X" : "L")\<c>.8 <Dd>, \list\, <Dm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 imm4 Vd 1 1 0 0 0 Q M 0 Vm VDUP<c>.\%dsize\ <Qd>, <Dm[x]>
-
-; size != 11
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 1 1 <13> 0 <1> 0 <4>
 NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 0 0 Q N 0 M 0 Vm VADD\(q ? "W" : "L")\<c>.<dt> <qd>, <Qn>, <Dm>
 NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 0 1 Q N 0 M 0 Vm VSUB\(q ? "W" : "L")\<c>.<dt> <qd>, <Qn>, <Dm>
@@ -225,8 +132,6 @@ NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 1 1 0 0 N 0 M 0 Vm VMULL<c>.<dt> <Qd>, <Dn>,
 NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 1 1 0 1 N 0 M 0 Vm VQDMULL<c>.<dt> <Qd>, <Dn>, <Dm>
 NEON 1 1 1 1 0 0 1 U/=0 1 D size/=00 Vn Vd 1 1 1 0 N 0 M 0 Vm @ set uint8_t size = 0@ @ VMULL<c>.<dt> <Qd>, <Dn>, <Dm>
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <16> 0 <1> 0 <4>
-
-; Put after, otherwise some instructions are shadowed
 NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 0 op 0 F N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VML\(op ? "S" : "A")\<c>.<dt> <Qd>, <Qn>, <Dm[x]>
 NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 op 1 0 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm[x]>
 NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 0 op 1 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQDML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm[x]>
@@ -236,7 +141,6 @@ NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 1 0 1 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned
 NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 1 1 0 0 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQDMULH<c>.<dt> <Qd>, <Qn>, <Dm[x]>
 NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 1 1 0 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQRDMULH<c>.<dt> <Qd>, <Qn>, <Dm[x]>
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <16> 0 <1> 0 <4>
-
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
@@ -270,7 +174,6 @@ NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 1 size @<2> Rm @ param=0b00 char align[
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
-;INVALIDATE 1 1 1 1 0 1 0 0 0 <1> 0 0 <22>
 INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 0 0 <8> 1 1 <10>
 NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 0 @<4> 1 1 1 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 0 @<4> 1 1 0 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]!
@@ -284,9 +187,6 @@ NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> Rm @ set uint8_t temp = param &
 NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
-;INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 0 0 <20>
-;INVALIDATE 1 1 1 1 0 1 0 0 <2> 0 0 <20>
-
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
@@ -320,7 +220,6 @@ NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 1 size @<2> Rm @ param=0b00 char align[
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
-;INVALIDATE 1 1 1 1 0 1 0 0 0 <1> 1 0 <22>
 INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 1 0 <8> 1 1 <10>
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 0 @<4> 1 1 1 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 0 @<4> 1 1 0 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]!
@@ -334,14 +233,8 @@ NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> Rm @ set uint8_t temp = param &
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]!
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
-;INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 1 0 <20>
-;INVALIDATE 1 1 1 1 0 1 0 0 <2> 1 0 <20>
 INVALIDATE 1 1 1 1 0 1 0 0 <3> 0 <20>
-
-; ===== No more 1 1 1 1 ..., so invalidate all of them ====
 INVALIDATE 1 1 1 1 <28>
-
-
 ARMS cond 0 0 0 0 0 0 0 S Rn Rd imm5 type 0 Rm AND{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
 ARM_ cond 0 0 0 0 0 0 0 S Rd (0) (0) (0) (0) Rm 1 0 0 1 Rn MUL{S}<c> <Rd>, <Rn>, <Rm>
 ARM_ cond 0 0 0 0 U 0 0 0 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm STRH<c> <Rt>, [<Rn>], +/-<Rm>
@@ -522,29 +415,6 @@ ARM_ cond 1 0 0 1 1 0 W 1 Rn/=1101 register_list LDMFA<c> <Rn>{!}, <registers>
 ARM_ cond 1 0 0 1 1 0 W 1 Rn register_list LDMIB<c> <Rn>{!}, <registers>
 ARM_ cond 1 0 1 0 imm24 B<c> <label>
 ARM_ cond 1 0 1 1 imm24 BL<c> <label>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
 INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
 INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
@@ -562,9 +432,7 @@ VFPU cond 1 1 0 1 U D 0 1 Rn Vd 1 0 1 sz imm8 VLDR<c> <Dd>, [<Rn>{, #+/-<imm>}]
 VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FLDM\(param == 0b01 ? "IA" : "DB")\X<c> <Rn>{!}, <LIst>
 VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 sz imm8 VLDM\(param == 0b01 ? "IA" : "DB")\<c> <Rn>{!}, <list>
 INVALIDATE <4> 1 1 0 <25>
-
 INVALIDATE <4> 1 1 1 0 0 0 <1> 0 <8> 1 0 1 1 <1> 1 0 1 (0) (0) (0) (0)
-;INVALIDATE <4> 1 1 1 0 1 <2> 0 <8> 1 0 1 1 <1> 0 <1> 1 (0) (0) (0) (0)
 VFPU cond 1 1 1 0 0 0 0 0 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Sn>, <Rt>
 VFPU cond 1 1 1 0 1 1 1 0 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMSR<c> FPSCR, <Rt>
 VFPU cond 1 1 1 0 0 @<2> 0 Vd Rt 1 0 1 1 D @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (param1_2 << 2) + param2_2@ = uint8_t shift @@ (opc & 0b1000) == 0b1000@ @@ (opc & 0b1001) == 0b0001@ @@ (opc & 0b1011) == 0b0000@ shift,0,1,2,0xFF set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.\%d8 &l&l shift\ <Dd[x]>, <Rt>
@@ -575,13 +443,11 @@ VFPU cond 1 1 1 0 0 0 0 1 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Rt>
 VFPU cond 1 1 1 0 1 1 1 1 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMRS<c> <Rt>, FPSCR
 VFPU cond 1 1 1 0 U @<2> 1 Vn Rt 1 0 1 1 N @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (u << 3) + (param1_2 << 2) + param2_2@ = uint8_t shift, size @@ (opc & 0b01000) == 0b01000@ @@ (opc & 0b01001) == 0b00001@ @@ (opc & 0b11011) == 0b00000@ shift,0,1,2,0xFF;size,0,1,2,4 set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.<dt> <Rt>, <Dn[x]>
 INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 1 <4>
-
 VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Sm>, <Sm1>, <Rt>, <Rn>
 VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Sm>, <Sm1>
 VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Dm>, <Rt>, <Rn>
 VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Dm>
 INVALIDATE <4> 1 1 0 0 0 1 0 <9> 1 0 1 <9>
-
 VFPU cond 1 1 1 0 0 D 0 0 Vn Vd 1 0 1 sz N op M 0 Vm VML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 0 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VNML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 0 D 1 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VMUL<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
@@ -591,13 +457,6 @@ VFPU cond 1 1 1 0 0 D 1 1 Vn Vd 1 0 1 sz N 1 M 0 Vm VSUB<c>.F\(size ? "64" : "32
 VFPU cond 1 1 1 0 1 D 0 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VDIV<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 1 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VFNM\(op ? "A" : "S")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 0 Vn Vd 1 0 1 sz N op M 0 Vm VFM\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
-
-
-
-
-
-
-!/VFPU cond 1 1 1 0 1 x 1 1 opc2 <4> 1 0 1 <1> - - <1> 0 opc4 Table A7-17
 VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 0 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set float mantissa = 16 + param2_4@ set float imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F32 <Dd>, #\%fimm\
 VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 1 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set double mantissa = 16 + param2_4@ set double imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F64 <Dd>, #\%fimm\
 VFPU cond 1 1 1 0 1 D 1 1 0 0 0 0 Vd 1 0 1 sz 0 1 M 0 Vm VMOV<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
@@ -614,8 +473,4 @@ VFPU cond 1 1 1 0 1 D 1 1 1 0 0 0 Vd 1 0 1 sz op 1 M 0 Vm VCVT<c>.F\(size ? "64"
 VFPU cond 1 1 1 0 1 D 1 1 1 0 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.F\(size ? "64" : "32")\.\Td\ <Dd>, <Dd>, #<imm>
 VFPU cond 1 1 1 0 1 D 1 1 1 1 0 U Vd 1 0 1 sz op 1 M 0 Vm VCVT\(op ? "" : "R")\<c>.\(u ? "U" : "S")\32.F\(size ? "64" : "32")\ <Sd>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 1 1 1 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.\Td\.F\(size ? "64" : "32")\ <Dd>, <Dd>, #<imm>
-;INVALIDATE <4> 1 1 1 0 1 <1> 1 1 <8> 1 0 1 <4> 0 <4>
-;INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 0 <4>
-
-; ============= END OF REGISTERED INSTRUCTIONS ============
 INVALIDATE <32>
