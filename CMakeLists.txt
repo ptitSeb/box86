@@ -21,9 +21,20 @@ option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOA
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 
-find_package(PythonInterp)
-if(NOT PYTHONINTERP_FOUND)
-    message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
+    find_package(PythonInterp)
+    if(NOT PYTHONINTERP_FOUND)
+        message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+    endif()
+    if(${PYTHON_MAJOR_VERSION} LESS 3)
+        message( FATAL_ERROR "You need a Python 3 interpretor, CMake will exit." )
+    endif()
+else()
+    find_package(Python3)
+    if(NOT Python3_Interpreter_FOUND)
+        message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
+    endif()
+    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE INTERNAL "The Python3 executable" FORCE)
 endif()
 
 # Pandora
@@ -126,7 +137,7 @@ else()
 endif()
 
 
-add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
+add_definitions(-std=gnu99 -funwind-tables -fvisibility=hidden)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -286,7 +297,16 @@ add_custom_command(
     BYPRODUCTS ${WRAPPER}
 )
 
+add_custom_command(
+    OUTPUT "${BOX86_ROOT}/src/dynarec/last_run.txt"
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_printer.py" "${BOX86_ROOT}"
+    MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_printer.py"
+    DEPENDS "${BOX86_ROOT}/src/dynarec/arm_instructions.txt"
+    BYPRODUCTS "${BOX86_ROOT}/src/dynarec/arm_printer.c"
+)
+
 add_custom_target(WRAPPERS DEPENDS "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt")
+add_custom_target(PRINTER DEPENDS "${BOX86_ROOT}/src/dynarec/last_run.txt")
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
@@ -358,6 +378,7 @@ if(BOX86LIB)
 #build a static lib...
 add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
 add_dependencies(box86 WRAPPERS)
+add_dependencies(box86 PRINTER)
 
 else(BOX86LIB)
 
@@ -371,13 +392,15 @@ endif()
 
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
 add_dependencies(${BOX86} WRAPPERS)
+add_dependencies(${BOX86} PRINTER)
 target_link_libraries(${BOX86} m dl rt pthread)
 if(ARM_DYNAREC)
     target_link_libraries(${BOX86} dynarec)
 endif()
 
+target_link_options(${BOX86} PUBLIC -rdynamic)
 if(NOT NOLOADADDR)
-    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x73800000)
+    target_link_options(${BOX86} PUBLIC -Wl,-Ttext-segment,0x73800000)
 endif()
 
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
@@ -471,7 +494,7 @@ add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}

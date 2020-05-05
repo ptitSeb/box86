@@ -1498,12 +1498,12 @@
 #!defined(HAVE_LD80BITS) KFppip
 #!defined(HAVE_LD80BITS) iFKipppL
 #!defined(HAVE_LD80BITS) vFppippKKC
-#() iFEp0pVV
-#() iFEvpVV
-#() iFEv
-#() iFEvpp
-#() pFEv
-#() iFEpuvvpVV
-#() iFEpvpp
-#() iFEpvpVV
-#() iFEpvvpVV
+#() iFEv -> iFE
+#() pFEv -> pFE
+#() iFEvpp -> iFEpp
+#() iFEvpVV -> iFEpVV
+#() iFEpvpp -> iFEppp
+#() iFEpvpVV -> iFEppVV
+#() iFEp0pVV -> iFEpppVV
+#() iFEpvvpVV -> iFEppVV
+#() iFEpuvvpVV -> iFEpupVV
