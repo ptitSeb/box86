@@ -132,6 +132,154 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			except errType as e:
 				raise BaseException("[Error wrapper]") from e
 		
+		def add_custom_variables(parm):
+			nonlocal curSplt
+			
+			# Check for any custom variables
+			if len(parm) == 1:
+				append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
+			else:
+				for i, p in enumerate(parm):
+					append(
+						"int param" + str(i + 1) + "_" + str(p[1]) + " = (opcode >> " + \
+						str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
+					)
+			if spltln[curSplt] == '@':
+				# Additional custom variables(s)
+				append("\n")
+				
+				curSplt = curSplt + 1
+				while spltln[curSplt] != '@':
+					if '=' in spltln[curSplt]:
+						eq = spltln[curSplt].split('=')
+						curSplt = curSplt + 1
+						oldSplt = curSplt
+						while spltln[curSplt][-1] != '@':
+							curSplt = curSplt + 1
+							if len(spltln) == curSplt:
+								fail(KeyError, "End of '=' switch not found!")
+						
+						dynvar = spltln[curSplt].split(',')
+						
+						# Always initialize if necessary
+						if oldSplt != curSplt:
+							append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
+						
+						if spltln[curSplt] == '!@':
+							# Not a simple string switch...
+							curSplt = curSplt + 1
+							
+							# Extract the common value
+							commonPart = spltln[curSplt]
+							while spltln[curSplt][-1] != '@':
+								curSplt = curSplt + 1
+								commonPart = commonPart + " " + spltln[curSplt]
+								if len(spltln) == curSplt:
+									fail(KeyError, "End of '=' switch (!@ modifier) not found!")
+							commonPart = commonPart[:-1]
+							curSplt = curSplt + 1
+							
+							commonPart = commonPart.split('%')
+							if len(commonPart) < 2:
+								fail(ValueError, "No replacement place!")
+							
+							# For each '=', add a new 'if' statement
+							for i in range(1, len(eq)):
+								append("if (" + eq[0] + " == " + eq[i] + ") {\n")
+								
+								for common in commonPart[:-1]:
+									insert = spltln[curSplt]
+									while spltln[curSplt][-1] != '@':
+										curSplt = curSplt + 1
+										insert = insert + " " + spltln[curSplt]
+										if len(spltln) == curSplt:
+											fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
+												" part) not found!")
+									insert = insert[:-1]
+									append(common + insert)
+									
+									curSplt = curSplt + 1
+								append(commonPart[-1] + ";\n} else ")
+							
+							append("{\n")
+							for common in commonPart[:-1]:
+								insert = spltln[curSplt]
+								while spltln[curSplt][-1] != '@':
+									curSplt = curSplt + 1
+									insert = insert + " " + spltln[curSplt]
+									if len(spltln) == curSplt:
+										fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
+								insert = insert[:-1]
+								append(common + insert)
+								
+								curSplt = curSplt + 1
+							
+							append(commonPart[-1] + ";\n}\n")
+						elif spltln[curSplt] == '@@':
+							# Simple string switch, but with custom 'if' statement
+							# Also, requires only a single '='
+							if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
+								fail(IndexError, "Too many '=' switches (!@ modifier)")
+							# Extract the statements
+							statements = []
+							while spltln[curSplt] == '@@':
+								curSplt = curSplt + 1
+								
+								statement = spltln[curSplt]
+								while spltln[curSplt][-1] != '@':
+									curSplt = curSplt + 1
+									statement = statement + " " + spltln[curSplt]
+									if len(spltln) == curSplt:
+										fail(KeyError, "End of '=' switch (@@ modifier) not found!")
+								statements.append(statement[:-1])
+								curSplt = curSplt + 1
+							
+							# Now get the (correct!) remainder and glue everything together
+							dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
+							if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
+								fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
+							
+							for i, stmt in enumerate(statements):
+								append("if (" + stmt + ") {\n")
+								for dynvar in dynvars:
+									append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
+								append("} else ")
+							append("{\n")
+							for dynvar in dynvars:
+								append(dynvar[0] + " = " + dynvar[-1] + ";\n")
+							append("}\n")
+							curSplt = curSplt + 1
+						else:
+							# Simple string switch (true then op = str1, false then op = str2, separated by commas)
+							if len(dynvar) != len(eq) + 1:
+								fail(ValueError, "Not enough/too many possibilities in string switch")
+							
+							for e, dv in zip(eq[1:], dynvar[1:-1]):
+								append("if (" + eq[0] + " == " + e + ") {\n")
+								append(dynvar[0] + " = " + dv + ";\n} else ")
+							append("{\n")
+							append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
+							curSplt = curSplt + 1
+					elif spltln[curSplt] == "set":
+						# Set a (new?) variable
+						curSplt = curSplt + 1
+						oldSplt = curSplt
+						while spltln[curSplt][-1] != '@':
+							curSplt = curSplt + 1
+							if len(spltln) == curSplt:
+								fail(KeyError, "End of '=' switch not found!")
+						
+						# Test for non-empty statement
+						if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
+							fail(ValueError, "Empty set statement")
+						
+						append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
+						
+						curSplt = curSplt + 1
+					else:
+						fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
+				curSplt = curSplt + 1
+		
 		spltln = ln.split(' ')
 		curSplt = -1
 		
@@ -341,150 +489,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					# Destroy imms since we don't need it anymore, but we do need immssz
 					imms = immssz
 				
-				# Check for any custom variables
-				if len(parm) == 1:
-					append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
-				else:
-					for i, p in enumerate(parm):
-						append(
-							"int param" + str(i) + "_" + str(p[1]) + " = (opcode >> " + \
-								str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
-							)
-				if spltln[curSplt] == '@':
-					# Additional custom variables(s)
-					append("\n")
-					
-					curSplt = curSplt + 1
-					while spltln[curSplt] != '@':
-						if '=' in spltln[curSplt]:
-							eq = spltln[curSplt].split('=')
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							dynvar = spltln[curSplt].split(',')
-							
-							# Always initialize if necessary
-							if oldSplt != curSplt:
-								append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
-							
-							if spltln[curSplt] == '!@':
-								# Not a simple string switch...
-								curSplt = curSplt + 1
-								
-								# Extract the common value
-								commonPart = spltln[curSplt]
-								while spltln[curSplt][-1] != '@':
-									curSplt = curSplt + 1
-									commonPart = commonPart + " " + spltln[curSplt]
-									if len(spltln) == curSplt:
-										fail(KeyError, "End of '=' switch (!@ modifier) not found!")
-								commonPart = commonPart[:-1]
-								curSplt = curSplt + 1
-								
-								commonPart = commonPart.split('%')
-								if len(commonPart) < 2:
-									fail(ValueError, "No replacement place!")
-								
-								# For each '=', add a new 'if' statement
-								for i in range(1, len(eq)):
-									append("if (" + eq[0] + " == " + eq[i] + ") {\n")
-									
-									for common in commonPart[:-1]:
-										insert = spltln[curSplt]
-										while spltln[curSplt][-1] != '@':
-											curSplt = curSplt + 1
-											insert = insert + " " + spltln[curSplt]
-											if len(spltln) == curSplt:
-												fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
-													" part) not found!")
-										insert = insert[:-1]
-										append(common + insert)
-										
-										curSplt = curSplt + 1
-									append(commonPart[-1] + ";\n} else ")
-								
-								append("{\n")
-								for common in commonPart[:-1]:
-									insert = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										insert = insert + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
-									insert = insert[:-1]
-									append(common + insert)
-									
-									curSplt = curSplt + 1
-								
-								append(commonPart[-1] + ";\n}\n")
-							elif spltln[curSplt] == '@@':
-								# Simple string switch, but with custom 'if' statement
-								# Also, requires only a single '='
-								if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
-									fail(IndexError, "Too many '=' switches (!@ modifier)")
-								# Extract the statements
-								statements = []
-								while spltln[curSplt] == '@@':
-									curSplt = curSplt + 1
-									
-									statement = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										statement = statement + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (@@ modifier) not found!")
-									statements.append(statement[:-1])
-									curSplt = curSplt + 1
-								
-								# Now get the (correct!) remainder and glue everything together
-								dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-								if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
-									fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
-								
-								for i, stmt in enumerate(statements):
-									append("if (" + stmt + ") {\n")
-									for dynvar in dynvars:
-										append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
-									append("} else ")
-								append("{\n")
-								for dynvar in dynvars:
-									append(dynvar[0] + " = " + dynvar[-1] + ";\n")
-								append("}\n")
-								curSplt = curSplt + 1
-							else:
-								# Simple string switch (true then op = str1, false then op = str2, separated by commas)
-								if len(dynvar) != len(eq) + 1:
-									fail(ValueError, "Not enough/too many possibilities in string switch")
-								
-								for e, dv in zip(eq[1:], dynvar[1:-1]):
-									append("if (" + eq[0] + " == " + e + ") {\n")
-									append(dynvar[0] + " = " + dv + ";\n} else ")
-								append("{\n")
-								append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
-								curSplt = curSplt + 1
-						elif spltln[curSplt] == "set":
-							# Set a (new?) variable
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							# Test for non-empty statement
-							if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
-								fail(ValueError, "Empty set statement")
-							
-							append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
-							
-							curSplt = curSplt + 1
-						else:
-							fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
-					curSplt = curSplt + 1
+				add_custom_variables(parm)
 				
 				append("\nsprintf(ret, \"")
 				
@@ -774,150 +779,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					("0xFF)" if (spltln[0] == "ARMS") else ("0xFE)" if (spltln[0] == "ARM$") else "0xFF) | 0x01")) + \
 					";\n")
 				
-				# Check for any custom variables
-				if len(parm) == 1:
-					append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
-				else:
-					for i, p in enumerate(parm):
-						append(
-							"int param" + str(i) + "_" + str(p[1]) + " = (opcode >> " + \
-							str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
-						)
-				if spltln[curSplt] == '@':
-					# Additional custom variables(s)
-					append("\n")
-					
-					curSplt = curSplt + 1
-					while spltln[curSplt] != '@':
-						if '=' in spltln[curSplt]:
-							eq = spltln[curSplt].split('=')
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							dynvar = spltln[curSplt].split(',')
-							
-							# Always initialize if necessary
-							if oldSplt != curSplt:
-								append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
-							
-							if spltln[curSplt] == '!@':
-								# Not a simple string switch...
-								curSplt = curSplt + 1
-								
-								# Extract the common value
-								commonPart = spltln[curSplt]
-								while spltln[curSplt][-1] != '@':
-									curSplt = curSplt + 1
-									commonPart = commonPart + " " + spltln[curSplt]
-									if len(spltln) == curSplt:
-										fail(KeyError, "End of '=' switch (!@ modifier) not found!")
-								commonPart = commonPart[:-1]
-								curSplt = curSplt + 1
-								
-								commonPart = commonPart.split('%')
-								if len(commonPart) < 2:
-									fail(ValueError, "No replacement place!")
-								
-								# For each '=', add a new 'if' statement
-								for i in range(1, len(eq)):
-									append("if (" + eq[0] + " == " + eq[i] + ") {\n")
-									
-									for common in commonPart[:-1]:
-										insert = spltln[curSplt]
-										while spltln[curSplt][-1] != '@':
-											curSplt = curSplt + 1
-											insert = insert + " " + spltln[curSplt]
-											if len(spltln) == curSplt:
-												fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
-													" part) not found!")
-										insert = insert[:-1]
-										append(common + insert)
-										
-										curSplt = curSplt + 1
-									append(commonPart[-1] + ";\n} else ")
-								
-								append("{\n")
-								for common in commonPart[:-1]:
-									insert = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										insert = insert + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
-									insert = insert[:-1]
-									append(common + insert)
-									
-									curSplt = curSplt + 1
-								
-								append(commonPart[-1] + ";\n}\n")
-							elif spltln[curSplt] == '@@':
-								# Simple string switch, but with custom 'if' statement
-								# Also, requires only a single '='
-								if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
-									fail(IndexError, "Too many '=' switches (!@ modifier)")
-								# Extract the statements
-								statements = []
-								while spltln[curSplt] == '@@':
-									curSplt = curSplt + 1
-									
-									statement = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										statement = statement + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (@@ modifier) not found!")
-									statements.append(statement[:-1])
-									curSplt = curSplt + 1
-								
-								# Now get the (correct!) remainder and glue everything together
-								dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-								if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
-									fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
-								
-								for i, stmt in enumerate(statements):
-									append("if (" + stmt + ") {\n")
-									for dynvar in dynvars:
-										append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
-									append("} else ")
-								append("{\n")
-								for dynvar in dynvars:
-									append(dynvar[0] + " = " + dynvar[-1] + ";\n")
-								append("}\n")
-								curSplt = curSplt + 1
-							else:
-								# Simple string switch (true then op = str1, false then op = str2, separated by commas)
-								if len(dynvar) != len(eq) + 1:
-									fail(ValueError, "Not enough/too many possibilities in string switch")
-								
-								for e, dv in zip(eq[1:], dynvar[1:-1]):
-									append("if (" + eq[0] + " == " + e + ") {\n")
-									append(dynvar[0] + " = " + dv + ";\n} else ")
-								append("{\n")
-								append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
-								curSplt = curSplt + 1
-						elif spltln[curSplt] == "set":
-							# Set a (new?) variable
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							# Test for non-empty statement
-							if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
-								fail(ValueError, "Empty set statement")
-							
-							append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
-							
-							curSplt = curSplt + 1
-						else:
-							fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
-					curSplt = curSplt + 1
+				add_custom_variables(parm)
 				
 				append("\nsprintf(ret, \"")
 				
@@ -1253,150 +1115,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						
 						imms = [2, immssz] + imms
 				
-				# Check for any custom variables
-				if len(parm) == 1:
-					append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
-				else:
-					for i, p in enumerate(parm):
-						append(
-							"int param" + str(i) + "_" + str(p[1]) + " = (opcode >> " + \
-							str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
-						)
-				if spltln[curSplt] == '@':
-					# Additional custom variables(s)
-					append("\n")
-					
-					curSplt = curSplt + 1
-					while spltln[curSplt] != '@':
-						if '=' in spltln[curSplt]:
-							eq = spltln[curSplt].split('=')
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							dynvar = spltln[curSplt].split(',')
-							
-							# Always initialize if necessary
-							if oldSplt != curSplt:
-								append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
-							
-							if spltln[curSplt] == '!@':
-								# Not a simple string switch...
-								curSplt = curSplt + 1
-								
-								# Extract the common value
-								commonPart = spltln[curSplt]
-								while spltln[curSplt][-1] != '@':
-									curSplt = curSplt + 1
-									commonPart = commonPart + " " + spltln[curSplt]
-									if len(spltln) == curSplt:
-										fail(KeyError, "End of '=' switch (!@ modifier) not found!")
-								commonPart = commonPart[:-1]
-								curSplt = curSplt + 1
-								
-								commonPart = commonPart.split('%')
-								if len(commonPart) < 2:
-									fail(ValueError, "No replacement place!")
-								
-								# For each '=', add a new 'if' statement
-								for i in range(1, len(eq)):
-									append("if (" + eq[0] + " == " + eq[i] + ") {\n")
-									
-									for common in commonPart[:-1]:
-										insert = spltln[curSplt]
-										while spltln[curSplt][-1] != '@':
-											curSplt = curSplt + 1
-											insert = insert + " " + spltln[curSplt]
-											if len(spltln) == curSplt:
-												fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
-													" part) not found!")
-										insert = insert[:-1]
-										append(common + insert)
-										
-										curSplt = curSplt + 1
-									append(commonPart[-1] + ";\n} else ")
-								
-								append("{\n")
-								for common in commonPart[:-1]:
-									insert = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										insert = insert + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
-									insert = insert[:-1]
-									append(common + insert)
-									
-									curSplt = curSplt + 1
-								
-								append(commonPart[-1] + ";\n}\n")
-							elif spltln[curSplt] == '@@':
-								# Simple string switch, but with custom 'if' statement
-								# Also, requires only a single '='
-								if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
-									fail(IndexError, "Too many '=' switches (!@ modifier)")
-								# Extract the statements
-								statements = []
-								while spltln[curSplt] == '@@':
-									curSplt = curSplt + 1
-									
-									statement = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										statement = statement + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (@@ modifier) not found!")
-									statements.append(statement[:-1])
-									curSplt = curSplt + 1
-								
-								# Now get the (correct!) remainder and glue everything together
-								dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-								if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
-									fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
-								
-								for i, stmt in enumerate(statements):
-									append("if (" + stmt + ") {\n")
-									for dynvar in dynvars:
-										append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
-									append("} else ")
-								append("{\n")
-								for dynvar in dynvars:
-									append(dynvar[0] + " = " + dynvar[-1] + ";\n")
-								append("}\n")
-								curSplt = curSplt + 1
-							else:
-								# Simple string switch (true then op = str1, false then op = str2, separated by commas)
-								if len(dynvar) != len(eq) + 1:
-									fail(ValueError, "Not enough/too many possibilities in string switch")
-								
-								for e, dv in zip(eq[1:], dynvar[1:-1]):
-									append("if (" + eq[0] + " == " + e + ") {\n")
-									append(dynvar[0] + " = " + dv + ";\n} else ")
-								append("{\n")
-								append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
-								curSplt = curSplt + 1
-						elif spltln[curSplt] == "set":
-							# Set a (new?) variable
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							# Test for non-empty statement
-							if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
-								fail(ValueError, "Empty set statement")
-							
-							append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
-							
-							curSplt = curSplt + 1
-						else:
-							fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
-					curSplt = curSplt + 1
+				add_custom_variables(parm)
 				
 				append("\nsprintf(ret, \"")
 				
@@ -1735,150 +1454,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					# Destroy imms since we don't need it anymore, but we do need immssz
 					imms = [-1, immssz] + imms
 				
-				# Check for any custom variables
-				if len(parm) == 1:
-					append("int param = (opcode >> " + str(parm[0][0]) + ") & " + sz2str(parm[0][1]) + ";\n")
-				else:
-					for i, p in enumerate(parm):
-						append(
-							"int param" + str(i + 1) + "_" + str(p[1]) + " = (opcode >> " + \
-							str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
-						)
-				if spltln[curSplt] == '@':
-					# Additional custom variables(s)
-					append("\n")
-					
-					curSplt = curSplt + 1
-					while spltln[curSplt] != '@':
-						if '=' in spltln[curSplt]:
-							eq = spltln[curSplt].split('=')
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							dynvar = spltln[curSplt].split(',')
-							
-							# Always initialize if necessary
-							if oldSplt != curSplt:
-								append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
-							
-							if spltln[curSplt] == '!@':
-								# Not a simple string switch...
-								curSplt = curSplt + 1
-								
-								# Extract the common value
-								commonPart = spltln[curSplt]
-								while spltln[curSplt][-1] != '@':
-									curSplt = curSplt + 1
-									commonPart = commonPart + " " + spltln[curSplt]
-									if len(spltln) == curSplt:
-										fail(KeyError, "End of '=' switch (!@ modifier) not found!")
-								commonPart = commonPart[:-1]
-								curSplt = curSplt + 1
-								
-								commonPart = commonPart.split('%')
-								if len(commonPart) < 2:
-									fail(ValueError, "No replacement place!")
-								
-								# For each '=', add a new 'if' statement
-								for i in range(1, len(eq)):
-									append("if (" + eq[0] + " == " + eq[i] + ") {\n")
-									
-									for common in commonPart[:-1]:
-										insert = spltln[curSplt]
-										while spltln[curSplt][-1] != '@':
-											curSplt = curSplt + 1
-											insert = insert + " " + spltln[curSplt]
-											if len(spltln) == curSplt:
-												fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
-													" part) not found!")
-										insert = insert[:-1]
-										append(common + insert)
-										
-										curSplt = curSplt + 1
-									append(commonPart[-1] + ";\n} else ")
-								
-								append("{\n")
-								for common in commonPart[:-1]:
-									insert = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										insert = insert + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
-									insert = insert[:-1]
-									append(common + insert)
-									
-									curSplt = curSplt + 1
-								
-								append(commonPart[-1] + ";\n}\n")
-							elif spltln[curSplt] == '@@':
-								# Simple string switch, but with custom 'if' statement
-								# Also, requires only a single '='
-								if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
-									fail(IndexError, "Too many '=' switches (!@ modifier)")
-								# Extract the statements
-								statements = []
-								while spltln[curSplt] == '@@':
-									curSplt = curSplt + 1
-									
-									statement = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										statement = statement + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (@@ modifier) not found!")
-									statements.append(statement[:-1])
-									curSplt = curSplt + 1
-								
-								# Now get the (correct!) remainder and glue everything together
-								dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-								if any([len(dynvar) != len(statements) + 2 for dynvar in dynvars]):
-									fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
-								
-								for i, stmt in enumerate(statements):
-									append("if (" + stmt + ") {\n")
-									for dynvar in dynvars:
-										append(dynvar[0] + " = " + dynvar[i + 1] + ";\n")
-									append("} else ")
-								append("{\n")
-								for dynvar in dynvars:
-									append(dynvar[0] + " = " + dynvar[-1] + ";\n")
-								append("}\n")
-								curSplt = curSplt + 1
-							else:
-								# Simple string switch (true then op = str1, false then op = str2, separated by commas)
-								if len(dynvar) != len(eq) + 1:
-									fail(ValueError, "Not enough/too many possibilities in string switch")
-								
-								for e, dv in zip(eq[1:], dynvar[1:-1]):
-									append("if (" + eq[0] + " == " + e + ") {\n")
-									append(dynvar[0] + " = " + dv + ";\n} else ")
-								append("{\n")
-								append(dynvar[0] + " = " + dynvar[-1][:-1] + ";\n}\n")
-								curSplt = curSplt + 1
-						elif spltln[curSplt] == "set":
-							# Set a (new?) variable
-							curSplt = curSplt + 1
-							oldSplt = curSplt
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch not found!")
-							
-							# Test for non-empty statement
-							if (oldSplt == curSplt) and (spltln[curSplt] == "@"):
-								fail(ValueError, "Empty set statement")
-							
-							append(' '.join(spltln[oldSplt:curSplt + 1])[:-1] + ";\n")
-							
-							curSplt = curSplt + 1
-						else:
-							fail(KeyError, "Unknown custom statement '" + spltln[curSplt] + "'")
-					curSplt = curSplt + 1
+				add_custom_variables(parm)
 				
 				append("\nsprintf(ret, \"")
 				
@@ -2449,6 +2025,6 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], "1.0.1.02") != 0:
+	if main(sys.argv[1], "1.0.2.03") != 0:
 		exit(2)
 	exit(0)
