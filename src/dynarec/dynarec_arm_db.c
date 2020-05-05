@@ -32,6 +32,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int v1, v2;
     int s0;
     int fixedaddress;
+    int parity;
 
     MAYUSE(s0);
     MAYUSE(v1);
@@ -162,9 +163,15 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst);
-                    GETED;
                     s0 = fpu_get_scratch_single(dyn);
-                    VMOVtoV(s0, ed);
+                    parity = getedparity(dyn, ninst, addr, nextop, 2);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        VLDR_32(s0, ed, fixedaddress);
+                    } else {
+                        GETED;
+                        VMOVtoV(s0, ed);
+                    }
                     VCVT_F64_S32(v1, s0);
                     break;
                 case 1:

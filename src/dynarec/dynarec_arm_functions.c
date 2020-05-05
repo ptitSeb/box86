@@ -318,3 +318,44 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
     for (int i=0; i<24; ++i)
         dyn->fpuused[i]=0;
 }
+
+// Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
+int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity)
+{
+#define F8      *(uint8_t*)(addr++)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
+
+    uint32_t tested = (1<<parity)-1;
+    if((nextop&0xC0)==0xC0)
+        return 0;   // direct register, no parity...
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            int sib_reg = (sib>>3)&7;
+            if((sib&0x7)==5) {
+                uint32_t tmp = F32;
+                if (sib_reg!=4) {
+                    // if XXXXXX+reg<<N then check parity of XXXXX and N should be enough
+                    return ((tmp&tested)==0 && (sib>>6)>=parity)?1:0;
+                } else {
+                    // just a constant...
+                    return (tmp&tested)?0:1;
+                }
+            } else {
+                if(sib_reg==4)
+                    return 0;   // simple [reg]
+                // don't try [reg1 + reg2<<N], unless reg1 is ESP
+                return ((sib&0x7)==4 && (sib>>6)>=parity)?1:0;
+            }
+        } else if((nextop&7)==5) {
+            uint32_t tmp = F32;
+            return (tmp&tested)?0:1;
+        } else {
+            return 0;
+        }
+    } else {
+        return 0; //Form [reg1 + reg2<<N + XXXXXX]
+    }
+#undef F8
+#undef F32
+}

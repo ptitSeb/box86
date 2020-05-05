@@ -40,6 +40,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int v1, v2;
     int s0;
     int i1, i2, i3;
+    int parity;
 
     MAYUSE(s0);
     MAYUSE(v2);
@@ -270,35 +271,47 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
-                    // to avoid bus error
-                    //VLDR_32(s0, ed, 0);
-                    LDR_IMM9(x2, ed, fixedaddress);
-                    VMOVtoV(s0, x2);
+                    parity = getedparity(dyn, ninst, addr, nextop, 2);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        VLDR_32(s0, ed, fixedaddress);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        LDR_IMM9(x2, ed, fixedaddress);
+                        VMOVtoV(s0, x2);
+                    }
                     VCVT_F64_F32(v1, s0);
                     break;
                 case 2:
                     INST_NAME("FST float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
-                    // to avoid bus error...
-                    //VSTR_32(s0, ed, 0);
-                    VMOVfrV(x2, s0);
-                    STR_IMM9(x2, ed, fixedaddress);
+                    parity = getedparity(dyn, ninst, addr, nextop, 2);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        VSTR_32(s0, ed, fixedaddress);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        VMOVfrV(x2, s0);
+                        STR_IMM9(x2, ed, fixedaddress);
+                    }
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                     s0 = fpu_get_scratch_single(dyn);
                     VCVT_F32_F64(s0, v1);
-                    // to avoid bus error...
-                    //VSTR_32(s0, ed, 0);
-                    VMOVfrV(x2, s0);
-                    STR_IMM9(x2, ed, fixedaddress);
+                    parity = getedparity(dyn, ninst, addr, nextop, 2);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        VSTR_32(s0, ed, fixedaddress);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        VMOVfrV(x2, s0);
+                        STR_IMM9(x2, ed, fixedaddress);
+                    }
                     x87_do_pop(dyn, ninst);
                     break;
                 case 5:
