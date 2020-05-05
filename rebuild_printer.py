@@ -1975,6 +1975,6 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], "1.0.2.03") != 0:
+	if main(sys.argv[1], "1.1.0.04") != 0:
 		exit(2)
 	exit(0)
