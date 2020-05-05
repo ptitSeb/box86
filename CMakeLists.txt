@@ -137,7 +137,7 @@ else()
 endif()
 
 
-add_definitions(-g -std=gnu99 -funwind-tables -O3 -fvisibility=hidden)
+add_definitions(-std=gnu99 -funwind-tables -fvisibility=hidden)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -387,8 +387,9 @@ if(ARM_DYNAREC)
     target_link_libraries(${BOX86} dynarec)
 endif()
 
+target_link_options(${BOX86} PUBLIC -rdynamic)
 if(NOT NOLOADADDR)
-    target_link_libraries(${BOX86} -Wl,-Ttext-segment,0x73800000)
+    target_link_options(${BOX86} PUBLIC -Wl,-Ttext-segment,0x73800000)
 endif()
 
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
@@ -482,7 +483,7 @@ add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
