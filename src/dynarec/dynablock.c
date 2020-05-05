@@ -215,13 +215,15 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     }
     block->parent = dynablocks;
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    if(!box86_dynarec_dump)
-        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
 
+    if(box86_dynarec_dump)
+        pthread_mutex_lock(&my_context->mutex_lock);
     // fill the block
     FillBlock(emu, block, addr);
-    if(box86_dynarec_dump)  // only unlock here, to avoid mixedup block dumps
-        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+    if(box86_dynarec_dump)
+        pthread_mutex_unlock(&my_context->mutex_lock);
+
     dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", (void*)addr, block->block, block->size);
 
     return block;
