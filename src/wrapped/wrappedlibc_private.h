@@ -1242,7 +1242,7 @@ GO(posix_fallocate64, iFiII)
 // posix_madvise
 GOW(posix_memalign, iFpuu)
 // posix_openpt // Weak
-// posix_spawn
+GO(posix_spawn, iFpppppp)
 // posix_spawnattr_destroy
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
@@ -1258,10 +1258,10 @@ GOW(posix_memalign, iFpuu)
 // posix_spawnattr_setsigdefault
 // posix_spawnattr_setsigmask
 // posix_spawn_file_actions_addclose
-// posix_spawn_file_actions_adddup2
-// posix_spawn_file_actions_addopen
-// posix_spawn_file_actions_destroy
-// posix_spawn_file_actions_init
+GO(posix_spawn_file_actions_adddup2, iFpii)
+GO(posix_spawn_file_actions_addopen, iFpipii)
+GO(posix_spawn_file_actions_destroy, iFp)
+GO(posix_spawn_file_actions_init, iFp)
 // posix_spawnp
 GO(ppoll, iFpupp)
 GOW(prctl, iFiuuuu)
