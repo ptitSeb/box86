@@ -1,0 +1,621 @@
+; TYPE fields separated by spaces Assembler syntax
+; When there are mutiple assembler syntax (like for LDR (immediate)), separate them based on the bytes
+; E.G. for LDR (immediate), there are 3 lines with the 3 different asm syntaxes
+
+# Field options:
+# --------------
+# Syntax: ... field/coption1(coption2)* ... (inside fields)
+# Where each c correspond to the option character
+#  and optionN to the Nth option value
+# ---
+# c = '0'..'9'/'A'..'F': option=[01]
+# Force the cth bit (hex) of the field (starting from LSB) to be <option>
+# c = '=': option=[01x]{field_len}
+# Force the field to have the given bits (where x = anything, starts from MSB)
+
+# Post-fields option:
+# -------------------
+# Syntax: [fields] @ typeoption1 args1 typeoption2 args2 @ [Assembler syntax]
+# ---
+# typeoption contains '=' (l=r): args1=((.*) )?([^, ]*),([^, ]*),([^, ]*)@
+# Changes a value between two other depending on whether l == r
+
+# \2 is init (suffixed by ';', optional), \3 is set to \4 if true or \5 if false
+# (cf VMOV/VORR aka V\op\, VEOR/VBIF/VBIT/VBSL aka V\op\)
+
+# The 'true regex' is typeoption=([^= ]*)(=([^= ]*))+
+# args1=((.*) )?([^, ]*),(([^, ]*),)+([^, ]*)@
+# with the number of typeoption:\2 being equal to the number of args1:\4
+# <a>=<b>[=<c>...] <initialization> <variable-changed>,<changed-into-if-a=b>[,<changed-into-if-a=c>...],<changed-into-else>@
+
+# OR
+
+# typeoption is discarded and must be set to '=', args1=((.*) )?(@@ (( ?.*[^@])*)@ )+([^, ]*),(([^, ]*),)+([^, ]*)
+# \2 is init (suffixed by ';', optional), \6 is set to \7 if true or \8 if false
+# The difference with the simple switch is that \4 is the test (inside the `if`)
+# If there are multiple @@s, there are multiple `if`s (separated by `else`s)
+
+# The 'true regex' is [DISCARDED]typeoption==
+# args1=((.*) )?(@@ (( ?.*[^@])*)@ )+([^, ]*),([^, ]*),([^, ]*)
+# <.>=<.>[=<c>...] <initialization> @@ <test>@[ @@ <test2>@...] <variable-changed>,<changed-into-if-a=b>,<changed-into-else>
+
+# OR
+
+# args1=((.*) )?!@(( [^%]*[^%@])*)%(( ?[^%]*[^%@])*)@(( .*[^@])*)@(( .*[^@])*)@
+# Replaced by '\1; if (<equality>) { \3\7\5; } else { \3\9\5; }'
+# Meaning, <.=.> <initialization> !@ <common-left-part>%<common-right-part>@ <substitute-true>@ <substitute-false>@ <...>
+# (cf VMOV/VORR, aka V\op\ with the lastop variable)
+# You can also add more '=' with corresponding substitutes.
+# You can also add more '%' with corresponding substitutes.
+
+# ----
+# Inside the assembler syntax, you can add \var\ to mark a variable to be replaced
+# (Meaning, %s and `var` as argument to printf)
+# Full syntax: \\(%[0-9+]*.)?(.*)\\
+# If \1 != "", add \1 to the string in printf, and in any case append \2 as argument to printf
+
+! HACKS: (list of notable differences between the doc and this file)
+! ------
+! In theory, (0) and (1) bits are as important as 0 and 1:
+! > An instruction is UNPREDICTABLE if:
+! > • It is declared as UNPREDICTABLE in an instruction description or in this chapter.
+! > • The pseudocode for that encoding does not indicate that a different special case applies, and a bit marked (0)
+!     or (1) in the encoding diagram of an instruction is not 0 or 1 respectively.
+! - ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition
+! In practice, they are ignored here.
+
+! SWP, SWPB, VMOV  (VFPU): Rt2 (field and assembly) -> Rn (field and assembly)
+! BKPT: must be AL, so cond (field) -> cond/=1110 (constrained field)
+! PKHBT and PKHTB: {, LSL/ASR #<imm>} (assembly) -> {, <shift>} (assembly)
+! PKHBT and PKHTB: immediate shift but shift & 1 -> ARMs (type)
+! All NEON operations (advanced SIMD): limited, so multiply the lines
+! VMOV (register): Vm ... Vm VMOV (field, assembly) -> Vn ... Vm @ m=n ...@ @ V\op\ (field, switchable var, assembly)
+! VMOV is VORR constrained -> (removed VORR)
+! VEOR, VBSL, VBIT, VBIF differ only depending on 2 bits: 0/1 0/1 ... VEOR -> @<2> ... @ ... @ V\op\ (field, switchable var, assembly)
+! Three registers of different lengths (when having L and W variants): op (field) -> Q (field)
+
+; ========== BEGINNING OF REGISTERED INSTRUCTIONS =========
+
+# This instruction changes the instruction set to Thumb! Disabled (but valid)
+#ARM_ 1 1 1 1 1 0 1 @<1> imm24 @ set imm24 = (imm24 << 2) + (param << 1)@ @ BLX <label>
+
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 op 0 N Q M 0 Vm VH\(op ? "SUB" : "ADD")\<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 0 0 N Q M 1 Vm VQADD<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 0 1 N Q M 0 Vm VRHADD<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 0 0 Vn Vd 0 0 0 1 N Q M 1 Vm VAND<c> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 0 1 Vn Vd 0 0 0 1 N Q M 1 Vm VBIC<c> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 1 0 Vn Vd 0 0 0 1 N Q M 1 Vm @ m=n const char* op op,"MOV","ORR"@ m=n char lastop[6] !@ %@ lastop[0] = '\0'@ sprintf(lastop, ", %s", vecname[(q << 5) + 0x20 + n])@ @ V\op\<c> <Qd>, <Qm>\lastop\
+NEON 1 1 1 1 0 0 1 0 0 D 1 1 Vn Vd 0 0 0 1 N Q M 1 Vm VORN<c> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D @<2> Vn Vd 0 0 0 1 N Q M 1 Vm @ param=0b00=0b01=0b10 const char* op op,"EOR","BSL","BIT","BIF"@ @ V\op\<c> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 0 N Q M 1 Vm VQSUB<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 1 N Q M op Vm @ op=0 const char* strict strict,"T","E"@ @ VCG\strict\<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 0 Vm VSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 1 Vm VQSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 0 Vm VRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 1 Vm VQRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 0 N Q M op Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ V\opname\<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 0 Vm VABD<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 1 Vm VABA<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 op 0 D size Vn Vd 1 0 0 0 N Q M 0 Vm @ op=0 const char* opname opname,"ADD","SUB"@ @ V\opname\<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D size Vn Vd 1 0 0 0 N Q M 1 Vm VTST<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D size Vn Vd 1 0 0 0 N Q M 1 Vm VCEQ<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 1 0 0 1 N Q M 0 Vm @ set size = 8 << size@ @ VML\(u ? "S" : "A")\<c>.I\%dsize\ <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 1 0 0 1 N Q M 1 Vm VMUL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 1 0 1 0 N Q M op Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ VP\opname\<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D size Vn Vd 1 0 1 1 N Q M 0 Vm VQDMULH<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D size Vn Vd 1 0 1 1 N Q M 0 Vm VQRDMULH<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D size Vn Vd 1 0 1 1 N Q/=0 M 1 Vm VPADD<c>.<dt> <Dd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 0 0 D U sz/=0 Vn Vd 1 1 0 0 N Q M 1 Vm @ u=0 const char* y y,"A","S"@ @ VFM\y\<c>.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D U sz/=0 Vn Vd 1 1 0 1 N Q M 0 Vm @ u=0 const char* op op,"ADD","SUB"@ @ V\op\<c>.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D 0 sz/=0 Vn Vd 1 1 0 1 N Q/=0 M 0 Vm VPADD.F32 <Dd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 1 0 D 1 sz/=0 Vn Vd 1 1 0 1 N Q M 0 Vm VABD.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D op sz/=0 Vn Vd 1 1 0 1 N Q M 1 Vm VML\(op ? "S" : "A")\<c>.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D 0 sz/=0 Vn Vd 1 1 0 1 N Q M 1 Vm VMUL.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 0 sz/=0 Vn Vd 1 1 1 0 N Q M 0 Vm VCEQ.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D op sz/=0 Vn Vd 1 1 1 0 N Q M 0 Vm @ op=1 const char* strict strict,"T","E"@ @ VCG\strict\.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D op sz/=0 Vn Vd 1 1 1 0 N Q M 1 Vm @ op=1 const char* strict strict,"T","E"@ @ VACG\strict\.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D op sz/=0 Vn Vd 1 1 1 1 N Q M 0 Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ V\opname\.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 0 D op sz/=0 Vn Vd 1 1 1 1 N Q M 0 Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ VP\opname\.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 0 sz/=0 Vn Vd 1 1 1 1 N Q M 1 Vm VRECPS.F32 <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 0 0 D 1 sz/=0 Vn Vd 1 1 1 1 N Q M 1 Vm VRSQRTS.F32 <Qd>, <Qn>, <Qm>
+INVALIDATE 1 1 1 1 0 0 1 <1> 0 <23>
+
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx0 0 Q op/=0 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx1 0 Q op/=0 1 imm4 VORR<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x0 0 Q op/=0 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x1 0 Q op/=0 1 imm4 VORR<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=11xx 0 Q op/=0 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx0 0 Q op/=1 1 imm4 VMVN<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=0xx1 0 Q op/=1 1 imm4 VBIC<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x0 0 Q op/=1 1 imm4 VMVN<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x1 0 Q op/=1 1 imm4 BIC<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=110x 0 Q op/=1 1 imm4 VMVN<c>.<dt> <Qd>, #<imm>
+NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=1110 0 Q op/=1 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
+;INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 0 0 <3> <4> <4>/=1111 0 <1> <1>/=1 1 <4>
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 0 0 <11> 0 <2> 1 <4>
+
+# Special case for VMOVL (harder to do it on the documented place)
+NEON 1 1 1 1 0 0 1 0 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S8 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 0 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S16 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 0 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S32 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U8 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U16 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U32 <Qd>, <Qm>
+
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 0 L Q M 1 Vm VSHR<c>.<dt> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 1 L Q M 1 Vm VSRA<c>.<dt> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 1 0 L Q M 1 Vm VRSHR<c>.<dt> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 1 1 L Q M 1 Vm VRSRA<c>.<dt> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 1 1 D imm6 Vd 0 1 0 0 L Q M 1 Vm VSRI<c>.<size> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 0 1 D Imm6 Vd 0 1 0 1 L Q M 1 Vm VSHL<c>.I<size> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 1 1 D Imm6 Vd 0 1 0 1 L Q M 1 Vm VSLI<c>.<size> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D Imm6 Vd 0 1 1 op L Q M 1 Vm VQSHL\((u & op) ? "U" : "")\<c>.<dt> <Qd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 0 1 D imm6 Vd 1 0 0 0 0 0 M 1 Vm VSHRN<c>.I<size> <Dd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 0 1 D imm6 Vd 1 0 0 0 0 1 M 1 Vm VRSHRN<c>.I<size> <Dd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 0 M 1 Vm VQSHR\((u & op) ? "U" : "")\N<c>.<dt> <Dd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 1 M 1 Vm VQRSHR\((u & op) ? "U" : "")\N<c>.<dt> <Dd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 1 0 0 M 1 Vm VSHLL<c>.<dt> <Qd>, <Dm>, #\%d8 &l&l size\
+NEON 1 1 1 1 0 0 1 U 1 D Imm6 Vd 1 0 1 0 0 0 M 1 Vm VSHLL<c>.<dt> <Qd>, <Dm>, #<imm>
+; VCVT: if imm6 IN "0xxxxx" then UNDEFINED;
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 <9> 1 1 1 <1> 0 <2> 1 <4>
+NEON 1 1 1 1 0 0 1 0 1 D IMM6 Vd 1 1 1 0 0 Q M 1 Vm VCVT<c>.F32.S32 <Qd>, <Qm>, #<fbits>
+NEON 1 1 1 1 0 0 1 0 1 D IMM6 Vd 1 1 1 1 0 Q M 1 Vm VCVT<c>.S32.F32 <Qd>, <Qm>, #<fbits>
+NEON 1 1 1 1 0 0 1 1 1 D IMM6 Vd 1 1 1 0 0 Q M 1 Vm VCVT<c>.F32.U32 <Qd>, <Qm>, #<fbits>
+NEON 1 1 1 1 0 0 1 1 1 D IMM6 Vd 1 1 1 1 0 Q M 1 Vm VCVT<c>.U32.F32 <Qd>, <Qm>, #<fbits>
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <18> 1 <4>
+
+NEON 1 1 1 1 0 0 1 0 1 D 1 1 Vn Vd IMM4 N Q M 0 Vm VEXT<c>.8 <Qd>, <Qn>, <Qm>, #<imm>
+
+# size + param < 3
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=11 0 0 <4> 0 0 0 <2> <2> 0 <4>
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/11 <2> 0 <4>
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/01 <2> 0 <4>
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=01 0 0 <4> 0 0 0 <2>/11 <2> 0 <4>
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=00 0 0 <4> 0 0 0 <2>/=11 <2> 0 <4>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 0 0 @<2> Q M 0 Vm VREV\%d16 &l&l param\<c>.\%d8 &l&l size\ <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 0 1 0 U Q M 0 Vm VPADDL<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 0 0 0 Q M 0 Vm VCLS<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 0 0 1 Q M 0 Vm VCLZ<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=00 0 0 Vd 0 1 0 1 0 Q M 0 Vm VCNT<c>.8 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=00 0 0 Vd 0 1 0 1 1 Q M 0 Vm VMVN<c> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 1 0 U Q M 0 Vm VPADAL<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 1 1 0 Q M 0 Vm VQABS<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 1 1 1 Q M 0 Vm VQNEG<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 0 0 0 Q M 0 Vm VCGT<c>.<dt> <Qd>, <Qm>, #0
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 0 0 1 Q M 0 Vm VCGE<c>.<dt> <Qd>, <Qm>, #0
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 0 1 0 Q M 0 Vm VCEQ<c>.<dt> <Qd>, <Qm>, #0
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 0 1 1 Q M 0 Vm VCLE<c>.<dt> <Qd>, <Qm>, #0
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 1 0 0 Q M 0 Vm VCLT<c>.<dt> <Qd>, <Qm>, #0
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 1 1 0 Q M 0 Vm VABS<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 1 Vd 0 F 1 1 1 Q M 0 Vm VNEG<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=00 1 0 Vd 0 0 0 0 0 Q M 0 Vm VSWP<c> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 0 0 1 Q M 0 Vm VTRN<c>.\%d8 &l&l size\ <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 0 1 0 Q M 0 Vm VUZP<c>.\%d8 &l&l size\ <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 0 1 1 Q M 0 Vm VZIP<c>.\%d8 &l&l size\ <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 0 0 M 0 Vm VMOVN<c>.<dt> <Dd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 0 1 M 0 Vm VQMOVUN<c>.S\%d16 &l&l size\ <Dd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 1 U M 0 Vm @ set u = 1 - u@ set ++size@ @ VQMOVN<c>.<dt> <Dd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 1 0 0 M 0 Vm VSHLL<c>.I\%d8 &l&l size\ <Qd>, <Dm>, #\%d8 &l&l size\
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=01 1 0 Vd 0 1 1 0 0 0 M 0 Vm VCVT<c>.F16.F32 <Dd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=01 1 0 Vd 0 1 1 1 0 0 M 0 Vm VCVT<c>.F32.F16 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 1 Vd 0 1 0 F 0 Q M 0 Vm VRECPE<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 1 Vd 0 1 0 F 1 Q M 0 Vm VRSQRTE<c>.<dt> <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 0 0 Q M 0 Vm VCVT<c>.F32.S32 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 0 1 Q M 0 Vm VCVT<c>.S32.F32 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 1 0 Q M 0 Vm VCVT<c>.F32.U32 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=10 1 1 Vd 0 1 1 1 1 Q M 0 Vm VCVT<c>.U32.F32 <Qd>, <Qm>
+INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <8> 0 <6> 0 <4>
+
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 Vn Vd 1 0 @<2> N op M 0 Vm @ param=0b00 char list[10] !@ sprintf(list, %)@ "{%s}", vecname[0x20 + n]@ "{%s-%s}", vecname[0x20 + n], vecname[0x20 + n + param]@ @ VTB\(op ? "X" : "L")\<c>.8 <Dd>, \list\, <Dm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 imm4 Vd 1 1 0 0 0 Q M 0 Vm VDUP<c>.\%dsize\ <Qd>, <Dm[x]>
+
+; size != 11
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 1 1 <13> 0 <1> 0 <4>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 0 0 Q N 0 M 0 Vm VADD\(q ? "W" : "L")\<c>.<dt> <qd>, <Qn>, <Dm>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 0 1 Q N 0 M 0 Vm VSUB\(q ? "W" : "L")\<c>.<dt> <qd>, <Qn>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 0 1 0 0 N 0 M 0 Vm @ set size = 16 << size@ @ VADDHN<c>.I\%dsize\ <Dd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D size Vn Vd 0 1 0 0 N 0 M 0 Vm VRADDHN<c>.<dt> <Dd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 1 0 1 N 0 M 0 Vm VABAL<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 0 1 1 0 N 0 M 0 Vm VSUBHN<c>.<dt> <Dd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D size Vn Vd 0 1 1 0 N 0 M 0 Vm VRSUBHN<c>.<dt> <Dd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 1 1 1 N 0 M 0 Vm VABDL<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 1 0 op 0 N 0 M 0 Vm VML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 1 0 op 1 N 0 M 0 Vm VQDML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 1 1 0 0 N 0 M 0 Vm VMULL<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 1 1 0 1 N 0 M 0 Vm VQDMULL<c>.<dt> <Qd>, <Dn>, <Dm>
+NEON 1 1 1 1 0 0 1 U/=0 1 D size/=00 Vn Vd 1 1 1 0 N 0 M 0 Vm @ set uint8_t size = 0@ @ VMULL<c>.<dt> <Qd>, <Dn>, <Dm>
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <16> 0 <1> 0 <4>
+
+; Put after, otherwise some instructions are shadowed
+NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 0 op 0 F N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VML\(op ? "S" : "A")\<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 0 op 1 0 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 0 op 1 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQDML\(op ? "S" : "A")\L<c>.<dt> <Qd>, <Dn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 1 0 0 F N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VMUL<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 U 1 D size Vn Vd 1 0 1 0 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VMULL<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 0 1 D size Vn Vd 1 0 1 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQDMULL<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 1 1 0 0 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQDMULH<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+NEON 1 1 1 1 0 0 1 Q 1 D size Vn Vd 1 1 0 1 N 1 M 0 Vm @ size=0b01=0b10 unsigned int decodedImm !@ decodedImm = m >> %; m %@ 3@ &= 0x7@ 4@ &= 0xF@ 5@ = 0x21@ @ VQRDMULH<c>.<dt> <Qd>, <Qn>, <Dm[x]>
+INVALIDATE 1 1 1 1 0 0 1 <1> 1 <16> 0 <1> 0 <4>
+
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 0 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 0 1 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 0 size @<2> Rm @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 0 1 size @<2> Rm @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 0 1 1 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 0 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 0 0 Rn Vd 1 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
+;INVALIDATE 1 1 1 1 0 1 0 0 0 <1> 0 0 <22>
+INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 0 0 <8> 1 1 <10>
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 0 @<4> 1 1 1 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 0 @<4> 1 1 0 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 0 @<4> Rm @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VST1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>]
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>]!
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> Rm @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VST3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 0 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VST4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
+;INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 0 0 <20>
+;INVALIDATE 1 1 1 1 0 1 0 0 <2> 0 0 <20>
+
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\, \vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 0 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\, \vecname[0x26 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 0 1 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x23 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 0 size @<2> Rm @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 0 1 size @<2> Rm @ param=0b00 char align[4] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 63 + param)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\, \vecname[0x24 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\-\vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 0 1 1 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 1 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 1 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 0 1 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x22 + d]\}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> 1 1 1 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> 1 1 0 1 @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 0 D 1 0 Rn Vd 1 0 1 0 size @<2> Rm @ param=0b00 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 32 << param)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\, \vecname[0x21 + d]\}, [<Rn>\align\], <Rm>
+;INVALIDATE 1 1 1 1 0 1 0 0 0 <1> 1 0 <22>
+INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 1 0 <8> 1 1 <10>
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 0 @<4> 1 1 1 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 0 @<4> 1 1 0 1 @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 0 @<4> Rm @ set uint8_t temp = (2 << size) - 1@ set uint8_t temp2 = param & temp@ temp2=0=param>>1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 8 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ @ VLD1<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\]}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0=1 char align[5] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", 16 << size)@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD2<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>]
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>]!
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> Rm @ set uint8_t temp = param & (1 << size)@ temp=0 uint8_t spacing spacing,0,1@ set uint8_t x = param >> (size + 1)@ @ VLD3<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\]}, [<Rn>], <Rm>
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]!
+NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 0 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
+;INVALIDATE 1 1 1 1 0 1 0 0 1 <1> 1 0 <20>
+;INVALIDATE 1 1 1 1 0 1 0 0 <2> 1 0 <20>
+INVALIDATE 1 1 1 1 0 1 0 0 <3> 0 <20>
+
+; ===== No more 1 1 1 1 ..., so invalidate all of them ====
+INVALIDATE 1 1 1 1 <28>
+
+
+ARMS cond 0 0 0 0 0 0 0 S Rn Rd imm5 type 0 Rm AND{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 0 0 0 S Rd (0) (0) (0) (0) Rm 1 0 0 1 Rn MUL{S}<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 0 0 0 U 0 0 0 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm STRH<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 0 0 Rn Rt (0) (0) (0) (0) 1 1 0 1 Rm LDRD<c> <Rt>, <Rt2>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 0 0 Rn Rt (0) (0) (0) (0) 1 1 1 1 Rm STRD<c> <Rt>, <Rt2>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 0 1 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm LDRH<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 0 1 Rn Rt (0) (0) (0) (0) 1 1 0 1 Rm LDRSB<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 0 1 Rn Rt (0) (0) (0) (0) 1 1 1 1 Rm LDRSH<c> <Rt>, [<Rn>], +/-<Rm>
+ARMS cond 0 0 0 0 0 0 1 S Rn Rd imm5 type 0 Rm EOR{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 0 0 1 S Rd Ra Rm 1 0 0 1 Rn MLA{S}<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 0 U 0 1 0 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm STRHT<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 1 1 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm LDRHT<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 1 1 Rn Rt (0) (0) (0) (0) 1 1 0 1 Rm LDRSBT<c> <Rt>, [<Rn>], +/-<Rm>
+ARM_ cond 0 0 0 0 U 0 1 1 Rn Rt (0) (0) (0) (0) 1 1 1 1 Rm LDRSHT<c> <Rt>, [<Rn>], +/-<Rm>
+ARMS cond 0 0 0 0 0 1 0 S Rn Rd imm5 type 0 Rm SUB{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 0 1 0 0 RdHi RdLo Rm 1 0 0 1 Rn UMAAL<c> <RdLo>, <RdHi>, <Rn>, <Rm>
+ARM_ cond 0 0 0 0 U 1 0 0 Rn Rt imm4H 1 0 1 1 imm4L STRH<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 0 0 Rn Rt imm4H 1 1 0 1 imm4L LDRD<c> <Rt>, <Rt2>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 0 0 Rn Rt imm4H 1 1 1 1 imm4L STRD<c> <Rt>, <Rt2>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 0 1 Rn Rt imm4H 1 0 1 1 imm4L LDRH<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 0 1 Rn Rt imm4H 1 1 0 1 imm4L LDRSB<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 0 1 Rn Rt imm4H 1 1 1 1 imm4L LDRSH<c> <Rt>, [<Rn>], #+/-<imm8>
+ARMS cond 0 0 0 0 0 1 1 S Rn Rd imm5 type 0 Rm RSB{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 0 1 1 0 Rd Ra Rm 1 0 0 1 Rn MLS<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 0 U 1 1 0 Rn Rt imm4H 1 0 1 1 imm4L STRHT<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 1 1 Rn Rt imm4H 1 0 1 1 imm4L LDRHT<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 1 1 Rn Rt imm4H 1 1 0 1 imm4L LDRSBT<c> <Rt>, [<Rn>], #+/-<imm8>
+ARM_ cond 0 0 0 0 U 1 1 1 Rn Rt imm4H 1 1 1 1 imm4L LDRSHT<c> <Rt>, [<Rn>], #+/-<imm8>
+ARMS cond 0 0 0 0 1 0 0 S Rn Rd imm5 type 0 Rm ADD{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 1 0 0 S RdHi RdLo Rm 1 0 0 1 Rn UMULL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>
+ARMS cond 0 0 0 0 1 0 1 S Rn Rd imm5 type 0 Rm ADC{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 1 0 1 S RdHi RdLo Rm 1 0 0 1 Rn UMLAL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>
+ARMS cond 0 0 0 0 1 1 0 S Rn Rd imm5 type 0 Rm SBC{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 1 1 0 S RdHi RdLo Rm 1 0 0 1 Rn SMULL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>
+ARMS cond 0 0 0 0 1 1 1 S Rn Rd imm5 type 0 Rm RSC{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 0 1 1 1 S RdHi RdLo Rm 1 0 0 1 Rn SMLAL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>
+ARM_ cond 0 0 0 1 0 0 0 0 Rd Ra Rm 1 0 0 0 Rn SMLABB<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 1 0 0 0 0 Rd Ra Rm 1 0 1 0 Rn SMLATB<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 1 0 0 0 0 Rd Ra Rm 1 1 0 0 Rn SMLABT<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 1 0 0 0 0 Rd Ra Rm 1 1 1 0 Rn SMLATT<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 0 0 1 0 0 0 0 Rn Rt (0) (0) (0) (0) 1 0 0 1 Rm SWP<c> <Rt>, <Rm>, [<Rn>]
+ARM_ cond 0 0 0 1 U 0 W 0 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm STRH<c> <Rt>, [<Rn>, +/-<Rm>]{!}
+ARM_ cond 0 0 0 1 U 0 W 0 Rn Rt (0) (0) (0) (0) 1 1 0 1 Rm LDRD<c> <Rt>, <Rt2>, [<Rn>, +/-<Rm>]{!}
+ARM_ cond 0 0 0 1 U 0 W 0 Rn Rt (0) (0) (0) (0) 1 1 1 1 Rm STRD<c> <Rt>, <Rt2>, [<Rn>, +/-<Rm>]{!}
+ARMS cond 0 0 0 1 0 0 0 1 Rn (0) (0) (0) (0) imm5 type 0 Rm TST<c> <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 U 0 W 1 Rn Rt (0) (0) (0) (0) 1 0 1 1 Rm LDRH<c> <Rt>, [<Rn>, +/-<Rm>]{!}
+ARM_ cond 0 0 0 1 U 0 W 1 Rn Rt (0) (0) (0) (0) 1 1 0 1 Rm LDRSB<c> <Rt>, [<Rn>, +/-<Rm>]{!}
+ARM_ cond 0 0 0 1 U 0 W 1 Rn Rt (0) (0) (0) (0) 1 1 1 1 Rm LDRSH<c> <Rt>, [<Rn>, +/-<Rm>]{!}
+ARM_ cond 0 0 0 1 0 0 1 0 (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) 0 0 0 1 Rm BX<c> <Rm>
+ARM_ cond 0 0 0 1 0 0 1 0 (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) 0 0 1 0 Rm BXJ<c> <Rm>
+ARM_ cond 0 0 0 1 0 0 1 0 (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) 0 0 1 1 Rm BLX<c> <Rm>
+ARM_ cond/=1110 0 0 0 1 0 0 1 0 imm12 0 1 1 1 imm4 BKPT #<imm16>
+ARMS cond 0 0 0 1 0 0 1 1 Rn (0) (0) (0) (0) imm5 type 0 Rm TEQ<c> <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 0 1 0 0 Rn Rt (0) (0) (0) (0) 1 0 0 1 Rm SWPB<c> <Rt>, <Rm>, [<Rn>]
+ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 0 1 1 imm4L STRH<c> <Rt>, [<Rn>, #+/-<imm8>]{!}
+ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 1 0 1 imm4L LDRD<c> <Rt>, <Rt2>, [<Rn>, #+/-<imm8>]{!}
+ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 1 1 1 imm4L STRD<c> <Rt>, <Rt2>, [<Rn>, #+/-<imm8>]{!}
+ARMS cond 0 0 0 1 0 1 0 1 Rn (0) (0) (0) (0) imm5 type 0 Rm CMP<c> <Rn>, <Rm>{, <shift>}
+ARMS cond 0 0 0 1 0 1 1 1 Rn (0) (0) (0) (0) imm5 type 0 Rm CMN<c> <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 U 1 W 1 Rn Rt imm4H 1 0 1 1 imm4L LDRH<c> <Rt>, [<Rn>, #+/-<imm8>]{!}
+ARM_ cond 0 0 0 1 U 1 W 1 Rn Rt imm4H 1 1 0 1 imm4L LDRSB<c> <Rt>, [<Rn>, #+/-<imm8>]{!}
+ARM_ cond 0 0 0 1 U 1 W 1 Rn Rt imm4H 1 1 1 1 imm4L LDRSH<c> <Rt>, [<Rn>, #+/-<imm8>]{!}
+ARMS cond 0 0 0 1 1 0 0 S Rn Rd imm5 type 0 Rm ORR{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 1 0 0 0 Rn Rd (1) (1) (1) (1) 1 0 0 1 Rt STREX<c> <Rd>, <Rt>, [<Rn>]
+ARM_ cond 0 0 0 1 1 0 0 1 Rn Rt (1) (1) (1) (1) 1 0 0 1 (1) (1) (1) (1) LDREX<c> <Rt>, [<Rn>]
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd 0 0 0 0 0 0 0 0 Rm MOV{S}<c> <Rd>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd imm5 0 0 0 Rm LSL{S}<c> <Rd>, <Rm>, #<imm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd Rm 0 0 0 1 Rn LSL{S}<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd imm5 0 1 0 Rm LSR{S}<c> <Rd>, <Rm>, #<imm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd Rm 0 0 1 1 Rn LSR{S}<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd imm5 1 0 0 Rm ASR{S}<c> <Rd>, <Rm>, #<imm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd Rm 0 1 0 1 Rn ASR{S}<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd 0 0 0 0 0 1 1 0 Rm RRX{S}<c> <Rd>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd imm5 1 1 0 Rm ROR{S}<c> <Rd>, <Rm>, #<imm>
+ARM_ cond 0 0 0 1 1 0 1 S (0) (0) (0) (0) Rd Rm 0 1 1 1 Rn ROR{S}<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 0 0 1 1 0 1 0 Rn Rd (1) (1) (1) (1) 1 0 0 1 Rt STREXD<c> <Rd>, <Rt>, <Rt2>, [<Rn>]
+ARM_ cond 0 0 0 1 1 0 1 1 Rn Rt (1) (1) (1) (1) 1 0 0 1 (1) (1) (1) (1) LDREXD<c> <Rt>, <Rt2>, [<Rn>]
+ARMS cond 0 0 0 1 1 1 0 S Rn Rd imm5 type 0 Rm BIC{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 1 1 0 0 Rn Rd (1) (1) (1) (1) 1 0 0 1 Rt STREXB<c> <Rd>, <Rt>, [<Rn>]
+ARM_ cond 0 0 0 1 1 1 0 1 Rn Rt (1) (1) (1) (1) 1 0 0 1 (1) (1) (1) (1) LDREXB<c> <Rt>, [<Rn>]
+ARMS cond 0 0 0 1 1 1 1 S (0) (0) (0) (0) Rd imm5 type 0 Rm MVN{S}<c> <Rd>, <Rm>{, <shift>}
+ARM_ cond 0 0 0 1 1 1 1 0 Rn Rd (1) (1) (1) (1) 1 0 0 1 Rt STREXH<c> <Rd>, <Rt>, [<Rn>]
+ARM_ cond 0 0 0 1 1 1 1 1 Rn Rt (1) (1) (1) (1) 1 0 0 1 (1) (1) (1) (1) LDREXH<c> <Rt>, [<Rn>]
+ARM_ cond 0 0 1 0 0 0 0 S Rn Rd imm12 AND{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 0 0 1 S Rn Rd imm12 EOR{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 0 1 0 S Rn Rd imm12 SUB{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 0 1 1 S Rn Rd imm12 RSB{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 1 0 0 S Rn Rd imm12 ADD{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 1 0 1 S Rn Rd imm12 ADC{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 1 1 0 S Rn Rd imm12 SBC{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 1 1 1 S Rn Rd imm12 RSC{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 1 0 0 0 0 imm4 Rd imm12 MOVW<c> <Rd>, #<imm16>
+ARM_ cond 0 0 1 1 0 0 0 1 Rn (0) (0) (0) (0) imm12 TST<c> <Rn>, #<const>
+ARM_ cond 0 0 1 1 0 0 1 0 0 0 0 0 (1) (1) (1) (1) (0) (0) (0) (0) 0 0 0 0 0 0 0 0 NOP<c>
+ARM_ cond 0 0 1 1 0 0 1 1 Rn (0) (0) (0) (0) imm12 TEQ<c> <Rn>, #<const>
+ARM_ cond 0 0 1 1 0 1 0 0 imm4 Rd imm12 MOVT<c> <Rd>, #<imm16>
+ARM_ cond 0 0 1 1 0 1 0 1 Rn (0) (0) (0) (0) imm12 CMP<c> <Rn>, #<const>
+ARM_ cond 0 0 1 1 0 1 1 1 Rn (0) (0) (0) (0) imm12 CMN<c> <Rn>, #<const>
+ARM_ cond 0 0 1 1 1 0 0 S Rn Rd imm12 ORR{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 1 1 0 1 S (0) (0) (0) (0) Rd imm12 MOV{S}<c> <Rd>, #<const>
+ARM_ cond 0 0 1 1 1 1 0 S Rn Rd imm12 BIC{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 1 1 1 1 S (0) (0) (0) (0) Rd imm12 MVN{S}<c> <Rd>, #<const>
+ARM_ cond 0 1 0 0 1 0 0 1 1 1 0 1 Rt 0 0 0 0 0 0 0 0 0 1 0 0 POP<c> {<Rt>}
+ARM_ cond 0 1 0 0 U 0 0 0 Rn Rt imm12 STR<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 0 0 1 Rn Rt imm12 LDR<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 0 1 0 Rn Rt imm12 STRT<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 0 1 1 Rn Rt imm12 LDRT<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 1 0 0 Rn Rt imm12 STRB<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 1 0 1 Rn Rt imm12 LDRB<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 1 1 0 Rn Rt imm12 STRBT<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 0 U 1 1 1 Rn Rt imm12 LDRBT<c> <Rt>, [<Rn>], #+/-<imm12>
+ARM_ cond 0 1 0 1 0 0 1 0 1 1 0 1 Rt 0 0 0 0 0 0 0 0 0 1 0 0 PUSH<c> {<Rt>}
+ARM_ cond 0 1 0 1 U 0 W 0 Rn Rt imm12 STR<c> <Rt>, [<Rn>, #+/-<imm12>]{!}
+ARM_ cond 0 1 0 1 U 0 W 1 Rn Rt imm12 LDR<c> <Rt>, [<Rn>, #+/-<imm12>]{!}
+ARM_ cond 0 1 0 1 U 1 W 0 Rn Rt imm12 STRB<c> <Rt>, [<Rn>, #+/-<imm12>]{!}
+ARM_ cond 0 1 0 1 U 1 W 1 Rn Rt imm12 LDRB<c> <Rt>, [<Rn>, #+/-<imm12>]{!}
+ARM_ cond 0 1 1 0 0 0 0 1 Rn Rd (1) (1) (1) (1) 0 1 0 1 Rm SSAX<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 0 0 0 0 1 Rn Rd (1) (1) (1) (1) 0 1 1 1 Rm SSUB16<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 0 0 0 0 1 Rn Rd (1) (1) (1) (1) 1 1 1 1 Rm SSUB8<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 0 0 1 0 1 Rn Rd (1) (1) (1) (1) 0 1 0 1 Rm USAX<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 0 0 1 0 1 Rn Rd (1) (1) (1) (1) 0 1 1 1 Rm USUB16<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 0 0 1 0 1 Rn Rd (1) (1) (1) (1) 1 1 1 1 Rm USUB8<c> <Rd>, <Rn>, <Rm>
+ARMs cond 0 1 1 0 1 0 0 0 Rn Rd imm5 0 0 1 Rm PKHBT<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARMs cond 0 1 1 0 1 0 0 0 Rn Rd imm5 1 0 1 Rm PKHTB<c> <Rd>, <Rn>, <Rm>{, <shift>}
+ARM_ cond 0 1 1 0 1 0 0 0 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm SXTB16<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 0 0 0 Rn Rd rotate (0) (0) 0 1 1 1 Rm SXTAB16<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARMs cond 0 1 1 0 1 0 1 sat_imm Rd imm5 sh 0 1 Rn SSAT<c> <Rd>, #<imm>, <Rn>{, <shift>}
+ARM_ cond 0 1 1 0 1 0 1 0 sat_imm Rd (1) (1) (1) (1) 0 0 1 1 Rn SSAT16<c> <Rd>, #<imm>, <Rn>
+ARM_ cond 0 1 1 0 1 0 1 0 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm SXTB<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 0 1 0 Rn Rd rotate (0) (0) 0 1 1 1 Rm SXTAB<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 0 1 1 (1) (1) (1) (1) Rd (1) (1) (1) (1) 0 0 1 1 Rm REV<c> <Rd>, <Rm>
+ARM_ cond 0 1 1 0 1 0 1 1 (1) (1) (1) (1) Rd (1) (1) (1) (1) 1 0 1 1 Rm REV16<c> <Rd>, <Rm>
+ARM_ cond 0 1 1 0 1 0 1 1 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm SXTH<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 0 1 1 Rn Rd rotate (0) (0) 0 1 1 1 Rm SXTAH<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 0 0 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm UXTB16<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 0 0 Rn Rd rotate (0) (0) 0 1 1 1 Rm UXTAB16<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARMs cond 0 1 1 0 1 1 1 sat_imm Rd imm5 sh 0 1 Rn USAT<c> <Rd>, #<imm>, <Rn>{, <shift>}
+ARM_ cond 0 1 1 0 1 1 1 0 sat_imm Rd (1) (1) (1) (1) 0 0 1 1 Rn USAT16<c> <Rd>, #<imm>, <Rn>
+ARM_ cond 0 1 1 0 1 1 1 0 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm UXTB<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 1 0 Rn Rd rotate (0) (0) 0 1 1 1 Rm UXTAB<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 1 1 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm UXTH<c> <Rd>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 1 1 (1) (1) (1) (1) Rd (1) (1) (1) (1) 1 0 1 1 Rm REVSH<c> <Rd>, <Rm>
+ARM_ cond 0 1 1 0 1 1 1 1 Rn Rd rotate (0) (0) 0 1 1 1 Rm UXTAH<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARMs cond 0 1 1 0 U 0 0 0 Rn Rt imm5 type 0 Rm STR<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 0 0 1 Rn Rt imm5 type 0 Rm LDR<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 0 1 0 Rn Rt imm5 type 0 Rm STRT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 0 1 1 Rn Rt imm5 type 0 Rm LDRT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 1 0 0 Rn Rt imm5 type 0 Rm STRB<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 1 0 1 Rn Rt imm5 type 0 Rm LDRB<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 1 1 0 Rn Rt imm5 type 0 Rm STRBT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 0 U 1 1 1 Rn Rt imm5 type 0 Rm LDRBT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARMs cond 0 1 1 1 U 0 W 0 Rn Rt imm5 type 0 Rm STR<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
+ARMs cond 0 1 1 1 U 0 W 1 Rn Rt imm5 type 0 Rm LDR<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
+ARMs cond 0 1 1 1 U 1 W 0 Rn Rt imm5 type 0 Rm STRB<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
+ARMs cond 0 1 1 1 U 1 W 1 Rn Rt imm5 type 0 Rm LDRB<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
+ARM_ cond 0 1 1 1 1 0 0 0 Rd 1 1 1 1 Rm 0 0 0 1 Rn USAD8<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 1 1 0 0 0 Rd Ra Rm 0 0 0 1 Rn USADA8<c> <Rd>, <Rn>, <Rm>, <Ra>
+ARM_ cond 0 1 1 1 1 1 0 msb Rd lsb 0 0 1 1 1 1 1 BFC<c> <Rd>, #<lsb>, #<width>
+ARM_ cond 0 1 1 1 1 1 0 msb Rd lsb 0 0 1 Rn BFI<c> <Rd>, <Rn>, #<lsb>, #<width>
+ARM_ cond 0 1 1 1 1 1 1 widthm1 Rd lsb 1 0 1 Rn UBFX<c> <Rd>, <Rn>, #<lsb>, #<width>
+ARM_ cond 1 0 0 0 0 0 W 0 Rn/=1101 register_list STMED<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 0 0 W 0 Rn register_list STMDA<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 0 0 W 1 Rn/=1101 register_list LDMED<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 0 0 W 1 Rn register_list LDMDA<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 1 0 W 0 Rn/=1101 register_list STMEA<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 1 0 W 0 Rn register_list STM<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 0 1 0 0 1 Rn/=1101 register_list LDMEA<c> <Rn>, <registers>
+ARM_ cond 1 0 0 0 1 0 1 1 1 1 0 1 register_list @ = const char* op @@ (reglist != 0) && ((reglist & (reglist - 1)) == 0)@ op,"POP","LDMEA" @ \op\<c> <registers>
+ARM_ cond 1 0 0 0 1 0 W 1 Rn register_list LDM<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 0 0 0 0 Rn/=1101 register_list STMFD<c> <Rn>, <registers>
+ARM_ cond 1 0 0 1 0 0 1 0 1 1 0 1 register_list @ = const char* op @@ (reglist != 0) && ((reglist & (reglist - 1)) == 0)@ op,"PUSH","STMFD" @ \op\<c> <registers>
+ARM_ cond 1 0 0 1 0 0 W 0 Rn register_list STMDB<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 0 0 W 1 Rn/=1101 register_list LDMFD<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 0 0 W 1 Rn register_list LDMDB<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 1 0 W 0 Rn/=1101 register_list STMFA<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 1 0 W 0 Rn register_list STMIB<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 1 0 W 1 Rn/=1101 register_list LDMFA<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 0 1 1 0 W 1 Rn register_list LDMIB<c> <Rn>{!}, <registers>
+ARM_ cond 1 0 1 0 imm24 B<c> <label>
+ARM_ cond 1 0 1 1 imm24 BL<c> <label>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
+INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
+INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
+INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
+VFPU cond 1 1 0 1 0 D 1 0 1 1 0 1 Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FSTMX<c> <LIst>
+VFPU cond 1 1 0 1 0 D 1 0 1 1 0 1 Vd 1 0 1 sz imm8 VPUSH<c> <list>
+VFPU cond 1 1 0 1 U D 0 0 Rn Vd 1 0 1 sz imm8 VSTR<c> <Dd>, [<Rn>{, #+/-<imm>}]
+VFPU cond 1 1 0 @<2> D W 0 Rn Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FSTM\(param == 0b01 ? "IA" : "DB")\X<c> <Rn>{!}, <LIst>
+VFPU cond 1 1 0 @<2> D W 0 Rn Vd 1 0 1 sz imm8 VSTM\(param == 0b01 ? "IA" : "DB")\<c> <Rn>{!}, <list>
+VFPU cond 1 1 0 0 1 D 1 1 1 1 0 1 Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FLDMX<c> <LIst>
+VFPU cond 1 1 0 0 1 D 1 1 1 1 0 1 Vd 1 0 1 sz imm8 VPOP<c> <list>
+VFPU cond 1 1 0 1 0 D 0 1 1 1 1 1 Vd 1 0 1 sz 0 0 0 0 0 0 0 0 VLDR<c> <Dd>, [PC, #-0]
+VFPU cond 1 1 0 1 U D 0 1 1 1 1 1 Vd 1 0 1 sz imm8 VLDR<c> <Dd>, <label>
+VFPU cond 1 1 0 1 U D 0 1 Rn Vd 1 0 1 sz imm8 VLDR<c> <Dd>, [<Rn>{, #+/-<imm>}]
+VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FLDM\(param == 0b01 ? "IA" : "DB")\X<c> <Rn>{!}, <LIst>
+VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 sz imm8 VLDM\(param == 0b01 ? "IA" : "DB")\<c> <Rn>{!}, <list>
+INVALIDATE <4> 1 1 0 <25>
+
+INVALIDATE <4> 1 1 1 0 0 0 <1> 0 <8> 1 0 1 1 <1> 1 0 1 (0) (0) (0) (0)
+;INVALIDATE <4> 1 1 1 0 1 <2> 0 <8> 1 0 1 1 <1> 0 <1> 1 (0) (0) (0) (0)
+VFPU cond 1 1 1 0 0 0 0 0 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Sn>, <Rt>
+VFPU cond 1 1 1 0 1 1 1 0 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMSR<c> FPSCR, <Rt>
+VFPU cond 1 1 1 0 0 @<2> 0 Vd Rt 1 0 1 1 D @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (param1_2 << 2) + param2_2@ = uint8_t shift @@ (opc & 0b1000) == 0b1000@ @@ (opc & 0b1001) == 0b0001@ @@ (opc & 0b1011) == 0b0000@ shift,0,1,2,0xFF set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.\%d8 &l&l shift\ <Dd[x]>, <Rt>
+VFPU cond 1 1 1 0 1 0 Q 0 Vd Rt 1 0 1 1 D 0 0 1 (0) (0) (0) (0) VDUP<c>.32 <Qd>, <Rt>
+VFPU cond 1 1 1 0 1 0 Q 0 Vd Rt 1 0 1 1 D 0 1 1 (0) (0) (0) (0) VDUP<c>.16 <Qd>, <Rt>
+VFPU cond 1 1 1 0 1 1 Q 0 Vd Rt 1 0 1 1 D 0 0 1 (0) (0) (0) (0) VDUP<c>.8 <Qd>, <Rt>
+VFPU cond 1 1 1 0 0 0 0 1 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Rt>, <Sn>
+VFPU cond 1 1 1 0 1 1 1 1 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMRS<c> <Rt>, FPSCR
+VFPU cond 1 1 1 0 U @<2> 1 Vn Rt 1 0 1 1 N @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (u << 3) + (param1_2 << 2) + param2_2@ = uint8_t shift, size @@ (opc & 0b01000) == 0b01000@ @@ (opc & 0b01001) == 0b00001@ @@ (opc & 0b11011) == 0b00000@ shift,0,1,2,0xFF;size,0,1,2,4 set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.<dt> <Rt>, <Dn[x]>
+INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 1 <4>
+
+VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Sm>, <Sm1>, <Rt>, <Rn>
+VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Sm>, <Sm1>
+VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Dm>, <Rt>, <Rn>
+VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Dm>
+INVALIDATE <4> 1 1 0 0 0 1 0 <9> 1 0 1 <9>
+
+VFPU cond 1 1 1 0 0 D 0 0 Vn Vd 1 0 1 sz N op M 0 Vm VML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 0 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VNML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 0 D 1 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VMUL<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 0 D 1 0 Vn Vd 1 0 1 sz N 1 M 0 Vm VNMUL<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 0 D 1 1 Vn Vd 1 0 1 sz N 0 M 0 Vm VADD<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 0 D 1 1 Vn Vd 1 0 1 sz N 1 M 0 Vm VSUB<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 1 D 0 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VDIV<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 1 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VFNM\(op ? "A" : "S")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 0 Vn Vd 1 0 1 sz N op M 0 Vm VFM\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
+
+
+
+
+
+
+!/VFPU cond 1 1 1 0 1 x 1 1 opc2 <4> 1 0 1 <1> - - <1> 0 opc4 Table A7-17
+VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 0 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set float mantissa = 16 + param2_4@ set float imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F32 <Dd>, #\%fimm\
+VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 1 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set double mantissa = 16 + param2_4@ set double imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F64 <Dd>, #\%fimm\
+VFPU cond 1 1 1 0 1 D 1 1 0 0 0 0 Vd 1 0 1 sz 0 1 M 0 Vm VMOV<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 0 0 0 0 Vd 1 0 1 sz 1 1 M 0 Vm VABS<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 0 0 0 1 Vd 1 0 1 sz 0 1 M 0 Vm VNEG<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 0 0 0 1 Vd 1 0 1 sz 1 1 M 0 Vm VSQRT<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 0 0 1 0 Vd 1 0 1 (0) @<1> 1 M 0 Vm VCVT\(param ? "T" : "B")\<c>.F32.F16 <Sd>, <Sm>
+VFPU cond 1 1 1 0 1 D 1 1 0 0 1 1 Vd 1 0 1 (0) @<1> 1 M 0 Vm VCVT\(param ? "T" : "B")\<c>.F16.F32 <Sd>, <Sm>
+VFPU cond 1 1 1 0 1 D 1 1 0 1 0 0 Vd 1 0 1 sz op 1 M 0 Vm VCMP\(op ? "E" : "")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 0 1 0 1 Vd 1 0 1 sz op 1 (0) 0 (0) (0) (0) (0) VCMP\(op ? "E" : "")\<c>.F\(size ? "64" : "32")\ <Dd>, #0.0
+VFPU cond 1 1 1 0 1 D 1 1 0 1 1 1 Vd 1 0 1 0 1 1 M 0 Vm VCVT<c>.F64.F32 <Dd>, <Sm>
+VFPU cond 1 1 1 0 1 D 1 1 0 1 1 1 Vd 1 0 1 1 1 1 M 0 Vm VCVT<c>.F32.F64 <Sd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 1 0 0 0 Vd 1 0 1 sz op 1 M 0 Vm VCVT<c>.F\(size ? "64" : "32")\.\(op ? "S" : "U")\32 <Dd>, <Sm>
+VFPU cond 1 1 1 0 1 D 1 1 1 0 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.F\(size ? "64" : "32")\.\Td\ <Dd>, <Dd>, #<imm>
+VFPU cond 1 1 1 0 1 D 1 1 1 1 0 U Vd 1 0 1 sz op 1 M 0 Vm VCVT\(op ? "" : "R")\<c>.\(u ? "U" : "S")\32.F\(size ? "64" : "32")\ <Sd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 1 1 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.\Td\.F\(size ? "64" : "32")\ <Dd>, <Dd>, #<imm>
+;INVALIDATE <4> 1 1 1 0 1 <1> 1 1 <8> 1 0 1 <4> 0 <4>
+;INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 0 <4>
+
+; ============= END OF REGISTERED INSTRUCTIONS ============
+INVALIDATE <32>

@@ -297,7 +297,16 @@ add_custom_command(
     BYPRODUCTS ${WRAPPER}
 )
 
+add_custom_command(
+    OUTPUT "${BOX86_ROOT}/src/dynarec/last_run.txt"
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_printer.py" "${BOX86_ROOT}"
+    MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_printer.py"
+    DEPENDS "${BOX86_ROOT}/src/dynarec/arm_instructions.txt"
+    BYPRODUCTS "${BOX86_ROOT}/src/dynarec/arm_printer.c"
+)
+
 add_custom_target(WRAPPERS DEPENDS "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt")
+add_custom_target(PRINTER DEPENDS "${BOX86_ROOT}/src/dynarec/last_run.txt")
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
@@ -369,6 +378,7 @@ if(BOX86LIB)
 #build a static lib...
 add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
 add_dependencies(box86 WRAPPERS)
+add_dependencies(box86 PRINTER)
 
 else(BOX86LIB)
 
@@ -382,6 +392,7 @@ endif()
 
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
 add_dependencies(${BOX86} WRAPPERS)
+add_dependencies(${BOX86} PRINTER)
 target_link_libraries(${BOX86} m dl rt pthread)
 if(ARM_DYNAREC)
     target_link_libraries(${BOX86} dynarec)
