@@ -283,12 +283,57 @@ def main(root, ver, __debug_forceAllDebugging=False):
 		spltln = ln.split(' ')
 		curSplt = -1
 		
+		mask = [0] * 32
+		correctBits = [0] * 32
+		
+		def generate_bin_test(positions=[], specifics=[]):
+			"""
+			Generates the if statement at the beginning.
+			
+			You may use positions and specifics to implement a "multiple choice if":
+			- positions is an array that contains a bit position (MSB = 0)
+			- specifics is an array of arrays the same length as positions that contains a tuple (mask, correctBit)
+			  that is at position positions[current_pos]
+			"""
+			if len(positions) != len(specifics):
+				fail(
+					AssertionError,
+					"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
+						len(positions), len(specifics)
+					)
+				)
+			
+			if specifics == []:
+				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+			else:
+				l = len(positions)
+				if any(map(lambda v: (v < 0) or (v > 31), positions)):
+					fail(
+						AssertionError,
+						"generate_bin_tests requires a valid positions ({}) and specifics ({})!".format(
+							len(positions), len(specifics)
+						)
+					)
+				if any(map(lambda s: len(s) != l, specifics)):
+					fail(
+						AssertionError,
+						"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
+							len(positions), len(specifics)
+						)
+					)
+				
+				inner = []
+				for specific in specifics:
+					for i, (m, c) in zip(positions, specific):
+						mask[i] = m
+						correctBits[i] = c
+					append("((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ")")
+				append("if (" + " || ".join(inner) + ") {\n")
+		
 		try:
 			if spltln[0] == "ARM_":
 				# ARM instruction
 				
-				mask = [0] * 32
-				correctBits = [0] * 32
 				cond = -1
 				imms = []
 				d = [-1, -1, -1, -1, -1] # Register: #, ##, Rd, RdLo, RdHi
@@ -438,7 +483,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if curSplt == -1:
 					fail(KeyError, "Not enough arguments")
 				
-				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+				generate_bin_test()
 				
 				# Add C variables
 				if s != -1:
@@ -607,8 +652,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# ARM Shift instruction
 				# ARMs is only with immediate, ARM$ is only with register
 				
-				mask = [0] * 32
-				correctBits = [0] * 32
 				cond = -1
 				imms = []
 				d = [-1, -1, -1] # Register: #, ##, Rd
@@ -745,13 +788,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					fail(NotImplementedError, "Unknown case with shift")
 				
 				if (spltln[0] == "ARMS"):
-					append("if (((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") || ")
-					mask[24] = 1
-					mask[27] = 1
-					correctBits[27] = 1
-					append("((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ")) {\n")
+					generate_bin_test([24, 27], [[(0, 0), (0, 0)], [(1, 0), (1, 1)]])
 				else:
-					append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+					generate_bin_test()
 				
 				# Add C variables
 				if s != -1:
@@ -868,8 +907,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			elif spltln[0] == "NEON":
 				# NEON (advanced SIMD) instruction
 				
-				mask = [0] * 32
-				correctBits = [0] * 32
 				imms = []
 				d = [-1, -1, -1] # Register: D, Vd, ##
 				t = [-1, -1, -1] # Register: #, ##, Rt
@@ -1017,7 +1054,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if curSplt == -1:
 					fail(KeyError, "Not enough arguments")
 				
-				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+				generate_bin_test()
 				
 				# Add C variables
 				if op != -1:
@@ -1236,8 +1273,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			elif spltln[0] == "VFPU":
 				# vFPU instruction
 				
-				mask = [0] * 32
-				correctBits = [0] * 32
 				cond = -1
 				imms = []
 				d = [-1, -1, -1] # Register: D, Vd, ##
@@ -1394,7 +1429,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if curSplt == -1:
 					fail(KeyError, "Not enough arguments")
 				
-				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+				generate_bin_test()
 				
 				# Add C variables
 				if cond != -1:
@@ -1619,9 +1654,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# Constant -- set to True when debugging output
 				numeroteInvalids = __debug_forceAllDebugging
 				
-				mask = [0] * 32
-				correctBits = [0] * 32
-				
 				curBit = 32
 				
 				ocurBit = -1
@@ -1696,7 +1728,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					fail(KeyError, "Too many arguments")
 				
 				if 1 in mask:
-					append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
+					generate_bin_test()
 					
 					# No C variable since we're invalidating!
 					
