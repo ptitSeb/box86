@@ -145,13 +145,17 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						str(p[0]) + ") & " + sz2str(p[1]) + ";\n"
 					)
 			if spltln[curSplt] == '@':
-				# Additional custom variables(s)
+				# Additional custom modifications
 				append("\n")
 				
 				curSplt = curSplt + 1
 				while spltln[curSplt] != '@':
 					if '=' in spltln[curSplt]:
-						eq = spltln[curSplt].split('=')
+						# Add an `if` statement
+						
+						eq = spltln[curSplt]
+						
+						# Read initialization statement...
 						curSplt = curSplt + 1
 						oldSplt = curSplt
 						while spltln[curSplt][-1] != '@':
@@ -159,67 +163,18 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							if len(spltln) == curSplt:
 								fail(KeyError, "End of '=' switch not found!")
 						
-						dynvar = spltln[curSplt].split(',')
-						
 						# Always initialize if necessary
 						if oldSplt != curSplt:
 							append(' '.join(spltln[oldSplt:curSplt]) + ";\n")
 						
-						if spltln[curSplt] == '!@':
-							# Not a simple string switch...
-							curSplt = curSplt + 1
-							
-							# Extract the common value
-							commonPart = spltln[curSplt]
-							while spltln[curSplt][-1] != '@':
-								curSplt = curSplt + 1
-								commonPart = commonPart + " " + spltln[curSplt]
-								if len(spltln) == curSplt:
-									fail(KeyError, "End of '=' switch (!@ modifier) not found!")
-							commonPart = commonPart[:-1]
-							curSplt = curSplt + 1
-							
-							commonPart = commonPart.split('%')
-							if len(commonPart) < 2:
-								fail(ValueError, "No replacement place!")
-							
-							# For each '=', add a new 'if' statement
-							for i in range(1, len(eq)):
-								append("if (" + eq[0] + " == " + eq[i] + ") {\n")
-								
-								for common in commonPart[:-1]:
-									insert = spltln[curSplt]
-									while spltln[curSplt][-1] != '@':
-										curSplt = curSplt + 1
-										insert = insert + " " + spltln[curSplt]
-										if len(spltln) == curSplt:
-											fail(KeyError, "End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
-												" part) not found!")
-									insert = insert[:-1]
-									append(common + insert)
-									
-									curSplt = curSplt + 1
-								append(commonPart[-1] + ";\n} else ")
-							
-							append("{\n")
-							for common in commonPart[:-1]:
-								insert = spltln[curSplt]
-								while spltln[curSplt][-1] != '@':
-									curSplt = curSplt + 1
-									insert = insert + " " + spltln[curSplt]
-									if len(spltln) == curSplt:
-										fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
-								insert = insert[:-1]
-								append(common + insert)
-								
-								curSplt = curSplt + 1
-							
-							append(commonPart[-1] + ";\n}\n")
-						elif spltln[curSplt] == '@@':
-							# Simple string switch, but with custom 'if' statement
+						ifs = [""]
+						
+						if spltln[curSplt] == '@@':
+							# Custom ifs
 							# Also, requires only a single '='
-							if (len(eq) != 2) or (eq[0] != '') or (eq[1] != ''):
-								fail(IndexError, "Too many '=' switches (!@ modifier)")
+							if eq != "=":
+								fail(ValueError, "Too many '=' switches (!@ modifier)")
+							
 							# Extract the statements
 							statements = []
 							while spltln[curSplt] == '@@':
@@ -234,39 +189,107 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								statements.append(statement[:-1])
 								curSplt = curSplt + 1
 							
-							# Now get the (correct!) remainder(s)
+							# Unified eq length
+							eq = statements + [0]
+							
+							# Make the ifs array
+							for stmt in statements:
+								ifs[-1] = ifs[-1] + "if (" + stmt + ") {\n"
+								ifs.append("} else ")
+							
+							ifs[-1] = ifs[-1] + "{\n"
+						else:
+							# Standard if
+							eq = eq.split('=')
+							
+							for e in eq[1:]:
+								ifs[-1] = ifs[-1] + "if (" + eq[0] + " == " + e + ") {\n"
+								ifs.append("} else ")
+							
+							ifs[-1] = ifs[-1] + "{\n"
+						
+						if spltln[curSplt] == '!@':
+							# Custom statements
+							curSplt = curSplt + 1
+							
+							# Extract the common value
+							commonPart = spltln[curSplt]
+							while spltln[curSplt][-1] != '@':
+								curSplt = curSplt + 1
+								commonPart = commonPart + " " + spltln[curSplt]
+								if len(spltln) == curSplt:
+									fail(KeyError, "End of '=' switch (!@ modifier) not found!")
+							commonPart = commonPart[:-1].replace("\\n", "\n")
+							curSplt = curSplt + 1
+							
+							# Extract the parts
+							commonPart = commonPart.split('%')
+							if len(commonPart) < 2:
+								fail(ValueError, "No replacement place!")
+							
+							for if_ in ifs[:-1]:
+								append(if_)
+								
+								# For each '%', append the preceding part and the variable part
+								for common in commonPart[:-1]:
+									insert = spltln[curSplt]
+									while spltln[curSplt][-1] != '@':
+										curSplt = curSplt + 1
+										insert = insert + " " + spltln[curSplt]
+										if len(spltln) == curSplt:
+											fail(
+												KeyError,
+												"End of '=' switch (!@ modifier, repl1 i=" + str(i) + \
+													" part) not found!"
+											)
+									
+									insert = insert[:-1].replace("\\n", "\n")
+									append(common + insert)
+									
+									curSplt = curSplt + 1
+								append(commonPart[-1] + ";\n")
+							
+							# Finish with the `else` part
+							append(ifs[-1])
+							
+							# For each '%', append the preceding part and the variable part
+							for common in commonPart[:-1]:
+								insert = spltln[curSplt]
+								while spltln[curSplt][-1] != '@':
+									curSplt = curSplt + 1
+									insert = insert + " " + spltln[curSplt]
+									if len(spltln) == curSplt:
+										fail(KeyError, "End of '=' switch (!@ modifier, repl2 part) not found!")
+								
+								insert = insert[:-1].replace("\\n", "\n")
+								append(common + insert)
+								
+								curSplt = curSplt + 1
+							
+							append(commonPart[-1] + ";\n}\n")
+							
+						else:
+							# Standard statements
 							dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-							if any(len(dynvar) != len(statements) + 2 for dynvar in dynvars):
-								fail(KeyError, "Not enough or too many commas (@@ modifier, final part)!")
+							dynvars[-1][-1] = dynvars[-1][-1][:-1]
+							curSplt = curSplt + 1
+							if any(len(dynvar) != len(eq) + 1 for dynvar in dynvars):
+								fail(ValueError, "Not enough/too many possibilities in switch")
+							
+							# Reorganize dynvars so it matches [[variables], [set-if-A-true], ..., [set-else]]
 							dynvars = list(map(lambda i: [dv[i] for dv in dynvars], range(len(dynvars[0]))))
 							
-							# Glue everything together
-							for stmt, vals in zip(statements, dynvars[1:]):
-								append("if (" + stmt + ") {\n")
+							for if_, vals in zip(ifs[:-1], dynvars[1:]):
+								append(if_)
 								for var, val in zip(dynvars[0], vals):
 									append(var + " = " + val + ";\n")
-								append("} else ")
-							append("{\n")
+							
+							# Else
+							append(ifs[-1])
 							for var, val in zip(dynvars[0], dynvars[-1]):
 								append(var + " = " + val + ";\n")
 							append("}\n")
-							curSplt = curSplt + 1
-						else:
-							# Standard if, standard statement
-							dynvars = [dynvar.split(',') for dynvar in spltln[curSplt].split(';')]
-							dynvars[-1][-1] = dynvars[-1][-1][:-1]
-							if any(len(dynvar) != len(eq) + 1 for dynvar in dynvars):
-								fail(ValueError, "Not enough/too many possibilities in string switch")
-							dynvars = list(map(lambda i: [dv[i] for dv in dynvars], range(len(dynvars[0]))))
-							
-							for e, vals in zip(eq[1:], dynvars[1:]):
-								append("if (" + eq[0] + " == " + e + ") {\n")
-								for var, val in zip(dynvars[0], vals):
-									append(var + " = " + val + ";\n} else ")
-							append("{\n")
-							for var, val in zip(dynvars[0], dynvars[-1]):
-								append(var + " = " + val + ";\n}\n")
-							curSplt = curSplt + 1
+						
 					elif spltln[curSplt] == "set":
 						# Set a (new?) variable
 						curSplt = curSplt + 1

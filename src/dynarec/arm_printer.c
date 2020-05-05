@@ -3170,7 +3170,7 @@ const char* arm_print(uint32_t opcode) {
 		strcpy(ret, "???");
 	} else if ((opcode & 0xF0000000) == 0xF0000000) {
 		strcpy(ret, "???");
-	} else ((opcode & 0x0FE00000) == 0x00000000)((opcode & 0x0FE00090) == 0x00000010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00000000) || ((opcode & 0x0FE00090) == 0x00000010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3235,7 +3235,7 @@ const char* arm_print(uint32_t opcode) {
 		int u = (opcode >> 23) & 1;
 		
 		sprintf(ret, "LDRSH%s %s, [%s], %s%s", cond, regname[rt], regname[rn], (u ? "" : "-"), regname[rm]);
-	} else ((opcode & 0x0FE00000) == 0x00200000)((opcode & 0x0FE00090) == 0x00200010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00200000) || ((opcode & 0x0FE00090) == 0x00200010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3285,7 +3285,7 @@ const char* arm_print(uint32_t opcode) {
 		int u = (opcode >> 23) & 1;
 		
 		sprintf(ret, "LDRSHT%s %s, [%s], %s%s", cond, regname[rt], regname[rn], (u ? "" : "-"), regname[rm]);
-	} else ((opcode & 0x0FE00000) == 0x00400000)((opcode & 0x0FE00090) == 0x00400010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00400000) || ((opcode & 0x0FE00090) == 0x00400010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3350,7 +3350,7 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t imm8 = (((opcode >> 8) & 0xF) << 4) | ((opcode >> 0) & 0xF);
 		
 		sprintf(ret, "LDRSH%s %s, [%s], #%s%d", cond, regname[rt], regname[rn], (u ? "" : "-"), imm8);
-	} else ((opcode & 0x0FE00000) == 0x00600000)((opcode & 0x0FE00090) == 0x00600010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00600000) || ((opcode & 0x0FE00090) == 0x00600010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3399,7 +3399,7 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t imm8 = (((opcode >> 8) & 0xF) << 4) | ((opcode >> 0) & 0xF);
 		
 		sprintf(ret, "LDRSHT%s %s, [%s], #%s%d", cond, regname[rt], regname[rn], (u ? "" : "-"), imm8);
-	} else ((opcode & 0x0FE00000) == 0x00800000)((opcode & 0x0FE00090) == 0x00800010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00800000) || ((opcode & 0x0FE00090) == 0x00800010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3417,7 +3417,7 @@ const char* arm_print(uint32_t opcode) {
 		int rm = (opcode >> 8) & 0xF;
 		
 		sprintf(ret, "UMULL%s%s %s, %s, %s, %s", (s ? "S" : ""), cond, regname[rdlo], regname[rdhi], regname[rn], regname[rm]);
-	} else ((opcode & 0x0FE00000) == 0x00A00000)((opcode & 0x0FE00090) == 0x00A00010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00A00000) || ((opcode & 0x0FE00090) == 0x00A00010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3435,7 +3435,7 @@ const char* arm_print(uint32_t opcode) {
 		int rm = (opcode >> 8) & 0xF;
 		
 		sprintf(ret, "UMLAL%s%s %s, %s, %s, %s", (s ? "S" : ""), cond, regname[rdlo], regname[rdhi], regname[rn], regname[rm]);
-	} else ((opcode & 0x0FE00000) == 0x00C00000)((opcode & 0x0FE00090) == 0x00C00010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00C00000) || ((opcode & 0x0FE00090) == 0x00C00010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3453,7 +3453,7 @@ const char* arm_print(uint32_t opcode) {
 		int rm = (opcode >> 8) & 0xF;
 		
 		sprintf(ret, "SMULL%s%s %s, %s, %s, %s", (s ? "S" : ""), cond, regname[rdlo], regname[rdhi], regname[rn], regname[rm]);
-	} else ((opcode & 0x0FE00000) == 0x00E00000)((opcode & 0x0FE00090) == 0x00E00010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x00E00000) || ((opcode & 0x0FE00090) == 0x00E00010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3537,7 +3537,7 @@ const char* arm_print(uint32_t opcode) {
 		int w = (opcode >> 21) & 1;
 		
 		sprintf(ret, "STRD%s %s, %s, [%s, %s%s]%s", cond, regname[rt], regname[rt + 1], regname[rn], (u ? "" : "-"), regname[rm], (w ? "!" : ""));
-	} else ((opcode & 0x0FF00000) == 0x01100000)((opcode & 0x0FF00090) == 0x01100010)if () {
+	} else if (((opcode & 0x0FF00000) == 0x01100000) || ((opcode & 0x0FF00090) == 0x01100010)) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rn = (opcode >> 16) & 0xF;
 		int rm = (opcode >> 0) & 0xF;
@@ -3590,7 +3590,7 @@ const char* arm_print(uint32_t opcode) {
 		uint16_t imm16 = (((opcode >> 8) & 0xFFF) << 4) | ((opcode >> 0) & 0xF);
 		
 		sprintf(ret, "BKPT #0x%x", imm16);
-	} else ((opcode & 0x0FF00000) == 0x01300000)((opcode & 0x0FF00090) == 0x01300010)if () {
+	} else if (((opcode & 0x0FF00000) == 0x01300000) || ((opcode & 0x0FF00090) == 0x01300010)) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rn = (opcode >> 16) & 0xF;
 		int rm = (opcode >> 0) & 0xF;
@@ -3631,14 +3631,14 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t imm8 = (((opcode >> 8) & 0xF) << 4) | ((opcode >> 0) & 0xF);
 		
 		sprintf(ret, "STRD%s %s, %s, [%s, #%s%d]%s", cond, regname[rt], regname[rt + 1], regname[rn], (u ? "" : "-"), imm8, (w ? "!" : ""));
-	} else ((opcode & 0x0FF00000) == 0x01500000)((opcode & 0x0FF00090) == 0x01500010)if () {
+	} else if (((opcode & 0x0FF00000) == 0x01500000) || ((opcode & 0x0FF00090) == 0x01500010)) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rn = (opcode >> 16) & 0xF;
 		int rm = (opcode >> 0) & 0xF;
 		uint8_t shift = ((opcode >> 4) & 0xFF);
 		
 		sprintf(ret, "CMP%s %s, %s%s", cond, regname[rn], regname[rm], print_shift(shift, 1));
-	} else ((opcode & 0x0FF00000) == 0x01700000)((opcode & 0x0FF00090) == 0x01700010)if () {
+	} else if (((opcode & 0x0FF00000) == 0x01700000) || ((opcode & 0x0FF00090) == 0x01700010)) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rn = (opcode >> 16) & 0xF;
 		int rm = (opcode >> 0) & 0xF;
@@ -3672,7 +3672,7 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t imm8 = (((opcode >> 8) & 0xF) << 4) | ((opcode >> 0) & 0xF);
 		
 		sprintf(ret, "LDRSH%s %s, [%s, #%s%d]%s", cond, regname[rt], regname[rn], (u ? "" : "-"), imm8, (w ? "!" : ""));
-	} else ((opcode & 0x0FE00000) == 0x01800000)((opcode & 0x0FE00090) == 0x01800010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x01800000) || ((opcode & 0x0FE00090) == 0x01800010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3785,7 +3785,7 @@ const char* arm_print(uint32_t opcode) {
 		int rn = (opcode >> 16) & 0xF;
 		
 		sprintf(ret, "LDREXD%s %s, %s, [%s]", cond, regname[rt], regname[rt + 1], regname[rn]);
-	} else ((opcode & 0x0FE00000) == 0x01C00000)((opcode & 0x0FE00090) == 0x01C00010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x01C00000) || ((opcode & 0x0FE00090) == 0x01C00010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
@@ -3807,7 +3807,7 @@ const char* arm_print(uint32_t opcode) {
 		int rn = (opcode >> 16) & 0xF;
 		
 		sprintf(ret, "LDREXB%s %s, [%s]", cond, regname[rt], regname[rn]);
-	} else ((opcode & 0x0FE00000) == 0x01E00000)((opcode & 0x0FE00090) == 0x01E00010)if () {
+	} else if (((opcode & 0x0FE00000) == 0x01E00000) || ((opcode & 0x0FE00090) == 0x01E00010)) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
