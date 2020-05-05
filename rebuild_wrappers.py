@@ -3,12 +3,15 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', "O", "S"]
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S']
 def splitchar(s):
-	ret = [len(s), values.index(s[0])]
-	for c in s[2:]:
-		ret.append(values.index(c))
-	return ret
+	try:
+		ret = [len(s), values.index(s[0])]
+		for c in s[2:]:
+			ret.append(values.index(c))
+		return ret
+	except ValueError as e:
+		raise ValueError("Value is " + s) from e
 
 def value(define):
 	return define[9:-1] if define.startswith("!") else define[8:-1]
@@ -32,11 +35,7 @@ def invert(define):
 	return define[1:] if define.startswith("!") else ("!" + define)
 
 def main(root, defines, files, ver):
-	try:
-		os.remove(os.path.join(root, "src", "wrapped", "generated", "generated_mark.txt"))
-	except OSError:
-		# The file does not exists
-		pass
+	global values
 	
 	# Initialize variables: gbl for all values, redirects for redirections
 	gbl = {}
@@ -90,13 +89,12 @@ def main(root, defines, files, ver):
 					if any(c not in values for c in ln[2:]) or (('v' in ln[2:]) and (len(ln) > 3)):
 						old = ln
 						# This needs more work
-						acceptables = ['v', 'o', '0', '1'] + values
+						acceptables = ['v', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
 							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
-						# Ok, this is acceptable: there is 0, 1, stdout and void
+						# Ok, this is acceptable: there is 0, 1 and/or void
 						ln = (ln
 							.replace("v", "")   # void   -> nothing
-							.replace("o", "p")  # stdout -> pointer
 							.replace("0", "p")  # 0      -> pointer
 							.replace("1", "i")) # 1      -> integer
 						redirects.setdefault(" && ".join(dependants), {})
@@ -171,33 +169,30 @@ def main(root, defines, files, ver):
 	redirects_idxs = []
 	for k, v in redirects_vals:
 		key = "(" + (") || (".join(redirects_vals[(k, v)])) + ")"
-		val = redirects.get(key, {})
-		val[k] = v
-		redirects[key] = val
+		if key in redirects:
+			redirects[key].append([k, v])
+		else:
+			redirects[key] = [[k, v]]
 		if (key not in redirects_idxs) and (key != "()"):
 			redirects_idxs.append(key)
 	redirects_idxs.sort(key=lambda v: splitdef(v, defines))
 	
-	# Sort the table
+	# Sort the tables
 	for k in gbl:
 		gbl[k].sort(key=lambda v: splitchar(v))
-	
-	def length(s):
-		l = len(s)
-		if l < 10:
-			ret = "0" + str(l)
-		else:
-			ret = str(l)
-		return ret
+	values = values + ['0', '1']
+	for k in redirects:
+		redirects[k].sort(key=lambda v: splitchar(v[0]) + [0] + splitchar(v[1]))
+	values = values[:-2]
 	
 	# Check if there was any new functions
 	functions_list = ""
 	for k in ["()"] + gbl_idxs:
 		for v in gbl[k]:
-			functions_list = functions_list + "#" + k + " " + ''.join(v) + "\n"
+			functions_list = functions_list + "#" + k + " " + v + "\n"
 	for k in ["()"] + redirects_idxs:
 		for v in redirects[k]:
-			functions_list = functions_list + "#" + k + " " + ''.join(v) + "\n"
+			functions_list = functions_list + "#" + k + " " + v[0] + " -> " + v[1] + "\n"
 	
 	# functions_list is a unique string, compare it with the last run
 	try:
@@ -208,7 +203,7 @@ def main(root, defines, files, ver):
 			# Mark as OK for CMake
 			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
 				file.write(functions_list)
-			return 0
+			#return 0
 	except IOError:
 		# The file does not exist yet, first run
 		pass
@@ -298,30 +293,24 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 """
 	}
 	
-	# Transform strings into arrays
-	for k in gbl:
-		gbl[k] = [[c for c in v] for v in gbl[k]]
-	
 	# Rewrite the wrapper.h file:
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
 		file.write(files_headers["wrapper.h"] % ver)
 		for v in gbl["()"]:
-			file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
 		for k in gbl_idxs:
-			if k != "()":
-				file.write("\n#if " + k + "\n")
-				for v in gbl[k]:
-					file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
-				file.write("#endif\n")
+			file.write("\n#if " + k + "\n")
+			for v in gbl[k]:
+				file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("#endif\n")
 		file.write("\n")
 		for v in redirects["()"]:
-			file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
 		for k in redirects_idxs:
-			if k != "()":
-				file.write("\n#if " + k + "\n")
-				for v in redirects[k]:
-					file.write("void " + ''.join(v) + "(x86emu_t *emu, uintptr_t fnc);\n")
-				file.write("#endif\n")
+			file.write("\n#if " + k + "\n")
+			for v in redirects[k]:
+				file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("#endif\n")
 		file.write(files_guards["wrapper.h"])
 	
 	# Rewrite the wrapper.c file:
@@ -330,25 +319,24 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V			O        S
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S
 			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
-			file.write("typedef " + types[values.index(v[0])] + " (*" + ''.join(v) + "_t)"
+			file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
 				+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
 		for k in gbl_idxs:
-			if k != "()":
-				file.write("\n#if " + k + "\n")
-				for v in gbl[k]:
-					#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V			O        S
-					types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*"]
-					if len(values) != len(types):
-							raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
-					
-					file.write("typedef " + types[values.index(v[0])] + " (*" + ''.join(v) + "_t)"
-						+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
-				file.write("#endif\n")
+			file.write("\n#if " + k + "\n")
+			for v in gbl[k]:
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S
+				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*"]
+				if len(values) != len(types):
+						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
+				
+				file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
+					+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
+			file.write("#endif\n")
 		
 		file.write("\n")
 		# Next part: function definitions
@@ -366,27 +354,27 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				return "1, " + function_args(args[1:], d)
 			
 			arg = [
-				"emu, ",                          # E
-				"&emu, ",                         # e
-				"",                               # v
-				"*(int8_t*)(R_ESP + {p}), ",      # c
-				"*(int16_t*)(R_ESP + {p}), ",     # w
-				"*(int32_t*)(R_ESP + {p}), ",     # i
-				"*(int64_t*)(R_ESP + {p}), ",     # I
-				"*(uint8_t*)(R_ESP + {p}), ",     # C
-				"*(uint16_t*)(R_ESP + {p}), ",    # W
-				"*(uint32_t*)(R_ESP + {p}), ",    # u
-				"*(uint64_t*)(R_ESP + {p}), ",    # U
-				"*(float*)(R_ESP + {p}), ",       # f
-				"*(double*)(R_ESP + {p}), ",      # d
-				"*(long double*)(R_ESP + {p}), ", # D
-				"FromLD((void*)(R_ESP + {p})), ", # K
-				"*(intptr_t*)(R_ESP + {p}), ",    # l
-				"*(uintptr_t*)(R_ESP + {p}), ",   # L
-				"*(void**)(R_ESP + {p}), ",       # p
-				"(void*)(R_ESP + {p}), ",         # V
-				"of_convert(*(int32_t*)(R_ESP + {p})), ",         # O
-				"io_convert(*(void**)(R_ESP + {p})), ",         # S
+				"emu, ",                                  # E
+				"&emu, ",                                 # e
+				"",                                       # v
+				"*(int8_t*)(R_ESP + {p}), ",              # c
+				"*(int16_t*)(R_ESP + {p}), ",             # w
+				"*(int32_t*)(R_ESP + {p}), ",             # i
+				"*(int64_t*)(R_ESP + {p}), ",             # I
+				"*(uint8_t*)(R_ESP + {p}), ",             # C
+				"*(uint16_t*)(R_ESP + {p}), ",            # W
+				"*(uint32_t*)(R_ESP + {p}), ",            # u
+				"*(uint64_t*)(R_ESP + {p}), ",            # U
+				"*(float*)(R_ESP + {p}), ",               # f
+				"*(double*)(R_ESP + {p}), ",              # d
+				"*(long double*)(R_ESP + {p}), ",         # D
+				"FromLD((void*)(R_ESP + {p})), ",         # K
+				"*(intptr_t*)(R_ESP + {p}), ",            # l
+				"*(uintptr_t*)(R_ESP + {p}), ",           # L
+				"*(void**)(R_ESP + {p}), ",               # p
+				"(void*)(R_ESP + {p}), ",                 # V
+				"of_convert(*(int32_t*)(R_ESP + {p})), ", # O
+				"io_convert(*(void**)(R_ESP + {p})), ",   # S
 			]
 			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S
 			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4]
@@ -426,22 +414,20 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
 		
 		for v in gbl["()"]:
-			function_writer(file, ''.join(v), ''.join(v) + "_t", v[0], v[2:])
+			function_writer(file, v, v + "_t", v[0], v[2:])
 		for k in gbl_idxs:
-			if k != "()":
-				file.write("\n#if " + k + "\n")
-				for v in gbl[k]:
-					function_writer(file, ''.join(v), ''.join(v) + "_t", v[0], v[2:])
-				file.write("#endif\n")
+			file.write("\n#if " + k + "\n")
+			for v in gbl[k]:
+				function_writer(file, v, v + "_t", v[0], v[2:])
+			file.write("#endif\n")
 		file.write("\n")
 		for v in redirects["()"]:
-			function_writer(file, v, redirects["()"][v] + "_t", v[0], v[2:])
+			function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
 		for k in redirects_idxs:
-			if k != "()":
-				file.write("\n#if " + k + "\n")
-				for v in redirects[k]:
-					function_writer(file, v, redirects[k][v] + "_t", v[0], v[2:])
-				file.write("#endif\n")
+			file.write("\n#if " + k + "\n")
+			for v in redirects[k]:
+				function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
+			file.write("#endif\n")
 		
 		file.write(files_guards["wrapper.c"])
 	
@@ -456,6 +442,6 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.2.0.08") != 0:
+	if main(sys.argv[1], sys.argv[2:limit[0]], sys.argv[limit[0]+1:], "1.2.0.09") != 0:
 		exit(2)
 	exit(0)
