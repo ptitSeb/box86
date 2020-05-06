@@ -22,11 +22,11 @@ option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use y
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
-    find_package(PythonInterp)
+    find_package(PythonInterp 3)
     if(NOT PYTHONINTERP_FOUND)
         message( FATAL_ERROR "You need a Python interpretor, CMake will exit." )
     endif()
-    if(${PYTHON_MAJOR_VERSION} LESS 3)
+    if(${PYTHON_VERSION_MAJOR} LESS 3)
         message( FATAL_ERROR "You need a Python 3 interpretor, CMake will exit." )
     endif()
 else()
