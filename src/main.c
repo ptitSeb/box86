@@ -133,8 +133,10 @@ void GatherDynarecExtensions()
 }
 #endif
 
+EXPORTDYN
 void LoadLogEnv()
 {
+    ftrace = stdout;
     const char *p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
@@ -298,6 +300,7 @@ void LoadLogEnv()
 #endif
 }
 
+EXPORTDYN
 void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 {
     const char* p = getenv(env);
@@ -314,6 +317,7 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
     }
 }
 
+EXPORTDYN
 int CountEnv(const char** env)
 {
     // count, but remove all BOX86_* environnement
@@ -329,6 +333,7 @@ int CountEnv(const char** env)
     }
     return c+2;
 }
+EXPORTDYN
 int GatherEnv(char*** dest, const char** env, const char* prog)
 {
     // Add all but BOX86_* environnement
@@ -406,6 +411,7 @@ void PrintHelp() {
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
 }
 
+EXPORTDYN
 void LoadEnvVars(box86context_t *context)
 {
     // check BOX86_LD_LIBRARY_PATH and load it
@@ -480,6 +486,7 @@ void LoadEnvVars(box86context_t *context)
 #endif
 }
 
+EXPORTDYN
 void setupTraceInit(box86context_t* context)
 {
 #ifdef HAVE_TRACE
@@ -514,6 +521,7 @@ void setupTraceInit(box86context_t* context)
 #endif
 }
 
+EXPORTDYN
 void setupTrace(box86context_t* context)
 {
 #ifdef HAVE_TRACE
@@ -544,7 +552,37 @@ void setupTrace(box86context_t* context)
 #endif
 }
 
-#ifndef BUILD_LIB
+#ifdef BUILD_LIB
+#ifdef BUILD_DYNAMIC
+EXPORTDYN
+box86context_t* GetBox86Context()
+{
+    return my_context;
+}
+
+__attribute__((constructor))
+void init_library() 
+{
+    // init random seed
+    srandom(time(NULL));
+
+    // check BOX86_LOG debug level
+    LoadLogEnv();
+
+    printf_log(LOG_INFO, "Initializing libbox86\n");
+    // create a global box86 context
+    my_context = NewBox86Context(0);
+    LoadEnvVars(my_context);
+    CalcStackSize(my_context); // with no elf, so default size of 8M
+    // init x86 emu
+    my_context->emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    // stack setup is much more complicated then just that!
+    SetupInitialStack(my_context->emu);
+    SetupX86Emu(my_context->emu);
+}
+#endif
+
+#else
 int main(int argc, const char **argv, const char **env) {
 
     init_auxval(argc, argv, env);
@@ -570,7 +608,6 @@ int main(int argc, const char **argv, const char **env) {
         PrintHelp();
         return 1;
     }
-    ftrace = stdout;
 
     // init random seed
     srandom(time(NULL));
@@ -705,7 +742,7 @@ int main(int argc, const char **argv, const char **env) {
     // init x86 emu
     my_context->emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
-    SetupInitialStack(my_context);
+    SetupInitialStack(my_context->emu);
     // this is probably useless
     SetupX86Emu(my_context->emu);
     SetEAX(my_context->emu, my_context->argc);

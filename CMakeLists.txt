@@ -128,6 +128,9 @@ endif()
 
 if(BOX86LIB)
     add_definitions(-DBUILD_LIB)
+    if(BOX86DYNAMIC)
+        add_definitions(-DBUILD_DYNAMIC)
+    endif()
     add_definitions(-fPIC)
     if(NOT BOX86_ROOT)
         message(FATAL_ERROR "BOX86_ROOT not set when build as lib")
@@ -375,8 +378,16 @@ if(ARM_DYNAREC)
 endif()
 
 if(BOX86LIB)
-#build a static lib...
-add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
+#build a static or dynamic lib...
+if(BOX86DYNAMIC)
+add_library(box86 SHARED ${ELFLOADER_SRC} ${WRAPPEDS})
+else()
+    add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
+endif()
+if(ARM_DYNAREC)
+    target_link_libraries(box86 dynarec)
+endif()
+target_link_options(box86 PUBLIC -rdynamic)
 add_dependencies(box86 WRAPPERS)
 add_dependencies(box86 PRINTER)
 

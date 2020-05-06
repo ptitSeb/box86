@@ -183,6 +183,7 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size)
 
 #endif
 
+EXPORTDYN
 void initAllHelpers(box86context_t* context)
 {
     static int inited = 0;
@@ -216,8 +217,15 @@ void free_tlsdatasize(void* p)
     free(p);
 }
 
+EXPORTDYN
 box86context_t *NewBox86Context(int argc)
 {
+#ifdef BUILD_DYNAMIC
+    if(my_context) {
+        ++my_context->count;
+        return my_context;
+    }
+#endif
     // init and put default values
     box86context_t *context = (box86context_t*)calloc(1, sizeof(box86context_t));
 
@@ -263,8 +271,13 @@ box86context_t *NewBox86Context(int argc)
     return context;
 }
 
+EXPORTDYN
 void FreeBox86Context(box86context_t** context)
 {
+#ifdef BUILD_DYNAMIC
+    if(--(*context)->count)
+        return;
+#endif
     if(!context)
         return;
     

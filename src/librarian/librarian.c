@@ -92,6 +92,7 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
+EXPORTDYN
 int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
@@ -130,6 +131,7 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
     
     return 0;
 }
+EXPORTDYN
 int FinalizeNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     if(FinalizeLibrary(GetLib(maplib, path), emu)) {
@@ -146,6 +148,7 @@ library_t* GetLib(lib_t* maplib, const char* name)
     return getLib(maplib, name);
 }
 
+EXPORTDYN
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name)
 {
     uintptr_t start = 0, end = 0;

@@ -20,10 +20,10 @@
 #endif
 
 #ifdef ARM
-void arm_prolog(x86emu_t* emu, void* addr);
-void arm_epilog();
-void arm_linker();
-int arm_tableupdate(void* jump, uintptr_t addr, void** table);
+void arm_prolog(x86emu_t* emu, void* addr) EXPORTDYN;
+void arm_epilog() EXPORTDYN;
+void arm_linker() EXPORTDYN;
+int arm_tableupdate(void* jump, uintptr_t addr, void** table) EXPORTDYN;
 #endif
 
 #ifdef DYNAREC

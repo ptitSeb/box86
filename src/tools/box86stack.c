@@ -11,6 +11,7 @@
 #include "emu/x86run_private.h"
 #include "auxval.h"
 
+EXPORTDYN
 int CalcStackSize(box86context_t *context)
 {
     printf_log(LOG_DEBUG, "Calc stack size, based on %d elf(s)\n", context->elfsize);
@@ -61,30 +62,28 @@ void PushString(x86emu_t *emu, const char* s)
     memcpy((void*)R_ESP, s, sz);
 }
 
-
-void SetupInitialStack(box86context_t *context)
+EXPORTDYN
+void SetupInitialStack(x86emu_t *emu)
 {
-    // setup the stack...
-    x86emu_t *emu = context->emu;
     // start with 0
     Push(emu, 0);
     // push program executed
-    PushString(emu, context->argv[0]);
+    PushString(emu, emu->context->argv[0]);
     uintptr_t p_arg0 = R_ESP;
     // push envs
-    uintptr_t p_envv[context->envc];
-    for (int i=context->envc-1; i>=0; --i) {
-        PushString(emu, context->envv[i]);
+    uintptr_t p_envv[emu->context->envc];
+    for (int i=emu->context->envc-1; i>=0; --i) {
+        PushString(emu, emu->context->envv[i]);
         p_envv[i] = R_ESP;
     }
     // push args
-    uintptr_t p_argv[context->argc];
-    for (int i=context->argc-1; i>=0; --i) {
-        PushString(emu, context->argv[i]);
+    uintptr_t p_argv[emu->context->argc];
+    for (int i=emu->context->argc-1; i>=0; --i) {
+        PushString(emu, emu->context->argv[i]);
         p_argv[i] = R_ESP;
     }
     // align
-    uintptr_t tmp = (R_ESP)&~(context->stackalign-1);
+    uintptr_t tmp = (R_ESP)&~(emu->context->stackalign-1);
     memset((void*)tmp, 0, R_ESP-tmp);
     R_ESP=tmp;
 
@@ -98,7 +97,7 @@ void SetupInitialStack(box86context_t *context)
         p_random = R_ESP;
     }
     // align
-    tmp = (R_ESP)&~(context->stackalign-1);
+    tmp = (R_ESP)&~(emu->context->stackalign-1);
     memset((void*)tmp, 0, R_ESP-tmp);
     R_ESP=tmp;
 
@@ -121,17 +120,17 @@ void SetupInitialStack(box86context_t *context)
     Push(emu, real_getauxval(12)); Push(emu, 12);     //AT_EUID(12)
     Push(emu, real_getauxval(11)); Push(emu, 11);     //AT_UID(11)
     Push(emu, R_EIP); Push(emu, 9);     //AT_ENTRY(9)=entrypoint
-    Push(emu, 0/*context->vsyscall*/); Push(emu, 32);      //AT_SYSINFO(32)=vsyscall
+    Push(emu, 0/*emu->context->vsyscall*/); Push(emu, 32);      //AT_SYSINFO(32)=vsyscall
     if(!emu->context->auxval_start)       // store auxval start if needed
         emu->context->auxval_start = (uintptr_t*)R_ESP;
     // TODO: continue
 
     // push nil / envs / nil / args / argc
     Push(emu, 0);
-    for (int i=context->envc-1; i>=0; --i)
+    for (int i=emu->context->envc-1; i>=0; --i)
         Push(emu, p_envv[i]);
     Push(emu, 0);
-    for (int i=context->argc-1; i>=0; --i)
+    for (int i=emu->context->argc-1; i>=0; --i)
         Push(emu, p_argv[i]);
-    Push(emu, context->argc);
+    Push(emu, emu->context->argc);
 }

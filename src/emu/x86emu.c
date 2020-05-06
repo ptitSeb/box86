@@ -77,6 +77,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     }
 }
 
+EXPORTDYN
 x86emu_t *NewX86Emu(box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     printf_log(LOG_DEBUG, "Allocate a new X86 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
@@ -97,6 +98,7 @@ x86emu_t *NewX86EmuFromStack(x86emu_t* emu, box86context_t *context, uintptr_t s
     return emu;
 }
 
+EXPORTDYN
 void SetupX86Emu(x86emu_t *emu)
 {
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
@@ -187,6 +189,7 @@ static void internalFreeX86(x86emu_t* emu)
     free(emu->stack2free);
 }
 
+EXPORTDYN
 void FreeX86Emu(x86emu_t **emu)
 {
     if(!emu)

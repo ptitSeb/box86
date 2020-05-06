@@ -31,12 +31,17 @@ uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (
 #define LOG_DEBUG 2
 #define LOG_DUMP 3
 
-extern FILE* ftrace;
+FILE* ftrace;
 
 #define printf_log(L, ...) do {if(L<=box86_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define dynarec_log(L, ...) do {if(L<=box86_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define EXPORT __attribute__((visibility("default")))
+#ifdef BUILD_DYNAMIC
+#define EXPORTDYN __attribute__((visibility("default")))
+#else
+#define EXPORTDYN 
+#endif
 
 #endif //__DEBUG_H_

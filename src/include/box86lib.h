@@ -13,4 +13,8 @@ void setupTraceInit(box86context_t* context);
 void setupTrace(box86context_t* context);
 void initAllHelpers(box86context_t* context);
 
+#ifdef BUILD_DYNAMIC
+box86context_t* GetBox86Context();
+#endif
+
 #endif //_BOX86LIB_H_

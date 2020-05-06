@@ -761,6 +761,8 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
 }
+
+EXPORTDYN
 void RunDeferedElfInit(x86emu_t *emu)
 {
     box86context_t* context = GetEmuContext(emu);
@@ -775,6 +777,7 @@ void RunDeferedElfInit(x86emu_t *emu)
     context->deferedInitList = NULL;
     context->deferedInitCap = context->deferedInitSz = 0;
 }
+
 void RunElfFini(elfheader_t* h, x86emu_t *emu)
 {
     if(h->fini_done || !h->finientry)

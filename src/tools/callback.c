@@ -250,6 +250,7 @@ void FreeCallbackList(callbacklist_t** callbacks)
     *callbacks = NULL;
 }
 
+EXPORTDYN
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
     uint32_t mystack[60*1024] = {0};  // there is a limit at 256K (and even less on not main thread) for object on the stack
@@ -332,6 +333,7 @@ void SetCallbackNArgs(x86emu_t* emu, int N, int nargs, ...)
     }
 }
 
+EXPORTDYN
 uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
 {
     R_ESP -= nargs*4;   // need to push in reverse order
