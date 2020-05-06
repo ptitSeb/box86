@@ -236,5 +236,9 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
+    block->need_test = 0;
+    block->x86_addr = (void*)start;
+    block->x86_size = end-start;
+    block->hash = (helper.nolinker)?X31_hash_code(block->x86_addr, block->x86_size):0;
     block->done = 1;
 }

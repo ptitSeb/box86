@@ -174,7 +174,7 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size);
 
 dynablocklist_t* getDBFromAddress(uintptr_t addr);
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
-void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size);
+void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 #endif
 
 #endif //__BOX86CONTEXT_H_

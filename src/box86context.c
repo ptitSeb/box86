@@ -161,7 +161,7 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     }
 }
 
-void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size)
+void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size));
     int idx = (addr>>16);
@@ -172,11 +172,18 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size)
             uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
             uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
             if(addr<=startdb && (addr+size)>=enddb) {
-                my_context->dynmap[i] = NULL;
-                FreeDynablockList(&dynmap->dynablocks);
-                free(dynmap);
+                if(destroy) {
+                    my_context->dynmap[i] = NULL;
+                    FreeDynablockList(&dynmap->dynablocks);
+                    free(dynmap);
+                } else
+                    MarkDynablockList(&dynmap->dynablocks);
             } else
-                FreeDirectDynablock(dynmap->dynablocks, addr, addr+size);
+                if(destroy)
+                    FreeDirectDynablock(dynmap->dynablocks, addr, size);
+                else
+                    MarkDirectDynablock(dynmap->dynablocks, addr, size);
+
         }
     }
 }
@@ -300,7 +307,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_blocks);
     pthread_mutex_destroy(&(*context)->mutex_mmap);
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
-    cleanDBFromAddressRange(0, 0xffffffff);
+    cleanDBFromAddressRange(0, 0xffffffff, 1);
 #endif
     
     if((*context)->emu)

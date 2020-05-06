@@ -1439,7 +1439,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)ret, length);
     else
-        cleanDBFromAddressRange((uintptr_t)ret, length);
+        cleanDBFromAddressRange((uintptr_t)ret, length, 0);
     #endif
     return ret;
 }
@@ -1453,7 +1453,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)ret, length);
     else
-        cleanDBFromAddressRange((uintptr_t)ret, length);
+        cleanDBFromAddressRange((uintptr_t)ret, length, 0);
     #endif
     return ret;
 }
@@ -1462,7 +1462,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 {
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
-    cleanDBFromAddressRange((uintptr_t)addr, length);
+    cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     #endif
     return munmap(addr, length);
 }
@@ -1474,7 +1474,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)addr, len);
     else
-        cleanDBFromAddressRange((uintptr_t)addr, len);
+        cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     #endif
     return mprotect(addr, len, prot);
 }

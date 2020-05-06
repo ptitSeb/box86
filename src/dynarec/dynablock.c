@@ -27,6 +27,13 @@
 
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 
+uint32_t X31_hash_code(void* addr, int len)
+{
+    uint8_t* p = (uint8_t*)addr;
+	int32_t h = *p;
+	for (--len, ++p; len; --len, ++p) h = (h << 5) - h + (int32_t)*p;
+	return (uint32_t)h;
+}
 
 dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker, int direct)
 {
@@ -48,8 +55,7 @@ void FreeDynablock(dynablock_t* db, int nolinker)
     if(db) {
         free(db->table);
         free(db);
-        if(nolinker)
-            FreeDynarecMap((uintptr_t)db->block, db->size);
+        FreeDynarecMap((uintptr_t)db->block, db->size);
     }
 }
 
@@ -80,6 +86,30 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     *dynablocks = NULL;
 }
 
+void MarkDynablock(dynablock_t* db)
+{
+    if(db)
+        db->need_test = 1;
+}
+
+void MarkDynablockList(dynablocklist_t** dynablocks)
+{
+    if(!dynablocks)
+        return;
+    if(!*dynablocks)
+        return;
+    dynarec_log(LOG_DEBUG, "Mark %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
+    dynablock_t* db;
+    kh_foreach_value((*dynablocks)->blocks, db, 
+        MarkDynablock(db);
+    );
+    if((*dynablocks)->direct) {
+        for (int i=0; i<(*dynablocks)->textsz; ++i) {
+            MarkDynablock((*dynablocks)->direct[i]);
+        }
+    }
+}
+
 uintptr_t StartDynablockList(dynablocklist_t* db)
 {
     if(db)
@@ -94,6 +124,8 @@ uintptr_t EndDynablockList(dynablocklist_t* db)
 }
 void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
+    if(!dynablocks)
+        return;
     uintptr_t startdb = dynablocks->text;
     uintptr_t enddb = dynablocks->text + dynablocks->textsz;
     uintptr_t start = addr;
@@ -107,6 +139,24 @@ void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
             if(dynablocks->direct[i-startdb]) {
                 FreeDynablock(dynablocks->direct[i-startdb], dynablocks->nolinker);
                 dynablocks->direct[i-startdb] = NULL;
+            }
+}
+void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
+{
+    if(!dynablocks)
+        return;
+    uintptr_t startdb = dynablocks->text;
+    uintptr_t enddb = dynablocks->text + dynablocks->textsz;
+    uintptr_t start = addr;
+    uintptr_t end = addr+size;
+    if(start<startdb)
+        start = startdb;
+    if(end>enddb)
+        end = enddb;
+    if(end>startdb && start<enddb)
+        for(uintptr_t i = start; i<end; ++i)
+            if(dynablocks->direct[i-startdb]) {
+                MarkDynablock(dynablocks->direct[i-startdb]);
             }
 }
 
@@ -146,7 +196,7 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
-dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
+static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
 {
     // try the quickest way first: get parent of current and check if ok!
     dynablocklist_t *dynablocks = NULL;
@@ -227,4 +277,22 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block created @%p (%p, 0x%x bytes)\n", (void*)addr, block->block, block->size);
 
     return block;
+}
+
+dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
+{
+    dynablock_t *db = internalDBGetBlock(emu, addr, create, current);
+    if(db && db->need_test) {
+        uint32_t hash = X31_hash_code(db->x86_addr, db->x86_size);
+        if(hash!=db->hash) {
+            dynarec_log(LOG_DEBUG, "Invalidating block from %p for 0x%x\n", db->x86_addr, db->x86_size);
+            // Free db, it's now invalid!
+            FreeDirectDynablock(db->parent, (uintptr_t)db->x86_addr, db->x86_size);
+            // start again... (will create a new block)
+            db = internalDBGetBlock(emu, addr, create, current);
+        } else {
+            db->need_test = 0;
+        }
+    } 
+    return db;
 }

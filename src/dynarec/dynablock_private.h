@@ -7,6 +7,10 @@ typedef struct dynablock_s {
     dynablocklist_t *parent;
     void*       block;
     int         size;
+    void*       x86_addr;
+    int         x86_size;
+    uint32_t    hash;
+    int         need_test;
     uintptr_t*  table;
     int         tablesz;
     int         done;
