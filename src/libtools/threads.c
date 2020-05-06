@@ -172,11 +172,11 @@ static void thread_key_alloc() {
 
 static void* pthread_routine(void* p)
 {
-	emuthread_t *et = (emuthread_t*)p;
 	// create the key
 	pthread_once(&thread_key_once, thread_key_alloc);
 	pthread_setspecific(thread_key, p);
 	// call the function
+	emuthread_t *et = (emuthread_t*)p;
 	return (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 }
 
