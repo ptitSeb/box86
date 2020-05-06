@@ -643,6 +643,17 @@ int main(int argc, const char **argv, const char **env) {
                 printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
             printf_log(LOG_INFO, "\n");
         }
+    } else {
+        if(getenv("LD_PRELOAD")) {
+            char* p = getenv("LD_PRELOAD");
+            ParseList(p, &ld_preload, 0);
+            if (ld_preload.size && box86_log) {
+                printf_log(LOG_INFO, "BOX86 try to Preload ");
+                for (int i=0; i<ld_preload.size; ++i)
+                    printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
+                printf_log(LOG_INFO, "\n");
+            }
+        }
     }
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
@@ -767,7 +778,8 @@ int main(int argc, const char **argv, const char **env) {
     }
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
-            if(FinalizeLibrary(GetLib(my_context->maplib, ld_preload.paths[i]), my_context->emu)) {
+            library_t * lib = GetLib(my_context->maplib, ld_preload.paths[i]);
+            if(lib && FinalizeLibrary(lib, my_context->emu)) {
                 printf_log(LOG_INFO, "Warning, cannot finalize pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
