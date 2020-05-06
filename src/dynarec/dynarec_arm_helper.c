@@ -197,7 +197,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     MESSAGE(LOG_DUMP, "Jump to linker (#%d) nolinker=%d\n", dyn->tablei, dyn->nolinker);
     int i32;
     MAYUSE(i32);
-    if(dyn->nolinker) {
+    if(dyn->nolinker && reg) {
         jump_to_epilog(dyn, ip, reg, ninst);
     } else {
         if(reg) {

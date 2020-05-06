@@ -208,7 +208,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
             if(block)
                 return block;
         }
-        if(!(addr>=dynablocks->text && addr<=(dynablocks->text+dynablocks->textsz)))
+        if(!(addr>=dynablocks->text && addr<(dynablocks->text+dynablocks->textsz)))
             dynablocks = NULL;
     }
     // nope, lets do the long way
@@ -217,14 +217,14 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
     if(!dynablocks)
         return NULL;
     // check direct first, without lock
-    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz)))
+    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz)))
         block = dynablocks->direct[addr-dynablocks->text];
     if(block)
         return block;
     // nope, put rwlock in read mode and check hash
     pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
     // but first, check again just in case it has been created while waiting for mutex
-    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<=(dynablocks->text+dynablocks->textsz)))
+    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz)))
         block = dynablocks->direct[addr-dynablocks->text];
     if(block) {
         pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
