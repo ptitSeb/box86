@@ -78,7 +78,7 @@ int Run(x86emu_t *emu, int step)
     &&_0x70_0,  &&_0x70_1,  &&_0x70_2,  &&_0x70_3,  &&_0x70_4,  &&_0x70_5,  &&_0x70_6,  &&_0x70_7,    //0x70-0x77
     &&_0x70_8,  &&_0x70_9,  &&_0x70_A,  &&_0x70_B,  &&_0x70_C,  &&_0x70_D,  &&_0x70_E,  &&_0x70_F,    //0x78-0x7F
     &&_0x80,    &&_0x81,    &&_0x82,    &&_0x83,    &&_0x84,    &&_0x85,    &&_0x86,    &&_0x87,     
-    &&_0x88,    &&_0x89,    &&_0x8A,    &&_0x8B,    &&_default, &&_0x8D,    &&_0x8E,    &&_0x8F,     
+    &&_0x88,    &&_0x89,    &&_0x8A,    &&_0x8B,    &&_0x8C,    &&_0x8D,    &&_0x8E,    &&_0x8F,     
     &&_0x90,    &&_0x91,    &&_0x92,    &&_0x93,    &&_0x94,    &&_0x95,    &&_0x96,    &&_0x97, 
     &&_0x98,    &&_0x99,    &&_default, &&_0x9B,    &&_0x9C,    &&_0x9D,    &&_0x9E,    &&_0x9F,
     &&_0xA0,    &&_0xA1,    &&_0xA2,    &&_0xA3,    &&_0xA4,    &&_0xA5,    &&_0xA6,    &&_0xA7, 
@@ -89,10 +89,10 @@ int Run(x86emu_t *emu, int step)
     &&_0xC8,    &&_0xC9,    &&_default, &&_default, &&_0xCC,    &&_0xCD,    &&_default, &&_default,  //0xC8-0xCF
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_default, &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
-    &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_default, &&_0xE5,    &&_default, &&_default,
+    &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_0xE4,    &&_0xE5,    &&_0xE6,    &&_0xE7,
     &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_default, &&_default, &&_default,
     &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_0xF5,    &&_0xF6,    &&_0xF7, 
-    &&_0xF8,    &&_0xF9,    &&_default, &&_default, &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
+    &&_0xF8,    &&_0xF9,    &&_0xFA,    &&_0xFB,    &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
     };
 
     static const void* opcodes0f[256] = {
@@ -631,7 +631,11 @@ _trace:
             GET_ED;
             GD.dword[0] = ED->dword[0];
             NEXT;
-
+        _0x8C:                      /* MOV Ed, Seg */
+            nextop = F8;
+            GET_ED;
+            ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
+            NEXT;
         _0x8D:                      /* LEA Gd,M */
             nextop = F8;
             GET_ED;
@@ -988,12 +992,22 @@ _trace:
                 STEP
             }
             NEXT;
-
+        _0xE4:                      /* IN AL, Ib */
+            tmp32s = F8;   // port address
+            R_AL = 0;  // nothing... should do a warning maybe?
+            NEXT;
         _0xE5:                      /* IN EAX, Ib */
             tmp32s = F8;   // port address
             R_EAX = 0;  // nothing... should do a warning maybe?
             NEXT;
-
+        _0xE6:                      /* OUT Ib, AL */
+            tmp32s = F8;    // port address
+            //nothing goes out...
+            NEXT
+        _0xE7:                      /* OUT Ib, EAX */
+            tmp32s = F8;    // port address
+            //nothing goes out...
+            NEXT
         _0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, ip);
@@ -1285,7 +1299,12 @@ _trace:
             CHECK_FLAGS(emu);
             SET_FLAG(F_CF);
             NEXT;
-
+        _0xFA:                      /* CLI */
+            CLEAR_FLAG(F_IF);   //not really handled...
+            NEXT;
+        _0xFB:                      /* STI */
+            SET_FLAG(F_IF);
+            NEXT;
         _0xFC:                      /* CLD */
             CLEAR_FLAG(F_DF);
             NEXT;

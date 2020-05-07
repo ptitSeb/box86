@@ -2449,7 +2449,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 1);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
-
+        case 0xFA:
+            INST_NAME("CLI");
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_IF]));
+            break;
+        case 0xFB:
+            INST_NAME("STI");
+            MOVW(x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_IF]));
+            break;
         case 0xFC:
             INST_NAME("CLD");
             MOVW(x1, 0);
