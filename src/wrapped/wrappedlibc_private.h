@@ -2108,7 +2108,7 @@ GO(__xpg_basename, pFp)
 GO(__xpg_strerror_r, pFipu)
 // xprt_register
 // xprt_unregister
-GO(__xstat, iFipp)
+GOM(__xstat, iFEipp)
 GOM(__xstat64, iFEipp)
 
 // forcing a custom __gmon_start__ that does nothing

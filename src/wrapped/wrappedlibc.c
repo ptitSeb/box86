@@ -100,6 +100,13 @@
 #undef scandir
 #undef mmap
 #undef fcntl
+#undef stat
+#undef __xstat
+#undef xstat
+#undef scandir
+#undef ftw
+#undef nftw
+#undef glob
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
@@ -109,9 +116,14 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
@@ -649,7 +661,8 @@ EXPORT int my_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void *
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     void* f = vsnprintf;
-    return ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
+    int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
+    return r;
     #else
     return vsnprintf((char*)buff, s, (char*)fmt, V);
     #endif
@@ -856,6 +869,20 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
 EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) {}
 EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) {}
 
+EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
+{
+    static iFipp_t f = NULL;
+    if(!f) {
+        library_t* lib = GetLib(emu->context->maplib, libcName);
+        if(!lib) return 0;
+        f = (iFipp_t)dlsym(lib->priv.w.lib, "__xstat");
+    }
+
+    int r = f(v, path, buf);
+    return r;
+}
+
+
 
 EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
 {
@@ -1046,16 +1073,28 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
     return ret;
 }
 
-#undef ftw
-#undef nftw
 EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
-    return ftw(pathname, findftwFct(B), nopenfd);
+    static iFppi_t f = NULL;
+    if(!f) {
+        library_t* lib = GetLib(emu->context->maplib, libcName);
+        if(!lib) return 0;
+        f = (iFppi_t)dlsym(lib->priv.w.lib, "ftw");
+    }
+
+    return f(pathname, findftwFct(B), nopenfd);
 }
 
 EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    return nftw(pathname, findnftwFct(B), nopenfd, flags);
+    static iFppii_t f = NULL;
+    if(!f) {
+        library_t* lib = GetLib(emu->context->maplib, libcName);
+        if(!lib) return 0;
+        f = (iFppii_t)dlsym(lib->priv.w.lib, "nftw");
+    }
+
+    return f(pathname, findnftwFct(B), nopenfd, flags);
 }
 
 EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
@@ -1082,10 +1121,16 @@ EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t 
 }
 #endif
 
-#undef glob
 EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    return glob(pat, flags, findgloberrFct(errfnc), pglob);
+    static iFpipp_t f = NULL;
+    if(!f) {
+        library_t* lib = GetLib(emu->context->maplib, libcName);
+        if(!lib) return 0;
+        f = (iFpipp_t)dlsym(lib->priv.w.lib, "glob");
+    }
+
+    return f(pat, flags, findgloberrFct(errfnc), pglob);
 }
 
 EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
@@ -1098,10 +1143,16 @@ EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, voi
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
-#undef scandir
 EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
-    return scandir(dir, namelist, findfilter_dirFct(sel), findcompare_dirFct(comp));
+    static iFpppp_t f = NULL;
+    if(!f) {
+        library_t* lib = GetLib(emu->context->maplib, libcName);
+        if(!lib) return 0;
+        f = (iFpppp_t)dlsym(lib->priv.w.lib, "scandir");
+    }
+
+    return f(dir, namelist, findfilter_dirFct(sel), findcompare_dirFct(comp));
 }
 
 EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
