@@ -630,11 +630,11 @@ GO(SDL_UnlockAudioDevice, vFi)
 GO(SDL_UnlockJoysticks, vFv)
 GO(SDL_UnlockMutex, iFp)
 GO(SDL_UnlockSurface, vFp)
-// SDL_UnlockTexture
+GO(SDL_UnlockTexture, vFp)
 GO(SDL_UpdateTexture, iFpppi)
 GO(SDL_UpdateWindowSurface, iFp)
 // SDL_UpdateWindowSurfaceRects
-// SDL_UpdateYUVTexture
+GO(SDL_UpdateYUVTexture, iFpppipipi)
 GO(SDL_UpperBlit, iFpppp)
 GO(SDL_UpperBlitScaled, iFpppp)
 GO(SDL_utf8strlcpy, uFppu)
