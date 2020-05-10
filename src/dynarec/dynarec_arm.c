@@ -92,6 +92,8 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
         return is_nops(dyn, addr+1, n-1);
     if(n>2 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x00)
         return is_nops(dyn, addr+3, n-3);
+    if(n>2 && PK(0)==0x8d && PK(1)==0x76 && PK(2)==0x00)    // lea esi, [esi]
+        return is_nops(dyn, addr+3, n-3);
     if(n>3 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x40 && PK(3)==0x00)
         return is_nops(dyn, addr+4, n-4);
     if(n>3 && PK(0)==0x8d && PK(1)==0x74 && PK(2)==0x26 && PK(3)==0x00)
@@ -101,6 +103,8 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
     if(n>5 && PK(0)==0x8d && PK(1)==0xb6 && PK(2)==0x00 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00)
         return is_nops(dyn, addr+6, n-6);
     if(n>6 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x80 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00)
+        return is_nops(dyn, addr+7, n-7);
+    if(n>6 && PK(0)==0x8d && PK(1)==0xb4 && PK(2)==0x26 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00) // lea esi, [esi+0]
         return is_nops(dyn, addr+7, n-7);
     if(n>7 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x84 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00 && PK(7)==0x00)
         return is_nops(dyn, addr+8, n-8);
