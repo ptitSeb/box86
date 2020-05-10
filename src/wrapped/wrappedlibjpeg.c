@@ -1,8 +1,9 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <setjmp.h>
 
 #include "wrappedlibs.h"
 
@@ -91,6 +92,9 @@ typedef struct jpeg_common_struct_s {
   int global_state;
 } jpeg_common_struct_t;
 
+static struct __jmp_buf_tag jmpbuf;
+static int                  is_jmpbuf;
+
 static void wrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr);
 static void unwrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr);
 
@@ -104,11 +108,15 @@ static x86emu_t* my_jpegcb_emu = NULL;\
 // error_exit
 #define GO(A)   \
 static uintptr_t my_error_exit_fct_##A = 0;   \
-static void my_error_exit_##A(jpeg_common_struct_t* cinfo)     \
+static void my_error_exit_##A(jpeg_common_struct_t* cinfo)      \
 {                                       \
-    wrapErrorMgr(my_bridge, cinfo->err);                      \
+    uintptr_t oldip = my_jpegcb_emu->ip.dword[0];               \
+    wrapErrorMgr(my_bridge, cinfo->err);                        \
     RunFunctionWithEmu(my_jpegcb_emu, 1, my_error_exit_fct_##A, 1, cinfo);   \
-    unwrapErrorMgr(my_bridge, cinfo->err);                        \
+    if(oldip==my_jpegcb_emu->ip.dword[0])                       \
+        unwrapErrorMgr(my_bridge, cinfo->err);                  \
+    else                                                        \
+        if(is_jmpbuf) longjmp(&jmpbuf, 1);                     \
 }
 SUPER()
 #undef GO
@@ -333,79 +341,62 @@ EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
     jpeg_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(lib->priv.w.bridge, ret);
+trace_end = 0;
 
     return ret;
 }
 
+#define WRAP(T, A)          \
+    library_t * lib = GetLib(emu->context->maplib, libname);\
+    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;         \
+    is_jmpbuf = 1;          \
+    my_jpegcb_emu = emu;    \
+    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);     \
+    if(setjmp(&jmpbuf)) {   \
+        wrapErrorMgr(lib->priv.w.bridge, cinfo->err);   \
+        is_jmpbuf = 0;      \
+        return (T)R_EAX;    \
+    }                       \
+    A;                      \
+    is_jmpbuf = 0;          \
+    wrapErrorMgr(lib->priv.w.bridge, cinfo->err)
+
+
 EXPORT void my_jpeg_CreateDecompress(x86emu_t* emu, jpeg_common_struct_t* cinfo, int version, unsigned long structsize)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    my->jpeg_CreateDecompress(cinfo, version, structsize);
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(void, my->jpeg_CreateDecompress(cinfo, version, structsize));
 }
 
 EXPORT int my_jpeg_read_header(x86emu_t* emu, jpeg_common_struct_t* cinfo, int image)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    int ret = my->jpeg_read_header(cinfo, image);
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(int, int ret = my->jpeg_read_header(cinfo, image));
     return ret;
 }
 
 EXPORT int my_jpeg_start_decompress(x86emu_t* emu, jpeg_common_struct_t* cinfo)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    int ret = my->jpeg_start_decompress(cinfo);
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(int, int ret = my->jpeg_start_decompress(cinfo));
     return ret;
 }
 
 EXPORT uint32_t my_jpeg_read_scanlines(x86emu_t* emu, jpeg_common_struct_t* cinfo, void* scanlines, uint32_t maxlines)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    uint32_t ret = my->jpeg_read_scanlines(cinfo, scanlines, maxlines);
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(uint32_t, uint32_t ret = my->jpeg_read_scanlines(cinfo, scanlines, maxlines));
     return ret;
 }
 
 EXPORT int my_jpeg_finish_decompress(x86emu_t* emu, jpeg_common_struct_t* cinfo)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    int ret = my->jpeg_finish_decompress(cinfo);
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(int, int ret = my->jpeg_finish_decompress(cinfo));
     return ret;
 }
 
 EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* cinfo, int marker, void* routine)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
-    jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
-
-    unwrapErrorMgr(lib->priv.w.bridge, cinfo->err);
-    my_jpegcb_emu = emu;
-    my->jpeg_set_marker_processor(cinfo, marker, findjpeg_marker_parser_methodFct(routine));
-    wrapErrorMgr(lib->priv.w.bridge, cinfo->err);
+    WRAP(void, my->jpeg_set_marker_processor(cinfo, marker, findjpeg_marker_parser_methodFct(routine)));
 }
+
+#undef WRAP
 
 #define CUSTOM_INIT \
     my_bridge = lib->priv.w.bridge;     \
