@@ -31,5 +31,7 @@ typedef struct instruction_x86_s {
 } instruction_x86_t;
 
 void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* inst, const char* name);
+void tableupdate(void* jumpto, uintptr_t ref, void** table);
+void resettable(void** table);
 
 #endif //__DYNAREC_PRIVATE_H_

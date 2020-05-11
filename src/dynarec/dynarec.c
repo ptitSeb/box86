@@ -26,53 +26,51 @@ void arm_linker() EXPORTDYN;
 int arm_tableupdate(void* jump, uintptr_t addr, void** table) EXPORTDYN;
 #endif
 
+void tableupdate(void* jumpto, uintptr_t ref, void** table)
+{
+    #ifdef ARM
+    if(arm_tableupdate(jumpto, ref, table))
+    #endif
+    {
+        table[0] = jumpto;
+        table[1] = (void*)ref;
+    }
+}
+
+void resettable(void** table)
+{
+    void* p = table[1];
+    tableupdate(arm_linker, (uintptr_t)p, table);
+    //table[2] = own_dynablock // unchanged
+    table[3] = NULL;    // removed "linked" information
+}
+
 #ifdef DYNAREC
 void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 {
     dynablock_t* block = DBGetBlock(emu, addr, 1, table[2]);
     int r;
-    if(block==NULL) {
+    if(!block) {
         // no block, don't try again, ever
-        #ifdef ARM
-        r = arm_tableupdate(arm_epilog, addr, table);
-        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
-        #else
-        table[0] = arm_epilog;
-        table[1] = addr;
-        #endif
+        tableupdate(arm_epilog, addr, table);
         return arm_epilog;
     }
     if(!block->done) {
         // not finished yet... leave linker
-        #ifdef ARM
-        r = arm_tableupdate(arm_linker, addr, table);
-        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
-        #else
-        table[0] = arm_linker;
-        table[1] = addr;
-        #endif
+        //tableupdate(arm_linker, addr, table);
         return arm_epilog;
     }
     if(!block->block) {
         // null block, but done: go to epilog, no linker here
-        #ifdef ARM
-        r = arm_tableupdate(arm_epilog, addr, table);
-        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
-        #else
-        table[0] = arm_epilog;
-        table[1] = addr;
-        #endif
+        tableupdate(arm_epilog, addr, table);
         return arm_epilog;
     }
-    if(!block->parent->nolinker) {
-        // only update block if linker is allowed
-        #ifdef ARM
-        r = arm_tableupdate(block->block, addr, table);
-        if(r) dynarec_log(LOG_DEBUG, "Linker: failed to set table data @%p, for emu=%p\n", table, emu);
-        #else
-        table[0] = block->block;
-        table[1] = addr;
-        #endif
+    dynablock_t* current = (dynablock_t*)table[2];
+    if(!block->parent->nolinker || (current && block->marks)) {
+        // only update block if linker is allowed or if marks is possibe
+        if(current && block->marks)
+            AddMark(current, block, table);
+        tableupdate(block->block, addr, table);
     }
     return block->block;
 }

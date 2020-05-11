@@ -16,6 +16,7 @@
 #include "x86trace.h"
 #include "dynablock.h"
 #include "dynablock_private.h"
+#include "dynarec_private.h"
 #include "elfloader.h"
 #ifdef ARM
 #include "dynarec_arm.h"
@@ -26,6 +27,8 @@
 #include "khash.h"
 
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
+
+KHASH_SET_INIT_INT(mark)
 
 uint32_t X31_hash_code(void* addr, int len)
 {
@@ -53,9 +56,32 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
 void FreeDynablock(dynablock_t* db, int nolinker)
 {
     if(db) {
+        if(db->marks) {
+            // Follow mark and set arm_linker instead
+            khint_t k;
+            char s;
+            kh_foreach(db->marks, k, s, 
+                void** p = (void**)(uintptr_t)k;
+                resettable(p);
+            );
+            // free mark
+            kh_destroy(mark, db->marks);
+        }
+        for(int i=0; i<db->tablesz; i+=4) {
+            if(db->table[i+3]) {
+                dynablock_t* p = (dynablock_t*)db->table[i+3];
+                if(p->marks) {
+                    khint_t kd = kh_get(mark, p->marks, (uintptr_t)(db->table+i));
+                    if(kd!=kh_end(p->marks)) {
+                        kh_del(mark, p->marks, kd);
+                    }
+                }
+
+            }
+        }
+        FreeDynarecMap((uintptr_t)db->block, db->size);
         free(db->table);
         free(db);
-        FreeDynarecMap((uintptr_t)db->block, db->size);
     }
 }
 
@@ -88,8 +114,39 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
 
 void MarkDynablock(dynablock_t* db)
 {
-    if(db)
+    if(db) {
+        if(db->marks) {
+            // Follow mark and set arm_linker instead
+            khint_t k;
+            char s;
+            kh_foreach(db->marks, k, s, 
+                void** p = (void**)(uintptr_t)k;
+                resettable(p);
+            );
+            // free mark
+            kh_clear(mark, db->marks);
+        }
         db->need_test = 1;
+    }
+}
+
+// source is linked to dest (i.e. source->table[x] = dest->block), so add a "mark" in dest, add a "linked" info to source
+void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
+{
+    int ret;
+    khint_t k;
+    // remove old value if any
+    dynablock_t *old = (dynablock_t*)table[3];
+    if(old && old->marks) {
+        khint_t kd = kh_get(mark, old->marks, (uintptr_t)table);
+        if(kd!=kh_end(old->marks))
+            kh_del(mark, old->marks, kd);
+    }
+    // add mark if needed
+    if(dest->marks) {
+        k = kh_put(mark, dest->marks, (uintptr_t)table, &ret);
+    }
+    table[3] = (void*)dest;
 }
 
 void MarkDynablockList(dynablocklist_t** dynablocks)
@@ -264,6 +321,9 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
             ConvertHash2Direct(dynablocks);
     }
     block->parent = dynablocks;
+    if(dynablocks->nolinker)
+        block->marks = kh_init(mark);
+
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
     pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
 

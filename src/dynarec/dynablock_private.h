@@ -1,23 +1,24 @@
 #ifndef __DYNABLOCK_PRIVATE_H_
 #define __DYNABLOCK_PRIVATE_H_
 
-typedef struct dynablocklist_s dynablocklist_t;
+typedef struct dynablocklist_s  dynablocklist_t;
+typedef struct kh_dynablocks_s  kh_dynablocks_t;
+typedef struct kh_mark_s        kh_mark_t;
 
 typedef struct dynablock_s {
-    dynablocklist_t *parent;
-    void*       block;
-    int         size;
-    void*       x86_addr;
-    int         x86_size;
-    uint32_t    hash;
-    int         need_test;
-    uintptr_t*  table;
-    int         tablesz;
-    int         done;
-    int         isize;
+    dynablocklist_t* parent;
+    kh_mark_t*      marks; // List of blocks that marked this block
+    void*           block;
+    int             size;
+    void*           x86_addr;
+    int             x86_size;
+    uint32_t        hash;
+    int             need_test;
+    uintptr_t*      table;
+    int             tablesz;
+    int             done;
+    int             isize;
 } dynablock_t;
-
-typedef struct kh_dynablocks_s kh_dynablocks_t;
 
 typedef struct dynablocklist_s {
     kh_dynablocks_t     *blocks;
