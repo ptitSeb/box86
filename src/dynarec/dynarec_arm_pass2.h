@@ -6,3 +6,4 @@
 #define NEW_INST    if(ninst) {dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);}
 #define INST_EPILOG dyn->insts[ninst].epilog = dyn->arm_size; 
 #define INST_NAME(name) 
+#define NEW_BARRIER_INST    ++dyn->sons_size

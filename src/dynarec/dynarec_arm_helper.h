@@ -266,7 +266,12 @@
 #ifndef JUMP
 #define JUMP(A) 
 #endif
-#define BARRIER(A) if (dyn->insts && !dyn->insts[ninst].x86.barrier) dyn->insts[ninst].x86.barrier = A
+#ifndef BARRIER
+#define BARRIER(A) 
+#endif
+#ifndef BARRIER_NEXT
+#define BARRIER_NEXT(A)
+#endif
 #define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
@@ -276,6 +281,10 @@
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)
 #endif
+#ifndef NEW_BARRIER_INST
+#define NEW_BARRIER_INST
+#endif
+
 // Emit the LOCK mutex (x1, x2 and x3 are lost)
 #define LOCK        emit_lock(dyn, addr, ninst)
 // Emit the UNLOCK mutex (x1, x2 and x3 are lost)

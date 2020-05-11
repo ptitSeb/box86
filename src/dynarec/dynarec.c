@@ -48,7 +48,10 @@ void resettable(void** table)
 #ifdef DYNAREC
 void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 {
-    dynablock_t* block = DBGetBlock(emu, addr, 1, table[2]);
+    dynablock_t* current = (dynablock_t*)table[2];
+    if(current->father)
+        current = current->father;
+    dynablock_t* block = DBGetBlock(emu, addr, 1, current);
     int r;
     if(!block) {
         // no block, don't try again, ever
@@ -65,11 +68,11 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         tableupdate(arm_epilog, addr, table);
         return arm_epilog;
     }
-    dynablock_t* current = (dynablock_t*)table[2];
-    if(!block->parent->nolinker || (current && block->marks)) {
+    dynablock_t *father = block->father?block->father:block;
+    if(!block->parent->nolinker || (current && father->marks)) {
         // only update block if linker is allowed or if marks is possibe
-        if(current && block->marks)
-            AddMark(current, block, table);
+        if(current && father->marks)
+            AddMark(current, father, table);
         tableupdate(block->block, addr, table);
     }
     return block->block;
@@ -102,7 +105,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                 dynarec_log(LOG_DEBUG, "Calling Interpretor @%p, emu=%p\n", (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) or %d x86 instructions emu=%p\n", (void*)R_EIP, block->block, block->isize ,emu);
+                dynarec_log(LOG_DEBUG, "Calling DynaRec Block @%p (%p) of %d x86 instructions (nolinker=%d, father=%p) emu=%p\n", (void*)R_EIP, block->block, block->isize ,block->parent->nolinker, block->father, emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
@@ -149,7 +152,7 @@ int DynaRun(x86emu_t* emu)
                 dynarec_log(LOG_DEBUG, "Running Interpretor @%p, emu=%p\n", (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "Running DynaRec Block @%p (%p) of %d x86 insts emu=%p\n", (void*)R_EIP, block->block, block->isize, emu);
+                dynarec_log(LOG_DEBUG, "Running DynaRec Block @%p (%p) of %d x86 insts (nolinker=%d, father=%p) emu=%p\n", (void*)R_EIP, block->block, block->isize, block->parent->nolinker, block->father, emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);

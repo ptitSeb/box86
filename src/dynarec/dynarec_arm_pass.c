@@ -31,6 +31,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     uintptr_t ip = addr;
     int need_epilog = 1;
     dyn->tablei = 0;
+    dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
     dyn->state_flags = 0;
     fpu_reset(dyn, ninst);
@@ -39,6 +40,9 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     while(ok) {
         if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
+        if(dyn->insts && (dyn->insts[ninst].x86.barrier==1)) {
+            NEW_BARRIER_INST;
+        }
         NEW_INST;
         fpu_reset_scratch(dyn);
 #ifdef HAVE_TRACE
@@ -86,5 +90,5 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }
     FINI;
-    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
+    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d, %d sons)\n", dyn->size, dyn->sons_size);
 }

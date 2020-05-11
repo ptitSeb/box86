@@ -220,6 +220,10 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     helper.tablesz = helper.tablei;
     if(helper.tablesz)
         helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
+    if(helper.sons_size) {
+        helper.sons_x86 = (uintptr_t*)calloc(helper.sons_size, sizeof(uintptr_t));
+        helper.sons_arm = (void**)calloc(helper.sons_size, sizeof(void*));
+    }
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
         dynarec_log(LOG_NONE, "%sEmitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", helper.arm_size, helper.isize); 
@@ -244,5 +248,27 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     block->x86_addr = (void*)start;
     block->x86_size = end-start;
     block->hash = (helper.nolinker)?X31_hash_code(block->x86_addr, block->x86_size):0;
+    // fill sons if any
+    dynablock_t** sons = NULL;
+    int sons_size = 0;
+    if(helper.sons_size) {
+        sons = (dynablock_t**)calloc(helper.sons_size, sizeof(dynablock_t*));
+        for (int i=0; i<helper.sons_size; ++i) {
+            int created = 0;
+            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
+            if(created) {    // avoid breaking a working block!
+                son->block = helper.sons_arm[i];
+                son->x86_addr = (void*)helper.sons_x86[i];
+                son->father = block;
+                son->done = 1;
+                sons[sons_size++] = son;
+            }
+        }
+        if(sons_size) {
+            block->sons = sons;
+            block->sons_size = sons_size;
+        } else
+            free(sons);
+    }
     block->done = 1;
 }

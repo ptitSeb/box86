@@ -1988,7 +1988,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 // something is wrong...
             } else
             if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
-                BARRIER(2);
+                BARRIER(1);
                 MOV32(x2, addr);
                 PUSH(xESP, 1<<x2);
                 MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(dyn->emu, GetNativeFnc(natcall-1)), retn);
@@ -2024,12 +2024,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(gd, addr);
             } else {
                 // regular call
+                BARRIER(1);
+                BARRIER_NEXT(1);
                 if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                    BARRIER(1);
                     PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     //cstatck_push put addr in x2, don't need to put it again
                 } else {
-                    BARRIER(2);
                     PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
                     *need_epilog = 0;
                     *ok = 0;
@@ -2513,11 +2513,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("CALL Ed");
                     SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     GETEDH(xEIP);
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
                     if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                        BARRIER(1);
                         PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {
-                        BARRIER(2);
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
                         *need_epilog = 0;
                         *ok = 0;

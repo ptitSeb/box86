@@ -18,6 +18,9 @@ typedef struct dynablock_s {
     int             tablesz;
     int             done;
     int             isize;
+    dynablock_t**   sons;   // sons (kind-of dummy dynablock...)
+    int             sons_size;
+    dynablock_t*    father; // set only in the case of a son
 } dynablock_t;
 
 typedef struct dynablocklist_s {

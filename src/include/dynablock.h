@@ -25,4 +25,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* 
 // source is linked to dest (i.e. source->table[x] = dest->block), so add a "mark" in dest, add a "linked" info to source
 void AddMark(dynablock_t* source, dynablock_t* dest, void** table);
 
+// Create and Add an new dynablock in the list, handling direct/map
+dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int *created);
+
 #endif //__DYNABLOCK_H_
