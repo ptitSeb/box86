@@ -48,6 +48,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int d0;
     int s0;
     int fixedaddress;
+    int parity;
 
     MAYUSE(d0);
     MAYUSE(q1);
@@ -1221,13 +1222,22 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVQ Ex,Gx");
             nextop = F8;
             GETGX(q0);
+            parity = getedparity(dyn, ninst, addr, nextop, 3);
             if((nextop&0xC0)==0xC0) {
                 q1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVD(q1, q0);
                 VEOR(q1+1, q1+1, q1+1);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                VSTR_64(q0, ed, fixedaddress);
+                // can be unaligned sometimes
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VSTR_64(q0, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                    VMOVfrV_D(x2, x3, q0);
+                    STR_IMM9(x2, ed, fixedaddress+0);
+                    STR_IMM9(x3, ed, fixedaddress+4);
+                }
             }
             break;
 
