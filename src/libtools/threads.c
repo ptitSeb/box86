@@ -473,8 +473,7 @@ EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
 }
 EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
 {
-	pthread_cond_t *c = (pthread_cond_t*)cond;
-	c = add_cond(cond);
+	pthread_cond_t *c = add_cond(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
 EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
