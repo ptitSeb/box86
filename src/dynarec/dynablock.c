@@ -62,6 +62,7 @@ void FreeDynablock(dynablock_t* db, int nolinker)
             char s;
             kh_foreach(db->marks, k, s, 
                 void** p = (void**)(uintptr_t)k;
+                (void)s;
                 resettable(p);
             );
             // free mark
@@ -138,6 +139,7 @@ void MarkDynablock(dynablock_t* db)
             char s;
             kh_foreach(db->marks, k, s, 
                 void** p = (void**)(uintptr_t)k;
+                (void)s;
                 resettable(p);
             );
             // free mark
@@ -151,7 +153,6 @@ void MarkDynablock(dynablock_t* db)
 void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
 {
     int ret;
-    khint_t k;
     // remove old value if any
     dynablock_t *old = (dynablock_t*)table[3];
     if(old && old->father)
@@ -165,7 +166,7 @@ void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
     if(dest->father)
         dest = dest->father;
     if(dest->marks) {
-        k = kh_put(mark, dest->marks, (uintptr_t)table, &ret);
+        kh_put(mark, dest->marks, (uintptr_t)table, &ret);
     }
     table[3] = (void*)dest;
 }
@@ -348,7 +349,6 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
     // nope, put rwlock in read mode and check hash
     pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
     // check if the block exist
-    int ret;
     khint_t k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
     if(k!=kh_end(dynablocks->blocks)) {
         /*atomic_store(&dynalock, 0);*/

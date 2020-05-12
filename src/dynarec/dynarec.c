@@ -52,7 +52,6 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     if(current->father)
         current = current->father;
     dynablock_t* block = DBGetBlock(emu, addr, 1, current);
-    int r;
     if(!block) {
         // no block, don't try again, ever
         tableupdate(arm_epilog, addr, table);
