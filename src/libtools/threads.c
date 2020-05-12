@@ -413,11 +413,15 @@ static pthread_cond_t* add_cond(void* cond)
 	pthread_mutex_lock(&my_context->mutex_thread);
 	if(!mapcond)
 		mapcond = kh_init(mapcond);
+	*(uint32_t*)cond = 0;
 	khint_t k;
 	int ret;
+	pthread_cond_t *c;
 	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
-	pthread_cond_t *c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
-	*(uint32_t*)cond = 0;
+	if(!ret)
+		c = kh_value(mapcond, k);	// already there... reinit an existing one?
+	else 
+		c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
 	pthread_mutex_unlock(&my_context->mutex_thread);
 	return c;
 }
