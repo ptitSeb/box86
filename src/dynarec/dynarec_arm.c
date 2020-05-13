@@ -161,8 +161,9 @@ void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
-void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
+void* FillBlock(dynablock_t* block) {
     // init the helper
+    uintptr_t addr = (uintptr_t)block->x86_addr;
     dynarec_arm_t helper = {0};
     helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
     helper.start = addr;
@@ -171,7 +172,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
         free(helper.next);
-        return;
+        return (void*)block;
     }
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
@@ -212,7 +213,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     if(p==NULL) {
         free(helper.insts);
         free(helper.next);
-        return;
+        return (void*)block;
     }
     helper.block = p;
     helper.arm_start = (uintptr_t)p;
@@ -270,4 +271,5 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
             free(sons);
     }
     block->done = 1;
+    return (void*)block;
 }

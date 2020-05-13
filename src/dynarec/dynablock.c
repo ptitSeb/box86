@@ -373,7 +373,8 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
     if(dynablocks->nolinker)
         block->marks = kh_init(mark);
     // fill the block
-    FillBlock(emu, block, addr);
+    block->x86_addr = (void*)addr;
+    FillBlock(block);
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_lock);
 
