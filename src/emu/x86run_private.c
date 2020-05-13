@@ -797,24 +797,24 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             if(a==0) {
                 printf_log(LOG_NONE, "%p: Exit x86emu\n", (void*)ip);
             } else {
-                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(emu, *(void**)(ip+7)));
+                printf_log(LOG_NONE, "%p: Native call to %p => %s\n", (void*)ip, (void*)a, GetNativeName(*(void**)(ip+7)));
             }
         } else {
             printf_log(LOG_NONE, "%s", DecodeX86Trace(emu->dec, ip));
             uint8_t peek = PK(0);
             if(peek==0xC3 || peek==0xC2) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
-                printFunctionAddr(emu, *(uintptr_t*)(R_ESP), "=> ");
+                printFunctionAddr(*(uintptr_t*)(R_ESP), "=> ");
             } else if(peek==0x55) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
-                printFunctionAddr(emu, ip, "here: ");
+                printFunctionAddr(ip, "here: ");
             } else if(peek==0xE8) { // Call
                 uintptr_t nextaddr = ip + 5 + PK32(1);
-                printFunctionAddr(emu, nextaddr, "=> ");
+                printFunctionAddr(nextaddr, "=> ");
             } else if(peek==0xFF) {
                 if(PK(1)==0x25) {
                     uintptr_t nextaddr = ip + 6 + PK32(2);
-                    printFunctionAddr(emu, nextaddr, "=> ");
+                    printFunctionAddr(nextaddr, "=> ");
                 }
             }
             printf_log(LOG_NONE, "\n");
