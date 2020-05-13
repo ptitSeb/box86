@@ -75,7 +75,7 @@ void x86Int3(x86emu_t* emu)
                 int post = 0;
                 int perr = 0;
                 uint32_t *pu32 = NULL;
-                const char *s = GetNativeName(emu, (void*)addr);
+                const char *s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
                 } else

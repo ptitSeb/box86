@@ -21,7 +21,7 @@
 #include "dynarec_arm_private.h"
 #include "elfloader.h"
 
-void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
+void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
     if(ip[0]==0xcc && ip[1]=='S' && ip[2]=='C') {
         uint32_t a = *(uint32_t*)(ip+3);
@@ -43,11 +43,11 @@ void printf_x86_instruction(x86emu_t* emu, zydis_dec_t* dec, instruction_x86_t* 
         // print Call function name if possible
         if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
             uintptr_t nextaddr = (uintptr_t)ip + 5 + *((int32_t*)(ip+1));
-            printFunctionAddr(emu, nextaddr, "=> ");
+            printFunctionAddr(nextaddr, "=> ");
         } else if(ip[0]==0xFF) {
             if(ip[1]==0x25) {
                 uintptr_t nextaddr = (uintptr_t)ip + 6 + *((int32_t*)(ip+2));
-                printFunctionAddr(emu, nextaddr, "=> ");
+                printFunctionAddr(nextaddr, "=> ");
             }
         }
         // end of line and colors
@@ -164,7 +164,6 @@ void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     // init the helper
     dynarec_arm_t helper = {0};
-    helper.emu = emu;
     helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
     helper.start = addr;
     arm_pass0(&helper, addr);
@@ -227,7 +226,7 @@ void FillBlock(x86emu_t* emu, dynablock_t* block, uintptr_t addr) {
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
         dynarec_log(LOG_NONE, "%sEmitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", helper.arm_size, helper.isize); 
-        printFunctionAddr(emu, helper.start, " => ");
+        printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
     }
     helper.arm_size = 0;

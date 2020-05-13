@@ -53,7 +53,7 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     return 0;
 }
 
-const char* GetNativeName(x86emu_t* emu, void* p)
+const char* GetNativeName(void* p)
 {
     static char unknown[10] = "???";
     const char *ret = GetNameOffset(my_context->maplib, p);
@@ -753,7 +753,7 @@ uintptr_t GetGSBaseEmu(x86emu_t* emu)
     return (uintptr_t)GetGSBase(my_context);
 }
 
-void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text)
+void printFunctionAddr(uintptr_t nextaddr, const char* text)
 {
     uint32_t sz = 0;
     uintptr_t start = 0;

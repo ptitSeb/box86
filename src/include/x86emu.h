@@ -45,6 +45,6 @@ double FromLD(void* ld);        // long double (80bits pointer) -> double
 void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
 void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
 
-void printFunctionAddr(x86emu_t* emu, uintptr_t nextaddr, const char* text);
+void printFunctionAddr(uintptr_t nextaddr, const char* text);
 
 #endif //__X86EMU_H_

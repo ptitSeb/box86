@@ -150,9 +150,9 @@ dynablocklist_t* getDBFromAddress(uintptr_t addr)
 
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 {
-    dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size));
+    dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     int idx = (addr>>16);
-    int end = ((addr+size)>>16);
+    int end = ((addr+size-1)>>16);
     for (int i=idx; i<=end; ++i) {
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
@@ -163,15 +163,19 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
-    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size));
+    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     int idx = (addr>>16);
-    int end = ((addr+size)>>16);
+    int end = ((addr+size-1)>>16);
     for (int i=idx; i<=end; ++i) {
         dynmap_t* dynmap = my_context->dynmap[i];
         if(dynmap) {
             uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
             uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
-            if(addr<=startdb && (addr+size)>=enddb) {
+            uintptr_t startaddr = idx<<16;
+            if(startaddr<addr) startaddr = addr;
+            uintptr_t endaddr = startaddr + size - 1;
+            if(endaddr>enddb) endaddr = enddb;
+            if(startaddr==startdb && endaddr==enddb) {
                 if(destroy) {
                     my_context->dynmap[i] = NULL;
                     FreeDynablockList(&dynmap->dynablocks);
@@ -180,9 +184,9 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
                     MarkDynablockList(&dynmap->dynablocks);
             } else
                 if(destroy)
-                    FreeDirectDynablock(dynmap->dynablocks, addr, size);
+                    FreeDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr);
                 else
-                    MarkDirectDynablock(dynmap->dynablocks, addr, size);
+                    MarkDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr);
 
         }
     }
