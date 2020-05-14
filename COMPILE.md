@@ -38,16 +38,20 @@ Alternatively, you can use the curses-bases ccmake (or any other gui frontend fo
 
 #### Customize your build
 
-*use ccache if you have it*
+*use ccache if you have it* 
+
 Add `-DUSE_CCACHE=1` if you have ccache (it's better if you plan to touch the sources)
 
-*have some debug info*
+*have some debug info* 
+
 The `-DCMAKE_BUILD_TYPE=RelWithDebInfo` argument make a build that is both optimized for speed, and have debug information embedded. That way, if you have a crash or try to analyse performances, you'll have some symbols.
 
-*to have a Trace Enabled build*
+*to have a Trace Enabled build* 
+
 To have a trace enabled build (warning, it will be slower), add `-DHAVE_TRACE=1` but you will need, at runtime, to have the [Zydis library](https://github.com/zyantific/zydis) library in your `LD_LIBRARY_PATH` or in the system lib folders.
 
 *to have ARM Dynarec*
+
 The Dynarec is only avaiable on ARM Cpu. Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode).
 
 ----
