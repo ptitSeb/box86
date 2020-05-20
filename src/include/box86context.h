@@ -17,6 +17,7 @@ typedef struct library_s library_t;
 typedef struct kh_fts_s kh_fts_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct kh_cancelthread_s kh_cancelthread_t;
+typedef struct zydis_dec_s zydis_dec_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
     uintptr_t parent;
@@ -71,8 +72,6 @@ typedef struct box86context_s {
     int                 elfsize;        // number of elf loaded
 
     uintptr_t           ep;             // entry point
-
-    x86emu_t            *emu;           // CPU / FPU / MMX&SSE regs
 
     lib_t               *maplib;        // lib and symbols handling
 
@@ -139,6 +138,7 @@ typedef struct box86context_s {
 #ifndef NOALIGN
     kh_fts_t            *ftsmap;
 #endif
+    zydis_dec_t         *dec;           // trace
 
     int                 forked;         //  how many forks... cleanup only when < 0
 
@@ -176,5 +176,9 @@ dynablocklist_t* getDBFromAddress(uintptr_t addr);
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 #endif
+
+// defined in fact in threads.c
+void thread_set_emu(x86emu_t* emu);
+x86emu_t* thread_get_emu();
 
 #endif //__BOX86CONTEXT_H_

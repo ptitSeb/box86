@@ -208,7 +208,7 @@ _trace:
     emu->prev2_ip = emu->prev_ip;
     emu->prev_ip = old_ip;
     old_ip = ip;
-    if(emu->dec && (
+    if(my_context->dec && (
         (trace_end == 0) 
         || ((ip >= trace_start) && (ip < trace_end))) )
             PrintTrace(emu, ip, 0);

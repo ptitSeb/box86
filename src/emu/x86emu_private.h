@@ -3,7 +3,6 @@
 
 #include "regs.h"
 
-typedef struct zydis_dec_s zydis_dec_t;
 typedef struct box86context_s box86context_t;
 typedef struct i386_ucontext_s i386_ucontext_t;
 
@@ -70,8 +69,6 @@ typedef struct x86emu_s {
     int         cstacki;            // current index
     uint64_t    cstack[CSTACK+1];   // pair of x86 address / native address for call/ret, using uint64_t for alignement, +1 for allignment
     #endif
-    // trace
-    zydis_dec_t *dec;
     // parent context
     box86context_t *context;
     // cpu helpers
