@@ -240,6 +240,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedudev0.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedudev1.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX86_ROOT}/src/wrapped/wrappediconv.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibdrm.c"

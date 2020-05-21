@@ -253,10 +253,7 @@ void FreeCallbackList(callbacklist_t** callbacks)
 EXPORTDYN
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
-    uint32_t mystack[60*1024] = {0};  // there is a limit at 256K (and even less on not main thread) for object on the stack
-    x86emu_t myemu = {0};
-    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 60*1024*4, 0);
-    SetupX86Emu(emu);
+    x86emu_t *emu = thread_get_emu();
 
     R_ESP -= nargs*4;   // need to push in reverse order
 
@@ -274,35 +271,6 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
     R_ESP+=(nargs*4);
 
     uint32_t ret = R_EAX;
-    FreeX86EmuFromStack(&emu);
-
-    return ret;
-}
-
-uint32_t RunFunctionFast(box86context_t *context, uintptr_t fnc, int nargs, ...)
-{
-    uint32_t mystack[30*1024];
-    x86emu_t myemu = {0};
-    x86emu_t *emu = NewX86EmuFromStack(&myemu, context, fnc, (uintptr_t)&mystack, 30*1024*4, 0);
-    SetupX86Emu(emu);
-
-    R_ESP -= nargs*4;   // need to push in reverse order
-
-    uint32_t *p = (uint32_t*)R_ESP;
-
-    va_list va;
-    va_start (va, nargs);
-    for (int i=0; i<nargs; ++i) {
-        *p = va_arg(va, uint32_t);
-        p++;
-    }
-    va_end (va);
-
-    DynaCall(emu, fnc);
-    R_ESP+=(nargs*4);
-
-    uint32_t ret = R_EAX;
-    FreeX86EmuFromStack(&emu);
 
     return ret;
 }

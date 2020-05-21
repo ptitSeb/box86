@@ -121,6 +121,9 @@ struct kernel_sigaction {
 
 uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
+    uintptr_t old_start = trace_start, old_end = trace_end;
+    old_start = 0; old_end = 1; // disabling trace, globably for now...
+
     x86emu_t *emu = my_context->emu_sig;
     
     pthread_mutex_unlock(&emu->context->mutex_trace);   // unlock trace, just in case
@@ -145,6 +148,7 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 
     uint32_t ret = R_EAX;
 
+    trace_start = old_start; trace_end = old_end;
     return ret;
 }
 
@@ -181,7 +185,8 @@ static void CheckSignalContext(x86emu_t* emu, int sig)
         const int stsize = 2*1024*1024;
         void* stack = calloc(1, stsize);
         my_context->emu_sig = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        my_context->emu_sig->dec = NULL;    // No tracing inside a signal handler...
+        //my_context->emu_sig->dec = NULL;    // No tracing inside a signal handler...
+        //TODO: How to disable tracing there?
     }
 }
 

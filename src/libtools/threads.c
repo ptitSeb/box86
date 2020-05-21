@@ -170,6 +170,36 @@ static void thread_key_alloc() {
 	pthread_key_create(&thread_key, emuthread_destroy);
 }
 
+void thread_set_emu(x86emu_t* emu)
+{
+	// create the key
+	pthread_once(&thread_key_once, thread_key_alloc);
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(!et) {
+		et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+	} else {
+		FreeX86Emu(&et->emu);
+	}
+	et->emu = emu;
+	pthread_setspecific(thread_key, et);
+}
+
+x86emu_t* thread_get_emu()
+{
+	// create the key
+	pthread_once(&thread_key_once, thread_key_alloc);
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(!et) {
+		int stacksize = 2*1024*1024;
+		void* stack = calloc(1, stacksize);
+		x86emu_t *emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
+		SetupX86Emu(emu);
+		thread_set_emu(emu);
+		return emu;
+	}
+	return et->emu;
+}
+
 static void* pthread_routine(void* p)
 {
 	// create the key

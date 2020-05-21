@@ -40,7 +40,9 @@ void tableupdate(void* jumpto, uintptr_t ref, void** table)
 void resettable(void** table)
 {
     void* p = table[1];
+    #ifdef ARM
     tableupdate(arm_linker, (uintptr_t)p, table);
+    #endif
     //table[2] = own_dynablock // unchanged
     table[3] = NULL;    // removed "linked" information
 }

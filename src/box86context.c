@@ -17,6 +17,7 @@
 #include "wrapper.h"
 #include "myfts.h"
 #include "threads.h"
+#include "x86trace.h"
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
@@ -279,6 +280,14 @@ box86context_t *NewBox86Context(int argc)
 
     initAllHelpers(context);
 
+    // if trace is activated
+    if(context->x86trace) {
+        context->dec = InitX86TraceDecoder(context);
+        if(!context->dec)
+            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
+    }
+
+
     return context;
 }
 
@@ -314,13 +323,13 @@ void FreeBox86Context(box86context_t** context)
     cleanDBFromAddressRange(0, 0xffffffff, 1);
 #endif
     
-    if((*context)->emu)
-        FreeX86Emu(&(*context)->emu);
-
     CleanStackSize(*context);
     FreeCollection(&(*context)->box86_path);
     FreeCollection(&(*context)->box86_ld_lib);
     FreeCollection(&(*context)->box86_emulated_libs);
+    // stop trace now
+    if((*context)->dec)
+        DeleteX86TraceDecoder(&(*context)->dec);
     if((*context)->zydis)
         DeleteX86Trace(*context);
 

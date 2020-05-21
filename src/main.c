@@ -575,10 +575,11 @@ void init_library()
     LoadEnvVars(my_context);
     CalcStackSize(my_context); // with no elf, so default size of 8M
     // init x86 emu
-    my_context->emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    x86emu_t *emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
-    SetupInitialStack(my_context->emu);
-    SetupX86Emu(my_context->emu);
+    SetupInitialStack(emu);
+    SetupX86Emu(emu);
+    thread_set_emu(emu);
 }
 #endif
 
@@ -751,26 +752,28 @@ int main(int argc, const char **argv, const char **env) {
         return -1;
     }
     // init x86 emu
-    my_context->emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    x86emu_t *emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
-    SetupInitialStack(my_context->emu);
-    // this is probably useless
-    SetupX86Emu(my_context->emu);
-    SetEAX(my_context->emu, my_context->argc);
-    SetEBX(my_context->emu, (uint32_t)my_context->argv);
+    SetupInitialStack(emu);
+    SetupX86Emu(emu);
+    SetEAX(emu, my_context->argc);
+    SetEBX(emu, (uint32_t)my_context->argv);
+
+    thread_set_emu(emu);
+
     setupTraceInit(my_context);
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
-            if(AddNeededLib(my_context->maplib, NULL, ld_preload.paths[i], my_context, my_context->emu)) {
+            if(AddNeededLib(my_context->maplib, NULL, ld_preload.paths[i], my_context, emu)) {
                 printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, my_context->maplib, NULL, my_context, my_context->emu)) {
+    if(LoadNeededLibs(elf_header, my_context->maplib, NULL, my_context, emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
@@ -779,12 +782,12 @@ int main(int argc, const char **argv, const char **env) {
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
             library_t * lib = GetLib(my_context->maplib, ld_preload.paths[i]);
-            if(lib && FinalizeLibrary(lib, my_context->emu)) {
+            if(lib && FinalizeLibrary(lib, emu)) {
                 printf_log(LOG_INFO, "Warning, cannot finalize pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }
-    if(FinalizeNeededLibs(elf_header, my_context->maplib, my_context, my_context->emu)) {
+    if(FinalizeNeededLibs(elf_header, my_context->maplib, my_context, emu)) {
         printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
@@ -801,7 +804,7 @@ int main(int argc, const char **argv, const char **env) {
     // and handle PLT
     RelocateElfPlt(my_context, my_context->maplib, elf_header);
     // defered init
-    RunDeferedElfInit(my_context->emu);
+    RunDeferedElfInit(emu);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
@@ -818,13 +821,13 @@ int main(int argc, const char **argv, const char **env) {
 
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
-    SetEAX(my_context->emu, my_context->argc);
-    SetEBX(my_context->emu, (uint32_t)my_context->argv);
-    SetEIP(my_context->emu, my_context->ep);
-    ResetFlags(my_context->emu);
-    Run(my_context->emu, 0);
+    SetEAX(emu, my_context->argc);
+    SetEBX(emu, (uint32_t)my_context->argv);
+    SetEIP(emu, my_context->ep);
+    ResetFlags(emu);
+    Run(emu, 0);
     // Get EAX
-    int ret = GetEAX(my_context->emu);
+    int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
     if(trace_func) 

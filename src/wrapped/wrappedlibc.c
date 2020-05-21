@@ -184,7 +184,7 @@ GO(15)
 static uintptr_t my_compare_fct_##A = 0;        \
 static int my_compare_##A(void* a, void* b)     \
 {                                               \
-    return (int)RunFunctionFast(my_context, my_compare_fct_##A, 2, a, b);\
+    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
 }
 SUPER()
 #undef GO
@@ -208,7 +208,7 @@ static void* findcompareFct(void* fct)
 static uintptr_t my_ftw_fct_##A = 0;                                      \
 static int my_ftw_##A(void* fpath, void* sb, int flag)                       \
 {                                                                               \
-    return (int)RunFunctionFast(my_context, my_ftw_fct_##A, 3, fpath, sb, flag);   \
+    return (int)RunFunction(my_context, my_ftw_fct_##A, 3, fpath, sb, flag);   \
 }
 SUPER()
 #undef GO
@@ -234,7 +234,7 @@ static int my_ftw64_##A(void* fpath, void* sb, int flag)    \
 {                                                           \
     struct i386_stat64 i386st;                              \
     UnalignStat64(sb, &i386st);                             \
-    return (int)RunFunctionFast(my_context, my_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
+    return (int)RunFunction(my_context, my_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
 }
 SUPER()
 #undef GO
@@ -256,7 +256,7 @@ static void* findftw64Fct(void* fct)
 static uintptr_t my_nftw_fct_##A = 0;                                   \
 static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)  \
 {                                                                       \
-    return (int)RunFunctionFast(my_context, my_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
+    return (int)RunFunction(my_context, my_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -282,7 +282,7 @@ static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
 {                                                                           \
     struct i386_stat64 i386st;                                              \
     UnalignStat64(sb, &i386st);                                             \
-    return (int)RunFunctionFast(my_context, my_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
+    return (int)RunFunction(my_context, my_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -304,7 +304,7 @@ static void* findnftw64Fct(void* fct)
 static uintptr_t my_globerr_fct_##A = 0;                                        \
 static int my_globerr_##A(void* epath, int eerrno)                              \
 {                                                                               \
-    return (int)RunFunctionFast(my_context, my_globerr_fct_##A, 2, epath, eerrno);  \
+    return (int)RunFunction(my_context, my_globerr_fct_##A, 2, epath, eerrno);  \
 }
 SUPER()
 #undef GO
@@ -328,7 +328,7 @@ static void* findgloberrFct(void* fct)
 static uintptr_t my_filter_dir_fct_##A = 0;                               \
 static int my_filter_dir_##A(const struct dirent* a)                    \
 {                                                                       \
-    return (int)RunFunctionFast(my_context, my_filter_dir_fct_##A, 1, a);     \
+    return (int)RunFunction(my_context, my_filter_dir_fct_##A, 1, a);     \
 }
 SUPER()
 #undef GO
@@ -351,7 +351,7 @@ static void* findfilter_dirFct(void* fct)
 static uintptr_t my_compare_dir_fct_##A = 0;                                  \
 static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)    \
 {                                                                           \
-    return (int)RunFunctionFast(my_context, my_compare_dir_fct_##A, 2, a, b);     \
+    return (int)RunFunction(my_context, my_compare_dir_fct_##A, 2, a, b);     \
 }
 SUPER()
 #undef GO
@@ -375,7 +375,7 @@ static void* findcompare_dirFct(void* fct)
 static uintptr_t my_filter64_fct_##A = 0;                               \
 static int my_filter64_##A(const struct dirent64* a)                    \
 {                                                                       \
-    return (int)RunFunctionFast(my_context, my_filter64_fct_##A, 1, a);     \
+    return (int)RunFunction(my_context, my_filter64_fct_##A, 1, a);     \
 }
 SUPER()
 #undef GO
@@ -398,7 +398,7 @@ static void* findfilter64Fct(void* fct)
 static uintptr_t my_compare64_fct_##A = 0;                                      \
 static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
 {                                                                               \
-    return (int)RunFunctionFast(my_context, my_compare64_fct_##A, 2, a, b);         \
+    return (int)RunFunction(my_context, my_compare64_fct_##A, 2, a, b);         \
 }
 SUPER()
 #undef GO

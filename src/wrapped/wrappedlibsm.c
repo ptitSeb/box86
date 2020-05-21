@@ -79,7 +79,7 @@ typedef struct my_SmcCallbacks_s {
 #define SmcShutdownCancelledProcMask	(1L << 3)
 
 static uintptr_t my_save_yourself_fct = 0;
-static void my_save_yourself(void* smcConn, void* clientData, int saveType, int shutdown, int interactStyle,int fast)
+static void my_save_yourself(void* smcConn, void* clientData, int saveType, int shutdown, int interactStyle, int fast)
 {
     RunFunction(my_context, my_save_yourself_fct, 6, smcConn, clientData, saveType, shutdown, interactStyle, fast);
 }
@@ -129,7 +129,7 @@ GO(4)
 static uintptr_t my_Request_fct_##A = 0;        \
 static void my_Request_##A(void* a, void* b)     \
 {                                               \
-    RunFunctionFast(my_context, my_Request_fct_##A, 2, a, b);\
+    RunFunction(my_context, my_Request_fct_##A, 2, a, b);\
 }
 SUPER()
 #undef GO

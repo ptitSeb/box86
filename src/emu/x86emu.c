@@ -12,7 +12,6 @@
 #include "x86emu_private.h"
 #include "x87emu_private.h"
 #include "box86context.h"
-#include "x86trace.h"
 #include "x86run.h"
 #include "x86run_private.h"
 
@@ -69,12 +68,6 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);
-    // if trace is activated
-    if(context->x86trace) {
-        emu->dec = InitX86TraceDecoder(context);
-        if(!emu->dec)
-            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
-    }
 }
 
 EXPORTDYN
@@ -178,10 +171,6 @@ void CallAllCleanup(x86emu_t *emu)
 
 static void internalFreeX86(x86emu_t* emu)
 {
-    // stop trace now
-    if(emu->dec)
-        DeleteX86TraceDecoder(&emu->dec);
-    emu->dec = NULL;
     // call atexit and fini first!
     CallAllCleanup(emu);
     free(emu->cleanups);
