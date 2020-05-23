@@ -67,6 +67,13 @@ TL;DR: mono games are either not working, or working very slowly.
 
 ----
 
+A note about Wine
+----
+
+Wine is not supported yet. Some instruction and syscall are needed (mainly to setup `FS:` segment) that are not correctly emulated yet. It's planned, but not ready yet.
+
+----
+
 Final words
 ----
 
