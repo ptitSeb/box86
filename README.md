@@ -61,10 +61,9 @@ Also note that, even if, on day, there is a box86_64, this one will only be able
 A note about Unity game emulation
 ----
 
-Running Unity games is not possible for now. Mono itself uses signals that are not well emulated enough. So the solution is to use a native version of the libmono used by Unity. It can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source. When built copy `libmonosgen-2.0.so` to `libmonounity.so` and put it somewhere it can be dlopen'd (so in `usr/lib` or friend or somewhere in your `LD_LIBRARY_PATH`).
-Note that libmonounity is not completely wrapped yet, and the mechanism to call x86 library from libmonounity is not done yet, so the use of libmonounity is not enable for now. 
+Running Unity games is a hit or miss for now. Unity use mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source). But the wrapping of this lib is tricky, and not done for now. So the only solution is to emulate everything. The tricky part is to emulated the "JIT" code emitted by mono. For now, this part is not working very well, and is pretty slow.
 
-TL;DR: mono games are not working for now anyway.
+TL;DR: mono games are either not working, or working very slowly.
 
 ----
 
