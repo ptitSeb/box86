@@ -193,6 +193,25 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
     }
 }
 
+// Remove the Write flag from an adress range, so DB can be executed
+// no log, as it can be executed inside a signal handler
+void protectDB(uintptr_t addr, uintptr_t size)
+{
+    uintptr_t start = (addr)&(box86_pagesize-1);
+    uintptr_t end = (addr+size+(box86_pagesize-1))&(box86_pagesize-1);
+    mprotect((void*)start, end-start+1, PROT_READ|PROT_EXEC);
+}
+
+// Add the Write flag from an adress range, so DB can be executed, and mark all block as dirty
+// no log, as it can be executed inside a signal handler
+void unprotectDB(uintptr_t addr, uintptr_t size)
+{
+    uintptr_t start = (addr)&(box86_pagesize-1);
+    uintptr_t end = (addr+size+(box86_pagesize-1))&(box86_pagesize-1);
+    mprotect((void*)start, end-start+1, PROT_READ|PROT_WRITE|PROT_EXEC);
+    cleanDBFromAddressRange(start, end-start+1, 0);
+}
+
 #endif
 
 EXPORTDYN
