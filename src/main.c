@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <errno.h>
 #ifdef DYNAREC
+#include <unistd.h>
 #ifdef ARM
 #include <sys/auxv.h>
 #include <asm/hwcap.h>
@@ -44,6 +45,7 @@ int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
+int box86_pagesize;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -80,6 +82,9 @@ void GatherDynarecExtensions()
 {
     if(box86_dynarec==0)    // no need to check if no dynarec
         return;
+    box86_pagesize = sysconf(_SC_PAGESIZE);
+    if(!box86_pagesize)
+        box86_pagesize = 4096;
 #ifdef ARM
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
@@ -128,7 +133,7 @@ void GatherDynarecExtensions()
         printf_log(LOG_INFO, " SWP");
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
-    printf_log(LOG_INFO, "\n");
+    printf_log(LOG_INFO, " PageSize:%d\n", box86_pagesize);
 #endif
 }
 #endif
