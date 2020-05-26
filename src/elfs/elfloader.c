@@ -989,7 +989,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
 {
     elfheader_t* elf = FindElfAddress(context, addr);
     if(!elf) {
-        if((*(uint8_t*)addr)==0xCC || (addr>11 && (*(uint8_t*)(addr-11))==0xCC) )
+        if((*(uint8_t*)addr)==0xCC || (addr>11 && ((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
             return context->dynablocks;
         dynablocklist_t* ret = getDBFromAddress(addr);
         if(ret) {
