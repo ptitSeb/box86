@@ -383,18 +383,21 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
     return block;
 }
 
-dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
+dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
-    dynablock_t *db = internalDBGetBlock(emu, addr, create, current);
+    dynablock_t *db = internalDBGetBlock(emu, addr, create, *current);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating block from %p for 0x%x\n", father->x86_addr, father->x86_size);
+            // no more current if it gets invalidated too
+            if(*current && father->x86_addr>=(*current)->x86_addr && (father->x86_addr+father->x86_size)<=(*current)->x86_addr)
+                *current = NULL;
             // Free father, it's now invalid!
             FreeDirectDynablock(father->parent, (uintptr_t)father->x86_addr, father->x86_size);
             // start again... (will create a new block)
-            db = internalDBGetBlock(emu, addr, create, current);
+            db = internalDBGetBlock(emu, addr, create, *current);
         } else {
             father->need_test = 0;
         }

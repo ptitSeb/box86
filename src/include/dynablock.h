@@ -20,7 +20,7 @@ void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 
 // Handling of Dynarec block (i.e. an exectable chunk of x86 translated code)
-dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current);   // return NULL if block is not found / cannot be created. Don't create if create==0
+dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current);   // return NULL if block is not found / cannot be created. Don't create if create==0
 
 // source is linked to dest (i.e. source->table[x] = dest->block), so add a "mark" in dest, add a "linked" info to source
 void AddMark(dynablock_t* source, dynablock_t* dest, void** table);
