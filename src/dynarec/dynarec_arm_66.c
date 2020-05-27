@@ -799,6 +799,35 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xF3:
+            nextop = F8;
+            switch(nextop) {
+                case 0xA5:
+                    INST_NAME("REP MOVSW");
+                    TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                    B_NEXT(cEQ);    // end of loop
+                    GETDIR(x3, 2);
+                    MARK;
+                    LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
+                    STRHAI_REG_LSL_IMM5(x1, xEDI, x3);
+                    SUBS_IMM8(xECX, xECX, 1);
+                    B_MARK(cNE);
+                    break;
+                case 0xAB:
+                    INST_NAME("REP STOSW");
+                    TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                    B_NEXT(cEQ);    // end of loop
+                    GETDIR(x3, 2);
+                    MARK;
+                    STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
+                    SUBS_IMM8(xECX, xECX, 1);
+                    B_MARK(cNE);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0xF7:
             nextop = F8;
             switch((nextop>>3)&7) {
