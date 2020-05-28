@@ -167,8 +167,9 @@ void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
         dest = dest->father;
     if(dest->marks) {
         kh_put(mark, dest->marks, (uintptr_t)table, &ret);
-    }
-    table[3] = (void*)dest;
+        table[3] = (void*)dest;
+    } else
+        table[3] = NULL;
 }
 
 void MarkDynablockList(dynablocklist_t** dynablocks)
