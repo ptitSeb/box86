@@ -92,9 +92,17 @@ void FreeDynablock(dynablock_t* db, int nolinker)
                         db->parent->direct[addr-startdb] = NULL;
                 }
             }
-
         }
-        FreeDynarecMap((uintptr_t)db->block, db->size);
+        // remove and free the sons
+        for (int i=0; i<db->sons_size; ++i) {
+            dynablock_t *son = db->sons[i];
+            FreeDynablock(son, nolinker);
+            db->sons[i] = NULL;
+        }
+        // only the father free the DynarecMap
+        if(!db->father)
+            FreeDynarecMap((uintptr_t)db->block, db->size);
+        free(db->sons);
         free(db->table);
         free(db);
     }
