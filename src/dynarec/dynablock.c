@@ -56,6 +56,15 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
 void FreeDynablock(dynablock_t* db, int nolinker)
 {
     if(db) {
+        db->done = 0;
+        // remove from direct if there
+        uintptr_t startdb = db->parent->text;
+        uintptr_t enddb = db->parent->text + db->parent->textsz;
+        if(db->parent->direct) {
+            uintptr_t addr = (uintptr_t)db->x86_addr;
+            if(addr>=startdb && addr<=enddb)
+                db->parent->direct[addr-startdb] = NULL;
+        }
         if(db->marks) {
             // Follow mark and set arm_linker instead
             khint_t k;
@@ -67,29 +76,14 @@ void FreeDynablock(dynablock_t* db, int nolinker)
             );
             // free mark
             kh_destroy(mark, db->marks);
+            db->marks = NULL;
         }
         for(int i=0; i<db->tablesz; i+=4) {
-            if(db->table[i+3]) {
-                dynablock_t* p = (dynablock_t*)db->table[i+3];
-                if(p->marks) {
-                    khint_t kd = kh_get(mark, p->marks, (uintptr_t)(db->table+i));
-                    if(kd!=kh_end(p->marks)) {
-                        kh_del(mark, p->marks, kd);
-                    }
-                }
-
-            }
-        }
-        // check the sons, if any, to remove them from the direct table (don't touch the map)
-        if(db->sons_size && db->parent->direct) {
-            uintptr_t startdb = db->parent->text;
-            uintptr_t enddb = db->parent->text + db->parent->textsz;
-            for (int i=0; i<db->sons_size; ++i) {
-                dynablock_t *son = db->sons[i];
-                if(son) {
-                    uintptr_t addr = (uintptr_t)son->x86_addr;
-                    if(addr>=startdb && addr<=enddb)
-                        db->parent->direct[addr-startdb] = NULL;
+            dynablock_t* p = (dynablock_t*)db->table[i+3];
+            if(p && p!=db && p->marks) {
+                khint_t kd = kh_get(mark, p->marks, (uintptr_t)(&db->table[i+0]));
+                if(kd!=kh_end(p->marks)) {
+                    kh_del(mark, p->marks, kd);
                 }
             }
         }
