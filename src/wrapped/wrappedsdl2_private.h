@@ -514,7 +514,7 @@ GOM(SDL_SaveDollarTemplate, iFEip)
 // SDL_scalbnf
 GO(SDL_SemPost, iFp)
 GO(SDL_SemTryWait, iFp)
-// SDL_SemValue
+GO(SDL_SemValue, uFp)
 GO(SDL_SemWait, iFp)
 GO(SDL_SemWaitTimeout, iFpu)
 // SDL_SensorClose
