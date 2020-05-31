@@ -95,7 +95,7 @@ GOW(bind, iFipu)
 // bindresvport
 GOW(bindtextdomain, pFpp)
 GOW(bind_textdomain_codeset, pFpp)
-// brk  // Weak
+GOW(brk, iFp)
 // __bsd_getpgrp
 // bsd_signal   // Weak
 GOM(bsearch, pFEppuup)
@@ -1418,7 +1418,7 @@ GO(rpmatch, iFp)
 // ruserok
 // ruserok_af
 // ruserpass
-// sbrk // Weak
+GOW(sbrk, pFl)
 GO(__sbrk, pFl)
 // scalbn   // Weak
 // scalbnf  // Weak
