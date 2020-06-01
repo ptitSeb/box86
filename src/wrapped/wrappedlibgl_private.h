@@ -115,7 +115,7 @@ GO(glCopyBufferSubData,vFuuiii)
 //ARB_copy_image
 GO(glCopyImageSubData,vFuuiiiiuuiiiiiii)
 //ARB_debug_output
-// GOM(glDebugMessageCallbackARB,vFE?p)
+GOM(glDebugMessageCallbackARB,vFEpp)
 GO(glDebugMessageControlARB,vFuuuipi)
 GO(glDebugMessageInsertARB,vFuuuuip)
 GO(glGetDebugMessageLogARB,uFuipppppp)

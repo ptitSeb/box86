@@ -83,13 +83,7 @@ static void debug_callback(int32_t source, int32_t type, uint32_t id, int32_t se
 {
     if(!debug_cb)
         return;
-    SetCallbackArg(debug_cb, 0, (void*)source);
-    SetCallbackArg(debug_cb, 1, (void*)type);
-    SetCallbackArg(debug_cb, 2, (void*)id);
-    SetCallbackArg(debug_cb, 3, (void*)severity);
-    SetCallbackArg(debug_cb, 4, (void*)length);
-    SetCallbackArg(debug_cb, 5, (void*)message);
-    SetCallbackArg(debug_cb, 6, (void*)param);
+    SetCallbackArgs(debug_cb, 7, source, type, id, severity, length, message, param);
     RunCallback(debug_cb);
 }
 EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
@@ -110,6 +104,7 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
         debug_cb = AddCallback(emu, (uintptr_t)prod, 7, NULL, NULL, NULL, NULL);
     DebugMessageCallback(prod?debug_callback:NULL, param);
 }
+EXPORT void my_glDebugMessageCallbackARB(x86emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 
 #define PRE_INIT if(libGL) lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); else
 #define CUSTOM_INIT \
