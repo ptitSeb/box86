@@ -103,7 +103,7 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
         if (end == 0) {
             printf_log(LOG_INFO, "Setting trace\n");
         } else {
-            if(trace_end!=1) {  // 0-1 is basically no trace, so don't printf it...
+            if(end!=1) {  // 0-1 is basically no trace, so don't printf it...
                 printf_log(LOG_INFO, "Setting trace only between %p and %p\n", (void*)start, (void*)end);
             }
         }

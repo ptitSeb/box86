@@ -58,6 +58,8 @@ int InitX86Trace(box86context_t *context)
     GO(ZydisFormatterFormatInstruction);
     #undef GO
 
+    context->dec = InitX86TraceDecoder(context);
+
     return 0;
 }
 

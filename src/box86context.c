@@ -299,14 +299,6 @@ box86context_t *NewBox86Context(int argc)
 
     initAllHelpers(context);
 
-    // if trace is activated
-    if(context->x86trace) {
-        context->dec = InitX86TraceDecoder(context);
-        if(!context->dec)
-            printf_log(LOG_INFO, "Failed to initialize Zydis decoder and formater, no trace activated\n");
-    }
-
-
     return context;
 }
 

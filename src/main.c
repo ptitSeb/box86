@@ -541,7 +541,7 @@ void setupTrace(box86context_t* context)
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
-            if(trace_start)
+            if(trace_start || trace_end)
                 SetTraceEmu(trace_start, trace_end);
         } else {
             if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
