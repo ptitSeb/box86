@@ -99,7 +99,8 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         emu->df = d_none;
         dynablock_t* block = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &block);
+            dynablock_t* current = block;
+            block = DBGetBlock(emu, R_EIP, 1, &current);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
@@ -146,7 +147,8 @@ int DynaRun(x86emu_t* emu)
     else {
         dynablock_t* block = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &block);
+            dynablock_t* current = block;
+            block = DBGetBlock(emu, R_EIP, 1, &current);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
