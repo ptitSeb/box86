@@ -1,5 +1,6 @@
 # box86
 
+![Official logo](Box86Logo.png "Official Logo")
 Linux Userspace x86 Emulator with a twist
 
 Box86 will let you run x86 Linux programs (games) on non-x86 Linux, like ARM (host system needs to be 32bit little-endian).
@@ -24,6 +25,10 @@ Here are 6 videos, the first 2 of "Airline Tycoon Deluxe" and "Heretic 2" runnin
 You can find many more box86 video on [PI Lab Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) [![PI Lab Channel](https://yt3.ggpht.com/a/AATXAJyMeWrgCjs78gr6To6yX4KtDPUCS7hsbX1rRA=s100-c-k-c0xffffffff-no-rj-mo)](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g).
 
 Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list/issues
+
+<img src="Box86Icon.png" width="96" height="96">
+
+Logo and Icon made by @grayduck, thanks!
 
 ----
 
