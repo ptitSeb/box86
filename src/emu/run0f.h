@@ -54,7 +54,18 @@
         _0f_0x18:                       /* PREFETCHh Ed */
             nextop = F8;
             GET_ED;
-            __builtin_prefetch((void*)ED->dword[0], 0, 0); // inoring wich level of cache (roughly (nextop>>3)&7)
+            if((nextop&0xC0)==0xC0) {
+            } else
+            switch((nextop>>3)&7) {
+                case 0: //PREFETCHnta
+                case 1: //PREFETCH1
+                case 2: //PREFETCH2
+                case 3: //PREFETCH3
+                    __builtin_prefetch((void*)ED, 0, 0); // ignoring wich level of cache
+                    break;
+                default:    //NOP
+                    break;
+            }
             NEXT;
 
         _0f_0x1F:                      /* NOP (multi-byte) */

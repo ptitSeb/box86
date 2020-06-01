@@ -196,18 +196,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x18:
             nextop = F8;
-            INST_NAME("PREFETCHh Ed");
             if((nextop&0xC0)==0xC0) {
-                // meh?
-            } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xffff, 0);
-                MOVW(x3, fixedaddress);
-                if(fixedaddress<0) {
-                    PLDn(ed, x3);
-                } else {
-                    PLD(ed, x3);
+                INST_NAME("NOP (multibyte)");
+            } else
+            switch((nextop>>3)&7) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    INST_NAME("PREFETCHh Ed");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0xffff, 0);
+                    MOVW(x3, fixedaddress);
+                    if(fixedaddress<0) {
+                        PLDn(ed, x3);
+                    } else {
+                        PLD(ed, x3);
+                    }
+                    break;
+                default:
+                    INST_NAME("NOP (multibyte)");
+                    FAKEED;
                 }
-            }
             break;
 
         case 0x1F:
