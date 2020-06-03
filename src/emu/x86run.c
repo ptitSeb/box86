@@ -215,7 +215,7 @@ _trace:
 
     #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace
 #else
-    #define NEXT    goto *baseopcodes[(old_ip=ip, opcode=F8)];
+    #define NEXT    goto *baseopcodes[(old_ip=ip, opcode=F8)]
 #endif
 
 #include "modrm.h"
