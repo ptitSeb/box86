@@ -44,7 +44,7 @@ int Run(x86emu_t *emu, int step)
     if(emu->quit)
         return 0;
 
-    old_ip = 0;
+    old_ip = R_EIP;
 
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, emu->context->stack);
@@ -213,9 +213,9 @@ _trace:
         || ((ip >= trace_start) && (ip < trace_end))) )
             PrintTrace(emu, ip, 0);
 
-    #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace;
+    #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace
 #else
-    #define NEXT    old_ip = ip; __builtin_prefetch((void*)ip, 0, 0); goto *baseopcodes[(opcode=F8)];
+    #define NEXT    goto *baseopcodes[(old_ip=ip, opcode=F8)];
 #endif
 
 #include "modrm.h"
