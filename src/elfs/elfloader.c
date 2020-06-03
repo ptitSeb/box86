@@ -133,6 +133,8 @@ int CalcLoadAddr(elfheader_t* head)
 
 const char* ElfName(elfheader_t* head)
 {
+    if(!head)
+        return "(noelf)";
     return head->name;
 }
 

@@ -760,9 +760,9 @@ void printFunctionAddr(uintptr_t nextaddr, const char* text)
     const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, nextaddr), (void*)nextaddr, &start, &sz);
     if(symbname && nextaddr>=start && (nextaddr<(start+sz) || !sz)) {
         if(nextaddr==start)
-            printf_log(LOG_NONE, " (%s%s)", text, symbname);
+            printf_log(LOG_NONE, " (%s%s/%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);
         else
-            printf_log(LOG_NONE, " (%s%s + %d)", text, symbname, nextaddr - start);
+            printf_log(LOG_NONE, " (%s%s/%s + %d)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
     }
 }
 
