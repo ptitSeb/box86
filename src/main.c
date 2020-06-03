@@ -784,20 +784,6 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(ld_preload.size) {
-        for (int i=0; i<ld_preload.size; ++i) {
-            library_t * lib = GetLib(my_context->maplib, ld_preload.paths[i]);
-            if(lib && FinalizeLibrary(lib, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot finalize pre-load lib: \"%s\"\n", ld_preload.paths[i]);
-            }            
-        }
-    }
-    if(FinalizeNeededLibs(elf_header, my_context->maplib, my_context, emu)) {
-        printf_log(LOG_NONE, "Error: finalizing needed libs in elf %s\n", my_context->argv[0]);
-        FreeBox86Context(&my_context);
-        FreeCollection(&ld_preload);
-        return -1;
-    }
     // reloc...
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
     if(RelocateElf(my_context->maplib, elf_header)) {

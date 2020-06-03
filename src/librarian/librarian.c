@@ -99,8 +99,6 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
     // first check if lib is already loaded
     library_t *lib = getLib(maplib, path);
     if(lib) {
-        if(parent)
-            LibAddNeededLib(parent, lib);
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
     }
@@ -119,25 +117,39 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
     maplib->libraries[maplib->libsz].lib = lib;
     maplib->libraries[maplib->libsz].name = GetNameLib(lib);
     ++maplib->libsz;
-    if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
-        printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
-        return 1;
-    }
 
+    // add needed libs first
     if(parent)
-        LibAddNeededLib(parent, lib);
-    
-    printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
-    
-    return 0;
-}
-EXPORTDYN
-int FinalizeNeededLib(lib_t* maplib, const char* path, box86context_t* box86, x86emu_t* emu)
-{
-    if(FinalizeLibrary(GetLib(maplib, path), emu)) {
-        printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
-        return 1;
+        LibAddNeededLib(parent, lib);   // add needed libs list
+    int mainelf = GetElfIndex(lib);
+
+    if(mainelf==-1) {
+        // It's a native libs, just add wrapped symbols to global map
+        if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
+            printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
+            return 1;
+        }
+    } else {
+        // it's an emulated lib, so lets load dependancies before adding symbols and launch init sequence
+        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, box86, emu)) {
+            printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
+            return 1;
+        }
+
+        // add symbols
+        if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
+            printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
+            return 1;
+        }
+
+        // finalize the lib
+        if(FinalizeLibrary(lib, emu)) {
+            printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
+            return 1;
+        }
     }
+    // success
+    printf_log(LOG_DEBUG, "Created lib and added to maplib => success\n");
     
     return 0;
 }

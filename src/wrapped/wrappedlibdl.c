@@ -94,13 +94,6 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             return NULL;
         }
-        if(FinalizeNeededLib(emu->context->maplib, rfilename, emu->context, emu)) {
-            printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
-            if(!dl->last_error)
-                dl->last_error = malloc(129);
-            snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
-            return NULL;
-        }
         lib = GetLib(emu->context->maplib, rfilename);
     } else {
         // check if already dlopenned...

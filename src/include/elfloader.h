@@ -29,7 +29,6 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86context_t* box86, x86emu_t* emu);
-int FinalizeNeededLibs(elfheader_t* h, lib_t *maplib, box86context_t *box86, x86emu_t* emu);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x86emu_t *emu);
