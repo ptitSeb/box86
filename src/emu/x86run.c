@@ -1003,11 +1003,11 @@ _trace:
         _0xE6:                      /* OUT Ib, AL */
             tmp32s = F8;    // port address
             //nothing goes out...
-            NEXT
+            NEXT;
         _0xE7:                      /* OUT Ib, EAX */
             tmp32s = F8;    // port address
             //nothing goes out...
-            NEXT
+            NEXT;
         _0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
             Push(emu, ip);
