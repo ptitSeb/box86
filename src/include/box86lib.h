@@ -12,6 +12,7 @@ void LoadEnvVars(box86context_t *context);
 void setupTraceInit(box86context_t* context);
 void setupTrace(box86context_t* context);
 void initAllHelpers(box86context_t* context);
+void finiAllHelpers();
 
 #ifdef BUILD_DYNAMIC
 box86context_t* GetBox86Context();

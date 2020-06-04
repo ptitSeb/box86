@@ -34,4 +34,7 @@ int my___sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_si
 
 int my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_restorer_t *act, x86_sigaction_restorer_t *oldact, int sigsetsize);
 
+void init_signal_helper();
+void fini_signal_helper();
+
 #endif //__SIGNALS_H__

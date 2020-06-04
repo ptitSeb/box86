@@ -45,6 +45,8 @@ There are a few environment variables to control Box86 behaviour.
 
 See [here](USAGE.md) for all variables and what they do.
 
+Note that now the Dynarec of box86 use a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug running a program that use JIT'd code (like mono/Unity3D), you will have many "normal" segfault triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+
 ----
 
 Version history

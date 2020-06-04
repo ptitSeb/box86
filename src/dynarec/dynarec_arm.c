@@ -255,10 +255,11 @@ void* FillBlock(dynablock_t* block) {
         sons = (dynablock_t**)calloc(helper.sons_size, sizeof(dynablock_t*));
         for (int i=0; i<helper.sons_size; ++i) {
             int created = 0;
-            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
+            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], 0, &created);
             if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x86_addr = (void*)helper.sons_x86[i];
+                son->x86_size = end-helper.sons_x86[i]+1;
                 son->father = block;
                 son->done = 1;
                 sons[sons_size++] = son;
@@ -270,6 +271,8 @@ void* FillBlock(dynablock_t* block) {
         } else
             free(sons);
     }
+    if(block->parent->nolinker)
+        protectDB((uintptr_t)block->x86_addr, block->x86_size);
     block->done = 1;
     return (void*)block;
 }

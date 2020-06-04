@@ -18,6 +18,7 @@
 #include "myfts.h"
 #include "threads.h"
 #include "x86trace.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
@@ -157,14 +158,15 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     for (int i=idx; i<=end; ++i) {
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
-            my_context->dynmap[i]->dynablocks = NewDynablockList(0, i<<16, 65536, 1, 1);
+            my_context->dynmap[i]->dynablocks = NewDynablockList(0, i<<16, 1<<16, 1, 1);
         }
     }
+    protectDB(addr, size);
 }
 
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
-    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
     int idx = (addr>>16);
     int end = ((addr+size-1)>>16);
     for (int i=idx; i<=end; ++i) {
@@ -197,19 +199,21 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 // no log, as it can be executed inside a signal handler
 void protectDB(uintptr_t addr, uintptr_t size)
 {
-    uintptr_t start = (addr)&(box86_pagesize-1);
-    uintptr_t end = (addr+size+(box86_pagesize-1))&(box86_pagesize-1);
-    mprotect((void*)start, end-start+1, PROT_READ|PROT_EXEC);
+    uintptr_t start = (addr)&~(box86_pagesize-1);
+    uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
+    // should get "end" according to last block inside the window
+    mprotect((void*)start, end-start, PROT_READ|PROT_EXEC);
 }
 
 // Add the Write flag from an adress range, so DB can be executed, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
 void unprotectDB(uintptr_t addr, uintptr_t size)
 {
-    uintptr_t start = (addr)&(box86_pagesize-1);
-    uintptr_t end = (addr+size+(box86_pagesize-1))&(box86_pagesize-1);
+    uintptr_t start = (addr)&~(box86_pagesize-1);
+    uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
+    // should get "end" according to last block inside the window
     mprotect((void*)start, end-start+1, PROT_READ|PROT_WRITE|PROT_EXEC);
-    cleanDBFromAddressRange(start, end-start+1, 0);
+    cleanDBFromAddressRange(start, end-start, 0);
 }
 
 #endif
@@ -222,7 +226,19 @@ void initAllHelpers(box86context_t* context)
         return;
     my_context = context;
     init_pthread_helper();
+    init_signal_helper();
     inited = 1;
+}
+
+EXPORTDYN
+void finiAllHelpers()
+{
+    static int finied = 0;
+    if(finied)
+        return;
+    fini_pthread_helper();
+    fini_signal_helper();
+    finied = 1;
 }
 
 void x86Syscall(x86emu_t *emu);
@@ -408,6 +424,8 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->emu_sig)
         FreeX86Emu(&(*context)->emu_sig);
+
+    finiAllHelpers();
 
     free(*context);
     *context = NULL;

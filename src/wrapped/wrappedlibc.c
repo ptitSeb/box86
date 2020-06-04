@@ -1486,6 +1486,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
     void* ret = mmap(addr, length, prot, flags, fd, offset);
     dynarec_log(LOG_DEBUG, "%p\n", ret);
+printf("mmap(%p, %lu, 0x%x, 0x%x, %d, %d) => %p\n", addr, length, prot, flags, fd, offset, ret);
     #ifdef DYNAREC
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)ret, length);
@@ -1521,13 +1522,14 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
 {
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
+    int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)addr, len);
     else
-        cleanDBFromAddressRange((uintptr_t)addr, len, 0);
+        cleanDBFromAddressRange((uintptr_t)addr, len, 1);
     #endif
-    return mprotect(addr, len, prot);
+    return ret;
 }
 
 static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)

@@ -8,6 +8,7 @@
 #include <syscall.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <ucontext.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -178,6 +179,38 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
 }
+void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+{
+    // sig == SIGSEGV here!
+    ucontext_t *p=(ucontext_t *)ucntx;
+    void* addr = (void*)info->si_addr;  // address that triggered the issue
+#ifdef __arm__
+    void * pc = (void*)p->uc_mcontext.arm_pc;
+#elif defined __x86__
+    void * pc = p->uc_mcontext.gregs[REG_RIP];
+#else
+    void * c = NULL;    // unknow arch...
+    #warning Unhandled architecture
+#endif
+#ifdef DYNAREC
+    if(addr && info->si_code == SEGV_ACCERR && getDBFromAddress((uintptr_t)addr)) {
+        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory\n", addr, pc);
+        // access error
+        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        // done
+        return;
+    }
+#endif
+    if(my_context->signals[sig]) {
+        if(my_context->is_sigaction[sig])
+            my_sigactionhandler(sig, info, ucntx);
+        else
+            my_sighandler(sig);
+        return;
+    }
+    // no handler, set default and that it...
+    signal(sig, SIG_DFL);
+}
 
 static void CheckSignalContext(x86emu_t* emu, int sig)
 {
@@ -203,9 +236,14 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     if(handler!=NULL && handler!=(sighandler_t)1) {
         // create a new handler
         my_context->signals[signum] = (uintptr_t)handler;
+        my_context->is_sigaction[signum] = 0;
         my_context->restorer[signum] = 0;
         handler = my_sighandler;
     }
+#ifdef DYNAREC
+    if(signum == SIGSEGV)
+        return 0;
+#endif
     return signal(signum, handler);
 }
 EXPORT sighandler_t my___sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
@@ -232,17 +270,23 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         if(act->sa_flags&0x04) {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                my_context->is_sigaction[signum] = 1;
                 newact.sa_sigaction = my_sigactionhandler;
             }
         } else {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                my_context->is_sigaction[signum] = 0;
                 newact.sa_handler = my_sighandler;
             }
         }
         my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
-    int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    int ret = 0;
+#ifdef DYNAREC
+    if(signum != SIGSEGV)
+#endif
+    sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
@@ -279,6 +323,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             if(act->sa_flags&0x04) {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                    my_context->is_sigaction[signum] = 1;
                     newact.k_sa_handler = (void*)my_sigactionhandler;
                 } else {
                     newact.k_sa_handler = (void*)act->_u._sa_sigaction;
@@ -286,6 +331,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             } else {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    my_context->is_sigaction[signum] = 0;
                     newact.k_sa_handler = my_sighandler;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
@@ -327,6 +373,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             } else {
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                    my_context->is_sigaction[signum] = 0;
                     newact.sa_handler = my_sighandler;
                 } else {
                     newact.sa_handler = act->_u._sa_handler;
@@ -339,8 +386,11 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             old.sa_flags = oldact->sa_flags;
             old.sa_mask = oldact->sa_mask;
         }
-
-        int ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+        int ret = 0;
+#ifdef DYNAREC
+        if(signum != SIGSEGV)
+#endif
+        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
             oldact->sa_mask = old.sa_mask;
@@ -439,4 +489,21 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
     // activate ucp2
     my_setcontext(emu, ucp2);
     return 0;
+}
+
+void init_signal_helper()
+{
+#ifdef DYNAREC
+	struct sigaction action;
+	action.sa_flags = SA_SIGINFO | SA_RESTART;
+	action.sa_sigaction = my_memprotectionhandler;
+    sigaction(SIGSEGV, &action, NULL);
+#endif
+}
+
+void fini_signal_helper()
+{
+#ifdef DYNAREC
+    signal(SIGSEGV, SIG_DFL);
+#endif
 }
