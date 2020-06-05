@@ -565,6 +565,12 @@ box86context_t* GetBox86Context()
     return my_context;
 }
 
+EXPORTDYN
+x86emu_t* GetX86Emu()
+{
+    return thread_get_emu();
+}
+
 __attribute__((constructor))
 void init_library() 
 {

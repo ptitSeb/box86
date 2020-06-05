@@ -276,8 +276,11 @@ box86context_t *NewBox86Context(int argc)
     // init and put default values
     box86context_t *context = (box86context_t*)calloc(1, sizeof(box86context_t));
 
+#ifdef BUILD_LIB
+    context->deferedInit = 0;
+#else
     context->deferedInit = 1;
-
+#endif
     context->maplib = NewLibrarian(context);
     context->system = NewBridge();
     // create vsyscall
