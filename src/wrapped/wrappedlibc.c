@@ -1486,7 +1486,6 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
     void* ret = mmap(addr, length, prot, flags, fd, offset);
     dynarec_log(LOG_DEBUG, "%p\n", ret);
-printf("mmap(%p, %lu, 0x%x, 0x%x, %d, %d) => %p\n", addr, length, prot, flags, fd, offset, ret);
     #ifdef DYNAREC
     if(prot& PROT_EXEC)
         addDBFromAddressRange((uintptr_t)ret, length);
