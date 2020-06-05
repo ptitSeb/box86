@@ -21,66 +21,36 @@
 const char* curlName = "libcurl.so.4";
 #define LIBNAME curl
 
-typedef struct curldata_s {
-    x86emu_t*   writefnc;
-    void*       writedata;
-    x86emu_t*   readfnc;
-    void*       readdata;
-    x86emu_t*   iofnc;
-    void*       iodata;
-    x86emu_t*   seekfnc;
-    void*       seekdata;
-    x86emu_t*   headerfnc;
-    void*       headerdata;
-} curldata_t;
-
-KHASH_MAP_INIT_INT(curldata, curldata_t)
-
-
 typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
 typedef void (*vFp_t)(void*);
+typedef void* (*pFp_t)(void*);
+
+#define SUPER() \
+    GO(curl_easy_setopt, uFpup_t)
 
 typedef struct curl_my_s {
     // functions
-    vFp_t           curl_easy_cleanup;
-    uFpup_t         curl_easy_setopt;
-    // data
-    kh_curldata_t   *curldata;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } curl_my_t;
-
-static void clean_cdata(curl_my_t *my, void* handle)
-{
-    khint_t k;
-    k = kh_get(curldata, my->curldata, (uintptr_t)handle);
-    if(k!=kh_end(my->curldata)) {
-        curldata_t* cdata = &kh_value(my->curldata, k);
-        #define GO(A) if(cdata->A) FreeCallback(cdata->A)
-        GO(writefnc);
-        GO(readfnc);
-        GO(iofnc);
-        GO(seekfnc);
-        GO(headerfnc);
-        #undef GO
-        kh_del(curldata, my->curldata, k);
-    }
-}
 
 void* getCurlMy(library_t* lib)
 {
     curl_my_t* my = (curl_my_t*)calloc(1, sizeof(curl_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(curl_easy_cleanup, vFp_t)
-    GO(curl_easy_setopt, uFpup_t)
+    SUPER()
     #undef GO
-    my->curldata = kh_init(curldata);
+
     return my;
 }
 
 void freeCurlMy(void* lib)
 {
-    curl_my_t *my = (curl_my_t *)lib;
-    kh_destroy(curldata, my->curldata);
+//    curl_my_t *my = (curl_my_t *)lib;
+
 }
+#undef SUPER
 
 #define LONG          0
 #define OBJECTPOINT   10000
@@ -370,185 +340,188 @@ typedef enum {
 #undef OFF_T
 #undef CINIT
 
-static size_t my_write_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
+#define SUPER() \
+    GO(0)   \
+    GO(1)   \
+    GO(2)   \
+    GO(3)
+
+// write
+#define GO(A)   \
+static uintptr_t my_write_fct_##A = 0;   \
+static size_t my_write_##A(char* ptr, size_t size, size_t nmemb, void* userdata)     \
+{                                       \
+    return (size_t)RunFunction(my_context, my_write_fct_##A, 4, ptr, size, nmemb, userdata);\
+}
+SUPER()
+#undef GO
+static void* find_write_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*)userdata;
-    SetCallbackArg(emu, 0, ptr);
-    SetCallbackArg(emu, 1, (void*)size);
-    SetCallbackArg(emu, 2, (void*)nmemb);
-    return RunCallback(emu);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_write_fct_##A == (uintptr_t)fct) return my_write_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_write_fct_##A == 0) {my_write_fct_##A = (uintptr_t)fct; return my_write_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl write callback\n");
+    return NULL;
 }
 
-static size_t my_read_callback(char* buffer, size_t size, size_t nitems, void* userdata)
+// read
+#define GO(A)   \
+static uintptr_t my_read_fct_##A = 0;   \
+static size_t my_read_##A(char* buffer, size_t size, size_t nitems, void* userdata)     \
+{                                       \
+    return (size_t)RunFunction(my_context, my_read_fct_##A, 4, buffer, size, nitems, userdata);\
+}
+SUPER()
+#undef GO
+static void* find_read_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*)userdata;
-    SetCallbackArg(emu, 0, buffer);
-    SetCallbackArg(emu, 1, (void*)size);
-    SetCallbackArg(emu, 2, (void*)nitems);
-    return RunCallback(emu);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_read_fct_##A == (uintptr_t)fct) return my_read_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_read_fct_##A == 0) {my_read_fct_##A = (uintptr_t)fct; return my_read_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl read callback\n");
+    return NULL;
 }
 
-static size_t my_ioctl_callback(void* handle, int32_t fnc, void* userdata)
+// ioctl
+#define GO(A)   \
+static uintptr_t my_ioctl_fct_##A = 0;   \
+static size_t my_ioctl_##A(void* handle, int32_t fnc, void* userdata)     \
+{                                       \
+    return (size_t)RunFunction(my_context, my_ioctl_fct_##A, 3, handle, fnc, userdata);\
+}
+SUPER()
+#undef GO
+static void* find_ioctl_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*)userdata;
-    SetCallbackArg(emu, 0, handle);
-    SetCallbackArg(emu, 1, (void*)fnc);
-    return RunCallback(emu);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ioctl_fct_##A == (uintptr_t)fct) return my_ioctl_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ioctl_fct_##A == 0) {my_ioctl_fct_##A = (uintptr_t)fct; return my_ioctl_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl ioctl callback\n");
+    return NULL;
 }
 
-static int32_t my_seek_callback(void* userdata, int64_t off, int32_t origin)
-{
-    x86emu_t *emu = (x86emu_t*)userdata;
-    uint32_t poff;
-    poff = (off&0xffffffff);
-    SetCallbackArg(emu, 1, (void*)poff);
-    poff = ((off>>32)&0xffffffff);
-    SetCallbackArg(emu, 2, (void*)poff);
-    SetCallbackArg(emu, 3, (void*)origin);
-    return (int32_t)RunCallback(emu);
+// seek
+#define GO(A)   \
+static uintptr_t my_seek_fct_##A = 0;   \
+static int32_t my_seek_##A(void* userdata, int64_t off, int32_t origin)     \
+{                                       \
+    return (int32_t)RunFunction(my_context, my_seek_fct_##A, 4, userdata, (off&0xffffffff), ((off>>32)&0xffffffff), origin);\
 }
-/*
-static size_t my_header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
+SUPER()
+#undef GO
+static void* find_seek_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*)userdata;
-    SetCallbackArg(emu, 0, buffer);
-    SetCallbackArg(emu, 1, (void*)size);
-    SetCallbackArg(emu, 2, (void*)nitems);
-    return RunCallback(emu);
-}
-*/
-
-EXPORT void my_curl_easy_cleanup(x86emu_t* emu, void* handle)
-{
-    library_t * lib = GetLib(emu->context->maplib, curlName);
-    curl_my_t *my = (curl_my_t*)lib->priv.w.p2;
-
-    clean_cdata(my, handle);
-
-    my->curl_easy_cleanup(handle);
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_seek_fct_##A == (uintptr_t)fct) return my_seek_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_seek_fct_##A == 0) {my_seek_fct_##A = (uintptr_t)fct; return my_seek_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl seek callback\n");
+    return NULL;
 }
 
-static curldata_t* getdata(curl_my_t *my, void* handle)
-{
-    khint_t k;
-    int ret;
-    k = kh_get(curldata, my->curldata, (uintptr_t)handle);
-    if(k==kh_end(my->curldata)) {
-        k = kh_put(curldata, my->curldata, (uintptr_t)handle, &ret); 
-        memset(&kh_value(my->curldata, k), 0, sizeof(curldata_t));
-    }
-    return &kh_value(my->curldata, k);
+// header
+#define GO(A)   \
+static uintptr_t my_header_fct_##A = 0;   \
+static size_t my_header_##A(char* buffer, size_t size, size_t nitems, void* userdata)     \
+{                                       \
+    return (size_t)RunFunction(my_context, my_header_fct_##A, 4, buffer, size, nitems, userdata);\
 }
+SUPER()
+#undef GO
+static void* find_header_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_header_fct_##A == (uintptr_t)fct) return my_header_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_header_fct_##A == 0) {my_header_fct_##A = (uintptr_t)fct; return my_header_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl header callback\n");
+    return NULL;
+}
+
+// progress
+#define GO(A)   \
+static uintptr_t my_progress_fct_##A = 0;   \
+static int my_progress_##A(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)     \
+{                                       \
+    return (int)RunFunction(my_context, my_progress_fct_##A, 5, clientp, dltotal, dlnow, ultotal, ulnow);\
+}
+SUPER()
+#undef GO
+static void* find_progress_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progress_fct_##A == (uintptr_t)fct) return my_progress_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progress_fct_##A == 0) {my_progress_fct_##A = (uintptr_t)fct; return my_progress_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl progress callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option, void* param)
 {
     library_t * lib = GetLib(emu->context->maplib, curlName);
     curl_my_t *my = (curl_my_t*)lib->priv.w.p2;
-    curldata_t *cdata = getdata(my, handle);
+
     switch(option) {
         case CURLOPT_WRITEDATA:
-            cdata->writedata = param;
-            if(cdata->writefnc) {
-                SetCallbackArg(cdata->writefnc, 3, param);
-                return 0;
-            }
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_WRITEFUNCTION:
-            if(!param) {
-                if(cdata->writefnc) {
-                    my->curl_easy_setopt(handle, CURLOPT_WRITEDATA, cdata->writedata);
-                    FreeCallback(cdata->writefnc);
-                }
-                cdata->writefnc = NULL;
-                return my->curl_easy_setopt(handle, option, param);
-            }
-            cdata->writefnc = AddCallback(emu, (uintptr_t)param, 4, NULL, NULL, NULL, cdata->writedata);
-            my->curl_easy_setopt(handle, CURLOPT_WRITEDATA, cdata->writefnc);
-            return my->curl_easy_setopt(handle, option, my_write_callback);
+            return my->curl_easy_setopt(handle, option, find_write_Fct(param));
         case CURLOPT_READDATA:
-            cdata->readdata = param;
-            if(cdata->readfnc) {
-                SetCallbackArg(cdata->readfnc, 3, param);
-                return 0;
-            }
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_READFUNCTION:
-            if(!param) {
-                if(cdata->readfnc) {
-                    my->curl_easy_setopt(handle, CURLOPT_READDATA, cdata->readdata);
-                    FreeCallback(cdata->readfnc);
-                }
-                cdata->readfnc = NULL;
-                return my->curl_easy_setopt(handle, option, param);
-            }
-            cdata->readfnc = AddCallback(emu, (uintptr_t)param, 4, NULL, NULL, NULL, cdata->readdata);
-            my->curl_easy_setopt(handle, CURLOPT_READDATA, cdata->readfnc);
-            return my->curl_easy_setopt(handle, option, my_read_callback);
+            return my->curl_easy_setopt(handle, option, find_read_Fct(param));
         case CURLOPT_IOCTLDATA:
-            cdata->iodata = param;
-            if(cdata->iofnc) {
-                SetCallbackArg(cdata->iofnc, 2, param);
-                return 0;
-            }
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_IOCTLFUNCTION:
-            if(!param) {
-                if(cdata->iofnc) {
-                    my->curl_easy_setopt(handle, CURLOPT_IOCTLDATA, cdata->iodata);
-                    FreeCallback(cdata->iofnc);
-                }
-                cdata->iofnc = NULL;
-                return my->curl_easy_setopt(handle, option, param);
-            }
-            cdata->iofnc = AddCallback(emu, (uintptr_t)param, 3, NULL, NULL, cdata->iodata, NULL);
-            my->curl_easy_setopt(handle, CURLOPT_IOCTLDATA, cdata->iofnc);
-            return my->curl_easy_setopt(handle, option, my_ioctl_callback);
+            return my->curl_easy_setopt(handle, option, find_ioctl_Fct(param));
         case CURLOPT_SEEKDATA:
-            cdata->seekdata = param;
-            if(cdata->seekfnc) {
-                SetCallbackArg(cdata->seekfnc, 0, param);
-                return 0;
-            }
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_SEEKFUNCTION:
-            if(!param) {
-                if(cdata->seekfnc) {
-                    my->curl_easy_setopt(handle, CURLOPT_SEEKDATA, cdata->seekdata);
-                    FreeCallback(cdata->seekfnc);
-                }
-                cdata->seekfnc = NULL;
-                return my->curl_easy_setopt(handle, option, param);
-            }
-            cdata->seekfnc = AddCallback(emu, (uintptr_t)param, 4, cdata->seekdata, NULL, NULL, NULL); // because offset if 64bits
-            my->curl_easy_setopt(handle, CURLOPT_SEEKDATA, cdata->iofnc);
-            return my->curl_easy_setopt(handle, option, my_seek_callback);
+            return my->curl_easy_setopt(handle, option, find_seek_Fct(param));
         case CURLOPT_HEADERDATA:
-            cdata->headerdata = param;
-            if(cdata->headerfnc) {
-                SetCallbackArg(cdata->headerfnc, 3, param);
-                return 0;
-            }
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_HEADERFUNCTION:
-            if(!param) {
-                if(cdata->headerfnc) {
-                    my->curl_easy_setopt(handle, CURLOPT_HEADERDATA, cdata->headerdata);
-                    FreeCallback(cdata->headerfnc);
-                }
-                cdata->headerfnc = NULL;
-                return my->curl_easy_setopt(handle, option, param);
-            }
-            cdata->headerfnc = AddCallback(emu, (uintptr_t)param, 4, NULL, NULL, NULL, cdata->headerdata);
-            my->curl_easy_setopt(handle, CURLOPT_HEADERDATA, cdata->headerfnc);
-            return my->curl_easy_setopt(handle, option, my_read_callback);
+            return my->curl_easy_setopt(handle, option, find_header_Fct(param));
+        case CURLOPT_PROGRESSDATA:
+            return my->curl_easy_setopt(handle, option, param);
+        case CURLOPT_PROGRESSFUNCTION:
+            return my->curl_easy_setopt(handle, option, find_progress_Fct(param));
         case CURLOPT_SOCKOPTFUNCTION:
         case CURLOPT_SOCKOPTDATA:
         case CURLOPT_OPENSOCKETFUNCTION:
         case CURLOPT_OPENSOCKETDATA:
         case CURLOPT_CLOSESOCKETFUNCTION:
         case CURLOPT_CLOSESOCKETDATA:
-        case CURLOPT_PROGRESSFUNCTION:
-        case CURLOPT_PROGRESSDATA:
         case CURLOPT_XFERINFOFUNCTION:
         //case CURLOPT_XFERINFODATA:
         case CURLOPT_DEBUGFUNCTION:

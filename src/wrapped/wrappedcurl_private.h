@@ -2,8 +2,8 @@
 #error Meh....
 #endif
 
-GOM(curl_easy_cleanup, vFEp)
-//GO(curl_easy_duphandle, 
+GO(curl_easy_cleanup, vFp)
+GO(curl_easy_duphandle, pFp)
 GO(curl_easy_escape, pFppi)
 GO(curl_easy_getinfo, uFpppppp) //vararg
 GO(curl_easy_init, pFv)
@@ -55,7 +55,7 @@ GO(curl_multi_remove_handle, uFpp)
 //GO(curl_multi_socket, 
 //GO(curl_multi_socket_action, 
 //GO(curl_multi_socket_all, 
-//GO(curl_multi_strerror, 
+GO(curl_multi_strerror, pFi)
 //GO(curl_multi_timeout, 
 //GO(curl_multi_wait, 
 //GO(curl_mvaprintf, 
@@ -74,5 +74,5 @@ GO(curl_slist_free_all, vFp)
 //GO(curl_strequal, 
 //GO(curl_strnequal, 
 //GO(curl_unescape, 
-//GO(curl_version, 
-//GO(curl_version_info, 
+GO(curl_version, pFv)
+GO(curl_version_info, pFi)
