@@ -68,9 +68,10 @@ Also note that, even if, on day, there is a box86_64, this one will only be able
 A note about Unity game emulation
 ----
 
-Running Unity games is a hit or miss for now. Unity use mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source). But the wrapping of this lib is tricky, and not done for now. So the only solution is to emulate everything. The tricky part is to emulated the "JIT" code emitted by mono. For now, this part is not working very well, and is pretty slow.
+Running Unity games is a hit or miss for now. Unity use mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and it needs to be built from source). But the wrapping of this lib is tricky, and not done for now. So the only solution is to emulate everything. The tricky part is to emulated the "JIT" code emitted by mono, and witht he new "protected memory" mecanism implemented, it is running with correct performances now.
+You should also note that some Unity3D games require OpenGL 3+, that can be tricky to provide on ARM SBC for now.
 
-TL;DR: mono games are either not working, or working very slowly.
+TL;DR: mono games are not all working for and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
 
 ----
 
