@@ -135,6 +135,10 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
+        // some special case, where dependancies may not be correct
+        if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
+            AddNeededLib(maplib, lib, "libGL.so.1", box86, emu);
+        }
 
         // add symbols
         if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
