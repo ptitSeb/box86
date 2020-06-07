@@ -1036,7 +1036,78 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
     }
     return open64(pathname, flags, mode);
 }
-#define TMP_MEMMAP "box86_tmpmemmap"
+#ifndef NOALIGN
+void CreateCPUInfoFile(int fd)
+{
+    size_t dummy;
+    char buff[600];
+    double freq = 600.0; // default to 600 MHz
+    double mips = 100.;  // default bogomips
+    // try to get actual ARM max speed:
+    FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
+    if(f) {
+        int r;
+        if(1==fscanf(f, "%d", &r))
+            freq = r/1000.;
+        fclose(f);
+    }
+    int n = 1;  // default number of CPU to 1
+    f = fopen("/proc/cpuinfo", "r");
+    if(f) {
+        n = 0;
+        int len = 0;
+        char* line = NULL;
+        while ((dummy = getline(&line, &len, f)) != -1) {
+            if(!strncmp(line, "processor\t", strlen("processor\t")))
+                ++n;
+            if(!n && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
+                // grab 1st BogoMIPS
+                double tmp;
+                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1)
+                    mips = tmp;
+            }
+        }
+        if(line) free(line);
+        fclose(f);
+        if(!n) n=1;
+    }
+    // generate fake CPUINFO
+    int gigahertz=(freq>=1000.);
+    #define P \
+    dummy = write(fd, buff, strlen(buff))
+    for (int i=0; i<n; ++i) {
+        sprintf(buff, "processor\t: %d\n", i);
+        P;
+        sprintf(buff, "vendor_id\t: GenuineIntel\n");
+        P;
+        sprintf(buff, "cpu family\t: 6\n");
+        P;
+        sprintf(buff, "model\t\t: 1\n");
+        P;
+        sprintf(buff, "model name\t: Intel Pentium IV @ %g%cHz\n", gigahertz?(freq/1000.):freq, gigahertz?'G':'M');
+        P;
+        sprintf(buff, "stepping\t: 1\nmicrocode\t: 0x10\n");
+        P;
+        sprintf(buff, "cpu MHz\t\t: %g\n", freq);
+        P;
+        sprintf(buff, "cache size\t: %d\n", 4096);
+        P;
+        sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", i, n);
+        P;
+        sprintf(buff, "core id\t\t:%d\ncpu cores\t: %d\n", i, 1);
+        P;
+        sprintf(buff, "bogomips\t: %g\n", mips);
+        P;
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 rdtscp ssse3 fma cx16 movbe\n");
+        P;
+        sprintf(buff, "\n");
+        P;
+    }
+    #undef P
+}
+#define TMP_CPUINFO "box86_tmpcpuinfo"
+#endif
+#define TMP_MEMMAP  "box86_tmpmemmap"
 EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
 {
     if(strcmp((const char*)path, "/proc/self/maps")==0) {
@@ -1048,6 +1119,17 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
     }
+    #ifndef NOALIGN
+    if(strcmp((const char*)path, "/proc/cpuinfo")==0) {
+        // special case for cpuinfo
+        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen(path, mode); // error fallback
+        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUInfoFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
+    #endif
     return fopen(path, mode);
 }
 
