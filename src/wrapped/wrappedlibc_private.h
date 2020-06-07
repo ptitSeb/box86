@@ -1394,7 +1394,7 @@ GO(__res_nclose, vFp)
 GO(__res_ninit, iFp)
 DATA(__resp, 4)
 // __res_randomid
-// __res_state
+DATA(__res_state, 4)
 // re_syntax_options    // type B
 // revoke
 GO(rewind, vFp)

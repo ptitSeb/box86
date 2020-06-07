@@ -23,14 +23,16 @@ const char* png12Name = "libpng12.so.0";
 typedef void  (*vFpp_t)(void*, void*);
 typedef void  (*vFppp_t)(void*, void*, void*);
 typedef void  (*vFpppp_t)(void*, void*, void*, void*);
+typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
     GO(png_set_write_fn, vFppp_t)           \
     GO(png_set_read_fn, vFppp_t)            \
     GO(png_set_error_fn, vFpppp_t)          \
-    GO(png_create_read_struct_2, pFppppppp_t)\
-    GO(png_create_write_struct_2, pFppppppp_t)
+    GO(png_create_read_struct_2, pFppppppp_t)   \
+    GO(png_create_write_struct_2, pFppppppp_t)  \
+    GO(png_set_progressive_read_fn, vFppppp_t)
 
 typedef struct png12_my_s {
     #define GO(A, B)    B   A;
@@ -215,6 +217,75 @@ static void* findfreeFct(void* fct)
     return NULL;
 }
 
+// progressive_info
+#define GO(A)   \
+static uintptr_t my_progressive_info_fct_##A = 0;   \
+static void my_progressive_info_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_progressive_info_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_infoFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_info_fct_##A == (uintptr_t)fct) return my_progressive_info_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_info_fct_##A == 0) {my_progressive_info_fct_##A = (uintptr_t)fct; return my_progressive_info_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng12 progressive_info callback\n");
+    return NULL;
+}
+
+// progressive_end
+#define GO(A)   \
+static uintptr_t my_progressive_end_fct_##A = 0;   \
+static void my_progressive_end_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_progressive_end_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_endFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_end_fct_##A == (uintptr_t)fct) return my_progressive_end_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_end_fct_##A == 0) {my_progressive_end_fct_##A = (uintptr_t)fct; return my_progressive_end_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng12 progressive_end callback\n");
+    return NULL;
+}
+
+// progressive_row
+#define GO(A)   \
+static uintptr_t my_progressive_row_fct_##A = 0;   \
+static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d)    \
+{                                       \
+    RunFunction(my_context, my_progressive_row_fct_##A, 4, a, b, c, d);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_rowFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_row_fct_##A == (uintptr_t)fct) return my_progressive_row_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_row_fct_##A == 0) {my_progressive_row_fct_##A = (uintptr_t)fct; return my_progressive_row_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng12 progressive_row callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
@@ -255,6 +326,14 @@ EXPORT void* my12_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, v
     png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
 
     return my->png_create_write_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
+}
+
+EXPORT void my12_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void* user_ptr, void* info, void* row, void* end)
+{
+    library_t * lib = GetLib(emu->context->maplib, png12Name);
+    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
+
+    my->png_set_progressive_read_fn(png_ptr, user_ptr, findprogressive_infoFct(info), findprogressive_rowFct(row), findprogressive_endFct(end));
 }
 
 // Maybe this is needed?
