@@ -974,6 +974,7 @@
 #() iFEpippi
 #() iFEpipVV
 #() iFEpupVV
+#() iFEppppp
 #() iFEpppVV
 #() iFiiiiii
 #() iFiiiiip
@@ -1484,7 +1485,6 @@
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEpppi
-#!defined(NOALIGN) iFEppppp
 #!defined(NOALIGN) iFEppiiiip
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFDD

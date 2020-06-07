@@ -34,6 +34,7 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
@@ -47,7 +48,8 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
     GO(dbus_pending_call_set_data, iFpipp_t)    \
     GO(dbus_watch_set_data, vFppp_t)            \
     GO(dbus_connection_set_dispatch_status_function, vFpppp_t)  \
-    GO(dbus_connection_set_watch_functions, iFpppppp_t)
+    GO(dbus_connection_set_watch_functions, iFpppppp_t)         \
+    GO(dbus_connection_try_register_object_path, iFppppp_t)
 
 typedef struct dbus_my_s {
     // functions
@@ -326,6 +328,74 @@ static void* findDBusWatchToggledFunctionFct(void* fct)
     return NULL;
 }
 
+// DBusObjectPathUnregisterFunction
+#define GO(A)   \
+static uintptr_t my_DBusObjectPathUnregisterFunction_fct_##A = 0;   \
+static void my_DBusObjectPathUnregisterFunction_##A(void* connection, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusObjectPathUnregisterFunction_fct_##A, 2, connection, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusObjectPathUnregisterFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusObjectPathUnregisterFunction_fct_##A == (uintptr_t)fct) return my_DBusObjectPathUnregisterFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusObjectPathUnregisterFunction_fct_##A == 0) {my_DBusObjectPathUnregisterFunction_fct_##A = (uintptr_t)fct; return my_DBusObjectPathUnregisterFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusObjectPathUnregisterFunction callback\n");
+    return NULL;
+}
+
+// DBusObjectPathMessageFunction
+#define GO(A)   \
+static uintptr_t my_DBusObjectPathMessageFunction_fct_##A = 0;   \
+static void my_DBusObjectPathMessageFunction_##A(void* connection, void* message, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusObjectPathMessageFunction_fct_##A, 3, connection, message, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusObjectPathMessageFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusObjectPathMessageFunction_fct_##A == (uintptr_t)fct) return my_DBusObjectPathMessageFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusObjectPathMessageFunction_fct_##A == 0) {my_DBusObjectPathMessageFunction_fct_##A = (uintptr_t)fct; return my_DBusObjectPathMessageFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusObjectPathMessageFunction callback\n");
+    return NULL;
+}
+
+// dbus_internal_pad
+#define GO(A)   \
+static uintptr_t my_dbus_internal_pad_fct_##A = 0;   \
+static void my_dbus_internal_pad_##A(void* a, void* b, void* c, void* d)     \
+{                                       \
+    RunFunction(my_context, my_dbus_internal_pad_fct_##A, 4, a, b, c, d);\
+}
+SUPER()
+#undef GO
+static void* finddbus_internal_padFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_dbus_internal_pad_fct_##A == (uintptr_t)fct) return my_dbus_internal_pad_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_dbus_internal_pad_fct_##A == 0) {my_dbus_internal_pad_fct_##A = (uintptr_t)fct; return my_dbus_internal_pad_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus dbus_internal_pad callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* fnc, void* data, void* fr)
@@ -436,6 +506,34 @@ EXPORT int my_dbus_connection_set_watch_functions(x86emu_t* emu, void* connectio
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_connection_set_watch_functions(connection, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(remove), findDBusWatchToggledFunctionFct(toggled), data, findFreeFct(free_func));
+}
+
+typedef struct my_DBusObjectPathVTable_s
+{
+   void*    unregister_function; 
+   void*    message_function; 
+   void*    pad1; 
+   void*    pad2; 
+   void*    pad3; 
+   void*    pad4; 
+} my_DBusObjectPathVTable_t;
+
+EXPORT int my_dbus_connection_try_register_object_path(x86emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    my_DBusObjectPathVTable_t vt = {0};
+    if(vtable) {
+        vt.unregister_function = findDBusObjectPathUnregisterFunctionFct(vtable->unregister_function);
+        vt.message_function = findDBusObjectPathMessageFunctionFct(vtable->message_function);
+        vt.pad1 = finddbus_internal_padFct(vtable->pad1);
+        vt.pad2 = finddbus_internal_padFct(vtable->pad2);
+        vt.pad3 = finddbus_internal_padFct(vtable->pad3);
+        vt.pad4 = finddbus_internal_padFct(vtable->pad4);
+    }
+
+    return my->dbus_connection_try_register_object_path(connection, path, vtable?&vt:NULL, data, error);
 }
 
 #define CUSTOM_INIT \
