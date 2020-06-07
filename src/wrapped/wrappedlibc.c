@@ -1055,14 +1055,14 @@ void CreateCPUInfoFile(int fd)
     f = fopen("/proc/cpuinfo", "r");
     if(f) {
         n = 0;
-        int len = 0;
+        size_t len = 0;
         char* line = NULL;
         while ((dummy = getline(&line, &len, f)) != -1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++n;
             if(!n && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
                 // grab 1st BogoMIPS
-                double tmp;
+                float tmp;
                 if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1)
                     mips = tmp;
             }
