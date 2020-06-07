@@ -23,6 +23,8 @@ const char* gdkx112Name = "libgdk-x11-2.0.so.0";
 
 static char* libname = NULL;
 
+char* getGDKX11LibName() {return libname;}
+
 typedef int     (*iFpp_t)       (void*, void*);
 typedef void    (*vFpp_t)       (void*, void*);
 typedef void    (*vFppp_t)      (void*, void*, void*);

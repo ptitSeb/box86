@@ -28,5 +28,6 @@ int GetNeededLibN(library_t* lib);
 library_t* GetNeededLib(library_t* lib, int idx);
 
 int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. native)
+void* GetHandle(library_t* lib);    // NULL if not native
 
 #endif //__LIBRARY_H_

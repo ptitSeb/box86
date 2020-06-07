@@ -191,6 +191,8 @@ void* wrapCopyGTKClass(void* class, int type);
 void my_checkGlobalGdkDisplay();
 void my_setGlobalGThreadsInit();
 
+void** my_GetGTKDisplay();
+
 typedef struct my_signal_s {
     uint32_t sign;  // signature
     void* data;

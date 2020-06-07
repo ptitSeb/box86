@@ -13,6 +13,7 @@
 #include "box86context.h"
 #include "librarian.h"
 #include "gtkclass.h"
+#include "library.h"
 
 
 static bridge_t*        my_bridge       = NULL;
@@ -697,6 +698,19 @@ void my_setGlobalGThreadsInit()
         printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, (void*)val);
         memcpy((void*)globoffs, &val, sizeof(gdk_display));
     }
+}
+
+char* getGDKX11LibName();
+void** my_GetGTKDisplay()
+{
+    if(gdk_display)
+        return &gdk_display;
+    
+    library_t * lib = GetLib(my_context->maplib, getGDKX11LibName());
+    if(!lib) return &gdk_display;   // mmm, that will crash later probably
+    void* s = dlsym(GetHandle(lib), "gdk_display");
+    gdk_display = *(void**)s;
+    return s;
 }
 
 my_signal_t* new_mysignal(void* f, void* data, void* destroy)

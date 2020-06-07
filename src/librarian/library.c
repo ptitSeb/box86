@@ -671,3 +671,12 @@ library_t* GetNeededLib(library_t* lib, int idx)
 
     return (library_t*)(kh_key(lib->needed,k));
 }
+
+void* GetHandle(library_t* lib)
+{
+    if(!lib)
+        return NULL;
+    if(lib->type!=0)
+        return NULL;
+    return lib->priv.w.lib;
+}
