@@ -19,11 +19,11 @@ GO(FcAtomicLock, iFp)
 //GO(FcCacheNumFont, 
 //GO(FcCacheNumSubdir, 
 //GO(FcCacheSubdir, 
-//GO(FcCharSetAddChar, 
+GO(FcCharSetAddChar, iFpu)
 GO(FcCharSetCopy, pFp)
 //GO(FcCharSetCount, 
 //GO(FcCharSetCoverage, 
-//GO(FcCharSetCreate, 
+GO(FcCharSetCreate, pFv)
 GO(FcCharSetDestroy, vFp)
 //GO(FcCharSetEqual, 
 GO(FcCharSetFirstPage, iFppp)   // second p is a fixed sized array
