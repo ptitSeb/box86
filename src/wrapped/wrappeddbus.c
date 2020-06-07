@@ -30,6 +30,7 @@ typedef void(* DBusTimeoutToggledFunction) (void *timeout, void *data);
 
 
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
@@ -43,7 +44,10 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
     GO(dbus_message_get_args_valist, iFppip_t)  \
     GO(dbus_message_set_data, iFpipp_t)         \
     GO(dbus_pending_call_set_notify, iFpppp_t)  \
-    GO(dbus_pending_call_set_data, iFpipp_t)
+    GO(dbus_pending_call_set_data, iFpipp_t)    \
+    GO(dbus_watch_set_data, vFppp_t)            \
+    GO(dbus_connection_set_dispatch_status_function, vFpppp_t)  \
+    GO(dbus_connection_set_watch_functions, iFpppppp_t)
 
 typedef struct dbus_my_s {
     // functions
@@ -196,6 +200,7 @@ SUPER()
 static void* findFreeFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
     #undef GO
@@ -218,6 +223,7 @@ SUPER()
 static void* findDBusPendingCallNotifyFunctionFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_DBusPendingCallNotifyFunction_fct_##A == (uintptr_t)fct) return my_DBusPendingCallNotifyFunction_##A;
     SUPER()
     #undef GO
@@ -227,6 +233,99 @@ static void* findDBusPendingCallNotifyFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for dbus DBusPendingCallNotifyFunction callback\n");
     return NULL;
 }
+
+// DBusDispatchStatusFunction
+#define GO(A)   \
+static uintptr_t my_DBusDispatchStatusFunction_fct_##A = 0;   \
+static void my_DBusDispatchStatusFunction_##A(void* connection, int new_status, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusDispatchStatusFunction_fct_##A, 3, connection, new_status, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusDispatchStatusFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusDispatchStatusFunction_fct_##A == (uintptr_t)fct) return my_DBusDispatchStatusFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusDispatchStatusFunction_fct_##A == 0) {my_DBusDispatchStatusFunction_fct_##A = (uintptr_t)fct; return my_DBusDispatchStatusFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusDispatchStatusFunction callback\n");
+    return NULL;
+}
+
+// DBusAddWatchFunction
+#define GO(A)   \
+static uintptr_t my_DBusAddWatchFunction_fct_##A = 0;   \
+static int my_DBusAddWatchFunction_##A(void* watch, void* data)     \
+{                                       \
+    return (int)RunFunction(my_context, my_DBusAddWatchFunction_fct_##A, 2, watch, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusAddWatchFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusAddWatchFunction_fct_##A == (uintptr_t)fct) return my_DBusAddWatchFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusAddWatchFunction_fct_##A == 0) {my_DBusAddWatchFunction_fct_##A = (uintptr_t)fct; return my_DBusAddWatchFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusAddWatchFunction callback\n");
+    return NULL;
+}
+
+// DBusRemoveWatchFunction
+#define GO(A)   \
+static uintptr_t my_DBusRemoveWatchFunction_fct_##A = 0;   \
+static void my_DBusRemoveWatchFunction_##A(void* watch, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusRemoveWatchFunction_fct_##A, 2, watch, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusRemoveWatchFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusRemoveWatchFunction_fct_##A == (uintptr_t)fct) return my_DBusRemoveWatchFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusRemoveWatchFunction_fct_##A == 0) {my_DBusRemoveWatchFunction_fct_##A = (uintptr_t)fct; return my_DBusRemoveWatchFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusRemoveWatchFunction callback\n");
+    return NULL;
+}
+
+// DBusWatchToggledFunction
+#define GO(A)   \
+static uintptr_t my_DBusWatchToggledFunction_fct_##A = 0;   \
+static void my_DBusWatchToggledFunction_##A(void* watch, void* data)     \
+{                                       \
+    RunFunction(my_context, my_DBusWatchToggledFunction_fct_##A, 2, watch, data);\
+}
+SUPER()
+#undef GO
+static void* findDBusWatchToggledFunctionFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusWatchToggledFunction_fct_##A == (uintptr_t)fct) return my_DBusWatchToggledFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusWatchToggledFunction_fct_##A == 0) {my_DBusWatchToggledFunction_fct_##A = (uintptr_t)fct; return my_DBusWatchToggledFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus DBusWatchToggledFunction callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* fnc, void* data, void* fr)
@@ -313,6 +412,30 @@ EXPORT int my_dbus_pending_call_set_data(x86emu_t* emu, void* pending, int32_t s
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_pending_call_set_data(pending, slot, data, findFreeFct(free_func));
+}
+
+EXPORT void my_dbus_watch_set_data(x86emu_t* emu, void* watch, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    my->dbus_watch_set_data(watch, data, findFreeFct(free_func));
+}
+
+EXPORT void my_dbus_connection_set_dispatch_status_function(x86emu_t* emu, void* connection, void* dispatch, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    my->dbus_connection_set_dispatch_status_function(connection, findDBusDispatchStatusFunctionFct(dispatch), data, findFreeFct(free_func));
+}
+
+EXPORT int my_dbus_connection_set_watch_functions(x86emu_t* emu, void* connection, void* add, void* remove, void* toggled, void* data, void* free_func)
+{
+    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
+
+    return my->dbus_connection_set_watch_functions(connection, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(remove), findDBusWatchToggledFunctionFct(toggled), data, findFreeFct(free_func));
 }
 
 #define CUSTOM_INIT \

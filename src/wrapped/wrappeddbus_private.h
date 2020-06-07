@@ -64,7 +64,7 @@ GO(dbus_connection_send_with_reply_and_block, pFppip)
 GO(dbus_connection_set_allow_anonymous, vFpi)
 GO(dbus_connection_set_change_sigpipe, vFi)
 //GO(dbus_connection_set_data, 
-//GO(dbus_connection_set_dispatch_status_function, 
+GOM(dbus_connection_set_dispatch_status_function, vFEpppp)
 GO(dbus_connection_set_exit_on_disconnect, vFpi)
 GO(dbus_connection_set_max_message_size, vFpl)
 GO(dbus_connection_set_max_received_size, vFpl)
@@ -72,7 +72,7 @@ GO(dbus_connection_set_route_peer_messages, vFpi)
 GOM(dbus_connection_set_timeout_functions, iFEpppppp)
 //GO(dbus_connection_set_unix_user_function, 
 //GO(dbus_connection_set_wakeup_main_function, 
-//GO(dbus_connection_set_watch_functions, 
+GOM(dbus_connection_set_watch_functions, iFEpppppp)
 //GO(dbus_connection_set_windows_user_function, 
 GO(dbus_connection_steal_borrowed_message, vFpp)
 //GO(dbus_connection_try_register_fallback, 
@@ -204,20 +204,20 @@ GO(dbus_set_error_from_message, iFpp)
 //GO(dbus_signature_validate, 
 //GO(dbus_signature_validate_single, 
 //GO(dbus_threads_init, 
-//GO(dbus_threads_init_default, 
+GO(dbus_threads_init_default, iFv)
 GO(dbus_timeout_get_data, pFp)
 GO(dbus_timeout_get_enabled, iFp)
 GO(dbus_timeout_get_interval, iFp)
 GO(dbus_timeout_handle, iFp)
-GOM(dbus_timeout_set_data, vFppp)
+GOM(dbus_timeout_set_data, vFEppp)
 //GO(dbus_type_is_basic, 
 //GO(dbus_type_is_container, 
 //GO(dbus_type_is_fixed, 
-//GO(dbus_watch_get_data, 
-//GO(dbus_watch_get_enabled, 
-//GO(dbus_watch_get_fd, 
-//GO(dbus_watch_get_flags, 
-//GO(dbus_watch_get_socket, 
-//GO(dbus_watch_get_unix_fd, 
-//GO(dbus_watch_handle, 
-//GO(dbus_watch_set_data, 
+GO(dbus_watch_get_data, pFp)
+GO(dbus_watch_get_enabled, iFp)
+GO(dbus_watch_get_fd, iFp)
+GO(dbus_watch_get_flags, uFp)
+GO(dbus_watch_get_socket, iFp)
+GO(dbus_watch_get_unix_fd, iFp)
+GO(dbus_watch_handle, iFpu)
+GOM(dbus_watch_set_data, vFEppp)
