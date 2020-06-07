@@ -298,8 +298,8 @@ DATAV(_LIB_VERSION, 4)
 GOW(llrint, IFd)
 GOW(llrintf, IFf)
 // llrintl  // Weak
-// llround  // Weak
-// llroundf // Weak
+GOW(llround, IFd)
+GOW(llroundf, IFf)
 // llroundl // Weak
 GOW(log, dFd)
 GOW(log10, dFd)
