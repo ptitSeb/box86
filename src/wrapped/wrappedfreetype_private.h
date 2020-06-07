@@ -2,19 +2,19 @@
 #error meh!
 #endif
 
-//GO(FT_Activate_Size, 
+GO(FT_Activate_Size, iFp)
 //GO(FT_Add_Default_Modules, 
 //GO(FT_Add_Module, 
 GO(FT_Angle_Diff, lFll)
 GO(FT_Atan2, lFll)
 GO(FT_Attach_File, iFpp)
 GO(FT_Attach_Stream, iFpp)
-//GO(FT_Bitmap_Convert, 
-//GO(FT_Bitmap_Copy, 
-//GO(FT_Bitmap_Done, 
-//GO(FT_Bitmap_Embolden, 
-//GO(FT_Bitmap_Init, 
-//GO(FT_Bitmap_New, 
+GO(FT_Bitmap_Convert, iFpppi)
+GO(FT_Bitmap_Copy, iFppp)
+GO(FT_Bitmap_Done, iFpp)
+GO(FT_Bitmap_Embolden, iFppll)
+GO(FT_Bitmap_Init, vFp)
+GO(FT_Bitmap_New, vFp)
 //GO(FTC_CMapCache_Lookup, 
 //GO(FTC_CMapCache_New, 
 //GO(FT_CeilFix, 
@@ -39,7 +39,7 @@ GO(FT_Done_Face, iFp)
 GO(FT_Done_FreeType, iFp)
 GO(FT_Done_Glyph, vFp)
 GO(FT_Done_Library, iFp)
-//GO(FT_Done_Size, 
+GO(FT_Done_Size, iFp)
 //GO(FT_Face_CheckTrueTypePatents, 
 //GO(FT_Face_GetCharsOfVariant, 
 //GO(FT_Face_GetCharVariantIndex, 
@@ -49,8 +49,8 @@ GO(FT_Done_Library, iFp)
 GO(FT_Face_Properties, iFpup)
 //GO(FT_Face_SetUnpatentedHinting, 
 //GO(FT_FloorFix, 
-//GO(FT_Get_Advance, 
-//GO(FT_Get_Advances, 
+GO(FT_Get_Advance, iFpiup)
+GO(FT_Get_Advances, iFpuuip)
 //GO(FT_Get_BDF_Charset_ID, 
 //GO(FT_Get_BDF_Property, 
 GO(FT_Get_Char_Index, uFpL)
@@ -91,12 +91,12 @@ GO(FT_Get_Track_Kerning, iFplip)
 //GO(FT_Get_Var_Blend_Coordinates, 
 //GO(FT_Get_Var_Design_Coordinates, 
 //GO(FT_Get_WinFNT_Header, 
-//GO(FT_Get_X11_Font_Format, 
+GO(FT_Get_X11_Font_Format, pFp)
 GO(FT_Glyph_Copy, iFpp)
 GO(FT_Glyph_Get_CBox, vFpup)
 GO(FT_GlyphSlot_Embolden, vFp)
 GO(FT_GlyphSlot_Oblique, vFp)
-//GO(FT_GlyphSlot_Own_Bitmap, 
+GO(FT_GlyphSlot_Own_Bitmap, iFp)
 //GO(FT_Glyph_Stroke, 
 GO(FT_Glyph_StrokeBorder, iFppCC)
 GO(FT_Glyph_To_Bitmap, iFpipC)
@@ -124,7 +124,7 @@ GO(FT_MulFix, lFll)
 GO(FT_New_Face, iFpplp)
 //GO(FT_New_Library, 
 GO(FT_New_Memory_Face, iFppllp)
-//GO(FT_New_Size, 
+GO(FT_New_Size, iFpp)
 GOM(FT_Open_Face, iFEpplp)
 //GO(FT_OpenType_Free, 
 //GO(FT_OpenType_Validate, 
