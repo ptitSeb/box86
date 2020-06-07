@@ -225,14 +225,14 @@ GO(pango_fontset_get_metrics, pFp)
 //GO(pango_itemize_with_base_dir, 
 //GO(pango_item_new, 
 //GO(pango_item_split, 
-//GO(pango_language_from_string, 
-//GO(pango_language_get_default, 
-//GO(pango_language_get_sample_string, 
-//GO(pango_language_get_scripts, 
-//GO(pango_language_get_type, 
-//GO(pango_language_includes_script, 
-//GO(pango_language_matches, 
-//GO(pango_language_to_string, 
+GO(pango_language_from_string, pFp)
+GO(pango_language_get_default, pFv)
+GO(pango_language_get_sample_string, pFp)
+GO(pango_language_get_scripts, pFpp)
+GO(pango_language_get_type, iFv)
+GO(pango_language_includes_script, iFpi)
+GO(pango_language_matches, iFpp)
+GO(pango_language_to_string, pFp)
 GO(pango_layout_context_changed, vFp)
 GO(pango_layout_copy, pFp)
 GO(pango_layout_get_alignment, iFp)
@@ -370,13 +370,13 @@ GO(pango_layout_xy_to_index, iFpiipp)
 //GO(pango_scan_int, 
 //GO(pango_scan_string, 
 //GO(pango_scan_word, 
-//GO(pango_script_for_unichar, 
-//GO(pango_script_get_sample_language, 
-//GO(pango_script_get_type, 
-//GO(pango_script_iter_free, 
-//GO(pango_script_iter_get_range, 
-//GO(pango_script_iter_new, 
-//GO(pango_script_iter_next, 
+GO(pango_script_for_unichar, iFu)
+GO(pango_script_get_sample_language, pFi)
+GO(pango_script_get_type, iFv)
+GO(pango_script_iter_free, vFp)
+GO(pango_script_iter_get_range, vFpppp)
+GO(pango_script_iter_new, pFpi)
+GO(pango_script_iter_next, iFp)
 //GO(pango_shape, 
 //GO(pango_shape_full, 
 //GO(pango_skip_space, 
