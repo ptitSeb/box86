@@ -183,4 +183,5 @@ EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, vo
     freeGdkX112My(lib->priv.w.p2); \
     free(lib->priv.w.p2);
 
+
 #include "wrappedlib_init.h"

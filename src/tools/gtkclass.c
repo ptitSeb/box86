@@ -676,7 +676,7 @@ void SetGTypeName(void* f)
 
 // workaround for Globals symbols
 
-EXPORT void* gdk_display;   // in case it's used...
+EXPORT void* gdk_display = NULL;   // in case it's used...
     
 void my_checkGlobalGdkDisplay()
 {

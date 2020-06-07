@@ -235,6 +235,7 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     // nope, not found
     return 0;
 }
+void* gdk_display;
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end)) {
@@ -251,6 +252,13 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         }
         return 1;
     }
+    // some special case symbol, defined inside box86 itself
+    if(!strcmp(name, "gdk_display")) {
+        *start = (uintptr_t)&gdk_display;
+        *end = *start+sizeof(void*);
+        return 1;
+    }
+    // not found...
     return 0;
 }
 
