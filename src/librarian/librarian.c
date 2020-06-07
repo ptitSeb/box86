@@ -139,6 +139,10 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
             AddNeededLib(maplib, lib, "libGL.so.1", box86, emu);
         }
+        if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
+            AddNeededLib(maplib, lib, "libSDL-1.2.so.0", box86, emu);
+            AddNeededLib(maplib, lib, "libdl.so.2", box86, emu);
+        }
 
         // add symbols
         if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
