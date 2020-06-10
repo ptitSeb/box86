@@ -309,6 +309,7 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
                 trace_func = NULL;
             }
         }
+        RunElfInit(elf_header, emu);
     }
     if(box86_dynarec && strcmp(lib->name, "libfmod.so")==0) {
         if (GetGlobalSymbolStartEnd(my_context->maplib, "FSOUND_Mixer_FPU_Ramp", &fmod_smc_start, &fmod_smc_end)) {
