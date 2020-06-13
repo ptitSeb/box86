@@ -111,11 +111,14 @@
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
+extern int fix_64bit_inodes;
+
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
@@ -869,20 +872,108 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
 EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) {}
 EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) {}
 
-EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
+
+struct i386_stat {
+	uint64_t  st_dev;
+	uint32_t  __pad1;
+	uint32_t  st_ino;
+	uint32_t  st_mode;
+	uint32_t  st_nlink;
+	uint32_t  st_uid;
+	uint32_t  st_gid;
+	uint64_t  st_rdev;
+	uint32_t  __pad2;
+	int32_t   st_size;
+	int32_t   st_blksize;
+	int32_t   st_blocks;
+	int32_t   st_atime_sec;
+	uint32_t  st_atime_nsec;
+	int32_t   st_mtime_sec;
+	uint32_t  st_mtime_nsec;
+	int32_t   st_ctime_sec;
+	uint32_t  st_ctime_nsec;
+	uint32_t  __unused4;
+	uint32_t  __unused5;
+} __attribute__((packed));
+
+static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
 {
-    static iFipp_t f = NULL;
-    if(!f) {
-        library_t* lib = GetLib(emu->context->maplib, libcName);
-        if(!lib) return 0;
-        f = (iFipp_t)dlsym(lib->priv.w.lib, "__xstat");
+    struct i386_stat *i386st = (struct i386_stat *)st32;
+
+    if (vers != 3)
+    {
+        errno = EINVAL;
+        return -1;
     }
 
-    int r = f(v, path, buf);
-    return r;
+    i386st->st_dev = st64->st_dev;
+    i386st->__pad1 = 0;
+    if (fix_64bit_inodes)
+    {
+        i386st->st_ino = st64->st_ino ^ (st64->st_ino >> 32);
+    }
+    else
+    {
+        i386st->st_ino = st64->st_ino;
+        if ((st64->st_ino >> 32) != 0)
+        {
+            errno = EOVERFLOW;
+            return -1;
+        }
+    }
+    i386st->st_mode = st64->st_mode;
+    i386st->st_nlink = st64->st_nlink;
+    i386st->st_uid = st64->st_uid;
+    i386st->st_gid = st64->st_gid;
+    i386st->st_rdev = st64->st_rdev;
+    i386st->__pad2 = 0;
+    i386st->st_size = st64->st_size;
+    if ((i386st->st_size >> 31) != (int32_t)(st64->st_size >> 32))
+    {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    i386st->st_blksize = st64->st_blksize;
+    i386st->st_blocks = st64->st_blocks;
+    if ((i386st->st_blocks >> 31) != (int32_t)(st64->st_blocks >> 32))
+    {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    i386st->st_atime_sec = st64->st_atim.tv_sec;
+    i386st->st_atime_nsec = st64->st_atim.tv_nsec;
+    i386st->st_mtime_sec = st64->st_mtim.tv_sec;
+    i386st->st_mtime_nsec = st64->st_mtim.tv_nsec;
+    i386st->st_ctime_sec = st64->st_ctim.tv_sec;
+    i386st->st_ctime_nsec = st64->st_ctim.tv_nsec;
+    i386st->__unused4 = 0;
+    i386st->__unused5 = 0;
+    return 0;
 }
 
+EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
+{
+    if (vers == 1)
+    {
+        static iFiip_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib)
+            {
+                errno = EINVAL;
+                return -1;
+            }
+            f = (iFiip_t)dlsym(lib->priv.w.lib, "__fxstat");
+        }
 
+        return f(vers, fd, buf);
+    }
+    struct stat64 st;
+    int r = fstat64(fd, &st);
+    if (r) return r;
+    r = FillStatFromStat64(vers, &st, buf);
+    return r;
+}
 
 EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
 {
@@ -890,6 +981,30 @@ EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
     int r = fstat64(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
     UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
+{
+    if (v == 1)
+    {
+        static iFipp_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib)
+            {
+                errno = EINVAL;
+                return -1;
+            }
+            f = (iFipp_t)dlsym(lib->priv.w.lib, "__xstat");
+        }
+
+        return f(v, path, buf);
+    }
+    struct stat64 st;
+    int r = stat64((const char*)path, &st);
+    if (r) return r;
+    r = FillStatFromStat64(v, &st, buf);
     return r;
 }
 
@@ -901,11 +1016,44 @@ EXPORT int my___xstat64(x86emu_t* emu, int v, void* path, void* buf)
     return r;
 }
 
+EXPORT int my___lxstat(x86emu_t* emu, int v, void* name, void* buf)
+{
+    if (v == 1)
+    {
+        static iFipp_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib)
+            {
+                errno = EINVAL;
+                return -1;
+            }
+            f = (iFipp_t)dlsym(lib->priv.w.lib, "__lxstat");
+        }
+
+        return f(v, name, buf);
+    }
+    struct stat64 st;
+    int r = lstat64((const char*)name, &st);
+    if (r) return r;
+    r = FillStatFromStat64(v, &st, buf);
+    return r;
+}
+
 EXPORT int my___lxstat64(x86emu_t* emu, int v, void* name, void* buf)
 {
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
     UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my___fxstatat(x86emu_t* emu, int v, int d, void* path, void* buf, int flags)
+{
+    struct  stat64 st;
+    int r = fstatat64(d, path, &st, flags);
+    if (r) return r;
+    r = FillStatFromStat64(v, &st, buf);
     return r;
 }
 

@@ -68,6 +68,7 @@ int x11color16 = 0;
 #endif
 int x11threads = 0;
 int allow_missing_libs = 0;
+int fix_64bit_inodes = 0;
 int box86_steam = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
@@ -299,6 +300,15 @@ void LoadLogEnv()
         }
         if(allow_missing_libs)
             printf_log(LOG_INFO, "Allow missing needed libs\n");
+    }
+    p = getenv("BOX86_FIX_64BIT_INODES");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                fix_64bit_inodes = p[0]-'0';
+        }
+        if(fix_64bit_inodes)
+            printf_log(LOG_INFO, "Fix 64bit inodes\n");
     }
 #ifdef DYNAREC
     GatherDynarecExtensions();
