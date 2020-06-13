@@ -438,9 +438,9 @@ GOW(fwrite, uFpuup)
 GO(fwrite_unlocked, uFpuup)
 GO(__fwriting, iFp)
 // fwscanf
-GO(__fxstat, iFiip)
+GOM(__fxstat, iFEiip)
 GOM(__fxstat64, iFEiip) // need reaalign of struct stat64
-GO(__fxstatat, iFiippi)
+GOM(__fxstatat, iFEiippi)
 GOM(__fxstatat64, iFEiippi) // struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, pFi)
@@ -1043,7 +1043,7 @@ GOW(lseek, iFiii)
 GOW(lseek64, IFiIi)
 GO(lsetxattr, iFpppui)
 // lutimes
-GO(__lxstat, iFipp)
+GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
 GO(madvise, iFpui)
 GOM(makecontext, iFEppiV)
