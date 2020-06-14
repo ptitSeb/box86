@@ -3,6 +3,7 @@
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <wchar.h>
 #include <dlfcn.h>
@@ -130,6 +131,7 @@ typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef void* (*pFp_t)(void*);
 
 #define SUPER() \
     GO(_ITM_addUserCommitAction, iFpup_t)   \
@@ -1104,6 +1106,98 @@ EXPORT void* my_lsearch(x86emu_t* emu, void* key, void* base, size_t* nmemb, siz
 EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
+}
+
+
+struct i386_dirent {
+    uint32_t d_ino;
+    int32_t  d_off;
+    uint16_t d_reclen;
+    uint8_t  d_type;
+    char     d_name[256];
+};
+
+EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
+{
+    if (fix_64bit_inodes)
+    {
+        struct dirent64 *dp64 = readdir64((DIR *)dirp);
+        if (!dp64) return NULL;
+        uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
+        int32_t off32 = dp64->d_off;
+        struct i386_dirent *dp32 = (struct i386_dirent *)&(dp64->d_off);
+        dp32->d_ino = ino32;
+        dp32->d_off = off32;
+        dp32->d_reclen -= 8;
+        return dp32;
+    }
+    else
+    {
+        static pFp_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib) return NULL;
+            f = (pFp_t)dlsym(lib->priv.w.lib, "readdir");
+        }
+
+        return f(dirp);
+    }
+}
+
+EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** result)
+{
+    struct dirent64 d64, *dp64;
+    if (fix_64bit_inodes && (sizeof(d64.d_name) > 1))
+    {
+        static iFppp_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib)
+            {
+                *result = NULL;
+                return 0;
+            }
+            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir64_r");
+        }
+
+        int r = f(dirp, &d64, &dp64);
+        if (r || !dp64 || !entry)
+        {
+            *result = NULL;
+            return r;
+        }
+
+        struct i386_dirent *dp32 = (struct i386_dirent *)entry;
+        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        if (namelen > sizeof(dp32->d_name))
+        {
+            *result = NULL;
+            return ENAMETOOLONG;
+        }
+
+        dp32->d_ino = dp64->d_ino ^ (dp64->d_ino >> 32);
+        dp32->d_off = dp64->d_off;
+        dp32->d_reclen = namelen + offsetof(struct i386_dirent, d_name);
+        dp32->d_type = dp64->d_type;
+        memcpy(dp32->d_name, dp64->d_name, namelen);
+        *result = dp32;
+        return 0;
+    }
+    else
+    {
+        static iFppp_t f = NULL;
+        if(!f) {
+            library_t* lib = GetLib(emu->context->maplib, libcName);
+            if(!lib)
+            {
+                *result = NULL;
+                return 0;
+            }
+            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir_r");
+        }
+
+        return f(dirp, entry, result);
+    }
 }
 
 EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
