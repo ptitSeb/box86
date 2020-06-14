@@ -5,6 +5,7 @@
 #include "khash.h"
 #include "wrappedlibs.h"
 
+typedef struct lib_s    lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct kh_bridgemap_s kh_bridgemap_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
@@ -74,6 +75,7 @@ typedef struct library_s {
     kh_datamap_t        *mydatamap;
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
     kh_needed_t         *needed;    // list lib needd
+    lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
 } library_t;
 
 // type for map elements

@@ -59,6 +59,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     library_t *lib = NULL;
     dlprivate_t *dl = emu->context->dlprivate;
     int dlopened = 0;
+    int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for pther libs
     CLEARERR
     if(filename) {
         char* rfilename = (char*)filename;
@@ -87,7 +88,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         }
         dlopened = (GetLib(emu->context->maplib, rfilename)==NULL);
         // Then open the lib
-        if(AddNeededLib(emu->context->maplib, NULL, rfilename, emu->context, emu)) {
+        if(AddNeededLib(emu->context->maplib, NULL, is_local, rfilename, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = malloc(129);

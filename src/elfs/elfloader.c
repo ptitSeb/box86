@@ -310,7 +310,7 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
     return 0;
 }
 
-int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
+int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
@@ -319,10 +319,17 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
-        if(bind==STB_LOCAL)
-            GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head);
-        else
-            GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+        if(bind==STB_LOCAL) {
+            if(local_maplib)
+                GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head);
+            if(!offs)
+                GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head);
+        } else {
+            if(local_maplib)
+                GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+            if(!offs)
+                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+        }
         uintptr_t globoffs, globend;
         int delta;
         int t = ELF32_R_TYPE(rel[i].r_info);
@@ -334,7 +341,11 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
             case R_386_TLS_TPOFF:
                 // Negated offset in static TLS block
                 {
-                    elfheader_t *h = GetGlobalSymbolElf(maplib, symname);
+                    elfheader_t *h = NULL;
+                    if(local_maplib)
+                        GetGlobalSymbolElf(local_maplib, symname);
+                    if(!h)
+                        GetGlobalSymbolElf(maplib, symname);
                     if(h) {
                         delta = *(int*)p;
                         printf_log(LOG_DEBUG, "Applying %s %s on %s @%p (%d -> %d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h->tlsbase);
@@ -352,7 +363,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                     *p += offs;
                 break;
             case R_386_GLOB_DAT:
-                // Look for same symbol already loaded but not in self
+                // Look for same symbol already loaded but not in self (so no need for local_maplib here)
                 if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
                     offs = globoffs;
                     end = globend;
@@ -383,7 +394,11 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
                     offs = getElfIndex(GetLibrarianContext(maplib), head);
                 else {
-                    elfheader_t *h = GetGlobalSymbolElf(maplib, symname);
+                    elfheader_t *h = NULL;
+                    if(local_maplib)
+                        GetGlobalSymbolElf(local_maplib, symname);
+                    if(!h)
+                        GetGlobalSymbolElf(maplib, symname);
                     offs = getElfIndex(GetLibrarianContext(maplib), h);
                 }
                 if(p) {
@@ -431,7 +446,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
                 break;
             case R_386_COPY:
                 if(offs) {
-                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
+                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any (no need to check for local_maplib)
                     printf_log(LOG_DEBUG, "Apply %s R_386_COPY @%p with sym=%s, @%p size=%d (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
                     if(LOG_DEBUG<=box86_log) {
@@ -451,7 +466,7 @@ int RelocateElfREL(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
     return 0;
 }
 
-int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
+int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
 {
     for (int i=0; i<cnt; ++i) {
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rela[i].r_info)];
@@ -465,7 +480,10 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
                 // can be ignored
                 break;
             case R_386_COPY:
-                GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);
+                if(local_maplib)
+                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
+                if(!offs)
+                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);
                 if(offs) {
                     // add r_addend to p?
                     printf_log(LOG_DEBUG, "Apply R_386_COPY @%p with sym=%s, @%p size=%d\n", p, symname, (void*)offs, sym->st_size);
@@ -480,44 +498,44 @@ int RelocateElfRELA(lib_t *maplib, elfheader_t* head, int cnt, Elf32_Rela *rela)
     }
     return 0;
 }
-int RelocateElf(lib_t *maplib, elfheader_t* head)
+int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 {
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf32_Rel *)(head->rel + head->delta), "Rel");
         printf_log(LOG_DEBUG, "Applying %d Relocation(s) for %s\n", cnt, head->name);
-        if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
+        if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf32_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf32_Rela *)(head->rela + head->delta), "RelA");
         printf_log(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
-        if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
+        if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf32_Rela *)(head->rela + head->delta)))
             return -1;
     }
    
     return 0;
 }
 
-int RelocateElfPlt(box86context_t* context, lib_t *maplib, elfheader_t* head)
+int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 {
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf32_Rel *)(head->jmprel + head->delta), "PLT");
             printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s\n", cnt, head->name);
-            if(RelocateElfREL(maplib, head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
+            if(RelocateElfREL(maplib, local_maplib, head, cnt, (Elf32_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf32_Rela *)(head->jmprel + head->delta), "PLT");
             printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
-            if(RelocateElfRELA(maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
+            if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
         }
         if(head->gotplt) {
             if(pltResolver==~0) {
-                pltResolver = AddBridge(context->system, vFEpp, PltResolver, 0);   // should be vFEuu
+                pltResolver = AddBridge(my_context->system, vFEpp, PltResolver, 0);   // should be vFEuu
             }
             *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
             printf_log(LOG_DEBUG, "PLT Resolver injected at %p\n", (void*)(head->gotplt+head->delta+8));
@@ -707,7 +725,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, box86contex
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, parent, needed, box86, emu)) {
+            if(AddNeededLib(maplib, parent, 0, needed, box86, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 if(!allow_missing_libs)
                     return 1;   //error...

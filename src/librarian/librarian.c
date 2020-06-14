@@ -7,6 +7,7 @@
 #include "librarian.h"
 #include "librarian_private.h"
 #include "library.h"
+#include "library_private.h"
 #include "x86emu.h"
 #include "box86context.h"
 #include "elfloader.h"
@@ -93,9 +94,9 @@ library_t* getLib(lib_t* maplib, const char* path)
 }
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, box86context_t* box86, x86emu_t* emu)
 {
-    printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib\n", path);
+    printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
     // first check if lib is already loaded
     library_t *lib = getLib(maplib, path);
     if(lib) {
@@ -125,9 +126,11 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
 
     if(mainelf==-1) {
         // It's a native libs, just add wrapped symbols to global map
-        if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
-            printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
-            return 1;
+        if(!local) {
+            if(AddSymbolsLibrary(lib->context->maplib, lib, emu)) {   // also add needed libs
+                printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
+                return 1;
+            }
         }
     } else {
         // it's an emulated lib, so lets load dependancies before adding symbols and launch init sequence
@@ -137,15 +140,17 @@ int AddNeededLib(lib_t* maplib, library_t* parent, const char* path, box86contex
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            AddNeededLib(maplib, lib, "libGL.so.1", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libGL.so.1", box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            AddNeededLib(maplib, lib, "libSDL-1.2.so.0", box86, emu);
-            AddNeededLib(maplib, lib, "libdl.so.2", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libSDL-1.2.so.0", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libdl.so.2", box86, emu);
         }
-
+        if(local) {
+            lib->maplib = NewLibrarian(box86);
+        }
         // add symbols
-        if(AddSymbolsLibrary(lib, emu)) {   // also add needed libs
+        if(AddSymbolsLibrary(local?lib->maplib:lib->context->maplib, lib, emu)) {   // also add needed libs
             printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
             return 1;
         }
