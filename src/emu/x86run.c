@@ -889,11 +889,11 @@ _trace:
                 if(emu->quit) goto fini;
             } else {
                 printf_log(LOG_NONE, "Ignoring Unsupported Int %02Xh\n", nextop);
-                /*emu->old_ip = old_ip;
+                emu->old_ip = old_ip;
                 R_EIP = ip;
                 emu->quit = 1;
                 emu->error |= ERR_UNIMPL;
-                goto fini;*/
+                goto fini;
             }
             NEXT;
 
