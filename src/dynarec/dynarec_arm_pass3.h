@@ -24,8 +24,10 @@
     }
 
 #define NEW_BARRIER_INST                            \
+    if(ninst) {                                     \
     dyn->sons_x86[dyn->sons_size] = (uintptr_t)ip;  \
     dyn->sons_arm[dyn->sons_size] = dyn->block;     \
     MESSAGE(LOG_DUMP, "----> potential Son here\n");\
-    ++dyn->sons_size
+    ++dyn->sons_size;                               \
+    }
 
