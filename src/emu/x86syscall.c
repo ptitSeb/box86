@@ -183,7 +183,7 @@ scwrap_t syscallwrap[] = {
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
-    { 254, __NR_epoll_create, 1 },
+    //{ 254, __NR_epoll_create, 1 },    // the flag parameter needs some transform
     { 255, __NR_epoll_ctl, 4 },
     { 256, __NR_epoll_wait, 4 },
     { 265, __NR_clock_gettime, 2 },
@@ -521,6 +521,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
             errno = ENOSYS;
             R_EAX = (uint32_t)-1;
             break;
+        case 254:   // sys_epoll_create
+            R_EAX = (uint32_t)syscall(__NR_epoll_create, of_convert(R_EBX));
+            break;
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
             break;
@@ -579,6 +582,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
+        case 254:   // sys_epoll_create
+            return (uint32_t)syscall(__NR_epoll_create, of_convert(i32(4)));
         case 270: //_NR_tgkill
             if(!u32(12)) {
                 //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
