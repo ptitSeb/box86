@@ -14,7 +14,7 @@ typedef struct box86context_s box86context_t;
 typedef struct kh_mapoffsets_s kh_mapoffsets_t;
 typedef char* cstr_t;
 
-lib_t *NewLibrarian(box86context_t* context);
+lib_t *NewLibrarian(box86context_t* context, int ownlibs);
 void FreeLibrarian(lib_t **maplib);
 dlprivate_t *NewDLPrivate();
 void FreeDLPrivate(dlprivate_t **lib);
@@ -24,7 +24,8 @@ kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib);
 int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, box86context_t* box86, x86emu_t* emu); // 0=success, 1=error
-library_t* GetLib(lib_t* maplib, const char* name);
+library_t* GetLibMapLib(lib_t* maplib, const char* name);
+library_t* GetLibInternal(const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);
 int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self);
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end);

@@ -83,7 +83,7 @@ static void my_dbus_timout_free_cb(void* memory)
 }
 EXPORT void my_dbus_timeout_set_data(x86emu_t* emu, void* e, void* p, void* f)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
     if(dbus_timeout_free_emu) FreeCallback(dbus_timeout_free_emu);
     dbus_timeout_free_emu = f?AddSmallCallback(emu, (uintptr_t)f, 1, NULL, NULL, NULL, NULL):NULL;
@@ -129,7 +129,7 @@ void my_dbus_connection_timout_free_cb(void *memory)
 
 EXPORT int32_t my_dbus_connection_set_timeout_functions(x86emu_t* emu, void* c, void* a, void* r, void* t, void* d, void* f)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     if(dbus_connection_timout_add_emu) FreeCallback(dbus_connection_timout_add_emu);
@@ -400,7 +400,7 @@ static void* finddbus_internal_padFct(void* fct)
 
 EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* fnc, void* data, void* fr)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     if (!context)
@@ -417,7 +417,7 @@ EXPORT int my_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* 
 
 EXPORT void my_dbus_connection_remove_filter(x86emu_t* emu, void* connection, void* fnc, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     if (!context)
@@ -433,7 +433,7 @@ EXPORT void my_dbus_connection_remove_filter(x86emu_t* emu, void* connection, vo
 
 EXPORT int my_dbus_message_get_args_valist(x86emu_t* emu, void* message, void* e, int arg, void* b)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     // need to develop this specific alignment!
@@ -448,7 +448,7 @@ EXPORT int my_dbus_message_get_args_valist(x86emu_t* emu, void* message, void* e
 
 EXPORT int my_dbus_message_get_args(x86emu_t* emu, void* message, void* e, int arg, void* V)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     // need to develop this specific alignment!
@@ -462,7 +462,7 @@ EXPORT int my_dbus_message_get_args(x86emu_t* emu, void* message, void* e, int a
 
 EXPORT int my_dbus_message_set_data(x86emu_t* emu, void* message, int32_t slot, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_message_set_data(message, slot, data, findFreeFct(free_func));
@@ -470,7 +470,7 @@ EXPORT int my_dbus_message_set_data(x86emu_t* emu, void* message, int32_t slot, 
 
 EXPORT int my_dbus_pending_call_set_notify(x86emu_t* emu, void* pending, void* func, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_pending_call_set_notify(pending, findDBusPendingCallNotifyFunctionFct(func), data, findFreeFct(free_func));
@@ -478,7 +478,7 @@ EXPORT int my_dbus_pending_call_set_notify(x86emu_t* emu, void* pending, void* f
 
 EXPORT int my_dbus_pending_call_set_data(x86emu_t* emu, void* pending, int32_t slot, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_pending_call_set_data(pending, slot, data, findFreeFct(free_func));
@@ -486,7 +486,7 @@ EXPORT int my_dbus_pending_call_set_data(x86emu_t* emu, void* pending, int32_t s
 
 EXPORT void my_dbus_watch_set_data(x86emu_t* emu, void* watch, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     my->dbus_watch_set_data(watch, data, findFreeFct(free_func));
@@ -494,7 +494,7 @@ EXPORT void my_dbus_watch_set_data(x86emu_t* emu, void* watch, void* data, void*
 
 EXPORT void my_dbus_connection_set_dispatch_status_function(x86emu_t* emu, void* connection, void* dispatch, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     my->dbus_connection_set_dispatch_status_function(connection, findDBusDispatchStatusFunctionFct(dispatch), data, findFreeFct(free_func));
@@ -502,7 +502,7 @@ EXPORT void my_dbus_connection_set_dispatch_status_function(x86emu_t* emu, void*
 
 EXPORT int my_dbus_connection_set_watch_functions(x86emu_t* emu, void* connection, void* add, void* remove, void* toggled, void* data, void* free_func)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     return my->dbus_connection_set_watch_functions(connection, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(remove), findDBusWatchToggledFunctionFct(toggled), data, findFreeFct(free_func));
@@ -520,7 +520,7 @@ typedef struct my_DBusObjectPathVTable_s
 
 EXPORT int my_dbus_connection_try_register_object_path(x86emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusName);
+    library_t * lib = GetLibInternal(dbusName);
     dbus_my_t *my = (dbus_my_t*)lib->priv.w.p2;
 
     my_DBusObjectPathVTable_t vt = {0};

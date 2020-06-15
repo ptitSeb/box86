@@ -788,13 +788,13 @@ int main(int argc, const char **argv, const char **env) {
     // pre-load lib if needed
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
-            if(AddNeededLib(my_context->maplib, NULL, 0, ld_preload.paths[i], my_context, emu)) {
+            if(AddNeededLib(NULL, NULL, 0, ld_preload.paths[i], my_context, emu)) {
                 printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
             }            
         }
     }
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, my_context->maplib, NULL, my_context, emu)) {
+    if(LoadNeededLibs(elf_header, my_context->maplib, NULL, 0, my_context, emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);

@@ -706,7 +706,7 @@ void** my_GetGTKDisplay()
     if(gdk_display)
         return &gdk_display;
     
-    library_t * lib = GetLib(my_context->maplib, getGDKX11LibName());
+    library_t * lib = GetLibInternal(getGDKX11LibName());
     if(!lib) return &gdk_display;   // mmm, that will crash later probably
     void* s = dlsym(GetHandle(lib), "gdk_display");
     gdk_display = *(void**)s;

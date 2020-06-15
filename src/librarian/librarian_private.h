@@ -31,6 +31,7 @@ typedef struct lib_s {
     onelib_t              *libraries;
     int                   libsz;
     int                   libcap;
+    int                   ownlibs;
 
     box86context_t*       context;
     

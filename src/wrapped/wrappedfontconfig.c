@@ -65,7 +65,7 @@ void freeFontconfigMy(void* lib)
 
 EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint32_t t1, uint32_t t2, int append)
 {
-    library_t* lib = GetLib(my_context->maplib, fontconfigName);
+    library_t* lib = GetLibInternal(fontconfigName);
     fontconfig_my_t* my = (fontconfig_my_t*)lib->priv.w.p2;
     FcValue_t val;
     val.type = type;

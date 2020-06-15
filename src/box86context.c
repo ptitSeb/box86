@@ -281,7 +281,8 @@ box86context_t *NewBox86Context(int argc)
 #else
     context->deferedInit = 1;
 #endif
-    context->maplib = NewLibrarian(context);
+    context->maplib = NewLibrarian(context, 1);
+    context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
@@ -338,6 +339,8 @@ void FreeBox86Context(box86context_t** context)
 
     if((*context)->maplib)
         FreeLibrarian(&(*context)->maplib);
+    if((*context)->local_maplib)
+        FreeLibrarian(&(*context)->local_maplib);
 
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");

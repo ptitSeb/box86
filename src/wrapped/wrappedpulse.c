@@ -649,7 +649,7 @@ static void bridgeMainloopAPI(bridge_t* bridge, my_pa_mainloop_api_t* api)
 // only one mainloop can be active at a given time!
 EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
 {
-    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    library_t* lib = GetLibInternal(pulseName);
     pulse_my_t* my = lib->priv.w.p2;
     my->pa_mainloop_free(mainloop);
     mainloop_inited = 0;
@@ -657,7 +657,7 @@ EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
 }
 EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
-    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    library_t* lib = GetLibInternal(pulseName);
     pulse_my_t* my = lib->priv.w.p2;
     my_pa_mainloop_api_t* api = my->pa_mainloop_get_api(mainloop);
     bridgeMainloopAPI(lib->priv.w.bridge, api);
@@ -666,7 +666,7 @@ EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 
 EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
 {
-    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    library_t* lib = GetLibInternal(pulseName);
     pulse_my_t* my = lib->priv.w.p2;
     my->pa_threaded_mainloop_free(mainloop);
     mainloop_inited = 0;
@@ -674,7 +674,7 @@ EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
 }
 EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
-    library_t* lib = GetLib(emu->context->maplib, pulseName);
+    library_t* lib = GetLibInternal(pulseName);
     pulse_my_t* my = lib->priv.w.p2;
     my_pa_mainloop_api_t* api = my->pa_threaded_mainloop_get_api(mainloop);
     bridgeMainloopAPI(lib->priv.w.bridge, api);
@@ -763,7 +763,7 @@ typedef struct my_pa_spawn_api_s {
 
 EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int flags, my_pa_spawn_api_t* api)
 {
-    pulse_my_t* my = (pulse_my_t*)GetLib(my_context->maplib, pulseName)->priv.w.p2;
+    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
     if(!api) {
         return my->pa_context_connect(context, server, flags, api);
     }
@@ -784,7 +784,7 @@ static void my_state_context(void* context, void* data)
         my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
         RunFunction(my_context, cb->fnc, 2, context, cb->data);
     }
-    pulse_my_t* my = (pulse_my_t*)GetLib(my_context->maplib, pulseName)->priv.w.p2;
+    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
     int i = my->pa_context_get_state(context);
     if (i==6) {   // PA_CONTEXT_TERMINATED
         // clean the stream callbacks
@@ -797,7 +797,7 @@ static my_pulse_context_cb_t* my_check_context(kh_pulsecb_t* list, void* context
     my_pulse_context_cb_t *ret = checkContext(list, context);
     if (!ret) {
         ret = getContext(list, context);
-        pulse_my_t* my = (pulse_my_t*)GetLib(my_context->maplib, pulseName)->priv.w.p2;
+        pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
         my->pa_context_set_state_callback(context, my_state_context, NULL);
     }
     return ret;
@@ -1166,7 +1166,7 @@ static void my_stream_state(void* s, void* data)
         my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
         RunFunction(my_context, cb->fnc, 2, s, cb->data);
     }
-    pulse_my_t* my = (pulse_my_t*)GetLib(my_context->maplib, pulseName)->priv.w.p2;
+    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
     int i = my->pa_stream_get_state(s);
     if (i==4) {   // PA_TERMINATED
         // clean the stream callbacks
@@ -1181,7 +1181,7 @@ static my_pulse_context_cb_t* my_check_stream(kh_pulsecb_t* list, void* stream)
     my_pulse_context_cb_t *ret = checkContext(list, stream);
     if (!ret) {
         ret = getContext(list, stream);
-        pulse_my_t* my = (pulse_my_t*)GetLib(my_context->maplib, pulseName)->priv.w.p2;
+        pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
         my->pa_stream_set_state_callback(stream, my_stream_state, NULL);
     }
     return ret;

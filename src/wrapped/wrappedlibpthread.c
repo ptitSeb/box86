@@ -40,7 +40,7 @@ typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
 EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 {
-    library_t* lib = GetLib(emu->context->maplib, libpthreadName);
+    library_t* lib = GetLibInternal(libpthreadName);
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "pthread_setname_np");
     if(f)
@@ -49,7 +49,7 @@ EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 }
 EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
 {
-    library_t* lib = GetLib(emu->context->maplib, libpthreadName);
+    library_t* lib = GetLibInternal(libpthreadName);
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "pthread_getname_np");
     if(f)

@@ -136,7 +136,7 @@ EXPORT void* my_sf_open_virtual(x86emu_t* emu, my_sfvirtual_io_t* sfvirtual, int
     native.write = my_sf_vio_write;
     native.tell = my_sf_vio_tell;
 
-    library_t * lib = GetLib(emu->context->maplib, libsndfileName);
+    library_t * lib = GetLibInternal(libsndfileName);
     sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
 
     x86emu_t *cb = AddCallback(emu, 0, 0, NULL, NULL, NULL, NULL);
@@ -156,7 +156,7 @@ EXPORT void* my_sf_open_virtual(x86emu_t* emu, my_sfvirtual_io_t* sfvirtual, int
 
 EXPORT int my_sf_close(x86emu_t* emu, void* sf)
 {
-    library_t * lib = GetLib(emu->context->maplib, libsndfileName);
+    library_t * lib = GetLibInternal(libsndfileName);
     sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
 
     int ret = my->sf_close(sf);

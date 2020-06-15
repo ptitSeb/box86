@@ -335,7 +335,7 @@ EXPORT int my_jpeg_simd_cpu_support()
 
 EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;
 
     jpeg_error_mgr_t* ret = my->jpeg_std_error(errmgr);
@@ -347,7 +347,7 @@ trace_end = 0;
 }
 
 #define WRAP(T, A)          \
-    library_t * lib = GetLib(emu->context->maplib, libname);\
+    library_t * lib = GetLibInternal(libname);\
     jpeg_my_t *my = (jpeg_my_t*)lib->priv.w.p2;         \
     is_jmpbuf = 1;          \
     my_jpegcb_emu = emu;    \

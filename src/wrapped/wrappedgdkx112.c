@@ -97,7 +97,7 @@ static void my_event_handler(void* event, my_signal_t* sig)
 
 EXPORT void my_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     if(!func)
@@ -115,7 +115,7 @@ static void my_input_function(my_signal_t* sig, int source, int condition)
 
 EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     if(!f)
@@ -127,7 +127,7 @@ EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, v
 
 EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     if(!f)
@@ -139,7 +139,7 @@ EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void*
 
 EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     my->gdk_init(argc, argv);
@@ -148,7 +148,7 @@ EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     int ret = my->gdk_init_check(argc, argv);
@@ -158,7 +158,7 @@ EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT void my_gdk_window_add_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     my->gdk_window_add_filter(window, findFilterFct(f), data);
@@ -166,7 +166,7 @@ EXPORT void my_gdk_window_add_filter(x86emu_t* emu, void* window, void* f, void*
 
 EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gdkx112_my_t *my = (gdkx112_my_t*)lib->priv.w.p2;
 
     my->gdk_window_remove_filter(window, findFilterFct(f), data);

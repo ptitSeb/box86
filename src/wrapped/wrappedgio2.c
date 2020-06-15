@@ -447,7 +447,7 @@ static my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterface
 
 EXPORT void my_g_dbus_proxy_new(x86emu_t* emu, void* connection, int flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_proxy_new(connection, flags, info, name, path, interface, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -455,7 +455,7 @@ EXPORT void my_g_dbus_proxy_new(x86emu_t* emu, void* connection, int flags, void
 
 EXPORT void my_g_dbus_proxy_new_for_bus(x86emu_t* emu, int bus_type, int flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_proxy_new_for_bus(bus_type, flags, info, name, path, interface, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -463,7 +463,7 @@ EXPORT void my_g_dbus_proxy_new_for_bus(x86emu_t* emu, int bus_type, int flags, 
 
 EXPORT void my_g_dbus_proxy_call(x86emu_t* emu, void* proxy, void* name, void* param, int flags, int timeout, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_proxy_call(proxy, name, param, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -471,7 +471,7 @@ EXPORT void my_g_dbus_proxy_call(x86emu_t* emu, void* proxy, void* name, void* p
 
 EXPORT void my_g_dbus_proxy_call_with_unix_fd_list(x86emu_t* emu, void* proxy, void* name, void* param, int flags, int timeout, void* fd_list, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_proxy_call_with_unix_fd_list(proxy, name, param, flags, timeout, fd_list, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -479,7 +479,7 @@ EXPORT void my_g_dbus_proxy_call_with_unix_fd_list(x86emu_t* emu, void* proxy, v
 
 EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x86emu_t* emu, int bus, int flags, void* name, void* path, void* cb, void* data, void* destroy, void* cancellable, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_dbus_object_manager_client_new_for_bus_sync(bus, flags, name, path, findGDBusProxyTypeFuncFct(cb), data, findGDestroyNotifyFct(destroy), cancellable, error);
@@ -487,7 +487,7 @@ EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x86emu_t* emu, int
 
 EXPORT void* my_g_simple_async_result_new(x86emu_t* emu, void* source, void* cb, void* data, void* tag)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_simple_async_result_new(source, findGAsyncReadyCallbackFct(cb), data, tag);
@@ -495,7 +495,7 @@ EXPORT void* my_g_simple_async_result_new(x86emu_t* emu, void* source, void* cb,
 
 EXPORT void* my_g_simple_async_result_new_error(x86emu_t* emu, void* source, void* cb, void* data, uint32_t domain, int code, void* fmt, va_list b)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     char* tmp;
@@ -507,7 +507,7 @@ EXPORT void* my_g_simple_async_result_new_error(x86emu_t* emu, void* source, voi
 
 EXPORT void* my_g_simple_async_result_new_from_error(x86emu_t* emu, void* source, void* cb, void* data, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_simple_async_result_new_from_error(source, findGAsyncReadyCallbackFct(cb), data, error);
@@ -515,7 +515,7 @@ EXPORT void* my_g_simple_async_result_new_from_error(x86emu_t* emu, void* source
 
 EXPORT void* my_g_simple_async_result_new_take_error(x86emu_t* emu, void* source, void* cb, void* data, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_simple_async_result_new_take_error(source, findGAsyncReadyCallbackFct(cb), data, error);
@@ -523,7 +523,7 @@ EXPORT void* my_g_simple_async_result_new_take_error(x86emu_t* emu, void* source
 
 EXPORT void my_g_simple_async_result_set_op_res_gpointer(x86emu_t* emu, void* simple, void* op, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_simple_async_result_set_op_res_gpointer(simple, op, findGDestroyNotifyFct(notify));
@@ -531,7 +531,7 @@ EXPORT void my_g_simple_async_result_set_op_res_gpointer(x86emu_t* emu, void* si
 
 EXPORT void my_g_simple_async_result_run_in_thread(x86emu_t* emu, void* simple, void* fnc, int priority, void* cancellable)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_simple_async_result_run_in_thread(simple, findGSimpleAsyncThreadFuncFct(fnc), priority, cancellable);
@@ -539,7 +539,7 @@ EXPORT void my_g_simple_async_result_run_in_thread(x86emu_t* emu, void* simple, 
 
 EXPORT void my_g_simple_async_report_error_in_idle(x86emu_t* emu, void* object, void* cb, void* data, uint32_t domain, int code, void* fmt, va_list b)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     char* tmp;
@@ -550,7 +550,7 @@ EXPORT void my_g_simple_async_report_error_in_idle(x86emu_t* emu, void* object, 
 
 EXPORT void my_g_simple_async_report_gerror_in_idle(x86emu_t* emu, void* object, void* cb, void* data, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_simple_async_report_gerror_in_idle(object, findGAsyncReadyCallbackFct(cb), data, error);
@@ -558,7 +558,7 @@ EXPORT void my_g_simple_async_report_gerror_in_idle(x86emu_t* emu, void* object,
 
 EXPORT void my_g_simple_async_report_take_gerror_in_idle(x86emu_t* emu, void* object, void* cb, void* data, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_simple_async_report_take_gerror_in_idle(object, findGAsyncReadyCallbackFct(cb), data, error);
@@ -566,7 +566,7 @@ EXPORT void my_g_simple_async_report_take_gerror_in_idle(x86emu_t* emu, void* ob
 
 EXPORT unsigned long my_g_cancellable_connect(x86emu_t* emu, void* cancellable, void* cb, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_cancellable_connect(cancellable, findGCallbackFct(cb), data, findGDestroyNotifyFct(notify));
@@ -574,7 +574,7 @@ EXPORT unsigned long my_g_cancellable_connect(x86emu_t* emu, void* cancellable, 
 
 EXPORT void my_g_async_initable_init_async(x86emu_t* emu, void* initable, int priority, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_async_initable_init_async(initable, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -582,7 +582,7 @@ EXPORT void my_g_async_initable_init_async(x86emu_t* emu, void* initable, int pr
 
 EXPORT void my_g_async_initable_new_valist_async(x86emu_t* emu, int type, void* first, void* var_args, int priority, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_async_initable_new_valist_async(type, first, var_args, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -595,7 +595,7 @@ EXPORT void my_g_async_initable_new_async(x86emu_t* emu, int type, int priority,
 
 EXPORT void my_g_async_initable_newv_async(x86emu_t* emu, int type, uint32_t n, void* params, int priority, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_async_initable_newv_async(type, n, params, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -603,7 +603,7 @@ EXPORT void my_g_async_initable_newv_async(x86emu_t* emu, int type, uint32_t n, 
 
 EXPORT void my_g_bus_get(x86emu_t* emu, int type, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_bus_get(type, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -611,7 +611,7 @@ EXPORT void my_g_bus_get(x86emu_t* emu, int type, void* cancellable, void* cb, v
 
 EXPORT void my_g_dbus_connection_new(x86emu_t* emu, void* stream, void* guid, int flags, void* observer, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_new(stream, guid, flags, observer, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -619,7 +619,7 @@ EXPORT void my_g_dbus_connection_new(x86emu_t* emu, void* stream, void* guid, in
 
 EXPORT void my_g_dbus_connection_new_for_address(x86emu_t* emu, void* address, int flags, void* observer, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_new_for_address(address, flags, observer, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -627,7 +627,7 @@ EXPORT void my_g_dbus_connection_new_for_address(x86emu_t* emu, void* address, i
 
 EXPORT void my_g_dbus_connection_close(x86emu_t* emu, void* connection, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_close(connection, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -635,7 +635,7 @@ EXPORT void my_g_dbus_connection_close(x86emu_t* emu, void* connection, void* ca
 
 EXPORT void my_g_dbus_connection_flush(x86emu_t* emu, void* connection, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_flush(connection, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -643,7 +643,7 @@ EXPORT void my_g_dbus_connection_flush(x86emu_t* emu, void* connection, void* ca
 
 EXPORT void my_g_dbus_connection_call(x86emu_t* emu, void* connection, void* bus, void* object, void* interface, void* method, void* param, void* reply, int flags, int timeout, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_call(connection, bus, object, interface, method, param, reply, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -651,7 +651,7 @@ EXPORT void my_g_dbus_connection_call(x86emu_t* emu, void* connection, void* bus
 
 EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x86emu_t* emu, void* connection, void* sender, void* interface, void* member, void* object, void* arg0, int flags, void* cb, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_dbus_connection_signal_subscribe(connection, sender, interface, member, object, arg0, flags, findGDBusSignalCallbackFct(cb), data, findGDestroyNotifyFct(notify));
@@ -659,7 +659,7 @@ EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x86emu_t* emu, void* conne
 
 EXPORT void my_g_dbus_connection_send_message_with_reply(x86emu_t* emu, void* connection, void* message, int flags, int timeout, void* serial, void* cancellable, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     my->g_dbus_connection_send_message_with_reply(connection, message, flags, timeout, serial, cancellable, findGAsyncReadyCallbackFct(cb), data);
@@ -667,7 +667,7 @@ EXPORT void my_g_dbus_connection_send_message_with_reply(x86emu_t* emu, void* co
 
 EXPORT uint32_t my_g_dbus_connection_add_filter(x86emu_t* emu, void* connection, void* cb, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_dbus_connection_add_filter(connection, findGDBusMessageFilterFunctionFct(cb), data, findGDestroyNotifyFct(notify));
@@ -675,7 +675,7 @@ EXPORT uint32_t my_g_dbus_connection_add_filter(x86emu_t* emu, void* connection,
 
 EXPORT uint32_t my_g_dbus_connection_register_object(x86emu_t* emu, void* connection, void* object, void* info, my_GDBusInterfaceVTable_t* vtable, void* data, void* notify, void* error)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     return my->g_dbus_connection_register_object(connection, object, info, findFreeGDBusInterfaceVTable(vtable), data, findGDestroyNotifyFct(notify), error);
@@ -683,7 +683,7 @@ EXPORT uint32_t my_g_dbus_connection_register_object(x86emu_t* emu, void* connec
 
 EXPORT uint32_t my_g_bus_watch_name(x86emu_t* emu, int type, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
     // note that a mecanism with a new callback, cleaned with notify, is also possible here
     return my->g_bus_watch_name(type, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
@@ -691,7 +691,7 @@ EXPORT uint32_t my_g_bus_watch_name(x86emu_t* emu, int type, void* name, int fla
 
 EXPORT uint32_t my_g_bus_watch_name_on_connection(x86emu_t* emu, void* connection, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
     // note that a mecanism with a new callback, cleaned with notify, is also possible here
     return my->g_bus_watch_name_on_connection(connection, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
@@ -699,7 +699,7 @@ EXPORT uint32_t my_g_bus_watch_name_on_connection(x86emu_t* emu, void* connectio
 
 EXPORT uint32_t my_g_bus_own_name(x86emu_t* emu, int type, void* name, int flags, void* bus_acquired, void* name_acquired, void* name_lost, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
     // note that a mecanism with a new callback, cleaned with notify, is also possible here
     return my->g_bus_own_name(type, name, flags, findGBusAcquiredCallbackFct(bus_acquired), findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
@@ -707,7 +707,7 @@ EXPORT uint32_t my_g_bus_own_name(x86emu_t* emu, int type, void* name, int flags
 
 EXPORT uint32_t my_g_bus_own_name_on_connection(x86emu_t* emu, void* connection, void* name, int flags, void* name_acquired, void* name_lost, void* data, void* notify)
 {
-    library_t * lib = GetLib(emu->context->maplib, libname);
+    library_t * lib = GetLibInternal(libname);
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
     // note that a mecanism with a new callback, cleaned with notify, is also possible here
     return my->g_bus_own_name_on_connection(connection, name, flags, findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));

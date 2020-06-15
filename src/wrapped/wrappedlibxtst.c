@@ -54,7 +54,7 @@ static void my_XRecordInterceptProc(void* closure, void *recorded_data)
 }
 EXPORT int my_XRecordEnableContextAsync(x86emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
-    library_t* lib = GetLib(my_context->maplib, libxtstName);
+    library_t* lib = GetLibInternal(libxtstName);
     libxtst_my_t* my = (libxtst_my_t*)lib->priv.w.p2;
 
     if(GetNativeFnc((uintptr_t)cb)) {

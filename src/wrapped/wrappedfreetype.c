@@ -100,7 +100,7 @@ static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
 
 EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
 {
-    library_t* lib = GetLib(my_context->maplib, freetypeName);
+    library_t* lib = GetLibInternal(freetypeName);
     freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
 
     int wrapstream = (args->flags&0x02)?1:0;

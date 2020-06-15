@@ -65,7 +65,7 @@ static void my16_user_read_data(void* png_ptr, void* data, int32_t length)
 
 EXPORT void my16_png_set_read_fn(x86emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
 {
-    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
     if(emu_userdataread) {
@@ -98,7 +98,7 @@ static void my16_user_transform_fn(void* ptr, void* row_info, void* data)
 
 EXPORT void my16_png_set_read_user_transform_fn(x86emu_t *emu, void* png_ptr, void* read_transform_fn)
 {
-    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
     if(emu_userdatatransform) {
@@ -122,7 +122,7 @@ EXPORT void my16_png_destroy_read_struct(x86emu_t* emu, void* png_ptr_ptr, void*
     if(!png_ptr_ptr)
         return;
 
-    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
     // clean up box86 stuff first
     void* ptr = *(void**)png_ptr_ptr;
@@ -163,7 +163,7 @@ static void my16_user_flush_data(void* png_ptr)
 
 EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
 {
-    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
     if(write_fn && emu_userdatawrite) {
@@ -196,7 +196,7 @@ EXPORT void my16_png_destroy_write_struct(x86emu_t* emu, void* png_ptr_ptr, void
     if(!png_ptr_ptr)
         return;
 
-    library_t * lib = GetLib(emu->context->maplib, png16Name);
+    library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
     // clean up box86 stuff first
     void* ptr = *(void**)png_ptr_ptr;

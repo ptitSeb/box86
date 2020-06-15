@@ -85,7 +85,7 @@ EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
         return;
     }
 
-    library_t * lib = GetLib(emu->context->maplib, gthread2Name);
+    library_t * lib = GetLibInternal(gthread2Name);
     gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
 
     if(!vtable)
@@ -107,7 +107,7 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFu
         return;
     }
 
-    library_t * lib = GetLib(emu->context->maplib, gthread2Name);
+    library_t * lib = GetLibInternal(gthread2Name);
     gthread2_my_t *my = (gthread2_my_t*)lib->priv.w.p2;
 
     if(vtable)

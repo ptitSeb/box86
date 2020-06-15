@@ -70,7 +70,7 @@ static void smpeg_dispcallback(void* data, void* frame)
 
 EXPORT void my2_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* cb, void* data, void* lock)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     x86emu_t *old = dspemu;
     dspemu = NULL;
@@ -83,7 +83,7 @@ EXPORT void my2_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* cb, void* data
 
 EXPORT void my2_SMPEG_getinfo(x86emu_t* emu, void* mpeg, void* info)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     my_SMPEG_Info_t inf = {0};
     my->SMPEG_getinfo(mpeg, &inf);
@@ -92,7 +92,7 @@ EXPORT void my2_SMPEG_getinfo(x86emu_t* emu, void* mpeg, void* info)
 
 EXPORT void* my2_SMPEG_new(x86emu_t* emu, void* file, void* info, int sdl_audio)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
@@ -103,7 +103,7 @@ EXPORT void* my2_SMPEG_new(x86emu_t* emu, void* file, void* info, int sdl_audio)
 
 EXPORT void* my2_SMPEG_new_descr(x86emu_t* emu, int file, void* info, int sdl_audio)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
@@ -114,7 +114,7 @@ EXPORT void* my2_SMPEG_new_descr(x86emu_t* emu, int file, void* info, int sdl_au
 
 EXPORT void* my2_SMPEG_new_data(x86emu_t* emu, void* data, int size, void* info, int sdl_audio)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
@@ -124,7 +124,7 @@ EXPORT void* my2_SMPEG_new_data(x86emu_t* emu, void* data, int size, void* info,
 }
 EXPORT void* my2_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t f, int32_t audio)
 {
-    library_t* lib = GetLib(GetEmuContext(emu)->maplib, smpeg2Name);
+    library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);

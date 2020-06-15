@@ -51,7 +51,7 @@ static void my_ENGINE_ctrl_cb()
 }
 EXPORT int32_t my_ENGINE_ctrl(x86emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
 {
-    library_t * lib = GetLib(emu->context->maplib, cryptoName);
+    library_t * lib = GetLibInternal(cryptoName);
     crypto_my_t *my = (crypto_my_t*)lib->priv.w.p2;
 
     engine_ctrl_emu = f?AddSharedCallback(emu, (uintptr_t)f, 0, NULL, NULL, NULL, NULL):NULL;

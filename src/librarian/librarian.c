@@ -17,7 +17,7 @@
 KHASH_MAP_IMPL_STR(mapsymbols, onesymbol_t);
 KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
-lib_t *NewLibrarian(box86context_t* context)
+lib_t *NewLibrarian(box86context_t* context, int ownlibs)
 {
     lib_t *maplib = (lib_t*)calloc(1, sizeof(lib_t));
     
@@ -29,14 +29,20 @@ lib_t *NewLibrarian(box86context_t* context)
 
     maplib->context = context;
 
+    maplib->ownlibs = ownlibs;
+
     return maplib;
 }
 void FreeLibrarian(lib_t **maplib)
 {
     // should that be in reverse order?
-    for (int i=0; i<(*maplib)->libsz; ++i) {
-        Free1Library(&(*maplib)->libraries[i].lib);
-    }
+    if(!maplib || !*maplib)
+        return;
+    
+    if((*maplib)->ownlibs)
+        for (int i=0; i<(*maplib)->libsz; ++i) {
+            Free1Library(&(*maplib)->libraries[i].lib);
+        }
     free((*maplib)->libraries);
     (*maplib)->libraries = NULL;
 
@@ -93,14 +99,94 @@ library_t* getLib(lib_t* maplib, const char* path)
     return NULL;
 }
 
+static int libraryInMapLib(lib_t* maplib, library_t* lib)
+{
+    if(!maplib)
+        return 0;
+    for(int i=0; i<maplib->libsz; ++i)
+        if(maplib->libraries[i].lib==lib)
+            return 1;
+    return 0;
+}
+
+void MapLibAddLib(lib_t* maplib, library_t* lib)
+{
+    if (maplib->libsz == maplib->libcap) {
+        maplib->libcap += 8;
+        maplib->libraries = (onelib_t*)realloc(maplib->libraries, maplib->libcap*sizeof(onelib_t));
+    }
+    maplib->libraries[maplib->libsz].lib = lib;
+    maplib->libraries[maplib->libsz].name = GetNameLib(lib);
+    ++maplib->libsz;
+}
+
+void MapLibAddMapLib(lib_t* dest, lib_t* src)
+{
+    if(!src)
+        return;
+    for(int i=0; i<src->libsz; ++i) {
+        library_t* lib = src->libraries[i].lib;
+        if(!lib) continue;
+        if(lib->maplib && src!=lib->maplib) {   //TODO: find why is src!=lib->maplib needed
+            MapLibAddMapLib(dest, lib->maplib);
+            free(lib->maplib);
+            lib->maplib = NULL;
+        }
+        if(!libraryInMapLib(dest, lib))
+            MapLibAddLib(dest, lib);
+    }
+}
+
+void MapLibRemoveLib(lib_t* maplib, library_t* lib)
+{
+    if(!maplib || !lib)
+        return;
+    int idx = 0;
+    while(idx<maplib->libsz && maplib->libraries[idx].lib!=lib) ++idx;
+    if(idx==maplib->libsz)  //not found
+        return;
+    --maplib->libsz;
+    if(idx!=(maplib->libsz))
+        memmove(&maplib->libraries[idx], &maplib->libraries[idx+1], sizeof(onelib_t)*(maplib->libsz-idx));
+    maplib->libraries[maplib->libsz].lib = NULL;
+    maplib->libraries[maplib->libsz].name = NULL;
+}
+
 EXPORTDYN
 int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
     // first check if lib is already loaded
-    library_t *lib = getLib(maplib, path);
+    library_t *lib = getLib(my_context->maplib, path);
     if(lib) {
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
+        return 0;
+    }
+    // check also in the local loaded lib
+    lib = getLib(my_context->local_maplib, path);
+    if(lib) {
+        printf_log(LOG_DEBUG, "Already present in local_maplib => success\n");
+        if(local) {
+            // add lib to maplib...
+            if(maplib) {
+                if(lib->maplib) {
+                    MapLibAddMapLib(maplib, lib->maplib);
+                }
+                if(!libraryInMapLib(maplib, lib))
+                    MapLibAddLib(maplib, lib);
+            }
+        } else {
+            // promote lib from local to global...
+            // for add the depending local libs...
+            if(lib->maplib) {
+                MapLibAddMapLib(my_context->maplib, lib->maplib);
+                free(lib->maplib);
+                lib->maplib = NULL;
+            }
+            if(!libraryInMapLib(my_context->maplib, lib))
+                MapLibAddLib(my_context->maplib, lib);
+            MapLibRemoveLib(my_context->local_maplib, lib);
+        }
         return 0;
     }
     // load a new one
@@ -111,13 +197,18 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
     }
 
     // add lib now
-    if (maplib->libsz == maplib->libcap) {
-        maplib->libcap += 8;
-        maplib->libraries = (onelib_t*)realloc(maplib->libraries, maplib->libcap*sizeof(onelib_t));
+    if(local) {
+        MapLibAddLib(my_context->local_maplib, lib);
+        if(maplib)
+            MapLibAddLib(maplib, lib);
+        lib->maplib = NewLibrarian(box86, 0);
+        MapLibAddLib(lib->maplib, lib);
+    } else {
+        MapLibAddLib(my_context->maplib, lib);
     }
-    maplib->libraries[maplib->libsz].lib = lib;
-    maplib->libraries[maplib->libsz].name = GetNameLib(lib);
-    ++maplib->libsz;
+
+    if(!maplib)
+        maplib = (local)?lib->maplib:my_context->maplib;
 
     // add needed libs first
     if(parent)
@@ -126,37 +217,33 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
 
     if(mainelf==-1) {
         // It's a native libs, just add wrapped symbols to global map
-        if(!local) {
-            if(AddSymbolsLibrary(lib->context->maplib, lib, emu)) {   // also add needed libs
-                printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
-                return 1;
-            }
+        if(AddSymbolsLibrary(maplib, lib, emu)) {   // also add needed libs
+            printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
+            return 1;
         }
     } else {
-        // it's an emulated lib, so lets load dependancies before adding symbols and launch init sequence
-        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, box86, emu)) {
+        // it's an emulated lib, 
+        // lets load dependancies before adding symbols and launch init sequence
+        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, local, box86, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            AddNeededLib(maplib, lib, 0, "libGL.so.1", box86, emu);
+            AddNeededLib(maplib, lib, local, "libGL.so.1", box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            AddNeededLib(maplib, lib, 0, "libSDL-1.2.so.0", box86, emu);
-            AddNeededLib(maplib, lib, 0, "libdl.so.2", box86, emu);
-        }
-        if(local) {
-            lib->maplib = NewLibrarian(box86);
+            AddNeededLib(maplib, lib, local, "libSDL-1.2.so.0", box86, emu);
+            AddNeededLib(maplib, lib, local, "libdl.so.2", box86, emu);
         }
         // add symbols
-        if(AddSymbolsLibrary(local?lib->maplib:lib->context->maplib, lib, emu)) {   // also add needed libs
+        if(AddSymbolsLibrary(maplib, lib, emu)) {   // also add needed libs
             printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
             return 1;
         }
 
         // finalize the lib
-        if(FinalizeLibrary(lib, emu)) {
+        if(FinalizeLibrary(lib, local?maplib:NULL, emu)) {
             printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
             return 1;
         }
@@ -167,10 +254,18 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
     return 0;
 }
 
-library_t* GetLib(lib_t* maplib, const char* name)
+library_t* GetLibMapLib(lib_t* maplib, const char* name)
 {
     printf_log(LOG_DEBUG, "Trying to Get \"%s\" to maplib\n", name);
     return getLib(maplib, name);
+}
+
+library_t* GetLibInternal(const char* name)
+{
+    printf_log(LOG_DEBUG, "Trying to Get \"%s\" to maplib\n", name);
+    library_t* lib = getLib(my_context->maplib, name);
+    if(!lib) lib = getLib(my_context->local_maplib, name);
+    return lib;
 }
 
 EXPORTDYN

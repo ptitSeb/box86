@@ -116,7 +116,7 @@ void freeALProcWrapper(box86context_t* context)
 EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alGetProcAddress(%s)\n", rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
@@ -152,7 +152,7 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
 EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
 {
     khint_t k;
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alcGetProcAddress(%p, %s)\n", device, rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
@@ -196,7 +196,7 @@ static void my_RequestCallback(int32_t a, int32_t b)
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     if(my->request)
         FreeCallback(my->request);
     request = my->request = AddCallback(emu, (uintptr_t)cb, 2, NULL, NULL, NULL, NULL);
@@ -205,7 +205,7 @@ EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count
 
 EXPORT void my_alRequestFoldbackStop(x86emu_t* emu)
 {
-    openal_my_t* my = (openal_my_t*)GetLib(emu->context->maplib, libname)->priv.w.p2;
+    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStop();
     if(my->request)
         FreeCallback(my->request);

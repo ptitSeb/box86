@@ -51,7 +51,7 @@ void freeNCurseswMy(void* lib)
 
 EXPORT void my_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
 {
-    library_t * lib = GetLib(emu->context->maplib, libncurseswName);
+    library_t * lib = GetLibInternal(libncurseswName);
     libncursesw_my_t *my = (libncursesw_my_t*)lib->priv.w.p2;
 
     char* buf = NULL;

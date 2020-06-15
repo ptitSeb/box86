@@ -76,7 +76,7 @@ void freeXextMy(void* lib)
 EXPORT void* my_XShmCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt
                     , void* data, void* shminfo, uint32_t w, uint32_t h)
 {
-    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    library_t * lib = GetLibInternal(libxextName);
     xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
 
     XImage *img = my->XShmCreateImage(disp, vis, depth, fmt, data, shminfo, w, h);
@@ -91,7 +91,7 @@ EXPORT int32_t my_XShmPutImage(x86emu_t* emu, void* disp, void* drawable, void* 
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h, int32_t sendevt)
 {
-    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    library_t * lib = GetLibInternal(libxextName);
     xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
 
     UnbridgeImageFunc(emu, (XImage*)image);
@@ -103,7 +103,7 @@ EXPORT int32_t my_XShmPutImage(x86emu_t* emu, void* disp, void* drawable, void* 
 
 EXPORT int32_t my_XShmGetImage(x86emu_t* emu, void* disp, void* drawable, void* image, int32_t x, int32_t y, uint32_t plane)
 {
-    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    library_t * lib = GetLibInternal(libxextName);
     xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
 
     UnbridgeImageFunc(emu, (XImage*)image);
@@ -127,7 +127,7 @@ static int my_exterrorhandle_callback(void* display, void* ext_name, void* reaso
 
 EXPORT void* my_XSetExtensionErrorHandler(x86emu_t* emu, void* handler)
 {
-    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    library_t * lib = GetLibInternal(libxextName);
     xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
 
     x86emu_t *cb = NULL;
@@ -224,7 +224,7 @@ static char* my_hook_error_string(void* a, int b, void* c, void* d, int e) {
 
 EXPORT int32_t my_XextAddDisplay(x86emu_t* emu, void* extinfo, void* dpy, void* extname, my_XExtensionHooks* hooks, int nevents, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, libxextName);
+    library_t * lib = GetLibInternal(libxextName);
     xext_my_t *my = (xext_my_t*)lib->priv.w.p2;
 
     if(!context)

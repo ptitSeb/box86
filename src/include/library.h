@@ -10,7 +10,7 @@ typedef struct x86emu_s        x86emu_t;
 
 library_t *NewLibrary(const char* path, box86context_t* box86);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x86emu_t* emu);
-int FinalizeLibrary(library_t* lib, x86emu_t* emu);
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu);
 int ReloadLibrary(library_t* lib, x86emu_t* emu);
 void InactiveLibrary(library_t* lib);
 void Free1Library(library_t **lib);

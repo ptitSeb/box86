@@ -74,6 +74,7 @@ typedef struct box86context_s {
     uintptr_t           ep;             // entry point
 
     lib_t               *maplib;        // lib and symbols handling
+    lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     kh_cancelthread_t   *cancelthread;  // thread cancel mecanism is bit complex, create a map to ease it

@@ -83,7 +83,7 @@ static void* findEventFct(void* fct)
 EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t maskable, void* cb, void* data)
 {
     void* fct = findEventFct(cb);
-    library_t* lib = GetLib(my_context->maplib, libxtName);
+    library_t* lib = GetLibInternal(libxtName);
     libxt_my_t* my = (libxt_my_t*)lib->priv.w.p2;
 
     my->XtAddEventHandler(w, mask, maskable, fct, data);

@@ -159,7 +159,7 @@ static void my_DBusGTypeSpecializedCollectionIterator(void* value, x86emu_t* emu
 }
 EXPORT void my_dbus_g_type_collection_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)cb, 2, NULL, data, NULL, NULL);
@@ -174,7 +174,7 @@ static void my_DBusGTypeSpecializedMapIterator(void* key_val, void* value_val, x
 }
 EXPORT void my_dbus_g_type_map_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)cb, 3, NULL, NULL, data, NULL);
@@ -184,7 +184,7 @@ EXPORT void my_dbus_g_type_map_value_iterate(x86emu_t* emu, void* value, void* c
 
 EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int first, int* next)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     int narg = 0;
@@ -203,7 +203,7 @@ EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method
 
 EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int timeout, int first, int* next)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     int narg = 0;
@@ -222,7 +222,7 @@ EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy,
 
 EXPORT void my_dbus_g_proxy_connect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data, void* free_fnc)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     my->dbus_g_proxy_connect_signal(proxy, name, findGCallbackFct(handler), data, findGClosureNotifyFct(free_fnc));
@@ -230,7 +230,7 @@ EXPORT void my_dbus_g_proxy_connect_signal(x86emu_t* emu, void* proxy, void* nam
 
 EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data)
 {
-    library_t * lib = GetLib(emu->context->maplib, dbusglib1Name);
+    library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
     my->dbus_g_proxy_disconnect_signal(proxy, name, findGCallbackFct(handler), data);

@@ -273,15 +273,10 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
         elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
         // add symbols
         AddSymbols(maplib, lib->priv.n.mapsymbols, lib->priv.n.weaksymbols, lib->priv.n.localsymbols, elf_header);
-        // Call librarian to load all dependant elf
-        if(LoadNeededLibs(elf_header, lib->context->maplib, lib, lib->context, emu)) {
-            printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->name);
-            return 1;
-        }
     }
     return 0;
 }
-int FinalizeLibrary(library_t* lib, x86emu_t* emu)
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
 {
     if(!lib)
         return 0;
@@ -289,13 +284,13 @@ int FinalizeLibrary(library_t* lib, x86emu_t* emu)
         if(lib->priv.n.finalized)
             return 0;
         lib->priv.n.finalized = 1;
-        elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->priv.n.elf_index];
         // finalize relocations
-        if(RelocateElf(lib->context->maplib, lib->maplib, elf_header)) {
+        if(RelocateElf(my_context->maplib, local_maplib, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(lib->context->maplib, lib->maplib, elf_header);
+        RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
         if(trace_func) {
             if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);

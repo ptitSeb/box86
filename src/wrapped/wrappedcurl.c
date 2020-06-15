@@ -488,7 +488,7 @@ static void* find_progress_Fct(void* fct)
 
 EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option, void* param)
 {
-    library_t * lib = GetLib(emu->context->maplib, curlName);
+    library_t * lib = GetLibInternal(curlName);
     curl_my_t *my = (curl_my_t*)lib->priv.w.p2;
 
     switch(option) {

@@ -112,7 +112,7 @@ static void my_bz_free(void* opaque, void* p)
 
 EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressInit(strm, blocksize, verbosity, work);
@@ -122,7 +122,7 @@ EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocks
 
 EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompress(strm, action);
@@ -132,7 +132,7 @@ EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 
 EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressEnd(strm);
@@ -142,7 +142,7 @@ EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verbosity, int small)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressInit(strm, verbosity, small);
@@ -152,7 +152,7 @@ EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verb
 
 EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompress(strm);
@@ -162,7 +162,7 @@ EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLib(emu->context->maplib, bz2Name);
+    library_t * lib = GetLibInternal(bz2Name);
     bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressEnd(strm);
