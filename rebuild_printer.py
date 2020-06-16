@@ -690,6 +690,8 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						
 						text = text.split('\\')
 						while len(text) > 1:
+							if text[0][0] == "}":
+								text[0] = text[0][1:]
 							if text[1][0] == '%':
 								modifier, text[1] = '%', text[1][1:]
 								while (len(text[1]) > 1) \
@@ -703,6 +705,8 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							text = text[2:]
 						if len(text) == 0:
 							fail(AssertionError, "Substitution not finished")
+						if text[0][0] == "}":
+							text[0] = text[0][1:]
 						append(text[0])
 					
 					curSplt = curSplt + 1
