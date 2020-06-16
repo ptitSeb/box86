@@ -9,6 +9,6 @@ int DynaRun(x86emu_t *emu);
 uint32_t LibSyscall(x86emu_t *emu);
 void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs);
 extern uintptr_t pltResolver;
-
+int GetTID();
 
 #endif //__X86RUN_H_

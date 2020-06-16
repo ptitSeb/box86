@@ -90,7 +90,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_default, &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
     &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_0xE4,    &&_0xE5,    &&_0xE6,    &&_0xE7,
-    &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_default, &&_default, &&_default,
+    &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_default, &&_0xED,    &&_default, &&_default,
     &&_0xF0,    &&_default, &&_0xF2,    &&_0xF3,    &&_default, &&_0xF5,    &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_0xFA,    &&_0xFB,    &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
     };
@@ -888,7 +888,8 @@ _trace:
                 ip = R_EIP;
                 if(emu->quit) goto fini;
             } else {
-                printf_log(LOG_NONE, "Ignoring Unsupported Int %02Xh\n", nextop);
+                int tid = GetTID();
+                printf_log(LOG_NONE, "%04d|%p: Ignoring Unsupported Int %02Xh\n", tid, (void*)ip, nextop);
                 emu->old_ip = old_ip;
                 R_EIP = ip;
                 emu->quit = 1;
@@ -1024,6 +1025,10 @@ _trace:
             tmp32s = F8S; // jump is relative
             ip += tmp32s;
             STEP
+            NEXT;
+
+        _0xED:                      /* IN EAX, DX */
+            R_EAX = 0;  // nothing... should do a warning maybe?
             NEXT;
 
         _0xF0:                      /* LOCK */

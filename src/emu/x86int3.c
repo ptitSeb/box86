@@ -21,6 +21,10 @@
 #include "box86context.h"
 #include "librarian.h"
 
+#include <elf.h>
+#include "elfloader.h"
+#include "elfs/elfloader_private.h"
+
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
@@ -65,9 +69,13 @@ void x86Int3(x86emu_t* emu)
             RESET_FLAGS(emu);
             wrapper_t w = (wrapper_t)addr;
             addr = Fetch32(emu);
-            if(box86_log>=LOG_DEBUG /*&& emu->trace_end==0 && !emu->context->x86trace*/) {
+            /* This party can be used to trace only 1 specific lib (but it is quite slow)
+            elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
+            int have_trace = 0;
+            if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
+            if(box86_log>=LOG_DEBUG /*|| have_trace*/) {
                 pthread_mutex_lock(&emu->context->mutex_trace);
-                int tid = syscall(SYS_gettid);
+                int tid = GetTID();
                 char buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
@@ -94,7 +102,7 @@ void x86Int3(x86emu_t* emu)
                     perr = 1;
                 } else  if(strstr(s, "__open")==s || strstr(s, "open")==s || strstr(s, "open")==s) {
                     tmp = *(char**)(R_ESP+4);
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
                 } else  if(strstr(s, "fopen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), "fopen", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
@@ -183,7 +191,7 @@ void x86Int3(x86emu_t* emu)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
-                printf_log(LOG_DEBUG, "%s =>", buff);
+                printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 pthread_mutex_lock(&emu->context->mutex_trace);
@@ -212,7 +220,7 @@ void x86Int3(x86emu_t* emu)
                 }
                 if(perr && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d)", errno);
-                printf_log(LOG_DEBUG, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
+                printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);
@@ -221,4 +229,9 @@ void x86Int3(x86emu_t* emu)
     }
     printf_log(LOG_INFO, "Warning, ignoring unsupported Int 3 call\n");
     //emu->quit = 1;
+}
+
+int GetTID()
+{
+    return syscall(SYS_gettid);
 }
