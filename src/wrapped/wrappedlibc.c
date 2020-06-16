@@ -95,8 +95,10 @@
 #undef mkstemps
 #undef mkostemp
 #undef mkostemps
-#undef pread
-#undef pwrite
+#undef open
+#undef openat
+#undef read
+#undef write
 #undef creat
 #undef scandir
 #undef mmap
@@ -1246,9 +1248,33 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         #endif
         return tmp;
     }
-    return open(pathname, flags, mode);
+    int ret = open(pathname, flags, mode);
+    return ret;
 }
 EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
+
+EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
+{
+    int ret = read(fd, buf, count);
+#ifdef DYNAREC
+    if(ret!=count && ret>0) {
+        // continue reading...
+        void* p = buf+ret;
+        if(getDBFromAddress((uintptr_t)p)) {
+            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
+            unprotectDB((uintptr_t)p, count-ret);
+            int l;
+            do {
+                l = read(fd, p, count-ret); 
+                if(l>0) {
+                    p+=l; ret+=l;
+                }
+            } while(l>0);
+        }
+    }
+#endif
+    return ret;
+}
 
 EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
