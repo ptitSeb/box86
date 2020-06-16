@@ -313,26 +313,34 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cnt, Elf32_Rel *rel)
 {
     for (int i=0; i<cnt; ++i) {
+        int t = ELF32_R_TYPE(rel[i].r_info);
         Elf32_Sym *sym = &head->DynSym[ELF32_R_SYM(rel[i].r_info)];
         int bind = ELF32_ST_BIND(sym->st_info);
         const char* symname = SymName(head, sym);
+        uint32_t ndx = sym->st_shndx;
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
         if(bind==STB_LOCAL) {
-            if(local_maplib)
-                GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head);
-            if(!offs)
-                GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head);
+            offs = sym->st_value + head->delta;
+            end = offs + sym->st_size;
         } else {
-            if(local_maplib)
-                GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
-            if(!offs)
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+            // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
+            // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
+            if(bind==STB_GLOBAL && (ndx==10) && t!=R_386_GLOB_DAT) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            }
+            // so weak symbol are the one left
+            if(!offs) {
+                if(local_maplib)
+                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+                if(!offs)
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+            }
         }
         uintptr_t globoffs, globend;
         int delta;
-        int t = ELF32_R_TYPE(rel[i].r_info);
         switch(t) {
             case R_386_NONE:
                 // can be ignored
@@ -396,9 +404,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 else {
                     elfheader_t *h = NULL;
                     if(local_maplib)
-                        GetGlobalSymbolElf(local_maplib, symname);
+                        h = GetGlobalSymbolElf(local_maplib, symname);
                     if(!h)
-                        GetGlobalSymbolElf(maplib, symname);
+                        h = GetGlobalSymbolElf(maplib, symname);
                     offs = getElfIndex(GetLibrarianContext(maplib), h);
                 }
                 if(p) {
@@ -446,7 +454,11 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 break;
             case R_386_COPY:
                 if(offs) {
-                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any (no need to check for local_maplib)
+                    offs = 0;
+                    if(local_maplib)
+                        GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
+                    if(!offs)
+                        GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
                     printf_log(LOG_DEBUG, "Apply %s R_386_COPY @%p with sym=%s, @%p size=%d (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
                     if(LOG_DEBUG<=box86_log) {
