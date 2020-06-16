@@ -22,6 +22,7 @@
 #ifdef ARM
 void arm_prolog(x86emu_t* emu, void* addr) EXPORTDYN;
 void arm_epilog() EXPORTDYN;
+void arm_epilog_fast() EXPORTDYN;
 void arm_linker() EXPORTDYN;
 int arm_tableupdate(void* jump, uintptr_t addr, void** table) EXPORTDYN;
 #endif
@@ -56,7 +57,7 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
     if(!current)  {  // current has been invalidated, stop running it...
         //dynarec_log(LOG_DEBUG, "--- Current invalidated while linking.\n");
-        return arm_epilog;
+        return arm_epilog_fast;
     }
     if(table[3]) {
         //dynarec_log(LOG_DEBUG, "--- Remove mark from %p (%p)\n", current, table[3]);
@@ -65,17 +66,17 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     if(!block) {
         // no block, don't try again, ever
         tableupdate(arm_epilog, addr, table);
-        return arm_epilog;
+        return arm_epilog_fast;
     }
     if(!block->done) {
         // not finished yet... leave linker
         //tableupdate(arm_linker, addr, table);
-        return arm_epilog;
+        return arm_epilog_fast;
     }
     if(!block->block) {
         // null block, but done: go to epilog, no linker here
         tableupdate(arm_epilog, addr, table);
-        return arm_epilog;
+        return arm_epilog_fast;
     }
     dynablock_t *father = block->father?block->father:block;
     if(!block->parent->nolinker || (current && father->marks)) {

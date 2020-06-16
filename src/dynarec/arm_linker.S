@@ -11,6 +11,7 @@
 .global arm_linker
 arm_linker:
     // emu is r0
+    stm     r0, {r4-r12}   // put back reg value in emu, including EIP (easier debugging, and safer)
     // table offset is r1
     // IP address is r12
     push    {r0, r1, r12}

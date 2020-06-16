@@ -16,3 +16,12 @@ arm_epilog:
     pop     {r4-r11, pc}
     //end, return...
     //bx      lr
+
+
+.global arm_epilog_fast
+arm_epilog_fast:
+    //restore all used register
+    //vpop     {d8-d15}
+    pop     {r4-r11, pc}
+    //end, return...
+    //bx      lr
