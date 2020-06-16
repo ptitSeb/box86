@@ -130,6 +130,7 @@ typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
+typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef void* (*pFp_t)(void*);
 
@@ -1560,6 +1561,18 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     uint32_t r = fread(buf, 1, buflen, rnd);
     fclose(rnd);
     return r;
+}
+
+EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
+{
+    // Implemented starting glibc 2.12+
+    library_t* lib = GetLibInternal(libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "recvmmsg");
+    if(f)
+        return ((iFipuup_t)f)(fd, msgvec, vlen, flags, timeout);
+    // Use the syscall
+    return syscall(__NR_recvmmsg, fd, msgvec, vlen, flags, timeout);
 }
 
 EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)

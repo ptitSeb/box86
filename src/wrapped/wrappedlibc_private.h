@@ -1363,6 +1363,7 @@ GO(recv, iFipui)
 GO(__recv_chk, iFipuui)
 GOW(recvfrom, iFipuipp)
 // __recvfrom_chk
+GOM(recvmmsg, iFEipuup)    // actual recvmmsg is glibc 2.12+. The syscall is Linux 2.6.33+, so use syscall...
 GOW(recvmsg, iFipi)
 // re_exec  // Weak
 GOW(regcomp, iFppi)

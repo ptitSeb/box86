@@ -44,6 +44,10 @@
 //#define SYS_SENDMMSG    20
 //#endif
 int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags); // not always present, so used wrapped version
+#ifdef SYS_RECVMMSG
+int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout);
+int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags);
+#endif
 #endif
 
 
@@ -390,9 +394,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     case SYS_RECVMSG: R_EAX = recvmsg(args[0], (void*)args[1], args[2]); break;
                     case SYS_ACCEPT4: R_EAX = my_accept4(emu, args[0], (void*)args[1], (void*)args[2], args[3]); break;
                     #ifdef SYS_RECVMMSG
-                    // TODO: Create my_ version of recvmmsg and sendmmsg
-                    case SYS_RECVMMSG: R_EAX = recvmmsg(args[0], (void*)args[1], args[2], args[3], (void*)args[4]); break;
-                    case SYS_SENDMMSG: R_EAX = sendmmsg(args[0], (void*)args[1], args[2], args[3]); break;
+                    case SYS_RECVMMSG: R_EAX = my_recvmmsg(emu, args[0], (void*)args[1], args[2], args[3], (void*)args[4]); break;
+                    case SYS_SENDMMSG: R_EAX = my___sendmmsg(emu, args[0], (void*)args[1], args[2], args[3]); break;
                     #endif
                     default:
                         printf_log(LOG_DEBUG, "BOX86 Error on Syscall 102: Unknown Soket command %d\n", R_EBX);

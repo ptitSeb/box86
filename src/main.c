@@ -19,7 +19,7 @@
 #ifdef DYNAREC
 #include <unistd.h>
 #ifdef ARM
-#include <sys/auxv.h>
+#include <linux/auxvec.h>
 #include <asm/hwcap.h>
 #endif
 #endif
