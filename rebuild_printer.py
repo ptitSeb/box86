@@ -617,6 +617,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						text = text.replace("{!}", "%s")
 						printf_args = printf_args + ", (w ? \"!\" : \"\")"
 					
+					skiprbr = False
 					if idx % 2:
 						if text == "c":
 							if variables["cond"] != -1:
@@ -653,6 +654,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						elif text == "rotation":
 							if output.endswith("{, "):
 								output = output[:-3]
+								skiprbr = True
 							append("%s")
 							printf_args = printf_args + ", tmprot"
 						elif text == "label":
@@ -703,6 +705,8 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							text = text[2:]
 						if len(text) == 0:
 							fail(AssertionError, "Substitution not finished")
+						if skiprbr and (text[0][0] == "}"):
+							text[0] = text[0][1:]
 						append(text[0])
 					
 					curSplt = curSplt + 1
