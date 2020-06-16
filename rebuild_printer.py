@@ -809,7 +809,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				# Assumption:
 				# bytes 11-4 are [imm5 type 0] (then auto-complete for [Rs 0 type 1 Rm])
 				if (spltln[0] == "ARMS") and ((mask[20:24] + mask[25:28] != [0, 0, 0, 0, 0, 0, 1]) \
-				or ((correctBits[27] != 0) or (len(imms) != 2) or (imms[0] != [7, 5]))):
+				 or ((correctBits[27] != 0) or (len(imms) != 2) or (imms[0] != [7, 5]))):
 					fail(NotImplementedError, "Unknown case with shift")
 				
 				if (spltln[0] == "ARMS"):
@@ -840,7 +840,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if (len(imms) == 2) and (len(imms[0]) == 3):
 					append("uint8_t imm = ((opcode >> " + str(imms[0][0]) + ") & 0x1F) + 1;\n")
 				append("uint8_t shift = ((opcode >> 4) & " + \
-					("0xFF)" if (spltln[0] == "ARMS") else ("0xFE)" if (spltln[0] == "ARM$") else "0xFF) | 0x01")) + \
+					("0xFF)" if (spltln[0] == "ARMS") else ("0xFE)" if (spltln[0] == "ARMs") else "0xFF) | 0x01")) + \
 					";\n")
 				
 				add_custom_variables()
