@@ -817,7 +817,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					fail(NotImplementedError, "Unknown case with shift")
 				
 				if (spltln[0] == "ARMS"):
-					generate_bin_test([24, 27], [[(0, 0), (0, 0)], [(1, 0), (1, 1)]])
+					generate_bin_test([24, 27], [[(0, 0), (1, 0)], [(1, 0), (1, 1)]])
 				else:
 					generate_bin_test()
 				
