@@ -168,6 +168,8 @@ void x86Int3(x86emu_t* emu)
                     if(((uintptr_t)pu32)<0x5) // probably a __fprint_chk
                         pu32 = *(uint32_t**)(R_ESP+12);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "fprintf", *(uint32_t*)(R_ESP+4), pu32?((char*)(pu32)):"nil");
+                } else  if(strstr(s, "vfprintf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), "vfprintf", *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "sscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, *(void**)(R_ESP), "sscanf", *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "XCreateWindow")==s) {
