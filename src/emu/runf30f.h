@@ -15,6 +15,15 @@
         GET_EX;
         EX->ud[0] = GX.ud[0];
         break;
+    
+    case 0x1E:  /* NOP / ENDBR32 / ENDBR64 */
+        nextop = F8;
+        GET_ED;
+        break;
+    case 0x1F:  /* REP NOP */
+        nextop = F8;
+        GET_ED;
+        break;
 
     case 0x2A:  /* CVTSI2SS Gx, Ed */
         nextop = F8;
