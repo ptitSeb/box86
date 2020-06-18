@@ -118,6 +118,17 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STR_IMM9(x2, ed, fixedaddress);
             }
             break;
+        
+        case 0x1E:
+            INST_NAME("NOP / ENDBR32 / ENDBR64");
+            nextop = F8;
+            FAKEED;
+            break;
+        case 0x1F:
+            INST_NAME("REP NOP");
+            nextop = F8;
+            FAKEED;
+            break;
 
         case 0x2A:
             INST_NAME("CVTSI2SS Gx, Ed");
