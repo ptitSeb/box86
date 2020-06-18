@@ -990,10 +990,10 @@ GO(__libc_current_sigrtmax, iFv)
 // __libc_current_sigrtmax_private
 GO(__libc_current_sigrtmin, iFv)
 // __libc_current_sigrtmin_private
-// __libc_dlclose
+GOM(__libc_dlclose, iFEp)
 // __libc_dl_error_tsd
-// __libc_dlopen_mode
-// __libc_dlsym
+GOM(__libc_dlopen_mode, pFEpi)
+GOM(__libc_dlsym, pFEpp)
 // __libc_fatal
 // __libc_fork
 GO(__libc_free, vFp)

@@ -1982,6 +1982,24 @@ EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
     return (size<=(65536*4));
 }
 
+// DL functions from wrappedlibdl.c
+void* my_dlopen(x86emu_t* emu, void *filename, int flag);
+int my_dlclose(x86emu_t* emu, void *handle);
+void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
+EXPORT int my___libc_dlclose(x86emu_t* emu, void* handle)
+{
+    return my_dlclose(emu, handle);
+}
+EXPORT void* my___libc_dlopen_mode(x86emu_t* emu, void* name, int mode)
+{
+    return my_dlopen(emu, name, mode);
+}
+EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
+{
+    return my_dlsym(emu, handle, name);
+}
+
+
 #ifndef NOALIGN
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
 EXPORT void* my_malloc(unsigned long size)
