@@ -395,11 +395,11 @@ elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name)
 int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
-        if(*start)
+        if(*start || *end)
             return 1;
     for(int i=0; i<maplib->libsz; ++i)
         if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
-            if(*start)
+            if(*start || *end)
                 return 1;
     // nope, not found
     return 0;
@@ -409,7 +409,7 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
 {
     if(maplib->context->elfs[0]==self) {
         if(GetSymbolStartEnd(maplib->localsymbols, name, start, end))
-            if(*start)
+            if(*start || *end)
                 return 1;
     } else {
         for(int i=0; i<maplib->libsz; ++i) {
@@ -426,13 +426,13 @@ int GetSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uin
 {
     if(maplib->context->elfs[0]==self) {
         if(GetSymbolStartEnd(maplib->localsymbols, name, start, end))
-            if(*start)
+            if(*start || *end)
                 return 1;
     } else {
         for(int i=0; i<maplib->libsz; ++i) {
             if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
                 if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
-                    if(*start)
+                    if(*start || *end)
                         return 1;
         }
     }
@@ -443,13 +443,13 @@ int GetNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
 {
     if(maplib->context->elfs[0]==self) {
         if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
-            if(*start)
+            if(*start || *end)
                 return 1;
     } else {
         for(int i=0; i<maplib->libsz; ++i) {
             if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
                 if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
-                    if(*start)
+                    if(*start || *end)
                         return 1;
         }
     }

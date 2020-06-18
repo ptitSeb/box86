@@ -321,21 +321,23 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        elfheader_t* h_tls = head;
         if(bind==STB_LOCAL) {
             offs = sym->st_value + head->delta;
             end = offs + sym->st_size;
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
-            if(bind==STB_GLOBAL && (ndx==10) && t!=R_386_GLOB_DAT) {
+            if(bind==STB_GLOBAL && (ndx==10 || ndx==19) && t!=R_386_GLOB_DAT) {
                 offs = sym->st_value + head->delta;
                 end = offs + sym->st_size;
             }
             // so weak symbol are the one left
-            if(!offs) {
+            if(!offs && !end) {
+                h_tls = NULL;
                 if(local_maplib)
                     GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
-                if(!offs)
+                if(!offs && !end)
                     GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
             }
         }
@@ -349,15 +351,20 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_386_TLS_TPOFF:
                 // Negated offset in static TLS block
                 {
-                    elfheader_t *h = NULL;
-                    if(local_maplib)
-                        GetGlobalSymbolElf(local_maplib, symname);
-                    if(!h)
-                        GetGlobalSymbolElf(maplib, symname);
-                    if(h) {
+                    if(h_tls)
+                        offs = sym->st_value;
+                    else {
+                        if(local_maplib)
+                            h_tls = GetGlobalSymbolElf(local_maplib, symname);
+                        if(!h_tls)
+                            h_tls = GetGlobalSymbolElf(maplib, symname);
+                    }
+                    if(h_tls) {
                         delta = *(int*)p;
-                        printf_log(LOG_DEBUG, "Applying %s %s on %s @%p (%d -> %d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h->tlsbase);
-                        *p = (uint32_t)((int32_t)offs + h->tlsbase);
+                        printf_log(LOG_DEBUG, "Applying %s %s on %s @%p (%d -> %d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h_tls->tlsbase);
+                        *p = (uint32_t)((int32_t)offs + h_tls->tlsbase);
+                    } else {
+                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
                     }
                 }
                 break;
@@ -367,7 +374,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     }
                     offs = (offs - (uintptr_t)p);
                     if(!offs)
-                    printf_log(LOG_DEBUG, "Apply %s R_386_PC32 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
+                        printf_log(LOG_DEBUG, "Apply %s R_386_PC32 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+offs));
                     *p += offs;
                 break;
             case R_386_GLOB_DAT:
@@ -400,14 +407,15 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_386_TLS_DTPMOD32:
                 // ID of module containing symbol
                 if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
-                    offs = getElfIndex(GetLibrarianContext(maplib), head);
+                    offs = getElfIndex(my_context, head);
                 else {
-                    elfheader_t *h = NULL;
-                    if(local_maplib)
-                        h = GetGlobalSymbolElf(local_maplib, symname);
-                    if(!h)
-                        h = GetGlobalSymbolElf(maplib, symname);
-                    offs = getElfIndex(GetLibrarianContext(maplib), h);
+                    if(!h_tls) {
+                        if(local_maplib)
+                            h_tls = GetGlobalSymbolElf(local_maplib, symname);
+                        if(!h_tls)
+                            h_tls = GetGlobalSymbolElf(maplib, symname);
+                    }
+                    offs = getElfIndex(my_context, h_tls);
                 }
                 if(p) {
                     printf_log(LOG_DEBUG, "Apply %s %s @%p with sym=%s (%p -> %p)\n", "R_386_TLS_DTPMOD32", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
@@ -418,7 +426,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 break;
             case R_386_TLS_DTPOFF32:
                 // Offset in TLS block
-                if (!offs) {
+                if (!offs && !end) {
                     if(bind==STB_WEAK) {
                         printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_TLS_DTPOFF32 @%p (%p)\n", symname, p, *(void**)p);
                     } else {
@@ -426,6 +434,8 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     }
 //                    return -1;
                 } else {
+                    if(h_tls)
+                        offs = sym->st_value;
                     if(p) {
                         int tlsoffset = offs;    // it's not an offset in elf memory
                         printf_log(LOG_DEBUG, "Apply %s R_386_TLS_DTPOFF32 @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)tlsoffset, (void*)offs);
@@ -807,13 +817,15 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
     Push32(emu, (uintptr_t)GetEmuContext(emu)->envv);
     Push32(emu, (uintptr_t)GetEmuContext(emu)->argv);
     Push32(emu, GetEmuContext(emu)->argc);
-    DynaCall(emu, p);
-    // and check fini array now
+    // first check fini array
     Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
     for (int i=0; i<h->finiarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         DynaCall(emu, (uintptr_t)addr[i]);
     }
+    // then the "old-style" fini
+    DynaCall(emu, p);
+
     SetESP(emu, sESP);
     h->fini_done = 1;
     h->init_done = 0;   // can be re-inited again...
