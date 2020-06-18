@@ -18,6 +18,7 @@
 #include "box86stack.h"
 #include "dynarec.h"
 #include "callback.h"
+#include "x86run.h"
 
 
 /* Definitions taken from the kernel headers.  */
