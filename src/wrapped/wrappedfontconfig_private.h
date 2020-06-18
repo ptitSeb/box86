@@ -50,7 +50,7 @@ GO(FcConfigGetBlanks, pFp)
 //GO(FcConfigGetCacheDirs, 
 //GO(FcConfigGetConfigDirs, 
 //GO(FcConfigGetConfigFiles, 
-//GO(FcConfigGetCurrent, 
+GO(FcConfigGetCurrent, pFv)
 //GO(FcConfigGetFontDirs, 
 GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigGetRescanInterval, 
