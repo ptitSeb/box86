@@ -119,6 +119,12 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFu
         my_setGlobalGThreadsInit();
 }
 
+void** my_GetGthreadsGotInitialized()
+{
+    return &g_threads_got_initialized;
+}
+
+
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGthread2My(lib);

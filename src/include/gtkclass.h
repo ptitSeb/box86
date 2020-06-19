@@ -192,6 +192,7 @@ void my_checkGlobalGdkDisplay();
 void my_setGlobalGThreadsInit();
 
 void** my_GetGTKDisplay();
+void** my_GetGthreadsGotInitialized();
 
 typedef struct my_signal_s {
     uint32_t sign;  // signature

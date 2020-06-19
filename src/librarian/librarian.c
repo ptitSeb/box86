@@ -363,6 +363,12 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         printf_log(LOG_INFO, "Using global gdk_display for gdk-x11 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
+    if(!strcmp(name, "g_threads_got_initialized")) {
+        *start = (uintptr_t)my_GetGthreadsGotInitialized();
+        *end = *start+sizeof(int);
+        printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%d)\n", start, *(int**)start);
+        return 1;
+    }
     // not found...
     return 0;
 }
