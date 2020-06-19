@@ -224,17 +224,17 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
     } else {
         // it's an emulated lib, 
         // lets load dependancies before adding symbols and launch init sequence
-        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, local, box86, emu)) {
+        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, 0, box86, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            AddNeededLib(maplib, lib, local, "libGL.so.1", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libGL.so.1", box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            AddNeededLib(maplib, lib, local, "libSDL-1.2.so.0", box86, emu);
-            AddNeededLib(maplib, lib, local, "libdl.so.2", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libSDL-1.2.so.0", box86, emu);
+            AddNeededLib(maplib, lib, 0, "libdl.so.2", box86, emu);
         }
         // add symbols
         if(AddSymbolsLibrary(maplib, lib, emu)) {   // also add needed libs
