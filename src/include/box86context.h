@@ -22,6 +22,7 @@ typedef struct atfork_fnc_s {
     uintptr_t prepare;
     uintptr_t parent;
     uintptr_t child;
+    void*     handle;
 } atfork_fnc_t;
 #ifdef DYNAREC
 typedef struct dynablocklist_s dynablocklist_t;

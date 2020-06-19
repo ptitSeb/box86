@@ -93,13 +93,15 @@ EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 EXPORT int32_t my_pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
 {
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
-    if(emu->context->atfork_sz==emu->context->atfork_cap) {
-        emu->context->atfork_cap += 4;
-        emu->context->atforks = (atfork_fnc_t*)realloc(emu->context->atforks, emu->context->atfork_cap*sizeof(atfork_fnc_t));
+    if(my_context->atfork_sz==my_context->atfork_cap) {
+        my_context->atfork_cap += 4;
+        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
-    emu->context->atforks[emu->context->atfork_sz].prepare = (uintptr_t)prepare;
-    emu->context->atforks[emu->context->atfork_sz].parent = (uintptr_t)parent;
-    emu->context->atforks[emu->context->atfork_sz++].child = (uintptr_t)child;
+    my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
+    my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
+    my_context->atforks[my_context->atfork_sz].child = (uintptr_t)child;
+    my_context->atforks[my_context->atfork_sz].handle = NULL;
+    ++my_context->atfork_sz;
     return 0;
 }
 EXPORT int32_t my___pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child) __attribute__((alias("my_pthread_atfork")));

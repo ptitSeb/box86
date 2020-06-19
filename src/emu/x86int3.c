@@ -30,8 +30,9 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
 {
     // execute atforks prepare functions, in reverse order
-    for (int i=emu->context->atfork_sz-1; i>=0; --i)
-        EmuCall(emu, emu->context->atforks[i].prepare);
+    for (int i=my_context->atfork_sz-1; i>=0; --i)
+        if(my_context->atforks[i].prepare)
+            EmuCall(emu, my_context->atforks[i].prepare);
     int v;
     if(forktype==2) {
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
@@ -43,13 +44,15 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
         // error...
     } else if(v!=0) {  
         // execute atforks parent functions
-        for (int i=0; i<emu->context->atfork_sz; --i)
-            EmuCall(emu, emu->context->atforks[i].parent);
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].parent)
+                EmuCall(emu, my_context->atforks[i].parent);
 
     } else if(v==0) {
         // execute atforks child functions
-        for (int i=0; i<emu->context->atfork_sz; --i)
-            EmuCall(emu, emu->context->atforks[i].child);
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].child)
+                EmuCall(emu, my_context->atforks[i].child);
     }
     R_EAX = v;
     return emu;

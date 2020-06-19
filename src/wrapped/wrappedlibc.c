@@ -1613,16 +1613,17 @@ EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t v
     return syscall(__NR_sendmmsg, fd, msgvec, vlen, flags);
 }
 
-EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
+EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
-    if(emu->context->atfork_sz==emu->context->atfork_cap) {
-        emu->context->atfork_cap += 4;
-        emu->context->atforks = (atfork_fnc_t*)realloc(emu->context->atforks, emu->context->atfork_cap*sizeof(atfork_fnc_t));
+    if(my_context->atfork_sz==my_context->atfork_cap) {
+        my_context->atfork_cap += 4;
+        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
-    emu->context->atforks[emu->context->atfork_sz].prepare = (uintptr_t)prepare;
-    emu->context->atforks[emu->context->atfork_sz].parent = (uintptr_t)parent;
-    emu->context->atforks[emu->context->atfork_sz++].child = (uintptr_t)child;
+    my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
+    my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
+    my_context->atforks[my_context->atfork_sz].child = (uintptr_t)child;
+    my_context->atforks[my_context->atfork_sz].handle = handle;
     return 0;
 }
 
