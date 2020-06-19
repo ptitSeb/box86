@@ -27,6 +27,7 @@ void freeALProcWrapper(box86context_t* context);
 void LibAddNeededLib(library_t* lib, library_t* needed);
 int GetNeededLibN(library_t* lib);
 library_t* GetNeededLib(library_t* lib, int idx);
+lib_t* GetMaplib(library_t* lib);
 
 int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. native)
 void* GetHandle(library_t* lib);    // NULL if not native

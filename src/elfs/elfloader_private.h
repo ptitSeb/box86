@@ -5,6 +5,8 @@
 typedef struct dynablocklist_s dynablocklist_t;
 #endif
 
+typedef struct library_s library_t;
+
 #include <pthread.h>
 
 struct elfheader_s {
@@ -75,6 +77,7 @@ struct elfheader_s {
 #ifdef DYNAREC
     dynablocklist_t *blocks;
 #endif
+    library_t   *lib;
 };
 
 #define R_386_NONE	0

@@ -25,6 +25,7 @@
 #include "box86stack.h"
 #include "callback.h"
 #include "dynarec.h"
+#include "box86stack.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -446,20 +447,25 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 }
                 break;
             case R_386_JMP_SLOT:
-                if (!offs) {
-                    if(bind==STB_WEAK) {
-                        printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                if(bind==STB_LOCAL) {
+                    if (!offs) {
+                        if(bind==STB_WEAK) {
+                            printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
+                        } else {
+                            printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        }
+    //                    return -1;
                     } else {
-                        printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        if(p) {
+                            printf_log(LOG_DEBUG, "Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                            *p = offs;
+                        } else {
+                            printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+                        }
                     }
-//                    return -1;
                 } else {
-                    if(p) {
-                        printf_log(LOG_DEBUG, "Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
-                        *p = offs;
-                    } else {
-                        printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
-                    }
+                    printf_log(LOG_DEBUG, "Preparing (if needed) %s R_386_JMP_SLOT @%p (0x%x->0x%0x) with sym=%s to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname);
+                    *p += head->delta;
                 }
                 break;
             case R_386_COPY:
@@ -542,6 +548,20 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 {
+    if(pltResolver==~0) {
+        pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
+    }
+    uintptr_t gotplt = head->gotplt;
+    if(!gotplt) gotplt =  head->got;
+    if(head->gotplt) {
+        *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
+        *(uintptr_t*)(head->gotplt+head->delta+4) = (uintptr_t)head;
+        printf_log(LOG_DEBUG, "PLT Resolver injected in got.plt at %p\n", (void*)(head->gotplt+head->delta+8));
+    } else if(head->got) {
+        *(uintptr_t*)(head->got+head->delta+8) = pltResolver;
+        *(uintptr_t*)(head->got+head->delta+4) = (uintptr_t)head;
+        printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+8));
+    }
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
@@ -554,13 +574,6 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
             printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
             if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
-        }
-        if(head->gotplt) {
-            if(pltResolver==~0) {
-                pltResolver = AddBridge(my_context->system, vFEpp, PltResolver, 0);   // should be vFEuu
-            }
-            *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
-            printf_log(LOG_DEBUG, "PLT Resolver injected at %p\n", (void*)(head->gotplt+head->delta+8));
         }
     }
    
@@ -1141,4 +1154,52 @@ void CreateMemorymapFile(box86context_t* context, int fd)
         
         dummy = write(fd, buff, strlen(buff));
     }
+}
+
+void ElfAttachLib(elfheader_t* head, library_t* lib)
+{
+    if(!head)
+        return;
+    head->lib = lib;
+}
+
+uintptr_t pltResolver = ~0;
+EXPORT void PltResolver(x86emu_t* emu)
+{
+    uintptr_t addr = Pop32(emu);
+    int slot = (int)Pop32(emu);
+    elfheader_t *h = (elfheader_t*)addr;
+    printf_log(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s\n", (void*)addr, slot, *(void**)(R_ESP), h->name);
+
+    Elf32_Rel * rel = (Elf32_Rel *)(h->jmprel + h->delta + slot);
+
+    Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel->r_info)];
+    int bind = ELF32_ST_BIND(sym->st_info);
+    const char* symname = SymName(h, sym);
+    uint32_t *p = (uint32_t*)(rel->r_offset + h->delta);
+    uintptr_t offs = 0;
+    uintptr_t end = 0;
+
+    library_t* lib = h->lib;
+    lib_t* local_maplib = GetMaplib(lib);
+    if(local_maplib)
+        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+    if(!offs && !end)
+        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end);
+
+    if (!offs) {
+        printf_log(LOG_NONE, "Error: PltReolver: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, h->name);
+        emu->quit = 1;
+        return;
+    } else {
+        if(p) {
+            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+            *p = offs;
+        } else {
+            printf_log(LOG_NONE, "PltReolver: Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+        }
+    }
+
+    // jmp to function
+    R_EIP = offs;
 }

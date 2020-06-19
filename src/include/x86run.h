@@ -7,7 +7,7 @@ int Run(x86emu_t *emu, int step); // 0 if run was successfull, 1 if error in x86
 int DynaRun(x86emu_t *emu);
 
 uint32_t LibSyscall(x86emu_t *emu);
-void PltResolver(x86emu_t* emu, uint32_t id, uintptr_t ofs);
+void PltResolver(x86emu_t* emu);
 extern uintptr_t pltResolver;
 int GetTID();
 

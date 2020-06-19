@@ -199,6 +199,8 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         // can close the file now
         fclose(f);
 
+        ElfAttachLib(elf_header, lib);
+
         lib->type = 1;
         lib->context = context;
         lib->fini = EmuLib_Fini;
@@ -681,4 +683,11 @@ void* GetHandle(library_t* lib)
     if(lib->type!=0)
         return NULL;
     return lib->priv.w.lib;
+}
+
+lib_t* GetMaplib(library_t* lib)
+{
+    if(!lib)
+        return NULL;
+    return lib->maplib;
 }

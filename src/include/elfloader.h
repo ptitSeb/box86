@@ -15,6 +15,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
 const char* ElfName(elfheader_t* head);
+void ElfAttachLib(elfheader_t* head, library_t* lib);
 
 // return 0 if OK
 int CalcLoadAddr(elfheader_t* head);
