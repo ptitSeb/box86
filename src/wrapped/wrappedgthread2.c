@@ -121,7 +121,7 @@ EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFu
 
 void** my_GetGthreadsGotInitialized()
 {
-    return &g_threads_got_initialized;
+    return (void**)&g_threads_got_initialized;
 }
 
 
