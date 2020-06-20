@@ -190,7 +190,7 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #elif defined __x86__
     void * pc = p->uc_mcontext.gregs[REG_RIP];
 #else
-    void * c = NULL;    // unknow arch...
+    void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
