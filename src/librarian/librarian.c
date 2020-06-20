@@ -316,26 +316,25 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
 }
 static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
-    // search non-weak symbol, from newer to older
+    // search non-weak symbol, from older to newer (first GLOBAL object wins)
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
         if(*start)
             return 1;
-    for(int i=maplib->libsz-1; i>=0; --i) {
+    for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
             if(*start)
                 return 1;
     }
 
-    // and now weak symbol, from older to newer
-    // library for newer to older, weak only now
-    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
-        if(*start)
-            return 1;
-    for(int i=0; i<maplib->libsz; ++i) {
+    // library from newer to older, weak only now
+    for(int i=maplib->libsz-1; i>=0; --i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, start, end))    // only weak symbol haven't been found yet
             if(*start)
                 return 1;
     }
+    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end))
+        if(*start)
+            return 1;
     // nope, not found
     return 0;
 }
