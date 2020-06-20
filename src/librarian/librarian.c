@@ -340,6 +340,7 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     return 0;
 }
 void** my_GetGTKDisplay();
+void** my_GetGthreadsGotInitialized();
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end)) {
@@ -366,7 +367,7 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     if(!strcmp(name, "g_threads_got_initialized")) {
         *start = (uintptr_t)my_GetGthreadsGotInitialized();
         *end = *start+sizeof(int);
-        printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%d)\n", start, *(int**)start);
+        printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
     // not found...
@@ -413,13 +414,13 @@ int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* st
 
 int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self)
 {
-    if(maplib->context->elfs[0]==self) {
+    if(maplib->context->elfs[0]==self || !self) {
         if(GetSymbolStartEnd(maplib->localsymbols, name, start, end))
             if(*start || *end)
                 return 1;
     } else {
         for(int i=0; i<maplib->libsz; ++i) {
-            if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
+            if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (!self || maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
                 if(GetLibLocalSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
                     if(*start)
                         return 1;

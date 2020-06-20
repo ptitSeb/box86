@@ -557,6 +557,9 @@ void setupTrace(box86context_t* context)
             if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL)) {
+                SetTraceEmu(trace_start, trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
