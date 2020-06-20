@@ -129,6 +129,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLDR_64(v0+1, ed, fixedaddress);
             }
             break;
+        case 0x15:
+            INST_NAME("UNPCKHPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            VMOVD(v0, v0+1);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                VMOVD(v0+1, v1+1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023-4, 3);
+                VLDR_64(v0+1, ed, fixedaddress+4);
+            }
+            break;
 
         case 0x16:
             INST_NAME("MOVHPD Gx, Ed");
@@ -457,6 +470,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             VSUB_F64(v0, v0, q0);
             VSUB_F64(v0+1, v0+1, q0+1);
+            break;
+
+        case 0x5D:
+            INST_NAME("DIVPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            VDIV_F64(v0, v0, q0);
+            VDIV_F64(v0+1, v0+1, q0+1);
             break;
 
         case 0x60:
