@@ -1720,10 +1720,10 @@ static const char* regname[16] = {
 // Double and quad precision are _:V_
 // So we always use _:V_ and invert the corresponding single-precision (cleaner? code)
 static const char* vecname[96] = {
-	"S0", "S16", "S1", "S17", "S2", "S18", "S3", "S19",
-	"S4", "S20", "S5", "S21", "S6", "S22", "S7","S23",
-	"S8", "S24", "S9", "S25", "S10", "S26", "S11", "S27",
-	"S12", "S28", "S13", "S29", "S14", "S30", "S15", "S31",
+	 "S0",  "S2",  "S4",  "S6",  "S8", "S10", "S12", "S14",
+	"S16", "S18", "S20", "S22", "S24", "S26", "S28", "S30",
+	 "S1",  "S3",  "S5",  "S7",  "S9", "S11", "S13", "S15",
+	"S17", "S19", "S21", "S23", "S25", "S27", "S29", "S31",
 	"D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
 	"D8", "D9", "D10", "D11", "D12", "D13", "D14", "D15",
 	"D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23",
