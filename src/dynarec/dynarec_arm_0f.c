@@ -293,7 +293,36 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             VCVTn_S32_F32(v0, v1);
             break;
-
+        case 0x2D:
+            INST_NAME("CVTPS2PI Gm, Ex");
+            u8 = x87_setround(dyn, ninst, x1, x2, x12);
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                v1 = fpu_get_scratch_double(dyn);
+                VLD1_32(v1, ed);
+            }
+            if(v1<16)
+                d1 = v1;
+            else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v1);
+            }
+            if(v0<16)
+                d0 = v0;
+            else
+                d0 = fpu_get_scratch_double(dyn);
+            VCVTR_S32_F32(d0*2, d1*2);
+            VCVTR_S32_F32(d0*2+1, d1*2+1);
+            if(v0>=16) {
+                VMOV_64(v0, d0);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            break;
         case 0x2E:
             // no special check...
         case 0x2F:
