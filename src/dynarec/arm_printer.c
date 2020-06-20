@@ -4935,7 +4935,7 @@ const char* arm_print(uint32_t opcode) {
 		float mantissa = 16 + param2_4;
 		float imm = sign * (1 << exp) * mantissa / 128.;
 		
-		sprintf(ret, "VMOV%s.F32 %s, #%f", cond, vecname[0x20 + d], imm);
+		sprintf(ret, "VMOV%s.F32 %s, #%f", cond, vecname[d], imm);
 	} else if ((opcode & 0x0FB00F50) == 0x0EB00B00) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);

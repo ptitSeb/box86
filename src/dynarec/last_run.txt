@@ -457,7 +457,7 @@ VFPU cond 1 1 1 0 0 D 1 1 Vn Vd 1 0 1 sz N 1 M 0 Vm VSUB<c>.F\(size ? "64" : "32
 VFPU cond 1 1 1 0 1 D 0 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VDIV<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 1 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VFNM\(op ? "A" : "S")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 0 Vn Vd 1 0 1 sz N op M 0 Vm VFM\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
-VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 0 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set float mantissa = 16 + param2_4@ set float imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F32 <Dd>, #\%fimm\
+VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 0 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set float mantissa = 16 + param2_4@ set float imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F32 <Sd>, #\%fimm\
 VFPU cond 1 1 1 0 1 D 1 1 @<4> Vd 1 0 1 1 (0) 0 (0) 0 @<4> @ set int8_t sign = (param1_4 >> 3) ? -1 : 1@ set uint8_t exp = ((param1_4 & 0b111) ^ 0b100)@ set double mantissa = 16 + param2_4@ set double imm = sign * (1 << exp) * mantissa / 128.@ @ VMOV<c>.F64 <Dd>, #\%fimm\
 VFPU cond 1 1 1 0 1 D 1 1 0 0 0 0 Vd 1 0 1 sz 0 1 M 0 Vm VMOV<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 1 0 0 0 0 Vd 1 0 1 sz 1 1 M 0 Vm VABS<c>.F\(size ? "64" : "32")\ <Dd>, <Dm>
