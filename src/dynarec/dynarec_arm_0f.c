@@ -63,6 +63,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int d0, d1;
     int s0;
     int fixedaddress;
+    int parity;
     MAYUSE(s0);
     MAYUSE(q1);
     MAYUSE(v2);
@@ -310,9 +311,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
                 s0 = d0*2;
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                parity = getedparity(dyn, ninst, addr, nextop, 2);
                 s0 = fpu_get_scratch_single(dyn);
-                VLDR_32(s0, ed, fixedaddress);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0);
+                    VLDR_32(s0, ed, fixedaddress);
+                } else {
+                    GETED;
+                    VMOVtoV(s0, ed);
+                }
             }
             if(v0<16)
                 d1=v0;
