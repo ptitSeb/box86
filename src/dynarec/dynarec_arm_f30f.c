@@ -34,9 +34,15 @@
         }                                           \
         a *= 2;                                     \
     } else {    \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3); \
+        parity = getedparity(dyn, ninst, addr, nextop, 2);  \
         a = fpu_get_scratch_single(dyn);            \
-        VLDR_32(a, ed, fixedaddress);               \
+        if(parity) {                                \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0); \
+            VLDR_32(a, ed, fixedaddress);           \
+        } else {                                    \
+            GETED;                                  \
+            VMOVtoV(a, ed);                         \
+        }                                           \
     }
 
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -52,6 +58,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int s0, s1;
     int d0, d1;
     int q0;
+    int parity;
 
     MAYUSE(s1);
     MAYUSE(i32);
