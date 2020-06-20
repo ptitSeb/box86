@@ -418,12 +418,16 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
         if(GetSymbolStartEnd(maplib->localsymbols, name, start, end))
             if(*start || *end)
                 return 1;
-    } else {
-        for(int i=0; i<maplib->libsz; ++i) {
-            if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (!self || maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self))
-                if(GetLibLocalSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
-                    if(*start)
-                        return 1;
+        if(self)
+            return 0;
+    }
+    for(int i=0; i<maplib->libsz; ++i) {
+        if(GetElfIndex(maplib->libraries[i].lib)!=-1 && (!self || maplib->context->elfs[GetElfIndex(maplib->libraries[i].lib)]==self)) {
+            if(GetLibLocalSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
+                if(*start)
+                    return 1;
+            if(self)
+                return 0;
         }
     }
     return 0;
