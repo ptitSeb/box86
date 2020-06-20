@@ -34,8 +34,9 @@
         }                                           \
         a *= 2;                                     \
     } else {    \
+        b = fpu_get_scratch_double(dyn);            \
+        a = b*2;                                    \
         parity = getedparity(dyn, ninst, addr, nextop, 2);  \
-        a = fpu_get_scratch_single(dyn);            \
         if(parity) {                                \
             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0); \
             VLDR_32(a, ed, fixedaddress);           \
@@ -44,6 +45,11 @@
             VMOVtoV(a, ed);                         \
         }                                           \
     }
+
+#define GETGX(a) \
+    gd = (nextop&0x38)>>3;                          \
+    a = sse_get_reg(dyn, ninst, x1, gd)
+
 
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -55,7 +61,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     uint8_t wback;
     int fixedaddress;
     int v0, v1;
-    int s0, s1;
+    int s0, s1, s2;
     int d0, d1;
     int q0;
     int parity;
@@ -205,104 +211,118 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VSQRT_F32(d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VSQRT_F32(s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            s1 = fpu_get_scratch_single(dyn);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            s2 = fpu_get_scratch_single(dyn);
             // so here: F32: Imm8 = abcd efgh that gives => aBbbbbbc defgh000 00000000 00000000
             // and want 1.0f = 0x3f800000
             // so 00111111 10000000 00000000 00000000
             // a = 0, b = 1, c = 1, d = 1, efgh=0
             // 0b01110000
-            VMOV_i_32(s1, 0b01110000);
-            VDIV_F32(s0, s1, s0);
-            VSQRT_F32(d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            VMOV_i_32(s2, 0b01110000);
+            VSQRT_F32(s0, s1);
+            VDIV_F32(s0, s2, s0);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            s1 = fpu_get_scratch_single(dyn);
-            VMOV_i_32(s1, 0b01110000);
-            VDIV_F32(d1*2, s1, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            s2 = fpu_get_scratch_single(dyn);
+            VMOV_i_32(s2, 0b01110000);
+            VDIV_F32(s0, s2, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
 
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VADD_F32(d1*2, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VADD_F32(s0, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x59:
             INST_NAME("MULSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VMUL_F32(d1*2, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VMUL_F32(s0, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            GETGX(v0);
             GETEX(s0, d0);
             VCVT_F64_F32(v0, s0);
             break;
@@ -323,75 +343,87 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VSUB_F32(d1*2, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VSUB_F32(s0, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
             // MINSS: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
-            VCMP_F32(d1*2, s0);
+            VCMP_F32(s0, s1);
             VMRS_APSR();
-            VMOVcond_32(cPL, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            VMOVcond_32(cPL, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VDIV_F32(d1*2, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VDIV_F32(s0, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
             // MAXSS: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
-            VCMP_F32(s0, d1*2);
+            VCMP_F32(s1, s0);
             VMRS_APSR();
-            VMOVcond_32(cPL, d1*2, s0);
-            if(v0!=d1) {
-                VMOV_64(v0, d1);
+            VMOVcond_32(cPL, s0, s1);
+            if(v0!=d0) {
+                VMOV_64(v0, d0);
             }
             break;
 
@@ -505,16 +537,19 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex");
             nextop = F8;
-            gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
-            GETEX(s0, d0);
-            if(v0<16)
-                d1 = v0;
-            else {
-                d1 = fpu_get_scratch_double(dyn);
-                VMOV_64(d1, v0);
-            }
-            VCMP_F32(d1*2, s0);
+            GETGX(v0);
+            GETEX(s1, v1);
+            if(v0==v1)
+                d0 = s1/2;
+            else
+                if(v0<16)
+                    d0 = v0;
+                else {
+                    d0 = fpu_get_scratch_double(dyn);
+                    VMOV_64(d0, v0);
+                }
+            s0 = d0*2;
+            VCMP_F32(s0, s1);
             VMRS_APSR();
             MOVW(x2, 0);
             u8 = F8;
