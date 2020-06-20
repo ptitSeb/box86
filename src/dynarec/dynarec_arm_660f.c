@@ -142,7 +142,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLDR_64(v0+1, ed, fixedaddress+4);
             }
             break;
-
         case 0x16:
             INST_NAME("MOVHPD Gx, Ed");
             nextop = F8;
@@ -472,7 +471,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VSUB_F64(v0+1, v0+1, q0+1);
             break;
 
-        case 0x5D:
+        case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
             nextop = F8;
             GETEX(q0);
