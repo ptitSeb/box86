@@ -478,6 +478,42 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         #undef GO
 
+        case 0x50:
+            INST_NAME("MOVMSPKPS Gd, Ex");
+            nextop = F8;
+            GETGD;
+            XOR_REG_LSL_IMM5(gd, gd, gd, 0);
+            if((nextop&0xC0)==0xC0) {
+                // EX is an xmm reg
+                GETEX(q0);
+                VMOVfrV_D(x1, x2, q0);
+                UBFX(x3, x1, 31, 1);
+                BFI(gd, x3, 0, 1);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 1, 1);
+                VMOVfrV_D(x1, x2, q0+1);
+                UBFX(x3, x1, 31, 1);
+                BFI(gd, x3, 2, 1);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 3, 1);
+            } else {
+                // EX is memory
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4096-16, 0);
+                LDR_IMM9(x2, ed, fixedaddress+0);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 0, 1);
+                LDR_IMM9(x2, ed, fixedaddress+4);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 1, 1);
+                LDR_IMM9(x2, ed, fixedaddress+8);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 2, 1);
+                LDR_IMM9(x2, ed, fixedaddress+12);
+                UBFX(x3, x2, 31, 1);
+                BFI(gd, x3, 3, 1);
+            }
+            break;
+
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
