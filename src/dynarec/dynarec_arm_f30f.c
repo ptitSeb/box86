@@ -67,6 +67,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int parity;
 
     MAYUSE(s1);
+    MAYUSE(s2);
     MAYUSE(i32);
 
     switch(opcode) {
