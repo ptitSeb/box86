@@ -55,6 +55,13 @@ int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
 int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 
+#ifndef NOALIGN
+int my_epoll_create(x86emu_t* emu, int size);
+int my_epoll_create1(x86emu_t* emu, int flags);
+int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
+int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
+#endif
+
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
 #define O_NONBLOCK 04000
@@ -187,14 +194,19 @@ scwrap_t syscallwrap[] = {
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
     { 252, __NR_exit_group, 1 },
-    //{ 254, __NR_epoll_create, 1 },    // the flag parameter needs some transform
+#ifdef NOALIGN
+    { 254, __NR_epoll_create, 1 },
     { 255, __NR_epoll_ctl, 4 },
     { 256, __NR_epoll_wait, 4 },
+#endif
     { 265, __NR_clock_gettime, 2 },
     { 266, __NR_clock_getres, 2 },
     //{ 270, __NR_tgkill, 3 },
     { 311, __NR_set_robust_list, 2 },
     { 312, __NR_get_robust_list, 4 },
+#ifdef NOALIGN
+    { 329, __NR_epoll_create1, 1 },
+#endif
 #ifdef __NR_getrandom
     { 355, __NR_getrandom, 3 },
 #endif
@@ -524,12 +536,25 @@ void EXPORT x86Syscall(x86emu_t *emu)
             errno = ENOSYS;
             R_EAX = (uint32_t)-1;
             break;
-        case 254:   // sys_epoll_create
-            R_EAX = (uint32_t)syscall(__NR_epoll_create, of_convert(R_EBX));
+#ifndef NOALIGN
+        case 254: // epoll_create
+            R_EAX = my_epoll_create(emu, (int)R_EBX);
             break;
+        case 255: // epoll_ctl
+            R_EAX = my_epoll_ctl(emu, (int)R_EBX, (int)R_ECX, (int)R_EDX, (void*)R_ESI);
+            break;
+        case 256: // epoll_wait
+            R_EAX = my_epoll_wait(emu, (int)R_EBX, (void*)R_ECX, (int)R_EDX, (int)R_ESI);
+            break;
+#endif
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
             break;
+#ifndef NOALIGN
+        case 329:   // epoll_create1
+            R_EAX = my_epoll_create1(emu, of_convert(R_EBX));
+            break;
+#endif
 #ifndef __NR_getrandom
         case 355:  // getrandom
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
@@ -585,8 +610,14 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
-        case 254:   // sys_epoll_create
-            return (uint32_t)syscall(__NR_epoll_create, of_convert(i32(4)));
+#ifndef NOALIGN
+        case 254: // epoll_create
+            return my_epoll_create(emu, i32(4));
+        case 255: // epoll_ctl
+            return my_epoll_ctl(emu, i32(4), i32(8), i32(12), p(16));
+        case 256: // epoll_wait
+            return my_epoll_wait(emu, i32(4), p(8), i32(12), i32(16));
+#endif
         case 270: //_NR_tgkill
             if(!u32(12)) {
                 //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
@@ -597,6 +628,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));
             }
             return 0;
+#ifndef NOALIGN
+        case 329:   // epoll_create1
+            return my_epoll_create1(emu, of_convert(i32(4)));
+#endif
 #ifndef __NR_getrandom
         case 355:  // getrandom
             return (uint32_t)my_getrandom(emu, p(4), u32(8), u32(12));

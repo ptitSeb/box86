@@ -570,6 +570,27 @@ void setupTrace(box86context_t* context)
 #endif
 }
 
+void endBox86()
+{
+    if(!my_context)
+        return;
+    x86emu_t* emu = thread_get_emu();
+    //atexit first
+    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
+    CallAllCleanup(emu);
+    // than call all the Fini (some "smart" ordering of the fini may be needed, but for now, callign in this order should be good enough)
+    printf_log(LOG_DEBUG, "Calling fini for all loaded elfs\n");
+    for (int i=0; i<my_context->elfsize; ++i)
+        RunElfFini(my_context->elfs[i], emu);
+
+    // all done, free context
+    FreeBox86Context(&my_context);
+    if(libGL) {
+        free(libGL);
+        libGL = NULL;
+    }
+}
+
 #ifdef BUILD_LIB
 #ifdef BUILD_DYNAMIC
 EXPORTDYN
@@ -796,11 +817,11 @@ int main(int argc, const char **argv, const char **env) {
             }            
         }
     }
+    FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
     if(LoadNeededLibs(elf_header, my_context->maplib, NULL, 0, my_context, emu)) {
         printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
-        FreeCollection(&ld_preload);
         return -1;
     }
     // reloc...
@@ -808,7 +829,6 @@ int main(int argc, const char **argv, const char **env) {
     if(RelocateElf(my_context->maplib, NULL, elf_header)) {
         printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
-        FreeCollection(&ld_preload);
         return -1;
     }
     // and handle PLT
@@ -829,6 +849,8 @@ int main(int argc, const char **argv, const char **env) {
     }
 #endif
 
+    atexit(endBox86);
+    
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
     SetEAX(emu, my_context->argc);
@@ -840,14 +862,10 @@ int main(int argc, const char **argv, const char **env) {
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
-    if(trace_func) 
+    if(trace_func)  {
         free(trace_func);
-
-    // all done, free context
-    FreeBox86Context(&my_context);
-    if(libGL)
-        free(libGL);
-    FreeCollection(&ld_preload);
+        trace_func = NULL;
+    }
 
     return ret;
 }

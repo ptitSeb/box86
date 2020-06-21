@@ -1455,6 +1455,14 @@ EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
 }
 
 #ifndef NOALIGN
+EXPORT int my_epoll_create(x86emu_t* emu, int size)
+{
+    return epoll_create(size);
+}
+EXPORT int my_epoll_create1(x86emu_t* emu, int flags)
+{
+    return epoll_create1(flags);
+}
 EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
 {
     struct epoll_event _event[1] = {0};

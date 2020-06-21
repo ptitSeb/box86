@@ -771,7 +771,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, int local, 
 
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
-    if(h->init_done || !h->initentry)
+    if(!h || h->init_done)
         return;
     uintptr_t p = h->initentry + h->delta;
     box86context_t* context = GetEmuContext(emu);
@@ -784,20 +784,16 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         return;
     }
     printf_log(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
-    Push32(emu, (uintptr_t)context->envv);
-    Push32(emu, (uintptr_t)context->argv);
-    Push32(emu, context->argc);
-    DynaCall(emu, p);
+    if(h->initentry)
+        RunFunctionWithEmu(emu, 0, p, 3, context->argc, context->argv, context->envv);
     printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Init[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        DynaCall(emu, (uintptr_t)addr[i]);
+        RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
     }
-    Pop32(emu);
-    Pop32(emu);
-    Pop32(emu);
+
     h->init_done = 1;
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
     printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
@@ -822,25 +818,22 @@ void RunDeferedElfInit(x86emu_t *emu)
 
 void RunElfFini(elfheader_t* h, x86emu_t *emu)
 {
-    if(h->fini_done || !h->finientry)
+    if(!h || h->fini_done)
         return;
-    uintptr_t p = h->finientry + h->delta;
-    printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
-    uint32_t sESP = GetESP(emu);
-    Push32(emu, (uintptr_t)GetEmuContext(emu)->envv);
-    Push32(emu, (uintptr_t)GetEmuContext(emu)->argv);
-    Push32(emu, GetEmuContext(emu)->argc);
+    h->fini_done = 1;
     // first check fini array
     Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
     for (int i=0; i<h->finiarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        DynaCall(emu, (uintptr_t)addr[i]);
+        RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
     }
     // then the "old-style" fini
-    DynaCall(emu, p);
+    if(h->finientry) {
+        uintptr_t p = h->finientry + h->delta;
+        printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
+        RunFunctionWithEmu(emu, 0, p, 0);
+    }
 
-    SetESP(emu, sESP);
-    h->fini_done = 1;
     h->init_done = 0;   // can be re-inited again...
     return;
 }

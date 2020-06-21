@@ -5,7 +5,7 @@
 #include "pathcoll.h"
 
 typedef struct elfheader_s elfheader_t;
-
+typedef struct cleanup_s cleanup_t;
 typedef struct x86emu_s x86emu_t;
 typedef struct zydis_s zydis_t;
 typedef struct lib_s lib_t;
@@ -129,6 +129,9 @@ typedef struct box86context_s {
 
     uintptr_t           *auxval_start;
 
+    cleanup_t   *cleanups;          // atexit functions
+    int         clean_sz;
+    int         clean_cap;
 #ifdef DYNAREC
     pthread_mutex_t     mutex_blocks;
     pthread_mutex_t     mutex_mmap;

@@ -247,13 +247,15 @@ DATA(__environ, 4)    // type B
 // envz_merge
 // envz_remove
 // envz_strip
+#ifdef NOALIGN
 GO(epoll_create, iFi)
 GO(epoll_create1, iFi)
-#ifdef NOALIGN
 GO(epoll_ctl, iFiiip)
 // epoll_pwait
 GO(epoll_wait, iFipii)
 #else
+GOM(epoll_create, iFi)      // not needed, but used in syscall
+GOM(epoll_create1, iFO)
 GOM(epoll_ctl, iFEiiip)     // align epool_event structure
 // epoll_pwait
 GOM(epoll_wait, iFEipii)    // need realign of epoll_event structure

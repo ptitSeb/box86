@@ -15,8 +15,6 @@ typedef struct i386_ucontext_s i386_ucontext_t;
 #define CSTACKMASK  31
 #endif
 
-typedef struct cleanup_s cleanup_t;
-
 typedef struct forkpty_s {
     void*    amaster;
     void*   name;
@@ -74,10 +72,6 @@ typedef struct x86emu_s {
     // cpu helpers
     reg32_t     zero;
     reg32_t     *sbiidx[8];
-    // atexit and fini functions
-    cleanup_t   *cleanups;
-    int         clean_sz;
-    int         clean_cap;
     // scratch stack, used for alignement of double and 64bits ints on arm. 200 elements should be enough
     uint32_t    scratch[200];
     // local stack, do be deleted when emu is freed

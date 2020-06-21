@@ -14,6 +14,7 @@
 #include "box86context.h"
 #include "x86run.h"
 #include "x86run_private.h"
+#include "callback.h"
 
 typedef struct cleanup_s {
     void*       f;
@@ -114,67 +115,53 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 
 void AddCleanup(x86emu_t *emu, void *p)
 {
-    if(emu->clean_sz == emu->clean_cap) {
-        emu->clean_cap += 4;
-        emu->cleanups = (cleanup_t*)realloc(emu->cleanups, sizeof(cleanup_t)*emu->clean_cap);
+    if(my_context->clean_sz == my_context->clean_cap) {
+        my_context->clean_cap += 4;
+        my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
-    emu->cleanups[emu->clean_sz].arg = 0;
-    emu->cleanups[emu->clean_sz++].f = p;
+    my_context->cleanups[my_context->clean_sz].arg = 0;
+    my_context->cleanups[my_context->clean_sz].a = NULL;
+    my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
 void AddCleanup1Arg(x86emu_t *emu, void *p, void* a)
 {
-    if(emu->clean_sz == emu->clean_cap) {
-        emu->clean_cap += 4;
-        emu->cleanups = (cleanup_t*)realloc(emu->cleanups, sizeof(cleanup_t)*emu->clean_cap);
+    if(my_context->clean_sz == my_context->clean_cap) {
+        my_context->clean_cap += 4;
+        my_context->cleanups = (cleanup_t*)realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
-    emu->cleanups[emu->clean_sz].arg = 1;
-    emu->cleanups[emu->clean_sz].a = a;
-    emu->cleanups[emu->clean_sz++].f = p;
+    my_context->cleanups[my_context->clean_sz].arg = 1;
+    my_context->cleanups[my_context->clean_sz].a = a;
+    my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
 void CallCleanup(x86emu_t *emu, void* p)
 {
-    for(int i=emu->clean_sz-1; i>=0; --i) {
-        if(p==emu->cleanups[i].f) {
+    printf_log(LOG_DEBUG, "Calling atexit registered functions for %p mask\n", p);
+    for(int i=my_context->clean_sz-1; i>=0; --i) {
+        if(p==my_context->cleanups[i].f) {
             printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-            if(emu->cleanups[i].arg)
-                Push(emu, (uintptr_t)emu->cleanups[i].a);
-            PushExit(emu);
-            emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
-            Run(emu, 0);
-            emu->quit = 0;
+            RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
             // now remove the cleanup
-            if(i!=emu->clean_sz-1)
-                memmove(emu->cleanups+i, emu->cleanups+i+1, (emu->clean_sz-i-1)*sizeof(cleanup_t));
-            --emu->clean_sz;
-            return;
+            if(i!=my_context->clean_sz-1)
+                memmove(my_context->cleanups+i, my_context->cleanups+i+1, (my_context->clean_sz-i-1)*sizeof(cleanup_t));
+            --my_context->clean_sz;
         }
     }
 }
 
 void CallAllCleanup(x86emu_t *emu)
 {
-    /* disabling for now...
-    for(int i=emu->clean_sz-1; i>=0; --i) {
+    printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
+    for(int i=my_context->clean_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-        if(emu->cleanups[i].arg)
-            Push(emu, (uintptr_t)emu->cleanups[i].a);
-        PushExit(emu);
-        emu->ip.dword[0] = (uintptr_t)(emu->cleanups[i].f);
-        Run(emu);
-        emu->quit = 0;
+        RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
     }
-    */
-    emu->clean_sz = 0;
+    my_context->clean_sz = 0;
 }
 
 static void internalFreeX86(x86emu_t* emu)
 {
-    // call atexit and fini first!
-    CallAllCleanup(emu);
-    free(emu->cleanups);
-
     free(emu->stack2free);
 }
 
