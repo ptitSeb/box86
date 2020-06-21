@@ -70,11 +70,15 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         return NULL;
     }
     if(header.e_ident[EI_CLASS]!=ELFCLASS32) {
-        printf_log(LOG_INFO, "Not an 32bits ELF (%d)\n", header.e_ident[EI_CLASS]);
+        if(header.e_ident[EI_CLASS]==ELFCLASS64) {
+            printf_log(LOG_INFO, "This is a 64bits ELF! box86 can only run 32bits ELF!\n");
+        } else {
+            printf_log(LOG_INFO, "Not a 32bits ELF (%d)\n", header.e_ident[EI_CLASS]);
+        }
         return NULL;
     }
     if(header.e_ident[EI_DATA]!=ELFDATA2LSB) {
-        printf_log(LOG_INFO, "Not an LittleEndian ELF (%d)\n", header.e_ident[EI_DATA]);
+        printf_log(LOG_INFO, "Not a LittleEndian ELF (%d)\n", header.e_ident[EI_DATA]);
         return NULL;
     }
     if(header.e_ident[EI_VERSION]!=EV_CURRENT) {
