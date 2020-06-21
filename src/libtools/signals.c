@@ -202,14 +202,21 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         return;
     }
 #endif
-    // uncomment that line for easier SEGFAULT debugging
-    printf_log(LOG_NONE, "%04d|SIGSEGV @%p, for accessing %p (code=%d)\n", GetTID(), pc, addr, info->si_code);
-    if(my_context->signals[sig]) {
-        if(my_context->is_sigaction[sig])
-            my_sigactionhandler(sig, info, ucntx);
-        else
-            my_sighandler(sig);
-        return;
+    static int count = 0;
+    ++count;
+    if(count==1) {
+        // uncomment that line for easier SEGFAULT debugging
+        printf_log(LOG_NONE, "%04d|SIGSEGV @%p, for accessing %p (code=%d)\n", GetTID(), pc, addr, info->si_code);
+        if(my_context->signals[sig]) {
+            if(my_context->is_sigaction[sig])
+                my_sigactionhandler(sig, info, ucntx);
+            else
+                my_sighandler(sig);
+            --count;
+            return;
+        }
+    } else {
+        printf_log(LOG_NONE, "%04d|Double SIGSEGV!\n", GetTID());
     }
     // no handler, set default and that it...
     signal(sig, SIG_DFL);
