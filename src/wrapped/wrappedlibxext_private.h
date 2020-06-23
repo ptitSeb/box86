@@ -108,7 +108,7 @@ GO(XShmQueryVersion, iFpppp)
 //GO(XSyncMinValue, 
 //GO(XSyncQueryAlarm, 
 //GO(XSyncQueryCounter, 
-//GO(XSyncQueryExtension, 
+GO(XSyncQueryExtension, iFppp)
 //GO(XSyncQueryFence, 
 //GO(XSyncResetFence, 
 //GO(XSyncSetCounter, 

@@ -619,7 +619,7 @@ GO(XkbGetState, iFpup)
 GO(XkbGetUpdatedMap, iFpup)
 //GO(XkbGetVirtualMods
 //GO(XkbGetXlibControls
-//GO(XkbIgnoreExtension
+GO(XkbIgnoreExtension, iFp)
 //GO(XkbInitCanonicalKeyTypes
 // _XkbInitReadBuffer
 DATA(_XkbInternAtomFunc, 4)
