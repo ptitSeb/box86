@@ -1473,6 +1473,7 @@ EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd,
 EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
 {
     struct epoll_event _events[maxevents];
+    AlignEpollEvent(_events, events, maxevents);
     int32_t ret = epoll_wait(epfd, _events, maxevents, timeout);
     if(ret>0)
         UnalignEpollEvent(events, _events, ret);

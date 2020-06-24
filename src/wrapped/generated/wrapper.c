@@ -1559,7 +1559,6 @@ typedef int32_t (*iFppiiiip_t)(void*, void*, int32_t, int32_t, int32_t, int32_t,
 #endif
 
 #if !defined(NOALIGN)
-typedef int32_t (*iFO_t)(int32_t);
 typedef double (*dFEp_t)(x86emu_t*, void*);
 typedef int32_t (*iFEpI_t)(x86emu_t*, void*, int64_t);
 typedef int32_t (*iFEpd_t)(x86emu_t*, void*, double);
@@ -3109,7 +3108,6 @@ void iFppiiiip(x86emu_t *emu, uintptr_t fcn) { iFppiiiip_t fn = (iFppiiiip_t)fcn
 #endif
 
 #if !defined(NOALIGN)
-void iFO(x86emu_t *emu, uintptr_t fcn) { iFO_t fn = (iFO_t)fcn; R_EAX=fn(of_convert(*(int32_t*)(R_ESP + 4))); }
 void dFEp(x86emu_t *emu, uintptr_t fcn) { dFEp_t fn = (dFEp_t)fcn; double db=fn(emu, *(void**)(R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
 void iFEpI(x86emu_t *emu, uintptr_t fcn) { iFEpI_t fn = (iFEpI_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(int64_t*)(R_ESP + 8)); }
 void iFEpd(x86emu_t *emu, uintptr_t fcn) { iFEpd_t fn = (iFEpd_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(double*)(R_ESP + 8)); }
