@@ -1540,6 +1540,7 @@ void iFppiiiip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)
+void iFEi(x86emu_t *emu, uintptr_t fnc);
 void dFEp(x86emu_t *emu, uintptr_t fnc);
 void iFEpI(x86emu_t *emu, uintptr_t fnc);
 void iFEpd(x86emu_t *emu, uintptr_t fnc);

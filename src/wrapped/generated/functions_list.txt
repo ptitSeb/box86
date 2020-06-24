@@ -1508,6 +1508,7 @@
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) dFpi
 #defined(NOALIGN) iFppiiiip
+#!defined(NOALIGN) iFEi
 #!defined(NOALIGN) dFEp
 #!defined(NOALIGN) iFEpI
 #!defined(NOALIGN) iFEpd

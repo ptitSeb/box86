@@ -254,8 +254,8 @@ GO(epoll_ctl, iFiiip)
 // epoll_pwait
 GO(epoll_wait, iFipii)
 #else
-GOM(epoll_create, iFi)      // not needed, but used in syscall
-GOM(epoll_create1, iFi)
+GOM(epoll_create, iFEi)      // not needed, but used in syscall
+GOM(epoll_create1, iFEi)
 GOM(epoll_ctl, iFEiiip)     // align epool_event structure
 // epoll_pwait
 GOM(epoll_wait, iFEipii)    // need realign of epoll_event structure
