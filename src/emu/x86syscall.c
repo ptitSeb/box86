@@ -49,6 +49,7 @@ int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint
 int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags);
 #endif
 #endif
+typedef struct x86_sigaction_s x86_sigaction_t;
 
 
 int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
@@ -61,6 +62,7 @@ int my_epoll_create1(x86emu_t* emu, int flags);
 int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
 int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 #endif
+int my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -610,6 +612,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
+        case 174:   // sys_rt_sigaction
+            return (uint32_t)my_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
 #ifndef NOALIGN
         case 254: // epoll_create
             return my_epoll_create(emu, i32(4));
