@@ -112,6 +112,7 @@ scwrap_t syscallwrap[] = {
     { 60, __NR_umask, 1 },
     { 63, __NR_dup2, 2 },
     { 64, __NR_getppid, 0 },
+    { 66, __NR_setsid, 0 },
     { 75, __NR_setrlimit, 2 },
 #ifdef __NR_getrlimit
     { 76, __NR_getrlimit, 2 },
