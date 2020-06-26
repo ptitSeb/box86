@@ -525,7 +525,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_cmp32_0(dyn, ninst, xEAX, x3, x12);
             }
             break;
-
+        case 0x3E:
+            INST_NAME("DS:");
+            // ignored
+            break;
         case 0x3F:
             INST_NAME("AAS");
             READFLAGS(X_AF);

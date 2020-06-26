@@ -68,7 +68,7 @@ int Run(x86emu_t *emu, int step)
     &&_0x20_0,  &&_0x20_1,  &&_0x20_2,  &&_0x20_3,  &&_0x20_4,  &&_0x20_5,  &&_0x26,    &&_0x27,      //0x20-0x27
     &&_0x28_0,  &&_0x28_1,  &&_0x28_2,  &&_0x28_3,  &&_0x28_4,  &&_0x28_5,  &&_0x2E,    &&_0x2F,      //0x28-0x2F
     &&_0x30_0,  &&_0x30_1,  &&_0x30_2,  &&_0x30_3,  &&_0x30_4,  &&_0x30_5,  &&_default, &&_0x37,      //0x30-0x37
-    &&_0x38,    &&_0x39,    &&_0x3A,    &&_0x3B,    &&_0x3C,    &&_0x3D,    &&_default, &&_0x3F,      //0x38-0x3F
+    &&_0x38,    &&_0x39,    &&_0x3A,    &&_0x3B,    &&_0x3C,    &&_0x3D,    &&_0x3E,    &&_0x3F,      //0x38-0x3F
     &&_0x40,    &&_0x41,    &&_0x42,    &&_0x43,    &&_0x44,    &&_0x45,    &&_0x46,    &&_0x47, 
     &&_0x48,    &&_0x49,    &&_0x4A,    &&_0x4B,    &&_0x4C,    &&_0x4D,    &&_0x4E,    &&_0x4F,     
     &&_0x50,    &&_0x51,    &&_0x52,    &&_0x53,    &&_0x54,    &&_0x55,    &&_0x56,    &&_0x57, 
@@ -314,18 +314,22 @@ _trace:
             NEXT;
 
         _0x2E:                      /* CS: */
+            // Can also happens before a condition branch: Branch Not Taken Hint
             NEXT;  //ignored...
         _0x2F:                      /* DAS */
             R_AL = das8(emu, R_AL);
             NEXT;
+
         _0x37:                      /* AAA */
             R_AX = aaa16(emu, R_AX);
+            NEXT;
+
+        _0x3E:                      /* DS: */
+            // Can also happens before a condition branch: Branch Taken Hint
             NEXT;
         _0x3F:                      /* AAS */
             R_AX = aas16(emu, R_AX);
             NEXT;
-
-
         _0x40:
         _0x41:
         _0x42:
