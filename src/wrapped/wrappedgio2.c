@@ -499,7 +499,8 @@ EXPORT void* my_g_simple_async_result_new_error(x86emu_t* emu, void* source, voi
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     char* tmp;
-    vasprintf(&tmp, fmt, b);
+    int dummy = vasprintf(&tmp, fmt, b);
+    (void)dummy;
     void* ret = my->g_simple_async_result_new_error(source, findGAsyncReadyCallbackFct(cb), data, domain, code, tmp);
     free(tmp);
     return ret;
@@ -543,7 +544,8 @@ EXPORT void my_g_simple_async_report_error_in_idle(x86emu_t* emu, void* object, 
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
 
     char* tmp;
-    vasprintf(&tmp, fmt, b);
+    int dummy = vasprintf(&tmp, fmt, b);
+    (void)dummy;
     my->g_simple_async_report_error_in_idle(object, findGAsyncReadyCallbackFct(cb), data, domain, code, tmp);
     free(tmp);
 }
