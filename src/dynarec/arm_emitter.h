@@ -895,6 +895,15 @@ Op is 20-27
 // Vector Reciprocal Step of Dn and Dm to Dd
 #define VRECPSQ_F32(Dd, Dn, Dm) EMIT(VRECPS_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VRSQRTE_gen(D, size, Vd, F, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b11<<16 | (Vd)<<12 | 0b010<<9 | (F)<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
+// Vector Reciprocal Square Root Estimate of Dm to Dd
+#define VRSQRTEQ_F32(Dd, Dm) EMIT(VRSQRTE_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRSQRTS_gen(D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 1<<21 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1111<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
+// Vector Reciprocal Square Root Step of Dn and Dm to Dd
+#define VRSQRTSQ_F32(Dd, Dn, Dm) EMIT(VRSQRTS_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+
 #define VSWP_gen(D, size, Vd, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<7 | (Q)<<6 | (M)<<5 | (Vm))
 // Swap Double vectors content
 #define VSWP(Dd, Dm)   EMIT(VSWP_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))

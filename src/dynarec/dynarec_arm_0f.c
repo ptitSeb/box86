@@ -542,7 +542,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gd, x3, 3, 1);
             }
             break;
-
+        case 0x51:
+            INST_NAME("SQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            v2 = fpu_get_scratch_quad(dyn);
+            VRSQRTEQ_F32(v2, q0);
+            //step?
+            VRECPEQ_F32(v0, v2);
+            //step?
+            break;
+        case 0x52:
+            INST_NAME("RSQRTPS Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VRSQRTEQ_F32(v0, q0);
+            //step?
+            break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;

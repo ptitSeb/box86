@@ -107,7 +107,7 @@ scwrap_t syscallwrap[] = {
     { 47, __NR_getgid, 0 },
     { 49, __NR_geteuid, 0 },
     { 50, __NR_getegid, 0 },
-    //{ 54, __NR_ioctl, 5 },    // wrapped to allow SA_RESTART handling by libc
+    { 54, __NR_ioctl, 3 },    // should be wrapped to allow SA_RESTART handling by libc, but syscall is only 3 arguments, ioctl can be 5
     //{ 55, __NR_fcntl, 3 },    // wrapped to allow filter of F_SETFD
     { 60, __NR_umask, 1 },
     { 63, __NR_dup2, 2 },
