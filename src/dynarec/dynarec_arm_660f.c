@@ -470,7 +470,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VSUB_F64(v0, v0, q0);
             VSUB_F64(v0+1, v0+1, q0+1);
             break;
-
+        case 0x5D:
+            INST_NAME("MINPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            // MINPD: if any input is NaN, or Ex[i]<Gx[i], copy Ex[i] -> Gx[i]
+            VCMP_F64(v0, q0);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0, q0);
+            VCMP_F64(v0+1, q0+1);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0+1, q0+1);
+            break;
         case 0x5E:
             INST_NAME("DIVPD Gx, Ex");
             nextop = F8;
@@ -479,7 +491,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VDIV_F64(v0, v0, q0);
             VDIV_F64(v0+1, v0+1, q0+1);
             break;
-
+        case 0x5F:
+            INST_NAME("MAXPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0);
+            GETGX(v0);
+            // MAXPD: if any input is NaN, or Ex[i]>Gx[i], copy Ex[i] -> Gx[i]
+            VCMP_F64(q0, v0);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0, q0);
+            VCMP_F64(q0+1, v0+1);
+            VMRS_APSR();
+            VMOVcond_64(cPL, v0+1, q0+1);
+            break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
             nextop = F8;
