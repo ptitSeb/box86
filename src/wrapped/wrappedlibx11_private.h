@@ -628,7 +628,7 @@ GO(XkbKeycodeToKeysym, uFpuuu)
 //GO(XkbKeyTypesForCoreSymbols
 //GO(XkbLatchGroup
 //GO(XkbLatchModifiers
-//GO(XkbLibraryVersion
+GO(XkbLibraryVersion, iFpp)
 //GO(XkbListComponents
 //GO(XkbLockGroup
 //GO(XkbLockModifiers
