@@ -153,12 +153,13 @@ void MapLibRemoveLib(lib_t* maplib, library_t* lib)
 }
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, int local, const char* path, box86context_t* box86, x86emu_t* emu)
 {
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
     // first check if lib is already loaded
     library_t *lib = getLib(my_context->maplib, path);
     if(lib) {
+        add_neededlib(neededlibs, lib);
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
     }
@@ -187,6 +188,7 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
                 MapLibAddLib(my_context->maplib, lib);
             MapLibRemoveLib(my_context->local_maplib, lib);
         }
+        add_neededlib(neededlibs, lib);
         return 0;
     }
     // load a new one
@@ -195,6 +197,8 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
     }
+
+    add_neededlib(neededlibs, lib);
 
     // add lib now
     if(local) {
@@ -210,9 +214,6 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
     if(!maplib)
         maplib = (local)?lib->maplib:my_context->maplib;
 
-    // add needed libs first
-    if(parent)
-        LibAddNeededLib(parent, lib);   // add needed libs list
     int mainelf = GetElfIndex(lib);
 
     if(mainelf==-1) {
@@ -224,17 +225,17 @@ int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, 
     } else {
         // it's an emulated lib, 
         // lets load dependancies before adding symbols and launch init sequence
-        if(LoadNeededLibs(box86->elfs[mainelf], maplib, parent, 0, box86, emu)) {
+        if(LoadNeededLibs(box86->elfs[mainelf], maplib, &lib->needed, 0, box86, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            AddNeededLib(maplib, lib, 0, "libGL.so.1", box86, emu);
+            AddNeededLib(maplib, &lib->needed, 0, "libGL.so.1", box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            AddNeededLib(maplib, lib, 0, "libSDL-1.2.so.0", box86, emu);
-            AddNeededLib(maplib, lib, 0, "libdl.so.2", box86, emu);
+            AddNeededLib(maplib, &lib->needed, 0, "libSDL-1.2.so.0", box86, emu);
+            AddNeededLib(maplib, &lib->needed, 0, "libdl.so.2", box86, emu);
         }
         // add symbols
         if(AddSymbolsLibrary(maplib, lib, emu)) {   // also add needed libs
@@ -320,6 +321,13 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end))
         if(*start)
             return 1;
+    // TODO: create a temporary map to search lib only 1 time, and in order of needed...
+    // search in needed libs from neededlibs first, in order
+    for(int i=0; i<my_context->neededlibs.size; ++i)
+        if(GetLibNoWeakSymbolStartEnd(my_context->neededlibs.libs[i], name, start, end))
+            if(*start)
+                return 1;
+    // search in global symbols
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, start, end))
             if(*start)

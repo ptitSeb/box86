@@ -41,6 +41,15 @@ typedef struct tlsdatasize_s {
 
 void free_tlsdatasize(void* p);
 
+typedef struct needed_libs_s {
+    int         cap;
+    int         size;
+    library_t   **libs;
+} needed_libs_t;
+
+void add_neededlib(needed_libs_t* needed, library_t* lib);
+void free_neededlib(needed_libs_t* needed);
+
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -71,6 +80,8 @@ typedef struct box86context_s {
     elfheader_t         **elfs;         // elf headers and memory
     int                 elfcap;
     int                 elfsize;        // number of elf loaded
+
+    needed_libs_t       neededlibs;     // needed libs for main elf
 
     uintptr_t           ep;             // entry point
 

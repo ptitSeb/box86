@@ -724,7 +724,7 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, int local, box86context_t *box86, x86emu_t* emu)
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int local, box86context_t *box86, x86emu_t* emu)
 {
     DumpDynamicRPath(h);
     // update RPATH first
@@ -755,12 +755,15 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, int local, 
                 free(rpath);
         }
 
+    if(!h->neededlibs && neededlibs)
+        h->neededlibs = neededlibs;
+
     DumpDynamicNeeded(h);
     for (int i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             // TODO: Add LD_LIBRARY_PATH and RPATH Handling
-            if(AddNeededLib(maplib, parent, local, needed, box86, emu)) {
+            if(AddNeededLib(maplib, neededlibs, local, needed, box86, emu)) {
                 printf_log(LOG_INFO, "Error loading needed lib: \"%s\"\n", needed);
                 if(!allow_missing_libs)
                     return 1;   //error...
@@ -1186,7 +1189,7 @@ EXPORT void PltResolver(x86emu_t* emu)
         return;
     } else {
         if(p) {
-            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
             *p = offs;
         } else {
             printf_log(LOG_NONE, "PltReolver: Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);

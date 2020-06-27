@@ -4,6 +4,7 @@
 
 #include "khash.h"
 #include "wrappedlibs.h"
+#include "box86context.h"
 
 typedef struct lib_s    lib_t;
 typedef struct bridge_s bridge_t;
@@ -22,8 +23,6 @@ typedef struct symbol2_s {
 KHASH_MAP_DECLARE_STR(symbolmap, wrapper_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
 KHASH_MAP_DECLARE_STR(datamap, uint32_t)
-
-KHASH_SET_DECLARE_INT(needed)
 
 
 #ifndef MAX_PATH
@@ -74,7 +73,7 @@ typedef struct library_s {
     kh_datamap_t        *wdatamap;
     kh_datamap_t        *mydatamap;
     char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
-    kh_needed_t         *needed;    // list lib needd
+    needed_libs_t       needed;
     lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
 } library_t;
 

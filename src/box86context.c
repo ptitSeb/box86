@@ -417,6 +417,8 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&(*context)->mutex_lock);
     pthread_mutex_destroy(&(*context)->mutex_thread);
 
+    free_neededlib(&(*context)->neededlibs);
+
     if((*context)->atfork_sz) {
         free((*context)->atforks);
         (*context)->atforks = NULL;
@@ -457,4 +459,26 @@ int AddTLSPartition(box86context_t* context, int tlssize) {
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
     memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
     return -context->tlssize;   // negative offset
+}
+
+void add_neededlib(needed_libs_t* needed, library_t* lib)
+{
+    if(!needed)
+        return;
+    if(needed->size == needed->cap) {
+        needed->cap += 8;
+        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    }
+    needed->libs[needed->size++] = lib;
+}
+
+void free_neededlib(needed_libs_t* needed)
+{
+    if(!needed)
+        return;
+    needed->cap = 0;
+    needed->size = 0;
+    if(needed->libs)
+        free(needed->libs);
+    needed->libs = NULL;
 }

@@ -49,8 +49,6 @@ KHASH_MAP_IMPL_STR(datamap, uint32_t)
 KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
 
-KHASH_SET_IMPL_INT(needed);
-
 char* Path2Name(const char* path)
 {
     char* name = (char*)calloc(1, MAX_PATH);
@@ -152,7 +150,7 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
             lib->type = 0;
             // Call librarian to load all dependant elf
             for(int i=0; i<lib->priv.w.needed; ++i) {
-                if(AddNeededLib(context->maplib, lib, 0, lib->priv.w.neededlibs[i], context, NULL)) {  // probably all native, not emulated, so that's fine
+                if(AddNeededLib(context->maplib, &lib->needed, 0, lib->priv.w.neededlibs[i], context, NULL)) {  // probably all native, not emulated, so that's fine
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
                     return;
                 }
@@ -244,7 +242,6 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = -1;
-    lib->needed = kh_init(needed);
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     int notwrapped = FindInCollection(lib->name, &context->box86_emulated_libs);
     // And now, actually loading a library
@@ -395,8 +392,7 @@ void Free1Library(library_t **lib)
         kh_destroy(symbolmap, (*lib)->stsymbolmap);
     if((*lib)->symbol2map)
         kh_destroy(symbol2map, (*lib)->symbol2map);
-    if((*lib)->needed)
-        kh_destroy(needed, (*lib)->needed);
+    free_neededlib(&(*lib)->needed);
 
     if((*lib)->maplib)
         FreeLibrarian(&(*lib)->maplib);
@@ -656,24 +652,18 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
     return 0;
 }
 
-void LibAddNeededLib(library_t* lib, library_t* needed)
-{
-    int ret;
-    kh_put(needed, lib->needed, (uintptr_t)needed, &ret);
-}
 int GetNeededLibN(library_t* lib) {
-    return kh_size(lib->needed);
+    return lib->needed.size;
 }
 library_t* GetNeededLib(library_t* lib, int idx)
 {
-    khint_t k = kh_begin(lib->needed);
-    while(!kh_exist(lib->needed, k)) ++k;
-    while(idx--) {
-        ++k;
-        while(!kh_exist(lib->needed, k)) ++k;
-    }
-
-    return (library_t*)(kh_key(lib->needed,k));
+    if(idx<0 || idx>=lib->needed.size)
+        return NULL;
+    return lib->needed.libs[idx];
+}
+needed_libs_t* GetNeededLibs(library_t* lib)
+{
+    return &lib->needed;
 }
 
 void* GetHandle(library_t* lib)

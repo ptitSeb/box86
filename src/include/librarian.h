@@ -11,6 +11,7 @@ typedef struct box86context_s  box86context_t;
 typedef struct x86emu_s x86emu_t;
 typedef struct elfheader_s elfheader_t;
 typedef struct box86context_s box86context_t;
+typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapoffsets_s kh_mapoffsets_t;
 typedef char* cstr_t;
 
@@ -23,7 +24,7 @@ box86context_t* GetLibrarianContext(lib_t* maplib);
 kh_mapsymbols_t* GetMapSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib);
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib);
-int AddNeededLib(lib_t* maplib, library_t* parent, int local, const char* path, box86context_t* box86, x86emu_t* emu); // 0=success, 1=error
+int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, int local, const char* path, box86context_t* box86, x86emu_t* emu); // 0=success, 1=error
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name);

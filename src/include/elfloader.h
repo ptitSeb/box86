@@ -8,6 +8,7 @@ typedef struct library_s library_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct box86context_s box86context_t;
 typedef struct x86emu_s x86emu_t;
+typedef struct needed_libs_s needed_libs_t;
 #ifdef DYNAREC
 typedef struct dynablocklist_s dynablocklist_t;
 #endif
@@ -29,7 +30,7 @@ void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);
-int LoadNeededLibs(elfheader_t* h, lib_t *maplib, library_t* parent, int local, box86context_t* box86, x86emu_t* emu);
+int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int local, box86context_t *box86, x86emu_t* emu);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x86emu_t *emu);
