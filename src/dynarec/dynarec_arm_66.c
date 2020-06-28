@@ -499,7 +499,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x8C:
             INST_NAME("MOV Ew,Seg");
             nextop = F8;
-            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            LDRH_REG(x1, xEmu, x2);
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
                 BFI(ed, x1, 0, 16);
@@ -514,11 +515,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
-                STRH_IMM8(ed, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+                MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+                STRH_REG(ed, xEmu, x2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0);
                 LDRH_IMM8(x1, ed, fixedaddress);
-                STRH_IMM8(x1, xEmu, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+                MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+                STRH_REG(x1, xEmu, x2);
             }
             break;
 
