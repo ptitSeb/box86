@@ -711,7 +711,16 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else v0 = d1;
             VZIP_32(d0, v0);
             break;
-
+        case 0x63:
+            INST_NAME("PACKSSWB Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMOVD(q0+0, v0);
+            VMOVD(q0+1, v1);
+            VQMOVN_S16(v0, q0);
+            break;
         case 0x64:
             INST_NAME("PCMPGTB Gm,Em");
             nextop = F8;
