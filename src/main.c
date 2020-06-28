@@ -661,11 +661,21 @@ int main(int argc, const char **argv, const char **env) {
     // check BOX86_LOG debug level
     LoadLogEnv();
     
+    const char* prog = argv[1];
+    // precheck, for win-preload
+    int nextarg = 1;
+    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))) {
+        // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
+        int x86 = (nextarg<argc)?FileIsX86ELF(argv[nextarg]):0;
+        if(x86) {
+            prog = argv[++nextarg];
+            printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly\n", prog);
+        }
+    }
     // Create a new context
-    my_context = NewBox86Context(argc - 1);
+    my_context = NewBox86Context(argc - nextarg);
     my_context->box86path = strdup(argv[0]);
 
-    const char* prog = argv[1];
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
 
@@ -731,7 +741,7 @@ int main(int argc, const char **argv, const char **env) {
     }
 
     for(int i=1; i<my_context->argc; ++i)
-        my_context->argv[i] = strdup(argv[i+1]);
+        my_context->argv[i] = strdup(argv[i+nextarg]);
     // check if file exist
     if(!my_context->argv[0]) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
