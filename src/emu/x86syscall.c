@@ -37,12 +37,12 @@
 #include "signals.h"
 
 #ifndef __NR_socketcall
-//#ifndef SYS_RECVMMSG
-//#define SYS_RECVMMSG    19
-//#endif
-//#ifndef SYS_SENDMMSG
-//#define SYS_SENDMMSG    20
-//#endif
+#ifndef SYS_RECVMMSG
+#define SYS_RECVMMSG    19
+#endif
+#ifndef SYS_SENDMMSG
+#define SYS_SENDMMSG    20
+#endif
 int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags); // not always present, so used wrapped version
 #ifdef SYS_RECVMMSG
 int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout);
