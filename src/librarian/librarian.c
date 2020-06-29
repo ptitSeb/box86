@@ -529,24 +529,19 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, c
     const char* ret = NULL;
     uintptr_t offs = 0;
     uint32_t size = 0;
-    uintptr_t elf_start = 0;
-    uintptr_t elf_end = 0;
-    // loop the elfs...
-    for(int i=0; i<maplib->context->elfsize && !ret; ++i) {
-        elf_start = (uintptr_t)GetBaseAddress(maplib->context->elfs[i]);
-        elf_end = elf_start + GetBaseSize(maplib->context->elfs[i]);
-        if((uintptr_t)p>=elf_start && (uintptr_t)p<elf_end)
-            ret = FindNearestSymbolName(maplib->context->elfs[i], p, &offs, &size);
+    elfheader_t* h = FindElfAddress(my_context, (uintptr_t)p);
+    if(h) {
+        ret = FindNearestSymbolName(h, p, &offs, &size);
     }
-    if(ret) {
+    if(h) {
         if(start)
             *start = (void*)offs;
         if(sz)
             *sz = size;
         if(libname)
-            *libname = maplib->context->fullpath;
+            *libname = ElfName(h);
         if(base)
-            *base = (void*)elf_start;
+            *base = GetBaseAddress(h);
         return ret;
     }
     // TODO: then search in the other libs...
