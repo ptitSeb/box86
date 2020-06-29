@@ -1268,10 +1268,10 @@ GO(posix_spawn_file_actions_init, iFp)
 GO(ppoll, iFpupp)
 GOW(prctl, iFiuuuu)
 GOW(pread, iFipui)
-GOW(pread64, iFipuI)
+GOW(pread64, lFipuI)
 // __pread64    // Weak
 // __pread64_chk
-GOM(preadv64, iFEipiI)  // not always present
+GOM(preadv64, lFEipiI)  // not always present
 // __pread_chk
 GOM(printf, iFEpVV)
 GOM(__printf_chk, iFEvpVV)
@@ -1310,9 +1310,9 @@ GO(putwchar_unlocked, iFi)
 GO(putwc_unlocked, iFip)
 // pvalloc  // Weak
 // pwrite   // Weak
-GOW(pwrite64, iFiuI)
+GOW(pwrite64, lFipuI)
 // __pwrite64   // Weak
-GOM(pwritev64, iFEipiI)  // not always present
+GOM(pwritev64, lFEipiI)  // not always present
 // qecvt
 #ifdef HAVE_LD80BITS
 GO(qecvt_r, iFDipppL)
