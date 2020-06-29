@@ -730,7 +730,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
     DumpDynamicRPath(h);
     // update RPATH first
     for (int i=0; i<h->numDynamic; ++i)
-        if(h->Dynamic[i].d_tag==DT_RPATH) {
+        if(h->Dynamic[i].d_tag==DT_RPATH || h->Dynamic[i].d_tag==DT_RUNPATH) {
             char *rpathref = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             char* rpath = rpathref;
             while(strstr(rpath, "$ORIGIN")) {
