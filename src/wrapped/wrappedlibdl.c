@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <elf.h>
 
 #include "wrappedlibs.h"
 
@@ -15,6 +16,7 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "elfloader.h"
+#include "elfs/elfloader_private.h"
 
 typedef struct dlprivate_s {
     library_t   **libs;
@@ -41,6 +43,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol) EXPORT;
 int my_dlclose(x86emu_t* emu, void *handle) EXPORT;
 int my_dladdr(x86emu_t* emu, void *addr, void *info) EXPORT;
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version) EXPORT;
+int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info) EXPORT;
 
 #define LIBNAME libdl
 const char* libdlName = "libdl.so.2";
@@ -293,4 +296,58 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version)
     printf_log(LOG_INFO, "Warning: unimplement call to dlvsym(%p, %s, %s), fallback to dlsym\n", handle, rsymbol, rversion);
 
     return my_dlsym(emu, handle, symbol);
+}
+
+typedef struct link_map_s {
+    uintptr_t   l_addr;
+    char*       l_name;
+    Elf32_Dyn*  l_ld;
+} link_map_t;
+
+int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info)
+{
+    if(dlsym_error || box86_log>=LOG_DEBUG) {
+            printf_log(LOG_NONE, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
+    }
+    dlprivate_t *dl = emu->context->dlprivate;
+    CLEARERR
+    int nlib = (int)handle;
+    --nlib;
+    if(nlib<0 || nlib>=dl->lib_sz) {
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
+            if(dlsym_error || box86_log>=LOG_DEBUG) {
+                printf_log(LOG_NONE, "dlinfo: %s\n", dl->last_error);
+            }
+        return -1;
+    }
+    if(dl->count[nlib]==0) {
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
+        if(dlsym_error || box86_log>=LOG_DEBUG) {
+            printf_log(LOG_NONE, "dlinfo: %s\n", dl->last_error);
+        }
+        return -1;
+    }
+    library_t *lib = dl->libs[nlib];
+    elfheader_t *h = (GetElfIndex(lib)>-1)?my_context->elfs[GetElfIndex(lib)]:NULL;
+    switch(request) {
+        case 2: // RTLD_DI_LINKMAP
+            {
+                static link_map_t map = {0};   //cheating, creating a structure on demand...
+                *(link_map_t**)info = &map;
+                map.l_addr = h?h->delta:0;
+                map.l_name = lib->path;
+                map.l_ld = h?h->Dynamic:NULL;
+            }
+            return 0;
+        default:
+            printf_log(LOG_NONE, "Warning, unsupported call to dlinfo(%p, %d, %p)\n", handle, request, info);
+        if(!dl->last_error)
+            dl->last_error = malloc(129);
+        snprintf(dl->last_error, 129, "unsupported call to dlinfo request:%d\n", request);
+    }
+    return -1;
 }

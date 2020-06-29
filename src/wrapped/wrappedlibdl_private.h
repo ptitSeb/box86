@@ -5,7 +5,7 @@ GOM(dladdr, iFEpp)
 GOM(dlclose, iFEp)
 GOM(dlerror, pFE)
 DATAB(_dlfcn_hook, 4)
-// dlinfo
+GOM(dlinfo, iFEpip)
 GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)
 GOM(dlsym, pFEpp)
