@@ -18,8 +18,10 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-const char* libncurseswName = "libncursesw.so.5";
-#define LIBNAME libncursesw
+const char* libncursesName = "libncurses.so.5";
+#define LIBNAME libncurses
+
+// this is a simple copy of libncursesw wrapper. TODO: check if ok
 
 typedef int         (*iFppp_t)(void*, void*, void*);
 typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
@@ -27,16 +29,16 @@ typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
 #define SUPER() \
     GO(mvwprintw, iFpiip_t)
 
-typedef struct libncursesw_my_s {
+typedef struct libncurses_my_s {
     // functions
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-} libncursesw_my_t;
+} libncurses_my_t;
 
-void* getNCurseswMy(library_t* lib)
+void* getNCursesMy(library_t* lib)
 {
-    libncursesw_my_t* my = (libncursesw_my_t*)calloc(1, sizeof(libncursesw_my_t));
+    libncurses_my_t* my = (libncurses_my_t*)calloc(1, sizeof(libncurses_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
@@ -44,15 +46,15 @@ void* getNCurseswMy(library_t* lib)
 }
 #undef SUPER
 
-void freeNCurseswMy(void* lib)
+void freeNCursesMy(void* lib)
 {
-    //libncursesw_my_t *my = (libncursesw_my_t *)lib;
+    //libncurses_my_t *my = (libncurses_my_t *)lib;
 }
 
-EXPORT void myw_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
+EXPORT void my_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libncurseswName);
-    libncursesw_my_t *my = (libncursesw_my_t*)lib->priv.w.p2;
+    library_t * lib = GetLibInternal(libncursesName);
+    libncurses_my_t *my = (libncurses_my_t*)lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
@@ -69,14 +71,13 @@ EXPORT void myw_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* 
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNCurseswMy(lib); \
-    lib->altmy = strdup("myw_"); \
+    lib->priv.w.p2 = getNCursesMy(lib); \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libtinfo.so.5");
 
 #define CUSTOM_FINI \
-    freeNCurseswMy(lib->priv.w.p2); \
+    freeNCursesMy(lib->priv.w.p2); \
     free(lib->priv.w.p2);
 
 #include "wrappedlib_init.h"

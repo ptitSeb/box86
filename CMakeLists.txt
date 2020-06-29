@@ -269,6 +269,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibusb1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibncursesw.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibformw.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibncurses.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgdkx112.c"
