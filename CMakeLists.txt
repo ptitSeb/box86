@@ -345,6 +345,7 @@ if(ARM_DYNAREC)
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_pass.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_00.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_0f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_64.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_65.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_66.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_67.c"

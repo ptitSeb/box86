@@ -345,6 +345,13 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     MESSAGE(LOG_DUMP, "----TLSData\n");
 }
 
+void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
+{
+    MESSAGE(LOG_DUMP, "Get TLSData\n");
+    call_c(dyn, ninst, GetFSBaseEmu, 12, reg, 0);
+    MESSAGE(LOG_DUMP, "----TLSData\n");
+}
+
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
     if(!addr)

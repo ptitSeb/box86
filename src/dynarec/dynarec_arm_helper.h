@@ -304,6 +304,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 #define dynarec00       STEPNAME(dynarec00)
 #define dynarec0F       STEPNAME(dynarec0F)
+#define dynarecFS       STEPNAME(dynarecFS)
 #define dynarecGS       STEPNAME(dynarecGS)
 #define dynarec66       STEPNAME(dynarec66)
 #define dynarec67       STEPNAME(dynarec67)
@@ -327,6 +328,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define ret_to_epilog   STEPNAME(ret_to_epilog_)
 #define retn_to_epilog  STEPNAME(retn_to_epilog_)
 #define call_c          STEPNAME(call_c_)
+#define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define isNativeCall    STEPNAME(isNativeCall_)
 #define emit_lock       STEPNAME(emit_lock)
@@ -441,6 +443,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
+void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
@@ -565,6 +568,7 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
 
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
