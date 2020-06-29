@@ -681,11 +681,11 @@ GO(XkbSetDetectableAutoRepeat, iFpip)
 //GO(XkbToControl
 //GO(XkbTranslateKey
 //GO(XkbTranslateKeyCode
-//GO(XkbTranslateKeySym
+GO(XkbTranslateKeySym, iFppupip)
 //GO(XkbUpdateActionVirtualMods
 //GO(XkbUpdateKeyTypeVirtualMods
 //GO(XkbUpdateMapFromCore
-//GO(XkbUseExtension
+GO(XkbUseExtension, iFppp)
 //GO(XkbVirtualModsToReal
 // _XkbWriteCopyKeySyms
 //GO(XkbXlibControlsImplemented
