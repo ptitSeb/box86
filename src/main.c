@@ -682,7 +682,6 @@ int main(int argc, const char **argv, const char **env) {
     }
     // Create a new context
     my_context = NewBox86Context(argc - nextarg);
-    my_context->box86path = strdup(argv[0]);
 
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
@@ -696,6 +695,11 @@ int main(int argc, const char **argv, const char **env) {
         for (int i=0; i<my_context->envc; ++i)
             printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
+
+    if(strchr(argv[0], '/'))
+        my_context->box86path = strdup(argv[0]);
+    else
+        my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX86_LD_PRELOAD")) {
