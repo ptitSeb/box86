@@ -1984,10 +1984,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
             i32 = F32S;
             if(addr+i32==0) {
-                *need_epilog = 1;
-                *ok = 0;
-                // something is wrong...
-            } else
+                #if STEP == 3
+                printf_log(LOG_NONE, "Warning, jump to 0x0 at %p (%p)\n", addr, addr-1);
+                #endif
+            }
             if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
                 BARRIER(1);
                 MOV32(x2, addr);
