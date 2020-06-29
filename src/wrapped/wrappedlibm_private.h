@@ -261,13 +261,13 @@ GO(j0f, fFf)
 // __j0f_finite
 // __j0_finite
 // j0l
-// j1
-// j1f
+GO(j1, dFd)
+GO(j1f, fFf)
 // __j1f_finite
 // __j1_finite
 // j1l
-// jn
-// jnf
+GO(jn, dFid)
+GO(jnf, fFif)
 // __jnf_finite
 // __jn_finite
 // jnl
@@ -360,13 +360,13 @@ GOW(powl, DFDD)
 #else
 GO2(powl, KFKK, pow)
 #endif
-// remainder    // Weak
-// remainderf   // Weak
+GOW(remainder, dFdd)
+GOW(remainderf, fFff)
 // __remainderf_finite
 // __remainder_finite
 // remainderl   // Weak
-// remquo   // Weak
-// remquof  // Weak
+GOW(remquo, dFddp)
+GOW(remquof, fFffp)
 // remquol  // Weak
 GOW(rint, dFd)
 GOW(rintf, fFf)
@@ -423,18 +423,18 @@ GO2(tgammal, KFK, tgamma)
 GOW(trunc, dFd)
 GOW(truncf, fFf)
 // truncl   // Weak
-// y0
-// y0f
+GO(y0, dFd)
+GO(y0f, fFf)
 // __y0f_finite
 // __y0_finite
 // y0l
-// y1
-// y1f
+GO(y1, dFd)
+GO(y1f, fFf)
 // __y1f_finite
 // __y1_finite
 // y1l
-// yn
-// ynf
+GO(yn, dFid)
+GO(ynf, fFif)
 // __ynf_finite
 // __yn_finite
 // ynl

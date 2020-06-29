@@ -159,10 +159,12 @@
 #() UFUp
 #() UFpp
 #() fFEp
+#() fFif
 #() fFfi
 #() fFff
 #() fFfp
 #() fFpp
+#() dFid
 #() dFuu
 #() dFdi
 #() dFdd
@@ -354,9 +356,11 @@
 #() UFppu
 #() fFuii
 #() fFfff
+#() fFffp
 #() fFppu
 #() fFppp
 #() dFddd
+#() dFddp
 #() dFppi
 #() dFppu
 #() dFppp
