@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "debug.h"
 #include "box86context.h"
