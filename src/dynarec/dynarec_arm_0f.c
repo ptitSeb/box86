@@ -1420,14 +1420,24 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0:
                         INST_NAME("FXSAVE Ed");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
-                        GETEDW(x2, x1);
-                        CALL(arm_fxsave, -1, 0);
+                        if((nextop&0xC0)==0xC0) {
+                            DEFAULT;
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                            if(ed!=x1) {MOV_REG(x1, ed);}
+                            CALL(arm_fxsave, -1, 0);
+                        }
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
-                        GETEDW(x2, x1);
-                        CALL(arm_fxrstor, -1, 0);
+                        if((nextop&0xC0)==0xC0) {
+                            DEFAULT;
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                            if(ed!=x1) {MOV_REG(x1, ed);}
+                            CALL(arm_fxrstor, -1, 0);
+                        }
                         break;
                     case 2:                 
                         INST_NAME("LDMXCSR Md");
