@@ -1527,25 +1527,8 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
 
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
-    #if 0
     int x86 = FileIsX86ELF(path);
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p), IsX86=%d\n", path, argv, x86);
-    if (x86) {
-        // count argv...
-        int i=0;
-        while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
-        newargv[0] = emu->context->box86path;
-        for (int j=0; j<i; ++j)
-            newargv[j+1] = argv[j];
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-        int ret = execv(newargv[0], newargv);
-        free(newargv);
-        return ret;
-    }
-    return execv(path, argv);
-    #else
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p)\n", path, argv);
+    printf_log(/*LOG_DEBUG*/LOG_NONE, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     // FS segment and selector are supposed to be persistant acros execv... Using Env. Var. as a workaround
     if(emu->segs[_FS]) {
         char tmp[60];
@@ -1557,8 +1540,21 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
             setenv("BOX86_internal_SELECTOR", tmp, 1);
         }
     }
-    return execv(path, argv);
+    #if 1
+    if (x86) {
+        // count argv...
+        int n=0;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        newargv[0] = emu->context->box86path;
+        memcpy(newargv+1, argv, sizeof(char*)*(n+1));
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", n);
+        int ret = execv(newargv[0], (char* const*)newargv);
+        free(newargv);
+        return ret;
+    }
     #endif
+    return execv(path, argv);
 }
 
 EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
