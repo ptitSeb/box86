@@ -1085,7 +1085,7 @@ GO(mbtowc, iFppu)
 // _mcount
 GOW(memalign, pFuu)
 DATAV(__memalign_hook, 4)
-// memccpy  // Weak
+GOW(memccpy, pFppiL)
 GO(memchr, pFpiu)
 GO(memcmp, iFppu)
 GO(memcpy, pFppu)
