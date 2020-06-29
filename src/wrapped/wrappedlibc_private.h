@@ -285,7 +285,7 @@ GO(eventfd_write, iFiU)
 GO2(execl, iFEpV, execv)
 GO2(execle, iFEpV, execve)  //Nope! This one needs wrapping, because if char*, char*, ..., char*[]
 GO2(execlp, iFEpV, execvp)
-GOW(execv, iFpp)
+GOM(execv, iFEpp)    // is Weak
 GOW(execve, iFppp)   // and this one too...
 GOW(execvp, iFpp)
 GO(exit, vFi)

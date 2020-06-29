@@ -25,6 +25,8 @@ void SetESI(x86emu_t *emu, uint32_t v);
 void SetEBP(x86emu_t *emu, uint32_t v);
 void SetESP(x86emu_t *emu, uint32_t v);
 void SetEIP(x86emu_t *emu, uint32_t v);
+void SetFS(x86emu_t *emu, uint16_t v);
+uint16_t GetFS(x86emu_t *emu);
 uint32_t GetESP(x86emu_t *emu);
 void ResetFlags(x86emu_t *emu);
 const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip);

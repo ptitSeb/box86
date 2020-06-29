@@ -186,6 +186,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/emu/x86primop.c"
     "${BOX86_ROOT}/src/emu/x86trace.c"
     "${BOX86_ROOT}/src/emu/x86int3.c"
+    "${BOX86_ROOT}/src/emu/x86tls.c"
     "${BOX86_ROOT}/src/emu/x87emu_private.c"
     "${BOX86_ROOT}/src/emu/x87run.c"
     "${BOX86_ROOT}/src/libtools/auxval.c"

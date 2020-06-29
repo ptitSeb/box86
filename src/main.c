@@ -669,7 +669,8 @@ int main(int argc, const char **argv, const char **env) {
         int x86 = (nextarg<argc)?FileIsX86ELF(argv[nextarg]):0;
         if(x86) {
             prog = argv[++nextarg];
-            printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly\n", prog);
+            const char* prereserve = getenv("WINEPRELOADRESERVE");
+            printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly (WINEPRELOADRESERVE=\"%s\")\n", prog, prereserve?prereserve:"");
         }
     }
     // Create a new context
@@ -815,6 +816,29 @@ int main(int argc, const char **argv, const char **env) {
     SetEBX(emu, (uint32_t)my_context->argv);
 
     thread_set_emu(emu);
+
+    // check if FS or a selector is there in some env. var.
+    {
+        char* p = getenv("BOX86_internal_FS");
+        if(p) {
+            int seg;
+            if(sscanf(p, "%d", &seg)==1) {
+                SetFS(emu, seg);
+                printf_log(LOG_INFO, "Initial FS is 0x%x\n",seg);
+            }
+        }
+        p = getenv("BOX86_internal_SELECTOR");
+        if(p) {
+            int sel, limit;
+            uintptr_t base;
+            if(sscanf(p, "%d:%u:%d", &sel, &base, &limit)==3) {
+                my_context->segtls[sel].base = base;
+                my_context->segtls[sel].limit = limit;
+                my_context->segtls[sel].present = 1;
+                printf_log(LOG_INFO, "Initial Selector %d is %p:%d\n",sel, (void*)base, limit);
+            }
+        }
+    }
 
     setupTraceInit(my_context);
     // export symbols

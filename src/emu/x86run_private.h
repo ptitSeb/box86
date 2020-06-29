@@ -184,6 +184,7 @@ void PackFlags(x86emu_t* emu);
 void UnpackFlags(x86emu_t* emu);
 
 uintptr_t GetGSBaseEmu(x86emu_t* emu);
+uintptr_t GetFSBaseEmu(x86emu_t* emu);
 
 const char* GetNativeName(void* p);
 

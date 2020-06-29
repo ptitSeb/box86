@@ -269,6 +269,14 @@ uint32_t GetESP(x86emu_t *emu)
 {
     return R_ESP;
 }
+void SetFS(x86emu_t *emu, uint16_t v)
+{
+    emu->segs[_FS] = v;
+}
+uint16_t GetFS(x86emu_t *emu)
+{
+    return emu->segs[_FS];
+}
 
 
 void ResetFlags(x86emu_t *emu)

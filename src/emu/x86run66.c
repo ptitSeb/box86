@@ -501,12 +501,7 @@ void RunFS(x86emu_t *emu)
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
-    uintptr_t tlsdata = 0;
-    if(emu->segs[_FS]==0x33)
-        tlsdata = GetGSBaseEmu(emu);
-    else {
-        printf_log(LOG_INFO, "Warning, using FS: with FS=0x%x unsupported\n", emu->segs[_FS]);
-    }
+    uintptr_t tlsdata = GetFSBaseEmu(emu);
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;

@@ -50,6 +50,12 @@ typedef struct needed_libs_s {
 void add_neededlib(needed_libs_t* needed, library_t* lib);
 void free_neededlib(needed_libs_t* needed);
 
+typedef struct base_segment_s {
+    uintptr_t   base;
+    uint32_t    limit;
+    int         present;
+} base_segment_t;
+
 typedef struct box86context_s {
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -137,6 +143,7 @@ typedef struct box86context_s {
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
     int32_t             tlssize;    // wanted size of tlsdata
+    base_segment_t      segtls[3];  // only handling 0/1/2 descriptors
 
     uintptr_t           *auxval_start;
 

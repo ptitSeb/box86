@@ -35,6 +35,7 @@
 #include "box86context.h"
 #include "callback.h"
 #include "signals.h"
+#include "x86tls.h"
 
 #ifndef __NR_socketcall
 #ifndef SYS_RECVMMSG
@@ -329,7 +330,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = (uint32_t)write((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
             break;
         case 5: // sys_open
-            if(s==5) {printf_log(LOG_DUMP, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
+            if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
             //R_EAX = (uint32_t)open((void*)R_EBX, of_convert(R_ECX), R_EDX);
             R_EAX = (uint32_t)my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
             break;
@@ -546,9 +547,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
             break;
         case 243: // set_thread_area
-            printf_log(LOG_INFO, "Warning, set_thread_area syscall unsupported yet\n");
-            errno = ENOSYS;
-            R_EAX = (uint32_t)-1;
+            R_EAX = my_set_thread_area((thread_area_t*)R_EBX);
             break;
 #ifndef NOALIGN
         case 254: // epoll_create
@@ -626,6 +625,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)close(i32(4));
         case 174:   // sys_rt_sigaction
             return (uint32_t)my_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
+        case 243: // set_thread_area
+            return my_set_thread_area((thread_area_t*)p(4));
 #ifndef NOALIGN
         case 254: // epoll_create
             return my_epoll_create(emu, i32(4));

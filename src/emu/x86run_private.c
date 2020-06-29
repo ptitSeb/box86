@@ -22,6 +22,7 @@
 #ifdef HAVE_TRACE
 #include "x86trace.h"
 #endif
+#include "x86tls.h"
 
 #define PARITY(x)   (((emu->x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
@@ -743,7 +744,12 @@ void UnpackFlags(x86emu_t* emu)
 
 uintptr_t GetGSBaseEmu(x86emu_t* emu)
 {
-    return (uintptr_t)GetGSBase(my_context);
+    return (uintptr_t)GetSegmentBase(emu->segs[_GS]);
+}
+
+uintptr_t GetFSBaseEmu(x86emu_t* emu)
+{
+    return (uintptr_t)GetSegmentBase(emu->segs[_FS]);
 }
 
 void printFunctionAddr(uintptr_t nextaddr, const char* text)

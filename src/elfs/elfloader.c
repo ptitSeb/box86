@@ -30,6 +30,7 @@
 #include "dynablock.h"
 #endif
 #include "../emu/x86emu_private.h"
+#include "x86tls.h"
 
 void* my__IO_2_1_stderr_ = NULL;
 void* my__IO_2_1_stdin_  = NULL;
@@ -931,69 +932,6 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         *sz = size;
 
     return ret;
-}
-
-#define POS_TLS     0x50
-
-static tlsdatasize_t* setupTLSData(box86context_t* context)
-{
-    // Setup the GS segment:
-    int dtsize = context->elfsize*8;
-    void *ptr = (char*)malloc(context->tlssize+4+POS_TLS+dtsize);
-    memcpy(ptr, context->tlsdata, context->tlssize);
-    tlsdatasize_t *data = (tlsdatasize_t*)calloc(1, sizeof(tlsdatasize_t));
-    data->tlsdata = ptr;
-    data->tlssize = context->tlssize;
-    pthread_setspecific(context->tlskey, data);
-    // copy canary...
-    memset((void*)((uintptr_t)ptr+context->tlssize), 0, POS_TLS+dtsize);            // set to 0 remining bytes
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x14), context->canary, 4);      // put canary in place
-    uintptr_t tlsptr = (uintptr_t)ptr+context->tlssize;
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x0), &tlsptr, 4);
-    uintptr_t dtp = (uintptr_t)ptr+context->tlssize+POS_TLS;
-    memcpy((void*)(tlsptr+0x4), &dtp, 4);
-    if(dtsize) {
-        for (int i=0; i<context->elfsize; ++i) {
-            // set pointer
-            dtp = (uintptr_t)ptr + (context->tlssize + GetTLSBase(context->elfs[i]));
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8), &dtp, 4);
-            memcpy((void*)((uintptr_t)ptr+context->tlssize+POS_TLS+i*8+4), &i, 4); // index
-        }
-    }
-    memcpy((void*)((uintptr_t)ptr+context->tlssize+0x10), &context->vsyscall, 4);  // address of vsyscall
-    return data;
-}
-
-static void* fillTLSData(box86context_t *context)
-{
-        pthread_mutex_lock(&context->mutex_lock);
-        tlsdatasize_t *data = setupTLSData(context);
-        pthread_mutex_unlock(&context->mutex_lock);
-        return data;
-}
-
-static void* resizeTLSData(box86context_t *context, void* oldptr)
-{
-        pthread_mutex_lock(&context->mutex_lock);
-        tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
-        tlsdatasize_t *data = setupTLSData(context);
-        // copy the relevent old part, in case something changed
-        memcpy((void*)((uintptr_t)data->tlsdata+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
-        // all done, update new size, free old pointer and exit
-        pthread_mutex_unlock(&context->mutex_lock);
-        free_tlsdatasize(oldptr);
-        return data;
-}
-
-void* GetGSBase(box86context_t *context)
-{
-    tlsdatasize_t* ptr;
-    if ((ptr = (tlsdatasize_t*)pthread_getspecific(context->tlskey)) == NULL) {
-        ptr = (tlsdatasize_t*)fillTLSData(context);
-    }
-    if(ptr->tlssize != context->tlssize)
-        ptr = (tlsdatasize_t*)resizeTLSData(context, ptr);
-    return ptr->tlsdata+ptr->tlssize;
 }
 
 void* GetDTatOffset(box86context_t* context, int index, int offset)
