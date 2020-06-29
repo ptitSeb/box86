@@ -376,8 +376,6 @@ void FreeBox86Context(box86context_t** context)
 
     FreeDLPrivate(&(*context)->dlprivate);
 
-    for(int i=0; i<(*context)->argc; ++i)
-        free((*context)->argv[i]);
     free((*context)->argv);
     
     for (int i=0; i<(*context)->envc; ++i)

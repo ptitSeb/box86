@@ -76,11 +76,13 @@ void SetupInitialStack(x86emu_t *emu)
         PushString(emu, emu->context->envv[i]);
         p_envv[i] = R_ESP;
     }
-    // push args
+    // push args, also, free the argv[] string and point to the one in the main stack
     uintptr_t p_argv[emu->context->argc];
     for (int i=emu->context->argc-1; i>=0; --i) {
         PushString(emu, emu->context->argv[i]);
         p_argv[i] = R_ESP;
+        free(emu->context->argv[i]);
+        emu->context->argv[i] = p_argv[i];
     }
     // align
     uintptr_t tmp = (R_ESP)&~(emu->context->stackalign-1);

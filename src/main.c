@@ -629,6 +629,13 @@ void init_library()
 #endif
 
 #else
+
+static void free_contextargv()
+{
+    for(int i=0; i<my_context->argc; ++i)
+        free(my_context->argv[i]);
+}
+
 int main(int argc, const char **argv, const char **env) {
 
     init_auxval(argc, argv, env);
@@ -746,12 +753,14 @@ int main(int argc, const char **argv, const char **env) {
     // check if file exist
     if(!my_context->argv[0]) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     if(!FileExist(my_context->argv[0], IS_FILE|IS_EXECUTABLE)) {
         printf_log(LOG_NONE, "Error: %s is not an executable file\n", my_context->argv[0]);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -761,6 +770,7 @@ int main(int argc, const char **argv, const char **env) {
     FILE *f = fopen64(my_context->argv[0], "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->argv[0]);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -769,6 +779,7 @@ int main(int argc, const char **argv, const char **env) {
     if(!elf_header) {
         printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
         fclose(f);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -778,6 +789,7 @@ int main(int argc, const char **argv, const char **env) {
     if(CalcLoadAddr(elf_header)) {
         printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
         fclose(f);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -786,6 +798,7 @@ int main(int argc, const char **argv, const char **env) {
     if(AllocElfMemory(my_context, elf_header, 1)) {
         printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->argv[0]);
         fclose(f);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -794,6 +807,7 @@ int main(int argc, const char **argv, const char **env) {
     if(LoadElfMemory(f, my_context, elf_header)) {
         printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->argv[0]);
         fclose(f);
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -803,6 +817,7 @@ int main(int argc, const char **argv, const char **env) {
     // get and alloc stack size and align
     if(CalcStackSize(my_context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
+        free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
@@ -810,7 +825,7 @@ int main(int argc, const char **argv, const char **env) {
     // init x86 emu
     x86emu_t *emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
-    SetupInitialStack(emu);
+    SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
     SetupX86Emu(emu);
     SetEAX(emu, my_context->argc);
     SetEBX(emu, (uint32_t)my_context->argv);
