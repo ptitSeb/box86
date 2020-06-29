@@ -335,6 +335,11 @@ void FreeBox86Context(box86context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
+    for(int i=0; i<(*context)->elfsize; ++i) {
+        FreeElfHeader(&(*context)->elfs[i]);
+    }
+    free((*context)->elfs);
+
     FreeFTSMap(*context);
 
     if((*context)->maplib)
@@ -381,11 +386,6 @@ void FreeBox86Context(box86context_t** context)
     for (int i=0; i<(*context)->envc; ++i)
         free((*context)->envv[i]);
     free((*context)->envv);
-
-    for(int i=0; i<(*context)->elfsize; ++i) {
-        FreeElfHeader(&(*context)->elfs[i]);
-    }
-    free((*context)->elfs);
 
     free((*context)->stack);
 
