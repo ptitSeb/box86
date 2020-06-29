@@ -82,15 +82,15 @@ GO(FT_Get_PS_Font_Info, iFpp)
 //GO(FT_Get_PS_Font_Value, 
 //GO(FT_Get_Renderer, 
 //GO(FT_Get_Sfnt_LangTag, 
-//GO(FT_Get_Sfnt_Name, 
-//GO(FT_Get_Sfnt_Name_Count, 
+GO(FT_Get_Sfnt_Name, iFpip)
+GO(FT_Get_Sfnt_Name_Count, uFp)
 GO(FT_Get_Sfnt_Table, pFpi)
 GO(FT_Get_SubGlyph_Info, iFpuppppp)
 GO(FT_Get_Track_Kerning, iFplip)
-//GO(FT_Get_TrueType_Engine_Type, 
+GO(FT_Get_TrueType_Engine_Type, iFp)
 //GO(FT_Get_Var_Blend_Coordinates, 
 //GO(FT_Get_Var_Design_Coordinates, 
-//GO(FT_Get_WinFNT_Header, 
+GO(FT_Get_WinFNT_Header, iFpp)  // does FT_WinFNT_HeaderRec_ needs alignment?
 GO(FT_Get_X11_Font_Format, pFp)
 GO(FT_Glyph_Copy, iFpp)
 GO(FT_Glyph_Get_CBox, vFpup)
@@ -105,8 +105,8 @@ GO(FT_Glyph_Transform, iFppp)
 //GO(FT_Has_PS_Glyph_Names, 
 GO(FT_Init_FreeType, iFp)
 GO(FT_Library_SetLcdFilter, iFpi)
-//GO(FT_Library_SetLcdFilterWeights, 
-//GO(FT_Library_Version, 
+GO(FT_Library_SetLcdFilterWeights, iFpp)
+GO(FT_Library_Version, vFpppp)
 //GO(FT_List_Add, 
 //GO(FT_List_Finalize, 
 //GO(FT_List_Find, 
