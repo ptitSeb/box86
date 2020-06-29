@@ -25,7 +25,7 @@ typedef struct thread_area_s
 
 uint32_t my_set_thread_area(thread_area_t* td)
 {
-printf_log(LOG_NONE, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
+    printf_log(LOG_DEBUG, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
     int isempty = 0;
     // first, check if the "user_desc", here td, is "empty"
     if(td->read_exec_only==1 && td->seg_not_present==1)
@@ -36,7 +36,6 @@ printf_log(LOG_NONE, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...]
          && !td->limit_in_pages 
          && !td->useable)
             isempty = 1;
-printf_log(LOG_NONE, "isempty=%d\n", isempty);
     int idx = td->entry_number;
     if(idx==-1) {
         // find a free one
@@ -57,7 +56,6 @@ printf_log(LOG_NONE, "isempty=%d\n", isempty);
         memset(&my_context->segtls[td->entry_number], 0, sizeof(base_segment_t));
         return 0;
     }
-printf_log(LOG_NONE, "idx=%d\n", idx);
     if((idx<0 || idx>2)) {
         errno = EINVAL;
         return (uint32_t)-1;
@@ -66,7 +64,6 @@ printf_log(LOG_NONE, "idx=%d\n", idx);
     my_context->segtls[idx].limit = td->limit;
     my_context->segtls[idx].present = 1;
 
-printf_log(LOG_NONE, "set_thread_area return entry_number=%d\n", idx);
     
     return 0;
 }
