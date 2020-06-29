@@ -119,10 +119,16 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %s\n", (*dynablocks)->blocks?kh_size((*dynablocks)->blocks):0, kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
     if((*dynablocks)->blocks) {
+        // create a list of the parent db to delete (because there are sons in the middle that will be invalid if father is removed)
+        dynablock_t** list = (dynablock_t**)calloc(kh_size((*dynablocks)->blocks), sizeof(dynablock_t*));
+        int n = 0;
         kh_foreach_value((*dynablocks)->blocks, db, 
-            if(!db->father) FreeDynablock(db);
+            if(!db->father) list[n++] = db;
         );
         kh_destroy(dynablocks, (*dynablocks)->blocks);
+        for (int i=0; i<n; ++i)
+            FreeDynablock(list[i]);
+        free(list);
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
