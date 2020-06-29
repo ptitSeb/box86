@@ -862,7 +862,7 @@ GO(_XRead, iFppi)
 GO(_XReadPad, vFppi)
 GO(XRebindKeysym, iFpupipi)
 GO(XRecolorCursor, iFpppp)
-//GO(XReconfigureWMWindow
+GO(XReconfigureWMWindow, iFppiup)
 GO(XRectInRegion, iFpiiuu)
 GO(XRefreshKeyboardMapping, iFp)
 // _XRefreshKeyboardMapping
