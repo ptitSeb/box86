@@ -75,6 +75,7 @@ uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
+uint16_t default_fs = 0;
 
 FILE* ftrace = NULL;
 
@@ -843,6 +844,7 @@ int main(int argc, const char **argv, const char **env) {
             int seg;
             if(sscanf(p, "%d", &seg)==1) {
                 SetFS(emu, seg);
+                default_fs = seg;
                 printf_log(LOG_INFO, "Initial FS is 0x%x\n",seg);
             }
         }

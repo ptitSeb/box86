@@ -27,6 +27,7 @@ uintptr_t   trace_start, trace_end;
 box86context_t *my_context; // global context
 char* trace_func;
 uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
+uint16_t default_fs;
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

@@ -65,7 +65,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     // fake init of segments...
     emu->segs[_CS] = 0x73;
     emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x7b;
-    emu->segs[_FS] = 0;
+    emu->segs[_FS] = default_fs;
     emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);

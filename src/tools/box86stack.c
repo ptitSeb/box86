@@ -82,7 +82,7 @@ void SetupInitialStack(x86emu_t *emu)
         PushString(emu, emu->context->argv[i]);
         p_argv[i] = R_ESP;
         free(emu->context->argv[i]);
-        emu->context->argv[i] = p_argv[i];
+        emu->context->argv[i] = (char*)p_argv[i];
     }
     // align
     uintptr_t tmp = (R_ESP)&~(emu->context->stackalign-1);
