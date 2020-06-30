@@ -98,69 +98,45 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint3
 typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
+#define SUPER() \
+    GO(XSetErrorHandler, pFp_t)             \
+    GO(XSetIOErrorHandler, pFp_t)           \
+    GO(XESetError, pFpip_t)                 \
+    GO(XESetCloseDisplay, pFpip_t)          \
+    GO(XIfEvent, iFpppp_t)                  \
+    GO(XCheckIfEvent, iFpppp_t)             \
+    GO(XPeekIfEvent, iFpppp_t)              \
+    GO(XCreateImage, pFppuiipuuii_t)        \
+    GO(XInitImage, iFp_t)                   \
+    GO(XGetImage, pFppiiuuui_t)             \
+    GO(XPutImage, iFppppiiiiuu_t)           \
+    GO(XGetSubImage, pFppiiuuuipii_t)       \
+    GO(XDestroyImage, vFp_t)                \
+    GO(_XDeqAsyncHandler, vFpp_t)           \
+    GO(XLoadQueryFont, pFpp_t)              \
+    GO(XCreateGC, pFppup_t)                 \
+    GO(XSetBackground, iFppu_t)             \
+    GO(XSetForeground, iFppu_t)             \
+    GO(XESetWireToEvent, pFpip_t)           \
+    GO(XESetEventToWire, pFpip_t)           \
+    GO(XCloseDisplay, iFp_t)                \
+    GO(XOpenDisplay, pFp_t)                 \
+    GO(XInitThreads, uFv_t)                 \
+    GO(XRegisterIMInstantiateCallback, iFpppppp_t)      \
+    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)
+
 typedef struct x11_my_s {
     // functions
-    pFp_t           XSetErrorHandler;
-    pFp_t           XSetIOErrorHandler;
-    pFpip_t         XESetError;
-    pFpip_t         XESetCloseDisplay;
-    iFpppp_t        XIfEvent;
-    iFpppp_t        XCheckIfEvent;
-    iFpppp_t        XPeekIfEvent;
-    pFppuiipuuii_t  XCreateImage;
-    iFp_t           XInitImage;
-    pFppiiuuui_t    XGetImage;
-    iFppppiiiiuu_t  XPutImage;
-    pFppiiuuuipii_t XGetSubImage;
-    vFp_t           XDestroyImage;
-    vFpp_t          _XDeqAsyncHandler;
-    #ifdef PANDORA
-    pFpp_t          XLoadQueryFont;
-    pFppup_t        XCreateGC;
-    iFppu_t         XSetBackground;
-    iFppu_t         XSetForeground;
-    #endif
-    pFpip_t         XESetWireToEvent;
-    pFpip_t         XESetEventToWire;
-    iFp_t           XCloseDisplay;
-    pFp_t           XOpenDisplay;
-    uFv_t           XInitThreads;
-    iFpppppp_t      XRegisterIMInstantiateCallback;
-    iFpppppp_t      XUnregisterIMInstantiateCallback;
-
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } x11_my_t;
 
 void* getX11My(library_t* lib)
 {
     x11_my_t* my = (x11_my_t*)calloc(1, sizeof(x11_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(XSetErrorHandler, pFp_t)
-    GO(XSetIOErrorHandler, pFp_t)
-    GO(XESetError, pFpip_t)
-    GO(XESetCloseDisplay, pFpip_t)
-    GO(XIfEvent, iFpppp_t)
-    GO(XCheckIfEvent, iFpppp_t)
-    GO(XPeekIfEvent, iFpppp_t)
-    GO(XCreateImage, pFppuiipuuii_t)
-    GO(XInitImage, iFp_t)
-    GO(XGetImage, pFppiiuuui_t)
-    GO(XPutImage, iFppppiiiiuu_t)
-    GO(XGetSubImage, pFppiiuuuipii_t)
-    GO(XDestroyImage, vFp_t)
-    GO(_XDeqAsyncHandler, vFpp_t)
-    #ifdef PANDORA
-    GO(XLoadQueryFont, pFpp_t)
-    GO(XCreateGC, pFppup_t)
-    GO(XSetBackground, iFppu_t)
-    GO(XSetForeground, iFppu_t)
-    #endif
-    GO(XESetWireToEvent, pFpip_t)
-    GO(XESetEventToWire, pFpip_t)
-    GO(XCloseDisplay, iFp_t)
-    GO(XOpenDisplay, pFp_t)
-    GO(XInitThreads, uFv_t)
-    GO(XRegisterIMInstantiateCallback, iFpppppp_t)
-    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)
+    SUPER()
     #undef GO
     return my;
 }
@@ -169,6 +145,205 @@ void freeX11My(void* lib)
 {
     // x11_my_t *my = (x11_my_t *)lib;
 }
+#undef SUPER
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
+GO(15)  
+
+// wire_to_event
+#define GO(A)   \
+static uintptr_t my_wire_to_event_fct_##A = 0;                      \
+static int my_wire_to_event_##A(void* dpy, void* re, void* event)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_wire_to_event_fct_##A, 3, dpy, re, event);\
+}
+SUPER()
+#undef GO
+static void* findwire_to_eventFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_wire_to_event_fct_##A == (uintptr_t)fct) return my_wire_to_event_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_wire_to_event_fct_##A == 0) {my_wire_to_event_fct_##A = (uintptr_t)fct; return my_wire_to_event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 wire_to_event callback\n");
+    return NULL;
+}
+
+// event_to_wire
+#define GO(A)   \
+static uintptr_t my_event_to_wire_fct_##A = 0;                      \
+static int my_event_to_wire_##A(void* dpy, void* re, void* event)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_event_to_wire_fct_##A, 3, dpy, re, event);\
+}
+SUPER()
+#undef GO
+static void* findevent_to_wireFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_event_to_wire_fct_##A == (uintptr_t)fct) return my_event_to_wire_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_event_to_wire_fct_##A == 0) {my_event_to_wire_fct_##A = (uintptr_t)fct; return my_event_to_wire_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 event_to_wire callback\n");
+    return NULL;
+}
+
+// error_handler
+#define GO(A)   \
+static uintptr_t my_error_handler_fct_##A = 0;                      \
+static int my_error_handler_##A(void* dpy, void* error)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_error_handler_fct_##A, 2, dpy, error);\
+}
+SUPER()
+#undef GO
+static void* finderror_handlerFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_error_handler_fct_##A == (uintptr_t)fct) return my_error_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_error_handler_fct_##A == 0) {my_error_handler_fct_##A = (uintptr_t)fct; return my_error_handler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 error_handler callback\n");
+    return NULL;
+}
+static void* reverse_error_handlerFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_error_handler_##A == fct) return (void*)my_error_handler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+}
+
+// ioerror_handler
+#define GO(A)   \
+static uintptr_t my_ioerror_handler_fct_##A = 0;                      \
+static int my_ioerror_handler_##A(void* dpy)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_ioerror_handler_fct_##A, 1, dpy);\
+}
+SUPER()
+#undef GO
+static void* findioerror_handlerFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ioerror_handler_fct_##A == (uintptr_t)fct) return my_ioerror_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ioerror_handler_fct_##A == 0) {my_ioerror_handler_fct_##A = (uintptr_t)fct; return my_ioerror_handler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 ioerror_handler callback\n");
+    return NULL;
+}
+static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_ioerror_handler_##A == fct) return (void*)my_ioerror_handler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFp, fct, 0);
+}
+
+// exterror_handler
+#define GO(A)   \
+static uintptr_t my_exterror_handler_fct_##A = 0;                      \
+static int my_exterror_handler_##A(void* dpy, void* err, void* codes, int* ret_code)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_exterror_handler_fct_##A, 4, dpy, err, codes, ret_code);\
+}
+SUPER()
+#undef GO
+static void* findexterror_handlerFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_exterror_handler_fct_##A == (uintptr_t)fct) return my_exterror_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_exterror_handler_fct_##A == 0) {my_exterror_handler_fct_##A = (uintptr_t)fct; return my_exterror_handler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 exterror_handler callback\n");
+    return NULL;
+}
+static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_exterror_handler_##A == fct) return (void*)my_exterror_handler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFpppp, fct, 0);
+}
+
+// close_display
+#define GO(A)   \
+static uintptr_t my_close_display_fct_##A = 0;                      \
+static int my_close_display_##A(void* dpy, void* codes)   \
+{                                                                   \
+    return (int)RunFunction(my_context, my_close_display_fct_##A, 2, dpy, codes);\
+}
+SUPER()
+#undef GO
+static void* findclose_displayFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_close_display_fct_##A == (uintptr_t)fct) return my_close_display_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_close_display_fct_##A == 0) {my_close_display_fct_##A = (uintptr_t)fct; return my_close_display_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 close_display callback\n");
+    return NULL;
+}
+static void* reverse_close_displayFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_close_display_##A == fct) return (void*)my_close_display_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+}
+
+#undef SUPER
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl);
@@ -195,156 +370,36 @@ void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name);
 
 void* my_XVaCreateNestedList(int dummy, void* p);
 
-static x86emu_t *errorhandlercb = NULL;
-static x86emu_t *ioerrorhandlercb = NULL;
-static x86emu_t *exterrorhandlercb = NULL;  // should be set per screen and per extension!
-static x86emu_t *extclosedisplaycb = NULL;  // should be set per screen and per extension!
-static int my_errorhandle_callback(void* display, void* errorevent)
-{
-    if(!errorhandlercb)
-        return 0;
-    SetCallbackArg(errorhandlercb, 0, display);
-    SetCallbackArg(errorhandlercb, 1, errorevent);
-    int ret = (int)RunCallback(errorhandlercb);
-    return ret;
-}
-static int my_ioerrorhandle_callback(void* display)
-{
-    if(!ioerrorhandlercb)
-        return 0;
-    SetCallbackArg(ioerrorhandlercb, 0, display);
-    return (int)RunCallback(ioerrorhandlercb);
-}
-static int my_exterrorhandle_callback(void* display, void* err, void* codes, int* ret_code)
-{
-    if(!exterrorhandlercb)
-        return 0;
-    SetCallbackArg(exterrorhandlercb, 0, display);
-    SetCallbackArg(exterrorhandlercb, 1, err);
-    SetCallbackArg(exterrorhandlercb, 2, codes);
-    SetCallbackArg(exterrorhandlercb, 3, ret_code);
-    return (int)RunCallback(exterrorhandlercb);
-}
-static int my_closedisplay_callback(void* display, void* codes)
-{
-    if(!extclosedisplaycb)
-        return 0;
-    SetCallbackArg(extclosedisplaycb, 0, display);
-    SetCallbackArg(extclosedisplaycb, 1, codes);
-    return (int)RunCallback(extclosedisplaycb);
-}
-
 EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-    x86emu_t *cb = NULL;
-    void* ret = NULL;
-    XErrorHandler old = NULL;
-    if(handler) {
-        void* native = GetNativeFnc((uintptr_t)handler);
-        if(native) {
-            old = (XErrorHandler)my->XSetErrorHandler(native);
-        } else {
-            cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-            old = (XErrorHandler)my->XSetErrorHandler(my_errorhandle_callback);
-        }
-    } else {
-        old = (XErrorHandler)my->XSetErrorHandler(NULL);
-    }
-    if(old) {
-        if(CheckBridged(lib->priv.w.bridge, old))
-            ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-        else {
-            if(old==my_errorhandle_callback)
-                ret = (void*)GetCallbackAddress(errorhandlercb);
-            else
-                ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
-        }
-    }
-    if(errorhandlercb) FreeCallback(errorhandlercb);
-    errorhandlercb = cb;
-    return ret;
+    void* ret = my->XSetErrorHandler(finderror_handlerFct(handler));
+    return reverse_error_handlerFct(lib, ret);
 }
 
 EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
 {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-    if(ioerrorhandlercb) { FreeCallback(ioerrorhandlercb); ioerrorhandlercb=NULL;}
-    x86emu_t *cb = NULL;
-    void* ret;
-    XIOErrorHandler old = NULL;
-    if(GetNativeFnc((uintptr_t)handler)) {
-        old = (XIOErrorHandler)my->XSetIOErrorHandler(GetNativeFnc((uintptr_t)handler));
-    } else {
-        cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-        old = (XIOErrorHandler)my->XSetIOErrorHandler(my_ioerrorhandle_callback);
-    }
-    if(CheckBridged(lib->priv.w.bridge, old))
-        ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else {
-            if(old==my_ioerrorhandle_callback)
-                ret = (void*)GetCallbackAddress(ioerrorhandlercb);
-            else
-            ret = (void*)AddBridge(lib->priv.w.bridge, iFp, old, 0);
-    }
-    if(ioerrorhandlercb) FreeCallback(ioerrorhandlercb);
-    ioerrorhandlercb = cb;
-    return ret;
+    void* ret = my->XSetIOErrorHandler(findioerror_handlerFct(handler));
+    return reverse_ioerror_handlerFct(lib, ret);
 }
 
 EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-    x86emu_t *cb = NULL;
-    void* ret;
-    void* old = NULL;
-    if(GetNativeFnc((uintptr_t)handler)) {
-        old = my->XESetError(display, extension, GetNativeFnc((uintptr_t)handler));
-    } else {
-        cb = AddCallback(emu, (uintptr_t)handler, 4, NULL, NULL, NULL, NULL);
-        old = my->XESetError(display, extension, my_exterrorhandle_callback);
-    }
-    if(CheckBridged(lib->priv.w.bridge, old))
-        ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else {
-        if(old==my_exterrorhandle_callback)
-            ret = (void*)GetCallbackAddress(exterrorhandlercb);
-        else
-            ret = (void*)AddBridge(lib->priv.w.bridge, iFpip, old, 0);
-    }
-    if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
-    exterrorhandlercb = cb;
-    return ret;
+    void* ret = my->XESetError(display, extension, findexterror_handlerFct(handler));
+    return reverse_exterror_handlerFct(lib, ret);
 }
 
 EXPORT void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
-    x86emu_t *cb = NULL;
-    void* ret;
-    void* old = NULL;
-    if(GetNativeFnc((uintptr_t)handler)) {
-        old = my->XESetCloseDisplay(display, extension, GetNativeFnc((uintptr_t)handler));
-    } else {
-        cb = AddCallback(emu, (uintptr_t)handler, 2, NULL, NULL, NULL, NULL);
-        old = my->XESetCloseDisplay(display, extension, my_closedisplay_callback);
-    }
-    if(CheckBridged(lib->priv.w.bridge, old))
-        ret = (void*)CheckBridged(lib->priv.w.bridge, old);
-    else {
-        if(old==my_closedisplay_callback)
-            ret = (void*)GetCallbackAddress(extclosedisplaycb);
-        else
-            ret = (void*)AddBridge(lib->priv.w.bridge, iFpp, old, 0);
-    }
-    if(extclosedisplaycb) FreeCallback(extclosedisplaycb);
-    extclosedisplaycb = cb;
-printf("XESetCloseDisplay(...) %p <= %p\n", handler, ret);
-    return ret;
+    void* ret = my->XESetCloseDisplay(display, extension, findclose_displayFct(handler));
+    return reverse_close_displayFct(lib, ret);
 }
 
 int32_t xifevent_callback(void* dpy, void *event, void* arg)
@@ -669,69 +724,6 @@ EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* 
     return gc;
 }
 #endif
-
-#define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
-GO(10)  \
-GO(11)  \
-GO(12)  \
-GO(13)  \
-GO(14)  \
-GO(15)  
-
-// wire_to_event
-#define GO(A)   \
-static uintptr_t my_wire_to_event_fct_##A = 0;                      \
-static int my_wire_to_event_##A(void* dpy, void* re, void* event)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_wire_to_event_fct_##A, 3, dpy, re, event);\
-}
-SUPER()
-#undef GO
-static void* findwire_to_eventFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_wire_to_event_fct_##A == (uintptr_t)fct) return my_wire_to_event_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_wire_to_event_fct_##A == 0) {my_wire_to_event_fct_##A = (uintptr_t)fct; return my_wire_to_event_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libX11 wire_to_event callback\n");
-    return NULL;
-}
-// event_to_wire
-#define GO(A)   \
-static uintptr_t my_event_to_wire_fct_##A = 0;                      \
-static int my_event_to_wire_##A(void* dpy, void* re, void* event)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_event_to_wire_fct_##A, 3, dpy, re, event);\
-}
-SUPER()
-#undef GO
-static void* findevent_to_wireFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_event_to_wire_fct_##A == (uintptr_t)fct) return my_event_to_wire_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_event_to_wire_fct_##A == 0) {my_event_to_wire_fct_##A = (uintptr_t)fct; return my_event_to_wire_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libX11 event_to_wire callback\n");
-    return NULL;
-}
 
 
 EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
