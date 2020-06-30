@@ -183,6 +183,7 @@ GO(SDL_GetGlobalMouseState, uFpp)
 GO(SDL_GetGrabbedWindow, pFv)
 GO(SDL_GetHint, pFp)
 GO(SDL_GetHintBoolean, iFpi)
+GOM(SDL_GetJoystickGUIDInfo, vFEuuuuppp)   // the flat SDL_JoystickGUID stuct in 1st argument is same as 4 uint32
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, pFp)

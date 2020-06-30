@@ -50,6 +50,11 @@ typedef struct {
     uint8_t data[16];
 } SDL_JoystickGUID;
 
+typedef union {
+    SDL_JoystickGUID guid;
+    uint32_t         u[4];
+} SDL_JoystickGUID_Helper;
+
 typedef struct
 {
     int32_t bindType;   // enum
@@ -81,6 +86,7 @@ typedef void*  (*pFpp_t)(void*, void*);
 typedef void*  (*pFppp_t)(void*, void*, void*);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
+typedef void  (*vFSppp_t)(SDL_JoystickGUID, void*, void*, void*);
 typedef void  (*vFiupp_t)(int32_t, uint32_t, void*, void*);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFu_t)(uint32_t);
@@ -146,6 +152,7 @@ typedef struct sdl2_my_s {
     pFS_t      SDL_GameControllerMappingForGUID;
     iFp_t      SDL_SaveAllDollarTemplates;
     iFip_t     SDL_SaveDollarTemplate;
+    vFSppp_t   SDL_GetJoystickGUIDInfo;
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -208,6 +215,7 @@ void* getSDL2My(library_t* lib)
     GO(SDL_GameControllerMappingForGUID, pFS_t)
     GO(SDL_SaveAllDollarTemplates, iFp_t)
     GO(SDL_SaveDollarTemplate, iFip_t)
+    GO(SDL_GetJoystickGUIDInfo, vFSppp_t)
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -951,6 +959,25 @@ EXPORT void my2_SDL_UnloadObject(x86emu_t* emu, void* handle)
 EXPORT void* my2_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 {
     return my_dlsym(emu, handle, name);
+}
+
+EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint16_t* vendor, uint16_t* product, uint16_t* version)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_GetJoystickGUIDInfo) {
+        SDL_JoystickGUID_Helper guid;
+        guid.u[0] = a;
+        guid.u[1] = b;
+        guid.u[2] = c;
+        guid.u[3] = d;
+        my->SDL_GetJoystickGUIDInfo(guid.guid, vendor, product, version);
+    } else {
+        // dummy, set everything to "unknown"
+        if(vendor)  *vendor = 0;
+        if(product) *product = 0;
+        if(version) *version = 0;
+    }
 }
 
 const char* sdl2Name = "libSDL2-2.0.so.0";
