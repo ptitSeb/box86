@@ -382,7 +382,7 @@ GO(XGeometry, iFpippuuuiipppp)
 GO(_XGetAsyncData, vFpppiiii)
 // _XGetAsyncReply
 GO(XGetAtomName, pFpp)
-//GO(XGetAtomNames
+GO(XGetAtomNames, pFpp)
 // _XGetBitsPerPixel
 GO(XGetClassHint, iFppp)
 GO(XGetCommand, iFpppp)
@@ -809,7 +809,7 @@ GO(XMoveWindow, iFppii)
 //GO(XNewModifiermap
 GO(XNextEvent, iFpp)
 //GO(XNextRequest
-//GO(XNoOp
+GO(XNoOp, iFp)
 // _XNoticeCreateBitmap
 // _XNoticePutBitmap
 GO(XOffsetRegion, iFpii)

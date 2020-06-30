@@ -15,7 +15,7 @@ GO(XRRRotations,uFip)
 //GO(XRRSetCrtcTransform
 GO(XRRGetCrtcGammaSize, iFpu)
 GO(XRRConfigRotations,uFp)
-//GO(XRRGetProviderInfo
+GO(XRRGetProviderInfo, pFppp)
 //GO(XRRConfigureOutputProperty
 //GO(XRRSetOutputPrimary
 GO(XRRFreeOutputInfo, vFp)
@@ -39,7 +39,7 @@ GO(XRRConfigCurrentConfiguration,uFpp)
 GO(XRRSizes,pFip)
 //GO(XRRAddOutputMode
 GO(XRRFreePanning, vFp)
-//GO(XRRFreeProviderResources
+GO(XRRFreeProviderResources, vFp)
 //GO(XRRChangeProviderProperty
 GO(XRRGetPanning, pFppu)
 //GO(XRRSetProviderOffloadSink
@@ -49,7 +49,7 @@ GO(XRRSetCrtcGamma, vFppp)
 //GO(XRRSetProviderOutputSource
 GO(XRRGetScreenSizeRange, iFpppppp)
 GO(XRRRates,pFpiip)
-//GO(XRRFreeProviderInfo
+GO(XRRFreeProviderInfo, vFp)
 GO(XRRConfigRates,pFpip)
 GO(XRRQueryOutputProperty, pFpup)
 GO(XRRGetOutputProperty, iFpupiiiipppppp)
@@ -57,7 +57,7 @@ GO(XRRFreeGamma, vFp)
 GO(XRRRootToScreen,iFp)
 GO(XRRGetScreenInfo,pFpp)
 GO(XRRFreeCrtcInfo, vFp)
-//GO(XRRGetProviderResources
+GO(XRRGetProviderResources, pFpp)
 //GO(XRRFreeModeInfo
 //GO(XRRChangeOutputProperty
 GO(XRRGetCrtcGamma, pFpu)

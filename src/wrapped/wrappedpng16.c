@@ -22,13 +22,19 @@ const char* png16Name = "libpng16.so.16";
 
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void  (*vFpppp_t)(void*, void*, void*, void*);
+
+#define SUPER() \
+    GO(png_set_read_fn, vFppp_t)                \
+    GO(png_set_error_fn, vFpppp_t)          \
+    GO(png_set_read_user_transform_fn, vFpp_t)  \
+    GO(png_set_write_fn, vFppp_t)               \
+
 
 typedef struct png16_my_s {
-    vFppp_t     png_set_read_fn;
-    vFpp_t      png_set_read_user_transform_fn;
-    vFppp_t     png_destroy_read_struct;
-    vFppp_t     png_set_write_fn;
-    vFpp_t      png_destroy_write_struct;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
     // functions
 } png16_my_t;
 
@@ -36,11 +42,7 @@ void* getPng16My(library_t* lib)
 {
     png16_my_t* my = (png16_my_t*)calloc(1, sizeof(png16_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(png_set_read_fn, vFppp_t)
-    GO(png_set_read_user_transform_fn, vFpp_t)
-    GO(png_destroy_read_struct, vFppp_t)
-    GO(png_set_write_fn, vFppp_t)
-    GO(png_destroy_write_struct, vFpp_t)
+    SUPER()
     #undef GO
     return my;
 }
@@ -49,51 +51,316 @@ void freePng16My(void* lib)
 {
     //png16_my_t *my = (png16_my_t *)lib;
 }
+#undef SUPER
 
-// TODO: remove those static and create a proprer map, png_ptr as key....
-static x86emu_t *emu_userdataread = NULL;
-static void* userread_pngptr = NULL;
-static void my16_user_read_data(void* png_ptr, void* data, int32_t length)
-{
-    if(emu_userdataread) {
-        SetCallbackArg(emu_userdataread, 0, png_ptr);
-        SetCallbackArg(emu_userdataread, 1, data);
-        SetCallbackArg(emu_userdataread, 2, (void*)length);
-        RunCallback(emu_userdataread);
-    }
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+// user_write
+#define GO(A)   \
+static uintptr_t my_user_write_fct_##A = 0;   \
+static void my_user_write_##A(void* png_ptr, void* data, int32_t length)    \
+{                                       \
+    RunFunction(my_context, my_user_write_fct_##A, 3, png_ptr, data, length);\
 }
+SUPER()
+#undef GO
+static void* finduser_writeFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_user_write_fct_##A == (uintptr_t)fct) return my_user_write_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_user_write_fct_##A == 0) {my_user_write_fct_##A = (uintptr_t)fct; return my_user_write_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_write callback\n");
+    return NULL;
+}
+// user_flush
+#define GO(A)   \
+static uintptr_t my_user_flush_fct_##A = 0;   \
+static void my_user_flush_##A(void* png_ptr)    \
+{                                       \
+    RunFunction(my_context, my_user_flush_fct_##A, 1, png_ptr);\
+}
+SUPER()
+#undef GO
+static void* finduser_flushFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_user_flush_fct_##A == (uintptr_t)fct) return my_user_flush_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_user_flush_fct_##A == 0) {my_user_flush_fct_##A = (uintptr_t)fct; return my_user_flush_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_flush callback\n");
+    return NULL;
+}
+// user_read
+#define GO(A)   \
+static uintptr_t my_user_read_fct_##A = 0;   \
+static void my_user_read_##A(void* png_ptr, void* data, int32_t length)    \
+{                                       \
+    RunFunction(my_context, my_user_read_fct_##A, 3, png_ptr, data, length);\
+}
+SUPER()
+#undef GO
+static void* finduser_readFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_user_read_fct_##A == (uintptr_t)fct) return my_user_read_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_user_read_fct_##A == 0) {my_user_read_fct_##A = (uintptr_t)fct; return my_user_read_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_read callback\n");
+    return NULL;
+}
+// error
+#define GO(A)   \
+static uintptr_t my_error_fct_##A = 0;   \
+static void my_error_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_error_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* finderrorFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_error_fct_##A == (uintptr_t)fct) return my_error_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_error_fct_##A == 0) {my_error_fct_##A = (uintptr_t)fct; return my_error_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 error callback\n");
+    return NULL;
+}
+// warning
+#define GO(A)   \
+static uintptr_t my_warning_fct_##A = 0;   \
+static void my_warning_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_warning_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findwarningFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_warning_fct_##A == (uintptr_t)fct) return my_warning_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_warning_fct_##A == 0) {my_warning_fct_##A = (uintptr_t)fct; return my_warning_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 warning callback\n");
+    return NULL;
+}
+// malloc
+#define GO(A)   \
+static uintptr_t my_malloc_fct_##A = 0;   \
+static void my_malloc_##A(void* a, unsigned long b)    \
+{                                       \
+    RunFunction(my_context, my_malloc_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findmallocFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_malloc_fct_##A == (uintptr_t)fct) return my_malloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_malloc_fct_##A == 0) {my_malloc_fct_##A = (uintptr_t)fct; return my_malloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 malloc callback\n");
+    return NULL;
+}
+// free
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;   \
+static void my_free_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_free_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findfreeFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 free callback\n");
+    return NULL;
+}
+
+// progressive_info
+#define GO(A)   \
+static uintptr_t my_progressive_info_fct_##A = 0;   \
+static void my_progressive_info_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_progressive_info_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_infoFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_info_fct_##A == (uintptr_t)fct) return my_progressive_info_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_info_fct_##A == 0) {my_progressive_info_fct_##A = (uintptr_t)fct; return my_progressive_info_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_info callback\n");
+    return NULL;
+}
+
+// progressive_end
+#define GO(A)   \
+static uintptr_t my_progressive_end_fct_##A = 0;   \
+static void my_progressive_end_##A(void* a, void* b)    \
+{                                       \
+    RunFunction(my_context, my_progressive_end_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_endFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_end_fct_##A == (uintptr_t)fct) return my_progressive_end_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_end_fct_##A == 0) {my_progressive_end_fct_##A = (uintptr_t)fct; return my_progressive_end_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_end callback\n");
+    return NULL;
+}
+
+// progressive_row
+#define GO(A)   \
+static uintptr_t my_progressive_row_fct_##A = 0;   \
+static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d)    \
+{                                       \
+    RunFunction(my_context, my_progressive_row_fct_##A, 4, a, b, c, d);\
+}
+SUPER()
+#undef GO
+static void* findprogressive_rowFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_progressive_row_fct_##A == (uintptr_t)fct) return my_progressive_row_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_progressive_row_fct_##A == 0) {my_progressive_row_fct_##A = (uintptr_t)fct; return my_progressive_row_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_row callback\n");
+    return NULL;
+}
+
+
+// user_transform
+#define GO(A)   \
+static uintptr_t my_user_transform_fct_##A = 0;   \
+static void my_user_transform_##A(void* ptr, void* row, void* data)    \
+{                                       \
+    RunFunction(my_context, my_user_transform_fct_##A, 3, ptr, row, data);\
+}
+SUPER()
+#undef GO
+static void* finduser_transformFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_user_transform_fct_##A == (uintptr_t)fct) return my_user_transform_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_user_transform_fct_##A == 0) {my_user_transform_fct_##A = (uintptr_t)fct; return my_user_transform_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_transform callback\n");
+    return NULL;
+}
+
+// write_data
+#define GO(A)   \
+static uintptr_t my_write_data_fct_##A = 0;   \
+static void my_write_data_##A(void* ptr, void* data, int32_t length)    \
+{                                       \
+    RunFunction(my_context, my_write_data_fct_##A, 3, ptr, data, length);\
+}
+SUPER()
+#undef GO
+static void* findwrite_dataFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_write_data_fct_##A == (uintptr_t)fct) return my_write_data_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_write_data_fct_##A == 0) {my_write_data_fct_##A = (uintptr_t)fct; return my_write_data_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 write_data callback\n");
+    return NULL;
+}
+
+
+// flush_data
+#define GO(A)   \
+static uintptr_t my_flush_data_fct_##A = 0;   \
+static void my_flush_data_##A(void* ptr)    \
+{                                       \
+    RunFunction(my_context, my_flush_data_fct_##A, 1, ptr);\
+}
+SUPER()
+#undef GO
+static void* findflush_dataFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_flush_data_fct_##A == (uintptr_t)fct) return my_flush_data_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_flush_data_fct_##A == 0) {my_flush_data_fct_##A = (uintptr_t)fct; return my_flush_data_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libpng16 flush_data callback\n");
+    return NULL;
+}
+#undef SUPER
 
 EXPORT void my16_png_set_read_fn(x86emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
 {
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
-    if(emu_userdataread) {
-        if(read_data_fn) {printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_read_fn without clearing\n");}
-        FreeCallback(emu_userdataread);
-        userread_pngptr = NULL;
-        emu_userdataread = NULL;
-    }
-
-    if(read_data_fn) {
-        userread_pngptr = png_ptr;
-        emu_userdataread = AddCallback(emu, (uintptr_t)read_data_fn, 3, NULL, NULL, NULL, NULL);
-        my->png_set_read_fn(png_ptr, io_ptr, my16_user_read_data);
-    } else {
-        my->png_set_read_fn(png_ptr, io_ptr, NULL);
-    }
-}
-
-static x86emu_t *emu_userdatatransform = NULL;
-static void* usertransform_pngptr = NULL;
-static void my16_user_transform_fn(void* ptr, void* row_info, void* data)
-{
-    if(emu_userdatatransform) {
-        SetCallbackArg(emu_userdatatransform, 0, ptr);
-        SetCallbackArg(emu_userdatatransform, 1, row_info);
-        SetCallbackArg(emu_userdatatransform, 2, data);
-        RunCallback(emu_userdatatransform);
-    }
+    my->png_set_read_fn(png_ptr, io_ptr, finduser_readFct(read_data_fn));
 }
 
 EXPORT void my16_png_set_read_user_transform_fn(x86emu_t *emu, void* png_ptr, void* read_transform_fn)
@@ -101,64 +368,15 @@ EXPORT void my16_png_set_read_user_transform_fn(x86emu_t *emu, void* png_ptr, vo
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
-    if(emu_userdatatransform) {
-        if(read_transform_fn) {printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_read_user_transform_fn without clearing\n");}
-        FreeCallback(emu_userdatatransform);
-        usertransform_pngptr = NULL;
-        emu_userdatatransform = NULL;
-    }
-
-    if(read_transform_fn) {
-        usertransform_pngptr = png_ptr;
-        emu_userdatatransform = AddCallback(emu, (uintptr_t)read_transform_fn, 3, NULL, NULL, NULL, NULL);
-        my->png_set_read_user_transform_fn(png_ptr, my16_user_transform_fn);
-    } else {
-        my->png_set_read_user_transform_fn(png_ptr, NULL);
-    }
+    my->png_set_read_user_transform_fn(png_ptr, finduser_transformFct(read_transform_fn));
 }
 
-EXPORT void my16_png_destroy_read_struct(x86emu_t* emu, void* png_ptr_ptr, void* info_ptr_ptr, void* end_info_ptr_ptr)
+EXPORT void my16_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, void* error_fn, void* warning_fn)
 {
-    if(!png_ptr_ptr)
-        return;
-
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
-    // clean up box86 stuff first
-    void* ptr = *(void**)png_ptr_ptr;
-    if(usertransform_pngptr == ptr) {
-        usertransform_pngptr = NULL;
-        FreeCallback(emu_userdatatransform);
-        emu_userdatatransform = NULL;
-    }
-    if(userread_pngptr == ptr) {
-        userread_pngptr = NULL;
-        FreeCallback(emu_userdataread);
-        emu_userdataread = NULL;
-    }
-    // ok, clean other stuffs now
-    my->png_destroy_read_struct(png_ptr_ptr, info_ptr_ptr, end_info_ptr_ptr);
-}
 
-static x86emu_t *emu_userdatawrite = NULL;
-static void* userwrite_pngptr = NULL;
-static void my16_user_write_data(void* png_ptr, void* data, int32_t length)
-{
-    if(emu_userdatawrite) {
-        SetCallbackArg(emu_userdatawrite, 0, png_ptr);
-        SetCallbackArg(emu_userdatawrite, 1, data);
-        SetCallbackArg(emu_userdatawrite, 2, (void*)length);
-        RunCallback(emu_userdatawrite);
-    }
-}
-static x86emu_t *emu_userdataflush = NULL;
-static void* userflush_pngptr = NULL;
-static void my16_user_flush_data(void* png_ptr)
-{
-    if(emu_userdataflush) {
-        SetCallbackArg(emu_userdataflush, 0, png_ptr);
-        RunCallback(emu_userdataflush);
-    }
+    my->png_set_error_fn(pngptr, errorptr, finderrorFct(error_fn), findwarningFct(warning_fn));
 }
 
 EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
@@ -166,53 +384,9 @@ EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, 
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
-    if(write_fn && emu_userdatawrite) {
-        printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_write_fn without clearing\n");
-        FreeCallback(emu_userdatawrite);
-        emu_userdatawrite = NULL;
-        userwrite_pngptr = NULL;
-    }
-    if(flush_fn && emu_userdataflush) {
-        printf_log(LOG_NONE, "Warning, pn16 is using 2* png_set_write_fn without clearing\n");
-        FreeCallback(emu_userdataflush);
-        emu_userdataflush = NULL;
-        userflush_pngptr = NULL;
-    }
-
-    if(write_fn) {
-        userwrite_pngptr = png_ptr;
-        emu_userdatawrite = AddCallback(emu, (uintptr_t)write_fn, 3, NULL, NULL, NULL, NULL);
-    }
-    if(flush_fn) {
-        userflush_pngptr = png_ptr;
-        emu_userdataflush = AddCallback(emu, (uintptr_t)flush_fn, 1, NULL, NULL, NULL, NULL);
-    }
-
-    my->png_set_write_fn(png_ptr, (write_fn)?my16_user_write_data:NULL, (flush_fn)?my16_user_flush_data:NULL);
+    my->png_set_write_fn(png_ptr, findwrite_dataFct(write_fn), findflush_dataFct(flush_fn));
 }
 
-EXPORT void my16_png_destroy_write_struct(x86emu_t* emu, void* png_ptr_ptr, void* info_ptr_ptr)
-{
-    if(!png_ptr_ptr)
-        return;
-
-    library_t * lib = GetLibInternal(png16Name);
-    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
-    // clean up box86 stuff first
-    void* ptr = *(void**)png_ptr_ptr;
-    if(userflush_pngptr == ptr) {
-        userflush_pngptr = NULL;
-        FreeCallback(emu_userdataflush);
-        emu_userdataflush = NULL;
-    }
-    if(userwrite_pngptr == ptr) {
-        userwrite_pngptr = NULL;
-        FreeCallback(emu_userdatawrite);
-        emu_userdatawrite = NULL;
-    }
-    // ok, clean other stuffs now
-    my->png_destroy_write_struct(png_ptr_ptr, info_ptr_ptr);
-}
 
 #define CUSTOM_INIT \
     lib->priv.w.altprefix=strdup("yes"); \

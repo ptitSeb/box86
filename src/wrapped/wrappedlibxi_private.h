@@ -41,7 +41,7 @@ GO(XIChangeProperty, vFpippiipi)
 //GO(XIDefineCursor, 
 GO(XIDeleteProperty, vFpip)
 GO(XIFreeDeviceInfo, vFp)
-//GO(XIGetClientPointer, 
+GO(XIGetClientPointer, iFppp)
 //GO(XIGetFocus, 
 GO(XIGetProperty, iFpipllippppp)
 GO(XIGetSelectedEvents, iFpppi)
@@ -56,7 +56,7 @@ GO(XIQueryDevice, pFpip)
 GO(XIQueryPointer, iFpipppppppppp)
 GO(XIQueryVersion, iFppp)
 GO(XISelectEvents, iFpppi)
-//GO(XISetClientPointer, 
+GO(XISetClientPointer, iFppi)
 //GO(XISetFocus, 
 //GO(XIUndefineCursor, 
 //GO(XIUngrabButton, 
