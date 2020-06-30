@@ -613,6 +613,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             //MOV_REG(xESP, x1);
             break;
 
+        case 0x64:
+            addr = dynarecFS(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
         case 0x65:
             addr = dynarecGS(dyn, addr, ip, ninst, ok, need_epilog);
             break;
