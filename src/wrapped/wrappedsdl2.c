@@ -74,6 +74,8 @@ typedef struct
 typedef void* (*pFv_t)();
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFip_t)(int32_t, void*);
+typedef int32_t (*iFWW_t)(uint16_t, uint16_t);
+typedef int32_t (*iFS_t)(SDL_JoystickGUID);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFS_t)(SDL_JoystickGUID);
@@ -105,54 +107,66 @@ typedef SDL_JoystickGUID (*SFi_t)(int32_t);
 typedef SDL_JoystickGUID (*SFp_t)(void*);
 typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
 
+#define SUPER() \
+    GO(SDL_OpenAudio, iFpp_t)                       \
+    GO(SDL_OpenAudioDevice, iFpippi_t)              \
+    GO(SDL_LoadFile_RW, pFpi_t)                     \
+    GO(SDL_LoadBMP_RW, pFpi_t)                      \
+    GO(SDL_RWFromConstMem, pFpi_t)                  \
+    GO(SDL_RWFromFP, pFpi_t)                        \
+    GO(SDL_RWFromFile, pFpp_t)                      \
+    GO(SDL_RWFromMem, pFpi_t)                       \
+    GO(SDL_SaveBMP_RW, iFppi_t)                     \
+    GO(SDL_LoadWAV_RW, pFpippp_t)                   \
+    GO(SDL_GameControllerAddMappingsFromRW, iFpi_t) \
+    GO(SDL_AllocRW, sdl2_allocrw)                   \
+    GO(SDL_FreeRW, sdl2_freerw)                     \
+    GO(SDL_ReadU8, uFp_t)                           \
+    GO(SDL_ReadBE16, uFp_t)                         \
+    GO(SDL_ReadBE32, uFp_t)                         \
+    GO(SDL_ReadBE64, UFp_t)                         \
+    GO(SDL_ReadLE16, uFp_t)                         \
+    GO(SDL_ReadLE32, uFp_t)                         \
+    GO(SDL_ReadLE64, UFp_t)                         \
+    GO(SDL_WriteU8, uFpC_t)                         \
+    GO(SDL_WriteBE16, uFpW_t)                       \
+    GO(SDL_WriteBE32, uFpu_t)                       \
+    GO(SDL_WriteBE64, uFpU_t)                       \
+    GO(SDL_WriteLE16, uFpW_t)                       \
+    GO(SDL_WriteLE32, uFpu_t)                       \
+    GO(SDL_WriteLE64, uFpU_t)                       \
+    GO(SDL_AddTimer, uFupp_t)                       \
+    GO(SDL_RemoveTimer, uFu_t)                      \
+    GO(SDL_CreateThread, pFppp_t)                   \
+    GO(SDL_KillThread, vFp_t)                       \
+    GO(SDL_SetEventFilter, vFpp_t)                  \
+    GO(SDL_LogSetOutputFunction, vFpp_t)            \
+    GO(SDL_LogMessageV, vFiupp_t)                   \
+    GO(SDL_GL_GetProcAddress, pFp_t)                \
+    GO(SDL_TLSSet, iFupp_t)                         \
+    GO(SDL_JoystickGetDeviceGUID, SFi_t)            \
+    GO(SDL_JoystickGetGUID, SFp_t)                  \
+    GO(SDL_JoystickGetGUIDFromString, SFp_t)        \
+    GO(SDL_GameControllerGetBindForAxis, SFpi_t)    \
+    GO(SDL_GameControllerGetBindForButton, SFpi_t)  \
+    GO(SDL_AddEventWatch, vFpp_t)                   \
+    GO(SDL_DelEventWatch, vFpp_t)                   \
+    GO(SDL_GameControllerMappingForGUID, pFS_t)     \
+    GO(SDL_SaveAllDollarTemplates, iFp_t)           \
+    GO(SDL_SaveDollarTemplate, iFip_t)              \
+    GO(SDL_GetJoystickGUIDInfo, vFSppp_t)           \
+    GO(SDL_IsJoystickPS4, iFWW_t)                   \
+    GO(SDL_IsJoystickNintendoSwitchPro, iFWW_t)     \
+    GO(SDL_IsJoystickSteamController, iFWW_t)       \
+    GO(SDL_IsJoystickXbox360, iFWW_t)               \
+    GO(SDL_IsJoystickXboxOne, iFWW_t)               \
+    GO(SDL_IsJoystickXInput, iFS_t)                 \
+    GO(SDL_IsJoystickHIDAPI, iFS_t)                 \
+
 typedef struct sdl2_my_s {
-    iFpp_t     SDL_OpenAudio;
-    iFpippi_t  SDL_OpenAudioDevice;
-    pFpi_t     SDL_LoadFile_RW;
-    pFpi_t     SDL_LoadBMP_RW;
-    pFpi_t     SDL_RWFromConstMem;
-    pFpi_t     SDL_RWFromFP;
-    pFpp_t     SDL_RWFromFile;
-    pFpi_t     SDL_RWFromMem;
-    iFppi_t    SDL_SaveBMP_RW;
-    pFpippp_t  SDL_LoadWAV_RW;
-    iFpi_t     SDL_GameControllerAddMappingsFromRW;
-    sdl2_allocrw  SDL_AllocRW;
-    sdl2_freerw   SDL_FreeRW;
-    uFp_t      SDL_ReadU8;
-    uFp_t      SDL_ReadBE16;
-    uFp_t      SDL_ReadBE32;
-    UFp_t      SDL_ReadBE64;
-    uFp_t      SDL_ReadLE16;
-    uFp_t      SDL_ReadLE32;
-    UFp_t      SDL_ReadLE64;
-    uFpC_t     SDL_WriteU8;
-    uFpW_t     SDL_WriteBE16;
-    uFpu_t     SDL_WriteBE32;
-    uFpU_t     SDL_WriteBE64;
-    uFpW_t     SDL_WriteLE16;
-    uFpu_t     SDL_WriteLE32;
-    uFpU_t     SDL_WriteLE64;
-    uFupp_t    SDL_AddTimer;
-    uFu_t      SDL_RemoveTimer;
-    pFppp_t    SDL_CreateThread;
-    vFp_t      SDL_KillThread;
-    vFpp_t     SDL_SetEventFilter;
-    vFpp_t     SDL_LogSetOutputFunction;
-    vFiupp_t   SDL_LogMessageV;
-    pFp_t      SDL_GL_GetProcAddress;
-    iFupp_t    SDL_TLSSet;
-    SFi_t      SDL_JoystickGetDeviceGUID;
-    SFp_t      SDL_JoystickGetGUID;
-    SFp_t      SDL_JoystickGetGUIDFromString;
-    SFpi_t     SDL_GameControllerGetBindForAxis;
-    SFpi_t     SDL_GameControllerGetBindForButton;
-    vFpp_t     SDL_AddEventWatch;
-    vFpp_t     SDL_DelEventWatch;
-    pFS_t      SDL_GameControllerMappingForGUID;
-    iFp_t      SDL_SaveAllDollarTemplates;
-    iFip_t     SDL_SaveDollarTemplate;
-    vFSppp_t   SDL_GetJoystickGUIDInfo;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
     // timer map
     kh_timercb_t    *timercb;
     uint32_t        settimer;
@@ -169,53 +183,7 @@ void* getSDL2My(library_t* lib)
 {
     sdl2_my_t* my = (sdl2_my_t*)calloc(1, sizeof(sdl2_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(SDL_OpenAudio, iFpp_t)
-    GO(SDL_OpenAudioDevice, iFpippi_t)
-    GO(SDL_LoadBMP_RW, pFpi_t)
-    GO(SDL_RWFromConstMem, pFpi_t)
-    GO(SDL_RWFromFP, pFpi_t)
-    GO(SDL_RWFromFile, pFpp_t)
-    GO(SDL_RWFromMem, pFpi_t)
-    GO(SDL_SaveBMP_RW, iFppi_t)
-    GO(SDL_LoadWAV_RW, pFpippp_t)
-    GO(SDL_GameControllerAddMappingsFromRW, iFpi_t)
-    GO(SDL_AllocRW, sdl2_allocrw)
-    GO(SDL_FreeRW, sdl2_freerw)
-    GO(SDL_ReadU8, uFp_t)
-    GO(SDL_ReadBE16, uFp_t)
-    GO(SDL_ReadBE32, uFp_t)
-    GO(SDL_ReadBE64, UFp_t)
-    GO(SDL_ReadLE16, uFp_t)
-    GO(SDL_ReadLE32, uFp_t)
-    GO(SDL_ReadLE64, UFp_t)
-    GO(SDL_WriteU8, uFpC_t)
-    GO(SDL_WriteBE16, uFpW_t)
-    GO(SDL_WriteBE32, uFpu_t)
-    GO(SDL_WriteBE64, uFpU_t)
-    GO(SDL_WriteLE16, uFpW_t)
-    GO(SDL_WriteLE32, uFpu_t)
-    GO(SDL_WriteLE64, uFpU_t)
-    GO(SDL_AddTimer, uFupp_t)
-    GO(SDL_RemoveTimer, uFu_t)
-    GO(SDL_CreateThread, pFppp_t)
-    GO(SDL_KillThread, vFp_t)
-    GO(SDL_SetEventFilter, vFpp_t)
-    GO(SDL_LogSetOutputFunction, vFpp_t)
-    GO(SDL_LogMessageV, vFiupp_t)
-    GO(SDL_GL_GetProcAddress, pFp_t)
-    GO(SDL_TLSSet, iFupp_t)
-    GO(SDL_JoystickGetDeviceGUID, SFi_t)
-    GO(SDL_JoystickGetGUID, SFp_t)
-    GO(SDL_JoystickGetGUIDFromString, SFp_t)
-    GO(SDL_GameControllerGetBindForAxis, SFpi_t)
-    GO(SDL_GameControllerGetBindForButton, SFpi_t)
-    GO(SDL_SetEventFilter, vFpp_t)
-    GO(SDL_AddEventWatch, vFpp_t)
-    GO(SDL_DelEventWatch, vFpp_t)
-    GO(SDL_GameControllerMappingForGUID, pFS_t)
-    GO(SDL_SaveAllDollarTemplates, iFp_t)
-    GO(SDL_SaveDollarTemplate, iFip_t)
-    GO(SDL_GetJoystickGUIDInfo, vFSppp_t)
+    SUPER()
     #undef GO
     my->timercb = kh_init(timercb);
     my->threads = kh_init(timercb);
@@ -239,7 +207,7 @@ void freeSDL2My(void* lib)
         FreeCallback(my->sdl2_evtfilter);
     }*/
 }
-
+#undef SUPER
 
 static void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
 {
@@ -978,6 +946,70 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, u
         if(product) *product = 0;
         if(version) *version = 0;
     }
+}
+
+EXPORT int32_t my2_SDL_IsJoystickPS4(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickPS4)
+        return my->SDL_IsJoystickPS4(vendor, product_id);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickNintendoSwitchPro(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickNintendoSwitchPro)
+        return my->SDL_IsJoystickNintendoSwitchPro(vendor, product_id);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickSteamController(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickSteamController)
+        return my->SDL_IsJoystickSteamController(vendor, product_id);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickXbox360(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickXbox360)
+        return my->SDL_IsJoystickXbox360(vendor, product_id);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickXboxOne(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickXboxOne)
+        return my->SDL_IsJoystickXboxOne(vendor, product_id);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickXInput(x86emu_t* emu, void *p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickXInput)
+        return my->SDL_IsJoystickXInput(*(SDL_JoystickGUID*)p);
+    // fallback
+    return 0;
+}
+EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x86emu_t* emu, void *p)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    if(my->SDL_IsJoystickHIDAPI)
+        return my->SDL_IsJoystickHIDAPI(*(SDL_JoystickGUID*)p);
+    // fallback
+    return 0;
 }
 
 const char* sdl2Name = "libSDL2-2.0.so.0";

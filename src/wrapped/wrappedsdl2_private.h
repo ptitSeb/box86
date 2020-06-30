@@ -680,3 +680,10 @@ GO2(SDL_mutexV, iFp, SDL_UnlockMutex)
 
 GO(SDL_doesntexist, IFpIi)
 
+GOM(SDL_IsJoystickPS4, iFEWW)
+GOM(SDL_IsJoystickNintendoSwitchPro, iFEWW)
+GOM(SDL_IsJoystickSteamController, iFEWW)
+GOM(SDL_IsJoystickXbox360, iFEWW)
+GOM(SDL_IsJoystickXboxOne, iFEWW)
+GOM(SDL_IsJoystickXInput, iFEV)
+GOM(SDL_IsJoystickHIDAPI, iFEV)
