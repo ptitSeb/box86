@@ -931,7 +931,9 @@ EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
     // find callbacks that have function and userdata...    
     if(p)
         cb = GetCallback1Arg(emu, (uintptr_t)p, 2, userdata);
-    my->SDL_AddEventWatch(cb?my2_eventfilter:NULL, cb);
+    my->SDL_DelEventWatch(cb?my2_eventfilter:NULL, cb);
+    if(cb)
+        FreeCallback(cb);
 }
 
 // DL functions from wrappedlibdl.c
