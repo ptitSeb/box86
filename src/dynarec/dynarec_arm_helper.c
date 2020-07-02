@@ -360,7 +360,7 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
         uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
         addr = *(uint32_t*)a1; 
     }
-    if(!addr)
+    if(addr<0x02800000)    // this the address box86 load at, anything lower is suspicious
         return 0;
     onebridge_t *b = (onebridge_t*)(addr);
     if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0) {

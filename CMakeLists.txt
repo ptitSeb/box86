@@ -106,6 +106,9 @@ if(ODROID)
     set(NOALIGN OFF)
 endif()
 
+set(BOX86_ELF_ADDRESS "0x02800000")
+
+add_definitions(-DBOX86_ELF_ADDRESS=${BOX86_ELF_ADDRESS})
 
 if(LD80BITS)
     add_definitions(-DHAVE_LD80BITS)
@@ -428,14 +431,14 @@ endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
-        set_target_properties(${BOX86} PROPERTIES LINK_FLAGS "-rdynamic -Wl,-Ttext-segment,0x02800000")
+        set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic -Wl,-Ttext-segment,${BOX86_ELF_ADDRESS})
     else()
         set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic)
     endif()
 else()
     target_link_options(${BOX86} PUBLIC -rdynamic)
     if(NOT NOLOADADDR)
-        target_link_options(${BOX86} PUBLIC -Wl,-Ttext-segment,0x02800000)
+        target_link_options(${BOX86} PUBLIC -Wl,-Ttext-segment,${BOX86_ELF_ADDRESS})
     endif()
 endif()
 
