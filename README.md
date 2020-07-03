@@ -5,6 +5,8 @@ Linux Userspace x86 Emulator with a twist
 
 Box86 will let you run x86 Linux programs (games) on non-x86 Linux, like ARM (host system needs to be 32bit little-endian).
 
+You *NEED* a 32bits subsystem to run or build box86. Box86 is useless on 64bits only system. Also, you *NEED* a 32bits toolchain to build box86. A toolchain that support only 64bits will not compile box86, and you'll get errors (typicalu on aarch64, you get "-marm" not recognized).
+
 Because Box86 uses the native version for some "system" libraries, like libc, libm, or SDL and OpenGL, it's easy to integrate and use, and performances can be surprinsigly high in some cases.
 
 Most x86 Games need OpenGL, so on ARM platforms, a solution like [gl4es](https://github.com/ptitSeb/gl4es) is probably needed.
