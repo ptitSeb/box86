@@ -1,6 +1,8 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
 #error meh!
 #endif
+// General note: pthread_t is unsigned long int
+// cpu_set_t is a struct with an array, default size is fixed for all architecture
 
 // __errno_location
 // fork
@@ -26,11 +28,7 @@ GOM(pthread_attr_getstack, iFEppp)
 GO(pthread_attr_getstackaddr, iFpp)
 GO(pthread_attr_getstacksize, iFpp)
 GO(pthread_attr_init, iFp)
-#ifdef NOALIGN
-GO(pthread_attr_setaffinity_np, iFpup)  // 3rd argument is const cpu_set_t *, should it be wrapped or something?
-#else
 GOM(pthread_attr_setaffinity_np, iFEpup)
-#endif
 GO(pthread_attr_setdetachstate, iFpi)
 GO(pthread_attr_setguardsize, iFpu)
 GO(pthread_attr_setinheritsched, iFpi)
@@ -77,7 +75,7 @@ GOM(pthread_create, iFEpppp)
 GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
 GO(pthread_exit, vFp)
-GO(pthread_getaffinity_np, iFpup)
+GOM(pthread_getaffinity_np, iFEpup)
 GO(pthread_getattr_np, iFup)
 GO(pthread_getconcurrency, iFv)
 GO(pthread_getcpuclockid, iFup)
@@ -149,11 +147,7 @@ GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
 GO(__pthread_rwlock_wrlock, iFp)
 GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
 GO(pthread_self, uFv)
-#ifdef NOALIGN
-GO(pthread_setaffinity_np, iFpup) // need to do something about 3rd argument "struct cpu_set_t"?
-#else
-GOM(pthread_setaffinity_np, iFEpup)
-#endif
+GOM(pthread_setaffinity_np, iFELup)
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
 GO(pthread_setconcurrency, iFi)

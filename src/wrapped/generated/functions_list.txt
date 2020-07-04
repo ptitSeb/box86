@@ -519,9 +519,11 @@
 #() iFEiip
 #() iFEipp
 #() iFEupp
+#() iFELup
 #() iFEpii
 #() iFEpip
 #() iFEpuu
+#() iFEpup
 #() iFEpLi
 #() iFEppi
 #() iFEppu
@@ -1524,7 +1526,6 @@
 #!defined(NOALIGN) iFEpd
 #!defined(NOALIGN) IFEpi
 #!defined(NOALIGN) dFEpi
-#!defined(NOALIGN) iFEpup
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEpppi

@@ -1,8 +1,10 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <errno.h>
+#include <pthread.h>
 
 #include "wrappedlibs.h"
 
@@ -35,6 +37,9 @@ int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope);
 void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg);
 void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec);
 int my_pthread_kill(x86emu_t* emu, void* thread, int sig);
+int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset);
+int my_pthread_setaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset);
+int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset);
 
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
@@ -57,22 +62,6 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
     else 
         strncpy((char*)n, "dummy", s);
     return 0;
-}
-
-EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, void* thread, int cpusetsize, void* cpuset)
-{
-    printf_log(LOG_INFO, "Warning, call to pthread_setaffinity_np(...) ignored\n");
-    //the cpuset needs transformation, from i386 to current architecture
-    // ignoring for now
-    return 0;   // faking success
-}
-
-EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
-{
-    printf_log(LOG_INFO, "Warning, call to pthread_attr_setaffinity_np(...) ignored\n");
-    //the cpuset needs transformation, from i386 to current architecture
-    // ignoring for now
-    return 0;   // faking success
 }
 
 EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
@@ -112,3 +101,4 @@ EXPORT void my___pthread_initialize()
 }
 
 #include "wrappedlib_init.h"
+

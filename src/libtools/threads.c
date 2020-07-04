@@ -544,7 +544,7 @@ EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)
 
 EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
 {
-    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, call to pthread_attr_setaffinity_np(...) changed\n");
+    if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
 	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
     //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
     // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
@@ -560,6 +560,54 @@ EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exe
 	_pthread_cleanup_pop_restore(buffer, exec);
 }
 
+// getaffinity_np (pthread or attr) hav an "old" version (glibc-2.3.3) that only have 2 args, cpusetsize is omited
+EXPORT int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
+{
+	if(cpusetsize>0x1000) {
+		// probably old version of the function, that didn't have cpusetsize....
+		cpuset = (void*)cpusetsize;
+		cpusetsize = sizeof(cpu_set_t);
+	} 
+
+	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
+	if(ret<0) {
+		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", thread, cpusetsize, cpuset, errno);
+	}
+
+    return ret;
+}
+
+EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
+{
+	if(cpusetsize>0x1000) {
+		// probably old version of the function, that didn't have cpusetsize....
+		cpuset = (void*)cpusetsize;
+		cpusetsize = sizeof(cpu_set_t);
+	} 
+
+	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
+	if(ret<0) {
+		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", thread, cpusetsize, cpuset, errno);
+	}
+
+    return ret;
+}
+
+EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
+{
+	if(cpusetsize>0x1000) {
+		// probably old version of the function, that didn't have cpusetsize....
+		cpuset = (void*)cpusetsize;
+		cpusetsize = sizeof(cpu_set_t);
+	} 
+
+	int ret = pthread_attr_setaffinity_np(attr, cpusetsize, cpuset);
+	if(ret<0) {
+		printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
+	}
+
+    return ret;
+}
 
 EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 {
