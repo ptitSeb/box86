@@ -752,6 +752,22 @@ uintptr_t GetFSBaseEmu(x86emu_t* emu)
     return (uintptr_t)GetSegmentBase(emu->segs[_FS]);
 }
 
+const char* getAddrFunctionName(uintptr_t addr)
+{
+    static char ret[1000];
+    uint32_t sz = 0;
+    uintptr_t start = 0;
+    const char* symbname = FindNearestSymbolName(FindElfAddress(my_context, addr), (void*)addr, &start, &sz);
+    if(symbname && addr>=start && (addr<(start+sz) || !sz)) {
+        if(addr==start)
+            sprintf(ret, "%s/%s", ElfName(FindElfAddress(my_context, addr)), symbname);
+        else
+            sprintf(ret, "%s/%s + %d", ElfName(FindElfAddress(my_context, addr)), symbname, addr - start);
+    } else
+        sprintf(ret, "???");
+    return ret;
+}
+
 void printFunctionAddr(uintptr_t nextaddr, const char* text)
 {
     uint32_t sz = 0;
