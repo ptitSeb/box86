@@ -431,7 +431,7 @@ endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
-        set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic -Wl,-Ttext-segment,${BOX86_ELF_ADDRESS})
+        set_target_properties(${BOX86} PROPERTIES LINK_FLAGS "-rdynamic -Wl,-Ttext-segment,${BOX86_ELF_ADDRESS}")
     else()
         set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic)
     endif()
