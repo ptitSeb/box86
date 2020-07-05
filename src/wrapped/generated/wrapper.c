@@ -39,11 +39,7 @@ static void* io_convert(void* v)
 #else
 #define ST0val ST0.d
 #endif
-#ifndef NOALIGN
-int of_convert(int flag) { return (flag&~0740000) | ((flag&0140000)<<2) | ((flag&0600000)>>2);}
-#else
-int of_convert(int flag) { return flag; }
-#endif
+int of_convert(int);
 typedef int32_t (*iF_t)();
 typedef void (*vFE_t)(x86emu_t*);
 typedef void (*vFv_t)(void);

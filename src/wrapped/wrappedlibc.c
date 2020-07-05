@@ -133,7 +133,7 @@ typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
-typedef int32_t (*iFiiuuuuuu_t)(int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
 
 #define SUPER() \
@@ -516,6 +516,62 @@ int EXPORT my_uname(struct utsname *buf)
     strcpy(buf->machine, /*(box86_steam)?"x86_64":*/"i686");
     return ret;
 }
+
+#define X86_O_CREAT        0x40     // octal     0100
+#define X86_O_EXCL         0x80     // octal     0200
+#define X86_O_NOCTTY       0x100    // octal     0400
+#define X86_O_TRUNC        0x200    // octal    01000
+#define X86_O_APPEND       0x400    // octal    02000
+#define X86_O_NONBLOCK     0x800    // octal    04000
+#define X86_O_SYNC         0x101000 // octal 04010000
+#define X86_O_DSYNC        0x1000   // octal   010000
+#define X86_O_RSYNC        O_SYNC
+#define X86_FASYNC         020000
+#define X86_O_DIRECT       040000
+#define X86_O_LARGEFILE    0100000
+#define X86_O_DIRECTORY    0200000
+#define X86_O_NOFOLLOW     0400000
+#define X86_O_NOATIME      01000000
+#define X86_O_CLOEXEC      02000000
+
+#define SUPER()     \
+    GO(O_CREAT)     \
+    GO(O_EXCL)      \
+    GO(O_NOCTTY)    \
+    GO(O_TRUNC)     \
+    GO(O_APPEND)    \
+    GO(O_NONBLOCK)  \
+    GO(O_SYNC)      \
+    GO(O_DSYNC)     \
+    GO(O_RSYNC)     \
+    GO(FASYNC)      \
+    GO(O_DIRECT)    \
+    GO(O_LARGEFILE) \
+    GO(O_DIRECTORY) \
+    GO(O_NOFOLLOW)  \
+    GO(O_NOATIME)   \
+    GO(O_CLOEXEC)
+
+// x86->arm
+int of_convert(int a)
+{
+    int b=0;
+    #define GO(A) if(a&X86_##A) {a&=~X86_##A; b|=A;}
+    SUPER();
+    #undef GO
+    return a|b;
+}
+
+// arm->x86
+int of_unconvert(int a)
+{
+    int b=0;
+    #define GO(A) if(a&A) {a&=~A; b|=X86_##A;}
+    SUPER();
+    #undef GO
+    return a|b;
+}
+#undef SUPER
 
 
 EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
@@ -1666,20 +1722,28 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 
-int of_convert(int flag);
 EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
     library_t* lib = GetLibInternal(libcName);
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "fcntl64");
+    iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
     if(b==F_SETFL)
         d1 = of_convert(d1);
-    if(f)
-        return ((iFiiuuuuuu_t)f)(a, b, d1, d2, d3, d4, d5, d6);
+    if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
+    {
+        my_flock64_t fl;
+        AlignFlock64(&fl, (void*)d1);
+        int ret = f?f(a, b, &fl):fcntl(a, b, &fl);
+        UnalignFlock64((void*)d1, &fl);
+        return ret;
+    }
     //TODO: check if better to use the syscall or regular fcntl?
-    //return syscall(__NR_fcntl64, a, b, d1, d2, d3, d4);   // should be enough
-    int ret = fcntl(a, b, d1, d2, d3, d4, d5, d6);
+    //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
+    int ret = f?f(a, b, d1):fcntl(a, b, d1);
+
+    if(b==F_GETFL && ret!=-1)
+        ret = of_unconvert(ret);
 
     return ret;
 }
@@ -1705,7 +1769,11 @@ EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
         UnalignFlock64((void*)d1, &fl);
         return ret;
     }
-    return fcntl(a, b, d1, d2, d3, d4, d5, d6);
+    int ret = fcntl(a, b, d1);
+    if(b==F_GETFL && ret!=-1)
+        ret = of_unconvert(ret);
+    
+    return ret;    
 }
 EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
 

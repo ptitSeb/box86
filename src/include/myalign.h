@@ -266,3 +266,7 @@ typedef struct __attribute__((packed)) x86_flock64_s {
 
 void UnalignFlock64(void* dest, void* source); // Arm -> x86
 void AlignFlock64(void* dest, void* source);   // x86 -> Arm
+
+// defined in wrapperlibc.c
+int of_convert(int);    // x86->arm
+int of_unconvert(int);  // arm->x86
