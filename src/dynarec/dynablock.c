@@ -218,11 +218,13 @@ void MarkDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_DEBUG, "Marked %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
+    dynarec_log(LOG_DEBUG, "Marked %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", (*dynablocks)->blocks?(kh_size((*dynablocks)->blocks)):0, (*dynablocks)->blocks?(kh_n_buckets((*dynablocks)->blocks)):0, (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
-    kh_foreach_value((*dynablocks)->blocks, db, 
-        ProtectDynablock(db);
-    );
+    if((*dynablocks)->blocks) {
+        kh_foreach_value((*dynablocks)->blocks, db, 
+            ProtectDynablock(db);
+        );
+    }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
             ProtectDynablock((*dynablocks)->direct[i]);
@@ -236,11 +238,13 @@ void ProtectkDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_DEBUG, "Protect %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", kh_size((*dynablocks)->blocks), kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
+    dynarec_log(LOG_DEBUG, "Protect %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", (*dynablocks)->blocks?(kh_size((*dynablocks)->blocks)):0, (*dynablocks)->blocks?(kh_n_buckets((*dynablocks)->blocks)):0, (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
-    kh_foreach_value((*dynablocks)->blocks, db, 
-        MarkDynablock(db);
-    );
+    if((*dynablocks)->blocks) {
+        kh_foreach_value((*dynablocks)->blocks, db, 
+            MarkDynablock(db);
+        );
+    }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
             MarkDynablock((*dynablocks)->direct[i]);
