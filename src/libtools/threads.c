@@ -262,6 +262,7 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
+	SetFS(emuthread, GetFS(emu));
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
@@ -571,7 +572,7 @@ EXPORT int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpuset
 
 	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
 	if(ret<0) {
-		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", thread, cpusetsize, cpuset, errno);
+		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
 	}
 
     return ret;
@@ -587,7 +588,7 @@ EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, pthread_t thread, int cpuset
 
 	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
 	if(ret<0) {
-		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", thread, cpusetsize, cpuset, errno);
+		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
 	}
 
     return ret;

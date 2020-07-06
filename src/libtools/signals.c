@@ -127,6 +127,8 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     old_start = 0; old_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = my_context->emu_sig;
+
+    SetFS(emu, default_fs);
     
     pthread_mutex_unlock(&emu->context->mutex_trace);   // unlock trace, just in case
     

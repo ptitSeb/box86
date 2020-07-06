@@ -24,9 +24,24 @@ typedef struct thread_area_s
     unsigned int  useable:1;
 } thread_area_t;
 
+static pthread_once_t thread_key_once0 = PTHREAD_ONCE_INIT;
+static pthread_once_t thread_key_once1 = PTHREAD_ONCE_INIT;
+static pthread_once_t thread_key_once2 = PTHREAD_ONCE_INIT;
+
+static void thread_key_alloc0() {
+	pthread_key_create(&my_context->segtls[0].key, NULL);
+}
+static void thread_key_alloc1() {
+	pthread_key_create(&my_context->segtls[1].key, NULL);
+}
+static void thread_key_alloc2() {
+	pthread_key_create(&my_context->segtls[2].key, NULL);
+}
+
 uint32_t my_set_thread_area(thread_area_t* td)
 {
     printf_log(LOG_DEBUG, "set_thread_area(%p[%d/base=%p/limit=%u/32bits:%u/%u/%u...])\n", td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only);
+
     int isempty = 0;
     // first, check if the "user_desc", here td, is "empty"
     if(td->read_exec_only==1 && td->seg_not_present==1)
@@ -47,25 +62,33 @@ uint32_t my_set_thread_area(thread_area_t* td)
             errno = ESRCH;
             return (uint32_t)-1;
         }
+        idx+=7;
         td->entry_number = idx;
     }
-    if(isempty && (td->entry_number<0 || td->entry_number>2)) {
+    if(isempty && (td->entry_number<7 || td->entry_number>7+2)) {
         errno = EINVAL;
         return (uint32_t)-1;
     }
     if(isempty) {
-        memset(&my_context->segtls[td->entry_number], 0, sizeof(base_segment_t));
+        memset(&my_context->segtls[td->entry_number-7], 0, sizeof(base_segment_t));
         return 0;
     }
-    if((idx<0 || idx>2)) {
+    if((idx<7 || idx>7+2)) {
         errno = EINVAL;
         return (uint32_t)-1;
     }
-    my_context->segtls[idx].base = td->base_addr;
-    my_context->segtls[idx].limit = td->limit;
-    my_context->segtls[idx].present = 1;
 
-    
+    my_context->segtls[idx-7].base = td->base_addr;
+    my_context->segtls[idx-7].limit = td->limit;
+    my_context->segtls[idx-7].present = 1;
+    switch (idx-7) {
+        case 0:	pthread_once(&thread_key_once0, thread_key_alloc0); break;
+        case 1:	pthread_once(&thread_key_once1, thread_key_alloc1); break;
+        case 2:	pthread_once(&thread_key_once2, thread_key_alloc2); break;
+    }
+
+    pthread_setspecific(my_context->segtls[idx-7].key, (void*)my_context->segtls[idx-7].base);
+
     return 0;
 }
 
@@ -138,14 +161,16 @@ void* GetSegmentBase(uint32_t desc)
         printf_log(LOG_NONE, "Warning, accessing segment NULL\n");
         return NULL;
     }
-    int base = (desc&0xf0)>>4;
-    if(base==7)
+    int base = desc>>3;
+    if(base==0xe || base==0xf)
         return NULL;    // regular value...
-    if(base==3)
+    if(base==0x6)
         return GetSeg33Base();
 
-    if(base<3 && my_context->segtls[base].present)
-        return (void*)my_context->segtls[base].base;
+    if(base>6 && base<10 && my_context->segtls[base].present) {
+        void* ptr = pthread_getspecific(my_context->segtls[base-7].key);
+        return ptr;
+    }
 
     printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
     return NULL;

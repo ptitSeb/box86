@@ -1131,13 +1131,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
-                MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
-                STRH_REG(ed, xEmu, x2);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0);
                 LDRH_IMM8(x1, ed, fixedaddress);
-                MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
-                STRH_REG(x1, xEmu, x2);
+                ed = x1;
+            }
+            MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            STRH_REG(ed, xEmu, x2);
+            if(((nextop&38)>>3)==_FS) {
+                // update default_fs, hack for wine
+                MOV32(x2, &default_fs);
+                STRH_IMM8(ed, x2, 0);
             }
             break;
         case 0x8F:

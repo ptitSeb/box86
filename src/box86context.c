@@ -409,6 +409,13 @@ void FreeBox86Context(box86context_t** context)
     if((*context)->tlsdata)
         free((*context)->tlsdata);
 
+    for(int i=0; i<3; ++i) {
+        if((*context)->segtls[i].present) {
+            // key content not handled by box86, so not doing anything with it
+            pthread_key_delete((*context)->segtls[i].key);
+        }
+    }
+
     pthread_mutex_destroy(&(*context)->mutex_once);
     pthread_mutex_destroy(&(*context)->mutex_once2);
     pthread_mutex_destroy(&(*context)->mutex_trace);

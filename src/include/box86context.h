@@ -51,9 +51,10 @@ void add_neededlib(needed_libs_t* needed, library_t* lib);
 void free_neededlib(needed_libs_t* needed);
 
 typedef struct base_segment_s {
-    uintptr_t   base;
-    uint32_t    limit;
-    int         present;
+    uintptr_t       base;
+    uint32_t        limit;
+    int             present;
+    pthread_key_t   key;
 } base_segment_t;
 
 typedef struct box86context_s {

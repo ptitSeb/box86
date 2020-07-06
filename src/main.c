@@ -837,30 +837,6 @@ int main(int argc, const char **argv, const char **env) {
 
     thread_set_emu(emu);
 
-    // check if FS or a selector is there in some env. var.
-    {
-        char* p = getenv("BOX86_internal_FS");
-        if(p) {
-            int seg;
-            if(sscanf(p, "%d", &seg)==1) {
-                SetFS(emu, seg);
-                default_fs = seg;
-                printf_log(LOG_INFO, "Initial FS is 0x%x\n",seg);
-            }
-        }
-        p = getenv("BOX86_internal_SELECTOR");
-        if(p) {
-            int sel, limit;
-            uintptr_t base;
-            if(sscanf(p, "%d:%u:%d", &sel, &base, &limit)==3) {
-                my_context->segtls[sel].base = base;
-                my_context->segtls[sel].limit = limit;
-                my_context->segtls[sel].present = 1;
-                printf_log(LOG_INFO, "Initial Selector %d is %p:%d\n",sel, (void*)base, limit);
-            }
-        }
-    }
-
     setupTraceInit(my_context);
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);

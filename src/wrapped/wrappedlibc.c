@@ -489,13 +489,34 @@ int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data);
 
 pid_t EXPORT my_fork(x86emu_t* emu)
 {
-    #if 1
+/*    #if 1
     emu->quit = 1;
     emu->fork = 1;
     return 0;
     #else
     return 0;
-    #endif
+    #endif*/
+    // execute atforks prepare functions, in reverse order
+    for (int i=my_context->atfork_sz-1; i>=0; --i)
+        if(my_context->atforks[i].prepare)
+            RunFunctionWithEmu(emu, 0, my_context->atforks[i].prepare, 0);
+    pid_t v;
+    v = fork();
+    if(v==EAGAIN || v==ENOMEM) {
+        // error...
+    } else if(v!=0) {  
+        // execute atforks parent functions
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].parent)
+                RunFunctionWithEmu(emu, 0, my_context->atforks[i].parent, 0);
+
+    } else if(v==0) {
+        // execute atforks child functions
+        for (int i=0; i<my_context->atfork_sz; --i)
+            if(my_context->atforks[i].child)
+                RunFunctionWithEmu(emu, 0, my_context->atforks[i].child, 0);
+    }
+    return v;
 }
 pid_t EXPORT my___fork(x86emu_t* emu) __attribute__((alias("my_fork")));
 pid_t EXPORT my_vfork(x86emu_t* emu)
@@ -1584,27 +1605,19 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
     int x86 = FileIsX86ELF(path);
-    printf_log(/*LOG_DEBUG*/LOG_NONE, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    // FS segment and selector are supposed to be persistant acros execv... Using Env. Var. as a workaround
-    if(emu->segs[_FS]) {
-        char tmp[60];
-        sprintf(tmp, "%d", emu->segs[_FS]);
-        setenv("BOX86_internal_FS", tmp, 1);
-        int sel = (emu->segs[_FS]>>8)&3;
-        if(sel<3) {
-            sprintf(tmp, "%d:%u:%d", sel, my_context->segtls[sel].base, my_context->segtls[sel].limit);
-            setenv("BOX86_internal_SELECTOR", tmp, 1);
-        }
-    }
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
     if (x86) {
+        int skip_first = 0;
+        if(strstr(path, "wine-preloader")==(path+strlen(path)-strlen("wine-preloader")))
+            skip_first = 1;
         // count argv...
-        int n=0;
+        int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
         newargv[0] = emu->context->box86path;
-        memcpy(newargv+1, argv, sizeof(char*)*(n+1));
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", n);
+        memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
         return ret;
