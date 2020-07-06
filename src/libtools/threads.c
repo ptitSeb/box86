@@ -89,7 +89,7 @@ void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t sta
 	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)calloc(1, sizeof(threadstack_t));
 	ts->stack = stack;
 	ts->stacksize = stacksize;
-	pthread_mutex_lock(&my_context->mutex_thread);
+	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 // return stack from attr (or from current emu if attr is not found..., wich is wrong but approximate enough?)
