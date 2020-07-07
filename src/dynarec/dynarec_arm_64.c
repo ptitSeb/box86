@@ -67,6 +67,19 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0x8F:
+            INST_NAME("POP FS:Ed");
+            grab_fsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                POP(xESP, (1<<(xEAX+(nextop&7))));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                POP(xESP, (1<<x2));
+                STR_REG_LSL_IMM5(x2, ed, x12, 0);
+            }
+            break;
+
         case 0xA1:
             INST_NAME("MOV EAX, FS:Id");
             grab_fsdata(dyn, addr, ninst, x1);

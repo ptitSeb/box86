@@ -2125,6 +2125,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 // DF=0, increment addresses, DF=1 decrement addresses
                 switch(nextop) {
+                    case 0x70:
+                    case 0x71:
+                    case 0x72:
+                    case 0x73:
+                    case 0x74:
+                    case 0x75:
+                    case 0x76:
+                    case 0x77:
+                    case 0x78:
+                    case 0x79:
+                    case 0x7A:
+                    case 0x7B:
+                    case 0x7C:
+                    case 0x7D:
+                    case 0x7E:
+                    case 0x7F:
+                        if(opcode==0xF2) {INST_NAME("BND");} else {INST_NAME("F3");}
+                        --addr; // put back opcode
+                        break;
                     case 0x90:
                         INST_NAME("PAUSE");
                         break;

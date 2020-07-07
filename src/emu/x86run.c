@@ -1090,6 +1090,24 @@ _trace:
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 tmp32u = R_ECX;
                 switch(nextop) {
+                    case 0x70:
+                    case 0x71:
+                    case 0x72:
+                    case 0x73:
+                    case 0x74:
+                    case 0x75:
+                    case 0x76:
+                    case 0x77:
+                    case 0x78:
+                    case 0x79:
+                    case 0x7A:
+                    case 0x7B:
+                    case 0x7C:
+                    case 0x7D:
+                    case 0x7E:
+                    case 0x7F:              /* BND / NOP */
+                        --ip;
+                        NEXT;
                     case 0x90:              /* PAUSE */
                         NEXT;
                     case 0xC3:              /* REPZ RET... yup */
