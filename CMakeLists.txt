@@ -295,6 +295,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibnm.c"
     "${BOX86_ROOT}/src/wrapped/wrappedtcmallocminimal.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedmpg123.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
