@@ -131,7 +131,7 @@ GOM(FT_Open_Face, iFEpplp)
 GO(FT_Outline_Check, iFp)
 GO(FT_Outline_Copy, iFpp)
 GO(FT_Outline_Decompose, iFppp)
-//GO(FT_Outline_Done, 
+GO(FT_Outline_Done, iFpp)
 //GO(FT_Outline_Done_Internal, 
 GO(FT_Outline_Embolden, iFpl)
 GO(FT_Outline_EmboldenXY, iFpll)
@@ -141,7 +141,7 @@ GO(FT_Outline_Get_CBox, vFpp)
 //GO(FT_Outline_GetInsideBorder, 
 //GO(FT_Outline_Get_Orientation, 
 //GO(FT_Outline_GetOutsideBorder, 
-//GO(FT_Outline_New, 
+GO(FT_Outline_New, iFpuip)
 //GO(FT_Outline_New_Internal, 
 GO(FT_Outline_Render, iFppp)
 GO(FT_Outline_Reverse, vFp)
@@ -196,5 +196,22 @@ GO(FT_Vector_Polarize, vFppp)
 GO(FT_Vector_Rotate, vFpl)
 GO(FT_Vector_Transform, vFpp)
 GO(FT_Vector_Unit, vFpl)
+
+GO(FTC_CMapCache_Lookup, uFppiu)
+GO(FTC_CMapCache_New, iFpp)
+GO(FTC_ImageCache_Lookup, iFppupp)
+GO(FTC_ImageCache_LookupScaler, iFppLupp)
+GO(FTC_ImageCache_New, iFpp)
+GO(FTC_Manager_Done, vFp)
+GO(FTC_Manager_LookupFace, iFppp)
+GO(FTC_Manager_LookupSize, iFppp)
+GOM(FTC_Manager_New, iFEpuuLppp)
+GO(FTC_Manager_RemoveFaceID, vFpp)
+GO(FTC_Manager_Reset, vFp)
+GO(FTC_Node_Unref, vFpp)
+GO(FTC_SBitCache_Lookup, iFppupp)
+GO(FTC_SBitCache_LookupScaler, iFppLupp)
+GO(FTC_SBitCache_New, iFpp)
+
 //GO(TT_New_Context, 
 //GO(TT_RunIns, 

@@ -627,6 +627,7 @@
 #() uFpuuu
 #() uFpuup
 #() uFpupp
+#() uFppiu
 #() uFppip
 #() uFppup
 #() uFpppi
@@ -1055,6 +1056,7 @@
 #() iFppUupp
 #() iFppdidd
 #() iFpplppi
+#() iFppLupp
 #() iFppLpLp
 #() iFpppiuu
 #() iFpppipp
@@ -1273,6 +1275,7 @@
 #() vFppppiipi
 #() iFEipupupi
 #() iFEpippppp
+#() iFEpuuLppp
 #() iFiiiiiiip
 #() iFiiippppp
 #() iFiiupiupi

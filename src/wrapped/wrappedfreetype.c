@@ -57,10 +57,12 @@ void*   params;
 
 } FT_Open_Args_t;
 
-typedef int (*iFpplp_t)(void*, void*, long, void*);
+typedef int (*iFpplp_t)     (void*, void*, long, void*);
+typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
 
 #define SUPER() \
-    GO(FT_Open_Face, iFpplp_t)
+    GO(FT_Open_Face, iFpplp_t)      \
+    GO(FTC_Manager_New, iFpuuLppp_t)
 
 typedef struct freetype_my_s {
     // functions
@@ -84,6 +86,37 @@ void freeFreeTypeMy(void* lib)
     //freetype_my_t *my = (freetype_my_t *)lib;
 }
 
+// utility functions
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// FTC_Face_Requester
+#define GO(A)   \
+static uintptr_t my_FTC_Face_Requester_fct_##A = 0;                                                     \
+static int my_FTC_Face_Requester_##A(void* face_id, void* lib, void* req, void* aface)                  \
+{                                                                                                       \
+    return (int)RunFunction(my_context, my_FTC_Face_Requester_fct_##A, 4, face_id, lib, req, aface);    \
+}
+SUPER()
+#undef GO
+static void* find_FTC_Face_Requester_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FTC_Face_Requester_fct_##A == (uintptr_t)fct) return my_FTC_Face_Requester_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FTC_Face_Requester_fct_##A == 0) {my_FTC_Face_Requester_fct_##A = (uintptr_t)fct; return my_FTC_Face_Requester_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FTC_Face_Requester callback\n");
+    return NULL;
+}
 
 
 static uintptr_t my_iofunc = 0;
@@ -118,6 +151,14 @@ EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, l
         args->stream->close = (void*)my_closefunc;
     }*/
     return ret;
+}
+
+EXPORT int my_FTC_Manager_New(x86emu_t* emu, void* l, uint32_t max_faces, uint32_t max_sizes, uintptr_t max_bytes, void* req, void* data, void* aman)
+{
+    library_t* lib = GetLibInternal(freetypeName);
+    freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
+
+    return my->FTC_Manager_New(l, max_faces, max_sizes, max_bytes, find_FTC_Face_Requester_Fct(req), data, aman);
 }
 
 #define CUSTOM_INIT \
