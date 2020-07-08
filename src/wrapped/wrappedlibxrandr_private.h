@@ -9,7 +9,6 @@ GO(XRRListOutputProperties, pFpup)
 GO(XRRQueryExtension, iFppp)
 //GO(XRRAllocModeInfo
 //GO(XRRGetProviderProperty
-GO(XRRQueryExtension,iFppp)
 //GO(XRRListProviderProperties
 GO(XRRRotations,uFip)
 //GO(XRRSetCrtcTransform
