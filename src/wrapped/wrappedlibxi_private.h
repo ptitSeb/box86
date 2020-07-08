@@ -18,7 +18,7 @@ GO(XFreeDeviceList, iFp)
 GO(XFreeDeviceMotionEvents, iFv)
 GO(XFreeDeviceState, vFp)
 //GO(XFreeFeedbackList, 
-//GO(XGetDeviceButtonMapping, 
+GO(XGetDeviceButtonMapping, iFpppi)
 //GO(XGetDeviceControl, 
 //GO(XGetDeviceDontPropagateList, 
 //GO(XGetDeviceFocus, 
@@ -72,7 +72,7 @@ GO(XOpenDevice, pFpp)
 GO(XQueryDeviceState, pFpp)
 GO(XSelectExtensionEvent, iFpppi)
 //GO(XSendExtensionEvent, 
-//GO(XSetDeviceButtonMapping, 
+GO(XSetDeviceButtonMapping, iFpppi)
 //GO(XSetDeviceFocus, 
 //GO(XSetDeviceMode, 
 //GO(XSetDeviceModifierMapping, 
