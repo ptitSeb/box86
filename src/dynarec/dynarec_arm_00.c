@@ -97,15 +97,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH ES");
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
             LDRH_REG(x2, xEmu, x1);
-            SUB_IMM8(xESP, xESP, 4);
-            STR_IMM9(x2, xESP, 0);
+            PUSH(xESP, 1<<x2);
             break;
         case 0x07:
             INST_NAME("POP ES");
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
-            LDR_IMM9(x2, xESP, 0);
+            POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
-            ADD_IMM8(xESP, xESP, 4);
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
@@ -275,15 +273,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH DS");
             MOVW(x1, offsetof(x86emu_t, segs[_DS]));
             LDRH_REG(x2, xEmu, x1);
-            SUB_IMM8(xESP, xESP, 4);
-            STR_IMM9(x2, xESP, 0);
+            PUSH(xESP, 1<<x2);
             break;
         case 0x1F:
             INST_NAME("POP DS");
             MOVW(x1, offsetof(x86emu_t, segs[_DS]));
-            LDR_IMM9(x2, xESP, 0);
+            POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
-            ADD_IMM8(xESP, xESP, 4);
             break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
@@ -332,7 +328,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("AND EAX, Id");
             SETFLAGS(X_ALL, SF_SET);
             i32 = F32S;
-            MOV32(x1, i32);
             emit_and32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
         case 0x26:
