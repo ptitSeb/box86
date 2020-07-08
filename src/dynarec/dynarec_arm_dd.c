@@ -169,6 +169,20 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VSTR_64(v1, ed, fixedaddress); // check alignment?
                     x87_do_pop(dyn, ninst);
                     break;
+                case 4: 
+                    INST_NAME("FRSTOR m108byte");
+                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_frstor, -1, 0);
+                    break;
+                case 6: 
+                    INST_NAME("FSAVE m108byte");
+                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    if(ed!=x1) {MOV_REG(x1, ed);}
+                    CALL(arm_fsave, -1, 0);
+                    break;
                 default:
                     DEFAULT;
             }

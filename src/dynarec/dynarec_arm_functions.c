@@ -263,6 +263,41 @@ void arm_fxrstor(x86emu_t* emu, uint8_t* ed)
         memcpy(&emu->fpu[0], ed+416+i*8, sizeof(emu->fpu[0]));
 }
 
+void arm_fsave(x86emu_t* emu, uint8_t* ed)
+{
+    fpu_savenv(emu, (char*)ed, 0);
+
+    uint8_t* p = ed;
+    p += 28;
+    for (int i=0; i<8; ++i) {
+        #ifdef USE_FLOAT
+        d = ST(i).f;
+        LD2D(p, &d);
+        #else
+        LD2D(p, &ST(i).d);
+        #endif
+        p+=10;
+    }
+}
+void arm_frstor(x86emu_t* emu, uint8_t* ed)
+{
+    fpu_loadenv(emu, (char*)ed, 0);
+
+    uint8_t* p = ed;
+    p += 28;
+    for (int i=0; i<8; ++i) {
+        #ifdef USE_FLOAT
+        D2LD(&d, p);
+        ST(i).f = d;
+        #else
+        D2LD(&ST(i).d, p);
+        #endif
+        p+=10;
+    }
+
+}
+
+
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
 {
