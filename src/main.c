@@ -246,14 +246,30 @@ void LoadLogEnv()
     }
 #endif
 #endif
-    p = getenv("BOX86_TRACE_FILE");
-    if(p) {
-        ftrace = fopen64(p, "w");
-        if(!ftrace) {
-            ftrace = stdout;
-            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
-        } else {
-            printf("BOX86 Trace redirected to \"%s\"\n", p);
+    // grab BOX86_TRACE_FILE envvar, and change %pid to actual pid is present in the name
+    {
+        char* t = getenv("BOX86_TRACE_FILE");
+        char tmp[500];
+        p = t;
+        if(p && strstr(t, "%pid")) {
+            strcpy(tmp, p);
+            char* c = strstr(tmp, "%pid");
+            *c = 0; // cut
+            char pid[10];
+            sprintf(pid, "%d", getpid());
+            strcat(tmp, pid);
+            c = strstr(p, "%pid") + strlen("%pid");
+            strcat(tmp, c);
+            p = tmp;
+        }
+        if(p) {
+            ftrace = fopen64(p, "w");
+            if(!ftrace) {
+                ftrace = stdout;
+                printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
+            } else {
+                printf("BOX86 Trace redirected to \"%s\"\n", p);
+            }
         }
     }
     p = getenv("BOX86_DLSYM_ERROR");
