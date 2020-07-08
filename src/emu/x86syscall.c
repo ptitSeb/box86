@@ -161,6 +161,7 @@ scwrap_t syscallwrap[] = {
     //{ 119, __NR_sigreturn, 0},
     //{ 120, __NR_clone, 5 },    // need works
     //{ 122, __NR_uname, 1 },
+    //{ 123, __NR_modify_ldt },
     { 125, __NR_mprotect, 3 },
     { 136, __NR_personality, 1 },
     { 140, __NR__llseek, 5 },
@@ -496,6 +497,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 }
             }
             break;
+        case 123:   // SYS_modify_ldt
+            R_EAX = my_modify_ldt(emu, R_EBX, (thread_area_t*)R_ECX, R_EDX);
+            break;
         case 168: // sys_poll
             R_EAX = (uint32_t)poll((void*)R_EBX, R_ECX, (int)R_EDX);
             break;
@@ -623,6 +627,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
+        case 123:   // SYS_modify_ldt
+            return my_modify_ldt(emu, i32(4), (thread_area_t*)p(8), i32(12));
         case 174:   // sys_rt_sigaction
             return (uint32_t)my_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
         case 243: // set_thread_area

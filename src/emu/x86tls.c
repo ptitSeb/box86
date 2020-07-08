@@ -92,6 +92,38 @@ uint32_t my_set_thread_area(thread_area_t* td)
     return 0;
 }
 
+uint32_t my_modify_ldt(x86emu_t* emu, int op, thread_area_t* td, int size)
+{
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "modify_ldt(0x%x, %p[0x%x/base=%p/limit=%u/32bits:%u/%u/%u...], %d)\n", op, td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only, size);
+    if(!td) {
+        errno = EFAULT;
+        return (uint32_t)-1;
+    }
+    if(op!=0x11) {
+        errno = ENOSYS;
+        return (uint32_t)-1;
+    }
+    if(!td->seg_32bit) {
+        // not handling 16bits segments for now
+        errno = EINVAL;
+        return (uint32_t)-1;
+    }
+
+    int idx = td->entry_number - 7;
+    if(idx<0 || idx>2) {
+        errno = EINVAL;
+        return (uint32_t)-1;
+    }
+
+    /*
+    my_context->segtls[idx].base = td->base_addr;
+    my_context->segtls[idx].limit = td->limit;
+    pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
+    */
+
+    return 0;
+}
+
 #define POS_TLS     0x50
 
 static tlsdatasize_t* setupTLSData(box86context_t* context)
