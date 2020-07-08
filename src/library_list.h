@@ -105,5 +105,6 @@ GO("libncurses.so.5", libncurses)
 GO("libtinfo.so.5", libtinfo)
 GO("libtcmalloc_minimal.so.4", tcmallocminimal)
 GO("libmpg123.so.0", mpg123)
+GO("libgnutls.so.30", gnutls)
 
 GO("ld-linux.so.2", ldlinux)
