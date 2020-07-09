@@ -2543,9 +2543,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
                         *need_epilog = 0;
                         *ok = 0;
+                        MOV32(x2, addr);
                     }
-                    MOV32(x3, addr);
-                    PUSH(xESP, 1<<x3);
+                    PUSH(xESP, 1<<x2);
                     jump_to_linker(dyn, 0, ed, ninst);  // smart linker
                     break;
                 case 4: // JMP Ed
