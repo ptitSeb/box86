@@ -88,8 +88,8 @@ typedef struct i386_libc_fpstate *i386_fpregset_t;
 typedef struct
   {
     void *ss_sp;
-    int32_t ss_flags;
-    uint32_t ss_size;
+    int ss_flags;
+    size_t ss_size;
   } i386_stack_t;
 
 typedef struct
@@ -121,17 +121,54 @@ struct kernel_sigaction {
         unsigned long sa_mask2;
 };
 
+static void sigstack_destroy(void* p)
+{
+	i386_stack_t *ss = (i386_stack_t*)p;
+    free(ss);
+}
+
+static void free_signal_emu(void* p)
+{
+    if(p)
+        FreeX86Emu((x86emu_t**)&p);
+}
+
+static pthread_key_t sigstack_key;
+static pthread_once_t sigstack_key_once = PTHREAD_ONCE_INIT;
+
+static void sigstack_key_alloc() {
+	pthread_key_create(&sigstack_key, sigstack_destroy);
+}
+
+static pthread_key_t sigemu_key;
+static pthread_once_t sigemu_key_once = PTHREAD_ONCE_INIT;
+
+static void sigemu_key_alloc() {
+	pthread_key_create(&sigemu_key, free_signal_emu);
+}
+
+static x86emu_t* get_signal_emu()
+{
+    x86emu_t *emu = (x86emu_t*)pthread_getspecific(sigemu_key);
+    if(!emu) {
+        const int stsize = 8*1024;  // small stack for signal handler
+        void* stack = calloc(1, stsize);
+        emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
+        pthread_setspecific(sigemu_key, emu);
+    }
+    return emu;
+}
+
+
 uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
     uintptr_t old_start = trace_start, old_end = trace_end;
     old_start = 0; old_end = 1; // disabling trace, globably for now...
 
-    x86emu_t *emu = my_context->emu_sig;
+    x86emu_t *emu = get_signal_emu();
 
     SetFS(emu, default_fs);
-    
-    pthread_mutex_unlock(&emu->context->mutex_trace);   // unlock trace, just in case
-    
+        
     R_ESP -= nargs*4;   // need to push in reverse order
 
     uint32_t *p = (uint32_t*)R_ESP;
@@ -153,7 +190,49 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     uint32_t ret = R_EAX;
 
     trace_start = old_start; trace_end = old_end;
+
     return ret;
+}
+
+EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss)
+{
+    if(!ss) {
+        errno = EFAULT;
+        return -1;
+    }
+    if(ss->ss_flags && ss->ss_flags!=SS_DISABLE) {
+        errno = EINVAL;
+        return -1;
+    }
+
+	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    x86emu_t *sigemu = get_signal_emu();
+
+    if(ss->ss_flags==SS_DISABLE) {
+        if(new_ss)
+            free(new_ss);
+        pthread_setspecific(sigstack_key, NULL);
+
+        sigemu->regs[_SP].dword[0] = ((uintptr_t)sigemu->init_stack + sigemu->size_stack) & ~7;
+        
+        return 0;
+    }
+    if(!new_ss)
+        new_ss = (i386_stack_t*)calloc(1, sizeof(i386_stack_t));
+    new_ss->ss_sp = ss->ss_sp;
+    new_ss->ss_size = ss->ss_size;
+
+	pthread_setspecific(sigstack_key, new_ss);
+
+    sigemu->regs[_SP].dword[0] = ((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 4) & ~7;
+
+    if(oss) {
+        // not correct, but better than nothing
+        oss->ss_flags = SS_DISABLE;
+        oss->ss_sp = sigemu->init_stack;
+        oss->ss_size = sigemu->size_stack;
+    }
+    return 0;
 }
 
 
@@ -173,10 +252,45 @@ void my_sighandler(int32_t sig)
 void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 {
     // need to creat some x86_ucontext????
+    pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
     uintptr_t restorer = my_context->restorer[sig];
+    // try to fill some sigcontext....
+    i386_ucontext_t sigcontext = {0};
+    x86emu_t *emu = thread_get_emu();   // not good, emu is probably not up to date, especially using dynarec
+    // stack traking
+    sigcontext.uc_stack.ss_sp = NULL;
+    sigcontext.uc_stack.ss_size = 0;    // this need to filled
+    // get general register
+    sigcontext.uc_mcontext.gregs[REG_EAX] = R_EAX;
+    sigcontext.uc_mcontext.gregs[REG_ECX] = R_ECX;
+    sigcontext.uc_mcontext.gregs[REG_EDX] = R_EDX;
+    sigcontext.uc_mcontext.gregs[REG_EDI] = R_EDI;
+    sigcontext.uc_mcontext.gregs[REG_ESI] = R_ESI;
+    sigcontext.uc_mcontext.gregs[REG_EBP] = R_EBP;
+    sigcontext.uc_mcontext.gregs[REG_EIP] = R_EIP;
+    sigcontext.uc_mcontext.gregs[REG_ESP] = R_ESP+4;
+    sigcontext.uc_mcontext.gregs[REG_EBX] = R_EBX;
+    // flags
+    sigcontext.uc_mcontext.gregs[REG_EFL] = emu->packed_eflags.x32;
+    // get segments
+    sigcontext.uc_mcontext.gregs[REG_GS] = R_GS;
+    sigcontext.uc_mcontext.gregs[REG_FS] = R_FS;
+    sigcontext.uc_mcontext.gregs[REG_ES] = R_ES;
+    sigcontext.uc_mcontext.gregs[REG_DS] = R_DS;
+    sigcontext.uc_mcontext.gregs[REG_CS] = R_CS;
+    sigcontext.uc_mcontext.gregs[REG_SS] = R_SS;
+    // get FloatPoint status
+    // get signal mask
+
+    i386_ucontext_t sigcontext_copy = sigcontext;
+
     int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, sigi, ucntx);
+    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, sigi, &sigcontext);
+
+    if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
+        printf_log(LOG_INFO, "Warning, context has been changed in sigactionhandler\n");
+    }
     if(exits)
         exit(ret);
     if(restorer)
@@ -228,17 +342,6 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     signal(sig, SIG_DFL);
 }
 
-static void CheckSignalContext(x86emu_t* emu, int sig)
-{
-    if(!my_context->emu_sig) {
-        const int stsize = 2*1024*1024;
-        void* stack = calloc(1, stsize);
-        my_context->emu_sig = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        //my_context->emu_sig->dec = NULL;    // No tracing inside a signal handler...
-        //TODO: How to disable tracing there?
-    }
-}
-
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 {
     if(signum<0 || signum>=MAX_SIGNAL)
@@ -246,8 +349,6 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
-
-    CheckSignalContext(emu, signum);
 
     if(handler!=NULL && handler!=(sighandler_t)1) {
         // create a new handler
@@ -276,8 +377,6 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
     if(signum==SIGILL && emu->context->no_sigill)
         return 0;
 
-    CheckSignalContext(emu, signum);
-
     struct sigaction newact = {0};
     struct sigaction old = {0};
     if(act) {
@@ -288,13 +387,15 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
                 my_context->is_sigaction[signum] = 1;
                 newact.sa_sigaction = my_sigactionhandler;
-            }
+            } else
+                newact.sa_sigaction = act->_u._sa_sigaction;
         } else {
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                 my_context->is_sigaction[signum] = 0;
                 newact.sa_handler = my_sighandler;
-            }
+            } else
+                newact.sa_handler = act->_u._sa_handler;
         }
         my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
@@ -326,8 +427,6 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
     // TODO, how to handle sigsetsize>4?!
-    CheckSignalContext(emu, signum);
-
     if(signum==32 || signum==33) {
         // cannot use libc sigaction, need to use syscall!
         struct kernel_sigaction newact = {0};
@@ -437,8 +536,13 @@ EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
     u->uc_mcontext.gregs[REG_EIP] = *(uint32_t*)R_ESP;
     u->uc_mcontext.gregs[REG_ESP] = R_ESP+4;
     u->uc_mcontext.gregs[REG_EBX] = R_EBX;
-    // get segments (only FS)
+    // get segments
+    u->uc_mcontext.gregs[REG_GS] = R_GS;
     u->uc_mcontext.gregs[REG_FS] = R_FS;
+    u->uc_mcontext.gregs[REG_ES] = R_ES;
+    u->uc_mcontext.gregs[REG_DS] = R_DS;
+    u->uc_mcontext.gregs[REG_CS] = R_CS;
+    u->uc_mcontext.gregs[REG_SS] = R_SS;
     // get FloatPoint status
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
@@ -463,8 +567,13 @@ EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
     R_EIP = u->uc_mcontext.gregs[REG_EIP];
     R_ESP = u->uc_mcontext.gregs[REG_ESP];
     R_EBX = u->uc_mcontext.gregs[REG_EBX];
-    // get segments (only FS)
+    // get segments
+    R_GS = u->uc_mcontext.gregs[REG_GS];
     R_FS = u->uc_mcontext.gregs[REG_FS];
+    R_ES = u->uc_mcontext.gregs[REG_ES];
+    R_DS = u->uc_mcontext.gregs[REG_DS];
+    R_CS = u->uc_mcontext.gregs[REG_CS];
+    R_SS = u->uc_mcontext.gregs[REG_SS];
     // set FloatPoint status
     // set signal mask
     //sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
@@ -515,6 +624,8 @@ void init_signal_helper()
 	action.sa_sigaction = my_memprotectionhandler;
     sigaction(SIGSEGV, &action, NULL);
 #endif
+	pthread_once(&sigstack_key_once, sigstack_key_alloc);
+	pthread_once(&sigemu_key_once, sigemu_key_alloc);
 }
 
 void fini_signal_helper()
