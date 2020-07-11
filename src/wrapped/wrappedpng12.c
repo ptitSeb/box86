@@ -27,7 +27,7 @@ typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
-    GO(png_set_write_fn, vFppp_t)           \
+    GO(png_set_write_fn, vFpppp_t)           \
     GO(png_set_read_fn, vFppp_t)            \
     GO(png_set_error_fn, vFpppp_t)          \
     GO(png_create_read_struct_2, pFppppppp_t)   \
@@ -288,12 +288,12 @@ static void* findprogressive_rowFct(void* fct)
 
 #undef SUPER
 
-EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
+EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* write_fn, void* flush_fn)
 {
     library_t * lib = GetLibInternal(png12Name);
     png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
 
-    my->png_set_write_fn(png_ptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
+    my->png_set_write_fn(png_ptr, ioptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 EXPORT void my12_png_set_read_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* read_fn)

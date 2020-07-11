@@ -26,9 +26,9 @@ typedef void  (*vFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() \
     GO(png_set_read_fn, vFppp_t)                \
-    GO(png_set_error_fn, vFpppp_t)          \
+    GO(png_set_error_fn, vFpppp_t)              \
     GO(png_set_read_user_transform_fn, vFpp_t)  \
-    GO(png_set_write_fn, vFppp_t)               \
+    GO(png_set_write_fn, vFpppp_t)              \
 
 
 typedef struct png16_my_s {
@@ -41,7 +41,7 @@ typedef struct png16_my_s {
 void* getPng16My(library_t* lib)
 {
     png16_my_t* my = (png16_my_t*)calloc(1, sizeof(png16_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
+    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A); if(!my->A) my->A = (W)dlsym(lib->priv.w.lib, "yes" #A);
     SUPER()
     #undef GO
     return my;
@@ -379,12 +379,12 @@ EXPORT void my16_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, v
     my->png_set_error_fn(pngptr, errorptr, finderrorFct(error_fn), findwarningFct(warning_fn));
 }
 
-EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* write_fn, void* flush_fn)
+EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* io_ptr, void* write_fn, void* flush_fn)
 {
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
-    my->png_set_write_fn(png_ptr, findwrite_dataFct(write_fn), findflush_dataFct(flush_fn));
+    my->png_set_write_fn(png_ptr, io_ptr, findwrite_dataFct(write_fn), findflush_dataFct(flush_fn));
 }
 
 
