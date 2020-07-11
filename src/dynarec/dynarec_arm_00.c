@@ -1107,7 +1107,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDR_IMM9(gd, ed, fixedaddress);
             }
             break;
-
+        case 0x8C:
+            INST_NAME("MOV Ed, Seg");
+            nextop=F8;
+            MOV32(x3, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            if((nextop&0xC0)==0xC0) {   // reg <= seg
+                LDRH_REG(xEAX+(nextop&7), xEmu, x3);
+            } else {                    // mem <= seg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                LDRH_REG(x3, xEmu, x3);
+                STRH_IMM8(x3, ed, fixedaddress);
+            }
+            break;
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop=F8;

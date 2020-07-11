@@ -117,6 +117,25 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 STR_REG_LSL_IMM5(x3, ed, x12, 0);
             }
             break;
+            
+        case 0xFF:
+            nextop = F8;
+            grab_fsdata(dyn, addr, ninst, x12);
+            switch((nextop>>3)&7) {
+                case 6: // Push Ed
+                    INST_NAME("PUSH Ed");
+                    if((nextop&0xC0)==0xC0) {   // reg
+                        DEFAULT;
+                    } else {                    // mem <= i32
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        LDR_REG_LSL_IMM5(x3, ed, x12, 0);
+                        PUSH(x3, 1<<ed);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
 
         default:
             DEFAULT;
