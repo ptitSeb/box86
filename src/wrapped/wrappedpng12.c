@@ -27,7 +27,7 @@ typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
-    GO(png_set_write_fn, vFpppp_t)           \
+    GO(png_set_write_fn, vFpppp_t)          \
     GO(png_set_read_fn, vFppp_t)            \
     GO(png_set_error_fn, vFpppp_t)          \
     GO(png_create_read_struct_2, pFppppppp_t)   \
