@@ -13,24 +13,25 @@
 #include "box86context.h"
 
 
-#define F8      *(uint8_t*)(R_EIP++)
-#define F8S     *(int8_t*)(R_EIP++)
-#define F16     *(uint16_t*)(R_EIP+=2, R_EIP-2)
-#define F32     *(uint32_t*)(R_EIP+=4, R_EIP-4)
-#define F32S    *(int32_t*)(R_EIP+=4, R_EIP-4)
-#define PK(a)   *(uint8_t*)(R_EIP+a)
+#define F8      *(uint8_t*)(ip++)
+#define F8S     *(int8_t*)(ip++)
+#define F16     *(uint16_t*)(ip+=2, ip-2)
+#define F32     *(uint32_t*)(ip+=4, ip-4)
+#define F32S    *(int32_t*)(ip+=4, ip-4)
+#define PK(a)   *(uint8_t*)(ip+a)
 
 #include "modrm.h"
 
 void Run6766(x86emu_t *emu)
 {
-    uint8_t opcode = Fetch8(emu);
+    uintptr_t ip = R_EIP+2; //skip 67 66
+    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *op1, *op2;
     switch(opcode) {
 
     case 0x8D:                              /* LEA Gw,Ew */
-        nextop = Fetch8(emu);
+        nextop = F8;
         op1=GetEw16(emu, nextop);
         op2=GetG(emu, nextop);
         op2->word[0] = (uint16_t)(uintptr_t)op1;
@@ -38,13 +39,16 @@ void Run6766(x86emu_t *emu)
     
                 
     default:
+        ip-=2;  //unfetch
         UnimpOpcode(emu);
     }
+    R_EIP = ip;
 }
 
 void Run67(x86emu_t *emu)
 {
-    uint8_t opcode = Fetch8(emu);
+    uintptr_t ip = R_EIP+1; //skip 67
+    uint8_t opcode = F8;
     int8_t tmp8s;
     switch(opcode) {
 
@@ -54,26 +58,26 @@ void Run67(x86emu_t *emu)
 
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
-        tmp8s = Fetch8s(emu);
+        tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX && !ACCESS_FLAG(F_ZF))
             R_EIP += tmp8s;
         break;
     case 0xE1:                      /* LOOPZ */
         CHECK_FLAGS(emu);
-        tmp8s = Fetch8s(emu);
+        tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX && ACCESS_FLAG(F_ZF))
             R_EIP += tmp8s;
         break;
     case 0xE2:                      /* LOOP */
-        tmp8s = Fetch8s(emu);
+        tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX)
             R_EIP += tmp8s;
         break;
     case 0xE3:                      /* JCXZ */
-        tmp8s = Fetch8s(emu);
+        tmp8s = F8S;
         if(!R_CX)
             R_EIP += tmp8s;
         break;
@@ -81,11 +85,13 @@ void Run67(x86emu_t *emu)
     default:
         UnimpOpcode(emu);
     }
+    R_EIP = ip;
 }
 
 void RunLock(x86emu_t *emu)
 {
-    uint8_t opcode = Fetch8(emu);
+    uintptr_t ip = R_EIP+1;
+    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
@@ -204,7 +210,7 @@ void RunLock(x86emu_t *emu)
                             break;
 
                         default:
-                            R_EIP -= 3; //unfetch
+                            ip -= 3; //unfetch
                             break;
                     }
                     break;
@@ -256,7 +262,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     // trigger invalid lock?
-                    R_EIP -= 2; // unfetch
+                    ip -= 2; // unfetch
                     break;
             }
             break;
@@ -315,14 +321,16 @@ void RunLock(x86emu_t *emu)
         default:
             //UnimpOpcode(emu);
             // should trigger invalid unlock ?
-            R_EIP--;    // "unfetch" to use normal instruction
+            ip--;    // "unfetch" to use normal instruction
     }
+    R_EIP = ip;
     pthread_mutex_unlock(&emu->context->mutex_lock);
 }
 
 void RunGS(x86emu_t *emu)
 {
-    uint8_t opcode = Fetch8(emu);
+    uintptr_t ip = R_EIP+1;
+    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
@@ -489,13 +497,16 @@ void RunGS(x86emu_t *emu)
             }
             break;
         default:
+            ip--;
             UnimpOpcode(emu);
     }
+    R_EIP = ip;
 }
 
 void RunFS(x86emu_t *emu)
 {
-    uint8_t opcode = Fetch8(emu);
+    uintptr_t ip = R_EIP+1;
+    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
@@ -649,11 +660,14 @@ void RunFS(x86emu_t *emu)
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                    ip-=2;
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
             }
             break;
         default:
+            ip--;
             UnimpOpcode(emu);
     }
+    R_EIP = ip;
 }

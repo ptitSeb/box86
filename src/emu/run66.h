@@ -302,7 +302,7 @@
         NEXT;
     
     _66_0xD9:
-        emu->old_ip = old_ip;
+        emu->old_ip = R_EIP;
         R_EIP = ip;
         Run66D9(emu);
         ip = R_EIP;
@@ -310,7 +310,7 @@
         NEXT;
 
     _66_0xDD:
-        emu->old_ip = old_ip;
+        emu->old_ip = R_EIP;
         R_EIP = ip;
         Run66DD(emu);
         ip = R_EIP;
@@ -417,7 +417,7 @@
                 EW->word[0] = dec16(emu, EW->word[0]);
                 break;
             default:
-                emu->old_ip = old_ip;
+                emu->old_ip = R_EIP;
                 R_EIP = ip;
                 printf_log(LOG_NONE, "Illegal Opcode 66 %02X %02X\n", opcode, nextop);
                 emu->quit=1;

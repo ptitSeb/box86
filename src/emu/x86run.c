@@ -34,7 +34,7 @@ int Run(x86emu_t *emu, int step)
     int32_t tmp32s, tmp32s2;
     uint64_t tmp64u;
     int64_t tmp64s;
-    uintptr_t ip, old_ip;
+    uintptr_t ip;
     double d;
     float f;
     int64_t ll;
@@ -43,8 +43,6 @@ int Run(x86emu_t *emu, int step)
 
     if(emu->quit)
         return 0;
-
-    old_ip = R_EIP;
 
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, emu->context->stack);
@@ -205,17 +203,18 @@ x86emurun:
 //    UnpackFlags(emu);
 #ifdef HAVE_TRACE
 _trace:
+    __builtin_prefetch((void*)ip, 0, 0); 
     emu->prev2_ip = emu->prev_ip;
-    emu->prev_ip = old_ip;
-    old_ip = ip;
+    emu->prev_ip = R_EIP;
+    R_EIP=ip;
     if(my_context->dec && (
         (trace_end == 0) 
         || ((ip >= trace_start) && (ip < trace_end))) )
             PrintTrace(emu, ip, 0);
 
-    #define NEXT    __builtin_prefetch((void*)ip, 0, 0); goto _trace
+    #define NEXT    goto _trace
 #else
-    #define NEXT    goto *baseopcodes[(old_ip=ip, opcode=F8)]
+    #define NEXT    goto *baseopcodes[(R_EIP=ip, opcode=F8)]
 #endif
 
 #include "modrm.h"
@@ -399,15 +398,15 @@ _trace:
             R_EAX = Pop(emu);
             NEXT;
         _0x64:                      /* FS: */
-            emu->old_ip = old_ip;
-            R_EIP = ip;
+            emu->old_ip = R_EIP;
+            R_EIP = ip-1;
             RunFS(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
             NEXT;
         _0x65:                      /* GS: */
-            emu->old_ip = old_ip;
-            R_EIP = ip;
+            emu->old_ip = R_EIP;
+            R_EIP = ip-1;
             RunGS(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
@@ -416,8 +415,8 @@ _trace:
         _0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
             #include "run66.h"
         _0x67:                      /* Prefix to change width of registers */
-            emu->old_ip = old_ip;
-            R_EIP = ip;
+            emu->old_ip = R_EIP;
+            R_EIP = ip-1;   // don't count 0x67 yet
             Run67(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
@@ -877,7 +876,7 @@ _trace:
             NEXT;
 
         _0xCC:                      /* INT 3 */
-            emu->old_ip = old_ip;
+            emu->old_ip = R_EIP;
             R_EIP = ip;
             x86Int3(emu);
             ip = R_EIP;
@@ -886,7 +885,7 @@ _trace:
         _0xCD:                      /* INT Ib */
             nextop = F8;
             if(nextop == 0x80) {
-                emu->old_ip = old_ip;
+                emu->old_ip = R_EIP;
                 R_EIP = ip;
                 x86Syscall(emu);
                 ip = R_EIP;
@@ -894,7 +893,7 @@ _trace:
             } else {
                 int tid = GetTID();
                 printf_log(LOG_NONE, "%04d|%p: Ignoring Unsupported Int %02Xh\n", tid, (void*)ip, nextop);
-                emu->old_ip = old_ip;
+                emu->old_ip = R_EIP;
                 R_EIP = ip;
                 emu->quit = 1;
                 emu->error |= ERR_UNIMPL;
@@ -1043,8 +1042,8 @@ _trace:
             NEXT;
 
         _0xF0:                      /* LOCK */
-            emu->old_ip = old_ip;
-            R_EIP = ip;
+            emu->old_ip = R_EIP;
+            R_EIP = ip-1;   // dont't count F0 yet
             RunLock(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
@@ -1356,7 +1355,7 @@ _trace:
                     EB->byte[0] = dec8(emu, EB->byte[0]);
                     break;
                 default:
-                    emu->old_ip = old_ip;
+                    emu->old_ip = R_EIP;
                     R_EIP = ip;
                     printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                     emu->quit=1;
@@ -1381,7 +1380,7 @@ _trace:
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
-                        emu->old_ip = old_ip;
+                        emu->old_ip = R_EIP;
                         R_EIP = ip;
                         printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
                         emu->quit=1;
@@ -1401,7 +1400,7 @@ _trace:
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
-                        emu->old_ip = old_ip;
+                        emu->old_ip = R_EIP;
                         R_EIP = ip;
                         printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                         emu->quit=1;
@@ -1417,7 +1416,7 @@ _trace:
                     Push(emu, ED->dword[0]);
                     break;
                 default:
-                    emu->old_ip = old_ip;
+                    emu->old_ip = R_EIP;
                     R_EIP = ip;
                     printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
                     emu->quit=1;
@@ -1427,13 +1426,13 @@ _trace:
             NEXT;
 
         _default:
-            emu->old_ip = old_ip;
+            emu->old_ip = R_EIP;
             R_EIP = ip;
             UnimpOpcode(emu);
             goto fini;
 #ifdef DYNAREC
 stepout:
-    emu->old_ip = old_ip;
+    emu->old_ip = R_EIP;
     R_EIP = ip;
     return 0;
 #endif
