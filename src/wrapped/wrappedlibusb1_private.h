@@ -54,10 +54,11 @@ GO(libusb_handle_events_locked, iFpp)
 GO(libusb_handle_events_timeout, iFpp)
 GO(libusb_handle_events_timeout_completed, iFppp)
 GO(libusb_has_capability, iFu)
-//GO(libusb_hotplug_deregister_callback, 
-//GO(libusb_hotplug_register_callback, 
+GO(libusb_hotplug_deregister_callback, vFpi)
+GOM(libusb_hotplug_register_callback, iFEpiiiiippp)
 GO(libusb_init, iFp)
 GO(libusb_interrupt_transfer, iFpCpipu)
+GO(libusb_interrupt_event_handler, iFp) // since 1.0.21 (API_VERSION > 0x01000105)
 GO(libusb_kernel_driver_active, iFpi)
 GO(libusb_lock_events, vFp)
 GO(libusb_lock_event_waiters, vFp)
