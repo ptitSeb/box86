@@ -307,52 +307,6 @@ static void* finduser_transformFct(void* fct)
     return NULL;
 }
 
-// write_data
-#define GO(A)   \
-static uintptr_t my_write_data_fct_##A = 0;   \
-static void my_write_data_##A(void* ptr, void* data, int32_t length)    \
-{                                       \
-    RunFunction(my_context, my_write_data_fct_##A, 3, ptr, data, length);\
-}
-SUPER()
-#undef GO
-static void* findwrite_dataFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_write_data_fct_##A == (uintptr_t)fct) return my_write_data_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_write_data_fct_##A == 0) {my_write_data_fct_##A = (uintptr_t)fct; return my_write_data_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libpng16 write_data callback\n");
-    return NULL;
-}
-
-
-// flush_data
-#define GO(A)   \
-static uintptr_t my_flush_data_fct_##A = 0;   \
-static void my_flush_data_##A(void* ptr)    \
-{                                       \
-    RunFunction(my_context, my_flush_data_fct_##A, 1, ptr);\
-}
-SUPER()
-#undef GO
-static void* findflush_dataFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_flush_data_fct_##A == (uintptr_t)fct) return my_flush_data_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_flush_data_fct_##A == 0) {my_flush_data_fct_##A = (uintptr_t)fct; return my_flush_data_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libpng16 flush_data callback\n");
-    return NULL;
-}
 #undef SUPER
 
 EXPORT void my16_png_set_read_fn(x86emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
@@ -384,7 +338,7 @@ EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* io_ptr, vo
     library_t * lib = GetLibInternal(png16Name);
     png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
 
-    my->png_set_write_fn(png_ptr, io_ptr, findwrite_dataFct(write_fn), findflush_dataFct(flush_fn));
+    my->png_set_write_fn(png_ptr, io_ptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 
