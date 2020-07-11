@@ -199,7 +199,7 @@ void* GetSegmentBase(uint32_t desc)
     if(base==0x6)
         return GetSeg33Base();
 
-    if(base>6 && base<10 && my_context->segtls[base].present) {
+    if(base>6 && base<10 && my_context->segtls[base-7].present) {
         void* ptr = pthread_getspecific(my_context->segtls[base-7].key);
         return ptr;
     }
