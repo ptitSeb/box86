@@ -769,8 +769,11 @@ int main(int argc, const char **argv, const char **env) {
         box86_steam = 1;
     }
 
-    for(int i=1; i<my_context->argc; ++i)
+    for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = strdup(argv[i+nextarg]);
+        printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
+    }
+
     // check if file exist
     if(!my_context->argv[0]) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
