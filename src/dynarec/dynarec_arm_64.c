@@ -129,7 +129,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {                    // mem <= i32
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                         LDR_REG_LSL_IMM5(x3, ed, x12, 0);
-                        PUSH(x3, 1<<ed);
+                        PUSH(xESP, 1<<x3);
                     }
                     break;
                 default:
