@@ -289,8 +289,9 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, sigi, &sigcontext);
 
     if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
-        printf_log(LOG_INFO, "Warning, context has been changed in sigactionhandler\n");
+        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
     }
+    printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits)
         exit(ret);
     if(restorer)
