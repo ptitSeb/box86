@@ -186,7 +186,8 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_stream_trigger, pFppp_t)              \
     GO(pa_stream_update_sample_rate, pFpupp_t)  \
     GO(pa_stream_cork, pFpipp_t)                \
-    GO(pa_proplist_setf, iFppp_t)               
+    GO(pa_proplist_setf, iFppp_t)               \
+    GO(pa_mainloop_set_poll_func, vFppp_t)      
 
 
 typedef struct pulse_my_s {
@@ -345,6 +346,27 @@ static void* findDeferEventFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_event api callback\n");
     return NULL;
 }
+// poll
+#define GO(A)   \
+static uintptr_t my_poll_fct_##A = 0;   \
+static int my_poll_##A(void* ufds, unsigned long nfds, int timeout, void* data)         \
+{                                       \
+    return (int)RunFunction(my_context, my_poll_fct_##A, 4, ufds, nfds, timeout, data); \
+}
+SUPER()
+#undef GO
+static void* find_poll_Fct(void* fct)
+{
+    #define GO(A) if(my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_poll_fct_##A == 0) {my_poll_fct_##A = (uintptr_t)fct; return my_poll_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio poll callback\n");
+    return NULL;
+}
+
 
 #undef SUPER
 
@@ -1523,6 +1545,12 @@ EXPORT int my_pa_proplist_setf(x86emu_t* emu, void* p, void* key, void* fmt, voi
     return ret;
 }
 
+EXPORT void my_pa_mainloop_set_poll_func(x86emu_t* emu, void* m, void* f, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+
+    my->pa_mainloop_set_poll_func(m, find_poll_Fct(f), data);
+}
 
 #if 0
 EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line, void* func, void* format, void* b, va_list V)

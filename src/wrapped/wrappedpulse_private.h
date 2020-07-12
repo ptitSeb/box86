@@ -147,7 +147,7 @@ GO(pa_mainloop_poll, iFp)
 GO(pa_mainloop_prepare, iFpi)
 GO(pa_mainloop_quit, vFpi)
 GO(pa_mainloop_run, iFpp)
-//GO(pa_mainloop_set_poll_func, vFpBp)  //B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
+GOM(pa_mainloop_set_poll_func, vFEppp)  //B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
 GO(pa_mainloop_wakeup, vFp)
 //GO(pa_msleep, 
 GO(pa_operation_cancel, vFp)
@@ -282,5 +282,6 @@ GO(pa_xstrdup, pFp)
 GO(pa_xstrndup, pFpu)
 
 GO(pa_stream_begin_write, iFppp)	// 0.9.16+
+GO(pa_stream_cancel_write, iFp)     // 0.9.16+
 
 GO(dummy_io_new, pFpiipp)   // dumy function to create Wrapper
