@@ -666,6 +666,7 @@ Op is 20-27
 #define VMOVQ(Dd, Dm) EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 1))
 
 #define VMOV_igen(i, D, imm3, Vd, cmode, Q, op, imm4)   (0b1111<<28 | 0b001<<25 | (i)<<24 | 1<<23 | (D)<<22 | (imm3)<<16 | (Vd)<<12 | (cmode)<<8 | (Q)<<6 | (op)<<5 | 1<<4 | (imm4))
+#define VMOV_8(Dd, imm)     EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 0, 0, (imm)&15))
 #define VMOVQ_8(Dd, imm)    EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 1, 0, (imm)&15))
 
 #define VLD1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b10<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))

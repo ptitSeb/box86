@@ -72,6 +72,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(eb2);
     MAYUSE(eb1);
     MAYUSE(wb2);
+    #if PASS == 3
+    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    #endif
+
     switch(opcode) {
         case 0x0B:
             INST_NAME("UD2");
@@ -1955,6 +1959,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMUL_16(d0, d0, d1);
             break;
 
+        case 0xD7:
+            INST_NAME("PMOVMSKB Gd, Em");
+            nextop = F8;
+            GETEM(d0);
+            gd = xEAX+((nextop&0x38)>>3);
+            #if PASS == 3
+            MOV32_(x1, &mask_shift8);
+            #else
+            MOV32_(x1, 0);
+            #endif
+            d1 = fpu_get_scratch_double(dyn);
+            VLD1_8(d1, x1);     // load shift
+            v2 = fpu_get_scratch_double(dyn);
+            VMOV_8(v2, 0x80);   // load mask
+            VANDD(v2, v2, d0);  // keep highest bit
+            VSHL_S8(v2, v2, d1);// shift
+            VPADD_8(v2, v2, v2);// accumulate the bits
+            VPADD_8(v2, v2, v2);// ...
+            VPADD_8(v2, v2, v2);// ...
+            VMOVfrDx_U8(gd, v2, 0);
+            break;
         case 0xD8:
             INST_NAME("PSUBUSB Gm,Em");
             nextop = F8;
