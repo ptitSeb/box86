@@ -1313,6 +1313,18 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         #undef GO
 
+        case 0xA0:
+            INST_NAME("PUSH FS");
+            MOVW(x1, offsetof(x86emu_t, segs[_FS]));
+            LDRH_REG(x2, xEmu, x1);
+            PUSH(xESP, 1<<x2);
+            break;
+        case 0xA1:
+            INST_NAME("POP FS");
+            MOVW(x1, offsetof(x86emu_t, segs[_FS]));
+            POP(xESP, 1<<x2);
+            STRH_REG(x2, xEmu, x1);
+            break;
         case 0xA2:
             INST_NAME("CPUID");
             MOV_REG(x1, xEAX);
@@ -1360,6 +1372,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG(x2, gd);
             CALL(shld32, ed, (wback?(1<<wback):0));
             WBACK;
+            break;
+
+        case 0xA8:
+            INST_NAME("PUSH GS");
+            MOVW(x1, offsetof(x86emu_t, segs[_GS]));
+            LDRH_REG(x2, xEmu, x1);
+            PUSH(xESP, 1<<x2);
+            break;
+        case 0xA9:
+            INST_NAME("POP GS");
+            MOVW(x1, offsetof(x86emu_t, segs[_GS]));
+            POP(xESP, 1<<x2);
+            STRH_REG(x2, xEmu, x1);
             break;
 
         case 0xAB:

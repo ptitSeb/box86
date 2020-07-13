@@ -598,6 +598,12 @@
             EM->q = GM.q;
             NEXT;
 
+        _0f_0xA0:                      /* PUSH FS */
+            Push(emu, emu->segs[_FS]);    // even if a segment is a 16bits, a 32bits push/pop is done
+            NEXT;
+        _0f_0xA1:                      /* POP FS */
+            emu->segs[_FS] = Pop(emu);    // no check, no use....
+            NEXT;
         _0f_0xA2:                      /* CPUID */
             tmp32u = R_EAX;
             switch(tmp32u) {
@@ -712,6 +718,14 @@
             tmp8u = (opcode==0xA4)?(F8):R_CL;
             ED->dword[0] = shld32(emu, ED->dword[0], GD.dword[0], tmp8u);
             NEXT;
+
+        _0f_0xA8:                      /* PUSH GS */
+            Push(emu, emu->segs[_GS]);    // even if a segment is a 16bits, a 32bits push/pop is done
+            NEXT;
+        _0f_0xA9:                      /* POP GS */
+            emu->segs[_GS] = Pop(emu);    // no check, no use....
+            NEXT;
+
 
         _0f_0xAB:                      /* BTS Ed,Gd */
             CHECK_FLAGS(emu);
