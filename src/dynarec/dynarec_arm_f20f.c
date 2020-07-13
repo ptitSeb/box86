@@ -256,6 +256,26 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0x7C:
+            INST_NAME("HADDPS Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                v1 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(v1, ed);
+            }
+            VPADD_F32(v0, v0, v0+1);
+            if(v0==v1) {
+                VMOVD(v0+1, v0);
+            } else {
+                VPADD_F32(v0+1, v1, v1+1);
+            }
+            break;
+
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex");
             nextop = F8;

@@ -1060,6 +1060,10 @@ Op is 20-27
 #define VPADD_32(Dd, Dn, Dm)    EMIT(VPADD_gen(((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 // NO VPADDQ....
 
+#define VPADD_Fgen(D, size, Vn, Vd, N, Q, M, Vm)   (0b1111<<28 | 0b0011<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1101<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
+// Add pair of F32, store result in F32
+#define VPADD_F32(Dd, Dn, Dm)   EMIT(VPADD_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+
 #define VMINMAX_gen(U, D, size, Vn, Vd, N, Q, M, op, Vm)    (0b1111<<28 | 0b001<<25 | (U)<<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (op)<<4 | (Vm))
 #define VMIN_U8(Dd, Dn, Dm)     EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b00, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))
 #define VMIN_U16(Dd, Dn, Dm)    EMIT(VMINMAX_gen(1, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, 1, (Dm)&15))

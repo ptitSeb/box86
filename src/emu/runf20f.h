@@ -111,6 +111,20 @@
         }
         break;
 
+    case 0x7C:  /* HADDPS Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        GX.f[0] += GX.f[1];
+        GX.f[1] = GX.f[2] + GX.f[3];
+        if(EX==&GX) {
+            GX.f[2] = GX.f[0];
+            GX.f[3] = GX.f[1];
+        } else {
+            GX.f[2] = EX->f[0] + EX->f[1];
+            GX.f[3] = EX->f[2] + EX->f[3];
+        }
+        break;
+
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
         nextop = F8;
         GET_EX;
