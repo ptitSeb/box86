@@ -2031,7 +2031,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 u8 = F8;
                 gd = xEAX+(u8&7);
                 MOV32(gd, addr-1);
-            } else if (((addr+i32)>BOX86_ELF_ADDRESS) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
+            } else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
                 MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
                 u8 = PK(i32+1);
                 gd = xEAX+((u8&0x38)>>3);
@@ -2123,6 +2123,30 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        break;
+                    case 0xAF:
+                        if(opcode==0xF2) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                        SETFLAGS(X_ALL, SF_MAYSET);
+                        TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                        B_NEXT(cEQ);    // end of loop
+                        GETDIR(x3, 2);
+                        UXTH(x1, xEAX, 0); // get lower 16bits
+                        MARK;
+                        LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
+                        CMPS_REG_LSL_IMM5(x1, x2, 0);
+                        if(opcode==0xF2) {
+                            B_MARK2(cEQ);
+                        } else {
+                            B_MARK2(cNE);
+                        }
+                        SUBS_IMM8(xECX, xECX, 1);
+                        B_MARK(cNE);
+                        B_MARK3(c__);
+                        // done, finish with cmp test
+                        MARK2;
+                        SUB_IMM8(xECX, xECX, 1);
+                        MARK3;
+                        emit_cmp16(dyn, ninst, x1, x2, x3, x12);
                         break;
                     default:
                         INST_NAME("F2/F3 66 ...");
@@ -2314,7 +2338,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         }
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
-                        i32 = GETMARK2+4-(dyn->arm_size+8); // go past sub ecx, 1
                         B_MARK3(c__);
                         // done, finish with cmp test
                         MARK2;
