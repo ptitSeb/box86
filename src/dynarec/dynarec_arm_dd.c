@@ -28,6 +28,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t nextop = F8;
     int fixedaddress;
+    int parity;
     uint8_t ed;
     int v1, v2;
 
@@ -159,14 +160,30 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("FST double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                    VSTR_64(v1, ed, fixedaddress); // check alignment?
+                    parity = getedparity(dyn, ninst, addr, nextop, 3);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                        VSTR_64(v1, ed, fixedaddress);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                        VMOVfrV_D(x2, x3, v1);
+                        STR_IMM9(x2, ed, fixedaddress);
+                        STR_IMM9(x3, ed, fixedaddress+4);
+                    }
                     break;
                 case 3:
                     INST_NAME("FSTP double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                    VSTR_64(v1, ed, fixedaddress); // check alignment?
+                    parity = getedparity(dyn, ninst, addr, nextop, 3);
+                    if(parity) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                        VSTR_64(v1, ed, fixedaddress);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                        VMOVfrV_D(x2, x3, v1);
+                        STR_IMM9(x2, ed, fixedaddress);
+                        STR_IMM9(x3, ed, fixedaddress+4);
+                    }
                     x87_do_pop(dyn, ninst);
                     break;
                 case 4: 

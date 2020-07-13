@@ -156,8 +156,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VADD_F64(v1, v1, d1);
@@ -172,8 +172,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VMUL_F64(v1, v1, d1);
@@ -188,8 +188,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VCMP_F64(v1, d1);
@@ -205,8 +205,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VCMP_F64(v1, d1);
@@ -223,8 +223,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VSUB_F64(v1, v1, d1);
@@ -239,8 +239,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VSUB_F64(v1, d1, v1);
@@ -255,8 +255,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VDIV_F64(v1, v1, d1);
@@ -271,8 +271,8 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0);
-                        LDR_IMM9(x2, x1, fixedaddress);
-                        LDR_IMM9(x3, x1, fixedaddress+4);
+                        LDR_IMM9(x2, wback, fixedaddress);
+                        LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
                     VDIV_F64(v1, d1, v1);
