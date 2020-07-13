@@ -1128,6 +1128,7 @@ _trace:
                     case 0x7E:
                     case 0x7F:              /* BND / NOP */
                     case 0xE8:
+                    case 0xE9:
                         --ip;
                         NEXT;
                     case 0x90:              /* PAUSE */
