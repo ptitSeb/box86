@@ -1949,28 +1949,32 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
-    dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);
+    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
     void* ret = mmap(addr, length, prot, flags, fd, offset);
-    dynarec_log(LOG_DEBUG, "%p\n", ret);
+    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
-    if(prot& PROT_EXEC)
-        addDBFromAddressRange((uintptr_t)ret, length);
-    else
-        cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+    if(ret!=(void*)-1) {
+        if(prot& PROT_EXEC)
+            addDBFromAddressRange((uintptr_t)ret, length);
+        else
+            cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+    }
     #endif
     return ret;
 }
 
 EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
-    dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);
+    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);}
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
-    dynarec_log(LOG_DEBUG, "%p\n", ret);
+    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
-    if(prot& PROT_EXEC)
-        addDBFromAddressRange((uintptr_t)ret, length);
-    else
-        cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+    if(ret!=(void*)-1) {
+        if(prot& PROT_EXEC)
+            addDBFromAddressRange((uintptr_t)ret, length);
+        else
+            cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+    }
     #endif
     return ret;
 }

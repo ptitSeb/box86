@@ -152,6 +152,12 @@ void x86Int3(x86emu_t* emu)
                     int16_t* p16 = *(int16_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p[%u/%d/%d], %d)", tid, *(void**)(R_ESP), s, *(int*)(R_ESP+4), p16, p16[0], p16[1], p16[2], *(int*)(R_ESP+12));
                     perr = 1;
+                } else  if(!strcmp(s, "mmap64")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %lld)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int64_t*)(R_ESP+24));
+                    perr = 1;
+                } else  if(!strcmp(s, "mmap")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %d)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int*)(R_ESP+24));
+                    perr = 1;
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "gtk_signal_connect_full")) {
