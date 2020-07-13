@@ -2843,9 +2843,21 @@ GO(glCreateFramebuffers, vFip)
 GO(glCreateProgramPipelines, vFip)
 GO(glCreateRenderbuffers, vFip)
 GO(glCreateTextures, vFuip)
+GO(glClipControl, vFii)
 GO(glInvalidateNamedFramebufferData, vFuip)
 GO(glNamedBufferStorage, vFuiupu)
+GO(glTextureBarrier, vFv)
 GO(glVertexArrayVertexBuffers, vFuuippp)
+
+//GL_EXT_memory_object
+GO(glGetUnsignedBytei_vEXT, vFiup)
+GO(glGetUnsignedBytevEXT, vFip)
+
+//GL_ARB_polygon_offset_clamp
+GO(glPolygonOffsetClamp, vFfff)
+
+//GL_EXT_polygon_offset_clamp
+GO(glPolygonOffsetClampEXT, vFfff)
 
 //GL_KTX_buffer_region
 GO(glBufferRegionEnabled,uFv)
@@ -2966,6 +2978,12 @@ GO(glXWaitX,vFv)
 
 GOM(glXGetProcAddress, pFEp)
 GOM(glXGetProcAddressARB, pFEp)
+
+//GLX_MESA_query_renderer
+GO(glXQueryRendererIntegerMESA, iFpiiip)
+GO(glXQueryCurrentRendererIntegerMESA, iFip)
+GO(glXQueryRendererStringMESA, pFpiii)
+GO(glXQueryCurrentRendererStringMESA, pFi)
 
 //GLX_OML_sync_control
 GO(glXGetSyncValuesOML, iFppppp)

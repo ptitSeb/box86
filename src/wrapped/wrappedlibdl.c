@@ -336,6 +336,8 @@ int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info)
     switch(request) {
         case 2: // RTLD_DI_LINKMAP
             {
+                if(strstr(h->name, "api-ms-win-core-localization-l1-2-1.dll.so"))
+                    {box86_log=2; trace_end=0;}
                 static link_map_t map = {0};   //cheating, creating a structure on demand...
                 *(link_map_t**)info = &map;
                 map.l_addr = h?h->delta:0;
