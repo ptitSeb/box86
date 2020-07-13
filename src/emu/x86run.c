@@ -1081,6 +1081,28 @@ _trace:
                             R_EDI += tmp8s;
                         }
                         break;
+                    case 0xAF:              /* REP(N)Z SCASW */
+                        tmp16u = 0;
+                        tmp8s *= 2;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp16u = *(uint16_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_AX==tmp16u)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp16u = *(uint16_t*)R_EDI;
+                                R_EDI += tmp8s;
+                                if(R_AX!=tmp16u)
+                                    break;
+                            }
+                        }
+                        if(R_ECX) cmp16(emu, R_AX, tmp16u);
+                        break;
                     default:
                         goto _default;
                 }
