@@ -108,8 +108,6 @@ endif()
 
 set(BOX86_ELF_ADDRESS "0x02800000")
 
-add_definitions(-DBOX86_ELF_ADDRESS=${BOX86_ELF_ADDRESS})
-
 if(LD80BITS)
     add_definitions(-DHAVE_LD80BITS)
 endif()
@@ -176,6 +174,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/tools/callback.c"
     "${BOX86_ROOT}/src/tools/box86stack.c"
     "${BOX86_ROOT}/src/tools/gtkclass.c"
+    "${BOX86_ROOT}/src/tools/wine_tools.c"
     "${BOX86_ROOT}/src/elfs/elfloader.c"
     "${BOX86_ROOT}/src/elfs/elfparser.c"
     "${BOX86_ROOT}/src/elfs/elfload_dump.c"
