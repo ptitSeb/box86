@@ -203,7 +203,12 @@
                 emu->sw.f.F87_C2 = 1;
             }
             break;
-
+        case 0xF6:  /* FDECSTP */
+            emu->top=(emu->top-1)&7;    // this will probably break a few things
+            break;
+        case 0xF7:  /* FINCSTP */
+            emu->top=(emu->top+1)&7;    // this will probably break a few things
+            break;
         case 0xF9:  /* FYL2XP1 */
             #ifdef USE_FLOAT
             ST(1).f = log2f(ST0.f + 1.0f)*ST(1).f;
@@ -276,8 +281,6 @@
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF6:
-        case 0xF7:
             goto _default;
         default:
         switch((nextop>>3)&7) {
