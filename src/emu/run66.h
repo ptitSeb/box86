@@ -208,6 +208,13 @@
         PackFlags(emu);
         Push16(emu, (uint16_t)emu->packed_eflags.x32);
         NEXT;
+    _66_0x9D:                              /* POPFW */
+        CHECK_FLAGS(emu);
+        PackFlags(emu);
+        emu->packed_eflags.x32 &=0xffff0000;
+        emu->packed_eflags.x32 |= (Pop16(emu) & 0x3F7FD7) | 0x2;
+        UnpackFlags(emu);
+        NEXT;
 
     _66_0xA1:                              /* MOV AX,Ow */
         R_AX = *(uint16_t*)F32;
