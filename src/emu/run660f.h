@@ -689,6 +689,43 @@
         GW.word[0] = EB->byte[0];
         NEXT;
 
+    _6f_0xBA:                      
+        nextop = F8;
+        switch((nextop>>3)&7) {
+            case 4:                 /* BT Ew,Ib */
+                CHECK_FLAGS(emu);
+                GET_EW;
+                tmp8u = F8;
+                if((nextop&0xC0)!=0xC0)
+                {
+                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
+                }
+                tmp8u&=15;
+                if(EW->word[0] & (1<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+                break;
+            case 6:             /* BTR Ew, Ib */
+                CHECK_FLAGS(emu);
+                GET_EW;
+                tmp8u = F8;
+                if((nextop&0xC0)!=0xC0)
+                {
+                    EW=(reg32_t*)(((uint16_t*)(ED))+(tmp8u>>4));
+                }
+                tmp8u&=15;
+                if(EW->word[0] & (1<<tmp8u)) {
+                    SET_FLAG(F_CF);
+                    EW->word[0] ^= (1<<tmp8u);
+                } else
+                    CLEAR_FLAG(F_CF);
+                break;
+
+            default:
+                goto _default;
+        }
+        NEXT;
     _6f_0xBB:                      /* BTC Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
