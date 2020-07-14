@@ -41,6 +41,16 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_xor32(dyn, ninst, gd, ed, x3, x12);
             break;
 
+        case 0x3B:
+            INST_NAME("CMP Gd, FS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_fsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_cmp32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
         case 0x89:
             INST_NAME("MOV FS:Ed, Gd");
             grab_fsdata(dyn, addr, ninst, x12);
