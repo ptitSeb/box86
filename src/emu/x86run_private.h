@@ -122,6 +122,33 @@ static inline reg32_t* GetEw16(x86emu_t *emu, uint32_t v)
     }
 }
 
+static inline reg32_t* GetEw16off(x86emu_t *emu, uint32_t v, uintptr_t offset)
+{
+    uint32_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return &emu->regs[(m&0x07)];
+    } else {
+        uint32_t base = 0;
+        switch(m&7) {
+            case 0: base = R_BX+R_SI; break;
+            case 1: base = R_BX+R_DI; break;
+            case 2: base = R_BP+R_SI; break;
+            case 3: base = R_BP+R_DI; break;
+            case 4: base =      R_SI; break;
+            case 5: base =      R_DI; break;
+            case 6: base =      R_BP; break;
+            case 7: base =      R_BX; break;
+        }
+        switch((m>>6)&3) {
+            case 0: if(m==6) base = Fetch16(emu); break;
+            case 1: base += Fetch8s(emu); break;
+            case 2: base += Fetch16s(emu); break;
+            // case 3 is C0..C7, already dealt with
+        }
+        return (reg32_t*)(base+offset);
+    }
+}
+
 static inline mmx_regs_t* GetEm(x86emu_t *emu, uint32_t v)
 {
     uint32_t m = v&0xC7;    // filter Ed

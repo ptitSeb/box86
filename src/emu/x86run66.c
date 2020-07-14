@@ -524,6 +524,21 @@ void RunFS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             cmp32(emu, GD.dword[0], ED->dword[0]);
             break;
+        
+        case 0x67:
+            opcode = F8;
+            switch(opcode) {
+                case 0x8B:                              /* MOV Gd,Ed16 */
+                    nextop = F8;
+                    oped=GetEw16off(emu, nextop, tlsdata);
+                    GD.dword[0] = ED->dword[0];
+                    break;
+                default:
+                    ip-=2;
+                    UnimpOpcode(emu);
+            }
+            break;
+
         case 0x69:              /* IMUL Gd,Ed,Id */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
