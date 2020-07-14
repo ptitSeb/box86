@@ -423,6 +423,9 @@
             case 1:                 /* DEC Ed */
                 EW->word[0] = dec16(emu, EW->word[0]);
                 break;
+            case 6:
+                Push16(emu, EW->word[0]);
+                break;
             default:
                 emu->old_ip = R_EIP;
                 R_EIP = ip;
