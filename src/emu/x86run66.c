@@ -403,6 +403,11 @@ void RunGS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = GD.dword[0];
             break;
+        case 0x8A:              /* MOV Gb,GS:Eb */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            GB = EB->byte[0];
+            break;
         case 0x8B:              /* MOV Gd,Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
