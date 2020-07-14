@@ -452,7 +452,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F32S;
             emit_xor32c(dyn, ninst, xEAX, i32, x3, x12);
             break;
-
+        case 0x36:
+            INST_NAME("SS:");
+            // ignored
+            break;
         case 0x37:
             INST_NAME("AAA");
             READFLAGS(X_AF);
