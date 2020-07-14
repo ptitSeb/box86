@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
+#include "emu/x86run_private.h"
 #include "signals.h"
 #include "box86stack.h"
 #include "dynarec.h"
@@ -328,8 +329,22 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         old_code = info->si_code;
         old_pc = pc;
         old_addr = addr;
+        const char* name = GetNativeName(pc);
+        uintptr_t x86pc = (uintptr_t)-1;
+        const char* x86name = NULL;
+        if(strcmp(name, "???")) {
+            x86emu_t* emu = thread_get_emu();
+            x86pc = R_EIP;
+        } else {
+            #if defined(__arm__) && defined(DYNAREC)
+            x86emu_t* emu = (x86emu_t*)p->uc_mcontext.arm_r0;
+            if(emu>(x86emu_t*)0x10000)
+                x86pc = R_EIP; // sadly, r12 is probably not actual eip, so try a slightly outdated one
+            #endif
+        }
+        x86name = getAddrFunctionName(x86pc);   
         // uncomment that line for easier SEGFAULT debugging
-        printf_log(LOG_NONE, "%04d|SIGSEGV @%p, for accessing %p (code=%d)\n", GetTID(), pc, addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), pc, name, x86pc, x86name?x86name:"???", addr, info->si_code);
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
                 my_sigactionhandler(sig, info, ucntx);
