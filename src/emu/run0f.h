@@ -1,5 +1,21 @@
     opcode = F8;
     goto *opcodes0f[opcode];
+        _0f_0x00:                       /* VERx Ed */
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4: //VERR
+                case 5: //VERW
+                    GET_EW;
+                    if(!EW->word[0])
+                        CLEAR_FLAG(F_ZF);
+                    else
+                        SET_FLAG(F_ZF); // should test if selector is ok
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
+
         _0f_0x0B:                      /* UD2 */
             kill(getpid(), SIGILL);              // this is undefined instruction
             NEXT;
@@ -1220,7 +1236,12 @@
                 GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
             }
             NEXT;
-
+        _0f_0xEE:                   /* PMAXSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<4; ++i)
+                GM.sw[i] = (GM.sw[i]>EM->sw[i])?GM.sw[i]:EM->sw[i];
+            NEXT;
         _0f_0xEF:                   /* PXOR Gm, Em */
             nextop = F8;
             GET_EM;
