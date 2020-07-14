@@ -607,6 +607,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             POP(xESP, (1<<xEAX));
             //MOV_REG(xESP, x1);
             break;
+        case 0x62:
+            INST_NAME("BOUND Gd, Ed");
+            nextop = F8;
+            GETED;
+            // no bound test for now
+            break;
 
         case 0x64:
             addr = dynarecFS(dyn, addr, ip, ninst, ok, need_epilog);
