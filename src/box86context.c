@@ -335,6 +335,8 @@ void FreeBox86Context(box86context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
+    my_context = NULL;
+
     for(int i=0; i<(*context)->elfsize; ++i) {
         FreeElfHeader(&(*context)->elfs[i]);
     }
