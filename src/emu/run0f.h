@@ -1193,7 +1193,12 @@
                 GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
             }
             NEXT;
-
+        _0f_0xEA:                   /* PMINSW Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<4; ++i)
+                GM.sw[i] = (GM.sw[i]<EM->sw[i])?GM.sw[i]:EM->sw[i];
+            NEXT;
         _0f_0xEB:                   /* POR Gm, Em */
             nextop = F8;
             GET_EM;
