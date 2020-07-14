@@ -344,7 +344,7 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         x86name = getAddrFunctionName(x86pc);   
         // uncomment that line for easier SEGFAULT debugging
-        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), pc, name, x86pc, x86name?x86name:"???", addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code);
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
                 my_sigactionhandler(sig, info, ucntx);
