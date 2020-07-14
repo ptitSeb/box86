@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <link.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "box86version.h"
 #include "elfloader.h"
@@ -262,7 +263,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             fseeko64(f, e->p_offset, SEEK_SET);
             if(e->p_filesz) {
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d (size=%d)\n", i, e->p_filesz);
                     return 1;
                 }
             }
@@ -277,7 +278,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             if(e->p_filesz) {
                 fseeko64(f, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%d\n", i);
+                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%d (size=%d)\n", i, e->p_filesz);
                     return 1;
                 }
             }
@@ -296,10 +297,15 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)e->p_paddr + head->delta;
             printf_log(LOG_DEBUG, "Re-loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
-            fseeko64(f, e->p_offset, SEEK_SET);
+            int ret = fseeko64(f, e->p_offset, SEEK_SET);
+            if(ret==-1) {printf_log(LOG_NONE, "Fail to (re)seek PT_LOAD part #%d (offset=%d, errno=%d/%s)\n", i, e->p_offset, errno, strerror(errno)); return 1;}
             if(e->p_filesz) {
-                if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d\n", i);
+                ssize_t r = -1;
+                #ifdef DYNAREC
+                unprotectDB((uintptr_t)dest, e->p_filesz);
+                #endif
+                if((r=fread(dest, e->p_filesz, 1, f))!=1) {
+                    printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%d (dest=%p, size=%d, return=%d, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
                     return 1;
                 }
             }
@@ -837,7 +843,6 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
         printf_log(LOG_DEBUG, "Calling Fini for %s @%p\n", ElfName(h), (void*)p);
         RunFunctionWithEmu(emu, 0, p, 0);
     }
-
     h->init_done = 0;   // can be re-inited again...
     return;
 }

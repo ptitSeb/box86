@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "debug.h"
 #include "library.h"
@@ -335,6 +336,10 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
             return 1;   // failed to reload...
         }
         FILE *f = fopen(libname, "rb");
+        if(!f) {
+            printf_log(LOG_NONE, "Error: cannot open file to re-load elf %s (errno=%d/%s)\n", libname, errno, strerror(errno));
+            return 1;   // failed to reload...
+        }
         if(ReloadElfMemory(f, lib->context, elf_header)) {
             printf_log(LOG_NONE, "Error: re-loading in memory elf %s\n", libname);
             fclose(f);
