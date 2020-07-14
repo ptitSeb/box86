@@ -335,115 +335,117 @@ void FreeBox86Context(box86context_t** context)
     if(--(*context)->forked >= 0)
         return;
 
-    my_context = NULL;
+    box86context_t* ctx = *context;   // local copy to do the cleanning
 
-    for(int i=0; i<(*context)->elfsize; ++i) {
-        FreeElfHeader(&(*context)->elfs[i]);
+    for(int i=0; i<ctx->elfsize; ++i) {
+        FreeElfHeader(&ctx->elfs[i]);
     }
-    free((*context)->elfs);
+    free(ctx->elfs);
 
-    FreeFTSMap(*context);
+    FreeFTSMap(ctx);
 
-    if((*context)->maplib)
-        FreeLibrarian(&(*context)->maplib);
-    if((*context)->local_maplib)
-        FreeLibrarian(&(*context)->local_maplib);
+    if(ctx->maplib)
+        FreeLibrarian(&ctx->maplib);
+    if(ctx->local_maplib)
+        FreeLibrarian(&ctx->local_maplib);
 
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-    if((*context)->dynablocks)
-        FreeDynablockList(&(*context)->dynablocks);
-    for (int i=0; i<(*context)->mmapsize; ++i)
-        if((*context)->mmaplist[i].block)
-            munmap((*context)->mmaplist[i].block, MMAPSIZE);
-    free((*context)->mmaplist);
-    pthread_mutex_destroy(&(*context)->mutex_blocks);
-    pthread_mutex_destroy(&(*context)->mutex_mmap);
+    if(ctx->dynablocks)
+        FreeDynablockList(&ctx->dynablocks);
+    for (int i=0; i<ctx->mmapsize; ++i)
+        if(ctx->mmaplist[i].block)
+            munmap(ctx->mmaplist[i].block, MMAPSIZE);
+    free(ctx->mmaplist);
+    pthread_mutex_destroy(&ctx->mutex_blocks);
+    pthread_mutex_destroy(&ctx->mutex_mmap);
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(0, 0xffffffff, 1);
 #endif
     
-    CleanStackSize(*context);
-    FreeCollection(&(*context)->box86_path);
-    FreeCollection(&(*context)->box86_ld_lib);
-    FreeCollection(&(*context)->box86_emulated_libs);
-    // stop trace now
-    if((*context)->dec)
-        DeleteX86TraceDecoder(&(*context)->dec);
-    if((*context)->zydis)
-        DeleteX86Trace(*context);
+    *context = NULL;                // bye bye my_context
 
-    if((*context)->deferedInitList)
-        free((*context)->deferedInitList);
+    CleanStackSize(ctx);
+
+    FreeCollection(&ctx->box86_path);
+    FreeCollection(&ctx->box86_ld_lib);
+    FreeCollection(&ctx->box86_emulated_libs);
+    // stop trace now
+    if(ctx->dec)
+        DeleteX86TraceDecoder(&ctx->dec);
+    if(ctx->zydis)
+        DeleteX86Trace(ctx);
+
+    if(ctx->deferedInitList)
+        free(ctx->deferedInitList);
 
 #ifndef BUILD_LIB
-    if((*context)->box86lib)
-        dlclose((*context)->box86lib);
+    if(ctx->box86lib)
+        dlclose(ctx->box86lib);
 #endif
 
-    FreeDLPrivate(&(*context)->dlprivate);
+    FreeDLPrivate(&ctx->dlprivate);
 
-    free((*context)->argv);
+    free(ctx->argv);
     
-    for (int i=0; i<(*context)->envc; ++i)
-        free((*context)->envv[i]);
-    free((*context)->envv);
+    for (int i=0; i<ctx->envc; ++i)
+        free(ctx->envv[i]);
+    free(ctx->envv);
 
-    free((*context)->stack);
+    free(ctx->stack);
 
-    free((*context)->fullpath);
-    free((*context)->box86path);
+    free(ctx->fullpath);
+    free(ctx->box86path);
 
-    FreeBridge(&(*context)->system);
+    FreeBridge(&ctx->system);
 
-    freeGLProcWrapper(*context);
-    freeALProcWrapper(*context);
+    freeGLProcWrapper(ctx);
+    freeALProcWrapper(ctx);
 
-    FreeCallbackList(&(*context)->callbacks);
+    FreeCallbackList(&ctx->callbacks);
 
     void* ptr;
-    if ((ptr = pthread_getspecific((*context)->tlskey)) != NULL) {
+    if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {
         free_tlsdatasize(ptr);
-        pthread_setspecific((*context)->tlskey, NULL);
+        pthread_setspecific(ctx->tlskey, NULL);
     }
-    pthread_key_delete((*context)->tlskey);
+    pthread_key_delete(ctx->tlskey);
 
-    if((*context)->tlsdata)
-        free((*context)->tlsdata);
+    if(ctx->tlsdata)
+        free(ctx->tlsdata);
 
     for(int i=0; i<3; ++i) {
-        if((*context)->segtls[i].present) {
+        if(ctx->segtls[i].present) {
             // key content not handled by box86, so not doing anything with it
-            pthread_key_delete((*context)->segtls[i].key);
+            pthread_key_delete(ctx->segtls[i].key);
         }
     }
 
-    pthread_mutex_destroy(&(*context)->mutex_once);
-    pthread_mutex_destroy(&(*context)->mutex_once2);
-    pthread_mutex_destroy(&(*context)->mutex_trace);
-    pthread_mutex_destroy(&(*context)->mutex_lock);
-    pthread_mutex_destroy(&(*context)->mutex_thread);
+    pthread_mutex_destroy(&ctx->mutex_once);
+    pthread_mutex_destroy(&ctx->mutex_once2);
+    pthread_mutex_destroy(&ctx->mutex_trace);
+    pthread_mutex_destroy(&ctx->mutex_lock);
+    pthread_mutex_destroy(&ctx->mutex_thread);
 
-    free_neededlib(&(*context)->neededlibs);
+    free_neededlib(&ctx->neededlibs);
 
-    if((*context)->atfork_sz) {
-        free((*context)->atforks);
-        (*context)->atforks = NULL;
-        (*context)->atfork_sz = (*context)->atfork_cap = 0;
+    if(ctx->atfork_sz) {
+        free(ctx->atforks);
+        ctx->atforks = NULL;
+        ctx->atfork_sz = ctx->atfork_cap = 0;
     }
 
     for(int i=0; i<MAX_SIGNAL; ++i)
-        if((*context)->signals[i]!=0 && (*context)->signals[i]!=1) {
+        if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
             signal(i, SIG_DFL);
         }
 
-    if((*context)->emu_sig)
-        FreeX86Emu(&(*context)->emu_sig);
+    if(ctx->emu_sig)
+        FreeX86Emu(&ctx->emu_sig);
 
     finiAllHelpers();
 
-    free(*context);
-    *context = NULL;
+    free(ctx);
 }
 
 int AddElfHeader(box86context_t* ctx, elfheader_t* head) {

@@ -3,7 +3,7 @@
 
 typedef struct box86context_s box86context_t;
 
-void CleanStackSize();
+void CleanStackSize(box86context_t* context);
 
 void init_pthread_helper();
 void fini_pthread_helper();

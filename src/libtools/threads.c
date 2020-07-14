@@ -57,16 +57,16 @@ typedef struct x86_unwind_buff_s {
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
 KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
 
-void CleanStackSize()
+void CleanStackSize(box86context_t* context)
 {
 	threadstack_t *ts;
-	if(!my_context->stacksizes)
+	if(!context || !context->stacksizes)
 		return;
-	pthread_mutex_lock(&my_context->mutex_thread);
-	kh_foreach_value(my_context->stacksizes, ts, free(ts));
-	kh_destroy(threadstack, my_context->stacksizes);
-	my_context->stacksizes = NULL;
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	pthread_mutex_lock(&context->mutex_thread);
+	kh_foreach_value(context->stacksizes, ts, free(ts));
+	kh_destroy(threadstack, context->stacksizes);
+	context->stacksizes = NULL;
+	pthread_mutex_unlock(&context->mutex_thread);
 }
 
 void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
@@ -120,13 +120,15 @@ static void InitCancelThread()
 	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
-static void FreeCancelThread()
+static void FreeCancelThread(box86context_t* context)
 {
+	if(!context)
+		return;
 	__pthread_unwind_buf_t* buff;
-	pthread_mutex_lock(&my_context->mutex_thread);
-	kh_foreach_value(my_context->cancelthread, buff, free(buff))
-	kh_destroy(cancelthread, my_context->cancelthread);
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	pthread_mutex_lock(&context->mutex_thread);
+	kh_foreach_value(context->cancelthread, buff, free(buff))
+	kh_destroy(cancelthread, context->cancelthread);
+	pthread_mutex_unlock(&context->mutex_thread);
 	my_context->cancelthread = NULL;
 }
 static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
@@ -626,8 +628,8 @@ void init_pthread_helper()
 
 void fini_pthread_helper()
 {
-	FreeCancelThread();
-	CleanStackSize();
+	FreeCancelThread(my_context);
+	CleanStackSize(my_context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
 		pthread_cond_destroy(cond);
