@@ -1321,7 +1321,15 @@
                 tmp32u += (GM.ub[i]>EM->ub[i])?(GM.ub[i] - EM->ub[i]):(EM->ub[i] - GM.ub[i]);
             GM.q = tmp32u;
             NEXT;
-
+        _0f_0xF7:                   /* MASKMOVQ Gm, Em */
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                GET_EM;
+                for (int i=0; i<8; ++i)
+                    if(EM->ub[i]&0x80) ((uint8_t*)(R_EDI))[i] = GM.ub[i];
+            } else
+                goto _default;
+            NEXT;
         _0f_0xF8:                   /* PSUBB Gm,Em */
             nextop = F8;
             GET_EM;
