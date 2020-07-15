@@ -1118,6 +1118,22 @@ _trace:
                 tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 tmp32u = R_ECX;
                 switch(nextop) {
+                    case 0x40:
+                    case 0x41:
+                    case 0x42:
+                    case 0x43:
+                    case 0x44:
+                    case 0x45:
+                    case 0x46:
+                    case 0x47:
+                    case 0x48:
+                    case 0x49:
+                    case 0x4A:
+                    case 0x4B:
+                    case 0x4C:
+                    case 0x4D:
+                    case 0x4E:
+                    case 0x4F:
                     case 0x70:
                     case 0x71:
                     case 0x72:
