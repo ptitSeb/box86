@@ -41,12 +41,12 @@
 box86context_t *my_context = NULL;
 int box86_log = LOG_INFO;//LOG_NONE;
 int box86_dynarec_log = LOG_NONE;
+int box86_pagesize;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
-int box86_pagesize;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -85,9 +85,6 @@ void GatherDynarecExtensions()
 {
     if(box86_dynarec==0)    // no need to check if no dynarec
         return;
-    box86_pagesize = sysconf(_SC_PAGESIZE);
-    if(!box86_pagesize)
-        box86_pagesize = 4096;
 #ifdef ARM
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
@@ -328,6 +325,9 @@ void LoadLogEnv()
         if(fix_64bit_inodes)
             printf_log(LOG_INFO, "Fix 64bit inodes\n");
     }
+    box86_pagesize = sysconf(_SC_PAGESIZE);
+    if(!box86_pagesize)
+        box86_pagesize = 4096;
 #ifdef DYNAREC
     GatherDynarecExtensions();
 #endif

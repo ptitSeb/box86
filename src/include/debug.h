@@ -6,12 +6,12 @@ typedef struct box86context_s box86context_t;
 int box86_log;    // log level
 int box86_dynarec_log;
 int box86_dynarec;
+int box86_pagesize;
 #ifdef DYNAREC
 int box86_dynarec_dump;
 int box86_dynarec_linker;
 int box86_dynarec_trace;
 int box86_dynarec_forced;
-int box86_pagesize;
 #ifdef ARM
 int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap;
