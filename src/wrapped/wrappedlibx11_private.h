@@ -382,7 +382,7 @@ GO(XGeometry, iFpippuuuiipppp)
 GO(_XGetAsyncData, vFpppiiii)
 // _XGetAsyncReply
 GO(XGetAtomName, pFpp)
-GO(XGetAtomNames, pFpp)
+GO(XGetAtomNames, iFppip)
 // _XGetBitsPerPixel
 GO(XGetClassHint, iFppp)
 GO(XGetCommand, iFpppp)
