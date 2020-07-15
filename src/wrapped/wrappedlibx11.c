@@ -96,6 +96,7 @@ typedef void* (*pFppiiuuui_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t
 typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
 typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
+typedef int (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
@@ -123,7 +124,8 @@ typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
     GO(XOpenDisplay, pFp_t)                 \
     GO(XInitThreads, uFv_t)                 \
     GO(XRegisterIMInstantiateCallback, iFpppppp_t)      \
-    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)
+    GO(XUnregisterIMInstantiateCallback, iFpppppp_t)    \
+    GO(XQueryExtension, iFppppp_t)
 
 typedef struct x11_my_s {
     // functions
@@ -794,6 +796,20 @@ EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db,
     x86emu_t* cbemu = FindCallbackFnc1Arg(emu, (uintptr_t)cb, 2, data);
 
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, cbemu?my_xidproc:cb, cbemu?cbemu:data);
+}
+
+EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    int ret = my->XQueryExtension(display, name, major, first_event, first_error);
+    if(!ret && name && !strcmp(name, "GLX")) {
+        // hack to force GLX to be accepted, even if not present
+        // left major and first_XXX to default...
+        ret = 1;
+    }
+    return ret;
 }
 
 

@@ -847,7 +847,7 @@ GO(XQueryBestCursor, iFppuupp)
 //GO(XQueryBestTile
 GO(XQueryColor, iFppp)
 GO(XQueryColors, iFpppi)
-GO(XQueryExtension, iFppppp)
+GOM(XQueryExtension, iFEppppp)
 GO(XQueryFont, pFpp)
 GO(XQueryKeymap, iFpp)
 GO(XQueryPointer, iFppppppppp)
