@@ -1208,6 +1208,13 @@
             }
             NEXT;
 
+        _0f_0xE7:                   /* MOVNTQ Em,Gm */
+            nextop = F8;
+            if((nextop&0xC0)==0xC0)
+                goto _default;
+            GET_EM;
+            EM->q = GM.q;
+            NEXT;
         _0f_0xE8:                   /* PSUBSB Gm,Em */
             nextop = F8;
             GET_EM;
