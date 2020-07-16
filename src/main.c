@@ -68,6 +68,7 @@ int box86_dynarec_trace = 0;
 int x11color16 = 0;
 #endif
 int x11threads = 0;
+int x11glx = 1;
 int allow_missing_libs = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
@@ -295,6 +296,17 @@ void LoadLogEnv()
         }
         if(x11threads)
             printf_log(LOG_INFO, "Try to Call XInitThreads if libX11 is loaded\n");
+    }
+    p = getenv("BOX86_X11GLX");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                x11glx = p[0]-'0';
+        }
+        if(x11glx)
+            printf_log(LOG_INFO, "Hack to force libX11 GLX extension present\n");
+        else
+            printf_log(LOG_INFO, "Disabled Hack to force libX11 GLX extension present\n");
     }
     p = getenv("BOX86_LIBGL");
     if(p)

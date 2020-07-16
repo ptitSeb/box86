@@ -19,7 +19,8 @@
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
 
-extern int x11threads;
+int x11threads;
+int x11glx;
 
 typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
@@ -804,7 +805,7 @@ EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* maj
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
-    if(!ret && name && !strcmp(name, "GLX")) {
+    if(!ret && name && !strcmp(name, "GLX") && x11glx) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;

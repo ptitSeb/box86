@@ -74,6 +74,11 @@ To call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)
 * 0 : default, don't force call XInitThreads
 * 1 : Call XInitThreads as soon as libX11 is loaded
 
+#### BOX86_X11GLX
+To Force libX11 GLX extension to be present
+* 0 : Disable the force.
+* 1 : default, GLX will always be present when using XQueryExtension
+
 #### BOX86_DYNAREC_DUMP
  * 0 : Disable Dynarec blocks dump (default)
  * 1 : Enable Dynarec blocks dump
