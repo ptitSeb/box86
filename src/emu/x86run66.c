@@ -16,6 +16,7 @@
 #define F8      *(uint8_t*)(ip++)
 #define F8S     *(int8_t*)(ip++)
 #define F16     *(uint16_t*)(ip+=2, ip-2)
+#define F16S    *(int16_t*)(ip+=2, ip-2)
 #define F32     *(uint32_t*)(ip+=4, ip-4)
 #define F32S    *(int32_t*)(ip+=4, ip-4)
 #define PK(a)   *(uint8_t*)(ip+a)
@@ -517,6 +518,7 @@ void RunFS(x86emu_t *emu)
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
+    int16_t tmp16s;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
@@ -537,6 +539,10 @@ void RunFS(x86emu_t *emu)
                     nextop = F8;
                     oped=GetEw16off(emu, nextop, tlsdata);
                     GD.dword[0] = ED->dword[0];
+                    break;
+                case 0xA1:                              /* MOV EAX,Ov16 */
+                    tmp16s = F16S;
+                    R_EAX = *(uint32_t*)((tlsdata) + tmp16s);
                     break;
                 default:
                     ip-=2;
