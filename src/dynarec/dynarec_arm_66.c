@@ -802,9 +802,22 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xF2:
         case 0xF3:
             nextop = F8;
             switch(nextop) {
+                case 0xA4:
+                    INST_NAME("REP MOVSB");
+                    TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                    B_NEXT(cEQ);    // end of loop
+                    GETDIR(x3,1);
+                    MARK;
+                    LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                    STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
+                    SUBS_IMM8(xECX, xECX, 1);
+                    B_MARK(cNE);
+                    // done
+                    break;
                 case 0xA5:
                     INST_NAME("REP MOVSW");
                     TSTS_REG_LSL_IMM5(xECX, xECX, 0);

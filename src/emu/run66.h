@@ -331,6 +331,14 @@
         tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
         tmp32u = R_ECX;
         switch(nextop) {
+            case 0xA4:              /* REP MOVSB */
+                while(tmp32u) {
+                    --tmp32u;
+                    *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
+                    R_EDI += tmp8s;
+                    R_ESI += tmp8s;
+                }
+                break;
             case 0xA5:              /* REP MOVSW */
                 while(tmp32u) {
                     --tmp32u;
