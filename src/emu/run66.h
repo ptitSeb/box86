@@ -99,6 +99,27 @@
         tmp8u = opcode&7;
         emu->regs[tmp8u].word[0] = Pop16(emu);
         NEXT;
+    _66_0x60:                              /* PUSHA */
+        tmp16u = R_SP;
+        Push16(emu, R_AX);
+        Push16(emu, R_CX);
+        Push16(emu, R_DX);
+        Push16(emu, R_BX);
+        Push16(emu, tmp16u);
+        Push16(emu, R_BP);
+        Push16(emu, R_SI);
+        Push16(emu, R_DI);
+        NEXT;
+    _66_0x61:                              /* POPA */
+        R_DI = Pop16(emu);
+        R_SI = Pop16(emu);
+        R_BP = Pop16(emu);
+        R_ESP+=2;   // POP ESP
+        R_BX = Pop16(emu);
+        R_DX = Pop16(emu);
+        R_CX = Pop16(emu);
+        R_AX = Pop16(emu);
+        NEXT;
 
     _66_0x66:
         goto _0x66; // 0x66 0x66 => can remove one 0x66
