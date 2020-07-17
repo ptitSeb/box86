@@ -211,10 +211,16 @@
     _66_0x90:                              /* NOP */
         NEXT;
 
-    _66_0x92:                              /* XCHG DX,AX */
+    _66_0x91:
+    _66_0x92:
+    _66_0x93:
+    _66_0x94:
+    _66_0x95:
+    _66_0x96:
+    _66_0x97:                      /* XCHG reg,EAX */
         tmp16u = R_AX;
-        R_AX = R_DX;
-        R_DX = tmp16u;
+        R_AX = emu->regs[opcode&7].word[0];
+        emu->regs[opcode&7].word[0] = tmp16u;
         NEXT;
 
     _66_0x98:                               /* CBW */
