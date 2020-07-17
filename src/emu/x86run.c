@@ -160,7 +160,7 @@ int Run(x86emu_t *emu, int step)
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
     &&_default, &&_default, &&_66_0xF2, &&_66_0xF3, &&_default, &&_default, &&_default, &&_66_0xF7, 
-    &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xFF
+    &&_66_0xF8, &&_66_0xF9, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xFF
     };
 
     static const void* opcodes660f[256] = {
@@ -449,14 +449,14 @@ _trace:
             GD.dword[0] = imul32(emu, ED->dword[0], (uint32_t)tmp32s);
             NEXT;
         _0x6C:                      /* INSB */
-            *(int8_t*)R_EDI = 0;   // faking port read
+            *(int8_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
             if(ACCESS_FLAG(F_DF))
                 R_EDI-=1;
             else
                 R_EDI+=1;
             NEXT;
         _0x6D:                      /* INSD */
-            *(int32_t*)R_EDI = 0;   // faking port read
+            *(int32_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
             if(ACCESS_FLAG(F_DF))
                 R_EDI-=4;
             else

@@ -447,6 +447,14 @@
                 break;
         }
         NEXT;
+    _66_0xF8:                       /* CLC */
+        CHECK_FLAGS(emu);
+        CLEAR_FLAG(F_CF);
+        NEXT;
+    _66_0xF9:                       /* STC */
+        CHECK_FLAGS(emu);
+        SET_FLAG(F_CF);
+        NEXT;
 
     _66_0xFF:                      /* GRP 5 Ew */
         nextop = F8;

@@ -57,6 +57,14 @@ void Run67(x86emu_t *emu)
         Run6766(emu);
         break;
 
+    case 0x6C:                      /* INSB */
+        *(int8_t*)(R_DI+GetESBaseEmu(emu)) = 0;         // faking port read, using actual segment ES, just in case
+        if(ACCESS_FLAG(F_DF))
+            R_DI-=1;
+        else
+            R_DI+=1;
+        break;
+
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
@@ -356,6 +364,11 @@ void RunGS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
             break;
+        
+        case 0x64:              /* FS: */
+            // so just ignore that GS: prefix then
+            --ip; // put FS back
+            break;
 
         case 0x69:              /* IMUL Gd,Ed,Id */
             nextop = F8;
@@ -363,6 +376,27 @@ void RunGS(x86emu_t *emu)
             tmp32u = F32;
             GD.dword[0] = imul32(emu, ED->dword[0], tmp32u);
             break;
+        
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77:
+        case 0x78:
+        case 0x79:
+        case 0x7A:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+            // just ignore the prefix
+            --ip;
+            break;
+
         case 0x80:             /* GRP Eb,Ib */
         case 0x82:             // 0x82 and 0x80 are the same opcodes it seems?
             nextop = F8;
@@ -532,6 +566,34 @@ void RunFS(x86emu_t *emu)
             cmp32(emu, GD.dword[0], ED->dword[0]);
             break;
         
+        case 0x54:               /* PUSH ESP */
+            tmp32u = R_ESP;
+            R_ESP -= 4;
+            *((uint32_t*)(R_ESP+tlsdata)) = tmp32u;    //Push(emu, tmp32u);
+            break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x55:
+        case 0x56:
+        case 0x57:              /* PUSH Reg */
+            tmp8u = opcode&7;
+            *((uint32_t*)(R_ESP+tlsdata)) = emu->regs[tmp8u].dword[0]; //Push(emu, emu->regs[tmp8u].dword[0]);
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:                      /* POP ESP */
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:                      /* POP Reg */
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].dword[0] = *((uint32_t*)(R_ESP+tlsdata));    // Pop(emu);
+            R_ESP += 4;
+            break;
+
         case 0x67:
             opcode = F8;
             switch(opcode) {

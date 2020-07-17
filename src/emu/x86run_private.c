@@ -752,6 +752,16 @@ uintptr_t GetFSBaseEmu(x86emu_t* emu)
     return (uintptr_t)GetSegmentBase(emu->segs[_FS]);
 }
 
+uintptr_t GetESBaseEmu(x86emu_t* emu)
+{
+    return (uintptr_t)GetSegmentBase(emu->segs[_ES]);
+}
+uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg)
+{
+    return (uintptr_t)GetSegmentBase(emu->segs[seg]);
+}
+
+
 const char* getAddrFunctionName(uintptr_t addr)
 {
     static char ret[1000];
