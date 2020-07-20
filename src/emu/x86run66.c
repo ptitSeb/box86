@@ -606,6 +606,18 @@ void RunFS(x86emu_t *emu)
                     tmp16s = F16S;
                     R_EAX = *(uint32_t*)((tlsdata) + tmp16s);
                     break;
+                case 0xFF:                              /* GRP 5 Ed */
+                    nextop = F8;
+                    switch((nextop>>3)&7) {
+                        case 6:                         /* Push Ed */
+                            oped=GetEw16off(emu, nextop, tlsdata);
+                            Push(emu, ED->dword[0]);
+                            break;
+                        default:
+                            ip-=2;
+                            UnimpOpcode(emu);
+                    }
+                    break;
                 default:
                     ip-=2;
                     UnimpOpcode(emu);
