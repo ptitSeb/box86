@@ -996,7 +996,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gb1, x1, gb2*8, 8);
                 BFI(eb1, x12, eb2*8, 8);
             } else {
-                if(arm_swap) {
+                if(0/*arm_swap*/) {
                     // use atomic swap...
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                     GETGB(x12);
@@ -1029,7 +1029,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     XOR_REG_LSL_IMM5(gd, gd, ed, 0);
                 }
             } else {
-                if(arm_swap) {
+                if(0/*arm_swap*/) { // swap doesn't seem to really work like that, plus there seems to be alignement need on arm7
                     GETGD;
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                     // use atomic swap
