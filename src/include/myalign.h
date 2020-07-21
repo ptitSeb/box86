@@ -5,6 +5,8 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack);
 
 void UnalignStat64(const void* source, void* dest);
 
+void UnalignStatFS64(const void* source, void* dest);
+
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
 void AlignOggVorbis(void* dest, void* source);   // x86 -> Arm
 
@@ -44,6 +46,40 @@ struct i386_stat64 {
 	uint32_t	st_ctime;
 	uint32_t	st_ctime_nsec;
 	uint64_t	st_ino;
+} __attribute__((packed));
+
+struct i386_fsid {
+  int     val[2];
+} __attribute__((packed));
+
+struct i386_statfs {
+  uint32_t    f_type;
+  uint32_t    f_bsize;
+  uint32_t    f_blocks;
+  uint32_t    f_bfree;
+  uint32_t    f_bavail;
+  uint32_t    f_files;
+  uint32_t    f_ffree;
+  struct i386_fsid f_fsid;
+  uint32_t    f_namelen;
+  uint32_t    f_frsize;
+  uint32_t    f_flags;
+  uint32_t    f_spare[4];
+} __attribute__((packed));
+
+struct i386_statfs64 {
+  uint32_t    f_type;
+  uint32_t    f_bsize;
+  uint64_t    f_blocks;
+  uint64_t    f_bfree;
+  uint64_t    f_bavail;
+  uint64_t    f_files;
+  uint64_t    f_ffree;
+  struct i386_fsid f_fsid;
+  uint32_t    f_namelen;
+  uint32_t    f_frsize;
+  uint32_t    f_flags;
+  uint32_t    f_spare[4];
 } __attribute__((packed));
 
 typedef struct {

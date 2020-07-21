@@ -29,6 +29,7 @@
 #include <sys/utsname.h>
 #include <sys/mman.h>
 #include <setjmp.h>
+#include <sys/vfs.h>
 
 #include "wrappedlibs.h"
 
@@ -126,6 +127,7 @@ typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
+typedef int32_t (*iFiiII_t)(int, int, int64_t, int64_t);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
@@ -640,13 +642,13 @@ EXPORT int my___printf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attri
 EXPORT int my_vprintf(x86emu_t *emu, void* fmt, void* b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vprintf;
     return ((iFpp_t)f)(fmt, emu->scratch);
     #else
     // other platform don't need that
     void* f = vprintf;
-    return ((iFpp_t)f)(fmt, *(uint32_t**)b);
+    return ((iFpp_t)f)(fmt, (uint32_t*)b);
     #endif
 }
 EXPORT int my___vprintf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_vprintf")));
@@ -654,13 +656,13 @@ EXPORT int my___vprintf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attr
 EXPORT int my_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vfprintf;
     return ((iFppp_t)f)(F, fmt, emu->scratch);
     #else
     // other platform don't need that
     void* f = vfprintf;
-    return ((iFppp_t)f)(F, fmt, *(uint32_t**)b);
+    return ((iFppp_t)f)(F, fmt, (uint32_t*)b);
     #endif
 }
 EXPORT int my___vfprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_vfprintf")));
@@ -783,13 +785,13 @@ EXPORT int my___asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_li
 EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vsprintf;
     int r = ((iFppp_t)f)(buff, fmt, emu->scratch);
     return r;
     #else
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, *(uint32_t**)b);
+    int r = ((iFppp_t)f)(buff, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -798,20 +800,20 @@ EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va
 EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
     void* f = vfscanf;
-    return ((iFppp_t)f)(stream, fmt, *(uint32_t**)b);
+    return ((iFppp_t)f)(stream, fmt, (uint32_t*)b);
 }
 EXPORT int my__IO_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vsnprintf;
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
     void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -822,13 +824,13 @@ EXPORT int my_vasprintf(x86emu_t* emu, void* strp, void* fmt, void* b, va_list V
 {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vasprintf;
     int r = ((iFppp_t)f)(strp, fmt, emu->scratch);
     return r;
     #else
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, *(uint32_t**)b);
+    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -836,13 +838,13 @@ EXPORT int my___vasprintf_chk(x86emu_t* emu, void* strp, int flags, void* fmt, v
 {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vasprintf;
     int r = ((iFppp_t)f)(strp, fmt, emu->scratch);
     return r;
     #else
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, *(uint32_t**)b);
+    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -862,13 +864,13 @@ EXPORT int32_t my_obstack_vprintf(x86emu_t* emu, void* obstack, void* fmt, void*
 {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = obstack_vprintf;
     int r = ((iFppp_t)f)(obstack, fmt, emu->scratch);
     return r;
     #else
     void* f = obstack_vprintf;
-    int r = ((iFppp_t)f)(obstack, fmt, *(uint32_t**)b);
+    int r = ((iFppp_t)f)(obstack, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -876,13 +878,13 @@ EXPORT int32_t my_obstack_vprintf(x86emu_t* emu, void* obstack, void* fmt, void*
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vswprintf;
     int r = ((iFpupp_t)f)(buff, s, fmt, emu->scratch);
     return r;
     #else
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
+    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
     return r;
     #endif
 }
@@ -891,23 +893,23 @@ EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt,
 
 EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = verr;
     ((vFipp_t)f)(eval, fmt, emu->scratch);
     #else
     void* f = verr;
-    ((vFipp_t)f)(eval, fmt, *(uint32_t**)b);
+    ((vFipp_t)f)(eval, fmt, (uint32_t*)b);
     #endif
 }
 
 EXPORT void my_vwarn(x86emu_t* emu, void* fmt, void* b) {
     #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
     void* f = vwarn;
     ((vFpp_t)f)(fmt, emu->scratch);
     #else
     void* f = vwarn;
-    ((vFpp_t)f)(fmt, *(uint32_t**)b);
+    ((vFpp_t)f)(fmt, (uint32_t*)b);
     #endif
 }
 
@@ -1156,10 +1158,28 @@ EXPORT int my__IO_file_stat(x86emu_t* emu, void* f, void* buf)
     return r;
 }
 
+EXPORT int my_fstatfs64(int fd, void* buf)
+{
+    struct statfs64 st;
+    int r = fstatfs64(fd, &st);
+    UnalignStatFS64(&st, buf);
+    return r;
+}
+
+EXPORT int my_statfs64(const char* path, void* buf)
+{
+    struct statfs64 st;
+    int r = statfs64(path, &st);
+    UnalignStatFS64(&st, buf);
+    return r;
+}
+
+
+
 static int my_compare_r_cb(void* a, void* b, x86emu_t* emu)
 {
     SetCallbackArgs(emu, 2, a, b);
-    return RunCallback(emu);
+    return (int)RunCallback(emu);
 }
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
@@ -1807,7 +1827,12 @@ EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64
     void* f = dlsym(lib->priv.w.lib, "pwritev64");
     if(f)
         return ((iFipiI_t)f)(fd, v, c, o);
+    #ifdef __arm__
+    return syscall(__NR_pwritev, fd, v, c, 0, (uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
+    // on arm, 64bits args needs to be on even/odd register, so need to put a 0 for aligment
+    #else
     return syscall(__NR_pwritev, fd, v, c,(uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
+    #endif
 }
 
 EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags)
@@ -1820,6 +1845,22 @@ EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t f
     if(!flags)
         return accept(fd, a, l);
     return syscall(__NR_accept4, fd, a, l, flags);
+}
+
+EXPORT  int32_t my_fallocate64(int fd, int mode, int64_t offs, int64_t len)
+{
+    iFiiII_t f = NULL;
+    static int done = 0;
+    if(!done) {
+        library_t* lib = GetLibInternal(libcName);
+        f = (iFiiII_t)dlsym(lib->priv.w.lib, "fallocate64");
+        done = 1;
+    }
+    if(f)
+        return f(fd, mode, offs, len);
+    else
+        return syscall(__NR_fallocate, fd, mode, (uint32_t)(offs&0xffffffff), (uint32_t)((offs>>32)&0xffffffff), (uint32_t)(len&0xffffffff), (uint32_t)((len>>32)&0xffffffff));
+        //return posix_fallocate64(fd, offs, len);
 }
 
 EXPORT struct __processor_model

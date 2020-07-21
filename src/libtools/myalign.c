@@ -1,8 +1,9 @@
+#undef _LARGEFILE_SOURCE
+#undef _FILE_OFFSET_BITS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <asm/stat.h>
 #include <wchar.h>
 #include <sys/epoll.h>
 #include <fts.h>
@@ -233,31 +234,6 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
 }
 
 
-void UnalignStat64(const void* source, void* dest)
-{
-    struct i386_stat64 *i386st = (struct i386_stat64*)dest;
-    struct stat64 *st = (struct stat64*) source;
-    
-    memset(i386st->__pad0, 0, sizeof(i386st->__pad0));
-	memset(i386st->__pad3, 0, sizeof(i386st->__pad3));
-    i386st->st_dev      = st->st_dev;
-    i386st->__st_ino    = st->__st_ino;
-    i386st->st_mode     = st->st_mode;
-    i386st->st_nlink    = st->st_nlink;
-    i386st->st_uid      = st->st_uid;
-    i386st->st_gid      = st->st_gid;
-    i386st->st_rdev     = st->st_rdev;
-    i386st->st_size     = st->st_size;
-    i386st->st_blksize  = st->st_blksize;
-    i386st->st_blocks   = st->st_blocks;
-    i386st->st_atime    = st->st_atime;
-    i386st->st_atime_nsec   = st->st_atime_nsec;
-    i386st->st_mtime    = st->st_mtime;
-    i386st->st_mtime_nsec   = st->st_mtime_nsec;
-    i386st->st_ctime    = st->st_ctime;
-    i386st->st_ctime_nsec   = st->st_ctime_nsec;
-    i386st->st_ino      = st->st_ino;
-}
 
 
 typedef struct __attribute__((packed)) {
@@ -727,27 +703,3 @@ void AlignFTSENT(void* dest, void* source)
 }
 #undef TRANSFERT
 
-
-#define TRANSFERT   \
-GO(l_type)          \
-GO(l_whence)        \
-GO(l_start)         \
-GO(l_len)           \
-GO(l_pid)
-
-// Arm -> x86
-void UnalignFlock64(void* dest, void* source)
-{
-    #define GO(A) ((x86_flock64_t*)dest)->A = ((my_flock64_t*)source)->A;
-    TRANSFERT
-    #undef GO
-}
-
-// x86 -> Arm
-void AlignFlock64(void* dest, void* source)
-{
-    #define GO(A) ((my_flock64_t*)dest)->A = ((x86_flock64_t*)source)->A;
-    TRANSFERT
-    #undef GO
-}
-#undef TRANSFERT

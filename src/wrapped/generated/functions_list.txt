@@ -54,6 +54,7 @@
 #() dFd
 #() dFp
 #() lFv
+#() lFi
 #() lFl
 #() lFp
 #() LFv
@@ -112,6 +113,7 @@
 #() iFEV
 #() iFwp
 #() iFii
+#() iFiI
 #() iFiu
 #() iFiU
 #() iFip
@@ -219,7 +221,6 @@
 #() vFipi
 #() vFipu
 #() vFipp
-#() vFipV
 #() vFuii
 #() vFuiI
 #() vFuiu
@@ -260,6 +261,7 @@
 #() vFppi
 #() vFppu
 #() vFppd
+#() vFppL
 #() vFppp
 #() vFppV
 #() iFEiw
@@ -279,6 +281,7 @@
 #() iFiiu
 #() iFiiL
 #() iFiip
+#() iFiiO
 #() iFiII
 #() iFiuu
 #() iFiup
@@ -367,6 +370,7 @@
 #() dFppi
 #() dFppu
 #() dFppp
+#() lFipi
 #() lFipL
 #() lFlll
 #() lFpli
@@ -406,6 +410,7 @@
 #() pFpiU
 #() pFpid
 #() pFpil
+#() pFpiL
 #() pFpip
 #() pFpCu
 #() pFpWW
@@ -437,9 +442,9 @@
 #() vFEpup
 #() vFEppp
 #() vFEppV
-#() vFEpVV
 #() vFiiii
 #() vFiiip
+#() vFiipp
 #() vFiipV
 #() vFiuip
 #() vFiuuu
@@ -531,6 +536,7 @@
 #() iFEpLi
 #() iFEppi
 #() iFEppu
+#() iFEppL
 #() iFEppp
 #() iFEppV
 #() iFEpVV
@@ -541,6 +547,7 @@
 #() iFiiii
 #() iFiiiu
 #() iFiiip
+#() iFiiII
 #() iFiiLi
 #() iFiipi
 #() iFiipu
@@ -552,7 +559,6 @@
 #() iFipii
 #() iFipip
 #() iFipui
-#() iFipuu
 #() iFipup
 #() iFippi
 #() iFippu
@@ -639,12 +645,16 @@
 #() UFSUii
 #() dFpppp
 #() lFEpip
-#() lFipuI
+#() lFipLi
+#() lFipLI
+#() lFipLl
+#() lFipLL
 #() lFpili
 #() lFpilp
 #() lFpupp
 #() lFplip
 #() LFippp
+#() LFpLLp
 #() LFpLpp
 #() LFppii
 #() LFppip
@@ -701,6 +711,7 @@
 #() vFEippp
 #() vFEpuup
 #() vFEpupp
+#() vFEpLLp
 #() vFEppip
 #() vFEpppp
 #() vFiiiii
@@ -930,7 +941,7 @@
 #() vFEpiLpp
 #() vFEpippp
 #() vFEpuipp
-#() vFEpuupp
+#() vFEpLLpp
 #() vFEppppp
 #() vFiiiiii
 #() vFiuippp
@@ -1012,8 +1023,11 @@
 #() iFEpiipp
 #() iFEpiipV
 #() iFEpippi
+#() iFEpippp
 #() iFEpipVV
+#() iFEpuppp
 #() iFEpupVV
+#() iFEpLppp
 #() iFEppppp
 #() iFEpppVV
 #() iFiiiiii
@@ -1565,9 +1579,13 @@
 #() iFEv -> iFE
 #() pFEv -> pFE
 #() iFEvpp -> iFEpp
+#() iFEvppp -> iFEppp
 #() iFEvpVV -> iFEpVV
 #() iFEpvpp -> iFEppp
+#() iFEpvppp -> iFEpppp
 #() iFEpvpVV -> iFEppVV
 #() iFEp0pVV -> iFEpppVV
+#() iFEpvvppp -> iFEpppp
 #() iFEpvvpVV -> iFEppVV
+#() iFEpuvvppp -> iFEpuppp
 #() iFEpuvvpVV -> iFEpupVV
