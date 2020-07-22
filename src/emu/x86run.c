@@ -1097,6 +1097,33 @@ _trace:
                             R_EDI += tmp8s;
                         }
                         break;
+                    case 0xA7:              /* REP(N)Z CMPSW */
+                        tmp16u = 0;
+                        tmp16u2 = 0;
+                        tmp8s *= 2;
+                        if(opcode==0xF2) {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp16u2 = *(uint16_t*)R_EDI;
+                                tmp16u  = *(uint16_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp16u2==tmp16u)
+                                    break;
+                            }
+                        } else {
+                            while(tmp32u) {
+                                --tmp32u;
+                                tmp16u2 = *(uint16_t*)R_EDI;
+                                tmp16u  = *(uint16_t*)R_ESI;
+                                R_EDI += tmp8s;
+                                R_ESI += tmp8s;
+                                if(tmp16u2!=tmp16u)
+                                    break;
+                            }
+                        }
+                        if(R_ECX) cmp16(emu, tmp16u, tmp16u2);
+                        break;
                     case 0xAF:              /* REP(N)Z SCASW */
                         tmp16u = 0;
                         tmp8s *= 2;
