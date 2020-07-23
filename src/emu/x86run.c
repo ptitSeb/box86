@@ -71,8 +71,8 @@ int Run(x86emu_t *emu, int step)
     &&_0x48,    &&_0x49,    &&_0x4A,    &&_0x4B,    &&_0x4C,    &&_0x4D,    &&_0x4E,    &&_0x4F,     
     &&_0x50,    &&_0x51,    &&_0x52,    &&_0x53,    &&_0x54,    &&_0x55,    &&_0x56,    &&_0x57, 
     &&_0x58,    &&_0x59,    &&_0x5A,    &&_0x5B,    &&_0x5C,    &&_0x5D,    &&_0x5E,    &&_0x5F, 
-    &&_0x60,    &&_0x61,    &&_0x62,    &&_default, &&_0x64, &&_0x65,    &&_0x66,    &&_0x67,
-    &&_0x68,    &&_0x69,    &&_0x6A,    &&_0x6B,    &&_0x6C,    &&_0x6D,    &&_default, &&_default,   //0x68-0x6F
+    &&_0x60,    &&_0x61,    &&_0x62,    &&_default, &&_0x64,    &&_0x65,    &&_0x66,    &&_0x67,
+    &&_0x68,    &&_0x69,    &&_0x6A,    &&_0x6B,    &&_0x6C,    &&_0x6D,    &&_0x6E,    &&_0x6F,      //0x68-0x6F
     &&_0x70_0,  &&_0x70_1,  &&_0x70_2,  &&_0x70_3,  &&_0x70_4,  &&_0x70_5,  &&_0x70_6,  &&_0x70_7,    //0x70-0x77
     &&_0x70_8,  &&_0x70_9,  &&_0x70_A,  &&_0x70_B,  &&_0x70_C,  &&_0x70_D,  &&_0x70_E,  &&_0x70_F,    //0x78-0x7F
     &&_0x80,    &&_0x81,    &&_0x82,    &&_0x83,    &&_0x84,    &&_0x85,    &&_0x86,    &&_0x87,     
@@ -468,6 +468,20 @@ _trace:
                 R_EDI-=4;
             else
                 R_EDI+=4;
+            NEXT;
+        _0x6E:                      /* OUTSB */
+            // faking port write, using explicit ES segment
+            if(ACCESS_FLAG(F_DF))
+                R_ESI-=1;
+            else
+                R_ESI+=1;
+            NEXT;
+        _0x6F:                      /* OUTSD */
+            // faking port write, using explicit ES segment
+            if(ACCESS_FLAG(F_DF))
+                R_ESI-=4;
+            else
+                R_ESI+=4;
             NEXT;
 
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
