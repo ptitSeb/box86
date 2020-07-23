@@ -597,6 +597,11 @@ void RunFS(x86emu_t *emu)
         case 0x67:
             opcode = F8;
             switch(opcode) {
+                case 0x89:                              /* MOV ED16,Gd */
+                    nextop = F8;
+                    oped=GetEw16off(emu, nextop, tlsdata);
+                    ED->dword[0] = GD.dword[0];
+                    break;
                 case 0x8B:                              /* MOV Gd,Ed16 */
                     nextop = F8;
                     oped=GetEw16off(emu, nextop, tlsdata);
