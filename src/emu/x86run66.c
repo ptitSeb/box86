@@ -611,6 +611,10 @@ void RunFS(x86emu_t *emu)
                     tmp16s = F16S;
                     R_EAX = *(uint32_t*)((tlsdata) + tmp16s);
                     break;
+                case 0xA3:                              /* MOV Ov16,EAX */
+                    tmp16s = F16S;
+                    *(uint32_t*)((tlsdata) + tmp16s) = R_EAX;
+                    break;
                 case 0xFF:                              /* GRP 5 Ed */
                     nextop = F8;
                     switch((nextop>>3)&7) {
