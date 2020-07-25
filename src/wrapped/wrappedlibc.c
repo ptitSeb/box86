@@ -1629,7 +1629,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     #if 1
     if (x86) {
         int skip_first = 0;
-        if(strstr(path, "wine-preloader")==(path+strlen(path)-strlen("wine-preloader")))
+        if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first = 1;
         // count argv...
         int n=skip_first;
