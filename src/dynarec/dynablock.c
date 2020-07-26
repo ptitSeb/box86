@@ -171,7 +171,7 @@ void ProtectDynablock(dynablock_t* db)
 {
     if(db) {
         if(db->father)
-            return;    // mark only father
+            return;    // protect only father, child(ren) will be automatically
         protectDB((uintptr_t)db->x86_addr, db->x86_size);
     }
 }

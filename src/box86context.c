@@ -153,9 +153,9 @@ dynablocklist_t* getDBFromAddress(uintptr_t addr)
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    int idx = (addr>>16);
-    int end = ((addr+size-1)>>16);
-    for (int i=idx; i<=end; ++i) {
+    uintptr_t idx = (addr>>16);
+    uintptr_t end = ((addr+size-1)>>16);
+    for (uintptr_t i=idx; i<=end; ++i) {
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
             my_context->dynmap[i]->dynablocks = NewDynablockList(0, i<<16, 1<<16, 1, 1);
@@ -167,16 +167,16 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    int idx = (addr>>16);
+    int idx = (addr>box86_dynarec_largest)?((addr-box86_dynarec_largest)>>16):(addr>>16);
     int end = ((addr+size-1)>>16);
     for (int i=idx; i<=end; ++i) {
         dynmap_t* dynmap = my_context->dynmap[i];
         if(dynmap) {
             uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
             uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
-            uintptr_t startaddr = idx<<16;
-            if(startaddr<addr) startaddr = addr;
-            uintptr_t endaddr = startaddr + size - 1;
+            uintptr_t startaddr = (idx<<16);
+            if(startaddr<startdb) startaddr = startdb;
+            uintptr_t endaddr = addr + size - 1;
             if(endaddr>enddb) endaddr = enddb;
             if(startaddr==startdb && endaddr==enddb) {
                 if(destroy) {
@@ -202,7 +202,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t start = (addr)&~(box86_pagesize-1);
     uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
     // should get "end" according to last block inside the window
-    mprotect((void*)start, end-start, PROT_READ|PROT_EXEC);
+    mprotect((void*)start, end-start+1, PROT_READ|PROT_EXEC);
 }
 
 // Add the Write flag from an adress range, so DB can be executed, and mark all block as dirty

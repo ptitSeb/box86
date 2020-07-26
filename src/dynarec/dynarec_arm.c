@@ -247,6 +247,8 @@ void* FillBlock(dynablock_t* block) {
     block->need_test = 0;
     block->x86_addr = (void*)start;
     block->x86_size = end-start;
+    if(box86_dynarec_largest<block->x86_size)
+        box86_dynarec_largest = block->x86_size;
     block->hash = (helper.nolinker)?X31_hash_code(block->x86_addr, block->x86_size):0;
     // fill sons if any
     dynablock_t** sons = NULL;

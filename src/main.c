@@ -47,6 +47,7 @@ int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
 int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
+int box86_dynarec_largest = 0;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;

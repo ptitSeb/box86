@@ -12,6 +12,7 @@ int box86_dynarec_dump;
 int box86_dynarec_linker;
 int box86_dynarec_trace;
 int box86_dynarec_forced;
+int box86_dynarec_largest;
 #ifdef ARM
 int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap;
