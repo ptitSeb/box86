@@ -117,7 +117,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %s\n", (*dynablocks)->blocks?kh_size((*dynablocks)->blocks):0, kh_n_buckets((*dynablocks)->blocks), (*dynablocks)->nolinker, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
+    dynarec_log(LOG_INFO, "Free %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %s\n", (*dynablocks)->blocks?kh_size((*dynablocks)->blocks):0, (*dynablocks)->blocks?kh_n_buckets((*dynablocks)->blocks):0, (*dynablocks)->nolinker, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
     if((*dynablocks)->blocks) {
         // create a list of the parent db to delete (because there are sons in the middle that will be invalid if father is removed)
