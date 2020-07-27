@@ -43,10 +43,19 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
 {
     char p[MAX_PATH];
     for (int i=0; i<paths->size; ++i) {
-        strcpy(p, paths->paths[i]);
+        if(paths->paths[i][0]!='/') {
+            // not an absolute path...
+            char cur[MAX_PATH];
+            getcwd(cur, sizeof(cur));
+            strcpy(p, cur);
+            if(p[strlen(p)-1]!='/')
+                strcat(p, "/");
+            strcat(p, paths->paths[i]);
+        } else
+            strcpy(p, paths->paths[i]);
         strcat(p, filename);
         if(FileExist(p, IS_FILE))
-            return strdup(p);
+            return realpath(p, NULL);
     }
 
     return NULL;
