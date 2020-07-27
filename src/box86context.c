@@ -167,14 +167,14 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    int idx = (addr>box86_dynarec_largest)?((addr-box86_dynarec_largest)>>16):(addr>>16);
-    int end = ((addr+size-1)>>16);
-    for (int i=idx; i<=end; ++i) {
+    uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>16):(addr>>16);
+    uintptr_t end = ((addr+size-1)>>16);
+    for (uintptr_t i=idx; i<=end; ++i) {
         dynmap_t* dynmap = my_context->dynmap[i];
         if(dynmap) {
             uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
             uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
-            uintptr_t startaddr = (idx<<16);
+            uintptr_t startaddr = addr;
             if(startaddr<startdb) startaddr = startdb;
             uintptr_t endaddr = addr + size - 1;
             if(endaddr>enddb) endaddr = enddb;
@@ -187,9 +187,9 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
                     MarkDynablockList(&dynmap->dynablocks);
             } else
                 if(destroy)
-                    FreeDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr);
+                    FreeDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
                 else
-                    MarkDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr);
+                    MarkDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
 
         }
     }
