@@ -1880,8 +1880,8 @@ GO(versionsort, iFpp)
 // versionsort64
 GOM(vfork, iFEv) // Weak
 // __vfork
-GOM(vfprintf, iFEpppp)
-GOM(__vfprintf_chk, iFEpvppp)
+GOM(vfprintf, iFEppp)
+GOM(__vfprintf_chk, iFEpvpp)
 GOM(vfscanf, iFEppp)  // Weak
 // __vfscanf
 GOM(vfwprintf, iFEppp)    // Weak

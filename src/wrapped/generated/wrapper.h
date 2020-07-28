@@ -1622,7 +1622,6 @@ void iFEvpp(x86emu_t *emu, uintptr_t fnc);
 void iFEvppp(x86emu_t *emu, uintptr_t fnc);
 void iFEvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEpvpp(x86emu_t *emu, uintptr_t fnc);
-void iFEpvppp(x86emu_t *emu, uintptr_t fnc);
 void iFEpvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEp0pVV(x86emu_t *emu, uintptr_t fnc);
 void iFEpvvppp(x86emu_t *emu, uintptr_t fnc);
