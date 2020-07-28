@@ -270,7 +270,7 @@ void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
     if(!dynablocks)
         return;
     uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = dynablocks->text + dynablocks->textsz;
+    uintptr_t enddb = startdb + dynablocks->textsz;
     uintptr_t start = addr;
     uintptr_t end = addr+size;
     if(start<startdb)
@@ -288,7 +288,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
     if(!dynablocks)
         return;
     uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = dynablocks->text + dynablocks->textsz;
+    uintptr_t enddb = startdb + dynablocks->textsz;
     uintptr_t start = addr;
     uintptr_t end = addr+size;
     if(start<startdb)
@@ -307,7 +307,7 @@ void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr
     if(!dynablocks)
         return;
     uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = dynablocks->text + dynablocks->textsz;
+    uintptr_t enddb = startdb + dynablocks->textsz;
     uintptr_t start = addr;
     uintptr_t end = addr+size;
     if(start<startdb)
@@ -315,7 +315,7 @@ void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr
     if(end>enddb)
         end = enddb;
     if(end>startdb && start<enddb)
-        protectDB(start, end-start+1);
+        protectDB(start, end-start); //no +1; as end/enddb is exclusive and not inclusive
 }
 
 void ConvertHash2Direct(dynablocklist_t* dynablocks)
@@ -330,13 +330,14 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     khint_t k;
     dynablock_t* db;
     uintptr_t key;
-    uintptr_t start = dynablocks->text-dynablocks->base;
-    uintptr_t end = dynablocks->text + dynablocks->textsz-dynablocks->base;
+    uintptr_t start = dynablocks->text;
+    uintptr_t end = start + dynablocks->textsz;
     kh_foreach(dynablocks->blocks, key, db,
+        key += dynablocks->base;
         if(key>=start && key<end)
             direct[key-start] = db;
         else {
-            k = kh_put(dynablocks, blocks, key, &ret);
+            k = kh_put(dynablocks, blocks, key-dynablocks->base, &ret);
             if(ret) {   // don't try to insert if already done...
                 kh_value(blocks, k) = db;
             }
@@ -364,6 +365,24 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
             return block;
         }
     }
+    
+    if(dynablocks->blocks) {
+        pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
+        // check if the block exist
+        khint_t k;
+        k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
+        if(k!=kh_end(dynablocks->blocks)) {
+            block = kh_value(dynablocks->blocks, k);
+            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+            dynarec_log(LOG_DUMP, "Block already exist in Hash Map\n");
+            *created = 0;
+            return block;
+        }
+        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+    }
+    if (!*created)
+        return block;
+    
     // Lock as write now!
     pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
@@ -432,28 +451,10 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
         block = dynablocks->direct[addr-dynablocks->text];
     if(block)
         return block;
-    // nope, put rwlock in read mode and check hash
-    pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
-    // check if the block exist
-    khint_t k;
-    if(dynablocks->blocks) {
-        k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
-        if(k!=kh_end(dynablocks->blocks)) {
-            /*atomic_store(&dynalock, 0);*/
-            block = kh_value(dynablocks->blocks, k);
-            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
-            return block;
-        }
-    }    
-    // unlock now
-    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
-    // Blocks doesn't exist. If creation is not allow, just return NULL
-    if(!create)
-        return block;
 
-    int created = 0;
+    int created = create;
     block = AddNewDynablock(dynablocks, addr, (dynablocks->nolinker)&&(dynablocks->direct), &created);
-    if(!created)
+    if(!created || !create)
         return block;   // existing block...
 
     if(box86_dynarec_dump)

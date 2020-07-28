@@ -256,7 +256,7 @@ void* FillBlock(dynablock_t* block) {
     if(helper.sons_size) {
         sons = (dynablock_t**)calloc(helper.sons_size, sizeof(dynablock_t*));
         for (int i=0; i<helper.sons_size; ++i) {
-            int created = 0;
+            int created = 1;
             dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], 0, &created);
             if(created) {    // avoid breaking a working block! also, block could be outside this parent...
                 son->block = helper.sons_arm[i];
