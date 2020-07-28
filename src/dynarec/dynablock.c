@@ -223,12 +223,12 @@ void MarkDynablockList(dynablocklist_t** dynablocks)
     dynablock_t* db;
     if((*dynablocks)->blocks) {
         kh_foreach_value((*dynablocks)->blocks, db, 
-            ProtectDynablock(db);
+            MarkDynablock(db);
         );
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            ProtectDynablock((*dynablocks)->direct[i]);
+            MarkDynablock((*dynablocks)->direct[i]);
         }
     }
 }
@@ -243,12 +243,12 @@ void ProtectkDynablockList(dynablocklist_t** dynablocks)
     dynablock_t* db;
     if((*dynablocks)->blocks) {
         kh_foreach_value((*dynablocks)->blocks, db, 
-            MarkDynablock(db);
+            ProtectDynablock(db);
         );
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            MarkDynablock((*dynablocks)->direct[i]);
+            ProtectDynablock((*dynablocks)->direct[i]);
         }
     }
 }
