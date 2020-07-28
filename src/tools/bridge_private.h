@@ -13,6 +13,7 @@ typedef struct onebridge_s {
     uintptr_t f;    // the function for the wrapper
     uint8_t C3;     // C2 or C3 ret
     uint16_t N;     // N in case of C2 ret
+    uint8_t dummy[1+2]; // to get 4*32bits size
 } onebridge_t;
 #pragma pack(pop)
 
