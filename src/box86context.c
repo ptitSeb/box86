@@ -202,7 +202,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t start = (addr)&~(box86_pagesize-1);
     uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
     // should get "end" according to last block inside the window
-    mprotect((void*)start, end-start+1, PROT_READ|PROT_EXEC);
+    mprotect((void*)start, end-start, PROT_READ|PROT_EXEC);
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
@@ -212,8 +212,8 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     uintptr_t start = (addr)&~(box86_pagesize-1);
     uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
     // should get "end" according to last block inside the window
-    mprotect((void*)start, end-start+1, PROT_READ|PROT_WRITE|PROT_EXEC);
-    cleanDBFromAddressRange(start, end-start+1, 0);
+    mprotect((void*)start, end-start, PROT_READ|PROT_WRITE|PROT_EXEC);
+    cleanDBFromAddressRange(start, end-start, 0);
 }
 
 #endif
