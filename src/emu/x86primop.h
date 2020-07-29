@@ -159,6 +159,14 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 static inline uint32_t inc32(x86emu_t *emu, uint32_t d)
 {
+	if(emu->df == d_shr32) {
+		// workaround for some wine trickery
+		uint32_t cnt = emu->op2;
+        if (cnt > 0) {
+            uint32_t cc = emu->op1 & (1 << (cnt - 1));
+			CONDITIONAL_SET_FLAG(cc, F_CF);
+		}
+	}
 	emu->res = d + 1;
 	emu->op1 = d;
 	emu->df = d_inc32;
