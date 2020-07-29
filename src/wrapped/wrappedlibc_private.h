@@ -148,7 +148,7 @@ GOW(close, iFi)
 // __close  // Weak
 GOW(closedir, iFp)
 GO(closelog, vFv)
-// __cmsg_nxthdr
+GO(__cmsg_nxthdr, pFpp)
 GO(confstr, uFipu)
 // __confstr_chk
 GOW(connect, iFipu)
