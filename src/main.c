@@ -16,8 +16,8 @@
 #include <time.h>
 #include <limits.h>
 #include <errno.h>
-#ifdef DYNAREC
 #include <unistd.h>
+#ifdef DYNAREC
 #ifdef ARM
 #include <linux/auxvec.h>
 #include <asm/hwcap.h>
