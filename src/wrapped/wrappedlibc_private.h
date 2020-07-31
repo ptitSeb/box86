@@ -1183,7 +1183,7 @@ GOW(ntohs, uFu)
 // _null_auth   // type B
 // _obstack_allocated_p
 DATA(obstack_alloc_failed_handler, 4)
-// _obstack_begin
+GOM(_obstack_begin, iFpLLpp)
 // _obstack_begin_1
 DATA(obstack_exit_failure, 4)
 // _obstack_free

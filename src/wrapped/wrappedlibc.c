@@ -134,6 +134,7 @@ typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
+typedef int32_t (*iFpLLpp_t)(void*, size_t, size_t, void*, void*);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
@@ -424,6 +425,52 @@ static void* findcompare64Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
+    return NULL;
+}
+// chunkfunc
+#define GO(A)   \
+static uintptr_t my_chunkfunc_fct_##A = 0;                                      \
+static void* my_chunkfunc_##A(size_t a) \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_chunkfunc_fct_##A, 1, a);            \
+}
+SUPER()
+#undef GO
+static void* findchunkfuncFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_chunkfunc_fct_##A == (uintptr_t)fct) return my_chunkfunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_chunkfunc_fct_##A == 0) {my_chunkfunc_fct_##A = (uintptr_t)fct; return my_chunkfunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc chunkfunc callback\n");
+    return NULL;
+}
+// freefun
+#define GO(A)   \
+static uintptr_t my_freefun_fct_##A = 0;                                      \
+static void my_freefun_##A(void* a) \
+{                                                                               \
+    RunFunction(my_context, my_freefun_fct_##A, 1, a);            \
+}
+SUPER()
+#undef GO
+static void* findfreefunFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_freefun_fct_##A == (uintptr_t)fct) return my_freefun_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_freefun_fct_##A == 0) {my_freefun_fct_##A = (uintptr_t)fct; return my_freefun_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc freefun callback\n");
     return NULL;
 }
 
@@ -2045,7 +2092,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
 static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)
 {
     x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 3));
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 6));
     SetCallbackArg(emu, 1, buf);
     SetCallbackArg(emu, 2, (void*)size);
     SetCallbackNArg(emu, 3);
@@ -2054,7 +2101,7 @@ static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)
 static ssize_t my_cookie_write(void *cookie, const char *buf, size_t size)
 {
     x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 4));
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 7));
     SetCallbackArg(emu, 1, (void*)buf);
     SetCallbackArg(emu, 2, (void*)size);
     SetCallbackNArg(emu, 3);
@@ -2063,7 +2110,7 @@ static ssize_t my_cookie_write(void *cookie, const char *buf, size_t size)
 static int my_cookie_seek(void *cookie, off64_t *offset, int whence)
 {
     x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
+    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
     SetCallbackArg(emu, 1, offset);
     SetCallbackArg(emu, 2, (void*)whence);
     SetCallbackNArg(emu, 3);
@@ -2073,7 +2120,7 @@ static int my_cookie_seek(void *cookie, off64_t *offset, int whence)
 static int my_cookie_close(void *cookie)
 {
     x86emu_t *emu = (x86emu_t*)cookie;
-    void* cl = (void*)GetCallbackArg(emu, 6);
+    void* cl = (void*)GetCallbackArg(emu, 9);
     int ret = 0;
     if(cl) {
         SetCallbackAddress(emu, (uintptr_t)cl);
@@ -2088,10 +2135,10 @@ EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read,
 {
     cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
     x86emu_t *cb = AddCallback(emu, 0, 3, cookie, NULL, NULL, NULL);
-    SetCallbackArg(emu, 3, read);
-    SetCallbackArg(emu, 4, write);
-    SetCallbackArg(emu, 5, seek);
-    SetCallbackArg(emu, 6, close);
+    SetCallbackArg(emu, 6, read);
+    SetCallbackArg(emu, 7, write);
+    SetCallbackArg(emu, 8, seek);
+    SetCallbackArg(emu, 9, close);
     return fopencookie(cb, mode, io_funcs);
 }
 
@@ -2147,6 +2194,13 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
+int my__obstack_begin(void* obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
+{
+    library_t* lib = GetLibInternal(libcName);
+    if(!lib) return 0;
+    iFpLLpp_t f = dlsym(lib->priv.w.lib, "_obstack_begin");
+    return f(obstack, size, alignment, findchunkfuncFct(chunkfun), findfreefunFct(freefun));
+}
 
 #ifndef NOALIGN
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
