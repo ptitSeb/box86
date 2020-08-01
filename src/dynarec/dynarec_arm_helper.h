@@ -327,6 +327,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define jump_to_linker  STEPNAME(jump_to_linker_)
 #define ret_to_epilog   STEPNAME(ret_to_epilog_)
 #define retn_to_epilog  STEPNAME(retn_to_epilog_)
+#define iret_to_epilog  STEPNAME(iret_to_epilog_)
 #define call_c          STEPNAME(call_c_)
 #define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
@@ -442,6 +443,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
+void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);

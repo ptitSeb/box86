@@ -1665,6 +1665,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xCF:
+            INST_NAME("IRET");
+            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            BARRIER(2);
+            iret_to_epilog(dyn, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xD0:
         case 0xD2:
             nextop = F8;

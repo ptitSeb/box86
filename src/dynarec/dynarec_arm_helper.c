@@ -321,6 +321,27 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 #endif
 }
 
+void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
+{
+    MESSAGE(LOG_DUMP, "IRet epilog\n");
+    // POP IP
+    POP(xESP, 1<<xEIP);
+    // POP CS
+    MOVW(x1, offsetof(x86emu_t, segs[_CS]));
+    POP(xESP, 1<<x2);
+    STRH_REG(x2, xEmu, x1);
+    // POP EFLAGS
+    POP(xESP, (1<<x1));
+    CALL(arm_popf, -1, (1<<xEIP));
+    MOVW(x1, d_none);
+    STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+    // Ret....
+    cstack_pop(dyn, ninst, xEIP, x1, x2);
+    PASS3(void* epilog = arm_epilog);
+    MOV32_(x2, (uintptr_t)epilog);
+    BX(x2);
+}
+
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
 {
     if(ret!=-2) {
