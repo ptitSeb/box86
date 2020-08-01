@@ -124,7 +124,7 @@
             #endif
             fpu_do_pop(emu);
             break;
-        case 0xF2:  /* FTAN */
+        case 0xF2:  /* FPTAN */
             #ifdef USE_FLOAT
             ST0.f = tanf(ST0.f);
             fpu_do_push(emu);
@@ -134,6 +134,7 @@
             fpu_do_push(emu);
             ST0.d = 1.0;
             #endif
+            emu->sw.f.F87_C2 = 0;
             break;
         case 0xF3:  /* FPATAN */
             #ifdef USE_FLOAT

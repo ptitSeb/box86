@@ -2020,6 +2020,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
                 BARRIER(1);
+                BARRIER_NEXT(1);
                 MOV32(x2, addr);
                 PUSH(xESP, 1<<x2);
                 MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(natcall-1)), retn);

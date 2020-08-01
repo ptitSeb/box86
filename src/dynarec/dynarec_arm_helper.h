@@ -240,7 +240,17 @@
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]));\
     }                                                       \
     MOVW(s2, d_none);                                       \
-    STR_IMM9(s2, xEmu, offsetof(x86emu_t, df));
+    STR_IMM9(s2, xEmu, offsetof(x86emu_t, df));             \
+    IFX(X_OF|X_PEND) {                                      \
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_OF]));\
+    }                                                       \
+    IFX(X_AF|X_PEND) {                                      \
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_AF]));\
+    }                                                       \
+    IFX(X_SF|X_PEND) {                                      \
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_SF]));\
+    }                                                       \
+
 
 
 #ifndef READFLAGS

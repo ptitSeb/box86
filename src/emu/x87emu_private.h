@@ -116,6 +116,9 @@ static inline void fpu_fcomi(x86emu_t* emu, double b)
 #endif
 {
     RESET_FLAGS(emu);
+    emu->flags[F_AF] = 0;
+    emu->flags[F_OF] = 0;
+    emu->flags[F_SF] = 0;
     emu->sw.f.F87_C1 = 0;
     #ifdef USE_FLOAT
     if(isnan(ST0.f) || isnan(b)) {
