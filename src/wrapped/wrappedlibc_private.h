@@ -1186,8 +1186,8 @@ DATA(obstack_alloc_failed_handler, 4)
 GOM(_obstack_begin, iFpLLpp)
 // _obstack_begin_1
 DATA(obstack_exit_failure, 4)
-// _obstack_free
-// obstack_free
+GO(_obstack_free, vFpp)
+GO(obstack_free, vFpp)
 // _obstack_memory_used
 GO(_obstack_newchunk, vFpi)
 // obstack_printf   // Weak
