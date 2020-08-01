@@ -182,23 +182,23 @@
             if(tmp32s<64)
             {
                 #ifdef USE_FLOAT
-                ll = (int64_t)round(ST0.f)/ST1.f;
+                ll = (int64_t)round(ST0.f/ST1.f);
                 ST0.f = ST0.f - (ST1.f*ll);
                 #else
-                ll = (int64_t)round(ST0.d)/ST1.d;
+                ll = (int64_t)round(ST0.d/ST1.d);
                 ST0.d = ST0.d - (ST1.d*ll);
                 #endif
                 emu->sw.f.F87_C2 = 0;
                 emu->sw.f.F87_C1 = (ll&1)?1:0;
-                emu->sw.f.F87_C2 = (ll&2)?1:0;
+                emu->sw.f.F87_C3 = (ll&2)?1:0;
                 emu->sw.f.F87_C0 = (ll&4)?1:0;
             } else {
                 #ifdef USE_FLOAT
-                ll = (int64_t)floor((ST0.f/ST1.f)/powf(2, 32));
+                ll = (int64_t)(floor((ST0.f/ST1.f))/powf(2, tmp32s - 32));
                 ST0.f = ST0.f - ST1.f*ll*powf(2, 32);
                 #else
-                ll = (int64_t)floor((ST0.d/ST1.d)/pow(2, 32));
-                ST0.d = ST0.d - ST1.d*ll*pow(2, 32);
+                ll = (int64_t)(floor((ST0.d/ST1.d))/pow(2, tmp32s - 32));
+                ST0.d = ST0.d - ST1.d*ll*pow(2, tmp32s - 32);
                 #endif
                 emu->sw.f.F87_C2 = 1;
             }
