@@ -2194,7 +2194,7 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-int my__obstack_begin(void* obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
+EXPORT int my__obstack_begin(void* obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
 {
     library_t* lib = GetLibInternal(libcName);
     if(!lib) return 0;
