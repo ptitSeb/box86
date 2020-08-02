@@ -842,6 +842,32 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SUBS_IMM8(xECX, xECX, 1);
                     B_MARK(cNE);
                     break;
+
+                case 0xA7:
+                    if(opcode==0xF2) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
+                    SETFLAGS(X_ALL, SF_MAYSET);
+                    TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                    B_NEXT(cEQ);    // end of loop
+                    GETDIR(x3, 2);
+                    MARK;
+                    LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
+                    LDRBAI_REG_LSL_IMM5(x2, xEDI, x3, 0);
+                    CMPS_REG_LSL_IMM5(x1, x2, 0);
+                    if(opcode==0xF2) {
+                        B_MARK2(cEQ);
+                    } else {
+                        B_MARK2(cNE);
+                    }
+                    SUBS_IMM8(xECX, xECX, 1);
+                    B_MARK(cNE);
+                    B_MARK3(c__);
+                    // done, finish with cmp test
+                    MARK2;
+                    SUB_IMM8(xECX, xECX, 1);
+                    MARK3;
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x12);
+                    break;
+
                 case 0xAB:
                     INST_NAME("REP STOSW");
                     TSTS_REG_LSL_IMM5(xECX, xECX, 0);
@@ -851,6 +877,31 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
                     SUBS_IMM8(xECX, xECX, 1);
                     B_MARK(cNE);
+                    break;
+
+                case 0xAF:
+                    if(opcode==0xF2) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                    SETFLAGS(X_ALL, SF_MAYSET);
+                    TSTS_REG_LSL_IMM5(xECX, xECX, 0);
+                    B_NEXT(cEQ);    // end of loop
+                    GETDIR(x3, 2);
+                    UXTH(x1, xEAX, 0); // get lower 16bits
+                    MARK;
+                    LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
+                    CMPS_REG_LSL_IMM5(x1, x2, 0);
+                    if(opcode==0xF2) {
+                        B_MARK2(cEQ);
+                    } else {
+                        B_MARK2(cNE);
+                    }
+                    SUBS_IMM8(xECX, xECX, 1);
+                    B_MARK(cNE);
+                    B_MARK3(c__);
+                    // done, finish with cmp test
+                    MARK2;
+                    SUB_IMM8(xECX, xECX, 1);
+                    MARK3;
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x12);
                     break;
                 default:
                     DEFAULT;
