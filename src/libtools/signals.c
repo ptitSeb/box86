@@ -203,10 +203,11 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
         errno = EFAULT;
         return -1;
     }
-    if(ss->ss_flags && ss->ss_flags!=SS_DISABLE) {
+    if(ss->ss_flags && ss->ss_flags!=SS_DISABLE&& ss->ss_flags!=SS_ONSTACK) {
         errno = EINVAL;
         return -1;
     }
+    //TODO: SS_ONSTACK is not correctly handled, has the stack is NOT the one where the signal came from
 
 	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
     x86emu_t *sigemu = get_signal_emu();
