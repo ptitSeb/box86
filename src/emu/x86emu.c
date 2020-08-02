@@ -195,6 +195,7 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     memcpy(&newemu->flags, &emu->flags, sizeof(emu->flags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
+    memset(newemu->segs_clean, 0, sizeof(newemu->segs_clean));
 	memcpy(newemu->fpu, emu->fpu, sizeof(emu->fpu));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));

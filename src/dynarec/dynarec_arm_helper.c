@@ -330,6 +330,8 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     MOVW(x1, offsetof(x86emu_t, segs[_CS]));
     POP(xESP, 1<<x2);
     STRH_REG(x2, xEmu, x1);
+    MOVW(x1, 0);
+    STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_CS]));
     // POP EFLAGS
     POP(xESP, (1<<x1));
     CALL(arm_popf, -1, (1<<xEIP));
@@ -362,6 +364,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     int32_t i32;
+    MAYUSE(i32);
     MESSAGE(LOG_DUMP, "Get TLSData\n");
     LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
     CMPS_IMM8(x12, 1);
@@ -376,6 +379,7 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     int32_t i32;
+    MAYUSE(i32);
     MESSAGE(LOG_DUMP, "Get FS: Offset\n");
     LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_FS]));
     CMPS_IMM8(x12, 1);

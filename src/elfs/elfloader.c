@@ -783,6 +783,8 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)
         return;
+    // reset Segs Cache
+    memset(emu->segs_clean, 0, sizeof(emu->segs_clean));
     uintptr_t p = h->initentry + h->delta;
     box86context_t* context = GetEmuContext(emu);
     if(context->deferedInit) {
