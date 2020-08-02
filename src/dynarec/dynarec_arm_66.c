@@ -80,6 +80,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDRH_IMM8(x2, xESP, 0);
             STRH_IMM8(x2, x1, 0);
             ADD_IMM8(xESP, xESP, 2);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_ES]));
             break;
 
         case 0x09:
@@ -523,6 +525,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
                 STRH_REG(x1, xEmu, x2);
             }
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[(nextop&38)>>3]));
             break;
 
         case 0x90:

@@ -30,6 +30,7 @@
         NEXT;
     _66_0x07:                      /* POP ES */
         emu->segs[_ES] = Pop16(emu);    // no check, no use....
+        emu->segs_clean[_ES] = 0;
         NEXT;
 
     _66_0x0F:                      /* 66 0f prefix */
@@ -202,6 +203,7 @@
         nextop = F8;
         GET_EW;
         emu->segs[((nextop&0x38)>>3)] = EW->word[0];
+        emu->segs_clean[((nextop&0x38)>>3)] = 0;
         NEXT;
     _66_0x8F:                              /* POP Ew */
         nextop = F8;

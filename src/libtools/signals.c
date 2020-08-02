@@ -169,6 +169,8 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     x86emu_t *emu = get_signal_emu();
 
     SetFS(emu, default_fs);
+    for (int i=0; i<6; ++i)
+        emu->segs_clean[i] = 0;
         
     R_ESP -= nargs*4;   // need to push in reverse order
 

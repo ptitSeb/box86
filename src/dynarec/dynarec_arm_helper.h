@@ -184,6 +184,8 @@
 #define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
 #define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
 #define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
+#define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
 
 // Branch to MARK if cond (use i32)
 #define B_MARK(cond)    \
@@ -200,6 +202,10 @@
 // Branch to next instruction if cond (use i32)
 #define B_NEXT(cond)     \
     i32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
+    Bcond(cond, i32)
+// Branch to MARKSEG if cond (use i32)
+#define B_MARKSEG(cond)    \
+    i32 = GETMARKSEG-(dyn->arm_size+8);   \
     Bcond(cond, i32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))

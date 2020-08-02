@@ -1324,6 +1324,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, offsetof(x86emu_t, segs[_FS]));
             POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_FS]));
             break;
         case 0xA2:
             INST_NAME("CPUID");
@@ -1385,6 +1387,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, offsetof(x86emu_t, segs[_GS]));
             POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
             break;
 
         case 0xAB:

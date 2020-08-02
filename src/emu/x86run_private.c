@@ -742,23 +742,13 @@ void UnpackFlags(x86emu_t* emu)
     #undef GOC
 }
 
-uintptr_t GetGSBaseEmu(x86emu_t* emu)
-{
-    return (uintptr_t)GetSegmentBase(emu->segs[_GS]);
-}
-
-uintptr_t GetFSBaseEmu(x86emu_t* emu)
-{
-    return (uintptr_t)GetSegmentBase(emu->segs[_FS]);
-}
-
-uintptr_t GetESBaseEmu(x86emu_t* emu)
-{
-    return (uintptr_t)GetSegmentBase(emu->segs[_ES]);
-}
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg)
 {
-    return (uintptr_t)GetSegmentBase(emu->segs[seg]);
+    if(!emu->segs_clean[seg]) {
+        emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu->segs[seg]);
+        emu->segs_clean[seg] = 1;
+    }
+    return emu->segs_offs[seg];
 }
 
 

@@ -293,6 +293,7 @@ _trace:
             NEXT;
         _0x07:                      /* POP ES */
             emu->segs[_ES] = Pop(emu);    // no check, no use....
+            emu->segs_clean[_ES] = 0;
             NEXT;
 
         _0x0F:                      /* More instructions */
@@ -304,6 +305,7 @@ _trace:
             NEXT;
         _0x17:                      /* POP SS */
             emu->segs[_SS] = Pop(emu);    // no check, no use....
+            emu->segs_clean[_SS] = 0;
             NEXT;
 
         _0x1E:                      /* PUSH DS */
@@ -311,6 +313,7 @@ _trace:
             NEXT;
         _0x1F:                      /* POP DS */
             emu->segs[_DS] = Pop(emu);    // no check, no use....
+            emu->segs_clean[_DS] = 0;
             NEXT;
 
         _0x26:                      /* ES: */
@@ -676,6 +679,7 @@ _trace:
             nextop = F8;
             GET_EW;
             emu->segs[((nextop&0x38)>>3)] = EW->word[0];
+            emu->segs_clean[((nextop&0x38)>>3)] = 0;
             NEXT;
         _0x8F:                      /* POP Ed */
             nextop = F8;
@@ -932,6 +936,7 @@ _trace:
         _0xCF:                      /* IRET */
             ip = Pop(emu);
             emu->segs[_CS] = Pop(emu);
+            emu->segs_clean[_CS] = 0;
             emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             UnpackFlags(emu);
             RESET_FLAGS(emu);

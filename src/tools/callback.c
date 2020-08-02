@@ -175,6 +175,8 @@ uint32_t RunCallback(x86emu_t* emu)
 {
     onecallback_t *cb = FindCallback(emu);
     if(cb) {
+        // clean seg offs cache
+        memset(emu->segs_clean, 0, sizeof(emu->segs_clean));
         for (int i=cb->nb_args-1; i>=0; --i)    // reverse order
             Push(emu, (uint32_t)cb->arg[i]);
         DynaCall(emu, cb->fnc);

@@ -361,16 +361,30 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
+    int32_t i32;
     MESSAGE(LOG_DUMP, "Get TLSData\n");
-    call_c(dyn, ninst, GetGSBaseEmu, 12, reg, 0);
+    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
+    CMPS_IMM8(x12, 1);
+    LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
+    B_MARKSEG(cEQ);
+    MOVW(x1, _GS);
+    call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
+    MARKSEG;
     MESSAGE(LOG_DUMP, "----TLSData\n");
 }
 
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
-    MESSAGE(LOG_DUMP, "Get TLSData\n");
-    call_c(dyn, ninst, GetFSBaseEmu, 12, reg, 0);
-    MESSAGE(LOG_DUMP, "----TLSData\n");
+    int32_t i32;
+    MESSAGE(LOG_DUMP, "Get FS: Offset\n");
+    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_FS]));
+    CMPS_IMM8(x12, 1);
+    LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
+    B_MARKSEG(cEQ);
+    MOVW(x1, _FS);
+    call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
+    MARKSEG;
+    MESSAGE(LOG_DUMP, "----FS: Offset\n");
 }
 
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)

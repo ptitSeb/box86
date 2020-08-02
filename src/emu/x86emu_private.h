@@ -54,7 +54,9 @@ typedef struct x86emu_s {
     uintptr_t   prev2_ip, prev_ip;
     #endif
     // segments
-    uint32_t    segs[6];    // only 32bits value?
+    uint32_t    segs[6];        // only 32bits value?
+    uintptr_t   segs_offs[6];   // computed offset associate with segment
+    int         segs_clean[6];  // are seg offset clean (1) or does they need to be re-computed (0)?
     // emu control
     int         quit;
     int         error;

@@ -12,6 +12,7 @@ typedef struct instruction_arm_s {
     int                 size;       // size of the arm emited instruction
     uintptr_t           mark, mark2, mark3;
     uintptr_t           markf;
+    uintptr_t           markseg;
 } instruction_arm_t;
 
 typedef struct dynarec_arm_s {

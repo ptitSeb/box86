@@ -104,6 +104,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
             POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_ES]));
             break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
@@ -280,6 +282,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, offsetof(x86emu_t, segs[_DS]));
             POP(xESP, 1<<x2);
             STRH_REG(x2, xEmu, x1);
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_DS]));
             break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
@@ -1158,6 +1162,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, &default_fs);
                 STRH_IMM8(ed, x2, 0);
             }
+            MOVW(x1, 0);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[(nextop&38)>>3]));
             break;
         case 0x8F:
             INST_NAME("POP Ed");

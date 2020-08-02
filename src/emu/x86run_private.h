@@ -210,10 +210,10 @@ x86emu_t* x86emu_fork(x86emu_t* e, int forktype);
 void PackFlags(x86emu_t* emu);
 void UnpackFlags(x86emu_t* emu);
 
-uintptr_t GetGSBaseEmu(x86emu_t* emu);
-uintptr_t GetFSBaseEmu(x86emu_t* emu);
-uintptr_t GetESBaseEmu(x86emu_t* emu);
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg);
+#define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)
+#define GetFSBaseEmu(emu)    GetSegmentBaseEmu(emu, _FS)
+#define GetESBaseEmu(emu)    GetSegmentBaseEmu(emu, _ES)
 
 const char* GetNativeName(void* p);
 
