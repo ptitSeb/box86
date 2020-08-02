@@ -970,14 +970,18 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h)
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {
+    // this is one is fast, so start with that
+    dynablocklist_t* ret = getDBFromAddress(addr);
+    if(ret) {
+        return ret;
+    }
+    // nope, then find in elfs
     elfheader_t* elf = FindElfAddress(context, addr);
     if(!elf) {
-        if((*(uint8_t*)addr)==0xCC || (addr>11 && ((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
-            return context->dynablocks;
-        dynablocklist_t* ret = getDBFromAddress(addr);
-        if(ret) {
-            return ret;
-        }
+        // still nope
+        if(addr>0x100)
+            if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
+                return context->dynablocks;
         if(box86_dynarec_forced)
             return context->dynablocks;
         dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
