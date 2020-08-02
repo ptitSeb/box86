@@ -48,6 +48,7 @@
 #include "fileutils.h"
 #include "auxval.h"
 #include "elfloader.h"
+#include "bridge.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -134,7 +135,6 @@ typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
-typedef int32_t (*iFpLLpp_t)(void*, size_t, size_t, void*, void*);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
@@ -425,52 +425,6 @@ static void* findcompare64Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
-    return NULL;
-}
-// chunkfunc
-#define GO(A)   \
-static uintptr_t my_chunkfunc_fct_##A = 0;                                      \
-static void* my_chunkfunc_##A(size_t a) \
-{                                                                               \
-    return (void*)RunFunction(my_context, my_chunkfunc_fct_##A, 1, a);            \
-}
-SUPER()
-#undef GO
-static void* findchunkfuncFct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_chunkfunc_fct_##A == (uintptr_t)fct) return my_chunkfunc_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_chunkfunc_fct_##A == 0) {my_chunkfunc_fct_##A = (uintptr_t)fct; return my_chunkfunc_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libc chunkfunc callback\n");
-    return NULL;
-}
-// freefun
-#define GO(A)   \
-static uintptr_t my_freefun_fct_##A = 0;                                      \
-static void my_freefun_##A(void* a) \
-{                                                                               \
-    RunFunction(my_context, my_freefun_fct_##A, 1, a);            \
-}
-SUPER()
-#undef GO
-static void* findfreefunFct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_freefun_fct_##A == (uintptr_t)fct) return my_freefun_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_freefun_fct_##A == 0) {my_freefun_fct_##A = (uintptr_t)fct; return my_freefun_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libc freefun callback\n");
     return NULL;
 }
 
@@ -904,21 +858,6 @@ EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* f
     return ((iFppp_t)f)(result_ptr, fmt, emu->scratch);
     #else
     return vasprintf((char**)result_ptr, (char*)fmt, V);
-    #endif
-}
-
-EXPORT int32_t my_obstack_vprintf(x86emu_t* emu, void* obstack, void* fmt, void* b, va_list V)
-{
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    void* f = obstack_vprintf;
-    int r = ((iFppp_t)f)(obstack, fmt, emu->scratch);
-    return r;
-    #else
-    void* f = obstack_vprintf;
-    int r = ((iFppp_t)f)(obstack, fmt, (uint32_t*)b);
-    return r;
     #endif
 }
 
@@ -2194,13 +2133,8 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-EXPORT int my__obstack_begin(void* obstack, size_t size, size_t alignment, void* chunkfun, void* freefun)
-{
-    library_t* lib = GetLibInternal(libcName);
-    if(!lib) return 0;
-    iFpLLpp_t f = dlsym(lib->priv.w.lib, "_obstack_begin");
-    return f(obstack, size, alignment, findchunkfuncFct(chunkfun), findfreefunFct(freefun));
-}
+// all obstack function defined in obstack.c file
+void obstackSetup();
 
 #ifndef NOALIGN
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
@@ -2211,10 +2145,11 @@ EXPORT void* my_malloc(unsigned long size)
 #endif
 
 #define CUSTOM_INIT         \
+    box86->libclib = lib;   \
     InitCpuModel();         \
     ctSetup();              \
     stSetup(box86);         \
-    box86->libclib = lib;   \
+    obstackSetup();         \
     lib->priv.w.p2 = getLIBCMy(lib); \
     lib->priv.w.needed = 3; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \

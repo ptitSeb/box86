@@ -195,6 +195,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/libtools/myalign.c"
     "${BOX86_ROOT}/src/libtools/myalign64.c"
     "${BOX86_ROOT}/src/libtools/myfts.c"
+    "${BOX86_ROOT}/src/libtools/obstack.c"
     "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
     "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX86_ROOT}/src/libtools/signals.c"
