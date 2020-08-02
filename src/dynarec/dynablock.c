@@ -353,6 +353,11 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created)
 {
+    if(!dynablocks) {
+        dynarec_log(LOG_INFO, "Warning: Ask to create a dynblock with a NULL dynablocklist (addr=%p)\n", (void*)addr);
+        *created = 0;
+        return NULL;
+    }
     khint_t k;
     int ret;
     dynablock_t* block = NULL;
@@ -391,10 +396,11 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
         if(!dynablocks->blocks) {
-            dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
             pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
-            *created = 0;
-            return NULL;
+            //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
+            //*created = 0;
+            //return NULL;
+            return AddNewDynablock(getDBFromAddress(addr), addr, with_marks, created);
         }
         k = kh_put(dynablocks, dynablocks->blocks, addr-dynablocks->base, &ret);
         if(!ret) {
