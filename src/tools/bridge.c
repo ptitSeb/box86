@@ -9,7 +9,7 @@
 
 KHASH_MAP_INIT_INT(bridgemap, uintptr_t)
 
-#define NBRICK  16
+#define NBRICK  64
 typedef struct brick_s brick_t;
 typedef struct brick_s {
     onebridge_t b[NBRICK];
