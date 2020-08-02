@@ -48,9 +48,10 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
     ret->textsz = textsz;
     ret->nolinker = nolinker;
     pthread_rwlock_init(&ret->rwlock_blocks, NULL);
-    if(direct && textsz)
+    if(direct && textsz) {
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
-
+        if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
+    }
     return ret;
 }
 
@@ -316,6 +317,41 @@ void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr
         end = enddb;
     if(end>startdb && start<enddb)
         protectDB(start, end-start); //no +1; as end/enddb is exclusive and not inclusive
+}
+
+void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
+{
+    if(!dynablocks)
+        return;
+    if(dynablocks->direct)
+        FreeDirectDynablock(dynablocks, addr, size);
+    if(dynablocks->blocks) {
+        dynablock_t* db;
+        uintptr_t s, e;
+        kh_foreach_value(dynablocks->blocks, db, 
+            s = (uintptr_t)db->x86_addr;
+            e = (uintptr_t)db->x86_addr+db->x86_size-1;
+            if((s>=addr && s<(addr+size)) || (e>=addr && e<(addr+size)))
+                ProtectDynablock(db);
+        );
+    }
+}
+void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
+{
+    if(!dynablocks)
+        return;
+    if(dynablocks->direct)
+        MarkDirectDynablock(dynablocks, addr, size);
+    if(dynablocks->blocks) {
+        dynablock_t* db;
+        uintptr_t s, e;
+        kh_foreach_value(dynablocks->blocks, db, 
+            s = (uintptr_t)db->x86_addr;
+            e = (uintptr_t)db->x86_addr+db->x86_size-1;
+            if((s>=addr && s<(addr+size)) || (e>=addr && e<(addr+size)))
+                MarkDynablock(db);
+        );
+    }
 }
 
 void ConvertHash2Direct(dynablocklist_t* dynablocks)

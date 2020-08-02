@@ -158,7 +158,7 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
-            my_context->dynmap[i]->dynablocks = NewDynablockList(0, i<<16, 1<<16, 1, 1);
+            my_context->dynmap[i]->dynablocks = NewDynablockList(i<<16, i<<16, 1<<16, 1, 0);
         }
     }
     protectDB(addr, size);
@@ -187,9 +187,9 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
                     MarkDynablockList(&dynmap->dynablocks);
             } else
                 if(destroy)
-                    FreeDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
+                    FreeRangeDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
                 else
-                    MarkDirectDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
+                    MarkRangeDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
 
         }
     }
