@@ -528,6 +528,19 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x90:
             INST_NAME("NOP");
             break;
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            INST_NAME("XCHG AX, Reg");
+            gd = xEAX+(opcode&0x07);
+            MOV_REG(x2, xEAX);
+            BFI(xEAX, gd, 0, 16);
+            BFI(gd, x2, 0, 16);
+            break;
 
         case 0x98:
             INST_NAME("CBW");
