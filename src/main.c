@@ -480,7 +480,7 @@ void LoadEnvVars(box86context_t *context)
     if(FileExist("/usr/lib32", 0))
         AddPath("/usr/lib32", &context->box86_ld_lib, 1);
     if(getenv("LD_LIBRARY_PATH"))
-        AppendList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
+        PrependList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
     if(getenv("BOX86_EMULATED_LIBS")) {
         char* p = getenv("BOX86_EMULATED_LIBS");
         ParseList(p, &context->box86_emulated_libs, 0);
