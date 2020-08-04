@@ -38,10 +38,17 @@
         
     _66_0x26:                      /* ES: */
         // ignored
-        NEXT;
+        opcode = F8;
+        goto *opcodes66[opcode];
     _66_0x2E:                      /* CS: */
         // ignored
-        NEXT;
+        opcode = F8;
+        goto *opcodes66[opcode];
+    _66_0x36:                      /* SS: */
+        // ignored
+        opcode = F8;
+        goto *opcodes66[opcode];
+
     _66_0x39:
         nextop = F8;
         GET_EW;
