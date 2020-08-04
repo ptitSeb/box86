@@ -1605,4 +1605,5 @@ GO(g_warn_message, vFppipp)
 //GO(_init, 
 
 DATA(g_ascii_table, 4)
+DATA(g_utf8_skip, 4)
 //GLOB(g_threads_got_initialized, 4)
