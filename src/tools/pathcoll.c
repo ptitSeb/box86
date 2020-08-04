@@ -143,6 +143,34 @@ void AppendList(path_collection_t* collection, const char* List, int folder)
     }
 
 }
+void PrependList(path_collection_t* collection, const char* List, int folder)
+{
+    if(!List)
+        return;
+        // and now split the paths...
+    char tmp[MAX_PATH];
+    char *p = strdup(List);
+    while(p) {
+        char *p2 = strrchr(p, ':');
+        if(!p2) {
+            strncpy(tmp, p, MAX_PATH - 1);
+            p=NULL;
+        } else {
+            strncpy(tmp, p2+1, PATH_MAX);
+            tmp[PATH_MAX-1]='\0';
+            *p2 = '\0';
+        }
+        // check if there is terminal '/', add it if not
+        int l = strlen(tmp);
+        // skip empty strings
+        if(l) {
+            if(folder && tmp[l-1]!='/')
+                strcat(tmp, "/");
+            PrependPath(tmp, collection, folder);
+        }
+    }
+
+}
 
 int FindInCollection(const char* path, path_collection_t* collection)
 {
