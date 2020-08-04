@@ -363,13 +363,13 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
-    int32_t i32;
-    MAYUSE(i32);
     MESSAGE(LOG_DUMP, "Get TLSData\n");
-    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
-    CMPS_IMM8(x12, 1);
-    LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
-    B_MARKSEG(cEQ);
+    //int32_t i32;
+    //MAYUSE(i32);
+    //LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
+    //CMPS_IMM8(x12, 1);
+    //LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
+    //B_MARKSEG(cEQ);
     MOVW(x1, _GS);
     call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
     MARKSEG;
