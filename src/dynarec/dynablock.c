@@ -69,10 +69,12 @@ void FreeDynablock(dynablock_t* db)
                 db->parent->direct[addr-startdb] = NULL;
         }
        // remove from hash if there
-        khint_t kdb;
-        kdb = kh_get(dynablocks, db->parent->blocks, (uintptr_t) db->x86_addr - db->parent->base);
-        if(kdb!=kh_end(db->parent->blocks))
-            kh_del(dynablocks, db->parent->blocks, kdb);
+	if (db->parent->blocks) {
+            khint_t kdb;
+            kdb = kh_get(dynablocks, db->parent->blocks, (uintptr_t) db->x86_addr - db->parent->base);
+            if(kdb!=kh_end(db->parent->blocks))
+                kh_del(dynablocks, db->parent->blocks, kdb);
+	}
 
         if(db->marks) {
             // Follow mark and set arm_linker instead
