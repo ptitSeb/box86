@@ -436,7 +436,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
-        if(!dynablocks->blocks) {
+        if(dynablocks->nolinker && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
             pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
             //*created = 0;
