@@ -79,7 +79,6 @@ void FreeDynablock(dynablock_t* db)
         if(db->marks) {
             // Follow mark and set arm_linker instead
             khint_t k;
-            char s;
             kh_foreach_key(db->marks, k,
                 void** p = (void**)(uintptr_t)k;
                 dynarec_log(LOG_DEBUG, " -- resettable(%p)\n", p);
@@ -134,9 +133,10 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         kh_foreach_value((*dynablocks)->blocks, db, 
             if(!db->father) list[n++] = db;
         );
-        kh_destroy(dynablocks, (*dynablocks)->blocks);
         for (int i=0; i<n; ++i)
             FreeDynablock(list[i]);
+        kh_destroy(dynablocks, (*dynablocks)->blocks);
+        (*dynablocks)->blocks = NULL;
         free(list);
     }
     if((*dynablocks)->direct) {
@@ -162,7 +162,6 @@ void MarkDynablock(dynablock_t* db)
         if(db->marks && !db->need_test) {
             // Follow mark and set arm_linker instead
             khint_t k;
-            char s;
             kh_foreach_key(db->marks, k,
                 void** p = (void**)(uintptr_t)k;
                 resettable(p);
