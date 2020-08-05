@@ -618,8 +618,8 @@ GO(SDL_ThreadID, uFv)
 GO(SDL_TLSCreate, uFv)
 GO(SDL_TLSGet, pFu)
 GOM(SDL_TLSSet, iFEupp)
-// SDL_tolower
-// SDL_toupper
+GO(SDL_tolower, iFi)
+GO(SDL_toupper, iFi)
 GO(SDL_TryLockMutex, iFp)
 GO(SDL_uitoa, pFupi)
 GO(SDL_ulltoa, pFUpi)
