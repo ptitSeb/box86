@@ -66,7 +66,7 @@ def main(root, defines, files, ver):
 								raise KeyError(preproc_cmd[5:].strip())
 							dependants.append("defined(" + preproc_cmd[5:].strip() + ")")
 						elif preproc_cmd.startswith("ifndef"):
-							if preproc_cmd[5:].strip() not in defines:
+							if preproc_cmd[6:].strip() not in defines:
 								raise KeyError(preproc_cmd[6:].strip())
 							dependants.append("!defined(" + preproc_cmd[6:].strip() + ")")
 						elif preproc_cmd.startswith("else"):
