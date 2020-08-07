@@ -67,7 +67,6 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_variant_new_from_data, pFppuipp_t)     \
     GO(g_variant_new_parsed_va, pFpp_t)         \
     GO(g_variant_get_va, vFpppp_t)              \
-    GO(g_variant_new_va, pFppp_t)               \
     GO(g_strdup_vprintf, pFpp_t)                \
     GO(g_vprintf, iFpp_t)                       \
     GO(g_vfprintf, iFppp_t)                     \
@@ -112,7 +111,8 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_slist_insert_sorted_with_data, pFpppp_t)   \
     GO(g_slist_foreach, pFppp_t)                \
     GO(g_slist_find_custom, pFppp_t)            \
-    GO(g_idle_add, uFpp_t)
+    GO(g_idle_add, uFpp_t)                      \
+    GO(g_variant_new_va, pFppp_t)
 
 typedef struct glib2_my_s {
     // functions
@@ -579,13 +579,6 @@ EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, void* b)
     library_t * lib = GetLibInternal(libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
     my->g_variant_get_va(value, fmt, NULL, b);
-}
-
-EXPORT void* my_g_variant_new(x86emu_t* emu, void* fmt, void* b)
-{
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
-    return my->g_variant_new_va(fmt, NULL, b);
 }
 
 EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
@@ -1099,6 +1092,22 @@ EXPORT uint32_t my_g_idle_add(x86emu_t* emu, void* func, void* data)
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
     return my->g_idle_add(findGSourceFuncFct(func), data);
+}
+
+EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    myStackAlign(fmt, b, emu->scratch);
+    return my->g_variant_new_va(fmt, endptr, emu->scratch);
+}
+
+EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    return my_g_variant_new_va(emu, fmt, NULL, b);
 }
 
 #define CUSTOM_INIT \

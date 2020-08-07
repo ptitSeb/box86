@@ -1534,7 +1534,11 @@ GO(g_variant_new_tuple, pFpu)
 GO(g_variant_new_uint16, pFW)
 GO(g_variant_new_uint32, pFu)
 GO(g_variant_new_uint64, pFU)
+#ifdef NOALIGN
 GO(g_variant_new_va, pFppp)
+#else
+GOM(g_variant_new_va, pFEppp)
+#endif
 GO(g_variant_new_variant, pFp)
 GO(g_variant_parse, pFppppp)
 GO(g_variant_parse_error_print_context, pFpp)
