@@ -412,3 +412,4 @@ GO(tigetstr, pFp)
 GO(tparm, pFplllllllll) // va_arg or 9 long, depending on how old the .h is
 
 DATA(stdscr, 4)
+DATA(COLOR_PAIRS, 4)
