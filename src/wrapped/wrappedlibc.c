@@ -2136,6 +2136,13 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
 // all obstack function defined in obstack.c file
 void obstackSetup();
 
+int my_nanosleep(const struct timespec *req, struct timespec *rem)
+{
+    if(!req)
+        return 0;   // workaround for some strange calls
+    return nanosleep(req, rem);
+}
+
 #ifndef NOALIGN
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
 EXPORT void* my_malloc(unsigned long size)

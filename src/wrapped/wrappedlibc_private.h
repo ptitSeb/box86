@@ -1140,7 +1140,7 @@ GO(munlock, iFpL)
 GO(munlockall, iFv)
 GOM(munmap, iFEpL)
 // muntrace
-GOW(nanosleep, iFpp)
+GOM(nanosleep, iFpp)	// weak
 // __nanosleep  // Weak
 // netname2host
 // netname2user
