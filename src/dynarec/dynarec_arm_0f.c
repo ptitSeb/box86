@@ -18,6 +18,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "my_cpuid.h"
 
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
@@ -1338,7 +1339,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV32(x12, ip+2);   // EIP is useless, but why not...
             // not purging stuff like x87 here, there is no float math or anything
             STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
-            CALL_(arm_cpuid, -1, 0);
+            CALL_(my_cpuid, -1, 0);
             LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
             break;
         case 0xA3:

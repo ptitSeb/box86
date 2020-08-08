@@ -18,6 +18,7 @@
 #include "x86trace.h"
 #include "x87emu_private.h"
 #include "box86context.h"
+#include "my_cpuid.h"
 
 int my_setcontext(x86emu_t* emu, void* ucp);
 

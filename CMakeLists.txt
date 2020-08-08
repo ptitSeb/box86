@@ -173,6 +173,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/tools/fileutils.c"
     "${BOX86_ROOT}/src/tools/callback.c"
     "${BOX86_ROOT}/src/tools/box86stack.c"
+    "${BOX86_ROOT}/src/tools/my_cpuid.c"
     "${BOX86_ROOT}/src/tools/gtkclass.c"
     "${BOX86_ROOT}/src/tools/wine_tools.c"
     "${BOX86_ROOT}/src/elfs/elfloader.c"
