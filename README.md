@@ -80,7 +80,7 @@ TL;DR: Not all Mono games work and can require a high OpenGL profile, but the sp
 A note about Wine
 ----
 
-Wine is not supported yet. Some instructions and syscalls are needed (mainly to setup `FS:` segment) that are not correctly emulated yet. It's planned, but not ready yet.
+Wine is now partly supported. Wine integreted program all runs, annd some windows program and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
 
 ----
 
