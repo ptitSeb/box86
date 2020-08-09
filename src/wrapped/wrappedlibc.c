@@ -2136,7 +2136,7 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
 // all obstack function defined in obstack.c file
 void obstackSetup();
 
-int my_nanosleep(const struct timespec *req, struct timespec *rem)
+EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
 {
     if(!req)
         return 0;   // workaround for some strange calls
