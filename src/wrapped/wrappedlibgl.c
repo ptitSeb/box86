@@ -16,7 +16,7 @@
 #include "librarian.h"
 #include "callback.h"
 
-char* libGL;
+extern char* libGL;
 
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
