@@ -1105,8 +1105,6 @@ EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_
 
 EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
     return my_g_variant_new_va(emu, fmt, NULL, b);
 }
 
