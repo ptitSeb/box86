@@ -4610,6 +4610,34 @@ const char* arm_print(uint32_t opcode) {
 		uint32_t imm24 = ((opcode >> 0) & 0xFFFFFF);
 		
 		sprintf(ret, "BL%s %+d", cond, (imm24 & 0x800000 ? imm24 | 0xFF000000 : imm24) + 2);
+	} else if ((opcode & 0x0FF00FD0) == 0x0C400A10) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rt = (opcode >> 12) & 0xF;
+		int rn = (opcode >> 16) & 0xF;
+		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
+		
+		sprintf(ret, "VMOV%s %s, %s, %s, %s", cond, vecname[m], vecname[m + 1], regname[rt], regname[rn]);
+	} else if ((opcode & 0x0FF00FD0) == 0x0C500A10) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rt = (opcode >> 12) & 0xF;
+		int rn = (opcode >> 16) & 0xF;
+		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
+		
+		sprintf(ret, "VMOV%s %s, %s, %s, %s", cond, regname[rt], regname[rn], vecname[m], vecname[m + 1]);
+	} else if ((opcode & 0x0FF00FD0) == 0x0C400B10) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rt = (opcode >> 12) & 0xF;
+		int rn = (opcode >> 16) & 0xF;
+		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
+		
+		sprintf(ret, "VMOV%s %s, %s, %s", cond, vecname[0x20 + m], regname[rt], regname[rn]);
+	} else if ((opcode & 0x0FF00FD0) == 0x0C500B10) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rt = (opcode >> 12) & 0xF;
+		int rn = (opcode >> 16) & 0xF;
+		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
+		
+		sprintf(ret, "VMOV%s %s, %s, %s", cond, regname[rt], regname[rn], vecname[0x20 + m]);
 	} else if ((opcode & 0x0F800E00) == 0x0C000A00) {
 		strcpy(ret, "???");
 	} else if ((opcode & 0x0F800E00) == 0x0C000A00) {
@@ -4817,36 +4845,6 @@ const char* arm_print(uint32_t opcode) {
 		
 		sprintf(ret, "VMOV%s.%s %s, %s[%d]", cond, dts[(u << 2) + size], regname[rt], vecname[0x20 + n], decodedImm);
 	} else if ((opcode & 0x0F000E10) == 0x0E000A10) {
-		strcpy(ret, "???");
-	} else if ((opcode & 0x0FF00FD0) == 0x0C400A10) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rt = (opcode >> 12) & 0xF;
-		int rn = (opcode >> 16) & 0xF;
-		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		
-		sprintf(ret, "VMOV%s %s, %s, %s, %s", cond, vecname[m], vecname[m + 1], regname[rt], regname[rn]);
-	} else if ((opcode & 0x0FF00FD0) == 0x0C500A10) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rt = (opcode >> 12) & 0xF;
-		int rn = (opcode >> 16) & 0xF;
-		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		
-		sprintf(ret, "VMOV%s %s, %s, %s, %s", cond, regname[rt], regname[rn], vecname[m], vecname[m + 1]);
-	} else if ((opcode & 0x0FF00FD0) == 0x0C400B10) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rt = (opcode >> 12) & 0xF;
-		int rn = (opcode >> 16) & 0xF;
-		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		
-		sprintf(ret, "VMOV%s %s, %s, %s", cond, vecname[0x20 + m], regname[rt], regname[rn]);
-	} else if ((opcode & 0x0FF00FD0) == 0x0C500B10) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rt = (opcode >> 12) & 0xF;
-		int rn = (opcode >> 16) & 0xF;
-		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		
-		sprintf(ret, "VMOV%s %s, %s, %s", cond, regname[rt], regname[rn], vecname[0x20 + m]);
-	} else if ((opcode & 0x0FE00E00) == 0x0C400A00) {
 		strcpy(ret, "???");
 	} else if ((opcode & 0x0FB00E10) == 0x0E000A00) {
 		const char* cond = conds[(opcode >> 28) & 0xF];

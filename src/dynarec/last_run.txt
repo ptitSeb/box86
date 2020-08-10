@@ -415,6 +415,10 @@ ARM_ cond 1 0 0 1 1 0 W 1 Rn/=1101 register_list LDMFA<c> <Rn>{!}, <registers>
 ARM_ cond 1 0 0 1 1 0 W 1 Rn register_list LDMIB<c> <Rn>{!}, <registers>
 ARM_ cond 1 0 1 0 imm24 B<c> <label>
 ARM_ cond 1 0 1 1 imm24 BL<c> <label>
+VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Sm>, <Sm1>, <Rt>, <Rn>
+VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Sm>, <Sm1>
+VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Dm>, <Rt>, <Rn>
+VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Dm>
 INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
 INVALIDATE <4> 1 1 0 0 0 <11> 1 0 1 <9>
 INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
@@ -443,11 +447,6 @@ VFPU cond 1 1 1 0 0 0 0 1 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Rt>
 VFPU cond 1 1 1 0 1 1 1 1 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMRS<c> <Rt>, FPSCR
 VFPU cond 1 1 1 0 U @<2> 1 Vn Rt 1 0 1 1 N @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (u << 3) + (param1_2 << 2) + param2_2@ = uint8_t shift, size @@ (opc & 0b01000) == 0b01000@ @@ (opc & 0b01001) == 0b00001@ @@ (opc & 0b11011) == 0b00000@ shift,0,1,2,0xFF;size,0,1,2,4@ set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.<dt> <Rt>, <Dn[x]>
 INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 1 <4>
-VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Sm>, <Sm1>, <Rt>, <Rn>
-VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 0 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Sm>, <Sm1>
-VFPU cond 1 1 0 0 0 1 0 0 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Dm>, <Rt>, <Rn>
-VFPU cond 1 1 0 0 0 1 0 1 Rn Rt 1 0 1 1 0 0 M 1 Vm VMOV<c> <Rt>, <Rn>, <Dm>
-INVALIDATE <4> 1 1 0 0 0 1 0 <9> 1 0 1 <9>
 VFPU cond 1 1 1 0 0 D 0 0 Vn Vd 1 0 1 sz N op M 0 Vm VML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 0 D 0 1 Vn Vd 1 0 1 sz N op M 0 Vm VNML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
 VFPU cond 1 1 1 0 0 D 1 0 Vn Vd 1 0 1 sz N 0 M 0 Vm VMUL<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
