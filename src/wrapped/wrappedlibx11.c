@@ -19,8 +19,8 @@
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
 
-int x11threads;
-int x11glx;
+extern int x11threads;
+extern int x11glx;
 
 typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);

@@ -304,12 +304,12 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
 void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig == SIGSEGV here!
-    ucontext_t *p=(ucontext_t *)ucntx;
+    ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
 #ifdef __arm__
     void * pc = (void*)p->uc_mcontext.arm_pc;
-#elif defined __x86__
-    void * pc = p->uc_mcontext.gregs[REG_RIP];
+#elif defined __i386
+    void * pc = (void*)p->uc_mcontext.gregs[REG_EIP];
 #else
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture

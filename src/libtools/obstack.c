@@ -142,22 +142,22 @@ GO(use_extra_arg)       \
 GO(maybe_empty_object)  \
 GO(alloc_failed)
 
-void to_i386_obstack(struct i386_obstack *i386, struct obstack *native)
+void to_i386_obstack(struct i386_obstack *_i386, struct obstack *native)
 {
-    #define GO(A)   i386->A = native->A;
+    #define GO(A)   _i386->A = native->A;
     SUPER();
     #undef GO
-    i386->chunkfun = findchunkfunFct(native->chunkfun);
-    i386->freefun = findfreefunFct(native->freefun);
+    _i386->chunkfun = findchunkfunFct(native->chunkfun);
+    _i386->freefun = findfreefunFct(native->freefun);
 }
 
-void from_i386_obstack(struct i386_obstack *i386, struct obstack *native)
+void from_i386_obstack(struct i386_obstack *_i386, struct obstack *native)
 {
-    #define GO(A)   native->A = i386->A;
+    #define GO(A)   native->A = _i386->A;
     SUPER();
     #undef GO
-    native->chunkfun = reverse_chunkfunFct(my_context->libclib, i386->chunkfun);
-    native->freefun = reverse_freefunFct(my_context->libclib, i386->freefun);
+    native->chunkfun = reverse_chunkfunFct(my_context->libclib, _i386->chunkfun);
+    native->freefun = reverse_freefunFct(my_context->libclib, _i386->freefun);
 }
 #undef SUPER
 
