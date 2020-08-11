@@ -19,7 +19,10 @@
 #include "khash.h"
 
 const char* curlName = "libcurl.so.4";
+#define ALTNAME "libcurl-gnutls.so.4"
 #define LIBNAME curl
+
+static library_t* my_lib = NULL;
 
 typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
 typedef void (*vFp_t)(void*);
@@ -488,8 +491,7 @@ static void* find_progress_Fct(void* fct)
 
 EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option, void* param)
 {
-    library_t * lib = GetLibInternal(curlName);
-    curl_my_t *my = (curl_my_t*)lib->priv.w.p2;
+    curl_my_t *my = (curl_my_t*)my_lib->priv.w.p2;
 
     switch(option) {
         case CURLOPT_WRITEDATA:
@@ -550,11 +552,13 @@ EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option
 
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getCurlMy(lib);
+    lib->priv.w.p2 = getCurlMy(lib);    \
+    my_lib = lib;
 
 #define CUSTOM_FINI \
     freeCurlMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    free(lib->priv.w.p2);       \
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
 
