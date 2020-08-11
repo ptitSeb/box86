@@ -199,6 +199,8 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->relasz = h->Dynamic[i].d_un.d_val;
                 else if(h->Dynamic[i].d_tag == DT_RELAENT)
                     h->relaent = h->Dynamic[i].d_un.d_val;
+                else if(h->Dynamic[i].d_tag == DT_PLTGOT)
+                    h->pltgot = h->Dynamic[i].d_un.d_val;
                 else if(h->Dynamic[i].d_tag == DT_PLTREL)
                     h->pltrel = h->Dynamic[i].d_un.d_val;
                 else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)

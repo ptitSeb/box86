@@ -392,7 +392,8 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     end = globend;
                 }
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    if(strcmp(symname, "__gmon_start__"))
+                        printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
 //                    return -1;
                 } else {
                     printf_log(LOG_DEBUG, "Apply %s R_386_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
@@ -558,12 +559,10 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
     if(pltResolver==~0) {
         pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
     }
-    uintptr_t gotplt = head->gotplt;
-    if(!gotplt) gotplt =  head->got;
-    if(head->gotplt) {
-        *(uintptr_t*)(head->gotplt+head->delta+8) = pltResolver;
-        *(uintptr_t*)(head->gotplt+head->delta+4) = (uintptr_t)head;
-        printf_log(LOG_DEBUG, "PLT Resolver injected in got.plt at %p\n", (void*)(head->gotplt+head->delta+8));
+    if(head->pltgot) {
+        *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
+        *(uintptr_t*)(head->pltgot+head->delta+4) = (uintptr_t)head;
+        printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+8));
     } else if(head->got) {
         *(uintptr_t*)(head->got+head->delta+8) = pltResolver;
         *(uintptr_t*)(head->got+head->delta+4) = (uintptr_t)head;
