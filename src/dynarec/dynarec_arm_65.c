@@ -31,6 +31,26 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t wback;
     int fixedaddress;
     switch(opcode) {
+        case 0x03:
+            INST_NAME("ADD Gd, GS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_tlsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_add32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
+        case 0x2B:
+            INST_NAME("SUB Gd, GS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_tlsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_sub32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
         case 0x33:
             INST_NAME("XOR Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET);
