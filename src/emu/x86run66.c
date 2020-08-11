@@ -51,6 +51,7 @@ void Run67(x86emu_t *emu)
     uintptr_t ip = R_EIP+1; //skip 67
     uint8_t opcode = F8;
     int8_t tmp8s;
+    int32_t tmp32s;
     switch(opcode) {
 
     case 0x66:                      /* MoooRE opcodes */
@@ -89,6 +90,12 @@ void Run67(x86emu_t *emu)
         tmp8s = F8S;
         if(!R_CX)
             R_EIP += tmp8s;
+        break;
+
+    case 0xE8:                      /* CALL Id */
+        tmp32s = F32S; // call is relative
+        Push(emu, R_EIP);
+        R_EIP += tmp32s;
         break;
 
     default:
