@@ -2859,6 +2859,10 @@ GO(glPolygonOffsetClamp, vFfff)
 //GL_EXT_polygon_offset_clamp
 GO(glPolygonOffsetClampEXT, vFfff)
 
+//GL_EXT_multisampled_render_to_texture
+GO(glRenderbufferStorageMultisampleEXT, vFilill)
+GO(glFramebufferTexture2DMultisampleEXT, vFiiiuil)
+
 //GL_KTX_buffer_region
 GO(glBufferRegionEnabled,uFv)
 GO(glNewBufferRegion,uFi)
