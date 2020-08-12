@@ -19,6 +19,8 @@ void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr
 void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 
+// for debugging purpose
+dynablock_t* FindDynablockFromNativeAddress(void* addr);
 
 uintptr_t StartDynablockList(dynablocklist_t* db);
 uintptr_t EndDynablockList(dynablocklist_t* db);

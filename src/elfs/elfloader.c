@@ -990,6 +990,12 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     }
     return elf->blocks;
 }
+dynablocklist_t* GetDynablocksFromElf(elfheader_t* h)
+{
+    if(!h)
+        return NULL;
+    return h->blocks;
+}
 #endif
 
 typedef struct my_dl_phdr_info_s {

@@ -137,10 +137,6 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size)
 }
 
 // each dynmap is 64k of size
-typedef struct dynmap_s {
-    dynablocklist_t* dynablocks;    // the dynabockist of the block
-} dynmap_t;
-
 dynablocklist_t* getDBFromAddress(uintptr_t addr)
 {
     int idx = (addr>>16);

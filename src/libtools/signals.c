@@ -20,6 +20,10 @@
 #include "dynarec.h"
 #include "callback.h"
 #include "x86run.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#include "../dynarec/dynablock_private.h"
+#endif
 
 
 /* Definitions taken from the kernel headers.  */
@@ -329,6 +333,9 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
         printf_log(LOG_NONE, "%04d|Double SIGSEGV!\n", GetTID());
     } else {
+#ifdef DYNAREC
+        dynablock_t* db = FindDynablockFromNativeAddress(pc);
+#endif
         old_code = info->si_code;
         old_pc = pc;
         old_addr = addr;
@@ -347,7 +354,11 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         x86name = getAddrFunctionName(x86pc);   
         // uncomment that line for easier SEGFAULT debugging
+#ifdef DYNAREC
+        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+#else
         printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code);
+#endif
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
                 my_sigactionhandler(sig, info, ucntx);

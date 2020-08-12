@@ -27,7 +27,9 @@ typedef struct atfork_fnc_s {
 #ifdef DYNAREC
 typedef struct dynablocklist_s dynablocklist_t;
 typedef struct mmaplist_s      mmaplist_t;
-typedef struct dynmap_s        dynmap_t;
+typedef struct dynmap_s {
+    dynablocklist_t* dynablocks;    // the dynabockist of the block
+} dynmap_t;
 #endif
 
 typedef void* (*procaddess_t)(const char* name);

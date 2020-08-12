@@ -48,6 +48,7 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h);
 void* GetDTatOffset(box86context_t* context, int index, int offset);
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
+dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
 #endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box86context_t* context, int fd);
