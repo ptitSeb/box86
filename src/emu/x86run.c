@@ -1084,7 +1084,9 @@ _trace:
             ip = R_EIP;
             if(emu->quit) goto fini;
             NEXT;
-
+        _0xF1:                      /* INT1 */
+            // does nothing for now
+            NEXT;
         _0xF2:                      /* REPNZ prefix */
         _0xF3:                      /* REPZ prefix */
             nextop = F8;
