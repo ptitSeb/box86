@@ -12,7 +12,11 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        dynarec_log(LOG_INFO, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X\n", \
+        dynarec_log(LOG_INFO, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X (%s)\n", \
         (void*)ip, PKip(0),             \
         PKip(1), PKip(2), PKip(3),      \
-        PKip(4), PKip(5), PKip(6))
+        PKip(4), PKip(5), PKip(6),      \
+        PKip(7), PKip(8), PKip(9),      \
+        PKip(10),PKip(11),PKip(12),     \
+        PKip(13),PKip(14),              \
+        GetNativeName((void*)addr))
