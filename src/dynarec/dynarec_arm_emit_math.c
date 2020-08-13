@@ -860,7 +860,7 @@ void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        UBFX(s3, s1, 15, 1);
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_SF]));
     }
     IFX(X_PF) {
