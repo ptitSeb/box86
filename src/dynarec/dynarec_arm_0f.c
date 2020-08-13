@@ -131,8 +131,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 INST_NAME("MOVLPS Gx,Ex");
                 GETGX(v0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                LDRD_IMM8(x2, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                LDR_IMM9(x2, ed, fixedaddress);
+                LDR_IMM9(x3, ed, fixedaddress+4);
                 VMOVtoV_D(v0, x2, x3);
             }
             break;
@@ -144,9 +145,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVD(v1, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
                 VMOVfrV_D(x2, x3, v0);
-                STRD_IMM8(x2, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                STR_IMM9(x2, ed, fixedaddress);
+                STR_IMM9(x3, ed, fixedaddress+4);
             }
             break;
         case 0x14:
@@ -300,7 +302,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x2D:
             INST_NAME("CVTPS2PI Gm, Ex");
-            u8 = x87_setround(dyn, ninst, x1, x2, x12);
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
@@ -321,6 +322,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d0 = v0;
             else
                 d0 = fpu_get_scratch_double(dyn);
+            u8 = x87_setround(dyn, ninst, x1, x2, x12);
             VCVTR_S32_F32(d0*2, d1*2);
             VCVTR_S32_F32(d0*2+1, d1*2+1);
             if(v0>=16) {
