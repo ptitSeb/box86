@@ -160,7 +160,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_ZF) {
         MOVW(s4, 0xffff);
         TSTS_REG_LSL_IMM5(s3, s4, 0);
-        MOVW(s4, 0);
+        MOVW_COND(cNE, s4, 0);
         MOVW_COND(cEQ, s4, 1);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_ZF]));
     }
@@ -180,9 +180,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_CF]));    // CF : bc & 0x8000
         }
         IFX(X_AF) {
-            TSTS_IMM8_ROR(s3, 0x08, 0);
-            MOVW(s4, 0);
-            MOVW_COND(cNE, s4, 1);
+            UBFX(s4, s3, 3, 1);
             STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_AF]));    // AF: bc & 0x08
         }
         IFX(X_OF) {
