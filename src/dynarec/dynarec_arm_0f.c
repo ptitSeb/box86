@@ -2095,6 +2095,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VST1_64(v0, ed);
             }
             break;
+        case 0xE8:
+            INST_NAME("PSUBSB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQSUB_S8(d0, d0, d1);
+            break;
+        case 0xE9:
+            INST_NAME("PSUBSW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VQSUB_S16(d0, d0, d1);
+            break;
 
         case 0xEB:
             INST_NAME("POR Gm, Em");
