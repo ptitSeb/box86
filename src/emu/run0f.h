@@ -828,6 +828,21 @@
                     } else
                         CLEAR_FLAG(F_CF);
                     break;
+                case 7:             /* BTC Ed, Ib */
+                    CHECK_FLAGS(emu);
+                    GET_ED;
+                    tmp8u = F8;
+                    if((nextop&0xC0)!=0xC0)
+                    {
+                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                    }
+                    tmp8u&=31;
+                    if(ED->dword[0] & (1<<tmp8u))
+                        SET_FLAG(F_CF);
+                    else
+                        CLEAR_FLAG(F_CF);
+                    ED->dword[0] ^= (1<<tmp8u);
+                    break;
 
                 default:
                     goto _default;
