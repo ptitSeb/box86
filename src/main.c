@@ -420,9 +420,12 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
 
 
 void PrintHelp() {
-    printf("\n\nThis is Box86, the Linux 86 emulator with a twist\n");
-    printf("\nUsage is box86 path/to/software [args]\n");
+    printf("\n\nThis is Box86, the Linux x86 emulator with a twist\n");
+    printf("\nUsage is box86 [options] path/to/software [args]\n");
     printf("to launch x86 software\n");
+    printf(" options can be :\n");
+    printf("    '-v'|'--version' to print box86 version and quit\n");
+    printf("    '-h'|'--help'    to print box86 help and quit\n");
     printf("You can also set some environment variables:\n");
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
@@ -667,28 +670,33 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
+static void PrintBox86Version()
+{
+    printf("Box86%s%s%s v%d.%d.%d\n", 
+    #ifdef HAVE_TRACE
+        " with trace",
+    #else
+        "",
+    #endif
+    #ifdef DYNAREC
+        " with Dynarec",
+    #else
+        "",
+    #endif
+    #ifdef USE_FLOAT
+        " (float only)",
+    #else
+        "",
+    #endif
+        BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
+}
+
 int main(int argc, const char **argv, const char **env) {
 
     init_auxval(argc, argv, env);
     // trying to open and load 1st arg
     if(argc==1) {
-        printf("Box86%s%s%s v%d.%d.%d\n", 
-        #ifdef HAVE_TRACE
-            " with trace",
-        #else
-            "",
-        #endif
-        #ifdef DYNAREC
-            " with Dynarec",
-        #else
-            "",
-        #endif
-        #ifdef USE_FLOAT
-            " (float only)",
-        #else
-            "",
-        #endif
-            BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
+        PrintBox86Version();
         PrintHelp();
         return 1;
     }
@@ -700,8 +708,30 @@ int main(int argc, const char **argv, const char **env) {
     LoadLogEnv();
     
     const char* prog = argv[1];
-    // precheck, for win-preload
     int nextarg = 1;
+    // check if some options are passed
+    while(prog && prog[0]=='-') {
+        if(!strcmp(prog, "-v") || !strcmp(prog, "--version")) {
+            PrintBox86Version();
+            exit(0);
+        }
+        if(!strcmp(prog, "-h") || !strcmp(prog, "--help")) {
+            PrintHelp();
+            exit(0);
+        }
+        // other options?
+        if(!strcmp(prog, "--")) {
+            prog = argv[++nextarg];
+            break;
+        }
+        printf("Warning, unrecognized option '%s'\n", prog);
+        prog = argv[++nextarg];
+    }
+    if(!prog || nextarg==argc) {
+        printf("Box86: nothing to run\n");
+        exit(0);
+    }
+    // precheck, for win-preload
     if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x86 = (nextarg<argc)?FileIsX86ELF(argv[nextarg]):0;
