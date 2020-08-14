@@ -24,7 +24,7 @@
 #endif
 #endif
 
-#include "box86version.h"
+#include "build_info.h"
 #include "debug.h"
 #include "box86context.h"
 #include "fileutils.h"
@@ -668,27 +668,6 @@ static void free_contextargv()
 {
     for(int i=0; i<my_context->argc; ++i)
         free(my_context->argv[i]);
-}
-
-static void PrintBox86Version()
-{
-    printf("Box86%s%s%s v%d.%d.%d\n", 
-    #ifdef HAVE_TRACE
-        " with trace",
-    #else
-        "",
-    #endif
-    #ifdef DYNAREC
-        " with Dynarec",
-    #else
-        "",
-    #endif
-    #ifdef USE_FLOAT
-        " (float only)",
-    #else
-        "",
-    #endif
-        BOX86_MAJOR, BOX86_MINOR, BOX86_REVISION);
 }
 
 int main(int argc, const char **argv, const char **env) {

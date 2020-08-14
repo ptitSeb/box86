@@ -165,9 +165,18 @@ include_directories(
     "${BOX86_ROOT}/src/wrapped/generated"
 )
 
+add_custom_command(
+    OUTPUT "${BOX86_ROOT}/src/git_head.h"
+    COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
+    DEPEND "${BOX86_ROOT}/src/build_info.c"
+    VERBATIM
+)
+
 set(ELFLOADER_SRC
+    "${BOX86_ROOT}/src/git_head.h"
     "${BOX86_ROOT}/src/main.c"
     "${BOX86_ROOT}/src/box86context.c"
+    "${BOX86_ROOT}/src/build_info.c"
     "${BOX86_ROOT}/src/tools/bridge.c"
     "${BOX86_ROOT}/src/tools/pathcoll.c"
     "${BOX86_ROOT}/src/tools/fileutils.c"
@@ -331,6 +340,9 @@ add_custom_command(
 
 add_custom_target(WRAPPERS DEPENDS "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt")
 add_custom_target(PRINTER DEPENDS "${BOX86_ROOT}/src/dynarec/last_run.txt")
+
+#this is to force build_info.c to be rebuilt all the time
+set_source_files_properties("${BOX86_ROOT}/src/build_info.c" PROPERTIES OBJECT_OUTPUTS "dummy.c")
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
