@@ -1,3 +1,21 @@
+v0.1.2
+======
+* The Dynarec now handle JIT code
+* Added support for Unity games (not perfect yet)
+* Added support for Wine (not perfect yet). You need an x86 build of Wine to use it
+* Added support for Steam (not perfect yet). Note that steam have limited functionnalities on 32bits (only mini-mode is available)
+* More wrapped libs
+* Added support for "PltResolver", so order of library is less important and many symbol are resolved at runtime
+* Added an option to build box86 as a lib (to wrapped dynamic library)
+* Better Signal handling (not perfect yet)
+* More opcodes added, more opcode fixes.
+* More Dynarec opcodes.
+* Added support for FS:, and creating custom selector (needed by Wine)
+* There is now 1 x86emu_t structure per thread (simplifying/optimising many callback handling)
+* Box86 now have a logo!
+* Added options handling (only version and help for now). Now it's much usefull exept for version printing.
+
+
 v0.1.0
 =======
 * Dynarec!!! Only for ARM (note that dynarec doesn't support JITed code for now)
