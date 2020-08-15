@@ -688,6 +688,11 @@
         GET_EB;
         GW.word[0] = EB->byte[0];
         NEXT;
+    _6f_0xB7:                      /* MOVZX Gw,Ew */
+        nextop = F8;
+        GET_EW;
+        GW.word[0] = EW->word[0];   // yeah, the ZX is useless here
+        NEXT;
 
     _6f_0xBA:                      
         nextop = F8;

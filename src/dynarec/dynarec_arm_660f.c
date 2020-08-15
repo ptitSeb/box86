@@ -1110,6 +1110,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             BFI(gd, x1, 0, 16);
             break;
+        case 0xB7:
+            INST_NAME("MOVZX Gw, Ew");
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX + (nextop&7);
+                UXTH(x1, ed, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0);
+                LDRH_IMM8(x1, ed, fixedaddress);
+            }
+            BFI(gd, x1, 0, 16);
+            break;
 
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
