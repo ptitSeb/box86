@@ -47,7 +47,8 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
     ret->text = text;
     ret->textsz = textsz;
     ret->nolinker = nolinker;
-    pthread_rwlock_init(&ret->rwlock_blocks, NULL);
+    if(ret->blocks)
+        pthread_rwlock_init(&ret->rwlock_blocks, NULL);
     if(direct && textsz) {
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
@@ -138,6 +139,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         kh_destroy(dynablocks, (*dynablocks)->blocks);
         (*dynablocks)->blocks = NULL;
         free(list);
+        pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
@@ -147,8 +149,6 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         free((*dynablocks)->direct);
     }
     (*dynablocks)->direct = 0;
-
-    pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
 
     free(*dynablocks);
     *dynablocks = NULL;
@@ -396,9 +396,6 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
             ret = FindDynablockDynablocklist(addr, my_context->dynmap[idx]->dynablocks);
     if(ret)
         return ret;
-    // search elfs
-    for(int idx=0; idx<my_context->elfsize && !ret; ++idx)
-        ret = FindDynablockDynablocklist(addr, GetDynablocksFromElf(my_context->elfs[idx]));
     // last, search context dynablocks
     if(my_context->dynablocks)
         ret = FindDynablockDynablocklist(addr, my_context->dynablocks);
@@ -436,7 +433,8 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     dynablocks->direct = direct;
 }
 
-#define MAGIC_SIZE 256
+// a block is 4096 byte, so get a low magic size or no block will get "direct" treatment
+#define MAGIC_SIZE 64
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created)
 {
@@ -476,14 +474,16 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         return block;
     
     // Lock as write now!
-    pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
+    if(dynablocks->blocks)
+        pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
     // create and add new block
     dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
         if(dynablocks->nolinker && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
-            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+            if(dynablocks->blocks)
+                pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
             //*created = 0;
             //return NULL;
@@ -494,7 +494,8 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
             // Ooops, block is already there? retreive it and bail out
             dynarec_log(LOG_DUMP, "Block already exist in Hash Map\n");
             block = kh_value(dynablocks->blocks, k);    
-            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+            if(dynablocks->blocks)
+                pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             *created = 0;
             return block;
         }
@@ -509,7 +510,8 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         block->marks = kh_init(mark);
 
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+    if(dynablocks->blocks)
+        pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
 
     *created = 1;
     return block;

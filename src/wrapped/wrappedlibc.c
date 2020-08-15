@@ -1982,7 +1982,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length);
+            addDBFromAddressRange((uintptr_t)ret, length, 1);
         else
             cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);  // if prot==0, delete the block
     }
@@ -1998,7 +1998,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length);
+            addDBFromAddressRange((uintptr_t)ret, length, 1);
         else
             cleanDBFromAddressRange((uintptr_t)ret, length, 0);
     }
@@ -2021,11 +2021,12 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box86_dynarec)
+    if(box86_dynarec) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len);
+            addDBFromAddressRange((uintptr_t)addr, len, 1);
         else
             cleanDBFromAddressRange((uintptr_t)addr, len, 1);
+    }
     #endif
     return ret;
 }

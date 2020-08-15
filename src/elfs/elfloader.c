@@ -64,8 +64,10 @@ void FreeElfHeader(elfheader_t** head)
         return;
     elfheader_t *h = *head;
 #ifdef DYNAREC
-    dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
-    FreeDynablockList(&h->blocks);
+    if(h->text) {
+        dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
+        cleanDBFromAddressRange(h->text, h->textsz, 1);
+    }
 #endif
     free(h->name);
     free(h->path);
@@ -235,10 +237,6 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 
     head->tlsbase = AddTLSPartition(context, head->tlssize);
 
-#ifdef DYNAREC
-    head->blocks = NewDynablockList((uintptr_t)GetBaseAddress(head), head->text + head->delta, head->textsz, 0, mainbin);
-#endif
-
     return 0;
 }
 
@@ -266,7 +264,14 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
                     printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d (size=%d)\n", i, e->p_filesz);
                     return 1;
                 }
+            } 
+#ifdef DYNAREC
+            else {
+                if(e->p_flags & PF_X) {
+                    addDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
+                }
             }
+#endif
             // zero'd difference between filesz and memsz
             /*if(e->p_filesz != e->p_memsz)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);*/    //block is already 0'd at creation
@@ -302,7 +307,7 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             if(e->p_filesz) {
                 ssize_t r = -1;
                 #ifdef DYNAREC
-                unprotectDB((uintptr_t)dest, e->p_filesz);
+                unprotectDB((uintptr_t)dest, e->p_memsz);
                 #endif
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
                     printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%d (dest=%p, size=%d, return=%d, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
@@ -976,25 +981,14 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(ret) {
         return ret;
     }
-    // nope, then find in elfs
-    elfheader_t* elf = FindElfAddress(context, addr);
-    if(!elf) {
-        // still nope
-        if(addr>0x100)
-            if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
-                return context->dynablocks;
-        if(box86_dynarec_forced)
+    // nope
+    if(addr>0x100)
+        if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
             return context->dynablocks;
-        dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
-        return NULL;
-    }
-    return elf->blocks;
-}
-dynablocklist_t* GetDynablocksFromElf(elfheader_t* h)
-{
-    if(!h)
-        return NULL;
-    return h->blocks;
+    if(box86_dynarec_forced)
+        return context->dynablocks;
+    dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
+    return NULL;
 }
 #endif
 

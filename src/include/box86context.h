@@ -31,6 +31,7 @@ typedef struct dynmap_s {
     dynablocklist_t* dynablocks;    // the dynabockist of the block
 } dynmap_t;
 #define DYNAMAP_SIZE (1<<20)
+#define DYNAMAP_SHIFT 12
 #endif
 
 typedef void* (*procaddess_t)(const char* name);
@@ -201,7 +202,7 @@ uintptr_t AllocDynarecMap(int size, int nolinker);
 void FreeDynarecMap(uintptr_t addr, uint32_t size);
 
 dynablocklist_t* getDBFromAddress(uintptr_t addr);
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
+void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 
 void protectDB(uintptr_t addr, uintptr_t size);

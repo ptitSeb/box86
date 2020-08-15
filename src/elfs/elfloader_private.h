@@ -76,9 +76,7 @@ struct elfheader_s {
     uintptr_t*  multiblock_offs;
     uint32_t*   multiblock_size;
     int         multiblock_n;
-#ifdef DYNAREC
-    dynablocklist_t *blocks;
-#endif
+
     library_t   *lib;
     needed_libs_t *neededlibs;
 };

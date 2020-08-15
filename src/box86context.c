@@ -139,32 +139,33 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size)
 // each dynmap is 64k of size
 dynablocklist_t* getDBFromAddress(uintptr_t addr)
 {
-    int idx = (addr>>12);
+    int idx = (addr>>DYNAMAP_SHIFT);
     if(!my_context->dynmap[idx]) {
         return NULL;
     }
     return my_context->dynmap[idx]->dynablocks;
 }
 
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
+void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>12);
-    uintptr_t end = ((addr+size-1)>>12);
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
-            my_context->dynmap[i]->dynablocks = NewDynablockList(i<<12, i<<12, 1<<12, 1, 0);
+            my_context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
         }
     }
-    protectDB(addr, size);
+    if(nolinker)
+        protectDB(addr, size);
 }
 
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>12):(addr>>12);
-    uintptr_t end = ((addr+size-1)>>12);
+    uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>DYNAMAP_SHIFT):(addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         dynmap_t* dynmap = my_context->dynmap[i];
         if(dynmap) {
