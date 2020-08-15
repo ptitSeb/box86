@@ -28,14 +28,13 @@ void Run6766(x86emu_t *emu)
     uintptr_t ip = R_EIP+2; //skip 67 66
     uint8_t opcode = F8;
     uint8_t nextop;
-    reg32_t *op1, *op2;
+    reg32_t *oped;
     switch(opcode) {
 
     case 0x8D:                              /* LEA Gw,Ew */
         nextop = F8;
-        op1=GetEw16(emu, nextop);
-        op2=GetG(emu, nextop);
-        op2->word[0] = (uint16_t)(uintptr_t)op1;
+        GET_EW16;
+        GW.word[0] = (uint16_t)(uintptr_t)ED;
         break;
     
                 
@@ -56,7 +55,7 @@ void Run67(x86emu_t *emu)
 
     case 0x66:                      /* MoooRE opcodes */
         Run6766(emu);
-        break;
+        return;
 
     case 0x6C:                      /* INSB */
         *(int8_t*)(R_DI+GetESBaseEmu(emu)) = 0;         // faking port read, using actual segment ES, just in case
@@ -617,12 +616,12 @@ void RunFS(x86emu_t *emu)
             switch(opcode) {
                 case 0x89:                              /* MOV ED16,Gd */
                     nextop = F8;
-                    oped=GetEw16off(emu, nextop, tlsdata);
+                    GET_EW16_OFFS(tlsdata);
                     ED->dword[0] = GD.dword[0];
                     break;
                 case 0x8B:                              /* MOV Gd,Ed16 */
                     nextop = F8;
-                    oped=GetEw16off(emu, nextop, tlsdata);
+                    GET_EW16_OFFS(tlsdata);
                     GD.dword[0] = ED->dword[0];
                     break;
                 case 0xA1:                              /* MOV EAX,Ov16 */
@@ -637,7 +636,7 @@ void RunFS(x86emu_t *emu)
                     nextop = F8;
                     switch((nextop>>3)&7) {
                         case 6:                         /* Push Ed */
-                            oped=GetEw16off(emu, nextop, tlsdata);
+                            GET_EW16_OFFS(tlsdata);
                             Push(emu, ED->dword[0]);
                             break;
                         default:
