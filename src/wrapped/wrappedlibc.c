@@ -1984,7 +1984,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)ret, length);
         else
-            cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+            cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);  // if prot==0, delete the block
     }
     #endif
     return ret;

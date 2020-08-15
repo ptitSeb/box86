@@ -30,6 +30,7 @@ typedef struct mmaplist_s      mmaplist_t;
 typedef struct dynmap_s {
     dynablocklist_t* dynablocks;    // the dynabockist of the block
 } dynmap_t;
+#define DYNAMAP_SIZE (1<<20)
 #endif
 
 typedef void* (*procaddess_t)(const char* name);
@@ -159,7 +160,7 @@ typedef struct box86context_s {
     dynablocklist_t     *dynablocks;
     mmaplist_t          *mmaplist;
     int                 mmapsize;
-    dynmap_t*           dynmap[65536];  // 4G of memory mapped by 64K block
+    dynmap_t*           dynmap[DYNAMAP_SIZE];  // 4G of memory mapped by 4K block
 #endif
 #ifndef NOALIGN
     kh_fts_t            *ftsmap;

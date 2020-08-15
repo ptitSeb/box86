@@ -391,7 +391,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     // unoptimized search through all dynablockslist for the dynablock that contains native addr (NULL if not found)
     // search "volatile" dynarec first
     dynablock_t *ret = NULL;
-    for(int idx=0; idx<65536 && !ret; ++idx)
+    for(int idx=0; idx<DYNAMAP_SIZE && !ret; ++idx)
         if(my_context->dynmap[idx])
             ret = FindDynablockDynablocklist(addr, my_context->dynmap[idx]->dynablocks);
     if(ret)
