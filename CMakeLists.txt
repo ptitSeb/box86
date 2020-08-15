@@ -106,6 +106,18 @@ if(ODROID)
     set(NOALIGN OFF)
 endif()
 
+
+if(BOX86LIB)
+    set(BOX86 box86)
+elseif(USE_FLOAT)
+    set(BOX86 box86f)
+elseif(HAVE_TRACE)
+    set(BOX86 box86t)
+else()
+    set(BOX86 box86)
+endif()
+
+
 set(BOX86_ELF_ADDRESS "0x02800000")
 
 if(LD80BITS)
@@ -165,36 +177,13 @@ include_directories(
     "${BOX86_ROOT}/src/wrapped/generated"
 )
 
-set(githead_h_real "${BOX86_ROOT}/src/git_head.h")
-set(githead_h_fake "${BOX86_ROOT}/src/git_head.h_fake")
-
-if(EXISTS ${githead_h_fake})
-    message(FATAL_ERROR "File \"${githead_h_fake}\" found, this should never be created, remove!")
-endif()
-
-# a custom target that is always built
-add_custom_target(buildinfo ALL
-    DEPENDS ${githead_h_fake})
-
-# creates git_head.h
-add_custom_command(
-    OUTPUT
-        ${githead_h_fake}  # ensure we always run
-        ${githead_h_real}
-    COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
-    VERBATIM)
-
 # git_head.h is a generated file
 set_source_files_properties(
-    ${githead_h_real}
+    "${BOX86_ROOT}/src/git_head.h"
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
-unset(githead_h_real)
-unset(githead_h_fake)
-    
 set(ELFLOADER_SRC
-    "${BOX86_ROOT}/src/git_head.h"
     "${BOX86_ROOT}/src/main.c"
     "${BOX86_ROOT}/src/box86context.c"
     "${BOX86_ROOT}/src/build_info.c"
@@ -427,37 +416,48 @@ if(ARM_DYNAREC)
         $<TARGET_OBJECTS:arm_pass2>
         $<TARGET_OBJECTS:arm_pass3>
     )
+
+endif()
+
+# creates git_head.h
+if(ARM_DYNAREC)
+    add_custom_command(
+        OUTPUT "${BOX86_ROOT}/src/git_head.h"
+        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
+        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
+        VERBATIM)
+else()
+    add_custom_command(
+        OUTPUT "${BOX86_ROOT}/src/git_head.h"
+        COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
+        DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
+        VERBATIM)
 endif()
 
 if(BOX86LIB)
 #build a static or dynamic lib...
 if(BOX86DYNAMIC)
-add_library(box86 SHARED ${ELFLOADER_SRC} ${WRAPPEDS})
+    add_library(box86 SHARED ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX86_ROOT}/src/git_head.h")
 else()
-    add_library(box86 OBJECT ${ELFLOADER_SRC} ${WRAPPEDS})
+    add_library(${BOX86} OBJECT ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX86_ROOT}/src/git_head.h")
 endif()
 if(ARM_DYNAREC)
-    target_link_libraries(box86 dynarec m dl rt pthread)
+    target_link_libraries(${BOX86} dynarec m dl rt pthread)
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
-    set_target_properties(box86 PROPERTIES LINK_FLAGS -rdynamic)
+    set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic)
 else()
-    target_link_options(box86 PUBLIC -rdynamic)
+    target_link_options(${BOX86} PUBLIC -rdynamic)
 endif()
-add_dependencies(box86 WRAPPERS)
-add_dependencies(box86 PRINTER)
+add_dependencies(${BOX86} WRAPPERS)
+add_dependencies(${BOX86} PRINTER)
+
+add_custom_target(buildinfo ${BOX86}
+    DEPENDS dynarec ${BOX86} )
 
 else(BOX86LIB)
 
-if(USE_FLOAT)
-    set(BOX86 box86f)
-elseif(HAVE_TRACE)
-    set(BOX86 box86t)
-else()
-    set(BOX86 box86)
-endif()
-
-add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS})
+add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX86_ROOT}/src/git_head.h")
 add_dependencies(${BOX86} WRAPPERS)
 add_dependencies(${BOX86} PRINTER)
 target_link_libraries(${BOX86} m dl rt pthread)
