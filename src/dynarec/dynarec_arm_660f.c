@@ -460,7 +460,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0);
             GETEX(v1);
-            VCVTQ_F32_S32(v0, v1);
+            VCVTQ_S32_F32(v0, v1);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
