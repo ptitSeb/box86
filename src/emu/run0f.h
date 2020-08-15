@@ -15,6 +15,18 @@
                     goto _default;
             }
             NEXT;
+        _0f_0x01:                      
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:                 /* SMSW Ew */
+                    GET_ED;
+                    // dummy for now... Do I need to track CR0 state?
+                    ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
 
         _0f_0x0B:                      /* UD2 */
             kill(getpid(), SIGILL);              // this is undefined instruction
