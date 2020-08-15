@@ -1,3 +1,7 @@
+Current version
+======
+* Change in Dynarec memory handling, to simplify it (and hopefully optimized it)
+
 v0.1.2
 ======
 * The Dynarec now handle JIT code
