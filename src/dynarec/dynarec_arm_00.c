@@ -590,15 +590,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG(x1, xESP);
             // cannot use PUSH (STMdb!) because order of regs are reversed!
             //PUSH(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
-            PUSH(x1, (1<<xEAX));
-            PUSH(x1, (1<<xECX));
-            PUSH(x1, (1<<xEDX));
-            PUSH(x1, (1<<xEBX));
-            PUSH(x1, (1<<xESP));
-            PUSH(x1, (1<<xEBP));
-            PUSH(x1, (1<<xESI));
-            PUSH(x1, (1<<xEDI));
-            MOV_REG(xESP, x1);
+            PUSH(xESP, (1<<xEAX));
+            PUSH(xESP, (1<<xECX));
+            PUSH(xESP, (1<<xEDX));
+            PUSH(xESP, (1<<xEBX));
+            PUSH(xESP, (1<<x1));
+            PUSH(xESP, (1<<xEBP));
+            PUSH(xESP, (1<<xESI));
+            PUSH(xESP, (1<<xEDI));
             break;
         case 0x61:
             INST_NAME("POPAD");
