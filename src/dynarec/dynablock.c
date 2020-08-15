@@ -429,12 +429,61 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     );
     // destroy old and do the swap (should swap before destroy, but hash access is always behind mutex)
     kh_destroy(dynablocks, dynablocks->blocks);
-    dynablocks->blocks = blocks;
+    dynablocks->blocks = NULL;
     dynablocks->direct = direct;
+    // unlock
+    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+    // move the one that doesn't fit to other dynablocks
+    // first check if everything can be moved
+    int ok = 1;
+    kh_foreach(blocks, key, db,
+        key += dynablocks->base;
+        dynablocklist_t *newdbs = getDBFromAddress(key);   // will crash if no dynablocks is found
+        if(!newdbs)
+            ok = 0;
+        else {
+            if(newdbs->direct) {
+                if(newdbs->direct[key-newdbs->text])
+                    ok = 0;
+            } else {
+                khint_t k;
+                pthread_rwlock_rdlock(&newdbs->rwlock_blocks);
+                k = kh_get(dynablocks, newdbs->blocks, key-newdbs->base);
+                if(k!=kh_end(newdbs->blocks))
+                    ok = 0;
+                pthread_rwlock_unlock(&newdbs->rwlock_blocks);
+            }
+        }
+    );
+    if(ok) {
+        kh_foreach(blocks, key, db,
+            key += dynablocks->base;
+            dynablocklist_t *newdbs = getDBFromAddress(key);   // will crash if no dynablocks is found
+            if(newdbs->direct) {
+                newdbs->direct[key-newdbs->text] = db;
+            } else {
+                khint_t k;
+                int ret;
+                pthread_rwlock_wrlock(&newdbs->rwlock_blocks);
+                k = kh_put(dynablocks, newdbs->blocks, key-newdbs->base, &ret);
+                kh_value(newdbs->blocks, k) = db;
+                pthread_rwlock_unlock(&newdbs->rwlock_blocks);
+            }
+        );
+        kh_destroy(dynablocks, blocks);
+        // destroy the lock, because it's only direct now!
+        pthread_rwlock_destroy(&dynablocks->rwlock_blocks);
+    } else {
+        pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
+        dynablocks->blocks = blocks;
+        dynarec_log(LOG_DEBUG, "Cannot convert dynablocks(%p) to pure direct\n", (void*)dynablocks->text);
+    }
+
 }
 
 // a block is 4096 byte, so get a low magic size or no block will get "direct" treatment
-#define MAGIC_SIZE 64
+#define MAGIC_SIZE  30
+#define MAGIC_SIZE2 36
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created)
 {
@@ -481,7 +530,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
-        if(dynablocks->nolinker && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
+        if(dynablocks->textsz && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
             if(dynablocks->blocks)
                 pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
@@ -501,7 +550,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         }
         block = kh_value(dynablocks->blocks, k) = (dynablock_t*)calloc(1, sizeof(dynablock_t));
         // check if size of hash map == magic size, if yes, convert to direct before unlocking
-        if(!dynablocks->direct && kh_size(dynablocks->blocks)==MAGIC_SIZE)
+        if(!dynablocks->direct && dynablocks->textsz && kh_size(dynablocks->blocks)>=MAGIC_SIZE && kh_size(dynablocks->blocks)<(MAGIC_SIZE2))
             ConvertHash2Direct(dynablocks);
     }
     block->parent = dynablocks;
