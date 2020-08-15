@@ -165,13 +165,34 @@ include_directories(
     "${BOX86_ROOT}/src/wrapped/generated"
 )
 
-add_custom_command(
-    OUTPUT "${BOX86_ROOT}/src/git_head.h"
-    COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
-    DEPEND "${BOX86_ROOT}/src/build_info.c"
-    VERBATIM
-)
+set(githead_h_real "${BOX86_ROOT}/src/git_head.h")
+set(githead_h_fake "${BOX86_ROOT}/src/git_head.h_fake")
 
+if(EXISTS ${githead_h_fake})
+    message(FATAL_ERROR "File \"${githead_h_fake}\" found, this should never be created, remove!")
+endif()
+
+# a custom target that is always built
+add_custom_target(buildinfo ALL
+    DEPENDS ${githead_h_fake})
+
+# creates git_head.h
+add_custom_command(
+    OUTPUT
+        ${githead_h_fake}  # ensure we always run
+        ${githead_h_real}
+    COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\"\>${BOX86_ROOT}/src/git_head.h"
+    VERBATIM)
+
+# git_head.h is a generated file
+set_source_files_properties(
+    ${githead_h_real}
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE)
+
+unset(githead_h_real)
+unset(githead_h_fake)
+    
 set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/git_head.h"
     "${BOX86_ROOT}/src/main.c"
@@ -340,9 +361,6 @@ add_custom_command(
 
 add_custom_target(WRAPPERS DEPENDS "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt")
 add_custom_target(PRINTER DEPENDS "${BOX86_ROOT}/src/dynarec/last_run.txt")
-
-#this is to force build_info.c to be rebuilt all the time
-set_source_files_properties("${BOX86_ROOT}/src/build_info.c" PROPERTIES OBJECT_OUTPUTS "dummy.c")
 
 if(ARM_DYNAREC)
     set(DYNAREC_SRC
