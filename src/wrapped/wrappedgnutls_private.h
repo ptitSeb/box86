@@ -102,7 +102,7 @@ GO(gnutls_certificate_set_x509_key, iFppip)
 //GO(gnutls_certificate_verify_peers, 
 //GO(gnutls_certificate_verify_peers2, 
 //GO(gnutls_certificate_verify_peers3, 
-//GO(gnutls_check_version, 
+GO(gnutls_check_version, pFp)
 //GO(_gnutls_cidr_to_string, 
 GO(gnutls_cipher_add_auth, iFppL)
 GO(gnutls_cipher_decrypt, iFppL)
