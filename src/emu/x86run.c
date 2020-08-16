@@ -1217,6 +1217,7 @@ _trace:
                     case 0x7D:
                     case 0x7E:
                     case 0x7F:              /* BND / NOP */
+                    case 0x9C:
                     case 0xE8:
                     case 0xE9:
                         --ip;
