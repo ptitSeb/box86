@@ -47,8 +47,7 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
     ret->text = text;
     ret->textsz = textsz;
     ret->nolinker = nolinker;
-    if(ret->blocks)
-        pthread_rwlock_init(&ret->rwlock_blocks, NULL);
+    pthread_rwlock_init(&ret->rwlock_blocks, NULL);
     if(direct && textsz) {
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
@@ -139,7 +138,6 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         kh_destroy(dynablocks, (*dynablocks)->blocks);
         (*dynablocks)->blocks = NULL;
         free(list);
-        pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
@@ -149,6 +147,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         free((*dynablocks)->direct);
     }
     (*dynablocks)->direct = 0;
+    pthread_rwlock_destroy(&(*dynablocks)->rwlock_blocks);
 
     free(*dynablocks);
     *dynablocks = NULL;
@@ -471,8 +470,6 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
             }
         );
         kh_destroy(dynablocks, blocks);
-        // destroy the lock, because it's only direct now!
-        pthread_rwlock_destroy(&dynablocks->rwlock_blocks);
     } else {
         pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
         dynablocks->blocks = blocks;
@@ -507,15 +504,18 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
     
     if(dynablocks->blocks) {
         pthread_rwlock_rdlock(&dynablocks->rwlock_blocks);
-        // check if the block exist
-        khint_t k;
-        k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
-        if(k!=kh_end(dynablocks->blocks)) {
-            block = kh_value(dynablocks->blocks, k);
-            pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
-            dynarec_log(LOG_DUMP, "Block already exist in Hash Map\n");
-            *created = 0;
-            return block;
+        // check again, in case it's been converted to direct in another thread
+        if(dynablocks->blocks) {
+            // check if the block exist
+            khint_t k;
+            k = kh_get(dynablocks, dynablocks->blocks, addr-dynablocks->base);
+            if(k!=kh_end(dynablocks->blocks)) {
+                block = kh_value(dynablocks->blocks, k);
+                pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
+                dynarec_log(LOG_DUMP, "Block already exist in Hash Map\n");
+                *created = 0;
+                return block;
+            }
         }
         pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
     }
