@@ -1564,7 +1564,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC3:
             INST_NAME("RET");
-            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            // that hack break PlantsVsZombies and GOG Setup under wine....
+            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             BARRIER(2);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
@@ -1673,7 +1674,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
             BARRIER(2);
             iret_to_epilog(dyn, ninst);
             *need_epilog = 0;
