@@ -121,13 +121,16 @@ void arm_fbstp(x86emu_t* emu, uint8_t* ed)
 
 void arm_fistp64(x86emu_t* emu, int64_t* ed)
 {
+    // used of memcpy to avoid aligments issues
     if(STll(0).ref==ST(0).ll) {
-        *ed = STll(0).ll;
+        memcpy(ed, &STll(0).ll, sizeof(int64_t));
     } else {
+        int64_t tmp;
         if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
-            *ed = 0x8000000000000000LL;
+            tmp = 0x8000000000000000LL;
         else
-            *ed = (int64_t)ST0.d;
+            tmp = (int64_t)ST0.d;
+        memcpy(ed, &tmp, sizeof(tmp));
     }
 }
 
