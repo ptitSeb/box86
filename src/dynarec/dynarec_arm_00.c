@@ -2195,6 +2195,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0x7D:
                     case 0x7E:
                     case 0x7F:
+                    case 0x9C:
                     case 0xE8:
                     case 0xE9:
                         if(opcode==0xF2) {INST_NAME("BND");} else {INST_NAME("F3");}
