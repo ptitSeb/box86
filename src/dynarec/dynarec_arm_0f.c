@@ -1641,29 +1641,29 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 4:
                     INST_NAME("BT Ed, Ib");
-                    SETFLAGS(X_CF, SF_SET);
+                    SETFLAGS(X_CF, SF_SUBSET);
                     gd = x2;
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         u8 = F8;
-                        MOVW(gd, u8);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0);
                         u8 = F8;
-                        MOVW(gd, u8);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM5(x1, ed, x1, 2); //(&ed)+=r1*4;
-                        LDR_IMM9(x1, x1, fixedaddress);
+                        fixedaddress+=(u8>>5)*4;
+                        LDR_IMM9(x1, ed, fixedaddress);
                         ed = x1;
                     }
-                    AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x1, ed, x2);
-                    AND_IMM8(x1, x1, 1);
+                    u8&=0x1f;
+                    if(u8) {
+                        MOV_REG_LSR_IMM5(x1, ed, u8);
+                        ed = x1;
+                    }
+                    AND_IMM8(x1, ed, 1);
                     STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
-                    SETFLAGS(X_CF, SF_SET);
+                    SETFLAGS(X_CF, SF_SUBSET);
                     gd = x2;
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
