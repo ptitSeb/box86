@@ -48,8 +48,10 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         return;
     }
     IFX(X_CF) {
-        UBFX(s3, s1, c, 1);
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
+        if(c<31) {
+            UBFX(s3, s1, 32-c, 1);
+            STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
+        }
     }
     IFX(X_ZF|X_OF) {
         MOVS_REG_LSL_IMM5(s1, s1, c);
