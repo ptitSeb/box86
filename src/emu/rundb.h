@@ -193,20 +193,22 @@
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
+                    volatile int32_t tmp;    // tmp to avoid BUS ERROR
                     switch(emu->round) {
                         case ROUND_Nearest:
-                            ED->sdword[0] = floor(ST0.d+0.5);
+                            tmp = floor(ST0.d+0.5);
                             break;
                         case ROUND_Down:
-                            ED->sdword[0] = floor(ST0.d);
+                            tmp = floor(ST0.d);
                             break;
                         case ROUND_Up:
-                            ED->sdword[0] = ceil(ST0.d);
+                            tmp = ceil(ST0.d);
                             break;
                         case ROUND_Chop:
-                            ED->sdword[0] = ST0.d;
+                            tmp = ST0.d;
                             break;
                     }
+                    ED->sdword[0] = tmp;
                 }
                 #endif
                 fpu_do_pop(emu);
