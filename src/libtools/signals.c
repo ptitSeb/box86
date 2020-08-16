@@ -168,7 +168,7 @@ static x86emu_t* get_signal_emu()
 uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
     uintptr_t old_start = trace_start, old_end = trace_end;
-    old_start = 0; old_end = 1; // disabling trace, globably for now...
+    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = get_signal_emu();
 
