@@ -61,6 +61,16 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_xor32(dyn, ninst, gd, ed, x3, x12);
             break;
 
+        case 0x3B:
+            INST_NAME("CMP Gd, GS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_tlsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_cmp32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
         case 0x89:
             INST_NAME("MOV GS:Ed, Gd");
             grab_tlsdata(dyn, addr, ninst, x12);
@@ -84,6 +94,19 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                 LDR_REG_LSL_IMM5(gd, ed, x12, 0);
+            }
+            break;
+
+        case 0x8F:
+            INST_NAME("POP GS:Ed");
+            grab_tlsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                POP(xESP, (1<<(xEAX+(nextop&7))));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                POP(xESP, (1<<x2));
+                STR_REG_LSL_IMM5(x2, ed, x12, 0);
             }
             break;
 
@@ -122,6 +145,25 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = F32S;
                 MOV32(x3, i32);
                 STR_REG_LSL_IMM5(x3, ed, x12, 0);
+            }
+            break;
+
+        case 0xFF:
+            nextop = F8;
+            grab_tlsdata(dyn, addr, ninst, x12);
+            switch((nextop>>3)&7) {
+                case 6: // Push Ed
+                    INST_NAME("PUSH GS:Ed");
+                    if((nextop&0xC0)==0xC0) {   // reg
+                        DEFAULT;
+                    } else {                    // mem <= i32
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        LDR_REG_LSL_IMM5(x3, ed, x12, 0);
+                        PUSH(xESP, 1<<x3);
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
 

@@ -31,6 +31,26 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t wback;
     int fixedaddress;
     switch(opcode) {
+        case 0x03:
+            INST_NAME("ADD Gd, FS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_fsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_add32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
+        case 0x2B:
+            INST_NAME("SUB Gd, FS:Ed");
+            SETFLAGS(X_ALL, SF_SET);
+            grab_fsdata(dyn, addr, ninst, x12);
+            nextop = F8;
+            GETGD;
+            GETEDO(x12);
+            emit_sub32(dyn, ninst, gd, ed, x3, x12);
+            break;
+
         case 0x33:
             INST_NAME("XOR Gd, FS:Ed");
             SETFLAGS(X_ALL, SF_SET);
@@ -133,7 +153,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_fsdata(dyn, addr, ninst, x12);
             switch((nextop>>3)&7) {
                 case 6: // Push Ed
-                    INST_NAME("PUSH Ed");
+                    INST_NAME("PUSH FS:Ed");
                     if((nextop&0xC0)==0xC0) {   // reg
                         DEFAULT;
                     } else {                    // mem <= i32
