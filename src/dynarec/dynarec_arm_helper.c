@@ -287,7 +287,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 #endif
         MESSAGE(LOG_DUMP, "Retn epilog\n");
         POP(xESP, 1<<xEIP);
-        ADD_IMM8(xESP, xESP, n);
+        if(n>0xff) {
+            MOVW(x1, n);
+            ADD_REG_LSL_IMM5(xESP, xESP, x1, 0);
+        } else {
+            ADD_IMM8(xESP, xESP, n);
+        }
         cstack_pop(dyn, ninst, xEIP, x1, x2);
         PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
