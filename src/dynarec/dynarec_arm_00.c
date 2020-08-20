@@ -23,6 +23,8 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+extern int box86_hl2;
+
 
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -1565,7 +1567,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC3:
             INST_NAME("RET");
             // that hack break PlantsVsZombies and GOG Setup under wine....
-            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            // but HL2 engine need that (meaning there is still a wrong opcode somewhere else that break when all flags are computed)
+            if(box86_hl2) {
+                SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            }
             BARRIER(2);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
