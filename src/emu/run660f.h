@@ -711,6 +711,21 @@
                 else
                     CLEAR_FLAG(F_CF);
                 break;
+            case 5:             /* BTS Ew, Ib */
+                CHECK_FLAGS(emu);
+                GET_EW;
+                tmp8u = F8;
+                if((nextop&0xC0)!=0xC0)
+                {
+                    ED=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
+                }
+                tmp8u&=15;
+                if(EW->word[0] & (1<<tmp8u)) {
+                    SET_FLAG(F_CF);
+                } else
+                    EW->word[0] ^= (1<<tmp8u);
+                    CLEAR_FLAG(F_CF);
+                break;
             case 6:             /* BTR Ew, Ib */
                 CHECK_FLAGS(emu);
                 GET_EW;
