@@ -717,7 +717,7 @@
                 tmp8u = F8;
                 if((nextop&0xC0)!=0xC0)
                 {
-                    ED=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
+                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
                 }
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u)) {
@@ -740,6 +740,21 @@
                     EW->word[0] ^= (1<<tmp8u);
                 } else
                     CLEAR_FLAG(F_CF);
+                break;
+            case 7:             /* BTC Ew, Ib */
+                CHECK_FLAGS(emu);
+                GET_EW;
+                tmp8u = F8;
+                if((nextop&0xC0)!=0xC0)
+                {
+                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
+                }
+                tmp8u&=15;
+                if(EW->word[0] & (1<<tmp8u))
+                    SET_FLAG(F_CF);
+                else
+                    CLEAR_FLAG(F_CF);
+                EW->word[0] ^= (1<<tmp8u);
                 break;
 
             default:
