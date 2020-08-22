@@ -824,6 +824,18 @@
         GX.q[1] = eax1.q[1];
         NEXT;
 
+    _6f_0xC8:
+    _6f_0xC9:
+    _6f_0xCA:
+    _6f_0xCB:
+    _6f_0xCC:
+    _6f_0xCD:
+    _6f_0xCE:
+    _6f_0xCF:                  /* BSWAP reg16 */
+        tmp8s = opcode&7;
+        emu->regs[tmp8s].word[0] = __builtin_bswap16(emu->regs[tmp8s].word[0]);
+        NEXT;
+
     _6f_0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;
         GET_EX;
