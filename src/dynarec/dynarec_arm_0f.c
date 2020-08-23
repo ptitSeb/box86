@@ -145,10 +145,17 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVD(v1, v0);
             } else {
-                VMOVfrV_D(x2, x3, v0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
-                STR_IMM9(x2, ed, fixedaddress);
-                STR_IMM9(x3, ed, fixedaddress+4);
+                parity = getedparity(dyn, ninst, addr, nextop, 2);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    VST1_32(v0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+
+                } else {
+                    VMOVfrV_D(x2, x3, v0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                    STR_IMM9(x2, ed, fixedaddress);
+                    STR_IMM9(x3, ed, fixedaddress+4);
+                }
             }
             break;
         case 0x14:
@@ -197,9 +204,17 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVD(v1, v0+1);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                VMOVfrV_D(x2, x3, v0+1);
-                STRD_IMM8(x2, ed, fixedaddress);
+                parity = getedparity(dyn, ninst, addr, nextop, 2);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    VST1_32(v0+1, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+
+                } else {
+                    VMOVfrV_D(x2, x3, v0+1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                    STR_IMM9(x2, ed, fixedaddress);
+                    STR_IMM9(x3, ed, fixedaddress+4);
+                }
             }
             break;
         case 0x18:
@@ -350,7 +365,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 parity = getedparity(dyn, ninst, addr, nextop, 2);
                 s0 = fpu_get_scratch_single(dyn);
                 if(parity) {
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
                     VLDR_32(s0, ed, fixedaddress);
                 } else {
                     GETED;
