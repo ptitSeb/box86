@@ -985,7 +985,14 @@
         GET_EX;
         for (int i=0; i<8; ++i) GX.uw[i] = ((uint16_t)GX.uw[i] + EX->uw[i] + 1)>>1;
         NEXT;
-
+    _6f_0xE4:  /* PMULHUW Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp32u = (uint32_t)GX.uw[i] * EX->uw[i];
+            GX.uw[i] = (tmp32u>>16)&0xffff;
+        }
+        NEXT;
     _6f_0xE5:  /* PMULHW Gx, Ex */
         nextop = F8;
         GET_EX;
