@@ -575,11 +575,11 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					append("int rot = (opcode >> " + str(variables["r"]) + ") & 3;\nchar tmprot[8] = {0};\n")
 					append("if (rot) {\nsprintf(tmprot, \" ror %d\", rot * 8);\n}\n")
 				if variables["sb"][0] != -1:
-					append("int lsb = (opcode >> " + str(variables["sb"][0]) + ") & 0xF;\n")
+					append("int lsb = (opcode >> " + str(variables["sb"][0]) + ") & 0x1F;\n")
 				if variables["sb"][1] != -1:
-					append("int msb = (opcode >> " + str(variables["sb"][1]) + ") & 0xF;\n")
+					append("int msb = (opcode >> " + str(variables["sb"][1]) + ") & 0x1F;\n")
 				if variables["sb"][2] != -1:
-					append("int widthm1 = (opcode >> " + str(variables["sb"][2]) + ") & 0xF;\n")
+					append("int widthm1 = (opcode >> " + str(variables["sb"][2]) + ") & 0x1F;\n")
 				if variables["reglist16"] != -1:
 					append("int reglist = (opcode >> " + str(variables["reglist16"]) + ") & 0xFFFF;\n")
 				if imms != []:

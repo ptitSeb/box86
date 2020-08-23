@@ -4446,24 +4446,24 @@ const char* arm_print(uint32_t opcode) {
 	} else if ((opcode & 0x0FE0007F) == 0x07C0001F) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
-		int lsb = (opcode >> 7) & 0xF;
-		int msb = (opcode >> 16) & 0xF;
+		int lsb = (opcode >> 7) & 0x1F;
+		int msb = (opcode >> 16) & 0x1F;
 		
 		sprintf(ret, "BFC%s %s, #%d, #%d", cond, regname[rd], lsb, msb - lsb + 1);
 	} else if ((opcode & 0x0FE00070) == 0x07C00010) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
 		int rn = (opcode >> 0) & 0xF;
-		int lsb = (opcode >> 7) & 0xF;
-		int msb = (opcode >> 16) & 0xF;
+		int lsb = (opcode >> 7) & 0x1F;
+		int msb = (opcode >> 16) & 0x1F;
 		
 		sprintf(ret, "BFI%s %s, %s, #%d, #%d", cond, regname[rd], regname[rn], lsb, msb - lsb + 1);
 	} else if ((opcode & 0x0FE00070) == 0x07E00050) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;
 		int rn = (opcode >> 0) & 0xF;
-		int lsb = (opcode >> 7) & 0xF;
-		int widthm1 = (opcode >> 16) & 0xF;
+		int lsb = (opcode >> 7) & 0x1F;
+		int widthm1 = (opcode >> 16) & 0x1F;
 		
 		sprintf(ret, "UBFX%s %s, %s, #%d, #%d", cond, regname[rd], regname[rn], lsb, widthm1 + 1);
 	} else if ((opcode & 0x0FDF0000) == 0x080D0000) {
