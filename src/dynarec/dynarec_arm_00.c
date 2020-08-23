@@ -23,9 +23,6 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
-extern int box86_hl2;
-
-
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
@@ -1566,11 +1563,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC3:
             INST_NAME("RET");
-            // that hack break PlantsVsZombies and GOG Setup under wine....
-            // but HL2 engine need that (meaning there is still a wrong opcode somewhere else that break when all flags are computed)
-            if(box86_hl2) {
-                SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            }
+            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
+            READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
             BARRIER(2);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;

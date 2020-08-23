@@ -73,7 +73,6 @@ int x11glx = 1;
 int allow_missing_libs = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
-int box86_hl2 = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
@@ -796,11 +795,6 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "steam detected, forcing emulated libudev, disabling SSSE3, faking 64bits OS\n");
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
-    }
-    // detect hl2 or srcds (hl2 engine) for temporary workaround
-    if(strstr(prgname, "hl2")==prgname || strstr(prgname, "srcds")==prgname) {
-        printf_log(LOG_INFO, "HL2 engine detected, forcing optimization of flags on 0xC3 opcode\n");
-        box86_hl2 = 1;
     }
 
     for(int i=1; i<my_context->argc; ++i) {

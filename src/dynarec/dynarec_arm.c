@@ -115,7 +115,7 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
 uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
 {
     if(ninst == dyn->size || (recurse==5))
-        return X_ALL; // no more instructions, or too many jmp loop, stop
+        return X_PEND; // no more instructions, or too many jmp loop, stop
     uint32_t needed = dyn->insts[ninst].x86.use_flags;
     if(needed) {
         setf &= ~needed;
