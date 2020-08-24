@@ -950,7 +950,14 @@
             GX.ub[i] = (tmp16s>255)?255:tmp16s;
         }
         NEXT;
-
+    _6f_0xDD:  /* PADDUSW Gx,Ex */
+        nextop = F8;
+        GET_EX;
+        for(int i=0; i<8; ++i) {
+            tmp32s = (int32_t)GX.uw[i] + EX->uw[i];
+            GX.uw[i] = (tmp16s>65535)?65535:tmp32s;
+        }
+        NEXT;
     _6f_0xDE:  /* PMAXUB Gx, Ex */
         nextop = F8;
         GET_EX;
