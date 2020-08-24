@@ -2025,7 +2025,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len, 1);
         else
-            cleanDBFromAddressRange((uintptr_t)addr, len, 1);
+            cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }
     #endif
     return ret;
