@@ -978,6 +978,30 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
             }
             break;
+        case 0xF8:
+            INST_NAME("CLC");
+            i32 = dyn->state_flags; //TODO: find a better way to do this
+            SETFLAGS(X_CF, SF_SUBSET);
+            if(i32!=SF_SET) {
+                MOVW(x1, d_none);
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            } else {
+                MOVW(x1, 0);
+            }
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            break;
+        case 0xF9:
+            INST_NAME("STC");
+            i32 = dyn->state_flags; //TODO: find a better way to do this
+            SETFLAGS(X_CF, SF_SUBSET);
+            if(i32!=SF_SET) {
+                MOVW(x1, d_none);
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            }
+            MOVW(x1, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            break;
+
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {
