@@ -87,6 +87,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_REG_LSL_IMM5(gd, ed, x12, 0);
                     }
                     break;
+
                 case 0xA3:
                     INST_NAME("MOV FS:Ow, EAX");
                     grab_fsdata(dyn, addr, ninst, x1);
@@ -96,6 +97,25 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ADD_REG_LSL_IMM5(x1, x1, x2, 0);
                     }
                     STR_IMM9(xEAX, x1, 0);
+                    break;
+
+                case 0xFF:
+                    nextop = F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    switch((nextop>>3)&7) {
+                        case 6: // Push Ed
+                            INST_NAME("PUSH FS:Ew");
+                            if((nextop&0xC0)==0xC0) {   // reg
+                                DEFAULT;
+                            } else {                    // mem <= i32
+                                addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                                LDR_REG_LSL_IMM5(x3, ed, x12, 0);
+                                PUSH(xESP, 1<<x3);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
                     break;
                 default:
                     DEFAULT;
