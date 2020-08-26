@@ -2152,7 +2152,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(d1);
             VQADD_S16(d0, d0, d1);
             break;
-
+        case 0xEE:
+            INST_NAME("PMAXPS Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VMAX_S16(d0, d0, d1);
+            break;
         case 0xEF:
             INST_NAME("PXOR Gm, Em");
             nextop = F8;
