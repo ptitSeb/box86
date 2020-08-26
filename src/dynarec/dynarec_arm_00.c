@@ -1943,6 +1943,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xD7:
+            INST_NAME("XLAT");
+            UBFX(x1, xEAX, 0, 8);    // x1 = AL
+            LDRB_REG_LSL_IMM5(x1, xEBX, x1, 0); //x1 = byte ptr[EBX+AL]
+            BFI(xEAX, x1, 0, 8);
+            break;
         case 0xD8:
             addr = dynarecD8(dyn, addr, ip, ninst, ok, need_epilog);
             break;
