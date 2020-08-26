@@ -1030,7 +1030,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     DEFAULT;
             }
             break;
-
+        case 0x74:
+            INST_NAME("PCMPEQB Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VCEQ_8(d0, d0, d1);
+            break;
         case 0x75:
             INST_NAME("PCMPEQW Gm,Em");
             nextop = F8;
