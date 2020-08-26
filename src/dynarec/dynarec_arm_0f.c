@@ -2130,7 +2130,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(d1);
             VQSUB_S16(d0, d0, d1);
             break;
-
+        case 0xEA:
+            INST_NAME("PMINPS Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VMIN_S16(d0, d0, d1);
+            break;
         case 0xEB:
             INST_NAME("POR Gm, Em");
             nextop = F8;
