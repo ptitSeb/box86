@@ -71,6 +71,37 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_cmp32(dyn, ninst, gd, ed, x3, x12);
             break;
 
+        case 0x67:
+            // reduced EA size...
+            opcode = F8;
+            switch(opcode) {
+                case 0x8B:
+                    INST_NAME("MOV Gd, FS:Ew16");
+                    nextop=F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    GETGD;
+                    if((nextop&0xC0)==0xC0) {   // reg <= reg
+                        MOV_REG(gd, xEAX+(nextop&7));
+                    } else {                    // mem <= reg
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        LDR_REG_LSL_IMM5(gd, ed, x12, 0);
+                    }
+                    break;
+                case 0xA3:
+                    INST_NAME("MOV FS:Ow, EAX");
+                    grab_fsdata(dyn, addr, ninst, x1);
+                    u32 = F16;
+                    if(u32) {
+                        MOV32(x2, u32);
+                        ADD_REG_LSL_IMM5(x1, x1, x2, 0);
+                    }
+                    STR_IMM9(xEAX, x1, 0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0x89:
             INST_NAME("MOV FS:Ed, Gd");
             grab_fsdata(dyn, addr, ninst, x12);

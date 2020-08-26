@@ -177,6 +177,81 @@ uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
     return addr;
 }
 
+/* setup r2 to address pointed by ED, r3 as scratch also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, uint32_t absmax, uint32_t mask)
+{
+    uint8_t ret = x2;
+    uint8_t scratch = x3;
+    *fixaddress = 0;
+    if(hint>0) ret = hint;
+    if(scratch==ret) scratch = x2;
+    MAYUSE(scratch);
+    uint32_t m = nextop&0xC7;
+    uint32_t n = (m>>6)&3;
+    int32_t offset = 0;
+    if(!n && m==6) {
+        offset = F16;
+        MOVW(ret, offset);
+    } else {
+        switch(n) {
+            case 0: offset = 0; break;
+            case 1: offset = F8S; break;
+            case 2: offset = F16S; break;
+        }
+        if(offset && (abs(offset)>absmax || (offset&mask))) {
+            *fixaddress = offset;
+            offset = 0;
+        }
+        switch(m&7) {
+            case 0: //R_BX + R_SI
+                UBFX(ret, xEBX, 0, 16);
+                UBFX(scratch, xESI, 0, 16);
+                ADD_REG_LSL_IMM5(ret, ret, scratch, 0);
+                break;
+            case 1: //R_BX + R_DI
+                UBFX(ret, xEBX, 0, 16);
+                UBFX(scratch, xEDI, 0, 16);
+                ADD_REG_LSL_IMM5(ret, ret, scratch, 0);
+                break;
+            case 2: //R_BP + R_SI
+                UBFX(ret, xEBP, 0, 16);
+                UBFX(scratch, xESI, 0, 16);
+                ADD_REG_LSL_IMM5(ret, ret, scratch, 0);
+                break;
+            case 3: //R_BP + R_DI
+                UBFX(ret, xEBP, 0, 16);
+                UBFX(scratch, xEDI, 0, 16);
+                ADD_REG_LSL_IMM5(ret, ret, scratch, 0);
+                break;
+            case 4: //R_SI
+                UBFX(ret, xESI, 0, 16);
+                break;
+            case 5: //R_DI
+                UBFX(ret, xEDI, 0, 16);
+                break;
+            case 6: //R_BP
+                UBFX(ret, xEBP, 0, 16);
+                break;
+            case 7: //R_BX
+                UBFX(ret, xEBX, 0, 16);
+                break;
+        }
+        if(offset) {
+            if(offset<0 && offset>-256) {
+                SUB_IMM8(ret, ret, -offset);
+            } else if(offset>0 && offset<256) {
+                ADD_IMM8(ret, ret, offset);
+            } else {
+                MOVW(scratch, offset);
+                ADD_REG_LSL_IMM5(ret, ret, scratch, 0);
+            }
+        }
+    }
+
+    *ed = ret;
+    return addr;
+}
+
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to epilog\n");

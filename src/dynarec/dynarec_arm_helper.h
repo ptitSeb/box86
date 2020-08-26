@@ -339,6 +339,7 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
 #define geted           STEPNAME(geted_)
 #define fakeed          STEPNAME(fakeed_)
+#define geted16         STEPNAME(geted16_)
 #define jump_to_epilog  STEPNAME(jump_to_epilog_)
 #define jump_to_linker  STEPNAME(jump_to_linker_)
 #define ret_to_epilog   STEPNAME(ret_to_epilog_)
@@ -453,6 +454,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
+
+/* setup r2 to address pointed by */
+uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask);
+
 
 // generic x86 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
