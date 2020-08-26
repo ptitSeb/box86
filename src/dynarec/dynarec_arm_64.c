@@ -75,6 +75,22 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // reduced EA size...
             opcode = F8;
             switch(opcode) {
+                case 0x89:
+                    INST_NAME("MOV FS:Ew16, Gw");
+                    nextop = F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    GETGD;  // don't need GETGW here
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        if(ed!=gd) {
+                            BFI(ed, gd, 0, 16);
+                        }
+                    } else {
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        STRH_REG(gd, x12, ed);
+                    }
+                    break;
+
                 case 0x8B:
                     INST_NAME("MOV Gd, FS:Ew16");
                     nextop=F8;
