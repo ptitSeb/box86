@@ -32,6 +32,14 @@ void arm_popf(x86emu_t* emu, uint32_t f)
     RESET_FLAGS(emu);
 }
 
+void arm_popf16(x86emu_t* emu, uint32_t f)
+{
+    emu->packed_eflags.x32 &= 0xffff0000;
+    emu->packed_eflags.x32 |= (f & 0x7FD7) | 0x2; // mask off res2 and res3 and on res1
+    UnpackFlags(emu);
+    RESET_FLAGS(emu);
+}
+
 void arm_fstp(x86emu_t* emu, void* p)
 {
     if(ST0.ll!=STld(0).ref)

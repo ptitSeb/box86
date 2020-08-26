@@ -384,6 +384,10 @@ Op is 20-27
 
 #define LDRHAI_REG_LSL_IMM5(reg, addr, rm) EMIT(HWS_REG(c__, 0, 1, 0, 1, addr, reg, 0, 1, rm))
 #define STRHAI_REG_LSL_IMM5(reg, addr, rm) EMIT(HWS_REG(c__, 0, 1, 0, 0, addr, reg, 0, 1, rm))
+#define LDRHB_IMM8(reg, addr, imm8)       EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 1, 1, addr, reg, 0, 1, abs(imm8)))
+#define LDRHA_IMM8(reg, addr, imm8)       EMIT(HWS_OFF(c__, 0, (((imm8)<0)?0:1), 0, 1, addr, reg, 0, 1, abs(imm8)))
+#define STRHB_IMM8(reg, addr, imm8)       EMIT(HWS_OFF(c__, 1, (((imm8)<0)?0:1), 1, 0, addr, reg, 0, 1, abs(imm8)))
+#define STRHA_IMM8(reg, addr, imm8)       EMIT(HWS_OFF(c__, 0, (((imm8)<0)?0:1), 0, 0, addr, reg, 0, 1, abs(imm8)))
 
 // Mul Long construction
 #define MULLONG(Cond, U, A, S, RdHi, RdLo, Rs, Rm)     (Cond | 0b00001<<23 | (U)<<22 | (A)<<21 | (S)<<20 | (RdHi)<<16 | (RdLo)<<12 | (Rs)<<8 | 0b1001<<4 | (Rm))

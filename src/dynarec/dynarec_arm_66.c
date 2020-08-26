@@ -20,6 +20,7 @@
 #include "arm_printer.h"
 
 #include "dynarec_arm_helper.h"
+#include "dynarec_arm_functions.h"
 
 
 uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -554,6 +555,22 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CWD");
             SXTH(x1, xEAX, 0);
             BFI(xEDX, x1, 16, 16);
+            break;
+
+        case 0x9C:
+            INST_NAME("PUSHF (16b)");
+            READFLAGS(X_ALL);
+            CALL(PackFlags, -1, 0);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
+            STRHB_IMM8(x1, xESP, -2);
+            break;
+        case 0x9D:
+            INST_NAME("POPF (16b)");
+            SETFLAGS(X_ALL, SF_SET);    // lower 16bits is all flags handled in dynarec
+            LDRHA_IMM8(x1, xESP, 2);
+            CALL(arm_popf16, -1, 0);
+            MOVW(x1, d_none);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
             break;
 
         case 0xA1:
