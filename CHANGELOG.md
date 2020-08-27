@@ -1,6 +1,8 @@
 Current version
 ======
 * Change in Dynarec memory handling, to simplify it (and hopefully optimized it)
+* Even more opcodes added.
+* And some more Dynarec opcodes.
 
 v0.1.2
 ======
