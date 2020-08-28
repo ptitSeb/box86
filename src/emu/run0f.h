@@ -96,6 +96,11 @@
             }
             NEXT;
 
+        _0f_0x1B:                      /* NOP (multi-byte) / ignored BNDSTX */
+            nextop = F8;
+            GET_ED;
+            NEXT;
+
         _0f_0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GET_ED;
