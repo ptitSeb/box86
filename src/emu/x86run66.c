@@ -619,11 +619,19 @@ void RunFS(x86emu_t *emu)
                     GET_EW16_OFFS(tlsdata);
                     ED->dword[0] = GD.dword[0];
                     break;
+
                 case 0x8B:                              /* MOV Gd,Ed16 */
                     nextop = F8;
                     GET_EW16_OFFS(tlsdata);
                     GD.dword[0] = ED->dword[0];
                     break;
+
+                case 0x8F:                              /* POP FS:Ed */
+                    nextop = F8;
+                    GET_EW16_OFFS(tlsdata);
+                    ED->dword[0] = Pop(emu);
+                    break;
+
                 case 0xA1:                              /* MOV EAX,Ov16 */
                     tmp16s = F16S;
                     R_EAX = *(uint32_t*)((tlsdata) + tmp16s);
