@@ -85,7 +85,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xB0,    &&_0xB1,    &&_0xB2,    &&_0xB3,    &&_0xB4,    &&_0xB5,    &&_0xB6,    &&_0xB7, 
     &&_0xB8,    &&_0xB9,    &&_0xBA,    &&_0xBB,    &&_0xBC,    &&_0xBD,    &&_0xBE,    &&_0xBF, 
     &&_0xC0,    &&_0xC1,    &&_0xC2,    &&_0xC3,    &&_default, &&_default, &&_0xC6,    &&_0xC7, 
-    &&_0xC8,    &&_0xC9,    &&_default, &&_default, &&_0xCC,    &&_0xCD,    &&_default, &&_0xCF,      //0xC8-0xCF
+    &&_0xC8,    &&_0xC9,    &&_default, &&_0xCB,    &&_0xCC,    &&_0xCD,    &&_default, &&_0xCF,      //0xC8-0xCF
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_default, &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
     &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_0xE4,    &&_0xE5,    &&_0xE6,    &&_0xE7,
@@ -911,6 +911,13 @@ _trace:
             R_EBP = Pop(emu);
             NEXT;
 
+        _0xCB:                      /* FAR RET */
+            ip = Pop(emu);
+            emu->segs[_CS] = Pop(emu);    // no check, no use....
+            emu->segs_clean[_CS] = 0;
+            // need to check status of CS register!
+            STEP
+            NEXT;
         _0xCC:                      /* INT 3 */
             emu->old_ip = R_EIP;
             R_EIP = ip;
