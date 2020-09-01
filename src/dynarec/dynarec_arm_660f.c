@@ -1555,6 +1555,42 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VEORQ(v0, v0, q0);
             break;
 
+        case 0xF1:
+            INST_NAME("PSLLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VMOVD(v0+1, v0);
+            VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
+            VMOVD(v0+1, v0);
+            VSHLQ_U16(q0, q0, v0);
+            break;
+        case 0xF2:
+            INST_NAME("PSLLD Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VMOVD(v0+1, v0);
+            VSHLQ_U32(q0, q0, v0);
+            break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VSHLQ_U64(q0, q0, v0);
+            break;
         case 0xF4:
             INST_NAME("PMULUDQ Gx,Ex");
             nextop = F8;
