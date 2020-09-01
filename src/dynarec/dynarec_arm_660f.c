@@ -54,6 +54,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     MAYUSE(q1);
     MAYUSE(eb1);
     MAYUSE(eb2);
+    #if PASS == 3
+    static const int8_t mask_shift8[] = { -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0 };
+    #endif
 
     switch(opcode) {
 
@@ -1349,7 +1352,29 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 }
             }
             break;
-
+        case 0xD7:
+            INST_NAME("PMOVMSKB Gd, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = xEAX+((nextop&0x38)>>3);
+            #if PASS == 3
+            MOV32_(x1, &mask_shift8);
+            #else
+            MOV32_(x1, 0);
+            #endif
+            v0 = fpu_get_scratch_quad(dyn);
+            VLD1Q_8(v0, x1);    // load shift
+            v1 = fpu_get_scratch_quad(dyn);
+            VMOVQ_8(v1, 0x80);  // load mask
+            VANDQ(v1, v1, q0);  // keep highest bit
+            VSHLQ_S8(v1, v1, v0);// shift
+            VPADD_8(v1, v1, v1+1);// accumulate the bits
+            VPADD_8(v1, v1, v1);// ...
+            VPADD_8(v1, v1, v1);// ...
+            VPADD_8(v1, v1, v1);// ...
+            VMOVfrDx_U8(x1, v1, 0);
+            UBFX(gd, x1, 0, 16);
+            break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
             nextop = F8;
