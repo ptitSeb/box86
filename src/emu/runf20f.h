@@ -125,6 +125,93 @@
         }
         break;
 
+    #define GOCOND(BASE, PREFIX, CONDITIONAL)   \
+    case BASE+0:                                \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_OF))                   \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+1:                                \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_OF))                  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+2:                                \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_CF))                   \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+3:                                \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_CF))                  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+4:                                \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_ZF))                   \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+5:                                \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_ZF))                  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+6:                                \
+        PREFIX                                  \
+        if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+7:                                \
+        PREFIX                                  \
+        if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+8:                                \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_SF))                   \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+9:                                \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_SF))                  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xA:                              \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_PF))                   \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xB:                              \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_PF))                  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xC:                              \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xD:                              \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xE:                              \
+        PREFIX                                  \
+        if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
+            CONDITIONAL                         \
+        break;                                  \
+    case BASE+0xF:                              \
+        PREFIX                                  \
+        if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
+            CONDITIONAL                         \
+        break;
+        
+    GOCOND(0x80
+        , tmp32s = F32S; CHECK_FLAGS(emu);
+        , ip += tmp32s;
+    )                               /* 0x80 -> 0x8F Jxx */
+        
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
         nextop = F8;
         GET_EX;
