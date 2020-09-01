@@ -1300,7 +1300,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVD(v0+1, v0);
             VSHLQ_U32(q0, q0, v0);
             break;
-
+        case 0xD3:
+            INST_NAME("PSRLQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, q1);
+            VMOVD(v0+1, q1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VNEGN_32(v0, v0);   // because we want SHR and not SHL
+            VMOVL_S32(v0, v0);  // 2*q1 in 64 bits now
+            VSHLQ_U64(q0, q0, v0);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gx,Ex");
             nextop = F8;
