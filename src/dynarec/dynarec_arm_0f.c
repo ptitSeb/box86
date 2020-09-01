@@ -2037,6 +2037,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VPADD_8(v2, v2, v2);// ...
             VPADD_8(v2, v2, v2);// ...
             VMOVfrDx_U8(gd, v2, 0);
+            AND_IMM8(gd, gd, 0xff);
             break;
         case 0xD8:
             INST_NAME("PSUBUSB Gm,Em");
