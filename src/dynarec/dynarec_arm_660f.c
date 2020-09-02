@@ -1372,8 +1372,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VPADD_8(v1, v1, v1);// ...
             VPADD_8(v1, v1, v1);// ...
             VPADD_8(v1, v1, v1);// ...
-            VMOVfrDx_U8(x1, v1, 0);
-            UBFX(gd, x1, 0, 16);
+            VMOVfrDx_U16(gd, v1, 0);
             break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
