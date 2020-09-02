@@ -54,7 +54,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     MAYUSE(q1);
     MAYUSE(eb1);
     MAYUSE(eb2);
-    #if PASS == 3
+    #if STEP == 3
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
 
@@ -1353,34 +1353,38 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
         case 0xD7:
-            INST_NAME("PMOVMSKB Gd, Ex");
             nextop = F8;
-            GETEX(q0);
-            gd = xEAX+((nextop&0x38)>>3);
-            #if PASS == 3
-            MOV32_(x1, &mask_shift8);
-            #else
-            MOV32_(x1, 0);
-            #endif
-            v0 = fpu_get_scratch_double(dyn);
-            VLD1_8(v0, x1);     // load shift
-            v1 = fpu_get_scratch_double(dyn);
-            VMOV_8(v1, 0x80);   // load mask
-            VANDD(v1, v1, q0+0);  // keep highest bit
-            VSHL_S8(v1, v1, v0);// shift
-            VPADD_8(v1, v1, v1);// accumulate the bits
-            VPADD_8(v1, v1, v1);// ...
-            VPADD_8(v1, v1, v1);// ...
-            VMOVfrDx_U8(gd, v1, 0);
-            // and now the high part
-            VMOV_8(v1, 0x80);   // load mask
-            VANDD(v1, v1, q0+1);  // keep highest bit
-            VSHL_S8(v1, v1, v0);// shift
-            VPADD_8(v1, v1, v1);// accumulate the bits
-            VPADD_8(v1, v1, v1);// ...
-            VPADD_8(v1, v1, v1);// ...
-            VMOVfrDx_U8(x1, v1, 0);
-            BFI(gd, x1, 8, 8);
+            if((nextop&0xC0)==0xC0) {
+                INST_NAME("PMOVMSKB Gd, Ex");
+                GETEX(q0);
+                gd = xEAX+((nextop&0x38)>>3);
+                #if STEP == 3
+                MOV32_(x1, &mask_shift8);
+                #else
+                MOV32_(x1, 0);
+                #endif
+                v0 = fpu_get_scratch_double(dyn);
+                VLD1_8(v0, x1);     // load shift
+                v1 = fpu_get_scratch_double(dyn);
+                VMOV_8(v1, 0x80);   // load mask
+                VANDD(v1, v1, q0+0);  // keep highest bit
+                VSHL_S8(v1, v1, v0);// shift
+                VPADD_8(v1, v1, v1);// accumulate the bits
+                VPADD_8(v1, v1, v1);// ...
+                VPADD_8(v1, v1, v1);// ...
+                VMOVfrDx_U8(gd, v1, 0);
+                // and now the high part
+                VMOV_8(v1, 0x80);   // load mask
+                VANDD(v1, v1, q0+1);  // keep highest bit
+                VSHL_S8(v1, v1, v0);// shift
+                VPADD_8(v1, v1, v1);// accumulate the bits
+                VPADD_8(v1, v1, v1);// ...
+                VPADD_8(v1, v1, v1);// ...
+                VMOVfrDx_U8(x1, v1, 0);
+                BFI(gd, x1, 8, 8);
+            } else {
+                DEFAULT;
+            }
             break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");

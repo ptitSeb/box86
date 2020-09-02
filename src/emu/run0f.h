@@ -1054,12 +1054,15 @@
 
         _0f_0xD7:                   /* PMOVMSKB Gd,Em */
             nextop = F8;
-            GET_EM;
-            GD.dword[0] = 0;
-            for (int i=0; i<8; ++i)
-                if(EM->ub[i]&0x80)
-                    GD.dword[0] |= (1<<i);
-            NEXT;
+            if((nextop&0xC0)==0xC0) {
+                GET_EM;
+                GD.dword[0] = 0;
+                for (int i=0; i<8; ++i)
+                    if(EM->ub[i]&0x80)
+                        GD.dword[0] |= (1<<i);
+                NEXT;
+            } else
+                goto _default;
         _0f_0xD8:                   /* PSUBUSB Gm,Em */
             nextop = F8;
             GET_EM;

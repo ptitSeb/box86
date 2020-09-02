@@ -913,12 +913,15 @@
         NEXT;
     _6f_0xD7:  /* PMOVMSKB Gd,Ex */
         nextop = F8;
-        GET_EX;
-        GD.dword[0] = 0;
-        for (int i=0; i<16; ++i)
-            if(EX->ub[i]&0x80)
-                GD.dword[0] |= (1<<i);
-        NEXT;
+        if((nextop&0xC0)==0xC0) {
+            GET_EX;
+            GD.dword[0] = 0;
+            for (int i=0; i<16; ++i)
+                if(EX->ub[i]&0x80)
+                    GD.dword[0] |= (1<<i);
+            NEXT;
+        } else
+            goto _default;
     _6f_0xD8:  /* PSUBUSB Gx,Ex */
         nextop = F8;
         GET_EX;
