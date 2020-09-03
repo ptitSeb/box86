@@ -891,7 +891,7 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			CLEAR_FLAG(F_OF);
 		}
 	} else {
-		res = (fill << (cnt)) | (fill >> (16 - cnt));
+		res = (fill << (cnt)) | (d >> (16 - cnt));
 		if(s==16)
 			cf = d & 1;
 		else
@@ -965,7 +965,7 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
         }
 	} else {
 		cf = fill & (1 << (cnt - 1));
-		res = (fill >> cnt) | (fill << (16 - cnt));
+		res = (fill >> cnt) | (d << (16 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 		CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
