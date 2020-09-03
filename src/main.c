@@ -796,6 +796,11 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
     }
+    // special case for UnrealLinux.bin, it doesn't like "full path resolution"
+    if(!strcmp(prog, "UnrealLinux.bin") && my_context->argv[0]) {
+        free(my_context->argv[0]);
+        my_context->argv[0] = strdup("./UnrealLinux.bin");
+    }
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = strdup(argv[i+nextarg]);
