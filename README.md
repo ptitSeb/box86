@@ -73,7 +73,7 @@ A note about Unity game emulation
 Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with he new "protected memory" mechanism implemented it is running with correct performance now.
 You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
 
-TL;DR: Not all Mono games work and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
+TL;DR: Not all Unity games work and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
 
 ----
 
