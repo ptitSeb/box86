@@ -123,6 +123,7 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef int32_t (*iFpL_t)(void*, size_t);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
@@ -2153,6 +2154,29 @@ EXPORT void* my_malloc(unsigned long size)
     return calloc(1, size);
 }
 #endif
+
+#ifndef GRND_RANDOM
+#define GRND_RANDOM	0x0002
+#endif
+EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
+{
+    library_t* lib = GetLibInternal(libcName);
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "getentropy");
+    if(f)
+        return ((iFpL_t)f)(buffer, length);
+    // custom implementation
+    if(length>256) {
+        errno = EIO;
+        return -1;
+    }
+    int ret = my_getrandom(emu, buffer, length, GRND_RANDOM);
+    if(ret!=length) {
+        errno = EIO;
+        return -1;
+    }
+    return 0;
+}
 
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \

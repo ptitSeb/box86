@@ -2130,6 +2130,7 @@ GO2(__read_nocancel, lFipL, read)
 GO2(__close_nocancel, iFi, close)
 
 GOM(mkstemps64, iFEpi)   // not always implemented
+GOM(getentropy, iFEpL)  // starting from glibc 2.25
 
 // not found (libitm???), but it seems OK to declare dummies:
 
