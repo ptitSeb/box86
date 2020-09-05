@@ -59,9 +59,9 @@ DATAB(__snd_timer_hw_open_dlsym_timer_001, 4)
 DATAB(__snd_timer_query_hw_open_dlsym_timer_query_001, 4)
 
 GO(snd_asoundlib_version, pFv)
-//GO(snd_dlopen, pFpi)
-//GO(snd_dlsym, pFppp)
-//GO(snd_dlclose, iFp)
+GOM(snd_dlopen, pFEpipL)
+GOM(snd_dlsym, pFEppp)
+GOM(snd_dlclose, iFEp)
 GOM(snd_async_add_handler, iFEpipp)
 //GO(snd_async_del_handler, iFp)
 //GO(snd_async_handler_get_fd, iFp)
@@ -1271,3 +1271,5 @@ GO(snd_seq_sync_output_queue, iFp)
 GO(snd_seq_parse_address, iFppp)
 
 GO(snd_hwdep_info_get_iface, iFp)
+DATAM(snd_lib_error, 4)
+GO(superdummy_error_handler, vFpipipV)   // dummy to have the bridge definition

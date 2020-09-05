@@ -17,6 +17,7 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "emu/x86emu_private.h"
+#include "bridge.h"
 
 #define LIBNAME libasound
 const char* libasoundName = "libasound.so.2";
@@ -25,6 +26,12 @@ typedef int     (*iFp_t)        (void*);
 typedef void*   (*pFp_t)        (void*);
 typedef int     (*iFpipp_t)     (void*, int, void*, void*);
 typedef int     (*iFpppp_t)     (void*, void*, void*, void*);
+
+EXPORT uintptr_t my_snd_lib_error = 0;
+static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
+{
+    vprintf(fmt, ap);
+}
 
 #define SUPER() \
     GO(snd_async_add_handler, iFpipp_t)                 \
@@ -44,6 +51,9 @@ void* getAsoundMy(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
+    // setup custom error handler
+    my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0);
+    //all done
     return my;
 }
 #undef SUPER
@@ -51,6 +61,7 @@ void* getAsoundMy(library_t* lib)
 void freeAsoundMy(void* lib)
 {
     // asound_my_t *my = (asound_my_t *)lib;
+    my_snd_lib_error = 0;   // no removing of bridge
 }
 
 #define SUPER() \
@@ -97,6 +108,7 @@ EXPORT int my_snd_async_add_pcm_handler(x86emu_t *emu, void *handler, void* pcm,
     return my->snd_async_add_pcm_handler(handler, pcm, findAsyncFct(callback), private_data);
 }
 
+static void* current_error_handler = NULL;
 static void dummy_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
 {
     va_list ap;
@@ -117,6 +129,7 @@ static void empty_error_handler(const char *file, int line, const char *function
 EXPORT int my_snd_lib_error_set_handler(x86emu_t* emu, void* handler)
 {
     asound_my_t* my = (asound_my_t*)emu->context->asound->priv.w.p2;
+    current_error_handler = handler;
     void *error_handler;
     uint8_t *code = (uint8_t *)handler;
     if (code) {
@@ -129,6 +142,27 @@ EXPORT int my_snd_lib_error_set_handler(x86emu_t* emu, void* handler)
     } else error_handler = NULL;
 
     return my->snd_lib_error_set_handler(error_handler);
+}
+
+void* my_dlopen(x86emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c
+char* my_dlerror(x86emu_t* emu);
+int my_dlclose(x86emu_t* emu, void *handle);
+void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version);
+EXPORT void * my_snd_dlopen(x86emu_t* emu, void* name, int mode, void* errbuf, size_t errbuflen)
+{
+    void* ret = my_dlopen(emu, name, mode);  // Does NULL name (so dlopen libasound) need special treatment?
+    if(!ret && errbuf) {
+        strncpy(errbuf, my_dlerror(emu), errbuflen);
+    }
+    return ret;
+}
+EXPORT int my_snd_dlclose(x86emu_t* emu, void* handle)
+{
+    return my_dlclose(emu, handle);
+}
+EXPORT void* my_snd_dlsym(x86emu_t* emu, void* handle, void* name, void* version)
+{
+    return my_dlvsym(emu, handle, name, version);
 }
 
 #define CUSTOM_INIT                     \
