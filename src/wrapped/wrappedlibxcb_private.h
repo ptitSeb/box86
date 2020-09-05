@@ -118,7 +118,7 @@ GOS(xcb_configure_window, pFEppuWp)
 //GO(xcb_configure_window_value_list_serialize, 
 //GO(xcb_configure_window_value_list_sizeof, 
 //GO(xcb_configure_window_value_list_unpack, 
-//GO(xcb_connect, 
+GO(xcb_connect, pFpp)
 GO(xcb_connection_has_error, iFp)
 //GO(xcb_connect_to_display_with_auth_info, 
 //GO(xcb_connect_to_fd, 
