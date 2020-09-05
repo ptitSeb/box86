@@ -200,7 +200,7 @@
 //GOS(xcb_randr_get_screen_size_range, 
 //GOS(xcb_randr_get_screen_size_range_reply, 
 //GOS(xcb_randr_get_screen_size_range_unchecked, 
-//DATA(xcb_randr_id, 4)
+DATA(xcb_randr_id, 8)
 //GOS(xcb_randr_list_output_properties, 
 //GOS(xcb_randr_list_output_properties_atoms, 
 //GOS(xcb_randr_list_output_properties_atoms_end, 

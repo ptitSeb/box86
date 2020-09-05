@@ -11,7 +11,7 @@
 //GOS(xcb_shape_get_rectangles_reply, 
 //GOS(xcb_shape_get_rectangles_sizeof, 
 //GOS(xcb_shape_get_rectangles_unchecked, 
-//DATA(xcb_shape_id, 4)
+DATA(xcb_shape_id, 8)
 //GOS(xcb_shape_input_selected, 
 //GOS(xcb_shape_input_selected_reply, 
 //GOS(xcb_shape_input_selected_unchecked, 

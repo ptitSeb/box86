@@ -17,7 +17,7 @@
 //GOS(xcb_shm_get_image, 
 //GOS(xcb_shm_get_image_reply, 
 //GOS(xcb_shm_get_image_unchecked, 
-//DATA(xcb_shm_id, 4)
+DATA(xcb_shm_id, 8)
 //GOS(xcb_shm_put_image, 
 //GOS(xcb_shm_put_image_checked, 
 //GOS(xcb_shm_query_version, 

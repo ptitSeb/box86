@@ -75,7 +75,7 @@
 //GOS(xcb_xfixes_get_cursor_name_unchecked, 
 //GOS(xcb_xfixes_hide_cursor, 
 //GOS(xcb_xfixes_hide_cursor_checked, 
-//DATA(xcb_xfixes_id, 4)
+DATA(xcb_xfixes_id, 8)
 //GOS(xcb_xfixes_intersect_region, 
 //GOS(xcb_xfixes_intersect_region_checked, 
 //GOS(xcb_xfixes_invert_region, 

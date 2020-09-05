@@ -12,4 +12,4 @@
 //GOS(xcb_test_get_version_unchecked, 
 //GOS(xcb_test_grab_control, 
 //GOS(xcb_test_grab_control_checked, 
-//DATA(xcb_test_id, 4)
+DATA(xcb_test_id, 8)
