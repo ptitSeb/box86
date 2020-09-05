@@ -13,7 +13,7 @@
 //GO(custom_ext_parse, 
 //GO(custom_exts_copy, 
 //GO(custom_exts_free, 
-//GO(d2i_SSL_SESSION, 
+GO(d2i_SSL_SESSION, pFppl)
 //GO(do_dtls1_write, 
 //GO(dtls1_accept, 
 //GO(dtls1_buffer_message, 
@@ -67,7 +67,7 @@ GO(DTLSv1_method, pFv)
 GO(DTLSv1_server_method, pFv)
 //GO(ERR_load_SSL_strings, 
 //GO(_fini, 
-//GO(i2d_SSL_SESSION, 
+GO(i2d_SSL_SESSION, iFpp)
 //GO(_init, 
 //GO(n_ssl3_mac, 
 //GO(OBJ_bsearch_ssl_cipher_id, 
@@ -181,7 +181,7 @@ GO(DTLSv1_server_method, pFv)
 //GO(ssl3_write, 
 //GO(ssl3_write_bytes, 
 //GO(ssl3_write_pending, 
-//GO(SSL_accept, 
+GO(SSL_accept, iFp)
 //GO(ssl_add_cert_chain, 
 GO(SSL_add_client_CA, iFpp)
 //GO(ssl_add_clienthello_renegotiate_ext, 
@@ -233,7 +233,7 @@ GO(SSL_CIPHER_get_version, pFp)
 //GO(ssl_cipher_id_cmp, 
 //GO(ssl_cipher_list_to_bytes, 
 //GO(ssl_cipher_ptr_id_cmp, 
-//GO(SSL_clear, 
+GO(SSL_clear, iFp)
 //GO(ssl_clear_bad_session, 
 //GO(ssl_clear_cipher_ctx, 
 //GO(ssl_clear_hash_ctx, 
@@ -305,13 +305,13 @@ GO(SSL_CTX_set_client_CA_list, vFpp)
 //GO(SSL_CTX_set_cookie_verify_cb, 
 GOM(SSL_CTX_set_default_passwd_cb, vFEpp)
 GO(SSL_CTX_set_default_passwd_cb_userdata, vFpp)
-//GO(SSL_CTX_set_default_verify_paths, 
+GO(SSL_CTX_set_default_verify_paths, iFp)
 //GO(SSL_CTX_set_ex_data, 
 //GO(SSL_CTX_set_generate_session_id, 
 //GO(SSL_CTX_set_info_callback, 
 //GO(SSL_CTX_set_msg_callback, 
 //GO(SSL_CTX_set_next_protos_advertised_cb, 
-//GO(SSL_CTX_set_next_proto_select_cb, 
+GOM(SSL_CTX_set_next_proto_select_cb, vFEppp)
 //GO(SSL_CTX_set_psk_client_callback, 
 //GO(SSL_CTX_set_psk_server_callback, 
 //GO(SSL_CTX_set_purpose, 
@@ -358,7 +358,7 @@ GO(SSL_CTX_use_RSAPrivateKey_file, iFppi)
 GO(SSL_free, vFp)
 //GO(ssl_free_wbio_buffer, 
 //GO(SSL_get0_alpn_selected, 
-//GO(SSL_get0_next_proto_negotiated, 
+GO(SSL_get0_next_proto_negotiated, vFppp)
 //GO(SSL_get0_param, 
 GO(SSL_get0_session, pFp)
 GO(SSL_get1_session, pFp)
@@ -366,7 +366,7 @@ GO(SSL_get1_session, pFp)
 GO(SSL_get_certificate, pFp)
 //GO(ssl_get_cipher_by_char, 
 //GO(SSL_get_cipher_list, 
-//GO(SSL_get_ciphers, 
+GO(SSL_get_ciphers, pFp)
 //GO(ssl_get_ciphers_by_id, 
 //GO(SSL_get_client_CA_list, 
 GO(SSL_get_current_cipher, pFp)
@@ -374,9 +374,9 @@ GO(SSL_get_current_cipher, pFp)
 //GO(SSL_get_current_expansion, 
 //GO(SSL_get_default_timeout, 
 GO(SSL_get_error, iFpi)
-//GO(SSL_get_ex_data, 
+GO(SSL_get_ex_data, pFpi)
 //GO(SSL_get_ex_data_X509_STORE_CTX_idx, 
-//GO(SSL_get_ex_new_index, 
+GOM(SSL_get_ex_new_index, iFElpppp)
 //GO(SSL_get_fd, 
 //GO(SSL_get_finished, 
 //GO(ssl_get_handshake_digest, 
@@ -444,7 +444,7 @@ GO(SSL_read, iFppi)
 //GO(ssl_replace_hash, 
 //GO(SSL_rstate_string, 
 //GO(SSL_rstate_string_long, 
-//GO(SSL_select_next_proto, 
+GO(SSL_select_next_proto, iFpppupu)
 //GO(ssl_sess_cert_free, 
 //GO(ssl_sess_cert_new, 
 GO(ssl_session_dup, pFp)
@@ -468,7 +468,7 @@ GO(SSL_SESSION_up_ref, iFp)
 //GO(SSL_set1_param, 
 GO(SSL_set_accept_state, vFp)
 //GO(SSL_set_alpn_protos, 
-//GO(SSL_set_bio, 
+GO(SSL_set_bio, vFppp)
 //GO(SSL_set_cert_cb, 
 //GO(ssl_set_cert_masks, 
 GO(SSL_CTX_set_cert_store, vFpp)
@@ -477,13 +477,13 @@ GO(SSL_set_client_CA_list, vFpp)
 //GO(ssl_set_client_disabled, 
 GO(SSL_set_connect_state, vFp)
 //GO(SSL_set_debug, 
-//GO(SSL_set_ex_data, 
+GO(SSL_set_ex_data, iFpip)
 GO(SSL_set_fd, iFpi)
 //GO(SSL_set_generate_session_id, 
 //GO(SSL_set_info_callback, 
 //GO(SSL_set_msg_callback, 
 //GO(ssl_set_peer_cert_type, 
-//GO(SSL_set_psk_client_callback, 
+GOM(SSL_set_psk_client_callback, vFEpp)
 //GO(SSL_set_psk_server_callback, 
 //GO(SSL_set_purpose, 
 //GO(SSL_set_quiet_shutdown, 
@@ -541,7 +541,7 @@ GO(SSLv3_method, pFv)
 GO(SSLv3_server_method, pFv)
 //GO(ssl_verify_alarm_type, 
 //GO(ssl_verify_cert_chain, 
-//GO(SSL_version, 
+GO(SSL_version, iFp)
 //GO(SSL_want, 
 GO(SSL_write, iFppi)
 //GO(tls12_check_peer_sigalg, 
@@ -589,3 +589,5 @@ GO(TLSv1_2_server_method, pFv)
 GO(TLSv1_client_method, pFv)
 GO(TLSv1_method, pFv)
 GO(verify_callback, iFip)
+
+GO(TLSv1_server_method, pFv)    // not always present in lib

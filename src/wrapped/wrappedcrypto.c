@@ -24,15 +24,29 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 
 static library_t* my_lib = NULL;
 
+typedef void        (*vFp_t)        (void*);
 typedef void*       (*pFp_t)        (void*);
 typedef void        (*vFpp_t)       (void*, void*);
+typedef void*       (*pFpppp_t)     (void*, void*, void*, void*);
 typedef int32_t     (*iFpiipp_t)    (void*, int32_t, int32_t, void*, void*);
 typedef int32_t     (*iFpplppi_t)   (void*, void*, long, void*, void*, int32_t);
+typedef int32_t     (*iFppppipp_t)  (void*, void*, void*, void*, int, void*, void*);
 
 #define SUPER() \
-    GO(ENGINE_ctrl, iFpiipp_t)          \
-    GO(ENGINE_ctrl_cmd, iFpplppi_t)     \
-    GO(sk_new, pFp_t)                   \
+    GO(ENGINE_ctrl, iFpiipp_t)                      \
+    GO(ENGINE_ctrl_cmd, iFpplppi_t)                 \
+    GO(CRYPTO_set_id_callback, vFp_t)               \
+    GO(CRYPTO_set_locking_callback, vFp_t)          \
+    GO(PEM_read_bio_DSAPrivateKey, pFpppp_t)        \
+    GO(PEM_read_bio_DSA_PUBKEY, pFpppp_t)           \
+    GO(PEM_read_bio_RSAPrivateKey, pFpppp_t)        \
+    GO(PEM_read_bio_RSA_PUBKEY, pFpppp_t)           \
+    GO(PEM_read_bio_ECPrivateKey, pFpppp_t)         \
+    GO(PEM_read_bio_EC_PUBKEY, pFpppp_t)            \
+    GO(PEM_write_bio_DSAPrivateKey, iFppppipp_t)    \
+    GO(PEM_write_bio_RSAPrivateKey, iFppppipp_t)    \
+    GO(PEM_write_bio_ECPrivateKey, iFppppipp_t)     \
+    GO(sk_new, pFp_t)                               \
     GO(sk_pop_free, vFpp_t)
 
 typedef struct crypto_my_s {
@@ -137,6 +151,78 @@ static void* find_free_fnc_Fct(void* fct)
     return NULL;
 }
 
+// id_func
+#define GO(A)   \
+static uintptr_t my_id_func_fct_##A = 0;                                    \
+static unsigned long my_id_func_##A()                                       \
+{                                                                           \
+    return (unsigned long)RunFunction(my_context, my_id_func_fct_##A, 0);   \
+}
+SUPER()
+#undef GO
+static void* find_id_func_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_id_func_fct_##A == (uintptr_t)fct) return my_id_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_id_func_fct_##A == 0) {my_id_func_fct_##A = (uintptr_t)fct; return my_id_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto id_func callback\n");
+    return NULL;
+}
+
+// lock_func
+#define GO(A)   \
+static uintptr_t my_lock_func_fct_##A = 0;                              \
+static void my_lock_func_##A(int mode, int n, void* f, int l)           \
+{                                                                       \
+    RunFunction(my_context, my_lock_func_fct_##A, 4, mode, n, f, l);    \
+}
+SUPER()
+#undef GO
+static void* find_lock_func_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_lock_func_fct_##A == (uintptr_t)fct) return my_lock_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_lock_func_fct_##A == 0) {my_lock_func_fct_##A = (uintptr_t)fct; return my_lock_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto lock_func callback\n");
+    return NULL;
+}
+
+// passphrase
+#define GO(A)   \
+static uintptr_t my_passphrase_fct_##A = 0;                                             \
+static int my_passphrase_##A(void* buff, int size, int rw, void* u)                     \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_passphrase_fct_##A, 4, buff, size, rw, u);   \
+}
+SUPER()
+#undef GO
+static void* find_passphrase_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_passphrase_fct_##A == (uintptr_t)fct) return my_passphrase_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_passphrase_fct_##A == 0) {my_passphrase_fct_##A = (uintptr_t)fct; return my_passphrase_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto passphrase callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int32_t my_ENGINE_ctrl(x86emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
@@ -151,6 +237,83 @@ EXPORT int32_t my_ENGINE_ctrl_cmd(x86emu_t* emu, void* e, void* cmd, long i, voi
     crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
 
     return my->ENGINE_ctrl_cmd(e, cmd, i, p, find_ENGINE_ctrl_cb_Fct(f), optional);
+}
+
+EXPORT void my_CRYPTO_set_id_callback(x86emu_t* emu, void* cb)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->CRYPTO_set_id_callback(find_id_func_Fct(cb));
+}
+
+EXPORT void my_CRYPTO_set_locking_callback(x86emu_t* emu, void* cb)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->CRYPTO_set_locking_callback(find_lock_func_Fct(cb));
+}
+
+EXPORT void my_PEM_read_bio_DSAPrivateKey(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_DSAPrivateKey(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT void my_PEM_read_bio_DSA_PUBKEY(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_DSA_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT void my_PEM_read_bio_RSAPrivateKey(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_RSAPrivateKey(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT void my_PEM_read_bio_RSA_PUBKEY(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_RSA_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT void my_PEM_read_bio_ECPrivateKey(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_ECPrivateKey(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT void my_PEM_read_bio_EC_PUBKEY(x86emu_t* emu, void* bp, void* x, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    my->PEM_read_bio_EC_PUBKEY(bp, x, find_passphrase_Fct(cb), u);
+}
+
+EXPORT int my_PEM_write_bio_DSAPrivateKey(x86emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    return my->PEM_write_bio_DSAPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
+}
+
+EXPORT int my_PEM_write_bio_RSAPrivateKey(x86emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    return my->PEM_write_bio_RSAPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
+}
+
+EXPORT int my_PEM_write_bio_ECPrivateKey(x86emu_t* emu, void* bp, void* x, void* e, void* str, int len, void* cb, void* u)
+{
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;
+
+    return my->PEM_write_bio_ECPrivateKey(bp, x, e, str, len, find_passphrase_Fct(cb), u);
 }
 
 EXPORT void* my_sk_new(x86emu_t* emu, void* f)
