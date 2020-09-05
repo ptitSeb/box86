@@ -2178,6 +2178,12 @@ EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
     return 0;
 }
 
+EXPORT void my_mcount(void* frompc, void* selfpc)
+{
+    // stub doing nothing...
+    return;
+}
+
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \
     InitCpuModel();         \

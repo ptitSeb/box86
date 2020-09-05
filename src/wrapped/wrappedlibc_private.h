@@ -1081,7 +1081,7 @@ GO(mbtowc, iFppu)
 // mcheck_check_all
 // mcheck_pedantic
 // _mcleanup
-// mcount   // Weak
+GOM(mcount, vFpp)   // Weak
 // _mcount
 GOW(memalign, pFuu)
 DATAV(__memalign_hook, 4)
