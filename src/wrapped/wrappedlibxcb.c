@@ -53,6 +53,7 @@ typedef my_xcb_cookie_t (*XFpuuWW_t)(void*, uint32_t, uint32_t, uint16_t, uint16
 typedef my_xcb_cookie_t (*XFpCuuCC_t)(void*, uint8_t, uint32_t, uint32_t, uint8_t, uint8_t);
 typedef my_xcb_cookie_t (*XFpCuuWW_t)(void*, uint8_t, uint32_t, uint32_t, uint16_t, uint16_t);
 typedef my_xcb_cookie_t (*XFpuuuuu_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef my_xcb_cookie_t (*XFpCuuwwp_t)(void*, uint8_t, uint32_t, uint32_t, int16_t, int16_t, void*);
 typedef my_xcb_cookie_t (*XFpCuwwWW_t)(void*, uint8_t, uint32_t, int16_t, int16_t, uint16_t, uint16_t);
 typedef my_xcb_cookie_t (*XFpCuuuuu_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*XFpCuuuCup_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, uint8_t, uint32_t, void*);
@@ -106,12 +107,16 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_grab_keyboard, XFpCuuCC_t)               \
     GO(xcb_grab_pointer, XFpCuWCCuuu_t)             \
     GO(xcb_grab_server, XFp_t)                      \
+    GO(xcb_image_text_8, XFpCuuwwp_t)               \
     GO(xcb_intern_atom, XFpCWp_t)                   \
     GO(xcb_intern_atom_unchecked, XFpCWp_t)         \
     GO(xcb_map_window, XFpu_t)                      \
+    GO(xcb_map_subwindows, XFpu_t)                  \
     GO(xcb_open_font, XFpuWp_t)                     \
+    GO(xcb_poly_fill_rectangle, XFpuuup_t)          \
     GO(xcb_put_image, XFpCuuWWwwCCup_t)             \
     GO(xcb_query_pointer, XFpu_t)                   \
+    GO(xcb_query_text_extents, XFpuup_t)            \
     GO(xcb_query_tree, XFpu_t)                      \
     GO(xcb_query_tree_unchecked, XFpu_t)            \
     GO(xcb_reparent_window, XFpuuWW_t)              \
@@ -205,12 +210,16 @@ SUPER(xcb_get_window_attributes_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret,
 SUPER(xcb_grab_keyboard, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t owner, uint32_t g, uint32_t time, uint8_t pointer, uint32_t keyboard), c, owner, g, time, pointer, keyboard)
 SUPER(xcb_grab_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t owner, uint32_t g, uint16_t event, uint8_t pointer, uint8_t keyboard, uint32_t confine, uint32_t cursor, uint32_t time), c, owner, g, event, pointer, keyboard, confine, cursor, time)
 SUPER(xcb_grab_server, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
+SUPER(xcb_image_text_8, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t len, uint32_t d, uint32_t gc, int16_t x, int16_t y, void* string), c, len, d, gc, x, y, string)
 SUPER(xcb_intern_atom, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
 SUPER(xcb_intern_atom_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
 SUPER(xcb_map_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
+SUPER(xcb_map_subwindows, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_open_font, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t fid, uint16_t len, void* name), c, fid, len, name)
+SUPER(xcb_poly_fill_rectangle, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t d, uint32_t gc, uint32_t len, void* rects), c, d, gc, len, rects)
 SUPER(xcb_put_image, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t format, uint32_t d, uint32_t gc, uint16_t w, uint16_t h, int16_t dx, int16_t dy, uint8_t pad, uint8_t depth, uint32_t len, void* data), c, format, d, gc, w, h, dx, dy, pad, depth, len, data)
 SUPER(xcb_query_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
+SUPER(xcb_query_text_extents, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t f, uint32_t len, void* string), c, f, len, string)
 SUPER(xcb_query_tree, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_query_tree_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_reparent_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint32_t parent, uint16_t x, uint16_t y), c, win, parent, x, y)

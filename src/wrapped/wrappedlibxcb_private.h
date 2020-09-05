@@ -227,7 +227,7 @@ GO(xcb_get_file_descriptor, iFp)
 //GO(xcb_get_font_path_sizeof, 
 //GO(xcb_get_font_path_unchecked, 
 GOS(xcb_get_geometry, pFEppu)
-GO(xcb_get_geometry_reply, pFppp)
+GO(xcb_get_geometry_reply, pFpup)
 GOS(xcb_get_geometry_unchecked, pFEppu)
 GOS(xcb_get_image, pFEppCuwwWWu)
 GO(xcb_get_image_data, pFp)
@@ -316,7 +316,7 @@ GOS(xcb_grab_server, pFEpp)
 //GO(xcb_image_text_16_string, 
 //GO(xcb_image_text_16_string_iterator, 
 //GO(xcb_image_text_16_string_length, 
-//GO(xcb_image_text_8, 
+GOS(xcb_image_text_8, pFEppCuuwwp)
 //GO(xcb_image_text_8_checked, 
 //GO(xcb_image_text_8_sizeof, 
 //GO(xcb_image_text_8_string, 
@@ -382,7 +382,7 @@ GOS(xcb_intern_atom_unchecked, pFEppCWp)
 //GO(xcb_lookup_color_reply, 
 //GO(xcb_lookup_color_sizeof, 
 //GO(xcb_lookup_color_unchecked, 
-//GO(xcb_map_subwindows, 
+GOS(xcb_map_subwindows, pFEppu)
 //GO(xcb_map_subwindows_checked, 
 GOS(xcb_map_window, pFEppu)
 //GO(xcb_map_window_checked, 
@@ -416,7 +416,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_poly_fill_arc_arcs_length, 
 //GO(xcb_poly_fill_arc_checked, 
 //GO(xcb_poly_fill_arc_sizeof, 
-//GO(xcb_poly_fill_rectangle, 
+GOS(xcb_poly_fill_rectangle, pFEppuuup)
 //GO(xcb_poly_fill_rectangle_checked, 
 //GO(xcb_poly_fill_rectangle_rectangles, 
 //GO(xcb_poly_fill_rectangle_rectangles_iterator, 
@@ -497,8 +497,8 @@ GOS(xcb_put_image, pFEppCuuWWwwCCup)
 GOS(xcb_query_pointer, pFEppu)
 GO(xcb_query_pointer_reply, pFpup)
 //GO(xcb_query_pointer_unchecked, 
-//GO(xcb_query_text_extents, 
-//GO(xcb_query_text_extents_reply, 
+GOS(xcb_query_text_extents, pFEppuup)
+GO(xcb_query_text_extents_reply, pFpup)
 //GO(xcb_query_text_extents_sizeof, 
 //GO(xcb_query_text_extents_unchecked, 
 GOS(xcb_query_tree, pFEppu)
