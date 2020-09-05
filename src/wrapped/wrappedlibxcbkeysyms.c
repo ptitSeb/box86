@@ -17,7 +17,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbkeysymsName = "libxcb-keysyms.so.0";
+const char* libxcbkeysymsName = "libxcb-keysyms.so.1";
 #define LIBNAME libxcbkeysyms
 
 typedef struct my_xcb_cookie_s {

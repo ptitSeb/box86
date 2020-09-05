@@ -18,7 +18,7 @@
 #include "emu/x86emu_private.h"
 
 const char* libxcbxtestName = "libxcb-xtest.so.0";
-#define LIBNAME libxcbrandr
+#define LIBNAME libxcbxtest
 
 typedef struct my_xcb_cookie_s {
     uint32_t        data;
