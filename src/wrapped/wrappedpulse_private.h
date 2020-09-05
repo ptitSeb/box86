@@ -37,7 +37,7 @@ GOM(pa_context_exit_daemon, pFEppp)
 //GO(pa_context_get_card_info_by_name, 
 //GO(pa_context_get_card_info_list, 
 //GO(pa_context_get_client_info, 
-//GO(pa_context_get_client_info_list, 
+GOM(pa_context_get_client_info_list, pFEppp)
 GO(pa_context_get_index, uFp)
 //GO(pa_context_get_module_info, 
 GOM(pa_context_get_module_info_list, pFEppp)
@@ -51,7 +51,7 @@ GO(pa_context_get_server_protocol_version, uFp)
 GOM(pa_context_get_sink_info_by_index, pFEpupp)
 GOM(pa_context_get_sink_info_by_name, pFEpppp)
 GOM(pa_context_get_sink_info_list, pFEppp)
-//GO(pa_context_get_sink_input_info, 
+GOM(pa_context_get_sink_input_info, pFEpupp)
 GOM(pa_context_get_sink_input_info_list, pFEppp)
 GOM(pa_context_get_source_info_by_index, pFEpupp)
 GOM(pa_context_get_source_info_by_name, pFEpppp)
@@ -85,15 +85,15 @@ GOM(pa_context_set_default_sink, pFEpppp)
 GOM(pa_context_set_default_source, pFEpppp)
 GOM(pa_context_set_event_callback, vFEppp)
 GOM(pa_context_set_name, pFEpppp)
-//GO(pa_context_set_sink_input_mute, 
-//GO(pa_context_set_sink_input_volume, 
+GOM(pa_context_set_sink_input_mute, pFEpuipp)
+GOM(pa_context_set_sink_input_volume, pFEpuppp)
 //GO(pa_context_set_sink_mute_by_index, 
 //GO(pa_context_set_sink_mute_by_name, 
-//GO(pa_context_set_sink_volume_by_index, 
+GOM(pa_context_set_sink_volume_by_index, pFEpuppp)
 //GO(pa_context_set_sink_volume_by_name, 
-//GO(pa_context_set_source_mute_by_index, 
+GOM(pa_context_set_source_mute_by_index, pFEpuipp)
 //GO(pa_context_set_source_mute_by_name, 
-//GO(pa_context_set_source_volume_by_index, 
+GOM(pa_context_set_source_volume_by_index, pFEpuppp)
 GOM(pa_context_set_source_volume_by_name, pFEppppp)
 GOM(pa_context_set_state_callback, vFEppp)
 GOM(pa_context_set_subscribe_callback, vFEppp)

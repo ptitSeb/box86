@@ -114,6 +114,8 @@ typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef void* (*pFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void* (*pFpuipp_t)(void*, uint32_t, int, void*, void*);
+typedef void* (*pFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 typedef int (*iFppupIi_t)(void*, void*, uint32_t, void*, int64_t, int32_t);
 
@@ -143,13 +145,20 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_context_set_default_source, pFpppp_t) \
     GO(pa_context_move_sink_input_by_index, pFpuupp_t)  \
     GO(pa_context_get_module_info_list, pFppp_t)        \
+    GO(pa_context_get_client_info_list, pFppp_t)        \
     GO(pa_context_get_server_info, pFppp_t)     \
+    GO(pa_context_get_sink_input_info, pFpupp_t)\
     GO(pa_context_get_sink_input_info_list, pFppp_t)    \
     GO(pa_context_get_sink_info_list, pFppp_t)  \
     GO(pa_context_get_sink_info_by_name, pFpppp_t)      \
+    GO(pa_context_set_sink_input_mute, pFpuipp_t)       \
+    GO(pa_context_set_sink_input_volume, pFpuppp_t)     \
     GO(pa_context_get_source_info_list, pFppp_t)\
     GO(pa_context_get_source_info_by_index, pFpupp_t)   \
     GO(pa_context_get_sink_info_by_index, pFpupp_t)     \
+    GO(pa_context_set_sink_volume_by_index, pFpuppp_t)  \
+    GO(pa_context_set_source_volume_by_index, pFpuppp_t)\
+    GO(pa_context_set_source_mute_by_index, pFpuipp_t)  \
     GO(pa_context_unload_module, pFpupp_t)      \
     GO(pa_context_load_module, pFppppp_t)       \
     GO(pa_context_connect, iFppip_t)            \
@@ -856,6 +865,12 @@ static void my_server_info(void* context, void* i, void* data)
     RunFunction(my_context, cb->fnc, 3, context, i, cb->data);
 }
 
+static void my_client_info(void* context, void* i, int eol, void* data)
+{
+    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
+    RunFunction(my_context, cb->fnc, 4, context, i, eol, cb->data);
+}
+
 static void my_context_index(void* context, uint32_t idx, void* data)
 {
     my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
@@ -946,6 +961,31 @@ EXPORT void* my_pa_context_get_server_info(x86emu_t* emu, void* context, void* c
     return my->pa_context_get_server_info(context, cb?my_server_info:NULL, c);
 }
 
+EXPORT void* my_pa_context_get_client_info_list(x86emu_t* emu, void* context, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_client_info_list(context, cb?my_client_info:NULL, c);
+}
+
+EXPORT void* my_pa_context_get_sink_input_info(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    return my->pa_context_get_sink_input_info(context, idx, cb?my_module_info:NULL, c);
+}
 EXPORT void* my_pa_context_get_sink_input_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
@@ -998,6 +1038,31 @@ EXPORT void* my_pa_context_get_source_info_list(x86emu_t* emu, void* context, vo
     return my->pa_context_get_source_info_list(context, cb?my_module_info:NULL, c);
 }
 
+EXPORT void my_pa_context_set_sink_input_mute(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_sink_input_mute(context, idx, mute, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_sink_input_volume(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_sink_input_volume(context, idx, volume, cb?my_success_context:NULL, c);
+}
 
 EXPORT void* my_pa_context_get_sink_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
@@ -1023,6 +1088,45 @@ EXPORT void* my_pa_context_get_source_info_by_index(x86emu_t* emu, void* context
         c->data = data;
     }
     return my->pa_context_get_source_info_by_index(context, idx, cb?my_module_info:NULL, c);
+}
+
+EXPORT void my_pa_context_set_source_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_source_volume_by_index(context, idx, volume, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_source_mute_by_index(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_source_mute_by_index(context, idx, mute, cb?my_success_context:NULL, c);
+}
+
+EXPORT void my_pa_context_set_sink_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+{
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
+    my_pulse_cb_t* c = NULL;
+    my_check_context(my->list, context);
+    if(cb) {
+        c = insertCB(getContext(my->list, context));
+        c->fnc = (uintptr_t)cb;
+        c->data = data;
+    }
+    my->pa_context_set_sink_volume_by_index(context, idx, volume, cb?my_success_context:NULL, c);
 }
 
 EXPORT void* my_pa_context_unload_module(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
