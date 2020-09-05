@@ -28,7 +28,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4
-            R_EAX = 0x80000004;
+            R_EAX = 0x0000000A;//0x80000004;
             // return GenuineIntel
             R_EBX = 0x756E6547;
             R_EDX = 0x49656E69;
@@ -160,5 +160,8 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
         default:
             printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);
             R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 0;
+            R_EDX = 0;
     }   
 }
