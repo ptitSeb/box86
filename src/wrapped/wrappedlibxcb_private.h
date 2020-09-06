@@ -404,7 +404,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_poll_for_reply, 
 //GO(xcb_poll_for_reply64, 
 //GO(xcb_poll_for_special_event, 
-//GO(xcb_poly_arc, 
+GOS(xcb_poly_arc, pFEppuuup)
 //GO(xcb_poly_arc_arcs, 
 //GO(xcb_poly_arc_arcs_iterator, 
 //GO(xcb_poly_arc_arcs_length, 
@@ -422,25 +422,25 @@ GOS(xcb_poly_fill_rectangle, pFEppuuup)
 //GO(xcb_poly_fill_rectangle_rectangles_iterator, 
 //GO(xcb_poly_fill_rectangle_rectangles_length, 
 //GO(xcb_poly_fill_rectangle_sizeof, 
-//GO(xcb_poly_line, 
+GOS(xcb_poly_line, pFEppCuuup)
 //GO(xcb_poly_line_checked, 
 //GO(xcb_poly_line_points, 
 //GO(xcb_poly_line_points_iterator, 
 //GO(xcb_poly_line_points_length, 
 //GO(xcb_poly_line_sizeof, 
-//GO(xcb_poly_point, 
+GOS(xcb_poly_point, pFEppCuuup)
 //GO(xcb_poly_point_checked, 
 //GO(xcb_poly_point_points, 
 //GO(xcb_poly_point_points_iterator, 
 //GO(xcb_poly_point_points_length, 
 //GO(xcb_poly_point_sizeof, 
-//GO(xcb_poly_rectangle, 
+GOS(xcb_poly_rectangle, pFEppuuup)
 //GO(xcb_poly_rectangle_checked, 
 //GO(xcb_poly_rectangle_rectangles, 
 //GO(xcb_poly_rectangle_rectangles_iterator, 
 //GO(xcb_poly_rectangle_rectangles_length, 
 //GO(xcb_poly_rectangle_sizeof, 
-//GO(xcb_poly_segment, 
+GOS(xcb_poly_segment, pFEppuuup)
 //GO(xcb_poly_segment_checked, 
 //GO(xcb_poly_segment_segments, 
 //GO(xcb_poly_segment_segments_iterator, 
