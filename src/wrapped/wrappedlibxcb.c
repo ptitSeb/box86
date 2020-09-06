@@ -77,6 +77,7 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_change_window_attributes_checked, XFpuup_t)\
     GO(xcb_clear_area, XFpCuwwWW_t)                 \
     GO(xcb_close_font, XFpu_t)                      \
+    GO(xcb_close_font_checked, XFpu_t)              \
     GO(xcb_configure_window, XFpuWp_t)              \
     GO(xcb_convert_selection, XFpuuuuu_t)           \
     GO(xcb_copy_area, XFpuuuwwwwWW_t)               \
@@ -109,14 +110,18 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_grab_pointer, XFpCuWCCuuu_t)             \
     GO(xcb_grab_server, XFp_t)                      \
     GO(xcb_image_text_8, XFpCuuwwp_t)               \
+    GO(xcb_image_text_8_checked, XFpCuuwwp_t)       \
     GO(xcb_intern_atom, XFpCWp_t)                   \
     GO(xcb_intern_atom_unchecked, XFpCWp_t)         \
     GO(xcb_map_window, XFpu_t)                      \
+    GO(xcb_map_window_checked, XFpu_t)              \
     GO(xcb_map_subwindows, XFpu_t)                  \
     GO(xcb_open_font, XFpuWp_t)                     \
+    GO(xcb_open_font_checked, XFpuWp_t)             \
     GO(xcb_poly_arc, XFpuuup_t)                     \
     GO(xcb_poly_fill_rectangle, XFpuuup_t)          \
     GO(xcb_poly_line, XFpCuuup_t)                   \
+    GO(xcb_poly_line_checked, XFpCuuup_t)           \
     GO(xcb_poly_point, XFpCuuup_t)                  \
     GO(xcb_poly_rectangle, XFpuuup_t)               \
     GO(xcb_poly_segment, XFpuuup_t)                 \
@@ -185,6 +190,7 @@ SUPER(xcb_change_window_attributes, (x86emu_t* emu, my_xcb_cookie_t* ret, void* 
 SUPER(xcb_change_window_attributes_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint32_t mask, void* list), c, win, mask, list)
 SUPER(xcb_clear_area, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t e, uint32_t win, int16_t x, int16_t y, uint16_t w, uint16_t h), c, e, win, x, y, w, h);
 SUPER(xcb_close_font, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t font), c, font)
+SUPER(xcb_close_font_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t font), c, font)
 SUPER(xcb_configure_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint16_t mask, void* list), c, win, mask, list)
 SUPER(xcb_convert_selection, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t r, uint32_t s, uint32_t t, uint32_t p, uint32_t time), c, r, s, t, p, time)
 SUPER(xcb_copy_area, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t src, uint32_t dst, uint32_t gc, int16_t sx, int16_t sy, int16_t dx, int16_t dy, uint16_t w, uint16_t h), c, src, dst, gc, sx, sy, dx, dy, w, h)
@@ -217,14 +223,18 @@ SUPER(xcb_grab_keyboard, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t 
 SUPER(xcb_grab_pointer, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t owner, uint32_t g, uint16_t event, uint8_t pointer, uint8_t keyboard, uint32_t confine, uint32_t cursor, uint32_t time), c, owner, g, event, pointer, keyboard, confine, cursor, time)
 SUPER(xcb_grab_server, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
 SUPER(xcb_image_text_8, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t len, uint32_t d, uint32_t gc, int16_t x, int16_t y, void* string), c, len, d, gc, x, y, string)
+SUPER(xcb_image_text_8_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t len, uint32_t d, uint32_t gc, int16_t x, int16_t y, void* string), c, len, d, gc, x, y, string)
 SUPER(xcb_intern_atom, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
 SUPER(xcb_intern_atom_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t only, uint16_t len, void* name), c, only, len, name)
 SUPER(xcb_map_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
+SUPER(xcb_map_window_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_map_subwindows, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_open_font, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t fid, uint16_t len, void* name), c, fid, len, name)
+SUPER(xcb_open_font_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t fid, uint16_t len, void* name), c, fid, len, name)
 SUPER(xcb_poly_arc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t d, uint32_t gc, uint32_t len, void* arcs), c, d, gc, len, arcs)
 SUPER(xcb_poly_fill_rectangle, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t d, uint32_t gc, uint32_t len, void* rects), c, d, gc, len, rects)
 SUPER(xcb_poly_line, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t mode, uint32_t d, uint32_t gc, uint32_t len, void* points), c, mode, d, gc, len, points)
+SUPER(xcb_poly_line_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t mode, uint32_t d, uint32_t gc, uint32_t len, void* points), c, mode, d, gc, len, points)
 SUPER(xcb_poly_point, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t mode, uint32_t d, uint32_t gc, uint32_t len, void* points), c, mode, d, gc, len, points)
 SUPER(xcb_poly_rectangle, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t d, uint32_t gc, uint32_t len, void* rects), c, d, gc, len, rects)
 SUPER(xcb_poly_segment, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t d, uint32_t gc, uint32_t len, void* segs), c, d, gc, len, segs)

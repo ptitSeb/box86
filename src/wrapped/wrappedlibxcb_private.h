@@ -104,7 +104,7 @@ GOS(xcb_clear_area, pFEppCuwwWW)
 //GO(xcb_client_message_data_end, 
 //GO(xcb_client_message_data_next, 
 GOS(xcb_close_font, pFEppu)
-//GO(xcb_close_font_checked, 
+GOS(xcb_close_font_checked, pFEppu)
 //GO(xcb_coloritem_end, 
 //GO(xcb_coloritem_next, 
 //GO(xcb_colormap_end, 
@@ -174,7 +174,7 @@ GOS(xcb_destroy_window, pFEppu)
 //GO(xcb_destroy_window_checked, 
 //GO(xcb_discard_reply, 
 //GO(xcb_discard_reply64, 
-//GO(xcb_disconnect, 
+GO(xcb_disconnect, vFp)
 //GO(xcb_drawable_end, 
 //GO(xcb_drawable_next, 
 //GO(xcb_fill_poly, 
@@ -317,7 +317,7 @@ GOS(xcb_grab_server, pFEpp)
 //GO(xcb_image_text_16_string_iterator, 
 //GO(xcb_image_text_16_string_length, 
 GOS(xcb_image_text_8, pFEppCuuwwp)
-//GO(xcb_image_text_8_checked, 
+GOS(xcb_image_text_8_checked, pFEppCuuwwp)
 //GO(xcb_image_text_8_sizeof, 
 //GO(xcb_image_text_8_string, 
 //GO(xcb_image_text_8_string_end, 
@@ -385,11 +385,11 @@ GOS(xcb_intern_atom_unchecked, pFEppCWp)
 GOS(xcb_map_subwindows, pFEppu)
 //GO(xcb_map_subwindows_checked, 
 GOS(xcb_map_window, pFEppu)
-//GO(xcb_map_window_checked, 
+GOS(xcb_map_window_checked, pFEppu)
 //GO(xcb_no_operation, 
 //GO(xcb_no_operation_checked, 
 GOS(xcb_open_font, pFEppuWp)
-//GO(xcb_open_font_checked, 
+GOS(xcb_open_font_checked, pFEppuWp)
 //GO(xcb_open_font_name, 
 //GO(xcb_open_font_name_end, 
 //GO(xcb_open_font_name_length, 
@@ -423,7 +423,7 @@ GOS(xcb_poly_fill_rectangle, pFEppuuup)
 //GO(xcb_poly_fill_rectangle_rectangles_length, 
 //GO(xcb_poly_fill_rectangle_sizeof, 
 GOS(xcb_poly_line, pFEppCuuup)
-//GO(xcb_poly_line_checked, 
+GOS(xcb_poly_line_checked, pFEppCuuup)
 //GO(xcb_poly_line_points, 
 //GO(xcb_poly_line_points_iterator, 
 //GO(xcb_poly_line_points_length, 
