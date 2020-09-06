@@ -78,7 +78,7 @@ GO(FcDefaultSubstitute, vFp)
 //GO(FcFini, 
 GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
-//GO(FcFontRenderPrepare, 
+GO(FcFontRenderPrepare, pFppp)
 GO(FcFontSetAdd, iFpp)
 //GO(FcFontSetCreate, 
 GO(FcFontSetDestroy, vFp)
@@ -117,7 +117,7 @@ GO(FcLangSetHasLang, iFpp)
 //GO(FcMatrixRotate, 
 //GO(FcMatrixScale, 
 //GO(FcMatrixShear, 
-//GO(FcNameConstant, 
+GO(FcNameConstant, iFpp)
 //GO(FcNameGetConstant, 
 //GO(FcNameGetObjectType, 
 //GO(FcNameParse, 
@@ -140,13 +140,13 @@ GO(FcPatternAddInteger, iFppi)
 GO(FcPatternAddLangSet, iFppp)
 GO(FcPatternAddMatrix, iFppp)
 GO(FcPatternAddString, iFppp)
-GO(FcPatternAddWeak, iFppiuui)
+GOM(FcPatternAddWeak, iFEppiuui)
 GO2(FcPatternBuild, pFpV, FcPatternVaBuild)
 GO(FcPatternCreate, pFv)
 GO(FcPatternDel, iFpp)
 GO(FcPatternDestroy, vFp)
-//GO(FcPatternDuplicate, 
-//GO(FcPatternEqual, 
+GO(FcPatternDuplicate, pFp)
+GO(FcPatternEqual, iFpp)
 //GO(FcPatternEqualSubset, 
 //GO(FcPatternFilter, 
 //GO(FcPatternFormat, 

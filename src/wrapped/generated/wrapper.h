@@ -23,7 +23,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // O = libc O_ flags bitfield
 // S = _IO_2_1_stdXXX_ pointer (or FILE*)
 // Q = ...
-// S8 = struct, 8 bytes
+// 2 = struct of 2 uint
 
 void iF(x86emu_t *emu, uintptr_t fnc);
 void vFE(x86emu_t *emu, uintptr_t fnc);
@@ -183,6 +183,7 @@ void uFpi(x86emu_t *emu, uintptr_t fnc);
 void uFpu(x86emu_t *emu, uintptr_t fnc);
 void uFpL(x86emu_t *emu, uintptr_t fnc);
 void uFpp(x86emu_t *emu, uintptr_t fnc);
+void uFp2(x86emu_t *emu, uintptr_t fnc);
 void UFEp(x86emu_t *emu, uintptr_t fnc);
 void UFii(x86emu_t *emu, uintptr_t fnc);
 void UFUU(x86emu_t *emu, uintptr_t fnc);
@@ -880,6 +881,7 @@ void iFpCCCC(x86emu_t *emu, uintptr_t fnc);
 void iFpuuip(x86emu_t *emu, uintptr_t fnc);
 void iFpuuui(x86emu_t *emu, uintptr_t fnc);
 void iFpuuup(x86emu_t *emu, uintptr_t fnc);
+void iFpuuLL(x86emu_t *emu, uintptr_t fnc);
 void iFpuupp(x86emu_t *emu, uintptr_t fnc);
 void iFpuppp(x86emu_t *emu, uintptr_t fnc);
 void iFplluu(x86emu_t *emu, uintptr_t fnc);
@@ -1092,7 +1094,6 @@ void iFppiiip(x86emu_t *emu, uintptr_t fnc);
 void iFppiiuu(x86emu_t *emu, uintptr_t fnc);
 void iFppiipi(x86emu_t *emu, uintptr_t fnc);
 void iFppiipp(x86emu_t *emu, uintptr_t fnc);
-void iFppiuui(x86emu_t *emu, uintptr_t fnc);
 void iFppipii(x86emu_t *emu, uintptr_t fnc);
 void iFppipiL(x86emu_t *emu, uintptr_t fnc);
 void iFppipip(x86emu_t *emu, uintptr_t fnc);

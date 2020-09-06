@@ -3,7 +3,7 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2']
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -230,6 +230,11 @@ typedef union ui64_s {
     uint32_t    d[2];
 } ui64_t;
 
+typedef struct _2uint_struct_s {
+	uint32_t	a;
+	uint32_t	b;
+} _2uint_struct_t;
+
 extern void* my__IO_2_1_stderr_;
 extern void* my__IO_2_1_stdin_ ;
 extern void* my__IO_2_1_stdout_;
@@ -279,7 +284,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // O = libc O_ flags bitfield
 // S = _IO_2_1_stdXXX_ pointer (or FILE*)
 // Q = ...
-// S8 = struct, 8 bytes
+// 2 = struct of 2 uint
 
 """
 	}
@@ -315,8 +320,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S               2
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -325,8 +330,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S
-				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*"]
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S              2
+				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t"]
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -371,9 +376,10 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"(void*)(R_ESP + {p}), ",                 # V
 				"of_convert(*(int32_t*)(R_ESP + {p})), ", # O
 				"io_convert(*(void**)(R_ESP + {p})), ",   # S
+				"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	#2
 			]
-			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S
-			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4]
+			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2
+			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8]
 			if len(values) != len(arg):
 				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
 			if len(values) != len(deltas):
@@ -404,6 +410,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				"\n#error Invalid return type: va_list\n",                      # V
 				"\n#error Invalid return type: at_flags\n",                     # O
 				"\n#error Invalid return type: _io_file*\n",                    # S
+				"\n#error Invalid return type: _2uint_srtuct\n",                # 2
 			]
 			if len(values) != len(vals):
 				raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))

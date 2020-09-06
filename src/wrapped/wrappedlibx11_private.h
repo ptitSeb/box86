@@ -414,7 +414,7 @@ GO(dummy_XGetPixel, uFpii)     // for the wrapper
 GO(XGetPointerControl, iFpppp)
 GO(XGetPointerMapping, iFppi)
 GO(_XGetRequest, pFpuu)
-//GO(XGetRGBColormaps
+GO(XGetRGBColormaps, iFppppp)
 // _XGetScanlinePad
 GO(XGetScreenSaver, iFppppp)
 GO(XGetSelectionOwner, pFpp)
@@ -633,7 +633,7 @@ GO(XkbLibraryVersion, iFpp)
 //GO(XkbLockGroup
 //GO(XkbLockModifiers
 //GO(XkbLookupKeyBinding
-//GO(XkbLookupKeySym
+GO(XkbLookupKeySym, iFpuupp)
 //GO(XkbNoteControlsChanges
 // _XkbNoteCoreMapChanges
 //GO(XkbNoteDeviceChanges
@@ -655,7 +655,7 @@ GO(XkbQueryExtension, iFpppppp)
 //GO(XkbResizeKeyActions
 //GO(XkbResizeKeySyms
 //GO(XkbResizeKeyType
-//GO(XkbSelectEventDetails
+GO(XkbSelectEventDetails, iFpuuLL)
 //GO(XkbSelectEvents
 //GO(XkbSetAtomFuncs
 //GO(XkbSetAutoRepeatRate
@@ -674,7 +674,7 @@ GO(XkbSetDetectableAutoRepeat, iFpip)
 //GO(XkbSetNamedDeviceIndicator
 //GO(XkbSetNamedIndicator
 //GO(XkbSetNames
-//GO(XkbSetPerClientControls
+GO(XkbSetPerClientControls, iFpup)
 //GO(XkbSetServerInternalMods
 //GO(XkbSetXlibControls
 // _XkbSkipReadBufferData
@@ -808,7 +808,7 @@ GO(XMoveResizeWindow, iFppiiuu)
 GO(XMoveWindow, iFppii)
 //GO(XNewModifiermap
 GO(XNextEvent, iFpp)
-//GO(XNextRequest
+GO(XNextRequest, LFp)
 GO(XNoOp, iFp)
 // _XNoticeCreateBitmap
 // _XNoticePutBitmap

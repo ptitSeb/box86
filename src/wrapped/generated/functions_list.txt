@@ -156,6 +156,7 @@
 #() uFpu
 #() uFpL
 #() uFpp
+#() uFp2
 #() UFEp
 #() UFii
 #() UFUU
@@ -853,6 +854,7 @@
 #() iFpuuip
 #() iFpuuui
 #() iFpuuup
+#() iFpuuLL
 #() iFpuupp
 #() iFpuppp
 #() iFplluu
@@ -1065,7 +1067,6 @@
 #() iFppiiuu
 #() iFppiipi
 #() iFppiipp
-#() iFppiuui
 #() iFppipii
 #() iFppipiL
 #() iFppipip

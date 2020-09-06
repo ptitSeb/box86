@@ -39,7 +39,8 @@ typedef struct FcValue_s {
 typedef int (*iFppSi_t)(void*, void*, FcValue_t, int);
 
 #define SUPER() \
-    GO(FcPatternAdd, iFppSi_t)
+    GO(FcPatternAdd, iFppSi_t)              \
+    GO(FcPatternAddWeak, iFppSi_t)          \
 
 typedef struct fontconfig_my_s {
     // functions
@@ -73,6 +74,18 @@ EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint3
     val.u.fake[1] = t2;
 
     return my->FcPatternAdd(p, object, val, append);    // may need alignement, because of the double!
+}
+
+EXPORT int my_FcPatternAddWeak(x86emu_t* emu, void* p, void* object, int type, uint32_t t1, uint32_t t2, int append)
+{
+    library_t* lib = GetLibInternal(fontconfigName);
+    fontconfig_my_t* my = (fontconfig_my_t*)lib->priv.w.p2;
+    FcValue_t val;
+    val.type = type;
+    val.u.fake[0] = t1;
+    val.u.fake[1] = t2;
+
+    return my->FcPatternAddWeak(p, object, val, append);    // may need alignement, because of the double!
 }
 
 #define CUSTOM_INIT \

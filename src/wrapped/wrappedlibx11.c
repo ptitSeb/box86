@@ -346,6 +346,39 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
 }
 
+// register_im
+#define GO(A)   \
+static uintptr_t my_register_im_fct_##A = 0;                        \
+static void my_register_im_##A(void* dpy, void* u, void* d)         \
+{                                                                   \
+    RunFunction(my_context, my_register_im_fct_##A, 3, dpy, u, d);  \
+}
+SUPER()
+#undef GO
+static void* findregister_imFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_register_im_fct_##A == (uintptr_t)fct) return my_register_im_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_register_im_fct_##A == 0) {my_register_im_fct_##A = (uintptr_t)fct; return my_register_im_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 register_im callback\n");
+    return NULL;
+}
+static void* reverse_register_imFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_register_im_##A == fct) return (void*)my_register_im_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+}
+
 #undef SUPER
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -774,19 +807,12 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
     return ret;
 }
 
-static void my_xidproc(void* d, void* p, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, d, p);
-    RunCallback(emu);
-}
-
 EXPORT int my_XRegisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
-    x86emu_t *cbemu = cb?AddCallback(emu, (uintptr_t)cb, 3, NULL, NULL, data, NULL):NULL;
-    return my->XRegisterIMInstantiateCallback(d, db, res_name, res_class, cb?my_xidproc:NULL, cb?cbemu:data);
+    return my->XRegisterIMInstantiateCallback(d, db, res_name, res_class, findregister_imFct(cb), data);
 }
     
 EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
@@ -794,9 +820,7 @@ EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db,
     library_t* lib = emu->context->x11lib;
     x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
 
-    x86emu_t* cbemu = FindCallbackFnc1Arg(emu, (uintptr_t)cb, 2, data);
-
-    return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, cbemu?my_xidproc:cb, cbemu?cbemu:data);
+    return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(lib, cb), data);
 }
 
 EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)

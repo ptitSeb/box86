@@ -93,16 +93,16 @@ GO(XShmQueryVersion, iFpppp)
 //GO(XSyncChangeAlarm, 
 //GO(XSyncChangeCounter, 
 //GO(XSyncCreateAlarm, 
-//GO(XSyncCreateCounter, 
+GO(XSyncCreateCounter, uFp2)
 //GO(XSyncCreateFence, 
 //GO(XSyncDestroyAlarm, 
-//GO(XSyncDestroyCounter, 
+GO(XSyncDestroyCounter, iFpu)
 //GO(XSyncDestroyFence, 
 //GO(XSyncFreeSystemCounterList, 
 //GO(XSyncGetPriority, 
-//GO(XSyncInitialize, 
+GO(XSyncInitialize, iFppp)
 //GO(XSyncIntsToValue, 
-//GO(XSyncIntToValue, 
+GO(XSyncIntToValue, vFpi)
 //GO(XSyncListSystemCounters, 
 //GO(XSyncMaxValue, 
 //GO(XSyncMinValue, 
