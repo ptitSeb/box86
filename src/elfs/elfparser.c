@@ -61,8 +61,9 @@ void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const ch
 elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 {
     Elf32_Ehdr header;
+    int level = (exec)?LOG_INFO:LOG_DEBUG;
     if(fread(&header, sizeof(Elf32_Ehdr), 1, f)!=1) {
-        printf_log(LOG_INFO, "Cannot read ELF Header\n");
+        printf_log(level, "Cannot read ELF Header\n");
         return NULL;
     }
     if(memcmp(header.e_ident, ELFMAG, SELFMAG)!=0) {
@@ -96,7 +97,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     }
 
     if(header.e_machine != EM_386) {
-        printf_log(LOG_INFO, "Not an i386 ELF (%d)\n", header.e_machine);
+        printf_log(level, "Not an i386 ELF (%d)\n", header.e_machine);
         return NULL;
     }
 

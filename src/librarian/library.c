@@ -172,7 +172,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         }
         elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
         if(!elf_header) {
-            printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+            printf_log(LOG_DEBUG, "Error: reading elf header of %s\n", libname);    // this one can be too alarming...
             fclose(f);
             return 0;
         }
