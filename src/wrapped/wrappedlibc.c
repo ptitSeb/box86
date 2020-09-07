@@ -2188,6 +2188,11 @@ EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases
 
+EXPORT char* my___progname = NULL;
+EXPORT char* my___progname_full = NULL;
+EXPORT char* my_program_invocation_name = NULL;
+EXPORT char* my_program_invocation_short_name = NULL;
+
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \
     InitCpuModel();         \
@@ -2195,6 +2200,9 @@ EXPORT char** my___environ = NULL;  // all aliases
     stSetup(box86);         \
     obstackSetup();         \
     my_environ = my__environ = my___environ = box86->envv;                      \
+    my___progname_full = my_program_invocation_name = box86->argv[0];           \
+    my___progname = my_program_invocation_short_name =                          \
+        strrchr(box86->argv[0], '/');                                           \
     lib->priv.w.p2 = getLIBCMy(lib);                                            \
     lib->priv.w.needed = 3;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \

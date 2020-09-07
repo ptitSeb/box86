@@ -1280,10 +1280,10 @@ GO(__printf_fp, iFppp)  // does this needs aligment?
 // printf_size_info
 // profil   // Weak
 // __profile_frequency
-DATA(__progname, 4)
-DATA(__progname_full, 4)
-DATAV(program_invocation_name, 4)
-DATAV(program_invocation_short_name, 4)
+DATAM(__progname, 4)
+DATAM(__progname_full, 4)
+DATAM(program_invocation_name, 4)
+DATAM(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
 GO(ptrace, iFiupp)  // will that work???
