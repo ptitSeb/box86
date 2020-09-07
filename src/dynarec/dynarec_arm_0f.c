@@ -2033,7 +2033,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 v2 = fpu_get_scratch_double(dyn);
                 VMOV_8(v2, 0x80);   // load mask
                 VANDD(v2, v2, d0);  // keep highest bit
-                VSHL_S8(v2, v2, d1);// shift
+                VSHL_U8(v2, v2, d1);// shift
                 VPADD_8(v2, v2, v2);// accumulate the bits
                 VPADD_8(v2, v2, v2);// ...
                 VPADD_8(v2, v2, v2);// ...

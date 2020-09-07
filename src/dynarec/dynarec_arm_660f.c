@@ -1368,7 +1368,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = fpu_get_scratch_double(dyn);
                 VMOV_8(v1, 0x80);   // load mask
                 VANDD(v1, v1, q0+0);  // keep highest bit
-                VSHL_S8(v1, v1, v0);// shift
+                VSHL_U8(v1, v1, v0);// shift
                 VPADD_8(v1, v1, v1);// accumulate the bits
                 VPADD_8(v1, v1, v1);// ...
                 VPADD_8(v1, v1, v1);// ...
@@ -1376,7 +1376,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 // and now the high part
                 VMOV_8(v1, 0x80);   // load mask
                 VANDD(v1, v1, q0+1);  // keep highest bit
-                VSHL_S8(v1, v1, v0);// shift
+                VSHL_U8(v1, v1, v0);// shift
                 VPADD_8(v1, v1, v1);// accumulate the bits
                 VPADD_8(v1, v1, v1);// ...
                 VPADD_8(v1, v1, v1);// ...
