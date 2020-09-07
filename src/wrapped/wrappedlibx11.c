@@ -190,6 +190,16 @@ static void* findwire_to_eventFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 wire_to_event callback\n");
     return NULL;
 }
+static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_wire_to_event_##A == fct) return (void*)my_wire_to_event_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
+}
 
 // event_to_wire
 #define GO(A)   \
@@ -212,6 +222,16 @@ static void* findevent_to_wireFct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libX11 event_to_wire callback\n");
     return NULL;
+}
+static void* reverse_event_to_wireFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(lib->priv.w.bridge, fct);
+    #define GO(A) if(my_event_to_wire_##A == fct) return (void*)my_event_to_wire_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // error_handler
@@ -376,7 +396,7 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
     #define GO(A) if(my_register_im_##A == fct) return (void*)my_register_im_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, iFpp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 #undef SUPER
@@ -770,10 +790,7 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 
     ret = my->XESetWireToEvent(display, event_number, findwire_to_eventFct(proc));
 
-    uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
-    if(!b)
-        b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
-    return (void*)b;
+    return reverse_wire_to_eventFct(lib, ret);
 }
 EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {

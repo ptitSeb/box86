@@ -1099,7 +1099,7 @@ GO(XwcTextPropertyToTextList, iFpppp)
 //GO(XWidthMMOfScreen
 GO(XWidthOfScreen, iFp)
 GO(XWindowEvent, iFppup)
-// _XWireToEvent
+GO(_XWireToEvent, iFppp)
 GO(XWithdrawWindow, iFppi)
 //GO(XWMGeometry
 //GO(XWriteBitmapFile
