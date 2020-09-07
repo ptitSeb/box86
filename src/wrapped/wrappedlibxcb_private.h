@@ -237,7 +237,7 @@ GO(xcb_get_image_reply, pFpup)
 //GO(xcb_get_image_sizeof, 
 GOS(xcb_get_image_unchecked, pFEppCuwwWWu)
 GOS(xcb_get_input_focus, pFEpp)
-GO(xcb_get_input_focus_reply, pFppp)
+GO(xcb_get_input_focus_reply, pFpup)
 //GO(xcb_get_input_focus_unchecked, 
 //GO(xcb_get_keyboard_control, 
 //GO(xcb_get_keyboard_control_reply, 
