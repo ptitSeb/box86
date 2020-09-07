@@ -1192,6 +1192,7 @@ _trace:
                     case 0x1B:
                     case 0x1C:
                     case 0x1D:
+                    case 0x25:
                     case 0x40:
                     case 0x41:
                     case 0x42:
@@ -1225,14 +1226,12 @@ _trace:
                     case 0x7E:
                     case 0x7F:              /* BND / NOP */
                     case 0x9C:
+                    case 0xC3:              /* yup, repz ret is valid */
                     case 0xE8:
                     case 0xE9:
                         --ip;
                         NEXT;
                     case 0x90:              /* PAUSE */
-                        NEXT;
-                    case 0xC3:              /* REPZ RET... yup */
-                        ip = Pop(emu);
                         NEXT;
                     case 0xA4:              /* REP MOVSB */
                         while(tmp32u) {
