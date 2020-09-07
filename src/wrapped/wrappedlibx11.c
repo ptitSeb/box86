@@ -800,10 +800,7 @@ EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_num
 
     ret = my->XESetEventToWire(display, event_number, findevent_to_wireFct(proc));
 
-    uintptr_t b = CheckBridged(lib->priv.w.bridge, ret);
-    if(!b)
-        b = AddBridge(lib->priv.w.bridge, iFppp, ret, 0);
-    return (void*)b;
+    return reverse_event_to_wireFct(lib, ret);
 }
 
 EXPORT int my_XCloseDisplay(x86emu_t* emu, void* display)
