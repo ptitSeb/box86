@@ -238,9 +238,9 @@ GO(endspent, vFv)
 // endusershell
 GOW(endutent, vFv)
 // endutxent
-DATAV(environ, 4)
-DATAV(_environ, 4)
-DATA(__environ, 4)    // type B
+DATAM(environ, 4)
+DATAM(_environ, 4)
+DATAM(__environ, 4)    // type B
 // envz_add
 // envz_entry
 // envz_get

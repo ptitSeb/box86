@@ -373,7 +373,7 @@ int CountEnv(const char** env)
     int c = 0;
     while(*p) {
         if(strncmp(*p, "BOX86_", 6)!=0)
-            if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
+            //if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
                 ++c;
         ++p;
     }
@@ -383,7 +383,6 @@ EXPORTDYN
 int GatherEnv(char*** dest, const char** env, const char* prog)
 {
     // Add all but BOX86_* environnement
-    // and PATH and LD_LIBRARY_PATH
     // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
     const char** p = env;    
     int idx = 0;
@@ -397,15 +396,15 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
             (*dest)[idx++] = strdup(*p+6);
             ld_path = 1;
         } else if(strncmp(*p, "_=", 2)==0) {
-            int l = strlen(prog);
+            /*int l = strlen(prog);
             char tmp[l+3];
             strcpy(tmp, "_=");
             strcat(tmp, prog);
-            (*dest)[idx++] = strdup(tmp);
+            (*dest)[idx++] = strdup(tmp);*/
         } else if(strncmp(*p, "BOX86_", 6)!=0) {
-            if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
-                (*dest)[idx++] = strdup(*p);
-            }
+            (*dest)[idx++] = strdup(*p);
+            /*if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
+            }*/
         }
         ++p;
     }
@@ -414,6 +413,21 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
     }
     if(!ld_path) {
         (*dest)[idx++] = strdup("BOX86_LD_LIBRARY_PATH=.:lib");
+    }
+    // add "_=prog" at the end...
+    {
+        char* fullprog = NULL;
+        if(prog[0]=='/')
+            fullprog = strdup(prog);
+        else
+            fullprog = ResolveFile(prog, &my_context->box86_path);
+
+        int l = strlen(fullprog);
+        char tmp[l+3];
+        strcpy(tmp, "_=");
+        strcat(tmp, fullprog);
+        (*dest)[idx++] = strdup(tmp);
+        free(fullprog);
     }
     return 0;
 }
@@ -734,14 +748,14 @@ int main(int argc, const char **argv, const char **env) {
     // prepare all other env. var
     my_context->envc = CountEnv(env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
-    my_context->envv = (char**)calloc(my_context->envc, sizeof(char*));
+    my_context->envv = (char**)calloc(my_context->envc+1, sizeof(char*));   //+1 for last null
     GatherEnv(&my_context->envv, env, prog);
     if(box86_log>=LOG_DUMP) {
         for (int i=0; i<my_context->envc; ++i)
             printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
-    if(strchr(argv[0], '/'))
+    if(argv[0][0]=='/')
         my_context->box86path = strdup(argv[0]);
     else
         my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);

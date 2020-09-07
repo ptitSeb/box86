@@ -2184,17 +2184,22 @@ EXPORT void my_mcount(void* frompc, void* selfpc)
     return;
 }
 
+EXPORT char** my_environ = NULL;
+EXPORT char** my__environ = NULL;
+EXPORT char** my___environ = NULL;  // all aliases
+
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \
     InitCpuModel();         \
     ctSetup();              \
     stSetup(box86);         \
     obstackSetup();         \
-    lib->priv.w.p2 = getLIBCMy(lib); \
-    lib->priv.w.needed = 3; \
+    my_environ = my__environ = my___environ = box86->envv;                      \
+    lib->priv.w.p2 = getLIBCMy(lib);                                            \
+    lib->priv.w.needed = 3;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2"); \
-    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0"); \
+    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2");                        \
+    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0");                      \
     lib->priv.w.neededlibs[2] = strdup("librt.so.1");
 
 #define CUSTOM_FINI \
