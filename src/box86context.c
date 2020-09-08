@@ -346,6 +346,24 @@ void FreeBox86Context(box86context_t** context)
     if(ctx->local_maplib)
         FreeLibrarian(&ctx->local_maplib);
 
+    FreeCollection(&ctx->box86_path);
+    FreeCollection(&ctx->box86_ld_lib);
+    FreeCollection(&ctx->box86_emulated_libs);
+    // stop trace now
+    if(ctx->dec)
+        DeleteX86TraceDecoder(&ctx->dec);
+    if(ctx->zydis)
+        DeleteX86Trace(ctx);
+
+    if(ctx->deferedInitList)
+        free(ctx->deferedInitList);
+
+    free(ctx->argv);
+    
+    for (int i=0; i<ctx->envc; ++i)
+        free(ctx->envv[i]);
+    free(ctx->envv);
+
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
     if(ctx->dynablocks)
@@ -364,30 +382,12 @@ void FreeBox86Context(box86context_t** context)
 
     CleanStackSize(ctx);
 
-    FreeCollection(&ctx->box86_path);
-    FreeCollection(&ctx->box86_ld_lib);
-    FreeCollection(&ctx->box86_emulated_libs);
-    // stop trace now
-    if(ctx->dec)
-        DeleteX86TraceDecoder(&ctx->dec);
-    if(ctx->zydis)
-        DeleteX86Trace(ctx);
-
-    if(ctx->deferedInitList)
-        free(ctx->deferedInitList);
-
 #ifndef BUILD_LIB
     if(ctx->box86lib)
         dlclose(ctx->box86lib);
 #endif
 
     FreeDLPrivate(&ctx->dlprivate);
-
-    free(ctx->argv);
-    
-    for (int i=0; i<ctx->envc; ++i)
-        free(ctx->envv[i]);
-    free(ctx->envv);
 
     free(ctx->stack);
 
