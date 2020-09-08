@@ -830,9 +830,10 @@
                     tmp8u&=31;
                     if(ED->dword[0] & (1<<tmp8u)) {
                         SET_FLAG(F_CF);
-                    } else
+                    } else {
                         ED->dword[0] ^= (1<<tmp8u);
                         CLEAR_FLAG(F_CF);
+                    }
                     break;
                 case 6:             /* BTR Ed, Ib */
                     CHECK_FLAGS(emu);
