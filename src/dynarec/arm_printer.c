@@ -828,7 +828,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -851,7 +851,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -874,7 +874,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -897,7 +897,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -919,7 +919,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -941,7 +941,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -963,7 +963,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -987,7 +987,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;

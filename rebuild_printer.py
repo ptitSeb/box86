@@ -1105,7 +1105,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						
 						l = len(imms) == 2
 						if l:
-							append("uint8_t l = (opcode >> " + str(imms[1][1]) + ") & 0x1;\n")
+							append("uint8_t l = (opcode >> " + str(imms[1][0]) + ") & 0x1;\n")
 						
 						immssz = 6
 						append("uint8_t imm6 = (opcode >> " + str(imms[0][0]) + ") & 0x3F;\n")
