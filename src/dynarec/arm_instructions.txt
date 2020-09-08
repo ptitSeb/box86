@@ -90,9 +90,9 @@ NEON 1 1 1 1 0 0 1 1 0 D @<2> Vn Vd 0 0 0 1 N Q M 1 Vm @ param=0b00=0b01=0b10 co
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 0 N Q M 1 Vm VQSUB<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 1 N Q M op Vm @ op=0 const char* strict strict,"T","E"@ @ VCG\strict\<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 0 Vm VSHL<c>.<dt> <Qd>, <Qm>, <Qn>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 1 Vm VQSHL<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 0 Vm VRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 1 Vm VQRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 1 Vm VQSHL<c>.<dt> <Qd>, <Qm>, <Qn>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 0 Vm VRSHL<c>.<dt> <Qd>, <Qm>, <Qn>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 1 Vm VQRSHL<c>.<dt> <Qd>, <Qm>, <Qn>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 0 N Q M op Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ V\opname\<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 0 Vm VABD<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 1 Vm VABA<c>.<dt> <Qd>, <Qn>, <Qm>

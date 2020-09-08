@@ -405,7 +405,7 @@ const char* arm_print(uint32_t opcode) {
 		int n = ((opcode >> 7) & 1) << 4 | ((opcode >> 16) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VQSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + n], vecname[(q << 5) + 0x20 + m]);
+		sprintf(ret, "VQSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m], vecname[(q << 5) + 0x20 + n]);
 	} else if ((opcode & 0xFE800F10) == 0xF2000500) {
 		int u = (opcode >> 24) & 1;
 		int size = (opcode >> 20) & 0x3;
@@ -414,7 +414,7 @@ const char* arm_print(uint32_t opcode) {
 		int n = ((opcode >> 7) & 1) << 4 | ((opcode >> 16) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VRSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + n], vecname[(q << 5) + 0x20 + m]);
+		sprintf(ret, "VRSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m], vecname[(q << 5) + 0x20 + n]);
 	} else if ((opcode & 0xFE800F10) == 0xF2000510) {
 		int u = (opcode >> 24) & 1;
 		int size = (opcode >> 20) & 0x3;
@@ -423,7 +423,7 @@ const char* arm_print(uint32_t opcode) {
 		int n = ((opcode >> 7) & 1) << 4 | ((opcode >> 16) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VQRSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + n], vecname[(q << 5) + 0x20 + m]);
+		sprintf(ret, "VQRSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m], vecname[(q << 5) + 0x20 + n]);
 	} else if ((opcode & 0xFE800F00) == 0xF2000600) {
 		int op = (opcode >> 4) & 1;
 		int u = (opcode >> 24) & 1;
