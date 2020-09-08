@@ -396,7 +396,7 @@ const char* arm_print(uint32_t opcode) {
 		int n = ((opcode >> 7) & 1) << 4 | ((opcode >> 16) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + n], vecname[(q << 5) + 0x20 + m]);
+		sprintf(ret, "VSHL.%s %s, %s, %s", dts[(u << 2) + size], vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m], vecname[(q << 5) + 0x20 + n]);
 	} else if ((opcode & 0xFE800F10) == 0xF2000410) {
 		int u = (opcode >> 24) & 1;
 		int size = (opcode >> 20) & 0x3;
@@ -828,7 +828,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -851,7 +851,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -874,7 +874,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -897,7 +897,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -919,7 +919,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -941,7 +941,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -963,7 +963,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -987,7 +987,7 @@ const char* arm_print(uint32_t opcode) {
 		int q = (opcode >> 6) & 1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
-		uint8_t l = (opcode >> 1) & 0x1;
+		uint8_t l = (opcode >> 7) & 0x1;
 		uint8_t imm6 = (opcode >> 16) & 0x3F;
 		uint8_t decodedImm = 0;
 		uint8_t size = 0;
@@ -4826,7 +4826,7 @@ const char* arm_print(uint32_t opcode) {
 		int param1_2 = (opcode >> 21) & 0x3;
 		int param2_2 = (opcode >> 5) & 0x3;
 		
-		uint8_t opc = (u << 3) + (param1_2 << 2) + param2_2;
+		uint8_t opc = (u << 4) + (param1_2 << 2) + param2_2;
 		uint8_t shift, size;
 		if ((opc & 0b01000) == 0b01000) {
 			shift = 0;
