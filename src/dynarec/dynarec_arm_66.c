@@ -169,10 +169,9 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SBB AX, Iw");
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET);
-            i32 = F16;
-            MOV32(x2, i32);
+            i16 = F16;
             UXTH(x1, xEAX, 0);
-            emit_sbb16c(dyn, ninst, x1, i32, x3, x12);
+            emit_sbb16c(dyn, ninst, x1, i16, x3, x12);
             BFI(xEAX, x1, 0, 16);
             break;
 
