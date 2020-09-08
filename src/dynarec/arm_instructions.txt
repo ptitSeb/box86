@@ -89,10 +89,10 @@ NEON 1 1 1 1 0 0 1 0 0 D 1 1 Vn Vd 0 0 0 1 N Q M 1 Vm VORN<c> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 1 0 D @<2> Vn Vd 0 0 0 1 N Q M 1 Vm @ param=0b00=0b01=0b10 const char* op op,"EOR","BSL","BIT","BIF"@ @ V\op\<c> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 0 N Q M 1 Vm VQSUB<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 0 1 1 N Q M op Vm @ op=0 const char* strict strict,"T","E"@ @ VCG\strict\<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 0 Vm VSHL<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 1 Vm VQSHL<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 0 Vm VRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
-NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 1 Vm VQRSHL<c>.<dt> <Qd>, <Qn>, <Qm>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 0 Vm VSHL<c>.<dt> <Qd>, <Qm>, <Qn>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 0 N Q M 1 Vm VQSHL<c>.<dt> <Qd>, <Qm>, <Qn>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 0 Vm VRSHL<c>.<dt> <Qd>, <Qm>, <Qn>
+NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 0 1 N Q M 1 Vm VQRSHL<c>.<dt> <Qd>, <Qm>, <Qn>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 0 N Q M op Vm @ op=0 const char* opname opname,"MAX","MIN"@ @ V\opname\<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 0 Vm VABD<c>.<dt> <Qd>, <Qn>, <Qm>
 NEON 1 1 1 1 0 0 1 U 0 D size Vn Vd 0 1 1 1 N Q M 1 Vm VABA<c>.<dt> <Qd>, <Qn>, <Qm>
@@ -557,7 +557,7 @@ VFPU cond 1 1 1 0 1 0 Q 0 Vd Rt 1 0 1 1 D 0 1 1 (0) (0) (0) (0) VDUP<c>.16 <Qd>,
 VFPU cond 1 1 1 0 1 1 Q 0 Vd Rt 1 0 1 1 D 0 0 1 (0) (0) (0) (0) VDUP<c>.8 <Qd>, <Rt>
 VFPU cond 1 1 1 0 0 0 0 1 Vn Rt 1 0 1 0 N (0) (0) 1 (0) (0) (0) (0) VMOV<c> <Rt>, <Sn>
 VFPU cond 1 1 1 0 1 1 1 1 0 0 0 1 Rt 1 0 1 0 (0) (0) (0) 1 (0) (0) (0) (0) VMRS<c> <Rt>, FPSCR
-VFPU cond 1 1 1 0 U @<2> 1 Vn Rt 1 0 1 1 N @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (u << 3) + (param1_2 << 2) + param2_2@ = uint8_t shift, size @@ (opc & 0b01000) == 0b01000@ @@ (opc & 0b01001) == 0b00001@ @@ (opc & 0b11011) == 0b00000@ shift,0,1,2,0xFF;size,0,1,2,4@ set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.<dt> <Rt>, <Dn[x]>
+VFPU cond 1 1 1 0 U @<2> 1 Vn Rt 1 0 1 1 N @<2> 1 (0) (0) (0) (0) @ set uint8_t opc = (u << 4) + (param1_2 << 2) + param2_2@ = uint8_t shift, size @@ (opc & 0b01000) == 0b01000@ @@ (opc & 0b01001) == 0b00001@ @@ (opc & 0b11011) == 0b00000@ shift,0,1,2,0xFF;size,0,1,2,4@ set uint8_t decodedImm = (opc & 0x7) >> shift@ @ VMOV<c>.<dt> <Rt>, <Dn[x]>
 INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 1 <4>
 
 VFPU cond 1 1 1 0 0 D 0 0 Vn Vd 1 0 1 sz N op M 0 Vm VML\(op ? "S" : "A")\<c>.F\(size ? "64" : "32")\ <Dd>, <Dn>, <Dm>
