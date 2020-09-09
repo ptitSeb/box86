@@ -299,8 +299,11 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_once2, NULL);
     pthread_mutex_init(&context->mutex_trace, NULL);
     pthread_mutex_init(&context->mutex_lock, NULL);
+    pthread_mutex_init(&context->mutex_tls, NULL);
     pthread_mutex_init(&context->mutex_thread, NULL);
-
+#ifdef DYNAREC
+    pthread_mutex_init(&context->mutex_dyndump, NULL);
+#endif
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 #ifdef DYNAREC
@@ -422,7 +425,11 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
     pthread_mutex_destroy(&ctx->mutex_lock);
+    pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
+#ifdef DYNAREC
+    pthread_mutex_destroy(&ctx->mutex_dyndump);
+#endif
 
     free_neededlib(&ctx->neededlibs);
 

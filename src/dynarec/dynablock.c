@@ -602,12 +602,12 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
         return block;   // existing block...
 
     if(box86_dynarec_dump)
-        pthread_mutex_lock(&my_context->mutex_lock);
+        pthread_mutex_lock(&my_context->mutex_dyndump);
     // fill the block
     block->x86_addr = (void*)addr;
     FillBlock(block);
     if(box86_dynarec_dump)
-        pthread_mutex_unlock(&my_context->mutex_lock);
+        pthread_mutex_unlock(&my_context->mutex_dyndump);
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, %swith %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+block->x86_size), block->block, block->size, block->marks?"with Marks, ":"", block->sons_size);
 

@@ -112,34 +112,45 @@ void RunLock(x86emu_t *emu)
     uint8_t tmp8u;
     uint32_t tmp32u, tmp32u2;
     int32_t tmp32s;
-    pthread_mutex_lock(&emu->context->mutex_lock);
     switch(opcode) {
         #define GO(B, OP)                      \
         case B+0: \
             nextop = F8;               \
             GET_EB;             \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             EB->byte[0] = OP##8(emu, EB->byte[0], GB);  \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;                              \
         case B+1: \
             nextop = F8;               \
             GET_ED;             \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             ED->dword[0] = OP##32(emu, ED->dword[0], GD.dword[0]); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;                              \
         case B+2: \
             nextop = F8;               \
             GET_EB;                   \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             GB = OP##8(emu, GB, EB->byte[0]); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;                              \
         case B+3: \
             nextop = F8;               \
             GET_ED;         \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             GD.dword[0] = OP##32(emu, GD.dword[0], ED->dword[0]); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;                              \
         case B+4: \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             R_AL = OP##8(emu, R_AL, F8); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;                              \
         case B+5: \
+            pthread_mutex_lock(&emu->context->mutex_lock);\
             R_EAX = OP##32(emu, R_EAX, F32); \
+            pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;
 
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
@@ -158,22 +169,26 @@ void RunLock(x86emu_t *emu)
                     CHECK_FLAGS(emu);
                     nextop = F8;
                     GET_EB;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     cmp8(emu, R_AL, EB->byte[0]);
                     if(ACCESS_FLAG(F_ZF)) {
                         EB->byte[0] = GB;
                     } else {
                         R_AL = EB->byte[0];
                     }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xB1:                      /* CMPXCHG Ed,Gd */
                     nextop = F8;
                     GET_ED;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     cmp32(emu, R_EAX, ED->dword[0]);
                     if(ACCESS_FLAG(F_ZF)) {
                         ED->dword[0] = GD.dword[0];
                     } else {
                         R_EAX = ED->dword[0];
                     }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xB3:                      /* BTR Ed,Gd */
                     CHECK_FLAGS(emu);
@@ -185,11 +200,13 @@ void RunLock(x86emu_t *emu)
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                     }
                     tmp8u&=31;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     if(ED->dword[0] & (1<<tmp8u)) {
                         SET_FLAG(F_CF);
                         ED->dword[0] ^= (1<<tmp8u);
                     } else
                         CLEAR_FLAG(F_CF);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xBA:                      
                     nextop = F8;
@@ -203,10 +220,12 @@ void RunLock(x86emu_t *emu)
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                             }
                             tmp8u&=31;
+                            pthread_mutex_lock(&emu->context->mutex_lock);
                             if(ED->dword[0] & (1<<tmp8u))
                                 SET_FLAG(F_CF);
                             else
                                 CLEAR_FLAG(F_CF);
+                            pthread_mutex_unlock(&emu->context->mutex_lock);
                             break;
                         case 6:             /* BTR Ed, Ib */
                             CHECK_FLAGS(emu);
@@ -217,11 +236,13 @@ void RunLock(x86emu_t *emu)
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                             }
                             tmp8u&=31;
+                            pthread_mutex_lock(&emu->context->mutex_lock);
                             if(ED->dword[0] & (1<<tmp8u)) {
                                 SET_FLAG(F_CF);
                                 ED->dword[0] ^= (1<<tmp8u);
                             } else
                                 CLEAR_FLAG(F_CF);
+                            pthread_mutex_unlock(&emu->context->mutex_lock);
                             break;
 
                         default:
@@ -239,30 +260,37 @@ void RunLock(x86emu_t *emu)
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                     }
                     tmp8u&=31;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     if(ED->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
                     else
                         CLEAR_FLAG(F_CF);
                     ED->dword[0] ^= (1<<tmp8u);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xC0:                      /* XADD Gb,Eb */
                     nextop = F8;
                     GET_EB;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp8u = add8(emu, EB->byte[0], GB);
                     GB = EB->byte[0];
                     EB->byte[0] = tmp8u;
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xC1:                      /* XADD Gd,Ed */
                     nextop = F8;
                     GET_ED;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp32u = add32(emu, ED->dword[0], GD.dword[0]);
                     GD.dword[0] = ED->dword[0];
                     ED->dword[0] = tmp32u;
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 0xC7:                      /* CMPXCHG8B Gq */
                     CHECK_FLAGS(emu);
                     nextop = F8;
                     GET_ED;
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp32u = ED->dword[0];
                     tmp32u2= ED->dword[1];
                     if(R_EAX == tmp32u && R_EDX == tmp32u2) {
@@ -274,6 +302,7 @@ void RunLock(x86emu_t *emu)
                         R_EAX = tmp32u;
                         R_EDX = tmp32u2;
                     }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 default:
                     // trigger invalid lock?
@@ -286,6 +315,7 @@ void RunLock(x86emu_t *emu)
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
             GET_ED;
+            pthread_mutex_lock(&emu->context->mutex_lock);
             if(opcode==0x83) {
                 tmp32s = F8S;
                 tmp32u = (uint32_t)tmp32s;
@@ -301,30 +331,39 @@ void RunLock(x86emu_t *emu)
                 case 6: ED->dword[0] = xor32(emu, ED->dword[0], tmp32u); break;
                 case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
             }
+            pthread_mutex_unlock(&emu->context->mutex_lock);
             break;
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
             GET_EB;
             tmp8u = GB;
+            pthread_mutex_lock(&emu->context->mutex_lock);
             GB = EB->byte[0];
             EB->byte[0] = tmp8u;
+            pthread_mutex_unlock(&emu->context->mutex_lock);
             break;
         case 0x87:                      /* XCHG Ed,Gd */
             nextop = F8;
             GET_ED;
+            pthread_mutex_lock(&emu->context->mutex_lock);
             tmp32u = GD.dword[0];
             GD.dword[0] = ED->dword[0];
             ED->dword[0] = tmp32u;
+            pthread_mutex_unlock(&emu->context->mutex_lock);
             break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = inc32(emu, ED->dword[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 case 1:                 /* DEC Ed */
+                    pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = dec32(emu, ED->dword[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, PK(0));
@@ -339,7 +378,6 @@ void RunLock(x86emu_t *emu)
             ip--;    // "unfetch" to use normal instruction
     }
     R_EIP = ip;
-    pthread_mutex_unlock(&emu->context->mutex_lock);
 }
 
 void RunGS(x86emu_t *emu)

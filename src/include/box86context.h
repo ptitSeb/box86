@@ -71,6 +71,7 @@ typedef struct box86context_s {
     int                 trace_tid;
 #ifdef DYNAREC
     int                 trace_dynarec;
+    pthread_mutex_t     mutex_dyndump;
 #endif
     zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box86lib;       // dlopen on box86 itself
@@ -117,6 +118,7 @@ typedef struct box86context_s {
     pthread_mutex_t     mutex_once2;
     pthread_mutex_t     mutex_trace;
     pthread_mutex_t     mutex_lock;
+    pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)

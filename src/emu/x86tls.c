@@ -157,21 +157,21 @@ static tlsdatasize_t* setupTLSData(box86context_t* context)
 
 void* fillTLSData(box86context_t *context)
 {
-        pthread_mutex_lock(&context->mutex_lock);
+        pthread_mutex_lock(&context->mutex_tls);
         tlsdatasize_t *data = setupTLSData(context);
-        pthread_mutex_unlock(&context->mutex_lock);
+        pthread_mutex_unlock(&context->mutex_tls);
         return data;
 }
 
 void* resizeTLSData(box86context_t *context, void* oldptr)
 {
-        pthread_mutex_lock(&context->mutex_lock);
+        pthread_mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
         tlsdatasize_t *data = setupTLSData(context);
         // copy the relevent old part, in case something changed
         memcpy((void*)((uintptr_t)data->tlsdata+(context->tlssize-oldata->tlssize)), oldata->tlsdata, oldata->tlssize);
         // all done, update new size, free old pointer and exit
-        pthread_mutex_unlock(&context->mutex_lock);
+        pthread_mutex_unlock(&context->mutex_tls);
         free_tlsdatasize(oldptr);
         return data;
 }
