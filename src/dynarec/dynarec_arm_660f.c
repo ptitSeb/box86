@@ -400,7 +400,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 , cNE, cEQ, X_OF|X_SF|X_ZF)
             break;
         #undef GO
-
+        case 0x50:
+            INST_NAME("MOVMSKPD Gd, Ex");
+            nextop = F8;
+            GETEX(q0);
+            gd = xEAX+((nextop&0x38)>>3);
+            if((nextop&0xC0)==0xC0)
+                q1 = fpu_get_scratch_quad(dyn);
+            else 
+                q1 = q0;
+            VSHRQ_U64(q1, q0, 63);  // only bit 63 left
+            VSHL_U64(q1+1, q1+1, 1);    // shift 1 left for higher bit
+            VADD_8(q1, q1, q1+1);      // add low and high
+            VMOVfrDx_U8(gd, q1, 0);     // grab the 2 sign bits
+            break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
