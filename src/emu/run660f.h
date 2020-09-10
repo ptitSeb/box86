@@ -938,7 +938,12 @@
             GX.uw[i] = (tmp32s<0)?0:((tmp32s>0xffff)?0xffff:tmp32s);
         }
         NEXT;
-
+    _6f_0xDA:  /* PMINUB Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        for (int i=0; i<16; ++i)
+            if(EX->ub[i]<GX.ub[i]) GX.ub[i] = EX->ub[i];
+        NEXT;
     _6f_0xDB:  /* PAND Gx,Ex */
         nextop = F8;
         GET_EX;

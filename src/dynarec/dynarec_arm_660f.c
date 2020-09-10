@@ -1413,7 +1413,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q1);
             VQSUBQ_U16(q0, q0, q1);
             break;
-
+        case 0xDA:
+            INST_NAME("PMINUB Gx, Ex");
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            VMINQ_U8(q0, q0, q1);
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
