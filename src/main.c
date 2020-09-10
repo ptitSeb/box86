@@ -81,6 +81,44 @@ uintptr_t fmod_smc_end = 0;
 uint16_t default_fs = 0;
 
 FILE* ftrace = NULL;
+int ftrace_has_pid = 0;
+
+void openFTrace()
+{
+    char* t = getenv("BOX86_TRACE_FILE");
+    char tmp[500];
+    char* p = t;
+    if(p && strstr(t, "%pid")) {
+        strcpy(tmp, p);
+        char* c = strstr(tmp, "%pid");
+        *c = 0; // cut
+        char pid[10];
+        sprintf(pid, "%d", getpid());
+        strcat(tmp, pid);
+        c = strstr(p, "%pid") + strlen("%pid");
+        strcat(tmp, c);
+        p = tmp;
+        ftrace_has_pid = 1;
+    }
+    if(p) {
+        ftrace = fopen64(p, "w");
+        if(!ftrace) {
+            ftrace = stdout;
+            printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
+        } else {
+            printf("BOX86 Trace redirected to \"%s\"\n", p);
+        }
+    }
+}
+
+void my_child_fork()
+{
+    if(ftrace_has_pid) {
+        // open a new ftrace...
+        fclose(ftrace);
+        openFTrace();
+    }
+}
 
 #ifdef DYNAREC
 void GatherDynarecExtensions()
@@ -247,31 +285,8 @@ void LoadLogEnv()
 #endif
 #endif
     // grab BOX86_TRACE_FILE envvar, and change %pid to actual pid is present in the name
-    {
-        char* t = getenv("BOX86_TRACE_FILE");
-        char tmp[500];
-        p = t;
-        if(p && strstr(t, "%pid")) {
-            strcpy(tmp, p);
-            char* c = strstr(tmp, "%pid");
-            *c = 0; // cut
-            char pid[10];
-            sprintf(pid, "%d", getpid());
-            strcat(tmp, pid);
-            c = strstr(p, "%pid") + strlen("%pid");
-            strcat(tmp, c);
-            p = tmp;
-        }
-        if(p) {
-            ftrace = fopen64(p, "w");
-            if(!ftrace) {
-                ftrace = stdout;
-                printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
-            } else {
-                printf("BOX86 Trace redirected to \"%s\"\n", p);
-            }
-        }
-    }
+    openFTrace();
+    // Other BOX86 env. var.
     p = getenv("BOX86_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {
@@ -900,6 +915,9 @@ int main(int argc, const char **argv, const char **env) {
     SetupX86Emu(emu);
     SetEAX(emu, my_context->argc);
     SetEBX(emu, (uint32_t)my_context->argv);
+
+    // child fork to handle traces
+    pthread_atfork(NULL, NULL, my_child_fork);
 
     thread_set_emu(emu);
 
