@@ -120,7 +120,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     h->numPHEntries = header.e_phnum;
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
-    if(header.e_shentsize!=0) {
+    if(header.e_shentsize && header.e_shnum) {
         // special cases for nums
         if(h->numSHEntries == 0) {
             printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
@@ -160,7 +160,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             return NULL;
     }
 
-    if(header.e_shentsize!=0) {
+    if(header.e_shentsize && header.e_shnum) {
         if(h->SHIdx == SHN_XINDEX) {
             printf_log(LOG_DEBUG, "Read number of String Table in 1st Section\n");
             h->SHIdx = h->SHEntries[0].sh_link;
