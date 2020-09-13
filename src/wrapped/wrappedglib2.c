@@ -1094,18 +1094,18 @@ EXPORT uint32_t my_g_idle_add(x86emu_t* emu, void* func, void* data)
     return my->g_idle_add(findGSourceFuncFct(func), data);
 }
 
-EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_t* b)
+EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_t** b)
 {
     library_t * lib = GetLibInternal(libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
-    myStackAlign(fmt, b, emu->scratch);
-    return my->g_variant_new_va(fmt, endptr, emu->scratch);
+    myStackAlign(fmt, *b, emu->scratch);
+    return my->g_variant_new_va(fmt, endptr, &emu->scratch);
 }
 
 EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
 {
-    return my_g_variant_new_va(emu, fmt, NULL, b);
+    return my_g_variant_new_va(emu, fmt, NULL, &b);
 }
 
 #define CUSTOM_INIT \
