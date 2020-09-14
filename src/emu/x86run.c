@@ -1232,6 +1232,7 @@ _trace:
                     case 0xC3:              /* yup, repz ret is valid */
                     case 0xE8:
                     case 0xE9:
+                    case 0xEB:
                         --ip;
                         NEXT;
                     case 0x90:              /* PAUSE */
