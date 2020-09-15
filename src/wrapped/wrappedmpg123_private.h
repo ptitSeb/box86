@@ -96,9 +96,9 @@ GO(mpg123_read, iFppp)
 //GO(mpg123_replace_reader, 
 //GO(mpg123_replace_reader_32, 
 //GO(mpg123_replace_reader_64, 
-//GO(mpg123_replace_reader_handle, 
-//GO(mpg123_replace_reader_handle_32, 
-//GO(mpg123_replace_reader_handle_64, 
+GOM(mpg123_replace_reader_handle, iFEpppp)
+GOM(mpg123_replace_reader_handle_32, iFEpppp)
+GOM(mpg123_replace_reader_handle_64, iFEpppp)
 //GO(mpg123_reset_eq, 
 //GO(mpg123_resize_string, 
 //GO(mpg123_safe_buffer, 
