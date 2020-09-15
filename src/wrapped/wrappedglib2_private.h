@@ -794,12 +794,12 @@ GO(g_path_get_basename, pFp)
 GO(g_path_get_dirname, pFp)
 GO(g_path_is_absolute, iFp)
 GO(g_path_skip_root, pFp)
-//GO(g_pattern_match, 
-//GO(g_pattern_match_simple, 
-//GO(g_pattern_match_string, 
-//GO(g_pattern_spec_equal, 
-//GO(g_pattern_spec_free, 
-//GO(g_pattern_spec_new, 
+GO(g_pattern_match, iFpupp)
+GO(g_pattern_match_simple, iFpp)
+GO(g_pattern_match_string, iFpp)
+GO(g_pattern_spec_equal, iFpp)
+GO(g_pattern_spec_free, vFp)
+GO(g_pattern_spec_new, pFp)
 //GO(g_pointer_bit_lock, 
 //GO(g_pointer_bit_trylock, 
 //GO(g_pointer_bit_unlock, 
