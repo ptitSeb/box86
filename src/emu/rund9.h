@@ -146,40 +146,65 @@
             break;
         case 0xF4:  /* FXTRACT */
             #ifdef USE_FLOAT
-            tmp32s = (ST0.ll&0x7f700000)>>23;
-            tmp32s -= 127;
-            ST0.f /= exp2f(tmp32s);
+            ST0.f = frexpf(ST0.f, &tmp32s);
             fpu_do_push(emu);
             ST0.f = tmp32s;
             #else
-            tmp32s = (ST0.ll&0x7ff0000000000000LL)>>52;
-            tmp32s -= 1023;
-            ST0.d /= exp2(tmp32s);
+            ST0.d = frexp(ST0.d, &tmp32s);
             fpu_do_push(emu);
             ST0.d = tmp32s;
             #endif
             break;
 
         case 0xF8:  /* FPREM */
-            #ifdef USE_FLOAT
-            ll = ST0.f / ST1.f;
-            ST0.f -= ST1.f * ll;
-            #else
-            ll = ST0.d / ST1.d;
-            ST0.d -= ST1.d * ll;
-            #endif
-            emu->sw.f.F87_C2 = 0;
-            emu->sw.f.F87_C0 = (ll&1);
-            emu->sw.f.F87_C3 = ((ll>>1)&1);
-            emu->sw.f.F87_C1 = ((ll>>2)&1);
+            {
+                int e0, e1;
+                #ifdef USE_FLOAT
+                frexpf(ST0.f, &e0);
+                frexpf(ST1.f, &e1);
+                #else
+                frexp(ST0.d, &e0);
+                frexp(ST1.d, &e1);
+                #endif
+                tmp32s = e0 - e1;
+            }
+            if(tmp32s<64)
+            {
+                #ifdef USE_FLOAT
+                ll = (int64_t)floor(ST0.f/ST1.f);
+                ST0.f = ST0.f - (ST1.f*ll);
+                #else
+                ll = (int64_t)floor(ST0.d/ST1.d);
+                ST0.d = ST0.d - (ST1.d*ll);
+                #endif
+                emu->sw.f.F87_C2 = 0;
+                emu->sw.f.F87_C1 = (ll&1)?1:0;
+                emu->sw.f.F87_C3 = (ll&2)?1:0;
+                emu->sw.f.F87_C0 = (ll&4)?1:0;
+            } else {
+                #ifdef USE_FLOAT
+                ll = (int64_t)(floor((ST0.f/ST1.f))/powf(2, tmp32s - 32));
+                ST0.f = ST0.f - ST1.f*ll*powf(2, tmp32s - 32);
+                #else
+                ll = (int64_t)(floor((ST0.d/ST1.d))/pow(2, tmp32s - 32));
+                ST0.d = ST0.d - ST1.d*ll*pow(2, tmp32s - 32);
+                #endif
+                emu->sw.f.F87_C2 = 1;
+            }
             break;
         case 0xF5:  /* FPREM1 */
             // get exponant(ST(0))-exponant(ST(1)) in temp32s
-            #ifdef USE_FLOAT
-            tmp32s = ((ST0.ll&0x7f700000)>>23) - ((ST1.ll&0x7f700000)>>23);
-            #else
-            tmp32s = ((ST0.ll&0x7ff0000000000000LL)>>52) - ((ST1.ll&0x7ff0000000000000LL)>>52);
-            #endif
+            {
+                int e0, e1;
+                #ifdef USE_FLOAT
+                frexpf(ST0.f, &e0);
+                frexpf(ST1.f, &e1);
+                #else
+                frexp(ST0.d, &e0);
+                frexp(ST1.d, &e1);
+                #endif
+                tmp32s = e0 - e1;
+            }
             if(tmp32s<64)
             {
                 #ifdef USE_FLOAT
@@ -196,7 +221,7 @@
             } else {
                 #ifdef USE_FLOAT
                 ll = (int64_t)(floor((ST0.f/ST1.f))/powf(2, tmp32s - 32));
-                ST0.f = ST0.f - ST1.f*ll*powf(2, 32);
+                ST0.f = ST0.f - ST1.f*ll*powf(2, tmp32s - 32);
                 #else
                 ll = (int64_t)(floor((ST0.d/ST1.d))/pow(2, tmp32s - 32));
                 ST0.d = ST0.d - ST1.d*ll*pow(2, tmp32s - 32);
