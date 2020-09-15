@@ -198,14 +198,14 @@ GO(g_chmod, iFpi)
 GO(g_clear_error, vFp)
 //GOM(g_clear_pointer, vFEpp)
 GO(g_close, iFip)
-//GO(g_completion_add_items, 
-//GO(g_completion_clear_items, 
-//GO(g_completion_complete, 
-//GO(g_completion_complete_utf8, 
-//GO(g_completion_free, 
-//GO(g_completion_new, 
-//GO(g_completion_remove_items, 
-//GO(g_completion_set_compare, 
+GO(g_completion_add_items, vFpp)
+GO(g_completion_clear_items, vFp)
+GO(g_completion_complete, pFppp)
+GO(g_completion_complete_utf8, pFppp)
+GO(g_completion_free, vFp)
+GOM(g_completion_new, pFEp)
+GO(g_completion_remove_items, vFpp)
+GOM(g_completion_set_compare, vFEpp)
 //GO(g_compute_checksum_for_bytes, 
 //GO(g_compute_checksum_for_data, 
 //GO(g_compute_checksum_for_string, 

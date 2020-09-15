@@ -112,7 +112,9 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_slist_foreach, pFppp_t)                \
     GO(g_slist_find_custom, pFppp_t)            \
     GO(g_idle_add, uFpp_t)                      \
-    GO(g_variant_new_va, pFppp_t)
+    GO(g_variant_new_va, pFppp_t)               \
+    GO(g_completion_new, pFp_t)                 \
+    GO(g_completion_set_compare, vFpp_t)        \
 
 typedef struct glib2_my_s {
     // functions
@@ -525,6 +527,50 @@ static void* findGCompareFuncFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompareFunc callback\n");
+    return NULL;
+}
+// GCompletionFunc ...
+#define GO(A)   \
+static uintptr_t my_GCompletionFunc_fct_##A = 0;                            \
+static void* my_GCompletionFunc_##A(void* a)                                \
+{                                                                           \
+    return (void*)RunFunction(my_context, my_GCompletionFunc_fct_##A, 1, a);\
+}
+SUPER()
+#undef GO
+static void* findGCompletionFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCompletionFunc_fct_##A == (uintptr_t)fct) return my_GCompletionFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCompletionFunc_fct_##A == 0) {my_GCompletionFunc_fct_##A = (uintptr_t)fct; return my_GCompletionFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionFunc callback\n");
+    return NULL;
+}
+// GCompletionStrncmpFunc ...
+#define GO(A)   \
+static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                                 \
+static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)             \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GCompletionStrncmpFunc_fct_##A, 3, a, b, n); \
+}
+SUPER()
+#undef GO
+static void* findGCompletionStrncmpFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCompletionStrncmpFunc_fct_##A == (uintptr_t)fct) return my_GCompletionStrncmpFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCompletionStrncmpFunc_fct_##A == 0) {my_GCompletionStrncmpFunc_fct_##A = (uintptr_t)fct; return my_GCompletionStrncmpFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionStrncmpFunc callback\n");
     return NULL;
 }
 #undef SUPER
@@ -1106,6 +1152,22 @@ EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_
 EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
 {
     return my_g_variant_new_va(emu, fmt, NULL, &b);
+}
+
+EXPORT void* my_g_completion_new(x86emu_t* emu, void* f)
+{
+    library_t * lib = GetLibInternal(libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    return my->g_completion_new(findGCompletionFct(f));
+}
+
+EXPORT void my_g_completion_set_compare(x86emu_t *emu, void* cmp, void* f)
+{
+    library_t * lib = GetLibInternal(libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    my->g_completion_set_compare(cmp, findGCompletionStrncmpFuncFct(f));
 }
 
 #define CUSTOM_INIT \
