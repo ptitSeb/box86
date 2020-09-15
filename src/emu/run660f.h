@@ -226,6 +226,14 @@
                     GX.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
                 }
                 break;
+            case 0x0B:  /* PMULHRSW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<8; ++i) {
+                    tmp32s = ((((int32_t)(GX.sw[i])*(int32_t)(EX->sw[i]))>>14) + 1)>>1;
+                    GX.uw[i] = tmp32s&0xffff;
+                }
+            break;
             default:
                 goto _default;
         }
