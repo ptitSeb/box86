@@ -1,5 +1,3 @@
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
     nextop = F8;
     switch(nextop) {
         case 0xC0:
@@ -10,11 +8,7 @@
         case 0xC5:
         case 0xC6:
         case 0xC7:  /* FADD */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f += ST0.f;
-            #else
             ST(nextop&7).d += ST0.d;
-            #endif
             break;
         case 0xC8:
         case 0xC9:
@@ -24,11 +18,7 @@
         case 0xCD:
         case 0xCE:
         case 0xCF:  /* FMUL */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f *= ST0.f;
-            #else
             ST(nextop&7).d *= ST0.d;
-            #endif
             break;
         case 0xD0:
         case 0xD1:
@@ -38,11 +28,7 @@
         case 0xD5:
         case 0xD6:
         case 0xD7:  /* FCOM */
-            #ifdef USE_FLOAT
-            fpu_fcom(emu, ST(nextop&7).f);
-            #else
             fpu_fcom(emu, ST(nextop&7).d);
-            #endif
             break;
         case 0xD8:
         case 0xD9:
@@ -52,11 +38,7 @@
         case 0xDD:
         case 0xDE:
         case 0xDF:  /* FCOMP */
-            #ifdef USE_FLOAT
-            fpu_fcom(emu, ST(nextop&7).f);
-            #else
             fpu_fcom(emu, ST(nextop&7).d);  // TODO: is this ok?
-            #endif
             fpu_do_pop(emu);
             break;
         case 0xE0:
@@ -67,11 +49,7 @@
         case 0xE5:
         case 0xE6:
         case 0xE7:  /* FSUBR */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f = ST0.f -ST(nextop&7).f;
-            #else
             ST(nextop&7).d = ST0.d -ST(nextop&7).d;
-            #endif
             break;
         case 0xE8:
         case 0xE9:
@@ -81,11 +59,7 @@
         case 0xED:
         case 0xEE:
         case 0xEF:  /* FSUB */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f -= ST0.f;
-            #else
             ST(nextop&7).d -= ST0.d;
-            #endif
             break;
         case 0xF0:
         case 0xF1:
@@ -95,11 +69,7 @@
         case 0xF5:
         case 0xF6:
         case 0xF7:  /* FDIVR */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f = ST0.f / ST(nextop&7).f;
-            #else
             ST(nextop&7).d = ST0.d / ST(nextop&7).d;
-            #endif
             break;
         case 0xF8:
         case 0xF9:
@@ -109,54 +79,32 @@
         case 0xFD:
         case 0xFE:
         case 0xFF:  /* FDIV */
-            #ifdef USE_FLOAT
-            ST(nextop&7).f /=  ST0.f;
-            #else
             ST(nextop&7).d /=  ST0.d;
-            #endif
             break;
         default:
             GET_ED;
             switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f += *(double*)ED;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f += d;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d += *(double*)ED;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d += d;
                 }
-                #endif
                 break;
             case 1:         /* FMUL ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f *= *(double*)ED;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f *= d;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d *= *(double*)ED;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d *= d;
                 }
-                #endif
                 break;
             case 2:      /* FCOM ST0, double */
                 if(!(((uintptr_t)ED)&7))
                     fpu_fcom(emu, *(double*)ED);
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     fpu_fcom(emu, d);
                 }
                 break;
@@ -164,78 +112,42 @@
                 if(!(((uintptr_t)ED)&7))
                     fpu_fcom(emu, *(double*)ED);
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     fpu_fcom(emu, d);
                 }
                 fpu_do_pop(emu);
                 break;
             case 4:         /* FSUB ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f -= *(double*)ED;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f -= d;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d -= *(double*)ED;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d -= d;
                 }
-                #endif
                 break;
             case 5:         /* FSUBR ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f = *(double*)ED - ST0.f;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f = d - ST0.f;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d = *(double*)ED - ST0.d;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d = d - ST0.d;
                 }
-                #endif
                 break;
             case 6:         /* FDIV ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f /= *(double*)ED;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f /= d;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d /= *(double*)ED;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d /= d;
                 }
-                #endif
                 break;
             case 7:         /* FDIVR ST0, double */
-                #ifdef USE_FLOAT
-                if(!(((uintptr_t)ED)&7))
-                    ST0.f = *(double*)ED / ST0.f;
-                else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
-                    ST0.f = d / ST0.f;
-                }
-                #else
                 if(!(((uintptr_t)ED)&7))
                     ST0.d = *(double*)ED / ST0.d;
                 else {
-                    *(uint64_t*)&d = *(uint64_t*)ED;
+                    memcpy(&d, ED, sizeof(double));
                     ST0.d = d / ST0.d;
                 }
-                #endif
                 break;
             default:
                 goto _default;

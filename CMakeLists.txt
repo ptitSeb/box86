@@ -16,7 +16,6 @@ option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACH
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
-option(USE_FLOAT "Set to ON to use only float, no double, in all x87 Emulation" ${USE_FLOAT})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
@@ -109,8 +108,6 @@ endif()
 
 if(BOX86LIB)
     set(BOX86 box86)
-elseif(USE_FLOAT)
-    set(BOX86 box86f)
 elseif(HAVE_TRACE)
     set(BOX86 box86t)
 else()
@@ -130,10 +127,6 @@ endif()
 
 if(HAVE_TRACE)
     add_definitions(-DHAVE_TRACE)
-endif()
-
-if(USE_FLOAT)
-    add_definitions(-DUSE_FLOAT)
 endif()
 
 if(ARM_DYNAREC)
@@ -341,7 +334,7 @@ set(WRAPPER "${BOX86_ROOT}/src/wrapped/generated/wrapper.c" "${BOX86_ROOT}/src/w
 
 add_custom_command(
     OUTPUT "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt"
-    COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "USE_FLOAT" "--" ${WRAPPEDS_HEAD}
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" "${BOX86_ROOT}" "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "--" ${WRAPPEDS_HEAD}
     MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py"
     DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
     BYPRODUCTS ${WRAPPER}

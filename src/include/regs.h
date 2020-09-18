@@ -102,10 +102,6 @@ typedef enum {
 #pragma pack(push, 1)
 
 typedef union {
-	#ifdef USE_FLOAT
-	float		f;
-	uint32_t 	ll;	// same, to avoid more #ifdef...
-	#else
     double d;
     struct {
         uint32_t lower;
@@ -116,7 +112,6 @@ typedef union {
         float upper;
     } f;
     int64_t ll;
-	#endif
 } fpu_reg_t;
 
 typedef union {

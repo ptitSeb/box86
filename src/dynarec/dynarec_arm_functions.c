@@ -186,12 +186,7 @@ void arm_fsave(x86emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        #ifdef USE_FLOAT
-        d = ST(i).f;
-        LD2D(p, &d);
-        #else
         LD2D(p, &ST(i).d);
-        #endif
         p+=10;
     }
 }
@@ -202,12 +197,7 @@ void arm_frstor(x86emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        #ifdef USE_FLOAT
-        D2LD(&d, p);
-        ST(i).f = d;
-        #else
         D2LD(&ST(i).d, p);
-        #endif
         p+=10;
     }
 

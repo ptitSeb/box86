@@ -73,11 +73,7 @@
     case 0xED:
     case 0xEE:
     case 0xEF:
-        #ifdef USE_FLOAT
-        fpu_fcomi(emu, ST(nextop&7).f);
-        #else
         fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
-        #endif
         break;
 
     case 0xF0:  /* FCOMI ST0, STx */
@@ -88,11 +84,7 @@
     case 0xF5:
     case 0xF6:
     case 0xF7:
-        #ifdef USE_FLOAT
-        fpu_fcomi(emu, ST(nextop&7).f);
-        #else
         fpu_fcomi(emu, ST(nextop&7).d);
-        #endif
         break;
     case 0xE0:
     case 0xE1:
@@ -103,51 +95,21 @@
         goto _default;
     default:
         switch((nextop>>3)&7) {
-            case 0: /* FILD ST0, Gd */
+            case 0: /* FILD ST0, Ed */
                 GET_ED;
                 fpu_do_push(emu);
-                #ifdef USE_FLOAT
-                ST0.f = ED->sdword[0];
-                #else
                 ST0.d = ED->sdword[0];
-                #endif
                 break;
             case 1: /* FISTTP Ed, ST0 */
                 GET_ED;
-                #ifdef USE_FLOAT
-                tmp32s = ST0.f; // TODO: Handling of FPU Exception
-                if(tmp32s==0x7fffffff && isgreater(ST0.f, (float)(int32_t)0x7fffffff))
-                    tmp32s = 0x80000000;
-                #else
                 tmp32s = ST0.d; // TODO: Handling of FPU Exception
                 if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
                     tmp32s = 0x80000000;
-                #endif
                 fpu_do_pop(emu);
                 ED->sdword[0] = tmp32s;
                 break;
             case 2: /* FIST Ed, ST0 */
                 GET_ED;
-                #ifdef USE_FLOAT
-                if(isgreater(ST0.f, (float)(int32_t)0x7fffffff) || isless(ST0.f, -(float)(int32_t)0x7fffffff))
-                    ED->sdword[0] = 0x80000000;
-                else {
-                    switch(emu->round) {
-                        case ROUND_Nearest:
-                            ED->sdword[0] = floorf(ST0.f+0.5);
-                            break;
-                        case ROUND_Down:
-                            ED->sdword[0] = floorf(ST0.f);
-                            break;
-                        case ROUND_Up:
-                            ED->sdword[0] = ceilf(ST0.f);
-                            break;
-                        case ROUND_Chop:
-                            ED->sdword[0] = ST0.f;
-                            break;
-                    }
-                }
-                #else
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
@@ -166,30 +128,9 @@
                             break;
                     }
                 }
-                #endif
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GET_ED;
-                #ifdef USE_FLOAT
-                if(isgreater(ST0.f, (float)(int32_t)0x7fffffff) || isless(ST0.f, -(float)(int32_t)0x7fffffff))
-                    ED->sdword[0] = 0x80000000;
-                else {
-                    switch(emu->round) {
-                        case ROUND_Nearest:
-                            ED->sdword[0] = floorf(ST0.f+0.5);
-                            break;
-                        case ROUND_Down:
-                            ED->sdword[0] = floorf(ST0.f);
-                            break;
-                        case ROUND_Up:
-                            ED->sdword[0] = ceilf(ST0.f);
-                            break;
-                        case ROUND_Chop:
-                            ED->sdword[0] = ST0.f;
-                            break;
-                    }
-                }
-                #else
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
@@ -210,29 +151,19 @@
                     }
                     ED->sdword[0] = tmp;
                 }
-                #endif
                 fpu_do_pop(emu);
                 break;
-            case 5: /* FLD ST0, Gt */
+            case 5: /* FLD ST0, Et */
                 GET_ED;
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
-                #ifdef USE_FLOAT
-                LD2D(&STld(0), &d);
-                ST0.f = d;
-                #else
                 LD2D(&STld(0), &ST(0).d);
-                #endif
                 STld(0).ref = ST0.ll;
                 break;
             case 7: /* FSTP tbyte */
                 GET_ED;
                 if(ST0.ll!=STld(0).ref)
-                    #ifdef USE_FLOAT
-                    {d = ST0.f; D2LD(&d, ED);}
-                    #else
                     D2LD(&ST0.d, ED);
-                    #endif
                 else
                     memcpy(ED, &STld(0).ld, 10);
                 fpu_do_pop(emu);

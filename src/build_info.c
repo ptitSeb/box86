@@ -5,7 +5,7 @@
 
 void PrintBox86Version()
 {
-    printf("Box86%s%s%s v%d.%d.%d %s built on %s %s\n", 
+    printf("Box86%s%s v%d.%d.%d %s built on %s %s\n", 
     #ifdef HAVE_TRACE
         " with trace",
     #else
@@ -13,11 +13,6 @@ void PrintBox86Version()
     #endif
     #ifdef DYNAREC
         " with Dynarec",
-    #else
-        "",
-    #endif
-    #ifdef USE_FLOAT
-        " (float only)",
     #else
         "",
     #endif

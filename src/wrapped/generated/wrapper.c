@@ -39,11 +39,8 @@ static void* io_convert(void* v)
 	return v;
 }
 
-#ifdef USE_FLOAT
-#define ST0val ST0.f
-#else
 #define ST0val ST0.d
-#endif
+
 int of_convert(int);
 typedef int32_t (*iF_t)();
 typedef void (*vFE_t)(x86emu_t*);

@@ -229,11 +229,7 @@ void x86Int3(x86emu_t* emu)
                             break;
                     case 3: snprintf(buff2, 63, "(%s)", pu32?((char*)pu32):"nil");
                             break;
-                    #ifdef USE_FLOAT
-                    case 4: snprintf(buff2, 63, " (%f)", ST0.f);
-                    #else
                     case 4: snprintf(buff2, 63, " (%f)", ST0.d);
-                    #endif
                             break;
                     case 5: {
                             uint32_t* p = (uint32_t*)R_EAX;

@@ -252,11 +252,8 @@ static void* io_convert(void* v)
 	return v;
 }
 
-#ifdef USE_FLOAT
-#define ST0val ST0.f
-#else
 #define ST0val ST0.d
-#endif
+
 int of_convert(int);
 """,
 		"wrapper.h": """/*****************************************************************

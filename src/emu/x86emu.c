@@ -310,11 +310,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     // start with FPU regs...
     if(emu->fpu_stack) {
         for (int i=0; i<emu->fpu_stack; i++) {
-            #ifdef USE_FLOAT
-            sprintf(tmp, "ST%d=%f", i, emu->fpu[(emu->top+i)&7].f);
-            #else
             sprintf(tmp, "ST%d=%f", i, emu->fpu[(emu->top+i)&7].d);
-            #endif
             strcat(buff, tmp);
             int c = 10-strlen(tmp);
             if(c<1) c=1;
