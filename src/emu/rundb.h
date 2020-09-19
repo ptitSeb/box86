@@ -113,6 +113,7 @@
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
+                    volatile int32_t tmp;    // tmp to avoid BUS ERROR
                     switch(emu->round) {
                         case ROUND_Nearest:
                             ED->sdword[0] = floor(ST0.d+0.5);
@@ -127,6 +128,7 @@
                             ED->sdword[0] = ST0.d;
                             break;
                     }
+                    ED->sdword[0] = tmp;
                 }
                 break;
             case 3: /* FISTP Ed, ST0 */

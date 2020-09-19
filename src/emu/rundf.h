@@ -158,10 +158,27 @@
             if(STll(0).ref==ST(0).ll) {
                 *(int64_t*)ED = STll(0).ll;
             } else {
-                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
+                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
                     *(int64_t*)ED = 0x8000000000000000LL;
-                else
-                    *(int64_t*)ED = (int64_t)ST0.d;
+                else {
+                    int64_t i64;
+                    switch(emu->round) {
+                        case ROUND_Nearest:
+                            i64 = floor(ST0.d+0.5);
+                            break;
+                        case ROUND_Down:
+                            i64 = floor(ST0.d);
+                            break;
+                        case ROUND_Up:
+                            i64 = ceil(ST0.d);
+                            break;
+                        case ROUND_Chop:
+                        default:
+                            i64 = ST0.d;
+                            break;
+                    }
+                    *(int64_t*)ED = i64;
+                }
             }
             fpu_do_pop(emu);
             break;

@@ -75,7 +75,7 @@
             ST0.d = exp2(ST0.d) - 1.0;
             break;
         case 0xF1:  /* FYL2X */
-            ST(1).d = log2(ST0.d)*ST(1).d;
+            ST(1).d *= log2(ST0.d);
             fpu_do_pop(emu);
             break;
         case 0xF2:  /* FPTAN */
@@ -110,8 +110,8 @@
                 emu->sw.f.F87_C3 = (ll&2)?1:0;
                 emu->sw.f.F87_C0 = (ll&4)?1:0;
             } else {
-                ll = (int64_t)(floor((ST0.d/ST1.d))/pow(2, tmp32s - 32));
-                ST0.d = ST0.d - ST1.d*ll*pow(2, tmp32s - 32);
+                ll = (int64_t)(floor((ST0.d/ST1.d))/exp2(tmp32s - 32));
+                ST0.d = ST0.d - ST1.d*ll*exp2(tmp32s - 32);
                 emu->sw.f.F87_C2 = 1;
             }
             break;
@@ -132,8 +132,8 @@
                 emu->sw.f.F87_C3 = (ll&2)?1:0;
                 emu->sw.f.F87_C0 = (ll&4)?1:0;
             } else {
-                ll = (int64_t)(floor((ST0.d/ST1.d))/pow(2, tmp32s - 32));
-                ST0.d = ST0.d - ST1.d*ll*pow(2, tmp32s - 32);
+                ll = (int64_t)(floor((ST0.d/ST1.d))/exp2(tmp32s - 32));
+                ST0.d = ST0.d - ST1.d*ll*exp2(tmp32s - 32);
                 emu->sw.f.F87_C2 = 1;
             }
             break;
@@ -144,7 +144,7 @@
             emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
-            ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
+            ST(1).d *= log2(ST0.d + 1.0);
             fpu_do_pop(emu);
             break;
         case 0xFA:  /* FSQRT */

@@ -109,7 +109,7 @@
                 break;
             case 5:     /* FISUBR ST0, Ew int */
                 GET_EW;
-                ST0.d = EW->sword[0] - ST0.d;
+                ST0.d = (double)EW->sword[0] - ST0.d;
                 break;
             case 6:     /* FIDIV ST0, Ew int */
                 GET_EW;
@@ -117,7 +117,7 @@
                 break;
             case 7:     /* FIDIVR ST0, Ew int */
                 GET_EW;
-                ST0.d = EW->sword[0] / ST0.d;
+                ST0.d = (double)EW->sword[0] / ST0.d;
                 break;
         default:
             goto _default;
