@@ -1672,6 +1672,33 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     return execv(path, argv);
 }
 
+EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], char* const envp[])
+{
+    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
+    int x86 = FileIsX86ELF(path);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
+    #if 1
+    if (x86 || self) {
+        int skip_first = 0;
+        if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
+            skip_first++;
+        // count argv...
+        int n=skip_first;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        newargv[0] = emu->context->box86path;
+        memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
+        if(self) newargv[1] = emu->context->fullpath;
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        int ret = execve(newargv[0], (char* const*)newargv, envp);
+        free(newargv);
+        return ret;
+    }
+    #endif
+    return execve(path, argv, envp);
+}
+
+// execvp should use PATH to search for the program first
 EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX86_PATH / PATH here...

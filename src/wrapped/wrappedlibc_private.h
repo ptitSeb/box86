@@ -282,11 +282,11 @@ GOW(euidaccess, iFpi)
 GO(eventfd, iFui)
 GO(eventfd_read, iFip)
 GO(eventfd_write, iFiU)
-GO2(execl, iFEpV, execv)
-GO2(execle, iFEpV, execve)  //Nope! This one needs wrapping, because if char*, char*, ..., char*[]
+GO2(execl, iFEpV, my_execv)
+GO2(execle, iFEpV, my_execve)  //Nope! This one needs wrapping, because if char*, char*, ..., char*[]
 GO2(execlp, iFEpV, execvp)
 GOM(execv, iFEpp)    // is Weak
-GOW(execve, iFppp)   // and this one too...
+GOM(execve, iFEppp)   // and this one too...
 GOW(execvp, iFpp)
 GO(exit, vFi)
 GO(_exit, vFi)
