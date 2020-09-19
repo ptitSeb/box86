@@ -132,7 +132,7 @@
                 emu->sw.f.F87_C3 = (ll&2)?1:0;
                 emu->sw.f.F87_C0 = (ll&4)?1:0;
             } else {
-                ll = (int64_t)(floor((ST0.d/ST1.d))/exp2(tmp32s - 32));
+                ll = (int64_t)(trunc((ST0.d/ST1.d))/exp2(tmp32s - 32));
                 ST0.d = ST0.d - ST1.d*ll*exp2(tmp32s - 32);
                 emu->sw.f.F87_C2 = 1;
             }

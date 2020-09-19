@@ -113,21 +113,7 @@
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
-                    volatile int32_t tmp;    // tmp to avoid BUS ERROR
-                    switch(emu->round) {
-                        case ROUND_Nearest:
-                            ED->sdword[0] = floor(ST0.d+0.5);
-                            break;
-                        case ROUND_Down:
-                            ED->sdword[0] = floor(ST0.d);
-                            break;
-                        case ROUND_Up:
-                            ED->sdword[0] = ceil(ST0.d);
-                            break;
-                        case ROUND_Chop:
-                            ED->sdword[0] = ST0.d;
-                            break;
-                    }
+                    volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
                     ED->sdword[0] = tmp;
                 }
                 break;
@@ -136,21 +122,7 @@
                 if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
                     ED->sdword[0] = 0x80000000;
                 else {
-                    volatile int32_t tmp;    // tmp to avoid BUS ERROR
-                    switch(emu->round) {
-                        case ROUND_Nearest:
-                            tmp = floor(ST0.d+0.5);
-                            break;
-                        case ROUND_Down:
-                            tmp = floor(ST0.d);
-                            break;
-                        case ROUND_Up:
-                            tmp = ceil(ST0.d);
-                            break;
-                        case ROUND_Chop:
-                            tmp = ST0.d;
-                            break;
-                    }
+                    volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
                     ED->sdword[0] = tmp;
                 }
                 fpu_do_pop(emu);

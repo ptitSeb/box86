@@ -121,14 +121,14 @@ static inline double fpu_round(x86emu_t* emu, double d) {
         return d;
     switch(emu->round) {
         case ROUND_Nearest:
-            return floor(d+0.5);
+            return nearbyint(d);
         case ROUND_Down:
             return floor(d);
         case ROUND_Up:
             return ceil(d);
         case ROUND_Chop:
         default:
-            return round(d);
+            return trunc(d);
     }
 }
 
