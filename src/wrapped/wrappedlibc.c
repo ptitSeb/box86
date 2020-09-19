@@ -1486,6 +1486,31 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
     return fopen(path, mode);
 }
 
+EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
+{
+    if(strcmp((const char*)path, "/proc/self/maps")==0) {
+        // special case for self memory map
+        int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen64(path, mode); // error fallback
+        shm_unlink(TMP_MEMMAP);    // remove the shm file, but it will still exist because it's currently in use
+        CreateMemorymapFile(emu->context, tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
+    #ifndef NOALIGN
+    if(strcmp((const char*)path, "/proc/cpuinfo")==0) {
+        // special case for cpuinfo
+        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen64(path, mode); // error fallback
+        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUInfoFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
+    #endif
+    return fopen64(path, mode);
+}
+
 
 EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 {
