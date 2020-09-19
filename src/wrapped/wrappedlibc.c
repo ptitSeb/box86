@@ -1648,19 +1648,21 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
 
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
+    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
-    if (x86) {
+    if (x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
-            skip_first = 1;
+            skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
         newargv[0] = emu->context->box86path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
+        if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
@@ -1673,9 +1675,10 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX86_PATH / PATH here...
+    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d\n", path, argv, x86);
-    if (x86) {
+    if (x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
@@ -1683,6 +1686,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         newargv[0] = emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
+        if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret = execvp(newargv[0], argv);
         free(newargv);
