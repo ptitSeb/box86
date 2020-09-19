@@ -1332,6 +1332,9 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         #endif
         return tmp;
     }
+    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+        return open(emu->context->fullpath, flags, mode);
+    }
     int ret = open(pathname, flags, mode);
     return ret;
 }
@@ -1386,6 +1389,9 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         #endif
         return tmp;
+    }
+    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+        return open64(emu->context->fullpath, flags, mode);
     }
     return open64(pathname, flags, mode);
 }
@@ -1483,6 +1489,9 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #endif
+    if(strcmp(path, "/proc/self/exe")==0) {
+        return fopen(emu->context->fullpath, mode);
+    }
     return fopen(path, mode);
 }
 
@@ -1508,6 +1517,9 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #endif
+    if(strcmp(path, "/proc/self/exe")==0) {
+        return fopen64(emu->context->fullpath, mode);
+    }
     return fopen64(path, mode);
 }
 
