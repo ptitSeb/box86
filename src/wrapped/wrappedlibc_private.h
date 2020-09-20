@@ -1044,7 +1044,7 @@ GOW(lseek, iFiii)
 // __lseek  // Weak
 GOW(lseek64, IFiIi)
 GO(lsetxattr, iFpppui)
-// lutimes
+GO(lutimes, iFpp)
 GOM(__lxstat, iFEipp)
 GOM(__lxstat64, iFEipp)
 GO(madvise, iFpLi)
@@ -1062,7 +1062,7 @@ DATAV(__malloc_initialize_hook, 4)
 // malloc_stats // Weak
 GOW(malloc_trim, iFu)
 GOW(malloc_usable_size, uFp)
-// mallopt  // Weak
+GOW(mallopt, iFii)  // Weak
 // mallwatch    // type B
 GO(mblen, iFpu)
 GOW(mbrlen, uFpup)
@@ -1398,7 +1398,7 @@ GO(__res_ninit, iFp)
 DATA(__resp, 4)
 // __res_randomid
 DATA(__res_state, 4)
-// re_syntax_options    // type B
+DATA(re_syntax_options, 4)    // type B
 // revoke
 GO(rewind, vFp)
 GO(rewinddir, vFp)
@@ -2054,7 +2054,7 @@ GOW(writev, lFipi)
 // xdr_free
 // xdr_getcredres
 // xdr_hyper
-// xdr_int
+GO(xdr_int, iFpp)
 // xdr_int16_t
 // xdr_int32_t
 // xdr_int64_t
