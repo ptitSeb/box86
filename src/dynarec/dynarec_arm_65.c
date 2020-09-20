@@ -148,6 +148,12 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xE9:
+        case 0xEB:
+            INST_NAME("(ignored) GS:");
+            --addr;
+            break;
+
         case 0xFF:
             nextop = F8;
             grab_tlsdata(dyn, addr, ninst, x12);

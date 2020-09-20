@@ -543,6 +543,11 @@ void RunGS(x86emu_t *emu)
             ED->dword[0] = F32;
             break;
 
+        case 0xE9:
+        case 0xEB:
+            --ip;       // ignore FS: to execute regular opcode
+            break;
+
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
