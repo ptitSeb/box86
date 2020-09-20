@@ -64,6 +64,7 @@ int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* 
 int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 #endif
 int my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
+int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -349,7 +350,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 char** argv = (char**)R_ECX;
                 char** envv = (char**)R_EDX;
                 printf_log(LOG_DUMP, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
-                R_EAX = execve((const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
+                R_EAX = my_execve(emu, (const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
             }
             break;
 #ifndef __NR_time
@@ -627,6 +628,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
+        case 11: // execve
+            return (uint32_t)my_execve(emu, p(4), p(8), p(12));
         case 123:   // SYS_modify_ldt
             return my_modify_ldt(emu, i32(4), (thread_area_t*)p(8), i32(12));
         case 174:   // sys_rt_sigaction
