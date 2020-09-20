@@ -30,6 +30,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t gd, ed;
     uint8_t wback;
     int fixedaddress;
+
     switch(opcode) {
         case 0x03:
             INST_NAME("ADD Gd, FS:Ed");
@@ -215,6 +216,12 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
             
+        case 0xE9:
+        case 0xEB:
+            INST_NAME("(ignored) FS:");
+            --addr;
+            break;
+
         case 0xFF:
             nextop = F8;
             grab_fsdata(dyn, addr, ninst, x12);
