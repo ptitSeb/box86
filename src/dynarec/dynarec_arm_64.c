@@ -112,9 +112,9 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if((nextop&0xC0)==0xC0) {
                         POP(xESP, (1<<(xEAX+(nextop&7))));  // 67 ignored
                     } else {
-                        addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                         POP(xESP, (1<<x2));
-                        STR_IMM9(x2, ed, fixedaddress);
+                        STR_REG_LSL_IMM5(x2, x1, x12, 0);
                     }
                     break;
 
