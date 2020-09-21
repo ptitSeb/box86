@@ -1304,97 +1304,6 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
-#define TMP_CMDLINE "box86_tmpcmdline"
-EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
-{
-    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
-        // special case for self command line...
-        #if 0
-        char tmpcmdline[200] = {0};
-        char tmpbuff[100] = {0};
-        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
-        int tmp = mkstemp(tmpbuff);
-        int dummy;
-        if(tmp<0) return open(pathname, flags, mode);
-        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        #else
-        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode);
-        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
-        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        (void)dummy;
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        #endif
-        return tmp;
-    }
-    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
-        return open(emu->context->fullpath, flags, mode);
-    }
-    int ret = open(pathname, flags, mode);
-    return ret;
-}
-EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
-
-EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
-{
-    int ret = read(fd, buf, count);
-#ifdef DYNAREC
-    if(ret!=count && ret>0) {
-        // continue reading...
-        void* p = buf+ret;
-        if(getDBFromAddress((uintptr_t)p)) {
-            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
-            unprotectDB((uintptr_t)p, count-ret);
-            int l;
-            do {
-                l = read(fd, p, count-ret); 
-                if(l>0) {
-                    p+=l; ret+=l;
-                }
-            } while(l>0);
-        }
-    }
-#endif
-    return ret;
-}
-
-EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
-{
-    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
-        // special case for self command line...
-        #if 0
-        char tmpcmdline[200] = {0};
-        char tmpbuff[100] = {0};
-        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
-        int tmp = mkstemp64(tmpbuff);
-        int dummy;
-        if(tmp<0) return open64(pathname, flags, mode);
-        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek64(tmp, 0, SEEK_SET);
-        #else
-        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode);
-        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
-        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        (void)dummy;
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        #endif
-        return tmp;
-    }
-    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
-        return open64(emu->context->fullpath, flags, mode);
-    }
-    return open64(pathname, flags, mode);
-}
 #ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
 {
@@ -1457,7 +1366,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", mips);
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 rdtscp ssse3 fma cx16 movbe\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 rdtscp ssse3 fma cx16 movbe pni\n");
         P;
         sprintf(buff, "\n");
         P;
@@ -1467,6 +1376,120 @@ void CreateCPUInfoFile(int fd)
 #define TMP_CPUINFO "box86_tmpcpuinfo"
 #endif
 #define TMP_MEMMAP  "box86_tmpmemmap"
+#define TMP_CMDLINE "box86_tmpcmdline"
+EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+        // special case for self command line...
+        #if 0
+        char tmpcmdline[200] = {0};
+        char tmpbuff[100] = {0};
+        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
+        int tmp = mkstemp(tmpbuff);
+        int dummy;
+        if(tmp<0) return open(pathname, flags, mode);
+        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        for (int i=1; i<emu->context->argc; ++i)
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek(tmp, 0, SEEK_SET);
+        #else
+        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open(pathname, flags, mode);
+        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
+        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        (void)dummy;
+        for (int i=1; i<emu->context->argc; ++i)
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek(tmp, 0, SEEK_SET);
+        #endif
+        return tmp;
+    }
+    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+        return open(emu->context->fullpath, flags, mode);
+    }
+    #ifndef NOALIGN
+    if(strcmp((const char*)pathname, "/proc/cpuinfo")==0) {
+        // special case for cpuinfo
+        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUInfoFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
+    #endif
+    int ret = open(pathname, flags, mode);
+    return ret;
+}
+EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
+
+EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
+{
+    int ret = read(fd, buf, count);
+#ifdef DYNAREC
+    if(ret!=count && ret>0) {
+        // continue reading...
+        void* p = buf+ret;
+        if(getDBFromAddress((uintptr_t)p)) {
+            // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
+            unprotectDB((uintptr_t)p, count-ret);
+            int l;
+            do {
+                l = read(fd, p, count-ret); 
+                if(l>0) {
+                    p+=l; ret+=l;
+                }
+            } while(l>0);
+        }
+    }
+#endif
+    return ret;
+}
+
+EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+        // special case for self command line...
+        #if 0
+        char tmpcmdline[200] = {0};
+        char tmpbuff[100] = {0};
+        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
+        int tmp = mkstemp64(tmpbuff);
+        int dummy;
+        if(tmp<0) return open64(pathname, flags, mode);
+        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        for (int i=1; i<emu->context->argc; ++i)
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek64(tmp, 0, SEEK_SET);
+        #else
+        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, flags, mode);
+        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
+        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
+        (void)dummy;
+        for (int i=1; i<emu->context->argc; ++i)
+            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+        lseek(tmp, 0, SEEK_SET);
+        #endif
+        return tmp;
+    }
+    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+        return open64(emu->context->fullpath, flags, mode);
+    }
+    #ifndef NOALIGN
+    if(strcmp((const char*)pathname, "/proc/cpuinfo")==0) {
+        // special case for cpuinfo
+        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, flags, mode); // error fallback
+        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUInfoFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
+    #endif
+    return open64(pathname, flags, mode);
+}
+
 EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
 {
     if(strcmp((const char*)path, "/proc/self/maps")==0) {
