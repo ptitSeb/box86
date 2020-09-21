@@ -79,6 +79,7 @@ char* trace_func = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint16_t default_fs = 0;
+int jit_gdb = 0;
 
 FILE* ftrace = NULL;
 int ftrace_has_pid = 0;
@@ -353,6 +354,15 @@ void LoadLogEnv()
         if(fix_64bit_inodes)
             printf_log(LOG_INFO, "Fix 64bit inodes\n");
     }
+    p = getenv("BOX86_JITGDB");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                jit_gdb = p[0]-'0';
+        }
+        if(jit_gdb)
+            printf_log(LOG_INFO, "Launch gdb on segfault\n");
+    }
     box86_pagesize = sysconf(_SC_PAGESIZE);
     if(!box86_pagesize)
         box86_pagesize = 4096;
@@ -487,6 +497,7 @@ void PrintHelp() {
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
+    printf(" BOX86_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
 }
 
 EXPORTDYN

@@ -29,6 +29,7 @@ extern box86context_t *my_context; // global context
 extern char* trace_func;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 extern uint16_t default_fs;
+extern int jit_gdb; // launch gdb when a segfault is trapped
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

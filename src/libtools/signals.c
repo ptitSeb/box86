@@ -353,7 +353,24 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
             #endif
         }
         x86name = getAddrFunctionName(x86pc);   
-        // uncomment that line for easier SEGFAULT debugging
+        if(jit_gdb) {
+            pid_t pid = getpid();
+            int v = fork(); // is this ok in a signal handler???
+            if(v) {
+                // parent process, the one that have the segfault
+                volatile int waiting = 1;
+                printf_log(LOG_NONE, "Waiting for gdb...\n");
+                while(waiting) {
+                    // using gdb, use "set waiting=0" to stop waiting...
+                    usleep(1000);
+                }
+            } else {
+                char myarg[50] = {0};
+                sprintf(myarg, "%d", pid);
+                execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
+                exit(-1);
+            }
+        }
 #ifdef DYNAREC
         printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else

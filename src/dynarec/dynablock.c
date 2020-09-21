@@ -364,8 +364,8 @@ dynablock_t* FindDynablockDynablocklist(void* addr, dynablocklist_t* dynablocks)
         return NULL;
     if(dynablocks->direct)
         for(int i=0; i<dynablocks->textsz; ++i) {
-            if(dynablocks->direct[i]) {
-                dynablock_t* db = dynablocks->direct[i];
+            dynablock_t* db
+            if((db = dynablocks->direct[i])) {
                 uintptr_t s = (uintptr_t)db->block;
                 uintptr_t e = (uintptr_t)db->block+db->size;
                 if((uintptr_t)addr>=s && (uintptr_t)addr<e)

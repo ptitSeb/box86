@@ -130,3 +130,9 @@ Allow box86 to continue even if a lib is missing
  * 0 : Don't fix 64bit inodes (default)
  * 1 : Fix 64bit inodes. Helps when running on filesystems with 64bit inodes, the program uses API functions which don't support it and the program doesn't use inodes information.
 
+#### BOX86_JITGDB
+* 0 : Just print the Segfault message on segfault (default)
+* 1 : Launch `gdb` when a segfault is trapped, attached to the offending process, and go in an endless loop, waiting.
+        When in gdb, you need to find the correct thread yourself (the one with `my_memprotectionhandler` in is stack)
+        then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_memprotectionhandler`, 
+        just before the printf of the Segfault message. Then simply `set waiting=0` to exit the infinite loop.
