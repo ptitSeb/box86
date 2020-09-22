@@ -244,6 +244,7 @@ void* FillBlock(dynablock_t* block) {
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
+    block->nolinker = helper.nolinker;
     block->need_test = 0;
     block->x86_addr = (void*)start;
     block->x86_size = end-start;

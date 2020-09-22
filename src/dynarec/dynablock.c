@@ -619,7 +619,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
     dynablock_t *db = internalDBGetBlock(emu, addr, create, *current);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
+        uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X)%s with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->marks?" with Mark,":"", father->sons_size);
             // no more current if it gets invalidated too
