@@ -70,31 +70,31 @@ void Run67(x86emu_t *emu)
         tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX && !ACCESS_FLAG(F_ZF))
-            R_EIP += tmp8s;
+            ip += tmp8s;
         break;
     case 0xE1:                      /* LOOPZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX && ACCESS_FLAG(F_ZF))
-            R_EIP += tmp8s;
+            ip += tmp8s;
         break;
     case 0xE2:                      /* LOOP */
         tmp8s = F8S;
         --R_CX; // don't update flags
         if(R_CX)
-            R_EIP += tmp8s;
+            ip += tmp8s;
         break;
     case 0xE3:                      /* JCXZ */
         tmp8s = F8S;
         if(!R_CX)
-            R_EIP += tmp8s;
+            ip += tmp8s;
         break;
 
     case 0xE8:                      /* CALL Id */
         tmp32s = F32S; // call is relative
-        Push(emu, R_EIP);
-        R_EIP += tmp32s;
+        Push(emu, ip);
+        ip += tmp32s;
         break;
 
     default:
@@ -246,7 +246,7 @@ void RunLock(x86emu_t *emu)
                             break;
 
                         default:
-                            ip -= 3; //unfetch
+                            ip -= 2; //unfetchall 0F BA but not F0, continue normal without LOCK
                             break;
                     }
                     break;
@@ -306,7 +306,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     // trigger invalid lock?
-                    ip -= 2; // unfetch
+                    ip -= 1; // unfetch 0F but not F0
                     break;
             }
             break;
@@ -366,7 +366,7 @@ void RunLock(x86emu_t *emu)
                     pthread_mutex_unlock(&emu->context->mutex_lock);
                     break;
                 default:
-                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0x%02X 0x%02X\n", opcode, PK(0));
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFF 0x%02X 0x%02X\n", nextop, PK(0));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     break;
@@ -375,7 +375,7 @@ void RunLock(x86emu_t *emu)
         default:
             //UnimpOpcode(emu);
             // should trigger invalid unlock ?
-            ip--;    // "unfetch" to use normal instruction
+            ip--;    // unfetch "nextop", discard F0 to use normal instruction
     }
     R_EIP = ip;
 }
@@ -559,8 +559,9 @@ void RunGS(x86emu_t *emu)
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
-                    Push(emu, R_EIP);
-                    R_EIP = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                    R_EIP = ED->dword[0];
+                    Push(emu, ip);
+                    ip = R_EIP;
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
@@ -569,13 +570,13 @@ void RunGS(x86emu_t *emu)
                         emu->error |= ERR_ILLEGAL;
                     } else {
                         Push16(emu, R_CS);
-                        Push(emu, R_EIP);
-                        R_EIP = ED->dword[0];
+                        Push(emu, ip);
+                        ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    R_EIP = ED->dword[0];
+                    ip = ED->dword[0];
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -583,7 +584,7 @@ void RunGS(x86emu_t *emu)
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                     } else {
-                        R_EIP = ED->dword[0];
+                        ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;
@@ -612,7 +613,6 @@ void RunFS(x86emu_t *emu)
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
-    int16_t tmp16s;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
     switch(opcode) {
         case 0x33:              /* XOR Gd,Ed */
@@ -626,32 +626,24 @@ void RunFS(x86emu_t *emu)
             cmp32(emu, GD.dword[0], ED->dword[0]);
             break;
         
-        case 0x54:               /* PUSH ESP */
-            tmp32u = R_ESP;
-            R_ESP -= 4;
-            *((uint32_t*)(R_ESP+tlsdata)) = tmp32u;    //Push(emu, tmp32u);
-            break;
-        case 0x50:
+        case 0x50:              /* PUSH Reg */
         case 0x51:
         case 0x52:
         case 0x53:
+        case 0x54:               /* PUSH ESP */
         case 0x55:
         case 0x56:
-        case 0x57:              /* PUSH Reg */
-            tmp8u = opcode&7;
-            *((uint32_t*)(R_ESP+tlsdata)) = emu->regs[tmp8u].dword[0]; //Push(emu, emu->regs[tmp8u].dword[0]);
-            break;
-        case 0x58:
+        case 0x57:              
+        case 0x58:              /* POP Reg */
         case 0x59:
         case 0x5A:
         case 0x5B:
-        case 0x5C:                      /* POP ESP */
+        case 0x5C:              /* POP ESP */
         case 0x5D:
         case 0x5E:
-        case 0x5F:                      /* POP Reg */
-            tmp8u = opcode&7;
-            emu->regs[tmp8u].dword[0] = *((uint32_t*)(R_ESP+tlsdata));    // Pop(emu);
-            R_ESP += 4;
+        case 0x5F:
+            // Segment override if for memory loc, no stack segment 
+            --ip;   // so ignore prefix and continue
             break;
 
         case 0x67:
@@ -676,12 +668,12 @@ void RunFS(x86emu_t *emu)
                     break;
 
                 case 0xA1:                              /* MOV EAX,Ov16 */
-                    tmp16s = F16S;
-                    R_EAX = *(uint32_t*)((tlsdata) + tmp16s);
+                    tmp32u = F16;
+                    R_EAX = *(uint32_t*)(tlsdata + tmp32u);
                     break;
                 case 0xA3:                              /* MOV Ov16,EAX */
-                    tmp16s = F16S;
-                    *(uint32_t*)((tlsdata) + tmp16s) = R_EAX;
+                    tmp32u = F16;
+                    *(uint32_t*)(tlsdata + tmp32u) = R_EAX;
                     break;
                 case 0xFF:                              /* GRP 5 Ed */
                     nextop = F8;
@@ -814,8 +806,9 @@ void RunFS(x86emu_t *emu)
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
-                    Push(emu, R_EIP);
-                    R_EIP = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                    R_EIP = ED->dword[0];
+                    Push(emu, ip);
+                    ip = R_EIP;
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
@@ -824,13 +817,13 @@ void RunFS(x86emu_t *emu)
                         emu->error |= ERR_ILLEGAL;
                     } else {
                         Push16(emu, R_CS);
-                        Push(emu, R_EIP);
-                        R_EIP = ED->dword[0];
+                        Push(emu, ip);
+                        ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    R_EIP = ED->dword[0];
+                    ip = ED->dword[0];
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -838,7 +831,7 @@ void RunFS(x86emu_t *emu)
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                     } else {
-                        R_EIP = ED->dword[0];
+                        ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;
