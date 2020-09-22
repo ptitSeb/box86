@@ -3,3 +3,4 @@ build*/
 .vscode
 .gdb_history
 src/git_head.h
+backup/
