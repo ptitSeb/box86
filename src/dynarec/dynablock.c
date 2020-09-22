@@ -224,6 +224,8 @@ void MarkDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
+    if(!(*dynablocks)->nolinker)
+        return;
     dynarec_log(LOG_DEBUG, "Marked %d Blocks from Dynablocklist (with %d buckets, nolinker=%d) %p:0x%x %s\n", (*dynablocks)->blocks?(kh_size((*dynablocks)->blocks)):0, (*dynablocks)->blocks?(kh_n_buckets((*dynablocks)->blocks)):0, (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz, ((*dynablocks)->direct)?" With Direct mapping enabled":"");
     dynablock_t* db;
     if((*dynablocks)->blocks) {
@@ -292,6 +294,8 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
 {
     if(!dynablocks)
         return;
+    if(!dynablocks->nolinker)
+        return;
     uintptr_t startdb = dynablocks->text;
     uintptr_t enddb = startdb + dynablocks->textsz;
     uintptr_t start = addr;
@@ -332,17 +336,31 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
     if(dynablocks->blocks) {
         dynablock_t* db;
         uintptr_t s, e;
+        int ret;
+        khint_t k;
+        kh_dynablocks_t *blocks = kh_init(dynablocks);
+        // copy in a temporary list
         kh_foreach_value(dynablocks->blocks, db, 
             s = (uintptr_t)db->x86_addr;
             e = (uintptr_t)db->x86_addr+db->x86_size-1;
-            if((s>=addr && s<(addr+size)) || (e>=addr && e<(addr+size)))
-                ProtectDynablock(db);
+            if((s>=addr && s<(addr+size)) || (e>=addr && e<(addr+size))) {
+                //ProtectDynablock(db);
+                k = kh_put(dynablocks, blocks, s, &ret);
+                kh_value(blocks, k) = db;
+            }
         );
+        // purge the list
+        kh_foreach_value(blocks, db,
+            FreeDynablock(db);
+        );
+        kh_destroy(dynablocks, blocks);
     }
 }
 void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
     if(!dynablocks)
+        return;
+    if(!dynablocks->nolinker)
         return;
     if(dynablocks->direct)
         MarkDirectDynablock(dynablocks, addr, size);
@@ -479,8 +497,8 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
 }
 
 // a block is 4096 byte, so get a low magic size or no block will get "direct" treatment
-#define MAGIC_SIZE  30
-#define MAGIC_SIZE2 36
+#define MAGIC_SIZE  8
+#define MAGIC_SIZE2 16
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created)
 {
