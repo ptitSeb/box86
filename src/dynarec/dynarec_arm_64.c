@@ -210,18 +210,20 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDR_IMM9(xEAX, x1, i32);
             } else {
                 MOV32(x2, i32);
-                ADD_REG_LSL_IMM5(x1, x1, x2, 0);
-                LDR_IMM9(xEAX, x1, 0);
+                LDR_REG_LSL_IMM5(xEAX, x1, x2, 0);
             }
             break;
 
         case 0xA3:
             INST_NAME("MOV FS:Od, EAX");
             grab_fsdata(dyn, addr, ninst, x1);
-            u32 = F32;
-            MOV32(x2, u32);
-            ADD_REG_LSL_IMM5(x2, x1, x2, 0);
-            STR_IMM9(xEAX, x2, 0);
+            i32 = F32S;
+            if(i32>-4096 && i32<4096) {
+                STR_IMM9(xEAX, x1, i32);
+            } else {
+                MOV32(x2, i32);
+                STR_REG_LSL_IMM5(xEAX, x2, x1, 0);
+            }
             break;
 
         case 0xC7:
