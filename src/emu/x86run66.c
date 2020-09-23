@@ -51,7 +51,32 @@ void Run67(x86emu_t *emu)
     uint8_t opcode = F8;
     int8_t tmp8s;
     int32_t tmp32s;
+    uintptr_t tlsdata;
+    reg32_t *oped;
+    uint8_t nextop;
     switch(opcode) {
+
+    case 0x64:
+        opcode = F8;
+        tlsdata = GetFSBaseEmu(emu);
+        switch(opcode) {
+            case 0xFF:                              /* GRP 5 Ed */
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 6:                         /* Push Ed */
+                        GET_EW16_OFFS(tlsdata);
+                        Push(emu, ED->dword[0]);
+                        break;
+                    default:
+                        ip-=2;
+                        UnimpOpcode(emu);
+                }
+                break;
+            default:
+                ip-=2;
+                UnimpOpcode(emu);
+        }
+        break;
 
     case 0x66:                      /* MoooRE opcodes */
         Run6766(emu);
