@@ -316,6 +316,8 @@ Op is 20-27
 
 // str reg, [addr, #+/-imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str with cond reg, [addr, #+/-imm9]
+#define STR_IMM9_COND(cond, reg, addr, imm9) EMIT(cond | 0x05000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // strb reg, [addr, #+/-imm9]
 #define STRB_IMM9(reg, addr, imm9) EMIT(0xe5400000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], #+/-imm9
@@ -443,26 +445,32 @@ Op is 20-27
 #define LDREXD_gen(cond, Rn, Rt) (cond | 0b000<<25 | 0b11011<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
 // Load Exclusive Rt/Rt+1 from Rn (tagging the memory)
 #define LDREXD(Rt, Rn)  EMIT(LDREXD_gen(c__, Rn, Rt))
+#define LDREXD_COND(cond, Rt, Rn)  EMIT(LDREXD_gen(cond, Rn, Rt))
 
 #define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive Rt/Rt+1 to Rn, with result in Rd if tag is ok (Rd!=Rn && Rd!=Rt && Rd!=Rt+1), Rd==1 if store failed
 #define STREXD(Rd, Rt, Rn)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
+#define STREXD_COND(cond, Rd, Rt, Rn)  EMIT(STREXD_gen(cond, Rd, Rn, Rt))
 
 #define LDREX_gen(cond, Rn, Rt)     (cond | 0b0001100<<21 | 1<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
 // Load Exclusive Rt from Rn (tagging the memory)
 #define LDREX(Rt, Rn)       EMIT(LDREX_gen(c__, Rn, Rt))
+#define LDREX_COND(cond, Rt, Rn)       EMIT(LDREX_gen(cond, Rn, Rt))
 
 #define STREX_gen(cond, Rd, Rn, Rt) (cond | 0b0001100<<21 | 0<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive Rt to Rn, with result in Rd=0 if tag is ok, Rd==1 if store failed (Rd!=Rn && Rd!=Rt)
 #define STREX(Rd, Rt, Rn)   EMIT(STREX_gen(c__, Rd, Rn, Rt))
+#define STREX_COND(cond, Rd, Rt, Rn)   EMIT(STREX_gen(cond, Rd, Rn, Rt))
 
 #define LDREXB_gen(cond, Rn, Rt)        (cond | 0b0001110<<21 | 1<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
 // Load Exclusive Byte Rt from Rn (tagging the memory)
 #define LDREXB(Rt, Rn)      EMIT(LDREXB_gen(c__, Rn, Rt))
+#define LDREXB_COND(cond, Rt, Rn)      EMIT(LDREXB_gen(cond, Rn, Rt))
 
 #define STREXB_gen(cond, Rd, Rn, Rt)    (cond | 0b0001110<<21 | 0<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive byte Rt to Rn, with result in Rd=0 if tag is ok, Rd==1 if store failed (Rd!=Rn && Rd!=Rt)
 #define STREXB(Rd, Rt, Rn)  EMIT(STREXB_gen(c__, Rd, Rn, Rt))
+#define STREXB_COND(cond, Rd, Rt, Rn)  EMIT(STREXB_gen(cond, Rd, Rn, Rt))
 
 // Count leading 0 bit of Rm, store result in Rd
 #define CLZ(Rd, Rm)  EMIT(c__ | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))

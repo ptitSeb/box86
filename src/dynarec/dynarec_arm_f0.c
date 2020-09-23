@@ -540,7 +540,10 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
                         MARKLOCK;
-                        LDREX(x1, wback);
+                        TSTS_IMM8(wback, 3);    // can be unaligned it seems
+                        LDREX_COND(cEQ, x1, wback);
+                        LDR_IMM9_COND(cNE, x1, wback, 0);
+                        LDREXB_COND(cNE, x3, wback); // dummy read, to arm the write...
                         ed = x1;
                     }
                     CMPS_REG_LSL_IMM5(xEAX, ed, 0);
@@ -549,9 +552,13 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_REG(x3, ed);
                     MOV_REG(ed, gd);
                     if(wback) {
-                        STREX(x12, ed, wback);
+                        TSTS_IMM8(wback, 3);
+                        STREX_COND(cEQ, x12, ed, wback);
+                        STREXB_COND(cNE, x12, ed, wback);
                         CMPS_IMM8(x12, 0);
                         B_MARKLOCK(cNE);
+                        TSTS_IMM8(wback, 3);    // anoying, all those test
+                        STR_IMM9_COND(cNE, ed, wback, 0);
                     }
                     emit_cmp32(dyn, ninst, xEAX, x3, x1, x12);
                     // done
@@ -750,16 +757,23 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop = F8;
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0);
                     MARKLOCK;
-                    LDREXD(x2, wback);
+                    TSTS_IMM8(wback, 7);
+                    LDREXD_COND(cEQ, x2, wback);
+                    LDREX_COND(cNE, x2, wback);
+                    LDR_IMM9_COND(cNE, x3, wback, 4);
                     CMPS_REG_LSL_IMM5(xEAX, x2, 0);
                     B_MARK(cNE);    // EAX != Ed[0]
                     CMPS_REG_LSL_IMM5(xEDX, x3, 0);
                     B_MARK(cNE);    // EDX != Ed[1]
                     MOV_REG(x2, xEBX);
                     MOV_REG(x3, xECX);
-                    STREXD(x12, x2, wback);
+                    TSTS_IMM8(wback, 7);
+                    STREXD_COND(cEQ, x12, x2, wback);
+                    STREX_COND(cNE, x12, x2, wback);
                     CMPS_IMM8(x12, 0);
                     B_MARKLOCK(cNE);
+                    TSTS_IMM8(wback, 7);
+                    STR_IMM9_COND(cNE, x3, wback, 4);
                     MOVW(x1, 1);
                     B_MARK3(c__);
                     MARK;
