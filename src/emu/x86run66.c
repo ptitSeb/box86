@@ -51,6 +51,7 @@ void Run67(x86emu_t *emu)
     uint8_t opcode = F8;
     int8_t tmp8s;
     int32_t tmp32s;
+    uint32_t tmp32u;
     uintptr_t tlsdata;
     reg32_t *oped;
     uint8_t nextop;
@@ -60,6 +61,32 @@ void Run67(x86emu_t *emu)
         opcode = F8;
         tlsdata = GetFSBaseEmu(emu);
         switch(opcode) {
+            case 0x89:                              /* MOV ED16,Gd */
+                nextop = F8;
+                GET_EW16_OFFS(tlsdata);
+                ED->dword[0] = GD.dword[0];
+                break;
+
+            case 0x8B:                              /* MOV Gd,Ed16 */
+                nextop = F8;
+                GET_EW16_OFFS(tlsdata);
+                GD.dword[0] = ED->dword[0];
+                break;
+
+            case 0x8F:                              /* POP FS:Ed */
+                nextop = F8;
+                GET_EW16_OFFS(tlsdata);
+                ED->dword[0] = Pop(emu);
+                break;
+
+            case 0xA1:                              /* MOV EAX,Ov16 */
+                tmp32u = F16;
+                R_EAX = *(uint32_t*)(tlsdata + tmp32u);
+                break;
+            case 0xA3:                              /* MOV Ov16,EAX */
+                tmp32u = F16;
+                *(uint32_t*)(tlsdata + tmp32u) = R_EAX;
+                break;
             case 0xFF:                              /* GRP 5 Ed */
                 nextop = F8;
                 switch((nextop>>3)&7) {
