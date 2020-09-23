@@ -186,6 +186,8 @@
 #define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
 #define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
 #define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
+#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
+#define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
 // Branch to MARK if cond (use i32)
 #define B_MARK(cond)    \
@@ -206,6 +208,10 @@
 // Branch to MARKSEG if cond (use i32)
 #define B_MARKSEG(cond)    \
     i32 = GETMARKSEG-(dyn->arm_size+8);   \
+    Bcond(cond, i32)
+// Branch to MARKLOCK if cond (use i32)
+#define B_MARKLOCK(cond)    \
+    i32 = GETMARKLOCK-(dyn->arm_size+8);   \
     Bcond(cond, i32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))
@@ -301,12 +307,6 @@
 #define NEW_BARRIER_INST
 #endif
 
-// Emit the LOCK mutex (x1, x2 and x3 are lost)
-#define LOCK        emit_lock(dyn, addr, ninst)
-// Emit the UNLOCK mutex (x1, x2 and x3 are lost)
-#define UNLOCK      emit_unlock(dyn, addr, ninst)
-
-
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
@@ -349,8 +349,6 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define isNativeCall    STEPNAME(isNativeCall_)
-#define emit_lock       STEPNAME(emit_lock)
-#define emit_unlock     STEPNAME(emit_unlock)
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
 #define emit_cmp32      STEPNAME(emit_cmp32)

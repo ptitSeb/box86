@@ -364,6 +364,7 @@ if(ARM_DYNAREC)
         "${BOX86_ROOT}/src/dynarec/arm_epilog.S"
         "${BOX86_ROOT}/src/dynarec/arm_linker.S"
         "${BOX86_ROOT}/src/dynarec/arm_table.S"
+        "${BOX86_ROOT}/src/dynarec/arm_lock_helper.S"
     )
 
     set(DYNAREC_PASS

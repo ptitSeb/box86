@@ -1542,26 +1542,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CMPXCHG Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df)); // d_none == 0
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
             GETEB(x2)
             UXTB(x1, xEAX, 0);
-            // Use a quick CMP, without setting A or P...
             CMPS_REG_LSL_IMM5(x1, ed, 0);
-            MOVW_COND(cEQ, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
             // AL == Eb
             GETGB(x1);
             MOV_REG(ed, x1);
             EBBACK;
-            MOVW(x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            // done
             B_MARK3(c__);
             MARK;
             // AL != Eb
@@ -1569,36 +1557,27 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MARK3;
+            // done, do the cmp now
+            emit_cmp8(dyn, ninst, x1, x2, x3, x12);
             break;
         case 0xB1:
             INST_NAME("CMPXCHG Ed, Gd");
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df)); // d_none == 0
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
             GETED;
             GETGD;
-            // Use a quick CMP, without setting A or P...
             CMPS_REG_LSL_IMM5(xEAX, ed, 0);
-            MOVW_COND(cEQ, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK(cNE);
             // EAX == Ed
+            MOV_REG(x3, ed);
             MOV_REG(ed, gd);
             WBACK;
-            MOVW(x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            // done
+            emit_cmp32(dyn, ninst, xEAX, x3, x1, x12);
             B_MARK3(c__);   // not next, in case its called with a LOCK prefix
             MARK;
             // EAX != Ed
+            emit_cmp32(dyn, ninst, xEAX, ed, x3, x12);
             MOV_REG(xEAX, ed);
-            MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MARK3
             break;
         case 0xB3:

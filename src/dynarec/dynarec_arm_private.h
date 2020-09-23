@@ -13,6 +13,7 @@ typedef struct instruction_arm_s {
     uintptr_t           mark, mark2, mark3;
     uintptr_t           markf;
     uintptr_t           markseg;
+    uintptr_t           marklock;
 } instruction_arm_t;
 
 typedef struct dynarec_arm_s {

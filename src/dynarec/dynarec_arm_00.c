@@ -999,25 +999,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(gb1, x1, gb2*8, 8);
                 BFI(eb1, x12, eb2*8, 8);
             } else {
-                if(0/*arm_swap*/) {
-                    // use atomic swap...
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
-                    GETGB(x12);
-                    SWPB(x12, x12, ed);
-                    BFI(gb1, x12, gb2*8, 8);
-                } else {
-                    // Lock
-                    LOCK;
-                    // do the swap
-                    GETGB(x12);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
-                    LDRB_IMM9(x1, ed, fixedaddress);    // 1 gets eb
-                    // do the swap 12 -> strb(ed), 1 -> gd
-                    BFI(gb1, x1, gb2*8, 8);
-                    STRB_IMM9(x12, ed, fixedaddress);
-                    // Unlock
-                    UNLOCK;
-                }
+                GETGB(x12);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                MARKLOCK;
+                // do the swap with exclusive locking
+                LDREXB(x1, ed);
+                // do the swap 12 -> strb(ed), 1 -> gd
+                STREXB(x3, x12, ed);
+                CMPS_IMM8(x3, 0);
+                B_MARKLOCK(cNE);
+                BFI(gb1, x1, gb2*8, 8);
             }
             break;
         case 0x87:
@@ -1032,24 +1023,21 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     XOR_REG_LSL_IMM5(gd, gd, ed, 0);
                 }
             } else {
-                if(0/*arm_swap*/) { // swap doesn't seem to really work like that, plus there seems to be alignement need on arm7
-                    GETGD;
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
-                    // use atomic swap
-                    SWP(gd, gd, ed);
-                } else {
-                    LOCK;
-                    GETGD;
-                    GETED;
-                    // xor swap to avoid one more tmp reg
-                    if(gd!=ed) {
-                        XOR_REG_LSL_IMM5(gd, gd, ed, 0);
-                        XOR_REG_LSL_IMM5(ed, gd, ed, 0);
-                        XOR_REG_LSL_IMM5(gd, gd, ed, 0);
-                    }
-                    WBACK;
-                    UNLOCK;
-                }
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                TSTS_IMM8(ed, 3);
+                B_MARK(cNE);
+                MARKLOCK;
+                LDREX(x1, ed);
+                STREX(x3, gd, ed);
+                CMPS_IMM8(x3, 0);
+                B_MARKLOCK(cNE);
+                B_MARK2(c__);
+                MARK;
+                LDR_IMM9(x1, ed, 0);
+                STR_IMM9(gd, ed, 0);
+                MARK2;
+                MOV_REG(gd, x1);
             }
             break;
         case 0x88:

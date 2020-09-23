@@ -293,12 +293,12 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         // TODO: This is not thread safe.
         if(!ip) {   // no IP, jump address in a reg, so need smart linker
             MARK;
-            LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
+            LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
             CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
             MOV32_(x2, (uintptr_t)arm_linker);
             MOV_REG(x3, x12);
-            STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+            STREXD(x12, x2, x1); // nope, putting back linker & IP in place
             // x12 now contain success / falure for write
             CMPS_IMM8(x12, 1);
             MOV_REG(x12, x3);   // put back IP in place...
@@ -338,12 +338,12 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         dyn->tablei+=4; // smart linker
         MOV32_(x1, (uintptr_t)table);
         MARK;
-        LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
+        LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
         MOV32_(x2, (uintptr_t)arm_linker);
         MOV_REG(x3, x12);
-        STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+        STREXD(x12, x2, x1); // nope, putting back linker & IP in place
         // x12 now contain success / falure for write
         CMPS_IMM8(x12, 1);
         MOV_REG(x12, x3);   // put back IP in place...
@@ -386,12 +386,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         dyn->tablei+=4; // smart linker
         MOV32_(x1, (uintptr_t)table);
         MARK;
-        LDREXD(x1, x2); // load dest address in x2 and planned ip in x3
+        LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
         MOV32_(x2, (uintptr_t)arm_linker);
         MOV_REG(x3, x12);
-        STREXD(x12, x1, x2); // nope, putting back linker & IP in place
+        STREXD(x12, x2, x1); // nope, putting back linker & IP in place
         // x12 now contain success / falure for write
         CMPS_IMM8(x12, 1);
         MOV_REG(x12, x3);   // put back IP in place...
@@ -489,28 +489,6 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
         return 1;
     }
     return 0;
-}
-
-// emit "lock", x1, x2 and x3 are lost
-void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
-{
-    PUSH(xSP, (1<<xEmu));   // save Emu
-    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-    ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
-    CALL(pthread_mutex_lock, -2, 0);
-    POP(xSP, (1<<xEmu));
-}
-
-// emit "unlock", x1, x2 and x3 are lost
-void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst)
-{
-    PUSH(xSP, (1<<xEmu));   // save Emu
-    LDR_IMM9(xEmu, xEmu, offsetof(x86emu_t, context));
-    MOV32(x1, offsetof(box86context_t, mutex_lock));   // offset is way to big for imm8
-    ADD_REG_LSL_IMM5(xEmu, xEmu, x1, 0);
-    CALL(pthread_mutex_unlock, -2, 0);
-    POP(xSP, (1<<xEmu));
 }
 
 // x87 stuffs

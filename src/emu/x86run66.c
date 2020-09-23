@@ -11,6 +11,9 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
+#ifdef DYNAREC
+#include "../dynarec/arm_lock_helper.h"
+#endif
 
 
 #define F8      *(uint8_t*)(ip++)
@@ -162,9 +165,47 @@ void RunLock(x86emu_t *emu)
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
+#ifdef DYNAREC
+    uint8_t tmp8u2;
+#endif
     uint32_t tmp32u, tmp32u2;
     int32_t tmp32s;
     switch(opcode) {
+#ifdef DYNAREC
+        #define GO(B, OP)                      \
+        case B+0: \
+            nextop = F8;               \
+            GET_EB;             \
+            do {                \
+            tmp8u = arm_lock_read_b(EB);     \
+            tmp8u = OP##8(emu, tmp8u, GB);  \
+            } while (arm_lock_write_b(EB, tmp8u));   \
+            break;                              \
+        case B+1: \
+            nextop = F8;               \
+            GET_ED;             \
+            do {                \
+            tmp32u = arm_lock_read_d(ED);     \
+            tmp32u = OP##32(emu, tmp32u, GD.dword[0]);  \
+            } while (arm_lock_write_d(ED, tmp32u));   \
+            break;                              \
+        case B+2: \
+            nextop = F8;               \
+            GET_EB;                   \
+            GB = OP##8(emu, GB, EB->byte[0]); \
+            break;                              \
+        case B+3: \
+            nextop = F8;               \
+            GET_ED;         \
+            GD.dword[0] = OP##32(emu, GD.dword[0], ED->dword[0]); \
+            break;                              \
+        case B+4: \
+            R_AL = OP##8(emu, R_AL, F8); \
+            break;                              \
+        case B+5: \
+            R_EAX = OP##32(emu, R_EAX, F32); \
+            break;
+#else
         #define GO(B, OP)                      \
         case B+0: \
             nextop = F8;               \
@@ -204,7 +245,7 @@ void RunLock(x86emu_t *emu)
             R_EAX = OP##32(emu, R_EAX, F32); \
             pthread_mutex_unlock(&emu->context->mutex_lock);\
             break;
-
+#endif
         GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
         GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
@@ -221,6 +262,18 @@ void RunLock(x86emu_t *emu)
                     CHECK_FLAGS(emu);
                     nextop = F8;
                     GET_EB;
+#ifdef DYNAREC
+                    do {
+                        tmp8u = arm_lock_read_b(EB);
+                        cmp8(emu, R_AL, tmp8u);
+                        if(ACCESS_FLAG(F_ZF)) {
+                            tmp32s = arm_lock_write_b(EB, GB);
+                        } else {
+                            R_AL = tmp8u;
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     cmp8(emu, R_AL, EB->byte[0]);
                     if(ACCESS_FLAG(F_ZF)) {
@@ -229,10 +282,23 @@ void RunLock(x86emu_t *emu)
                         R_AL = EB->byte[0];
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xB1:                      /* CMPXCHG Ed,Gd */
                     nextop = F8;
                     GET_ED;
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                        cmp32(emu, R_EAX, tmp32u);
+                        if(ACCESS_FLAG(F_ZF)) {
+                            tmp32s = arm_lock_write_d(ED, GD.dword[0]);
+                        } else {
+                            R_EAX = tmp32u;
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     cmp32(emu, R_EAX, ED->dword[0]);
                     if(ACCESS_FLAG(F_ZF)) {
@@ -241,6 +307,7 @@ void RunLock(x86emu_t *emu)
                         R_EAX = ED->dword[0];
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xB3:                      /* BTR Ed,Gd */
                     CHECK_FLAGS(emu);
@@ -252,6 +319,19 @@ void RunLock(x86emu_t *emu)
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                     }
                     tmp8u&=31;
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                        if(tmp32u & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                            tmp32u ^= (1<<tmp8u);
+                            tmp32s = arm_lock_write_d(ED, tmp32u);
+                        } else {
+                            CLEAR_FLAG(F_CF);
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     if(ED->dword[0] & (1<<tmp8u)) {
                         SET_FLAG(F_CF);
@@ -259,6 +339,7 @@ void RunLock(x86emu_t *emu)
                     } else
                         CLEAR_FLAG(F_CF);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xBA:                      
                     nextop = F8;
@@ -272,12 +353,19 @@ void RunLock(x86emu_t *emu)
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                             }
                             tmp8u&=31;
+#ifdef DYNAREC
+                            if(arm_lock_read_d(ED) & (1<<tmp8u))
+                                SET_FLAG(F_CF);
+                            else
+                                CLEAR_FLAG(F_CF);
+#else
                             pthread_mutex_lock(&emu->context->mutex_lock);
                             if(ED->dword[0] & (1<<tmp8u))
                                 SET_FLAG(F_CF);
                             else
                                 CLEAR_FLAG(F_CF);
                             pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                             break;
                         case 6:             /* BTR Ed, Ib */
                             CHECK_FLAGS(emu);
@@ -288,6 +376,19 @@ void RunLock(x86emu_t *emu)
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                             }
                             tmp8u&=31;
+#ifdef DYNAREC
+                            do {
+                                tmp32u = arm_lock_read_d(ED);
+                                if(tmp32u & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    tmp32u ^= (1<<tmp8u);
+                                    tmp32s = arm_lock_write_d(ED, tmp32u);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+#else
                             pthread_mutex_lock(&emu->context->mutex_lock);
                             if(ED->dword[0] & (1<<tmp8u)) {
                                 SET_FLAG(F_CF);
@@ -295,6 +396,7 @@ void RunLock(x86emu_t *emu)
                             } else
                                 CLEAR_FLAG(F_CF);
                             pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                             break;
 
                         default:
@@ -312,6 +414,17 @@ void RunLock(x86emu_t *emu)
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
                     }
                     tmp8u&=31;
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                        if(tmp32u & (1<<tmp8u)) {
+                            SET_FLAG(F_CF);
+                        } else {
+                            CLEAR_FLAG(F_CF);
+                        }
+                        tmp32u ^= (1<<tmp8u);
+                    } while(arm_lock_write_d(ED, tmp32u));
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     if(ED->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
@@ -319,29 +432,60 @@ void RunLock(x86emu_t *emu)
                         CLEAR_FLAG(F_CF);
                     ED->dword[0] ^= (1<<tmp8u);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xC0:                      /* XADD Gb,Eb */
                     nextop = F8;
                     GET_EB;
+#ifdef DYNAREC
+                    do {
+                        tmp8u = arm_lock_read_b(EB);
+                        tmp8u2 = add8(emu, tmp8u, GB);
+                    } while (arm_lock_write_b(EB, tmp8u2));
+                    GB = tmp8u;
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp8u = add8(emu, EB->byte[0], GB);
                     GB = EB->byte[0];
                     EB->byte[0] = tmp8u;
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xC1:                      /* XADD Gd,Ed */
                     nextop = F8;
                     GET_ED;
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                        tmp32u2 = add32(emu, tmp32u, GD.dword[0]);
+                    } while(arm_lock_write_d(ED, tmp32u2));
+                    GD.dword[0] = tmp32u;
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp32u = add32(emu, ED->dword[0], GD.dword[0]);
                     GD.dword[0] = ED->dword[0];
                     ED->dword[0] = tmp32u;
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 0xC7:                      /* CMPXCHG8B Gq */
                     CHECK_FLAGS(emu);
                     nextop = F8;
                     GET_ED;
+#ifdef DYNAREC
+                    do {
+                        arm_lock_read_dd(&tmp32u, &tmp32u2, ED);
+                        if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                            SET_FLAG(F_ZF);
+                            tmp32s = arm_lock_write_dd(R_EBX, R_ECX, ED);
+                        } else {
+                            CLEAR_FLAG(F_ZF);
+                            R_EAX = tmp32u;
+                            R_EDX = tmp32u2;
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     tmp32u = ED->dword[0];
                     tmp32u2= ED->dword[1];
@@ -355,6 +499,7 @@ void RunLock(x86emu_t *emu)
                         R_EDX = tmp32u2;
                     }
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 default:
                     // trigger invalid lock?
@@ -367,12 +512,24 @@ void RunLock(x86emu_t *emu)
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
             GET_ED;
-            pthread_mutex_lock(&emu->context->mutex_lock);
             if(opcode==0x83) {
                 tmp32s = F8S;
                 tmp32u = (uint32_t)tmp32s;
             } else
                 tmp32u = F32;
+#ifdef DYNAREC
+            switch((nextop>>3)&7) {
+                case 0: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, add32(emu, tmp32u2, tmp32u))); break;
+                case 1: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED,  or32(emu, tmp32u2, tmp32u))); break;
+                case 2: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, adc32(emu, tmp32u2, tmp32u))); break;
+                case 3: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, sbb32(emu, tmp32u2, tmp32u))); break;
+                case 4: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, and32(emu, tmp32u2, tmp32u))); break;
+                case 5: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, sub32(emu, tmp32u2, tmp32u))); break;
+                case 6: do { tmp32u2 = arm_lock_read_d(ED);} while(arm_lock_write_d(ED, xor32(emu, tmp32u2, tmp32u))); break;
+                case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
+            }
+#else
+            pthread_mutex_lock(&emu->context->mutex_lock);
             switch((nextop>>3)&7) {
                 case 0: ED->dword[0] = add32(emu, ED->dword[0], tmp32u); break;
                 case 1: ED->dword[0] =  or32(emu, ED->dword[0], tmp32u); break;
@@ -384,38 +541,37 @@ void RunLock(x86emu_t *emu)
                 case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
             }
             pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
             break;
         case 0x86:                      /* XCHG Eb,Gb */
-            nextop = F8;
-            GET_EB;
-            tmp8u = GB;
-            pthread_mutex_lock(&emu->context->mutex_lock);
-            GB = EB->byte[0];
-            EB->byte[0] = tmp8u;
-            pthread_mutex_unlock(&emu->context->mutex_lock);
-            break;
         case 0x87:                      /* XCHG Ed,Gd */
-            nextop = F8;
-            GET_ED;
-            pthread_mutex_lock(&emu->context->mutex_lock);
-            tmp32u = GD.dword[0];
-            GD.dword[0] = ED->dword[0];
-            ED->dword[0] = tmp32u;
-            pthread_mutex_unlock(&emu->context->mutex_lock);
+            ip--;   // let the normal XCHG execute, it have integrated LOCK
             break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                    } while(arm_lock_write_d(ED, inc32(emu, tmp32u)));
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = inc32(emu, ED->dword[0]);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 case 1:                 /* DEC Ed */
+#ifdef DYNAREC
+                    do {
+                        tmp32u = arm_lock_read_d(ED);
+                    } while(arm_lock_write_d(ED, dec32(emu, tmp32u)));
+#else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
                     break;
                 default:
                     printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFF 0x%02X 0x%02X\n", nextop, PK(0));

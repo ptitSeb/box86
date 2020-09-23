@@ -122,7 +122,7 @@ Op is 20-27
 #define SUB_IMM8(dst, src, imm8) \
     EMIT(0xe2400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // sub cond dst, src, #(imm8)
-#define SUB_COND_IMM8(dst, src, imm8) \
+#define SUB_COND_IMM8(cond, dst, src, imm8) \
     EMIT((cond) | 0x02400000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // sub.s dst, src, #(imm8)
 #define SUBS_IMM8(dst, src, imm8) \
@@ -442,11 +442,27 @@ Op is 20-27
 
 #define LDREXD_gen(cond, Rn, Rt) (cond | 0b000<<25 | 0b11011<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
 // Load Exclusive Rt/Rt+1 from Rn (tagging the memory)
-#define LDREXD(Rn, Rt)  EMIT(LDREXD_gen(c__, Rn, Rt))
+#define LDREXD(Rt, Rn)  EMIT(LDREXD_gen(c__, Rn, Rt))
 
 #define STREXD_gen(cond, Rd, Rn, Rt)   (cond | 0b000<<25 | 0b11010<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
 // Store Exclusive Rt/Rt+1 to Rn, with result in Rd if tag is ok (Rd!=Rn && Rd!=Rt && Rd!=Rt+1), Rd==1 if store failed
-#define STREXD(Rd, Rn, Rt)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
+#define STREXD(Rd, Rt, Rn)  EMIT(STREXD_gen(c__, Rd, Rn, Rt))
+
+#define LDREX_gen(cond, Rn, Rt)     (cond | 0b0001100<<21 | 1<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
+// Load Exclusive Rt from Rn (tagging the memory)
+#define LDREX(Rt, Rn)       EMIT(LDREX_gen(c__, Rn, Rt))
+
+#define STREX_gen(cond, Rd, Rn, Rt) (cond | 0b0001100<<21 | 0<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
+// Store Exclusive Rt to Rn, with result in Rd=0 if tag is ok, Rd==1 if store failed (Rd!=Rn && Rd!=Rt)
+#define STREX(Rd, Rt, Rn)   EMIT(STREX_gen(c__, Rd, Rn, Rt))
+
+#define LDREXB_gen(cond, Rn, Rt)        (cond | 0b0001110<<21 | 1<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
+// Load Exclusive Byte Rt from Rn (tagging the memory)
+#define LDREXB(Rt, Rn)      EMIT(LDREXB_gen(c__, Rn, Rt))
+
+#define STREXB_gen(cond, Rd, Rn, Rt)    (cond | 0b0001110<<21 | 0<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
+// Store Exclusive byte Rt to Rn, with result in Rd=0 if tag is ok, Rd==1 if store failed (Rd!=Rn && Rd!=Rt)
+#define STREXB(Rd, Rt, Rn)  EMIT(STREXB_gen(c__, Rd, Rn, Rt))
 
 // Count leading 0 bit of Rm, store result in Rd
 #define CLZ(Rd, Rm)  EMIT(c__ | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))
@@ -472,6 +488,9 @@ Op is 20-27
 #define UDIV_gen(cond, Rd, Rm, Rn)  (cond | 0b0111<<24 | 0b0011<<20 | (Rd)<<16 | 0b1111<<12 | (Rm)<<8 | 0b0001<<4 | (Rn))
 // Unsigned Div Rd <- Rn/Rm
 #define UDIV(Rd, Rm, Rn)    EMIT(UDIV_gen(c__, Rd, Rm, Rn))
+
+// Yield
+#define YIELD(cond) EMIT(cond | 0b00110010<<20 | 0b1111<<12 | 1)
 
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
