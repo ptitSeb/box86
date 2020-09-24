@@ -24,23 +24,31 @@ typedef double  (*dFdd_t)   (double, double);
 typedef float   (*fFf_t)    (float);
 typedef double  (*dFd_t)    (double);
 
-EXPORT void* my_clog(void* p, void* c)
-{
-    *(double complex*)p = clog(*(double complex*)c);
-    return p;
+typedef union my_float_complex_s {
+    float complex   f;
+    uint64_t        u64;
+} my_float_complex_t;
+
+// complex <- FUNC(complex) wrapper
+#define GO_cFc(N)                                   \
+EXPORT void* my_##N(void* p, void* c)               \
+{                                                   \
+    *(double complex*)p = N(*(double complex*)c);   \
+    return p;                                       \
+}                                                   \
+EXPORT uint64_t my_##N##f(void* c)                  \
+{                                                   \
+    my_float_complex_t ret;                         \
+    ret.f = N##f(*(float complex*)c);               \
+    return ret.u64;                                 \
 }
 
-EXPORT void* my_csqrt(void* p, void* c)
-{
-    *(double complex*)p = csqrt(*(double complex*)c);
-    return p;
-}
+GO_cFc(clog)
+GO_cFc(csqrt)
+GO_cFc(cproj)
+GO_cFc(cexp)
 
-EXPORT void* my_csqrtf(void* p, void* c)
-{
-    *(float complex*)p = csqrtf(*(float complex*)c);
-    return p;
-}
+#undef GO_cFc
 
 #define FINITE(N, T, R, P, ...)     \
 EXPORT R my___##N##_finite P        \

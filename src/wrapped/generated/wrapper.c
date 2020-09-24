@@ -89,6 +89,7 @@ typedef uint32_t (*uFd_t)(double);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFv_t)(void);
 typedef uint64_t (*UFp_t)(void*);
+typedef uint64_t (*UFV_t)(void*);
 typedef float (*fFi_t)(int32_t);
 typedef float (*fFf_t)(float);
 typedef float (*fFp_t)(void*);
@@ -1703,6 +1704,7 @@ void uFd(x86emu_t *emu, uintptr_t fcn) { uFd_t fn = (uFd_t)fcn; R_EAX=(uint32_t)
 void uFp(x86emu_t *emu, uintptr_t fcn) { uFp_t fn = (uFp_t)fcn; R_EAX=(uint32_t)fn(*(void**)(R_ESP + 4)); }
 void UFv(x86emu_t *emu, uintptr_t fcn) { UFv_t fn = (UFv_t)fcn; ui64_t r; r.u=(uint64_t)fn(); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void UFp(x86emu_t *emu, uintptr_t fcn) { UFp_t fn = (UFp_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
+void UFV(x86emu_t *emu, uintptr_t fcn) { UFV_t fn = (UFV_t)fcn; ui64_t r; r.u=(uint64_t)fn((void*)(R_ESP + 4)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void fFi(x86emu_t *emu, uintptr_t fcn) { fFi_t fn = (fFi_t)fcn; float fl=fn(*(int32_t*)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void fFf(x86emu_t *emu, uintptr_t fcn) { fFf_t fn = (fFf_t)fcn; float fl=fn(*(float*)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void fFp(x86emu_t *emu, uintptr_t fcn) { fFp_t fn = (fFp_t)fcn; float fl=fn(*(void**)(R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }

@@ -72,6 +72,7 @@ void uFd(x86emu_t *emu, uintptr_t fnc);
 void uFp(x86emu_t *emu, uintptr_t fnc);
 void UFv(x86emu_t *emu, uintptr_t fnc);
 void UFp(x86emu_t *emu, uintptr_t fnc);
+void UFV(x86emu_t *emu, uintptr_t fnc);
 void fFi(x86emu_t *emu, uintptr_t fnc);
 void fFf(x86emu_t *emu, uintptr_t fnc);
 void fFp(x86emu_t *emu, uintptr_t fnc);

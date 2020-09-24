@@ -93,20 +93,20 @@ GO2(cbrtl, KFK, cbrt)
 GOW(ceil, dFd)
 GOW(ceilf, fFf)
 // ceill    // Weak
-// cexp // Weak
-// cexpf    // Weak
+GOS(cexp, pFpV)     // Weak, return complex
+GOM(cexpf, UFV)     // Weak, return complex
 // cexpl    // Weak
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
-GOS(clog, pFpV)   // return a double complex, that is a struct
+GOS(clog, pFpV)   // return a double complex, so ret 4
 // clog10   // Weak
 // __clog10
 // clog10f  // Weak
 // __clog10f
 // clog10l  // Weak
 // __clog10l
-// clogf    // Weak
+GOM(clogf, UFV)    // float complex doesn't trigger the ret 4, but return an u64!
 // clogl    // Weak
 // conj // Weak
 // conjf    // Weak
@@ -125,8 +125,8 @@ GOM(__cosh_finite, dFd)
 // cpow // Weak
 // cpowf    // Weak
 // cpowl    // Weak
-// cproj    // Weak
-// cprojf   // Weak
+GOS(cproj, pFpV)    // double complex
+GOM(cprojf, UFV)
 // cprojl   // Weak
 // creal    // Weak
 // crealf   // Weak
@@ -138,7 +138,7 @@ GOM(__cosh_finite, dFd)
 // csinhl   // Weak
 // csinl    // Weak
 GOS(csqrt, pFpV)
-GOS(csqrtf, pFpV)   // Weak
+GOS(csqrtf, UFV)   // Weak
 // csqrtl   // Weak
 // ctan // Weak
 // ctanf    // Weak
