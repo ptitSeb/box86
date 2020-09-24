@@ -56,25 +56,25 @@ GO2(atanhl, KFK, atanh)
 GOW(cabs, dFdd)     // only 1 arg, but is a double complex
 GOW(cabsf, fFff)    // only 1 arg, but is a float complex
 // cabsl    // Weak
-// cacos    // Weak
-// cacosf   // Weak
-// cacosh   // Weak
-// cacoshf  // Weak
+GOS(cacos, pFpV)    // Weak, complex
+GOM(cacosf, UFV)   // Weak
+GOS(cacosh, pFpV)   // Weak, complex
+GOM(cacoshf, UFV)  // Weak
 // cacoshl  // Weak
 // cacosl   // Weak
 GOW(carg, dFdd)     // 1arg, double complex
 GOW(cargf, fFff)    // 1arg, float complex
 // cargl    // Weak
-// casin    // Weak
-// casinf   // Weak
-// casinh   // Weak
-// casinhf  // Weak
+GOS(casin, pFpV)    // Weak, complex
+GOM(casinf, UFV)   // Weak
+GOS(casinh, pFpV)   // Weak, complex
+GOM(casinhf, UFV)  // Weak
 // casinhl  // Weak
 // casinl   // Weak
-// catan    // Weak
-// catanf   // Weak
-// catanh   // Weak
-// catanhf  // Weak
+GOS(catan, pFpV)    // Weak, complex
+GOM(catanf, UFV)   // Weak
+GOS(catanh, pFpV)   // Weak, complex
+GOM(catanhf, UFV)  // Weak
 // catanhl  // Weak
 // catanl   // Weak
 GOW(cbrt, dFd)
@@ -84,10 +84,10 @@ GOW(cbrtl, DFD)
 #else
 GO2(cbrtl, KFK, cbrt)
 #endif
-// ccos // Weak
-// ccosf    // Weak
-// ccosh    // Weak
-// ccoshf   // Weak
+GOS(ccos, pFpV) // Weak, return complex
+GOM(ccosf, UFV)    // Weak, return complex
+GOS(ccosh, pFpV)    // Weak, return complex
+GOM(ccoshf, UFV)   // Weak, return complex
 // ccoshl   // Weak
 // ccosl    // Weak
 GOW(ceil, dFd)
@@ -122,8 +122,8 @@ GOM(__coshf_finite, fFf)
 GOM(__cosh_finite, dFd)
 // coshl    // Weak
 // cosl // Weak
-// cpow // Weak
-// cpowf    // Weak
+GOS(cpow, pFpV000V) // Weak, return complex
+GOM(cpowf, UFV0V)    // Weak
 // cpowl    // Weak
 GOS(cproj, pFpV)    // double complex
 GOM(cprojf, UFV)
@@ -131,19 +131,19 @@ GOM(cprojf, UFV)
 // creal    // Weak
 // crealf   // Weak
 // creall   // Weak
-// csin // Weak
-// csinf    // Weak
-// csinh    // Weak
-// csinhf   // Weak
+GOS(csin, pFpV) // Weak, return complex
+GOM(csinf, UFV)    // Weak, return complex
+GOS(csinh, pFpV)    // Weak, return complex
+GOM(csinhf, UFV)   // Weak, return complex
 // csinhl   // Weak
 // csinl    // Weak
 GOS(csqrt, pFpV)
 GOS(csqrtf, UFV)   // Weak
 // csqrtl   // Weak
-// ctan // Weak
-// ctanf    // Weak
-// ctanh    // Weak
-// ctanhf   // Weak
+GOS(ctan, pFpV) // Weak, return complex
+GOM(ctanf, UFV)    // Weak, return complex
+GOS(ctanh, pFpV)    // Weak, return complex
+GOM(ctanhf, UFV)   // Weak, return complex
 // ctanhl   // Weak
 // ctanl    // Weak
 // __cxa_finalize  // Weak

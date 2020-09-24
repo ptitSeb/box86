@@ -363,6 +363,7 @@
 #() uFSpu
 #() UFppi
 #() UFppu
+#() UFVpV
 #() fFuii
 #() fFfff
 #() fFffp
@@ -1128,6 +1129,7 @@
 #() pFpppppi
 #() pFpppppu
 #() pFpppppp
+#() pFpVpppV
 #() pFSpiiii
 #() vFEpipppp
 #() vFiiiiiip
@@ -1602,12 +1604,14 @@
 #!defined(HAVE_LD80BITS) vFppippKKC
 #() iFEv -> iFE
 #() pFEv -> pFE
+#() UFV0V -> UFVpV
 #() iFEvpp -> iFEpp
 #() iFEvppp -> iFEppp
 #() iFEvpVV -> iFEpVV
 #() iFEpvpp -> iFEppp
 #() iFEpvpVV -> iFEppVV
 #() iFEp0pVV -> iFEpppVV
+#() pFpV000V -> pFpVpppV
 #() iFEpvvppp -> iFEpppp
 #() iFEpvvpVV -> iFEppVV
 #() iFEpuvvppp -> iFEpuppp

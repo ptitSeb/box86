@@ -42,11 +42,37 @@ EXPORT uint64_t my_##N##f(void* c)                  \
     ret.f = N##f(*(float complex*)c);               \
     return ret.u64;                                 \
 }
+// complex <- FUNC(complex, complex) wrapper
+#define GO_cFcc(N)                                  \
+EXPORT void* my_##N(void* p, void* c, void* d)      \
+{                                                   \
+    *(double complex*)p = N(*(double complex*)c, *(double complex*)d);   \
+    return p;                                       \
+}                                                   \
+EXPORT uint64_t my_##N##f(void* c, void* d)         \
+{                                                   \
+    my_float_complex_t ret;                         \
+    ret.f = N##f(*(float complex*)c, *(float complex*)c);               \
+    return ret.u64;                                 \
+}
 
 GO_cFc(clog)
 GO_cFc(csqrt)
 GO_cFc(cproj)
 GO_cFc(cexp)
+GO_cFc(ccos)
+GO_cFc(csin)
+GO_cFc(ccosh)
+GO_cFc(csinh)
+GO_cFc(ctan)
+GO_cFc(ctanh)
+GO_cFc(cacos)
+GO_cFc(casin)
+GO_cFc(cacosh)
+GO_cFc(casinh)
+GO_cFc(catan)
+GO_cFc(catanh)
+GO_cFcc(cpow)
 
 #undef GO_cFc
 
