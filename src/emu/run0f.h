@@ -190,6 +190,17 @@
         _0f_0x38:  // these are some SSE3 opcodes
             opcode = F8;
             switch(opcode) {
+                case 0x00:  /* PSHUFB */
+                    nextop = F8;
+                    GET_EX;
+                    eax1 = GX;
+                    for (int i=0; i<8; ++i) {
+                        if(EX->ub[i]&128)
+                            GX.ub[i] = 0;
+                        else
+                            GX.ub[i] = eax1.ub[EX->ub[i]&15];
+                    }
+                    break;
                 case 0x04:  /* PMADDUBSW Gm,Em */
                     nextop = F8;
                     GET_EM;

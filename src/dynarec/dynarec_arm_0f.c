@@ -392,6 +392,16 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             //SSE3
             nextop=F8;
             switch(nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gm, Em");
+                    nextop = F8;
+                    GETGM(d0);
+                    GETEM(d1);
+                    v1 = fpu_get_scratch_double(dyn);
+                    VMOV_8(v1, 0b10001111);
+                    VANDD(d1, d1, v1);  // mask the index
+                    VTBL2_8(d0, d0, d1);
+                    break;
                 case 0x04:
                     INST_NAME("PMADDUBSW Gm,Em");
                     nextop = F8;

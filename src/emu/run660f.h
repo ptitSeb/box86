@@ -211,7 +211,7 @@
                 nextop = F8;
                 GET_EX;
                 eax1 = GX;
-                for (int i=0; i<15; ++i) {
+                for (int i=0; i<16; ++i) {
                     if(EX->ub[i]&128)
                         GX.ub[i] = 0;
                     else
