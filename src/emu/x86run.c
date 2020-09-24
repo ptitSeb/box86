@@ -183,7 +183,7 @@ int Run(x86emu_t *emu, int step)
     &&_6f_0x60, &&_6f_0x61, &&_6f_0x62, &&_6f_0x63, &&_6f_0x64, &&_6f_0x65, &&_6f_0x66, &&_6f_0x67, 
     &&_6f_0x68, &&_6f_0x69, &&_6f_0x6A, &&_6f_0x6B, &&_6f_0x6C, &&_6f_0x6D, &&_6f_0x6E, &&_6f_0x6F,     
     &&_6f_0x70, &&_6f_0x71, &&_6f_0x72, &&_6f_0x73, &&_6f_0x74, &&_6f_0x75, &&_6f_0x76, &&_default, 
-    &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_6f_0x7E, &&_6f_0x7F, //0x78-0x7F
+    &&_default, &&_default, &&_default, &&_default, &&_6f_0x7C, &&_default, &&_6f_0x7E, &&_6f_0x7F, //0x78-0x7F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x80-0x87
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x88-0x8F
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x90-0x97

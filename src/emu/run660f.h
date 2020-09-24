@@ -615,6 +615,17 @@
             GX.ud[i] = (GX.ud[i]==EX->ud[i])?0xffffffff:0;
         NEXT;
 
+    _6f_0x7C:  /* HADDPD Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        GX.d[0] += GX.d[1];
+        if(EX==&GX) {
+            GX.d[1] = GX.d[0];
+        } else {
+            GX.d[1] = EX->d[0] + EX->d[1];
+        }
+        NEXT;
+
     _6f_0x7E:  /* MOVD Ed, Gx */
         nextop = F8;
         GET_ED;
