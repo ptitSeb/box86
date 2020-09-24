@@ -2082,6 +2082,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VBICD(v0, v1, v0);
             break;
+         case 0xE0:
+            INST_NAME("PAVGB Gm, Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(v1);
+            VRHADD_U8(v0, v0, v1);
+            break;
 
        case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
