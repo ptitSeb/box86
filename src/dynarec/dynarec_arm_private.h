@@ -36,6 +36,7 @@ typedef struct dynarec_arm_s {
     int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
     int                 x87stack;   // cache stack counter
     int                 fpu_scratch;// scratch counter
+    int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
     int                 fpu_reg;    // x87/sse/mmx reg counter
     int                 nolinker;   // disable use of (smart) linker in the block
     uintptr_t*          next;       // variable array of "next" jump address

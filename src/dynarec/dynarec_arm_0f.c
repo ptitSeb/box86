@@ -408,8 +408,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETGM(d0);
                     GETEM(d1);
                     v0 = fpu_get_scratch_quad(dyn);
-                    VMULL_U16_U8(v0, d0, d1);
-                    VPADDLQ_U16(v0, v0);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVL_U8(v0, d0);   // this is unsigned, so 0 extended
+                    VMOVL_S8(v1, d1);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(d0, v0);
                     break;
                 case 0x0B:
@@ -588,10 +591,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             v2 = fpu_get_scratch_quad(dyn);
+            #if 0
             VRSQRTEQ_F32(v2, q0);
             //step?
             VRECPEQ_F32(v0, v2);
             //step?
+            #else
+            // more precise
+            if(v0==q0)
+                v1 = fpu_get_scratch_quad(dyn);
+            else 
+                v1 = v0;
+            VRSQRTEQ_F32(v2, q0);
+            VMULQ_F32(v1, v2, q0);
+            VRSQRTSQ_F32(v1, v1, v2);
+            VMULQ_F32(v1, v1, v2);
+            VMULQ_F32(v0, v1, q0);
+            #endif
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
@@ -599,8 +615,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEX(q0);
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            #if 0
             VRSQRTEQ_F32(v0, q0);
             //step?
+            #else
+            // more precise
+            if(v0==q0)
+                v1 = fpu_get_scratch_quad(dyn);
+            else 
+                v1 = v0;
+            VRSQRTEQ_F32(v2, q0);
+            VMULQ_F32(v1, v2, q0);
+            VRSQRTSQ_F32(v1, v1, v2);
+            VMULQ_F32(v0, v1, v2);
+            #endif
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");

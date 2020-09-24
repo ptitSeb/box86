@@ -219,6 +219,13 @@ int fpu_get_scratch_double(dynarec_arm_t* dyn)
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
+    if(dyn->fpu_scratch>4) {
+        if(dyn->fpu_extra_qscratch) {
+            dynarec_log(LOG_NONE, "Warning, Extra QScratch slot taken and need another one!\n");
+        } else
+            dyn->fpu_extra_qscratch = fpu_get_reg_quad(dyn);
+        return dyn->fpu_extra_qscratch;
+    }
     int i = (dyn->fpu_scratch+3)&(~3);
     dyn->fpu_scratch = i+4;
     return i/2; // Return a Dx, not a Qx
@@ -227,6 +234,10 @@ int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->fpu_scratch = 0;
+    if(dyn->fpu_extra_qscratch) {
+        fpu_free_reg_quad(dyn, dyn->fpu_extra_qscratch);
+        dyn->fpu_extra_qscratch = 0;
+    }
 }
 #define FPUFIRST    8
 // Get a FPU double reg

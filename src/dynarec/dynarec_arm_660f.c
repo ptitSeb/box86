@@ -226,14 +226,14 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     q1 = fpu_get_scratch_quad(dyn);
                     if((nextop&0xC0)==0xC0) {
                         v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                        VMOVQ(q1, v0);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                         VLD1Q_64(q1, ed);
+                        v0 = q1;
                     }
                     v1 = fpu_get_scratch_quad(dyn);
                     VMOVQ_8(v1, 0b10001111);
-                    VANDQ(q1, q1, v1);  // mask the index
+                    VANDQ(q1, v0, v1);  // mask the index
                     VMOVQ(v1, q0);
                     VTBL2_8(q0+0, v1, q1+0);
                     VTBL2_8(q0+1, v1, q1+1);
@@ -244,11 +244,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     GETGX(q0);
                     GETEX(q1);
                     v0 = fpu_get_scratch_quad(dyn);
-                    VMULL_U16_U8(v0, q0+0, q1+0);
-                    VPADDLQ_U16(v0, v0);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVL_U8(v0, q0+0);   // this is unsigned, so 0 extended
+                    VMOVL_S8(v1, q1+0);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(q0+0, v0);
-                    VMULL_U16_U8(v0, q0+1, q1+1);
-                    VPADDLQ_U16(v0, v0);
+                    VMOVL_S8(v0, q0+1);   // this is unsigned
+                    VMOVL_U8(v1, q1+1);   // this is signed
+                    VMULQ_16(v0, v0, v1);
+                    VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(q0+1, v0);
                     break;
                 case 0x0B:
@@ -275,10 +280,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if(u8>31) {
                         VEORQ(q0, q0, q0);    
                     } else if(u8>15) {
-                        VEORQ(q0, q0, q0);
-                        VEXTQ_8(q0, q1, q0, u8-16);
+                        d0 = fpu_get_scratch_quad(dyn);
+                        VEORQ(d0, d0, d0);
+                        VEXTQ_8(q0, q0, d0, u8-16);
                     } else {
-                        VEXTQ_8(q0, q0, q1, u8);
+                        VEXTQ_8(q0, q1, q0, u8);
                     }
                     break;
                 default:
@@ -1285,10 +1291,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0);
             GETEX(v1);
             u8 = F8;
-            q0 = fpu_get_scratch_quad(dyn);
             if(v0==v1 && u8==0) {
-                VMOVD(q0+1, q0);
+                VMOVD(v0+1, v0);
             } else {
+                q0 = fpu_get_scratch_quad(dyn);
                 VMOVD(q0, v0+(u8&1));
                 VMOVD(q0+1, v1+((u8>>1)&1));
                 VMOVQ(v0, q0);
