@@ -205,8 +205,8 @@
                     nextop = F8;
                     GET_EM;
                     for (int i=0; i<4; ++i) {
-                        tmp32s = (int32_t)(GM.ub[i*2+0])*EM->ub[i*2+0] + (int32_t)(GM.ub[i*2+1])*EM->ub[i*2+1];
-                        GM.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
+                        tmp32s = (int32_t)(GM.sb[i*2+0])*EM->ub[i*2+0] + (int32_t)(GM.sb[i*2+1])*EM->ub[i*2+1];
+                        GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s); // no negative value to test
                     }
                     break;
                 case 0x0B:  /* PMULHRSW Gm, Em */

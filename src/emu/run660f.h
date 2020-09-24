@@ -222,8 +222,8 @@
                 nextop = F8;
                 GET_EX;
                 for (int i=0; i<8; ++i) {
-                    tmp32s = (int32_t)(GX.ub[i*2+0])*EX->ub[i*2+0] + (int32_t)(GX.ub[i*2+1])*EX->ub[i*2+1];
-                    GX.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
+                    tmp32s = (int32_t)(GX.sb[i*2+0])*EX->ub[i*2+0] + (int32_t)(GX.sb[i*2+1])*EX->ub[i*2+1];
+                    GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s); // no negative value to test
                 }
                 break;
             case 0x0B:  /* PMULHRSW Gx, Ex */
