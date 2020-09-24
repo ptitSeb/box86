@@ -209,6 +209,13 @@
                         GM.sw[i] = (tmp32s>32767)?32767:tmp32s; // no negative value to test
                     }
                     break;
+                case 0x0B:  /* PMULHRSW Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = ((((int32_t)(GM.sw[i])*(int32_t)(EM->sw[i]))>>14) + 1)>>1;
+                        GM.uw[i] = tmp32s&0xffff;
+                    }
                 default:
                     goto _default;
             }
