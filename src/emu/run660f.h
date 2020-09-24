@@ -222,8 +222,8 @@
                 nextop = F8;
                 GET_EX;
                 for (int i=0; i<8; ++i) {
-                    tmp32s = (int32_t)(GX.sb[i*2+0])*EX->ub[i*2+0] + (int32_t)(GX.sb[i*2+1])*EX->ub[i*2+1];
-                    GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s); // no negative value to test
+                    tmp32s = (int32_t)(GX.ub[i*2+0])*EX->sb[i*2+0] + (int32_t)(GX.ub[i*2+1])*EX->sb[i*2+1];
+                    GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                 }
                 break;
             case 0x0B:  /* PMULHRSW Gx, Ex */
@@ -251,21 +251,21 @@
                 else if(tmp8u>15) {
                     tmp8u=(tmp8u-16)*8;
                     if (tmp8u < 64) {
-                        GX.q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
-                        GX.q[1] = (EX->q[1] >> tmp8u);
+                        GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
+                        GX.q[1] = (GX.q[1] >> tmp8u);
                     } else {
-                        GX.q[0] = EX->q[1] >> (tmp8u - 64);
+                        GX.q[0] = GX.q[1] >> (tmp8u - 64);
                         GX.q[1] = 0;
                     }                    
                 } else {
                     tmp8u*=8;
                     if (tmp8u < 64) {
-                        GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
-                        GX.q[1] = (GX.q[1] >> tmp8u) | (EX->q[0] << (64-tmp8u));
+                        GX.q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
+                        GX.q[1] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64-tmp8u));
                     } else {
                         tmp8u -= 64;
-                        GX.q[0] = (GX.q[1] >> tmp8u) | (EX->q[0] << (64 - tmp8u));
-                        GX.q[1] = (EX->q[0] >> tmp8u) | (EX->q[1] >> (64 - tmp8u));
+                        GX.q[0] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64 - tmp8u));
+                        GX.q[1] = (GX.q[0] >> tmp8u) | (GX.q[1] >> (64 - tmp8u));
                     }                    
                 }
                 break;
@@ -1006,7 +1006,7 @@
     _6f_0xE3:  /* PAVGW Gx, Ex */
         nextop = F8;
         GET_EX;
-        for (int i=0; i<8; ++i) GX.uw[i] = ((uint16_t)GX.uw[i] + EX->uw[i] + 1)>>1;
+        for (int i=0; i<8; ++i) GX.uw[i] = ((uint32_t)GX.uw[i] + EX->uw[i] + 1)>>1;
         NEXT;
     _6f_0xE4:  /* PMULHUW Gx, Ex */
         nextop = F8;
