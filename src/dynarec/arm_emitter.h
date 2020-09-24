@@ -1144,4 +1144,11 @@ Op is 20-27
 #define VRHADDQ_S16(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VRHADDQ_S32(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VQRDMULH_gen(D, size, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0011 <<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1011<<8 | (N)<<7 | (Q)<<6 | (Vm))
+// Dd <= (2*Dn*Dm + 1<<(size-1))>>size
+#define VQRDMULH_S16(Dd, Dn, Dm)    EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VQRDMULH_S32(Dd, Dn, Dm)    EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VQRDMULHQ_S16(Dd, Dn, Dm)   EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VQRDMULHQ_S32(Dd, Dn, Dm)   EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__

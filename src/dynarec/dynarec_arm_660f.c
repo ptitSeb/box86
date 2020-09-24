@@ -251,6 +251,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VPADDLQ_U16(v0, v0);
                     VQMOVN_S32(q0+1, v0);
                     break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    VQRDMULHQ_S16(q0, q0, q1);
+                    break;
                 default:
                     DEFAULT;
             }

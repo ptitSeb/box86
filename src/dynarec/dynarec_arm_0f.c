@@ -412,6 +412,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VPADDLQ_U16(v0, v0);
                     VQMOVN_S32(d0, v0);
                     break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gm,Em");
+                    nextop = F8;
+                    GETGM(d0);
+                    GETEM(d1);
+                    VQRDMULH_S16(d0, d0, d1);
+                    break;
                 default:
                     DEFAULT;
             }
