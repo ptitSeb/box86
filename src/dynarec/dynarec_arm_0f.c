@@ -398,9 +398,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETGM(d0);
                     GETEM(d1);
                     v1 = fpu_get_scratch_double(dyn);
-                    VMOV_8(v1, 0b10001111);
-                    VANDD(d1, d1, v1);  // mask the index
-                    VTBL2_8(d0, d0, d1);
+                    VMOV_8(v1, 0b10000111);
+                    VANDD(v1, d1, v1);  // mask the index
+                    VTBL1_8(d0, d0, v1);
                     break;
                 case 0x04:
                     INST_NAME("PMADDUBSW Gm,Em");
