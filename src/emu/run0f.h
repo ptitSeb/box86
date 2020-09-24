@@ -216,6 +216,30 @@
                         tmp32s = ((((int32_t)(GM.sw[i])*(int32_t)(EM->sw[i]))>>14) + 1)>>1;
                         GM.uw[i] = tmp32s&0xffff;
                     }
+                    break;
+
+                case 0x1C:  /* PABSB Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<8; ++i) {
+                        GM.sb[i] = abs(EM->sb[i]);
+                    }
+                    break;
+                case 0x1D:  /* PABSW Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<4; ++i) {
+                        GM.sw[i] = abs(EM->sw[i]);
+                    }
+                    break;
+                case 0x1E:  /* PABSD Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<2; ++i) {
+                        GM.sd[i] = abs(EM->sd[i]);
+                    }
+                    break;
+
                 default:
                     goto _default;
             }

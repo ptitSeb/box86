@@ -234,6 +234,29 @@
                     GX.uw[i] = tmp32s&0xffff;
                 }
             break;
+
+            case 0x1C:  /* PABSB Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<16; ++i) {
+                    GX.sb[i] = abs(EX->sb[i]);
+                }
+                break;
+            case 0x1D:  /* PABSW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<8; ++i) {
+                    GX.sw[i] = abs(EX->sw[i]);
+                }
+                break;
+            case 0x1E:  /* PABSD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    GX.sd[i] = abs(EX->sd[i]);
+                }
+                break;
+
             default:
                 goto _default;
         }
