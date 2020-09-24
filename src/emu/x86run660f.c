@@ -1,5 +1,89 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "box86context.h"
+
+#define F8      *(uint8_t*)(ip++)
+#define F8S     *(int8_t*)(ip++)
+#define F16     *(uint16_t*)(ip+=2, ip-2)
+#define F16S    *(int16_t*)(ip+=2, ip-2)
+#define F32     *(uint32_t*)(ip+=4, ip-4)
+#define F32S    *(int32_t*)(ip+=4, ip-4)
+#define PK(a)   *(uint8_t*)(ip+a)
+
+#include "modrm.h"
+
+void Run660F(x86emu_t *emu)
+{
+    uintptr_t ip = R_EIP+2; //skip 66 0F
+    uint8_t opcode;
+    uint8_t nextop;
+    reg32_t *oped;
+    uint8_t tmp8u;
+    int8_t tmp8s;
+    uint16_t tmp16u;
+    int16_t tmp16s;
+    uint32_t tmp32u;
+    int32_t tmp32s;
+    sse_regs_t *opex, eax1, *opx2;
+    mmx_regs_t *opem;
+
+    static const void* opcodes660f[256] = {
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x00-0x07
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x08-0x0F
+    &&_6f_0x10, &&_6f_0x11, &&_6f_0x12, &&_6f_0x13, &&_6f_0x14, &&_6f_0x15, &&_6f_0x16, &&_6f_0x17, 
+    &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_6f_0x1F, 
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x20-0x27
+    &&_6f_0x28, &&_6f_0x29, &&_6f_0x2A, &&_default, &&_6f_0x2C, &&_6f_0x2D, &&_6f_0x2E, &&_6f_0x2F, 
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x30-0x37
+    &&_6f_0x38, &&_default, &&_6f_0x3A, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x38-0x3F
+    &&_6f_0x40_0, &&_6f_0x40_1, &&_6f_0x40_2, &&_6f_0x40_3, &&_6f_0x40_4, &&_6f_0x40_5, &&_6f_0x40_6, &&_6f_0x40_7, 
+    &&_6f_0x40_8, &&_6f_0x40_9, &&_6f_0x40_A, &&_6f_0x40_B, &&_6f_0x40_C, &&_6f_0x40_D, &&_6f_0x40_E, &&_6f_0x40_F, 
+    &&_6f_0x50, &&_6f_0x51, &&_default, &&_default, &&_6f_0x54, &&_6f_0x55, &&_6f_0x56, &&_6f_0x57, 
+    &&_6f_0x58, &&_6f_0x59, &&_6f_0x5A, &&_6f_0x5B, &&_6f_0x5C, &&_6f_0x5D, &&_6f_0x5E, &&_6f_0x5F, 
+    &&_6f_0x60, &&_6f_0x61, &&_6f_0x62, &&_6f_0x63, &&_6f_0x64, &&_6f_0x65, &&_6f_0x66, &&_6f_0x67, 
+    &&_6f_0x68, &&_6f_0x69, &&_6f_0x6A, &&_6f_0x6B, &&_6f_0x6C, &&_6f_0x6D, &&_6f_0x6E, &&_6f_0x6F,     
+    &&_6f_0x70, &&_6f_0x71, &&_6f_0x72, &&_6f_0x73, &&_6f_0x74, &&_6f_0x75, &&_6f_0x76, &&_default, 
+    &&_default, &&_default, &&_default, &&_default, &&_6f_0x7C, &&_default, &&_6f_0x7E, &&_6f_0x7F, //0x78-0x7F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x80-0x87
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x88-0x8F
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x90-0x97
+    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x98-0x9F
+    &&_default, &&_default, &&_default, &&_6f_0xA3, &&_6f_0xA4, &&_6f_0xA5, &&_default, &&_default, 
+    &&_default, &&_default, &&_default, &&_6f_0xAB, &&_6f_0xAC, &&_6f_0xAD, &&_default, &&_6f_0xAF, 
+    &&_default, &&_6f_0xB1, &&_default, &&_6f_0xB3, &&_default, &&_default, &&_6f_0xB6, &&_6f_0xB7, 
+    &&_default, &&_default, &&_6f_0xBA, &&_6f_0xBB, &&_6f_0xBC, &&_6f_0xBD, &&_6f_0xBE, &&_default, //0xB8-0xBF
+    &&_default, &&_6f_0xC1, &&_6f_0xC2, &&_default, &&_6f_0xC4, &&_6f_0xC5, &&_6f_0xC6, &&_default, 
+    &&_6f_0xC8, &&_6f_0xC9, &&_6f_0xCA, &&_6f_0xCB, &&_6f_0xCC ,&&_6f_0xCD, &&_6f_0xCE, &&_6f_0xCF, //0xC8-0xCF
+    &&_default, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_6f_0xD5, &&_6f_0xD6, &&_6f_0xD7, 
+    &&_6f_0xD8, &&_6f_0xD9, &&_6f_0xDA, &&_6f_0xDB, &&_6f_0xDC, &&_6f_0xDD, &&_6f_0xDE, &&_6f_0xDF, 
+    &&_6f_0xE0, &&_6f_0xE1, &&_6f_0xE2, &&_6f_0xE3, &&_6f_0xE4, &&_6f_0xE5, &&_6f_0xE6, &&_6f_0xE7, 
+    &&_6f_0xE8, &&_6f_0xE9, &&_6f_0xEA, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
+    &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_6f_0xF5, &&_6f_0xF6, &&_6f_0xF7, 
+    &&_6f_0xF8, &&_6f_0xF9, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_6f_0xFD, &&_6f_0xFE, &&_default
+    };
+
+    #define NEXT    goto _fini
+
     opcode = F8;
     goto *opcodes660f[opcode];
+
+    _default:
+        emu->old_ip = R_EIP;
+        R_EIP = ip;
+        UnimpOpcode(emu);
+        goto _fini;
 
     #define GOCOND(BASE, PREFIX, CONDITIONAL) \
     _6f_##BASE##_0:                          \
@@ -1235,5 +1319,8 @@
         GX.sd[2] += EX->sd[2];
         GX.sd[3] += EX->sd[3];
         NEXT;
-
-
+ 
+    _fini:
+        R_EIP = ip;
+        return;
+}

@@ -196,6 +196,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/emu/x86emu.c"
     "${BOX86_ROOT}/src/emu/x86run.c"
     "${BOX86_ROOT}/src/emu/x86run66.c"
+    "${BOX86_ROOT}/src/emu/x86run660f.c"
     "${BOX86_ROOT}/src/emu/x86run_private.c"
     "${BOX86_ROOT}/src/emu/x86syscall.c"
     "${BOX86_ROOT}/src/emu/x86primop.c"

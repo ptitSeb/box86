@@ -34,7 +34,12 @@
         NEXT;
 
     _66_0x0F:                      /* 66 0f prefix */
-        #include "run660f.h"
+        emu->old_ip = R_EIP;
+        R_EIP = ip-2;   // don't count 66 0F yet
+        Run660F(emu); // implemented in Run660f.c
+        ip = R_EIP;
+        if(emu->quit) goto fini;
+        NEXT;
         
     _66_0x26:                      /* ES: */
         // ignored

@@ -42,7 +42,7 @@ int Run(x86emu_t *emu, int step)
     double d;
     float f;
     int64_t ll;
-    sse_regs_t *opex, eax1, *opx2;
+    sse_regs_t *opex, eax1;
     mmx_regs_t *opem, eam1;
 
     if(emu->quit)
@@ -165,41 +165,6 @@ int Run(x86emu_t *emu, int step)
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE8-0xEF
     &&_default, &&_default, &&_66_0xF2, &&_66_0xF3, &&_default, &&_default, &&_default, &&_66_0xF7, 
     &&_66_0xF8, &&_66_0xF9, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xFF
-    };
-
-    static const void* opcodes660f[256] = {
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x00-0x07
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x08-0x0F
-    &&_6f_0x10, &&_6f_0x11, &&_6f_0x12, &&_6f_0x13, &&_6f_0x14, &&_6f_0x15, &&_6f_0x16, &&_6f_0x17, 
-    &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_default, &&_6f_0x1F, 
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x20-0x27
-    &&_6f_0x28, &&_6f_0x29, &&_6f_0x2A, &&_default, &&_6f_0x2C, &&_6f_0x2D, &&_6f_0x2E, &&_6f_0x2F, 
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x30-0x37
-    &&_6f_0x38, &&_default, &&_6f_0x3A, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x38-0x3F
-    &&_6f_0x40_0, &&_6f_0x40_1, &&_6f_0x40_2, &&_6f_0x40_3, &&_6f_0x40_4, &&_6f_0x40_5, &&_6f_0x40_6, &&_6f_0x40_7, 
-    &&_6f_0x40_8, &&_6f_0x40_9, &&_6f_0x40_A, &&_6f_0x40_B, &&_6f_0x40_C, &&_6f_0x40_D, &&_6f_0x40_E, &&_6f_0x40_F, 
-    &&_6f_0x50, &&_6f_0x51, &&_default, &&_default, &&_6f_0x54, &&_6f_0x55, &&_6f_0x56, &&_6f_0x57, 
-    &&_6f_0x58, &&_6f_0x59, &&_6f_0x5A, &&_6f_0x5B, &&_6f_0x5C, &&_6f_0x5D, &&_6f_0x5E, &&_6f_0x5F, 
-    &&_6f_0x60, &&_6f_0x61, &&_6f_0x62, &&_6f_0x63, &&_6f_0x64, &&_6f_0x65, &&_6f_0x66, &&_6f_0x67, 
-    &&_6f_0x68, &&_6f_0x69, &&_6f_0x6A, &&_6f_0x6B, &&_6f_0x6C, &&_6f_0x6D, &&_6f_0x6E, &&_6f_0x6F,     
-    &&_6f_0x70, &&_6f_0x71, &&_6f_0x72, &&_6f_0x73, &&_6f_0x74, &&_6f_0x75, &&_6f_0x76, &&_default, 
-    &&_default, &&_default, &&_default, &&_default, &&_6f_0x7C, &&_default, &&_6f_0x7E, &&_6f_0x7F, //0x78-0x7F
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x80-0x87
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x88-0x8F
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x90-0x97
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0x98-0x9F
-    &&_default, &&_default, &&_default, &&_6f_0xA3, &&_6f_0xA4, &&_6f_0xA5, &&_default, &&_default, 
-    &&_default, &&_default, &&_default, &&_6f_0xAB, &&_6f_0xAC, &&_6f_0xAD, &&_default, &&_6f_0xAF, 
-    &&_default, &&_6f_0xB1, &&_default, &&_6f_0xB3, &&_default, &&_default, &&_6f_0xB6, &&_6f_0xB7, 
-    &&_default, &&_default, &&_6f_0xBA, &&_6f_0xBB, &&_6f_0xBC, &&_6f_0xBD, &&_6f_0xBE, &&_default, //0xB8-0xBF
-    &&_default, &&_6f_0xC1, &&_6f_0xC2, &&_default, &&_6f_0xC4, &&_6f_0xC5, &&_6f_0xC6, &&_default, 
-    &&_6f_0xC8, &&_6f_0xC9, &&_6f_0xCA, &&_6f_0xCB, &&_6f_0xCC ,&&_6f_0xCD, &&_6f_0xCE, &&_6f_0xCF, //0xC8-0xCF
-    &&_default, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_6f_0xD5, &&_6f_0xD6, &&_6f_0xD7, 
-    &&_6f_0xD8, &&_6f_0xD9, &&_6f_0xDA, &&_6f_0xDB, &&_6f_0xDC, &&_6f_0xDD, &&_6f_0xDE, &&_6f_0xDF, 
-    &&_6f_0xE0, &&_6f_0xE1, &&_6f_0xE2, &&_6f_0xE3, &&_6f_0xE4, &&_6f_0xE5, &&_6f_0xE6, &&_6f_0xE7, 
-    &&_6f_0xE8, &&_6f_0xE9, &&_6f_0xEA, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
-    &&_default, &&_6f_0xF1, &&_6f_0xF2, &&_6f_0xF3, &&_6f_0xF4, &&_6f_0xF5, &&_6f_0xF6, &&_6f_0xF7, 
-    &&_6f_0xF8, &&_6f_0xF9, &&_6f_0xFA, &&_6f_0xFB, &&_6f_0xFC, &&_6f_0xFD, &&_6f_0xFE, &&_default
     };
 
 x86emurun:
