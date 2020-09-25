@@ -619,6 +619,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VRSQRTEQ_F32(v0, q0);
             //step?
             #else
+            v2 = fpu_get_scratch_quad(dyn);
             // more precise
             if(v0==q0)
                 v1 = fpu_get_scratch_quad(dyn);
@@ -1879,7 +1880,18 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;   // not NaN
             }
             break;
-
+        case 0xC3:
+            INST_NAME("MOVNTI Ed, Gd");
+            // ignoring "NTI"
+            nextop=F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {   // reg <= reg
+                MOV_REG(xEAX+(nextop&7), gd);   // doesn't exist
+            } else {                    // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
+                STR_IMM9(gd, ed, fixedaddress);
+            }
+            break;
         case 0xC4:
             INST_NAME("PINSRW Gm,Ed,Ib");
             nextop = F8;

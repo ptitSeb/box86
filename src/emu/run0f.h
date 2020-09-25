@@ -198,7 +198,7 @@
                         if(EX->ub[i]&128)
                             GX.ub[i] = 0;
                         else
-                            GX.ub[i] = eax1.ub[EX->ub[i]&15];
+                            GX.ub[i] = eax1.ub[EX->ub[i]&7];
                     }
                     break;
                 case 0x04:  /* PMADDUBSW Gm,Em */
@@ -1000,7 +1000,11 @@
                 GX.ud[i]=(tmp8s)?0xffffffff:0;
             }
             NEXT;
-
+        _0f_0xC3:                       /* MOVNTI Ed,Gd */
+            nextop = F8;
+            GET_ED;
+            ED->dword[0] = GD.dword[0];
+            NEXT;
         _0f_0xC4:                       /* PINSRW Gm,Ew,Ib */
             nextop = F8;
             GET_ED;
