@@ -250,8 +250,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMULQ_16(v0, v0, v1);
                     VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(q0+0, v0);
-                    VMOVL_S8(v0, q0+1);   // this is unsigned
-                    VMOVL_U8(v1, q1+1);   // this is signed
+                    VMOVL_U8(v0, q0+1);   // this is unsigned
+                    VMOVL_S8(v1, q1+1);   // this is signed
                     VMULQ_16(v0, v0, v1);
                     VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(q0+1, v0);
