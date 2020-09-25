@@ -681,11 +681,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            d0 = fpu_get_scratch_double(dyn);
-            VEOR(d0, d0, d0); // d0 = U32{0, 0}
+            VEOR(v0, v0, v0); // v0 = U32{0, 0}
             GETED;
-            VMOVtoV(d0*2, ed);// d0 = U32{ed, 0}
-            VMOVL_U32(v0, d0);// U32/U32 -> U64/U64
+            VMOVtoDx_32(v0, 0, ed);// d0 = U32{ed, 0}
+            VMOVL_U32(v0, v0);// U32/U32 -> U64/U64
             break;
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
