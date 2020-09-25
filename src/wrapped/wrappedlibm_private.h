@@ -122,8 +122,8 @@ GOM(__coshf_finite, fFf)
 GOM(__cosh_finite, dFd)
 // coshl    // Weak
 // cosl // Weak
-GOS(cpow, pFpV000V) // Weak, return complex
-GOM(cpowf, UFV0V)    // Weak
+GOS(cpow, pFpVvvvvV) // Weak, return complex
+GOM(cpowf, UFVvvV)    // Weak
 // cpowl    // Weak
 GOS(cproj, pFpV)    // double complex
 GOM(cprojf, UFV)

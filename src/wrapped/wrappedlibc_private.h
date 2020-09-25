@@ -434,7 +434,7 @@ GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: chec
 GO(futimesat, iFippp)
 // fwide
 GOM(fwprintf, iFEppVV) // Weak
-GOM(__fwprintf_chk, iFEp0pVV)
+GOM(__fwprintf_chk, iFEpvpVV)
 GO(__fwritable, iFp)
 GOW(fwrite, LFpLLp)
 GO(fwrite_unlocked, uFpuup)
