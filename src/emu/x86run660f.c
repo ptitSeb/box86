@@ -566,8 +566,11 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<8; ++i)
             GX.ub[i] = (GX.sw[i]<0)?0:((GX.sw[i]>0xff)?0xff:GX.sw[i]);
-        for(int i=0; i<8; ++i)
-            GX.ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+        if(&GX==EX)
+            GX.q[1] = GX.q[0];
+        else
+            for(int i=0; i<8; ++i)
+                GX.ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
         NEXT;
     _6f_0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = F8;
