@@ -192,13 +192,13 @@
             switch(opcode) {
                 case 0x00:  /* PSHUFB */
                     nextop = F8;
-                    GET_EX;
-                    eax1 = GX;
+                    GET_EM;
+                    eam1 = GM;
                     for (int i=0; i<8; ++i) {
-                        if(EX->ub[i]&128)
-                            GX.ub[i] = 0;
+                        if(EM->ub[i]&128)
+                            GM.ub[i] = 0;
                         else
-                            GX.ub[i] = eax1.ub[EX->ub[i]&7];
+                            GM.ub[i] = eax1.ub[EM->ub[i]&7];
                     }
                     break;
                 case 0x04:  /* PMADDUBSW Gm,Em */
