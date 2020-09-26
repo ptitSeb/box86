@@ -1774,7 +1774,7 @@ const char* print_shift(int shift, int comma) {
 	return ret;
 }
 
-#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (imm12 >> 8)) | ((imm12 & 0xFF) << (32 - (imm12 >> 8))))
+#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (2*(imm12 >> 8))) | ((imm12 & 0xFF) << (32 - 2*(imm12 >> 8))))
 
 const char* print_register_list(int list, int size) {
 	int last = -2;
