@@ -561,7 +561,7 @@ void Run660F(x86emu_t *emu)
         for(int i=0; i<4; ++i)
             GX.ud[i] = (GX.sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
         NEXT;
-    _6f_0x67:  /* PACKUSWB */
+    _6f_0x67:  /* PACKUSWB Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=0; i<8; ++i)
@@ -602,11 +602,13 @@ void Run660F(x86emu_t *emu)
     _6f_0x6B:  /* PACKSSDW Gx,Ex */
         nextop = F8;
         GET_EX;
-        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
         for(int i=0; i<4; ++i)
             GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
-        for(int i=0; i<4; ++i)
-            GX.sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
+        if(&GX==EX)
+            GX.q[1] = GX.q[0];
+        else
+            for(int i=0; i<4; ++i)
+                GX.sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
         NEXT;
     _6f_0x6C:  /* PUNPCKLQDQ Gx,Ex */
         nextop = F8;
