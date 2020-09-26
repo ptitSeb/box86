@@ -234,12 +234,6 @@
                 // warning, incomplete
                 GET_ED;
                 fpu_savenv(emu, (char*)ED, 0);
-                ED->dword[0] = emu->cw;
-                ED->dword[1] = emu->sw.x16;
-                // tagword: 2bits*8
-                ED->word[4] = 0;
-                for (int i=0; i<8; ++i)
-                    ED->word[4] |= (emu->p_regs[i].tag)<<(i*2);
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
