@@ -96,7 +96,7 @@ const char* print_shift(int shift, int comma) {
 	return ret;
 }
 
-#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (imm12 >> 8)) | ((imm12 & 0xFF) << (32 - (imm12 >> 8))))
+#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (2*(imm12 >> 8))) | ((imm12 & 0xFF) << (32 - 2*(imm12 >> 8))))
 
 const char* print_register_list(int list, int size) {
 	int last = -2;
@@ -797,32 +797,32 @@ const char* arm_print(uint32_t opcode) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.S8 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.S8 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFFBF0FD0) == 0xF2900A10) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.S16 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.S16 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFFBF0FD0) == 0xF2A00A10) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.S32 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.S32 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFFBF0FD0) == 0xF3880A10) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.U8 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.U8 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFFBF0FD0) == 0xF3900A10) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.U16 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.U16 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFFBF0FD0) == 0xF3A00A10) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "VMOVL.U32 %s, %s", vecname[0x40 + d], vecname[0x40 + m]);
+		sprintf(ret, "VMOVL.U32 %s, %s", vecname[0x40 + d], vecname[0x20 + m]);
 	} else if ((opcode & 0xFE800F10) == 0xF2800010) {
 		int u = (opcode >> 24) & 1;
 		int q = (opcode >> 6) & 1;
@@ -1020,6 +1020,8 @@ const char* arm_print(uint32_t opcode) {
 		} else {
 			decodedImm = 16 - imm6;
 		}
+		
+		++size;
 		
 		sprintf(ret, "VSHRN.I%d %s, %s, #%d", 8 << size, vecname[0x20 + d], vecname[0x40 + m], decodedImm);
 	} else if ((opcode & 0xFF800FD0) == 0xF2800850) {
@@ -1316,7 +1318,6 @@ const char* arm_print(uint32_t opcode) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		
-		u = 1 - u;
 		++size;
 		
 		sprintf(ret, "VQMOVN.%s %s, %s", dts[(u << 2) + size], vecname[0x20 + d], vecname[0x40 + m]);

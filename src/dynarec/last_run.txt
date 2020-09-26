@@ -50,12 +50,12 @@ NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=10x1 0 Q op/=1 1 imm4 BIC<c>.<dt> 
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=110x 0 Q op/=1 1 imm4 VMVN<c>.<dt> <Qd>, #<imm>
 NEON 1 1 1 1 0 0 1 i 1 D 0 0 0 imm3 Vd cmode/=1110 0 Q op/=1 1 imm4 VMOV<c>.<dt> <Qd>, #<imm>
 INVALIDATE 1 1 1 1 0 0 1 <1> 1 <1> 0 0 0 <11> 0 <2> 1 <4>
-NEON 1 1 1 1 0 0 1 0 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S8 <Qd>, <Qm>
-NEON 1 1 1 1 0 0 1 0 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S16 <Qd>, <Qm>
-NEON 1 1 1 1 0 0 1 0 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S32 <Qd>, <Qm>
-NEON 1 1 1 1 0 0 1 1 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U8 <Qd>, <Qm>
-NEON 1 1 1 1 0 0 1 1 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U16 <Qd>, <Qm>
-NEON 1 1 1 1 0 0 1 1 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U32 <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 0 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S8 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S16 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 0 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.S32 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 1 1 D 0 0 1 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U8 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 1 1 D 0 1 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U16 <Qd>, <Dm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 0 0 0 0 0 Vd 1 0 1 0 0 0 M 1 Vm VMOVL<c>.U32 <Qd>, <Dm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 0 L Q M 1 Vm VSHR<c>.<dt> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 0 1 L Q M 1 Vm VSRA<c>.<dt> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 0 0 1 0 L Q M 1 Vm VRSHR<c>.<dt> <Qd>, <Qm>, #<imm>
@@ -64,7 +64,7 @@ NEON 1 1 1 1 0 0 1 1 1 D imm6 Vd 0 1 0 0 L Q M 1 Vm VSRI<c>.<size> <Qd>, <Qm>, #
 NEON 1 1 1 1 0 0 1 0 1 D Imm6 Vd 0 1 0 1 L Q M 1 Vm VSHL<c>.I<size> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 1 1 D Imm6 Vd 0 1 0 1 L Q M 1 Vm VSLI<c>.<size> <Qd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D Imm6 Vd 0 1 1 op L Q M 1 Vm VQSHL\((u & op) ? "U" : "")\<c>.<dt> <Qd>, <Qm>, #<imm>
-NEON 1 1 1 1 0 0 1 0 1 D imm6 Vd 1 0 0 0 0 0 M 1 Vm VSHRN<c>.I<size> <Dd>, <Qm>, #<imm>
+NEON 1 1 1 1 0 0 1 0 1 D imm6 Vd 1 0 0 0 0 0 M 1 Vm @ set ++size@ @ VSHRN<c>.I<size> <Dd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 0 1 D imm6 Vd 1 0 0 0 0 1 M 1 Vm VRSHRN<c>.I<size> <Dd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 0 M 1 Vm VQSHR\((u & op) ? "U" : "")\N<c>.<dt> <Dd>, <Qm>, #<imm>
 NEON 1 1 1 1 0 0 1 U 1 D imm6 Vd 1 0 0 op 0 1 M 1 Vm VQRSHR\((u & op) ? "U" : "")\N<c>.<dt> <Dd>, <Qm>, #<imm>
@@ -104,7 +104,7 @@ NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 0 1 0 Q M 0 Vm VUZP<c>.\%d8 &l&l si
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 0 1 1 Q M 0 Vm VZIP<c>.\%d8 &l&l size\ <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 0 0 M 0 Vm VMOVN<c>.<dt> <Dd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 0 1 M 0 Vm VQMOVUN<c>.S\%d16 &l&l size\ <Dd>, <Qm>
-NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 1 U M 0 Vm @ set u = 1 - u@ set ++size@ @ VQMOVN<c>.<dt> <Dd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 0 1 U M 0 Vm @ set ++size@ @ VQMOVN<c>.<dt> <Dd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 1 0 Vd 0 0 1 1 0 0 M 0 Vm VSHLL<c>.I\%d8 &l&l size\ <Qd>, <Dm>, #\%d8 &l&l size\
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=01 1 0 Vd 0 1 1 0 0 0 M 0 Vm VCVT<c>.F16.F32 <Dd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size/=01 1 0 Vd 0 1 1 1 0 0 M 0 Vm VCVT<c>.F32.F16 <Qd>, <Dm>
