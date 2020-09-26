@@ -331,6 +331,16 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UBFX(x1, x1, 10, 2);    // extract round
                     STR_IMM9(x1, xEmu, offsetof(x86emu_t, round));
                     break;
+                case 6:
+                    INST_NAME("FNSTENV Ed");
+                    fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    if(ed!=x1) {
+                        MOV_REG(x1, ed);
+                    }
+                    MOVW(x2, 0);
+                    CALL(fpu_savenv, -1, 0);
+                    break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
