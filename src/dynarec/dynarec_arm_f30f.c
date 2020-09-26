@@ -502,8 +502,8 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 v0 = sse_get_reg(dyn, ninst, x1, gd);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
                 v0 = sse_get_reg(dyn, ninst, x1, gd);

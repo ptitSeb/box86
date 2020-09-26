@@ -64,11 +64,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVUPD Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0);
                 LDR_IMM9(x2, ed, fixedaddress+0);
                 LDR_IMM9(x3, ed, fixedaddress+4);
@@ -87,7 +88,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255-8, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255-16, 0);
                 VMOVfrV_D(x2, x3, v0);
                 STR_IMM9(x2, ed, fixedaddress+0);
                 STR_IMM9(x3, ed, fixedaddress+4);
@@ -180,11 +181,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVAPD Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 VLD1Q_32(v0, ed);
             }
@@ -680,11 +682,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            VEOR(v0, v0, v0); // v0 = U32{0, 0}
             GETED;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VEORQ(v0, v0, v0); // v0 = U32{0, 0}
             VMOVtoDx_32(v0, 0, ed);// d0 = U32{ed, 0}
-            VMOVL_U32(v0, v0);// U32/U32 -> U64/U64
             break;
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
@@ -710,25 +711,31 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 u8 = F8;
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 // use stack as temporary storage
-                SUB_IMM8(xSP, xSP, 4);
-                if(v1==v0) {
-                    q0 = fpu_get_scratch_quad(dyn);
-                    VMOVQ(q0, v1);
-                } else q0 = v1;
-                if (u8) {
-                    for (int i=0; i<4; ++i) {
-                        int32_t idx = (u8>>(i*2))&3;
-                        if(idx!=i32) {
-                            VST1LANE_32(q0+(idx/2), xSP, idx&1);
-                            i32 = idx;
-                        }
-                        VLD1LANE_32(v0+(i/2), xSP, i&1);
+                if(u8==0x4E) {
+                    if(v0==v1) {
+                        VSWP(v0, v0+1);
+                    } else {
+                        VMOVD(v0, v1+1);
+                        VMOVD(v0+1, v1);
                     }
                 } else {
-                    VST1LANE_32(v1, xSP, 0);
-                    VLD1QALL_32(v0, xSP);
+                    uint32_t swp[4] = {
+                        (0)|(1<<8)|(2<<16)|(3<<24),
+                        (4)|(5<<8)|(6<<16)|(7<<24),
+                        (8)|(9<<8)|(10<<16)|(11<<24),
+                        (12)|(13<<8)|(14<<16)|(15<<24)
+                    };
+                    d0 = fpu_get_scratch_double(dyn);
+                    MOV32(x2, swp[(u8>>(0*2))&3]);
+                    MOV32(x3, swp[(u8>>(1*2))&3]);
+                    VMOVtoV_D(d0, x2, x3);
+                    MOV32(x2, swp[(u8>>(0*2))&3]);
+                    MOV32(x3, swp[(u8>>(1*2))&3]);
+                    VTBL2_8(v0+0, v1, d0);
+                    VMOVtoV_D(d0, x2, x3);
+                    VTBL2_8(v0+1, v1, d0);
+
                 }
-                ADD_IMM8(xSP, xSP, 4);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 u8 = F8;
@@ -1517,11 +1524,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(v1);
             q0 = fpu_get_scratch_quad(dyn);
             VMULL_S32_S16(q0, v0, v1);
-            VUZP_16(q0, q0+1);
-            VMOVD(v0, q0+1);
+            VSHRN_32(v0, q0, 16);
             VMULL_S32_S16(q0, v0+1, v1+1);
-            VUZP_16(q0, q0+1);
-            VMOVD(v0+1, q0+1);
+            VSHRN_32(v0+1, q0, 16);
             break;
         case 0xE6:
             INST_NAME("CVTTPD2DQ Gx, Ex");
@@ -1549,7 +1554,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVQ(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                VST1Q_32(v0, ed);
+                VST1Q_64(v0, ed);
             }
             break;
         case 0xE8:
@@ -1592,9 +1597,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
-            GETGX(v0);
-            GETEX(q0);
-            VEORQ(v0, v0, q0);
+            gd = (nextop&0x38)>>3;
+            if(nextop==0xC0+gd) {
+                // special case for PXOR Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VEORQ(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd);
+                GETEX(q1);
+                VEORQ(q0, q0, q1);
+            }
             break;
 
         case 0xF1:

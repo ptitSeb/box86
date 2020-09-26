@@ -605,8 +605,13 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
         if(a>0) {
             // new tag to fulls
             MOVW(s3, 0);
-            MOVW(s1, offsetof(x86emu_t, p_regs));
-            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            int offs = offsetof(x86emu_t, p_regs);
+            if(!(offs&3) && (offs>>2)<256) {
+                ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+            } else {
+                MOVW(s1, offs);
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            }
             for (int i=0; i<a; ++i) {
                 SUB_IMM8(s2, s2, 1);
                 AND_IMM8(s2, s2, 7);    // (emu->top + st)&7
@@ -615,8 +620,13 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
         } else {
             // empty tags
             MOVW(s3, 0b11);
-            MOVW(s1, offsetof(x86emu_t, p_regs));
-            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            int offs = offsetof(x86emu_t, p_regs);
+            if(!(offs&3) && (offs>>2)<256) {
+                ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+            } else {
+                MOVW(s1, offsetof(x86emu_t, p_regs));
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            }
             for (int i=0; i<-a; ++i) {
                 STR_REG_LSL_IMM5(s3, s1, s2, 2);    // empty slot before leaving it
                 ADD_IMM8(s2, s2, 1);
@@ -897,8 +907,13 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
-    MOV32(s1, offsetof(x86emu_t, mmx[a]));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    int offs = offsetof(x86emu_t, mmx[a]);
+    if(!(offs&3) && (offs>>2)<256) {
+        ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+    } else {
+        MOV32(s1, offs);
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     VLD1_32(ret, s1);
     return ret;
 #else
@@ -926,8 +941,13 @@ static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
-                MOV32(s1, offsetof(x86emu_t, mmx[i]));
-                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                int offs = offsetof(x86emu_t, mmx[i]);
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
                 old = i+1;  //+1 because VST1 with write back
             } else {
                 if(old!=i) {
@@ -952,8 +972,13 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
-                MOV32(s1, offsetof(x86emu_t, mmx[i]));
-                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                int offs = offsetof(x86emu_t, mmx[i]);
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
                 old = i+1;
             } else {
                 if(old!=i) {
@@ -983,8 +1008,13 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     if(dyn->ssecache[a]!=-1)
         return dyn->ssecache[a];
     int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
-    MOV32(s1, offsetof(x86emu_t, xmm[a]));
-    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    int offs = offsetof(x86emu_t, xmm[a]);
+    if(!(offs&3) && (offs>>2)<256) {
+        ADD_IMM8_ROR(s1, xEmu, (offs>>2), 0xf);
+    } else {
+        MOV32(s1, offs);
+        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+    }
     VLD1Q_32(ret, s1);
     return ret;
 #else
@@ -1012,8 +1042,13 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
-                MOV32(s1, offsetof(x86emu_t, xmm[i]));
-                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                int offs = offsetof(x86emu_t, xmm[i]);
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
                 old = i+1;  //+1 because VST1Q with write back
             } else {
                 if(old!=i) {
@@ -1038,8 +1073,13 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->ssecache[i]!=-1) {
             if (old==-1) {
-                MOV32(s1, offsetof(x86emu_t, xmm[i]));
-                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                int offs = offsetof(x86emu_t, xmm[i]);
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
                 old = i+1;
             } else {
                 if(old!=i) {

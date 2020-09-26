@@ -63,11 +63,12 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVSD Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
                 VMOVD(v0, d0);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
                 LDR_IMM9(x2, ed, fixedaddress+0);
                 LDR_IMM9(x3, ed, fixedaddress+4);
@@ -94,18 +95,18 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVDDUP Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 d0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVD(v0, d0);
-                VMOVD(v0+1, d0);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
                 LDR_IMM9(x2, ed, fixedaddress+0);
                 LDR_IMM9(x3, ed, fixedaddress+4);
                 VMOVtoV_D(v0, x2, x3);
-                VMOVD(v0+1, v0);
             }
+            VMOVD(v0+1, v0);
             break;
 
         case 0x2A:

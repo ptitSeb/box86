@@ -178,6 +178,9 @@ Op is 20-27
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) \
     EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// add dst, src, #imm8 ror rot*2
+#define ADD_IMM8_ROR(dst, src, imm8, rot) \
+    EMIT(0xe2800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM((imm8)) )
 // add.s dst, src, #(imm8)
 #define ADDS_IMM8(dst, src, imm8) \
     EMIT(0xe2900000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -835,6 +838,11 @@ Op is 20-27
 #define VSHLQ_S16(Dd, Dm, Dn)   EMIT(VSHLR_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHLQ_S32(Dd, Dm, Dn)   EMIT(VSHLR_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VSHLQ_S64(Dd, Dm, Dn)   EMIT(VSHLR_gen(0, ((Dd)>>4)&1, 0b11, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VSHRN_gen(D, imm6, Vd, M, Vm)   (0b1111<<28 | 0b0010<<24 | 1<<23 | (D)<<22 | (imm6)<<16 | (Vd)<<12 | 1<<11 | (M)<<5 | 1<<4 | (Vm))
+#define VSHRN_16(Dd, Dm, imm3)          EMIT(VSHRN_gen(((Dd)>>4)&1, 0b001<<3 | (8-(imm3)), (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+#define VSHRN_32(Dd, Dm, imm4)          EMIT(VSHRN_gen(((Dd)>>4)&1, 0b01<<4  | (16-(imm4)), (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+#define VSHRN_64(Dd, Dm, imm5)          EMIT(VSHRN_gen(((Dd)>>4)&1, 0b1<<5   | (32-(imm5)), (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
 
 #define VTRN_gen(D, size, Vd, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b10<<16 | (Vd)<<12 | 0b0000<<8 | 1<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VTRN_32(Dd, Dm)     EMIT(VTRN_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))

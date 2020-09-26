@@ -87,11 +87,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0);
                 //LDRD also have alignment requirements
                 LDR_IMM9(x2, ed, fixedaddress+0);
@@ -191,9 +192,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
                 GETGX(v0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 255, 0);
-                LDRD_IMM8(x2, ed, fixedaddress);
-                VMOVtoV_D(v0+1, x2, x3);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                VLD1_64(v0+1, ed);
             }
             break;
         case 0x17:
@@ -252,11 +252,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOVAPS Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 VLD1Q_32(v0, ed);
             }
@@ -885,11 +886,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOVQ Gm, Em");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
             if((nextop&0xC0)==0xC0) {
                 v1 = mmx_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVD(v0, v1);
             } else {
+                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 VLD1_64(v0, ed);
             }
@@ -2158,7 +2160,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {
                 DEFAULT;
             } else {
-                v0 = mmx_get_reg_empty(dyn, ninst, x1, gd);
+                v0 = mmx_get_reg(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 VST1_64(v0, ed);
             }
