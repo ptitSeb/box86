@@ -800,7 +800,10 @@ void Run660F(x86emu_t *emu)
     _6f_0xA5:                      /* SHLD Ew,Gw,CL */
         nextop = F8;
         GET_EW;
-        tmp8u = (opcode==0xA4)?(F8):R_CL;
+        if(opcode==0xA4)
+            tmp8u = F8;
+        else
+            tmp8u = R_CL;
         EW->word[0] = shld16(emu, EW->word[0], GW.word[0], tmp8u);
         NEXT;
 
@@ -819,7 +822,10 @@ void Run660F(x86emu_t *emu)
     _6f_0xAD:                      /* SHRD Ew,Gw,CL */
         nextop = F8;
         GET_EW;
-        tmp8u = (opcode==0xAC)?(F8):R_CL;
+        if(opcode==0xAC)
+            tmp8u = F8;
+        else
+            tmp8u = R_CL;
         EW->word[0] = shrd16(emu, EW->word[0], GW.word[0], tmp8u);
         NEXT;
 
@@ -1191,7 +1197,7 @@ void Run660F(x86emu_t *emu)
         GX.sd[1] = EX->d[1];
         GX.q[1] = 0;
         NEXT;
-    _6f_0xE7:                      /* MOVNTDQ Ex, Gx */
+    _6f_0xE7:   /* MOVNTDQ Ex, Gx */
         nextop = F8;
         GET_EX;
         EX->q[0] = GX.q[0];
@@ -1202,7 +1208,7 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<16; ++i) {
             tmp16s = (int16_t)GX.sb[i] - EX->sb[i];
-            GX.ub[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
+            GX.sb[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
         }
         NEXT;
     _6f_0xE9:  /* PSUBSW Gx,Ex */
