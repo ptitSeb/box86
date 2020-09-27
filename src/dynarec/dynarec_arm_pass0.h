@@ -12,11 +12,14 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        dynarec_log(LOG_INFO, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X (%s)\n", \
+        if(box86_dynarec_log>=LOG_INFO) {\
+        dynarec_log(LOG_NONE, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
         (void*)ip, PKip(0),             \
         PKip(1), PKip(2), PKip(3),      \
         PKip(4), PKip(5), PKip(6),      \
         PKip(7), PKip(8), PKip(9),      \
         PKip(10),PKip(11),PKip(12),     \
-        PKip(13),PKip(14),              \
-        GetNativeName((void*)addr))
+        PKip(13),PKip(14));             \
+        printFunctionAddr(ip, " => ");  \
+        dynarec_log(LOG_NONE, "\n");    \
+        }
