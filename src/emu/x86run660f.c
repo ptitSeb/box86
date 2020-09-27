@@ -308,8 +308,7 @@ void Run660F(x86emu_t *emu)
                 for (int i=0; i<4; ++i)
                     GX.sw[i] = GX.sw[i*2+0]+GX.sw[i*2+1];
                 if(&GX == EX) {
-                    for (int i=0; i<4; ++i)
-                        GX.sw[4+i] = GX.sw[i];
+                    GX.q[1] = GX.q[0];
                 } else {
                     for (int i=0; i<4; ++i)
                         GX.sw[4+i] = EX->sw[i*2+0] + EX->sw[i*2+1];
@@ -321,8 +320,7 @@ void Run660F(x86emu_t *emu)
                 GX.sd[0] += GX.sd[1];
                 GX.sd[1] = GX.sd[2] + GX.sd[3];
                 if(&GX == EX) {
-                    GX.sd[2] = GX.sd[0];
-                    GX.sd[3] = GX.sd[1];
+                    GX.q[1] = GX.q[0];
                 } else {
                     GX.sd[2] = EX->sd[0] + EX->sd[1];
                     GX.sd[3] = EX->sd[2] + EX->sd[3];
@@ -376,12 +374,12 @@ void Run660F(x86emu_t *emu)
     _6f_0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
-            case 0x0F:          // PALIGNR
+            case 0x0F:          // PALIGNR GX, EX, u8
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
                 if(tmp8u>31)
-                    {EX->q[0] = EX->q[1] = 0;}
+                    {GX.q[0] = GX.q[1] = 0;}
                 else
                 #if 0
                     if(tmp8u>15) {
@@ -515,18 +513,26 @@ void Run660F(x86emu_t *emu)
     _6f_0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=7; i>0; --i)
+        for(int i=7; i>0; --i)  // 0 is untouched
             GX.ub[2 * i] = GX.ub[i];
-        for(int i=0; i<8; ++i)
-            GX.ub[2 * i + 1] = EX->ub[i];
+        if(&GX==EX)
+            for(int i=0; i<8; ++i)
+                GX.ub[2 * i + 1] = GX.ub[2 * i];
+        else 
+            for(int i=0; i<8; ++i)
+                GX.ub[2 * i + 1] = EX->ub[i];
         NEXT;
     _6f_0x61:  /* PUNPCKLWD Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=3; i>0; --i)
             GX.uw[2 * i] = GX.uw[i];
-        for(int i=0; i<4; ++i)
-            GX.uw[2 * i + 1] = EX->uw[i];
+        if(&GX==EX)
+            for(int i=0; i<4; ++i)
+                GX.uw[2 * i + 1] = GX.uw[2 * i];
+        else
+            for(int i=0; i<4; ++i)
+                GX.uw[2 * i + 1] = EX->uw[i];
         NEXT;
     _6f_0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
@@ -538,10 +544,16 @@ void Run660F(x86emu_t *emu)
     _6f_0x63:  /* PACKSSWB Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<8; ++i)
-            GX.sb[i] = (GX.sw[i]<-128)?-128:((GX.sw[i]>127)?127:GX.sw[i]);
-        for(int i=0; i<8; ++i)
-            GX.sb[8+i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+        if(&GX==EX) {
+            for(int i=0; i<8; ++i)
+                GX.sb[i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+            GX.q[1] = GX.q[0];
+        } else {
+            for(int i=0; i<8; ++i)
+                GX.sb[i] = (GX.sw[i]<-128)?-128:((GX.sw[i]>127)?127:GX.sw[i]);
+            for(int i=0; i<8; ++i)
+                GX.sb[8+i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+        }
         NEXT;
     _6f_0x64:  /* PCMPGTB Gx,Ex */
         nextop = F8;
@@ -564,13 +576,16 @@ void Run660F(x86emu_t *emu)
     _6f_0x67:  /* PACKUSWB Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<8; ++i)
-            GX.ub[i] = (GX.sw[i]<0)?0:((GX.sw[i]>0xff)?0xff:GX.sw[i]);
-        if(&GX==EX)
+        if(&GX==EX) {
+            for(int i=0; i<8; ++i)
+                GX.ub[i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
             GX.q[1] = GX.q[0];
-        else
+        } else {
+            for(int i=0; i<8; ++i)
+                GX.ub[i] = (GX.sw[i]<0)?0:((GX.sw[i]>0xff)?0xff:GX.sw[i]);
             for(int i=0; i<8; ++i)
                 GX.ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+        }
         NEXT;
     _6f_0x68:  /* PUNPCKHBW Gx,Ex */
         nextop = F8;
@@ -593,22 +608,25 @@ void Run660F(x86emu_t *emu)
     _6f_0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;
         GET_EX;
-        if(EX==&GX) {eax1 = GX; EX = &eax1;}   // copy is needed
+        // no copy needed if &GX==EX
         GX.ud[0] = GX.ud[2];
-        GX.ud[2] = GX.ud[3];
         GX.ud[1] = EX->ud[2];
+        GX.ud[2] = GX.ud[3];
         GX.ud[3] = EX->ud[3];
         NEXT;
     _6f_0x6B:  /* PACKSSDW Gx,Ex */
         nextop = F8;
         GET_EX;
-        for(int i=0; i<4; ++i)
-            GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
-        if(&GX==EX)
+        if(&GX==EX) {
+            for(int i=0; i<4; ++i)
+                GX.sw[i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
             GX.q[1] = GX.q[0];
-        else
+        } else {
+            for(int i=0; i<4; ++i)
+                GX.sw[i] = (GX.sd[i]<-32768)?-32768:((GX.sd[i]>32767)?32767:GX.sd[i]);
             for(int i=0; i<4; ++i)
                 GX.sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
+        }
         NEXT;
     _6f_0x6C:  /* PUNPCKLQDQ Gx,Ex */
         nextop = F8;
@@ -1075,7 +1093,7 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<8; ++i) {
             tmp32s = (int32_t)GX.sw[i] * EX->sw[i];
-            GX.sw[i] = tmp32s;
+            GX.sw[i] = tmp32s&0xffff;
         }
         NEXT;
     _6f_0xD6:  /* MOVQ Ex,Gx */
@@ -1101,7 +1119,7 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<16; ++i) {
             tmp16s = (int16_t)GX.ub[i] - EX->ub[i];
-            GX.ub[i] = (tmp16s<0)?0:((tmp16s>255)?255:tmp16s);
+            GX.ub[i] = (tmp16s<0)?0:tmp16s;
         }
         NEXT;
     _6f_0xD9:  /* PSUBUSW Gx,Ex */
@@ -1109,7 +1127,7 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<8; ++i) {
             tmp32s = (int32_t)GX.uw[i] - EX->uw[i];
-            GX.uw[i] = (tmp32s<0)?0:((tmp32s>0xffff)?0xffff:tmp32s);
+            GX.uw[i] = (tmp32s<0)?0:tmp32s;
         }
         NEXT;
     _6f_0xDA:  /* PMINUB Gx, Ex */
@@ -1137,7 +1155,7 @@ void Run660F(x86emu_t *emu)
         GET_EX;
         for(int i=0; i<8; ++i) {
             tmp32s = (int32_t)GX.uw[i] + EX->uw[i];
-            GX.uw[i] = (tmp16s>65535)?65535:tmp32s;
+            GX.uw[i] = (tmp32s>65535)?65535:tmp32s;
         }
         NEXT;
     _6f_0xDE:  /* PMAXUB Gx, Ex */
@@ -1149,30 +1167,34 @@ void Run660F(x86emu_t *emu)
     _6f_0xDF:  /* PANDN Gx,Ex */
         nextop = F8;
         GET_EX;
-        GX.q[0] = (~GX.q[0]) & EX->q[0];
-        GX.q[1] = (~GX.q[1]) & EX->q[1];
+        GX.q[0] = (~(GX.q[0])) & EX->q[0];
+        GX.q[1] = (~(GX.q[1])) & EX->q[1];
         NEXT;
     _6f_0xE0:  /* PAVGB Gx, Ex */
         nextop = F8;
         GET_EX;
-        for (int i=0; i<16; ++i) GX.ub[i] = ((uint16_t)GX.ub[i] + EX->ub[i] + 1)>>1;
+        for (int i=0; i<16; ++i)
+            GX.ub[i] = ((uint16_t)GX.ub[i] + EX->ub[i] + 1)>>1;
         NEXT;
     _6f_0xE1:  /* PSRAW Gx, Ex */
         nextop = F8;
         GET_EX;
         tmp8u=(EX->q[0]>15)?16:EX->ub[0];
-        for (int i=0; i<8; ++i) GX.sw[i] >>= tmp8u;
+        for (int i=0; i<8; ++i) 
+            GX.sw[i] >>= tmp8u;
         NEXT;
     _6f_0xE2:  /* PSRAD Gx, Ex */
         nextop = F8;
         GET_EX;
         tmp8u=(EX->q[0]>31)?32:EX->ub[0];
-        for (int i=0; i<4; ++i) GX.sd[i] >>= tmp8u;
+        for (int i=0; i<4; ++i)
+            GX.sd[i] >>= tmp8u;
         NEXT;
     _6f_0xE3:  /* PAVGW Gx, Ex */
         nextop = F8;
         GET_EX;
-        for (int i=0; i<8; ++i) GX.uw[i] = ((uint32_t)GX.uw[i] + EX->uw[i] + 1)>>1;
+        for (int i=0; i<8; ++i)
+            GX.uw[i] = ((uint32_t)GX.uw[i] + EX->uw[i] + 1)>>1;
         NEXT;
     _6f_0xE4:  /* PMULHUW Gx, Ex */
         nextop = F8;
@@ -1325,13 +1347,13 @@ void Run660F(x86emu_t *emu)
         nextop = F8;
         GET_EX;
         for(int i=0; i<16; ++i)
-            GX.ub[i] -= EX->ub[i];
+            GX.sb[i] -= EX->sb[i];
         NEXT;
     _6f_0xF9:  /* PSUBW Gx,Ex */
         nextop = F8;
         GET_EX;
         for(int i=0; i<8; ++i)
-            GX.uw[i] -= EX->uw[i];
+            GX.sw[i] -= EX->sw[i];
         NEXT;
     _6f_0xFA:  /* PSUBD Gx,Ex */
         nextop = F8;
