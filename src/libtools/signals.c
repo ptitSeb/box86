@@ -565,6 +565,27 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
     }
 }
 
+EXPORT sighandler_t my_sigset(x86emu_t* emu, int signum, sighandler_t handler)
+{
+    // emulated SIG_HOLD
+    if(handler == (sighandler_t)2) {
+        x86_sigaction_t oact;
+        sigset_t nset;
+        sigset_t oset;
+        if (sigemptyset (&nset) < 0)
+            return (sighandler_t)-1;
+        if (sigaddset (&nset, signum) < 0)
+            return (sighandler_t)-1;
+        if (sigprocmask (SIG_BLOCK, &nset, &oset) < 0)
+            return (sighandler_t)-1;
+        if (sigismember (&oset, signum))
+            return (sighandler_t)2;
+        if (my_sigaction (emu, signum, NULL, &oact) < 0)
+            return (sighandler_t)-1;
+        return oact._u._sa_handler;
+    }
+    return my_signal(emu, signum, handler);
+}
 
 EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
 {
