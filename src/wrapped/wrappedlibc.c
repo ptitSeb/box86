@@ -1287,20 +1287,28 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
     }
 }
 
+static int isProcSelf(const char *path, const char* w)
+{
+    if(strncmp(path, "/proc/", 6)==0) {
+        char tmp[64];
+        // check if self ....
+        sprintf(tmp, "/proc/self/%s", w);
+        if(strcmp((const char*)path, tmp)==0)
+            return 1;
+        // check if self PID ....
+        pid_t pid = getpid();
+        sprintf(tmp, "/proc/%d/%s", pid, w);
+        if(strcmp((const char*)path, tmp)==0)
+            return 1;
+    }
+    return 0;
+}
+
 EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
 {
-    if(strcmp((const char*)path, "/proc/self/exe")==0) {
+    if(isProcSelf((const char*)path, "exe")) {
         // special case for self...
         return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
-    }
-    if(strncmp((const char*)path, "/proc/", 6)==0) {
-        // check if self checking....
-        pid_t pid = getpid();
-        char tmp[64];
-        sprintf(tmp, "/proc/%d/exe", pid);
-        if(strcmp((const char*)path, tmp)==0) {
-            return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
-        }
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
@@ -1379,7 +1387,7 @@ void CreateCPUInfoFile(int fd)
 #define TMP_CMDLINE "box86_tmpcmdline"
 EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
-    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+    if(isProcSelf((const char*) pathname, "cmdline")) {
         // special case for self command line...
         #if 0
         char tmpcmdline[200] = {0};
@@ -1404,7 +1412,7 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         #endif
         return tmp;
     }
-    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+    if(isProcSelf((const char*)pathname, "exe")) {
         return open(emu->context->fullpath, flags, mode);
     }
     #ifndef NOALIGN
@@ -1448,7 +1456,7 @@ EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
 
 EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
-    if(strcmp((const char*)pathname, "/proc/self/cmdline")==0) {
+    if(isProcSelf((const char*)pathname, "cmdline")) {
         // special case for self command line...
         #if 0
         char tmpcmdline[200] = {0};
@@ -1473,7 +1481,7 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         #endif
         return tmp;
     }
-    if(strcmp((const char*)pathname, "/proc/self/exe")==0) {
+    if(isProcSelf((const char*)pathname, "exe")) {
         return open64(emu->context->fullpath, flags, mode);
     }
     #ifndef NOALIGN
@@ -1492,7 +1500,7 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
 
 EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
 {
-    if(strcmp((const char*)path, "/proc/self/maps")==0) {
+    if(isProcSelf(path, "maps")) {
         // special case for self memory map
         int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen(path, mode); // error fallback
@@ -1502,7 +1510,7 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #ifndef NOALIGN
-    if(strcmp((const char*)path, "/proc/cpuinfo")==0) {
+    if(strcmp(path, "/proc/cpuinfo")==0) {
         // special case for cpuinfo
         int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen(path, mode); // error fallback
@@ -1512,7 +1520,7 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #endif
-    if(strcmp(path, "/proc/self/exe")==0) {
+    if(isProcSelf(path, "exe")) {
         return fopen(emu->context->fullpath, mode);
     }
     return fopen(path, mode);
@@ -1520,7 +1528,7 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
 
 EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
 {
-    if(strcmp((const char*)path, "/proc/self/maps")==0) {
+    if(isProcSelf(path, "maps")) {
         // special case for self memory map
         int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
@@ -1530,7 +1538,7 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #ifndef NOALIGN
-    if(strcmp((const char*)path, "/proc/cpuinfo")==0) {
+    if(strcmp(path, "/proc/cpuinfo")==0) {
         // special case for cpuinfo
         int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
@@ -1540,7 +1548,7 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     #endif
-    if(strcmp(path, "/proc/self/exe")==0) {
+    if(isProcSelf(path, "exe")) {
         return fopen64(emu->context->fullpath, mode);
     }
     return fopen64(path, mode);
@@ -1671,7 +1679,7 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
 
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
-    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
+    int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
@@ -1699,7 +1707,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 
 EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], char* const envp[])
 {
-    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
+    int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
     #if 1
@@ -1729,7 +1737,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
 EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX86_PATH / PATH here...
-    int self = (strcmp(path, "/proc/self/exe")==0)?1:0;
+    int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d\n", path, argv, x86);
     if ((x86 || self) && argv) {
@@ -2056,17 +2064,8 @@ EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint
 EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 {
     char* ret;
-    if(strcmp(path, "/proc/self/exe")==0) {
+    if(isProcSelf(path, "exe")) {
         ret = realpath(emu->context->fullpath, resolved_path);
-    } else  if(strncmp((const char*)path, "/proc/", 6)==0) {
-        // check if self checking....
-        pid_t pid = getpid();
-        char tmp[64];
-        sprintf(tmp, "/proc/%d/exe", pid);
-        if(strcmp((const char*)path, tmp)==0)
-            ret = realpath(emu->context->fullpath, resolved_path);
-        else
-            ret = realpath(path, resolved_path);
     } else
         ret = realpath(path, resolved_path);
     return ret;
