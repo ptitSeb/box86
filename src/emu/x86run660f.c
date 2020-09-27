@@ -335,6 +335,25 @@ void Run660F(x86emu_t *emu)
                     GX.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                 }
                 break;
+                
+            case 0x08:  /* PSIGNB Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<16; ++i)
+                    GX.sb[i] *= (EX->sb[i]<0)?-1:((EX->sb[i]>0)?1:0);
+            break;
+            case 0x09:  /* PSIGNW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<8; ++i)
+                    GX.sw[i] *= (EX->sw[i]<0)?-1:((EX->sw[i]>0)?1:0);
+            break;
+            case 0x0A:  /* PSIGND Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i)
+                    GX.sd[i] *= (EX->sd[i]<0)?-1:((EX->sd[i]>0)?1:0);
+            break;
             case 0x0B:  /* PMULHRSW Gx, Ex */
                 nextop = F8;
                 GET_EX;
