@@ -406,5 +406,4 @@ GO(_tracecchar_t2, pFip)
 GO(trace, vFu)
 GO(_nc_visbuf, pFp)
 
-DATA(stdscr, 4)
 DATA(COLOR_PAIRS, 4)
