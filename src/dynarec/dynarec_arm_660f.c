@@ -559,11 +559,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             GETEX(q0);
             v0 = sse_get_reg(dyn, ninst, x1, gd);
-            if((nextop&0xC0)==0xC0) {
-                q1 = fpu_get_scratch_quad(dyn);
-                VMOVQ(q1, q0);
-            } else q1 = q0;
-            VZIPQ_32(v0, q1);
+            VMOVD(v0+1, q0);  // get a copy
+            VTRN_32(v0, v0+1);  // same as VZIP_32
             break;
         case 0x63:
             INST_NAME("PACKSSWB Gx,Ex");
@@ -571,7 +568,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(q0);
             GETEX(q1);
             VQMOVN_S16(q0+0, q0);
-            VQMOVN_S16(q0+1, q1);
+            if(q0==q1) {
+                VMOVD(q0+1, q0+0);
+            } else {
+                VQMOVN_S16(q0+1, q1);
+            }
             break;
         case 0x64:
             INST_NAME("PCMPGTB Gx,Ex");
@@ -633,12 +634,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             GETEX(q0);
             v0 = sse_get_reg(dyn, ninst, x1, gd);
-            if((nextop&0xC0)==0xC0) {
-                q1 = fpu_get_scratch_quad(dyn);
-                VMOVQ(q1, q0);
-            } else q1 = q0;
-            VZIPQ_32(v0, q1);
-            VMOVQ(v0, q1);
+            VMOVD(v0, v0+1);    // get high part into low
+            VMOVD(v0+1, q0+1);  // get a copy
+            VZIP_32(v0, v0+1);
             break;
         case 0x6B:
             INST_NAME("PACKSSDW Gx,Ex");
@@ -710,7 +708,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 u8 = F8;
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
-                // use stack as temporary storage
                 if(u8==0x4E) {
                     if(v0==v1) {
                         VSWP(v0, v0+1);
@@ -726,15 +723,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         (12)|(13<<8)|(14<<16)|(15<<24)
                     };
                     d0 = fpu_get_scratch_double(dyn);
+                    if(v0==v1) {
+                        q1 = fpu_get_scratch_quad(dyn);
+                        VMOVQ(q1, v1);
+                    } else
+                        q1 = v1;
                     MOV32(x2, swp[(u8>>(0*2))&3]);
                     MOV32(x3, swp[(u8>>(1*2))&3]);
                     VMOVtoV_D(d0, x2, x3);
-                    MOV32(x2, swp[(u8>>(0*2))&3]);
-                    MOV32(x3, swp[(u8>>(1*2))&3]);
-                    VTBL2_8(v0+0, v1, d0);
+                    MOV32(x2, swp[(u8>>(2*2))&3]);
+                    MOV32(x3, swp[(u8>>(3*2))&3]);
+                    VTBL2_8(v0+0, q1, d0);
                     VMOVtoV_D(d0, x2, x3);
-                    VTBL2_8(v0+1, v1, d0);
-
+                    VTBL2_8(v0+1, q1, d0);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
@@ -1223,7 +1224,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             BFI(gd, x1, 0, 16);
             break;
-        
+
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex");
             nextop = F8;
@@ -1667,18 +1668,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0);
             GETEX(v1);
-            if((nextop&0xC0)==0xC0) {
-                q1 = fpu_get_scratch_quad(dyn);
-                VMOVQ(q1, v1);
-            } else {
-                q1 = v1;
-            }
-            VUZP_16(v0, v0+1);
-            VUZP_16(q1, q1+1);
-            VSWP(v0, q1+1);
-            VMULL_S32_S16(q1, q1, q1+1);
-            VMULL_S32_S16(v0, v0, v0+1);
-            VADDQ_32(v0, v0, q1);
+            q1 = fpu_get_scratch_quad(dyn);
+            VMULL_S32_S16(q1, v0, v1);
+            VPADD_32(v0, q1, q1+1);
+            VMULL_S32_S16(q1, v0+1, v1+1);
+            VPADD_32(v0+1, q1, q1+1);
             break;
         case 0xF6:
             INST_NAME("PSADBW Gx, Ex");

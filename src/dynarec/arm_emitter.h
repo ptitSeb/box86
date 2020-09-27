@@ -698,8 +698,8 @@ Op is 20-27
 #define VMOVL_U32(Dd, Dm)   EMIT(VMOVL_gen(1, ((Dd)>>4)&1, 0b100, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
 
 #define VMOV_gen(D,Vd, M, Vm, Q) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | 0b10<<20 | (Vm)<<16 | (Vd)<<12 | 0b0001<<8 | (M)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
-#define VMOVD(Dd, Dm) EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 0))
-#define VMOVQ(Dd, Dm) EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 1))
+#define VMOVD(Dd, Dm) if((Dd)!=(Dm)) {EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 0));}
+#define VMOVQ(Dd, Dm) if((Dd)!=(Dm)) {EMIT(VMOV_gen(((Dd)>>4)&1, (Dd)&15, ((Dm)>>4)&1, (Dm)&15, 1));}
 
 #define VMOV_igen(i, D, imm3, Vd, cmode, Q, op, imm4)   (0b1111<<28 | 0b001<<25 | (i)<<24 | 1<<23 | (D)<<22 | (imm3)<<16 | (Vd)<<12 | (cmode)<<8 | (Q)<<6 | (op)<<5 | 1<<4 | (imm4))
 #define VMOV_8(Dd, imm)     EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 0, 0, (imm)&15))
@@ -1154,7 +1154,7 @@ Op is 20-27
 #define VRHADDQ_S16(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VRHADDQ_S32(Dd, Dn, Dm) EMIT(VRHADD_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
-#define VQRDMULH_gen(D, size, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0011 <<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1011<<8 | (N)<<7 | (Q)<<6 | (Vm))
+#define VQRDMULH_gen(D, size, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0011 <<24 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 // Dd <= (2*Dn*Dm + 1<<(size-1))>>size
 #define VQRDMULH_S16(Dd, Dn, Dm)    EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VQRDMULH_S32(Dd, Dn, Dm)    EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
