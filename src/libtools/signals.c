@@ -305,9 +305,9 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
 }
-void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    // sig == SIGSEGV here!
+    // sig==SIGSEGV || sig==SIGBUS here!
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
 #ifdef __arm__
@@ -319,7 +319,7 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
-    if(addr && info->si_code == SEGV_ACCERR && getDBFromAddress((uintptr_t)addr)) {
+    if(sig==SIGSEGV && addr && info->si_code == SEGV_ACCERR && getDBFromAddress((uintptr_t)addr)) {
         dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory\n", addr, pc);
         // access error
         unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
@@ -331,7 +331,7 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     static void* old_pc = 0;
     static void* old_addr = 0;
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
-        printf_log(LOG_NONE, "%04d|Double SIGSEGV!\n", GetTID());
+        printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS");
     } else {
 #ifdef DYNAREC
         dynablock_t* db = FindDynablockFromNativeAddress(pc);
@@ -372,9 +372,9 @@ void my_memprotectionhandler(int32_t sig, siginfo_t* info, void * ucntx)
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
-        printf_log(LOG_NONE, "%04d|SIGSEGV @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code);
 #endif
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
@@ -404,10 +404,10 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
         my_context->restorer[signum] = 0;
         handler = my_sighandler;
     }
-#ifdef DYNAREC
-    if(signum == SIGSEGV)
+
+    if(signum==SIGSEGV || signum==SIGBUS)
         return 0;
-#endif
+
     return signal(signum, handler);
 }
 EXPORT sighandler_t my___sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
@@ -447,10 +447,8 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
     int ret = 0;
-#ifdef DYNAREC
-    if(signum != SIGSEGV)
-#endif
-    sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    if(signum!=SIGSEGV && signum!=SIGBUS)
+        sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
@@ -549,10 +547,9 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             old.sa_mask = oldact->sa_mask;
         }
         int ret = 0;
-#ifdef DYNAREC
-        if(signum != SIGSEGV)
-#endif
-        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+
+        if(signum!=SIGSEGV && signum!=SIGBUS)
+            ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
             oldact->sa_mask = old.sa_mask;
@@ -686,19 +683,20 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
 
 void init_signal_helper()
 {
-#ifdef DYNAREC
 	struct sigaction action;
 	action.sa_flags = SA_SIGINFO | SA_RESTART;
-	action.sa_sigaction = my_memprotectionhandler;
+	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGSEGV, &action, NULL);
-#endif
+	action.sa_flags = SA_SIGINFO | SA_RESTART;
+	action.sa_sigaction = my_box86signalhandler;
+    sigaction(SIGBUS, &action, NULL);
+
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
 	pthread_once(&sigemu_key_once, sigemu_key_alloc);
 }
 
 void fini_signal_helper()
 {
-#ifdef DYNAREC
     signal(SIGSEGV, SIG_DFL);
-#endif
+    signal(SIGBUS, SIG_DFL);
 }
