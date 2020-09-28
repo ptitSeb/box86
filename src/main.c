@@ -440,19 +440,12 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         (*dest)[idx++] = strdup("BOX86_LD_LIBRARY_PATH=.:lib");
     }
     // add "_=prog" at the end...
-    {
-        char* fullprog = NULL;
-        if(prog[0]=='/')
-            fullprog = strdup(prog);
-        else
-            fullprog = ResolveFile(prog, &my_context->box86_path);
-
-        int l = strlen(fullprog);
+    if(prog) {
+        int l = strlen(prog);
         char tmp[l+3];
         strcpy(tmp, "_=");
-        strcat(tmp, fullprog);
+        strcat(tmp, prog);
         (*dest)[idx++] = strdup(tmp);
-        free(fullprog);
     }
     return 0;
 }
@@ -771,20 +764,19 @@ int main(int argc, const char **argv, const char **env) {
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
 
-    // prepare all other env. var
-    my_context->envc = CountEnv(env);
-    printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
-    my_context->envv = (char**)calloc(my_context->envc+1, sizeof(char*));   //+1 for last null
-    GatherEnv(&my_context->envv, env, prog);
-    if(box86_log>=LOG_DUMP) {
-        for (int i=0; i<my_context->envc; ++i)
-            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
-    }
-
     if(argv[0][0]=='/')
         my_context->box86path = strdup(argv[0]);
     else
         my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
+    // prepare all other env. var
+    my_context->envc = CountEnv(env);
+    printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
+    my_context->envv = (char**)calloc(my_context->envc+1, sizeof(char*));   //+1 for last null
+    GatherEnv(&my_context->envv, env, my_context->box86path);
+    if(box86_log>=LOG_DUMP) {
+        for (int i=0; i<my_context->envc; ++i)
+            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
+    }
 
     path_collection_t ld_preload = {0};
     if(getenv("BOX86_LD_PRELOAD")) {
@@ -853,7 +845,7 @@ int main(int argc, const char **argv, const char **env) {
     }
 
     // check if file exist
-    if(!my_context->argv[0]) {
+    if(!my_context->argv[0] || !FileExist(my_context->argv[0], IS_FILE)) {
         printf_log(LOG_NONE, "Error: file is not found (check BOX86_PATH)\n");
         free_contextargv();
         FreeBox86Context(&my_context);
