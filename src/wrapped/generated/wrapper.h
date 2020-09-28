@@ -175,7 +175,6 @@ void CFpp(x86emu_t *emu, uintptr_t fnc);
 void uFEu(x86emu_t *emu, uintptr_t fnc);
 void uFEp(x86emu_t *emu, uintptr_t fnc);
 void uFiu(x86emu_t *emu, uintptr_t fnc);
-void uFip(x86emu_t *emu, uintptr_t fnc);
 void uFui(x86emu_t *emu, uintptr_t fnc);
 void uFuu(x86emu_t *emu, uintptr_t fnc);
 void uFup(x86emu_t *emu, uintptr_t fnc);
