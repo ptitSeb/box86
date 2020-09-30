@@ -240,6 +240,43 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VTBL2_8(q0+0, v1, q1+0);
                     VTBL2_8(q0+1, v1, q1+1);
                     break;
+                case 0x01:
+                    INST_NAME("PHADDW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    VPADD_16(q0, q0, q0+1);
+                    if(q0==q1) {
+                        VMOVD(q0+1, q0);
+                    } else {
+                        VPADD_16(q0+1, q1, q1+1);
+                    }
+                    break;
+                case 0x02:
+                    INST_NAME("PHADDD Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    VPADD_32(q0, q0, q0+1);
+                    if(q0==q1) {
+                        VMOVD(q0+1, q0);
+                    } else {
+                        VPADD_32(q0+1, q1, q1+1);
+                    }
+                    break;
+                case 0x03:
+                    INST_NAME("PHADDSW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    if((nextop&0xC0) == 0xC0) {
+                        v1 = fpu_get_scratch_quad(dyn);
+                        VMOVQ(v1, q1);
+                    } else
+                        v1 = q1;
+                    VUZPQ_16(q0, v1);
+                    VQADDQ_S16(q0, q0, v1);
+                    break;
                 case 0x04:
                     INST_NAME("PMADDUBSW Gx,Ex");
                     nextop = F8;
@@ -258,6 +295,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VPADDLQ_S16(v0, v0);
                     VQMOVN_S32(q0+1, v0);
                     break;
+                case 0x05:
+                    INST_NAME("PHSUBW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    if((nextop&0xC0) == 0xC0) {
+                        v1 = fpu_get_scratch_quad(dyn);
+                        VMOVQ(v1, q1);
+                    } else
+                        v1 = q1;
+                    VUZPQ_16(q0, v1);
+                    VSUBQ_16(q0, q0, v1);
+                    break;
+
                 case 0x0B:
                     INST_NAME("PMULHRSW Gx,Ex");
                     nextop = F8;
