@@ -244,6 +244,12 @@
         GX.q[1] = 0;
         break;
 
+    case 0xF0:  /* LDDQU Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        memcpy(&GX, EX, 16);
+        break;
+
     default:
         goto _default;
     }
