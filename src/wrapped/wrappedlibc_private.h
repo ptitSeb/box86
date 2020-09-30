@@ -1132,8 +1132,8 @@ GOM(mprotect, iFEpLi)
 GOW(mremap, pFpuuip)	// 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
 // msgctl
 GOW(msgget, iFpi)
-// msgrcv   // Weak
-// msgsnd   // Weak
+GOW(msgrcv, lFipLli)
+GOW(msgsnd, iFipLi)
 GOW(msync, iFpLi)
 // mtrace
 GO(munlock, iFpL)
