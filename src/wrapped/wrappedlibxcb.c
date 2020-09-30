@@ -50,6 +50,7 @@ typedef my_xcb_cookie_t (*XFpCppp_t)(void*, uint8_t, void*, void*, void*);
 typedef my_xcb_cookie_t (*XFpCuup_t)(void*, uint8_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*XFpuuup_t)(void*, uint32_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*XFpuuWW_t)(void*, uint32_t, uint32_t, uint16_t, uint16_t);
+typedef my_xcb_cookie_t (*XFpuWWW_t)(void*, uint32_t, uint16_t, uint16_t, uint16_t);
 typedef my_xcb_cookie_t (*XFpCuuup_t)(void*, uint8_t, uint32_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*XFpCuuCC_t)(void*, uint8_t, uint32_t, uint32_t, uint8_t, uint8_t);
 typedef my_xcb_cookie_t (*XFpCuuWW_t)(void*, uint8_t, uint32_t, uint32_t, uint16_t, uint16_t);
@@ -68,6 +69,7 @@ typedef my_xcb_cookie_t (*XFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t,
 typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
 
 #define SUPER() \
+    GO(xcb_alloc_color, XFpuWWW_t)                  \
     GO(xcb_change_gc, XFpuup_t)                     \
     GO(xcb_change_gc_checked, XFpuup_t)             \
     GO(xcb_change_keyboard_control, XFpup_t)        \
@@ -181,6 +183,7 @@ void freeXcbMy(void* lib)
         return ret;                                                 \
     }
 
+SUPER(xcb_alloc_color, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cmap, uint16_t red, uint16_t green, uint16_t blue), c, cmap, red, green, blue)
 SUPER(xcb_change_gc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t gc, uint32_t mask, void* list), c, gc, mask, list)
 SUPER(xcb_change_gc_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t gc, uint32_t mask, void* list), c, gc, mask, list)
 SUPER(xcb_change_keyboard_control, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t mask, void* list), c, mask, list)

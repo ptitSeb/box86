@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//GO(xcb_alloc_color, 
+GOS(xcb_alloc_color, pFEppuWWW)
 //GO(xcb_alloc_color_cells, 
 //GO(xcb_alloc_color_cells_masks, 
 //GO(xcb_alloc_color_cells_masks_end, 
@@ -20,7 +20,7 @@
 //GO(xcb_alloc_color_planes_reply, 
 //GO(xcb_alloc_color_planes_sizeof, 
 //GO(xcb_alloc_color_planes_unchecked, 
-//GO(xcb_alloc_color_reply, 
+GO(xcb_alloc_color_reply, pFpup)
 //GO(xcb_alloc_color_unchecked, 
 //GO(xcb_alloc_named_color, 
 //GO(xcb_alloc_named_color_reply, 
