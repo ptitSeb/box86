@@ -326,7 +326,22 @@ void Run660F(x86emu_t *emu)
                     GX.sd[3] = EX->sd[2] + EX->sd[3];
                 }
                 break;
-
+            case 0x03:  /* PHADDSW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    tmp32s = GX.sw[i*2+0]+GX.sw[i*2+1];
+                    GX.sw[i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                }
+                if(&GX == EX) {
+                    GX.q[1] = GX.q[0];
+                } else {
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = EX->sw[i*2+0] + EX->sw[i*2+1];
+                        GX.sw[4+i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                    }
+                }
+                break;
             case 0x04:  /* PMADDUBSW Gx,Ex */
                 nextop = F8;
                 GET_EX;
