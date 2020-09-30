@@ -1543,7 +1543,8 @@ _trace:
                     }
                     break;
                 case 6:                 /* Push Ed */
-                    Push(emu, ED->dword[0]);
+                    tmp32u = ED->dword[0];
+                    Push(emu, tmp32u);  // avoid potential issue with push [esp+...]
                     break;
                 default:
                     emu->old_ip = R_EIP;
