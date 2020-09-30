@@ -600,7 +600,7 @@ GO(xcb_setup_pixmap_formats_length, iFp)
 //GO(xcb_setup_request_next, 
 //GO(xcb_setup_request_sizeof, 
 GOS(xcb_setup_roots_iterator, pFEpp)
-//GO(xcb_setup_roots_length, 
+GO(xcb_setup_roots_length, iFp)
 //GO(xcb_setup_sizeof, 
 //GO(xcb_setup_vendor, 
 //GO(xcb_setup_vendor_end, 
