@@ -309,6 +309,26 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVtoV_D(v0, x2, x2);
             break;
 
+        case 0xF0:
+            INST_NAME("LDDQ Gx,Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0);
+                LDR_IMM9(x2, ed, fixedaddress+0);
+                LDR_IMM9(x3, ed, fixedaddress+4);
+                VMOVtoV_D(v0, x2, x3);
+                LDR_IMM9(x2, ed, fixedaddress+8);
+                LDR_IMM9(x3, ed, fixedaddress+12);
+                VMOVtoV_D(v0+1, x2, x3);
+            }
+            break;
+
         default:
             DEFAULT;
     }
