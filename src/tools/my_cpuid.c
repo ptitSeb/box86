@@ -48,12 +48,10 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                     | 1<<26     // SSE2
                     ;
             R_ECX =   1<<0      // SSE3
-                    //| 1<<9      // SSSE3
+                    | 1<<9      // SSSE3
                     | 1<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     ; 
-            if(!box86_steam)
-                R_ECX |= (1<<9);    // Disabling SSSE3 for steam for now
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
             R_EAX = 0x665B5001;

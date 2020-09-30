@@ -824,7 +824,7 @@ int main(int argc, const char **argv, const char **env) {
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {
-        printf_log(LOG_INFO, "steam detected, forcing emulated libudev, disabling SSSE3\n");
+        printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
     }
