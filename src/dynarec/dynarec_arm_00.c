@@ -1110,7 +1110,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x8C:
             INST_NAME("MOV Ed, Seg");
             nextop=F8;
-            MOV32(x3, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            MOV32(x3, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
                 LDRH_REG(xEAX+(nextop&7), xEmu, x3);
             } else {                    // mem <= seg
@@ -1142,15 +1142,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDRH_IMM8(x1, ed, fixedaddress);
                 ed = x1;
             }
-            MOV32(x2, offsetof(x86emu_t, segs[(nextop&38)>>3]));
+            MOV32(x2, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
             STRH_REG(ed, xEmu, x2);
-            if(((nextop&38)>>3)==_FS) {
+            if(((nextop&0x38)>>3)==_FS) {
                 // update default_fs, hack for wine
                 MOV32(x2, &default_fs);
                 STRH_IMM8(ed, x2, 0);
             }
             MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[(nextop&38)>>3]));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[(nextop&0x38)>>3]));
             break;
         case 0x8F:
             INST_NAME("POP Ed");
