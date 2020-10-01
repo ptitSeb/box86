@@ -1,5 +1,17 @@
     nextop = F8;
     switch (nextop) {
+    case 0xC0:  /* FFREEP STx */
+    case 0xC1:
+    case 0xC2:
+    case 0xC3:
+    case 0xC4:
+    case 0xC5:
+    case 0xC6:
+    case 0xC7:
+        fpu_do_free(emu, nextop-0xC0);
+        fpu_do_pop(emu);
+        break;
+
     case 0xE0:  /* FNSTSW AX */
         emu->sw.f.F87_TOP = emu->top&7;
         R_AX = emu->sw.x16;
@@ -29,14 +41,6 @@
         fpu_do_pop(emu);
         break;
 
-    case 0xC0:
-    case 0xC1:
-    case 0xC2:
-    case 0xC3:
-    case 0xC4:
-    case 0xC5:
-    case 0xC6:
-    case 0xC7:
     case 0xC8:
     case 0xC9:
     case 0xCA:
