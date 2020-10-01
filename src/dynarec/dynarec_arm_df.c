@@ -41,6 +41,19 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(i32);
 
     switch(nextop) {
+        case 0xC0:
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC4:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:
+            INST_NAME("FFREEP STx");
+            // not handling Tag...
+            x87_do_pop(dyn, ninst);
+            break;
+
         case 0xE0:
             INST_NAME("FNSTSW AX");
             LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
@@ -82,14 +95,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_do_pop(dyn, ninst);
             break;
 
-        case 0xC0:
-        case 0xC1:
-        case 0xC2:
-        case 0xC3:
-        case 0xC4:
-        case 0xC5:
-        case 0xC6:
-        case 0xC7:
         case 0xC8:
         case 0xC9:
         case 0xCA:
