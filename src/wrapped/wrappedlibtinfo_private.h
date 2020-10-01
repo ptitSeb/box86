@@ -138,7 +138,7 @@ GO(tigetnum, iFp)
 GO(tigetstr, pFp)
 //GO(tiparm, p(p,...)
 GO(tparm, pFplllllllll) // va_arg or 9 long, depending on how old the .h is
-//GOM(tputs, iFpiB)
+GOM(tputs, iFEpip)
 GO(typeahead, iFi)
 GO(unctrl, pFL)
 GO(use_env, vFi)
