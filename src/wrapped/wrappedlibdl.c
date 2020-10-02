@@ -163,26 +163,40 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     char* rsymbol = (char*)symbol;
     CLEARERR
     if(dlsym_error && box86_log<LOG_DEBUG) {
-        printf_log(LOG_NONE, "Call to dlsym(%p, %s)\n", handle, rsymbol);
+        printf_log(LOG_NONE, "Call to dlsym(%p, %s) :", handle, rsymbol);
     }
     printf_log(LOG_DEBUG, "Call to dlsym(%p, \"%s\")\n", handle, rsymbol);
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end))
+        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
             return (void*)start;
+        }
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
         return NULL;
     }
     if(handle==(void*)0xFFFFFFFF) {
         // special case, look globably but no self (RTLD_NEXT)
         elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_ESP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf))
+        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
             return (void*)start;
+        }
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
         return NULL;
     }
     int nlib = (int)handle;
@@ -191,19 +205,25 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", NULL);
+        }
         return NULL;
     }
     if(dl->count[nlib]==0) {
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
+        if(dlsym_error && box86_log<LOG_DEBUG) {
+            printf_log(LOG_NONE, "%p\n", (void*)NULL);
+        }
         return NULL;
     }
     if(dl->libs[nlib]) {
         if(my_dlsym_lib(dl->libs[nlib], rsymbol, &start, &end)==0) {
             // not found
             if(dlsym_error && box86_log<LOG_DEBUG) {
-                printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", GetNameLib(dl->libs[nlib]), rsymbol);
+                printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->libs[nlib]), rsymbol);
             }
             printf_log(LOG_DEBUG, " Symbol not found\n");
             if(!dl->last_error)
@@ -213,21 +233,36 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         }
     } else {
         // still usefull?
-        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end))
+        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
             return (void*)start;
-        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end))
+        }
+        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
             return (void*)start;
-        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end))
+        }
+        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
+            }
             return (void*)start;
+        }
         // not found
         if(dlsym_error && box86_log<LOG_DEBUG) {
-            printf_log(LOG_NONE, "Call to dlsym(%s, \"%s\") Symbol not found\n", "Self", rsymbol);
+            printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", "Self", NULL, rsymbol);
         }
         printf_log(LOG_DEBUG, " Symbol not found\n");
         if(!dl->last_error)
             dl->last_error = malloc(129);
         snprintf(dl->last_error, 129, "Symbol \"%s\" not found in %p)\n", rsymbol, handle);
         return NULL;
+    }
+    if(dlsym_error && box86_log<LOG_DEBUG) {
+        printf_log(LOG_NONE, "%p\n", (void*)start);
     }
     return (void*)start;
 }
