@@ -43,7 +43,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                     | 1<<15     // cmov
                     | 1<<19     // clflush (seems to be with SSE2)
                     | 1<<23     // mmx
-                    //| 1<<24     // fxsr (fxsave, fxrestore)
+                    | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
                     ;
