@@ -433,6 +433,7 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         }
         ++p;
     }
+    // update the calloc of envv when adding new variables here
     if(!path) {
         (*dest)[idx++] = strdup("BOX86_PATH=.:bin");
     }
@@ -447,6 +448,8 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         strcat(tmp, prog);
         (*dest)[idx++] = strdup(tmp);
     }
+    // and a final NULL
+    (*dest)[idx++] = 0;
     return 0;
 }
 
@@ -771,7 +774,8 @@ int main(int argc, const char **argv, const char **env) {
     // prepare all other env. var
     my_context->envc = CountEnv(env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
-    my_context->envv = (char**)calloc(my_context->envc+1, sizeof(char*));   //+1 for last null
+    // allocate extra space for new environment variables such as BOX86_PATH
+    my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, env, my_context->box86path);
     if(box86_log>=LOG_DUMP) {
         for (int i=0; i<my_context->envc; ++i)
