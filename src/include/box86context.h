@@ -150,6 +150,7 @@ typedef struct box86context_s {
     library_t           *vorbis;
     library_t           *asound;
     library_t           *pulse;
+    library_t           *d3dadapter9;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

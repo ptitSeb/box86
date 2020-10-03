@@ -322,10 +322,11 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedtcmallocminimal.c"
     "${BOX86_ROOT}/src/wrapped/wrappedmpg123.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgnutls.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
-set(WRAPPEDS_HEAD "")
+set(WRAPPEDS_HEAD "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
 foreach(A ${WRAPPEDS})
     string(REPLACE ".c" "_private.h" B ${A})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})

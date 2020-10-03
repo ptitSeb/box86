@@ -174,7 +174,7 @@ static void make_vtable_IDirect3DCubeTexture9Vtbl(x86emu_t* emu, IDirect3DCubeTe
     GO(GenerateMipSubLevels, vFp, 1);
 	
     GO(GetLevelDesc, iFpup, 3);
-    GO(GetCubeMapSurface, iFpiup, 4);
+    GOM(GetCubeMapSurface, iFEpiup, 4);
     GO(LockRect, iFpiuppu, 6);
     GO(UnlockRect, iFpiu, 3);
     GO(AddDirtyRect, iFpip, 3);
@@ -196,34 +196,34 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(SetCursorProperties, iFpuup, 4);
     GO(SetCursorPosition, vFpiiu, 4);
     GO(ShowCursor, iFpi, 2);
-    GO(CreateAdditionalSwapChain, iFppp, 3);
-    GO(GetSwapChain, iFpup, 3);
+    GOM(CreateAdditionalSwapChain, iFEppp, 3);
+    GOM(GetSwapChain, iFEpup, 3);
     GO(GetNumberOfSwapChains, uFp, 1);
     GO(Reset, iFpp, 2);
     GO(Present, iFppppp, 5);
-    GO(GetBackBuffer, iFpuuip, 5);
+    GOM(GetBackBuffer, iFEpuuip, 5);
     GO(GetRasterStatus, iFpup, 3);
     GO(SetDialogBoxMode, iFpi, 2);
     GO(SetGammaRamp, vFpuup, 4);
     GO(GetGammaRamp, vFpup, 3);
-    GO(CreateTexture, iFpuuuuiipp, 9);
-    GO(CreateVolumeTexture, iFpuuuuuiipp, 10);
-    GO(CreateCubeTexture, iFpuuuiipp, 8);
-    GO(CreateVertexBuffer, iFpuuuipp, 7);
-    GO(CreateIndexBuffer, iFpuuiipp, 7);
-    GO(CreateRenderTarget, iFpuuiiuipp, 9);
-    GO(CreateDepthStencilSurface, iFpuuiiuipp, 9);
+    GOM(CreateTexture, iFEpuuuuiipp, 9);
+    GOM(CreateVolumeTexture, iFEpuuuuuiipp, 10);
+    GOM(CreateCubeTexture, iFEpuuuiipp, 8);
+    GOM(CreateVertexBuffer, iFEpuuuipp, 7);
+    GOM(CreateIndexBuffer, iFEpuuiipp, 7);
+    GOM(CreateRenderTarget, iFEpuuiiuipp, 9);
+    GOM(CreateDepthStencilSurface, iFEpuuiiuipp, 9);
     GO(UpdateSurface, iFppppp, 5);
     GO(UpdateTexture, iFppp, 3);
     GO(GetRenderTargetData, iFppp, 3);
     GO(GetFrontBufferData, iFpup, 3);
     GO(StretchRect, iFpppppi, 6);
     GO(ColorFill, iFpppu, 4);
-    GO(CreateOffscreenPlainSurface, iFpuuiipp, 7);
+    GOM(CreateOffscreenPlainSurface, iFEpuuiipp, 7);
     GO(SetRenderTarget, iFpup, 3);
-    GO(GetRenderTarget, iFpup, 3);
+    GOM(GetRenderTarget, iFEpup, 3);
     GO(SetDepthStencilSurface, iFpp, 2);
-    GO(GetDepthStencilSurface, iFpp, 2);
+    GOM(GetDepthStencilSurface, iFEpp, 2);
     GO(BeginScene, iFp, 1);
     GO(EndScene, iFp, 1);
     GO(Clear, iFpupuufu, 7);
@@ -242,9 +242,9 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(GetClipPlane, iFpup, 3);
     GO(SetRenderState, iFpiu, 3);
     GO(GetRenderState, iFpip, 3);
-    GO(CreateStateBlock, iFpip, 3);
+    GOM(CreateStateBlock, iFEpip, 3);
     GO(BeginStateBlock, iFp, 1);
-    GO(EndStateBlock, iFpp, 2);
+    GOM(EndStateBlock, iFEpp, 2);
     GO(SetClipStatus, iFpp, 2);
     GO(GetClipStatus, iFpp, 2);
     GO(GetTexture, iFpup, 3);
@@ -269,12 +269,12 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(DrawPrimitiveUP, iFpiupu, 5);
     GO(DrawIndexedPrimitiveUP, iFpiuuupipu, 9);
     GO(ProcessVertices, iFpuuuppu, 7);
-    GO(CreateVertexDeclaration, iFppp, 3);
+    GOM(CreateVertexDeclaration, iFEppp, 3);
     GO(SetVertexDeclaration, iFpp, 2);
     GO(GetVertexDeclaration, iFpp, 2);
     GO(SetFVF, iFpu, 2);
     GO(GetFVF, iFpp, 2);
-    GO(CreateVertexShader, iFppp, 3);
+    GOM(CreateVertexShader, iFEppp, 3);
     GO(SetVertexShader, iFpp, 2);
     GO(GetVertexShader, iFpp, 2);
     GO(SetVertexShaderConstantF, iFpupu, 4);
@@ -289,7 +289,7 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(GetStreamSourceFreq, iFpup, 3);
     GO(SetIndices, iFpp, 2);
     GO(GetIndices, iFpp, 2);
-    GO(CreatePixelShader, iFppp, 3);
+    GOM(CreatePixelShader, iFEppp, 3);
     GO(SetPixelShader, iFpp, 2);
     GO(GetPixelShader, iFpp, 2);
     GO(SetPixelShaderConstantF, iFpupu, 4);
@@ -301,7 +301,7 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(DrawRectPatch, iFpupp, 4);
     GO(DrawTriPatch, iFpupp, 4);
     GO(DeletePatch, iFpu, 2);
-    GO(CreateQuery, iFpip, 3);
+    GOM(CreateQuery, iFEpip, 3);
 }
 
 static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9ExVtbl* new, IDirect3DDevice9ExVtbl* real)
@@ -320,34 +320,34 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(SetCursorProperties, iFpuup, 4);
     GO(SetCursorPosition, vFpiiu, 4);
     GO(ShowCursor, iFpi, 2);
-    GO(CreateAdditionalSwapChain, iFppp, 3);
-    GO(GetSwapChain, iFpup, 3);
+    GOM(CreateAdditionalSwapChain, iFEppp, 3);
+    GOM(GetSwapChain, iFEpup, 3);
     GO(GetNumberOfSwapChains, uFp, 1);
     GO(Reset, iFpp, 2);
     GO(Present, iFppppp, 5);
-    GO(GetBackBuffer, iFpuuip, 5);
+    GOM(GetBackBuffer, iFEpuuip, 5);
     GO(GetRasterStatus, iFpup, 3);
     GO(SetDialogBoxMode, iFpi, 2);
     GO(SetGammaRamp, vFpuup, 4);
     GO(GetGammaRamp, vFpup, 3);
-    GOM(CreateTexture, iFEpuuuuiipp, 9, CreateTexture);
-    GO(CreateVolumeTexture, iFpuuuuuiipp, 10);
-    GO(CreateCubeTexture, iFpuuuiipp, 8);
-    GO(CreateVertexBuffer, iFpuuuipp, 7);
-    GO(CreateIndexBuffer, iFpuuiipp, 7);
-    GO(CreateRenderTarget, iFpuuiiuipp, 9);
-    GO(CreateDepthStencilSurface, iFpuuiiuipp, 9);
+    GOM(CreateTexture, iFEpuuuuiipp, 9);
+    GOM(CreateVolumeTexture, iFEpuuuuuiipp, 10);
+    GOM(CreateCubeTexture, iFEpuuuiipp, 8);
+    GOM(CreateVertexBuffer, iFEpuuuipp, 7);
+    GOM(CreateIndexBuffer, iFEpuuiipp, 7);
+    GOM(CreateRenderTarget, iFEpuuiiuipp, 9);
+    GOM(CreateDepthStencilSurface, iFEpuuiiuipp, 9);
     GO(UpdateSurface, iFppppp, 5);
     GO(UpdateTexture, iFppp, 3);
     GO(GetRenderTargetData, iFppp, 3);
     GO(GetFrontBufferData, iFpup, 3);
     GO(StretchRect, iFpppppi, 6);
     GO(ColorFill, iFpppu, 4);
-    GO(CreateOffscreenPlainSurface, iFpuuiipp, 7);
+    GOM(CreateOffscreenPlainSurface, iFEpuuiipp, 7);
     GO(SetRenderTarget, iFpup, 3);
-    GO(GetRenderTarget, iFpup, 3);
+    GOM(GetRenderTarget, iFEpup, 3);
     GO(SetDepthStencilSurface, iFpp, 2);
-    GO(GetDepthStencilSurface, iFpp, 2);
+    GOM(GetDepthStencilSurface, iFEpp, 2);
     GO(BeginScene, iFp, 1);
     GO(EndScene, iFp, 1);
     GO(Clear, iFpupuufu, 7);
@@ -366,9 +366,9 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(GetClipPlane, iFpup, 3);
     GO(SetRenderState, iFpiu, 3);
     GO(GetRenderState, iFpip, 3);
-    GO(CreateStateBlock, iFpip, 3);
+    GOM(CreateStateBlock, iFEpip, 3);
     GO(BeginStateBlock, iFp, 1);
-    GO(EndStateBlock, iFpp, 2);
+    GOM(EndStateBlock, iFEpp, 2);
     GO(SetClipStatus, iFpp, 2);
     GO(GetClipStatus, iFpp, 2);
     GO(GetTexture, iFpup, 3);
@@ -393,12 +393,12 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(DrawPrimitiveUP, iFpiupu, 5);
     GO(DrawIndexedPrimitiveUP, iFpiuuupipu, 9);
     GO(ProcessVertices, iFpuuuppu, 7);
-    GO(CreateVertexDeclaration, iFppp, 3);
+    GOM(CreateVertexDeclaration, iFEppp, 3);
     GO(SetVertexDeclaration, iFpp, 2);
     GO(GetVertexDeclaration, iFpp, 2);
     GO(SetFVF, iFpu, 2);
     GO(GetFVF, iFpp, 2);
-    GO(CreateVertexShader, iFppp, 3);
+    GOM(CreateVertexShader, iFEppp, 3);
     GO(SetVertexShader, iFpp, 2);
     GO(GetVertexShader, iFpp, 2);
     GO(SetVertexShaderConstantF, iFpupu, 4);
@@ -413,7 +413,7 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(GetStreamSourceFreq, iFpup, 3);
     GO(SetIndices, iFpp, 2);
     GO(GetIndices, iFpp, 2);
-    GO(CreatePixelShader, iFppp, 3);
+    GOM(CreatePixelShader, iFEppp, 3);
     GO(SetPixelShader, iFpp, 2);
     GO(GetPixelShader, iFpp, 2);
     GO(SetPixelShaderConstantF, iFpupu, 4);
@@ -425,7 +425,7 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(DrawRectPatch, iFpupp, 4);
     GO(DrawTriPatch, iFpupp, 4);
     GO(DeletePatch, iFpu, 2);
-    GO(CreateQuery, iFpip, 3);
+    GOM(CreateQuery, iFEpip, 3);
 	
     GO(SetConvolutionMonoKernel, iFpuupp, 5);
     GO(ComposeRects, iFppppupiii, 9);
@@ -433,13 +433,13 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x86emu_t* emu, IDirect3DDevice9Ex
     GO(GetGPUThreadPriority, iFpp, 2);
     GO(SetGPUThreadPriority, iFpi, 2);
     GO(WaitForVBlank, iFpu, 2);
-    GO(CheckResourceResidency, iFppu, 3);
+    GOM(CheckResourceResidency, iFEppu, 3);
     GO(SetMaximumFrameLatency, iFpu, 2);
     GO(GetMaximumFrameLatency, iFpp, 2);
     GO(CheckDeviceState, iFpp, 2);
-    GO(CreateRenderTargetEx, iFpuuiiuippu, 10);
-    GO(CreateOffscreenPlainSurfaceEx, iFpuuiippu, 8);
-    GO(CreateDepthStencilSurfaceEx, iFpuuiiuippu, 10);
+    GOM(CreateRenderTargetEx, iFEpuuiiuippu, 10);
+    GOM(CreateOffscreenPlainSurfaceEx, iFEpuuiippu, 8);
+    GOM(CreateDepthStencilSurfaceEx, iFEpuuiiuippu, 10);
     GO(ResetEx, iFppp, 3);
     GO(GetDisplayModeEx, iFpupp, 4);
 }
@@ -451,8 +451,8 @@ static void make_vtable_IDirect3DDevice9VideoVtbl(x86emu_t* emu, IDirect3DDevice
     GO(Release, uFp, 1);
 	
     GO(GetContentProtectionCaps, iFpppp, 4);
-    GO(CreateAuthenticatedChannel, iFpipp, 4);
-    GO(CreateCryptoSession, iFppppp, 5);
+    GOM(CreateAuthenticatedChannel, iFEpipp, 4);
+    GOM(CreateCryptoSession, iFEppppp, 5);
 }
 
 static void make_vtable_IDirect3DIndexBuffer9Vtbl(x86emu_t* emu, IDirect3DIndexBuffer9Vtbl* new, IDirect3DIndexBuffer9Vtbl* real)
@@ -556,7 +556,7 @@ static void make_vtable_IDirect3DSwapChain9Vtbl(x86emu_t* emu, IDirect3DSwapChai
 	
     GO(Present, iFpppppu, 6);
     GO(GetFrontBufferData, iFpp, 2);
-    GO(GetBackBuffer, iFpuip, 4);
+    GO(GetBackBuffer, iFpuip, 4); // XXX
     GO(GetRasterStatus, iFpp, 2);
     GO(GetDisplayMode, iFpp, 2);
     GO(GetDevice, iFpp, 2);
@@ -571,7 +571,7 @@ static void make_vtable_IDirect3DSwapChain9ExVtbl(x86emu_t* emu, IDirect3DSwapCh
 	
     GO(Present, iFpppppu, 6);
     GO(GetFrontBufferData, iFpp, 2);
-    GO(GetBackBuffer, iFpuip, 4);
+    GO(GetBackBuffer, iFpuip, 4); // XXX
     GO(GetRasterStatus, iFpp, 2);
     GO(GetDisplayMode, iFpp, 2);
     GO(GetDevice, iFpp, 2);
@@ -605,7 +605,7 @@ static void make_vtable_IDirect3DTexture9Vtbl(x86emu_t* emu, IDirect3DTexture9Vt
     GO(GenerateMipSubLevels, vFp, 1);
 	
     GO(GetLevelDesc, iFpup, 3);
-    GO(GetSurfaceLevel, iFpup, 3);
+    GOM(GetSurfaceLevel, iFEpup, 3);
     GO(LockRect, iFpuppu, 5);
     GO(UnlockRect, iFpu, 2);
     GO(AddDirtyRect, iFpp, 2);
@@ -690,7 +690,7 @@ static void make_vtable_IDirect3DVolumeTexture9Vtbl(x86emu_t* emu, IDirect3DVolu
     GO(GenerateMipSubLevels, vFp, 1);
 	
     GO(GetLevelDesc, iFpup, 3);
-    GO(GetVolumeLevel, iFpup, 3);
+    GOM(GetVolumeLevel, iFEpup, 3);
     GO(LockBox, iFpuppu, 5);
     GO(UnlockBox, iFpu, 2);
     GO(AddDirtyBox, iFpp, 2);
