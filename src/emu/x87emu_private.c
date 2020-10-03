@@ -80,9 +80,13 @@ void LD2D(void* ld, void* d)
 		int16_t b;
 	} val;
     #pragma pack(pop)
+    #if 1
+    memcpy(&val, ld, 10);
+    #else
 	val.f.l.lower = *(uint32_t*)ld;
     val.f.l.upper = *(uint32_t*)(char*)(ld+4);
 	val.b  = *(int16_t*)((char*)ld+8);
+    #endif
 	int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
 	int32_t exp64final = exp64&0x7ff;
     // do specific value first (0, infinite...)
