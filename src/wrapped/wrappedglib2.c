@@ -115,6 +115,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_variant_new_va, pFppp_t)               \
     GO(g_completion_new, pFp_t)                 \
     GO(g_completion_set_compare, vFpp_t)        \
+    GO(g_log_set_default_handler, pFpp_t)       \
 
 typedef struct glib2_my_s {
     // functions
@@ -573,6 +574,37 @@ static void* findGCompletionStrncmpFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionStrncmpFunc callback\n");
     return NULL;
 }
+// GLogFunc ...
+#define GO(A)   \
+static uintptr_t my_GLogFunc_fct_##A = 0;                           \
+static void my_GLogFunc_##A(void* a, int b, void* c, void* d)       \
+{                                                                   \
+    RunFunction(my_context, my_GLogFunc_fct_##A, 4, a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* findGLogFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GLogFunc_fct_##A == (uintptr_t)fct) return my_GLogFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GLogFunc_fct_##A == 0) {my_GLogFunc_fct_##A = (uintptr_t)fct; return my_GLogFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GLogFunc callback\n");
+    return NULL;
+}
+static void* reverseGLogFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
+    SUPER()
+    #undef GO
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_g_datalist_id_set_data_full(x86emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
@@ -1168,6 +1200,14 @@ EXPORT void my_g_completion_set_compare(x86emu_t *emu, void* cmp, void* f)
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
     my->g_completion_set_compare(cmp, findGCompletionStrncmpFuncFct(f));
+}
+
+EXPORT void* my_g_log_set_default_handler(x86emu_t *emu, void* f, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+
+    return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
 
 #define CUSTOM_INIT \
