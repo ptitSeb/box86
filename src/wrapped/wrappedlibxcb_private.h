@@ -281,7 +281,7 @@ GOS(xcb_get_property_unchecked, pFEppCuuuuu)
 GO(xcb_get_property_value, pFp)
 //GO(xcb_get_property_value_end, 
 GO(xcb_get_property_value_length, iFp)
-//GO(xcb_get_reply_fds, 
+GO(xcb_get_reply_fds, pFppu)
 //GO(xcb_get_screen_saver, 
 //GO(xcb_get_screen_saver_reply, 
 //GO(xcb_get_screen_saver_unchecked, 
@@ -403,7 +403,7 @@ GO(xcb_poll_for_event, pFp)
 GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_poll_for_reply, 
 //GO(xcb_poll_for_reply64, 
-//GO(xcb_poll_for_special_event, 
+GO(xcb_poll_for_special_event, pFpp)
 GOS(xcb_poly_arc, pFEppuuup)
 //GO(xcb_poly_arc_arcs, 
 //GO(xcb_poly_arc_arcs_iterator, 
@@ -512,7 +512,7 @@ GOS(xcb_query_tree_unchecked, pFEppu)
 //GO(xcb_recolor_cursor_checked, 
 //GO(xcb_rectangle_end, 
 //GO(xcb_rectangle_next, 
-//GO(xcb_register_for_special_xge, 
+GO(xcb_register_for_special_xge, pFppup)
 GOS(xcb_reparent_window, pFEppuuWW)
 //GO(xcb_reparent_window_checked, 
 GO(xcb_request_check, pFpu)
@@ -536,7 +536,7 @@ GOS(xcb_send_event, pFEppCuup)
 //GO(xcb_send_fd, 
 GO(xcb_send_request, iFpippp)
 //GO(xcb_send_request64, 
-//GO(xcb_send_request_with_fds, 
+GO(xcb_send_request_with_fds, uFpippup)
 //GO(xcb_send_request_with_fds64, 
 //GO(xcb_set_access_control, 
 //GO(xcb_set_access_control_checked, 
@@ -648,7 +648,7 @@ GOS(xcb_ungrab_server, pFEpp)
 //GO(xcb_unmap_subwindows_checked, 
 GOS(xcb_unmap_window, pFEppu)
 //GO(xcb_unmap_window_checked, 
-//GO(xcb_unregister_for_special_event, 
+GO(xcb_unregister_for_special_event, vFpp)
 //GO(xcb_visualid_end, 
 //GO(xcb_visualid_next, 
 //GO(xcb_visualtype_end, 

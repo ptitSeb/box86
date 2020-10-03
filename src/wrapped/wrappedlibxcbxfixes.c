@@ -20,9 +20,18 @@
 const char* libxcbxfixesName = "libxcb-xfixes.so.0";
 #define LIBNAME libxcbxfixes
 
+typedef struct my_xcb_cookie_s {
+    uint32_t        data;
+} my_xcb_cookie_t;
+
+typedef my_xcb_cookie_t (*XFpu_t)(void*, uint32_t);
+typedef my_xcb_cookie_t (*XFpuu_t)(void*, uint32_t, uint32_t);
+typedef my_xcb_cookie_t (*XFpuup_t)(void*, uint32_t, uint32_t, void*);
 
 #define SUPER() \
-
+    GO(xcb_xfixes_query_version_unchecked, XFpuu_t) \
+    GO(xcb_xfixes_create_region, XFpuup_t) \
+    GO(xcb_xfixes_destroy_region, XFpu_t) \
 
 typedef struct xcbxfixes_my_s {
     #define GO(A, B)    B   A;
@@ -54,7 +63,9 @@ void freeXcbxfixesMy(void* lib)
         return ret;                                                 \
     }
 
-//SUPER(xcb_change_gc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t gc, uint32_t mask, void* list), c, gc, mask, list)
+SUPER(xcb_xfixes_query_version_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t majver, uint32_t minver), c, majver, minver)
+SUPER(xcb_xfixes_create_region, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t region, uint32_t rectangles_len, void* rectangles), c, region, rectangles_len, rectangles)
+SUPER(xcb_xfixes_destroy_region, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t region), c, region)
 #undef SUPER
 
 
