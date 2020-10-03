@@ -661,7 +661,7 @@ GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 GOW(imaxdiv, IFII)
 DATA(in6addr_any, 16)  // type R
-// in6addr_loopback // type R
+DATA(in6addr_loopback, 16) // type R
 // inb  // Weak
 GOW(index, pFpi)
 // inet6_opt_append
