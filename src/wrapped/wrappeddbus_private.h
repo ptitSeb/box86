@@ -86,8 +86,8 @@ GO(dbus_error_init, vFp)
 GO(dbus_error_is_set, iFp)
 //GO(dbus_free, 
 //GO(dbus_free_string_array, 
-//GO(dbus_get_local_machine_id, 
-//GO(dbus_get_version, 
+GO(dbus_get_local_machine_id, pFv)
+GO(dbus_get_version, vFppp)
 //GO(dbus_internal_do_not_use_create_uuid, 
 //GO(dbus_internal_do_not_use_get_uuid, 
 //GO(dbus_malloc, 
