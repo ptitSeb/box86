@@ -87,7 +87,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xA8,    &&_0xA9,    &&_0xAA,    &&_0xAB,    &&_0xAC,    &&_0xAD,    &&_0xAE,    &&_0xAF,     
     &&_0xB0,    &&_0xB1,    &&_0xB2,    &&_0xB3,    &&_0xB4,    &&_0xB5,    &&_0xB6,    &&_0xB7, 
     &&_0xB8,    &&_0xB9,    &&_0xBA,    &&_0xBB,    &&_0xBC,    &&_0xBD,    &&_0xBE,    &&_0xBF, 
-    &&_0xC0,    &&_0xC1,    &&_0xC2,    &&_0xC3,    &&_default, &&_default, &&_0xC6,    &&_0xC7, 
+    &&_0xC0,    &&_0xC1,    &&_0xC2,    &&_0xC3,    &&_default, &&_0xC5,    &&_0xC6,    &&_0xC7, 
     &&_0xC8,    &&_0xC9,    &&_default, &&_0xCB,    &&_0xCC,    &&_0xCD,    &&_default, &&_0xCF,      //0xC8-0xCF
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_0xD6,    &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
@@ -884,6 +884,13 @@ _trace:
             STEP
             NEXT;
 
+        _0xC5:                      /* LDS Gd,Ed */
+            nextop = F8;
+            GET_ED;
+            emu->segs[_DS] = ED->word[0];
+            emu->segs_clean[_DS] = 0;
+            GD.dword[0] = *(uint32_t*)(((void*)ED)+2);
+            NEXT;
         _0xC6:                      /* MOV Eb,Ib */
             nextop = F8;
             GET_EB;
