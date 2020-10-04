@@ -84,14 +84,14 @@ GO(dbus_error_free, vFp)
 GO(dbus_error_has_name, iFpp)
 GO(dbus_error_init, vFp)
 GO(dbus_error_is_set, iFp)
-//GO(dbus_free, 
-//GO(dbus_free_string_array, 
+GO(dbus_free, vFp)
+GO(dbus_free_string_array, vFp)
 GO(dbus_get_local_machine_id, pFv)
 GO(dbus_get_version, vFppp)
 //GO(dbus_internal_do_not_use_create_uuid, 
 //GO(dbus_internal_do_not_use_get_uuid, 
-//GO(dbus_malloc, 
-//GO(dbus_malloc0, 
+GO(dbus_malloc, pFL)
+GO(dbus_malloc0, pFL)
 GO(dbus_message_allocate_data_slot, iFp)
 GO2(dbus_message_append_args, iFpiV, dbus_message_append_args_valist)
 GO(dbus_message_append_args_valist, iFpip)
@@ -176,7 +176,7 @@ GOM(dbus_pending_call_set_data, iFEpipp)
 GOM(dbus_pending_call_set_notify, iFEpppp)
 GO(dbus_pending_call_steal_reply, pFp)
 GO(dbus_pending_call_unref, vFp)
-//GO(dbus_realloc, 
+GO(dbus_realloc, pFpL)
 //GO(dbus_server_allocate_data_slot, 
 //GO(dbus_server_disconnect, 
 //GO(dbus_server_free_data_slot, 
@@ -195,7 +195,7 @@ GO(dbus_pending_call_unref, vFp)
 GO(dbus_set_error, vFpppppppppp)    //vaarg
 GO(dbus_set_error_const, vFppp)
 GO(dbus_set_error_from_message, iFpp)
-//GO(dbus_shutdown, 
+GO(dbus_shutdown, vFv)
 //GO(dbus_signature_iter_get_current_type, 
 //GO(dbus_signature_iter_get_element_type, 
 //GO(dbus_signature_iter_get_signature, 
