@@ -155,10 +155,10 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
             my_context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
+        } else {
+            ProtectkDynablockList(&my_context->dynmap[i]->dynablocks);
         }
     }
-    if(nolinker)
-        protectDB(addr, size);
 }
 
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
