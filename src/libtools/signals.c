@@ -172,7 +172,8 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = get_signal_emu();
-
+    printf_log(LOG_DEBUG, "signal function handler %p called, ESP=%p\n", (void*)fnc, (void*)R_ESP);
+    
     SetFS(emu, default_fs);
     for (int i=0; i<6; ++i)
         emu->segs_clean[i] = 0;
@@ -184,7 +185,8 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     va_list va;
     va_start (va, nargs);
     for (int i=0; i<nargs; ++i) {
-        *p = va_arg(va, uint32_t);
+        uint32_t v = va_arg(va, uint32_t);
+        *p = v;
         p++;
     }
     va_end (va);
@@ -204,18 +206,30 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 
 EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss)
 {
-    if(!ss) {
+    if(!ss && !oss) {   // this is not true, ss can be NULL to retreive oss info only
         errno = EFAULT;
         return -1;
     }
-    if(ss->ss_flags && ss->ss_flags!=SS_DISABLE&& ss->ss_flags!=SS_ONSTACK) {
+    x86emu_t *sigemu = get_signal_emu();
+	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    if(!ss) {
+        if(!new_ss) {
+            oss->ss_flags = SS_DISABLE;
+            oss->ss_sp = sigemu->init_stack;
+            oss->ss_size = sigemu->size_stack;
+        } else {
+            oss->ss_flags = new_ss->ss_flags;
+            oss->ss_sp = new_ss->ss_sp;
+            oss->ss_size = new_ss->ss_size;
+        }
+        return 0;
+    }
+    printf_log(LOG_DEBUG, "sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%x], oss=%p\n", ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
+    if(ss->ss_flags && ss->ss_flags!=SS_DISABLE && ss->ss_flags!=SS_ONSTACK) {
         errno = EINVAL;
         return -1;
     }
     //TODO: SS_ONSTACK is not correctly handled, has the stack is NOT the one where the signal came from
-
-	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    x86emu_t *sigemu = get_signal_emu();
 
     if(ss->ss_flags==SS_DISABLE) {
         if(new_ss)
@@ -226,6 +240,17 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
         
         return 0;
     }
+    if(oss) {
+        if(!new_ss) {
+            oss->ss_flags = SS_DISABLE;
+            oss->ss_sp = sigemu->init_stack;
+            oss->ss_size = sigemu->size_stack;
+        } else {
+            oss->ss_flags = new_ss->ss_flags;
+            oss->ss_sp = new_ss->ss_sp;
+            oss->ss_size = new_ss->ss_size;
+        }
+    }
     if(!new_ss)
         new_ss = (i386_stack_t*)calloc(1, sizeof(i386_stack_t));
     new_ss->ss_sp = ss->ss_sp;
@@ -233,14 +258,8 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
 
 	pthread_setspecific(sigstack_key, new_ss);
 
-    sigemu->regs[_SP].dword[0] = ((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 4) & ~7;
+    sigemu->regs[_SP].dword[0] = ((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7;
 
-    if(oss) {
-        // not correct, but better than nothing
-        oss->ss_flags = SS_DISABLE;
-        oss->ss_sp = sigemu->init_stack;
-        oss->ss_size = sigemu->size_stack;
-    }
     return 0;
 }
 
@@ -258,7 +277,7 @@ void my_sighandler(int32_t sig)
         RunFunctionHandler(&exits, restorer, 0);
 }
 
-void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
+void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // need to creat some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
@@ -268,8 +287,14 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     i386_ucontext_t sigcontext = {0};
     x86emu_t *emu = thread_get_emu();   // not good, emu is probably not up to date, especially using dynarec
     // stack traking
-    sigcontext.uc_stack.ss_sp = NULL;
-    sigcontext.uc_stack.ss_size = 0;    // this need to filled
+	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    if(!new_ss) {
+        sigcontext.uc_stack.ss_sp = emu->init_stack;
+        sigcontext.uc_stack.ss_size = emu->size_stack;
+    } else {
+        sigcontext.uc_stack.ss_sp = new_ss->ss_sp;
+        sigcontext.uc_stack.ss_size = new_ss->ss_size;
+    }
     // get general register
     sigcontext.uc_mcontext.gregs[REG_EAX] = R_EAX;
     sigcontext.uc_mcontext.gregs[REG_ECX] = R_ECX;
@@ -291,11 +316,59 @@ void my_sigactionhandler(int32_t sig, siginfo_t* sigi, void * ucntx)
     sigcontext.uc_mcontext.gregs[REG_SS] = R_SS;
     // get FloatPoint status
     // get signal mask
+    // get actual register in case the signal was from inside a dynablock
+#if defined(DYNAREC) && defined(__arm__)
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void * pc = (void*)p->uc_mcontext.arm_pc;
+    dynablock_t* db = FindDynablockFromNativeAddress(pc);
+    if(db) {
+        sigcontext.uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.arm_r4;
+        sigcontext.uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.arm_r5;
+        sigcontext.uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.arm_r6;
+        sigcontext.uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.arm_r7;
+        sigcontext.uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.arm_r8+4;
+        sigcontext.uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.arm_r9;
+        sigcontext.uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.arm_r10;
+        sigcontext.uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.arm_fp;
+        sigcontext.uc_mcontext.gregs[REG_EIP] = (uint32_t)db->x86_addr;  // this is partly wrong...
+    }
+#endif
+    // Try to guess some REG_TRAPNO
+    /*
+    TRAP_x86_DIVIDE     = 0,   // Division by zero exception
+    TRAP_x86_TRCTRAP    = 1,   // Single-step exception
+    TRAP_x86_NMI        = 2,   // NMI interrupt
+    TRAP_x86_BPTFLT     = 3,   // Breakpoint exception
+    TRAP_x86_OFLOW      = 4,   // Overflow exception
+    TRAP_x86_BOUND      = 5,   // Bound range exception
+    TRAP_x86_PRIVINFLT  = 6,   // Invalid opcode exception
+    TRAP_x86_DNA        = 7,   // Device not available exception
+    TRAP_x86_DOUBLEFLT  = 8,   // Double fault exception
+    TRAP_x86_FPOPFLT    = 9,   // Coprocessor segment overrun
+    TRAP_x86_TSSFLT     = 10,  // Invalid TSS exception
+    TRAP_x86_SEGNPFLT   = 11,  // Segment not present exception
+    TRAP_x86_STKFLT     = 12,  // Stack fault
+    TRAP_x86_PROTFLT    = 13,  // General protection fault
+    TRAP_x86_PAGEFLT    = 14,  // Page fault
+    TRAP_x86_ARITHTRAP  = 16,  // Floating point exception
+    TRAP_x86_ALIGNFLT   = 17,  // Alignment check exception
+    TRAP_x86_MCHK       = 18,  // Machine check exception
+    TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
+    */
+    if(sig==SIGBUS)
+        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 17;
+    else if(sig==SIGSEGV) {
+        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?12:13;    // how to differenciate between a STACKFLT and a PAGEFAULT?
+    } else if(sig==SIGFPE)
+        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 19;
+    else if(sig==SIGILL)
+        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 6;
 
+    // call the signal handler
     i386_ucontext_t sigcontext_copy = sigcontext;
 
     int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, sigi, &sigcontext);
+    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, &sigcontext);
 
     if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
@@ -689,10 +762,10 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
 void init_signal_helper()
 {
 	struct sigaction action;
-	action.sa_flags = SA_SIGINFO | SA_RESTART;
+	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGSEGV, &action, NULL);
-	action.sa_flags = SA_SIGINFO | SA_RESTART;
+	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGBUS, &action, NULL);
 
