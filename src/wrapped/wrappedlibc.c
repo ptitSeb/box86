@@ -2079,7 +2079,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length, 1);
+            addDBFromAddressRange((uintptr_t)ret, length, 0);
         else
             cleanDBFromAddressRange((uintptr_t)ret, length, 0);
     }
@@ -2095,7 +2095,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length, 1);
+            addDBFromAddressRange((uintptr_t)ret, length, 0);
         else
             cleanDBFromAddressRange((uintptr_t)ret, length, 0);
     }
@@ -2120,7 +2120,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     #ifdef DYNAREC
     if(box86_dynarec) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len, 1);
+            addDBFromAddressRange((uintptr_t)addr, len, 0);
         else
             cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }
