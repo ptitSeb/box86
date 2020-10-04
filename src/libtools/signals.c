@@ -20,6 +20,7 @@
 #include "dynarec.h"
 #include "callback.h"
 #include "x86run.h"
+#include "elfloader.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -342,6 +343,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         const char* name = GetNativeName(pc);
         uintptr_t x86pc = (uintptr_t)-1;
         const char* x86name = NULL;
+        const char* elfname = NULL;
         if(strcmp(name, "???")) {
             x86emu_t* emu = thread_get_emu();
             x86pc = R_EIP;
@@ -352,7 +354,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 x86pc = R_EIP; // sadly, r12 is probably not actual eip, so try a slightly outdated one
             #endif
         }
-        x86name = getAddrFunctionName(x86pc);   
+        x86name = getAddrFunctionName(x86pc);
+        elfheader_t* elf = FindElfAddress(my_context, x86pc);
+        if(elf)
+            elfname = ElfName(elf);
         if(jit_gdb) {
             pid_t pid = getpid();
             int v = fork(); // is this ok in a signal handler???
@@ -372,9 +377,9 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/\"%s\"), for accessing %p (code=%d)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, x86name?x86name:"???", addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code);
 #endif
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
