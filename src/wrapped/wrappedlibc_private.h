@@ -683,7 +683,7 @@ GOW(index, pFpi)
 // inet6_rth_reverse
 // inet6_rth_segments
 // inet6_rth_space
-GO(inet_addr, iFp)
+GO(inet_addr, uFp)
 GOW(inet_aton, iFpp)
 // inet_lnaof
 // inet_makeaddr
@@ -691,7 +691,7 @@ GOW(inet_aton, iFpp)
 GO(inet_network, iFp)
 // inet_nsap_addr
 GO(inet_nsap_ntoa, pFipp)
-GO(inet_ntoa, pFi)
+GO(inet_ntoa, pFu)
 GO(inet_ntop, pFippu)
 GO(inet_pton, iFipp)
 GO(initgroups, iFpi)
@@ -1397,7 +1397,7 @@ GO(__res_nclose, vFp)
 GO(__res_ninit, iFp)
 DATA(__resp, 4)
 // __res_randomid
-DATA(__res_state, 4)
+GO(__res_state, pFv)
 DATA(re_syntax_options, 4)    // type B
 // revoke
 GO(rewind, vFp)
