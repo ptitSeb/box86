@@ -21,6 +21,9 @@
 #include "x86trace.h"
 #include "dynarec.h"
 #include "bridge.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#endif
 
 void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop_restore(void* buffer, int exec);
@@ -209,7 +212,8 @@ static void* pthread_routine(void* p)
 	pthread_setspecific(thread_key, p);
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
-	return (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
+	void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
+	return ret;
 }
 
 EXPORT int my_pthread_attr_destroy(x86emu_t* emu, void* attr)
@@ -268,6 +272,11 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
+	#ifdef DYNAREC
+	// pre-creation of the JIT code for the entry point of the thread
+	dynablock_t *current = NULL;
+	DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
+	#endif
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
 		pthread_routine, et);
@@ -618,6 +627,12 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
     if(thread==NULL && sig==0)
         return pthread_kill(pthread_self(), 0);
     return pthread_kill((pthread_t)thread, sig);
+}
+
+EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
+{
+	emu->quit = 1;	// to be safe
+	pthread_exit(retval);
 }
 
 void init_pthread_helper()
