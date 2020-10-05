@@ -253,7 +253,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
         }
         // not found
         if(dlsym_error && box86_log<LOG_DEBUG) {
-            printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", "Self", NULL, rsymbol);
+            printf_log(LOG_NONE, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, "Self", rsymbol);
         }
         printf_log(LOG_DEBUG, " Symbol not found\n");
         if(!dl->last_error)
