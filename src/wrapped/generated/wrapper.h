@@ -1393,6 +1393,7 @@ void pFEppCuuCC(x86emu_t *emu, uintptr_t fnc);
 void pFEppCuuWW(x86emu_t *emu, uintptr_t fnc);
 void pFEppCuuup(x86emu_t *emu, uintptr_t fnc);
 void pFEppuuuuu(x86emu_t *emu, uintptr_t fnc);
+void pFEppuuUUU(x86emu_t *emu, uintptr_t fnc);
 void pFEppLiiip(x86emu_t *emu, uintptr_t fnc);
 void pFEpppuipV(x86emu_t *emu, uintptr_t fnc);
 void pFEpppppiV(x86emu_t *emu, uintptr_t fnc);
@@ -1640,6 +1641,7 @@ void vFpppipppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFippppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void vFpiiiiiiiiiiiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpppippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
+void pFEppuuuuuwwuuuuUUUup(x86emu_t *emu, uintptr_t fnc);
 void pFiiiippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 

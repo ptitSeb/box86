@@ -1366,6 +1366,7 @@
 #() pFEppCuuWW
 #() pFEppCuuup
 #() pFEppuuuuu
+#() pFEppuuUUU
 #() pFEppLiiip
 #() pFEpppuipV
 #() pFEpppppiV
@@ -1613,6 +1614,7 @@
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() iFpppippppppppppppppp
+#() pFEppuuuuuwwuuuuUUUup
 #() pFiiiippppppppppppppp
 #() pFipppppppppppppppppppppp
 #defined(NOALIGN) IFpi
