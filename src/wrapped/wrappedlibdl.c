@@ -141,8 +141,17 @@ char* my_dlerror(x86emu_t* emu)
     return dl->last_error;
 }
 
-int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
+KHASH_SET_INIT_INT(libs);
+
+int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
 {
+    if(!lib)
+        return 0;
+    khint_t k = kh_get(libs, collection, (uintptr_t)lib);
+    if(k != kh_end(collection))
+        return 0;
+    int ret;
+    kh_put(libs, collection, (uintptr_t)lib, &ret);
     // look in the library itself
     if(lib->get(lib, rsymbol, start, end)!=0)
         return 1;
@@ -150,11 +159,20 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
     int n = GetNeededLibN(lib);
     for (int i=0; i<n; ++i) {
         library_t *l = GetNeededLib(lib, i);
-        if(l && l->get(l, rsymbol, start, end)!=0)
+        if(recursive_dlsym_lib(collection, l, rsymbol, start, end))
             return 1;
     }
         
     return 0;
+}
+
+int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_t *end)
+{
+    kh_libs_t *collection = kh_init(libs);
+    int ret = recursive_dlsym_lib(collection, lib, rsymbol, start, end);
+    kh_destroy(libs, collection);
+
+    return ret;
 }
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
