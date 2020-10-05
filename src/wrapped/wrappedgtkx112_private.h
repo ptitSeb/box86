@@ -966,23 +966,23 @@ GO(gtk_event_box_set_above_child, vFpi)
 GO(gtk_event_box_set_visible_window, vFpi)
 GO(gtk_events_pending, iFv)
 GO(gtk_exit, vFi)
-//GO(gtk_expander_get_expanded, 
-//GO(gtk_expander_get_label, 
-//GO(gtk_expander_get_label_fill, 
-//GO(gtk_expander_get_label_widget, 
-//GO(gtk_expander_get_spacing, 
+GO(gtk_expander_get_expanded, iFp)
+GO(gtk_expander_get_label, pFp)
+GO(gtk_expander_get_label_fill, iFp)
+GO(gtk_expander_get_label_widget, pFp)
+GO(gtk_expander_get_spacing, iFp)
 GO(gtk_expander_get_type, iFv)
-//GO(gtk_expander_get_use_markup, 
-//GO(gtk_expander_get_use_underline, 
-//GO(gtk_expander_new, 
-//GO(gtk_expander_new_with_mnemonic, 
-//GO(gtk_expander_set_expanded, 
-//GO(gtk_expander_set_label, 
-//GO(gtk_expander_set_label_fill, 
-//GO(gtk_expander_set_label_widget, 
-//GO(gtk_expander_set_spacing, 
-//GO(gtk_expander_set_use_markup, 
-//GO(gtk_expander_set_use_underline, 
+GO(gtk_expander_get_use_markup, iFp)
+GO(gtk_expander_get_use_underline, iFp)
+GO(gtk_expander_new, pFp)
+GO(gtk_expander_new_with_mnemonic, pFp)
+GO(gtk_expander_set_expanded, vFpi)
+GO(gtk_expander_set_label, vFpp)
+GO(gtk_expander_set_label_fill, vFpi)
+GO(gtk_expander_set_label_widget, vFpp)
+GO(gtk_expander_set_spacing, vFpi)
+GO(gtk_expander_set_use_markup, vFpi)
+GO(gtk_expander_set_use_underline, vFpi)
 GO(gtk_expander_style_get_type, iFv)
 GO(gtk_false, iFv)
 GO(gtk_file_chooser_action_get_type, iFv)
@@ -1177,8 +1177,8 @@ GO(gtk_hpaned_get_type, iFv)
 GO(gtk_hruler_get_type, iFv)
 //GO(gtk_hruler_new, 
 GO(gtk_hscale_get_type, iFv)
-//GO(gtk_hscale_new, 
-//GO(gtk_hscale_new_with_range, 
+GO(gtk_hscale_new, pFp)
+GO(gtk_hscale_new_with_range, pFddd)
 GO(gtk_hscrollbar_get_type, iFv)
 GO(gtk_hscrollbar_new, pFp)
 GO(gtk_hseparator_get_type, iFv)
@@ -2524,10 +2524,10 @@ GO(gtk_sensitivity_type_get_type, iFv)
 GO(gtk_separator_get_type, iFv)
 GO(gtk_separator_menu_item_get_type, iFv)
 GO(gtk_separator_menu_item_new, pFv)
-//GO(gtk_separator_tool_item_get_draw, 
+GO(gtk_separator_tool_item_get_draw, iFp)
 GO(gtk_separator_tool_item_get_type, iFv)
-//GO(gtk_separator_tool_item_new, 
-//GO(gtk_separator_tool_item_set_draw, 
+GO(gtk_separator_tool_item_new, pFv)
+GO(gtk_separator_tool_item_set_draw, vFpi)
 GO(gtk_set_locale, pFv)
 GO(gtk_settings_get_default, pFv)
 GO(gtk_settings_get_for_screen, pFp)
@@ -2603,16 +2603,16 @@ GO(gtk_spinner_start, vFp)
 GO(gtk_spinner_stop, vFp)
 GO(gtk_spin_type_get_type, iFv)
 GO(gtk_state_type_get_type, iFv)
-//GO(gtk_statusbar_get_context_id, 
-//GO(gtk_statusbar_get_has_resize_grip, 
-//GO(gtk_statusbar_get_message_area, 
+GO(gtk_statusbar_get_context_id, uFpp)
+GO(gtk_statusbar_get_has_resize_grip, iFp)
+GO(gtk_statusbar_get_message_area, pFp)
 GO(gtk_statusbar_get_type, iFv)
-//GO(gtk_statusbar_new, 
-//GO(gtk_statusbar_pop, 
-//GO(gtk_statusbar_push, 
-//GO(gtk_statusbar_remove, 
-//GO(gtk_statusbar_remove_all, 
-//GO(gtk_statusbar_set_has_resize_grip, 
+GO(gtk_statusbar_new, pFv)
+GO(gtk_statusbar_pop, vFpu)
+GO(gtk_statusbar_push, uFpup)
+GO(gtk_statusbar_remove, vFpuu)
+GO(gtk_statusbar_remove_all, vFpu)
+GO(gtk_statusbar_set_has_resize_grip, vFpi)
 GO(gtk_status_icon_get_blinking, iFp)
 GO(gtk_status_icon_get_geometry, iFpppp)
 GO(gtk_status_icon_get_gicon, pFp)

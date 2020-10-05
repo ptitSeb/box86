@@ -712,9 +712,10 @@ EXPORT void my_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, vo
     SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
     SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
     SetGTKContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
-    lib->priv.w.needed = 1; \
+    lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");
+    lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
+    lib->priv.w.neededlibs[1] = strdup("libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \
     freeGtkx112My(lib->priv.w.p2); \
