@@ -39,7 +39,7 @@
 #include "wine_tools.h"
 
 box86context_t *my_context = NULL;
-int box86_log = LOG_INFO;//LOG_NONE;
+int box86_log = LOG_NONE;
 int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_pagesize;
