@@ -263,6 +263,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcbimage.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcbkeysyms.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcbxtest.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxcbdri2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxcbdri3.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxtst.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxt.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcomposite.c"
