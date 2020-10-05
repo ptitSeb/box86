@@ -187,9 +187,9 @@ GO(gtk_alternative_dialog_button_order, iFp)
 GO(gtk_anchor_type_get_type, iFv)
 GO(gtk_arg_flags_get_type, iFv)
 GO(gtk_arrow_get_type, iFv)
-//GO(gtk_arrow_new, 
+GO(gtk_arrow_new, pFii)
 GO(gtk_arrow_placement_get_type, iFv)
-//GO(gtk_arrow_set, 
+GO(gtk_arrow_set, vFpii)
 GO(gtk_arrow_type_get_type, iFv)
 GO(gtk_aspect_frame_get_type, iFv)
 //GO(gtk_aspect_frame_new, 
