@@ -22,7 +22,7 @@
 //GOS(xcb_xfixes_create_pointer_barrier_devices_end, 
 //GOS(xcb_xfixes_create_pointer_barrier_devices_length, 
 //GOS(xcb_xfixes_create_pointer_barrier_sizeof, 
-//GOS(xcb_xfixes_create_region, 
+GOS(xcb_xfixes_create_region, pFEppuup)
 //GOS(xcb_xfixes_create_region_checked, 
 //GOS(xcb_xfixes_create_region_from_bitmap, 
 //GOS(xcb_xfixes_create_region_from_bitmap_checked, 
@@ -38,7 +38,7 @@
 //GOS(xcb_xfixes_create_region_sizeof, 
 //GOS(xcb_xfixes_delete_pointer_barrier, 
 //GOS(xcb_xfixes_delete_pointer_barrier_checked, 
-//GOS(xcb_xfixes_destroy_region, 
+GOS(xcb_xfixes_destroy_region, pFEppu)
 //GOS(xcb_xfixes_destroy_region_checked, 
 //GOS(xcb_xfixes_expand_region, 
 //GOS(xcb_xfixes_expand_region_checked, 
@@ -81,8 +81,8 @@ DATA(xcb_xfixes_id, 8)
 //GOS(xcb_xfixes_invert_region, 
 //GOS(xcb_xfixes_invert_region_checked, 
 //GOS(xcb_xfixes_query_version, 
-//GOS(xcb_xfixes_query_version_reply, 
-//GOS(xcb_xfixes_query_version_unchecked, 
+GO(xcb_xfixes_query_version_reply, pFpup)
+GOS(xcb_xfixes_query_version_unchecked, pFEppuu)
 //GOS(xcb_xfixes_region_end, 
 //GOS(xcb_xfixes_region_extents, 
 //GOS(xcb_xfixes_region_extents_checked, 
