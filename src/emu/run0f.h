@@ -762,22 +762,22 @@
                     // should save flags & all
                     // copy MMX regs...
                     for(int i=0; i<8; ++i)
-                        memcpy(ED->dword+32+i*16, &emu->mmx[0], sizeof(emu->mmx[0]));
+                        memcpy(((void*)(ED))+32+i*16, &emu->mmx[0], sizeof(emu->mmx[0]));
                     // copy SSE regs
-                    memcpy(ED->dword+160, &emu->xmm[0], sizeof(emu->xmm));
+                    memcpy(((void*)(ED))+160, &emu->xmm[0], sizeof(emu->xmm));
                     // put also FPU regs in a reserved area...
                     for(int i=0; i<8; ++i)
-                        memcpy(ED->dword+416+i*8, &emu->fpu[0], sizeof(emu->fpu[0]));
+                        memcpy(((void*)(ED))+416+i*8, &emu->fpu[0], sizeof(emu->fpu[0]));
                     break;
                 case 1:                 /* FXRSTOR m512byte */
                     // should restore flags & all
                     // copy back MMX regs...
                     for(int i=0; i<8; ++i)
-                        memcpy(&emu->mmx[i], ED->dword+32+i*16, sizeof(emu->mmx[0]));
+                        memcpy(&emu->mmx[i], ((void*)(ED))+32+i*16, sizeof(emu->mmx[0]));
                     // copy SSE regs
-                    memcpy(&emu->xmm[0], ED->dword+160/4, sizeof(emu->xmm));
+                    memcpy(&emu->xmm[0], ((void*)(ED))+160/4, sizeof(emu->xmm));
                     for(int i=0; i<8; ++i)
-                        memcpy(&emu->fpu[0], ED->dword+416+i*8, sizeof(emu->fpu[0]));
+                        memcpy(&emu->fpu[0], ((void*)(ED))+416+i*8, sizeof(emu->fpu[0]));
                     break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr = ED->dword[0];
