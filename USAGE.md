@@ -3,7 +3,7 @@ Usage
 
 There are many environment variable to control Box86 behaviour. 
 
-##### BOX86_LOG
+#### BOX86_LOG
 Controls the Verbose level of the log
  * 0
  * NONE : No message (except some fatal error)
@@ -13,6 +13,11 @@ Controls the Verbose level of the log
  * DEBUG : Verbose a lot of stuffs (like relocations or function called)
  * 3
  * DUMP : All DEBUG plus DUMP of all ELF Info
+
+#### BOX86_NOBANNER
+Control Box86 printing it's version and build
+ * 0 : Enabled the printing
+ * 1 : Diable the printing
 
 #### BOX86_LD_LIBRARY_PATH
 Controls the folder scanned to look for x86 libs. Default is current folder and `lib` in current folder.

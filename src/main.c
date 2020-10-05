@@ -40,6 +40,7 @@
 
 box86context_t *my_context = NULL;
 int box86_log = LOG_INFO;//LOG_NONE;
+int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_pagesize;
 #ifdef DYNAREC
@@ -199,6 +200,14 @@ void LoadLogEnv()
                 box86_log = LOG_DUMP;
         }
         printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
+    }
+    p = getenv("BOX86_NOBANNER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_nobanner = p[0]-'0';
+        }
+        printf_log(LOG_INFO, "Dynarec is %s\n", box86_nobanner?"On":"Off");
     }
 #ifdef DYNAREC
     p = getenv("BOX86_DYNAREC_DUMP");
@@ -465,6 +474,7 @@ void PrintHelp() {
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
+    printf(" BOX86_NOBANNER with 0/1 to enable/disable the printing of box86 version and build at start\n");
 #ifdef DYNAREC
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
     printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
@@ -746,6 +756,8 @@ int main(int argc, const char **argv, const char **env) {
         printf("Box86: nothing to run\n");
         exit(0);
     }
+    if(!box86_nobanner)
+        PrintBox86Version();
     // precheck, for win-preload
     if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary

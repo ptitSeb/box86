@@ -13,6 +13,7 @@ if( NOT TEST_REFERENCE )
 endif( NOT TEST_REFERENCE )
 
 set(ENV{BOX86_LOG} 0)
+set(ENV{BOX86_NOBANNER} 1)
 if( EXISTS ${CMAKE_SOURCE_DIR}/x86lib )
   # we are inside box86 folder
   set(ENV{LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/x86lib)
