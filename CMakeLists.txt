@@ -154,7 +154,7 @@ if(BOX86LIB)
         message(FATAL_ERROR "BOX86_ROOT not set when build as lib")
     endif()
 else()
-    set(BOX86_ROOT ${CMAKE_HOME_DIRECTORY})
+    set(BOX86_ROOT ${CMAKE_SOURCE_DIR})
 endif()
 
 
