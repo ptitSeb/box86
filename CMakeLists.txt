@@ -19,6 +19,7 @@ option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation (WIP, don't use yet)" ${ARM_DYNAREC})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
+option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
     find_package(PythonInterp 3)
@@ -105,6 +106,9 @@ if(ODROID)
     set(NOALIGN OFF)
 endif()
 
+if(NOGIT)
+    add_definitions(-DNOGIT)
+endif()
 
 if(BOX86LIB)
     set(BOX86 box86)

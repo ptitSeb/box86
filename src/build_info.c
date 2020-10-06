@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include "debug.h"
 #include "box86version.h"
+#ifdef NOGIT
+#define GITREV "nogit"
+#else
 #include "git_head.h"
+#endif
 
 void PrintBox86Version()
 {

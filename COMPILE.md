@@ -61,6 +61,10 @@ To have a trace enabled build (warning, it will be slower), add `-DHAVE_TRACE=1`
 
 The Dynarec is only avaiable on ARM Cpu. Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode).
 
+*not building from a git clone*
+
+If you are not building from a git clone (for example downloading a release sources Zipped from github), you need to activate `-DNOGIT=1` from cmake to be able to build (normal process include git sha1 of HEAD in the version that box86 print).
+
 ----
 
 Testing
