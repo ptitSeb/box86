@@ -566,6 +566,25 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             VMOVtoDx_32(v0, 0, x2);
             break;
+        
+        case 0xE6:
+            INST_NAME("CVTDQ2PD Gx, Ex");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = fpu_get_scratch_double(dyn);
+                VMOV_64(v0, v1);    // vfpu opcode here
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                v0 = fpu_get_scratch_double(dyn);
+                VLDR_64(v1, ed, fixedaddress);    // vfpu opcode here
+            }
+            gd = (nextop&0x38)>>3;
+            q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            //v0 is a low reg now
+            VCVT_F64_S32(q0+0, v0*2+0);
+            VCVT_F64_S32(q0+1, v0*2+1);
+            break;
 
         default:
             DEFAULT;
