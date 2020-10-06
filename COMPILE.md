@@ -16,7 +16,14 @@ Compiling
 
   _a build for model 2, 3 and 4 can be done. Model 1 and 0 cannot (at least not with Dynarec, as they lack NEON support)_
  
-`mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
+```
+git clone https://github.com/ptitSeb/box86
+cd box86
+mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j24
+sudo make install
+sudo systemctl restart systemd-binfmt
+```
  
   _For Pi4. Change to RPI2 or RPI3 for other models._
 
