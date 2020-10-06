@@ -587,9 +587,9 @@ Op is 20-27
 // Convert from int32 Sm to single Dd
 #define VCVT_F32_S32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b000<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 
-#define VCVT_16_gen(cond, D, op, U, Vd, sf, sx, i, imm4)   (cond | 0b1110<<24 | 1<<23 | (D)<<22 | 0b11<<20 | 1<<19 | (op)<<18 | 1<<17 | (U)<<16 | (Vd)<<12 | 0b101<<9 | (sf)<<8 | (sx)<<7 | 1<<6 | (i)<<5 | (imm4))
+#define VCVT_FP_gen(cond, D, op, U, Vd, sf, sx, i, imm4)   (cond | 0b1110<<24 | 1<<23 | (D)<<22 | 0b11<<20 | 1<<19 | (op)<<18 | 1<<17 | (U)<<16 | (Vd)<<12 | 0b101<<9 | (sf)<<8 | (sx)<<7 | 1<<6 | (i)<<5 | (imm4))
 // Inplace convert from F64 to S16. Rounding is not selectable
-#define VCVT_S16_F64(Dd)    EMIT(VCVT_16_gen(c__, ((Dd)>>4)&1, 1, 0, (Dd)&15, 1, 0, 16&1, (16>>1)&15))
+#define VCVT_S16_F64(Dd)    EMIT(VCVT_FP_gen(c__, ((Dd)>>4)&1, 1, 0, (Dd)&15, 1, 0, 16&1, (16>>1)&15))
 
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
