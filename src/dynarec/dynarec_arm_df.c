@@ -28,7 +28,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t nextop = F8;
     uint8_t u8;
-    int32_t i32;
+    int32_t j32;
     uint8_t wback;
     uint8_t ed;
     int v1, v2;
@@ -38,7 +38,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(s0);
     MAYUSE(v2);
     MAYUSE(v1);
-    MAYUSE(i32);
+    MAYUSE(j32);
 
     switch(nextop) {
         case 0xC0:

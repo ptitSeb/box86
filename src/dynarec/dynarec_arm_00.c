@@ -30,7 +30,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int retn;
     uint8_t gd, ed;
     int8_t i8;
-    int32_t i32, tmp;
+    int32_t i32, j32, tmp;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
     uint32_t u32;
@@ -41,6 +41,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(tmp);
+    MAYUSE(j32);
 
     switch(opcode) {
         case 0x00:

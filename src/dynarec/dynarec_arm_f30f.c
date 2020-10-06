@@ -55,7 +55,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32;
+    int32_t j32;
     uint32_t u32;
     uint8_t gd, ed;
     uint8_t wback;
@@ -68,7 +68,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
     MAYUSE(s1);
     MAYUSE(s2);
-    MAYUSE(i32);
+    MAYUSE(j32);
 
     switch(opcode) {
 

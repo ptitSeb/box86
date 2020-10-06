@@ -25,11 +25,13 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t opcode = F8;
     uint8_t nextop;
-    int32_t i32;
+    int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
     uint8_t wback;
     int fixedaddress;
+
+    MAYUSE(j32);
 
     switch(opcode) {
         case 0x03:

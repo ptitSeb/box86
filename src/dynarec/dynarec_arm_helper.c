@@ -270,8 +270,8 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MESSAGE(LOG_DUMP, "Jump to linker (#%d) nolinker=%d\n", dyn->tablei, dyn->nolinker);
-    int i32;
-    MAYUSE(i32);
+    int j32;
+    MAYUSE(j32);
     if(dyn->nolinker==2) {
         jump_to_epilog(dyn, ip, reg, ninst);
     } else {
@@ -458,8 +458,8 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
-    int32_t i32;
-    MAYUSE(i32);
+    int32_t j32;
+    MAYUSE(j32);
     MESSAGE(LOG_DUMP, "Get FS: Offset\n");
     LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_FS]));
     CMPS_IMM8(x12, 1);

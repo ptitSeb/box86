@@ -28,8 +28,9 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t wback, wb1, wb2, gb1, gb2;
     uint8_t ed, gd, u8;
     int fixedaddress;
-    int32_t i32;
+    int32_t i32, j32;
     MAYUSE(i32);
+    MAYUSE(j32);
     MAYUSE(gb1);
     MAYUSE(gb2);
     MAYUSE(wb1);
@@ -334,12 +335,24 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                        TSTS_IMM8(wback, 0x3);
+                        B_MARK(cNE);
                         MARKLOCK;
                         LDREX(x1, wback);
                         emit_add32c(dyn, ninst, x1, i32, x3, x12);
                         STREX(x3, x1, wback);
                         CMPS_IMM8(x3, 0);
                         B_MARKLOCK(cNE);
+                        B_NEXT(c__);
+                        MARK;   // unaligned! also, not enough 
+                        LDR_IMM9(x1, wback, 0);
+                        LDREXB(x12, wback);
+                        BFI(x1, x12, 0, 8); // re-inject
+                        emit_add32c(dyn, ninst, x1, i32, x3, x12);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        B_MARK(cNE);
+                        STR_IMM9(x1, wback, 0);    // put the whole value
                     }
                     break;
                 case 1: //OR

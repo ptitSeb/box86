@@ -189,30 +189,30 @@
 #define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
 #define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
-// Branch to MARK if cond (use i32)
+// Branch to MARK if cond (use j32)
 #define B_MARK(cond)    \
-    i32 = GETMARK-(dyn->arm_size+8);    \
-    Bcond(cond, i32)
-// Branch to MARK2 if cond (use i32)
+    j32 = GETMARK-(dyn->arm_size+8);    \
+    Bcond(cond, j32)
+// Branch to MARK2 if cond (use j32)
 #define B_MARK2(cond)    \
-    i32 = GETMARK2-(dyn->arm_size+8);   \
-    Bcond(cond, i32)
-// Branch to MARK3 if cond (use i32)
+    j32 = GETMARK2-(dyn->arm_size+8);   \
+    Bcond(cond, j32)
+// Branch to MARK3 if cond (use j32)
 #define B_MARK3(cond)    \
-    i32 = GETMARK3-(dyn->arm_size+8);   \
-    Bcond(cond, i32)
-// Branch to next instruction if cond (use i32)
+    j32 = GETMARK3-(dyn->arm_size+8);   \
+    Bcond(cond, j32)
+// Branch to next instruction if cond (use j32)
 #define B_NEXT(cond)     \
-    i32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
-    Bcond(cond, i32)
-// Branch to MARKSEG if cond (use i32)
+    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
+    Bcond(cond, j32)
+// Branch to MARKSEG if cond (use j32)
 #define B_MARKSEG(cond)    \
-    i32 = GETMARKSEG-(dyn->arm_size+8);   \
-    Bcond(cond, i32)
-// Branch to MARKLOCK if cond (use i32)
+    j32 = GETMARKSEG-(dyn->arm_size+8);   \
+    Bcond(cond, j32)
+// Branch to MARKLOCK if cond (use j32)
 #define B_MARKLOCK(cond)    \
-    i32 = GETMARKLOCK-(dyn->arm_size+8);   \
-    Bcond(cond, i32)
+    j32 = GETMARKLOCK-(dyn->arm_size+8);   \
+    Bcond(cond, j32)
 
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))
 #define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A)))
@@ -271,8 +271,8 @@
         if(dyn->state_flags!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \
-            i32 = (GETMARKF)-(dyn->arm_size+8);         \
-            Bcond(cEQ, i32);                            \
+            j32 = (GETMARKF)-(dyn->arm_size+8);         \
+            Bcond(cEQ, j32);                            \
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \

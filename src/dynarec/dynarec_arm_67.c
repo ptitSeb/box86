@@ -26,8 +26,9 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t nextop;
     int8_t  i8;
-    int32_t i32;
+    int32_t i32, j32;
     MAYUSE(i32);
+    MAYUSE(j32);
     nextop = F8;
     switch(nextop) {
        

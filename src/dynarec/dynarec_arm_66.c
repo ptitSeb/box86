@@ -28,7 +28,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint32_t u32;
-    int32_t i32;
+    int32_t i32, j32;
     int16_t i16;
     uint16_t u16;
     uint8_t gd, ed;
@@ -36,6 +36,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int fixedaddress;
     MAYUSE(u16);
     MAYUSE(u8);
+    MAYUSE(j32);
     while(opcode==0x66) opcode = F8;    // "unlimited" 0x66 as prefix for variable sized NOP
     if(opcode==0x2E) opcode = F8;       // cs: is ignored
     switch(opcode) {

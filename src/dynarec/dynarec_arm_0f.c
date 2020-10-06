@@ -54,7 +54,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 {
     uint8_t opcode = F8;
     uint8_t nextop, u8;
-    int32_t i32, i32_;
+    int32_t i32, i32_, j32;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2;
@@ -73,6 +73,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(eb2);
     MAYUSE(eb1);
     MAYUSE(wb2);
+    MAYUSE(j32);
     #if STEP == 3
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
