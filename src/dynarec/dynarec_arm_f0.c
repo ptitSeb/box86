@@ -764,6 +764,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         emit_add32(dyn, ninst, ed, gd, x3, x12);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        TSTS_IMM8(wback, 3);
+                        B_MARK(cNE);    // unaligned
                         MARKLOCK;
                         LDREX(x1, wback);
                         PUSH(xSP, 1<<x1);
@@ -772,6 +774,20 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         CMPS_IMM8(x3, 0);
                         POP(xSP, 1<<x1);
                         B_MARKLOCK(cNE);
+                        MOV_REG(gd, x1);
+                        B_NEXT(c__);
+                        MARK;
+                        LDR_IMM9(x1, wback, 0);
+                        LDREXB(x12, wback);
+                        BFI(x1, x12, 0, 8);
+                        PUSH(xSP, 1<<x1);
+                        emit_add32(dyn, ninst, x1, gd, x3, x12);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        ADD_IMM8_cond(cNE, xSP, xSP, 4);    // discard pushed value if write failed
+                        B_MARK(cNE);
+                        STR_IMM9(x1, wback, 0);
+                        POP(xSP, 1<<x1);
                         MOV_REG(gd, x1);
                     }
                     break;
