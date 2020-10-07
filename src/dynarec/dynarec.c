@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <setjmp.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -14,6 +15,7 @@
 #include "callback.h"
 #include "emu/x86run_private.h"
 #include "x86trace.h"
+#include "threads.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynablock_private.h"
@@ -92,6 +94,14 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
 
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
+    // prepare setjump for signal handling
+    emu_jmpbuf_t *ejb = NULL;
+    if(emu->type == EMUTYPE_MAIN) {
+        ejb = GetJmpBuf();
+        ejb->emu = emu;
+        if(!setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+            ejb->jmpbuf_ok = 1;
+    }
 #ifdef DYNAREC
     if(!box86_dynarec)
 #endif
@@ -146,10 +156,21 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         }
     }
 #endif
+    // clear the setjmp
+    if(ejb)
+        ejb->jmpbuf_ok = 0;
 }
 
 int DynaRun(x86emu_t* emu)
 {
+    // prepare setjump for signal handling
+    emu_jmpbuf_t *ejb = NULL;
+    if(emu->type == EMUTYPE_MAIN) {
+        ejb = GetJmpBuf();
+        ejb->emu = emu;
+        if(!setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+            ejb->jmpbuf_ok = 1;
+    }
 #ifdef DYNAREC
     if(!box86_dynarec)
 #endif
@@ -181,6 +202,9 @@ int DynaRun(x86emu_t* emu)
             }
         }
     }
+    // clear the setjmp
+    if(ejb)
+        ejb->jmpbuf_ok = 0;
     return 0;
 #endif
 }

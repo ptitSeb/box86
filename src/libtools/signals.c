@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <ucontext.h>
+#include <setjmp.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -21,6 +22,7 @@
 #include "callback.h"
 #include "x86run.h"
 #include "elfloader.h"
+#include "threads.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -160,6 +162,7 @@ static x86emu_t* get_signal_emu()
         const int stsize = 8*1024;  // small stack for signal handler
         void* stack = calloc(1, stsize);
         emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
+        emu->type = EMUTYPE_SIGNAL;
         pthread_setspecific(sigemu_key, emu);
     }
     return emu;
@@ -371,6 +374,34 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, &sigcontext);
 
     if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
+        emu_jmpbuf_t* ejb = GetJmpBuf();
+        if(ejb->jmpbuf_ok) {
+            #define GO(R)   if(sigcontext.uc_mcontext.gregs[REG_E##R]!=sigcontext_copy.uc_mcontext.gregs[REG_E##R]) ejb->emu->regs[_##R].dword[0]=sigcontext.uc_mcontext.gregs[REG_E##R]
+            GO(AX);
+            GO(CX);
+            GO(DX);
+            GO(DI);
+            GO(SI);
+            GO(BP);
+            GO(SP);
+            GO(BX);
+            #undef GO
+            if(sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP]) ejb->emu->ip.dword[0]=sigcontext.uc_mcontext.gregs[REG_EIP];
+            sigcontext.uc_mcontext.gregs[REG_EIP] = R_EIP;
+            // flags
+            if(sigcontext.uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->packed_eflags.x32=sigcontext.uc_mcontext.gregs[REG_EFL];
+            // get segments
+            #define GO(S)   if(sigcontext.uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext.uc_mcontext.gregs[REG_##S]; ejb->emu->segs_clean[_##S] = 0;}
+            GO(GS);
+            GO(FS);
+            GO(ES);
+            GO(DS);
+            GO(CS);
+            GO(SS);
+            #undef GO
+            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing longjmp to resume emu\n");
+            longjmp(ejb->jmpbuf, 1);
+        }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
     }
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);

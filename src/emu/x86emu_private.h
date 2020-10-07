@@ -83,7 +83,13 @@ typedef struct x86emu_s {
 
     i386_ucontext_t *uc_link; // to handle setcontext
 
+    int         type;       // EMUTYPE_xxx define
+
 } x86emu_t;
+
+#define EMUTYPE_NONE    0
+#define EMUTYPE_MAIN    1
+#define EMUTYPE_SIGNAL  2
 
 //#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit

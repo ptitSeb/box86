@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <errno.h>
+#include <setjmp.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -186,6 +187,7 @@ void thread_set_emu(x86emu_t* emu)
 		FreeX86Emu(&et->emu);
 	}
 	et->emu = emu;
+	et->emu->type = EMUTYPE_MAIN;
 	pthread_setspecific(thread_key, et);
 }
 
@@ -635,10 +637,31 @@ EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
 	pthread_exit(retval);
 }
 
+static void emujmpbuf_destroy(void* p)
+{
+	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
+	free(ej->jmpbuf);
+	free(ej);
+}
+
+static pthread_key_t jmpbuf_key;
+
+emu_jmpbuf_t* GetJmpBuf()
+{
+	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
+	if(!ejb) {
+		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
+		ejb->jmpbuf = calloc(1, sizeof(struct __jmp_buf_tag));
+		pthread_setspecific(thread_key, ejb);
+	}
+	return ejb;
+}
+
 void init_pthread_helper()
 {
 	InitCancelThread();
 	mapcond = kh_init(mapcond);
+	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 }
 
 void fini_pthread_helper()
