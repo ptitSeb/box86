@@ -1931,7 +1931,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
             }
             break;
-
+        case 0xD6:
+            INST_NAME("SALC");
+            READFLAGS(X_CF);
+            LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_CF])); // load CC
+            CMPS_IMM8(x3, 1);
+            MOVW_COND(cEQ, x3, 0xff);
+            MOVW_COND(cNE, x3, 0x00);
+            BFI(xEAX, x3, 0, 8);
+            break;
         case 0xD7:
             INST_NAME("XLAT");
             UBFX(x1, xEAX, 0, 8);    // x1 = AL
