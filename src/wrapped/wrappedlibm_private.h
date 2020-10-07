@@ -321,7 +321,11 @@ GOW(logbf, fFf)
 GOW(logf, fFf)
 GOM(__logf_finite, fFf)
 GOM(__log_finite, dFd)
-// logl // Weak
+#ifdef HAVE_LD80BITS
+GOW(logl, DFD)
+#else
+GO2(logl, KFK, log)
+#endif
 GOW(lrint, iFd)
 GOW(lrintf, iFf)
 // lrintl   // Weak
