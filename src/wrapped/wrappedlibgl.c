@@ -28,7 +28,7 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_log(LOG_DEBUG, "Calling glXGetProcAddress(\"%s\")\n", rname);
+    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling glXGetProcAddress(\"%s\") => ", rname);
     if(!emu->context->glwrappers)
         fillGLProcWrapper(emu->context);
     // check if glxprocaddress is filled, and search for lib and fill it if needed
@@ -44,11 +44,14 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         symbol = dlsym(emu->context->box86lib, tmp);
     } else 
         symbol = emu->context->glxprocaddress(rname);
-    if(!symbol)
+    if(!symbol) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
         return NULL;    // easy
+    }
     // check if alread bridged
     uintptr_t ret = CheckBridged(emu->context->system, symbol);
     if(ret) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
         return (void*)ret; // already bridged
     }
     // get wrapper    
@@ -68,11 +71,15 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         k = kh_get(symbolmap, emu->context->glwrappers, tmp);
     }
     if(k==kh_end(emu->context->glwrappers)) {
-        printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
+    return (void*)ret;
+
 }
 EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
 
