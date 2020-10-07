@@ -33,6 +33,7 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
             EmuCall(emu, my_context->atforks[i].prepare);
+    int type = emu->type;
     int v;
     if(forktype==2) {
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
@@ -40,6 +41,8 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
         emu->forkpty_info = NULL;
     } else
         v = fork();
+    if(type == EMUTYPE_MAIN)
+        thread_set_emu(emu);
     if(v==EAGAIN || v==ENOMEM) {
         // error...
     } else if(v!=0) {  

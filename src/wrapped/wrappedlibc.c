@@ -504,8 +504,11 @@ pid_t EXPORT my_fork(x86emu_t* emu)
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
             RunFunctionWithEmu(emu, 0, my_context->atforks[i].prepare, 0);
+    int type = emu->type;
     pid_t v;
     v = fork();
+    if(type == EMUTYPE_MAIN)
+        thread_set_emu(emu);
     if(v==EAGAIN || v==ENOMEM) {
         // error...
     } else if(v!=0) {  
