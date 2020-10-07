@@ -184,7 +184,8 @@ void thread_set_emu(x86emu_t* emu)
 	if(!et) {
 		et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
 	} else {
-		FreeX86Emu(&et->emu);
+		if(et->emu != emu)
+			FreeX86Emu(&et->emu);
 	}
 	et->emu = emu;
 	et->emu->type = EMUTYPE_MAIN;
@@ -214,6 +215,7 @@ static void* pthread_routine(void* p)
 	pthread_setspecific(thread_key, p);
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
+	et->emu->type = EMUTYPE_MAIN;
 	void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 	return ret;
 }
@@ -652,7 +654,7 @@ emu_jmpbuf_t* GetJmpBuf()
 	if(!ejb) {
 		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
 		ejb->jmpbuf = calloc(1, sizeof(struct __jmp_buf_tag));
-		pthread_setspecific(thread_key, ejb);
+		pthread_setspecific(jmpbuf_key, ejb);
 	}
 	return ejb;
 }
