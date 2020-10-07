@@ -105,6 +105,9 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             TSTS_REG_LSL_IMM5(x1, x1, 0);
             VMOVcond_64(cEQ, v1, v2);   // F_PF==0
             break;
+        case 0xE1:
+            INST_NAME("FDISI8087_NOP"); // so.. NOP?
+            break;
         case 0xE2:
             INST_NAME("FNCLEX");
             MOVW(x1, 0);
@@ -150,7 +153,6 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xE0:
-        case 0xE1:
         case 0xE4:
         case 0xE5:
         case 0xE6:

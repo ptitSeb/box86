@@ -49,6 +49,8 @@
             ST0.ll = ST(nextop&7).ll;
         break;
 
+    case 0xE1:      /* FDISI8087_NOP */
+        break;
     case 0xE2:      /* FNCLEX */
         //Clears the floating-point exception flags (PE, UE, OE, ZE, DE, and IE), 
         // the exception summary status flag (ES), the stack fault flag (SF), and the busy flag (B) in the FPU status word
@@ -87,7 +89,6 @@
         fpu_fcomi(emu, ST(nextop&7).d);
         break;
     case 0xE0:
-    case 0xE1:
     case 0xE4:
     case 0xE5:
     case 0xE6:
