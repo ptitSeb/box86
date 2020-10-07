@@ -19,7 +19,7 @@ GO(curl_easy_strerror, pFu)
 GO(curl_formadd, iFpppppppppppppppp)    // there is a vararg here. Should GOM and use CURLFORM_ARRAY instead
 GO(curl_formfree, vFp)
 //GO(curl_formget, 
-//GO(curl_free, 
+GO(curl_free, vFp)
 //GO(curl_getdate, 
 //GO(curl_getenv, 
 GO(curl_global_cleanup, vFv)
