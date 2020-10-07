@@ -1931,6 +1931,24 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
             }
             break;
+        case 0xD4:
+            INST_NAME("AAM Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            UBFX(x1, xEAX, 0, 8);    // load AL
+            u8 = F8;
+            MOVW(x2, u8);
+            CALL_(aam16, x1, 0);
+            BFI(xEAX, x1, 0, 16);
+            break;
+        case 0xD5:
+            INST_NAME("AAD Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            UBFX(x1, xEAX, 0, 16);    // load AX
+            u8 = F8;
+            MOVW(x2, u8);
+            CALL_(aam16, x1, 0);
+            BFI(xEAX, x1, 0, 16);
+            break;
         case 0xD6:
             INST_NAME("SALC");
             READFLAGS(X_CF);
