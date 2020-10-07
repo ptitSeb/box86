@@ -290,10 +290,11 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     i386_ucontext_t sigcontext = {0};
     x86emu_t *emu = thread_get_emu();   // not good, emu is probably not up to date, especially using dynarec
     // stack traking
+    x86emu_t *sigemu = get_signal_emu();
 	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
     if(!new_ss) {
-        sigcontext.uc_stack.ss_sp = emu->init_stack;
-        sigcontext.uc_stack.ss_size = emu->size_stack;
+        sigcontext.uc_stack.ss_sp = sigemu->init_stack;
+        sigcontext.uc_stack.ss_size = sigemu->size_stack;
     } else {
         sigcontext.uc_stack.ss_sp = new_ss->ss_sp;
         sigcontext.uc_stack.ss_size = new_ss->ss_size;

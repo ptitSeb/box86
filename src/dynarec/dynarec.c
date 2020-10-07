@@ -96,11 +96,15 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
+    int jmpbuf_reset = 0;
     if(emu->type == EMUTYPE_MAIN) {
         ejb = GetJmpBuf();
-        ejb->emu = emu;
-        if(!setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+        if(!ejb->jmpbuf_ok) {
+            ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
+            jmpbuf_reset = 1;
+            setjmp((struct __jmp_buf_tag*)ejb->jmpbuf);
+        }
     }
 #ifdef DYNAREC
     if(!box86_dynarec)
@@ -140,6 +144,13 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x86emu_fork(emu, forktype);
+                if(emu->type == EMUTYPE_MAIN) {
+                    ejb = GetJmpBuf();
+                    ejb->emu = emu;
+                    ejb->jmpbuf_ok = 1;
+                    jmpbuf_reset = 1;
+                    setjmp((struct __jmp_buf_tag*)ejb->jmpbuf);
+                }
             }
         }
         emu->quit = 0;  // reset Quit flags...
@@ -157,7 +168,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
     }
 #endif
     // clear the setjmp
-    if(ejb)
+    if(ejb && jmpbuf_reset)
         ejb->jmpbuf_ok = 0;
 }
 
@@ -165,11 +176,15 @@ int DynaRun(x86emu_t* emu)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
+    int jmpbuf_reset = 1;
     if(emu->type == EMUTYPE_MAIN) {
         ejb = GetJmpBuf();
-        ejb->emu = emu;
-        if(!setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+        if(!ejb->jmpbuf_ok) {
+            ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
+            jmpbuf_reset = 1;
+            setjmp((struct __jmp_buf_tag*)ejb->jmpbuf);
+        }
     }
 #ifdef DYNAREC
     if(!box86_dynarec)
@@ -199,11 +214,18 @@ int DynaRun(x86emu_t* emu)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x86emu_fork(emu, forktype);
+                if(emu->type == EMUTYPE_MAIN) {
+                    ejb = GetJmpBuf();
+                    ejb->emu = emu;
+                    ejb->jmpbuf_ok = 1;
+                    jmpbuf_reset = 1;
+                    setjmp((struct __jmp_buf_tag*)ejb->jmpbuf);
+                }
             }
         }
     }
     // clear the setjmp
-    if(ejb)
+    if(ejb && jmpbuf_reset)
         ejb->jmpbuf_ok = 0;
     return 0;
 #endif
