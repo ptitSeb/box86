@@ -1953,7 +1953,7 @@ GO(wcsncat, pFppu)
 GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
 GO(__wcsncpy_chk, pFppuu)
-// wcsnlen  // Weak
+GOW(wcsnlen, LFpL)
 GOW(wcsnrtombs, uFppuup)
 // __wcsnrtombs_chk
 GO(wcspbrk, pFpp)
