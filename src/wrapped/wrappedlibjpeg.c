@@ -21,6 +21,7 @@
 
 const char* libjpegName = "libjpeg.so.8";
 #define LIBNAME libjpeg
+#define ALTNAME "libjpeg.so.62"
 
 static char* libname = NULL;
 static bridge_t* my_bridge = NULL;
