@@ -77,6 +77,16 @@ TL;DR: Not all Unity games work and can require a high OpenGL profile, but the s
 
 ----
 
+A note about Steam
+----
+
+Linux Steam can run now with box86. But it's still a bit unstable., and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
+Once open, Steam will only work on "Small mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
+Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
+(Steam for Windows install fine but doesn't work yet)
+
+----
+
 A note about Wine
 ----
 
