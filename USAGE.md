@@ -137,7 +137,7 @@ Allow box86 to continue even if a lib is missing
 
 #### BOX86_JITGDB
 * 0 : Just print the Segfault message on segfault (default)
-* 1 : Launch `gdb` when a segfault is trapped, attached to the offending process, and go in an endless loop, waiting.
-        When in gdb, you need to find the correct thread yourself (the one with `my_memprotectionhandler` in is stack)
-        then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_memprotectionhandler`, 
+* 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting.
+        When in gdb, you need to find the correct thread yourself (the one with `my_box86signalhandler` in is stack)
+        then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box86signalhandler`, 
         just before the printf of the Segfault message. Then simply `set waiting=0` to exit the infinite loop.

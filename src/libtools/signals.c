@@ -413,7 +413,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 }
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    // sig==SIGSEGV || sig==SIGBUS here!
+    // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
 #ifdef __arm__
@@ -436,8 +436,9 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     static int old_code = -1;
     static void* old_pc = 0;
     static void* old_addr = 0;
+    const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
-        printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS");
+        printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), signame);
     } else {
 #ifdef DYNAREC
         dynablock_t* db = FindDynablockFromNativeAddress(pc);
@@ -482,10 +483,14 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d)\n", GetTID(), (sig==SIGSEGV)?"SIGSEGV":"SIGBUS", pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code);
 #endif
+        if(sig==SIGILL)
+            printf_log(LOG_NONE, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
+        else
+            printf_log(LOG_NONE, "\n");
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
                 my_sigactionhandler(sig, info, ucntx);
@@ -515,7 +520,7 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
         handler = my_sighandler;
     }
 
-    if(signum==SIGSEGV || signum==SIGBUS)
+    if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL)
         return 0;
 
     return signal(signum, handler);
@@ -557,7 +562,7 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
     }
     int ret = 0;
-    if(signum!=SIGSEGV && signum!=SIGBUS)
+    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)
         sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
     if(oldact) {
         oldact->sa_flags = old.sa_flags;
@@ -658,7 +663,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
         }
         int ret = 0;
 
-        if(signum!=SIGSEGV && signum!=SIGBUS)
+        if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)
             ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
@@ -800,6 +805,9 @@ void init_signal_helper()
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGBUS, &action, NULL);
+	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+	action.sa_sigaction = my_box86signalhandler;
+    sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
 	pthread_once(&sigemu_key_once, sigemu_key_alloc);
@@ -809,4 +817,5 @@ void fini_signal_helper()
 {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
 }
