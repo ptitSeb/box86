@@ -279,6 +279,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX86_ROOT}/src/wrapped/wrappedalut.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedudev0.c"
     "${BOX86_ROOT}/src/wrapped/wrappedudev1.c"
