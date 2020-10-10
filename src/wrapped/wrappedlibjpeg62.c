@@ -1046,8 +1046,19 @@ trace_end = 0;
 
 EXPORT void my62_jpeg_CreateDecompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
 {
-    WRAP(void, my->jpeg_CreateDecompress(cinfo, version, structsize), 0);
-    wrapSourceMgr(((j62_decompress_ptr_t*)cinfo)->src);
+    // Not using WRAP macro because only err field might be initialized here
+    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
+    is_jmpbuf = 1;
+    my62_jpegcb_emu = emu;
+    unwrapErrorMgr(cinfo->err);
+    if(setjmp(&jmpbuf)) {
+        wrapErrorMgr(cinfo->err);
+        is_jmpbuf = 0;
+        return;
+    }
+    my->jpeg_CreateDecompress(cinfo, version, structsize);
+    is_jmpbuf = 0;
+    wrapCommonStruct(cinfo, 1);
 }
 
 EXPORT int my62_jpeg_read_header(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int image)
