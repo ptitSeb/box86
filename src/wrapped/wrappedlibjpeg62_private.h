@@ -53,7 +53,7 @@ GO(jpeg_default_colorspace, vFp)
 GO(jpeg_default_qtables, vFpi)
 GO(jpeg_destroy, vFp)
 GO(jpeg_destroy_compress, vFp)
-GO(jpeg_destroy_decompress, vFp)
+GOM(jpeg_destroy_decompress, vFEp)
 //GO(jpeg_fdct_float
 //GO(jpeg_fdct_ifast
 //GO(jpeg_fdct_islow
@@ -130,3 +130,6 @@ GO(jpeg_write_tables, vFp)
 GO(jround_up, iFii)
 GO(jzero_far, vFpu)
 
+//dummy for the bridge wrappers
+GO(jppeg_dummy_virt_array, pFpiiuuu)
+GO(jppeg_dummy_virt_access, pFppuui)

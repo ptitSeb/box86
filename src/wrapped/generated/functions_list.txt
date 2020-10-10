@@ -952,6 +952,7 @@
 #() pFppiup
 #() pFppipi
 #() pFppipp
+#() pFppuui
 #() pFppuuu
 #() pFppuup
 #() pFpppii
@@ -1138,6 +1139,7 @@
 #() pFiCiiCi
 #() pFdddddd
 #() pFpiiiiu
+#() pFpiiuuu
 #() pFpippip
 #() pFpuuuuu
 #() pFplpppp
