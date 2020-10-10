@@ -203,6 +203,17 @@ void arm_frstor(x86emu_t* emu, uint8_t* ed)
 
 }
 
+void arm_fprem1(x86emu_t* emu)
+{
+    // simplified version
+    int32_t tmp32s = round(ST0.d / ST1.d);
+    ST0.d -= ST1.d*tmp32s;
+    emu->sw.f.F87_C2 = 0;
+    emu->sw.f.F87_C0 = (tmp32s&1);
+    emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
+    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+}
+
 
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)

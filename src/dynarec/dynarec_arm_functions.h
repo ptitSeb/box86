@@ -30,6 +30,7 @@ void arm_fxsave(x86emu_t* emu, uint8_t* ed);
 void arm_fxrstor(x86emu_t* emu, uint8_t* ed);
 void arm_fsave(x86emu_t* emu, uint8_t* ed);
 void arm_frstor(x86emu_t* emu, uint8_t* ed);
+void arm_fprem1(x86emu_t* emu);
 
 void arm_ud(x86emu_t* emu);
 

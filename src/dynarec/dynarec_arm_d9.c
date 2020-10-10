@@ -205,6 +205,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fxtract, -1, 0);
             break;
+        case 0xF5:
+            INST_NAME("FPREM1");
+            x87_forget(dyn, ninst, x1, x2, 0);
+            x87_forget(dyn, ninst, x1, x2, 1);
+            CALL(arm_fprem1, -1, 0);
+            break;
         case 0xF8:
             INST_NAME("FPREM");
             x87_forget(dyn, ninst, x1, x2, 0);
@@ -260,7 +266,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF5:
         case 0xF6:
         case 0xF7:
             DEFAULT;
