@@ -2046,7 +2046,10 @@ GO(EVP_sha256, pFv)
 GO(EVP_sha384, pFv)
 GO(EVP_sha512, pFv)
 //GO(EVP_SignFinal, 
-//GO(EVP_VerifyFinal, 
+GO(EVP_VerifyFinal, iFppup)
+GO(EVP_VerifyInit, iFpp)        // 1.1.0+
+GO(EVP_VerifyInit_ex, iFppp)    // 1.1.0+
+GO(EVP_VerifyUpdate, iFppu)     // 1.1.0+
 //GO(EVP_whirlpool, 
 //GO(EXTENDED_KEY_USAGE_free, 
 //GO(EXTENDED_KEY_USAGE_new, 
