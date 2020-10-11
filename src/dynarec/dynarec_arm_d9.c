@@ -211,6 +211,22 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem1, -1, 0);
             break;
+        case 0xF6:
+            INST_NAME("FDECSTP");
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            SUB_IMM8(x2, x2, 1);
+            AND_IMM8(x2, x2, 7);
+            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            break;
+        case 0xF7:
+            INST_NAME("FINCSTP");
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            ADD_IMM8(x2, x2, 1);
+            AND_IMM8(x2, x2, 7);
+            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            break;
         case 0xF8:
             INST_NAME("FPREM");
             x87_forget(dyn, ninst, x1, x2, 0);
@@ -266,8 +282,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xE6:
         case 0xE7:
         case 0xEF:
-        case 0xF6:
-        case 0xF7:
             DEFAULT;
             break;
              
