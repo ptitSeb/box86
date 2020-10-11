@@ -635,8 +635,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x68:
             INST_NAME("PUSH Id");
             i32 = F32S;
-            MOV32(x3, i32);
-            PUSH(xESP, 1<<x3);
+            if(PK(0)==0xC3) {
+                MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
+                MOV32(x3, ip+1);
+                LDR_IMM9(x1, x3, 0);
+                PUSH(xESP, 1<<x1);
+            } else {
+                MOV32(x3, i32);
+                PUSH(xESP, 1<<x3);
+            }
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
