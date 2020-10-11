@@ -1846,12 +1846,12 @@ GO(EVP_des_ede3_cbc, pFv)
 //GO(EVP_desx_cbc, 
 //GO(EVP_Digest, 
 //GO(EVP_DigestFinal, 
-//GO(EVP_DigestFinal_ex, 
-//GO(EVP_DigestInit, 
-//GO(EVP_DigestInit_ex, 
-//GO(EVP_DigestSignFinal, 
+GO(EVP_DigestFinal_ex, iFppp)
+GO(EVP_DigestInit, iFpp)
+GO(EVP_DigestInit_ex, iFppp)
+GO(EVP_DigestSignFinal, iFppp)
 //GO(EVP_DigestSignInit, 
-//GO(EVP_DigestUpdate, 
+GO(EVP_DigestUpdate, iFppL)
 //GO(EVP_DigestVerifyFinal, 
 //GO(EVP_DigestVerifyInit, 
 //GO(EVP_dss, 
@@ -1868,34 +1868,34 @@ GO(EVP_des_ede3_cbc, pFv)
 //GO(EVP_EncryptInit_ex, 
 //GO(EVP_EncryptUpdate, 
 //GO(EVP_get_cipherbyname, 
-//GO(EVP_get_digestbyname, 
+GO(EVP_get_digestbyname, pFp)
 //GO(EVP_get_pw_prompt, 
 //GO(EVP_idea_cbc, 
 //GO(EVP_idea_cfb, 
 //GO(EVP_idea_cfb64, 
 //GO(EVP_idea_ecb, 
 //GO(EVP_idea_ofb, 
-//GO(EVP_md4, 
-//GO(EVP_md5, 
-//GO(EVP_MD_block_size, 
+GO(EVP_md4, pFv)
+GO(EVP_md5, pFv)
+GO(EVP_MD_block_size, iFp)
 //GO(EVP_mdc2, 
-//GO(EVP_MD_CTX_cleanup, 
+GO(EVP_MD_CTX_cleanup, iFp)
 //GO(EVP_MD_CTX_clear_flags, 
-//GO(EVP_MD_CTX_copy, 
-//GO(EVP_MD_CTX_copy_ex, 
+GO(EVP_MD_CTX_copy, iFpp)
+GO(EVP_MD_CTX_copy_ex, iFpp)
 //GO(EVP_MD_CTX_create, 
-//GO(EVP_MD_CTX_destroy, 
+GO(EVP_MD_CTX_destroy, vFp)
 //GO(EVP_MD_CTX_init, 
-//GO(EVP_MD_CTX_md, 
+GO(EVP_MD_CTX_md, pFp)
 //GO(EVP_MD_CTX_set_flags, 
 //GO(EVP_MD_CTX_test_flags, 
 //GO(EVP_MD_do_all, 
 //GO(EVP_MD_do_all_sorted, 
 //GO(EVP_MD_flags, 
-//GO(EVP_md_null, 
-//GO(EVP_MD_pkey_type, 
-//GO(EVP_MD_size, 
-//GO(EVP_MD_type, 
+GO(EVP_md_null, pFv)
+GO(EVP_MD_pkey_type, iFp)
+GO(EVP_MD_size, iFp)
+GO(EVP_MD_type, iFp)
 //GO(EVP_OpenFinal, 
 //GO(EVP_OpenInit, 
 //GO(EVP_PBE_alg_add, 
@@ -2039,12 +2039,12 @@ GO(EVP_PKEY_up_ref, iFp)
 //GO(EVP_seed_ecb, 
 //GO(EVP_seed_ofb, 
 //GO(EVP_set_pw_prompt, 
-//GO(EVP_sha, 
-//GO(EVP_sha1, 
-//GO(EVP_sha224, 
-//GO(EVP_sha256, 
-//GO(EVP_sha384, 
-//GO(EVP_sha512, 
+GO(EVP_sha, pFV)
+GO(EVP_sha1, pFv)
+GO(EVP_sha224, pFv)
+GO(EVP_sha256, pFv)
+GO(EVP_sha384, pFv)
+GO(EVP_sha512, pFv)
 //GO(EVP_SignFinal, 
 //GO(EVP_VerifyFinal, 
 //GO(EVP_whirlpool, 
