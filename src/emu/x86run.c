@@ -1252,11 +1252,16 @@ _trace:
                     case 0x7D:
                     case 0x7E:
                     case 0x7F:              /* BND / NOP */
+                    case 0x86:              /* XACQUIRE/XRELEASE XCHG */
+                    case 0x87:              /* XACQUIRE/XRELEASE XCHG */
+                    case 0x88:              /* XRELEASE MOV... */
+                    case 0x89:              /* XRELEASE MOV... ignoring acquire thingy */
                     case 0x9C:
                     case 0xC3:              /* yup, repz ret is valid */
                     case 0xE8:
                     case 0xE9:
                     case 0xEB:
+                    case 0xF0:              /* XACQUIRE/XRELEASE LOCK ... ignoring acquire thingy */
                         --ip;
                         NEXT;
                     case 0x90:              /* PAUSE */
