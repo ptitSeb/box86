@@ -1651,7 +1651,7 @@ GO(ERR_lib_error_string, pFu)
 //GO(ERR_load_CMS_strings, 
 //GO(ERR_load_COMP_strings, 
 //GO(ERR_load_CONF_strings, 
-//GO(ERR_load_crypto_strings, 
+GO(ERR_load_crypto_strings, vFv)
 //GO(ERR_load_CRYPTO_strings, 
 //GO(ERR_load_DH_strings, 
 //GO(ERR_load_DSA_strings, 
