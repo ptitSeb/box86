@@ -21,18 +21,115 @@
 
 #include "dynarec_arm_helper.h"
 
-
 uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
-    uint8_t nextop;
+    uint8_t nextop, opcode;
     int8_t  i8;
     int32_t i32, j32;
+    uint32_t u32;
+    uint8_t gd, ed;
+    uint8_t wback;
+    int fixedaddress;
+
     MAYUSE(i32);
     MAYUSE(j32);
+    
     nextop = F8;
+
     switch(nextop) {
        
 
+        case 0x64:
+            // reduced EA size...
+            opcode = F8;
+            switch(opcode) {
+                case 0x89:
+                    INST_NAME("MOV FS:Ew16, Gw");
+                    nextop = F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    GETGD;  // don't need GETGW here
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        if(ed!=gd) {
+                            BFI(ed, gd, 0, 16);
+                        }
+                    } else {
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        STRH_REG(gd, x12, ed);
+                    }
+                    break;
+
+                case 0x8B:
+                    INST_NAME("MOV Gd, FS:Ew16");
+                    nextop=F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    GETGD;
+                    if((nextop&0xC0)==0xC0) {   // reg <= reg
+                        MOV_REG(gd, xEAX+(nextop&7));
+                    } else {                    // mem <= reg
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        LDR_REG_LSL_IMM5(gd, ed, x12, 0);
+                    }
+                    break;
+
+                case 0x8F:
+                    INST_NAME("POP FS:Ew16");
+                    nextop=F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    if((nextop&0xC0)==0xC0) {
+                        POP(xESP, (1<<(xEAX+(nextop&7))));  // 67 ignored
+                    } else {
+                        addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        POP(xESP, (1<<x2));
+                        STR_REG_LSL_IMM5(x2, x1, x12, 0);
+                    }
+                    break;
+
+                case 0xA1:
+                    INST_NAME("MOV EAX, FS:Ow");
+                    grab_fsdata(dyn, addr, ninst, x1);
+                    u32 = F16;
+                    if(u32) {
+                        MOV32(x2, u32);
+                        ADD_REG_LSL_IMM5(x1, x1, x2, 0);
+                    }
+                    LDR_IMM9(xEAX, x1, 0);
+                    break;
+
+                case 0xA3:
+                    INST_NAME("MOV FS:Ow, EAX");
+                    grab_fsdata(dyn, addr, ninst, x1);
+                    u32 = F16;
+                    if(u32) {
+                        MOV32(x2, u32);
+                        ADD_REG_LSL_IMM5(x1, x1, x2, 0);
+                    }
+                    STR_IMM9(xEAX, x1, 0);
+                    break;
+
+                case 0xFF:
+                    nextop = F8;
+                    grab_fsdata(dyn, addr, ninst, x12);
+                    switch((nextop>>3)&7) {
+                        case 6: // Push Ed
+                            INST_NAME("PUSH FS:Ew");
+                            if((nextop&0xC0)==0xC0) {   // reg
+                                DEFAULT;
+                            } else {                    // mem <= i32
+                                addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                                LDR_REG_LSL_IMM5(x3, ed, x12, 0);
+                                PUSH(xESP, 1<<x3);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+            
         #define GO(NO, YES)   \
             BARRIER(2); \
             JUMP(addr+i8);\
