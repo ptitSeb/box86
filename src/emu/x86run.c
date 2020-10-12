@@ -1573,7 +1573,7 @@ _trace:
                 default:
                     emu->old_ip = R_EIP;
                     R_EIP = ip;
-                    printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                    printf_log(LOG_NONE, "Illegal Opcode %02X %02X %02X %02X %02X %02X\n", opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     goto fini;
