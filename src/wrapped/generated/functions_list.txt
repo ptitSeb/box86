@@ -313,6 +313,7 @@
 #() iFpuu
 #() iFpuL
 #() iFpup
+#() iFpu2
 #() iFpUU
 #() iFpfu
 #() iFpff
@@ -359,6 +360,7 @@
 #() uFpui
 #() uFpuu
 #() uFpup
+#() uFpLp
 #() uFppi
 #() uFppu
 #() uFppp
@@ -598,6 +600,7 @@
 #() iFpuui
 #() iFpuuu
 #() iFpuup
+#() iFpuLp
 #() iFpupi
 #() iFpupu
 #() iFpupp

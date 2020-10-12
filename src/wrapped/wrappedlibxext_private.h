@@ -88,31 +88,31 @@ GO(XShmPixmapFormat, iFp)
 GOM(XShmPutImage, iFEppppiiiiuui)       //need brige/unbridge...
 GO(XShmQueryExtension, iFp)
 GO(XShmQueryVersion, iFpppp)
-//GO(XSyncAwait, 
+GO(XSyncAwait, iFppi)
 //GO(XSyncAwaitFence, 
-//GO(XSyncChangeAlarm, 
-//GO(XSyncChangeCounter, 
-//GO(XSyncCreateAlarm, 
-GO(XSyncCreateCounter, uFp2)
+GO(XSyncChangeAlarm, iFpuLp)
+GO(XSyncChangeCounter, iFpu2)
+GO(XSyncCreateAlarm, uFpLp)     // XSyncAlarm is an XID
+GO(XSyncCreateCounter, uFp2)    // XSyncValue is a struct of 2 int
 //GO(XSyncCreateFence, 
-//GO(XSyncDestroyAlarm, 
+GO(XSyncDestroyAlarm, iFpu)
 GO(XSyncDestroyCounter, iFpu)
 //GO(XSyncDestroyFence, 
-//GO(XSyncFreeSystemCounterList, 
-//GO(XSyncGetPriority, 
+GO(XSyncFreeSystemCounterList, vFp)
+GO(XSyncGetPriority, iFpup)
 GO(XSyncInitialize, iFppp)
-//GO(XSyncIntsToValue, 
+GO(XSyncIntsToValue, vFpui)
 GO(XSyncIntToValue, vFpi)
-//GO(XSyncListSystemCounters, 
+GO(XSyncListSystemCounters, pFpp)
 //GO(XSyncMaxValue, 
 //GO(XSyncMinValue, 
-//GO(XSyncQueryAlarm, 
-//GO(XSyncQueryCounter, 
+GO(XSyncQueryAlarm, iFpup)
+GO(XSyncQueryCounter, iFpup)
 GO(XSyncQueryExtension, iFppp)
 //GO(XSyncQueryFence, 
 //GO(XSyncResetFence, 
-//GO(XSyncSetCounter, 
-//GO(XSyncSetPriority, 
+GO(XSyncSetCounter, iFpu2)      // XSyncCounter is an XID
+GO(XSyncSetPriority, iFpui)
 //GO(XSyncTriggerFence, 
 //GO(XSyncValueAdd, 
 //GO(XSyncValueEqual, 
