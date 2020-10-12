@@ -280,7 +280,7 @@ void my_sighandler(int32_t sig)
         RunFunctionHandler(&exits, restorer, 0);
 }
 
-void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void** old_pc)
 {
     // need to creat some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
@@ -401,6 +401,8 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
             GO(SS);
             #undef GO
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing longjmp to resume emu\n");
+            if(old_pc)
+                *old_pc = NULL;    // re-init the value to allow another segfault at the same place
             longjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
@@ -493,7 +495,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             printf_log(LOG_NONE, "\n");
         if(my_context->signals[sig]) {
             if(my_context->is_sigaction[sig])
-                my_sigactionhandler(sig, info, ucntx);
+                my_sigactionhandler_oldpc(sig, info, ucntx, &old_pc);
             else
                 my_sighandler(sig);
             return;
@@ -502,6 +504,11 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
     signal(sig, SIG_DFL);
+}
+
+void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+{
+    my_sigactionhandler_oldpc(sig, info, ucntx, NULL);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
