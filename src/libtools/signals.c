@@ -403,7 +403,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     sigcontext.uc_mcontext.fpregs = (i386_fpregset_t)&sigcontext.xstate;
     fpu_fxsave(emu, &sigcontext.xstate);
     // add custom SIGN in reserved area
-    ((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;
+    //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
     // get signal mask
     // get actual register in case the signal was from inside a dynablock
 #if defined(DYNAREC) && defined(__arm__)
