@@ -24,6 +24,7 @@ extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
 extern int allow_missing_libs;
 extern int box86_steam;
+extern int box86_nopulse;   // diabling the use of pulseaudio
 extern uintptr_t   trace_start, trace_end;
 extern box86context_t *my_context; // global context
 extern char* trace_func;

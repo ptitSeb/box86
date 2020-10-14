@@ -244,6 +244,12 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     lib->nbdot = NbDot(lib->name);
     lib->type = -1;
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
+    if(box86_nopulse) {
+        if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
+            Free1Library(&lib);
+            return NULL;
+        }
+    }
     int notwrapped = FindInCollection(lib->name, &context->box86_emulated_libs);
     // And now, actually loading a library
     // look for native(wrapped) libs first

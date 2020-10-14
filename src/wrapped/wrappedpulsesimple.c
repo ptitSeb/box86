@@ -20,6 +20,10 @@
 const char* pulsesimpleName = "libpulse-simple.so.0";
 #define LIBNAME pulsesimple
 
+#define PRE_INIT        \
+    if(box86_nopulse)   \
+        return -1;
+
 #define CUSTOM_INIT \
     lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \

@@ -131,6 +131,11 @@ Allow box86 to continue even if a lib is missing
  * 0 : default, stop if a lib cannot be loaded
  * 1 : continue even if a needed lib cannot be loaded. Unadvised, this will, in most cases, crash later on.
 
+#### BOX86_NOPULSE
+Disable the load of pulseaudio libs
+ * 0 : default, load pulseaudio libs if present
+ * 1 : disable the load of pulse audio libs (libpulse and libpulse-simple), both native and x86 version
+
 #### BOX86_FIX_64BIT_INODES
  * 0 : Don't fix 64bit inodes (default)
  * 1 : Fix 64bit inodes. Helps when running on filesystems with 64bit inodes, the program uses API functions which don't support it and the program doesn't use inodes information.

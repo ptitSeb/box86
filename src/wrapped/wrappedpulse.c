@@ -1670,6 +1670,10 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
 }
 #endif
 
+#define PRE_INIT        \
+    if(box86_nopulse)   \
+        return -1;
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getPulseMy(lib);   \
     box86->pulse = lib;

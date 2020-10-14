@@ -74,6 +74,7 @@ int x11glx = 1;
 int allow_missing_libs = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
+int box86_nopulse = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
@@ -354,6 +355,15 @@ void LoadLogEnv()
         if(allow_missing_libs)
             printf_log(LOG_INFO, "Allow missing needed libs\n");
     }
+    p = getenv("BOX86_NOPULSE");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                box86_nopulse = p[0]-'0';
+        }
+        if(box86_nopulse)
+            printf_log(LOG_INFO, "Disable the use of pulseaudio libs\n");
+    }
     p = getenv("BOX86_FIX_64BIT_INODES");
         if(p) {
         if(strlen(p)==1) {
@@ -503,6 +513,7 @@ void PrintHelp() {
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
+    printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX86_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
 }
 
