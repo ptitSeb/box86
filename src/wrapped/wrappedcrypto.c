@@ -21,6 +21,7 @@
 const char* cryptoName = "libcrypto.so.1.0.0";
 #define LIBNAME crypto
 #define ALTNAME "libcrypto.so.1.0.2"
+#define ALTNAME2 "libcrypto.so.1.1"
 
 static library_t* my_lib = NULL;
 
