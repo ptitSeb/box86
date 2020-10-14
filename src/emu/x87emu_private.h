@@ -195,5 +195,7 @@ void fpu_fbld(x86emu_t* emu, uint8_t* s);
 
 void fpu_loadenv(x86emu_t* emu, char* p, int b16);
 void fpu_savenv(x86emu_t* emu, char* p, int b16);
+void fpu_fxsave(x86emu_t* emu, void* ed);
+void fpu_fxrstor(x86emu_t* emu, void* ed);
 
 #endif //__X87RUN_PRIVATE_H_

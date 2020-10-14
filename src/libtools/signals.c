@@ -23,6 +23,7 @@
 #include "x86run.h"
 #include "elfloader.h"
 #include "threads.h"
+#include "emu/x87emu_private.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
@@ -73,25 +74,47 @@ enum
 };
 
 typedef uint32_t i386_gregset_t[19];
-struct i386_libc_fpreg
+struct i386_fpreg
 {
   uint16_t significand[4];
   uint16_t exponent;
-};
-struct i386_libc_fpstate
-{
-  uint32_t cw;
-  uint32_t sw;
-  uint32_t tag;
-  uint32_t ipoff;
-  uint32_t cssel;
-  uint32_t dataoff;
-  uint32_t datasel;
-  struct i386_libc_fpreg _st[8];
-  uint32_t status;
-};
+}__attribute__((packed));
 
-typedef struct i386_libc_fpstate *i386_fpregset_t;
+struct i386_fpxreg
+{
+  unsigned short significand[4];
+  unsigned short exponent;
+  unsigned short padding[3];
+}__attribute__((packed));
+
+struct i386_xmmreg
+{
+  uint32_t          element[4];
+}__attribute__((packed));
+
+struct i386_fpstate
+{
+  /* Regular FPU environment.  */
+  uint32_t          cw;
+  uint32_t          sw;
+  uint32_t          tag;
+  uint32_t          ipoff;
+  uint32_t          cssel;
+  uint32_t          dataoff;
+  uint32_t          datasel;
+  struct i386_fpreg _st[8];
+  unsigned short    status;
+  unsigned short    magic;
+  /* FXSR FPU environment.  */
+  uint32_t          _fxsr_env[6];
+  uint32_t          mxcsr;
+  uint32_t          reserved;
+  struct i386_fpxreg _fxsr_st[8];
+  struct i386_xmmreg _xmm[8];
+  uint32_t          padding[56];
+}__attribute__((packed));
+
+typedef struct i386_fpstate *i386_fpregset_t;
 
 typedef struct
   {
@@ -100,6 +123,34 @@ typedef struct
     size_t ss_size;
   } i386_stack_t;
 
+/*
+another way to see the sigcontext
+struct sigcontext
+{
+  unsigned short gs, __gsh;
+  unsigned short fs, __fsh;
+  unsigned short es, __esh;
+  unsigned short ds, __dsh;
+  unsigned long edi;
+  unsigned long esi;
+  unsigned long ebp;
+  unsigned long esp;
+  unsigned long ebx;
+  unsigned long edx;
+  unsigned long ecx;
+  unsigned long eax;
+  unsigned long trapno;
+  unsigned long err;
+  unsigned long eip;
+  unsigned short cs, __csh;
+  unsigned long eflags;
+  unsigned long esp_at_signal;
+  unsigned short ss, __ssh;
+  struct _fpstate * fpstate;
+  unsigned long oldmask;
+  unsigned long cr2;
+};
+*/
 typedef struct
   {
     i386_gregset_t gregs;
@@ -108,8 +159,36 @@ typedef struct
     uint32_t cr2;
   } i386_mcontext_t;
 
-typedef uint32_t i386_sigset_t;
-  
+// /!\ signal sig_set is different than glibc __sig_set
+#define _NSIG_WORDS (64 / 32)
+typedef unsigned long i386_old_sigset_t;
+typedef struct {
+    unsigned long sig[_NSIG_WORDS];
+} i386_sigset_t;
+
+struct i386_xsave_hdr_struct {
+ 	uint64_t xstate_bv;
+ 	uint64_t reserved1[2];
+ 	uint64_t reserved2[5];
+};
+
+struct i386_xstate {
+	/*
+	 * Applications need to refer to fpstate through fpstate pointer
+	 * in sigcontext. Not here directly.
+	 */
+ 	struct i386_fpstate fpstate;
+ 	struct i386_xsave_hdr_struct xsave_hdr;
+ 	/* new processor state extensions will go here */
+} __attribute__ ((aligned (64)));
+
+struct i386_xstate_cntxt {
+	struct  i386_xstate *xstate;
+	uint32_t	        size;
+	uint32_t 	        lmask;
+	uint32_t	        hmask;
+};
+
 typedef struct i386_ucontext_s
 {
     uint32_t uc_flags;
@@ -117,8 +196,10 @@ typedef struct i386_ucontext_s
     i386_stack_t uc_stack;
     i386_mcontext_t uc_mcontext;
     i386_sigset_t uc_sigmask;
-    struct i386_libc_fpstate __fpregs_mem;
-    uint32_t __ssp[4];
+	/* Allow for uc_sigmask growth.  Glibc uses a 1024-bit sigset_t.  */
+	int		  __unused[32 - (sizeof (sigset_t) / sizeof (int))];
+	//struct i386_xstate_cntxt  uc_xstate;
+    struct i386_xstate  xstate;
 } i386_ucontext_t;
 
 struct kernel_sigaction {
@@ -319,6 +400,10 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     sigcontext.uc_mcontext.gregs[REG_CS] = R_CS;
     sigcontext.uc_mcontext.gregs[REG_SS] = R_SS;
     // get FloatPoint status
+    sigcontext.uc_mcontext.fpregs = (i386_fpregset_t)&sigcontext.xstate;
+    fpu_fxsave(emu, &sigcontext.xstate);
+    // add custom SIGN in reserved area
+    ((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;
     // get signal mask
     // get actual register in case the signal was from inside a dynablock
 #if defined(DYNAREC) && defined(__arm__)

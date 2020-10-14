@@ -26,8 +26,6 @@ void arm_fild64(x86emu_t* emu, int64_t* ed);
 void arm_fbstp(x86emu_t* emu, uint8_t* ed);
 void arm_fistp64(x86emu_t* emu, int64_t* ed);
 void arm_fld(x86emu_t* emu, uint8_t* ed);
-void arm_fxsave(x86emu_t* emu, uint8_t* ed);
-void arm_fxrstor(x86emu_t* emu, uint8_t* ed);
 void arm_fsave(x86emu_t* emu, uint8_t* ed);
 void arm_frstor(x86emu_t* emu, uint8_t* ed);
 void arm_fprem1(x86emu_t* emu);

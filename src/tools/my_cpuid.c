@@ -28,7 +28,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4
-            R_EAX = 0x0000000A;//0x80000004;
+            R_EAX = 0x0000000D;//0x80000004;
             // return GenuineIntel
             R_EBX = 0x756E6547;
             R_EDX = 0x49656E69;
@@ -95,7 +95,9 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
             R_ECX = 1 | 2;
             R_EDX = 0;
             break;
+        case 0x3:   // PSN
         case 0x6:   // thermal
+        case 0x8:   // more extended capabilities
         case 0x9:   // direct cache access
         case 0xA:   // Architecture performance monitor
             R_EAX = 0;
@@ -107,7 +109,26 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
             /*if(R_ECX==0)    R_EAX = 0;
             else*/ R_EAX = R_ECX = R_EBX = R_EDX = 0;
             break;
-
+        case 0xB:   // Extended Topology Enumaretion Leaf
+            //TODO!
+            R_EAX = 0;
+            break;
+        case 0xC:   //?
+            R_EAX = 0;
+            break;
+        case 0xD:   // Processor Extended State Enumeration Main Leaf / Sub Leaf
+            if(R_CX==0) {
+                R_EAX = 1 | 2;  // x87 SSE saved
+                R_EBX = 512;    // size of xsave/xrstor
+                R_ECX = 512;    // same
+                R_EDX = 0;      // more bits
+            } else if(R_CX==1){
+                R_EAX = R_ECX = R_EBX = R_EDX = 0;  // XSAVEOPT and co are not available
+            } else {
+                R_EAX = R_ECX = R_EBX = R_EDX = 0;
+            }
+            break;
+            
         case 0x80000000:        // max extended
             R_EAX = 0x80000005;
             break;

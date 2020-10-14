@@ -230,3 +230,78 @@ void fpu_savenv(x86emu_t* emu, char* p, int b16)
     *(uint16_t*)p = tags;
     // other stuff are not pushed....
 }
+
+typedef struct xsave_s {
+    uint16_t ControlWord;        /* 000 */
+    uint16_t StatusWord;         /* 002 */
+    uint8_t  TagWord;            /* 004 */
+    uint8_t  Reserved1;          /* 005 */
+    uint16_t ErrorOpcode;        /* 006 */
+    uint32_t ErrorOffset;        /* 008 */
+    uint16_t ErrorSelector;      /* 00c */
+    uint16_t Reserved2;          /* 00e */
+    uint32_t DataOffset;         /* 010 */
+    uint16_t DataSelector;       /* 014 */
+    uint16_t Reserved3;          /* 016 */
+    uint32_t MxCsr;              /* 018 */
+    uint32_t MxCsr_Mask;         /* 01c */
+    sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
+    sse_regs_t XmmRegisters[16]; /* 0a0 */
+    uint8_t  Reserved4[96];      /* 1a0 */
+} xsave_t;
+
+void fpu_fxsave(x86emu_t* emu, void* ed)
+{
+    xsave_t *p = (xsave_t*)ed;
+    // should save flags & all
+    emu->sw.f.F87_TOP = emu->top&7;
+    p->ControlWord = emu->cw;
+    p->StatusWord = emu->sw.x16;
+    uint8_t tags = 0;
+    for (int i=0; i<8; ++i)
+        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+    p->TagWord = tags;
+    p->ErrorOpcode = 0;
+    p->ErrorOffset = 0;
+    p->ErrorSelector = 0;
+    p->DataOffset = 0;
+    p->DataSelector = 0;
+    p->MxCsr = 0;
+    p->MxCsr_Mask = 0;
+    // copy MMX regs...
+    for(int i=0; i<8; ++i)
+        memcpy(&p->FloatRegisters[i].q[0], &emu->mmx[0], sizeof(emu->mmx[0]));
+    // copy SSE regs
+    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+    // put also FPU regs in a reserved area... on XMM 8-15
+    for(int i=0; i<8; ++i)
+        memcpy(&p->XmmRegisters[8+i].q[0], &emu->fpu[0], sizeof(emu->fpu[0]));
+    // put a magic sign in reserved area, box86 specific
+    ((unsigned int *)p->Reserved4)[11] = 0x50515253;
+}
+
+void fpu_fxrstor(x86emu_t* emu, void* ed)
+{
+    xsave_t *p = (xsave_t*)ed;
+    emu->cw = p->ControlWord;
+    emu->sw.x16 = p->StatusWord;
+    emu->top = emu->sw.f.F87_TOP;
+    uint8_t tags = p->TagWord;
+    for(int i=0; i<8; ++i)
+        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+    // copy back MMX regs...
+    for(int i=0; i<8; ++i)
+        memcpy(&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(emu->mmx[0]));
+    // copy SSE regs
+    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
+    // check the box86 magic sign in reserved area
+    if(((unsigned int *)p->Reserved4)[11] == 0x50515253) {
+        // also FPU regs where a reserved area... on XMM 8-15?
+        for(int i=0; i<8; ++i)
+            memcpy(&emu->fpu[0], &p->XmmRegisters[8+i].q[0], sizeof(emu->fpu[0]));
+    } else {
+        // copy the mmx to fpu...
+        for(int i=0; i<8; ++i)
+            memcpy(&emu->fpu[0], &emu->mmx[i], sizeof(emu->mmx[0]));
+    }
+}

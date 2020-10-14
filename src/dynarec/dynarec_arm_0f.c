@@ -19,6 +19,7 @@
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
 #include "my_cpuid.h"
+#include "emu/x87emu_private.h"
 
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
@@ -1536,7 +1537,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                             if(ed!=x1) {MOV_REG(x1, ed);}
-                            CALL(arm_fxsave, -1, 0);
+                            CALL(fpu_fxsave, -1, 0);
                         }
                         break;
                     case 1:
@@ -1547,7 +1548,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                             if(ed!=x1) {MOV_REG(x1, ed);}
-                            CALL(arm_fxrstor, -1, 0);
+                            CALL(fpu_fxrstor, -1, 0);
                         }
                         break;
                     case 2:                 

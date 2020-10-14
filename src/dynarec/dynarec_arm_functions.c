@@ -154,31 +154,6 @@ void arm_ud(x86emu_t* emu)
     kill(getpid(), SIGILL);
 }
 
-void arm_fxsave(x86emu_t* emu, uint8_t* ed)
-{
-    // should save flags & all
-    // copy MMX regs...
-    for(int i=0; i<8; ++i)
-        memcpy(ed+32+i*16, &emu->mmx[0], sizeof(emu->mmx[0]));
-    // copy SSE regs
-    memcpy(ed+160, &emu->xmm[0], sizeof(emu->xmm));
-    // put also FPU regs in a reserved area...
-    for(int i=0; i<8; ++i)
-        memcpy(ed+416+i*8, &emu->fpu[0], sizeof(emu->fpu[0]));
-}
-
-void arm_fxrstor(x86emu_t* emu, uint8_t* ed)
-{
-    // should restore flags & all
-    // copy back MMX regs...
-    for(int i=0; i<8; ++i)
-        memcpy(&emu->mmx[i], ed+32+i*16, sizeof(emu->mmx[0]));
-    // copy SSE regs
-    memcpy(&emu->xmm[0], ed+160/4, sizeof(emu->xmm));
-    for(int i=0; i<8; ++i)
-        memcpy(&emu->fpu[0], ed+416+i*8, sizeof(emu->fpu[0]));
-}
-
 void arm_fsave(x86emu_t* emu, uint8_t* ed)
 {
     fpu_savenv(emu, (char*)ed, 0);
