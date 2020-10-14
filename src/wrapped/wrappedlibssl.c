@@ -20,6 +20,7 @@
 const char* libsslName = "libssl.so.1.0.0";
 #define LIBNAME libssl
 #define ALTNAME "libssl.so.1.0.2"
+#define ALTNAME2 "libssl.so.1.1"
 
 static library_t* my_lib = NULL;
 
