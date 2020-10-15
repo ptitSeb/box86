@@ -376,11 +376,11 @@ void FreeBox86Context(box86context_t** context)
     for (int i=0; i<ctx->mmapsize; ++i)
         if(ctx->mmaplist[i].block)
             munmap(ctx->mmaplist[i].block, MMAPSIZE);
-    free(ctx->mmaplist);
-    pthread_mutex_destroy(&ctx->mutex_blocks);
-    pthread_mutex_destroy(&ctx->mutex_mmap);
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(0, 0xffffffff, 1);
+    pthread_mutex_destroy(&ctx->mutex_blocks);
+    pthread_mutex_destroy(&ctx->mutex_mmap);
+    free(ctx->mmaplist);
 #endif
     
     *context = NULL;                // bye bye my_context
