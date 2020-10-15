@@ -560,18 +560,6 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
 {
-    if(pltResolver==~0) {
-        pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
-    }
-    if(head->pltgot) {
-        *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
-        *(uintptr_t*)(head->pltgot+head->delta+4) = (uintptr_t)head;
-        printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+8));
-    } else if(head->got) {
-        *(uintptr_t*)(head->got+head->delta+8) = pltResolver;
-        *(uintptr_t*)(head->got+head->delta+4) = (uintptr_t)head;
-        printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+8));
-    }
     if(head->pltrel) {
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
@@ -584,6 +572,18 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
             printf_log(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
             if(RelocateElfRELA(maplib, local_maplib, head, cnt, (Elf32_Rela *)(head->jmprel + head->delta)))
                 return -1;
+        }
+        if(pltResolver==~0) {
+            pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
+        }
+        if(head->pltgot) {
+            *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
+            *(uintptr_t*)(head->pltgot+head->delta+4) = (uintptr_t)head;
+            printf_log(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+8));
+        } else if(head->got) {
+            *(uintptr_t*)(head->got+head->delta+8) = pltResolver;
+            *(uintptr_t*)(head->got+head->delta+4) = (uintptr_t)head;
+            printf_log(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+8));
         }
     }
    
