@@ -1316,12 +1316,38 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 #ifndef NOALIGN
+
+static int nCPU = 0;
+static double bogoMips = 100.;
+
+void grabNCpu() {
+    nCPU = 1;  // default number of CPU to 1
+    FILE *f = fopen("/proc/cpuinfo", "r");
+    size_t dummy;
+    if(f) {
+        nCPU = 0;
+        size_t len = 0;
+        char* line = NULL;
+        while ((dummy = getline(&line, &len, f)) != -1) {
+            if(!strncmp(line, "processor\t", strlen("processor\t")))
+                ++nCPU;
+            if(!nCPU && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
+                // grab 1st BogoMIPS
+                float tmp;
+                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1)
+                    bogoMips = tmp;
+            }
+        }
+        if(line) free(line);
+        fclose(f);
+        if(!nCPU) nCPU=1;
+    }
+}
 void CreateCPUInfoFile(int fd)
 {
     size_t dummy;
     char buff[600];
     double freq = 600.0; // default to 600 MHz
-    double mips = 100.;  // default bogomips
     // try to get actual ARM max speed:
     FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
     if(f) {
@@ -1330,26 +1356,9 @@ void CreateCPUInfoFile(int fd)
             freq = r/1000.;
         fclose(f);
     }
-    int n = 1;  // default number of CPU to 1
-    f = fopen("/proc/cpuinfo", "r");
-    if(f) {
-        n = 0;
-        size_t len = 0;
-        char* line = NULL;
-        while ((dummy = getline(&line, &len, f)) != -1) {
-            if(!strncmp(line, "processor\t", strlen("processor\t")))
-                ++n;
-            if(!n && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
-                // grab 1st BogoMIPS
-                float tmp;
-                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1)
-                    mips = tmp;
-            }
-        }
-        if(line) free(line);
-        fclose(f);
-        if(!n) n=1;
-    }
+    if(!nCPU)
+        grabNCpu();
+    int n = nCPU;
     // generate fake CPUINFO
     int gigahertz=(freq>=1000.);
     #define P \
@@ -1375,16 +1384,46 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "core id\t\t:%d\ncpu cores\t: %d\n", i, 1);
         P;
-        sprintf(buff, "bogomips\t: %g\n", mips);
+        sprintf(buff, "bogomips\t: %g\n", bogoMips);
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 rdtscp ssse3 fma fxsr cx16 movbe pni\n");
         P;
         sprintf(buff, "\n");
         P;
     }
+    (void)dummy;
     #undef P
 }
+static int isCpuTopology(const char* p) {
+    if(strstr(p, "/sys/devices/system/cpu/cpu")!=p)
+        return -1;  //nope
+    char buf[512];
+    const char* p2 = p + strlen("/sys/devices/system/cpu/cpu");
+    int n = 0;
+    while(*p2>='0' && *p2<='9') {
+        n = n*10+ *p2 - '0';
+        ++p2;
+    }
+    if(!nCPU)
+        grabNCpu();
+    if(n>=nCPU) // filter for non existing cpu
+        return -1;
+    snprintf(buf, 512, "/sys/devices/system/cpu/cpu%d/topology/core_id", n);
+    if(!strcmp(p, buf))
+        return n;
+    return -1;
+}
+static void CreateCPUTopologyCoreID(int fd, int cpu)
+{
+    char buf[512];
+    snprintf(buf, 512, "%d\n", cpu);
+    size_t dummy = write(fd, buf, strlen(buf));
+    (void*)dummy;
+}
+
+
 #define TMP_CPUINFO "box86_tmpcpuinfo"
+#define TMP_CPUTOPO "box86_tmpcputopo%d"
 #endif
 #define TMP_MEMMAP  "box86_tmpmemmap"
 #define TMP_CMDLINE "box86_tmpcmdline"
@@ -1425,6 +1464,17 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         if(tmp<0) return open(pathname, flags, mode); // error fallback
         shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
         CreateCPUInfoFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
+    if(isCpuTopology((const char*)pathname)!=-1) {
+        int n = isCpuTopology((const char*)pathname);
+        char buf[512];
+        snprintf(buf, 512, TMP_CPUTOPO, n);
+        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUTopologyCoreID(tmp, n);
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
@@ -1497,6 +1547,17 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
+    if(isCpuTopology((const char*)pathname)!=-1) {
+        int n = isCpuTopology((const char*)pathname);
+        char buf[512];
+        snprintf(buf, 512, TMP_CPUTOPO, n);
+        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, flags, mode); // error fallback
+        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUTopologyCoreID(tmp, n);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
     #endif
     return open64(pathname, flags, mode);
 }
@@ -1521,6 +1582,17 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         CreateCPUInfoFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
+    }
+    if(isCpuTopology(path)!=-1) {
+        int n = isCpuTopology(path);
+        char buf[512];
+        snprintf(buf, 512, TMP_CPUTOPO, n);
+        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen(path, mode); // error fallback
+        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUTopologyCoreID(tmp, n);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);;
     }
     #endif
     if(isProcSelf(path, "exe")) {
@@ -1549,6 +1621,17 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         CreateCPUInfoFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
+    }
+    if(isCpuTopology(path)!=-1) {
+        int n = isCpuTopology(path);
+        char buf[512];
+        snprintf(buf, 512, TMP_CPUTOPO, n);
+        int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen(path, mode); // error fallback
+        shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUTopologyCoreID(tmp, n);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);;
     }
     #endif
     if(isProcSelf(path, "exe")) {
