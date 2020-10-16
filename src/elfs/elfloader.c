@@ -157,7 +157,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     if(head->vaddr) {
         head->multiblock_n = 0; // count PHEntrie with LOAD
         for (int i=0; i<head->numPHEntries; ++i) 
-            if(head->PHEntries[i].p_type == PT_LOAD)
+            if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
                 ++head->multiblock_n;
         head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
         head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
@@ -166,7 +166,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         head->memory = (char*)0xffffffff;
         int n = 0;
         for (int i=0; i<head->numPHEntries; ++i) 
-            if(head->PHEntries[i].p_type == PT_LOAD) {
+            if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
                 Elf32_Phdr * e = &head->PHEntries[i];
                 uintptr_t bstart = e->p_vaddr;
                 uint32_t bsize = e->p_memsz;
@@ -602,7 +602,8 @@ Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
 {
     // TODO: create a hash on named to avoid this loop
     for (int i=0; i<h->numSymTab; ++i) {
-        if(h->SymTab[i].st_info == 18) {    // TODO: this "18" is probably defined somewhere
+        int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
+        if(/*h->SymTab[i].st_info == 18*/type==STT_FUNC) {    // TODO: this "18" is probably defined somewhere
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             if(strcmp(symname, name)==0) {
                 return h->SymTab+i;
@@ -615,7 +616,8 @@ Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
 Elf32_Sym* GetElfObject(elfheader_t* h, const char* name)
 {
     for (int i=0; i<h->numSymTab; ++i) {
-        if(h->SymTab[i].st_info == 16) {
+        int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
+        if(/*h->SymTab[i].st_info == 16*/type==STT_OBJECT) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             if(strcmp(symname, name)==0) {
                 return h->SymTab+i;
@@ -676,8 +678,9 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         int bind = ELF32_ST_BIND(h->SymTab[i].st_info);
         int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
+        int vis = h->SymTab[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (h->SymTab[i].st_other==0) && (h->SymTab[i].st_shndx!=0)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
@@ -699,9 +702,10 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF32_ST_BIND(h->DynSym[i].st_info);
         int type = ELF32_ST_TYPE(h->DynSym[i].st_info);
+        int vis = h->DynSym[i].st_other&0x3;
         //st_shndx==65521 means ABS value
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (h->DynSym[i].st_other==0) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
