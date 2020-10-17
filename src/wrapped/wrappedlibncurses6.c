@@ -82,7 +82,7 @@ EXPORT int my6_printw(x86emu_t* emu, void* fmt, void* b)
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->vwprintw(my->stdscr, fmt, emu->scratch);
     #else
-    return my->vmprintw(my->stdscr, fmt, b);
+    return my->vwprintw(my->stdscr, fmt, b);
     #endif
 }
 
