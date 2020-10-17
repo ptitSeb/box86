@@ -217,6 +217,7 @@
 #define IFX(A)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A)))
 #define IFXX(A) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A)))
 #define IFX2X(A, B) if(dyn->insts && (dyn->insts[ninst].x86.need_flags==(A) || dyn->insts[ninst].x86.need_flags==(B) || dyn->insts[ninst].x86.need_flags==((A)|(B))))
+#define IFXN(A, B)  if(dyn->insts && (dyn->insts[ninst].x86.need_flags&(A) && !(dyn->insts[ninst].x86.need_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2)    \
