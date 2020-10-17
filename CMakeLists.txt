@@ -330,6 +330,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedtcmallocminimal.c"
     "${BOX86_ROOT}/src/wrapped/wrappedmpg123.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgnutls.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibcups.c"
     "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )

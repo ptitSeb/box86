@@ -120,6 +120,7 @@ GO("libtinfo.so.6", libtinfo6)
 GO("libtcmalloc_minimal.so.4", tcmallocminimal)
 GO("libmpg123.so.0", mpg123)
 GO("libgnutls.so.30", gnutls)
+GO("libcups.so.2", libcups)
 GO("d3dadapter9.so.1", d3dadapter9)
 
 GO("ld-linux.so.2", ldlinux)
