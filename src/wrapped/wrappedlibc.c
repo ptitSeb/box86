@@ -116,6 +116,8 @@
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
 
+static library_t* my_lib = NULL;
+
 extern int fix_64bit_inodes;
 
 typedef int (*iFL_t)(unsigned long);
@@ -1031,7 +1033,7 @@ EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
     {
         static iFiip_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib)
             {
                 errno = EINVAL;
@@ -1064,7 +1066,7 @@ EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
     {
         static iFipp_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib)
             {
                 errno = EINVAL;
@@ -1096,7 +1098,7 @@ EXPORT int my___lxstat(x86emu_t* emu, int v, void* name, void* buf)
     {
         static iFipp_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib)
             {
                 errno = EINVAL;
@@ -1225,7 +1227,7 @@ EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
     {
         static pFp_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib) return NULL;
             f = (pFp_t)dlsym(lib->priv.w.lib, "readdir");
         }
@@ -1241,7 +1243,7 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
     {
         static iFppp_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib)
             {
                 *result = NULL;
@@ -1277,7 +1279,7 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
     {
         static iFppp_t f = NULL;
         if(!f) {
-            library_t* lib = GetLibInternal(libcName);
+            library_t* lib = my_lib;
             if(!lib)
             {
                 *result = NULL;
@@ -1643,7 +1645,7 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
 
 EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 {
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "mkstemps64");
     if(f)
@@ -1666,7 +1668,7 @@ EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
     static iFppi_t f = NULL;
     if(!f) {
-        library_t* lib = GetLibInternal(libcName);
+        library_t* lib = my_lib;
         if(!lib) return 0;
         f = (iFppi_t)dlsym(lib->priv.w.lib, "ftw");
     }
@@ -1678,7 +1680,7 @@ EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
 {
     static iFppii_t f = NULL;
     if(!f) {
-        library_t* lib = GetLibInternal(libcName);
+        library_t* lib = my_lib;
         if(!lib) return 0;
         f = (iFppii_t)dlsym(lib->priv.w.lib, "nftw");
     }
@@ -1723,7 +1725,7 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
 {
     static iFpipp_t f = NULL;
     if(!f) {
-        library_t* lib = GetLibInternal(libcName);
+        library_t* lib = my_lib;
         if(!lib) return 0;
         f = (iFpipp_t)dlsym(lib->priv.w.lib, "glob");
     }
@@ -1745,7 +1747,7 @@ EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void*
 {
     static iFpppp_t f = NULL;
     if(!f) {
-        library_t* lib = GetLibInternal(libcName);
+        library_t* lib = my_lib;
         if(!lib) return 0;
         f = (iFpppp_t)dlsym(lib->priv.w.lib, "scandir");
     }
@@ -1865,7 +1867,7 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
     // not always implemented on old linux version...
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "getrandom");
     if(f)
@@ -1880,7 +1882,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
 EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
     // Implemented starting glibc 2.12+
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "recvmmsg");
     if(f)
@@ -1892,7 +1894,7 @@ EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vle
 EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)
 {
     // Implemented starting glibc 2.14+
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "__sendmmsg");
     if(f)
@@ -1936,7 +1938,7 @@ EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
     if(b==F_SETFL)
@@ -1990,7 +1992,7 @@ EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
 
 EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "preadv64");
     if(f)
@@ -2000,7 +2002,7 @@ EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_
 
 EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "pwritev64");
     if(f)
@@ -2015,7 +2017,7 @@ EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64
 
 EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags)
 {
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "accept4");
     if(f)
@@ -2030,7 +2032,7 @@ EXPORT  int32_t my_fallocate64(int fd, int mode, int64_t offs, int64_t len)
     iFiiII_t f = NULL;
     static int done = 0;
     if(!done) {
-        library_t* lib = GetLibInternal(libcName);
+        library_t* lib = my_lib;
         f = (iFiiII_t)dlsym(lib->priv.w.lib, "fallocate64");
         done = 1;
     }
@@ -2293,7 +2295,7 @@ EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
 EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
 {
     // not always implemented on old linux version...
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "__libc_alloca_cutoff");
     if(f)
@@ -2342,7 +2344,7 @@ EXPORT void* my_malloc(unsigned long size)
 #endif
 EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
 {
-    library_t* lib = GetLibInternal(libcName);
+    library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->priv.w.lib, "getentropy");
     if(f)
@@ -2377,6 +2379,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \
+    my_lib = lib;           \
     InitCpuModel();         \
     ctSetup();              \
     stSetup(box86);         \
@@ -2394,6 +2397,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #define CUSTOM_FINI \
     freeLIBCMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    free(lib->priv.w.p2);       \
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
