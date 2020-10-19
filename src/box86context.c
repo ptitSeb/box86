@@ -223,7 +223,7 @@ void initAllHelpers(box86context_t* context)
         return;
     my_context = context;
     init_pthread_helper();
-    init_signal_helper();
+    init_signal_helper(context);
     inited = 1;
 }
 

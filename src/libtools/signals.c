@@ -252,6 +252,10 @@ static x86emu_t* get_signal_emu()
 
 uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
+    if(fnc==0 || fnc==1) {
+        printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
+        return 0;
+    }
     uintptr_t old_start = trace_start, old_end = trace_end;
     trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
@@ -444,10 +448,12 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     TRAP_x86_MCHK       = 18,  // Machine check exception
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
+    intptr_t esp = (intptr_t)sigcontext.uc_mcontext.gregs[REG_ESP];
+
     if(sig==SIGBUS)
         sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?12:13;    // how to differenciate between a STACKFLT and a PAGEFAULT?
+        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-esp)<16)?12:14):13;    // how to differenciate between a STACKFLT and a PAGEFAULT?
     } else if(sig==SIGFPE)
         sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 19;
     else if(sig==SIGILL)
@@ -503,6 +509,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
+    void* esp = NULL;
 #ifdef __arm__
     void * pc = (void*)p->uc_mcontext.arm_pc;
 #elif defined __i386
@@ -540,11 +547,14 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(strcmp(name, "???")) {
             x86emu_t* emu = thread_get_emu();
             x86pc = R_EIP;
+            esp = (void*)R_ESP;
         } else {
             #if defined(__arm__) && defined(DYNAREC)
             x86emu_t* emu = (x86emu_t*)p->uc_mcontext.arm_r0;
-            if(emu>(x86emu_t*)0x10000)
+            if(emu>(x86emu_t*)0x10000) {
                 x86pc = R_EIP; // sadly, r12 is probably not actual eip, so try a slightly outdated one
+                esp = (void*)p->uc_mcontext.arm_r8;
+            }
             #endif
         }
         x86name = getAddrFunctionName(x86pc);
@@ -566,19 +576,20 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 char myarg[50] = {0};
                 sprintf(myarg, "%d", pid);
                 execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
+                //execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
                 exit(-1);
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d), db=%p(%p/%s)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d), db=%p(%p/%s)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\"), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", addr, info->si_code);
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
 #endif
         if(sig==SIGILL)
             printf_log(LOG_NONE, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
         else
             printf_log(LOG_NONE, "\n");
-        if(my_context->signals[sig]) {
+        if(my_context->signals[sig] && my_context->signals[sig]!=1) {
             if(my_context->is_sigaction[sig])
                 my_sigactionhandler_oldpc(sig, info, ucntx, &old_pc);
             else
@@ -588,7 +599,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
-    signal(sig, SIG_DFL);
+    if(my_context->signals[sig]==1)
+        signal(sig, SIG_DFL);
 }
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
@@ -604,11 +616,11 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
+    // create a new handler
+    my_context->signals[signum] = (uintptr_t)handler;
+    my_context->is_sigaction[signum] = 0;
+    my_context->restorer[signum] = 0;
     if(handler!=NULL && handler!=(sighandler_t)1) {
-        // create a new handler
-        my_context->signals[signum] = (uintptr_t)handler;
-        my_context->is_sigaction[signum] = 0;
-        my_context->restorer[signum] = 0;
         handler = my_sighandler;
     }
 
@@ -637,16 +649,16 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
         newact.sa_mask = act->sa_mask;
         newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
         if(act->sa_flags&0x04) {
+            my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+            my_context->is_sigaction[signum] = 1;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
-                my_context->is_sigaction[signum] = 1;
                 newact.sa_sigaction = my_sigactionhandler;
             } else
                 newact.sa_sigaction = act->_u._sa_sigaction;
         } else {
+            my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+            my_context->is_sigaction[signum] = 0;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
-                my_context->is_sigaction[signum] = 0;
                 newact.sa_handler = my_sighandler;
             } else
                 newact.sa_handler = act->_u._sa_handler;
@@ -688,17 +700,17 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
             memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>8)?8:sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                my_context->is_sigaction[signum] = 1;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
-                    my_context->is_sigaction[signum] = 1;
                     newact.k_sa_handler = (void*)my_sigactionhandler;
                 } else {
                     newact.k_sa_handler = (void*)act->_u._sa_sigaction;
                 }
             } else {
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                my_context->is_sigaction[signum] = 0;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
-                    my_context->is_sigaction[signum] = 0;
                     newact.k_sa_handler = my_sighandler;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
@@ -888,8 +900,11 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
     return 0;
 }
 
-void init_signal_helper()
+void init_signal_helper(box86context_t* context)
 {
+    // setup signal handling
+    for(int i=0; i<MAX_SIGNAL; ++i)
+        context->signals[i] = 1;    // SIG_DFL
 	struct sigaction action;
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
