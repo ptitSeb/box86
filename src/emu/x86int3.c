@@ -187,6 +187,12 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
+                } else  if(strstr(s, "printf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\"...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
+                } else  if(strstr(s, "puts")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\"...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
+                } else  if(strstr(s, "fputs")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\"...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "fprintf")==s) {
                     pu32 = *(uint32_t**)(R_ESP+8);
                     if(((uintptr_t)pu32)<0x5) // probably a __fprint_chk
