@@ -189,7 +189,7 @@ static void make_vtable_IDirect3DDevice9Vtbl(x86emu_t* emu, IDirect3DDevice9Vtbl
     GO(TestCooperativeLevel, iFp, 1);
     GO(GetAvailableTextureMem, uFp, 1);
     GO(EvictManagedResources, iFp, 1);
-    GO(GetDirect3D, iFpp, 2);
+    GOM(GetDirect3D, iFEpp, 2);
     GO(GetDeviceCaps, iFpp, 2);
     GO(GetDisplayMode, iFpup, 3);
     GO(GetCreationParameters, iFpp, 2);
