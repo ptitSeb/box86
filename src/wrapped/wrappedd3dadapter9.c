@@ -73,6 +73,9 @@ static int my_GetVolumeLevel(x86emu_t* emu, void* This, unsigned Level, void*** 
 static int (*my_CreateVolumeTexture_real)(void* This, unsigned Width, unsigned Height, unsigned Depth, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppVolumeTexture, void* pSharedHandle);
 static int my_CreateVolumeTexture(x86emu_t* emu, void* This, unsigned Width, unsigned Height, unsigned Depth, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppVolumeTexture, void* pSharedHandle);
 
+static int (*my_GetDirect3D_real)(void* This, void*** ppD3D9);
+static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9);
+
 #define UNPACK(...) __VA_ARGS__
 
 #define GO(name, type, size) \
@@ -119,9 +122,6 @@ typedef struct d3d_my_s {
 
         IDirect3DDevice9Vtbl device;
         int device_init;
-
-        IDirect3D9ExVtbl d3d9;
-        int d3d9_init;
 
         IDirect3DAuthenticatedChannel9Vtbl my_IDirect3DAuthenticatedChannel9Vtbl;
         int my_IDirect3DAuthenticatedChannel9Vtbl_init;
@@ -307,64 +307,55 @@ static void fixup_PresentGroupVtbl(ID3DPresentGroupVtbl *vtbl)
     SUPER(PresentGroup, GOS, GOS, GOS, GOS)
 }
 #undef SUPER
-
-
-#define SUPER(ns, X1, X2, X3, X4, X5, X6, X7, X8) \
-        X3(ns, int, QueryInterface, void*, void*, void**) \
-        X1(ns, unsigned, AddRef, void*) \
-        X1(ns, unsigned, Release, void*) \
-        X2(ns, int, RegisterSoftwareDevice, void*, void*) \
-        X1(ns, unsigned, GetAdapterCount, void*) \
-        X4(ns, int, GetAdapterIdentifier, void*, unsigned, unsigned, void*) \
-        X3(ns, unsigned, GetAdapterModeCount, void*, unsigned, int) \
-        X5(ns, int, EnumAdapterModes, void*, unsigned, int, unsigned, void*) \
-        X3(ns, int, GetAdapterDisplayMode, void*, unsigned, void*) \
-        X6(ns, int, CheckDeviceType, void*, unsigned, int, int, int, int) \
-        X7(ns, int, CheckDeviceFormat, void*, unsigned, int, int, unsigned, int, int) \
-        X7(ns, int, CheckDeviceMultiSampleType, void*, unsigned, int, int, int, int, void*) \
-        X6(ns, int, CheckDepthStencilMatch, void*, unsigned, int, int, int, int) \
-        X5(ns, int, CheckDeviceFormatConversion, void*, unsigned, int, int, int) \
-        X4(ns, int, GetDeviceCaps, void*, unsigned, int, void*) \
-        X2(ns, void*, GetAdapterMonitor, void*, unsigned) \
-        X7(ns, int, CreateDevice, void*, unsigned, int, void*, unsigned, void*, void**) \
-        X3(ns, unsigned, GetAdapterModeCountEx, void*, unsigned, const void*) \
-        X5(ns, int, EnumAdapterModesEx, void*, unsigned, const void*, unsigned, void*) \
-        X4(ns, int, GetAdapterDisplayModeEx, void*, unsigned, void*, void*) \
-        X8(ns, int, CreateDeviceEx, void*, unsigned, int, void*, unsigned, void*, void*, void**) \
-        X3(ns, int, GetAdapterLUID, void*, unsigned, void*)
-
-SUPER(D3D9Ex, GOV_1, GOV_2, GOV_3, GOV_4, GOV_5, GOV_6, GOV_7, GOV_8)
-
-static void fixup_D3D9ExVtbl(IDirect3D9ExVtbl *vtbl)
-{
-    SUPER(D3D9Ex, GOS, GOS, GOS, GOS, GOS, GOS, GOS, GOS)
-}
-#undef SUPER
-
 #undef GOS
 
-int my_create_device(x86emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, IDirect3D9ExVtbl **pD3D9, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9Vtbl ***ppReturnedDeviceInterface)
+typedef struct my_Direct3D9 {
+        IDirect3D9Vtbl *vtbl;
+        IDirect3D9Vtbl **real;
+} my_Direct3D9;
+
+unsigned my_Direct3D9_AddRef(void *This)
+{
+    my_Direct3D9 *my = This;
+    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+}
+
+unsigned my_Direct3D9_Release(void *This)
+{
+    my_Direct3D9 *my = This;
+    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+}
+
+IDirect3D9Vtbl my_Direct3D9_vtbl = {
+    .AddRef = my_Direct3D9_AddRef,
+    .Release = my_Direct3D9_Release,
+};
+
+static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9)
+{
+    d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
+    int r = my_GetDirect3D_real(This, ppD3D9);
+    if (r) return r;
+    *ppD3D9 = (void**)((my_Direct3D9*)*ppD3D9)->real;
+    return 0;
+}
+
+int my_create_device(x86emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, IDirect3D9Vtbl **pD3D9, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9Vtbl ***ppReturnedDeviceInterface)
 {
     d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
 
-    if (!my->vtables.d3d9_init) {
-        memcpy(&my->vtables.d3d9, *pD3D9, sizeof(my->vtables.d3d9));
-        fixup_D3D9ExVtbl(&my->vtables.d3d9);
-        my->vtables.d3d9_init = 1;
-    }
+    my_Direct3D9 *my_pD3D9 = malloc(sizeof(my_Direct3D9));
+
+    my_pD3D9->vtbl = &my_Direct3D9_vtbl;
+    my_pD3D9->real = pD3D9;
 
     if (!my->presentgroup_init) {
         fixup_PresentGroupVtbl(*pPresentationFactory);
         my->presentgroup_init = 1;
     }
 
-    IDirect3D9ExVtbl *old_d3d9 = pD3D9[0];
-    pD3D9[0] = &my->vtables.d3d9;
-
     IDirect3DDevice9Vtbl **ret;
-    int r = my->CreateDevice(This, RealAdapter, DeviceType, hFocusWindow, BehaviorFlags, pPresent, pD3D9, pPresentationFactory, &ret);
-
-    pD3D9[0] = old_d3d9;
+    int r = my->CreateDevice(This, RealAdapter, DeviceType, hFocusWindow, BehaviorFlags, pPresent, my_pD3D9, pPresentationFactory, &ret);
 
     if (r) return r;
 
