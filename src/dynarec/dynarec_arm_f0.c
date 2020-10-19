@@ -542,6 +542,9 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STREXB(x12, x1, wback);
                         CMPS_IMM8(x12, 0);
                         B_MARKLOCK(cNE);    // write failed, try again
+                        if(!(gb1==xEAX && gb2==0)) {
+                            UXTB(x1, xEAX, 0);  // readback AL if needed
+                        }
                     } else {
                         BFI(wback, x1, wb2*8, 8);
                     }
