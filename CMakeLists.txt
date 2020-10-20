@@ -119,7 +119,7 @@ else()
 endif()
 
 
-set(BOX86_ELF_ADDRESS "0x02800000")
+set(BOX86_ELF_ADDRESS "0x62800000")
 
 if(LD80BITS)
     add_definitions(-DHAVE_LD80BITS)
