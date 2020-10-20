@@ -15,7 +15,7 @@ typedef struct wine_prereserve_s
 } wine_prereserve_t;
 
 // only the prereseve argument is reserved, not the other zone that wine-preloader reserve
-static wine_prereserve_t my_wine_reserve[3] = {{(void*)0x10000000, 0x10000000}, {0, 0}, {0, 0}};
+static wine_prereserve_t my_wine_reserve[3] = {{(void*)0x0010000, 0x00008000}, {0, 0}, {0, 0}};
 
 int wine_preloaded = 0;
 
@@ -83,5 +83,7 @@ void wine_prereserve(const char* reserve)
 
 void* get_wine_prereserve()
 {
+    if(!wine_preloaded)
+        wine_prereserve(NULL);
     return (void*)my_wine_reserve;
 }
