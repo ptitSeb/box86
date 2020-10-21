@@ -257,7 +257,7 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
         return 0;
     }
     uintptr_t old_start = trace_start, old_end = trace_end;
-    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+//    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = get_signal_emu();
     printf_log(LOG_DEBUG, "signal function handler %p called, ESP=%p\n", (void*)fnc, (void*)R_ESP);
@@ -544,24 +544,21 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         uintptr_t x86pc = (uintptr_t)-1;
         const char* x86name = NULL;
         const char* elfname = NULL;
-        if(strcmp(name, "???")) {
-            x86emu_t* emu = thread_get_emu();
-            x86pc = R_EIP;
-            esp = (void*)R_ESP;
-        } else {
-            #if defined(__arm__) && defined(DYNAREC)
-            x86emu_t* emu = (x86emu_t*)p->uc_mcontext.arm_r0;
-            if(emu>(x86emu_t*)0x10000) {
-                x86pc = R_EIP; // sadly, r12 is probably not actual eip, so try a slightly outdated one
-                esp = (void*)p->uc_mcontext.arm_r8;
-            }
-            #endif
+        x86emu_t* emu = thread_get_emu();
+        x86pc = R_EIP;
+        esp = (void*)R_ESP;
+        #if defined(__arm__) && defined(DYNAREC)
+        if(db && p->uc_mcontext.arm_r0>0x10000) {
+            emu = (x86emu_t*)p->uc_mcontext.arm_r0;
+            x86pc = (uintptr_t)db->x86_addr; // sadly, r12 is probably not actual eip, so use db info for now
+            esp = (void*)p->uc_mcontext.arm_r8;
         }
+        #endif
         x86name = getAddrFunctionName(x86pc);
         elfheader_t* elf = FindElfAddress(my_context, x86pc);
         if(elf)
             elfname = ElfName(elf);
-        if(jit_gdb) {
+        if(jit_gdb && sig==SIGILL) {
             pid_t pid = getpid();
             int v = fork(); // is this ok in a signal handler???
             if(v) {
@@ -581,7 +578,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d), db=%p(%p/%s)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, db, db?db->x86_addr:0, getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d), db=%p(%p:%p/%p:%p/%s)", 
+            GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
+            db, db?db->block:0, db?(db->block+db->size):0, db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
+            getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
         printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
 #endif
@@ -589,13 +589,13 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             printf_log(LOG_NONE, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
         else
             printf_log(LOG_NONE, "\n");
-        if(my_context->signals[sig] && my_context->signals[sig]!=1) {
-            if(my_context->is_sigaction[sig])
-                my_sigactionhandler_oldpc(sig, info, ucntx, &old_pc);
-            else
-                my_sighandler(sig);
-            return;
-        }
+    }
+    if(my_context->signals[sig] && my_context->signals[sig]!=1) {
+        if(my_context->is_sigaction[sig])
+            my_sigactionhandler_oldpc(sig, info, ucntx, &old_pc);
+        else
+            my_sighandler(sig);
+        return;
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
