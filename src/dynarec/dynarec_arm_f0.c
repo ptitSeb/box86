@@ -577,18 +577,19 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CMPS_REG_LSL_IMM5(xEAX, ed, 0);
                     B_MARK(cNE);
                     // EAX == Ed
-                    MOV_REG(x3, ed);
-                    MOV_REG(ed, gd);
                     if(wback) {
                         TSTS_IMM8(wback, 3);
-                        STREX_COND(cEQ, x12, ed, wback);
-                        STREXB_COND(cNE, x12, ed, wback);
+                        STREX_COND(cEQ, x12, gd, wback);
+                        STREXB_COND(cNE, x12, gd, wback);
                         CMPS_IMM8(x12, 0);
                         B_MARKLOCK(cNE);
                         TSTS_IMM8(wback, 3);    // anoying, all those test
-                        STR_IMM9_COND(cNE, ed, wback, 0);
+                        STR_IMM9_COND(cNE, gd, wback, 0);
+                        emit_cmp32(dyn, ninst, xEAX, ed, x1, x12);
+                    } else {
+                        emit_cmp32(dyn, ninst, xEAX, ed, x1, x12);
+                        MOV_REG(ed, gd);
                     }
-                    emit_cmp32(dyn, ninst, xEAX, x3, x1, x12);
                     // done
                     B_MARK3(c__);   // not next, in case its called with a LOCK prefix
                     MARK;
@@ -655,7 +656,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
                             break;
                         case 6:
-                            INST_NAME("(LOCK) BTR Ed, Ib");
+                            INST_NAME("LOCK BTR Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             gd = x2;
                             if((nextop&0xC0)==0xC0) {
@@ -743,10 +744,9 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     BFI(gb1, ed, gb2*8, 8); // gb <- eb
                     emit_add8(dyn, ninst, ed, gd, x12, x3, 1);
-                    ADD_REG_LSL_IMM5(x12, ed, gd, 0);
                     if(wb1) {
-                        STREXB(x1, ed, wback);
-                        CMPS_IMM8(x1, 0);
+                        STREXB(x12, ed, wback);
+                        CMPS_IMM8(x12, 0);
                         B_MARKLOCK(cNE);
                     } else {
                         BFI(wback, ed, wb2*8, 8);
@@ -771,26 +771,29 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_MARK(cNE);    // unaligned
                         MARKLOCK;
                         LDREX(x1, wback);
-                        PUSH(xSP, 1<<x1);
-                        emit_add32(dyn, ninst, x1, gd, x3, x12);
-                        STREX(x3, x1, wback);
+                        ADD_REG_LSL_IMM5(x12, x1, gd, 0);
+                        STREX(x3, x12, wback);
                         CMPS_IMM8(x3, 0);
-                        POP(xSP, 1<<x1);
                         B_MARKLOCK(cNE);
+                        IFX(X_ALL|X_PEND) {
+                            MOV_REG(x2, x1);
+                            emit_add32(dyn, ninst, x2, gd, x3, x12);
+                        }
                         MOV_REG(gd, x1);
                         B_NEXT(c__);
                         MARK;
                         LDR_IMM9(x1, wback, 0);
                         LDREXB(x12, wback);
                         BFI(x1, x12, 0, 8);
-                        PUSH(xSP, 1<<x1);
-                        emit_add32(dyn, ninst, x1, gd, x3, x12);
-                        STREXB(x3, x1, wback);
+                        ADD_REG_LSL_IMM5(x12, x1, gd, 0);
+                        STREXB(x3, x12, wback);
                         CMPS_IMM8(x3, 0);
-                        ADD_IMM8_cond(cNE, xSP, xSP, 4);    // discard pushed value if write failed
                         B_MARK(cNE);
-                        STR_IMM9(x1, wback, 0);
-                        POP(xSP, 1<<x1);
+                        STR_IMM9(x12, wback, 0);
+                        IFX(X_ALL|X_PEND) {
+                            MOV_REG(x2, x1);
+                            emit_add32(dyn, ninst, x2, gd, x3, x12);
+                        }
                         MOV_REG(gd, x1);
                     }
                     break;
