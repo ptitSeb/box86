@@ -1878,6 +1878,13 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     fclose(rnd);
     return r;
 }
+#ifdef PANDORA
+#ifndef __NR_recvmmsg
+#define __NR_recvmmsg       365
+#endif
+#ifndef __NR_sendmmsg
+#define __NR_sendmmsg       374
+#endif
 
 EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
