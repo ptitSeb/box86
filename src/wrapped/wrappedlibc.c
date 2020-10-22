@@ -66,6 +66,9 @@
 #ifndef __NR_prlimit64
 #define __NR_prlimit64                  (__NR_SYSCALL_BASE+369)
 #endif
+#ifndef __NR_recvmmsg
+#define __NR_recvmmsg                   (__NR_SYSCALL_BASE+365)
+#endif
 #endif
 
 // need to undef all read / read64 stuffs!
@@ -1878,14 +1881,6 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     fclose(rnd);
     return r;
 }
-#ifdef PANDORA
-#ifndef __NR_recvmmsg
-#define __NR_recvmmsg       365
-#endif
-#ifndef __NR_sendmmsg
-#define __NR_sendmmsg       374
-#endif
-#endif //PANDRA
 
 EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
