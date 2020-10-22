@@ -558,11 +558,11 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @param  kvar  Variable to which key will be assigned
   @param  code  Block of code to execute
  */
-#define kh_foreach_key(h, kvar, code) { khint_t __i;           \
-       for (__i = kh_begin(h); __i != kh_end(h); ++__i) {              \
-               if (!kh_exist(h,__i)) continue;                                         \
-               (kvar) = kh_key(h,__i);                                                         \
-               code;                                                                                           \
+#define kh_foreach_key(h, kvar, code) { khint_t __i;           	\
+       for (__i = kh_begin(h); __i != kh_end(h); ++__i) {		\
+			if (!kh_exist(h,__i)) continue;                  	\
+               (kvar) = kh_key(h,__i);                          \
+               code;                                            \
        } }
 
 /*! @function

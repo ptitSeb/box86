@@ -24,7 +24,6 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr);
 
 uintptr_t StartDynablockList(dynablocklist_t* db);
 uintptr_t EndDynablockList(dynablocklist_t* db);
-void FreeDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 
 // Handling of Dynarec block (i.e. an exectable chunk of x86 translated code)
