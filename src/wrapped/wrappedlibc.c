@@ -1402,6 +1402,8 @@ void CreateCPUInfoFile(int fd)
 static int isCpuTopology(const char* p) {
     if(strstr(p, "/sys/devices/system/cpu/cpu")!=p)
         return -1;  //nope
+    if( FileExist(p, -1))
+        return -1;  //no need to fake it
     char buf[512];
     const char* p2 = p + strlen("/sys/devices/system/cpu/cpu");
     int n = 0;
@@ -1423,7 +1425,7 @@ static void CreateCPUTopologyCoreID(int fd, int cpu)
     char buf[512];
     snprintf(buf, 512, "%d\n", cpu);
     size_t dummy = write(fd, buf, strlen(buf));
-    (void*)dummy;
+    (void)dummy;
 }
 
 
