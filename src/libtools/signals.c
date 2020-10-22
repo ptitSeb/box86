@@ -520,6 +520,18 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
 #ifdef DYNAREC
     if(sig==SIGSEGV && addr && info->si_code == SEGV_ACCERR && getDBFromAddress((uintptr_t)addr)) {
+        if(box86_dynarec_smc) {
+            dynablock_t* db_pc = NULL;
+            dynablock_t* db_addr = NULL;
+            db_pc = FindDynablockFromNativeAddress(pc);
+            if(db_pc)
+                db_addr = FindDynablockFromNativeAddress(addr);
+            if(db_pc && db_addr) {
+                if (db_pc == db_addr) {
+                    dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside same dynablock\n", addr, pc);            
+                }
+            }
+        }
         dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory\n", addr, pc);
         // access error
         unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
@@ -558,7 +570,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         elfheader_t* elf = FindElfAddress(my_context, x86pc);
         if(elf)
             elfname = ElfName(elf);
-        if(jit_gdb && sig==SIGILL) {
+        if(jit_gdb) {
             pid_t pid = getpid();
             int v = fork(); // is this ok in a signal handler???
             if(v) {
