@@ -32,7 +32,7 @@ Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list
 
 Logo and Icon made by @grayduck, thanks!
 
-Note that this project is not to be mystaken with [86box](https://github.com/OBattler/86Box), a nice "Full system" emulator specialized in early (to fairly recent) PC hardware.
+Note that this project is not to be mystaken with [86box](https://github.com/86Box/86Box), a nice "Full system" emulator specialized in early (to fairly recent) PC hardware.
 
 ----
 
