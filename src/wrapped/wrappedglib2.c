@@ -645,8 +645,9 @@ EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
     library_t * lib = GetLibInternal(libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
     #ifndef NOALIGN
-    myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_variant_new_parsed_va(fmt, emu->scratch);
+    myStackAlignGVariantNew((const char*)fmt, b, emu->scratch);
+    uint32_t *aligned = emu->scratch;
+    return my->g_variant_new_parsed_va(fmt, &aligned);
     #else
     return my->g_variant_new_parsed_va(fmt, b);
     #endif
@@ -1177,8 +1178,9 @@ EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_
     library_t * lib = GetLibInternal(libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
 
-    myStackAlign(fmt, *b, emu->scratch);
-    return my->g_variant_new_va(fmt, endptr, &emu->scratch);
+    myStackAlignGVariantNew(fmt, *b, emu->scratch);
+    uint32_t* aligned = emu->scratch;
+    return my->g_variant_new_va(fmt, endptr, &aligned);
 }
 
 EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
