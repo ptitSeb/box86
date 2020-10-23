@@ -986,7 +986,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     }
     // nope
     if(addr>0x100)
-        if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) && (*(uint8_t*)(addr-11))==0xCC) )
+        if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) /*&& (*(uint8_t*)(addr-11))==0xCC*/) )
             return context->dynablocks;
     if(box86_dynarec_forced)
         return context->dynablocks;
