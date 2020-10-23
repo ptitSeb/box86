@@ -119,8 +119,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 DEFAULT;
                 return addr;
             }
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-            VSTR_64(v0, ed, fixedaddress);
+            parity = getedparity(dyn, ninst, addr, nextop, 3);
+            if(parity) {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                VSTR_64(v0, ed, fixedaddress);
+            } else {
+                VMOVfrV_D(x2, x3, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
+                STR_IMM9(x2, ed, fixedaddress);
+                STR_IMM9(x3, ed, fixedaddress+4);
+            }
             break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
@@ -156,8 +164,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 DEFAULT;
                 return addr;
             }
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-            VLDR_64(v0+1, ed, fixedaddress);
+            parity = getedparity(dyn, ninst, addr, nextop, 3);
+            if(parity) {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                VLDR_64(v0+1, ed, fixedaddress);    // vfpu opcode here
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
+                LDR_IMM9(x2, ed, fixedaddress);
+                LDR_IMM9(x3, ed, fixedaddress+4);
+                VMOVfrV_D(x2, x3, v0+1);
+            }
             break;
         case 0x17:
             INST_NAME("MOVHPD Ed, Gx");
@@ -168,8 +184,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 DEFAULT;
                 return addr;
             }
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-            VSTR_64(v0+1, ed, fixedaddress);
+            parity = getedparity(dyn, ninst, addr, nextop, 3);
+            if(parity) {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                VSTR_64(v0+1, ed, fixedaddress);
+            } else {
+                VMOVfrV_D(x2, x3, v0+1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
+                STR_IMM9(x2, ed, fixedaddress);
+                STR_IMM9(x3, ed, fixedaddress+4);
+            }
             break;
 
         case 0x1F:
