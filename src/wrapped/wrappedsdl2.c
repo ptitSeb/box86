@@ -209,6 +209,39 @@ void freeSDL2My(void* lib)
 }
 #undef SUPER
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// eventfilter
+#define GO(A)   \
+static uintptr_t my_eventfilter_fct_##A = 0;                                \
+static int my_eventfilter_##A(void* userdata, void* event)                  \
+{                                                                           \
+    return (int)RunFunction(my_context, my_eventfilter_fct_##A, 2, userdata, event);    \
+}
+SUPER()
+#undef GO
+static void* find_eventfilter_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_eventfilter_fct_##A == (uintptr_t)fct) return my_eventfilter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_eventfilter_fct_##A == 0) {my_eventfilter_fct_##A = (uintptr_t)fct; return my_eventfilter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL2 eventfilter callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
 static void sdl2Callback(void *userdata, uint8_t *stream, int32_t len)
 {
     x86emu_t *emu = (x86emu_t*) userdata;
@@ -231,16 +264,6 @@ static int32_t sdl2ThreadCallback(void *userdata)
     int32_t ret = (int32_t)RunCallback(emu);
     FreeCallback(emu);
     return ret;
-}
-
-static int my2_eventfilter(void* userdata, void* event)
-{
-    x86emu_t *emu = (x86emu_t*)userdata;
-    if(emu) {
-        SetCallbackArg(emu, 1, event);
-        return (int)RunCallback(emu);
-    }
-    return 0;
 }
 
 static void sdl2LogOutputCallback(void *userdata, int32_t category, uint32_t priority, const char* message)
@@ -575,14 +598,7 @@ EXPORT void my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
 EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    x86emu_t *oldcb = my->sdl2_evtfilter;
-    if(p)
-        my->sdl2_evtfilter = AddCallback(emu, (uintptr_t)p, 2, userdata, NULL, NULL, NULL);
-    else
-        my->sdl2_evtfilter = NULL;
-    my->SDL_SetEventFilter(p?my2_eventfilter:NULL, my->sdl2_evtfilter);
-    if(oldcb)
-        FreeCallback(oldcb);
+    my->SDL_SetEventFilter(find_eventfilter_Fct(p), userdata);
 }
 EXPORT void *my2_SDL_GetEventFilter(x86emu_t* emu)
 {
@@ -895,21 +911,12 @@ EXPORT void* my2_SDL_GameControllerMappingForGUID(x86emu_t* emu, void* p)
 EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    x86emu_t *cb = NULL;
-    if(p)
-        cb = AddCallback(emu, (uintptr_t)p, 2, userdata, NULL, NULL, NULL);
-    my->SDL_AddEventWatch(cb?my2_eventfilter:NULL, cb);
+    my->SDL_AddEventWatch(find_eventfilter_Fct(p), userdata);
 }
 EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    x86emu_t *cb = NULL;
-    // find callbacks that have function and userdata...    
-    if(p)
-        cb = GetCallback1Arg(emu, (uintptr_t)p, 2, userdata);
-    my->SDL_DelEventWatch(cb?my2_eventfilter:NULL, cb);
-    if(cb)
-        FreeCallback(cb);
+    my->SDL_DelEventWatch(find_eventfilter_Fct(p), userdata);
 }
 
 // DL functions from wrappedlibdl.c
