@@ -59,7 +59,23 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMUL_F64(v2, v2, v1);
             x87_do_pop(dyn, ninst);
             break;
-        case 0xD9:  /* FCOMPP */
+        case 0xD0:
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:
+            INST_NAME("FCOMP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            VCMP_F64(v1, v2);
+            FCOM(x1, x2);
+            x87_do_pop(dyn, ninst);
+            break;
+
+        case 0xD9: 
             INST_NAME("FCOMPP ST0, ST1");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1);
@@ -125,14 +141,6 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_do_pop(dyn, ninst);
             break;
 
-        case 0xD0:
-        case 0xD1:
-        case 0xD2:
-        case 0xD3:
-        case 0xD4:
-        case 0xD5:
-        case 0xD6:
-        case 0xD7:
         case 0xD8:
         case 0xDA:
         case 0xDB:
