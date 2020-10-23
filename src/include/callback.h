@@ -28,6 +28,8 @@ uintptr_t GetCallbackAddress(x86emu_t* emu);
 int IsCallback(box86context_t* context, x86emu_t* cb);
 // use thread local emu to run the function (context is unused now)
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...);
+// use thread local emu to run the function (context is unused now)
+uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...);
 // use emu state to run function
 uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...);
 // Find a cb using FNC address and argN as a key

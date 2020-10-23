@@ -76,9 +76,9 @@ static void* find_r_read_Fct(void* fct)
 // r_lseek ...
 #define GO(A)   \
 static uintptr_t my_r_lseek_fct_##A = 0;                                 \
-static off_t my_r_lseek_##A(void* a, off_t b, int n)             \
+static int64_t my_r_lseek_##A(void* a, int64_t b, int n)             \
 {                                                                                       \
-    return (off_t)RunFunction(my_context, my_r_lseek_fct_##A, 3, a, b, n); \
+    return (int64_t)RunFunction64(my_context, my_r_lseek_fct_##A, 4, a, b&0xffffffff, (b>>32)&0xffffffff, n); \
 }
 SUPER()
 #undef GO
