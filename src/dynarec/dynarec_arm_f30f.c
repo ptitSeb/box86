@@ -579,9 +579,17 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOV_64(v0, v1);    // vfpu opcode here
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
                 v0 = fpu_get_scratch_double(dyn);
-                VLDR_64(v0, ed, fixedaddress);    // vfpu opcode here
+                parity = getedparity(dyn, ninst, addr, nextop, 3);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VLDR_64(v0, ed, fixedaddress);    // vfpu opcode here
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);
+                    LDR_IMM9(x3, ed, fixedaddress+4);
+                    VMOVfrV_D(x2, x3, v0);
+                }
             }
             gd = (nextop&0x38)>>3;
             q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
