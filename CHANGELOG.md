@@ -1,8 +1,17 @@
-Current version
+v0.1.4
 ======
 * Change in Dynarec memory handling, to simplify it (and hopefully optimized it)
 * Even more opcodes added.
 * And some more Dynarec opcodes.
+* Fixed some issue were PltResolver was injected but should not
+* Fixed many Dynarec and non dynarec opcodes
+* Improved Signal handling
+* Added a few more wrapped lib (like curl)
+* Gallium9 is wrapped (thx @icecream95)
+* Fixed and simplied many wrapped functions (especialy the one were a callback is involved)
+* Fixed Dynarec "freeing" a Dynablock somthime corrupting the heap (happens in case of JIT mainly)
+* Optimized the way LOCK prefix work when using Dynarec on ARM
+* Printer of ARM opcode (for dumping Dynarec blocks) improvement (thx @rajdakin)
 
 v0.1.2
 ======
