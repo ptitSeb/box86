@@ -1485,7 +1485,7 @@ GO(g_variant_get_type_string, pFp)
 GO(g_variant_get_uint16, WFp)
 GO(g_variant_get_uint32, uFp)
 GO(g_variant_get_uint64, UFp)
-GO(g_variant_get_va, vFpppp)
+GO(g_variant_get_va, vFpppp)    // no need to GOM, it's a "scanf" type of function, so using only pointer in va_list
 GO(g_variant_get_variant, pFp)
 GO(g_variant_hash, uFp)
 GO(g_variant_is_container, iFp)

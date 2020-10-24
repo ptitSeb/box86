@@ -653,11 +653,11 @@ EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
     #endif
 }
 
-EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, void* b)
+EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, uint32_t* b)
 {
     library_t * lib = GetLibInternal(libname);
     glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
-    my->g_variant_get_va(value, fmt, NULL, b);
+    my->g_variant_get_va(value, fmt, NULL, &b);
 }
 
 EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
