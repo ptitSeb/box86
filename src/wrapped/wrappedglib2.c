@@ -21,6 +21,7 @@
 
 const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
+static library_t* my_lib = NULL;
 
 static char* libname = NULL;
 
@@ -162,8 +163,7 @@ static void my_free_full_cb(void* data)
 }
 EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     x86emu_t *old = my_free_full_emu;
     my_free_full_emu = AddSharedCallback(emu, (uintptr_t)free_func, 1, NULL, NULL, NULL, NULL);
     my->g_list_free_full(list, my_free_full_cb);
@@ -172,8 +172,7 @@ EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
 }
 
 EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -185,8 +184,7 @@ EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
 }
 
 EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -199,8 +197,7 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
 
 EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     int i = 0;
     while (b[i++]);
     void* array[i+1];   // +1 for 1st (NULL terminal already included)
@@ -216,8 +213,7 @@ static int my_timeout_cb(my_signal_t* sig)
 }
 EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my_signal_t *sig = new_mysignal(func, data, NULL);
     return my->g_timeout_add_full(0, interval, my_timeout_cb, sig, my_signal_delete);
@@ -609,24 +605,21 @@ static void* reverseGLogFuncFct(void* fct)
 
 EXPORT void my_g_datalist_id_set_data_full(x86emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* fc = findFreeFct(freecb);
     my->g_datalist_id_set_data_full(datalist, key, data, fc);
 }
 
 EXPORT void* my_g_datalist_id_dup_data(x86emu_t* emu, void* datalist, uint32_t key, void* dupcb, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* cc = findDuplicateFct(dupcb);
     return my->g_datalist_id_dup_data(datalist, key, cc, data);
 }
 
 EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t key, void* oldval, void* newval, void* oldfree, void* newfree)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* oldfc = findFreeFct(oldfree);
     void* newfc = findFreeFct(newfree);
     return my->g_datalist_id_replace_data(datalist, key, oldval, newval, oldfc, newfc);
@@ -634,16 +627,14 @@ EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t
 
 EXPORT void* my_g_variant_new_from_data(x86emu_t* emu, void* type, void* data, uint32_t size, int trusted, void* freecb, void* datacb)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     void* fc = findFreeFct(freecb);
     return my->g_variant_new_from_data(type, data, size, trusted, fc, datacb);
 }
 
 EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlignGVariantNew((const char*)fmt, b, emu->scratch);
     uint32_t *aligned = emu->scratch;
@@ -655,15 +646,13 @@ EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, uint32_t* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     my->g_variant_get_va(value, fmt, NULL, &b);
 }
 
 EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_strdup_vprintf(fmt, emu->scratch);
@@ -674,8 +663,7 @@ EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT int my_g_vprintf(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_vprintf(fmt, emu->scratch);
@@ -686,8 +674,7 @@ EXPORT int my_g_vprintf(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT int my_g_vfprintf(x86emu_t* emu, void* F, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_vfprintf(F, fmt, emu->scratch);
@@ -698,8 +685,7 @@ EXPORT int my_g_vfprintf(x86emu_t* emu, void* F, void* fmt, void* b)
 
 EXPORT int my_g_vsprintf(x86emu_t* emu, void* s, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_vsprintf(s, fmt, emu->scratch);
@@ -710,8 +696,7 @@ EXPORT int my_g_vsprintf(x86emu_t* emu, void* s, void* fmt, void* b)
 
 EXPORT int my_g_vsnprintf(x86emu_t* emu, void* s, unsigned long n, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_vsnprintf(s, n, fmt, emu->scratch);
@@ -722,8 +707,7 @@ EXPORT int my_g_vsnprintf(x86emu_t* emu, void* s, unsigned long n, void* fmt, vo
 
 EXPORT int my_g_vasprintf(x86emu_t* emu, void* s, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_vasprintf(s, fmt, emu->scratch);
@@ -734,8 +718,7 @@ EXPORT int my_g_vasprintf(x86emu_t* emu, void* s, void* fmt, void* b)
 
 EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     return my->g_printf_string_upper_bound(fmt, emu->scratch);
@@ -746,8 +729,7 @@ EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b
 
 EXPORT void my_g_print(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
@@ -764,8 +746,7 @@ EXPORT void my_g_print(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
@@ -782,16 +763,14 @@ EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT void* my_g_source_new(x86emu_t* emu, my_GSourceFuncs_t* source_funcs, uint32_t struct_size)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_source_new(findFreeGSourceFuncs(source_funcs), struct_size);
 }
 
 EXPORT void my_g_source_set_funcs(x86emu_t* emu, void* source, my_GSourceFuncs_t* source_funcs)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_source_set_funcs(source, findFreeGSourceFuncs(source_funcs));
 }
@@ -799,37 +778,33 @@ EXPORT void my_g_source_set_funcs(x86emu_t* emu, void* source, my_GSourceFuncs_t
 
 EXPORT int my_g_source_remove_by_funcs_user_data(x86emu_t* emu, my_GSourceFuncs_t* source_funcs, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_source_remove_by_funcs_user_data(findFreeGSourceFuncs(source_funcs), data);
 }
 
 EXPORT void* my_g_main_context_get_poll_func(x86emu_t* emu, void* context)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     void* ret = my->g_main_context_get_poll_func(context);
     if(!ret) return ret;
     void* r = reversePollFct(ret);
     if(r) return r;
     // needs to bridge....
-    return (void*)AddCheckBridge(lib->priv.w.bridge, iFpui, ret, 0);
+    return (void*)AddCheckBridge(my_lib->priv.w.bridge, iFpui, ret, 0);
 }
     
 EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* func)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_main_context_set_poll_func(context, findPollFct(func));
 }
 
 EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     if(!f)
         return my->g_idle_add_full(priority, f, data, notify);
@@ -841,16 +816,14 @@ EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* d
 
 EXPORT void* my_g_hash_table_new(x86emu_t* emu, void* hash, void* equal)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_hash_table_new(findHashFct(hash), findEqualFct(equal));
 }
 
 EXPORT void* my_g_hash_table_new_full(x86emu_t* emu, void* hash, void* equal, void* destroy_key, void* destroy_val)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_hash_table_new_full(findHashFct(hash), findEqualFct(equal), findDestroyFct(destroy_key), findDestroyFct(destroy_val));
 }
@@ -862,8 +835,7 @@ static void my_ghfunc(void* key, void* value, x86emu_t* emu)
 }
 EXPORT void my_g_hash_table_foreach(x86emu_t* emu, void* table, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     my->g_hash_table_foreach(table, my_ghfunc, cb);
@@ -877,8 +849,7 @@ static int my_ghrfunc(void* key, void* value, x86emu_t* emu)
 }
 EXPORT uint32_t my_g_hash_table_foreach_remove(x86emu_t* emu, void* table, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
     x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     uint32_t ret = my->g_hash_table_foreach_remove(table, my_ghrfunc, cb);
@@ -887,8 +858,7 @@ EXPORT uint32_t my_g_hash_table_foreach_remove(x86emu_t* emu, void* table, void*
 }
 EXPORT uint32_t my_g_hash_table_foreach_steal(x86emu_t* emu, void* table, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
     x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     uint32_t ret = my->g_hash_table_foreach_steal(table, my_ghrfunc, cb);
@@ -897,8 +867,7 @@ EXPORT uint32_t my_g_hash_table_foreach_steal(x86emu_t* emu, void* table, void* 
 }
 EXPORT void* my_g_hash_table_find(x86emu_t* emu, void* table, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
     x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     void* ret = my->g_hash_table_find(table, my_ghrfunc, cb);
@@ -908,24 +877,21 @@ EXPORT void* my_g_hash_table_find(x86emu_t* emu, void* table, void* f, void* dat
 
 EXPORT int my_g_spawn_async_with_pipes(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_spawn_async_with_pipes(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, input, output, err, error);
 }
 
 EXPORT int my_g_spawn_async(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_spawn_async(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, error);
 }
 
 EXPORT int my_g_spawn_sync(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* input, void* output, void* status, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
 }
@@ -937,8 +903,7 @@ static void my_gchildwatchfunc(int pid, int status, x86emu_t* emu)
 }
 EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     if(!f)
         return my->g_child_watch_add(pid, f, data);
@@ -951,8 +916,7 @@ EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data
 
 EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
     SetCallbackArg(cb, 9, notify);
@@ -962,40 +926,35 @@ EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, 
 
 EXPORT void* my_g_private_new(x86emu_t* emu, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_private_new(findFreeFct(notify));
 }
 
 EXPORT void my_g_static_private_set(x86emu_t* emu, void* private, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_static_private_set(private, data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_ptr_array_new_with_free_func(x86emu_t* emu, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_ptr_array_new_with_free_func(findFreeFct(notify));
 }
 
 EXPORT void* my_g_ptr_array_new_full(x86emu_t* emu, uint32_t size, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_ptr_array_new_full(size, findFreeFct(notify));
 }
 
 EXPORT void my_g_ptr_array_set_free_func(x86emu_t* emu, void* array, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_ptr_array_set_free_func(array, findFreeFct(notify));
 }
@@ -1007,8 +966,7 @@ static int my_compare_fnc(void* a, void* b, x86emu_t* emu)
 }
 EXPORT void my_g_ptr_array_sort(x86emu_t* emu, void* array, void* comp)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
     my->g_ptr_array_sort_with_data(array, my_compare_fnc, emucb);
@@ -1017,8 +975,7 @@ EXPORT void my_g_ptr_array_sort(x86emu_t* emu, void* array, void* comp)
 
 EXPORT void my_g_ptr_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
     my->g_ptr_array_sort_with_data(array, my_compare_fnc, emucb);
@@ -1027,8 +984,7 @@ EXPORT void my_g_ptr_array_sort_with_data(x86emu_t* emu, void* array, void* comp
 
 EXPORT void my_g_qsort_with_data(x86emu_t* emu, void* pbase, int total, unsigned long size, void* comp, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
     my->g_qsort_with_data(pbase, total, size, my_compare_fnc, emucb);
@@ -1042,8 +998,7 @@ static void my_g_foreach_fnc(void* a, x86emu_t* emu)
 }
 EXPORT void my_g_ptr_array_foreach(x86emu_t* emu, void* array, void* func, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
     my->g_ptr_array_foreach(array, my_g_foreach_fnc, emucb);
@@ -1058,8 +1013,7 @@ static void* my_g_thread_create_fnc(x86emu_t* emu)
 }
 EXPORT void* my_g_thread_create(x86emu_t* emu, void* func, void* data, int joinable, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddCallback(emu, (uintptr_t)func, 1, data, NULL, NULL, NULL);
     void* ret = my->g_thread_create(my_g_thread_create_fnc, emucb, joinable, error);
@@ -1070,8 +1024,7 @@ EXPORT void* my_g_thread_create(x86emu_t* emu, void* func, void* data, int joina
 
 EXPORT void* my_g_thread_create_full(x86emu_t* emu, void* func, void* data, unsigned long stack, int joinable, int bound, int priority, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddVariableCallback(emu, stack, (uintptr_t)func, 1, data, NULL, NULL, NULL);
     void* ret = my->g_thread_create_full(my_g_thread_create_fnc, emucb, stack, joinable, bound, priority, error);
@@ -1082,8 +1035,7 @@ EXPORT void* my_g_thread_create_full(x86emu_t* emu, void* func, void* data, unsi
 
 EXPORT void my_g_thread_foreach(x86emu_t* emu, void* func, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
     my->g_thread_foreach(my_g_foreach_fnc, emucb);
@@ -1092,8 +1044,7 @@ EXPORT void my_g_thread_foreach(x86emu_t* emu, void* func, void* data)
 
 EXPORT void my_g_array_sort(x86emu_t* emu, void* array, void* comp)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
     my->g_array_sort_with_data(array, my_compare_fnc, emucb);
@@ -1102,8 +1053,7 @@ EXPORT void my_g_array_sort(x86emu_t* emu, void* array, void* comp)
 
 EXPORT void my_g_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
     my->g_array_sort_with_data(array, my_compare_fnc, emucb);
@@ -1112,24 +1062,21 @@ EXPORT void my_g_array_sort_with_data(x86emu_t* emu, void* array, void* comp, vo
 
 EXPORT void my_g_array_set_clear_func(x86emu_t* emu, void* array, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_array_set_clear_func(array, findFreeFct(notify));
 }
 
 EXPORT void my_g_source_set_callback(x86emu_t* emu, void* source, void* func, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_source_set_callback(source, findGSourceFuncFct(func), data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_slist_insert_sorted(x86emu_t* emu, void* list, void* d, void* comp)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
     void* ret = my->g_slist_insert_sorted_with_data(list, d, my_compare_fnc, emucb);
@@ -1138,8 +1085,7 @@ EXPORT void* my_g_slist_insert_sorted(x86emu_t* emu, void* list, void* d, void* 
 }
 EXPORT void* my_g_slist_insert_sorted_with_data(x86emu_t* emu, void* list, void* d, void* comp, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
     void* ret = my->g_slist_insert_sorted_with_data(list, d, my_compare_fnc, emucb);
@@ -1149,8 +1095,7 @@ EXPORT void* my_g_slist_insert_sorted_with_data(x86emu_t* emu, void* list, void*
 
 EXPORT void my_g_slist_foreach(x86emu_t* emu, void* list, void* func, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
     my->g_slist_foreach(list, my_g_foreach_fnc, emucb);
@@ -1159,24 +1104,21 @@ EXPORT void my_g_slist_foreach(x86emu_t* emu, void* list, void* func, void* data
 
 EXPORT void* my_g_slist_find_custom(x86emu_t* emu, void* list, void* data, void* comp)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_slist_find_custom(list, data, findGCompareFuncFct(comp));
 }
 
 EXPORT uint32_t my_g_idle_add(x86emu_t* emu, void* func, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_idle_add(findGSourceFuncFct(func), data);
 }
 
 EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_t** b)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     myStackAlignGVariantNew(fmt, *b, emu->scratch);
     uint32_t* aligned = emu->scratch;
@@ -1190,35 +1132,34 @@ EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
 
 EXPORT void* my_g_completion_new(x86emu_t* emu, void* f)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_completion_new(findGCompletionFct(f));
 }
 
 EXPORT void my_g_completion_set_compare(x86emu_t *emu, void* cmp, void* f)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     my->g_completion_set_compare(cmp, findGCompletionStrncmpFuncFct(f));
 }
 
 EXPORT void* my_g_log_set_default_handler(x86emu_t *emu, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    glib2_my_t *my = (glib2_my_t*)lib->priv.w.p2;
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
 
 #define CUSTOM_INIT \
     libname = lib->name;\
+    my_lib = lib;       \
     lib->priv.w.p2 = getGlib2My(lib);
 
 #define CUSTOM_FINI \
-    freeGlib2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeGlib2My(lib->priv.w.p2);\
+    free(lib->priv.w.p2);       \
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
 
