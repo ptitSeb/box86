@@ -1,0 +1,43 @@
+# Maintainer: SpacingBat3 <youremail@domain.com>
+# Contributor: Sebastien Chevalier
+pkgname=box86-rpi4b-git
+pkgver=r2798.0edc0374
+pkgrel=1
+pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
+arch=('armv7h')
+url="https://github.com/ptitSeb/box86"
+license=('MIT')
+#depends=() # IDK dependencies of box86, I'll try provide them soon.
+#optdepends=('gl4es') # No need for that on RPi4B
+makedepends=('git' 'cmake' 'make')
+provides=("${pkgname%-git}")
+conflicts=("${pkgname%-git}")
+source=('git+https://github.com/ptitSeb/box86')
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/${pkgname%-git}"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+	cd "${srcdir}/${pkgname%-git}"
+	if [[ ! -d ./build ]]; then
+		mkdir build && cd build
+		# Build for RPi4 only:
+		cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+	fi
+}
+
+build() {
+	cd "$srcdir/${pkgname%-git}/build"
+	make -j$(nproc)
+}
+
+# Unused right now:
+#check() {}
+
+package() {
+	cd "$srcdir/${pkgname%-git}/build"
+	make DESTDIR="${pkgdir}/" install
+}
