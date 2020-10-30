@@ -333,6 +333,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibcups.c"
     "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9.c"
     "${BOX86_ROOT}/src/wrapped/wrappedvulkan.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedwaylandclient.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
