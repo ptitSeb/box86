@@ -35,6 +35,7 @@ typedef struct dynmap_s {
 #endif
 
 typedef void* (*procaddess_t)(const char* name);
+typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #define MAX_SIGNAL 64
 
@@ -111,6 +112,9 @@ typedef struct box86context_s {
     procaddess_t        glxprocaddress;
     kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
+    kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
+    kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
+    vkprocaddess_t      vkprocaddress;
 
     callbacklist_t      *callbacks;     // all callbacks
 

@@ -162,6 +162,7 @@ typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
     GO(SDL_IsJoystickXboxOne, iFWW_t)               \
     GO(SDL_IsJoystickXInput, iFS_t)                 \
     GO(SDL_IsJoystickHIDAPI, iFS_t)                 \
+    GO(SDL_Vulkan_GetVkGetInstanceProcAddr, pFv_t)  \
 
 typedef struct sdl2_my_s {
     #define GO(A, B)    B   A;
@@ -1017,6 +1018,19 @@ EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x86emu_t* emu, void *p)
         return my->SDL_IsJoystickHIDAPI(*(SDL_JoystickGUID*)p);
     // fallback
     return 0;
+}
+
+void* my_vkGetDeviceProcAddr(x86emu_t* emu, void* device, void* name);
+EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    
+    if(!emu->context->vkprocaddress)
+        emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
+
+    if(emu->context->vkprocaddress)
+        return my_vkGetDeviceProcAddr;
+    return NULL;
 }
 
 const char* sdl2Name = "libSDL2-2.0.so.0";

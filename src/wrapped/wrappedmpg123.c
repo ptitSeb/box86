@@ -42,6 +42,12 @@ void* getMpg123My(library_t* lib)
     #undef GO
     return my;
 }
+
+void freeMpg123My(void* lib)
+{
+    //mpg123_my_t *my = (mpg123_my_t *)lib;
+}
+
 #undef SUPER
 
 #define SUPER() \
@@ -119,11 +125,6 @@ static void* find_cleanup_Fct(void* fct)
 }
 
 #undef SUPER
-
-void freeMpg123My(void* lib)
-{
-    //mpg123_my_t *my = (mpg123_my_t *)lib;
-}
 
 EXPORT int my_mpg123_replace_reader_handle(x86emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {

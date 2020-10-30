@@ -644,12 +644,12 @@ GO(SDL_VideoInit, iFp)
 GO(SDL_VideoQuit, vFv)
 GOM(SDL_vsnprintf, iFEpupVV)
 // SDL_vsscanf
-// SDL_Vulkan_CreateSurface
-// SDL_Vulkan_GetDrawableSize
-// SDL_Vulkan_GetInstanceExtensions
-// SDL_Vulkan_GetVkGetInstanceProcAddr
-// SDL_Vulkan_LoadLibrary
-// SDL_Vulkan_UnloadLibrary
+GO(SDL_Vulkan_CreateSurface, iFppp)
+GO(SDL_Vulkan_GetDrawableSize, vFppp)
+GO(SDL_Vulkan_GetInstanceExtensions, iFppp)
+GOM(SDL_Vulkan_GetVkGetInstanceProcAddr, pFEv)
+GO(SDL_Vulkan_LoadLibrary, iFp) //TODO: wrap to also call my_dlopen with path?
+GO(SDL_Vulkan_UnloadLibrary, vFv)
 GO(SDL_WaitEvent, iFp)
 GO(SDL_WaitEventTimeout, iFpi)
 GO(SDL_WaitThread, vFpp)
