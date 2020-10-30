@@ -959,6 +959,12 @@ void RunFS(x86emu_t *emu)
             ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
             break;
 
+        case 0x8E:              /* MOV Seg,FS:Ed */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            emu->segs[((nextop&0x38)>>3)] = ED->word[0];
+            emu->segs_clean[((nextop&0x38)>>3)] = 0;
+            break;
         case 0x8F:              /* POP Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
