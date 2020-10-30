@@ -28,12 +28,14 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback;
+    uint8_t wback, wb1, wb2;
+    uint8_t u8;
     int fixedaddress;
 
     MAYUSE(j32);
     
     switch(opcode) {
+
         case 0x03:
             INST_NAME("ADD Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET);
@@ -74,6 +76,91 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_cmp32(dyn, ninst, gd, ed, x3, x12);
             break;
 
+        case 0x80:
+        case 0x82:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: //ADD
+                    INST_NAME("ADD GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_add8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 1: //OR
+                    INST_NAME("OR GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_or8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 2: //ADC
+                    INST_NAME("ADC GS:Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_adc8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 3: //SBB
+                    INST_NAME("SBB GS:Eb, Ib");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_sbb8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 4: //AND
+                    INST_NAME("AND GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_and8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 5: //SUB
+                    INST_NAME("SUB GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_sub8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 6: //XOR
+                    INST_NAME("XOR GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    emit_xor8c(dyn, ninst, x1, u8, x2, x12);
+                    EBBACK;
+                    break;
+                case 7: //CMP
+                    INST_NAME("CMP GS:Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x1);
+                    GETEBO(x1);
+                    u8 = F8;
+                    if(u8) {
+                        MOVW(x2, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x12);
+                    }
+                    break;
+            }
+            break;
+            
         case 0x89:
             INST_NAME("MOV GS:Ed, Gd");
             grab_tlsdata(dyn, addr, ninst, x12);
