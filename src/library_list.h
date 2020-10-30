@@ -123,6 +123,6 @@ GO("libmpg123.so.0", mpg123)
 GO("libgnutls.so.30", gnutls)
 GO("libcups.so.2", libcups)
 GO("d3dadapter9.so.1", d3dadapter9)
-GO("vulkan.so.1", vulkan)
+GO("libvulkan.so.1", vulkan)
 
 GO("ld-linux.so.2", ldlinux)
