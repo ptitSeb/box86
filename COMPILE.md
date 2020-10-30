@@ -20,7 +20,7 @@ Compiling
 git clone https://github.com/ptitSeb/box86
 cd box86
 mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
-make -j24
+make -j4
 sudo make install
 sudo systemctl restart systemd-binfmt
 ```
