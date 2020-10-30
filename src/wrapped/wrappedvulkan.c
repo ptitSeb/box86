@@ -22,30 +22,34 @@ const char* vulkanName = "libvulkan.so.1";
 #define LIBNAME vulkan
 static library_t *my_lib = NULL;
 
-typedef int (*iFpp_t)       (void*, void*);
+typedef void(*vFpp_t)       (void*, void*);
 typedef void*(*pFpp_t)      (void*, void*);
 typedef int (*iFppp_t)      (void*, void*, void*);
+typedef void(*vFppp_t)      (void*, void*, void*);
+typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 typedef int (*iFpppp_t)     (void*, void*, void*, void*);
 typedef int (*iFppppp_t)    (void*, void*, void*, void*, void*);
 typedef int (*iFpuppp_t)    (void*, uint32_t, void*, void*, void*);
-typedef int (*iFppuppp_t)   (void*, void*, uint32_t, void*, void*, void*);
+typedef int (*iFpUppp_t)    (void*, uint64_t, void*, void*, void*);
+typedef int (*iFpUuppp_t)   (void*, uint64_t, uint32_t, void*, void*, void*);
 
 #define SUPER() \
     GO(vkAllocateMemory, iFpppp_t)                  \
     GO(vkCreateBuffer, iFpppp_t)                    \
     GO(vkCreateBufferView, iFpppp_t)                \
     GO(vkCreateCommandPool, iFpppp_t)               \
-    GO(vkCreateComputePipelines, iFppuppp_t)        \
+    GO(vkCreateComputePipelines, iFpUuppp_t)        \
     GO(vkCreateDescriptorPool, iFpppp_t)            \
     GO(vkCreateDescriptorSetLayout, iFpppp_t)       \
     GO(vkCreateDescriptorUpdateTemplate, iFpppp_t)  \
+    GO(vkCreateDescriptorUpdateTemplateKHR, iFpppp_t)\
     GO(vkCreateDevice, iFpppp_t)                    \
-    GO(vkCreateDisplayModeKHR, iFppppp_t)           \
+    GO(vkCreateDisplayModeKHR, iFpUppp_t)           \
     GO(vkCreateDisplayPlaneSurfaceKHR, iFpppp_t)    \
     GO(vkCreateEvent, iFpppp_t)                     \
     GO(vkCreateFence, iFpppp_t)                     \
     GO(vkCreateFramebuffer, iFpppp_t)               \
-    GO(vkCreateGraphicsPipelines, iFppuppp_t)       \
+    GO(vkCreateGraphicsPipelines, iFpUuppp_t)       \
     GO(vkCreateImage, iFpppp_t)                     \
     GO(vkCreateImageView, iFpppp_t)                 \
     GO(vkCreateInstance, iFppp_t)                   \
@@ -62,33 +66,37 @@ typedef int (*iFppuppp_t)   (void*, void*, uint32_t, void*, void*, void*);
     GO(vkCreateWaylandSurfaceKHR, iFpppp_t)         \
     GO(vkCreateXcbSurfaceKHR, iFpppp_t)             \
     GO(vkCreateXlibSurfaceKHR, iFpppp_t)            \
-    GO(vkDestroyBuffer, iFppp_t)                    \
-    GO(vkDestroyBufferView, iFppp_t)                \
-    GO(vkDestroyCommandPool, iFppp_t)               \
-    GO(vkDestroyDescriptorPool, iFppp_t)            \
-    GO(vkDestroyDescriptorSetLayout, iFppp_t)       \
-    GO(vkDestroyDescriptorUpdateTemplate, iFppp_t)  \
-    GO(vkDestroyDevice, iFpp_t)                     \
-    GO(vkDestroyEvent, iFppp_t)                     \
-    GO(vkDestroyFence, iFppp_t)                     \
-    GO(vkDestroyFramebuffer, iFppp_t)               \
-    GO(vkDestroyImage, iFppp_t)                     \
-    GO(vkDestroyImageView, iFppp_t)                 \
-    GO(vkDestroyInstance, iFpp_t)                   \
-    GO(vkDestroyPipeline, iFppp_t)                  \
-    GO(vkDestroyPipelineCache, iFppp_t)             \
-    GO(vkDestroyPipelineLayout, iFppp_t)            \
-    GO(vkDestroyQueryPool, iFppp_t)                 \
-    GO(vkDestroyRenderPass, iFppp_t)                \
-    GO(vkDestroySampler, iFppp_t)                   \
-    GO(vkDestroySamplerYcbcrConversion, iFppp_t)    \
-    GO(vkDestroySemaphore, iFppp_t)                 \
-    GO(vkDestroyShaderModule, iFppp_t)              \
-    GO(vkDestroySurfaceKHR, iFppp_t)                \
-    GO(vkDestroySwapchainKHR, iFppp_t)              \
-    GO(vkFreeMemory, iFppp_t)                       \
+    GO(vkDestroyBuffer, vFpUp_t)                    \
+    GO(vkDestroyBufferView, vFpUp_t)                \
+    GO(vkDestroyCommandPool, vFpUp_t)               \
+    GO(vkDestroyDescriptorPool, vFpUp_t)            \
+    GO(vkDestroyDescriptorSetLayout, vFpUp_t)       \
+    GO(vkDestroyDescriptorUpdateTemplate, vFpUp_t)  \
+    GO(vkDestroyDescriptorUpdateTemplateKHR, vFpUp_t)\
+    GO(vkDestroyDevice, vFpp_t)                     \
+    GO(vkDestroyEvent, vFpUp_t)                     \
+    GO(vkDestroyFence, vFpUp_t)                     \
+    GO(vkDestroyFramebuffer, vFpUp_t)               \
+    GO(vkDestroyImage, vFpUp_t)                     \
+    GO(vkDestroyImageView, vFpUp_t)                 \
+    GO(vkDestroyInstance, vFpp_t)                   \
+    GO(vkDestroyPipeline, vFpUp_t)                  \
+    GO(vkDestroyPipelineCache, vFpUp_t)             \
+    GO(vkDestroyPipelineLayout, vFpUp_t)            \
+    GO(vkDestroyQueryPool, vFpUp_t)                 \
+    GO(vkDestroyRenderPass, vFpUp_t)                \
+    GO(vkDestroySampler, vFpUp_t)                   \
+    GO(vkDestroySamplerYcbcrConversion, vFpUp_t)    \
+    GO(vkDestroySamplerYcbcrConversionKHR, vFpUp_t) \
+    GO(vkDestroySemaphore, vFpUp_t)                 \
+    GO(vkDestroyShaderModule, vFpUp_t)              \
+    GO(vkDestroySurfaceKHR, vFpUp_t)                \
+    GO(vkDestroySwapchainKHR, vFpUp_t)              \
+    GO(vkFreeMemory, vFpUp_t)                       \
     GO(vkGetDeviceProcAddr, pFpp_t)                 \
     GO(vkGetInstanceProcAddr, pFpp_t)               \
+    GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t)    \
+    GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t)    \
 
 typedef struct vulkan_my_s {
     // functions
@@ -281,8 +289,6 @@ EXPORT void* my_vkGetDeviceProcAddr(x86emu_t* emu, void* device, void* name)
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
     void* symbol;
@@ -407,7 +413,14 @@ EXPORT int my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks
 {                                                                                                                       \
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
-    return my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                         \
+    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                         \
+}
+#define DESTROY64(A)   \
+EXPORT void my_##A(x86emu_t* emu, void* device, uint64_t p, my_VkAllocationCallbacks_t* pAllocator)                        \
+{                                                                                                                       \
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
+    my_VkAllocationCallbacks_t my_alloc;                                                                                \
+    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
 }
 
 CREATE(vkAllocateMemory)
@@ -415,7 +428,7 @@ CREATE(vkCreateBuffer)
 CREATE(vkCreateBufferView)
 CREATE(vkCreateCommandPool)
 
-EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, void* pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
+EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
@@ -425,13 +438,14 @@ EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, void* pipeli
 CREATE(vkCreateDescriptorPool)
 CREATE(vkCreateDescriptorSetLayout)
 CREATE(vkCreateDescriptorUpdateTemplate)
+CREATE(vkCreateDescriptorUpdateTemplateKHR)
 CREATE(vkCreateDevice)
 
-EXPORT int my_vkCreateDisplayModeKHR(x86emu_t* emu, void* physical, void* device, void* pCreateInfo, my_VkAllocationCallbacks_t* pAllocator, void* pMode)
+EXPORT int my_vkCreateDisplayModeKHR(x86emu_t* emu, void* physical, uint64_t display, void* pCreateInfo, my_VkAllocationCallbacks_t* pAllocator, void* pMode)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateDisplayModeKHR(physical, device, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
+    return my->vkCreateDisplayModeKHR(physical, display, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
 }
 
 CREATE(vkCreateDisplayPlaneSurfaceKHR)
@@ -439,7 +453,7 @@ CREATE(vkCreateEvent)
 CREATE(vkCreateFence)
 CREATE(vkCreateFramebuffer)
 
-EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, void* pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
+EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
@@ -477,43 +491,50 @@ CREATE(vkCreateWaylandSurfaceKHR)
 CREATE(vkCreateXcbSurfaceKHR)
 CREATE(vkCreateXlibSurfaceKHR)
 
-DESTROY(vkDestroyBuffer)
-DESTROY(vkDestroyBufferView)
-DESTROY(vkDestroyCommandPool)
-DESTROY(vkDestroyDescriptorPool)
-DESTROY(vkDestroyDescriptorSetLayout)
-DESTROY(vkDestroyDescriptorUpdateTemplate)
+DESTROY64(vkDestroyBuffer)
+DESTROY64(vkDestroyBufferView)
+DESTROY64(vkDestroyCommandPool)
+DESTROY64(vkDestroyDescriptorPool)
+DESTROY64(vkDestroyDescriptorSetLayout)
+DESTROY64(vkDestroyDescriptorUpdateTemplate)
+DESTROY64(vkDestroyDescriptorUpdateTemplateKHR)
 
-EXPORT int my_vkDestroyDevice(x86emu_t* emu, void* pDevice, my_VkAllocationCallbacks_t* pAllocator)
+EXPORT void my_vkDestroyDevice(x86emu_t* emu, void* pDevice, my_VkAllocationCallbacks_t* pAllocator)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkDestroyDevice(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
+    my->vkDestroyDevice(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
 
-DESTROY(vkDestroyEvent)
-DESTROY(vkDestroyFence)
-DESTROY(vkDestroyFramebuffer)
-DESTROY(vkDestroyImage)
-DESTROY(vkDestroyImageView)
+DESTROY64(vkDestroyEvent)
+DESTROY64(vkDestroyFence)
+DESTROY64(vkDestroyFramebuffer)
+DESTROY64(vkDestroyImage)
+DESTROY64(vkDestroyImageView)
 
-EXPORT int my_vkDestroyInstance(x86emu_t* emu, void* instance, my_VkAllocationCallbacks_t* pAllocator)
+EXPORT void my_vkDestroyInstance(x86emu_t* emu, void* instance, my_VkAllocationCallbacks_t* pAllocator)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkDestroyInstance(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
+    my->vkDestroyInstance(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
 
-DESTROY(vkDestroyPipeline)
-DESTROY(vkDestroyPipelineCache)
-DESTROY(vkDestroyPipelineLayout)
-DESTROY(vkDestroyQueryPool)
-DESTROY(vkDestroyRenderPass)
-DESTROY(vkDestroySampler)
-DESTROY(vkDestroySamplerYcbcrConversion)
-DESTROY(vkDestroySemaphore)
-DESTROY(vkDestroyShaderModule)
-DESTROY(vkDestroySurfaceKHR)
-DESTROY(vkDestroySwapchainKHR)
+DESTROY64(vkDestroyPipeline)
+DESTROY64(vkDestroyPipelineCache)
+DESTROY64(vkDestroyPipelineLayout)
+DESTROY64(vkDestroyQueryPool)
+DESTROY64(vkDestroyRenderPass)
+DESTROY64(vkDestroySampler)
+DESTROY64(vkDestroySamplerYcbcrConversion)
+DESTROY64(vkDestroySemaphore)
+DESTROY64(vkDestroyShaderModule)
+DESTROY64(vkDestroySwapchainKHR)
 
-DESTROY(vkFreeMemory)
+DESTROY64(vkFreeMemory)
+
+CREATE(vkCreateDebugUtilsMessengerEXT)
+DESTROY(vkDestroyDebugUtilsMessengerEXT)
+
+DESTROY64(vkDestroySurfaceKHR)
+
+DESTROY64(vkDestroySamplerYcbcrConversionKHR)
