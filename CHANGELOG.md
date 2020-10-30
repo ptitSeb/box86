@@ -1,3 +1,6 @@
+Current version
+======
+
 v0.1.4
 ======
 * Change in Dynarec memory handling, to simplify it (and hopefully optimized it)
