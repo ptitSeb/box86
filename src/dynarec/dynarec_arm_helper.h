@@ -132,6 +132,21 @@
                     wb1 = 1;                \
                     ed = i;                 \
                 }
+//GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
+#define GETEBO(i) if((nextop&0xC0)==0xC0) {  \
+                    wback = (nextop&7);     \
+                    wb2 = (wback>>2);       \
+                    wback = xEAX+(wback&3); \
+                    UXTB(i, wback, wb2);    \
+                    wb1 = 0;                \
+                    ed = i;                 \
+                } else {                    \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0); \
+                    ADD_REG_LSL_IMM5(wback, wback, i, 0);   \
+                    LDRB_IMM9(i, wback, fixedaddress);      \
+                    wb1 = 1;                \
+                    ed = i;                 \
+                }
 //GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
 #define GETSEB(i) if((nextop&0xC0)==0xC0) { \
                     wback = (nextop&7);     \
