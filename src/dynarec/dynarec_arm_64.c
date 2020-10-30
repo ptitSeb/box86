@@ -34,6 +34,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(j32);
 
     switch(opcode) {
+
         case 0x03:
             INST_NAME("ADD Gd, FS:Ed");
             SETFLAGS(X_ALL, SF_SET);
