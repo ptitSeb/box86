@@ -65,10 +65,13 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     grab_fsdata(dyn, addr, ninst, x12);
                     GETGD;
                     if((nextop&0xC0)==0xC0) {   // reg <= reg
-                        MOV_REG(gd, xEAX+(nextop&7));
+                        ed = xEAX+(nextop&7);
+                        if(ed!=gd) {
+                            BFI(gd, ed, 0, 16);
+                        }
                     } else {                    // mem <= reg
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
-                        LDR_REG_LSL_IMM5(gd, ed, x12, 0);
+                        LDR_REG_LSL_IMM5(gd, x12, ed, 0);
                     }
                     break;
 
@@ -81,7 +84,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                         POP(xESP, (1<<x2));
-                        STR_REG_LSL_IMM5(x2, x1, x12, 0);
+                        STR_REG_LSL_IMM5(x2, x12, ed, 0);
                     }
                     break;
 
