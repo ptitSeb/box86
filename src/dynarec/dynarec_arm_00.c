@@ -1550,7 +1550,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xC2:
             INST_NAME("RETN");
-            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            READFLAGS(X_PEND);  // lets play safe here too
             BARRIER(2);
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
@@ -2046,7 +2047,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xE8:
             INST_NAME("CALL Id");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
             i32 = F32S;
             if(addr+i32==0) {
                 #if STEP == 3
@@ -2054,6 +2054,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 #endif
             }
             if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
+                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                 BARRIER(1);
                 BARRIER_NEXT(1);
                 MOV32(x2, addr);
@@ -2080,16 +2081,23 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MARK;
                 jump_to_epilog(dyn, 0, xEIP, ninst);
             } else if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
+                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                 MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
                 u8 = F8;
                 gd = xEAX+(u8&7);
                 MOV32(gd, addr-1);
             } else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
+                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                 MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
                 u8 = PK(i32+1);
                 gd = xEAX+((u8&0x38)>>3);
                 MOV32(gd, addr);
             } else {
+                if(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags) {
+                    READFLAGS(X_PEND);  // that's suspicious
+                } else {
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                }
                 // regular call
                 BARRIER(1);
                 BARRIER_NEXT(1);
