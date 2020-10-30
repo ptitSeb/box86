@@ -33,6 +33,8 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int fixedaddress;
 
     MAYUSE(j32);
+    MAYUSE(wback);
+    MAYUSE(wb2);
     
     switch(opcode) {
 

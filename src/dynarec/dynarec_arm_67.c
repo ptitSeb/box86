@@ -28,7 +28,6 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback;
     int fixedaddress;
 
     MAYUSE(i32);
