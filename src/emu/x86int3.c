@@ -200,6 +200,10 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), pu32?((char*)(pu32)):"nil");
                 } else  if(strstr(s, "vfprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "vkGetInstanceProcAddr")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "vkGetDeviceProcAddr")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "sscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "XCreateWindow")==s) {
