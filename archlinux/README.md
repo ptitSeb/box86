@@ -12,10 +12,10 @@ This will copy the PKGBUILD for your platform (where you type your platform name
 In the future, I might try to do an unified PKGBUILD for all platforms that will recognize your platform automatically.
 
 ### 2. What platforms are currently supported.
-Currently there's a PKGBUILD for Raspberry Pi devices only. Please note RPi 1 and 0 are not supported right now (those need additional effort to build for them, like building without the DYNAREC support).
+All specified in [COMPILE.md](../COMPILE.md).
 
 ### 3. Any advantages with that sollution?
 This might give you some advantages like those:
-- automatic updates (with some AUR frontends like [`pamac-aur`](https://aur.archlinux.org/packages/pamac-aur/));
+- automatic updates (with some AUR frontends like [`pamac-aur`](https://aur.archlinux.org/packages/pamac-aur/) or [`yay`](https://aur.archlinux.org/packages/yay));
 - easily uninstall with `pacman -R` when no needed (no need other scripts nor Makefile to do this);
 - your `box86` installation is recognized as a package (where it wasn't when installing with `make install`).
