@@ -1,17 +1,19 @@
 # The directory containing all PKGBUILDs for BOX86
 ## FAQ
 ### 1. How to use it?
-You just jump to this directory in your local git repository and type this command:
+Just download the `PKGBUILD-<your-platform>` (no need to download the whole repository), go to directory where you downloaded and type:
 ```sh
-cp ./PKGBUILD-<your-platform> ../PKGBUILD
+mv ./PKGBUILD-<your-platform> ./PKGBUILD
 cd ..
 makepkg -si
 ```
-This will copy the PKGBUILD for your platform (where you type your platform name instead of <your-platform>), build it and install the PKGBUILD on 32-bit Archlinux ARM. If you don't know your platform name, just check the directory for all PKGBUILD and find the one you want to install the box86 with.
+This will copy the PKGBUILD for your platform (where you type your platform name instead of `<your-platform>`), build it and install the PKGBUILD on 32-bit Archlinux ARM.
 
-In the future, I'll try to do an unified PKGBUILD for all platforms that will recognize your platform automatically.
+In the future, I might try to do an unified PKGBUILD for all platforms that will recognize your platform automatically.
+
 ### 2. What platforms are currently supported.
-Only RPi4B right now, but that will change in the nearest future.
+Currently there's a PKGBUILD for Raspberry Pi devices only. Please note RPi 1 and 0 are not supported right now (those need additional effort to build for them, like building without the DYNAREC support).
+
 ### 3. Any advantages with that sollution?
 This might give you some advantages like those:
 - automatic updates (with some AUR frontends like [`pamac-aur`](https://aur.archlinux.org/packages/pamac-aur/));
