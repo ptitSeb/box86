@@ -15,6 +15,7 @@
 #include "box86context.h"
 #include "librarian.h"
 #include "callback.h"
+#include "libtools/vkalign.h"
 
 //extern char* libvulkan;
 
@@ -28,10 +29,13 @@ typedef int (*iFppp_t)      (void*, void*, void*);
 typedef void(*vFppp_t)      (void*, void*, void*);
 typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 typedef int (*iFpppp_t)     (void*, void*, void*, void*);
+typedef int (*iFpUup_t)     (void*, uint64_t, uint32_t, void*);
 typedef int (*iFppppp_t)    (void*, void*, void*, void*, void*);
 typedef int (*iFpuppp_t)    (void*, uint32_t, void*, void*, void*);
 typedef int (*iFpUppp_t)    (void*, uint64_t, void*, void*, void*);
+typedef void(*vFpupup_t)    (void*, uint32_t, void*, uint32_t, void*);
 typedef int (*iFpUuppp_t)   (void*, uint64_t, uint32_t, void*, void*, void*);
+typedef void(*vFpiiiiipp_t) (void*, int, int, int, int, int, void*, void*);
 
 #define SUPER() \
     GO(vkAllocateMemory, iFpppp_t)                  \
@@ -97,6 +101,13 @@ typedef int (*iFpUuppp_t)   (void*, uint64_t, uint32_t, void*, void*, void*);
     GO(vkGetInstanceProcAddr, pFpp_t)               \
     GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t)    \
     GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t)    \
+    GO(vkGetPhysicalDeviceProperties, vFpp_t)       \
+    GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp_t)               \
+    GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiiipp_t)    \
+    GO(vkUpdateDescriptorSets, vFpupup_t)           \
+    GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t)  \
+    GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t)                \
+    GO(vkGetPhysicalDeviceMemoryProperties, vFpp_t) \
 
 typedef struct vulkan_my_s {
     // functions
@@ -432,7 +443,12 @@ EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, uint64_t pip
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateComputePipelines(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    void* aligned;
+    const char* desc="upiSupiiUppUUi";
+    aligned = vkalignStruct(pCreateInfos, desc, count);
+    int ret = my->vkCreateComputePipelines(device, pipelineCache, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    return ret;
 }
 
 CREATE(vkCreateDescriptorPool)
@@ -457,7 +473,12 @@ EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pi
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateGraphicsPipelines(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    void* aligned;
+    const char* desc="upiuppppppppppUUuUi"; //TODO: check if any substruct need alignement!
+    aligned = vkalignStruct(pCreateInfos, desc, count);
+    int ret = my->vkCreateGraphicsPipelines(device, pipelineCache, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
+    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    return ret;
 }
 
 CREATE(vkCreateImage)
@@ -479,11 +500,16 @@ CREATE(vkCreateSamplerYcbcrConversion)
 CREATE(vkCreateSemaphore)
 CREATE(vkCreateShaderModule)
 
-EXPORT int my_vkCreateSharedSwapchainsKHR(x86emu_t* emu, void* device, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pSwapchains)
+EXPORT int my_vkCreateSharedSwapchainsKHR(x86emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pSwapchains)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateSharedSwapchainsKHR(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pSwapchains);
+    void* aligned;
+    const char* desc="upiUuiiuuuiiupiiiiU";
+    aligned = vkalignStruct(pCreateInfos, desc, count);
+    int ret = my->vkCreateSharedSwapchainsKHR(device, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pSwapchains);
+    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    return ret;
 }
 
 CREATE(vkCreateSwapchainKHR)
@@ -538,3 +564,98 @@ DESTROY(vkDestroyDebugUtilsMessengerEXT)
 DESTROY64(vkDestroySurfaceKHR)
 
 DESTROY64(vkDestroySamplerYcbcrConversionKHR)
+
+EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = 
+    "uuuuiYB"
+    "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"
+    "iiiii";
+    void* my_props = malloc(vkalignSize(desc));
+    my->vkGetPhysicalDeviceProperties(device, my_props);
+    vkunvkalignStruct(pProps, my_props, desc, 0);
+}
+
+EXPORT void my_vkGetPhysicalDeviceQueueFamilyProperties(x86emu_t* emu, void* device, uint32_t* count, void** pProps)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "iuuuuu";
+    if(!pProps)
+        return my->vkGetPhysicalDeviceQueueFamilyProperties(device, count, pProps);
+
+    int sz = vkalignSize(desc);
+    uint32_t cnt;
+    my->vkGetPhysicalDeviceQueueFamilyProperties(device, &cnt, NULL);
+    void* my_props = malloc(cnt*sz);
+    my->vkGetPhysicalDeviceQueueFamilyProperties(device, count, my_props);
+    vkunvkalignStruct(pProps, my_props, desc, cnt);
+}
+
+EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "iuuui";
+    if(!pProps)
+        return my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, pProps);
+
+    int sz = vkalignSize(desc);
+    uint32_t cnt;
+    my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, &cnt, NULL);
+    void* my_props = malloc(cnt*sz);
+    my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, my_props);
+    vkunvkalignStruct(pProps, my_props, desc, cnt);
+}
+
+EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writeCount, void* writeSet, uint32_t copyCount, void* copySet)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* writeDesc = "upUuuuippp";
+    static const char* copyDesc = "upUuuUuuu";
+
+    void* writeAligned = writeCount?vkalignStruct(writeSet, writeDesc, writeCount):NULL; // TODO: Align pNext....
+    void* copyAligned = copyCount?vkalignStruct(copySet, copyDesc, copyCount):NULL; // TODO: Align pNext....
+    my->vkUpdateDescriptorSets(device, writeCount, writeAligned, copyCount, copyAligned);
+    if(writeCount)  vkunvkalignStruct(writeSet, writeAligned, writeDesc, writeCount);
+    if(copyCount)   vkunvkalignStruct(copySet, copyAligned, copyDesc, copyCount);
+}
+
+EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint64_t mode, uint32_t index, void* pCap)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "iuuuuuuuuuuuuuuuu";
+
+    void* aligned = vkalignStruct(pCap, desc, 0);
+    int ret = my->vkGetDisplayPlaneCapabilitiesKHR(device, mode, index, aligned);
+    vkunvkalignStruct(pCap, aligned, desc, 0);
+    return ret;
+}
+
+EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* device, uint32_t* count, void* pProp)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "Upuuuuiii";
+    if(!pProp)
+        return my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, pProp);
+
+    int32_t cnt = 0;
+    my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, &cnt, NULL);
+    void* aligned = vkalignStruct(pProp, desc, cnt);
+    int ret = my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, aligned);
+    vkunvkalignStruct(pProp, aligned, desc, cnt);
+    return ret;
+}
+
+EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, void* pProps)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = 
+    "u" //uint32_t        memoryTypeCount;
+    "iuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiu"  //VkMemoryType    memoryTypes[VK_MAX_MEMORY_TYPES]; //32
+    "u" //uint32_t        memoryHeapCount;
+    "UiUiUiUiUiUiUiUiUiUiUiUiUiUiUiUi"; //VkMemoryHeap    memoryHeaps[VK_MAX_MEMORY_HEAPS]; //16
+
+    void* aligned = vkalignStruct(pProps, desc, 0);
+    my->vkGetPhysicalDeviceMemoryProperties(device, aligned);
+    vkunvkalignStruct(pProps, aligned, desc, 0);
+}

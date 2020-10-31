@@ -3,7 +3,7 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P']
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -252,6 +252,9 @@ static void* io_convert(void* v)
 	return v;
 }
 
+void* VulkanFromx86(void* src, void** save);
+void VulkanTox86(void* src, void* save);
+
 #define ST0val ST0.d
 
 int of_convert(int);
@@ -282,6 +285,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // S = _IO_2_1_stdXXX_ pointer (or FILE*)
 // Q = ...
 // 2 = struct of 2 uint
+// P = Vulkan struture pointer
 
 """
 	}
@@ -317,8 +321,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S               2
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -327,8 +331,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S              2
-				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t"]
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P
+				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*"]
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -337,7 +341,69 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			file.write("#endif\n")
 		
 		file.write("\n")
+		
 		# Next part: function definitions
+		
+		# Helper variables
+		arg = [
+			"emu, ",                                  # E
+			"&emu, ",                                 # e
+			"",                                       # v
+			"*(int8_t*)(R_ESP + {p}), ",              # c
+			"*(int16_t*)(R_ESP + {p}), ",             # w
+			"*(int32_t*)(R_ESP + {p}), ",             # i
+			"*(int64_t*)(R_ESP + {p}), ",             # I
+			"*(uint8_t*)(R_ESP + {p}), ",             # C
+			"*(uint16_t*)(R_ESP + {p}), ",            # W
+			"*(uint32_t*)(R_ESP + {p}), ",            # u
+			"*(uint64_t*)(R_ESP + {p}), ",            # U
+			"*(float*)(R_ESP + {p}), ",               # f
+			"*(double*)(R_ESP + {p}), ",              # d
+			"*(long double*)(R_ESP + {p}), ",         # D
+			"FromLD((void*)(R_ESP + {p})), ",         # K
+			"*(intptr_t*)(R_ESP + {p}), ",            # l
+			"*(uintptr_t*)(R_ESP + {p}), ",           # L
+			"*(void**)(R_ESP + {p}), ",               # p
+			"(void*)(R_ESP + {p}), ",                 # V
+			"of_convert(*(int32_t*)(R_ESP + {p})), ", # O
+			"io_convert(*(void**)(R_ESP + {p})), ",   # S
+			"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	#2
+			"arg{p}, ",                               # P
+		]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P
+		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8, 4]
+		vals = [
+			"\n#error Invalid return type: emulator\n",                     # E
+			"\n#error Invalid return type: &emulator\n",                    # e
+			"fn({0});",                                                     # v
+			"R_EAX=fn({0});",                                               # c
+			"R_EAX=fn({0});",                                               # w
+			"R_EAX=fn({0});",                                               # i
+			"ui64_t r; r.i=fn({0}); R_EAX=r.d[0]; R_EDX=r.d[1];",           # I
+			"R_EAX=(unsigned char)fn({0});",                                # C
+			"R_EAX=(unsigned short)fn({0});",                               # W
+			"R_EAX=(uint32_t)fn({0});",                                     # u
+			"ui64_t r; r.u=(uint64_t)fn({0}); R_EAX=r.d[0]; R_EDX=r.d[1];", # U
+			"float fl=fn({0}); fpu_do_push(emu); ST0val = fl;",             # f
+			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # d
+			"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",       # D
+			"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # K
+			"R_EAX=(intptr_t)fn({0});",                                     # l
+			"R_EAX=(uintptr_t)fn({0});",                                    # L
+			"R_EAX=(uintptr_t)fn({0});",                                    # p
+			"\n#error Invalid return type: va_list\n",                      # V
+			"\n#error Invalid return type: at_flags\n",                     # O
+			"\n#error Invalid return type: _io_file*\n",                    # S
+			"\n#error Invalid return type: _2uint_struct\n",                # 2
+			"\n#error Invalid return type: Vulkan Struct\n",                # P
+		]
+		# Asserts
+		if len(values) != len(arg):
+			raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
+		if len(values) != len(deltas):
+			raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(values), lendeltas=len(deltas)))
+		if len(values) != len(vals):
+			raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))
 		
 		# Helper functions to write the function definitions
 		def function_args(args, d=4):
@@ -351,67 +417,27 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			elif args[0] == "1":
 				return "1, " + function_args(args[1:], d)
 			
-			arg = [
-				"emu, ",                                  # E
-				"&emu, ",                                 # e
-				"",                                       # v
-				"*(int8_t*)(R_ESP + {p}), ",              # c
-				"*(int16_t*)(R_ESP + {p}), ",             # w
-				"*(int32_t*)(R_ESP + {p}), ",             # i
-				"*(int64_t*)(R_ESP + {p}), ",             # I
-				"*(uint8_t*)(R_ESP + {p}), ",             # C
-				"*(uint16_t*)(R_ESP + {p}), ",            # W
-				"*(uint32_t*)(R_ESP + {p}), ",            # u
-				"*(uint64_t*)(R_ESP + {p}), ",            # U
-				"*(float*)(R_ESP + {p}), ",               # f
-				"*(double*)(R_ESP + {p}), ",              # d
-				"*(long double*)(R_ESP + {p}), ",         # D
-				"FromLD((void*)(R_ESP + {p})), ",         # K
-				"*(intptr_t*)(R_ESP + {p}), ",            # l
-				"*(uintptr_t*)(R_ESP + {p}), ",           # L
-				"*(void**)(R_ESP + {p}), ",               # p
-				"(void*)(R_ESP + {p}), ",                 # V
-				"of_convert(*(int32_t*)(R_ESP + {p})), ", # O
-				"io_convert(*(void**)(R_ESP + {p})), ",   # S
-				"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	#2
-			]
-			#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2
-			deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8]
-			if len(values) != len(arg):
-				raise NotImplementedError("len(values) = {lenval} != len(arg) = {lenarg}".format(lenval=len(values), lenarg=len(arg)))
-			if len(values) != len(deltas):
-				raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(values), lendeltas=len(deltas)))
 			return arg[values.index(args[0])].format(p=d) + function_args(args[1:], d + deltas[values.index(args[0])])
 		
 		def function_writer(f, N, W, rettype, args):
 			f.write("void {0}(x86emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
-			vals = [
-				"\n#error Invalid return type: emulator\n",                     # E
-				"\n#error Invalid return type: &emulator\n",                    # e
-				"fn({0});",                                                     # v
-				"R_EAX=fn({0});",                                               # c
-				"R_EAX=fn({0});",                                               # w
-				"R_EAX=fn({0});",                                               # i
-				"ui64_t r; r.i=fn({0}); R_EAX=r.d[0]; R_EDX=r.d[1];",           # I
-				"R_EAX=(unsigned char)fn({0});",                                # C
-				"R_EAX=(unsigned short)fn({0});",                               # W
-				"R_EAX=(uint32_t)fn({0});",                                     # u
-				"ui64_t r; r.u=(uint64_t)fn({0}); R_EAX=r.d[0]; R_EDX=r.d[1];", # U
-				"float fl=fn({0}); fpu_do_push(emu); ST0val = fl;",             # f
-				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # d
-				"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",       # D
-				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",            # K
-				"R_EAX=(intptr_t)fn({0});",                                     # l
-				"R_EAX=(uintptr_t)fn({0});",                                    # L
-				"R_EAX=(uintptr_t)fn({0});",                                    # p
-				"\n#error Invalid return type: va_list\n",                      # V
-				"\n#error Invalid return type: at_flags\n",                     # O
-				"\n#error Invalid return type: _io_file*\n",                    # S
-				"\n#error Invalid return type: _2uint_srtuct\n",                # 2
-			]
-			if len(values) != len(vals):
-				raise NotImplementedError("len(values) = {lenval} != len(vals) = {lenvals}".format(lenval=len(values), lenvals=len(vals)))
-			f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
+			if 'P' in args:
+				# Vulkan struct, need to unwrap functions at the end
+				delta = 4
+				for c in args:
+					if c == 'P':
+						f.write("void* save{d}=NULL; void *arg{d} = VulkanFromx86(*(void**)(R_ESP + {d}), &save{d}); ".format(d=delta))
+					delta = delta + deltas[values.index(c)]
+				f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " ")
+				delta = 4
+				for c in args:
+					if c == 'P':
+						f.write("VulkanTox86(arg{d}, save{d}); ".format(d=delta))
+					delta = delta + deltas[values.index(c)]
+				f.write("}\n")
+			else:
+				# Generic function
+				f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " }\n")
 		
 		for v in gbl["()"]:
 			function_writer(file, v, v + "_t", v[0], v[2:])

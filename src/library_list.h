@@ -124,6 +124,7 @@ GO("libgnutls.so.30", gnutls)
 GO("libcups.so.2", libcups)
 GO("d3dadapter9.so.1", d3dadapter9)
 GO("libvulkan.so.1", vulkan)
+GO("libvulkan.so", vulkan)
 GO("libwayland-client.so.0", waylandclient)
 
 GO("ld-linux.so.2", ldlinux)

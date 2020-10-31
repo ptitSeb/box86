@@ -218,6 +218,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX86_ROOT}/src/libtools/signals.c"
     "${BOX86_ROOT}/src/libtools/threads.c"
+    "${BOX86_ROOT}/src/libtools/vkalign.c"
     "${BOX86_ROOT}/src/dynarec/dynarec.c"
     "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )
