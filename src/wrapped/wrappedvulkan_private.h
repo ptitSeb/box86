@@ -326,3 +326,6 @@ GO(vkTrimCommandPoolKHR, vFpUi)
 // VK_KHR_maintenance3
 GO(vkGetDescriptorSetLayoutSupportKHR, vFppp)
 
+// VK_KHR_external_memory_fd
+GO(vkGetMemoryFdKHR, iFppp)
+GO(vkGetMemoryFdPropertiesKHR, iFpiip)
