@@ -327,6 +327,7 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT = 1000244002,
     VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO_EXT = 1000246000,
     VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT = 1000247000,
+    VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT = 1000255002,
     VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
     VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHR = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHR = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES,
@@ -500,6 +501,11 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:                            \
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:                \
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:                  \
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:\
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:                    \
+    case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT:               \
+    case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:                   \
+    case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:                  \
 
 #define CH(C, B, A) \
     case C:         \
@@ -550,7 +556,8 @@ static int needAlign(my_vkhead_t* x86)
                 break;
             CHANGE(return 1, check)
             default:
-                break;
+                printf_log(LOG_INFO, "BOX86: Warning, unknown Vulkan Type %d in needAlign function\n", x86->sType);
+                return 0;
         }
         if(dst) return dst;
         x86 = x86->pNext;

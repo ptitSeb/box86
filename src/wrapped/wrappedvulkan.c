@@ -577,21 +577,6 @@ EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* 
     vkunvkalignStruct(pProps, my_props, desc, 0);
 }
 
-EXPORT void my_vkGetPhysicalDeviceQueueFamilyProperties(x86emu_t* emu, void* device, uint32_t* count, void** pProps)
-{
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
-    static const char* desc = "iuuuuu";
-    if(!pProps)
-        return my->vkGetPhysicalDeviceQueueFamilyProperties(device, count, pProps);
-
-    int sz = vkalignSize(desc);
-    uint32_t cnt;
-    my->vkGetPhysicalDeviceQueueFamilyProperties(device, &cnt, NULL);
-    void* my_props = malloc(cnt*sz);
-    my->vkGetPhysicalDeviceQueueFamilyProperties(device, count, my_props);
-    vkunvkalignStruct(pProps, my_props, desc, cnt);
-}
-
 EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
 {
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;

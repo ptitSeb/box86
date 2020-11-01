@@ -152,7 +152,7 @@ GO(vkGetPhysicalDeviceFormatProperties, vFpip)
 GO(vkGetPhysicalDeviceImageFormatProperties, vFpiiiiip) //VkImageFormatProperties sems OK
 GOM(vkGetPhysicalDeviceMemoryProperties, vFEpp)
 GOM(vkGetPhysicalDeviceProperties, vFEpp)
-GOM(vkGetPhysicalDeviceQueueFamilyProperties, vFEppp)
+GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp)   //VkQueueFamilyProperties is OK
 GOM(vkGetPhysicalDeviceSparseImageFormatProperties, vFEpiiiiipp)
 GO(vkGetPipelineCacheData, iFpUpp)
 GO(vkGetQueryPoolResults, iFpUuuLpUi)
@@ -360,3 +360,28 @@ GO(vkResetQueryPoolEXT, vFpUuu)
 
 // VK_EXT_shader_demote_to_helper_invocation
 // no functions
+
+// VK_EXT_transform_feedback
+GO(vkCmdBeginQueryIndexedEXT, vFpUuiu)
+GO(vkCmdBeginTransformFeedbackEXT, vFpuupp)
+GO(vkCmdBindTransformFeedbackBuffersEXT, vFpuuppp)
+GO(vkCmdDrawIndirectByteCountEXT, vFpuuUUuu)
+GO(vkCmdEndQueryIndexedEXT, vFpUuu)
+GO(vkCmdEndTransformFeedbackEXT, vFpuupp)
+
+// VK_EXT_vertex_attribute_divisor
+// no functions
+
+// VK_EXT_full_screen_exclusive
+GO(vkAcquireFullScreenExclusiveModeEXT, iFpU)
+GO(vkGetPhysicalDeviceSurfacePresentModes2EXT, iFpPpp)
+GO(vkReleaseFullScreenExclusiveModeEXT, iFpU)
+GO(vkGetDeviceGroupSurfacePresentModes2EXT, iFpPp)
+
+// VK_EXT_calibrated_timestamps
+GO(vkGetCalibratedTimestampsEXT, iFpuppp)
+GO(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, iFppp)
+
+// VK_EXT_sample_locations
+GO(vkCmdSetSampleLocationsEXT, vFpP)
+GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpiP)

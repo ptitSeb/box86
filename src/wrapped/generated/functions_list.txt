@@ -830,6 +830,7 @@
 #() vFpuupp
 #() vFpuddd
 #() vFpupup
+#() vFpUuiu
 #() vFpUUuu
 #() vFpUUup
 #() vFpUUUu
@@ -1074,6 +1075,7 @@
 #() vFpuiiiu
 #() vFpuiipp
 #() vFpuuuiu
+#() vFpuuppp
 #() vFpudddd
 #() vFpUiuup
 #() vFpUiUup
@@ -1260,6 +1262,7 @@
 #() vFpiipCpp
 #() vFpipipii
 #() vFpuuuuuu
+#() vFpuuUUuu
 #() vFpUiUiup
 #() vFpddiidd
 #() vFpdddddd
