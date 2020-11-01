@@ -149,7 +149,7 @@ GO(vkGetImageSubresourceLayout, vFpUpp)
 GOM(vkGetInstanceProcAddr, pFEpp)
 GO(vkGetPhysicalDeviceFeatures, vFpp)
 GO(vkGetPhysicalDeviceFormatProperties, vFpip)
-GO(vkGetPhysicalDeviceImageFormatProperties, vFpiiiiip) //VkImageFormatProperties sems OK
+GO(vkGetPhysicalDeviceImageFormatProperties, iFpiiiiip) //VkImageFormatProperties sems OK
 GOM(vkGetPhysicalDeviceMemoryProperties, vFEpp)
 GOM(vkGetPhysicalDeviceProperties, vFEpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp)   //VkQueueFamilyProperties is OK
