@@ -36,6 +36,7 @@ typedef int (*iFpUppp_t)    (void*, uint64_t, void*, void*, void*);
 typedef void(*vFpupup_t)    (void*, uint32_t, void*, uint32_t, void*);
 typedef int (*iFpUuppp_t)   (void*, uint64_t, uint32_t, void*, void*, void*);
 typedef void(*vFpiiiiipp_t) (void*, int, int, int, int, int, void*, void*);
+typedef void(*vFpiiiupupup_t)(void*, int, int, int, uint32_t, void*, uint32_t, void*, uint32_t, void*);
 
 #define SUPER() \
     GO(vkAllocateMemory, iFpppp_t)                  \
@@ -108,6 +109,7 @@ typedef void(*vFpiiiiipp_t) (void*, int, int, int, int, int, void*, void*);
     GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t)  \
     GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t)                \
     GO(vkGetPhysicalDeviceMemoryProperties, vFpp_t) \
+    GO(vkCmdPipelineBarrier, vFpiiiupupup_t)        \
 
 typedef struct vulkan_my_s {
     // functions
@@ -447,7 +449,7 @@ EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, uint64_t pip
     const char* desc="upiSupiiUppUUi";
     aligned = vkalignStruct(pCreateInfos, desc, count);
     int ret = my->vkCreateComputePipelines(device, pipelineCache, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
-    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    vkunalignStruct(pCreateInfos, aligned, desc, count);
     return ret;
 }
 
@@ -477,7 +479,7 @@ EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pi
     const char* desc="upiuppppppppppUUuUi"; //TODO: check if any substruct need alignement!
     aligned = vkalignStruct(pCreateInfos, desc, count);
     int ret = my->vkCreateGraphicsPipelines(device, pipelineCache, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipelines);
-    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    vkunalignStruct(pCreateInfos, aligned, desc, count);
     return ret;
 }
 
@@ -508,7 +510,7 @@ EXPORT int my_vkCreateSharedSwapchainsKHR(x86emu_t* emu, void* device, uint32_t 
     const char* desc="upiUuiiuuuiiupiiiiU";
     aligned = vkalignStruct(pCreateInfos, desc, count);
     int ret = my->vkCreateSharedSwapchainsKHR(device, count, aligned, find_VkAllocationCallbacks(&my_alloc, pAllocator), pSwapchains);
-    vkunvkalignStruct(pCreateInfos, aligned, desc, count);
+    vkunalignStruct(pCreateInfos, aligned, desc, count);
     return ret;
 }
 
@@ -574,7 +576,7 @@ EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* 
     "iiiii";
     void* my_props = malloc(vkalignSize(desc));
     my->vkGetPhysicalDeviceProperties(device, my_props);
-    vkunvkalignStruct(pProps, my_props, desc, 0);
+    vkunalignStruct(pProps, my_props, desc, 0);
 }
 
 EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
@@ -589,7 +591,7 @@ EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, voi
     my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, &cnt, NULL);
     void* my_props = malloc(cnt*sz);
     my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, my_props);
-    vkunvkalignStruct(pProps, my_props, desc, cnt);
+    vkunalignStruct(pProps, my_props, desc, cnt);
 }
 
 EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writeCount, void* writeSet, uint32_t copyCount, void* copySet)
@@ -601,8 +603,8 @@ EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writ
     void* writeAligned = writeCount?vkalignStruct(writeSet, writeDesc, writeCount):NULL; // TODO: Align pNext....
     void* copyAligned = copyCount?vkalignStruct(copySet, copyDesc, copyCount):NULL; // TODO: Align pNext....
     my->vkUpdateDescriptorSets(device, writeCount, writeAligned, copyCount, copyAligned);
-    if(writeCount)  vkunvkalignStruct(writeSet, writeAligned, writeDesc, writeCount);
-    if(copyCount)   vkunvkalignStruct(copySet, copyAligned, copyDesc, copyCount);
+    if(writeCount)  vkunalignStruct(writeSet, writeAligned, writeDesc, writeCount);
+    if(copyCount)   vkunalignStruct(copySet, copyAligned, copyDesc, copyCount);
 }
 
 EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint64_t mode, uint32_t index, void* pCap)
@@ -612,7 +614,7 @@ EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint
 
     void* aligned = vkalignStruct(pCap, desc, 0);
     int ret = my->vkGetDisplayPlaneCapabilitiesKHR(device, mode, index, aligned);
-    vkunvkalignStruct(pCap, aligned, desc, 0);
+    vkunalignStruct(pCap, aligned, desc, 0);
     return ret;
 }
 
@@ -627,7 +629,7 @@ EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* devic
     my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, &cnt, NULL);
     void* aligned = vkalignStruct(pProp, desc, cnt);
     int ret = my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, aligned);
-    vkunvkalignStruct(pProp, aligned, desc, cnt);
+    vkunalignStruct(pProp, aligned, desc, cnt);
     return ret;
 }
 
@@ -642,5 +644,16 @@ EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, 
 
     void* aligned = vkalignStruct(pProps, desc, 0);
     my->vkGetPhysicalDeviceMemoryProperties(device, aligned);
-    vkunvkalignStruct(pProps, aligned, desc, 0);
+    vkunalignStruct(pProps, aligned, desc, 0);
+}
+
+EXPORT void my_vkCmdPipelineBarrier(x86emu_t* emu, void* device, int src, int dst, int dep, 
+    uint32_t barrierCount, void* pBarriers, uint32_t bufferCount, void* pBuffers, uint32_t imageCount, void* pImages)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "upiiiiuuUiuuuu";
+
+    void* aligned = (imageCount)?vkalignStruct(pImages, desc, imageCount):NULL;
+    my->vkCmdPipelineBarrier(device, src, dst, dep, barrierCount, pBarriers, bufferCount, pBuffers, imageCount, aligned);
+    if(imageCount) vkunalignStruct(pImages, aligned, desc, imageCount);
 }

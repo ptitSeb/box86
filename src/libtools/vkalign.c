@@ -328,6 +328,7 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO_EXT = 1000246000,
     VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT = 1000247000,
     VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT = 1000255002,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT = 1000276000,
     VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT,
     VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHR = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHR = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES,
@@ -456,7 +457,6 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT: \
     case VK_STRUCTURE_TYPE_MEMORY_BARRIER:                  \
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:           \
-    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:            \
     case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:        \
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:     \
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:           \
@@ -501,11 +501,18 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:                            \
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:                \
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:                  \
-    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:\
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:                    \
     case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT:               \
     case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:                   \
     case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:                  \
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:          \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT: \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:         \
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO:                \
+    case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:               \
+    case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:           \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT:\
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:\
 
 #define CH(C, B, A) \
     case C:         \
@@ -516,6 +523,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
 #define CHANGE(A, B)    \
     CH(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, "upiUiiup", A)     \
     CH(VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO, "upiUiUU",A)  \
+    CH(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,"upiiiiuuUiuuuu", A)                  \
     CH(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, "upiUupuuu", A)                   \
     CH(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO, "upiuppppppppppUUuUi", A)   \
     CH(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, "upiUiiiiiiiuuuu", A)              \
@@ -533,6 +541,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     CH(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR, "upiUuiiuuuiiupiiiiU", A)       \
     CH(VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR, "upiiuuifiuu", A)         \
     CH(VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT, "upUUi", A)          \
+    CH(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, "upUu", A)                           \
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:        \
         B##VkComputePipelineCreateInfo(src, &dst);              \
         break;                                                  \
@@ -772,7 +781,7 @@ static void unalignVkComputePipelineCreateInfo(my_vkhead_t* src, my_vkhead_t** d
     free(src);
 }
 
-void vkunvkalignStruct(void* dst, void* src, const char* desc, int cnt)
+void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
 {
     int c = 0;
     int a = 1;
@@ -844,7 +853,7 @@ static void unalignFromx86(my_vkhead_t* src, my_vksave_t* vksave)
             NOCHANGE
                 // no need to unalign...
                 break;
-            CHANGE(vkunvkalignStruct(dst, src, s, 0), unalign)
+            CHANGE(vkunalignStruct(dst, src, s, 0), unalign)
             default:
                 break;// unknown
         }
