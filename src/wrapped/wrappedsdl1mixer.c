@@ -18,18 +18,27 @@
 
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
+typedef int   (*iFip_t)(int, void*);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
+typedef int   (*iFippp_t)(int, void*, void*, void*);
+
+#define SUPER() \
+    GO(Mix_LoadMUSType_RW,pFpii_t)      \
+    GO(Mix_LoadMUS_RW,pFp_t)            \
+    GO(Mix_LoadWAV_RW,pFpi_t)           \
+    GO(Mix_SetPostMix,vFpp_t)           \
+    GO(Mix_ChannelFinished,vFp_t)       \
+    GO(Mix_HookMusic, vFpp_t)           \
+    GO(Mix_HookMusicFinished, vFp_t)    \
+    GO(Mix_RegisterEffect, iFippp_t)    \
+    GO(Mix_UnregisterEffect, iFip_t)    \
 
 typedef struct sdl1mixer_my_s {
-    pFpii_t Mix_LoadMUSType_RW;
-    pFp_t   Mix_LoadMUS_RW;
-    pFpi_t  Mix_LoadWAV_RW;
-    vFpp_t  Mix_SetPostMix;
-    vFp_t   Mix_ChannelFinished;
-    vFpp_t  Mix_HookMusic;
-    vFp_t   Mix_HookMusicFinished;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 
     x86emu_t* PostCallback;
     x86emu_t* hookMusicCB;
@@ -41,16 +50,140 @@ static void* getSDL1MixerMy(library_t* lib)
 {
     sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(Mix_LoadMUSType_RW,pFpii_t)
-    GO(Mix_LoadMUS_RW,pFp_t)
-    GO(Mix_LoadWAV_RW,pFpi_t)
-    GO(Mix_SetPostMix,vFpp_t)
-    GO(Mix_ChannelFinished,vFp_t)
-    GO(Mix_HookMusic, vFpp_t)
-    GO(Mix_HookMusicFinished, vFp_t)
+    SUPER()
     #undef GO
     return my;
 }
+#undef SUPER
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// EffectFunc
+#define GO(A)   \
+static uintptr_t my_EffectFunc_fct_##A = 0;                                         \
+static void my_EffectFunc_##A(int chan, void *stream, int len, void *udata)         \
+{                                                                                   \
+    RunFunction(my_context, my_EffectFunc_fct_##A, 4, chan, stream, len, udata);    \
+}
+SUPER()
+#undef GO
+static void* find_EffectFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_EffectFunc_fct_##A == (uintptr_t)fct) return my_EffectFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EffectFunc_fct_##A == 0) {my_EffectFunc_fct_##A = (uintptr_t)fct; return my_EffectFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer EffectFunc callback\n");
+    return NULL;
+}
+
+// EffectDone
+#define GO(A)   \
+static uintptr_t my_EffectDone_fct_##A = 0;                         \
+static void my_EffectDone_##A(int chan, void *udata)                \
+{                                                                   \
+    RunFunction(my_context, my_EffectDone_fct_##A, 2, chan, udata); \
+}
+SUPER()
+#undef GO
+static void* find_EffectDone_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_EffectDone_fct_##A == (uintptr_t)fct) return my_EffectDone_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EffectDone_fct_##A == 0) {my_EffectDone_fct_##A = (uintptr_t)fct; return my_EffectDone_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer EffectDone callback\n");
+    return NULL;
+}
+
+// MixFunc
+#define GO(A)   \
+static uintptr_t my_MixFunc_fct_##A = 0;                                \
+static void my_MixFunc_##A(void *udata, uint8_t *stream, int len)       \
+{                                                                       \
+    RunFunction(my_context, my_MixFunc_fct_##A, 3, udata, stream, len); \
+}
+SUPER()
+#undef GO
+static void* find_MixFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_MixFunc_fct_##A == (uintptr_t)fct) return my_MixFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_MixFunc_fct_##A == 0) {my_MixFunc_fct_##A = (uintptr_t)fct; return my_MixFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer MixFunc callback\n");
+    return NULL;
+}
+
+// ChannelFinished
+#define GO(A)   \
+static uintptr_t my_ChannelFinished_fct_##A = 0;                        \
+static void my_ChannelFinished_##A(int channel)                         \
+{                                                                       \
+    RunFunction(my_context, my_ChannelFinished_fct_##A, 1, channel);    \
+}
+SUPER()
+#undef GO
+static void* find_ChannelFinished_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_ChannelFinished_fct_##A == (uintptr_t)fct) return my_ChannelFinished_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ChannelFinished_fct_##A == 0) {my_ChannelFinished_fct_##A = (uintptr_t)fct; return my_ChannelFinished_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer ChannelFinished callback\n");
+    return NULL;
+}
+
+// MusicFinished
+#define GO(A)   \
+static uintptr_t my_MusicFinished_fct_##A = 0;              \
+static void my_MusicFinished_##A()                          \
+{                                                           \
+    RunFunction(my_context, my_MusicFinished_fct_##A, 0);   \
+}
+SUPER()
+#undef GO
+static void* find_MusicFinished_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_MusicFinished_fct_##A == (uintptr_t)fct) return my_MusicFinished_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_MusicFinished_fct_##A == 0) {my_MusicFinished_fct_##A = (uintptr_t)fct; return my_MusicFinished_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer MusicFinished callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 static void freeSDL1MixerMy(library_t* lib)
 {
@@ -61,7 +194,7 @@ static void freeSDL1MixerMy(library_t* lib)
         FreeCallback(my->hookMusicCB);
 }
 
-void EXPORT *my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
+EXPORT void* my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -70,7 +203,7 @@ void EXPORT *my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
         RWNativeEnd(rw);
     return r;
 }
-void EXPORT *my_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
+EXPORT void* my_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -78,7 +211,7 @@ void EXPORT *my_Mix_LoadMUS_RW(x86emu_t* emu, void* a)
     RWNativeEnd(rw);  // this one never free the RWops
     return r;
 }
-void EXPORT *my_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
+EXPORT void* my_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -88,95 +221,40 @@ void EXPORT *my_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
     return r;
 }
 
-static void sdl1mixerPostCallback(void *userdata, uint8_t *stream, int32_t len)
-{
-    x86emu_t *emu = (x86emu_t*) userdata;
-    SetCallbackArg(emu, 1, stream);
-    SetCallbackArg(emu, 2, (void*)len);
-    RunCallback(emu);
-}
-
-void EXPORT my_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
+EXPORT void my_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
-    // create a callback
-    if(a) {
-        x86emu_t *cbemu = AddCallback(emu, (uintptr_t)a, 3, b, NULL, NULL, NULL);
-        my->Mix_SetPostMix(sdl1mixerPostCallback, cbemu);
-        if(my->PostCallback)
-            FreeCallback(my->PostCallback);
-        my->PostCallback = cbemu;
-    } else {
-        my->Mix_SetPostMix(NULL, b);
-        FreeCallback(my->PostCallback);
-        my->PostCallback = NULL;
-    }
+    my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
-x86emu_t* sdl1channelfinished_emu = NULL;
-static void sdl1ChannelFinishedCallback(int channel)
-{
-    if(!sdl1channelfinished_emu)
-        return;
-    SetCallbackArg(sdl1channelfinished_emu, 0, (void*)channel);
-    RunCallback(sdl1channelfinished_emu);
-}
-void EXPORT my_Mix_ChannelFinished(x86emu_t* emu, void* cb)
+EXPORT void my_Mix_ChannelFinished(x86emu_t* emu, void* cb)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
-    if(sdl1channelfinished_emu) {
-        FreeCallback(sdl1channelfinished_emu);
-        sdl1channelfinished_emu = NULL;
-    }
-    if(cb) {
-        sdl1channelfinished_emu = AddCallback(emu, (uintptr_t)cb, 1, NULL, NULL, NULL, NULL);
-        my->Mix_ChannelFinished(sdl1ChannelFinishedCallback);
-    } else
-        my->Mix_ChannelFinished(NULL);
-}
-static void sdl1mixer_hookMusicCallback(void* udata, uint8_t* stream, int32_t len)
-{
-    x86emu_t *emu = (x86emu_t*)udata;
-    SetCallbackArg(emu, 1, (void*)stream);
-    SetCallbackArg(emu, 2, (void*)len);
-    RunCallback(emu);
+    my->Mix_ChannelFinished(find_ChannelFinished_Fct(cb));
 }
 
 EXPORT void my_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
-    if(my->hookMusicCB) {
-        my->Mix_HookMusic(NULL, NULL);
-        FreeCallback(my->hookMusicCB);
-        my->hookMusicCB = NULL;
-    }
-    if(!f)
-        return;
-    x86emu_t *cb = NULL;
-    cb =  AddCallback(emu, (uintptr_t)f, 3, arg, NULL, NULL, NULL);
-    my->hookMusicCB = cb;
-    my->Mix_HookMusic(sdl1mixer_hookMusicCallback, cb);
-}
-
-static void sdl1mixer_hookMusicFinitCallback()
-{
-    x86emu_t *emu = hookMusicFinitCB;
-    if(emu)
-        RunCallback(emu);
+    my->Mix_HookMusic(find_MixFunc_Fct(f), arg);
 }
 
 EXPORT void my_Mix_HookMusicFinished(x86emu_t* emu, void* f)
 {
     sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
-    if(hookMusicFinitCB) {
-        my->Mix_HookMusicFinished(NULL);
-        FreeCallback(hookMusicFinitCB);
-        hookMusicFinitCB = NULL;
-    }
-    if(!f)
-        return;
-    hookMusicFinitCB =  AddCallback(emu, (uintptr_t)f, 0, NULL, NULL, NULL, NULL);
-    my->Mix_HookMusicFinished(sdl1mixer_hookMusicFinitCallback);
+    my->Mix_HookMusicFinished(find_MusicFinished_Fct(f));
+}
+
+EXPORT int my_Mix_RegisterEffect(x86emu_t* emu, int chan, void* f, void* d, void *arg)
+{
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
+    return my->Mix_RegisterEffect(chan, find_EffectFunc_Fct(f), find_EffectDone_Fct(d), arg);
+}
+
+EXPORT int my_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
+{
+    sdl1mixer_my_t *my = (sdl1mixer_my_t *)emu->context->sdl1mixerlib->priv.w.p2;
+    return my->Mix_UnregisterEffect(channel, find_EffectFunc_Fct(f));
 }
 
 const char* sdl1mixerName = "libSDL_mixer-1.2.so.0";
