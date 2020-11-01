@@ -420,7 +420,7 @@ EXPORT int my_##A(x86emu_t* emu, void* device, void* pAllocateInfo, my_VkAllocat
     return my->A(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);                          \
 }
 #define DESTROY(A)   \
-EXPORT int my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                         \
+EXPORT void my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                         \
 {                                                                                                                       \
     vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
