@@ -526,6 +526,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     CH(VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR, "upUUUUu", A)                 \
     CH(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR, "upiUuiiuuuiiupiiiiU", A)       \
     CH(VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR, "upiiuuifiuu", A)         \
+    CH(VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT, "upUUi", A)          \
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:        \
         B##VkComputePipelineCreateInfo(src, &dst);              \
         break;                                                  \
@@ -600,6 +601,7 @@ int vkalignSize(const char* desc)
 {
     int c = 0;
     int sz = 0;
+    int a = 0;
     while(*desc) {
         switch (*desc) {
             case 'i':
@@ -632,6 +634,7 @@ int vkalignSize(const char* desc)
                     ++c;
                     sz+=4;
                 }
+                a=1;
                 sz+=8;
                 c+=2;
                 break;
@@ -640,7 +643,7 @@ int vkalignSize(const char* desc)
         }
         ++desc;
     }
-    if(c&1) {   //align?
+    if(a && (c&1)) {   //align?
         ++c;
         sz+=4;
     }
@@ -652,6 +655,7 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
     int count=(cnt)?cnt:1;
     void* dst = (void*)malloc(sz*count);
     int c = 0;
+    int a = 0;
     uint32_t* psrc = (uint32_t*)src;
     uint32_t* pdst = (uint32_t*)dst;
     while(count) {
@@ -695,10 +699,13 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
                     *(pdst++) = *(psrc++);
                     *(pdst++) = *(psrc++);
                     c+=2;
+                    a=1;
                     break;
             }
             ++desc;
         }
+        if(a && (c&1))
+            ++pdst;
         --count;
     }
     return dst;
@@ -761,6 +768,7 @@ static void unalignVkComputePipelineCreateInfo(my_vkhead_t* src, my_vkhead_t** d
 void vkunvkalignStruct(void* dst, void* src, const char* desc, int cnt)
 {
     int c = 0;
+    int a = 1;
     uint32_t* psrc = (uint32_t*)src;
     uint32_t* pdst = (uint32_t*)dst;
     int count = (cnt)?cnt:1;
@@ -805,12 +813,13 @@ void vkunvkalignStruct(void* dst, void* src, const char* desc, int cnt)
                     *(pdst++) = *(psrc++);
                     *(pdst++) = *(psrc++);
                     c+=2;
+                    a=1;
                     break;
             }
             ++desc;
         }
         --count;
-        if(c&1) {   //align?
+        if(a && (c&1)) {   //align?
             ++c;
             ++psrc;
         }

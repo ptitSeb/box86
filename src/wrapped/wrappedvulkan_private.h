@@ -203,6 +203,7 @@ GO(vkUpdateDescriptorSetWithTemplate, vFpUUp)
 GO(vkTrimCommandPool, vFpUi)
 
 // VK_VERSION_1_2
+GO(vkResetQueryPool, vFpUuu)
 
 // VK_EXT_debug_report
 //GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -325,9 +326,37 @@ GO(vkGetPhysicalDeviceExternalSemaphorePropertiesKHR, vFpPP)
 // VK_KHR_maintenance1
 GO(vkTrimCommandPoolKHR, vFpUi)
 
+// VK_KHR_maintenance2
+// no functions
+
 // VK_KHR_maintenance3
 GO(vkGetDescriptorSetLayoutSupportKHR, vFpPp)
 
 // VK_KHR_external_memory_fd
 GO(vkGetMemoryFdKHR, iFppp)
 GO(vkGetMemoryFdPropertiesKHR, iFpiip)
+
+// VK_KHR_dedicated_allocation
+// no functions
+
+// VK_KHR_image_format_list
+// no functions
+
+// VK_KHR_shader_draw_parameters
+// no functions
+
+// VK_EXT_conditional_rendering
+GO(vkCmdBeginConditionalRenderingEXT, vFpP)
+GO(vkCmdEndConditionalRenderingEXT, vFp)
+
+// VK_EXT_depth_clip_enable
+// no functions
+
+// VK_EXT_host_query_reset
+GO(vkResetQueryPoolEXT, vFpUuu)
+
+// VK_EXT_memory_priority
+// no functions
+
+// VK_EXT_shader_demote_to_helper_invocation
+// no functions
