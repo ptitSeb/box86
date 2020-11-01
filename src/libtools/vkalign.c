@@ -675,8 +675,9 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
     uint32_t* psrc = (uint32_t*)src;
     uint32_t* pdst = (uint32_t*)dst;
     while(count) {
-        while(*desc) {
-            switch (*desc) {
+        const char* p = desc;
+        while(*p) {
+            switch (*p) {
                 case 'i':
                 case 'u':
                 case 'p':
@@ -718,10 +719,12 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
                     a=1;
                     break;
             }
-            ++desc;
+            ++p;
         }
-        if(a && (c&1))
+        if(a && (c&1)) {
+            ++c;
             ++pdst;
+        }
         --count;
     }
     return dst;
@@ -789,8 +792,9 @@ void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
     uint32_t* pdst = (uint32_t*)dst;
     int count = (cnt)?cnt:1;
     while(count) {
-        while(*desc) {
-            switch (*desc) {
+        const char* p = desc;
+        while(*p) {
+            switch (*p) {
                 case 'i':
                 case 'u':
                 case 'p':
@@ -832,7 +836,7 @@ void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
                     a=1;
                     break;
             }
-            ++desc;
+            ++p;
         }
         --count;
         if(a && (c&1)) {   //align?
