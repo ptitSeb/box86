@@ -501,7 +501,7 @@ if(NOT _x86 AND NOT _x86_64)
   install(TARGETS ${BOX86}
     RUNTIME DESTINATION bin)
   configure_file(system/box86.conf.cmake system/box86.conf)
-  install(FILES ${CMAKE_SOURCE_DIR}/system/box86.conf DESTINATION /etc/binfmt.d/)
+  install(FILES ${CMAKE_BINARY_DIR}/system/box86.conf DESTINATION /etc/binfmt.d/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
