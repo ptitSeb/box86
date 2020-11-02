@@ -475,7 +475,6 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:                \
     case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:         \
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:          \
-    case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:      \
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:        \
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:           \
     case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:\
@@ -513,6 +512,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:           \
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT:\
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:\
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:                \
 
 #define CH(C, B, A) \
     case C:         \
@@ -542,6 +542,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
     CH(VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR, "upiiuuifiuu", A)         \
     CH(VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT, "upUUi", A)          \
     CH(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, "upUu", A)                           \
+    CH(VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO, "upiupiUiUu", A)   \
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:        \
         B##VkComputePipelineCreateInfo(src, &dst);              \
         break;                                                  \

@@ -130,6 +130,102 @@ void freeVulkanMy(void* p)
 {
     //vulkan_my_t* my = (vulkan_my_t*)p;
 }
+
+void fillVulkanProcWrapper(box86context_t*);
+void freeVulkanProcWrapper(box86context_t*);
+
+static void* resolveSymbol(x86emu_t* emu, void* symbol, const char* rname)
+{
+    // check if alread bridged
+    uintptr_t ret = CheckBridged(emu->context->system, symbol);
+    if(ret) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
+        return (void*)ret; // already bridged
+    }
+    // get wrapper    
+    khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
+    if(k==kh_end(emu->context->vkwrappers) && strstr(rname, "KHR")==NULL) {
+        // try again, adding KHR at the end if not present
+        char tmp[200];
+        strcpy(tmp, rname);
+        strcat(tmp, "KHR");
+        k = kh_get(symbolmap, emu->context->vkwrappers, tmp);
+    }
+    if(k==kh_end(emu->context->vkwrappers)) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
+        return NULL;
+    }
+    AddOffsetSymbol(emu->context->maplib, symbol, rname);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0);
+    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p (%p)\n", (void*)ret, symbol);
+    return (void*)ret;
+}
+
+EXPORT void* my_vkGetDeviceProcAddr(x86emu_t* emu, void* device, void* name) 
+{
+    khint_t k;
+    const char* rname = (const char*)name;
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+
+    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
+    if(!emu->context->vkwrappers)
+        fillVulkanProcWrapper(emu->context);
+    k = kh_get(symbolmap, emu->context->vkmymap, rname);
+    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
+    void* symbol;
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box86lib, tmp);
+        // need to update symbol link maybe
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my->vkGetDeviceProcAddr(device, name);
+        SUPER()
+        #undef GO
+    } else 
+        symbol = my->vkGetDeviceProcAddr(device, name);
+    if(!symbol) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        return NULL;    // easy
+    }
+    return resolveSymbol(emu, symbol, rname);
+}
+
+EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name) 
+{
+    khint_t k;
+    const char* rname = (const char*)name;
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+
+    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
+    if(!emu->context->vkwrappers)
+        fillVulkanProcWrapper(emu->context);
+    // check if glxprocaddress is filled, and search for lib and fill it if needed
+    // get proc adress using actual glXGetProcAddress
+    k = kh_get(symbolmap, emu->context->vkmymap, rname);
+    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
+    void* symbol;
+    if(is_my) {
+        // try again, by using custom "my_" now...
+        char tmp[200];
+        strcpy(tmp, "my_");
+        strcat(tmp, rname);
+        symbol = dlsym(emu->context->box86lib, tmp);
+        // need to update symbol link maybe
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)emu->context->vkprocaddress(instance, rname);;
+        SUPER()
+        #undef GO
+    } else 
+        symbol = emu->context->vkprocaddress(instance, rname);
+    if(!symbol) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        return NULL;    // easy
+    }
+    return resolveSymbol(emu, symbol, rname);
+}
+
 #undef SUPER
 
 typedef struct my_VkAllocationCallbacks_s {
@@ -261,92 +357,6 @@ static void* find_InternalFreeNotification_Fct(void* fct)
 }
 
 #undef SUPER
-
-void fillVulkanProcWrapper(box86context_t*);
-void freeVulkanProcWrapper(box86context_t*);
-
-static void* resolveSymbol(x86emu_t* emu, void* symbol, const char* rname)
-{
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret) {
-        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
-        return (void*)ret; // already bridged
-    }
-    // get wrapper    
-    khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
-    if(k==kh_end(emu->context->vkwrappers) && strstr(rname, "KHR")==NULL) {
-        // try again, adding KHR at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "KHR");
-        k = kh_get(symbolmap, emu->context->vkwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->vkwrappers)) {
-        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0);
-    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
-    return (void*)ret;
-}
-
-EXPORT void* my_vkGetDeviceProcAddr(x86emu_t* emu, void* device, void* name) 
-{
-    khint_t k;
-    const char* rname = (const char*)name;
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
-
-    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
-    if(!emu->context->vkwrappers)
-        fillVulkanProcWrapper(emu->context);
-    k = kh_get(symbolmap, emu->context->vkmymap, rname);
-    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box86lib, tmp);
-    } else 
-        symbol = my->vkGetDeviceProcAddr(device, name);
-    if(!symbol) {
-        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        return NULL;    // easy
-    }
-    return resolveSymbol(emu, symbol, rname);
-}
-
-EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name) 
-{
-    khint_t k;
-    const char* rname = (const char*)name;
-
-    if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
-    if(!emu->context->vkwrappers)
-        fillVulkanProcWrapper(emu->context);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, emu->context->vkmymap, rname);
-    int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box86lib, tmp);
-    } else 
-        symbol = emu->context->vkprocaddress(instance, rname);
-    if(!symbol) {
-        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        return NULL;    // easy
-    }
-    return resolveSymbol(emu, symbol, rname);
-}
 
 //#define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 
