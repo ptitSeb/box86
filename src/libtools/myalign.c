@@ -65,7 +65,9 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
                     case '7':
                     case '8':
                     case '9':
-                    case '.': ++p; break; // formating, ignored
+                    case '.': 
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
                     case 'p':
@@ -356,7 +358,9 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
                     case '7':
                     case '8':
                     case '9':
-                    case '.': ++p; break; // formating, ignored
+                    case '.': 
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
                     case 'p':
