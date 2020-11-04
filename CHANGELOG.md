@@ -1,5 +1,11 @@
 Current version
 ======
+* Changes in Dynarec to make flags optimizations before CALL or before RET less aggressive
+* A few more Dynarec opcodes added
+* Added Vulkan wrapper
+* Improved wrapping of SDL_mixer lib
+* If winedbg is tried to be launched, exit without launching it (it doesn't work anyway)
+* Fixed some wrapped printf formating not handled correctly
 
 v0.1.4
 ======
