@@ -40,6 +40,7 @@ const char* DumpSection(Elf32_Shdr *s, char* SST) {
         GO(SHT_HIPROC);
         GO(SHT_LOUSER);
         GO(SHT_HIUSER);
+        #ifdef SHT_GNU_versym
         GO(SHT_GNU_versym);
         GO(SHT_GNU_ATTRIBUTES);
         GO(SHT_GNU_HASH);
@@ -51,6 +52,7 @@ const char* DumpSection(Elf32_Shdr *s, char* SST) {
         GO(SHT_SUNW_syminfo);
         GO(SHT_GNU_verdef);
         GO(SHT_GNU_verneed);
+        #endif
         #undef GO
         default:
             sprintf(buff, "0x%X unknown type", s->sh_type);
@@ -98,6 +100,7 @@ const char* DumpDynamic(Elf32_Dyn *s) {
             GO(DT_RUNPATH, 0);
             GO(DT_FLAGS, 0);
             GO(DT_ENCODING, 0);
+            #ifdef DT_NUM
             GO(DT_NUM, 0);
             GO(DT_VALRNGLO, 0);
             GO(DT_GNU_PRELINKED, 0);
@@ -133,6 +136,7 @@ const char* DumpDynamic(Elf32_Dyn *s) {
             GO(DT_VERNEEDNUM, 0);
             GO(DT_AUXILIARY, 0);
             GO(DT_FILTER, 0);
+            #endif
         #undef GO
         default:
             sprintf(buff, "0x%X unknown type", s->d_tag);
