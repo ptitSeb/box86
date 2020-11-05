@@ -60,7 +60,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
     GO(gtk_dialog_add_button, pFppi_t)          \
-    GO(gtk_message_dialog_format_secondary_text, vFpp_t)\
+    GO(gtk_message_dialog_format_secondary_text, vFpp_t)    \
+    GO(gtk_message_dialog_format_secondary_markup, vFpp_t)  \
     GO(gtk_init, vFpp_t)                        \
     GO(gtk_init_check, iFpp_t)                  \
     GO(gtk_init_with_args, iFpppppp_t)          \
@@ -376,6 +377,24 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dia
     free(buf);
 }
 
+EXPORT void my_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* dialog, void* fmt, void* b)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, emu->scratch);
+    #else
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, b);
+    #endif
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    my->gtk_message_dialog_format_secondary_markup(dialog, buf);
+    free(buf);
+}
 EXPORT void* my_gtk_type_class(x86emu_t* emu, int type)
 {
     library_t * lib = GetLibInternal(libname);

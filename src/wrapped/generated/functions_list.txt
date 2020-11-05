@@ -1160,13 +1160,16 @@
 #() iFppipii
 #() iFppipiL
 #() iFppipip
+#() iFppIipp
 #() iFppIppp
 #() iFppuiii
 #() iFppuiiu
+#() iFppuipp
 #() iFppuIII
 #() iFppuupp
 #() iFppupip
 #() iFppuppp
+#() iFppUipp
 #() iFppUupp
 #() iFppdidd
 #() iFpplppi
@@ -1212,6 +1215,7 @@
 #() pFpuuuuu
 #() pFplpppp
 #() pFppiiii
+#() pFppiipp
 #() pFppippp
 #() pFpppiii
 #() pFpppiui
@@ -1319,6 +1323,7 @@
 #() iFppiipiL
 #() iFppipiip
 #() iFppipipi
+#() iFppipipp
 #() iFppippip
 #() iFppipppi
 #() iFppipppp
@@ -1516,6 +1521,7 @@
 #() iFppiiiiiii
 #() iFppiuiippu
 #() iFppipiiipi
+#() iFppLpiippp
 #() iFpppiiuuii
 #() iFpppiipiiu
 #() iFppppupiii

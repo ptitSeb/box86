@@ -1695,15 +1695,15 @@ GO(gtk_menu_tool_button_get_type, iFv)
 //GO(gtk_menu_tool_button_set_arrow_tooltip_markup, 
 //GO(gtk_menu_tool_button_set_arrow_tooltip_text, 
 //GO(gtk_menu_tool_button_set_menu, 
-//GO(gtk_message_dialog_format_secondary_markup, 
+GOM(gtk_message_dialog_format_secondary_markup, vFEppV)
 GOM(gtk_message_dialog_format_secondary_text, vFEppV)
-//GO(gtk_message_dialog_get_image, 
-//GO(gtk_message_dialog_get_message_area, 
+GO(gtk_message_dialog_get_image, pFp)
+GO(gtk_message_dialog_get_message_area, pFp)
 GO(gtk_message_dialog_get_type, iFv)
 GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
-//GO(gtk_message_dialog_new_with_markup, 
-//GO(gtk_message_dialog_set_image, 
-//GO(gtk_message_dialog_set_markup, 
+GO(gtk_message_dialog_new_with_markup, pFpuiippppppppppp)   // vaarg
+GO(gtk_message_dialog_set_image, vFpp)
+GO(gtk_message_dialog_set_markup, vFpp)
 GO(gtk_message_type_get_type, iFv)
 GO(gtk_metric_type_get_type, iFv)
 GO(gtk_misc_get_alignment, vFppp)
@@ -1711,13 +1711,13 @@ GO(gtk_misc_get_padding, vFppp)
 GO(gtk_misc_get_type, iFv)
 GO(gtk_misc_set_alignment, vFpff)
 GO(gtk_misc_set_padding, vFpii)
-//GO(gtk_mount_operation_get_parent, 
-//GO(gtk_mount_operation_get_screen, 
+GO(gtk_mount_operation_get_parent, pFp)
+GO(gtk_mount_operation_get_screen, pFp)
 GO(gtk_mount_operation_get_type, iFv)
-//GO(gtk_mount_operation_is_showing, 
-//GO(gtk_mount_operation_new, 
-//GO(gtk_mount_operation_set_parent, 
-//GO(gtk_mount_operation_set_screen, 
+GO(gtk_mount_operation_is_showing, iFp)
+GO(gtk_mount_operation_new, pFp)
+GO(gtk_mount_operation_set_parent, vFpp)
+GO(gtk_mount_operation_set_screen, vFpp)
 GO(gtk_movement_step_get_type, iFv)
 GO(gtk_notebook_append_page, iFppp)
 GO(gtk_notebook_append_page_menu, iFpppp)
@@ -2540,7 +2540,7 @@ GO(gtk_settings_set_property_value, vFppp)
 GO(gtk_settings_set_string_property, vFpppp)
 GO(gtk_shadow_type_get_type, iFv)
 //GO(gtk_show_about_dialog, 
-//GO(gtk_show_uri, 
+GO(gtk_show_uri, iFppup)
 GO(gtk_side_type_get_type, iFv)
 //GO(gtk_signal_compat_matched, 
 GOM(gtk_signal_connect_full, LFEppppppii)

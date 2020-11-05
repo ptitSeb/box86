@@ -622,9 +622,9 @@ GO(g_desktop_app_info_set_desktop_env, vFp)
 //GO(g_emblem_new, 
 //GO(g_emblem_new_with_origin, 
 //GO(g_emblem_origin_get_type, 
-//GO(g_file_append_to, 
-//GO(g_file_append_to_async, 
-//GO(g_file_append_to_finish, 
+GO(g_file_append_to, pFpipp)
+//GOM(g_file_append_to_async, vFEpiipBp)
+GO(g_file_append_to_finish, pFppp)
 //GO(g_file_attribute_info_flags_get_type, 
 //GO(g_file_attribute_info_list_add, 
 //GO(g_file_attribute_info_list_dup, 
@@ -645,31 +645,31 @@ GO(g_desktop_app_info_set_desktop_env, vFp)
 //GO(g_file_attribute_matcher_unref, 
 //GO(g_file_attribute_status_get_type, 
 //GO(g_file_attribute_type_get_type, 
-//GO(g_file_copy, 
-//GO(g_file_copy_async, 
-//GO(g_file_copy_attributes, 
-//GO(g_file_copy_finish, 
-//GO(g_file_copy_flags_get_type, 
-//GO(g_file_create, 
-//GO(g_file_create_async, 
-//GO(g_file_create_finish, 
-//GO(g_file_create_flags_get_type, 
-//GO(g_file_create_readwrite, 
-//GO(g_file_create_readwrite_async, 
-//GO(g_file_create_readwrite_finish, 
-//GO(g_file_delete, 
-//GO(g_file_delete_async, 
-//GO(g_file_delete_finish, 
+//GOM(g_file_copy, iFEppipBpp)
+//GOM(g_file_copy_async, vFEppiipBpBp)
+GO(g_file_copy_attributes, iFppipp)
+GO(g_file_copy_finish, iFppp)
+GO(g_file_copy_flags_get_type, iFv)
+GO(g_file_create, pFpipp)
+//GOM(g_file_create_async, vFEpiipBp)
+GO(g_file_create_finish, pFppp)
+GO(g_file_create_flags_get_type, iFv)
+GO(g_file_create_readwrite, pFpipp)
+//GOM(g_file_create_readwrite_async, vFEpiipBp)
+GO(g_file_create_readwrite_finish, pFppp)
+GO(g_file_delete, iFppp)
+//GOM(g_file_delete_async, vFEpipBp)
+GO(g_file_delete_finish, pFppp)
 //GO(g_file_descriptor_based_get_fd, 
 //GO(g_file_descriptor_based_get_type, 
-//GO(g_file_dup, 
-//GO(g_file_eject_mountable, 
-//GO(g_file_eject_mountable_finish, 
-//GO(g_file_eject_mountable_with_operation, 
-//GO(g_file_eject_mountable_with_operation_finish, 
-//GO(g_file_enumerate_children, 
-//GO(g_file_enumerate_children_async, 
-//GO(g_file_enumerate_children_finish, 
+GO(g_file_dup, pFp)
+//GOM(g_file_eject_mountable, vFEpipBp)
+GO(g_file_eject_mountable_finish, iFppp)
+//GOM(g_file_eject_mountable_with_operation, vFpippBp)
+GO(g_file_eject_mountable_with_operation_finish, iFppp)
+GO(g_file_enumerate_children, pFppipp)
+//GOM(g_file_enumerate_children_async, vFppiipBp)
+GO(g_file_enumerate_children_finish, pFppp)
 //GO(g_file_enumerator_close, 
 //GO(g_file_enumerator_close_async, 
 //GO(g_file_enumerator_close_finish, 
@@ -682,24 +682,24 @@ GO(g_desktop_app_info_set_desktop_env, vFp)
 //GO(g_file_enumerator_next_files_async, 
 //GO(g_file_enumerator_next_files_finish, 
 //GO(g_file_enumerator_set_pending, 
-//GO(g_file_equal, 
-//GO(g_file_find_enclosing_mount, 
-//GO(g_file_find_enclosing_mount_async, 
-//GO(g_file_find_enclosing_mount_finish, 
-//GO(g_file_get_basename, 
-//GO(g_file_get_child, 
-//GO(g_file_get_child_for_display_name, 
-//GO(g_file_get_parent, 
-//GO(g_file_get_parse_name, 
-//GO(g_file_get_path, 
-//GO(g_file_get_relative_path, 
-//GO(g_file_get_type, 
-//GO(g_file_get_uri, 
-//GO(g_file_get_uri_scheme, 
-//GO(g_file_hash, 
-//GO(g_file_has_parent, 
-//GO(g_file_has_prefix, 
-//GO(g_file_has_uri_scheme, 
+GO(g_file_equal, iFpp)
+GO(g_file_find_enclosing_mount, pFppp)
+//GOM(g_file_find_enclosing_mount_async, vFEpipBp)
+GO(g_file_find_enclosing_mount_finish, pFppp)
+GO(g_file_get_basename, pFp)
+GO(g_file_get_child, pFpp)
+GO(g_file_get_child_for_display_name, pFppp)
+GO(g_file_get_parent, pFp)
+GO(g_file_get_parse_name, pFp)
+GO(g_file_get_path, pFp)
+GO(g_file_get_relative_path, pFpp)
+GO(g_file_get_type, iFv)
+GO(g_file_get_uri, pFp)
+GO(g_file_get_uri_scheme, pFp)
+GO(g_file_hash, uFp)
+GO(g_file_has_parent, iFpp)
+GO(g_file_has_prefix, iFpp)
+GO(g_file_has_uri_scheme, iFpp)
 GO(g_file_icon_get_file, pFp)
 GO(g_file_icon_get_type, iFv)
 GO(g_file_icon_new, pFp)
@@ -776,110 +776,117 @@ GO(g_file_icon_new, pFp)
 //GO(g_file_io_stream_query_info, 
 //GO(g_file_io_stream_query_info_async, 
 //GO(g_file_io_stream_query_info_finish, 
-//GO(g_file_is_native, 
-//GO(g_file_load_contents, 
-//GO(g_file_load_contents_async, 
-//GO(g_file_load_contents_finish, 
-//GO(g_file_load_partial_contents_async, 
-//GO(g_file_load_partial_contents_finish, 
-//GO(g_file_make_directory, 
-//GO(g_file_make_directory_async, 
-//GO(g_file_make_directory_finish, 
-//GO(g_file_make_directory_with_parents, 
-//GO(g_file_make_symbolic_link, 
-//GO(g_file_measure_disk_usage, 
-//GO(g_file_measure_disk_usage_async, 
-//GO(g_file_measure_disk_usage_finish, 
+GO(g_file_is_native, iFpp)
+GO(g_file_load_bytes, pFpppp)   //sice 2.56+
+//GOM(g_file_load_bytes_async, vFEppBp) //since 2.56+
+GO(g_file_load_bytes_finish, pFpppp)    //since 2.56+
+GO(g_file_load_contents, iFpppppp)
+//GOM(g_file_load_contents_async, vFEppBp)
+GO(g_file_load_contents_finish, iFpppppp)
+//GOM(g_file_load_partial_contents_async, vFppBBp)
+GO(g_file_load_partial_contents_finish, iFpppppp)
+GO(g_file_make_directory, iFppp)
+//GOM(g_file_make_directory_async, vFEpipBp)
+GO(g_file_make_directory_finish, iFppp)
+GO(g_file_make_directory_with_parents, iFppp)
+GO(g_file_make_symbolic_link, iFpppp)
+//GOM(g_file_measure_disk_usage, iFEpipBppppp)
+//GOM(g_file_measure_disk_usage_async, vFEpiipBpBp)
+GO(g_file_measure_disk_usage_finish, iFpppppp)
 //GO(g_file_measure_flags_get_type, 
-//GO(g_file_monitor, 
+GO(g_file_monitor, pFpipp)
 //GO(g_file_monitor_cancel, 
-//GO(g_file_monitor_directory, 
+GO(g_file_monitor_directory, pFpipp)
 //GO(g_file_monitor_emit_event, 
 //GO(g_file_monitor_event_get_type, 
-//GO(g_file_monitor_file, 
+GO(g_file_monitor_file, pFpipp)
 //GO(g_file_monitor_flags_get_type, 
 //GO(g_file_monitor_get_type, 
 //GO(g_file_monitor_is_cancelled, 
 //GO(g_file_monitor_set_rate_limit, 
-//GO(g_file_mount_enclosing_volume, 
-//GO(g_file_mount_enclosing_volume_finish, 
-//GO(g_file_mount_mountable, 
-//GO(g_file_mount_mountable_finish, 
-//GO(g_file_move, 
+//GOM(g_file_mount_enclosing_volume, vFEpippBp)
+GO(g_file_mount_enclosing_volume_finish, iFppp)
+//GOM(g_file_mount_mountable, vFEpippBp)
+GO(g_file_mount_mountable_finish, pFppp)
+//GOM(g_file_move, iFEppipBpp)
 //GO(g_filename_completer_get_completions, 
 //GO(g_filename_completer_get_completion_suffix, 
 //GO(g_filename_completer_get_type, 
 //GO(g_filename_completer_new, 
 //GO(g_filename_completer_set_dirs_only, 
-//GO(g_file_new_for_commandline_arg, 
-//GO(g_file_new_for_commandline_arg_and_cwd, 
-//GO(g_file_new_for_path, 
-//GO(g_file_new_for_uri, 
-//GO(g_file_new_tmp, 
-//GO(g_file_open_readwrite, 
-//GO(g_file_open_readwrite_async, 
-//GO(g_file_open_readwrite_finish, 
+GO(g_file_new_build_filename, pFppppppppppp)    // vaarg, since v2.56+
+GO(g_file_new_for_commandline_arg, pFp)
+GO(g_file_new_for_commandline_arg_and_cwd, pFpp)
+GO(g_file_new_for_path, pFp)
+GO(g_file_new_for_uri, pFp)
+GO(g_file_new_tmp, pFppp)
+GO(g_file_open_readwrite, pFppp)
+//GOM(g_file_open_readwrite_async, vFEpipBp)
+GO(g_file_open_readwrite_finish, pFppp)
 //GO(g_file_output_stream_get_etag, 
 //GO(g_file_output_stream_get_type, 
 //GO(g_file_output_stream_query_info, 
 //GO(g_file_output_stream_query_info_async, 
 //GO(g_file_output_stream_query_info_finish, 
-//GO(g_file_parse_name, 
-//GO(g_file_poll_mountable, 
-//GO(g_file_poll_mountable_finish, 
-//GO(g_file_query_default_handler, 
-//GO(g_file_query_exists, 
-//GO(g_file_query_filesystem_info, 
-//GO(g_file_query_filesystem_info_async, 
-//GO(g_file_query_filesystem_info_finish, 
-//GO(g_file_query_file_type, 
-//GO(g_file_query_info, 
-//GO(g_file_query_info_async, 
-//GO(g_file_query_info_finish, 
+GO(g_file_parse_name, pFp)
+GO(g_file_peek_path , pFp)  // sice 2.56+
+//GOM(g_file_poll_mountable, vFEppBp)
+GO(g_file_poll_mountable_finish, iFppp)
+GO(g_file_query_default_handler, pFppp)
+//GOMg_file_query_default_handler_async, vFEpipBp)  //since 2.60+
+GO(g_file_query_default_handler_finish, pFppp)      //since 2.60+
+GO(g_file_query_exists, iFpp)
+GO(g_file_query_filesystem_info, pFpppp)
+//GOM(g_file_query_filesystem_info_async, vFEppipBp)
+GO(g_file_query_filesystem_info_finish, pFppp)
+GO(g_file_query_file_type, iFpip)
+GO(g_file_query_info, pFppipp)
+//GOM(g_file_query_info_async, vFEppiipBp)
+GO(g_file_query_info_finish, pFppp)
 //GO(g_file_query_info_flags_get_type, 
-//GO(g_file_query_settable_attributes, 
-//GO(g_file_query_writable_namespaces, 
-//GO(g_file_read, 
-//GO(g_file_read_async, 
-//GO(g_file_read_finish, 
-//GO(g_file_replace, 
-//GO(g_file_replace_async, 
-//GO(g_file_replace_contents, 
-//GO(g_file_replace_contents_async, 
-//GO(g_file_replace_contents_bytes_async, 
-//GO(g_file_replace_contents_finish, 
+GO(g_file_query_settable_attributes, pFppp)
+GO(g_file_query_writable_namespaces, pFppp)
+GO(g_file_read, pFppp)
+//GOM(g_file_read_async, vFEpipBp)
+GO(g_file_read_finish, pFppp)
+GO(g_file_replace, pFppiipp)
+//GOM(g_file_replace_async, vFEppiiipBp)
+GO(g_file_replace_contents, iFppLpiippp)
+//GOM(g_file_replace_contents_async, vFEppLpuupBp)
+//GOM(g_file_replace_contents_bytes_async, vFEpppiipBp)
+GO(g_file_replace_contents_finish, iFpppp)
 //GO(g_file_replace_finish, 
-//GO(g_file_replace_readwrite, 
-//GO(g_file_replace_readwrite_async, 
-//GO(g_file_replace_readwrite_finish, 
-//GO(g_file_resolve_relative_path, 
-//GO(g_file_set_attribute, 
-//GO(g_file_set_attribute_byte_string, 
-//GO(g_file_set_attribute_int32, 
-//GO(g_file_set_attribute_int64, 
-//GO(g_file_set_attributes_async, 
-//GO(g_file_set_attributes_finish, 
-//GO(g_file_set_attributes_from_info, 
-//GO(g_file_set_attribute_string, 
-//GO(g_file_set_attribute_uint32, 
-//GO(g_file_set_attribute_uint64, 
-//GO(g_file_set_display_name, 
-//GO(g_file_set_display_name_async, 
-//GO(g_file_set_display_name_finish, 
-//GO(g_file_start_mountable, 
-//GO(g_file_start_mountable_finish, 
-//GO(g_file_stop_mountable, 
-//GO(g_file_stop_mountable_finish, 
-//GO(g_file_supports_thread_contexts, 
+GO(g_file_replace_readwrite, pFppiipp)
+//GOM(g_file_replace_readwrite_async, vFEppiiipBp)
+GO(g_file_replace_readwrite_finish, pFppp)
+GO(g_file_resolve_relative_path, pFpp)
+GO(g_file_set_attribute, iFppipipp)
+GO(g_file_set_attribute_byte_string, iFpppipp)
+GO(g_file_set_attribute_int32, iFppiipp)
+GO(g_file_set_attribute_int64, iFppIipp)
+//GOM(g_file_set_attributes_async, vFEppiipBp)
+GO(g_file_set_attributes_finish, iFpppp)
+GO(g_file_set_attributes_from_info, iFppipp)
+GO(g_file_set_attribute_string, iFpppipp)
+GO(g_file_set_attribute_uint32, iFppuipp)
+GO(g_file_set_attribute_uint64, iFppUipp)
+GO(g_file_set_display_name, pFpppp)
+//GOM(g_file_set_display_name_async, vFEppipBp)
+GO(g_file_set_display_name_finish, pFppp)
+//GOM(g_file_start_mountable, vFEpippBp)
+GO(g_file_start_mountable_finish, iFppp)
+//GOM(g_file_stop_mountable, vFpippBp)
+GO(g_file_stop_mountable_finish, iFppp)
+GO(g_file_supports_thread_contexts, iFp)
 //GO(g_filesystem_preview_type_get_type, 
-//GO(g_file_trash, 
-//GO(g_file_trash_async, 
-//GO(g_file_trash_finish, 
-//GO(g_file_type_get_type, 
-//GO(g_file_unmount_mountable, 
-//GO(g_file_unmount_mountable_finish, 
-//GO(g_file_unmount_mountable_with_operation, 
-//GO(g_file_unmount_mountable_with_operation_finish, 
+GO(g_file_trash, iFppp)
+//GOM(g_file_trash_async, vFEpipBp)
+GO(g_file_trash_finish, pFppp)
+GO(g_file_type_get_type, iFv)
+//GOM(g_file_unmount_mountable, vFEpipBp)
+GO(g_file_unmount_mountable_finish, iFppp)
+//GOM(g_file_unmount_mountable_with_operation, vFEpippBp)
+GO(g_file_unmount_mountable_with_operation_finish, iFppp)
 //GO(g_filter_input_stream_get_base_stream, 
 //GO(g_filter_input_stream_get_close_base_stream, 
 //GO(g_filter_input_stream_get_type, 
