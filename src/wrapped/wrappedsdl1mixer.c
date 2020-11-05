@@ -44,8 +44,6 @@ typedef struct sdl1mixer_my_s {
     x86emu_t* hookMusicCB;
 } sdl1mixer_my_t;
 
-static x86emu_t* hookMusicFinitCB = NULL;
-
 static void* getSDL1MixerMy(library_t* lib)
 {
     sdl1mixer_my_t* my = (sdl1mixer_my_t*)calloc(1, sizeof(sdl1mixer_my_t));
