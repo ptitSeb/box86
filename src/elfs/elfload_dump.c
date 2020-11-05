@@ -158,11 +158,13 @@ const char* DumpPHEntry(Elf32_Phdr *e)
         GO(PT_SHLIB);
         GO(PT_PHDR);
         GO(PT_TLS);
+        #ifdef PT_NUM
         GO(PT_NUM);
         GO(PT_LOOS);
         GO(PT_GNU_EH_FRAME);
         GO(PT_GNU_STACK);
         GO(PT_GNU_RELRO);
+        #endif
         #undef GO
         default: sprintf(buff, "type: %x, Off=%x vaddr=%p paddr=%p filesz=%u memsz=%u flags=%x align=%u", e->p_type, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
     }
