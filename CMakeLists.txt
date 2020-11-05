@@ -158,7 +158,7 @@ else()
 endif()
 
 
-add_definitions(-std=gnu99 -funwind-tables -fvisibility=hidden)
+add_definitions(-std=gnu11 -funwind-tables -fvisibility=hidden)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
