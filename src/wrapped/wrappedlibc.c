@@ -514,15 +514,16 @@ pid_t EXPORT my_fork(x86emu_t* emu)
     v = fork();
     if(type == EMUTYPE_MAIN)
         thread_set_emu(emu);
-    if(v==EAGAIN || v==ENOMEM) {
+    if(v<0) {
+        printf_log(LOG_NONE, "BOX86: Warning, fork errored... (%d)\n", v);
         // error...
-    } else if(v!=0) {  
+    } else if(v>0) {  
         // execute atforks parent functions
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].parent)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].parent, 0);
 
-    } else if(v==0) {
+    } else /*if(v==0)*/ {
         // execute atforks child functions
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].child)
