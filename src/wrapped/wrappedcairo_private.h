@@ -40,7 +40,7 @@ GO(cairo_device_to_user_distance, vFppp)
 GO(cairo_fill, vFp)
 GO(cairo_fill_extents, vFppppp)
 GO(cairo_fill_preserve, vFp)
-//GO(cairo_font_extents, 
+GO(cairo_font_extents, vFpp)
 //GO(cairo_font_face_destroy, 
 //GO(cairo_font_face_get_reference_count, 
 //GO(cairo_font_face_get_type, 
@@ -64,22 +64,22 @@ GO(cairo_font_options_set_hint_style, vFpi)
 GO(cairo_font_options_set_subpixel_order, vFpi)
 GO(cairo_font_options_status, iFp)
 GO(cairo_format_stride_for_width, iFii)
-//GO(cairo_ft_font_face_create_for_ft_face, 
-//GO(cairo_ft_font_face_create_for_pattern, 
-//GO(cairo_ft_font_face_get_synthesize, 
-//GO(cairo_ft_font_face_set_synthesize, 
-//GO(cairo_ft_font_face_unset_synthesize, 
-//GO(cairo_ft_font_options_substitute, 
-//GO(cairo_ft_scaled_font_lock_face, 
-//GO(cairo_ft_scaled_font_unlock_face, 
+GO(cairo_ft_font_face_create_for_ft_face, pFpi)
+GO(cairo_ft_font_face_create_for_pattern, pFp)
+GO(cairo_ft_font_face_get_synthesize, uFp)
+GO(cairo_ft_font_face_set_synthesize, vFpu)
+GO(cairo_ft_font_face_unset_synthesize, vFpu)
+GO(cairo_ft_font_options_substitute, vFpp)
+GO(cairo_ft_scaled_font_lock_face, pFp)
+GO(cairo_ft_scaled_font_unlock_face, vFp)
 GO(cairo_get_antialias, iFp)
 GO(cairo_get_current_point, vFppp)
 GO(cairo_get_dash, vFppp)
 GO(cairo_get_dash_count, iFp)
 GO(cairo_get_fill_rule, iFp)
-//GO(cairo_get_font_face, 
-//GO(cairo_get_font_matrix, 
-//GO(cairo_get_font_options, 
+GO(cairo_get_font_face, pFp)
+GO(cairo_get_font_matrix, vFpp)
+GO(cairo_get_font_options, vFpp)
 GO(cairo_get_group_target, pFp)
 GO(cairo_get_line_cap, iFp)
 GO(cairo_get_line_join, iFp)
@@ -88,14 +88,14 @@ GO(cairo_get_matrix, vFpp)
 GO(cairo_get_miter_limit, dFp)
 GO(cairo_get_operator, iFp)
 GO(cairo_get_reference_count, uFp)
-//GO(cairo_get_scaled_font, 
+GO(cairo_get_scaled_font, pFp)
 GO(cairo_get_source, pFp)
 GO(cairo_get_target, pFp)
 GO(cairo_get_tolerance, dFp)
 GO(cairo_get_user_data, pFpp)
-//GO(cairo_glyph_allocate, 
-//GO(cairo_glyph_extents, 
-//GO(cairo_glyph_free, 
+GO(cairo_glyph_allocate, pFi)
+GO(cairo_glyph_extents, vFppip)
+GO(cairo_glyph_free, vFp)
 GO(cairo_glyph_path, vFppi)
 GO(cairo_has_current_point, iFp)
 GO(cairo_identity_matrix, vFp)
@@ -266,31 +266,31 @@ GO(cairo_scale, vFpdd)
 //GO(cairo_script_surface_create, 
 //GO(cairo_script_surface_create_for_target, 
 //GO(cairo_script_write_comment, 
-//GO(cairo_select_font_face, 
+GO(cairo_select_font_face, vFppii)
 GO(cairo_set_antialias, vFpi)
 GO(cairo_set_dash, vFppid)
 GO(cairo_set_fill_rule, vFpi)
-//GO(cairo_set_font_face, 
-//GO(cairo_set_font_matrix, 
-//GO(cairo_set_font_options, 
-//GO(cairo_set_font_size, 
+GO(cairo_set_font_face, vFpp)
+GO(cairo_set_font_matrix, vFpp)
+GO(cairo_set_font_options, vFpp)
+GO(cairo_set_font_size, vFpd)
 GO(cairo_set_line_cap, vFpi)
 GO(cairo_set_line_join, vFpi)
 GO(cairo_set_line_width, vFpd)
 GO(cairo_set_matrix, vFpp)
 GO(cairo_set_miter_limit, vFpd)
 GO(cairo_set_operator, vFpi)
-//GO(cairo_set_scaled_font, 
+GO(cairo_set_scaled_font, vFpp)
 GO(cairo_set_source, vFpp)
 GO(cairo_set_source_rgb, vFpddd)
 GO(cairo_set_source_rgba, vFpdddd)
 GO(cairo_set_source_surface, vFppdd)
 GO(cairo_set_tolerance, vFpd)
 //GOM(cairo_set_user_data, iFEpppp)
-//GO(cairo_show_glyphs, 
+GO(cairo_show_glyphs, vFppi)
 GO(cairo_show_page, vFp)
-//GO(cairo_show_text, 
-//GO(cairo_show_text_glyphs, 
+GO(cairo_show_text, vFpp)
+GO(cairo_show_text_glyphs, vFppipipii)
 GO(cairo_status, iFp)
 //GO(cairo_status_to_string, 
 GO(cairo_stroke, vFp)
@@ -344,14 +344,14 @@ GO(cairo_surface_unmap_image, vFpp)
 //GO(cairo_svg_surface_create_for_stream, 
 //GO(cairo_svg_surface_restrict_to_version, 
 //GO(cairo_svg_version_to_string, 
-//GO(cairo_text_cluster_allocate, 
-//GO(cairo_text_cluster_free, 
-//GO(cairo_text_extents, 
+GO(cairo_text_cluster_allocate, pFi)
+GO(cairo_text_cluster_free, vFp)
+GO(cairo_text_extents, vFppp)
 GO(cairo_text_path, vFpp)
-//GO(cairo_toy_font_face_create, 
-//GO(cairo_toy_font_face_get_family, 
-//GO(cairo_toy_font_face_get_slant, 
-//GO(cairo_toy_font_face_get_weight, 
+GO(cairo_toy_font_face_create, pFpii)
+GO(cairo_toy_font_face_get_family, pFp)
+GO(cairo_toy_font_face_get_slant, iFp)
+GO(cairo_toy_font_face_get_weight, iFp)
 GO(cairo_transform, vFpp)
 GO(cairo_translate, vFpdd)
 //GO(cairo_user_font_face_create, 

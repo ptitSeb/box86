@@ -539,6 +539,7 @@
 #() vFppii
 #() vFppiu
 #() vFppid
+#() vFppil
 #() vFppiL
 #() vFppip
 #() vFppui
@@ -1072,6 +1073,7 @@
 #() vFpipiiu
 #() vFpipipV
 #() vFpipppi
+#() vFpipppp
 #() vFpuiiiu
 #() vFpuiipp
 #() vFpuuuiu
@@ -1412,6 +1414,7 @@
 #() vFpUuuUUUi
 #() vFppiiiiii
 #() vFppiiipii
+#() vFppipipii
 #() vFppipppui
 #() vFppippppi
 #() vFppippppp

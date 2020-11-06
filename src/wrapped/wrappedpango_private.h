@@ -7,6 +7,7 @@ GO(pango_attr_background_new, pFWWW)
 GO(pango_attr_fallback_new, pFi)
 GO(pango_attr_family_new, pFp)
 GO(pango_attr_font_desc_new, pFp)
+GO(pango_attr_font_features_new, pFp)   //since 1.38
 GO(pango_attr_foreground_new, pFWWW)
 GO(pango_attr_gravity_hint_new, pFi)
 GO(pango_attr_gravity_new, pFi)
@@ -104,7 +105,7 @@ GO(pango_extents_to_pixels, vFpp)
 //GO(pango_find_base_dir, 
 //GO(pango_find_map, 
 //GO(pango_find_paragraph_boundary, 
-//GO(pango_font_describe, 
+GO(pango_font_describe, pFp)
 GO(pango_font_describe_with_absolute_size, pFp)
 GO(pango_font_description_better_match, iFppp)
 GO(pango_font_description_copy, pFp)
