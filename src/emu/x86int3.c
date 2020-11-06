@@ -113,8 +113,15 @@ void x86Int3(x86emu_t* emu)
                     tmp = *(char**)(R_ESP+4);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
+                } else  if(strcmp(s, "mkdir")==0) {
+                    tmp = *(char**)(R_ESP+4);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8));
+                    perr = 1;
                 } else  if(!strcmp(s, "fopen")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                    perr = 1;
+                } else  if(!strcmp(s, "freopen")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %p)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
                     perr = 1;
                 } else  if(!strcmp(s, "fopen64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
