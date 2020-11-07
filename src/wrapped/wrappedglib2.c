@@ -40,6 +40,7 @@ typedef void  (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void* (*pFppip_t)(void*, void*, int, void*);
+typedef uint32_t (*uFpipp_t)(void*, int, void*, void*);
 typedef uint32_t (*uFuppp_t)(uint32_t, void*, void*, void*);
 typedef uint32_t (*uFippp_t)(int, void*, void*, void*);
 typedef uint32_t (*uFiuppp_t)(int, uint32_t, void*, void*, void*);
@@ -50,6 +51,7 @@ typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef int (*iFpLpp_t)(void*, unsigned long, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef uint32_t (*uFiippp_t)(int, int, void*, void*, void*);
+typedef uint32_t (*uFpiippp_t)(void*, int, int, void*, void*, void*);
 typedef int (*iFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef void* (*pFppuipp_t)(void*, void*, uint32_t, int32_t, void*, void*);
 typedef void* (*pFppLiiip_t)(void*, void*, unsigned long, int, int, int, void*);
@@ -117,6 +119,8 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_completion_new, pFp_t)                 \
     GO(g_completion_set_compare, vFpp_t)        \
     GO(g_log_set_default_handler, pFpp_t)       \
+    GO(g_io_add_watch, uFpipp_t)                \
+    GO(g_io_add_watch_full, uFpiippp_t)         \
 
 typedef struct glib2_my_s {
     // functions
@@ -568,6 +572,28 @@ static void* findGCompletionStrncmpFuncFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionStrncmpFunc callback\n");
+    return NULL;
+}
+// GIOFunc ...
+#define GO(A)   \
+static uintptr_t my_GIOFunc_fct_##A = 0;                                 \
+static int my_GIOFunc_##A(void* a, int b, void* c)             \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GIOFunc_fct_##A, 3, a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findGIOFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GIOFunc_fct_##A == (uintptr_t)fct) return my_GIOFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GIOFunc_fct_##A == 0) {my_GIOFunc_fct_##A = (uintptr_t)fct; return my_GIOFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GIOFunc callback\n");
     return NULL;
 }
 // GLogFunc ...
@@ -1150,6 +1176,21 @@ EXPORT void* my_g_log_set_default_handler(x86emu_t *emu, void* f, void* data)
 
     return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
+
+EXPORT uint32_t my_g_io_add_watch_full(x86emu_t* emu, void* channel, int priority, int cond, void* f, void* data, void* notify)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_io_add_watch_full(channel, priority, cond, findGIOFuncFct(f), data, findDestroyFct(notify));
+}
+
+EXPORT uint32_t my_g_io_add_watch(x86emu_t* emu, void* channel, int cond, void* f, void* data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_io_add_watch(channel, cond, findGIOFuncFct(f), data);
+}
+
 
 #define CUSTOM_INIT \
     libname = lib->name;\

@@ -484,44 +484,44 @@ GO(g_int_equal, iFpp)
 GO(g_intern_static_string, pFp)
 GO(g_intern_string, pFp)
 GO(g_int_hash, uFp)
-//GO(g_io_add_watch, 
-//GO(g_io_add_watch_full, 
-//GO(g_io_channel_close, 
-//GO(g_io_channel_error_from_errno, 
-//GO(g_io_channel_error_quark, 
-//GO(g_io_channel_flush, 
-//GO(g_io_channel_get_buffer_condition, 
-//GO(g_io_channel_get_buffered, 
-//GO(g_io_channel_get_buffer_size, 
-//GO(g_io_channel_get_close_on_unref, 
-//GO(g_io_channel_get_encoding, 
-//GO(g_io_channel_get_flags, 
-//GO(g_io_channel_get_line_term, 
-//GO(g_io_channel_init, 
-//GO(g_io_channel_new_file, 
-//GO(g_io_channel_read, 
-//GO(g_io_channel_read_chars, 
-//GO(g_io_channel_read_line, 
-//GO(g_io_channel_read_line_string, 
-//GO(g_io_channel_read_to_end, 
-//GO(g_io_channel_read_unichar, 
-//GO(g_io_channel_ref, 
-//GO(g_io_channel_seek, 
-//GO(g_io_channel_seek_position, 
-//GO(g_io_channel_set_buffered, 
-//GO(g_io_channel_set_buffer_size, 
-//GO(g_io_channel_set_close_on_unref, 
-//GO(g_io_channel_set_encoding, 
-//GO(g_io_channel_set_flags, 
-//GO(g_io_channel_set_line_term, 
-//GO(g_io_channel_shutdown, 
-//GO(g_io_channel_unix_get_fd, 
-//GO(g_io_channel_unix_new, 
-//GO(g_io_channel_unref, 
-//GO(g_io_channel_write, 
-//GO(g_io_channel_write_chars, 
-//GO(g_io_channel_write_unichar, 
-//GO(g_io_create_watch, 
+GOM(g_io_add_watch, uFEpipp)
+GOM(g_io_add_watch_full, uFEpiippp)
+GO(g_io_channel_close, vFp)
+GO(g_io_channel_error_from_errno, iFi)
+GO(g_io_channel_error_quark, pFv)
+GO(g_io_channel_flush, iFpp)
+GO(g_io_channel_get_buffer_condition, iFp)
+GO(g_io_channel_get_buffered, iFp)
+GO(g_io_channel_get_buffer_size, iFp)
+GO(g_io_channel_get_close_on_unref, iFp)
+GO(g_io_channel_get_encoding, pFp)
+GO(g_io_channel_get_flags, iFp)
+GO(g_io_channel_get_line_term, pFpp)
+GO(g_io_channel_init, vFp)
+GO(g_io_channel_new_file, pFppp)
+GO(g_io_channel_read, iFppLp)
+GO(g_io_channel_read_chars, iFpplpp)
+GO(g_io_channel_read_line, iFppppp)
+GO(g_io_channel_read_line_string, iFpppp)
+GO(g_io_channel_read_to_end, iFpppp)
+GO(g_io_channel_read_unichar, iFppp)
+GO(g_io_channel_ref, pFp)
+GO(g_io_channel_seek, iFpIi)
+GO(g_io_channel_seek_position, iFpIip)
+GO(g_io_channel_set_buffered, vFpi)
+GO(g_io_channel_set_buffer_size, vFpL)
+GO(g_io_channel_set_close_on_unref, vFpi)
+GO(g_io_channel_set_encoding, iFppp)
+GO(g_io_channel_set_flags, iFpip)
+GO(g_io_channel_set_line_term, vFppi)
+GO(g_io_channel_shutdown, iFpip)
+GO(g_io_channel_unix_get_fd, iFp)
+GO(g_io_channel_unix_new, pFi)
+GO(g_io_channel_unref, vFp)
+GO(g_io_channel_write, iFppLp)
+GO(g_io_channel_write_chars, iFpplpp)
+GO(g_io_channel_write_unichar, iFpup)
+GO(g_io_create_watch, pFpp)
 GO(g_key_file_error_quark, pFv)
 GO(g_key_file_free, vFp)
 GO(g_key_file_get_boolean, iFpppp)
