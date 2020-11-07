@@ -737,9 +737,10 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
+const char **environ __attribute__((weak)) = NULL;
 int main(int argc, const char **argv, const char **env) {
 
-    init_auxval(argc, argv, env);
+    init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
         PrintBox86Version();
@@ -810,11 +811,11 @@ int main(int argc, const char **argv, const char **env) {
     else
         my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
     // prepare all other env. var
-    my_context->envc = CountEnv(env);
+    my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX86_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
-    GatherEnv(&my_context->envv, env, my_context->box86path);
+    GatherEnv(&my_context->envv, environ?environ:env, my_context->box86path);
     if(box86_log>=LOG_DUMP) {
         for (int i=0; i<my_context->envc; ++i)
             printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
