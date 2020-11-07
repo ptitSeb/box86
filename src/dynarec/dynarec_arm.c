@@ -235,7 +235,18 @@ void* FillBlock(dynablock_t* block) {
     }
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
-    if(sz!=helper.arm_size) {printf_log(LOG_NONE, "BOX86: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size);}
+    if(sz!=helper.arm_size) {
+        printf_log(LOG_NONE, "BOX86: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size);
+        uint8_t *dump = (uint8_t*)helper.start;
+        printf_log(LOG_NONE, "Dump of %d bytes of x86 sources:\n", helper.size);
+        for(int i=0; i<helper.size; ++i) {
+            printf_log(LOG_NONE, "%p:", dump);
+            for(; dump<(uint8_t*)helper.insts[i+1].x86.addr; ++dump)
+                printf_log(LOG_NONE, " %02X", *dump);
+            printf_log(LOG_NONE, "\n");
+        }
+        printf_log(LOG_NONE, " ------------\n");
+    }
     // all done...
     __clear_cache(p, p+sz);   // need to clear the cache before execution...
     free(helper.insts);
