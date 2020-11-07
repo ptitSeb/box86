@@ -1264,7 +1264,7 @@ GO(posix_spawn_file_actions_adddup2, iFpii)
 GO(posix_spawn_file_actions_addopen, iFpipii)
 GO(posix_spawn_file_actions_destroy, iFp)
 GO(posix_spawn_file_actions_init, iFp)
-// posix_spawnp
+GOM(posix_spawnp, iFEpppppp)
 GO(ppoll, iFpupp)
 GOW(prctl, iFiuuuu)
 GOW(pread, lFipLl)

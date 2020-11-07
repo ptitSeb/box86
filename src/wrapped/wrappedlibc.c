@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 #include <setjmp.h>
 #include <sys/vfs.h>
+#include <spawn.h>
 
 #include "wrappedlibs.h"
 
@@ -1847,7 +1848,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-        int ret = execvp(newargv[0], argv);
+        int ret = execvp(newargv[0], newargv);
         free(newargv);
         return ret;
     }
@@ -1855,6 +1856,36 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         return execvp(emu->context->box86path, argv);
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return execvp(path, argv);
+}
+
+// execvp should use PATH to search for the program first
+EXPORT int32_t my_posix_spawnp(x86emu_t* emu, const pid_t* pid, const char* path, 
+    const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
+{
+    // need to use BOX86_PATH / PATH here...
+    char* fullpath = ResolveFile(path, &my_context->box86_path);
+    // use fullpath...
+    int self = isProcSelf(fullpath, "exe");
+    int x86 = FileIsX86ELF(fullpath);
+    printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
+    free(fullpath);
+    if ((x86 || self)) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        newargv[0] = emu->context->box86path;
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = argv[j];
+        if(self) newargv[1] = emu->context->fullpath;
+        printf_log(LOG_DEBUG, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
+        int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
+        printf_log(LOG_DEBUG, "posix_spawnp returned %d\n", ret);
+        //free(newargv);
+        return ret;
+    }
+    // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
+    return posix_spawnp(pid, path, actions, attrp, argv, envp);
 }
 
 EXPORT void my__Jv_RegisterClasses() {}
