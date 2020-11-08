@@ -1859,7 +1859,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
 }
 
 // execvp should use PATH to search for the program first
-EXPORT int32_t my_posix_spawnp(x86emu_t* emu, const pid_t* pid, const char* path, 
+EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
     // need to use BOX86_PATH / PATH here...
