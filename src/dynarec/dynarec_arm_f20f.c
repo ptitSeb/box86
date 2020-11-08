@@ -58,7 +58,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     MAYUSE(d0);
 
     switch(nextop) {
-        
+
         case 0x10:
             INST_NAME("MOVSD Gx, Ex");
             nextop = F8;
