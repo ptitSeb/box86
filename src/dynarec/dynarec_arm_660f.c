@@ -172,7 +172,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
                 LDR_IMM9(x2, ed, fixedaddress);
                 LDR_IMM9(x3, ed, fixedaddress+4);
-                VMOVfrV_D(x2, x3, v0+1);
+                VMOVtoV_D(v0+1,x2, x3);
             }
             break;
         case 0x17:
@@ -1377,10 +1377,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if(v0==v1 && u8==0) {
                 VMOVD(v0+1, v0);
             } else {
-                q0 = fpu_get_scratch_quad(dyn);
+                if(v0==v1)
+                    q0 = fpu_get_scratch_quad(dyn);
+                else
+                    q0 = v0;
                 VMOVD(q0, v0+(u8&1));
                 VMOVD(q0+1, v1+((u8>>1)&1));
-                VMOVQ(v0, q0);
+                if(v0==v1) {
+                    VMOVQ(v0, q0);
+                }
             }
             break;
 
