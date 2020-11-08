@@ -1625,6 +1625,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    x87_forget(dyn, ninst, x3, x12, 0);
                     MOV32(x12, ip+1); // read the 0xCC
                     addr+=4+4;
                     STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
@@ -2050,10 +2051,22 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F32S;
             if(addr+i32==0) {
                 #if STEP == 3
-                printf_log(LOG_NONE, "Warning, jump to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
+                printf_log(LOG_NONE, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
                 #endif
             }
-            if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
+            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
+                //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
+                u8 = F8;
+                gd = xEAX+(u8&7);
+                MOV32(gd, addr-1);
+            } else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
+                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
+                u8 = PK(i32+1);
+                gd = xEAX+((u8&0x38)>>3);
+                MOV32(gd, addr);
+            } else if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
                 SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                 BARRIER(1);
                 BARRIER_NEXT(1);
@@ -2061,7 +2074,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 PUSH(xESP, 1<<x2);
                 MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(natcall-1)), retn);
                 // calling a native function
-                MOV32(x12, natcall); // read the 0xCC
+                x87_forget(dyn, ninst, x3, x12, 0);
+                MOV32(x12, natcall); // read the 0xCC already
                 STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
                 CALL_(x86Int3, -1, 0);
                 LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
@@ -2080,20 +2094,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 B_NEXT(cNE);    // not quitting, so lets continue
                 MARK;
                 jump_to_epilog(dyn, 0, xEIP, ninst);
-            } else if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
-                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
-                u8 = F8;
-                gd = xEAX+(u8&7);
-                MOV32(gd, addr-1);
-            } else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
-                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
-                u8 = PK(i32+1);
-                gd = xEAX+((u8&0x38)>>3);
-                MOV32(gd, addr);
             } else {
-                if(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags) {
+                PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
                     READFLAGS(X_PEND);  // that's suspicious
                 } else {
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
@@ -2111,7 +2113,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV32(x2, addr);
                 }
                 PUSH(xESP, 1<<x2);
-                jump_to_linker(dyn, addr+i32, 0, ninst);
+                if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
+                    MOV32(x12, addr-4);
+                    LDR_IMM9(x12, x12, 0);
+                }
+                jump_to_linker(dyn, addr+i32, (addr+i32)?0:x12, ninst);
             }
             break;
         case 0xE9:
@@ -2126,7 +2132,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             JUMP(addr+i32);
             if(dyn->insts) {
-                if(dyn->insts[ninst].x86.jmp_insts==-1) {
+                PASS2IF(dyn->insts[ninst].x86.jmp_insts==-1, 1) {
                     // out of the block
                     jump_to_linker(dyn, addr+i32, 0, ninst);
                 } else {
@@ -2632,7 +2638,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                    PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
+                        READFLAGS(X_PEND);          // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                    }
                     GETEDH(xEIP);
                     BARRIER(1);
                     BARRIER_NEXT(1);

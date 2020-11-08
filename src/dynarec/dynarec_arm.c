@@ -243,7 +243,7 @@ void* FillBlock(dynablock_t* block) {
             printf_log(LOG_NONE, "%p:", dump);
             for(; dump<(uint8_t*)helper.insts[i+1].x86.addr; ++dump)
                 printf_log(LOG_NONE, " %02X", *dump);
-            printf_log(LOG_NONE, "\n");
+            printf_log(LOG_NONE, "\t%d -> %d\n", helper.insts[i].size2, helper.insts[i].size);
         }
         printf_log(LOG_NONE, " ------------\n");
     }

@@ -2,8 +2,9 @@
 #define FINI
 #define EMIT(A)     \
     if(box86_dynarec_dump) {dynarec_log(LOG_NONE, "\t%08x\t%s\n", (A), arm_print(A));} \
-    *(uint32_t*)(dyn->block) = A;   \
-    dyn->block += 4; dyn->arm_size += 4
+    *(uint32_t*)(dyn->block) = A;       \
+    dyn->block += 4; dyn->arm_size += 4;\
+    dyn->insts[ninst].size2 += 4
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        

@@ -54,4 +54,7 @@ void fpu_reset_reg(dynarec_arm_t* dyn);
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity);
 
+// Is what pointed at addr a native call? And if yes, to what function?
+int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

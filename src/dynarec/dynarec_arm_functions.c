@@ -304,3 +304,29 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
 #undef F8
 #undef F32
 }
+
+int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
+{
+#define PK(a)       *(uint8_t*)(addr+a)
+#define PK32(a)     *(uint32_t*)(addr+a)
+
+    if(!addr)
+        return 0;
+    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
+        uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
+        addr = *(uint32_t*)a1; 
+    }
+    if(addr<0x10000)    // too low, that is suspicious
+        return 0;
+    onebridge_t *b = (onebridge_t*)(addr);
+    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
+        // found !
+        if(retn) *retn = (b->C3==0xC2)?b->N:0;
+        if(calladdress) *calladdress = addr+1;
+        return 1;
+    }
+    return 0;
+#undef PK32
+#undef PK
+}
+

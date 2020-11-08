@@ -10,10 +10,12 @@ typedef struct instruction_arm_s {
     uintptr_t           address;    // (start) address of the arm emited instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, of barrier stuff)
     int                 size;       // size of the arm emited instruction
+    int                 size2;      // size of the arm emited instrucion after pass2
     uintptr_t           mark, mark2, mark3;
     uintptr_t           markf;
     uintptr_t           markseg;
     uintptr_t           marklock;
+    int                 pass2choice;// value for choices that are fixed on pass2 for pass3
 } instruction_arm_t;
 
 typedef struct dynarec_arm_s {

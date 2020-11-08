@@ -323,6 +323,14 @@
 #define NEW_BARRIER_INST
 #endif
 
+#if STEP < 2
+#define PASS2IF(A, B) if(A)
+#elif STEP == 2
+#define PASS2IF(A, B) if(A) dyn->insts[ninst].pass2choice = B; if(dyn->insts[ninst].pass2choice == B)
+#else
+#define PASS2IF(A, B) if(dyn->insts[ninst].pass2choice == B)
+#endif
+
 void arm_epilog();
 void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 
@@ -364,7 +372,6 @@ void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 #define call_c          STEPNAME(call_c_)
 #define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
-#define isNativeCall    STEPNAME(isNativeCall_)
 #define emit_cmp8       STEPNAME(emit_cmp8)
 #define emit_cmp16      STEPNAME(emit_cmp16)
 #define emit_cmp32      STEPNAME(emit_cmp32)
@@ -482,7 +489,6 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
-int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 void emit_unlock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
