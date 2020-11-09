@@ -547,6 +547,16 @@ void RunLock(x86emu_t *emu)
         case 0x87:                      /* XCHG Ed,Gd */
             ip--;   // let the normal XCHG execute, it have integrated LOCK
             break;
+        case 0x90:  // This is xchg reg, reg, so let's ignore the LOCK prefix...
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            ip--;
+            break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
