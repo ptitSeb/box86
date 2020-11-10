@@ -26,8 +26,6 @@
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
-    uintptr_t natcall;
-    int retn;
     uint8_t gd, ed;
     int8_t i8;
     int32_t i32, j32, tmp;
@@ -2054,70 +2052,96 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 printf_log(LOG_NONE, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
                 #endif
             }
-            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F))) {
-                //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
-                u8 = F8;
-                gd = xEAX+(u8&7);
-                MOV32(gd, addr-1);
-            } else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3)) {
-                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
-                u8 = PK(i32+1);
-                gd = xEAX+((u8&0x38)>>3);
-                MOV32(gd, addr);
-            } else if(isNativeCall(dyn, addr+i32, &natcall, &retn)) {
-                SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                BARRIER(1);
-                BARRIER_NEXT(1);
-                MOV32(x2, addr);
-                PUSH(xESP, 1<<x2);
-                MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(natcall-1)), retn);
-                // calling a native function
-                x87_forget(dyn, ninst, x3, x12, 0);
-                MOV32(x12, natcall); // read the 0xCC already
-                STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
-                CALL_(x86Int3, -1, 0);
-                LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
-                MOV32(x3, natcall+2+4+4);
-                CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-                B_MARK(cNE);    // Not the expected address, exit dynarec block
-                POP(xESP, (1<<xEIP));   // pop the return address
-                if(retn) {
-                    ADD_IMM8(xESP, xESP, retn);
-                }
-                MOV32(x3, addr);
-                CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-                B_MARK(cNE);    // Not the expected address again
-                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
-                CMPS_IMM8(x1, 1);
-                B_NEXT(cNE);    // not quitting, so lets continue
-                MARK;
-                jump_to_epilog(dyn, 0, xEIP, ninst);
-            } else {
-                PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
-                    READFLAGS(X_PEND);  // that's suspicious
-                } else {
+            #if STEP == 0
+            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F)))
+                tmp = 1;
+            else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
+                tmp = 2;
+            else if(isNativeCall(dyn, addr+i32, NULL, NULL))
+                tmp = 3;
+            else 
+                tmp = 0;
+            #elif STEP < 2
+            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F)))
+                tmp = dyn->insts[ninst].pass2choice = 1;
+            else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
+                tmp = dyn->insts[ninst].pass2choice = 2;
+            else if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else 
+                tmp = dyn->insts[ninst].pass2choice = 0;
+            #else
+                tmp = dyn->insts[ninst].pass2choice;
+            #endif
+            switch(tmp) {
+                case 1:
+                    //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
+                    u8 = F8;
+                    gd = xEAX+(u8&7);
+                    MOV32(gd, addr-1);
+                    break;
+                case 2:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                }
-                // regular call
-                BARRIER(1);
-                BARRIER_NEXT(1);
-                if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                    PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
-                    //cstatck_push put addr in x2, don't need to put it again
-                } else {
-                    PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
-                    *need_epilog = 0;
-                    *ok = 0;
+                    MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
+                    u8 = PK(i32+1);
+                    gd = xEAX+((u8&0x38)>>3);
+                    MOV32(gd, addr);
+                    break;
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
                     MOV32(x2, addr);
-                }
-                PUSH(xESP, 1<<x2);
-                if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
-                    MOV32(x12, addr-4);
-                    LDR_IMM9(x12, x12, 0);
-                }
-                jump_to_linker(dyn, addr+i32, (addr+i32)?0:x12, ninst);
+                    PUSH(xESP, 1<<x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
+                    // calling a native function
+                    x87_forget(dyn, ninst, x3, x12, 0);
+                    MOV32(x12, dyn->insts[ninst].natcall); // read the 0xCC already
+                    STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    CALL_(x86Int3, -1, 0);
+                    LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+                    MOV32(x3, dyn->insts[ninst].natcall+2+4+4);
+                    CMPS_REG_LSL_IMM5(xEIP, x3, 0);
+                    B_MARK(cNE);    // Not the expected address, exit dynarec block
+                    POP(xESP, (1<<xEIP));   // pop the return address
+                    if(dyn->insts[ninst].retn) {
+                        ADD_IMM8(xESP, xESP, dyn->insts[ninst].retn);
+                    }
+                    MOV32(x3, addr);
+                    CMPS_REG_LSL_IMM5(xEIP, x3, 0);
+                    B_MARK(cNE);    // Not the expected address again
+                    LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
+                    CMPS_IMM8(x1, 1);
+                    B_NEXT(cNE);    // not quitting, so lets continue
+                    MARK;
+                    jump_to_epilog(dyn, 0, xEIP, ninst);
+                    break;
+                default:
+                    if(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags) {
+                        READFLAGS(X_PEND);  // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
+                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
+                        PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
+                        //cstatck_push put addr in x2, don't need to put it again
+                    } else {
+                        PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
+                        *need_epilog = 0;
+                        *ok = 0;
+                        MOV32(x2, addr);
+                    }
+                    PUSH(xESP, 1<<x2);
+                    if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
+                        MOV32(x12, addr-4);
+                        LDR_IMM9(x12, x12, 0);
+                    }
+                    jump_to_linker(dyn, addr+i32, (addr+i32)?0:x12, ninst);
+                    break;
             }
             break;
         case 0xE9:

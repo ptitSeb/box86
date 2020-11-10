@@ -16,6 +16,8 @@ typedef struct instruction_arm_s {
     uintptr_t           markseg;
     uintptr_t           marklock;
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
+    uintptr_t           natcall;
+    int                 retn;
 } instruction_arm_t;
 
 typedef struct dynarec_arm_s {
