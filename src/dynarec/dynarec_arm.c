@@ -159,6 +159,37 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
     return needed;
 }
 
+instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, int arm_size)
+{
+    // x86 instruction is <16 bytes anyway
+    if(!x86_size && !arm_size)
+        return insts;
+    int toadd;
+    if(x86_size>arm_size)
+        toadd = 1 + x86_size/16;
+    else
+        toadd = 1 + arm_size/16;
+    if(*size+toadd>*cap) {
+        *cap = *size+toadd;
+        insts = (instsize_t*)realloc(insts, *cap*sizeof(instsize_t));
+    }
+    while(toadd) {
+        insts[*size].x86 = x86_size%16;
+        insts[*size].nat = arm_size%16;
+        if(x86_size>16) 
+            x86_size -= 16;
+        else
+            x86_size = 0;
+        if(arm_size>16)
+            arm_size -= 16;
+        else
+            arm_size = 0;
+        ++(*size);
+        --toadd;
+    }
+    return insts;
+}
+
 void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -249,6 +280,16 @@ void* FillBlock(dynablock_t* block) {
     }
     // all done...
     __clear_cache(p, p+sz);   // need to clear the cache before execution...
+    // keep size of instructions for signal handling
+    {
+        size_t cap = helper.size+1;
+        size_t size = 0;
+        block->instsize = (instsize_t*)calloc(cap, sizeof(instsize_t));
+        for(int i=0; i<helper.size; ++i)
+            block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x86.size, helper.insts[i].size);
+        addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
+    }
+    // ok, free the helper now
     free(helper.insts);
     free(helper.next);
     block->table = helper.table;

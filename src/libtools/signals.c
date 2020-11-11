@@ -365,6 +365,31 @@ void my_sighandler(int32_t sig)
         RunFunctionHandler(&exits, restorer, 0);
 }
 
+#ifdef DYNAREC
+uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
+{
+    uintptr_t x86addr = (uintptr_t)db->x86_addr;
+    uintptr_t armaddr = (uintptr_t)db->block;
+    int i = 0;
+    do {
+        int x86sz = 0;
+        int armsz = 0;
+        do {
+            x86sz+=db->instsize[i].x86;
+            armsz+=db->instsize[i].nat;
+        }
+        while(db->instsize[i++].x86);
+        if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
+            return x86addr;
+        armaddr+=armsz;
+        x86addr+=x86sz;
+        if(arm_addr==armaddr)
+            return x86addr;
+    } while(db->instsize[i].x86 || db->instsize[i].nat);
+    return x86addr;
+}
+#endif
+
 void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void** old_pc)
 {
     // need to creat some x86_ucontext????
@@ -559,13 +584,15 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         x86emu_t* emu = thread_get_emu();
         x86pc = R_EIP;
         esp = (void*)R_ESP;
-        #if defined(__arm__) && defined(DYNAREC)
+#if defined(__arm__) && defined(DYNAREC)
         if(db && p->uc_mcontext.arm_r0>0x10000) {
             emu = (x86emu_t*)p->uc_mcontext.arm_r0;
-            x86pc = (uintptr_t)db->x86_addr; // sadly, r12 is probably not actual eip, so use db info for now
+        }
+        if(db) {
+            x86pc = getX86Address(db, (uintptr_t)addr);
             esp = (void*)p->uc_mcontext.arm_r8;
         }
-        #endif
+#endif
         x86name = getAddrFunctionName(x86pc);
         elfheader_t* elf = FindElfAddress(my_context, x86pc);
         if(elf)

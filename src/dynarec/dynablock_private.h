@@ -5,6 +5,14 @@ typedef struct dynablocklist_s  dynablocklist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 typedef struct kh_mark_s        kh_mark_t;
 
+typedef union instsize_s {
+    uint8_t c;
+    struct {
+        unsigned int x86:4;
+        unsigned int nat:4;
+    };
+} instsize_t;
+
 typedef struct dynablock_s {
     dynablocklist_t* parent;
     kh_mark_t*      marks; // List of blocks that marked this block
@@ -22,6 +30,7 @@ typedef struct dynablock_s {
     int             sons_size;
     dynablock_t*    father; // set only in the case of a son
     int             nolinker;
+    instsize_t      *instsize;
 } dynablock_t;
 
 typedef struct dynablocklist_s {
