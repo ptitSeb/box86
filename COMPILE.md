@@ -31,6 +31,12 @@ sudo systemctl restart systemd-binfmt
 
 `mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
 
+#### for RK3399
+
+`mkdir build; cd build; cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+
+As most RK3399 device run AARCH64 OS, you'll need an `armhf` multilib env, and an armhf gcc: use `sudo apt install gcc-arm-linux-gnueabihf` to install it.
+
 #### for Other ARM Linux
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
