@@ -78,8 +78,8 @@ GOM(Mix_SetPostMix,vFEpp)
 GO(Mix_SetReverseStereo,iFii)
 GO(Mix_SetSoundFonts,iFp)
 GO(Mix_SetSynchroValue,iFi)
-// Mix_UnregisterAllEffects
-// Mix_UnregisterEffect
+GO(Mix_UnregisterAllEffects, iFi)
+GOM(Mix_UnregisterEffect, iFEip) 
 GO(Mix_Volume,iFii)
 GO(Mix_VolumeChunk,iFpi)
 GO(Mix_VolumeMusic,iFi)
