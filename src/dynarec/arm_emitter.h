@@ -1161,4 +1161,8 @@ Op is 20-27
 #define VQRDMULHQ_S16(Dd, Dn, Dm)   EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b01, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VQRDMULHQ_S32(Dd, Dn, Dm)   EMIT(VQRDMULH_gen(((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VDUP_sgen(D, imm4, Vd, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (imm4)<<16 | (Vd)<<12 | 0b1100<<8 | (Q)<<6 | (M)<<5 | (Vm))
+// Dd <= Dup(Dm[x])
+#define VDUP_32(Dd, Dm, x)      EMIT(VDUP_sgen(((Dd)>>4)&1, (((x)<<3)|0b100), (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__

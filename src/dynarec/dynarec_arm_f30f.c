@@ -63,9 +63,10 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     int v0, v1;
     int s0, s1, s2;
     int d0, d1;
-    int q0;
+    int q0, q1;
     int parity;
 
+    MAYUSE(q1);
     MAYUSE(s1);
     MAYUSE(s2);
     MAYUSE(j32);
@@ -132,6 +133,23 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STR_IMM9(x2, ed, fixedaddress);
             }
             break;
+        
+        case 0x16:
+            INST_NAME("MOVSHDUP Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                q1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                q1 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(q1, ed);
+            }
+            q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VDUP_32(q0+0, q1+0, 1);
+            VDUP_32(q0+1, q1+1, 1);
+            break;
+
         
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
