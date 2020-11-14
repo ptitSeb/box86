@@ -843,46 +843,49 @@ GO(g_quark_from_static_string, uFp)
 GO(g_quark_from_string, uFp)
 GO(g_quark_to_string, pFu)
 GO(g_quark_try_string, uFp)
-//GO(g_queue_clear, 
-//GO(g_queue_copy, 
-//GO(g_queue_delete_link, 
-//GO(g_queue_find, 
-//GO(g_queue_find_custom, 
-//GO(g_queue_foreach, 
-//GO(g_queue_free, 
-//GO(g_queue_free_full, 
-//GO(g_queue_get_length, 
-//GO(g_queue_index, 
-//GO(g_queue_init, 
-//GO(g_queue_insert_after, 
-//GO(g_queue_insert_before, 
-//GO(g_queue_insert_sorted, 
-//GO(g_queue_is_empty, 
-//GO(g_queue_link_index, 
-//GO(g_queue_new, 
-//GO(g_queue_peek_head, 
-//GO(g_queue_peek_head_link, 
-//GO(g_queue_peek_nth, 
-//GO(g_queue_peek_nth_link, 
-//GO(g_queue_peek_tail, 
-//GO(g_queue_peek_tail_link, 
-//GO(g_queue_pop_head, 
-//GO(g_queue_pop_head_link, 
-//GO(g_queue_pop_nth, 
-//GO(g_queue_pop_nth_link, 
-//GO(g_queue_pop_tail, 
-//GO(g_queue_pop_tail_link, 
-//GO(g_queue_push_head, 
-//GO(g_queue_push_head_link, 
-//GO(g_queue_push_nth, 
-//GO(g_queue_push_nth_link, 
-//GO(g_queue_push_tail, 
-//GO(g_queue_push_tail_link, 
-//GO(g_queue_remove, 
-//GO(g_queue_remove_all, 
-//GO(g_queue_reverse, 
-//GO(g_queue_sort, 
-//GO(g_queue_unlink, 
+GO(g_queue_clear, vFp)
+//GOM(g_queue_clear_full, vFEpB)    // 2.60+
+GO(g_queue_copy, pFp)
+GO(g_queue_delete_link, vFpp)
+GO(g_queue_find, pFpp)
+//GOM(g_queue_find_custom, pFEppB)
+//GOM(g_queue_foreach, vFEpBp)
+GO(g_queue_free, vFp)
+//GOM(g_queue_free_full, vFEpB)
+GO(g_queue_get_length, uFp)
+GO(g_queue_index, iFpp)
+GO(g_queue_init, vFp)
+GO(g_queue_insert_after, vFppp)
+GO(g_queue_insert_after_link, vFppp)    // 2.62+
+GO(g_queue_insert_before, vFppp)
+GO(g_queue_insert_before_link, vFppp)   // 2.62+
+//GOM(g_queue_insert_sorted, vFEppBp)
+GO(g_queue_is_empty, iFp)
+GO(g_queue_link_index, iFpp)
+GO(g_queue_new, pFv)
+GO(g_queue_peek_head, pFp)
+GO(g_queue_peek_head_link, pFp)
+GO(g_queue_peek_nth, pFpu)
+GO(g_queue_peek_nth_link, pFpu)
+GO(g_queue_peek_tail, pFp)
+GO(g_queue_peek_tail_link, pFp)
+GO(g_queue_pop_head, pFp)
+GO(g_queue_pop_head_link, pFp)
+GO(g_queue_pop_nth, pFpu)
+GO(g_queue_pop_nth_link, pFpu)
+GO(g_queue_pop_tail, pFp)
+GO(g_queue_pop_tail_link, pFp)
+GO(g_queue_push_head, vFpp)
+GO(g_queue_push_head_link, vFpp)
+GO(g_queue_push_nth, vFppi)
+GO(g_queue_push_nth_link, vFpip)
+GO(g_queue_push_tail, vFpp)
+GO(g_queue_push_tail_link, vFpp)
+GO(g_queue_remove, iFpp)
+GO(g_queue_remove_all, iFpp)
+GO(g_queue_reverse, pFp)
+//GOM(g_queue_sort, vFEpBp)
+GO(g_queue_unlink, vFpp)
 GO(g_rand_copy, pFp)
 GO(g_rand_double, dFv)
 GO(g_rand_double_range, dFdd)
