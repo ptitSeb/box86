@@ -419,6 +419,7 @@ void fFppu(x86emu_t *emu, uintptr_t fnc);
 void fFppp(x86emu_t *emu, uintptr_t fnc);
 void dFddd(x86emu_t *emu, uintptr_t fnc);
 void dFddp(x86emu_t *emu, uintptr_t fnc);
+void dFpdd(x86emu_t *emu, uintptr_t fnc);
 void dFppi(x86emu_t *emu, uintptr_t fnc);
 void dFppu(x86emu_t *emu, uintptr_t fnc);
 void dFppp(x86emu_t *emu, uintptr_t fnc);

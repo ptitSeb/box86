@@ -883,22 +883,22 @@ GO(g_quark_try_string, uFp)
 //GO(g_queue_reverse, 
 //GO(g_queue_sort, 
 //GO(g_queue_unlink, 
-//GO(g_rand_copy, 
-//GO(g_rand_double, 
-//GO(g_rand_double_range, 
-//GO(g_rand_free, 
-//GO(g_rand_int, 
-//GO(g_rand_int_range, 
-//GO(g_rand_new, 
-//GO(g_rand_new_with_seed, 
-//GO(g_rand_new_with_seed_array, 
-//GO(g_random_double, 
-//GO(g_random_double_range, 
-//GO(g_random_int, 
-//GO(g_random_int_range, 
-//GO(g_random_set_seed, 
-//GO(g_rand_set_seed, 
-//GO(g_rand_set_seed_array, 
+GO(g_rand_copy, pFp)
+GO(g_rand_double, dFv)
+GO(g_rand_double_range, dFdd)
+GO(g_rand_free, vFp)
+GO(g_rand_int, uFp)
+GO(g_rand_int_range, uFpuu)
+GO(g_rand_new, pFv)
+GO(g_rand_new_with_seed, pFu)
+GO(g_rand_new_with_seed_array, pFpu)
+GO(g_random_double, dFp)
+GO(g_random_double_range, dFpdd)
+GO(g_random_int, iFii)
+GO(g_random_int_range, iFii)
+GO(g_random_set_seed, vFu)
+GO(g_rand_set_seed, vFpu)
+GO(g_rand_set_seed_array, vFppu)
 GO(g_realloc, pFpL)
 GO(g_realloc_n, pFpLL)
 //GO(g_rec_mutex_clear, 
