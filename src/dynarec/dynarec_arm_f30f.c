@@ -133,6 +133,21 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STR_IMM9(x2, ed, fixedaddress);
             }
             break;
+        case 0x12:
+            INST_NAME("MOVSLDUP Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                q1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                q1 = fpu_get_scratch_quad(dyn);
+                VLD1Q_64(q1, ed);
+            }
+            q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            VDUP_32(q0+0, q1+0, 0);
+            VDUP_32(q0+1, q1+1, 0);
+            break;
         
         case 0x16:
             INST_NAME("MOVSHDUP Gx, Ex");

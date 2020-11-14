@@ -15,6 +15,12 @@
         GET_EX;
         EX->ud[0] = GX.ud[0];
         break;
+    case 0x12:  /* MOVSLDUP Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        GX.ud[1] = GX.ud[0] = EX->ud[0];
+        GX.ud[3] = GX.ud[2] = EX->ud[2];
+        break;
     
     case 0x16:  /* MOVSHDUP Gx, Ex */
         nextop = F8;
