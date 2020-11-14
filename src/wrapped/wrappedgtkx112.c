@@ -87,6 +87,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_type_unique, iFip_t)                 \
     GO(gtk_spin_button_get_value, dFp_t)        \
     GO(gtk_builder_connect_signals_full, vFppp_t)       \
+    GO(gtk_action_get_type, iFv_t)              \
 
 
 typedef struct gtkx112_my_s {
@@ -731,6 +732,7 @@ EXPORT void my_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, vo
     SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
     SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
     SetGTKContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
+    SetGTKActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \

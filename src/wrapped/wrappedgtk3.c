@@ -87,6 +87,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_type_unique, iFip_t)                 \
     GO(gtk_spin_button_get_value, dFp_t)        \
     GO(gtk_builder_connect_signals_full, vFppp_t)       \
+    GO(gtk_action_get_type, iFv_t)              \
 
 
 typedef struct gtk3_my_s {
@@ -691,6 +692,7 @@ EXPORT void my3_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, v
     lib->altmy = strdup("my3_");        \
     SetGTKWidgetID(((gtk3_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
     SetGTKContainerID(((gtk3_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
+    SetGTKActionID(((gtk3_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-3.so.0");                  \

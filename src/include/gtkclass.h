@@ -126,6 +126,23 @@ typedef struct my_GtkContainerClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkContainerClass_t;
 
+typedef struct my_GtkActionClass_s
+{
+  my_GObjectClass_t   parent_class;
+  void     (* activate)           (void* action);
+  int      menu_item_type;
+  int      toolbar_item_type;
+  void*    (* create_menu_item)   (void* action);
+  void*    (* create_tool_item)   (void* action);
+  void     (* connect_proxy)      (void* action, void* proxy);
+  void     (* disconnect_proxy)   (void* action, void* proxy);
+  void*    (* create_menu)        (void* action);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkActionClass_t;
+
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
@@ -184,9 +201,10 @@ void SetGObjectID(int id);
 void SetGTKObjectID(int id);
 void SetGTKWidgetID(int id);
 void SetGTKContainerID(int id);
+void SetGTKActionID(int id);
 void SetGTypeName(void* f);
 
-void* wrapCopyGTKClass(void* class, int type);
+void* wrapCopyGTKClass(void* cl, int type);
 
 void my_checkGlobalGdkDisplay();
 void my_setGlobalGThreadsInit();

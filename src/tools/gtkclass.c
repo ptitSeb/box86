@@ -21,6 +21,7 @@ static int              my_gobject      = -1;
 static int              my_gtkobject    = -1;
 static int              my_gtkwidget    = -1;
 static int              my_gtkcontainer = -1;
+static int              my_gtkaction    = -1;
 static const char* (*g_type_name)(int)  = NULL;
 // ---- Defining the multiple functions now -----
 #define SUPER() \
@@ -341,36 +342,76 @@ static void unwrapGtkContainerClass(my_GtkContainerClass_t* class)
 }
 #undef SUPERGO
 
+// ----- GtkActionClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(A, activate, void, (void* action), 1, action);
+WRAPPER(A, create_menu_item, void*, (void* action), 1, action);
+WRAPPER(A, create_tool_item, void*, (void* action), 1, action);
+WRAPPER(A, connect_proxy, void , (void* action, void* proxy), 2, action, proxy);
+WRAPPER(A, disconnect_proxy, void , (void* action, void* proxy), 2, action, proxy);
+WRAPPER(A, create_menu, void*, (void* action), 1, action);
+
+#define SUPERGO() \
+    GO(activate, vFp);          \
+    GO(create_menu_item, pFp);  \
+    GO(create_tool_item, pFp);  \
+    GO(connect_proxy, vFpp);    \
+    GO(disconnect_proxy, vFpp); \
+    GO(create_menu, pFp);       \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkActionClass(my_GtkActionClass_t* class)
+{
+    wrapGObjectClass(&class->parent_class);
+    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkActionClass(my_GtkActionClass_t* class)
+{   
+    unwrapGObjectClass(&class->parent_class);
+    void* tmp;
+    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
 #undef WRAPPED
 
-static void wrapGTKClass(void* class, int type)
+static void wrapGTKClass(void* cl, int type)
 {
     if(type==my_gtkcontainer)
-        wrapGtkContainerClass((my_GtkContainerClass_t*)class);
+        wrapGtkContainerClass((my_GtkContainerClass_t*)cl);
     else if(type==my_gtkwidget)
-        wrapGtkWidgetClass((my_GtkWidgetClass_t*)class);
+        wrapGtkWidgetClass((my_GtkWidgetClass_t*)cl);
     else if(type==my_gtkobject)
-        wrapGtkObjectClass((my_GtkObjectClass_t*)class);
+        wrapGtkObjectClass((my_GtkObjectClass_t*)cl);
     else if(type==my_gobject)
-        wrapGObjectClass((my_GObjectClass_t*)class);
+        wrapGObjectClass((my_GObjectClass_t*)cl);
+    else if(type==my_gtkaction)
+        wrapGtkActionClass((my_GtkActionClass_t*)cl);
     else {
-        printf_log(LOG_INFO, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
     }
 }
 
-static void unwrapGTKClass(void* class, int type)
+static void unwrapGTKClass(void* cl, int type)
 {
     if(type==my_gtkcontainer)
-        unwrapGtkContainerClass((my_GtkContainerClass_t*)class);
+        unwrapGtkContainerClass((my_GtkContainerClass_t*)cl);
     else if(type==my_gtkwidget)
-        unwrapGtkWidgetClass((my_GtkWidgetClass_t*)class);
+        unwrapGtkWidgetClass((my_GtkWidgetClass_t*)cl);
     else if(type==my_gtkobject)
-        unwrapGtkObjectClass((my_GtkObjectClass_t*)class);
+        unwrapGtkObjectClass((my_GtkObjectClass_t*)cl);
     else if(type==my_gobject)
-        unwrapGObjectClass((my_GObjectClass_t*)class);
+        unwrapGObjectClass((my_GObjectClass_t*)cl);
+    else if(type==my_gtkaction)
+        unwrapGtkActionClass((my_GtkActionClass_t*)cl);
     // no warning, one is enough...
 }
 
@@ -379,11 +420,11 @@ static void** table_ref = NULL;
 static void** table_nat = NULL;
 static int     table_sz = 0;
 static int    table_cap = 0;
-void* wrapCopyGTKClass(void* class, int type)
+void* wrapCopyGTKClass(void* cl, int type)
 {
     // search for an existing ref...
     for (int i=0; i<table_sz; ++i)
-        if(table_ref[i] == class)
+        if(table_ref[i] == cl)
             return table_nat[i];
     // add a new one...
     if(table_sz == table_cap) {
@@ -391,30 +432,35 @@ void* wrapCopyGTKClass(void* class, int type)
         table_ref = (void**)realloc(table_ref, sizeof(void*)*table_cap);
         table_nat = (void**)realloc(table_nat, sizeof(void*)*table_cap);
     }
-    table_ref[table_sz] = class;
+    table_ref[table_sz] = cl;
     if(type==my_gtkcontainer) {
         my_GtkContainerClass_t *tmp = (my_GtkContainerClass_t*)malloc(sizeof(my_GtkContainerClass_t));
-        memcpy(tmp, class, sizeof(my_GtkContainerClass_t));
+        memcpy(tmp, cl, sizeof(my_GtkContainerClass_t));
         wrapGtkContainerClass(tmp);
         table_nat[table_sz] = tmp;
     } else if(type==my_gtkwidget) {
         my_GtkWidgetClass_t *tmp = (my_GtkWidgetClass_t*)malloc(sizeof(my_GtkWidgetClass_t));
-        memcpy(tmp, class, sizeof(my_GtkWidgetClass_t));
+        memcpy(tmp, cl, sizeof(my_GtkWidgetClass_t));
         wrapGtkWidgetClass(tmp);
         table_nat[table_sz] = tmp;
     } else if(type==my_gtkobject) {
         my_GtkObjectClass_t *tmp = (my_GtkObjectClass_t*)malloc(sizeof(my_GtkObjectClass_t));
-        memcpy(tmp, class, sizeof(my_GtkObjectClass_t));
-        wrapGtkObjectClass((my_GtkObjectClass_t*)class);
+        memcpy(tmp, cl, sizeof(my_GtkObjectClass_t));
+        wrapGtkObjectClass((my_GtkObjectClass_t*)cl);
         table_nat[table_sz] = tmp;
     } else if(type==my_gobject) {
         my_GObjectClass_t *tmp = (my_GObjectClass_t*)malloc(sizeof(my_GObjectClass_t));
-        memcpy(tmp, class, sizeof(my_GObjectClass_t));
-        wrapGObjectClass((my_GObjectClass_t*)class);
+        memcpy(tmp, cl, sizeof(my_GObjectClass_t));
+        wrapGObjectClass((my_GObjectClass_t*)cl);
+        table_nat[table_sz] = tmp;
+    } else if(type==my_gtkaction) {
+        my_GtkActionClass_t *tmp = (my_GtkActionClass_t*)malloc(sizeof(my_GtkActionClass_t));
+        memcpy(tmp, cl, sizeof(my_GtkActionClass_t));
+        wrapGtkActionClass((my_GtkActionClass_t*)cl);
         table_nat[table_sz] = tmp;
     } else {
-        printf_log(LOG_INFO, "Warning, Custom Class function with unknown class type %d (%s)\n", type, g_type_name(type));
-        return class;
+        printf_log(LOG_NONE, "Warning, Custom Class function with unknown class type %d (%s)\n", type, g_type_name(type));
+        return cl;
     }
     return table_nat[table_sz++];
 }
@@ -668,6 +714,11 @@ void SetGTKWidgetID(int id)
 void SetGTKContainerID(int id)
 {
     my_gtkcontainer = id;
+}
+
+void SetGTKActionID(int id)
+{
+    my_gtkaction = id;
 }
 
 void SetGTypeName(void* f)
