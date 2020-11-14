@@ -684,7 +684,7 @@ EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
     pulse_my_t* my = lib->priv.w.p2;
     my->pa_mainloop_free(mainloop);
     mainloop_inited = 0;
-    my_mainloop_ref = my_mainloop_orig = NULL;
+    /*my_mainloop_ref =*/ my_mainloop_orig = NULL;
 }
 EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
@@ -701,7 +701,7 @@ EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
     pulse_my_t* my = lib->priv.w.p2;
     my->pa_threaded_mainloop_free(mainloop);
     mainloop_inited = 0;
-    my_mainloop_ref = my_mainloop_orig = NULL;
+    /*my_mainloop_ref =*/ my_mainloop_orig = NULL;
 }
 EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
