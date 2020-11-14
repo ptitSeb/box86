@@ -691,6 +691,7 @@
 #() uFppiu
 #() uFppip
 #() uFppup
+#() uFppLp
 #() uFpppi
 #() uFpppp
 #() UFppii
@@ -1270,6 +1271,7 @@
 #() vFpiiliip
 #() vFpiipCpp
 #() vFpipipii
+#() vFpipppii
 #() vFpuuuuuu
 #() vFpuuUUuu
 #() vFpUiUiup

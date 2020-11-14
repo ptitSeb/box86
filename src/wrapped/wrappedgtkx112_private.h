@@ -3580,25 +3580,25 @@ GO(gtk_type_flags_get_values, pFi)
 GO(gtk_type_init, vFi)
 GO(gtk_type_new, pFi)
 GOM(gtk_type_unique, iFEpp)
-//GO(gtk_ui_manager_add_ui, 
-//GO(gtk_ui_manager_add_ui_from_file, 
-//GO(gtk_ui_manager_add_ui_from_string, 
-//GO(gtk_ui_manager_ensure_update, 
-//GO(gtk_ui_manager_get_accel_group, 
-//GO(gtk_ui_manager_get_action, 
-//GO(gtk_ui_manager_get_action_groups, 
-//GO(gtk_ui_manager_get_add_tearoffs, 
-//GO(gtk_ui_manager_get_toplevels, 
+GO(gtk_ui_manager_add_ui, vFpipppii)
+GO(gtk_ui_manager_add_ui_from_file, uFppp)
+GO(gtk_ui_manager_add_ui_from_string, uFppLp)
+GO(gtk_ui_manager_ensure_update, vFp)
+GO(gtk_ui_manager_get_accel_group, pFp)
+GO(gtk_ui_manager_get_action, pFpp)
+GO(gtk_ui_manager_get_action_groups, pFp)
+GO(gtk_ui_manager_get_add_tearoffs, iFp)
+GO(gtk_ui_manager_get_toplevels, pFpi)
 GO(gtk_ui_manager_get_type, iFv)
-//GO(gtk_ui_manager_get_ui, 
-//GO(gtk_ui_manager_get_widget, 
-//GO(gtk_ui_manager_insert_action_group, 
+GO(gtk_ui_manager_get_ui, pFp)
+GO(gtk_ui_manager_get_widget, pFpp)
+GO(gtk_ui_manager_insert_action_group, vFppi)
 GO(gtk_ui_manager_item_type_get_type, iFv)
-//GO(gtk_ui_manager_new, 
-//GO(gtk_ui_manager_new_merge_id, 
-//GO(gtk_ui_manager_remove_action_group, 
-//GO(gtk_ui_manager_remove_ui, 
-//GO(gtk_ui_manager_set_add_tearoffs, 
+GO(gtk_ui_manager_new, pFv)
+GO(gtk_ui_manager_new_merge_id, uFp)
+GO(gtk_ui_manager_remove_action_group, vFpp)
+GO(gtk_ui_manager_remove_ui, vFpu)
+GO(gtk_ui_manager_set_add_tearoffs, vFpi)
 GO(gtk_unit_get_type, iFv)
 GO(gtk_update_type_get_type, iFv)
 GO(gtk_vbox_get_type, iFv)
