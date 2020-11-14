@@ -1013,8 +1013,8 @@ GO(g_setenv, iFppi)
 GO(g_set_error, vFppipppppppppp)    // vaarg, and no valist equivalent it seems. Should wrap with literal version probably
 GO(g_set_error_literal, vFppip)
 GO(g_set_prgname, vFp)
-//GOM(g_set_printerr_handler, BFEB)
-//GOM(g_set_print_handler, BFEB)
+GOM(g_set_printerr_handler, pFEp)
+GOM(g_set_print_handler, pFEp)
 //GO(g_shell_error_quark, 
 GO(g_shell_parse_argv, iFpppp)
 GO(g_shell_quote, pFp)

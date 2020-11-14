@@ -121,6 +121,8 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_log_set_default_handler, pFpp_t)       \
     GO(g_io_add_watch, uFpipp_t)                \
     GO(g_io_add_watch_full, uFpiippp_t)         \
+    GO(g_set_print_handler, pFp_t)              \
+    GO(g_set_printerr_handler, pFp_t)           \
 
 typedef struct glib2_my_s {
     // functions
@@ -622,6 +624,36 @@ static void* reverseGLogFuncFct(void* fct)
 {
     if(!fct) return fct;
     #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
+    SUPER()
+    #undef GO
+    return NULL;
+}
+// GPrintFunc ...
+#define GO(A)   \
+static uintptr_t my_GPrintFunc_fct_##A = 0;                     \
+static void my_GPrintFunc_##A(void* a)                          \
+{                                                               \
+    RunFunction(my_context, my_GPrintFunc_fct_##A, 1, a);       \
+}
+SUPER()
+#undef GO
+static void* findGPrintFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GPrintFunc_fct_##A == (uintptr_t)fct) return my_GPrintFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GPrintFunc_fct_##A == 0) {my_GPrintFunc_fct_##A = (uintptr_t)fct; return my_GPrintFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GPrintFunc callback\n");
+    return NULL;
+}
+static void* reverseGPrintFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
     SUPER()
     #undef GO
     return NULL;
@@ -1190,6 +1222,21 @@ EXPORT uint32_t my_g_io_add_watch(x86emu_t* emu, void* channel, int cond, void* 
 
     return my->g_io_add_watch(channel, cond, findGIOFuncFct(f), data);
 }
+
+EXPORT void* my_g_set_print_handler(x86emu_t *emu, void* f)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return reverseGPrintFuncFct(my->g_set_print_handler(findGPrintFuncFct(f)));
+}
+
+EXPORT void* my_g_set_printerr_handler(x86emu_t *emu, void* f)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return reverseGPrintFuncFct(my->g_set_printerr_handler(findGPrintFuncFct(f)));
+}
+
 
 
 #define CUSTOM_INIT \
