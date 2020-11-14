@@ -762,33 +762,37 @@ GO(g_once_init_leave, vFpL)
 GO(g_on_error_query, vFp)
 GO(g_on_error_stack_trace, vFp)
 GO(g_open, iFpii)
-//GO(g_option_context_add_group, 
-//GO(g_option_context_add_main_entries, 
-//GO(g_option_context_free, 
-//GO(g_option_context_get_description, 
-//GO(g_option_context_get_help, 
-//GO(g_option_context_get_help_enabled, 
-//GO(g_option_context_get_ignore_unknown_options, 
-//GO(g_option_context_get_main_group, 
-//GO(g_option_context_get_summary, 
-//GO(g_option_context_new, 
-//GO(g_option_context_parse, 
-//GO(g_option_context_parse_strv, 
-//GO(g_option_context_set_description, 
-//GO(g_option_context_set_help_enabled, 
-//GO(g_option_context_set_ignore_unknown_options, 
-//GO(g_option_context_set_main_group, 
-//GO(g_option_context_set_summary, 
-//GO(g_option_context_set_translate_func, 
-//GO(g_option_context_set_translation_domain, 
+GO(g_option_context_add_group, vFpp)
+GO(g_option_context_add_main_entries, vFppp)
+GO(g_option_context_free, vFp)
+GO(g_option_context_get_description, pFp)
+GO(g_option_context_get_help, pFpip)
+GO(g_option_context_get_help_enabled, iFp)
+GO(g_option_context_get_ignore_unknown_options, iFp)
+GO(g_option_context_get_main_group, pFp)
+GO(g_option_context_get_strict_posix, iFp)  // 2.44+
+GO(g_option_context_get_summary, pFp)
+GO(g_option_context_new, pFp)
+GO(g_option_context_parse, iFpppp)
+GO(g_option_context_parse_strv, iFppp)
+GO(g_option_context_set_description, vFpp)
+GO(g_option_context_set_help_enabled, vFpi)
+GO(g_option_context_set_ignore_unknown_options, vFpi)
+GO(g_option_context_set_main_group, vFpp)
+GO(g_option_context_set_strict_posix, vFpi) // 2.44+
+GO(g_option_context_set_summary, vFpp)
+//GOM(g_option_context_set_translate_func, vFEpBpB)
+GO(g_option_context_set_translation_domain, vFpp)
 //GO(g_option_error_quark, 
-//GO(g_option_group_add_entries, 
-//GO(g_option_group_free, 
-//GO(g_option_group_new, 
-//GO(g_option_group_set_error_hook, 
-//GO(g_option_group_set_parse_hooks, 
-//GO(g_option_group_set_translate_func, 
-//GO(g_option_group_set_translation_domain, 
+GO(g_option_group_add_entries, vFpp)
+GO(g_option_group_free, vFp)
+//GOM(g_option_group_new, pFEppppB)
+GO(g_option_group_ref, pFp) // 2.44+
+//GOM(g_option_group_set_error_hook, vFEpB)
+//GOM(g_option_group_set_parse_hooks, vFEpBB)
+//GOM(g_option_group_set_translate_func, vFEpBpB)
+GO(g_option_group_set_translation_domain, vFpp)
+GO(g_option_group_unref, vFp)   // 2.44+
 GO(g_parse_debug_string, uFppi)
 GO(g_path_get_basename, pFp)
 GO(g_path_get_dirname, pFp)
