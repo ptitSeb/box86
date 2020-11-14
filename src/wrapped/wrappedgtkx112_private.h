@@ -113,27 +113,27 @@ GO(gtk_action_get_type, iFv)
 //GO(gtk_action_get_visible, 
 //GO(gtk_action_get_visible_horizontal, 
 //GO(gtk_action_get_visible_vertical, 
-//GO(gtk_action_group_add_action, 
-//GO(gtk_action_group_add_actions, 
-//GO(gtk_action_group_add_actions_full, 
-//GO(gtk_action_group_add_action_with_accel, 
-//GO(gtk_action_group_add_radio_actions, 
-//GO(gtk_action_group_add_radio_actions_full, 
-//GO(gtk_action_group_add_toggle_actions, 
-//GO(gtk_action_group_add_toggle_actions_full, 
-//GO(gtk_action_group_get_action, 
-//GO(gtk_action_group_get_name, 
-//GO(gtk_action_group_get_sensitive, 
+GO(gtk_action_group_add_action, vFpp)
+GO(gtk_action_group_add_actions, vFppup)
+//GOM(gtk_action_group_add_actions_full, vFEppupB)
+GO(gtk_action_group_add_action_with_accel, vFppp)
+//GOM(gtk_action_group_add_radio_actions, vFppuiBp)
+//GOM(gtk_action_group_add_radio_actions_full, vFppuiBpB)
+GO(gtk_action_group_add_toggle_actions, vFppup)
+//GOM(gtk_action_group_add_toggle_actions_full, vFEppupB)
+GO(gtk_action_group_get_action, pFpp)
+GO(gtk_action_group_get_name, pFp)
+GO(gtk_action_group_get_sensitive, iFp)
 GO(gtk_action_group_get_type, iFv)
-//GO(gtk_action_group_get_visible, 
-//GO(gtk_action_group_list_actions, 
-//GO(gtk_action_group_new, 
-//GO(gtk_action_group_remove_action, 
-//GO(gtk_action_group_set_sensitive, 
-//GO(gtk_action_group_set_translate_func, 
-//GO(gtk_action_group_set_translation_domain, 
-//GO(gtk_action_group_set_visible, 
-//GO(gtk_action_group_translate_string, 
+GO(gtk_action_group_get_visible, iFp)
+GO(gtk_action_group_list_actions, pFp)
+GO(gtk_action_group_new, pFp)
+GO(gtk_action_group_remove_action, vFpp)
+GO(gtk_action_group_set_sensitive, vFpi)
+//GOM(gtk_action_group_set_translate_func, vFEpBpB)
+GO(gtk_action_group_set_translation_domain, vFpp)
+GO(gtk_action_group_set_visible, vFpi)
+GO(gtk_action_group_translate_string, pFpp)
 //GO(gtk_action_is_sensitive, 
 //GO(gtk_action_is_visible, 
 //GO(gtk_action_new, 
