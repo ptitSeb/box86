@@ -1298,6 +1298,8 @@
 #() vFppppiii
 #() vFppppiip
 #() vFppppipi
+#() vFppppppi
+#() vFppppppp
 #() iFEpuiupV
 #() iFEpupppp
 #() iFEpUuppp
@@ -1353,6 +1355,7 @@
 #() iFppppdpi
 #() iFpppppip
 #() iFpppppup
+#() iFppppppi
 #() iFppppppp
 #() uFEpiippp
 #() uFuippppp
@@ -1390,6 +1393,7 @@
 #() pFpppLLLi
 #() pFppppuuu
 #() pFpppppuu
+#() pFppppppi
 #() pFppppppp
 #() vFEiippppV
 #() vFEiupippp

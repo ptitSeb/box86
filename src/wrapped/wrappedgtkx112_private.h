@@ -353,36 +353,36 @@ GO(gtk_cell_layout_set_attributes, vFpppppppppp)  // vaarg
 //GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
 GO(gtk_cell_renderer_accel_get_type, iFv)
 GO(gtk_cell_renderer_accel_mode_get_type, iFv)
-//GO(gtk_cell_renderer_accel_new, 
-//GO(gtk_cell_renderer_activate, 
+GO(gtk_cell_renderer_accel_new, pFv)
+GO(gtk_cell_renderer_activate, iFppppppi)
 GO(gtk_cell_renderer_combo_get_type, iFv)
-//GO(gtk_cell_renderer_combo_new, 
-//GO(gtk_cell_renderer_editing_canceled, 
-//GO(gtk_cell_renderer_get_alignment, 
-//GO(gtk_cell_renderer_get_fixed_size, 
-//GO(gtk_cell_renderer_get_padding, 
-//GO(gtk_cell_renderer_get_sensitive, 
-//GO(gtk_cell_renderer_get_size, 
+GO(gtk_cell_renderer_combo_new, pFv)
+GO(gtk_cell_renderer_editing_canceled, vFp)
+GO(gtk_cell_renderer_get_alignment, vFppp)
+GO(gtk_cell_renderer_get_fixed_size, vFppp)
+GO(gtk_cell_renderer_get_padding, vFppp)
+GO(gtk_cell_renderer_get_sensitive, iFp)
+GO(gtk_cell_renderer_get_size, vFppppppp)
 GO(gtk_cell_renderer_get_type, iFv)
-//GO(gtk_cell_renderer_get_visible, 
+GO(gtk_cell_renderer_get_visible, iFp)
 GO(gtk_cell_renderer_mode_get_type, iFv)
 GO(gtk_cell_renderer_pixbuf_get_type, iFv)
-//GO(gtk_cell_renderer_pixbuf_new, 
+GO(gtk_cell_renderer_pixbuf_new, pFv)
 GO(gtk_cell_renderer_progress_get_type, iFv)
-//GO(gtk_cell_renderer_progress_new, 
-//GO(gtk_cell_renderer_render, 
-//GO(gtk_cell_renderer_set_alignment, 
-//GO(gtk_cell_renderer_set_fixed_size, 
-//GO(gtk_cell_renderer_set_padding, 
-//GO(gtk_cell_renderer_set_sensitive, 
-//GO(gtk_cell_renderer_set_visible, 
+GO(gtk_cell_renderer_progress_new, pFv)
+GO(gtk_cell_renderer_render, vFppppppi)
+GO(gtk_cell_renderer_set_alignment, vFpff)
+GO(gtk_cell_renderer_set_fixed_size, vFpii)
+GO(gtk_cell_renderer_set_padding, vFpii)
+GO(gtk_cell_renderer_set_sensitive, vFpi)
+GO(gtk_cell_renderer_set_visible, vFpi)
 GO(gtk_cell_renderer_spin_get_type, iFv)
 GO(gtk_cell_renderer_spinner_get_type, iFv)
-//GO(gtk_cell_renderer_spinner_new, 
-//GO(gtk_cell_renderer_spin_new, 
-//GO(gtk_cell_renderer_start_editing, 
+GO(gtk_cell_renderer_spinner_new, pFv)
+GO(gtk_cell_renderer_spin_new, pFv)
+GO(gtk_cell_renderer_start_editing, pFppppppi)
 GO(gtk_cell_renderer_state_get_type, iFv)
-//GO(gtk_cell_renderer_stop_editing, 
+GO(gtk_cell_renderer_stop_editing, vFpi)
 GO(gtk_cell_renderer_text_get_type, iFv)
 GO(gtk_cell_renderer_text_new, pFv)
 GO(gtk_cell_renderer_text_set_fixed_height_from_font, vFpi)
