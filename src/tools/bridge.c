@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
+#include <dlfcn.h>
 
 #include "bridge.h"
 #include "bridge_private.h"
@@ -90,6 +92,25 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 void* GetNativeFnc(uintptr_t fnc)
 {
     if(!fnc) return NULL;
+    // check if function exist in some loaded lib
+    Dl_info info;
+    if(dladdr((void*)fnc, &info))
+        return (void*)fnc;
+    // check if it's an indirect jump
+    #define PK(a)       *(uint8_t*)(fnc+a)
+    #define PK32(a)     *(uint32_t*)(fnc+a)
+    if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
+        uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
+        a1 = *(uintptr_t*)a1;
+        if(a1 && a1>0x10000) {
+            a1 = (uintptr_t)GetNativeFnc(a1);
+            if(a1)
+                return (void*)a1;
+        }
+    }
+    #undef PK
+    #undef PK32
+    // check if bridge exist
     onebridge_t *b = (onebridge_t*)fnc;
     if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
         return NULL;    // not a bridge?!

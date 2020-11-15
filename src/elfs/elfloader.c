@@ -459,7 +459,8 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 }
                 break;
             case R_386_JMP_SLOT:
-                if(bind==STB_LOCAL) {
+                // apply immediatly for gobject closure marshal or for LOCAL binding
+                if(bind==STB_LOCAL || ((symname && strstr(symname, "g_cclosure_marshal_")==symname))) {
                     if (!offs) {
                         if(bind==STB_WEAK) {
                             printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
