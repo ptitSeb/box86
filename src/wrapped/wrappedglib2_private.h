@@ -344,7 +344,7 @@ GO(g_direct_equal, iFpp)
 GO(g_direct_hash, uFp)
 GO(g_dir_make_tmp, pFpp)
 GO(g_dir_open, pFp)
-//GO(g_dir_read_name, 
+GO(g_dir_read_name, pFp)
 GO(g_dir_rewind, vFp)
 GO(g_dngettext, pFpppL)
 GO(g_double_equal, iFpp)
