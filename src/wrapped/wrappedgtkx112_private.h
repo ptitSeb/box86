@@ -220,19 +220,19 @@ GO(gtk_assistant_page_type_get_type, iFv)
 //GO(gtk_assistant_set_page_type, 
 //GO(gtk_assistant_update_buttons_state, 
 GO(gtk_attach_options_get_type, iFv)
-//GO(gtk_binding_entry_add_signal, 
-//GO(gtk_binding_entry_add_signall, 
-//GO(gtk_binding_entry_clear, 
-//GO(gtk_binding_entry_remove, 
-//GO(gtk_binding_entry_skip, 
-//GO(gtk_binding_parse_binding, 
-//GO(gtk_bindings_activate, 
-//GO(gtk_bindings_activate_event, 
-//GO(gtk_binding_set_activate, 
-//GO(gtk_binding_set_add_path, 
-//GO(gtk_binding_set_by_class, 
-//GO(gtk_binding_set_find, 
-//GO(gtk_binding_set_new, 
+GO(gtk_binding_entry_add_signal, vFpuipupppppppppppppppp)   //vaarg
+GO(gtk_binding_entry_add_signall, vFpuipp)
+GO(gtk_binding_entry_clear, vFpui)
+GO(gtk_binding_entry_remove, vFpui)
+GO(gtk_binding_entry_skip, vFpui)
+GO(gtk_binding_parse_binding, uFp)
+GO(gtk_bindings_activate, iFpui)
+GO(gtk_bindings_activate_event, iFpp)
+GO(gtk_binding_set_activate, iFpuip)
+GO(gtk_binding_set_add_path, vFpipi)
+GO(gtk_binding_set_by_class, pFp)
+GO(gtk_binding_set_find, pFp)
+GO(gtk_binding_set_new, pFp)
 GO(gtk_bin_get_child, pFp)
 GO(gtk_bin_get_type, iFv)
 GO(gtk_border_copy, pFp)
@@ -1687,14 +1687,14 @@ GO(gtk_menu_shell_prepend, vFpp)
 GO(gtk_menu_shell_select_first, vFpi)
 GO(gtk_menu_shell_select_item, vFpp)
 //GO(gtk_menu_shell_set_take_focus, 
-//GO(gtk_menu_tool_button_get_menu, 
+GO(gtk_menu_tool_button_get_menu, pFp)
 GO(gtk_menu_tool_button_get_type, iFv)
-//GO(gtk_menu_tool_button_new, 
-//GO(gtk_menu_tool_button_new_from_stock, 
-//GO(gtk_menu_tool_button_set_arrow_tooltip, 
-//GO(gtk_menu_tool_button_set_arrow_tooltip_markup, 
-//GO(gtk_menu_tool_button_set_arrow_tooltip_text, 
-//GO(gtk_menu_tool_button_set_menu, 
+GO(gtk_menu_tool_button_new, pFpp)
+GO(gtk_menu_tool_button_new_from_stock, pFp)
+GO(gtk_menu_tool_button_set_arrow_tooltip, vFpppp)
+GO(gtk_menu_tool_button_set_arrow_tooltip_markup, vFpp)
+GO(gtk_menu_tool_button_set_arrow_tooltip_text, vFpp)
+GO(gtk_menu_tool_button_set_menu, vFpp)
 GOM(gtk_message_dialog_format_secondary_markup, vFEppV)
 GOM(gtk_message_dialog_format_secondary_text, vFEppV)
 GO(gtk_message_dialog_get_image, pFp)

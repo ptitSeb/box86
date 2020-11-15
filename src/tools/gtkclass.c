@@ -45,7 +45,9 @@ static RET my_##NAME##_##A DEF              \
 #define FIND(NAME) \
 static void* find_##NAME(void* fct) \
 {   \
-    if(!fct) return fct;    \
+    if(!fct) return fct;                                            \
+    void* tmp = GetNativeFnc((uintptr_t)fct);                       \
+    if(tmp) return tmp;                                             \
     if(my_##NAME##_fct_0 == (uintptr_t)fct) return my_##NAME##_0;   \
     if(my_##NAME##_fct_1 == (uintptr_t)fct) return my_##NAME##_1;   \
     if(my_##NAME##_fct_2 == (uintptr_t)fct) return my_##NAME##_2;   \
@@ -66,6 +68,24 @@ static void* find_##NAME(void* fct) \
     return NULL;    \
 }
 
+#define REVERSE(NAME)   \
+static void* reverse_##NAME(wrapper_t W, void* fct)                 \
+{                                                                   \
+    if(!fct) return fct;                                            \
+    if((void*)my_##NAME##_0 == fct) return (void*)my_##NAME##_fct_0;\
+    if((void*)my_##NAME##_1 == fct) return (void*)my_##NAME##_fct_1;\
+    if((void*)my_##NAME##_2 == fct) return (void*)my_##NAME##_fct_2;\
+    if((void*)my_##NAME##_3 == fct) return (void*)my_##NAME##_fct_3;\
+    if((void*)my_##NAME##_4 == fct) return (void*)my_##NAME##_fct_4;\
+    if((void*)my_##NAME##_5 == fct) return (void*)my_##NAME##_fct_5;\
+    if((void*)my_##NAME##_6 == fct) return (void*)my_##NAME##_fct_6;\
+    if((void*)my_##NAME##_7 == fct) return (void*)my_##NAME##_fct_7;\
+    Dl_info info;                                                   \
+    if(dladdr(fct, &info))                                          \
+        return (void*)AddCheckBridge(my_bridge, W, fct, 0);         \
+    return fct;                                                     \
+}
+
 #define WRAPPER(A, NAME, RET, DEF, N, ...)  \
 WRAPPED(0, NAME, RET, DEF, N, __VA_ARGS__)  \
 WRAPPED(1, NAME, RET, DEF, N, __VA_ARGS__)  \
@@ -75,7 +95,8 @@ WRAPPED(4, NAME, RET, DEF, N, __VA_ARGS__)  \
 WRAPPED(5, NAME, RET, DEF, N, __VA_ARGS__)  \
 WRAPPED(6, NAME, RET, DEF, N, __VA_ARGS__)  \
 WRAPPED(7, NAME, RET, DEF, N, __VA_ARGS__)  \
-FIND(NAME)
+FIND(NAME)                                  \
+REVERSE(NAME)
 
 // ----- GObjectClass ------
 // wrapper x86 -> natives of callbacks
@@ -101,15 +122,14 @@ WRAPPER(A, constructed, void, (void* object), 1, object);
 // wrap (so bridge all calls, just in case)
 static void wrapGObjectClass(my_GObjectClass_t* class)
 {
-    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
     SUPERGO()
     #undef GO
 }
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGObjectClass(my_GObjectClass_t* class)
 {   
-    void* tmp;
-    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    #define GO(A, W)   class->A = find_##A (class->A)
     SUPERGO()
     #undef GO
 }
@@ -129,7 +149,7 @@ WRAPPER(A, destroy, void, (void* object), 1, object);
 static void wrapGtkObjectClass(my_GtkObjectClass_t* class)
 {
     wrapGObjectClass(&class->parent_class);
-    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -137,8 +157,7 @@ static void wrapGtkObjectClass(my_GtkObjectClass_t* class)
 static void unwrapGtkObjectClass(my_GtkObjectClass_t* class)
 {   
     unwrapGObjectClass(&class->parent_class);
-    void* tmp;
-    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    #define GO(A, W)   class->A = find_##A (class->A)
     SUPERGO()
     #undef GO
 }
@@ -285,7 +304,7 @@ WRAPPER(A,  query_tooltip,      int  , (void* widget, int32_t x, int32_t y, int 
 static void wrapGtkWidgetClass(my_GtkWidgetClass_t* class)
 {
     wrapGtkObjectClass(&class->parent_class);
-    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -293,8 +312,7 @@ static void wrapGtkWidgetClass(my_GtkWidgetClass_t* class)
 static void unwrapGtkWidgetClass(my_GtkWidgetClass_t* class)
 {   
     unwrapGtkObjectClass(&class->parent_class);
-    void* tmp;
-    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    #define GO(A, W)   class->A = find_##A (class->A)
     SUPERGO()
     #undef GO
 }
@@ -327,7 +345,7 @@ WRAPPER(A, get_child_property, void, (void* container, void* child, uint32_t pro
 static void wrapGtkContainerClass(my_GtkContainerClass_t* class)
 {
     wrapGtkWidgetClass(&class->parent_class);
-    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -335,8 +353,7 @@ static void wrapGtkContainerClass(my_GtkContainerClass_t* class)
 static void unwrapGtkContainerClass(my_GtkContainerClass_t* class)
 {   
     unwrapGtkWidgetClass(&class->parent_class);
-    void* tmp;
-    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    #define GO(A, W)   class->A = find_##A (class->A)
     SUPERGO()
     #undef GO
 }
@@ -363,7 +380,7 @@ WRAPPER(A, create_menu, void*, (void* action), 1, action);
 static void wrapGtkActionClass(my_GtkActionClass_t* class)
 {
     wrapGObjectClass(&class->parent_class);
-    #define GO(A, W) if(class->A) class->A = (void*)AddCheckBridge(my_bridge, W, class->A, 0)
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -371,8 +388,7 @@ static void wrapGtkActionClass(my_GtkActionClass_t* class)
 static void unwrapGtkActionClass(my_GtkActionClass_t* class)
 {   
     unwrapGObjectClass(&class->parent_class);
-    void* tmp;
-    #define GO(A, W)   if(class->A) {tmp = GetNativeFnc((uintptr_t)class->A); if(tmp) class->A = tmp; else class->A = find_##A (class->A);}
+    #define GO(A, W)   class->A = find_##A (class->A)
     SUPERGO()
     #undef GO
 }
@@ -381,6 +397,7 @@ static void unwrapGtkActionClass(my_GtkActionClass_t* class)
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
+#undef REVERSE
 #undef WRAPPED
 
 static void wrapGTKClass(void* cl, int type)
@@ -413,56 +430,6 @@ static void unwrapGTKClass(void* cl, int type)
     else if(type==my_gtkaction)
         unwrapGtkActionClass((my_GtkActionClass_t*)cl);
     // no warning, one is enough...
-}
-
-// ---- GTKClass -----
-static void** table_ref = NULL;
-static void** table_nat = NULL;
-static int     table_sz = 0;
-static int    table_cap = 0;
-void* wrapCopyGTKClass(void* cl, int type)
-{
-    // search for an existing ref...
-    for (int i=0; i<table_sz; ++i)
-        if(table_ref[i] == cl)
-            return table_nat[i];
-    // add a new one...
-    if(table_sz == table_cap) {
-        table_cap += 4;
-        table_ref = (void**)realloc(table_ref, sizeof(void*)*table_cap);
-        table_nat = (void**)realloc(table_nat, sizeof(void*)*table_cap);
-    }
-    table_ref[table_sz] = cl;
-    if(type==my_gtkcontainer) {
-        my_GtkContainerClass_t *tmp = (my_GtkContainerClass_t*)malloc(sizeof(my_GtkContainerClass_t));
-        memcpy(tmp, cl, sizeof(my_GtkContainerClass_t));
-        wrapGtkContainerClass(tmp);
-        table_nat[table_sz] = tmp;
-    } else if(type==my_gtkwidget) {
-        my_GtkWidgetClass_t *tmp = (my_GtkWidgetClass_t*)malloc(sizeof(my_GtkWidgetClass_t));
-        memcpy(tmp, cl, sizeof(my_GtkWidgetClass_t));
-        wrapGtkWidgetClass(tmp);
-        table_nat[table_sz] = tmp;
-    } else if(type==my_gtkobject) {
-        my_GtkObjectClass_t *tmp = (my_GtkObjectClass_t*)malloc(sizeof(my_GtkObjectClass_t));
-        memcpy(tmp, cl, sizeof(my_GtkObjectClass_t));
-        wrapGtkObjectClass((my_GtkObjectClass_t*)cl);
-        table_nat[table_sz] = tmp;
-    } else if(type==my_gobject) {
-        my_GObjectClass_t *tmp = (my_GObjectClass_t*)malloc(sizeof(my_GObjectClass_t));
-        memcpy(tmp, cl, sizeof(my_GObjectClass_t));
-        wrapGObjectClass((my_GObjectClass_t*)cl);
-        table_nat[table_sz] = tmp;
-    } else if(type==my_gtkaction) {
-        my_GtkActionClass_t *tmp = (my_GtkActionClass_t*)malloc(sizeof(my_GtkActionClass_t));
-        memcpy(tmp, cl, sizeof(my_GtkActionClass_t));
-        wrapGtkActionClass((my_GtkActionClass_t*)cl);
-        table_nat[table_sz] = tmp;
-    } else {
-        printf_log(LOG_NONE, "Warning, Custom Class function with unknown class type %d (%s)\n", type, g_type_name(type));
-        return cl;
-    }
-    return table_nat[table_sz++];
 }
 
 // ---- GTypeValueTable ----
@@ -677,6 +644,99 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent)
     return NULL;
 }
 
+// g_type_class_peek_parent
+typedef union my_GClassAll_s {
+    my_GObjectClass_t       GObject;
+    my_GtkObjectClass_t     GtkObject;
+    my_GtkWidgetClass_t     GtkWidget;
+    my_GtkContainerClass_t  GtkContainer;
+    my_GtkActionClass_t     GtkAction;
+} my_GClassAll_t;
+
+#define GO(A) \
+static void* my_gclassall_ref_##A = NULL;   \
+static my_GClassAll_t my_gclassall_##A;
+
+SUPER()
+#undef GO
+void* unwrapCopyGTKClass(void* klass, int type)
+{
+    if(!klass) return klass;
+    #define GO(A) if(klass == my_gclassall_ref_##A) return &my_gclassall_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    int sz = 0;
+    if(type==my_gtkcontainer)
+        sz = sizeof(my_GtkContainerClass_t);
+    else if(type==my_gtkwidget)
+        sz = sizeof(my_GtkWidgetClass_t);
+    else if(type==my_gtkobject)
+        sz = sizeof(my_GtkObjectClass_t);
+    else if(type==my_gobject)
+        sz = sizeof(my_GObjectClass_t);
+    else if(type==my_gtkaction)
+        sz = sizeof(my_GtkActionClass_t);
+    else {
+        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
+        return klass;
+    }
+    my_GClassAll_t *newklass = NULL;
+    #define GO(A) if(!newklass && !my_gclassall_ref_##A) {my_gclassall_ref_##A = klass; newklass = &my_gclassall_##A;}
+    SUPER()
+    #undef GO
+    if(!newklass) {
+        printf_log(LOG_NONE, "Warning: no more slot for unwrapCopyGTKClass\n");
+        return klass;
+    }
+    memcpy(newklass, klass, sz);
+    unwrapGTKClass(newklass, type);
+    return newklass;
+}
+
+// gtk_type_class
+
+#define GO(A) \
+static void* my_gclassallu_ref_##A = NULL;   \
+static my_GClassAll_t my_gclassallu_##A;
+
+SUPER()
+#undef GO
+void* wrapCopyGTKClass(void* klass, int type)
+{
+    if(!klass) return klass;
+    #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    int sz = 0;
+    if(type==my_gtkcontainer)
+        sz = sizeof(my_GtkContainerClass_t);
+    else if(type==my_gtkwidget)
+        sz = sizeof(my_GtkWidgetClass_t);
+    else if(type==my_gtkobject)
+        sz = sizeof(my_GtkObjectClass_t);
+    else if(type==my_gobject)
+        sz = sizeof(my_GObjectClass_t);
+    else if(type==my_gtkaction)
+        sz = sizeof(my_GtkActionClass_t);
+    else {
+        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
+        return klass;
+    }
+    my_GClassAll_t *newklass = NULL;
+    #define GO(A) if(!newklass && !my_gclassallu_ref_##A) {my_gclassallu_ref_##A = klass; newklass = &my_gclassallu_##A;}
+    SUPER()
+    #undef GO
+    if(!newklass) {
+        printf_log(LOG_NONE, "Warning: no more slot for wrapCopyGTKClass\n");
+        return klass;
+    }
+    memcpy(newklass, klass, sz);
+    wrapGTKClass(newklass, type);
+    return newklass;
+}
+
 #undef SUPER
 
 void InitGTKClass(bridge_t *bridge)
@@ -686,14 +746,6 @@ void InitGTKClass(bridge_t *bridge)
 
 void FiniGTKClass()
 {
-    if(table_ref)
-        free(table_ref);
-    for (int i=0; i<table_sz; ++i)
-        free(table_nat[i]);
-    if(table_nat)
-        free(table_nat);
-    table_ref = table_nat = NULL;
-    table_sz = table_cap = 0;
 }
 
 void SetGObjectID(int id)

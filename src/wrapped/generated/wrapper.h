@@ -1747,6 +1747,7 @@ void vFpiiiiiiiiiiiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpppippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFEppuuuuuwwuuuuUUUup(x86emu_t *emu, uintptr_t fnc);
 void pFiiiippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
+void vFpuipupppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)

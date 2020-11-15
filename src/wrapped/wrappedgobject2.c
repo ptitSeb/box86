@@ -23,6 +23,7 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 
 typedef int   (*iFv_t)(void);
 typedef void* (*pFi_t)(int);
+typedef void* (*pFp_t)(void*);
 typedef int (*iFpp_t)(void*, void*);
 typedef void* (*pFip_t)(int, void*);
 typedef void (*vFiip_t)(int, int, void*);
@@ -67,7 +68,8 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_param_spec_set_qdata_full, vFpupp_t)   \
     GO(g_param_type_register_static, iFpp_t)    \
     GO(g_value_array_sort_with_data, pFppp_t)   \
-    GO(g_object_set_data_full, vFpppp_t)
+    GO(g_object_set_data_full, vFpppp_t)        \
+    GO(g_type_class_peek_parent, pFp_t)         \
 
 
 typedef struct gobject2_my_s {
@@ -704,6 +706,17 @@ EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, vo
 
     my->g_object_set_data_full(object, key, data, findFreeFct(notify));
 }
+
+EXPORT void* my_g_type_class_peek_parent(x86emu_t* emu, void* object)
+{
+    library_t * lib = GetLibInternal(gobject2Name);
+    gobject2_my_t *my = (gobject2_my_t*)lib->priv.w.p2;
+
+    void* klass = my->g_type_class_peek_parent(object);
+    int type = klass?*(int*)klass:0;
+    return wrapCopyGTKClass(klass, type);
+}
+
 
 #define CUSTOM_INIT \
     InitGTKClass(lib->priv.w.bridge);    \

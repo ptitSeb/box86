@@ -205,6 +205,7 @@ void SetGTKActionID(int id);
 void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* cl, int type);
+void* unwrapCopyGTKClass(void* klass, int type);
 
 void my_checkGlobalGdkDisplay();
 void my_setGlobalGThreadsInit();
