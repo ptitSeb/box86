@@ -39,6 +39,7 @@ typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
+typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef void*         (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int);
@@ -90,6 +91,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_builder_connect_signals_full, vFppp_t)       \
     GO(gtk_action_get_type, iFv_t)              \
     GO(gtk_binding_entry_add_signall, vFpuipp_t)\
+    GO(gtk_binding_entry_add_signal, vFpuipuV_t)\
+    GO(gtk_container_foreach, vFppp_t)          \
 
 
 typedef struct gtkx112_my_s {
@@ -737,6 +740,10 @@ EXPORT void my_gtk_binding_entry_add_signal(x86emu_t* emu, void* binding, uint32
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+    if(!n) {
+        my->gtk_binding_entry_add_signal(binding, keyval, mod, name, 0);
+        return;
+    }
     // build the list
     my_GSList_t *list = calloc(n, sizeof(my_GSList_t));
     for(uint32_t i=0; i<n; ++i) {
@@ -747,6 +754,14 @@ EXPORT void my_gtk_binding_entry_add_signal(x86emu_t* emu, void* binding, uint32
     my->gtk_binding_entry_add_signall(binding, keyval, mod, name, list);
 
     free(list);
+}
+
+EXPORT void my_gtk_container_foreach(x86emu_t* emu, void* container, void* f, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_container_foreach(container, findGtkCallbackFct(f), data);
 }
 
 #define CUSTOM_INIT \
