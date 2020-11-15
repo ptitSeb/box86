@@ -40,10 +40,12 @@ typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
 typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
+typedef void          (*vFppup_t)(void*, void*, uint32_t, void*);
 typedef unsigned long (*LFppppi_t)(void*, void*, void*, void*, int);
 typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
 typedef void          (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
+typedef void          (*vFppupp_t)(void*, void*, uint32_t, void*, void*);
 typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
@@ -109,6 +111,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(g_log, vFpipV_t)                         \
     GO(g_signal_connect_object, LFppppi_t)      \
     GO(g_signal_connect_data, LFpppppi_t)       \
+    GO(gtk_action_group_add_actions, vFppup_t)  \
+    GO(gtk_action_group_add_actions_full, vFppupp_t)    \
 
 
 
@@ -153,11 +157,48 @@ EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* n
     return ret;
 }
 
+// this is quite ineficient, but GCallback is often used, so create a large pool here...
 #define SUPER() \
 GO(0)   \
 GO(1)   \
 GO(2)   \
-GO(3)
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
+GO(15)  \
+GO(16)  \
+GO(17)  \
+GO(18)  \
+GO(19)  \
+GO(20)  \
+GO(21)  \
+GO(22)  \
+GO(23)  \
+GO(24)  \
+GO(25)  \
+GO(26)  \
+GO(27)  \
+GO(28)  \
+GO(29)  \
+GO(30)  \
+GO(31)  \
+GO(32)  \
+GO(33)  \
+GO(34)  \
+GO(35)  \
+GO(36)  \
+GO(37)  \
+GO(38)  \
+GO(39)  \
 
 // GtkMenuDetachFunc
 #define GO(A)   \
@@ -897,6 +938,39 @@ EXPORT void my_gtk_builder_connect_signals(x86emu_t* emu, void* builder, void* d
     my->gtk_builder_connect_signals_full(builder, my_gtk_builder_connect_signals_custom, &args);
     if (args.module)
         my->g_module_close(args.module);
+}
+
+typedef struct my_GtkActionEntry_s {
+  const char* name;
+  const char* stock_id;
+  const char* label;
+  const char* accelerator;
+  const char* tooltip;
+  void*       callback;
+} my_GtkActionEntry_t;
+
+EXPORT void my_gtk_action_group_add_actions(x86emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my_GtkActionEntry_t myentries[n];
+    memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
+    for(uint32_t i=0; i<n; ++i)
+        myentries[i].callback = findGtkCallbackFct(entries[i].callback);
+    my->gtk_action_group_add_actions(action_group, myentries, n, data);
+}
+
+EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data, void* destroy)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my_GtkActionEntry_t myentries[n];
+    memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
+    for(uint32_t i=0; i<n; ++i)
+        myentries[i].callback = findGtkCallbackFct(entries[i].callback);
+    my->gtk_action_group_add_actions_full(action_group, myentries, n, data, findGDestroyNotifyFct(destroy));
 }
 
 #define CUSTOM_INIT \
