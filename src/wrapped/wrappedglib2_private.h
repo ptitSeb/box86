@@ -685,21 +685,21 @@ GO(g_markup_escape_text, pFpl)
 //GO(g_markup_parse_context_unref, 
 GOM(g_markup_printf_escaped, pFEpV)
 GOM(g_markup_vprintf_escaped, pFEpp)
-//GO(g_match_info_expand_references, 
-//GO(g_match_info_fetch, 
-//GO(g_match_info_fetch_all, 
-//GO(g_match_info_fetch_named, 
-//GO(g_match_info_fetch_named_pos, 
-//GO(g_match_info_fetch_pos, 
-//GO(g_match_info_free, 
-//GO(g_match_info_get_match_count, 
-//GO(g_match_info_get_regex, 
-//GO(g_match_info_get_string, 
-//GO(g_match_info_is_partial_match, 
-//GO(g_match_info_matches, 
-//GO(g_match_info_next, 
-//GO(g_match_info_ref, 
-//GO(g_match_info_unref, 
+GO(g_match_info_expand_references, pFppp)
+GO(g_match_info_fetch, pFpi)
+GO(g_match_info_fetch_all, pFp)
+GO(g_match_info_fetch_named, pFpp)
+GO(g_match_info_fetch_named_pos, iFpppp)
+GO(g_match_info_fetch_pos, iFpipp)
+GO(g_match_info_free, vFp)
+GO(g_match_info_get_match_count, iFp)
+GO(g_match_info_get_regex, pFp)
+GO(g_match_info_get_string, pFp)
+GO(g_match_info_is_partial_match, iFp)
+GO(g_match_info_matches, iFp)
+GO(g_match_info_next, iFpp)
+GO(g_match_info_ref, pFp)
+GO(g_match_info_unref, vFp)
 //GO(g_mem_chunk_alloc, 
 //GO(g_mem_chunk_alloc0, 
 //GO(g_mem_chunk_clean, 
@@ -909,32 +909,32 @@ GO(g_realloc_n, pFpLL)
 //GO(g_rec_mutex_lock, 
 //GO(g_rec_mutex_trylock, 
 //GO(g_rec_mutex_unlock, 
-//GO(g_regex_check_replacement, 
+GO(g_regex_check_replacement, iFppp)
 //GO(g_regex_error_quark, 
-//GO(g_regex_escape_nul, 
-//GO(g_regex_escape_string, 
-//GO(g_regex_get_capture_count, 
-//GO(g_regex_get_compile_flags, 
-//GO(g_regex_get_has_cr_or_lf, 
-//GO(g_regex_get_match_flags, 
-//GO(g_regex_get_max_backref, 
-//GO(g_regex_get_max_lookbehind, 
-//GO(g_regex_get_pattern, 
-//GO(g_regex_get_string_number, 
-//GO(g_regex_match, 
-//GO(g_regex_match_all, 
-//GO(g_regex_match_all_full, 
-//GO(g_regex_match_full, 
-//GO(g_regex_match_simple, 
-//GO(g_regex_new, 
-//GO(g_regex_ref, 
-//GO(g_regex_replace, 
-//GO(g_regex_replace_eval, 
-//GO(g_regex_replace_literal, 
-//GO(g_regex_split, 
-//GO(g_regex_split_full, 
-//GO(g_regex_split_simple, 
-//GO(g_regex_unref, 
+GO(g_regex_escape_nul, pFpi)
+GO(g_regex_escape_string, pFpi)
+GO(g_regex_get_capture_count, iFp)
+GO(g_regex_get_compile_flags, iFp)
+GO(g_regex_get_has_cr_or_lf, iFp)
+GO(g_regex_get_match_flags, iFp)
+GO(g_regex_get_max_backref, iFp)
+GO(g_regex_get_max_lookbehind, iFp)
+GO(g_regex_get_pattern, pFp)
+GO(g_regex_get_string_number, iFpp)
+GO(g_regex_match, iFppip)
+GO(g_regex_match_all, iFppip)
+GO(g_regex_match_all_full, iFppLiipp)
+GO(g_regex_match_full, iFppLiipp)
+GO(g_regex_match_simple, iFppii)
+GO(g_regex_new, pFpiip)
+GO(g_regex_ref, pFp)
+GO(g_regex_replace, pFppLipip)
+//GOM(g_regex_replace_eval, pFEppLiiBpp)
+GO(g_regex_replace_literal, pFppLipip)
+GO(g_regex_split, pFppi)
+GO(g_regex_split_full, pFppLiiip)
+GO(g_regex_split_simple, pFppii)
+GO(g_regex_unref, vFp)
 //GO(g_relation_count, 
 //GO(g_relation_delete, 
 //GO(g_relation_destroy, 
