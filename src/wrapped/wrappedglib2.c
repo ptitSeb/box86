@@ -1282,12 +1282,12 @@ EXPORT void* my_g_build_path(x86emu_t *emu, void* sep, void* first, void** data)
 
     int n = (first)?1:0;
     void* p = n?data[0]:NULL;
-    if(p) {
+    while(p) {
         p = data[n++];
     }
     ++n;    // final NULL
-    void** args = (void**)calloc(n, sizeof(void*));
-    if(n) args[0] = first;
+    void** args = (void**)malloc(n *sizeof(void*));
+    args[0] = first;
     for(int i=1; i<n; ++i)
         args[i] = data[i-1];
     p = my->g_build_pathv(sep, args);

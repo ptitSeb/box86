@@ -202,6 +202,8 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
     else if(strcmp((const char*)detailed, "drag-motion")==0)  // Gtkwidget
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
+    else if(strcmp((const char*)detailed, "expand-collapse-cursor-row")==0)  // GtkTreeView
+        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
     
