@@ -142,6 +142,24 @@ typedef struct my_GtkActionClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkActionClass_t;
 
+typedef struct my_GtkMiscClass_s
+{
+  my_GtkWidgetClass_t parent_class;
+} my_GtkMiscClass_t;
+
+typedef struct my_GtkLabelClass_s
+{
+  my_GtkMiscClass_t parent_class;
+  void (* move_cursor)     (void* label, int step, int count, int extend_selection);
+  void (* copy_clipboard)  (void* label);
+  void (* populate_popup)  (void* label, void* menu);
+  int  (*activate_link)    (void* label, void* uri);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+} my_GtkLabelClass_t;
+
+
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -202,6 +220,8 @@ void SetGTKObjectID(int id);
 void SetGTKWidgetID(int id);
 void SetGTKContainerID(int id);
 void SetGTKActionID(int id);
+void SetGTKMiscID(int id);
+void SetGTKLabelID(int id);
 void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* cl, int type);

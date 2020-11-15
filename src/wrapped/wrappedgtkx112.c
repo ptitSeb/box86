@@ -58,6 +58,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_widget_get_type, iFv_t)              \
     GO(gtk_button_get_type, iFv_t)              \
     GO(gtk_container_get_type, iFv_t)           \
+    GO(gtk_misc_get_type, iFv_t)                \
+    GO(gtk_label_get_type, iFv_t)               \
     GO(gtk_type_class, pFi_t)                   \
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
@@ -771,6 +773,8 @@ EXPORT void my_gtk_container_foreach(x86emu_t* emu, void* container, void* f, vo
     SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
     SetGTKContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
     SetGTKActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
+    SetGTKMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
+    SetGTKLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \

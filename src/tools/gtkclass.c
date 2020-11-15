@@ -22,6 +22,8 @@ static int              my_gtkobject    = -1;
 static int              my_gtkwidget    = -1;
 static int              my_gtkcontainer = -1;
 static int              my_gtkaction    = -1;
+static int              my_gtkmisc      = -1;
+static int              my_gtklabel     = -1;
 static const char* (*g_type_name)(int)  = NULL;
 // ---- Defining the multiple functions now -----
 #define SUPER() \
@@ -394,6 +396,49 @@ static void unwrapGtkActionClass(my_GtkActionClass_t* class)
 }
 #undef SUPERGO
 
+// ----- GtkMiscClass ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkMiscClass(my_GtkMiscClass_t* class)
+{
+    wrapGtkWidgetClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkMiscClass(my_GtkMiscClass_t* class)
+{   
+    unwrapGtkWidgetClass(&class->parent_class);
+}
+
+// ----- GtkLabelClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(A, move_cursor, void, (void* label, int step, int count, int extend_selection), 4, label, step, count, extend_selection);
+WRAPPER(A, copy_clipboard, void, (void* label), 1, label);
+WRAPPER(A, populate_popup, void, (void* label, void* menu), 2, label, menu);
+WRAPPER(A, activate_link, int, (void* label, void* uri), 2, label, uri);
+
+#define SUPERGO() \
+    GO(move_cursor, vFpiii);    \
+    GO(copy_clipboard, vFp);    \
+    GO(populate_popup, vFpp);   \
+    GO(activate_link, iFpp);    \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkLabelClass(my_GtkLabelClass_t* class)
+{
+    wrapGtkMiscClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkLabelClass(my_GtkLabelClass_t* class)
+{   
+    unwrapGtkMiscClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A (class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
@@ -412,6 +457,10 @@ static void wrapGTKClass(void* cl, int type)
         wrapGObjectClass((my_GObjectClass_t*)cl);
     else if(type==my_gtkaction)
         wrapGtkActionClass((my_GtkActionClass_t*)cl);
+    else if(type==my_gtkmisc)
+        wrapGtkMiscClass((my_GtkMiscClass_t*)cl);
+    else if(type==my_gtklabel)
+        wrapGtkLabelClass((my_GtkLabelClass_t*)cl);
     else {
         printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
     }
@@ -429,6 +478,10 @@ static void unwrapGTKClass(void* cl, int type)
         unwrapGObjectClass((my_GObjectClass_t*)cl);
     else if(type==my_gtkaction)
         unwrapGtkActionClass((my_GtkActionClass_t*)cl);
+    else if(type==my_gtkmisc)
+        unwrapGtkMiscClass((my_GtkMiscClass_t*)cl);
+    else if(type==my_gtklabel)
+        unwrapGtkLabelClass((my_GtkLabelClass_t*)cl);
     // no warning, one is enough...
 }
 
@@ -651,6 +704,8 @@ typedef union my_GClassAll_s {
     my_GtkWidgetClass_t     GtkWidget;
     my_GtkContainerClass_t  GtkContainer;
     my_GtkActionClass_t     GtkAction;
+    my_GtkMiscClass_t       GtkMisc;
+    my_GtkLabelClass_t      GtkLabel;
 } my_GClassAll_t;
 
 #define GO(A) \
@@ -677,6 +732,10 @@ void* unwrapCopyGTKClass(void* klass, int type)
         sz = sizeof(my_GObjectClass_t);
     else if(type==my_gtkaction)
         sz = sizeof(my_GtkActionClass_t);
+    else if(type==my_gtkmisc)
+        sz = sizeof(my_GtkMiscClass_t);
+    else if(type==my_gtklabel)
+        sz = sizeof(my_GtkLabelClass_t);
     else {
         printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
         return klass;
@@ -720,6 +779,10 @@ void* wrapCopyGTKClass(void* klass, int type)
         sz = sizeof(my_GObjectClass_t);
     else if(type==my_gtkaction)
         sz = sizeof(my_GtkActionClass_t);
+    else if(type==my_gtkmisc)
+        sz = sizeof(my_GtkMiscClass_t);
+    else if(type==my_gtklabel)
+        sz = sizeof(my_GtkLabelClass_t);
     else {
         printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
         return klass;
@@ -771,6 +834,16 @@ void SetGTKContainerID(int id)
 void SetGTKActionID(int id)
 {
     my_gtkaction = id;
+}
+
+void SetGTKMiscID(int id)
+{
+    my_gtkmisc = id;
+}
+
+void SetGTKLabelID(int id)
+{
+    my_gtklabel = id;
 }
 
 void SetGTypeName(void* f)
