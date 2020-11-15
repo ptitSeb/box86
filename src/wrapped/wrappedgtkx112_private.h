@@ -3609,16 +3609,16 @@ GO(gtk_vbutton_box_get_type, iFv)
 //GO(gtk_vbutton_box_new, 
 //GO(gtk_vbutton_box_set_layout_default, 
 //GO(gtk_vbutton_box_set_spacing_default, 
-//GO(gtk_viewport_get_bin_window, 
-//GO(gtk_viewport_get_hadjustment, 
-//GO(gtk_viewport_get_shadow_type, 
+GO(gtk_viewport_get_bin_window, pFp)
+GO(gtk_viewport_get_hadjustment, pFp)
+GO(gtk_viewport_get_shadow_type, iFp)
 GO(gtk_viewport_get_type, iFv)
-//GO(gtk_viewport_get_vadjustment, 
-//GO(gtk_viewport_get_view_window, 
-//GO(gtk_viewport_new, 
-//GO(gtk_viewport_set_hadjustment, 
-//GO(gtk_viewport_set_shadow_type, 
-//GO(gtk_viewport_set_vadjustment, 
+GO(gtk_viewport_get_vadjustment, pFp)
+GO(gtk_viewport_get_view_window, pFp)
+GO(gtk_viewport_new, pFpp)
+GO(gtk_viewport_set_hadjustment, vFpp)
+GO(gtk_viewport_set_shadow_type, vFpi)
+GO(gtk_viewport_set_vadjustment, vFpp)
 GO(gtk_visibility_get_type, iFv)
 GO(gtk_volume_button_get_type, iFv)
 GO(gtk_volume_button_new, pFv)
