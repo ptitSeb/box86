@@ -14,7 +14,7 @@
 #include "librarian.h"
 #include "gtkclass.h"
 #include "library.h"
-
+#include "khash.h"
 
 static bridge_t*        my_bridge       = NULL;
 static int              my_gobject      = -1;
@@ -25,6 +25,10 @@ static int              my_gtkaction    = -1;
 static int              my_gtkmisc      = -1;
 static int              my_gtklabel     = -1;
 static const char* (*g_type_name)(int)  = NULL;
+
+KHASH_SET_INIT_INT(signalmap)
+static kh_signalmap_t *my_signalmap = NULL;
+
 // ---- Defining the multiple functions now -----
 #define SUPER() \
 GO(0)   \
@@ -805,10 +809,20 @@ void* wrapCopyGTKClass(void* klass, int type)
 void InitGTKClass(bridge_t *bridge)
 {
     my_bridge  = bridge;
+    my_signalmap = kh_init(signalmap);
 }
 
 void FiniGTKClass()
 {
+    if(my_signalmap) {
+        khint_t k;
+        kh_foreach_key(my_signalmap, k,
+            my_signal_t* p = (my_signal_t*)(uintptr_t)k;
+            free(p);
+        );
+        kh_destroy(signalmap, my_signalmap);
+        my_signalmap = NULL;
+    }
 }
 
 void SetGObjectID(int id)
@@ -898,16 +912,37 @@ my_signal_t* new_mysignal(void* f, void* data, void* destroy)
     sig->c_handler = (uintptr_t)f;
     sig->destroy = (uintptr_t)destroy;
     sig->data = data;
+    khint_t k;
+    int ret;
+    k = kh_put(signalmap, my_signalmap, (uintptr_t)sig, &ret);
     return sig;
 }
 void my_signal_delete(my_signal_t* sig)
 {
+    khint_t k = kh_get(signalmap, my_signalmap, (uintptr_t)sig);
+    if(k!=kh_end(my_signalmap)) {
+        kh_del(signalmap, my_signalmap, k);
+    } else {
+        printf_log(LOG_NONE, "Warning, my_signal_delete called with an unrefereced signal!\n");
+    }
     uintptr_t d = sig->destroy;
     if(d) {
         RunFunction(my_context, d, 1, sig->data);
     }
     printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, (void*)d);
     free(sig);
+}
+int my_signal_is_valid(void* sig)
+{
+    khint_t k = kh_get(signalmap, my_signalmap, (uintptr_t)sig);
+    if(k!=kh_end(my_signalmap)) {
+        /*if(((my_signal_t*)c)->sign == SIGN)
+            return 1;
+        else
+            printf_log(LOG_NONE, "Warning, incohrent my_signal_t structure referenced\n");*/
+        return 1;
+    }
+    return 0;
 }
 
 int my_signal_cb(void* a, void* b, void* c, void* d)
@@ -916,26 +951,22 @@ int my_signal_cb(void* a, void* b, void* c, void* d)
     // hopefully, no callback have more than 4 arguments...
     my_signal_t* sig = NULL;
     int i = 0;
-    if(a)
-        if(((my_signal_t*)a)->sign == SIGN) {
-            sig = (my_signal_t*)a;
-            i = 1;
-        }
-    if(!sig && b)
-        if(((my_signal_t*)b)->sign == SIGN) {
-            sig = (my_signal_t*)b;
-            i = 2;
-        }
-    if(!sig && c)
-        if(((my_signal_t*)c)->sign == SIGN) {
-            sig = (my_signal_t*)c;
-            i = 3;
-        }
-    if(!sig && d)
-        if(((my_signal_t*)d)->sign == SIGN) {
-            sig = (my_signal_t*)d;
-            i = 4;
-        }
+    if(my_signal_is_valid(a)) {
+        sig = (my_signal_t*)a;
+        i = 1;
+    }
+    if(!sig && my_signal_is_valid(b)) {
+        sig = (my_signal_t*)b;
+        i = 2;
+    }
+    if(!sig && my_signal_is_valid(c)) {
+        sig = (my_signal_t*)c;
+        i = 3;
+    }
+    if(!sig && my_signal_is_valid(d)) {
+        sig = (my_signal_t*)d;
+        i = 4;
+    }
     printf_log(LOG_DEBUG, "gtk Signal called, sig=%p, NArgs=%d\n", sig, i);
     switch(i) {
         case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);

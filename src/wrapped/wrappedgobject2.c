@@ -100,27 +100,23 @@ static int signal_cb(void* a, void* b, void* c, void* d)
     // hopefully, no callback have more than 4 arguments...
     my_signal_t* sig = NULL;
     int i = 0;
-    if((uintptr_t)a>0x10000 && (uintptr_t)a<0xfffff000)
-        if(((my_signal_t*)a)->sign == SIGN) {
-            sig = (my_signal_t*)a;
-            i = 1;
-        }
-    if(!sig && (uintptr_t)b>0x10000 && (uintptr_t)b<0xfffff000)
-        if(((my_signal_t*)b)->sign == SIGN) {
-            sig = (my_signal_t*)b;
-            i = 2;
-        }
-    if(!sig && (uintptr_t)c>0x10000 && (uintptr_t)c<0xfffff000)
-        if(((my_signal_t*)c)->sign == SIGN) {
-            sig = (my_signal_t*)c;
-            i = 3;
-        }
-    if(!sig && (uintptr_t)d>0x10000 && (uintptr_t)d<0xfffff000)
-        if(((my_signal_t*)d)->sign == SIGN) {
-            sig = (my_signal_t*)d;
-            i = 4;
-        }
-    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, NArgs=%d\n", sig, i);
+    if(my_signal_is_valid(a)) {
+        sig = (my_signal_t*)a;
+        i = 1;
+    }
+    if(!sig && my_signal_is_valid(b)) {
+        sig = (my_signal_t*)b;
+        i = 2;
+    }
+    if(!sig && my_signal_is_valid(c))  {
+        sig = (my_signal_t*)c;
+        i = 3;
+    }
+    if(!sig && my_signal_is_valid(d)) {
+        sig = (my_signal_t*)d;
+        i = 4;
+    }
+    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, sig->c_handler, i);
     switch(i) {
         case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
         case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
