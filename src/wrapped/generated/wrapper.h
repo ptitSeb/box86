@@ -1260,6 +1260,7 @@ void pFpppppu(x86emu_t *emu, uintptr_t fnc);
 void pFpppppp(x86emu_t *emu, uintptr_t fnc);
 void pFSpiiii(x86emu_t *emu, uintptr_t fnc);
 void vFEpipppp(x86emu_t *emu, uintptr_t fnc);
+void vFEpuipuV(x86emu_t *emu, uintptr_t fnc);
 void vFiiiiiip(x86emu_t *emu, uintptr_t fnc);
 void vFiiiiuup(x86emu_t *emu, uintptr_t fnc);
 void vFiiupuip(x86emu_t *emu, uintptr_t fnc);
@@ -1747,7 +1748,6 @@ void vFpiiiiiiiiiiiiiiiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpppippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFEppuuuuuwwuuuuUUUup(x86emu_t *emu, uintptr_t fnc);
 void pFiiiippppppppppppppp(x86emu_t *emu, uintptr_t fnc);
-void vFpuipupppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 void pFipppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)

@@ -85,34 +85,34 @@ GO(gtk_accel_map_get_type, iFv)
 GO(gtk_accessible_get_type, iFv)
 //GO(gtk_accessible_get_widget, 
 //GO(gtk_accessible_set_widget, 
-//GO(gtk_action_activate, 
-//GO(gtk_action_block_activate, 
-//GO(gtk_action_block_activate_from, 
-//GO(gtk_action_connect_accelerator, 
-//GO(gtk_action_connect_proxy, 
-//GO(gtk_action_create_icon, 
-//GO(gtk_action_create_menu, 
-//GO(gtk_action_create_menu_item, 
-//GO(gtk_action_create_tool_item, 
-//GO(gtk_action_disconnect_accelerator, 
-//GO(gtk_action_disconnect_proxy, 
-//GO(gtk_action_get_accel_closure, 
-//GO(gtk_action_get_accel_path, 
-//GO(gtk_action_get_always_show_image, 
-//GO(gtk_action_get_gicon, 
-//GO(gtk_action_get_icon_name, 
-//GO(gtk_action_get_is_important, 
-//GO(gtk_action_get_label, 
-//GO(gtk_action_get_name, 
-//GO(gtk_action_get_proxies, 
-//GO(gtk_action_get_sensitive, 
-//GO(gtk_action_get_short_label, 
-//GO(gtk_action_get_stock_id, 
-//GO(gtk_action_get_tooltip, 
+GO(gtk_action_activate, vFp)
+GO(gtk_action_block_activate, vFp)
+GO(gtk_action_block_activate_from, vFpp)
+GO(gtk_action_connect_accelerator, vFp)
+GO(gtk_action_connect_proxy, vFpp)
+GO(gtk_action_create_icon, pFpi)
+GO(gtk_action_create_menu, pFp)
+GO(gtk_action_create_menu_item, pFp)
+GO(gtk_action_create_tool_item, pFp)
+GO(gtk_action_disconnect_accelerator, vFp)
+GO(gtk_action_disconnect_proxy, vFpp)
+GO(gtk_action_get_accel_closure, pFp)
+GO(gtk_action_get_accel_path, pFp)
+GO(gtk_action_get_always_show_image, iFp)
+GO(gtk_action_get_gicon, pFp)
+GO(gtk_action_get_icon_name, pFp)
+GO(gtk_action_get_is_important, iFp)
+GO(gtk_action_get_label, pFp)
+GO(gtk_action_get_name, pFp)
+GO(gtk_action_get_proxies, pFp)
+GO(gtk_action_get_sensitive, iFp)
+GO(gtk_action_get_short_label, pFp)
+GO(gtk_action_get_stock_id, pFp)
+GO(gtk_action_get_tooltip, pFp)
 GO(gtk_action_get_type, iFv)
-//GO(gtk_action_get_visible, 
-//GO(gtk_action_get_visible_horizontal, 
-//GO(gtk_action_get_visible_vertical, 
+GO(gtk_action_get_visible, iFp)
+GO(gtk_action_get_visible_horizontal, iFp)
+GO(gtk_action_get_visible_vertical, iFp)
 GO(gtk_action_group_add_action, vFpp)
 GO(gtk_action_group_add_actions, vFppup)
 //GOM(gtk_action_group_add_actions_full, vFEppupB)
@@ -134,25 +134,25 @@ GO(gtk_action_group_set_sensitive, vFpi)
 GO(gtk_action_group_set_translation_domain, vFpp)
 GO(gtk_action_group_set_visible, vFpi)
 GO(gtk_action_group_translate_string, pFpp)
-//GO(gtk_action_is_sensitive, 
-//GO(gtk_action_is_visible, 
-//GO(gtk_action_new, 
-//GO(gtk_action_set_accel_group, 
-//GO(gtk_action_set_accel_path, 
-//GO(gtk_action_set_always_show_image, 
-//GO(gtk_action_set_gicon, 
-//GO(gtk_action_set_icon_name, 
-//GO(gtk_action_set_is_important, 
-//GO(gtk_action_set_label, 
-//GO(gtk_action_set_sensitive, 
-//GO(gtk_action_set_short_label, 
-//GO(gtk_action_set_stock_id, 
-//GO(gtk_action_set_tooltip, 
-//GO(gtk_action_set_visible, 
-//GO(gtk_action_set_visible_horizontal, 
-//GO(gtk_action_set_visible_vertical, 
-//GO(gtk_action_unblock_activate, 
-//GO(gtk_action_unblock_activate_from, 
+GO(gtk_action_is_sensitive, iFp)
+GO(gtk_action_is_visible, iFp)
+GO(gtk_action_new, pFpppp)
+GO(gtk_action_set_accel_group, vFpp)
+GO(gtk_action_set_accel_path, vFpp)
+GO(gtk_action_set_always_show_image, vFpi)
+GO(gtk_action_set_gicon, vFpp)
+GO(gtk_action_set_icon_name, vFpp)
+GO(gtk_action_set_is_important, vFpi)
+GO(gtk_action_set_label, vFpp)
+GO(gtk_action_set_sensitive, vFpi)
+GO(gtk_action_set_short_label, vFpp)
+GO(gtk_action_set_stock_id, vFpp)
+GO(gtk_action_set_tooltip, vFpp)
+GO(gtk_action_set_visible, vFpi)
+GO(gtk_action_set_visible_horizontal, vFpi)
+GO(gtk_action_set_visible_vertical, vFpi)
+GO(gtk_action_unblock_activate, vFp)
+GO(gtk_action_unblock_activate_from, vFpp)
 //GO(gtk_activatable_do_set_related_action, 
 //GO(gtk_activatable_get_related_action, 
 GO(gtk_activatable_get_type, iFv)
@@ -220,7 +220,7 @@ GO(gtk_assistant_page_type_get_type, iFv)
 //GO(gtk_assistant_set_page_type, 
 //GO(gtk_assistant_update_buttons_state, 
 GO(gtk_attach_options_get_type, iFv)
-GO(gtk_binding_entry_add_signal, vFpuipupppppppppppppppp)   //vaarg
+GOM(gtk_binding_entry_add_signal, vFEpuipuV)   //vaarg
 GO(gtk_binding_entry_add_signall, vFpuipp)
 GO(gtk_binding_entry_clear, vFpui)
 GO(gtk_binding_entry_remove, vFpui)

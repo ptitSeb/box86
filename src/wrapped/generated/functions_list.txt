@@ -1232,6 +1232,7 @@
 #() pFpppppp
 #() pFSpiiii
 #() vFEpipppp
+#() vFEpuipuV
 #() vFiiiiiip
 #() vFiiiiuup
 #() vFiiupuip
@@ -1719,7 +1720,6 @@
 #() iFpppippppppppppppppp
 #() pFEppuuuuuwwuuuuUUUup
 #() pFiiiippppppppppppppp
-#() vFpuipupppppppppppppppp
 #() pFipppppppppppppppppppppp
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) dFpi
