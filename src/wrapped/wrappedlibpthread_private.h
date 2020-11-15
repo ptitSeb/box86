@@ -157,11 +157,11 @@ GO(pthread_setschedprio, iFpi)
 GO(__pthread_setspecific, iFup)
 GO(pthread_setspecific, iFup)
 GO(pthread_sigmask, iFipp)
-// pthread_spin_destroy
-// pthread_spin_init
-// pthread_spin_lock
-// pthread_spin_trylock
-// pthread_spin_unlock
+GO(pthread_spin_destroy, iFp)
+GO(pthread_spin_init, iFpi)
+GO(pthread_spin_lock, iFp)
+GO(pthread_spin_trylock, iFp)
+GO(pthread_spin_unlock, iFp)
 GO(pthread_testcancel, vFv)
 GO(pthread_timedjoin_np, iFppp)
 GO(pthread_tryjoin_np, iFpp)
