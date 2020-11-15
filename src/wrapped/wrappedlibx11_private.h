@@ -579,7 +579,7 @@ GO(XkbFreeClientMap, vFpui)
 //GO(XkbFreeGeomShapes
 //GO(XkbFreeIndicatorMaps
 GO(XkbFreeKeyboard, vFpui)
-//GO(XkbFreeNames
+GO(XkbFreeNames, vFpui)
 // _XkbFreeReadBuffer
 //GO(XkbFreeServerMap
 DATA(_XkbGetAtomNameFunc, 4)
@@ -611,7 +611,7 @@ GO(XkbGetMap, pFpuu)
 //GO(XkbGetNamedDeviceIndicator
 //GO(XkbGetNamedGeometry
 GO(XkbGetNamedIndicator, iFpuppppp)
-//GO(XkbGetNames
+GO(XkbGetNames, iFpup)
 //GO(XkbGetPerClientControls
 // _XkbGetReadBufferCountedString
 // _XkbGetReadBufferPtr
