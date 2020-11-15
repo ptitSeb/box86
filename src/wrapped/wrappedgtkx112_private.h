@@ -2471,7 +2471,7 @@ GO(gtk_scale_get_type, iFv)
 //GO(gtk_scale_set_draw_value, 
 //GO(gtk_scale_set_value_pos, 
 GO(gtk_scrollbar_get_type, iFv)
-//GO(gtk_scrolled_window_add_with_viewport, 
+GO(gtk_scrolled_window_add_with_viewport, vFpp)
 GO(gtk_scrolled_window_get_hadjustment, pFp)
 GO(gtk_scrolled_window_get_hscrollbar, pFp)
 GO(gtk_scrolled_window_get_placement, iFp)
