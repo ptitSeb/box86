@@ -125,6 +125,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_set_printerr_handler, pFp_t)           \
     GO(g_slist_sort, pFpp_t)                    \
     GO(g_slist_sort_with_data, pFppp_t)         \
+    GO(g_build_pathv, pFpp_t)                   \
 
 typedef struct glib2_my_s {
     // functions
@@ -1275,6 +1276,24 @@ EXPORT void* my_g_slist_sort_with_data(x86emu_t *emu, void* list, void* f, void*
     return my->g_slist_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
+EXPORT void* my_g_build_path(x86emu_t *emu, void* sep, void* first, void** data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    int n = (first)?1:0;
+    void* p = n?data[0]:NULL;
+    if(p) {
+        p = data[n++];
+    }
+    ++n;    // final NULL
+    void** args = (void**)calloc(n, sizeof(void*));
+    if(n) args[0] = first;
+    for(int i=1; i<n; ++i)
+        args[i] = data[i-1];
+    p = my->g_build_pathv(sep, args);
+    free(args);
+    return p;
+}
 
 #define CUSTOM_INIT \
     libname = lib->name;\

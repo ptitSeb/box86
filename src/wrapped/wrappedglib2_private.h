@@ -145,7 +145,7 @@ GO(g_bit_storage, iFi)
 //GO(g_bookmark_file_to_file, 
 GOM(g_build_filename, pFEpV)
 GO(g_build_filenamev, pFp)
-//GOM(g_build_path, pFEppV) // wrap using g_build_pathv
+GOM(g_build_path, pFEppV) // wrap using g_build_pathv
 GO(g_build_pathv, pFpp)
 GO(g_byte_array_append, pFppu)
 GO(g_byte_array_free, pFpi)
