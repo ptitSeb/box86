@@ -123,6 +123,8 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_io_add_watch_full, uFpiippp_t)         \
     GO(g_set_print_handler, pFp_t)              \
     GO(g_set_printerr_handler, pFp_t)           \
+    GO(g_slist_sort, pFpp_t)                    \
+    GO(g_slist_sort_with_data, pFppp_t)         \
 
 typedef struct glib2_my_s {
     // functions
@@ -530,6 +532,28 @@ static void* findGCompareFuncFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompareFunc callback\n");
+    return NULL;
+}
+// GCompareDataFunc ...
+#define GO(A)   \
+static uintptr_t my_GCompareDataFunc_fct_##A = 0;                   \
+static int my_GCompareDataFunc_##A(void* a, void* b, void* data)    \
+{                                       \
+    return (int)RunFunction(my_context, my_GCompareDataFunc_fct_##A, 3, a, b, data);\
+}
+SUPER()
+#undef GO
+static void* findGCompareDataFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCompareDataFunc_fct_##A == (uintptr_t)fct) return my_GCompareDataFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCompareDataFunc_fct_##A == 0) {my_GCompareDataFunc_fct_##A = (uintptr_t)fct; return my_GCompareDataFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompareDataFunc callback\n");
     return NULL;
 }
 // GCompletionFunc ...
@@ -1237,6 +1261,19 @@ EXPORT void* my_g_set_printerr_handler(x86emu_t *emu, void* f)
     return reverseGPrintFuncFct(my->g_set_printerr_handler(findGPrintFuncFct(f)));
 }
 
+EXPORT void* my_g_slist_sort(x86emu_t *emu, void* list, void* f)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_slist_sort(list, findGCompareFuncFct(f));
+}
+
+EXPORT void* my_g_slist_sort_with_data(x86emu_t *emu, void* list, void* f, void* data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_slist_sort_with_data(list, findGCompareDataFuncFct(f), data);
+}
 
 
 #define CUSTOM_INIT \
