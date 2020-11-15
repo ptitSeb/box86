@@ -190,26 +190,21 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
     uintptr_t ret = 0;
-    if(strcmp((const char*)detailed, "query-tooltip")==0)   // GtkWidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "selection-get")==0)  // GtkWidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "drag-data-get")==0)  // GtkWidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "drag-data-received")==0)  // Gtkwidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_8):((void*)signal_cb_8), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "drag-drop")==0)  // Gtkwidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "drag-motion")==0)  // Gtkwidget
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_6):((void*)signal_cb_6), sig, signal_delete, flags);
-    else if(strcmp((const char*)detailed, "expand-collapse-cursor-row")==0)  // GtkTreeView
-        ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_5):((void*)signal_cb_5), sig, signal_delete, flags);
+    #define GO(A, B) if(strcmp((const char*)detailed, A)==0) ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_##B):((void*)signal_cb_##B), sig, signal_delete, flags);
+    GO("query-tooltip", 6)  // GtkWidget
+    else GO("selection-get", 5) //GtkWidget
+    else GO("drag-data-get", 5) //GtkWidget
+    else GO("drag-data-received", 8)    //GtkWidget
+    else GO("drag-drop", 6) //GtkWidget
+    else GO("drag-motion", 6)   //GtkWidget
+    else GO("expand-collapse-cursor-row", 5)    //GtkTreeView
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
-    
+    #undef GO
     printf_log(LOG_DEBUG, "Connecting gobject2 %p signal \"%s\" with sig=%p to %p, flags=%d\n", instance, (char*)detailed, sig, c_handler, flags);
     return ret;
 }
+
 
 EXPORT void* my_g_object_connect(x86emu_t* emu, void* object, void* signal_spec, void** b)
 {

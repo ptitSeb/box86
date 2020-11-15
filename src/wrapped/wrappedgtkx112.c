@@ -25,23 +25,28 @@ static char* libname = NULL;
 
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
+typedef int           (*iFp_t)(void*);
 typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
 typedef int           (*iFip_t)(int, void*);
 typedef int           (*iFpp_t)(void*, void*);
+typedef void*         (*pFpp_t)(void*, void*);
 typedef void*         (*pFpi_t)(void*, int);
 typedef void          (*vFpp_t)(void*, void*);
 typedef void*         (*pFppi_t)(void*, void*, int32_t);
 typedef int32_t       (*iFppp_t)(void*, void*, void*);
-typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
+typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
+typedef void          (*vFpipV_t)(void*, int, void*, ...);
 typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
+typedef unsigned long (*LFppppi_t)(void*, void*, void*, void*, int);
 typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
 typedef void          (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
-typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
+typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
 typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef void*         (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int);
 typedef void*         (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
@@ -97,6 +102,14 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_binding_entry_add_signal, vFpuipuV_t)\
     GO(gtk_container_foreach, vFppp_t)          \
     GO(gtk_cell_layout_set_cell_data_func, vFppppp_t)   \
+    GO(g_module_close, iFp_t)                   \
+    GO(g_module_open, pFpi_t)                   \
+    GO(g_module_supported, iFv_t)               \
+    GO(g_module_symbol, iFppp_t)                \
+    GO(g_log, vFpipV_t)                         \
+    GO(g_signal_connect_object, LFppppi_t)      \
+    GO(g_signal_connect_data, LFpppppi_t)       \
+
 
 
 typedef struct gtkx112_my_s {
@@ -820,6 +833,70 @@ EXPORT void my_gtk_cell_layout_set_cell_data_func(x86emu_t* emu, void* layout, v
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
+}
+
+typedef struct my_ConnectArgs_s
+{
+    gtkx112_my_t *my;
+    x86emu_t* emu;
+    void* module;
+    void* data;
+} my_ConnectArgs_t;
+// defined in wrappedgobject2.c
+uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags);
+
+static void my_gtk_builder_connect_signals_custom(void* builder,
+                                                  void* object,
+                                                  char* signal_name,
+                                                  char* handler_name,
+                                                  void* connect_object,
+                                                  int   flags,
+                                                  my_ConnectArgs_t* args)
+{
+    /* Only error out for missing GModule support if we've not
+    * found the symbols explicitly added with gtk_builder_add_callback_symbol()
+    */
+    void* func = NULL;
+    printf_log(LOG_DEBUG, "signal \"%s\" from \"%s\" connection, connect_object=%d\n", signal_name, handler_name, connect_object);
+
+    uintptr_t offs = 0;
+    uintptr_t end = 0;
+    GetGlobalSymbolStartEnd(my_context->maplib, handler_name, &offs, &end);
+    if(!offs) {
+        if (args->module == NULL)
+            args->my->g_log("Gtk", 1<<2 ,"gtk_builder_connect_signals() requires working GModule");
+        if (!args->my->g_module_symbol(args->module, handler_name, (void*)&func))
+        {
+            args->my->g_log("Gtk", 1<<4, "Could not find signal handler '%s'.  Did you compile with -rdynamic?", handler_name);
+            return;
+        }
+        if (connect_object)
+            args->my->g_signal_connect_object(object, signal_name, func, connect_object, flags);
+        else
+            args->my->g_signal_connect_data(object, signal_name, func, args->data, NULL, flags);
+    } else {
+        if(connect_object) {
+            printf_log(LOG_NONE, "Error: connect custom signal to object unsupported\n");
+        } else
+            my_g_signal_connect_data(args->emu, object, signal_name, (void*)offs, args->data, NULL, flags);
+    }
+}
+
+EXPORT void my_gtk_builder_connect_signals(x86emu_t* emu, void* builder, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my_ConnectArgs_t args;
+
+    args.my = my;
+    args.emu = emu;
+    args.data = data;
+    if (my->g_module_supported())
+        args.module = my->g_module_open(NULL, 1);
+    my->gtk_builder_connect_signals_full(builder, my_gtk_builder_connect_signals_custom, &args);
+    if (args.module)
+        my->g_module_close(args.module);
 }
 
 #define CUSTOM_INIT \
