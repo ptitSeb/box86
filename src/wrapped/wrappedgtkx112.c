@@ -38,6 +38,7 @@ typedef void          (*vFppp_t)(void*, void*, void*);
 typedef int           (*iFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpppp_t)(void*, void*, void*, void*);
 typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
+typedef void          (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
 typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
@@ -95,6 +96,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_binding_entry_add_signall, vFpuipp_t)\
     GO(gtk_binding_entry_add_signal, vFpuipuV_t)\
     GO(gtk_container_foreach, vFppp_t)          \
+    GO(gtk_cell_layout_set_cell_data_func, vFppppp_t)   \
 
 
 typedef struct gtkx112_my_s {
@@ -348,6 +350,52 @@ static void* findBuilderConnectFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 BuilderConnect callback\n");
+    return NULL;
+}
+
+// GtkCellLayoutDataFunc
+#define GO(A)   \
+static uintptr_t my_GtkCellLayoutDataFunc_fct_##A = 0;                                                  \
+static void my_GtkCellLayoutDataFunc_##A(void* layout, void* cell, void* tree, void* iter, void* data)  \
+{                                       \
+    RunFunction(my_context, my_GtkCellLayoutDataFunc_fct_##A, 5, layout, cell, tree, iter, data);\
+}
+SUPER()
+#undef GO
+static void* findGtkCellLayoutDataFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkCellLayoutDataFunc_fct_##A == (uintptr_t)fct) return my_GtkCellLayoutDataFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkCellLayoutDataFunc_fct_##A == 0) {my_GtkCellLayoutDataFunc_fct_##A = (uintptr_t)fct; return my_GtkCellLayoutDataFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkCellLayoutDataFunc callback\n");
+    return NULL;
+}
+
+// GDestroyNotify
+#define GO(A)   \
+static uintptr_t my_GDestroyNotify_fct_##A = 0;                     \
+static void my_GDestroyNotify_##A(void* data)                       \
+{                                                                   \
+    RunFunction(my_context, my_GDestroyNotify_fct_##A, 1, data);    \
+}
+SUPER()
+#undef GO
+static void* findGDestroyNotifyFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GDestroyNotify callback\n");
     return NULL;
 }
 
@@ -764,6 +812,14 @@ EXPORT void my_gtk_container_foreach(x86emu_t* emu, void* container, void* f, vo
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     my->gtk_container_foreach(container, findGtkCallbackFct(f), data);
+}
+
+EXPORT void my_gtk_cell_layout_set_cell_data_func(x86emu_t* emu, void* layout, void* cell, void* f, void* data, void* notify)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 #define CUSTOM_INIT \

@@ -350,7 +350,7 @@ GO(gtk_cell_layout_pack_end, vFppi)
 GO(gtk_cell_layout_pack_start, vFppi)
 GO(gtk_cell_layout_reorder, vFppi)
 GO(gtk_cell_layout_set_attributes, vFpppppppppp)  // vaarg
-//GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
+GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
 GO(gtk_cell_renderer_accel_get_type, iFv)
 GO(gtk_cell_renderer_accel_mode_get_type, iFv)
 GO(gtk_cell_renderer_accel_new, pFv)
