@@ -199,6 +199,7 @@
 #() pFuC
 #() pFuu
 #() pFup
+#() pFuV
 #() pFUi
 #() pFdd
 #() pFlp
@@ -1291,6 +1292,7 @@
 #() vFpppiiii
 #() vFpppiipi
 #() vFpppiipp
+#() vFpppippi
 #() vFpppuuuu
 #() vFppppiii
 #() vFppppiip

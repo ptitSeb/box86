@@ -3389,30 +3389,30 @@ GOM(gtk_tree_sortable_set_default_sort_func, vFEpppp)
 GO(gtk_tree_sortable_set_sort_column_id, vFpii)
 GOM(gtk_tree_sortable_set_sort_func, vFEpippp)
 GO(gtk_tree_sortable_sort_column_changed, vFp)
-//GO(gtk_tree_store_append, 
-//GO(gtk_tree_store_clear, 
+GO(gtk_tree_store_append, vFppp)
+GO(gtk_tree_store_clear, vFp)
 GO(gtk_tree_store_get_type, iFv)
-//GO(gtk_tree_store_insert, 
-//GO(gtk_tree_store_insert_after, 
-//GO(gtk_tree_store_insert_before, 
-//GO(gtk_tree_store_insert_with_values, 
-//GO(gtk_tree_store_insert_with_valuesv, 
-//GO(gtk_tree_store_is_ancestor, 
-//GO(gtk_tree_store_iter_depth, 
-//GO(gtk_tree_store_iter_is_valid, 
-//GO(gtk_tree_store_move_after, 
-//GO(gtk_tree_store_move_before, 
-//GO(gtk_tree_store_new, 
-//GO(gtk_tree_store_newv, 
-//GO(gtk_tree_store_prepend, 
-//GO(gtk_tree_store_remove, 
-//GO(gtk_tree_store_reorder, 
-//GO(gtk_tree_store_set, 
-//GO(gtk_tree_store_set_column_types, 
-//GO(gtk_tree_store_set_valist, 
-//GO(gtk_tree_store_set_value, 
-//GO(gtk_tree_store_set_valuesv, 
-//GO(gtk_tree_store_swap, 
+GO(gtk_tree_store_insert, vFpppi)
+GO(gtk_tree_store_insert_after, vFpppp)
+GO(gtk_tree_store_insert_before, vFpppp)
+//GO(gtk_tree_store_insert_with_values, vFEpppiV)
+GO(gtk_tree_store_insert_with_valuesv, vFpppippi)
+GO(gtk_tree_store_is_ancestor, iFppp)
+GO(gtk_tree_store_iter_depth, iFpp)
+GO(gtk_tree_store_iter_is_valid, iFpp)
+GO(gtk_tree_store_move_after, vFppp)
+GO(gtk_tree_store_move_before, vFppp)
+GO2(gtk_tree_store_new, pFuV, gtk_tree_store_newv)
+GO(gtk_tree_store_newv, pFup)
+GO(gtk_tree_store_prepend, vFppp)
+GO(gtk_tree_store_remove, iFpp)
+GO(gtk_tree_store_reorder, vFppp)
+GO2(gtk_tree_store_set, vFppV, gtk_tree_store_set_valist)
+GO(gtk_tree_store_set_column_types, vFpup)
+GO(gtk_tree_store_set_valist, vFppp)
+GO(gtk_tree_store_set_value, vFppip)
+GO(gtk_tree_store_set_valuesv, vFppppi)
+GO(gtk_tree_store_swap, vFppp)
 //GO(gtk_tree_unselect_child, 
 //GO(gtk_tree_unselect_item, 
 GO(gtk_tree_view_append_column, iFpp)
