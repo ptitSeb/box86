@@ -857,7 +857,7 @@ static void my_gtk_builder_connect_signals_custom(void* builder,
     * found the symbols explicitly added with gtk_builder_add_callback_symbol()
     */
     void* func = NULL;
-    printf_log(LOG_DEBUG, "signal \"%s\" from \"%s\" connection, connect_object=%d\n", signal_name, handler_name, connect_object);
+    printf_log(LOG_DEBUG, "signal \"%s\" from \"%s\" connection, connect_object=%p\n", signal_name, handler_name, connect_object);
 
     uintptr_t offs = 0;
     uintptr_t end = 0;
