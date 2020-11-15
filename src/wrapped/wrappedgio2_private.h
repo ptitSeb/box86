@@ -197,19 +197,19 @@ GO(g_charset_converter_get_type, iFv)
 //GO(g_charset_converter_get_use_fallback, 
 //GO(g_charset_converter_new, 
 //GO(g_charset_converter_set_use_fallback, 
-//GO(g_content_type_can_be_executable, 
-//GO(g_content_type_equals, 
-//GO(g_content_type_from_mime_type, 
-//GO(g_content_type_get_description, 
-//GO(g_content_type_get_generic_icon_name, 
-//GO(g_content_type_get_icon, 
-//GO(g_content_type_get_mime_type, 
-//GO(g_content_type_get_symbolic_icon, 
-//GO(g_content_type_guess, 
-//GO(g_content_type_guess_for_tree, 
-//GO(g_content_type_is_a, 
-//GO(g_content_type_is_unknown, 
-//GO(g_content_types_get_registered, 
+GO(g_content_type_can_be_executable, iFp)
+GO(g_content_type_equals, iFpp)
+GO(g_content_type_from_mime_type, pFp)
+GO(g_content_type_get_description, pFp)
+GO(g_content_type_get_generic_icon_name, pFp)
+GO(g_content_type_get_icon, pFp)
+GO(g_content_type_get_mime_type, pFp)
+GO(g_content_type_get_symbolic_icon, pFp)
+GO(g_content_type_guess, pFppLp)
+GO(g_content_type_guess_for_tree, pFp)
+GO(g_content_type_is_a, iFpp)
+GO(g_content_type_is_unknown, iFp)
+GO(g_content_types_get_registered, pFv)
 //GO(g_converter_convert, 
 //GO(g_converter_flags_get_type, 
 //GO(g_converter_get_type, 
