@@ -172,7 +172,7 @@ void addAlternate(void* addr, void* alt) {
     }
     int ret;
     khint_t k = kh_put(alternate, my_alternates, (uintptr_t)addr, &ret);
-    if(ret)
+    if(!ret)    // already there
         return;
     kh_value(my_alternates, k) = alt;
 }
