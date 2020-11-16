@@ -461,6 +461,7 @@ GO(BN_is_bit_set, iFpi)
 //GO(BN_is_prime_ex, 
 //GO(BN_is_prime_fasttest, 
 //GO(BN_is_prime_fasttest_ex, 
+GO(BN_is_zero, iFp) 
 //GO(BN_kronecker, 
 GO(BN_lshift, iFppi)
 GO(BN_lshift1, iFpp)
@@ -516,6 +517,7 @@ GO(BN_new, pFv)
 GO(BN_nnmod, iFpppp)
 GO(BN_num_bits, iFp)
 GO(BN_num_bits_word, iFu)
+GO(BN_one, iFp)
 //GO(BN_options, 
 GO(BN_print, iFpp)
 GO(BN_print_fp, iFpp)
@@ -533,7 +535,7 @@ GO(BN_rshift1, iFpp)
 GO(BN_set_bit, iFpi)
 GO(BN_set_negative, vFpi)
 //GO(BN_set_params, 
-//GO(BN_set_word, 
+GO(BN_set_word, iFpu)
 GO(BN_sqr, iFppp)
 //GO(bn_sqr_comba4, 
 //GO(bn_sqr_comba8, 
@@ -554,6 +556,7 @@ GO(BN_value_one, pFv)
 //GO(BN_X931_derive_prime_ex, 
 //GO(BN_X931_generate_prime_ex, 
 //GO(BN_X931_generate_Xpq, 
+GO(BN_zero, vFp)
 //GO(bsaes_cbc_encrypt, 
 //GO(bsaes_ctr32_encrypt_blocks, 
 //GO(bsaes_xts_decrypt, 
@@ -1252,8 +1255,8 @@ GO(EC_curve_nist2nid, iFp)
 //GO(ECDH_set_method, 
 //GO(ecdsa_check, 
 //GO(ECDSA_do_sign, 
-//GO(ECDSA_do_sign_ex, 
-//GO(ECDSA_do_verify, 
+GO(ECDSA_do_sign_ex, pFpippp)
+GO(ECDSA_do_verify, iFpipp)
 //GO(ECDSA_get_default_method, 
 //GO(ECDSA_get_ex_data, 
 //GO(ECDSA_get_ex_new_index, 
@@ -1270,11 +1273,13 @@ GO(EC_curve_nist2nid, iFp)
 //GO(ECDSA_set_default_method, 
 //GO(ECDSA_set_ex_data, 
 //GO(ECDSA_set_method, 
-//GO(ECDSA_SIG_free, 
+GO(ECDSA_SIG_free, vFp)
 //GO(ECDSA_sign, 
-//GO(ECDSA_SIG_new, 
+GO(ECDSA_SIG_get0, vFppp)
+GO(ECDSA_SIG_new, pFv)
+GO(ECDSA_SIG_set0, iFppp)
 //GO(ECDSA_sign_ex, 
-//GO(ECDSA_sign_setup, 
+GO(ECDSA_sign_setup, iFpppp)
 //GO(ECDSA_size, 
 //GO(ECDSA_verify, 
 //GO(EC_EX_DATA_clear_free_all_data, 
@@ -1374,7 +1379,7 @@ GO(EC_GROUP_clear_free, vFp)
 //GO(EC_GROUP_copy, 
 //GO(EC_GROUP_dup, 
 GO(EC_GROUP_free, vFp)
-//GO(EC_GROUP_get0_generator, 
+GO(EC_GROUP_get0_generator, pFp)
 //GO(EC_GROUP_get0_seed, 
 //GO(EC_GROUP_get_asn1_flag, 
 //GO(EC_GROUP_get_basis_type, 
@@ -1386,7 +1391,7 @@ GO(EC_GROUP_get_degree, iFp)
 GO(EC_GROUP_get_ecparameters, pFpp)
 GO(EC_GROUP_get_ecpkparameters, pFpp)
 //GO(EC_GROUP_get_mont_data, 
-//GO(EC_GROUP_get_order, 
+GO(EC_GROUP_get_order, iFppp)
 //GO(EC_GROUP_get_pentanomial_basis, 
 //GO(EC_GROUP_get_point_conversion_form, 
 //GO(EC_GROUP_get_seed_len, 
@@ -1399,12 +1404,12 @@ GO(EC_GROUP_new_curve_GF2m, pFpppp)
 GO(EC_GROUP_new_curve_GFp, pFpppp)
 GO(EC_GROUP_new_from_ecparameters, pFp)
 GO(EC_GROUP_new_from_ecpkparameters, pFp)
-//GO(EC_GROUP_precompute_mult, 
+GO(EC_GROUP_precompute_mult, iFpp)
 //GO(EC_GROUP_set_asn1_flag, 
 GO(EC_GROUP_set_curve_GF2m, iFppppp)
 GO(EC_GROUP_set_curve_GFp, iFppppp)
 //GO(EC_GROUP_set_curve_name, 
-//GO(EC_GROUP_set_generator, 
+GO(EC_GROUP_set_generator, iFpppp)
 //GO(EC_GROUP_set_point_conversion_form, 
 //GO(EC_GROUP_set_seed, 
 //GO(EC_KEY_check_key, 
@@ -1421,7 +1426,7 @@ GO(EC_KEY_get0_group, pFp)
 //GO(EC_KEY_get_flags, 
 //GO(EC_KEY_get_key_method_data, 
 //GO(EC_KEY_insert_key_method_data, 
-//GO(EC_KEY_new, 
+GO(EC_KEY_new, pFv)
 GO(EC_KEY_new_by_curve_name, pFi)
 //GO(EC_KEY_precompute_mult, 
 //GO(EC_KEY_print, 
@@ -1430,10 +1435,10 @@ GO(EC_KEY_new_by_curve_name, pFi)
 //GO(EC_KEY_set_conv_form, 
 //GO(EC_KEY_set_enc_flags, 
 //GO(EC_KEY_set_flags, 
-//GO(EC_KEY_set_group, 
-//GO(EC_KEY_set_private_key, 
-//GO(EC_KEY_set_public_key, 
-//GO(EC_KEY_set_public_key_affine_coordinates, 
+GO(EC_KEY_set_group, iFpp)
+GO(EC_KEY_set_private_key, iFpp)
+GO(EC_KEY_set_public_key, iFpp)
+GO(EC_KEY_set_public_key_affine_coordinates, iFppp)
 //GO(EC_KEY_up_ref, 
 GO(EC_METHOD_get_field_type, iFp)
 //GO(ECPARAMETERS_free, 
@@ -1446,33 +1451,37 @@ GO(EC_METHOD_get_field_type, iFp)
 //GO(ECPKParameters_print_fp, 
 //GO(EC_POINT_add, 
 //GO(EC_POINT_bn2point, 
-//GO(EC_POINT_clear_free, 
+GO(EC_POINT_clear_free, vFp)
 //GO(EC_POINT_cmp, 
-//GO(EC_POINT_copy, 
+GO(EC_POINT_copy, iFpp)
 //GO(EC_POINT_dbl, 
-//GO(EC_POINT_dup, 
-//GO(EC_POINT_free, 
-//GO(EC_POINT_get_affine_coordinates_GF2m, 
-//GO(EC_POINT_get_affine_coordinates_GFp, 
-//GO(EC_POINT_get_Jprojective_coordinates_GFp, 
+GO(EC_POINT_dup, pFpp)
+GO(EC_POINT_free, vFp)
+GO(EC_POINT_get_affine_coordinates, iFppppp)
+GO(EC_POINT_get_affine_coordinates_GF2m, iFppppp)
+GO(EC_POINT_get_affine_coordinates_GFp, iFppppp)
+GO(EC_POINT_get_Jprojective_coordinates_GFp, iFpppppp)
 //GO(EC_POINT_hex2point, 
 //GO(EC_POINT_invert, 
 //GO(EC_POINT_is_at_infinity, 
 //GO(EC_POINT_is_on_curve, 
 //GO(EC_POINT_make_affine, 
-//GO(EC_POINT_method_of, 
-//GO(EC_POINT_mul, 
-//GO(EC_POINT_new, 
+GO(EC_POINT_method_of, pFp)
+GO(EC_POINT_mul, iFpppppp)
+GO(EC_POINT_new, pFp)
 //GO(EC_POINT_oct2point, 
+//GO(EC_POINT_point2buf,
 //GO(EC_POINT_point2bn, 
 //GO(EC_POINT_point2hex, 
-//GO(EC_POINT_point2oct, 
-//GO(EC_POINT_set_affine_coordinates_GF2m, 
-//GO(EC_POINT_set_affine_coordinates_GFp, 
-//GO(EC_POINT_set_compressed_coordinates_GF2m, 
-//GO(EC_POINT_set_compressed_coordinates_GFp, 
-//GO(EC_POINT_set_Jprojective_coordinates_GFp, 
-//GO(EC_POINT_set_to_infinity, 
+//GO(EC_POINT_point2oct,
+GO(EC_POINT_set_affine_coordinates, iFppppp)
+GO(EC_POINT_set_affine_coordinates_GF2m, iFppppp)
+GO(EC_POINT_set_affine_coordinates_GFp, iFppppp)
+GO(EC_POINT_set_compressed_coordinates, iFpppip)
+GO(EC_POINT_set_compressed_coordinates_GF2m, iFpppip)
+GO(EC_POINT_set_compressed_coordinates_GFp, iFpppip)
+GO(EC_POINT_set_Jprojective_coordinates_GFp, iFpppppp)
+GO(EC_POINT_set_to_infinity, iFpp)
 //GO(EC_POINTs_make_affine, 
 //GO(EC_POINTs_mul, 
 //GO(ec_precompute_mont_data, 
