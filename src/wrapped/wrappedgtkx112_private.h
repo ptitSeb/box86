@@ -2377,61 +2377,61 @@ GO(gtk_recent_chooser_menu_get_type, iFv)
 GO(gtk_recent_chooser_widget_get_type, iFv)
 //GO(gtk_recent_chooser_widget_new, 
 //GO(gtk_recent_chooser_widget_new_for_manager, 
-//GO(gtk_recent_filter_add_age, 
-//GO(gtk_recent_filter_add_application, 
-//GO(gtk_recent_filter_add_custom, 
-//GO(gtk_recent_filter_add_group, 
-//GO(gtk_recent_filter_add_mime_type, 
-//GO(gtk_recent_filter_add_pattern, 
-//GO(gtk_recent_filter_add_pixbuf_formats, 
-//GO(gtk_recent_filter_filter, 
+GO(gtk_recent_filter_add_age, vFpi)
+GO(gtk_recent_filter_add_application, vFpp)
+//GOM(gtk_recent_filter_add_custom, vFEpippp)
+GO(gtk_recent_filter_add_group, vFpp)
+GO(gtk_recent_filter_add_mime_type, vFpp)
+GO(gtk_recent_filter_add_pattern, vFpp)
+GO(gtk_recent_filter_add_pixbuf_formats, vFp)
+GO(gtk_recent_filter_filter, iFpp)
 GO(gtk_recent_filter_flags_get_type, iFv)
-//GO(gtk_recent_filter_get_name, 
-//GO(gtk_recent_filter_get_needed, 
+GO(gtk_recent_filter_get_name, pFp)
+GO(gtk_recent_filter_get_needed, iFp)
 GO(gtk_recent_filter_get_type, iFv)
-//GO(gtk_recent_filter_new, 
-//GO(gtk_recent_filter_set_name, 
-//GO(gtk_recent_info_exists, 
-//GO(gtk_recent_info_get_added, 
-//GO(gtk_recent_info_get_age, 
-//GO(gtk_recent_info_get_application_info, 
-//GO(gtk_recent_info_get_applications, 
-//GO(gtk_recent_info_get_description, 
-//GO(gtk_recent_info_get_display_name, 
-//GO(gtk_recent_info_get_groups, 
-//GO(gtk_recent_info_get_icon, 
-//GO(gtk_recent_info_get_mime_type, 
-//GO(gtk_recent_info_get_modified, 
-//GO(gtk_recent_info_get_private_hint, 
-//GO(gtk_recent_info_get_short_name, 
+GO(gtk_recent_filter_new, pFv)
+GO(gtk_recent_filter_set_name, vFpp)
+GO(gtk_recent_info_exists, iFp)
+GO(gtk_recent_info_get_added, uFp)
+GO(gtk_recent_info_get_age, iFp)
+GO(gtk_recent_info_get_application_info, iFppppp)
+GO(gtk_recent_info_get_applications, pFpp)
+GO(gtk_recent_info_get_description, pFp)
+GO(gtk_recent_info_get_display_name, pFp)
+GO(gtk_recent_info_get_groups, pFpp)
+GO(gtk_recent_info_get_icon, pFpi)
+GO(gtk_recent_info_get_mime_type, pFp)
+GO(gtk_recent_info_get_modified, lFp)
+GO(gtk_recent_info_get_private_hint, iFp)
+GO(gtk_recent_info_get_short_name, pFp)
 GO(gtk_recent_info_get_type, iFv)
-//GO(gtk_recent_info_get_uri, 
-//GO(gtk_recent_info_get_uri_display, 
-//GO(gtk_recent_info_get_visited, 
-//GO(gtk_recent_info_has_application, 
-//GO(gtk_recent_info_has_group, 
-//GO(gtk_recent_info_is_local, 
-//GO(gtk_recent_info_last_application, 
-//GO(gtk_recent_info_match, 
-//GO(gtk_recent_info_ref, 
-//GO(gtk_recent_info_unref, 
-//GO(gtk_recent_manager_add_full, 
-//GO(gtk_recent_manager_add_item, 
+GO(gtk_recent_info_get_uri, pFp)
+GO(gtk_recent_info_get_uri_display, pFp)
+GO(gtk_recent_info_get_visited, lFp)
+GO(gtk_recent_info_has_application, iFpp)
+GO(gtk_recent_info_has_group, iFpp)
+GO(gtk_recent_info_is_local, iFp)
+GO(gtk_recent_info_last_application, pFp)
+GO(gtk_recent_info_match, iFpp)
+GO(gtk_recent_info_ref, pFp)
+GO(gtk_recent_info_unref, vFp)
+GO(gtk_recent_manager_add_full, iFppp)
+GO(gtk_recent_manager_add_item, iFpp)
 GO(gtk_recent_manager_error_get_type, iFv)
-//GO(gtk_recent_manager_error_quark, 
-//GO(gtk_recent_manager_get_default, 
-//GO(gtk_recent_manager_get_for_screen, 
-//GO(gtk_recent_manager_get_items, 
-//GO(gtk_recent_manager_get_limit, 
+GO(gtk_recent_manager_error_quark, pFv)
+GO(gtk_recent_manager_get_default, pFv)
+GO(gtk_recent_manager_get_for_screen, pFp)
+GO(gtk_recent_manager_get_items, pFp)
+GO(gtk_recent_manager_get_limit, iFp)
 GO(gtk_recent_manager_get_type, iFv)
-//GO(gtk_recent_manager_has_item, 
-//GO(gtk_recent_manager_lookup_item, 
-//GO(gtk_recent_manager_move_item, 
-//GO(gtk_recent_manager_new, 
-//GO(gtk_recent_manager_purge_items, 
-//GO(gtk_recent_manager_remove_item, 
-//GO(gtk_recent_manager_set_limit, 
-//GO(gtk_recent_manager_set_screen, 
+GO(gtk_recent_manager_has_item, iFpp)
+GO(gtk_recent_manager_lookup_item, pFppp)
+GO(gtk_recent_manager_move_item, iFpppp)
+GO(gtk_recent_manager_new, pFv)
+GO(gtk_recent_manager_purge_items, iFpp)
+GO(gtk_recent_manager_remove_item, iFppp)
+GO(gtk_recent_manager_set_limit, vFpi)
+GO(gtk_recent_manager_set_screen, vFpp)
 GO(gtk_recent_sort_type_get_type, iFv)
 GO(gtk_relief_style_get_type, iFv)
 GO(gtk_requisition_copy, pFp)
