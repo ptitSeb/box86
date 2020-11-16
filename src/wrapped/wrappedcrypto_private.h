@@ -1369,20 +1369,22 @@ GO(EC_GFp_simple_method, pFv)
 //GO(ec_GFp_simple_set_Jprojective_coordinates_GFp, 
 //GO(EC_GROUP_check, 
 //GO(EC_GROUP_check_discriminant, 
-//GO(EC_GROUP_clear_free, 
+GO(EC_GROUP_clear_free, vFp)
 //GO(EC_GROUP_cmp, 
 //GO(EC_GROUP_copy, 
 //GO(EC_GROUP_dup, 
-//GO(EC_GROUP_free, 
+GO(EC_GROUP_free, vFp)
 //GO(EC_GROUP_get0_generator, 
 //GO(EC_GROUP_get0_seed, 
 //GO(EC_GROUP_get_asn1_flag, 
 //GO(EC_GROUP_get_basis_type, 
 //GO(EC_GROUP_get_cofactor, 
-//GO(EC_GROUP_get_curve_GF2m, 
-//GO(EC_GROUP_get_curve_GFp, 
+GO(EC_GROUP_get_curve_GF2m, iFppppp)
+GO(EC_GROUP_get_curve_GFp, iFppppp)
 //GO(EC_GROUP_get_curve_name, 
 GO(EC_GROUP_get_degree, iFp)
+GO(EC_GROUP_get_ecparameters, pFpp)
+GO(EC_GROUP_get_ecpkparameters, pFpp)
 //GO(EC_GROUP_get_mont_data, 
 //GO(EC_GROUP_get_order, 
 //GO(EC_GROUP_get_pentanomial_basis, 
@@ -1391,14 +1393,16 @@ GO(EC_GROUP_get_degree, iFp)
 //GO(EC_GROUP_get_trinomial_basis, 
 //GO(EC_GROUP_have_precompute_mult, 
 //GO(EC_GROUP_method_of, 
-//GO(EC_GROUP_new, 
-//GO(EC_GROUP_new_by_curve_name, 
-//GO(EC_GROUP_new_curve_GF2m, 
-//GO(EC_GROUP_new_curve_GFp, 
+GO(EC_GROUP_new, pFv)
+GO(EC_GROUP_new_by_curve_name, pFi)
+GO(EC_GROUP_new_curve_GF2m, pFpppp)
+GO(EC_GROUP_new_curve_GFp, pFpppp)
+GO(EC_GROUP_new_from_ecparameters, pFp)
+GO(EC_GROUP_new_from_ecpkparameters, pFp)
 //GO(EC_GROUP_precompute_mult, 
 //GO(EC_GROUP_set_asn1_flag, 
-//GO(EC_GROUP_set_curve_GF2m, 
-//GO(EC_GROUP_set_curve_GFp, 
+GO(EC_GROUP_set_curve_GF2m, iFppppp)
+GO(EC_GROUP_set_curve_GFp, iFppppp)
 //GO(EC_GROUP_set_curve_name, 
 //GO(EC_GROUP_set_generator, 
 //GO(EC_GROUP_set_point_conversion_form, 
