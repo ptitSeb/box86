@@ -116,7 +116,7 @@ static int signal_cb(void* a, void* b, void* c, void* d)
         sig = (my_signal_t*)d;
         i = 4;
     }
-    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, sig->c_handler, i);
+    printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, (void*)sig->c_handler, i);
     switch(i) {
         case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
         case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
@@ -134,7 +134,6 @@ static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
 }
 static int signal_cb_5(void* a, void* b, void* c, void* d, my_signal_t* sig)
 {
-    // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 5 Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 5, a, b, c, d, sig->data);
 }
@@ -146,7 +145,6 @@ static int signal_cb_swapped_5(my_signal_t* sig, void* b, void* c, void* d, void
 }
 static int signal_cb_6(void* a, void* b, void* c, void* d, void* e, my_signal_t* sig)
 {
-    // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 6 Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 6, a, b, c, d, e, sig->data);
 }
@@ -158,7 +156,6 @@ static int signal_cb_swapped_6(my_signal_t* sig, void* b, void* c, void* d, void
 }
 static int signal_cb_8(void* a, void* b, void* c, void* d, void* e, void* f, void* g, my_signal_t* sig)
 {
-    // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 8 Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 8, a, b, c, d, e, f, g, sig->data);
 }
@@ -168,6 +165,7 @@ static int signal_cb_swapped_8(my_signal_t* sig, void* b, void* c, void* d, void
     printf_log(LOG_DEBUG, "gobject2 swaped8 Signal called, sig=%p\n", sig);
     return (int)RunFunction(my_context, sig->c_handler, 8, sig->data, b, c, d, e, f, g, h);
 }
+
 static void signal_delete(my_signal_t* sig, void* b)
 {
     uintptr_t d = sig->destroy;

@@ -159,7 +159,31 @@ typedef struct my_GtkLabelClass_s
   void (*_gtk_reserved3) (void);
 } my_GtkLabelClass_t;
 
-
+typedef struct my_GtkTreeViewClass_s
+{
+  my_GtkContainerClass_t parent_class;
+  void (* set_scroll_adjustments)     (void* tree_view, void* hadjustment, void* vadjustment);
+  void (* row_activated)              (void* tree_view, void* path, void* column);
+  int  (* test_expand_row)            (void* tree_view, void* iter, void* path);
+  int  (* test_collapse_row)          (void* tree_view, void* iter, void* path);
+  void (* row_expanded)               (void* tree_view, void* iter, void* path);
+  void (* row_collapsed)              (void* tree_view, void* iter, void* path);
+  void (* columns_changed)            (void* tree_view);
+  void (* cursor_changed)             (void* tree_view);
+  int  (* move_cursor)                (void* tree_view, int step, int count);
+  int  (* select_all)                 (void* tree_view);
+  int  (* unselect_all)               (void* tree_view);
+  int  (* select_cursor_row)          (void* tree_view, int start_editing);
+  int  (* toggle_cursor_row)          (void* tree_view);
+  int  (* expand_collapse_cursor_row) (void* tree_view, int logical, int expand, int open_all);
+  int  (* select_cursor_parent)       (void* tree_view);
+  int  (* start_interactive_search)   (void* tree_view);
+  void (*_gtk_reserved0) (void);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkTreeViewClass_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -222,6 +246,7 @@ void SetGTKContainerID(int id);
 void SetGTKActionID(int id);
 void SetGTKMiscID(int id);
 void SetGTKLabelID(int id);
+void SetGTKTreeViewID(int id);
 void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* cl, int type);

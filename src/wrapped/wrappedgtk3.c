@@ -57,6 +57,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_button_get_type, iFv_t)              \
     GO(gtk_container_get_type, iFv_t)           \
     GO(gtk_label_get_type, iFv_t)               \
+    GO(gtk_tree_view_get_type, iFv_t)           \
     GO(gtk_type_class, pFi_t)                   \
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
@@ -696,6 +697,7 @@ EXPORT void my3_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, v
     SetGTKActionID(((gtk3_my_t*)lib->priv.w.p2)->gtk_action_get_type());    \
     SetGTKMiscID(((gtk3_my_t*)lib->priv.w.p2)->gtk_widget_get_type());      \
     SetGTKLabelID(((gtk3_my_t*)lib->priv.w.p2)->gtk_label_get_type());      \
+    SetGTKTreeViewID(((gtk3_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());       \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-3.so.0");                  \
