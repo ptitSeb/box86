@@ -200,6 +200,8 @@ scwrap_t syscallwrap[] = {
     //{ 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },
     { 240, __NR_futex, 6 },
+    { 241, __NR_sched_setaffinity, 3 },
+    { 242, __NR_sched_getaffinity, 3 },
     { 252, __NR_exit_group, 1 },
 #ifdef NOALIGN
     { 254, __NR_epoll_create, 1 },
