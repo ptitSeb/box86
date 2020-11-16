@@ -8,6 +8,7 @@
 #include "bridge_private.h"
 #include "wrapper.h"
 #include "khash.h"
+#include "debug.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -100,6 +101,7 @@ uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void*
     if(!ret)
         ret = AddBridge(bridge, w, fnc, N);
     if(!hasAlternate(fnc)) {
+        printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
         #ifdef DYNAREC
         // now, check if dynablock at native address exist

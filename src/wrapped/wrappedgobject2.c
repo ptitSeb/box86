@@ -79,12 +79,15 @@ typedef struct gobject2_my_s {
     #undef GO
 } gobject2_my_t;
 
+static void addGObject2Alternate(library_t* lib);
+
 void* getGobject2My(library_t* lib)
 {
     gobject2_my_t* my = (gobject2_my_t*)calloc(1, sizeof(gobject2_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
+    addGObject2Alternate(lib);
     return my;
 }
 #undef SUPER
@@ -175,6 +178,68 @@ static void signal_delete(my_signal_t* sig, void* b)
     printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, (void*)d);
     free(sig);
 }
+
+static void addGObject2Alternate(library_t* lib)
+{
+    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->priv.w.bridge, W, dlsym(lib->priv.w.lib, #A), 0)
+    GO(g_cclosure_marshal_VOID__VOID,               vFppuppp);
+    GO(g_cclosure_marshal_VOID__BOOLEAN,            vFppuppp);
+    GO(g_cclosure_marshal_VOID__UCHAR,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__INT,                vFppuppp);
+    GO(g_cclosure_marshal_VOID__UINT,               vFppuppp);
+    GO(g_cclosure_marshal_VOID__LONG,               vFppuppp);
+    GO(g_cclosure_marshal_VOID__ULONG,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__ENUM,               vFppuppp);
+    GO(g_cclosure_marshal_VOID__FLAGS,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__FLOAT,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__DOUBLE,             vFppuppp);
+    GO(g_cclosure_marshal_VOID__STRING,             vFppuppp);
+    GO(g_cclosure_marshal_VOID__PARAM,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__BOXED,              vFppuppp);
+    GO(g_cclosure_marshal_VOID__POINTER,            vFppuppp);
+    GO(g_cclosure_marshal_VOID__OBJECT,             vFppuppp);
+    GO(g_cclosure_marshal_VOID__VARIANT,            vFppuppp);
+    GO(g_cclosure_marshal_STRING__OBJECT_POINTER,   vFppuppp);
+    GO(g_cclosure_marshal_VOID__UINT_POINTER,       vFppuppp);
+    GO(g_cclosure_marshal_BOOLEAN__FLAGS,           vFppuppp);
+    GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXED,     vFppuppp);
+    GO(g_cclosure_marshal_generic_va,               vFpppppip);
+    GO(g_cclosure_marshal_VOID__VOIDv,              vFpppppip);
+    GO(g_cclosure_marshal_VOID__BOOLEANv,           vFpppppip);
+    GO(g_cclosure_marshal_VOID__CHARv,              vFpppppip);
+    GO(g_cclosure_marshal_VOID__UCHARv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__INTv,               vFpppppip);
+    GO(g_cclosure_marshal_VOID__UINTv,              vFpppppip);
+    GO(g_cclosure_marshal_VOID__LONGv,              vFpppppip);
+    GO(g_cclosure_marshal_VOID__ULONGv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__ENUMv,              vFpppppip);
+    GO(g_cclosure_marshal_VOID__FLAGSv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__FLOATv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__DOUBLEv,            vFpppppip);
+    GO(g_cclosure_marshal_VOID__STRINGv,            vFpppppip);
+    GO(g_cclosure_marshal_VOID__PARAMv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__BOXEDv,             vFpppppip);
+    GO(g_cclosure_marshal_VOID__POINTERv,           vFpppppip);
+    GO(g_cclosure_marshal_VOID__OBJECTv,            vFpppppip);
+    GO(g_cclosure_marshal_VOID__VARIANTv,           vFpppppip);
+    GO(g_cclosure_marshal_STRING__OBJECT_POINTERv,  vFpppppip);
+    GO(g_cclosure_marshal_VOID__UINT_POINTERv,      vFpppppip);
+    GO(g_cclosure_marshal_BOOLEAN__FLAGSv,          vFpppppip);
+    GO(g_cclosure_marshal_BOOLEAN__BOXED_BOXEDv,    vFpppppip);
+    #undef GO
+    #define GO(A, W) AddAutomaticBridge(thread_get_emu(), lib->priv.w.bridge, W, A, 0)
+    GO(signal_cb, iFpppp);
+    GO(signal_cb_swapped, iFpppp);
+    GO(signal_cb_5, iFppppp);
+    GO(signal_cb_swapped_5, iFppppp);
+    GO(signal_cb_6, iFpppppp);
+    GO(signal_cb_swapped_6, iFpppppp);
+    GO(signal_cb_8, iFpppppppp);
+    GO(signal_cb_swapped_8, iFpppppppp);
+    GO(signal_delete, vFpp);
+    #undef GO
+}
+
 EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
 {
     library_t * lib = GetLibInternal(gobject2Name);
@@ -310,9 +375,9 @@ static void* findAccumulatorFct(void* fct)
 // GClosureMarshal
 #define GO(A)   \
 static uintptr_t my_marshal_fct_##A = 0;   \
-static int my_marshal_##A(void* closure, void* return_value, uint32_t n, void* values, void* hint, void* data)     \
+static void my_marshal_##A(void* closure, void* return_value, uint32_t n, void* values, void* hint, void* data)     \
 {                                       \
-    return RunFunction(my_context, my_marshal_fct_##A, 6, closure, return_value, n, values, hint, data);\
+    RunFunction(my_context, my_marshal_fct_##A, 6, closure, return_value, n, values, hint, data);\
 }
 SUPER()
 #undef GO
@@ -323,7 +388,8 @@ static void* findMarshalFct(void* fct)
     #define GO(A) if(my_marshal_fct_##A == (uintptr_t)fct) return my_marshal_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_marshal_fct_##A == 0) {my_marshal_fct_##A = (uintptr_t)fct; return my_marshal_##A; }
+    library_t * lib = GetLibInternal(gobject2Name);
+    #define GO(A) if(my_marshal_fct_##A == 0) {AddAutomaticBridge(thread_get_emu(), lib->priv.w.bridge, vFppuppp, my_marshal_##A, 0); my_marshal_fct_##A = (uintptr_t)fct; return my_marshal_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gobject Closure Marshal callback\n");

@@ -1551,7 +1551,7 @@ _trace:
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    ip = ED->dword[0];
+                    ip = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     STEP
                     break;
                 case 5:                 /* JMP FAR Ed */
