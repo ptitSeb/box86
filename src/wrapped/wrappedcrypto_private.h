@@ -1393,7 +1393,7 @@ GO(EC_GROUP_get_ecpkparameters, pFpp)
 //GO(EC_GROUP_get_trinomial_basis, 
 //GO(EC_GROUP_have_precompute_mult, 
 //GO(EC_GROUP_method_of, 
-GO(EC_GROUP_new, pFv)
+GO(EC_GROUP_new, pFp)
 GO(EC_GROUP_new_by_curve_name, pFi)
 GO(EC_GROUP_new_curve_GF2m, pFpppp)
 GO(EC_GROUP_new_curve_GFp, pFpppp)
