@@ -977,13 +977,13 @@ EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_gro
 #define CUSTOM_INIT \
     libname = lib->name;                \
     lib->priv.w.p2 = getGtkx112My(lib); \
-    SetGTKObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
-    SetGTKWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
-    SetGTKContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
-    SetGTKActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
-    SetGTKMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
-    SetGTKLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
-    SetGTKTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
+    SetGtkObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
+    SetGtkWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
+    SetGtkContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
+    SetGtkActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
+    SetGtkMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
+    SetGtkLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
+    SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \

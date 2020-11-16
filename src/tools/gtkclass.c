@@ -17,15 +17,10 @@
 #include "khash.h"
 
 static bridge_t*        my_bridge       = NULL;
-static int              my_gobject      = -1;
-static int              my_gtkobject    = -1;
-static int              my_gtkwidget    = -1;
-static int              my_gtkcontainer = -1;
-static int              my_gtkaction    = -1;
-static int              my_gtkmisc      = -1;
-static int              my_gtklabel     = -1;
-static int              my_gtktreeview  = -1;
 static const char* (*g_type_name)(int)  = NULL;
+#define GTKCLASS(A) static int my_##A = -1;
+GTKCLASSES()
+#undef GTKCLASS
 
 KHASH_SET_INIT_INT(signalmap)
 static kh_signalmap_t *my_signalmap = NULL;
@@ -506,48 +501,106 @@ static void unwrapGtkTreeViewClass(my_GtkTreeViewClass_t* class)
 #undef REVERSE
 #undef WRAPPED
 
+// g_type_class_peek_parent
 static void wrapGTKClass(void* cl, int type)
 {
-    if(type==my_gtkcontainer)
-        wrapGtkContainerClass((my_GtkContainerClass_t*)cl);
-    else if(type==my_gtkwidget)
-        wrapGtkWidgetClass((my_GtkWidgetClass_t*)cl);
-    else if(type==my_gtkobject)
-        wrapGtkObjectClass((my_GtkObjectClass_t*)cl);
-    else if(type==my_gobject)
-        wrapGObjectClass((my_GObjectClass_t*)cl);
-    else if(type==my_gtkaction)
-        wrapGtkActionClass((my_GtkActionClass_t*)cl);
-    else if(type==my_gtkmisc)
-        wrapGtkMiscClass((my_GtkMiscClass_t*)cl);
-    else if(type==my_gtklabel)
-        wrapGtkLabelClass((my_GtkLabelClass_t*)cl);
-    else if(type==my_gtktreeview)
-        wrapGtkTreeViewClass((my_GtkTreeViewClass_t*)cl);
-    else {
+    #define GTKCLASS(A)                             \
+    if(type==my_##A)                                \
+        wrap##A##Class((my_##A##Class_t*)cl);     \
+    else 
+    GTKCLASSES()
+    {
         printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
     }
+    #undef GTKCLASS
 }
 
 static void unwrapGTKClass(void* cl, int type)
 {
-    if(type==my_gtkcontainer)
-        unwrapGtkContainerClass((my_GtkContainerClass_t*)cl);
-    else if(type==my_gtkwidget)
-        unwrapGtkWidgetClass((my_GtkWidgetClass_t*)cl);
-    else if(type==my_gtkobject)
-        unwrapGtkObjectClass((my_GtkObjectClass_t*)cl);
-    else if(type==my_gobject)
-        unwrapGObjectClass((my_GObjectClass_t*)cl);
-    else if(type==my_gtkaction)
-        unwrapGtkActionClass((my_GtkActionClass_t*)cl);
-    else if(type==my_gtkmisc)
-        unwrapGtkMiscClass((my_GtkMiscClass_t*)cl);
-    else if(type==my_gtklabel)
-        unwrapGtkLabelClass((my_GtkLabelClass_t*)cl);
-    else if(type==my_gtktreeview)
-        unwrapGtkTreeViewClass((my_GtkTreeViewClass_t*)cl);
-    // no warning, one is enough...
+    #define GTKCLASS(A)                             \
+    if(type==my_##A)                                \
+        unwrap##A##Class((my_##A##Class_t*)cl);     \
+    else 
+    GTKCLASSES()
+    {}  // else no warning, one is enough...
+    #undef GTKCLASS
+}
+
+typedef union my_GClassAll_s {
+    #define GTKCLASS(A) my_##A##Class_t A;
+    GTKCLASSES()
+    #undef GTKCLASS
+} my_GClassAll_t;
+
+#define GO(A) \
+static void* my_gclassall_ref_##A = NULL;   \
+static my_GClassAll_t my_gclassall_##A;
+
+SUPER()
+#undef GO
+
+void* unwrapCopyGTKClass(void* klass, int type)
+{
+    if(!klass) return klass;
+    #define GO(A) if(klass == my_gclassall_ref_##A) return &my_gclassall_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    int sz = 0;
+    #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
+    GTKCLASSES()
+    {
+        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
+        return klass;
+    }
+    #undef GTKCLASS
+    my_GClassAll_t *newklass = NULL;
+    #define GO(A) if(!newklass && !my_gclassall_ref_##A) {my_gclassall_ref_##A = klass; newklass = &my_gclassall_##A;}
+    SUPER()
+    #undef GO
+    if(!newklass) {
+        printf_log(LOG_NONE, "Warning: no more slot for unwrapCopyGTKClass\n");
+        return klass;
+    }
+    memcpy(newklass, klass, sz);
+    unwrapGTKClass(newklass, type);
+    return newklass;
+}
+
+// gtk_type_class
+
+#define GO(A) \
+static void* my_gclassallu_ref_##A = NULL;   \
+static my_GClassAll_t my_gclassallu_##A;
+
+SUPER()
+#undef GO
+void* wrapCopyGTKClass(void* klass, int type)
+{
+    if(!klass) return klass;
+    #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    int sz = 0;
+    #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
+    GTKCLASSES()
+    {
+        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
+        return klass;
+    }
+    #undef GTKCLASS
+    my_GClassAll_t *newklass = NULL;
+    #define GO(A) if(!newklass && !my_gclassallu_ref_##A) {my_gclassallu_ref_##A = klass; newklass = &my_gclassallu_##A;}
+    SUPER()
+    #undef GO
+    if(!newklass) {
+        printf_log(LOG_NONE, "Warning: no more slot for wrapCopyGTKClass\n");
+        return klass;
+    }
+    memcpy(newklass, klass, sz);
+    wrapGTKClass(newklass, type);
+    return newklass;
 }
 
 // ---- GTypeValueTable ----
@@ -762,114 +815,6 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent)
     return NULL;
 }
 
-// g_type_class_peek_parent
-typedef union my_GClassAll_s {
-    my_GObjectClass_t       GObject;
-    my_GtkObjectClass_t     GtkObject;
-    my_GtkWidgetClass_t     GtkWidget;
-    my_GtkContainerClass_t  GtkContainer;
-    my_GtkActionClass_t     GtkAction;
-    my_GtkMiscClass_t       GtkMisc;
-    my_GtkLabelClass_t      GtkLabel;
-    my_GtkTreeViewClass_t   GtkTreeView;
-} my_GClassAll_t;
-
-#define GO(A) \
-static void* my_gclassall_ref_##A = NULL;   \
-static my_GClassAll_t my_gclassall_##A;
-
-SUPER()
-#undef GO
-void* unwrapCopyGTKClass(void* klass, int type)
-{
-    if(!klass) return klass;
-    #define GO(A) if(klass == my_gclassall_ref_##A) return &my_gclassall_##A;
-    SUPER()
-    #undef GO
-    // check if class is the exact type we know
-    int sz = 0;
-    if(type==my_gtkcontainer)
-        sz = sizeof(my_GtkContainerClass_t);
-    else if(type==my_gtkwidget)
-        sz = sizeof(my_GtkWidgetClass_t);
-    else if(type==my_gtkobject)
-        sz = sizeof(my_GtkObjectClass_t);
-    else if(type==my_gobject)
-        sz = sizeof(my_GObjectClass_t);
-    else if(type==my_gtkaction)
-        sz = sizeof(my_GtkActionClass_t);
-    else if(type==my_gtkmisc)
-        sz = sizeof(my_GtkMiscClass_t);
-    else if(type==my_gtklabel)
-        sz = sizeof(my_GtkLabelClass_t);
-    else if(type==my_gtktreeview)
-        sz = sizeof(my_GtkTreeViewClass_t);
-    else {
-        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %d (%s)\n", type, g_type_name(type));
-        return klass;
-    }
-    my_GClassAll_t *newklass = NULL;
-    #define GO(A) if(!newklass && !my_gclassall_ref_##A) {my_gclassall_ref_##A = klass; newklass = &my_gclassall_##A;}
-    SUPER()
-    #undef GO
-    if(!newklass) {
-        printf_log(LOG_NONE, "Warning: no more slot for unwrapCopyGTKClass\n");
-        return klass;
-    }
-    memcpy(newklass, klass, sz);
-    unwrapGTKClass(newklass, type);
-    return newklass;
-}
-
-// gtk_type_class
-
-#define GO(A) \
-static void* my_gclassallu_ref_##A = NULL;   \
-static my_GClassAll_t my_gclassallu_##A;
-
-SUPER()
-#undef GO
-void* wrapCopyGTKClass(void* klass, int type)
-{
-    if(!klass) return klass;
-    #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
-    SUPER()
-    #undef GO
-    // check if class is the exact type we know
-    int sz = 0;
-    if(type==my_gtkcontainer)
-        sz = sizeof(my_GtkContainerClass_t);
-    else if(type==my_gtkwidget)
-        sz = sizeof(my_GtkWidgetClass_t);
-    else if(type==my_gtkobject)
-        sz = sizeof(my_GtkObjectClass_t);
-    else if(type==my_gobject)
-        sz = sizeof(my_GObjectClass_t);
-    else if(type==my_gtkaction)
-        sz = sizeof(my_GtkActionClass_t);
-    else if(type==my_gtkmisc)
-        sz = sizeof(my_GtkMiscClass_t);
-    else if(type==my_gtklabel)
-        sz = sizeof(my_GtkLabelClass_t);
-    else if(type==my_gtktreeview)
-        sz = sizeof(my_GtkTreeViewClass_t);
-    else {
-        printf_log(LOG_NONE, "Warning, wrapCopyGTKClass called with unknown class type 0x%x (%s)\n", type, g_type_name(type));
-        return klass;
-    }
-    my_GClassAll_t *newklass = NULL;
-    #define GO(A) if(!newklass && !my_gclassallu_ref_##A) {my_gclassallu_ref_##A = klass; newklass = &my_gclassallu_##A;}
-    SUPER()
-    #undef GO
-    if(!newklass) {
-        printf_log(LOG_NONE, "Warning: no more slot for wrapCopyGTKClass\n");
-        return klass;
-    }
-    memcpy(newklass, klass, sz);
-    wrapGTKClass(newklass, type);
-    return newklass;
-}
-
 #undef SUPER
 
 void InitGTKClass(bridge_t *bridge)
@@ -891,45 +836,14 @@ void FiniGTKClass()
     }
 }
 
-void SetGObjectID(int id)
-{
-    my_gobject = id;
+#define GTKCLASS(A)             \
+void Set##A##ID(int id)         \
+{                               \
+    my_##A = id;                \
 }
+GTKCLASSES()
+#undef GTKCLASS
 
-void SetGTKObjectID(int id)
-{
-    my_gtkobject = id;
-}
-
-void SetGTKWidgetID(int id)
-{
-    my_gtkwidget = id;
-}
-
-void SetGTKContainerID(int id)
-{
-    my_gtkcontainer = id;
-}
-
-void SetGTKActionID(int id)
-{
-    my_gtkaction = id;
-}
-
-void SetGTKMiscID(int id)
-{
-    my_gtkmisc = id;
-}
-
-void SetGTKLabelID(int id)
-{
-    my_gtklabel = id;
-}
-
-void SetGTKTreeViewID(int id)
-{
-    my_gtktreeview = id;
-}
 
 void SetGTypeName(void* f)
 {

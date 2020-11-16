@@ -239,14 +239,20 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, int parent);
 void InitGTKClass(bridge_t *bridge);
 void FiniGTKClass();
 
-void SetGObjectID(int id);
-void SetGTKObjectID(int id);
-void SetGTKWidgetID(int id);
-void SetGTKContainerID(int id);
-void SetGTKActionID(int id);
-void SetGTKMiscID(int id);
-void SetGTKLabelID(int id);
-void SetGTKTreeViewID(int id);
+#define GTKCLASSES()    \
+GTKCLASS(GObject)       \
+GTKCLASS(GtkObject)     \
+GTKCLASS(GtkWidget)     \
+GTKCLASS(GtkContainer)  \
+GTKCLASS(GtkAction)     \
+GTKCLASS(GtkLabel)      \
+GTKCLASS(GtkMisc)       \
+GTKCLASS(GtkTreeView)   \
+
+#define GTKCLASS(A) void Set##A##ID(int id);
+GTKCLASSES()
+#undef GTKCLASS
+
 void SetGTypeName(void* f);
 
 void* wrapCopyGTKClass(void* cl, int type);
