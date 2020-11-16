@@ -662,7 +662,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
 
 dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
 {
-    dynarec_log(LOG_NONE/*LOG_DEBUG*/, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
+    dynarec_log(LOG_DEBUG, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
