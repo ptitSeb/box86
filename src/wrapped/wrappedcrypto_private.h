@@ -12,29 +12,29 @@
 //GO(a2i_IPADDRESS_NC, 
 //GO(ACCESS_DESCRIPTION_free, 
 //GO(ACCESS_DESCRIPTION_new, 
-//GO(AES_bi_ige_encrypt, 
-//GO(AES_cbc_encrypt, 
-//GO(AES_cfb128_encrypt, 
-//GO(AES_cfb1_encrypt, 
-//GO(AES_cfb8_encrypt, 
-//GO(AES_ctr128_encrypt, 
-//GO(AES_decrypt, 
-//GO(AES_ecb_encrypt, 
-//GO(AES_encrypt, 
-//GO(AES_ige_encrypt, 
-//GO(AES_ofb128_encrypt, 
+GO(AES_bi_ige_encrypt, vFppLpppi)
+GO(AES_cbc_encrypt, vFppLppi)
+GO(AES_cfb128_encrypt, vFppLpppi)
+GO(AES_cfb1_encrypt, vFppLpppi)
+GO(AES_cfb8_encrypt, vFppLpppi)
+GO(AES_ctr128_encrypt, vFppLpppp)
+GO(AES_decrypt, vFppp)
+GO(AES_ecb_encrypt, vFpppi)
+GO(AES_encrypt, vFppp)
+GO(AES_ige_encrypt, cFppLppi)
+GO(AES_ofb128_encrypt, vFppLppp)
 //GO(AES_options, 
-//GO(AES_set_decrypt_key, 
+GO(AES_set_decrypt_key, iFpip)
 //GO(AES_set_enc2dec_key, 
-//GO(AES_set_encrypt_key, 
-//GO(AES_unwrap_key, 
+GO(AES_set_encrypt_key, iFpip)
+GO(AES_unwrap_key, iFppppi)
 //GO(aes_v8_cbc_encrypt, 
 //GO(aes_v8_ctr32_encrypt_blocks, 
 //GO(aes_v8_decrypt, 
 //GO(aes_v8_encrypt, 
 //GO(aes_v8_set_decrypt_key, 
 //GO(aes_v8_set_encrypt_key, 
-//GO(AES_wrap_key, 
+GO(AES_wrap_key, iFppppi)
 //GO(_armv7_neon_probe, 
 //GO(_armv7_tick, 
 //GO(_armv8_aes_probe, 
@@ -2952,8 +2952,8 @@ GO(PKCS12_PBE_keyivgen, iFppipppi)
 //GO(pqueue_pop, 
 //GO(pqueue_print, 
 //GO(pqueue_size, 
-//GO(private_AES_set_decrypt_key, 
-//GO(private_AES_set_encrypt_key, 
+GO(private_AES_set_decrypt_key, iFpip)
+GO(private_AES_set_encrypt_key, iFpip)
 //GO(private_Camellia_set_key, 
 //GO(private_RC4_set_key, 
 //GO(PROXY_CERT_INFO_EXTENSION_free, 
