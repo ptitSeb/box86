@@ -88,17 +88,28 @@ static void* reverse_##NAME##_##A(wrapper_t W, void* fct)           \
     return fct;                                                     \
 }
 
-#define WRAPPER(A, NAME, RET, DEF, N, ...)  \
-WRAPPED(0, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(1, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(2, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(3, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(4, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(5, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(6, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-WRAPPED(7, NAME##_##A, RET, DEF, N, __VA_ARGS__)  \
-FIND(A, NAME)                               \
-REVERSE(A, NAME)
+#define AUTOBRIDGE(A, NAME)   \
+static void autobridge_##NAME##_##A(wrapper_t W, void* fct)         \
+{                                                                   \
+    if(!fct)                                                        \
+        return;                                                     \
+    Dl_info info;                                                   \
+    if(dladdr(fct, &info))                                          \
+        AddAutomaticBridge(thread_get_emu(), my_bridge, W, fct, 0); \
+}
+
+#define WRAPPER(A, NAME, RET, DEF, N, ...)          \
+WRAPPED(0, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(1, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(2, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(3, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(4, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(5, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(6, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+WRAPPED(7, NAME##_##A, RET, DEF, N, __VA_ARGS__)    \
+FIND(A, NAME)                                       \
+REVERSE(A, NAME)                                    \
+AUTOBRIDGE(A, NAME)
 
 // ----- GObjectClass ------
 // wrapper x86 -> natives of callbacks
@@ -135,6 +146,13 @@ static void unwrapGObjectClass(my_GObjectClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGObjectClass(my_GObjectClass_t* class)
+{
+    #define GO(A, W) autobridge_##A##_GObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
 #undef SUPERGO
 
 // ----- GtkObjectClass ------
@@ -163,6 +181,15 @@ static void unwrapGtkObjectClass(my_GtkObjectClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGtkObjectClass(my_GtkObjectClass_t* class)
+{
+    bridgeGObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkObject (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
 #undef SUPERGO
 
 // ----- GtkWidgetClass ------
@@ -318,6 +345,15 @@ static void unwrapGtkWidgetClass(my_GtkWidgetClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGtkWidgetClass(my_GtkWidgetClass_t* class)
+{
+    bridgeGtkObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkWidget (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
 #undef SUPERGO
 
 // ----- GtkContainerClass ------
@@ -359,6 +395,15 @@ static void unwrapGtkContainerClass(my_GtkContainerClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGtkContainerClass(my_GtkContainerClass_t* class)
+{
+    bridgeGtkWidgetClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkContainer (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
 #undef SUPERGO
 
 // ----- GtkActionClass ------
@@ -394,6 +439,14 @@ static void unwrapGtkActionClass(my_GtkActionClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGtkActionClass(my_GtkActionClass_t* class)
+{
+    bridgeGObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkAction (W, class->A)
+    SUPERGO()
+    #undef GO
+}
 #undef SUPERGO
 
 // ----- GtkMiscClass ------
@@ -408,6 +461,12 @@ static void unwrapGtkMiscClass(my_GtkMiscClass_t* class)
 {   
     unwrapGtkWidgetClass(&class->parent_class);
 }
+// autobridge
+static void bridgeGtkMiscClass(my_GtkMiscClass_t* class)
+{
+    bridgeGtkWidgetClass(&class->parent_class);
+}
+
 
 // ----- GtkLabelClass ------
 // wrapper x86 -> natives of callbacks
@@ -435,6 +494,14 @@ static void unwrapGtkLabelClass(my_GtkLabelClass_t* class)
 {   
     unwrapGtkMiscClass(&class->parent_class);
     #define GO(A, W)   class->A = find_##A##_GtkMisc (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkLabelClass(my_GtkLabelClass_t* class)
+{
+    bridgeGtkMiscClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMisc (W, class->A)
     SUPERGO()
     #undef GO
 }
@@ -493,6 +560,15 @@ static void unwrapGtkTreeViewClass(my_GtkTreeViewClass_t* class)
     SUPERGO()
     #undef GO
 }
+// autobridge
+static void bridgeGtkTreeViewClass(my_GtkTreeViewClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkTreeView (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
 #undef SUPERGO
 
 // No more wrap/unwrap
@@ -525,6 +601,20 @@ static void unwrapGTKClass(void* cl, int type)
     {}  // else no warning, one is enough...
     #undef GTKCLASS
 }
+
+static void bridgeGTKClass(void* cl, int type)
+{
+    #define GTKCLASS(A)                             \
+    if(type==my_##A)                                \
+        bridge##A##Class((my_##A##Class_t*)cl);     \
+    else 
+    GTKCLASSES()
+    {
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %d (%s)\n", type, g_type_name(type));
+    }
+    #undef GTKCLASS
+}
+
 
 typedef union my_GClassAll_s {
     #define GTKCLASS(A) my_##A##Class_t A;
@@ -844,6 +934,18 @@ void Set##A##ID(int id)         \
 GTKCLASSES()
 #undef GTKCLASS
 
+void AutoBridgeGtk(void*(*ref)(int), void(*unref)(void*))
+{
+    void* p;
+    #define GTKCLASS(A)             \
+    if(my_##A && my_##A!=-1) {      \
+        p = ref(my_##A);            \
+        bridgeGTKClass(p, my_##A);  \
+        unref(p);                   \
+    }
+    GTKCLASSES()
+    #undef GTKCLASS
+}
 
 void SetGTypeName(void* f)
 {

@@ -195,9 +195,8 @@ void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
-void* FillBlock(dynablock_t* block) {
+void* FillBlock(dynablock_t* block, uintptr_t addr) {
     // init the helper
-    uintptr_t addr = (uintptr_t)block->x86_addr;
     dynarec_arm_t helper = {0};
     helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
     helper.start = addr;
@@ -301,7 +300,7 @@ void* FillBlock(dynablock_t* block) {
     block->block = p;
     block->nolinker = helper.nolinker;
     block->need_test = 0;
-    block->x86_addr = (void*)start;
+    //block->x86_addr = (void*)start;
     block->x86_size = end-start;
     if(box86_dynarec_largest<block->x86_size)
         box86_dynarec_largest = block->x86_size;

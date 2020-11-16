@@ -593,7 +593,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
-static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t* current)
+static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, dynablock_t* current)
 {
     // try the quickest way first: get parent of current and check if ok!
     dynablocklist_t *dynablocks = NULL;
@@ -628,7 +628,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
         pthread_mutex_lock(&my_context->mutex_dyndump);
     // fill the block
     block->x86_addr = (void*)addr;
-    FillBlock(block);
+    FillBlock(block, filladdr);
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
 
@@ -639,7 +639,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, int create
 
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
-    dynablock_t *db = internalDBGetBlock(emu, addr, create, *current);
+    dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
@@ -651,7 +651,29 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             // Free father, it's now invalid!
             FreeDynablock(father);
             // start again... (will create a new block)
-            db = internalDBGetBlock(emu, addr, create, *current);
+            db = internalDBGetBlock(emu, addr, addr, create, *current);
+        } else {
+            father->need_test = 0;
+            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+        }
+    } 
+    return db;
+}
+
+dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
+{
+    dynarec_log(LOG_NONE/*LOG_DEBUG*/, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
+    int create = 1;
+    dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
+    if(db && (db->need_test || (db->father && db->father->need_test))) {
+        dynablock_t *father = db->father?db->father:db;
+        uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
+        if(hash!=father->hash) {
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X)%s with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->marks?" with Mark,":"", father->sons_size);
+            // Free father, it's now invalid!
+            FreeDynablock(father);
+            // start again... (will create a new block)
+            db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
         } else {
             father->need_test = 0;
             protectDB((uintptr_t)father->x86_addr, father->x86_size);

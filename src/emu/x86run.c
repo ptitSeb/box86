@@ -19,6 +19,7 @@
 #include "x87emu_private.h"
 #include "box86context.h"
 #include "my_cpuid.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
 #endif
@@ -1528,8 +1529,9 @@ _trace:
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
+                    tmp32u = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     Push(emu, ip);
-                    ip = ED->dword[0];  // should get value in temp var. in case ED use ESP?
+                    ip = tmp32u;
                     STEP
                     break;
                 case 3:                 /* CALL FAR Ed */

@@ -25,6 +25,7 @@ static char* libname = NULL;
 
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
+typedef void          (*vFp_t)(void*);
 typedef int           (*iFp_t)(void*);
 typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
@@ -110,6 +111,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(g_module_supported, iFv_t)               \
     GO(g_module_symbol, iFppp_t)                \
     GO(g_log, vFpipV_t)                         \
+    GO(g_type_class_ref, pFi_t)                 \
+    GO(g_type_class_unref, vFp_t)               \
     GO(g_signal_connect_object, LFppppi_t)      \
     GO(g_signal_connect_data, LFpppppi_t)       \
     GO(gtk_action_group_add_actions, vFppup_t)  \
@@ -522,6 +525,7 @@ EXPORT void my_gtk_init(x86emu_t* emu, void* argc, void* argv)
 
     my->gtk_init(argc, argv);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
 }
 
 EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
@@ -531,6 +535,7 @@ EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 
     int ret = my->gtk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
     return ret;
 }
 
@@ -541,6 +546,7 @@ EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* pa
 
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
     return ret;
 }
 
@@ -984,7 +990,7 @@ EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_gro
     SetGtkMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
     SetGtkLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
     SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
-    lib->priv.w.needed = 2; \
+    lib->priv.w.needed = 2;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
     lib->priv.w.neededlibs[1] = strdup("libpangocairo-1.0.so.0");

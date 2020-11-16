@@ -8,6 +8,9 @@
 #include "bridge_private.h"
 #include "wrapper.h"
 #include "khash.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#endif
 
 KHASH_MAP_INIT_INT(bridgemap, uintptr_t)
 
@@ -89,6 +92,23 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     return ret;
 }
 
+uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void* fnc, int N)
+{
+    if(!fnc)
+        return 0;
+    uintptr_t ret = CheckBridged(bridge, fnc);
+    if(!ret)
+        ret = AddBridge(bridge, w, fnc, N);
+    if(!hasAlternate(fnc)) {
+        addAlternate(fnc, (void*)ret);
+        #ifdef DYNAREC
+        // now, check if dynablock at native address exist
+        DBAlternateBlock(emu, (uintptr_t)fnc, ret);
+        #endif
+    }
+    return ret;
+}
+
 void* GetNativeFnc(uintptr_t fnc)
 {
     if(!fnc) return NULL;
@@ -123,4 +143,43 @@ void* GetNativeFncOrFnc(uintptr_t fnc)
     if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
         return (void*)fnc;    // not a bridge?!
     return (void*)b->f;
+}
+
+// Alternate address handling
+KHASH_MAP_INIT_INT(alternate, void*)
+static kh_alternate_t *my_alternates = NULL;
+
+int hasAlternate(void* addr) {
+    if(!my_alternates)
+        return 0;
+    khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
+    if(k==kh_end(my_alternates))
+        return 0;
+    return 1;
+}
+
+void* getAlternate(void* addr) {
+    if(!my_alternates)
+        return addr;
+    khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
+    if(k!=kh_end(my_alternates))
+        return kh_value(my_alternates, k);
+    return addr;
+}
+void addAlternate(void* addr, void* alt) {
+    if(!my_alternates) {
+        my_alternates = kh_init(alternate);
+    }
+    int ret;
+    khint_t k = kh_put(alternate, my_alternates, (uintptr_t)addr, &ret);
+    if(ret)
+        return;
+    kh_value(my_alternates, k) = alt;
+}
+
+void cleanAlternate() {
+    if(my_alternates) {
+        kh_destroy(alternate, my_alternates);
+        my_alternates = NULL;
+    }
 }

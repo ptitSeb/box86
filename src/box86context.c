@@ -256,6 +256,7 @@ void finiAllHelpers()
         return;
     fini_pthread_helper();
     fini_signal_helper();
+    cleanAlternate();
     finied = 1;
 }
 

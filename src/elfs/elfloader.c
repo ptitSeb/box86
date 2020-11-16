@@ -991,6 +991,15 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
             return context->dynablocks;
     if(box86_dynarec_forced)
         return context->dynablocks;
+    // check if the adress has an alternate one
+    if(hasAlternate((void*)addr))
+        return context->dynablocks;
+    //check if address is in an elf... if yes, grant a block (should I warn)
+    Dl_info info;
+    if(dladdr((void*)addr, &info)) {
+        printf_log(LOG_INFO, "Address %p is in a native Elf memory space (function \"%s\" in %s)\n", (void*)addr, info.dli_sname, info.dli_fname);
+        return NULL;
+    }
     dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);
     return NULL;
 }

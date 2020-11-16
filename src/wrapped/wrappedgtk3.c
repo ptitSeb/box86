@@ -25,6 +25,7 @@ static char* libname = NULL;
 
 typedef int           (*iFv_t)(void);
 typedef void*         (*pFi_t)(int);
+typedef void          (*vFp_t)(void*);
 typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
 typedef int           (*iFip_t)(int, void*);
@@ -90,6 +91,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_spin_button_get_value, dFp_t)        \
     GO(gtk_builder_connect_signals_full, vFppp_t)       \
     GO(gtk_action_get_type, iFv_t)              \
+    GO(g_type_class_ref, pFi_t)                 \
+    GO(g_type_class_unref, vFp_t)               \
 
 
 typedef struct gtk3_my_s {
@@ -411,6 +414,7 @@ EXPORT void my3_gtk_init(x86emu_t* emu, void* argc, void* argv)
 
     my->gtk_init(argc, argv);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
 }
 
 EXPORT int my3_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
@@ -420,6 +424,7 @@ EXPORT int my3_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 
     int ret = my->gtk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
     return ret;
 }
 
@@ -430,6 +435,7 @@ EXPORT int my3_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* p
 
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
     my_checkGlobalGdkDisplay();
+    AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
     return ret;
 }
 

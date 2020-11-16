@@ -254,6 +254,7 @@ GTKCLASSES()
 #undef GTKCLASS
 
 void SetGTypeName(void* f);
+void AutoBridgeGtk(void*(*ref)(int), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, int type);
 void* unwrapCopyGTKClass(void* klass, int type);
