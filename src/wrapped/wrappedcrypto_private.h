@@ -1304,7 +1304,7 @@ GO(EC_get_builtin_curves, LFpL)
 //GO(ec_GF2m_simple_is_at_infinity, 
 //GO(ec_GF2m_simple_is_on_curve, 
 //GO(ec_GF2m_simple_make_affine, 
-//GO(EC_GF2m_simple_method, 
+GO(EC_GF2m_simple_method, pFv)
 //GO(ec_GF2m_simple_mul, 
 //GO(ec_GF2m_simple_oct2point, 
 //GO(ec_GF2m_simple_point2oct, 
@@ -1327,12 +1327,15 @@ GO(EC_get_builtin_curves, LFpL)
 //GO(ec_GFp_mont_group_finish, 
 //GO(ec_GFp_mont_group_init, 
 //GO(ec_GFp_mont_group_set_curve, 
-//GO(EC_GFp_mont_method, 
+GO(EC_GFp_mont_method, pFv)
 //GO(ec_GFp_nist_field_mul, 
 //GO(ec_GFp_nist_field_sqr, 
 //GO(ec_GFp_nist_group_copy, 
 //GO(ec_GFp_nist_group_set_curve, 
-//GO(EC_GFp_nist_method, 
+GO(EC_GFp_nist_method, pFv)
+GO(EC_GFp_nistp224_method, pFv)
+GO(EC_GFp_nistp256_method, pFv)
+GO(EC_GFp_nistp521_method, pFv)
 //GO(ec_GFp_simple_add, 
 //GO(ec_GFp_simple_cmp, 
 //GO(ec_GFp_simple_dbl, 
@@ -1351,7 +1354,7 @@ GO(EC_get_builtin_curves, LFpL)
 //GO(ec_GFp_simple_is_at_infinity, 
 //GO(ec_GFp_simple_is_on_curve, 
 //GO(ec_GFp_simple_make_affine, 
-//GO(EC_GFp_simple_method, 
+GO(EC_GFp_simple_method, pFv)
 //GO(ec_GFp_simple_oct2point, 
 //GO(ec_GFp_simple_point2oct, 
 //GO(ec_GFp_simple_point_clear_finish, 
@@ -1428,7 +1431,7 @@ GO(EC_KEY_new_by_curve_name, pFi)
 //GO(EC_KEY_set_public_key, 
 //GO(EC_KEY_set_public_key_affine_coordinates, 
 //GO(EC_KEY_up_ref, 
-//GO(EC_METHOD_get_field_type, 
+GO(EC_METHOD_get_field_type, iFp)
 //GO(ECPARAMETERS_free, 
 //GO(ECPARAMETERS_new, 
 //GO(ECParameters_print, 
