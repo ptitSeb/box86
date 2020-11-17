@@ -130,6 +130,8 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_list_sort_with_data, pFppp_t)          \
     GO(g_queue_find_custom, pFppp_t)            \
     GO(g_list_find_custom, pFppp_t)             \
+    GO(g_timeout_add_seconds, uFupp_t)          \
+    GO(g_timeout_add_seconds_full, uFiuppp_t)   \
 
 
 typedef struct glib2_my_s {
@@ -1327,6 +1329,28 @@ EXPORT void* my_g_list_find_custom(x86emu_t *emu, void* list, void* data, void* 
 
     return my->g_list_find_custom(list, data, findGCompareFuncFct(f));
 }
+
+EXPORT uint32_t my_g_timeout_add_full(x86emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_timeout_add_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
+}
+
+EXPORT uint32_t my_g_timeout_add_seconds(x86emu_t *emu, uint32_t interval, void* f, void* data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_timeout_add_seconds(interval, findGSourceFuncFct(f), data);
+}
+
+EXPORT uint32_t my_g_timeout_add_seconds_full(x86emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_timeout_add_seconds_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
+}
+
 
 #define CUSTOM_INIT \
     libname = lib->name;\
