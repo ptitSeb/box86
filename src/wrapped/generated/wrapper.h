@@ -4,6 +4,7 @@
 #ifndef __WRAPPER_H_
 #define __WRAPPER_H_
 #include <stdint.h>
+#include <string.h>
 
 typedef struct x86emu_s x86emu_t;
 
