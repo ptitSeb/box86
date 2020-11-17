@@ -916,11 +916,11 @@ void InitGTKClass(bridge_t *bridge)
 void FiniGTKClass()
 {
     if(my_signalmap) {
-        khint_t k;
+        /*khint_t k;
         kh_foreach_key(my_signalmap, k,
             my_signal_t* p = (my_signal_t*)(uintptr_t)k;
             free(p);
-        );
+        );*/ // lets assume all signals data is freed by gtk already
         kh_destroy(signalmap, my_signalmap);
         my_signalmap = NULL;
     }

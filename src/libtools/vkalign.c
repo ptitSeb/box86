@@ -666,6 +666,7 @@ int vkalignSize(const char* desc)
     }
     return sz;
 }
+
 void* vkalignStruct(void* src, const char* desc, int cnt)
 {
     int sz = vkalignSize(desc);
@@ -846,6 +847,107 @@ void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
         }
     }
     free(src);
+}
+
+int vkunalignSize(const char* desc)
+{
+    int sz = 0;
+    while(*desc) {
+        switch (*desc) {
+            case 'i':
+            case 'u':
+            case 'p':
+            case 'l':
+            case 'L':
+            case 'f':
+                sz+=4;
+                break;
+            case 'S':   // start of a struct inside struct. Just align, no copy
+                break;
+            case 'B':   // 16char, no alignement required
+                sz+=16;
+                break;
+            case 'Y':   //256char, no aligment requires
+                sz+=256;
+                break;
+            case 'U':
+            case 'I':
+            case 'd':
+                sz+=8;
+                break;
+            default:
+                printf_log(LOG_NONE, "BOX86: Warning, '%c' not handled in vkunalignSize!\n", *desc);
+        }
+        ++desc;
+    }
+    return sz;
+}
+
+void* vkStructUnalign(void* src, const char* desc, int cnt)
+{
+    int sz = vkunalignSize(desc);
+    int count=cnt;
+    if(!cnt && !src)
+        return src;
+    void* dst = (void*)malloc(sz*count);
+    int c = 0;
+    int a = 1;
+    uint32_t* psrc = (uint32_t*)src;
+    uint32_t* pdst = (uint32_t*)dst;
+    while(count) {
+        const char* p = desc;
+        while(*p) {
+            switch (*p) {
+                case 'i':
+                case 'u':
+                case 'p':
+                case 'f':
+                case 'l':
+                case 'L':
+                    ++c;
+                    *(pdst++) = *(psrc++);
+                    break;
+                case 'S':   // start of a struct inside struct. Just align, no copy
+                    if(c&1) {   //align?
+                        ++c;
+                        ++psrc;
+                    }
+                    break;
+                case 'B':   // 16char, no alignement required
+                    c+=4;
+                    *(pdst++) = *(psrc++);
+                    *(pdst++) = *(psrc++);
+                    *(pdst++) = *(psrc++);
+                    *(pdst++) = *(psrc++);
+                    break;
+                case 'Y':   //256char, no aligment requires
+                    c+=64;
+                    memcpy(pdst, psrc, 256);
+                    pdst+=64;
+                    psrc+=64;
+                    break;
+                case 'U':
+                case 'I':
+                case 'd':
+                    if(c&1) {   //align?
+                        ++c;
+                        ++psrc;
+                    }
+                    *(pdst++) = *(psrc++);
+                    *(pdst++) = *(psrc++);
+                    c+=2;
+                    a=1;
+                    break;
+            }
+            ++p;
+        }
+        --count;
+        if(a && (c&1)) {   //align?
+            ++c;
+            ++psrc;
+        }
+    }
+    return dst;
 }
 
 static void unalignFromx86(my_vkhead_t* src, my_vksave_t* vksave)

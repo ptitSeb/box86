@@ -3,7 +3,7 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G']
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -252,6 +252,30 @@ static void* io_convert(void* v)
 	return v;
 }
 
+typedef struct my_GValue_s
+{
+  int         g_type;
+  union {
+    int        v_int;
+    int64_t    v_int64;
+    uint64_t   v_uint64;
+    float      v_float;
+    double     v_double;
+    void*      v_pointer;
+  } data[2];
+} my_GValue_t;
+
+static void alignGValue(my_GValue_t* v, void* value)
+{
+    v->g_type = *(int*)value;
+    memcpy(v->data, value+4, 2*sizeof(double));
+}
+static void unalignGValue(void* value, my_GValue_t* v)
+{
+    *(int*)value = v->g_type;
+    memcpy(value+4, v->data, 2*sizeof(double));
+}
+
 void* VulkanFromx86(void* src, void** save);
 void VulkanTox86(void* src, void* save);
 
@@ -286,6 +310,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // Q = ...
 // 2 = struct of 2 uint
 // P = Vulkan struture pointer
+// G = a single GValue pointer
 
 """
 	}
@@ -321,8 +346,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P        G
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*"]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -331,8 +356,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P
-				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*"]
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P        G
+				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*"]
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -369,9 +394,10 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			"io_convert(*(void**)(R_ESP + {p})), ",   # S
 			"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	#2
 			"arg{p}, ",                               # P
+			"&arg{p}, ",                              # G
 		]
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P
-		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8, 4]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P  G
+		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8, 4, 4]
 		vals = [
 			"\n#error Invalid return type: emulator\n",                     # E
 			"\n#error Invalid return type: &emulator\n",                    # e
@@ -396,6 +422,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			"\n#error Invalid return type: _io_file*\n",                    # S
 			"\n#error Invalid return type: _2uint_struct\n",                # 2
 			"\n#error Invalid return type: Vulkan Struct\n",                # P
+			"\n#error Invalid return type: GValue Pointer\n",               # G
 		]
 		# Asserts
 		if len(values) != len(arg):
@@ -421,18 +448,22 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		def function_writer(f, N, W, rettype, args):
 			f.write("void {0}(x86emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N, W, "{"))
-			if 'P' in args:
-				# Vulkan struct, need to unwrap functions at the end
+			if any(cc in 'PG' for cc in args):
+				# Vulkan struct or GValue pointer, need to unwrap functions at the end
 				delta = 4
 				for c in args:
 					if c == 'P':
 						f.write("void* save{d}=NULL; void *arg{d} = VulkanFromx86(*(void**)(R_ESP + {d}), &save{d}); ".format(d=delta))
+					if c == 'G':
+    						f.write("my_GValue_t arg{d}; alignGValue(&arg{d}, *(void**)(R_ESP + {d})); ".format(d=delta))
 					delta = delta + deltas[values.index(c)]
 				f.write(vals[values.index(rettype)].format(function_args(args)[:-2]) + " ")
 				delta = 4
 				for c in args:
 					if c == 'P':
 						f.write("VulkanTox86(arg{d}, save{d}); ".format(d=delta))
+					if c == 'G':
+						f.write("unalignGValue(*(void**)(R_ESP + {d}), &arg{d}); ".format(d=delta))
 					delta = delta + deltas[values.index(c)]
 				f.write("}\n")
 			else:

@@ -1320,10 +1320,10 @@ GO(g_time_val_to_iso8601, pFp)
 //GO(g_time_zone_new_utc, 
 //GO(g_time_zone_ref, 
 //GO(g_time_zone_unref, 
-//GO(g_trash_stack_height, 
-//GO(g_trash_stack_peek, 
-//GO(g_trash_stack_pop, 
-//GO(g_trash_stack_push, 
+GO(g_trash_stack_height, uFp)
+GO(g_trash_stack_peek, pFp)
+GO(g_trash_stack_pop, pFp)
+GO(g_trash_stack_push, vFpp)
 //GO(g_tree_destroy, 
 //GO(g_tree_foreach, 
 //GO(g_tree_height, 
