@@ -3284,7 +3284,7 @@ GO(gtk_tree_model_filter_get_type, iFv)
 //GO(gtk_tree_model_filter_set_visible_column, 
 //GO(gtk_tree_model_filter_set_visible_func, 
 GO(gtk_tree_model_flags_get_type, iFv)
-//GOM(gtk_tree_model_foreach, vFEpBp)
+GOM(gtk_tree_model_foreach, vFEppp)
 GO2(gtk_tree_model_get, vFppV, gtk_tree_model_get_valist)
 GO(gtk_tree_model_get_column_type, iFpi)
 GO(gtk_tree_model_get_flags, iFp)

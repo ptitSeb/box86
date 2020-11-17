@@ -117,6 +117,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(g_signal_connect_data, LFpppppi_t)       \
     GO(gtk_action_group_add_actions, vFppup_t)  \
     GO(gtk_action_group_add_actions_full, vFppupp_t)    \
+    GO(gtk_tree_model_foreach, vFppp_t)         \
 
 
 
@@ -454,6 +455,29 @@ static void* findGDestroyNotifyFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GDestroyNotify callback\n");
+    return NULL;
+}
+
+// GtkTreeModelForeachFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeModelForeachFunc_fct_##A = 0;                                                    \
+static int my_GtkTreeModelForeachFunc_##A(void* model, void* path, void* iter, void* data)                  \
+{                                                                                                           \
+    return (int)RunFunction(my_context, my_GtkTreeModelForeachFunc_fct_##A, 4, model, path, iter, data);    \
+}
+SUPER()
+#undef GO
+static void* findGtkTreeModelForeachFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeModelForeachFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeModelForeachFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeModelForeachFunc_fct_##A == 0) {my_GtkTreeModelForeachFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeModelForeachFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeModelForeachFunc callback\n");
     return NULL;
 }
 
@@ -979,6 +1003,15 @@ EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_gro
         myentries[i].callback = findGtkCallbackFct(entries[i].callback);
     my->gtk_action_group_add_actions_full(action_group, myentries, n, data, findGDestroyNotifyFct(destroy));
 }
+
+EXPORT void my_gtk_tree_model_foreach(x86emu_t* emu, void* model, void* f, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_tree_model_foreach(model, findGtkTreeModelForeachFuncFct(f), data);
+}
+
 
 #define CUSTOM_INIT \
     libname = lib->name;                \
