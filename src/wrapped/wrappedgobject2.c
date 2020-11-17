@@ -813,7 +813,7 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v = *(my_GValue_t*)my->g_param_spec_get_default_value(spec);
     static int cnt = 0;
-    if(cnt=4) cnt=4;
+    if(cnt==4) cnt=0;
     static my_GValue_t value[4];
     unalignGValue(&value[cnt], &v);
     return &value[cnt++];
