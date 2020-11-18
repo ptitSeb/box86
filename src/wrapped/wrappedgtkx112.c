@@ -118,6 +118,8 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_action_group_add_actions, vFppup_t)  \
     GO(gtk_action_group_add_actions_full, vFppupp_t)    \
     GO(gtk_tree_model_foreach, vFppp_t)         \
+    GO(gtk_clipboard_request_text, vFppp_t)     \
+    GO(gtk_clipboard_request_contents, vFpppp_t)\
 
 
 
@@ -478,6 +480,52 @@ static void* findGtkTreeModelForeachFuncFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeModelForeachFunc callback\n");
+    return NULL;
+}
+
+// GtkClipboardReceivedFunc
+#define GO(A)   \
+static uintptr_t my_GtkClipboardReceivedFunc_fct_##A = 0;                                   \
+static void my_GtkClipboardReceivedFunc_##A(void* clipboard, void* sel, void* data)        \
+{                                                                                               \
+    RunFunction(my_context, my_GtkClipboardReceivedFunc_fct_##A, 3, clipboard, sel, data); \
+}
+SUPER()
+#undef GO
+static void* findGtkClipboardReceivedFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkClipboardReceivedFunc_fct_##A == (uintptr_t)fct) return my_GtkClipboardReceivedFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkClipboardReceivedFunc_fct_##A == 0) {my_GtkClipboardReceivedFunc_fct_##A = (uintptr_t)fct; return my_GtkClipboardReceivedFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkClipboardReceivedFunc callback\n");
+    return NULL;
+}
+
+// GtkClipboardTextReceivedFunc
+#define GO(A)   \
+static uintptr_t my_GtkClipboardTextReceivedFunc_fct_##A = 0;                                   \
+static void my_GtkClipboardTextReceivedFunc_##A(void* clipboard, void* text, void* data)        \
+{                                                                                               \
+    RunFunction(my_context, my_GtkClipboardTextReceivedFunc_fct_##A, 3, clipboard, text, data); \
+}
+SUPER()
+#undef GO
+static void* findGtkClipboardTextReceivedFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkClipboardTextReceivedFunc_fct_##A == (uintptr_t)fct) return my_GtkClipboardTextReceivedFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkClipboardTextReceivedFunc_fct_##A == 0) {my_GtkClipboardTextReceivedFunc_fct_##A = (uintptr_t)fct; return my_GtkClipboardTextReceivedFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkClipboardTextReceivedFunc callback\n");
     return NULL;
 }
 
@@ -1012,6 +1060,22 @@ EXPORT void my_gtk_tree_model_foreach(x86emu_t* emu, void* model, void* f, void*
     my->gtk_tree_model_foreach(model, findGtkTreeModelForeachFuncFct(f), data);
 }
 
+EXPORT void my_gtk_clipboard_request_contents(x86emu_t* emu, void* clipboard, void* target, void* f, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_clipboard_request_contents(clipboard, target, findGtkClipboardReceivedFuncFct(f), data);
+}
+
+
+EXPORT void my_gtk_clipboard_request_text(x86emu_t* emu, void* clipboard, void* f, void* data)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
+}
 
 #define CUSTOM_INIT \
     libname = lib->name;                \
