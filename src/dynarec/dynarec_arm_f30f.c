@@ -212,8 +212,15 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 }
                 VMOV_32(s0, d0*2);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                VLDR_32(s0, ed, fixedaddress);
+                parity = getedparity(dyn, ninst, addr, nextop, 3);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VLDR_32(s0, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);
+                    VMOVtoV(s0, x2);
+                }
             }
             VCVT_S32_F32(s0, s0);
             VMOVfrV(gd, s0);
@@ -234,8 +241,15 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 }
                 VMOV_32(s0, d0*2);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                VLDR_32(s0, ed, fixedaddress);
+                parity = getedparity(dyn, ninst, addr, nextop, 3);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                    VLDR_32(s0, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);
+                    VMOVtoV(s0, x2);
+                }
             }
             VCVTR_S32_F32(s0, s0);
             VMOVfrV(gd, s0);
@@ -621,7 +635,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
                     LDR_IMM9(x2, ed, fixedaddress);
                     LDR_IMM9(x3, ed, fixedaddress+4);
-                    VMOVfrV_D(x2, x3, v0);
+                    VMOVtoV_D(v0, x2, x3);
                 }
             }
             gd = (nextop&0x38)>>3;
