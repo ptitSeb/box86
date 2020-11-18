@@ -269,9 +269,9 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 //    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = get_signal_emu();
-    printf_log(LOG_DEBUG, "signal function handler %p called, ESP=%p\n", (void*)fnc, (void*)R_ESP);
+    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, ESP=%p\n", GetTID(), (void*)fnc, (void*)R_ESP);
     
-    SetFS(emu, default_fs);
+    /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
         emu->segs_clean[i] = 0;
         
@@ -321,12 +321,11 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
         }
         return 0;
     }
-    printf_log(LOG_DEBUG, "sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%x], oss=%p\n", ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
+    printf_log(LOG_DEBUG, "%04d|sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%x], oss=%p\n", GetTID(), ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
     if(ss->ss_flags && ss->ss_flags!=SS_DISABLE && ss->ss_flags!=SS_ONSTACK) {
         errno = EINVAL;
         return -1;
     }
-    //TODO: SS_ONSTACK is not correctly handled, has the stack is NOT the one where the signal came from
 
     if(ss->ss_flags==SS_DISABLE) {
         if(new_ss)
@@ -403,21 +402,33 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
 {
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
-    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
+    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
-    x86emu_t *emu = thread_get_emu();   // not good, emu is probably not up to date, especially using dynarec
+    x86emu_t *emu = thread_get_emu();
+    uint32_t *frame = (uint32_t*)R_ESP;
 #if defined(DYNAREC) && defined(__arm__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
-    uint32_t *frame = (uint32_t*)R_ESP;
     if(db) {
-        frame = (uint32_t*)p->uc_mcontext.arm_r8+4;
+        frame = (uint32_t*)p->uc_mcontext.arm_r8;
     }
 #endif
     // stack tracking
     x86emu_t *sigemu = get_signal_emu();
+	i386_stack_t *new_ss = my_context->onstack[sig]?(i386_stack_t*)pthread_getspecific(sigstack_key):NULL;
+    int used_stack = 0;
+    if(new_ss) {
+        if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
+            frame = (uint32_t*)sigemu->regs[_SP].dword[0];
+        } else {
+            frame = (uint32_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
+            used_stack = 1;
+            new_ss->ss_flags = SS_ONSTACK;
+        }
+    }
+
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
     // try to fill some sigcontext....
@@ -461,21 +472,6 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     // add custom SIGN in reserved area
     //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
     // get signal mask
-    // get actual register in case the signal was from inside a dynablock
-
-    intptr_t esp = (uintptr_t)frame;    // save esp
-
-	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    int used_stack = 0;
-    if(new_ss) {
-        if(new_ss->ss_flags == SS_ONSTACK)  // already using it!
-            frame = (uint32_t*)sigemu->regs[_SP].dword[0];
-        else {
-            frame = (uint32_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
-            used_stack = 1;
-            new_ss->ss_flags = SS_ONSTACK;
-        }
-    }
 
     if(!new_ss) {
         sigcontext->uc_stack.ss_sp = sigemu->init_stack;
@@ -512,7 +508,8 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-esp)<16)?12:13):14;    // how to differenciate between a STACKFLT and a PAGEFAULT?
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 
+            (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)?12:13):14;    // how to differenciate between a STACKFLT and a PAGEFAULT?
     } else if(sig==SIGFPE)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
     else if(sig==SIGILL)
@@ -524,10 +521,13 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     // set stack pointer
     sigemu->regs[_SP].dword[0] = (uintptr_t)frame;
 
+    // set segments
+    memcpy(sigemu->segs, emu->segs, sizeof(sigemu->segs));
+
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
 
-    if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
+    if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
             #define GO(R)   if(sigcontext->uc_mcontext.gregs[REG_E##R]!=sigcontext_copy.uc_mcontext.gregs[REG_E##R]) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
@@ -608,6 +608,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     static int old_code = -1;
     static void* old_pc = 0;
     static void* old_addr = 0;
+    static int old_tid = 0;
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
         printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), signame);
@@ -722,7 +723,6 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
 
     if(signum==SIGILL && emu->context->no_sigill)
         return 0;
-
     struct sigaction newact = {0};
     struct sigaction old = {0};
     if(act) {
@@ -744,6 +744,7 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
                 newact.sa_handler = act->_u._sa_handler;
         }
         my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+        my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
     if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL)

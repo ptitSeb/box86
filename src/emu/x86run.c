@@ -696,6 +696,8 @@ _trace:
             GET_EW;
             emu->segs[((nextop&0x38)>>3)] = EW->word[0];
             emu->segs_clean[((nextop&0x38)>>3)] = 0;
+            if(((nextop&0x38)>>3)==_FS)
+                default_fs = EW->word[0];
             NEXT;
         _0x8F:                      /* POP Ed */
             nextop = F8;
