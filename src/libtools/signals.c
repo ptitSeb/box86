@@ -202,6 +202,15 @@ typedef struct i386_ucontext_s
     struct i386_xstate  xstate;
 } i386_ucontext_t;
 
+typedef struct i386_sigframe_s {
+    uintptr_t       pretcode;   // pointer to retcode
+    int             sig;
+    i386_mcontext_t cpustate;
+    struct i386_xstate fpstate;
+    uintptr_t       extramask[64-1];
+    char            retcode[8];
+} i386_sigframe_t;
+
 struct kernel_sigaction {
         void (*k_sa_handler) (int);
         unsigned long sa_flags;
@@ -376,9 +385,9 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
         int armsz = 0;
         do {
             x86sz+=db->instsize[i].x86;
-            armsz+=db->instsize[i].nat;
+            armsz+=db->instsize[i].nat*4;
         }
-        while(db->instsize[i++].x86);
+        while(!db->instsize[++i].x86);
         if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
             return x86addr;
         armaddr+=armsz;
@@ -392,65 +401,91 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
 
 void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void** old_pc)
 {
-    // need to creat some x86_ucontext????
+    // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
     uintptr_t restorer = my_context->restorer[sig];
-    // try to fill some sigcontext....
-    i386_ucontext_t sigcontext = {0};
+    // get that actual ESP first!
     x86emu_t *emu = thread_get_emu();   // not good, emu is probably not up to date, especially using dynarec
-    // stack traking
-    x86emu_t *sigemu = get_signal_emu();
-	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    if(!new_ss) {
-        sigcontext.uc_stack.ss_sp = sigemu->init_stack;
-        sigcontext.uc_stack.ss_size = sigemu->size_stack;
-    } else {
-        sigcontext.uc_stack.ss_sp = new_ss->ss_sp;
-        sigcontext.uc_stack.ss_size = new_ss->ss_size;
-    }
-    // get general register
-    sigcontext.uc_mcontext.gregs[REG_EAX] = R_EAX;
-    sigcontext.uc_mcontext.gregs[REG_ECX] = R_ECX;
-    sigcontext.uc_mcontext.gregs[REG_EDX] = R_EDX;
-    sigcontext.uc_mcontext.gregs[REG_EDI] = R_EDI;
-    sigcontext.uc_mcontext.gregs[REG_ESI] = R_ESI;
-    sigcontext.uc_mcontext.gregs[REG_EBP] = R_EBP;
-    sigcontext.uc_mcontext.gregs[REG_EIP] = R_EIP;
-    sigcontext.uc_mcontext.gregs[REG_ESP] = R_ESP+4;
-    sigcontext.uc_mcontext.gregs[REG_EBX] = R_EBX;
-    // flags
-    sigcontext.uc_mcontext.gregs[REG_EFL] = emu->packed_eflags.x32;
-    // get segments
-    sigcontext.uc_mcontext.gregs[REG_GS] = R_GS;
-    sigcontext.uc_mcontext.gregs[REG_FS] = R_FS;
-    sigcontext.uc_mcontext.gregs[REG_ES] = R_ES;
-    sigcontext.uc_mcontext.gregs[REG_DS] = R_DS;
-    sigcontext.uc_mcontext.gregs[REG_CS] = R_CS;
-    sigcontext.uc_mcontext.gregs[REG_SS] = R_SS;
-    // get FloatPoint status
-    sigcontext.uc_mcontext.fpregs = (i386_fpregset_t)&sigcontext.xstate;
-    fpu_fxsave(emu, &sigcontext.xstate);
-    // add custom SIGN in reserved area
-    //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
-    // get signal mask
-    // get actual register in case the signal was from inside a dynablock
 #if defined(DYNAREC) && defined(__arm__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
+    uint32_t *frame = (uint32_t*)R_ESP;
     if(db) {
-        sigcontext.uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.arm_r4;
-        sigcontext.uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.arm_r5;
-        sigcontext.uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.arm_r6;
-        sigcontext.uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.arm_r7;
-        sigcontext.uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.arm_r8+4;
-        sigcontext.uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.arm_r9;
-        sigcontext.uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.arm_r10;
-        sigcontext.uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.arm_fp;
-        sigcontext.uc_mcontext.gregs[REG_EIP] = (uint32_t)db->x86_addr;  // this is partly wrong...
+        frame = (uint32_t*)p->uc_mcontext.arm_r8+4;
     }
 #endif
+    // stack tracking
+    x86emu_t *sigemu = get_signal_emu();
+    // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
+    // setup stack frame
+    // try to fill some sigcontext....
+    frame -= sizeof(i386_ucontext_t)/4;
+    i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
+    // get general register
+    sigcontext->uc_mcontext.gregs[REG_EAX] = R_EAX;
+    sigcontext->uc_mcontext.gregs[REG_ECX] = R_ECX;
+    sigcontext->uc_mcontext.gregs[REG_EDX] = R_EDX;
+    sigcontext->uc_mcontext.gregs[REG_EDI] = R_EDI;
+    sigcontext->uc_mcontext.gregs[REG_ESI] = R_ESI;
+    sigcontext->uc_mcontext.gregs[REG_EBP] = R_EBP;
+    sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;
+    sigcontext->uc_mcontext.gregs[REG_ESP] = R_ESP;
+    sigcontext->uc_mcontext.gregs[REG_EBX] = R_EBX;
+    // flags
+    sigcontext->uc_mcontext.gregs[REG_EFL] = emu->packed_eflags.x32;
+    // get segments
+    sigcontext->uc_mcontext.gregs[REG_GS] = R_GS;
+    sigcontext->uc_mcontext.gregs[REG_FS] = R_FS;
+    sigcontext->uc_mcontext.gregs[REG_ES] = R_ES;
+    sigcontext->uc_mcontext.gregs[REG_DS] = R_DS;
+    sigcontext->uc_mcontext.gregs[REG_CS] = R_CS;
+    sigcontext->uc_mcontext.gregs[REG_SS] = R_SS;
+#if defined(DYNAREC) && defined(__arm__)
+    if(db) {
+        sigcontext->uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.arm_r4;
+        sigcontext->uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.arm_r5;
+        sigcontext->uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.arm_r6;
+        sigcontext->uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.arm_r7;
+        sigcontext->uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.arm_r8;
+        sigcontext->uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.arm_r9;
+        sigcontext->uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.arm_r10;
+        sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.arm_fp;
+        sigcontext->uc_mcontext.gregs[REG_EIP] = getX86Address(db, (uintptr_t)pc);
+    }
+#endif
+    // get FloatPoint status
+    sigcontext->uc_mcontext.fpregs = (i386_fpregset_t)&sigcontext->xstate;
+    fpu_fxsave(emu, &sigcontext->xstate);
+    // add custom SIGN in reserved area
+    //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
+    // get signal mask
+    // get actual register in case the signal was from inside a dynablock
+
+    intptr_t esp = (uintptr_t)frame;    // save esp
+
+	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    int used_stack = 0;
+    if(new_ss) {
+        if(new_ss->ss_flags == SS_ONSTACK)  // already using it!
+            frame = (uint32_t*)sigemu->regs[_SP].dword[0];
+        else {
+            frame = (uint32_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
+            used_stack = 1;
+            new_ss->ss_flags = SS_ONSTACK;
+        }
+    }
+
+    if(!new_ss) {
+        sigcontext->uc_stack.ss_sp = sigemu->init_stack;
+        sigcontext->uc_stack.ss_size = sigemu->size_stack;
+        sigcontext->uc_stack.ss_flags = SS_DISABLE;
+    } else {
+        sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
+        sigcontext->uc_stack.ss_size = new_ss->ss_size;
+        sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
+    }
     // Try to guess some REG_TRAPNO
     /*
     TRAP_x86_DIVIDE     = 0,   // Division by zero exception
@@ -473,27 +508,29 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     TRAP_x86_MCHK       = 18,  // Machine check exception
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
-    intptr_t esp = (intptr_t)sigcontext.uc_mcontext.gregs[REG_ESP];
 
     if(sig==SIGBUS)
-        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 17;
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-esp)<16)?12:14):13;    // how to differenciate between a STACKFLT and a PAGEFAULT?
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-esp)<16)?12:13):14;    // how to differenciate between a STACKFLT and a PAGEFAULT?
     } else if(sig==SIGFPE)
-        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 19;
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
     else if(sig==SIGILL)
-        sigcontext.uc_mcontext.gregs[REG_TRAPNO] = 6;
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
 
     // call the signal handler
-    i386_ucontext_t sigcontext_copy = sigcontext;
+    i386_ucontext_t sigcontext_copy = *sigcontext;
+
+    // set stack pointer
+    sigemu->regs[_SP].dword[0] = (uintptr_t)frame;
 
     int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, &sigcontext);
+    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
 
     if(memcmp(&sigcontext, &sigcontext_copy, sizeof(sigcontext))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
-            #define GO(R)   if(sigcontext.uc_mcontext.gregs[REG_E##R]!=sigcontext_copy.uc_mcontext.gregs[REG_E##R]) ejb->emu->regs[_##R].dword[0]=sigcontext.uc_mcontext.gregs[REG_E##R]
+            #define GO(R)   if(sigcontext->uc_mcontext.gregs[REG_E##R]!=sigcontext_copy.uc_mcontext.gregs[REG_E##R]) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
             GO(AX);
             GO(CX);
             GO(DX);
@@ -503,12 +540,12 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
             GO(SP);
             GO(BX);
             #undef GO
-            if(sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP]) ejb->emu->ip.dword[0]=sigcontext.uc_mcontext.gregs[REG_EIP];
-            sigcontext.uc_mcontext.gregs[REG_EIP] = R_EIP;
+            if(sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP]) ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[REG_EIP];
+            sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;
             // flags
-            if(sigcontext.uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->packed_eflags.x32=sigcontext.uc_mcontext.gregs[REG_EFL];
+            if(sigcontext->uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->packed_eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
             // get segments
-            #define GO(S)   if(sigcontext.uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext.uc_mcontext.gregs[REG_##S]; ejb->emu->segs_clean[_##S] = 0;}
+            #define GO(S)   if(sigcontext->uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_clean[_##S] = 0;}
             GO(GS);
             GO(FS);
             GO(ES);
@@ -519,15 +556,19 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing longjmp to resume emu\n");
             if(old_pc)
                 *old_pc = NULL;    // re-init the value to allow another segfault at the same place
+            if(used_stack)  // release stack
+                new_ss->ss_flags = 0;
             longjmp(ejb->jmpbuf, 1);
         }
-        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext.uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
+        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
     }
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits)
         exit(ret);
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
+    if(used_stack)  // release stack
+        new_ss->ss_flags = 0;
 }
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
@@ -589,7 +630,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             emu = (x86emu_t*)p->uc_mcontext.arm_r0;
         }
         if(db) {
-            x86pc = getX86Address(db, (uintptr_t)addr);
+            x86pc = getX86Address(db, (uintptr_t)pc);
             esp = (void*)p->uc_mcontext.arm_r8;
         }
 #endif

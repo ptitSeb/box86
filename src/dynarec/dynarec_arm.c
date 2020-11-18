@@ -166,24 +166,24 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, 
         return insts;
     int toadd;
     if(x86_size>arm_size)
-        toadd = 1 + x86_size/16;
+        toadd = 1 + x86_size/15;
     else
-        toadd = 1 + arm_size/16;
+        toadd = 1 + arm_size/15;
     if(*size+toadd>*cap) {
         *cap = *size+toadd;
         insts = (instsize_t*)realloc(insts, *cap*sizeof(instsize_t));
     }
     while(toadd) {
-        insts[*size].x86 = x86_size%16;
-        insts[*size].nat = arm_size%16;
-        if(x86_size>16) 
-            x86_size -= 16;
+        if(x86_size>15)
+            insts[*size].x86 = 15;    
         else
-            x86_size = 0;
-        if(arm_size>16)
-            arm_size -= 16;
+            insts[*size].x86 = x86_size;
+        x86_size -= insts[*size].x86;
+        if(arm_size>15)
+            insts[*size].nat = 15;
         else
-            arm_size = 0;
+            insts[*size].nat = arm_size;
+        arm_size -= insts[*size].nat;
         ++(*size);
         --toadd;
     }
@@ -285,7 +285,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
         size_t size = 0;
         block->instsize = (instsize_t*)calloc(cap, sizeof(instsize_t));
         for(int i=0; i<helper.size; ++i)
-            block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x86.size, helper.insts[i].size);
+            block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x86.size, helper.insts[i].size/4);
         addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
     }
     // ok, free the helper now
