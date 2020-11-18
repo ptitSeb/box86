@@ -2097,7 +2097,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(d1);
             VQSUB_U16(d0, d0, d1);
             break;
-
+        case 0xDA:
+            INST_NAME("PMINUB Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VMIN_U8(d0, d0, d1);
+            break;
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;
@@ -2119,7 +2125,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(d1);
             VQADD_U16(d0, d0, d1);
             break;
-
+        case 0xDE:
+            INST_NAME("PMAXUB Gm, Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VMAX_U8(d0, d0, d1);
+            break;
          case 0xDF:
             INST_NAME("PANDN Gm, Em");
             nextop = F8;
@@ -2211,7 +2223,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VQADD_S16(d0, d0, d1);
             break;
         case 0xEE:
-            INST_NAME("PMAXPS Gm, Em");
+            INST_NAME("PMAXSW Gm, Em");
             nextop = F8;
             GETGM(d0);
             GETEM(d1);

@@ -1126,7 +1126,12 @@
                 GM.uw[i] = (tmp32s < 0) ? 0 : tmp32s;
             }
             NEXT;
-
+        _0f_0xDA:                   /* PMINUB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<8; ++i)
+                GM.ub[i] = (GM.ub[i]<EM->ub[i])?GM.ub[i]:EM->ub[i];
+            NEXT;
         _0f_0xDB:                   /* PAND Gm,Em */
             nextop = F8;
             GET_EM;
@@ -1148,7 +1153,12 @@
                 GM.uw[i] = (tmp32u>65535) ? 65535 : tmp32u;
             }
             NEXT;
-
+        _0f_0xDE:                   /* PMAXUB Gm,Em */
+            nextop = F8;
+            GET_EM;
+            for (int i=0; i<8; ++i)
+                GM.ub[i] = (GM.ub[i]>EM->ub[i])?GM.ub[i]:EM->ub[i];
+            NEXT;
         _0f_0xDF:                   /* PANDN Gm,Em */
             nextop = F8;
             GET_EM;
