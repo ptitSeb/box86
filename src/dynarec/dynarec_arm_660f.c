@@ -334,6 +334,37 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VSUBQ_16(q0, q0, v1);
                     break;
 
+                case 0x08:
+                    INST_NAME("PSIGNB Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ_8(v1, 0b10000000);  // mask sign bit
+                    VANDQ(v1, v1, q1);  // extract bit sign
+                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    break;
+                case 0x09:
+                    INST_NAME("PSIGNW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ_H16(v1, 0b10000000);  // mask sign bit
+                    VANDQ(v1, v1, q1);  // extract bit sign
+                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0);
+                    GETEX(q1);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ_H32(v1, 0b10000000);  // mask sign bit
+                    VANDQ(v1, v1, q1);  // extract bit sign
+                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    break;
+
                 case 0x0B:
                     INST_NAME("PMULHRSW Gx,Ex");
                     nextop = F8;
