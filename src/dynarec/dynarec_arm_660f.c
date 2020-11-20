@@ -1598,7 +1598,17 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VRHADDQ_U16(v0, v0, q0);
             break;
-
+        case 0xE4:
+            INST_NAME("PMULHUW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            q0 = fpu_get_scratch_quad(dyn);
+            VMULL_U32_U16(q0, v0, v1);
+            VSHRN_32(v0, q0, 16);
+            VMULL_U32_U16(q0, v0+1, v1+1);
+            VSHRN_32(v0+1, q0, 16);
+            break;
         case 0xE5:
             INST_NAME("PMULHW Gx,Ex");
             nextop = F8;
@@ -1653,7 +1663,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VQSUBQ_S16(v0, v0, q0);
             break;
-
+        case 0xEA:
+            INST_NAME("PMINSW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VMIN_S16(v0, v0, q0);
+            break;
         case 0xEB:
             INST_NAME("POR Gx,Ex");
             nextop = F8;
@@ -1675,7 +1691,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q0);
             VQADDQ_S16(v0, v0, q0);
             break;
-
+        case 0xEE:
+            INST_NAME("PMAXSW Gx,Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(q0);
+            VMIN_S16(v0, v0, q0);
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
