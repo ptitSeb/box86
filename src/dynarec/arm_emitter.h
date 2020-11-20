@@ -1165,4 +1165,14 @@ Op is 20-27
 // Dd <= Dup(Dm[x])
 #define VDUP_32(Dd, Dm, x)      EMIT(VDUP_sgen(((Dd)>>4)&1, (((x)<<3)|0b100), (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
 
+#define VABS_vgen(D, size, Vd, F, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b01<<16 | (Vd)<<12 | (F)<<10 | 0b110<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VABS_S32(Dd, Dm)        EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VABS_S16(Dd, Dm)        EMIT(VABS_vgen(((Dd)>>4)&1, 1, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VABS_S8(Dd, Dm)         EMIT(VABS_vgen(((Dd)>>4)&1, 0, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VABS_F(Dd, Dm)          EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 1, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VABSQ_S32(Dd, Dm)       EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VABSQ_S16(Dd, Dm)       EMIT(VABS_vgen(((Dd)>>4)&1, 1, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VABSQ_S8(Dd, Dm)        EMIT(VABS_vgen(((Dd)>>4)&1, 0, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VABSQ_F(Dd, Dm)         EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #endif  //__ARM_EMITTER_H__
