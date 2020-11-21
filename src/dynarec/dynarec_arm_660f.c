@@ -385,7 +385,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     gd = (nextop&0x38)>>3;
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     GETEX(q1);
-                    VABS_S8(q0, q1);
+                    VABSQ_S8(q0, q1);
                     break;
                 case 0x1D:
                     INST_NAME("PABSW Gx,Ex");
@@ -393,7 +393,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     gd = (nextop&0x38)>>3;
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     GETEX(q1);
-                    VABS_S16(q0, q1);
+                    VABSQ_S16(q0, q1);
                     break;
                 case 0x1E:
                     INST_NAME("PABSD Gx,Ex");
@@ -401,7 +401,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     gd = (nextop&0x38)>>3;
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     GETEX(q1);
-                    VABS_S32(q0, q1);
+                    VABSQ_S32(q0, q1);
                     break;
                 default:
                     DEFAULT;
