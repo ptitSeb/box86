@@ -776,6 +776,14 @@ Op is 20-27
 #define VCEQ_F32(Dd, Dn, Dm)    EMIT(VCEQ_F_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQQ_F32(Dd, Dn, Dm)   EMIT(VCEQ_F_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VCEQ_0_gen(D, size, Vd, F, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b01<<16 | (Vd)<<12 | (F)<<10 | 0b010<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VCEQ_0_8(Dd, Dm)        EMIT(VCEQ_0_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQ_0_16(Dd, Dm)       EMIT(VCEQ_0_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQ_0_32(Dd, Dm)       EMIT(VCEQ_0_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQQ_0_8(Dd, Dm)       EMIT(VCEQ_0_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQQ_0_16(Dd, Dm)      EMIT(VCEQ_0_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCEQQ_0_32(Dd, Dm)      EMIT(VCEQ_0_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+
 #define VCGT_I_gen(U, D, size, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b0011<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VCGT_U8(Dd, Dn, Dm)     EMIT(VCGT_I_gen(1, ((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCGTQ_U8(Dd, Dn, Dm)    EMIT(VCGT_I_gen(1, ((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))

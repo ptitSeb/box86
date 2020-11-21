@@ -343,6 +343,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVQ_8(v1, 0b10000000);  // mask sign bit
                     VANDQ(v1, v1, q1);  // extract bit sign
                     VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    VCEQQ_0_8(v1, q1);  // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
                     break;
                 case 0x09:
                     INST_NAME("PSIGNW Gx, Ex");
@@ -353,6 +355,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVQ_H16(v1, 0b10000000);  // mask sign bit
                     VANDQ(v1, v1, q1);  // extract bit sign
                     VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    VCEQQ_0_16(v1, q1); // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
                     break;
                 case 0x0A:
                     INST_NAME("PSIGND Gx, Ex");
@@ -363,6 +367,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVQ_H32(v1, 0b10000000);  // mask sign bit
                     VANDQ(v1, v1, q1);  // extract bit sign
                     VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    VCEQQ_0_32(v1, q1); // handle case where Ex is 0
+                    VBICQ(q0, q0, v1);
                     break;
 
                 case 0x0B:
