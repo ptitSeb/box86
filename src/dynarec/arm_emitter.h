@@ -809,6 +809,15 @@ Op is 20-27
 #define VCGE_F32(Dd, Dn, Dm)    EMIT(VCGE_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCGEQ_F32(Dd, Dn, Dm)   EMIT(VCGE_F_gen(((Dd)>>4)&1, 0, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 
+#define VCLT_0_gen(D, size, Vd, F, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b01<<16 | (Vd)<<12 | (F)<<10 | 0b100<<7 | (Q)<<6 | (M)<<5 | (Vm))
+#define VCLT_0_8(Dd, Dm)        EMIT(VCLT_0_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCLT_0_16(Dd, Dm)       EMIT(VCLT_0_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCLT_0_32(Dd, Dm)       EMIT(VCLT_0_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VCLTQ_0_8(Dd, Dm)       EMIT(VCLT_0_gen(((Dd)>>4)&1, 0, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCLTQ_0_16(Dd, Dm)      EMIT(VCLT_0_gen(((Dd)>>4)&1, 1, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+#define VCLTQ_0_32(Dd, Dm)      EMIT(VCLT_0_gen(((Dd)>>4)&1, 2, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
+
+
 #define VSHR_gen(U, D, imm6, Vd, L, Q, M, Vm) (0b1111<<28 | 0b001<<25 | (U)<<24 | 1<<23 | (D)<<22 | (imm6)<<16 | (Vd)<<12 | (L)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VSHR_U8(Dd, Dm, imm3)    EMIT(VSHR_gen(1, ((Dd)>>4)&1, 0b001<<3 | (8-(imm3)), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VSHR_S8(Dd, Dm, imm3)    EMIT(VSHR_gen(0, ((Dd)>>4)&1, 0b001<<3 | (8-(imm3)), (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))

@@ -340,10 +340,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     GETGX(q0);
                     GETEX(q1);
                     v1 = fpu_get_scratch_quad(dyn);
-                    VMOVQ_8(v1, 0b10000000);  // mask sign bit
-                    VANDQ(v1, v1, q1);  // extract bit sign
-                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
-                    VCEQQ_0_8(v1, q1);  // handle case where Ex is 0
+                    v0 = fpu_get_scratch_quad(dyn);
+                    VNEGNQ_8(v0, q0);  // get NEG
+                    VCLTQ_0_8(v1, q1); // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
+                    VCEQQ_0_8(v1, q1); // handle case where Ex is 0
                     VBICQ(q0, q0, v1);
                     break;
                 case 0x09:
@@ -352,9 +355,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     GETGX(q0);
                     GETEX(q1);
                     v1 = fpu_get_scratch_quad(dyn);
-                    VMOVQ_H16(v1, 0b10000000);  // mask sign bit
-                    VANDQ(v1, v1, q1);  // extract bit sign
-                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    v0 = fpu_get_scratch_quad(dyn);
+                    VNEGNQ_16(v0, q0);  // get NEG
+                    VCLTQ_0_16(v1, q1); // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
                     VCEQQ_0_16(v1, q1); // handle case where Ex is 0
                     VBICQ(q0, q0, v1);
                     break;
@@ -364,9 +370,12 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     GETGX(q0);
                     GETEX(q1);
                     v1 = fpu_get_scratch_quad(dyn);
-                    VMOVQ_H32(v1, 0b10000000);  // mask sign bit
-                    VANDQ(v1, v1, q1);  // extract bit sign
-                    VEORQ(q0, q0, v1);  // change sign if bit sign is there, don't touch if not
+                    v0 = fpu_get_scratch_quad(dyn);
+                    VNEGNQ_32(v0, q0);  // get NEG
+                    VCLTQ_0_32(v1, q1); // calculate mask
+                    VBICQ(q0, q0, v1);  // apply not mask on dest
+                    VANDQ(v0, v0, v1);  // apply mask on src
+                    VORRQ(q0, q0, v0);  // merge
                     VCEQQ_0_32(v1, q1); // handle case where Ex is 0
                     VBICQ(q0, q0, v1);
                     break;
