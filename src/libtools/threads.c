@@ -216,7 +216,16 @@ static void* pthread_routine(void* p)
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
 	et->emu->type = EMUTYPE_MAIN;
-	void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
+	// setup callstack and run...
+	x86emu_t* emu = et->emu;
+    R_ESP -= 4;
+	uint32_t *sp = (uint32_t*)R_ESP;
+	*sp = (uintptr_t)et->arg;
+	PushExit(emu);
+	R_EIP = et->fnc;
+	DynaRun(et->emu);
+	void* ret = (void*)R_EAX;
+	//void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 	return ret;
 }
 
