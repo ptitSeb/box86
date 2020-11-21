@@ -453,8 +453,6 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
     kh_destroy(dynablocks, dynablocks->blocks);
     dynablocks->blocks = NULL;
     dynablocks->direct = direct;
-    // unlock
-    pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
     // move the one that doesn't fit to other dynablocks
     // first check if everything can be moved
     int ok = 1;
@@ -494,11 +492,9 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
         );
         kh_destroy(dynablocks, blocks);
     } else {
-        pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
         dynablocks->blocks = blocks;
         dynarec_log(LOG_DEBUG, "Cannot convert dynablocks(%p) to pure direct\n", (void*)dynablocks->text);
     }
-
 }
 
 // a block is 4096 byte, so get a low magic size or no block will get "direct" treatment
@@ -546,15 +542,18 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         return block;
     
     // Lock as write now!
-    if(dynablocks->blocks)
+    int need_unlock = 0;
+    if(dynablocks->blocks) {
         pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
+        need_unlock = 1;
+    }
     // create and add new block
     dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
         block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
     } else {
         if(dynablocks->textsz && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
-            if(dynablocks->blocks)
+            if(need_unlock)
                 pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
             //*created = 0;
@@ -566,7 +565,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
             // Ooops, block is already there? retreive it and bail out
             dynarec_log(LOG_DUMP, "Block already exist in Hash Map\n");
             block = kh_value(dynablocks->blocks, k);    
-            if(dynablocks->blocks)
+            if(need_unlock)
                 pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
             *created = 0;
             return block;
@@ -582,7 +581,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
         block->marks = kh_init(mark);
 
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
-    if(dynablocks->blocks)
+    if(need_unlock)
         pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
 
     *created = 1;
