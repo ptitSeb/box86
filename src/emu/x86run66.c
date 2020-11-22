@@ -473,6 +473,32 @@ void RunLock(x86emu_t *emu)
                     nextop = F8;
                     GET_ED;
 #ifdef DYNAREC
+                    if(((uintptr_t)ED)&7) {
+                        // unaligned!!!
+                        uint64_t ref = R_EDX;
+                        ref = ref<<32 | R_EAX;
+                        void* p = (void*)(((uintptr_t)ED + 3)&~3);
+                        int d = (((uintptr_t)p - (uintptr_t)ED))*8;
+                        do {
+                            uint64_t m = *(uint64_t*)ED;
+                            m&=~((0xffffffffLL)<<d);
+                            tmp32u = arm_lock_read_d(p);
+                            m|=((uint64_t)tmp32u)<<d;
+                            if(ref == m) {
+                                SET_FLAG(F_ZF);
+                                m = ((uint64_t)R_ECX)<<32 | R_EBX;
+                                tmp32u2 = m>>d;
+                                tmp32s = arm_lock_write_d(p, tmp32u2);
+                                if(!tmp32s)
+                                    *(uint64_t*)ED = m;
+                            } else {
+                                CLEAR_FLAG(F_ZF);
+                                R_EAX = m&0xffffffff;
+                                R_EDX = m>>32;
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+                    } else
                     do {
                         arm_lock_read_dd(&tmp32u, &tmp32u2, ED);
                         if(R_EAX == tmp32u && R_EDX == tmp32u2) {
