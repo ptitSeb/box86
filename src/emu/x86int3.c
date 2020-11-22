@@ -1,3 +1,5 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#include <dlfcn.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,7 +91,13 @@ void x86Int3(x86emu_t* emu)
                 int post = 0;
                 int perr = 0;
                 uint32_t *pu32 = NULL;
-                const char *s = GetNativeName((void*)addr);
+                const char *s = NULL;
+                {
+                    Dl_info info;
+                    if(dladdr((void*)addr, &info))
+                        s = info.dli_sname;
+                }
+                if(!s) s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
                 } else

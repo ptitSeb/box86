@@ -57,15 +57,15 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
 const char* GetNativeName(void* p)
 {
     static char unknown[10] = "???";
-    const char *ret = GetNameOffset(my_context->maplib, p);
-    if(ret)
-        return ret;
 
     static char buff[500] = {0};
     Dl_info info;
-    if(dladdr(p, &info)==0)
+    if(dladdr(p, &info)==0) {
+        const char *ret = GetNameOffset(my_context->maplib, p);
+        if(ret)
+            return ret;
         return unknown;
-    else {
+    } else {
         if(info.dli_sname) {
             strcpy(buff, info.dli_sname);
             if(info.dli_fname) {
