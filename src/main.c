@@ -914,12 +914,12 @@ int main(int argc, const char **argv, const char **env) {
     }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch natively instead\n", my_context->argv[0]);
         fclose(f);
         free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
-        return -1;
+        return execvp(argv[1], (char * const*)(argv+1));
     }
     AddElfHeader(my_context, elf_header);
 
