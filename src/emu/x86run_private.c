@@ -745,10 +745,6 @@ void UnpackFlags(x86emu_t* emu)
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg)
 {
     if(!emu->segs_clean[seg] || seg==_GS) {
-if(emu->segs[seg]>0x100) {
-printf_log(LOG_NONE, "Warning, suspicious Seg: emu=%p, seg=%d, emu->segs[]=0x%x\n", emu, seg, emu->segs[seg]);
-exit(-1);
-}
         emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu->segs[seg]);
         emu->segs_clean[seg] = 1;
     }
