@@ -1017,7 +1017,7 @@ int main(int argc, const char **argv, const char **env) {
     setupTrace(my_context);
     // get entrypoint
     my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
-#ifdef RPI
+#if defined(RPI) || defined(RK3399)
     // before launching emulation, let's check if this is a mojosetup from GOG
     if (((strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
        && getenv("GTK2_RC_FILES")) {
