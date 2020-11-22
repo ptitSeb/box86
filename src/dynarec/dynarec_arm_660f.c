@@ -1739,7 +1739,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0);
             GETEX(q0);
-            VMIN_S16(v0, v0, q0);
+            VMINQ_S16(v0, v0, q0);
             break;
         case 0xEB:
             INST_NAME("POR Gx,Ex");
@@ -1767,7 +1767,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0);
             GETEX(q0);
-            VMAX_S16(v0, v0, q0);
+            VMAXQ_S16(v0, v0, q0);
             break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
