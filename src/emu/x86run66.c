@@ -859,6 +859,29 @@ void RunFS(x86emu_t *emu)
     int32_t tmp32s;
     uintptr_t tlsdata = GetFSBaseEmu(emu);
     switch(opcode) {
+        case 0x01:              /* ADD FS:Ed, Gd */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            ED->dword[0] = add32(emu, ED->dword[0], GD.dword[0]);
+            break;
+
+        case 0x03:              /* ADD Gd, FS:Ed */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            GD.dword[0] = add32(emu, GD.dword[0], ED->dword[0]);
+            break;
+
+        case 0x11:              /* ADC FS:Ed, Gd */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            ED->dword[0] = adc32(emu, ED->dword[0], GD.dword[0]);
+        
+        case 0x2B:              /* SUB Gd, FS:Ed */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            GD.dword[0] = sub32(emu, GD.dword[0], ED->dword[0]);
+            break;
+
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
