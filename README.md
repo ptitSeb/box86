@@ -91,7 +91,7 @@ A note about Steam
 ----
 
 Linux Steam can run now with box86. But it's still a bit unstable., and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
-Once open, Steam will only work on "Small mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
+Once open, Steam will only work on "Small mode" and in "Big Picture", not in the regular "Browser mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
 Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
 (Steam for Windows install fine but doesn't work yet)
 
@@ -101,6 +101,7 @@ A note about Wine
 ----
 
 Wine is now partly supported. Wine integreted program all runs, annd some windows program and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
+A not if you plan to use box86 with wine on Raspberry PI 3 or earlier: those model use a default OS that have a kernle with a 2/2 Split (meaning 2G of space for user program, and 2G of space for Kernel). This is not compatible with wine, that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find tutos on how to do that.
 
 ----
 
