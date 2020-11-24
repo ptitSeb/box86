@@ -117,8 +117,10 @@ void arm_fbld(x86emu_t* emu, uint8_t* ed)
 
 void arm_fild64(x86emu_t* emu, int64_t* ed)
 {
-    ST0.d = *ed;
-    STll(0).ll = *ed;
+    int64_t tmp;
+    memcpy(&tmp, ed, sizeof(tmp));
+    ST0.d = tmp;
+    STll(0).ll = tmp;
     STll(0).ref = ST0.ll;
 }
 
