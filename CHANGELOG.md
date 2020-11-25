@@ -1,11 +1,16 @@
 Current version
 ======
-* Changes in Dynarec to make flags optimizations before CALL or before RET less aggressive
-* A few more Dynarec opcodes added
+* Changes in Dynarec to make flags optimizations before CALL and RET opcode less aggressive
 * Added Vulkan wrapper
-* Improved wrapping of SDL_mixer lib
-* If winedbg is tried to be launched, exit without launching it (it doesn't work anyway)
+* Improved wrapping of SDL_mixer/ SDL2_mixer lib
+* Improved wrapping of some gtk structures
+* Added a quick and dirty wrapping of Gtk3 (based on current gtk2)
+* Improved the signal handling, should be more stable now (the signal handler from syscall still need some works)
+* Added RK3399 profile, and some hints to build the 32bits box86 on 64bits OS
 * Fixed some wrapped printf formating not handled correctly
+* Fixed some buserror with the new LOCK mecanism handling
+* A few more Dynarec opcodes added
+* If winedbg is tried to be launched, exit without launching it (it doesn't work anyway)
 
 v0.1.4
 ======
