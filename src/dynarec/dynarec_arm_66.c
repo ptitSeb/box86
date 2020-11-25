@@ -339,6 +339,36 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             POP16(x1, xESP);
             BFI(xEAX+(opcode&7), x1, 0, 16);
             break;
+        case 0x60:
+            INST_NAME("PUSHA");
+            MOV_REG(x1, xESP);
+            PUSH16(xEAX, xESP);
+            PUSH16(xECX, xESP);
+            PUSH16(xEDX, xESP);
+            PUSH16(xEBX, xESP);
+            PUSH16(x1, xESP);
+            PUSH16(xEBP, xESP);
+            PUSH16(xESI, xESP);
+            PUSH16(xEDI, xESP);
+            break;
+        case 0x61:
+            INST_NAME("POPA");
+            POP16(x1, xESP);
+            BFI(xEDI, x1, 0, 16);
+            POP16(x1, xESP);
+            BFI(xESI, x1, 0, 16);
+            POP16(x1, xESP);
+            BFI(xEBP, x1, 0, 16);
+            ADD_IMM8(xESP, xESP, 2);    //POP16(xESP, xESP);
+            POP16(x1, xESP);
+            BFI(xEBX, x1, 0, 16);
+            POP16(x1, xESP);
+            BFI(xEDX, x1, 0, 16);
+            POP16(x1, xESP);
+            BFI(xECX, x1, 0, 16);
+            POP16(x1, xESP);
+            BFI(xEAX, x1, 0, 16);
+            break;
 
         case 0x68:
             INST_NAME("PUSH Iw");
