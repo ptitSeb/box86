@@ -325,8 +325,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x56:
         case 0x57:
             INST_NAME("PUSH Reg16");
-            SUB_IMM8(xESP, xESP, 2);
-            STRH_IMM8(xEAX+(opcode&7), xESP, 0);    //TODO: use a single STRH pre-decrement instruction
+            PUSH16(xEAX+(opcode&7), xESP);
             break;
         case 0x58:
         case 0x59:
@@ -337,9 +336,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x5E:
         case 0x5F:
             INST_NAME("POP Reg16");
-            LDRH_IMM8(x1, xESP, 0);     //TODO: use a single LDRH post-increment instruction
+            POP16(x1, xESP);
             BFI(xEAX+(opcode&7), x1, 0, 16);
-            ADD_IMM8(xESP, xESP, 2);
             break;
 
         case 0x68:
