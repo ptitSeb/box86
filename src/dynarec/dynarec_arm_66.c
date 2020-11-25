@@ -344,8 +344,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH Iw");
             u16 = F16;
             MOVW(x2, u16);
-            SUB_IMM8(xESP, xESP, 2);
-            STRH_IMM8(x2, xESP, 0);
+            PUSH16(x2, xESP);
             break;
         case 0x69:
             INST_NAME("IMUL Gw,Ew,Iw");
@@ -363,8 +362,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH Ib");
             i16 = F8S;
             MOVW(x2, i16);
-            SUB_IMM8(xESP, xESP, 2);
-            STRH_IMM8(x2, xESP, 0);
+            PUSH16(x2, xESP);
             break;
         case 0x6B:
             INST_NAME("IMUL Gw,Ew,Ib");
