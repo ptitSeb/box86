@@ -1,4 +1,4 @@
-Current version
+v0.1.6
 ======
 * Changes in Dynarec to make flags optimizations before CALL and RET opcode less aggressive
 * Added Vulkan wrapper
