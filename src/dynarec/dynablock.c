@@ -168,8 +168,8 @@ void MarkDynablock(dynablock_t* db)
             );
             // free mark
             kh_clear(mark, db->marks);
+            db->need_test = 1;  // test only blocks that can be marked (and so deleted)
         }
-        db->need_test = 1;
     }
 }
 
@@ -236,12 +236,14 @@ void MarkDynablockList(dynablocklist_t** dynablocks)
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            MarkDynablock((*dynablocks)->direct[i]);
+            db = (*dynablocks)->direct[i];
+            if(db)
+                MarkDynablock(db);
         }
     }
 }
 
-void ProtectkDynablockList(dynablocklist_t** dynablocks)
+void ProtectDynablockList(dynablocklist_t** dynablocks)
 {
     if(!dynablocks)
         return;
@@ -256,7 +258,9 @@ void ProtectkDynablockList(dynablocklist_t** dynablocks)
     }
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            ProtectDynablock((*dynablocks)->direct[i]);
+            db = (*dynablocks)->direct[i];
+            if(db)
+                ProtectDynablock(db);
         }
     }
 }
@@ -270,7 +274,7 @@ uintptr_t StartDynablockList(dynablocklist_t* db)
 uintptr_t EndDynablockList(dynablocklist_t* db)
 {
     if(db)
-        return db->text+db->textsz;
+        return db->text+db->textsz-1;
     return 0;
 }
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
@@ -422,6 +426,15 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     if(my_context->dynablocks)
         ret = FindDynablockDynablocklist(addr, my_context->dynablocks);
     return ret;
+}
+
+static dynablocklist_t* getDBFromAddress(uintptr_t addr)
+{
+    int idx = (addr>>DYNAMAP_SHIFT);
+    if(!my_context->dynmap[idx]) {
+        return NULL;
+    }
+    return my_context->dynmap[idx]->dynablocks;
 }
 
 void ConvertHash2Direct(dynablocklist_t* dynablocks)
@@ -608,6 +621,8 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         }
     }
     // nope, lets do the long way
+    if(!dynablocks)
+        dynablocks = getDBFromAddress(addr);
     if(!dynablocks)
         dynablocks = GetDynablocksFromAddress(emu->context, addr);
     if(!dynablocks)

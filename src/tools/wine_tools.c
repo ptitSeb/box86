@@ -7,6 +7,7 @@
 
 #include "wine_tools.h"
 #include "debug.h"
+#include "box86context.h"
 
 typedef struct wine_prereserve_s
 {
@@ -87,3 +88,14 @@ void* get_wine_prereserve()
         wine_prereserve(NULL);
     return (void*)my_wine_reserve;
 }
+
+#ifdef DYNAREC
+void dynarec_wine_prereserve()
+{
+    if(!wine_preloaded)
+        wine_prereserve(NULL);
+    for(int i=0; i<sizeof(my_wine_reserve)/sizeof(my_wine_reserve[0]); ++i)
+        if(my_wine_reserve[i].addr && my_wine_reserve[i].size)
+            addDBFromAddressRange((uintptr_t)my_wine_reserve[i].addr, my_wine_reserve[i].size, 0);  // prepare the prereserved area for exec, with linker
+}
+#endif

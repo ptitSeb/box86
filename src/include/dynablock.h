@@ -14,7 +14,7 @@ void FreeDynablock(dynablock_t* db);
 void MarkDynablock(dynablock_t* db);
 void MarkDynablockList(dynablocklist_t** dynablocks);
 void ProtectDynablock(dynablock_t* db);
-void ProtectkDynablockList(dynablocklist_t** dynablocks);
+void ProtectDynablockList(dynablocklist_t** dynablocks);
 void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);

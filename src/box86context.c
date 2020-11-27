@@ -158,14 +158,6 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size)
 }
 
 // each dynmap is 64k of size
-dynablocklist_t* getDBFromAddress(uintptr_t addr)
-{
-    int idx = (addr>>DYNAMAP_SHIFT);
-    if(!my_context->dynmap[idx]) {
-        return NULL;
-    }
-    return my_context->dynmap[idx]->dynablocks;
-}
 
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
 {
@@ -176,8 +168,6 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
         if(!my_context->dynmap[i]) {
             my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
             my_context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
-        } else {
-            ProtectkDynablockList(&my_context->dynmap[i]->dynablocks);
         }
     }
 }

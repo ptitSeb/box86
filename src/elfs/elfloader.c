@@ -980,12 +980,11 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h)
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {
-    // this is one is fast, so start with that
-    dynablocklist_t* ret = getDBFromAddress(addr);
+    // if we are here, the there is not block in standard "space"
+    /*dynablocklist_t* ret = getDBFromAddress(addr);
     if(ret) {
         return ret;
-    }
-    // nope
+    }*/
     if(addr>0x100)
         if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) /*&& (*(uint8_t*)(addr-11))==0xCC*/) )
             return context->dynablocks;

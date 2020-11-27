@@ -570,6 +570,15 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
 }
+
+#ifdef DYNAREC
+static int hasDBFromAddress(uintptr_t addr)
+{
+    int idx = (addr>>DYNAMAP_SHIFT);
+    return my_context->dynmap[idx]?1:0;
+}
+#endif
+
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
@@ -585,7 +594,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
-    if(sig==SIGSEGV && addr && info->si_code == SEGV_ACCERR && getDBFromAddress((uintptr_t)addr)) {
+    if(sig==SIGSEGV && addr && info->si_code == SEGV_ACCERR && hasDBFromAddress((uintptr_t)addr)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;

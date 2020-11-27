@@ -984,6 +984,9 @@ int main(int argc, const char **argv, const char **env) {
             *(void**)wineinfo = get_wine_prereserve();
             printf_log(LOG_DEBUG, "WINE wine_main_preload_info found and updated\n");
         }
+        #ifdef DYNAREC
+        dynarec_wine_prereserve();
+        #endif
     }
     // pre-load lib if needed
     if(ld_preload.size) {

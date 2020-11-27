@@ -204,6 +204,8 @@ typedef struct box86context_s {
 #endif
 } box86context_t;
 
+extern box86context_t *my_context; // global context
+
 box86context_t *NewBox86Context(int argc);
 void FreeBox86Context(box86context_t** context);
 
@@ -218,7 +220,6 @@ int AddTLSPartition(box86context_t* context, int tlssize);
 uintptr_t AllocDynarecMap(int size, int nolinker);
 void FreeDynarecMap(uintptr_t addr, uint32_t size);
 
-dynablocklist_t* getDBFromAddress(uintptr_t addr);
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 

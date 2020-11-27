@@ -1493,6 +1493,14 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
 }
 EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
 
+#ifdef DYNAREC
+static int hasDBFromAddress(uintptr_t addr)
+{
+    int idx = (addr>>DYNAMAP_SHIFT);
+    return my_context->dynmap[idx]?1:0;
+}
+#endif
+
 EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
 {
     int ret = read(fd, buf, count);
@@ -1500,7 +1508,7 @@ EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
     if(ret!=count && ret>0) {
         // continue reading...
         void* p = buf+ret;
-        if(getDBFromAddress((uintptr_t)p)) {
+        if(hasDBFromAddress((uintptr_t)p)) {
             // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
             unprotectDB((uintptr_t)p, count-ret);
             int l;
@@ -2207,10 +2215,19 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
-        if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length, 1);
-        else
-            cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+        if(flags&0x100000 && addr!=ret)
+        {
+            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
+            // and responded with a different address, so ignore it
+        } else {
+            if(prot& PROT_EXEC)
+                addDBFromAddressRange((uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+            else
+                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+        }
+    } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
+        // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
+        addDBFromAddressRange((uintptr_t)addr, length, 0);
     }
     #endif
     return ret;
@@ -2223,10 +2240,19 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
-        if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)ret, length, 1);
-        else
-            cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+        if(flags&0x100000 && addr!=ret)
+        {
+            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
+            // and responded with a different address, so ignore it
+        } else {
+            if(prot& PROT_EXEC)
+                addDBFromAddressRange((uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+            else
+                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+        }
+    } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
+        // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
+        addDBFromAddressRange((uintptr_t)addr, length, 0);
     }
     #endif
     return ret;
