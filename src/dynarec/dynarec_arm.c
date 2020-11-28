@@ -227,7 +227,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
                         k=i2;
                 }
                 if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
-                    helper.insts[k].x86.barrier = 1;
+                    helper.insts[k].x86.barrier |= 1;
                 helper.insts[i].x86.jmp_insts = k;
             }
         }

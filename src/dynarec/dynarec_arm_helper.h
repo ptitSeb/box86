@@ -283,7 +283,7 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(dyn->state_flags!=SF_SET) {                      \
+    if(((A)!=X_PEND) && dyn->state_flags!=SF_SET) {     \
         if(dyn->state_flags!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \

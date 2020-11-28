@@ -40,7 +40,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     while(ok) {
         if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
-        if(dyn->insts && (dyn->insts[ninst].x86.barrier==1)) {
+        if(dyn->insts && (dyn->insts[ninst].x86.barrier&1)) {
             NEW_BARRIER_INST;
         }
         NEW_INST;
@@ -67,7 +67,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
             fpu_purgecache(dyn, ninst, x1, x2, x3);
-            if(dyn->insts[ninst+1].x86.barrier!=2)
+            if((dyn->insts[ninst+1].x86.barrier&2)!=2)
                 dyn->state_flags = 0;
         }
         if(!ok && !need_epilog && dyn->insts && (addr < (dyn->start+dyn->isize))) {
