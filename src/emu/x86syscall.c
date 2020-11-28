@@ -56,6 +56,9 @@ typedef struct x86_sigaction_s x86_sigaction_t;
 int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
 int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+#ifndef __NR_memfd_create
+int my_memfd_create(x86emu_t* emu, void* name, uint32_t flags);
+#endif
 
 #ifndef NOALIGN
 int my_epoll_create(x86emu_t* emu, int size);
@@ -219,6 +222,9 @@ scwrap_t syscallwrap[] = {
 #endif
 #ifdef __NR_getrandom
     { 355, __NR_getrandom, 3 },
+#endif
+#ifdef __NR_memfd_create
+    { 356, __NR_memfd_create, 2},
 #endif
 };
 
@@ -580,6 +586,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
             break;
 #endif
+#ifndef __NR_memfd_create
+        case 356:  // memfd_create
+            R_EAX = my_memfd_create(emu, (void*)R_EBX, R_ECX);
+            break;
+#endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -663,6 +674,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
 #ifndef __NR_getrandom
         case 355:  // getrandom
             return (uint32_t)my_getrandom(emu, p(4), u32(8), u32(12));
+#endif
+#ifndef __NR_memfd_create
+        case 356:  // memfd_create
+            return (uint32_t)my_memfd_create(emu, (void*)R_EBX, R_ECX);
 #endif
         default:
             printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);

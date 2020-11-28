@@ -2441,6 +2441,22 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
 }
 #endif
 
+#ifndef __NR_memfd_create
+#define MFD_CLOEXEC		    0x0001U
+#define MFD_ALLOW_SEALING	0x0002U
+EXPORT int my_memfd_create(x86emu_t* emu, void* name, uint32_t flags)
+{
+    // try to simulate that function
+    uint32_t fl = O_RDWR | O_CREAT;
+    if(flags&MFD_CLOEXEC)
+        fl |= O_CLOEXEC;
+    int tmp = shm_open(name, fl, S_IRWXU);
+    if(tmp<0) return -1;
+    shm_unlink(name);    // remove the shm file, but it will still exist because it's currently in use
+    return tmp;
+}
+#endif
+
 #ifndef GRND_RANDOM
 #define GRND_RANDOM	0x0002
 #endif
