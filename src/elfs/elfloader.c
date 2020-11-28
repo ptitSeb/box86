@@ -764,7 +764,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
                 printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
                 printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX86_LD_LIBRARY_PATH\n", rpath);
-                PrependPath(rpath, &box86->box86_ld_lib, 1);
+                PrependList(&box86->box86_ld_lib, rpath, 1);
             }
             if(rpath!=rpathref)
                 free(rpath);
