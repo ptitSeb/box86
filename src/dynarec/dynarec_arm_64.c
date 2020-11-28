@@ -255,6 +255,32 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             grab_fsdata(dyn, addr, ninst, x12);
             switch((nextop>>3)&7) {
+                case 2: // CALL Ed
+                    INST_NAME("CALL Ed");
+                    PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
+                        READFLAGS(X_PEND);          // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                    }
+                    if((nextop&0xC0)==0xC0) {   // reg
+                        MOV_REG(xEIP, xEAX+(nextop&7));
+                    } else {                    // mem
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        LDR_REG_LSL_IMM5(xEIP, ed, x12, 0);
+                    }
+                    BARRIER(1);
+                    BARRIER_NEXT(1);
+                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
+                        PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
+                    } else {
+                        PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
+                        *need_epilog = 0;
+                        *ok = 0;
+                        MOV32(x2, addr);
+                    }
+                    PUSH(xESP, 1<<x2);
+                    jump_to_linker(dyn, 0, xEIP, ninst);  // smart linker
+                    break;
                 case 6: // Push Ed
                     INST_NAME("PUSH FS:Ed");
                     if((nextop&0xC0)==0xC0) {   // reg
