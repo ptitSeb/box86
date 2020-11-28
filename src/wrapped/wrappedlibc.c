@@ -2406,6 +2406,41 @@ EXPORT void* my_malloc(unsigned long size)
 }
 #endif
 
+#ifdef PANDORA
+#define RENAME_NOREPLACE	(1 << 0)
+#define RENAME_EXCHANGE		(1 << 1)
+#define RENAME_WHITEOUT		(1 << 2)
+EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath, uint32_t flags)
+{
+    // simulate that function, but
+    if(flags&RENAME_NOREPLACE) {
+        if(FileExist(newpath, -1)) {
+            errno = EEXIST;
+            return -1;
+        }
+        flags &= ~RENAME_NOREPLACE;
+    }
+    if(!flags) return renameat(olddirfd, oldpath, newdirfd, newpath);
+    if(flags&RENAME_WHITEOUT) {
+        errno = EINVAL;
+        return -1;  // not handling that
+    }
+    if((flags&RENAME_EXCHANGE) && (olddirfd==-1) && (newdirfd==-1)) {
+        // cannot do atomically...
+        char* tmp = (char*)malloc(strlen(oldpath)+10); // create a temp intermediary
+        tmp = strcat(oldpath, ".tmp");
+        int ret = renameat(-1, oldpath, -1, tmp);
+        if(ret==-1) return -1;
+        ret = renameat(-1, newpath, -1, oldpath);
+        if(ret==-1) return -1;
+        ret = renameat(-1, tmp, -1, newpath);
+        free(tmp);
+        return ret;
+    }
+    return -1; // unknown flags
+}
+#endif
+
 #ifndef GRND_RANDOM
 #define GRND_RANDOM	0x0002
 #endif

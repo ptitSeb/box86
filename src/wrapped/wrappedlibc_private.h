@@ -1383,7 +1383,11 @@ GO(removexattr, iFpp)
 // remque
 GO(rename, iFpp)
 GO(renameat, iFipip)
+#ifdef PANDORA
+GOM(renameat2, iFipipu)
+#else
 GO(renameat2, iFipipu)
+#endif
 // _res // type B
 GOW(re_search, iFppiiip)
 GOW(re_search_2, iFppipiiipi)
