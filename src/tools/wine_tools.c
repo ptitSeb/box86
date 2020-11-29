@@ -92,10 +92,14 @@ void* get_wine_prereserve()
 #ifdef DYNAREC
 void dynarec_wine_prereserve()
 {
+    #if 0
+    // disable for now, as it brack some installer
     if(!wine_preloaded)
         wine_prereserve(NULL);
-    for(int i=0; i<sizeof(my_wine_reserve)/sizeof(my_wine_reserve[0]); ++i)
+    // don't reserve the initial arbritrary block as "with linker", it's not true
+    for(int i=1; i<sizeof(my_wine_reserve)/sizeof(my_wine_reserve[0]); ++i)
         if(my_wine_reserve[i].addr && my_wine_reserve[i].size)
             addDBFromAddressRange((uintptr_t)my_wine_reserve[i].addr, my_wine_reserve[i].size, 0);  // prepare the prereserved area for exec, with linker
+    #endif
 }
 #endif
