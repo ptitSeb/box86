@@ -168,8 +168,9 @@ void MarkDynablock(dynablock_t* db)
             );
             // free mark
             kh_clear(mark, db->marks);
-            db->need_test = 1;  // test only blocks that can be marked (and so deleted)
         }
+        if(db->nolinker)
+            db->need_test = 1;  // test only blocks that can be marked (and so deleted)
     }
 }
 
