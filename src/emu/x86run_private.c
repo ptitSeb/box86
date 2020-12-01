@@ -56,23 +56,24 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
 
 const char* GetNativeName(void* p)
 {
-    static char unknown[10] = "???";
-
     static char buff[500] = {0};
     Dl_info info;
     if(dladdr(p, &info)==0) {
         const char *ret = GetNameOffset(my_context->maplib, p);
         if(ret)
             return ret;
-        return unknown;
+        sprintf(buff, "%s(%p)", "???", p);
+        return buff;
     } else {
         if(info.dli_sname) {
             strcpy(buff, info.dli_sname);
             if(info.dli_fname) {
                 strcat(buff, " ("); strcat(buff, info.dli_fname); strcat(buff, ")");
             }
-        } else
-            return unknown;
+        } else {
+            sprintf(buff, "%s(%s/%p)", "???", info.dli_fname, p);
+            return buff;
+        }
     }
     return buff;
 }
