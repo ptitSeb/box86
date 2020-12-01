@@ -447,10 +447,10 @@ static void* find_xmlXPathFunction_Fct(void* fct)
 
 // xmlExternalEntityLoader
 #define GO(A)   \
-static uintptr_t my_xmlExternalEntityLoader_fct_##A = 0;                                \
-static void* my_xmlExternalEntityLoader_##A(void* a, void* b, void* c)                  \
-{                                                                                       \
-    return (void*)RunFunction(my_context, my_xmlHashScannerFull_fct_##A, 3, a, b, c);   \
+static uintptr_t my_xmlExternalEntityLoader_fct_##A = 0;                                    \
+static void* my_xmlExternalEntityLoader_##A(void* a, void* b, void* c)                      \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_xmlExternalEntityLoader_fct_##A, 3, a, b, c);  \
 }
 SUPER()
 #undef GO
