@@ -70,6 +70,9 @@ int box86_dynarec_trace = 0;
 #ifdef PANDORA
 int x11color16 = 0;
 #endif
+#ifdef RPI
+int box86_tokitori2 = 0;
+#endif
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
@@ -881,6 +884,13 @@ int main(int argc, const char **argv, const char **env) {
         free(my_context->argv[0]);
         my_context->argv[0] = strdup("./UnrealLinux.bin");
     }
+    #ifdef RPI
+    // special case for TokiTori 2+, that check if texture max size is > = 8192
+    if(strstr(prgname, "TokiTori2.bin.x86")==prgname) {
+        printf_log(LOG_INFO, "TokiTori 2+ detected, runtime patch to fix GPU non-power-of-two faillure\n");
+        box86_tokitori2 = 1;
+    }
+    #endif
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = strdup(argv[i+nextarg]);
@@ -959,6 +969,16 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
+    #ifdef RPI
+    if(box86_tokitori2) {
+        uint32_t *patch = (uint32_t*)0x85897f4;
+        if(*patch==0x2000) {
+            *patch = 0x1000;
+            printf_log(LOG_NONE, "Runtime patching the game\n");
+        } else
+            printf_log(LOG_NONE, "Cannot patch the game\n");
+    }
+    #endif
     // init x86 emu
     x86emu_t *emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
