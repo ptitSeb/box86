@@ -685,7 +685,7 @@ GO(xmlParseCtxtExternalEntity, iFpppp)
 GO(xmlParseDefaultDecl, iFpp)
 GO(xmlParseDoc, pFp)
 GO(xmlParseDocTypeDecl, iFpp)
-GO(xmlParseDocument, iFp)
+GOM(xmlParseDocument, iFEp)
 GO(xmlParseDTD, pFpp)
 GO(xmlParseElement, vFp)
 GO(xmlParseElementChildrenContentDecl, pFpi)
@@ -1604,3 +1604,8 @@ GO(xmlXPathWrapString, pFp)
 //GO(xmlXPtrNewRangePoints, 
 //GO(xmlXPtrRangeToFunction, 
 //GO(xmlXPtrWrapLocationSet, 
+
+DATAM(xmlFree, 4)
+DATAM(xmlMalloc, 4)
+DATAM(xmlRealloc, 4)
+DATAM(xmlMemStrdup, 4)

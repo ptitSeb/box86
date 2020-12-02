@@ -20,8 +20,10 @@ const char* xml2Name = "libxml2.so.2";
 #define LIBNAME xml2
 static library_t *my_lib = NULL;
 
+typedef int     (*iFv_t)        ();
 typedef void*   (*pFv_t)        ();
 typedef void    (*vFp_t)        (void*);
+typedef int     (*iFp_t)        (void*);
 typedef void*   (*pFpp_t)       (void*, void*);
 typedef void    (*vFpp_t)       (void*, void*);
 typedef int     (*iFppp_t)      (void*, void*, void*);
@@ -62,6 +64,42 @@ typedef void    (*vFpppppp_t)   (void*, void*, void*, void*, void*, void*);
     GO(xmlSetExternalEntityLoader, vFp_t)           \
     GO(xmlXPathRegisterFunc, iFppp_t)               \
     GO(xmlParserInputBufferCreateIO, pFpppi_t)      \
+    GO(xmlInitMemory, iFv_t)                        \
+    GO(xmlParseDocument, iFp_t)                     \
+
+EXPORT uintptr_t my_xmlFree = 0;
+EXPORT uintptr_t my_xmlMalloc = 0;
+EXPORT uintptr_t my_xmlRealloc = 0;
+EXPORT uintptr_t my_xmlMemStrdup = 0;
+
+void my_wrap_xmlFree(void* p)
+{
+    if(my_xmlFree)
+        RunFunction(my_context, my_xmlFree, 1, p);
+    else
+        free(p);
+}
+void* my_wrap_xmlMalloc(size_t s)
+{
+    if(my_xmlMalloc)
+        return (void*)RunFunction(my_context, my_xmlMalloc, 1, s);
+    else
+        return malloc(s);
+}
+void* my_wrap_xmlRealloc(void* p, size_t s)
+{
+    if(my_xmlRealloc)
+        return (void*)RunFunction(my_context, my_xmlRealloc, 2, p, s);
+    else
+        return realloc(p, s);
+}
+void* my_wrap_xmlMemStrdup(void* p)
+{
+    if(my_xmlMemStrdup)
+        return (void*)RunFunction(my_context, my_xmlMemStrdup, 1, p);
+    else
+        return strdup(p);
+}
 
 typedef struct xml2_my_s {
     // functions
@@ -75,6 +113,18 @@ void* getXml2My(library_t* lib)
     xml2_my_t* my = (xml2_my_t*)calloc(1, sizeof(xml2_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
+    #undef GO
+    void** p;
+    // wrap memory pointer
+    #define GO(A, W) \
+        p=dlsym(lib->priv.w.lib, #A);\
+        printf_log(LOG_DEBUG, "Wrapping %s=>%p(%p) from lixml2\n", #A, p, p?*p:NULL);\
+        my_##A = (p && *p)?AddBridge(lib->priv.w.bridge, W, *p, 0):0;\
+        if(p) *p = my_wrap_##A
+    GO(xmlFree, vFp);
+    GO(xmlMalloc, pFL);
+    GO(xmlRealloc, pFpL);
+    GO(xmlMemStrdup, pFp);
     #undef GO
     return my;
 }
@@ -90,7 +140,12 @@ GO(0)   \
 GO(1)   \
 GO(2)   \
 GO(3)   \
-GO(4)
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)
 
 // xmlHashCopier ...
 #define GO(A)   \
@@ -444,6 +499,600 @@ static void* find_xmlXPathFunction_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlXPathFunction callback\n");
     return NULL;
 }
+// internalSubsetSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_internalSubsetSAXFunc_fct_##A = 0;                          \
+static void my_internalSubsetSAXFunc_##A(void* a, void* b, void* c, void* d)    \
+{                                                                               \
+    RunFunction(my_context, my_internalSubsetSAXFunc_fct_##A, 4, a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_internalSubsetSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_internalSubsetSAXFunc_fct_##A == (uintptr_t)fct) return my_internalSubsetSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_internalSubsetSAXFunc_fct_##A == 0) {my_internalSubsetSAXFunc_fct_##A = (uintptr_t)fct; return my_internalSubsetSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 internalSubsetSAXFunc callback\n");
+    return NULL;
+}
+// isStandaloneSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_isStandaloneSAXFunc_fct_##A = 0;                        \
+static int my_isStandaloneSAXFunc_##A(void* a)                              \
+{                                                                           \
+    return RunFunction(my_context, my_isStandaloneSAXFunc_fct_##A, 1, a);   \
+}
+SUPER()
+#undef GO
+static void* find_isStandaloneSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_isStandaloneSAXFunc_fct_##A == (uintptr_t)fct) return my_isStandaloneSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_isStandaloneSAXFunc_fct_##A == 0) {my_isStandaloneSAXFunc_fct_##A = (uintptr_t)fct; return my_isStandaloneSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 isStandaloneSAXFunc callback\n");
+    return NULL;
+}
+// hasInternalSubsetSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_hasInternalSubsetSAXFunc_fct_##A = 0;                       \
+static int my_hasInternalSubsetSAXFunc_##A(void* a)                             \
+{                                                                               \
+    return RunFunction(my_context, my_hasInternalSubsetSAXFunc_fct_##A, 1, a);  \
+}
+SUPER()
+#undef GO
+static void* find_hasInternalSubsetSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_hasInternalSubsetSAXFunc_fct_##A == (uintptr_t)fct) return my_hasInternalSubsetSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_hasInternalSubsetSAXFunc_fct_##A == 0) {my_hasInternalSubsetSAXFunc_fct_##A = (uintptr_t)fct; return my_hasInternalSubsetSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 hasInternalSubsetSAXFunc callback\n");
+    return NULL;
+}
+// hasExternalSubsetSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_hasExternalSubsetSAXFunc_fct_##A = 0;                       \
+static int my_hasExternalSubsetSAXFunc_##A(void* a)                             \
+{                                                                               \
+    return RunFunction(my_context, my_hasExternalSubsetSAXFunc_fct_##A, 1, a);  \
+}
+SUPER()
+#undef GO
+static void* find_hasExternalSubsetSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_hasExternalSubsetSAXFunc_fct_##A == (uintptr_t)fct) return my_hasExternalSubsetSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_hasExternalSubsetSAXFunc_fct_##A == 0) {my_hasExternalSubsetSAXFunc_fct_##A = (uintptr_t)fct; return my_hasExternalSubsetSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 hasExternalSubsetSAXFunc callback\n");
+    return NULL;
+}
+// resolveEntitySAXFunc ...
+#define GO(A)   \
+static uintptr_t my_resolveEntitySAXFunc_fct_##A = 0;                                   \
+static void* my_resolveEntitySAXFunc_##A(void* a, void* b, void* c)                     \
+{                                                                                       \
+    return (void*)RunFunction(my_context, my_resolveEntitySAXFunc_fct_##A, 3, a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_resolveEntitySAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_resolveEntitySAXFunc_fct_##A == (uintptr_t)fct) return my_resolveEntitySAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_resolveEntitySAXFunc_fct_##A == 0) {my_resolveEntitySAXFunc_fct_##A = (uintptr_t)fct; return my_resolveEntitySAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 resolveEntitySAXFunc callback\n");
+    return NULL;
+}
+// getEntitySAXFunc ...
+#define GO(A)   \
+static uintptr_t my_getEntitySAXFunc_fct_##A = 0;                                   \
+static void* my_getEntitySAXFunc_##A(void* a, void* b)                              \
+{                                                                                   \
+    return (void*)RunFunction(my_context, my_getEntitySAXFunc_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* find_getEntitySAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_getEntitySAXFunc_fct_##A == (uintptr_t)fct) return my_getEntitySAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_getEntitySAXFunc_fct_##A == 0) {my_getEntitySAXFunc_fct_##A = (uintptr_t)fct; return my_getEntitySAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 getEntitySAXFunc callback\n");
+    return NULL;
+}
+// entityDeclSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_entityDeclSAXFunc_fct_##A = 0;                                      \
+static void my_entityDeclSAXFunc_##A(void* a, void* b, int c, void* d, void* e, void* f)\
+{                                                                                       \
+    RunFunction(my_context, my_entityDeclSAXFunc_fct_##A, 6, a, b, c, d, e, f);         \
+}
+SUPER()
+#undef GO
+static void* find_entityDeclSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_entityDeclSAXFunc_fct_##A == (uintptr_t)fct) return my_entityDeclSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_entityDeclSAXFunc_fct_##A == 0) {my_entityDeclSAXFunc_fct_##A = (uintptr_t)fct; return my_entityDeclSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 entityDeclSAXFunc callback\n");
+    return NULL;
+}
+// notationDeclSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_notationDeclSAXFunc_fct_##A = 0;                        \
+static void my_notationDeclSAXFunc_##A(void* a, void* b, void* c, void* d)  \
+{                                                                           \
+    RunFunction(my_context, my_notationDeclSAXFunc_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_notationDeclSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_notationDeclSAXFunc_fct_##A == (uintptr_t)fct) return my_notationDeclSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_notationDeclSAXFunc_fct_##A == 0) {my_notationDeclSAXFunc_fct_##A = (uintptr_t)fct; return my_notationDeclSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 notationDeclSAXFunc callback\n");
+    return NULL;
+}
+// attributeDeclSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_attributeDeclSAXFunc_fct_##A = 0;                                               \
+static void my_attributeDeclSAXFunc_##A(void* a, void* b, void* c, int d, int e, void* f, void* g)  \
+{                                                                                                   \
+    RunFunction(my_context, my_attributeDeclSAXFunc_fct_##A, 7, a, b, c, d, e, f, g);               \
+}
+SUPER()
+#undef GO
+static void* find_attributeDeclSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_attributeDeclSAXFunc_fct_##A == (uintptr_t)fct) return my_attributeDeclSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_attributeDeclSAXFunc_fct_##A == 0) {my_attributeDeclSAXFunc_fct_##A = (uintptr_t)fct; return my_attributeDeclSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 attributeDeclSAXFunc callback\n");
+    return NULL;
+}
+// elementDeclSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_elementDeclSAXFunc_fct_##A = 0;                         \
+static void my_elementDeclSAXFunc_##A(void* a, void* b, int c, void* d)     \
+{                                                                           \
+    RunFunction(my_context, my_elementDeclSAXFunc_fct_##A, 4, a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_elementDeclSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_elementDeclSAXFunc_fct_##A == (uintptr_t)fct) return my_elementDeclSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_elementDeclSAXFunc_fct_##A == 0) {my_elementDeclSAXFunc_fct_##A = (uintptr_t)fct; return my_elementDeclSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 elementDeclSAXFunc callback\n");
+    return NULL;
+}
+// unparsedEntityDeclSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_unparsedEntityDeclSAXFunc_fct_##A = 0;                                  \
+static void my_unparsedEntityDeclSAXFunc_##A(void* a, void* b, void* c, void* d, void* e)   \
+{                                                                                           \
+    RunFunction(my_context, my_unparsedEntityDeclSAXFunc_fct_##A, 5, a, b, c, d, e);        \
+}
+SUPER()
+#undef GO
+static void* find_unparsedEntityDeclSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_unparsedEntityDeclSAXFunc_fct_##A == (uintptr_t)fct) return my_unparsedEntityDeclSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_unparsedEntityDeclSAXFunc_fct_##A == 0) {my_unparsedEntityDeclSAXFunc_fct_##A = (uintptr_t)fct; return my_unparsedEntityDeclSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 unparsedEntityDeclSAXFunc callback\n");
+    return NULL;
+}
+// setDocumentLocatorSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_setDocumentLocatorSAXFunc_fct_##A = 0;                  \
+static void my_setDocumentLocatorSAXFunc_##A(void* a, void* b)              \
+{                                                                           \
+    RunFunction(my_context, my_setDocumentLocatorSAXFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_setDocumentLocatorSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_setDocumentLocatorSAXFunc_fct_##A == (uintptr_t)fct) return my_setDocumentLocatorSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_setDocumentLocatorSAXFunc_fct_##A == 0) {my_setDocumentLocatorSAXFunc_fct_##A = (uintptr_t)fct; return my_setDocumentLocatorSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 setDocumentLocatorSAXFunc callback\n");
+    return NULL;
+}
+// startDocumentSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_startDocumentSAXFunc_fct_##A = 0;               \
+static void my_startDocumentSAXFunc_##A(void* a)                    \
+{                                                                   \
+    RunFunction(my_context, my_startDocumentSAXFunc_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_startDocumentSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_startDocumentSAXFunc_fct_##A == (uintptr_t)fct) return my_startDocumentSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_startDocumentSAXFunc_fct_##A == 0) {my_startDocumentSAXFunc_fct_##A = (uintptr_t)fct; return my_startDocumentSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 startDocumentSAXFunc callback\n");
+    return NULL;
+}
+// endDocumentSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_endDocumentSAXFunc_fct_##A = 0;               \
+static void my_endDocumentSAXFunc_##A(void* a)                    \
+{                                                                   \
+    RunFunction(my_context, my_endDocumentSAXFunc_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_endDocumentSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_endDocumentSAXFunc_fct_##A == (uintptr_t)fct) return my_endDocumentSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_endDocumentSAXFunc_fct_##A == 0) {my_endDocumentSAXFunc_fct_##A = (uintptr_t)fct; return my_endDocumentSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 endDocumentSAXFunc callback\n");
+    return NULL;
+}
+// startElementSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_startElementSAXFunc_fct_##A = 0;                        \
+static void my_startElementSAXFunc_##A(void* a, void* b, void* c)           \
+{                                                                           \
+    RunFunction(my_context, my_startElementSAXFunc_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_startElementSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_startElementSAXFunc_fct_##A == (uintptr_t)fct) return my_startElementSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_startElementSAXFunc_fct_##A == 0) {my_startElementSAXFunc_fct_##A = (uintptr_t)fct; return my_startElementSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 startElementSAXFunc callback\n");
+    return NULL;
+}
+// endElementSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_endElementSAXFunc_fct_##A = 0;                  \
+static void my_endElementSAXFunc_##A(void* a, void* b)              \
+{                                                                   \
+    RunFunction(my_context, my_endElementSAXFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_endElementSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_endElementSAXFunc_fct_##A == (uintptr_t)fct) return my_endElementSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_endElementSAXFunc_fct_##A == 0) {my_endElementSAXFunc_fct_##A = (uintptr_t)fct; return my_endElementSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 endElementSAXFunc callback\n");
+    return NULL;
+}
+// referenceSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_referenceSAXFunc_fct_##A = 0;                  \
+static void my_referenceSAXFunc_##A(void* a, void* b)              \
+{                                                                   \
+    RunFunction(my_context, my_referenceSAXFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_referenceSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_referenceSAXFunc_fct_##A == (uintptr_t)fct) return my_referenceSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_referenceSAXFunc_fct_##A == 0) {my_referenceSAXFunc_fct_##A = (uintptr_t)fct; return my_referenceSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 referenceSAXFunc callback\n");
+    return NULL;
+}
+// charactersSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_charactersSAXFunc_fct_##A = 0;                      \
+static void my_charactersSAXFunc_##A(void* a, void* b, int c)           \
+{                                                                       \
+    RunFunction(my_context, my_charactersSAXFunc_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_charactersSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_charactersSAXFunc_fct_##A == (uintptr_t)fct) return my_charactersSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_charactersSAXFunc_fct_##A == 0) {my_charactersSAXFunc_fct_##A = (uintptr_t)fct; return my_charactersSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 charactersSAXFunc callback\n");
+    return NULL;
+}
+// ignorableWhitespaceSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_ignorableWhitespaceSAXFunc_fct_##A = 0;                      \
+static void my_ignorableWhitespaceSAXFunc_##A(void* a, void* b, int c)           \
+{                                                                       \
+    RunFunction(my_context, my_ignorableWhitespaceSAXFunc_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_ignorableWhitespaceSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ignorableWhitespaceSAXFunc_fct_##A == (uintptr_t)fct) return my_ignorableWhitespaceSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ignorableWhitespaceSAXFunc_fct_##A == 0) {my_ignorableWhitespaceSAXFunc_fct_##A = (uintptr_t)fct; return my_ignorableWhitespaceSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 ignorableWhitespaceSAXFunc callback\n");
+    return NULL;
+}
+// processingInstructionSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_processingInstructionSAXFunc_fct_##A = 0;                       \
+static void my_processingInstructionSAXFunc_##A(void* a, void* b, void* c)          \
+{                                                                                   \
+    RunFunction(my_context, my_processingInstructionSAXFunc_fct_##A, 3, a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_processingInstructionSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_processingInstructionSAXFunc_fct_##A == (uintptr_t)fct) return my_processingInstructionSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_processingInstructionSAXFunc_fct_##A == 0) {my_processingInstructionSAXFunc_fct_##A = (uintptr_t)fct; return my_processingInstructionSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 processingInstructionSAXFunc callback\n");
+    return NULL;
+}
+// commentSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_commentSAXFunc_fct_##A = 0;                     \
+static void my_commentSAXFunc_##A(void* a, void* b)                 \
+{                                                                   \
+    RunFunction(my_context, my_commentSAXFunc_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* find_commentSAXFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_commentSAXFunc_fct_##A == (uintptr_t)fct) return my_commentSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_commentSAXFunc_fct_##A == 0) {my_commentSAXFunc_fct_##A = (uintptr_t)fct; return my_commentSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 commentSAXFunc callback\n");
+    return NULL;
+}
+// warningSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_warningSAXFunc_fct_##A = 0;                     \
+static void my_warningSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)\
+{                                                                   \
+    RunFunction(my_context, my_warningSAXFunc_fct_##A, 10, a, b, c, d, e, f, g, h, i, j);    \
+}
+SUPER()
+#undef GO
+static void* find_warningSAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_warningSAXFunc_fct_##A == (uintptr_t)fct) return my_warningSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_warningSAXFunc_fct_##A == 0) {my_warningSAXFunc_fct_##A = (uintptr_t)fct; return my_warningSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 warningSAXFunc callback\n");
+    return NULL;
+}
+// errorSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_errorSAXFunc_fct_##A = 0;                     \
+static void my_errorSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)\
+{                                                                   \
+    RunFunction(my_context, my_errorSAXFunc_fct_##A, 10, a, b, c, d, e, f, g, h, i, j);    \
+}
+SUPER()
+#undef GO
+static void* find_errorSAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_errorSAXFunc_fct_##A == (uintptr_t)fct) return my_errorSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_errorSAXFunc_fct_##A == 0) {my_errorSAXFunc_fct_##A = (uintptr_t)fct; return my_errorSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 errorSAXFunc callback\n");
+    return NULL;
+}
+// fatalErrorSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_fatalErrorSAXFunc_fct_##A = 0;                     \
+static void my_fatalErrorSAXFunc_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j)\
+{                                                                   \
+    RunFunction(my_context, my_fatalErrorSAXFunc_fct_##A, 10, a, b, c, d, e, f, g, h, i, j);    \
+}
+SUPER()
+#undef GO
+static void* find_fatalErrorSAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_fatalErrorSAXFunc_fct_##A == (uintptr_t)fct) return my_fatalErrorSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_fatalErrorSAXFunc_fct_##A == 0) {my_fatalErrorSAXFunc_fct_##A = (uintptr_t)fct; return my_fatalErrorSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 fatalErrorSAXFunc callback\n");
+    return NULL;
+}
+// getParameterEntitySAXFunc ...
+#define GO(A)   \
+static uintptr_t my_getParameterEntitySAXFunc_fct_##A = 0;                                  \
+static void* my_getParameterEntitySAXFunc_##A(void* a, void* b)                             \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_getParameterEntitySAXFunc_fct_##A, 2, a, b);   \
+}
+SUPER()
+#undef GO
+static void* find_getParameterEntitySAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_getParameterEntitySAXFunc_fct_##A == (uintptr_t)fct) return my_getParameterEntitySAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_getParameterEntitySAXFunc_fct_##A == 0) {my_getParameterEntitySAXFunc_fct_##A = (uintptr_t)fct; return my_getParameterEntitySAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 getParameterEntitySAXFunc callback\n");
+    return NULL;
+}
+// cdataBlockSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_cdataBlockSAXFunc_fct_##A = 0;                      \
+static void my_cdataBlockSAXFunc_##A(void* a, void* b, int c)           \
+{                                                                       \
+    RunFunction(my_context, my_cdataBlockSAXFunc_fct_##A, 3, a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_cdataBlockSAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_cdataBlockSAXFunc_fct_##A == (uintptr_t)fct) return my_cdataBlockSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cdataBlockSAXFunc_fct_##A == 0) {my_cdataBlockSAXFunc_fct_##A = (uintptr_t)fct; return my_cdataBlockSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 cdataBlockSAXFunc callback\n");
+    return NULL;
+}
+// externalSubsetSAXFunc ...
+#define GO(A)   \
+static uintptr_t my_externalSubsetSAXFunc_fct_##A = 0;                          \
+static void my_externalSubsetSAXFunc_##A(void* a, void* b, void* c, void* d)    \
+{                                                                               \
+    RunFunction(my_context, my_externalSubsetSAXFunc_fct_##A, 3, a, b, c);      \
+}
+SUPER()
+#undef GO
+static void* find_externalSubsetSAXFunc_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_externalSubsetSAXFunc_fct_##A == (uintptr_t)fct) return my_externalSubsetSAXFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_externalSubsetSAXFunc_fct_##A == 0) {my_externalSubsetSAXFunc_fct_##A = (uintptr_t)fct; return my_externalSubsetSAXFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 externalSubsetSAXFunc callback\n");
+    return NULL;
+}
 
 // xmlExternalEntityLoader
 #define GO(A)   \
@@ -583,7 +1232,7 @@ EXPORT int my_xmlRegisterInputCallbacks(x86emu_t* emu, void* fmatch, void* fop, 
 {
     xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
 
-    return my->xmlRegisterInputCallbacks(find_xmlInputMatchCallback_Fct(fmatch), find_xmlInputOpenCallback_Fct(fop), find_xmlInputReadCallback_Fct(frd), find_xmlOutputCloseCallback_Fct(fcl));
+    return my->xmlRegisterInputCallbacks(find_xmlInputMatchCallback_Fct(fmatch), find_xmlInputOpenCallback_Fct(fop), find_xmlInputReadCallback_Fct(frd), find_xmlInputCloseCallback_Fct(fcl));
 }
 
 EXPORT void* my_xmlSaveToIO(x86emu_t* emu, void* fwrt, void* fcl, void* ioctx, void* encoding, int options)
@@ -640,6 +1289,70 @@ EXPORT void* my_xmlParserInputBufferCreateIO(x86emu_t* emu, void* ioread, void* 
     xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
 
     return my->xmlParserInputBufferCreateIO(find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, enc);
+}
+
+#define SUPER()\
+    GO(internalSubsetSAXFunc, internalSubset)               \
+    GO(isStandaloneSAXFunc, isStandalone)                   \
+    GO(hasInternalSubsetSAXFunc, hasInternalSubset)         \
+    GO(hasExternalSubsetSAXFunc, hasExternalSubset)         \
+    GO(resolveEntitySAXFunc, resolveEntity)                 \
+    GO(getEntitySAXFunc, getEntity)                         \
+    GO(entityDeclSAXFunc, entityDecl)                       \
+    GO(notationDeclSAXFunc, notationDecl)                   \
+    GO(attributeDeclSAXFunc, attributeDecl)                 \
+    GO(elementDeclSAXFunc, elementDecl)                     \
+    GO(unparsedEntityDeclSAXFunc, unparsedEntityDecl)       \
+    GO(setDocumentLocatorSAXFunc, setDocumentLocator)       \
+    GO(startDocumentSAXFunc, startDocument)                 \
+    GO(endDocumentSAXFunc, endDocument)                     \
+    GO(startElementSAXFunc, startElement)                   \
+    GO(endElementSAXFunc, endElement)                       \
+    GO(referenceSAXFunc, reference)                         \
+    GO(charactersSAXFunc, characters)                       \
+    GO(ignorableWhitespaceSAXFunc, ignorableWhitespace)     \
+    GO(processingInstructionSAXFunc, processingInstruction) \
+    GO(commentSAXFunc, comment)                             \
+    GO(warningSAXFunc, warning)                             \
+    GO(errorSAXFunc, error)                                 \
+    GO(fatalErrorSAXFunc, fatalError)                       \
+    GO(getParameterEntitySAXFunc, getParameterEntity)       \
+    GO(cdataBlockSAXFunc, cdataBlock)                       \
+    GO(externalSubsetSAXFunc, externalSubset)
+
+#define GO(T, A) void* A;
+typedef struct my_xmlSAXHandler_s {
+    SUPER()
+} my_xmlSAXHandler_t;
+#undef GO
+
+static void wrapSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
+{
+    if(!v) return;
+    #define GO(T, A) sav->A=v->A; v->A=find_##T##_Fct(v->A);
+    SUPER()
+    #undef GO
+}
+static void restoreSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
+{
+    if(!v) return;
+    #define GO(T, A) v->A = sav->A;
+    SUPER()
+    #undef GO
+}
+
+#undef SUPER
+
+EXPORT int my_xmlParseDocument(x86emu_t* emu, my_xmlSAXHandler_t** p)
+{
+    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
+    // handling of wine that change the default sax handler of...
+    my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
+    my_xmlSAXHandler_t sax_handler = {0};
+    wrapSaxHandler(&sax_handler, old_saxhandler);
+    int ret = my->xmlParseDocument(p);
+    restoreSaxHandler(&sax_handler, old_saxhandler);
+    return ret;
 }
 
 #define CUSTOM_INIT \
