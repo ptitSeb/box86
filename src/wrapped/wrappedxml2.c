@@ -1076,7 +1076,7 @@ static void* find_cdataBlockSAXFunc_Fct(void* fct) // this one have a VAArg
 static uintptr_t my_externalSubsetSAXFunc_fct_##A = 0;                          \
 static void my_externalSubsetSAXFunc_##A(void* a, void* b, void* c, void* d)    \
 {                                                                               \
-    RunFunction(my_context, my_externalSubsetSAXFunc_fct_##A, 3, a, b, c);      \
+    RunFunction(my_context, my_externalSubsetSAXFunc_fct_##A, 4, a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -1091,6 +1091,50 @@ static void* find_externalSubsetSAXFunc_Fct(void* fct) // this one have a VAArg
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxml2 externalSubsetSAXFunc callback\n");
+    return NULL;
+}
+// xmlSAX2StartElementNs ...
+#define GO(A)   \
+static uintptr_t my_xmlSAX2StartElementNs_fct_##A = 0;                                                              \
+static void my_xmlSAX2StartElementNs_##A(void* a, void* b, void* c, void* d, int e, void* f, int g, int h, void* i) \
+{                                                                                                                   \
+    RunFunction(my_context, my_xmlSAX2StartElementNs_fct_##A, 9, a, b, c, d, e, f, g, h, i);                        \
+}
+SUPER()
+#undef GO
+static void* find_xmlSAX2StartElementNs_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlSAX2StartElementNs_fct_##A == (uintptr_t)fct) return my_xmlSAX2StartElementNs_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlSAX2StartElementNs_fct_##A == 0) {my_xmlSAX2StartElementNs_fct_##A = (uintptr_t)fct; return my_xmlSAX2StartElementNs_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlSAX2StartElementNs callback\n");
+    return NULL;
+}
+// xmlSAX2EndElementNs ...
+#define GO(A)   \
+static uintptr_t my_xmlSAX2EndElementNs_fct_##A = 0;                        \
+static void my_xmlSAX2EndElementNs_##A(void* a, void* b, void* c, void* d)  \
+{                                                                           \
+    RunFunction(my_context, my_xmlSAX2EndElementNs_fct_##A, 4, a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* find_xmlSAX2EndElementNs_Fct(void* fct) // this one have a VAArg
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_xmlSAX2EndElementNs_fct_##A == (uintptr_t)fct) return my_xmlSAX2EndElementNs_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_xmlSAX2EndElementNs_fct_##A == 0) {my_xmlSAX2EndElementNs_fct_##A = (uintptr_t)fct; return my_xmlSAX2EndElementNs_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxml2 xmlSAX2EndElementNs callback\n");
     return NULL;
 }
 
@@ -1318,13 +1362,21 @@ EXPORT void* my_xmlParserInputBufferCreateIO(x86emu_t* emu, void* ioread, void* 
     GO(fatalErrorSAXFunc, fatalError)                       \
     GO(getParameterEntitySAXFunc, getParameterEntity)       \
     GO(cdataBlockSAXFunc, cdataBlock)                       \
-    GO(externalSubsetSAXFunc, externalSubset)
+    GO(externalSubsetSAXFunc, externalSubset)               \
+    GA(int, initialized)                                    \
+    GA(void*, _private)                                     \
+    GO(xmlSAX2StartElementNs, startElementNs)               \
+    GO(xmlSAX2EndElementNs,  endElementNs)                  \
+    GO(xmlStructuredErrorFunc, serror)
 
 #define GO(T, A) void* A;
+#define GA(T, A) T A;
 typedef struct my_xmlSAXHandler_s {
     SUPER()
 } my_xmlSAXHandler_t;
 #undef GO
+#undef GA
+#define GA(T, A)
 
 static void wrapSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
 {
@@ -1340,6 +1392,7 @@ static void restoreSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
     SUPER()
     #undef GO
 }
+#undef GA
 
 #undef SUPER
 
