@@ -115,6 +115,7 @@ void FreeDynablock(dynablock_t* db)
         }
         free(db->sons);
         free(db->table);
+        free(db->instsize);
         free(db);
     }
 }
