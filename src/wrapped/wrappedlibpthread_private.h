@@ -45,7 +45,7 @@ GOM(pthread_attr_setscope, iFEpi)
 #endif
 GOM(pthread_attr_setstack, iFEppL)
 GO(pthread_attr_setstackaddr, iFpp)
-GO(pthread_attr_setstacksize, iFpp)
+GO(pthread_attr_setstacksize, iFpL)
 GO(pthread_barrierattr_destroy, iFp)
 GO(pthread_barrierattr_getpshared, iFpp)
 GO(pthread_barrierattr_init, iFp)
