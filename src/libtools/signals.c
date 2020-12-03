@@ -618,7 +618,6 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     static int old_code = -1;
     static void* old_pc = 0;
     static void* old_addr = 0;
-    static int old_tid = 0;
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
         printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), signame);
@@ -994,8 +993,9 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
 void init_signal_helper(box86context_t* context)
 {
     // setup signal handling
-    for(int i=0; i<MAX_SIGNAL; ++i)
+    for(int i=0; i<MAX_SIGNAL; ++i) {
         context->signals[i] = 1;    // SIG_DFL
+    }
 	struct sigaction action;
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
