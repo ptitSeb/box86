@@ -15,6 +15,6 @@ void CleanStackSize(box86context_t* context);
 emu_jmpbuf_t* GetJmpBuf();
 
 void init_pthread_helper();
-void fini_pthread_helper();
+void fini_pthread_helper(box86context_t* context);
 
 #endif //_THREADS_H_

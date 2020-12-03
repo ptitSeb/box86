@@ -133,15 +133,17 @@ static void FreeCancelThread(box86context_t* context)
 	kh_foreach_value(context->cancelthread, buff, free(buff))
 	kh_destroy(cancelthread, context->cancelthread);
 	pthread_mutex_unlock(&context->mutex_thread);
-	my_context->cancelthread = NULL;
+	context->cancelthread = NULL;
 }
 static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
 {
 	int ret;
+	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
 	if(ret)
 		kh_value(my_context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
 	__pthread_unwind_buf_t* r = kh_value(my_context->cancelthread, k);
+	pthread_mutex_unlock(&my_context->mutex_thread);
 	return r;
 }
 
@@ -212,6 +214,15 @@ static void* pthread_routine(void* p)
 {
 	// create the key
 	pthread_once(&thread_key_once, thread_key_alloc);
+	// free current emuthread if it exist
+	{
+		void* t = pthread_getspecific(thread_key);
+		if(t) {
+			// not sure how this could happens
+			printf_log(LOG_INFO, "Clean of an existing ET for Thread %04d\n", GetTID());
+			emuthread_destroy(t);
+		}
+	}
 	pthread_setspecific(thread_key, p);
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
@@ -305,13 +316,13 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 {
 	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
 	if(cancel_deep<0) {
-		printf_log(LOG_INFO, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
+		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
 		cancel_deep = 0;
 	}
 	if(cancel_deep!=CANCEL_MAX-1) 
 		++cancel_deep;
 	else
-		{printf_log(LOG_INFO, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
+		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
 		
 	cancel_emu[cancel_deep] = (x86emu_t*)E;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
@@ -344,12 +355,11 @@ EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t *pbuff = AddCancelThread((uintptr_t)buff);
-	// function is noreturn, so putting stuff on the stack is not a good idea
-	__pthread_unwind_next(pbuff);
-	// just in case it does return
-	// no clear way to clean up this, unless it does return...
+	__pthread_unwind_buf_t pbuff = *AddCancelThread((uintptr_t)buff);
 	DelCancelThread((uintptr_t)buff);
+	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
+	__pthread_unwind_next(&pbuff);
+	// just in case it does return
 	emu->quit = 1;
 }
 
@@ -675,10 +685,10 @@ void init_pthread_helper()
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 }
 
-void fini_pthread_helper()
+void fini_pthread_helper(box86context_t* context)
 {
-	FreeCancelThread(my_context);
-	CleanStackSize(my_context);
+	FreeCancelThread(context);
+	CleanStackSize(context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
 		pthread_cond_destroy(cond);

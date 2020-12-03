@@ -239,12 +239,12 @@ void initAllHelpers(box86context_t* context)
 }
 
 EXPORTDYN
-void finiAllHelpers()
+void finiAllHelpers(box86context_t* context)
 {
     static int finied = 0;
     if(finied)
         return;
-    fini_pthread_helper();
+    fini_pthread_helper(context);
     fini_signal_helper();
     cleanAlternate();
     finied = 1;
@@ -467,7 +467,7 @@ void FreeBox86Context(box86context_t** context)
     if(ctx->emu_sig)
         FreeX86Emu(&ctx->emu_sig);
 
-    finiAllHelpers();
+    finiAllHelpers(ctx);
 
     free(ctx);
 }
