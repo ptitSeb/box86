@@ -16,7 +16,6 @@ typedef struct callbacklist_s callbacklist_t;
 typedef struct library_s library_t;
 typedef struct kh_fts_s kh_fts_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
-typedef struct kh_cancelthread_s kh_cancelthread_t;
 typedef struct zydis_dec_s zydis_dec_t;
 typedef struct atfork_fnc_s {
     uintptr_t prepare;
@@ -102,7 +101,6 @@ typedef struct box86context_s {
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
-    kh_cancelthread_t   *cancelthread;  // thread cancel mecanism is bit complex, create a map to ease it
     bridge_t            *threads;       // threads
     bridge_t            *system;        // other bridges
     uintptr_t           vsyscall;       // vsyscall bridge value
