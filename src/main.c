@@ -79,6 +79,7 @@ int allow_missing_libs = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
 int box86_nopulse = 0;
+int box86_nogtk = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
@@ -377,6 +378,15 @@ void LoadLogEnv()
         if(box86_nopulse)
             printf_log(LOG_INFO, "Disable the use of pulseaudio libs\n");
     }
+    p = getenv("BOX86_NOGTK");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='0'+1)
+                box86_nogtk = p[0]-'0';
+        }
+        if(box86_nogtk)
+            printf_log(LOG_INFO, "Disable the use of wraped gtk libs\n");
+    }
     p = getenv("BOX86_FIX_64BIT_INODES");
         if(p) {
         if(strlen(p)==1) {
@@ -527,6 +537,7 @@ void PrintHelp() {
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
     printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
+    printf(" BOX86_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX86_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
 }
 

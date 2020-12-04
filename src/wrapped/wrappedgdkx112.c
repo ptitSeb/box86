@@ -172,6 +172,10 @@ EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, vo
     my->gdk_window_remove_filter(window, findFilterFct(f), data);
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     libname = lib->name;                        \
     lib->priv.w.p2 = getGdkX112My(lib);         \

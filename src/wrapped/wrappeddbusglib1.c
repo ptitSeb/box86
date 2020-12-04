@@ -236,6 +236,10 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* 
     my->dbus_g_proxy_disconnect_signal(proxy, name, findGCallbackFct(handler), data);
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getDBusGLib1My(lib);
 

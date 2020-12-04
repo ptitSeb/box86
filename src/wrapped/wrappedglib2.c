@@ -1352,6 +1352,10 @@ EXPORT uint32_t my_g_timeout_add_seconds_full(x86emu_t *emu, int priority, uint3
 }
 
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     libname = lib->name;\
     my_lib = lib;       \

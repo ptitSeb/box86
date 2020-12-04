@@ -701,6 +701,7 @@ void iFpuui(x86emu_t *emu, uintptr_t fnc);
 void iFpuuu(x86emu_t *emu, uintptr_t fnc);
 void iFpuup(x86emu_t *emu, uintptr_t fnc);
 void iFpuUp(x86emu_t *emu, uintptr_t fnc);
+void iFpuLL(x86emu_t *emu, uintptr_t fnc);
 void iFpuLp(x86emu_t *emu, uintptr_t fnc);
 void iFpupi(x86emu_t *emu, uintptr_t fnc);
 void iFpupu(x86emu_t *emu, uintptr_t fnc);

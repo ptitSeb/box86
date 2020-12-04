@@ -715,6 +715,9 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x86emu_t* emu, void* connection,
     return my->g_bus_own_name_on_connection(connection, name, flags, findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
 
 #define CUSTOM_INIT \
     libname = lib->name;                \

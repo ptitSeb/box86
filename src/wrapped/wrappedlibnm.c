@@ -6,6 +6,7 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
@@ -13,6 +14,10 @@
 
 const char* libnmName = "libnm.so.0";
 #define LIBNAME libnm
+
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
 
 #include "wrappedlib_init.h"
 

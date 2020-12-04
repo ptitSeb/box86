@@ -19,7 +19,7 @@
 DATAB(_qfree, 4)
 // _Utf8GetConvByName
 //GO(XActivateScreenSaver
-//GO(XAddConnectionWatch
+GOM(XAddConnectionWatch, iFEppp)
 GO(XAddExtension, pFp)
 //GO(XAddHost
 //GO(XAddHosts
@@ -491,7 +491,7 @@ GOM(XInitImage, iFEp)
 GO(XInitThreads, uFv)
 //GO(XInsertModifiermapEntry
 GO(XInstallColormap, iFpp)
-//GO(XInternalConnectionNumbers
+GO(XInternalConnectionNumbers, iFppp)
 GO(XInternAtom, pFppi)
 GO(XInternAtoms, uFppiip)
 GO(XIntersectRegion, iFppp)
@@ -656,12 +656,12 @@ GO(XkbQueryExtension, iFpppppp)
 //GO(XkbResizeKeySyms
 //GO(XkbResizeKeyType
 GO(XkbSelectEventDetails, iFpuuLL)
-//GO(XkbSelectEvents
+GO(XkbSelectEvents, iFpuLL)
 //GO(XkbSetAtomFuncs
 //GO(XkbSetAutoRepeatRate
 //GO(XkbSetAutoResetControls
 //GO(XkbSetCompatMap
-//GO(XkbSetControls
+//GO(XkbSetControlslib
 //GO(XkbSetDebuggingFlags
 GO(XkbSetDetectableAutoRepeat, iFpip)
 //GO(XkbSetDeviceButtonActions
@@ -831,7 +831,7 @@ GO(XPointInRegion, iFpp)
 // _XPollfdCacheDel
 // _XPollfdCacheInit
 GO(XPolygonRegion, pFpii)
-//GO(XProcessInternalConnection
+GO(XProcessInternalConnection, vFpi)
 // _XProcessInternalConnection
 // _XProcessWindowAttributes
 //GO(XProtocolRevision
@@ -870,7 +870,7 @@ GO(XRefreshKeyboardMapping, iFp)
 // _XRegisterFilterByType
 GOM(XRegisterIMInstantiateCallback, iFEpppppp)
 // _XRegisterInternalConnection
-//GO(XRemoveConnectionWatch
+GOM(XRemoveConnectionWatch, iFEppp)
 //GO(XRemoveFromSaveSet
 //GO(XRemoveHost
 //GO(XRemoveHosts

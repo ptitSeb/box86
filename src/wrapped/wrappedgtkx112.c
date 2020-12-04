@@ -1077,6 +1077,10 @@ EXPORT void my_gtk_clipboard_request_text(x86emu_t* emu, void* clipboard, void* 
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     libname = lib->name;                \
     lib->priv.w.p2 = getGtkx112My(lib); \

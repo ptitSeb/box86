@@ -6,6 +6,7 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
@@ -13,6 +14,10 @@
 
 const char* gstreamer010Name = "libgstreamer-0.10.so.0";
 #define LIBNAME gstreamer010
+
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
 
 #define CUSTOM_INIT \
     lib->priv.w.needed = 1; \

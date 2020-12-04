@@ -117,6 +117,10 @@ EXPORT void my_pango_attribute_init(x86emu_t* emu, void* attr, my_PangoAttrClass
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     my_lib = lib;                   \
     lib->priv.w.p2 = getPangoMy(lib); \

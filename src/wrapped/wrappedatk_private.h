@@ -48,7 +48,7 @@ GO(atk_coord_type_get_type, iFv)
 //GO(atk_focus_tracker_init, 
 //GO(atk_focus_tracker_notify, 
 //GO(atk_get_binary_age, 
-//GO(atk_get_default_registry, 
+GO(atk_get_default_registry, pFv)
 //GO(atk_get_focus_object, 
 //GO(atk_get_interface_age, 
 //GO(atk_get_major_version, 
@@ -131,10 +131,10 @@ GO(atk_object_set_role, vFpi)
 //GO(atk_plug_get_type, 
 //GO(atk_plug_new, 
 //GO(atk_rectangle_get_type, 
-//GO(atk_registry_get_factory, 
-//GO(atk_registry_get_factory_type, 
+GO(atk_registry_get_factory, pFpi)
+GO(atk_registry_get_factory_type, iFpi)
 //GO(atk_registry_get_type, 
-//GO(atk_registry_set_factory_type, 
+GO(atk_registry_set_factory_type, vFpii)
 //GO(atk_relation_add_target, 
 //GO(atk_relation_get_relation_type, 
 //GO(atk_relation_get_target, 

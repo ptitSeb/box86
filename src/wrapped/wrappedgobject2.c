@@ -819,6 +819,10 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
     return &value[cnt++];
 }
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     InitGTKClass(lib->priv.w.bridge);           \
     lib->priv.w.p2 = getGobject2My(lib);        \

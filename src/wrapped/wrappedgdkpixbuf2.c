@@ -67,6 +67,10 @@ EXPORT void* my_gdk_pixbuf_new_from_data(x86emu_t* emu, void* data, int32_t colo
 }
 
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGdkpixbuf2My(lib);
 

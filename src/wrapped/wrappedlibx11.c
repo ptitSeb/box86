@@ -87,6 +87,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uint32_t (*uFpii_t)(void*, int32_t, int32_t);
@@ -126,7 +127,9 @@ typedef int (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
     GO(XInitThreads, uFv_t)                 \
     GO(XRegisterIMInstantiateCallback, iFpppppp_t)      \
     GO(XUnregisterIMInstantiateCallback, iFpppppp_t)    \
-    GO(XQueryExtension, iFppppp_t)
+    GO(XQueryExtension, iFppppp_t)          \
+    GO(XAddConnectionWatch, iFppp_t)        \
+    GO(XRemoveConnectionWatch, iFppp_t)     \
 
 typedef struct x11_my_s {
     // functions
@@ -399,6 +402,28 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->priv.w.bridge, iFppp, fct, 0);
 }
 
+// XConnectionWatchProc
+#define GO(A)   \
+static uintptr_t my_XConnectionWatchProc_fct_##A = 0;                               \
+static void my_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)     \
+{                                                                                   \
+    RunFunction(my_context, my_XConnectionWatchProc_fct_##A, 4, dpy, data, op, d);  \
+}
+SUPER()
+#undef GO
+static void* findXConnectionWatchProcFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XConnectionWatchProc_fct_##A == (uintptr_t)fct) return my_XConnectionWatchProc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XConnectionWatchProc_fct_##A == 0) {my_XConnectionWatchProc_fct_##A = (uintptr_t)fct; return my_XConnectionWatchProc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XConnectionWatchProc callback\n");
+    return NULL;
+}
 #undef SUPER
 
 void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -851,6 +876,21 @@ EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* maj
     return ret;
 }
 
+EXPORT int my_XAddConnectionWatch(x86emu_t* emu, void* display, char* f, void* data)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
+}
+
+EXPORT int my_XRemoveConnectionWatch(x86emu_t* emu, void* display, char* f, void* data)
+{
+    library_t* lib = emu->context->x11lib;
+    x11_my_t *my = (x11_my_t *)lib->priv.w.p2;
+
+    return my->XRemoveConnectionWatch(display, findXConnectionWatchProcFct(f), data);
+}
 
 #define CUSTOM_INIT                 \
     box86->x11lib = lib;            \

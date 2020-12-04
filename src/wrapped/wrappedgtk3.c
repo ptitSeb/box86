@@ -694,6 +694,11 @@ EXPORT void my3_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, v
     my->gtk_builder_connect_signals_full(builder, findBuilderConnectFct(f), data);
 }
 //GtkMisc is deprecated in GTK3, so use widget directly...
+
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     libname = lib->name;                \
     lib->priv.w.p2 = getGtk3My(lib);    \

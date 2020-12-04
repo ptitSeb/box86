@@ -126,6 +126,10 @@ void** my_GetGthreadsGotInitialized()
 
 
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getGthread2My(lib);
 
