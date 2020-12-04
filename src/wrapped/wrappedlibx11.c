@@ -534,7 +534,7 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
 
     #define GO(A, W) \
     fnc = CheckBridged(system, img->f.A); \
-    if(!fnc) fnc = AddBridge(system, W, img->f.A, 0); \
+    if(!fnc) fnc = AddAutomaticBridge(emu, system, W, img->f.A, 0); \
     img->f.A = (W##_t)fnc;
 
     uintptr_t fnc;
