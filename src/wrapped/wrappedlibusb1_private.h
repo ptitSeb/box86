@@ -2,10 +2,10 @@
 #error meh!
 #endif
 
-GO(libusb_alloc_transfer, pFi)
+GOM(libusb_alloc_transfer, pFEi)
 GO(libusb_attach_kernel_driver, iFpi)
 GO(libusb_bulk_transfer, iFpCpipu)
-GO(libusb_cancel_transfer, iFp)
+GOM(libusb_cancel_transfer, iFEp)
 GO(libusb_claim_interface, iFpi)
 GO(libusb_clear_halt, iFpC)
 GO(libusb_close, vFp)
@@ -33,7 +33,7 @@ GO(libusb_get_container_id_descriptor, iFppp)
 GO(libusb_get_device, pFp)
 GO(libusb_get_device_address, CFp)
 GO(libusb_get_device_descriptor, iFpp)
-GO(libusb_get_device_list, iFpp)
+GO(libusb_get_device_list, lFpp)
 GO(libusb_get_device_speed, iFp)
 GO(libusb_get_max_iso_packet_size, iFpC)
 GO(libusb_get_max_packet_size, iFpC)
@@ -75,7 +75,9 @@ GO(libusb_set_interface_alt_setting, iFpii)
 GO(libusb_setlocale, iFp)
 //GOM(libusb_set_pollfd_notifiers, vFpppp)
 GO(libusb_strerror, pFi)
-GO(libusb_submit_transfer, iFp)
+GOM(libusb_submit_transfer, iFEp)
+GO(libusb_transfer_get_stream_id, uFp)  //v1.0.19+ , no need to wrap callback here
+GO(libusb_transfer_set_stream_id, vFpu) //v1.0.19+ , no need to wrap callback here
 GO(libusb_try_lock_events, iFp)
 GO(libusb_unlock_events, vFp)
 GO(libusb_unlock_event_waiters, vFp)
