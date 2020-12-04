@@ -64,7 +64,7 @@ GO(dbus_connection_send_with_reply, iFpppi)
 GO(dbus_connection_send_with_reply_and_block, pFppip)
 GO(dbus_connection_set_allow_anonymous, vFpi)
 GO(dbus_connection_set_change_sigpipe, vFi)
-//GO(dbus_connection_set_data, 
+GOM(dbus_connection_set_data, iFEpipp)
 GOM(dbus_connection_set_dispatch_status_function, vFEpppp)
 GO(dbus_connection_set_exit_on_disconnect, vFpi)
 GO(dbus_connection_set_max_message_size, vFpl)
@@ -72,7 +72,7 @@ GO(dbus_connection_set_max_received_size, vFpl)
 GO(dbus_connection_set_route_peer_messages, vFpi)
 GOM(dbus_connection_set_timeout_functions, iFEpppppp)
 //GO(dbus_connection_set_unix_user_function, 
-//GO(dbus_connection_set_wakeup_main_function, 
+GOM(dbus_connection_set_wakeup_main_function, vFEpppp)
 GOM(dbus_connection_set_watch_functions, iFEpppppp)
 //GO(dbus_connection_set_windows_user_function, 
 GO(dbus_connection_steal_borrowed_message, vFpp)
@@ -196,14 +196,14 @@ GO(dbus_set_error, vFpppppppppp)    //vaarg
 GO(dbus_set_error_const, vFppp)
 GO(dbus_set_error_from_message, iFpp)
 GO(dbus_shutdown, vFv)
-//GO(dbus_signature_iter_get_current_type, 
-//GO(dbus_signature_iter_get_element_type, 
-//GO(dbus_signature_iter_get_signature, 
-//GO(dbus_signature_iter_init, 
-//GO(dbus_signature_iter_next, 
-//GO(dbus_signature_iter_recurse, 
-//GO(dbus_signature_validate, 
-//GO(dbus_signature_validate_single, 
+GO(dbus_signature_iter_get_current_type, iFp)
+GO(dbus_signature_iter_get_element_type, iFp)
+GO(dbus_signature_iter_get_signature, pFp)
+GO(dbus_signature_iter_init, vFpp)
+GO(dbus_signature_iter_next, iFp)
+GO(dbus_signature_iter_recurse, vFpp)
+GO(dbus_signature_validate, iFpp)
+GO(dbus_signature_validate_single, iFpp)
 //GO(dbus_threads_init, 
 GO(dbus_threads_init_default, iFv)
 GO(dbus_timeout_get_data, pFp)
@@ -211,9 +211,10 @@ GO(dbus_timeout_get_enabled, iFp)
 GO(dbus_timeout_get_interval, iFp)
 GO(dbus_timeout_handle, iFp)
 GOM(dbus_timeout_set_data, vFEppp)
-//GO(dbus_type_is_basic, 
-//GO(dbus_type_is_container, 
-//GO(dbus_type_is_fixed, 
+GO(dbus_type_is_basic, iFi)
+GO(dbus_type_is_container, iFi)
+GO(dbus_type_is_fixed, iFi)
+GO(dbus_type_is_valid, iFi)
 GO(dbus_watch_get_data, pFp)
 GO(dbus_watch_get_enabled, iFp)
 GO(dbus_watch_get_fd, iFp)
