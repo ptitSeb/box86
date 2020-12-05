@@ -1,6 +1,7 @@
-# Maintainer: SpacingBat3 <youremail@domain.com>
-# Contributor: Sebastien Chevalier
+# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Contributor: Sebastien Chevalier <sebastien.chev@gmail.com>
 pkgname=box86-rpi-git
+_pkgname=box86-git
 pkgver=r2798.0edc0374
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
@@ -9,29 +10,30 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}")
-conflicts=("${pkgname%-git}")
+provides=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%--rpi-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-rpi-git}-git" "${pkgname%--rpi-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 _pimodel=`tr -d '\0' < /sys/firmware/devicetree/base/model`
 
 pkgver() {
-	cd "$srcdir/${pkgname%-git}"
+	cd "$srcdir/${pkgname%-rpi-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-git}"
+	cd "${srcdir}/${pkgname%-rpi-git}"
 	# Check for Pi version number
-	if [[ ${_pimodel} ~= "Raspberry Pi 4" ]]; then
+	if [[ ${_pimodel} =~ "Raspberry Pi 4" ]]; then
 		_piversion=4
-	elif [[ ${_pimodel} ~= "Raspberry Pi 3" ]]; then
+	elif [[ ${_pimodel} =~ "Raspberry Pi 3" ]]; then
 		_piversion=3
-	elif [[ ${_pimodel} ~= "Raspberry Pi 2" ]]; then
+	elif [[ ${_pimodel} =~ "Raspberry Pi 2" ]]; then
 		_piversion=2
 	else
-		# Your RPI is not supported or this device is not a pi, cancel build then
-		echo -e "\033[01m\033[01;31m==> ERROR:\033[00;01m Your device is not supported! This script is for RPi model 4/3/2 (1/0 not supported).\033[00m"
+		# This RPI is not supported or this device is not a pi.
+		# We should cancel then the build.
+		echo -e "\033[01m\033[01;31m==> ERROR:\033[00;01m Your device is not supported! This script is for RPi model 4/3/2 (1/0 isn't supported yet).\033[00m"
 		exit 1
 	fi
 	echo -e "\033[01m\033[01;34m==> INFO:\033[00;01m Your detected Pi verion number is: \033[01;31m${_piversion}\033[01m.\033[00m"
@@ -42,11 +44,17 @@ prepare() {
 }
 
 build() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-rpi-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-rpi-git}/build"
 	make DESTDIR="${pkgdir}/" install
+	# /usr/local/bin isn't in PATH by the default,
+	# we should move it to /usr/bin
+	cd ${pkgdir}
+	mv usr/local/bin/ usr/bin/
+	# cleanup when dir is empty
+	rmdir usr/local || exit 0
 }

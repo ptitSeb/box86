@@ -1,5 +1,5 @@
-# Maintainer: SpacingBat3 <youremail@domain.com>
-# Contributor: Sebastien Chevalier
+# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Contributor: Sebastien Chevalier <sebastien.chev@gmail.com>
 pkgname=box86-odroid-git
 pkgver=r2798.0edc0374
 pkgrel=1
@@ -9,18 +9,18 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}")
-conflicts=("${pkgname%-git}")
+provides=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
+conflicts=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-git}"
+	cd "$srcdir/${pkgname%-odroid-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-git}"
+	cd "${srcdir}/${pkgname%-odroid-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
 		cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -28,11 +28,17 @@ prepare() {
 }
 
 build() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-odroid-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-odroid-git}/build"
 	make DESTDIR="${pkgdir}/" install
+	# /usr/local/bin isn't in PATH by the default,
+	# we should move it to /usr/bin
+	cd ${pkgdir}
+	mv usr/local/bin/ usr/bin/
+	# cleanup when dir is empty
+	rmdir usr/local || exit 0
 }

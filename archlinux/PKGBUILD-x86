@@ -1,6 +1,7 @@
-# Maintainer: SpacingBat3 <youremail@domain.com>
-# Contributor: Sebastien Chevalier
+# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Contributor: Sebastien Chevalier <sebastien.chev@gmail.com>
 pkgname=box86-x86-git
+_pkgname=box86-git
 pkgver=r2798.0edc0374
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
@@ -8,18 +9,18 @@ arch=('i386')
 url="https://github.com/ptitSeb/box86"
 license=('MIT')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}")
-conflicts=("${pkgname%-git}")
+provides=("${pkgname%-x86-git}")
+conflicts=("${pkgname%-x86-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-git}"
+	cd "$srcdir/${pkgname%-x86-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-git}"
+	cd "${srcdir}/${pkgname%-x86-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
 		cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -27,11 +28,17 @@ prepare() {
 }
 
 build() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-x86-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-git}/build"
+	cd "$srcdir/${pkgname%-x86-git}/build"
 	make DESTDIR="${pkgdir}/" install
+	# /usr/local/bin isn't in PATH by the default,
+	# we should move it to /usr/bin
+	cd ${pkgdir}
+	mv usr/local/bin/ usr/bin/
+	# cleanup when dir is empty
+	rmdir usr/local || exit 0
 }
