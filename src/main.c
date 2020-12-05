@@ -906,6 +906,10 @@ int main(int argc, const char **argv, const char **env) {
         box86_tokitori2 = 1;
     }
     #endif
+    /*if(strstr(prgname, "awesomium_process")==prgname) {
+        printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
+        AddPath("libpng12.so.0", &my_context->box86_emulated_libs, 0);
+    }*/
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = strdup(argv[i+nextarg]);
