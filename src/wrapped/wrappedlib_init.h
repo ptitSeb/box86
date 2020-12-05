@@ -208,7 +208,7 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
 #endif
     }
 //POST
-    if(!addr)
+    if(!addr && !size)
         return 0;
     *offs = addr;
     *sz = size;
@@ -231,7 +231,7 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t
 #endif
     }
 //POST
-    if(!addr)
+    if(!addr && !size)
         return 0;
     *offs = addr;
     *sz = size;

@@ -386,21 +386,18 @@ elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name)
     uintptr_t start = 0;
     uintptr_t end = 0;
     if(GetSymbolStartEnd(maplib->mapsymbols, name, &start, &end))
-        if(start)
-            return maplib->context->elfs[0];
+        return maplib->context->elfs[0];
     if(GetSymbolStartEnd(maplib->weaksymbols, name, &start, &end))
-        if(start)
-            return maplib->context->elfs[0];
+        return maplib->context->elfs[0];
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end))
-            if(start) {
-                int idx = GetElfIndex(maplib->libraries[i].lib);
-                if(idx==-1) {
-                    printf_log(LOG_NONE, "Warning, getting Elf info for a native symbol \"%s\" from lib \"%s\"\n", name, GetNameLib(maplib->libraries[i].lib));
-                    return NULL;
-                }
-                return maplib->context->elfs[idx];
+        if(GetLibSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end)) {
+            int idx = GetElfIndex(maplib->libraries[i].lib);
+            if(idx==-1) {
+                printf_log(LOG_NONE, "Warning, getting Elf info for a native symbol \"%s\" from lib \"%s\"\n", name, GetNameLib(maplib->libraries[i].lib));
+                return NULL;
             }
+            return maplib->context->elfs[idx];
+        }
     }
     // nope, not found
     return NULL;

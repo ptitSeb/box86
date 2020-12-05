@@ -153,7 +153,7 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     int ret;
     kh_put(libs, collection, (uintptr_t)lib, &ret);
     // look in the library itself
-    if(lib->get(lib, rsymbol, start, end)!=0)
+    if(lib->get(lib, rsymbol, start, end))
         return 1;
     // look in other libs
     int n = GetNeededLibN(lib);

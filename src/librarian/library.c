@@ -93,14 +93,14 @@ int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz)
     if(k!=kh_end(lib->priv.n.mapsymbols)) {
         *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
         *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
-        return *offs;
+        return 1;
     }
     // weak symbols...
     k = kh_get(mapsymbols, lib->priv.n.weaksymbols, name);
     if(k!=kh_end(lib->priv.n.weaksymbols)) {
         *offs = kh_value(lib->priv.n.weaksymbols, k).offs;
         *sz = kh_value(lib->priv.n.weaksymbols, k).sz;
-        return *offs;
+        return 1;
     }
     return 0;
 }
@@ -111,7 +111,7 @@ int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t
     if(k!=kh_end(lib->priv.n.mapsymbols)) {
         *offs = kh_value(lib->priv.n.mapsymbols, k).offs;
         *sz = kh_value(lib->priv.n.mapsymbols, k).sz;
-        return *offs;
+        return 1;
     }
     return 0;
 }
@@ -122,7 +122,7 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
     if(k!=kh_end(lib->priv.n.localsymbols)) {
         *offs = kh_value(lib->priv.n.localsymbols, k).offs;
         *sz = kh_value(lib->priv.n.localsymbols, k).sz;
-        return *offs;
+        return 1;
     }
     return 0;
 }

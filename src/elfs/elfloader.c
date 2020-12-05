@@ -787,6 +787,21 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
     return 0;
 }
 
+int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
+{
+    if(!h)
+        return 0;
+    for (int i=0; i<h->numDynamic; ++i)
+        if(h->Dynamic[i].d_tag==DT_NEEDED) {
+            char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+            if(!strcmp(needed, "libtcmalloc_minimal.so.4")) // tcmalloc needs to be the 1st lib loaded
+                return 1;
+            else
+                return 0;
+        }
+    return 0;
+}
+
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)

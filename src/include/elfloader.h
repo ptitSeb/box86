@@ -53,5 +53,7 @@ dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box86context_t* context, int fd);
 
+int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
+
 
 #endif //__ELF_LOADER_H_
