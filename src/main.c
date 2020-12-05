@@ -114,7 +114,8 @@ void openFTrace()
             ftrace = stdout;
             printf_log(LOG_INFO, "Cannot open trace file \"%s\" for writing (error=%s)\n", p, strerror(errno));
         } else {
-            printf("BOX86 Trace redirected to \"%s\"\n", p);
+            if(!box86_nobanner)
+                printf("BOX86 Trace redirected to \"%s\"\n", p);
         }
     }
 }
@@ -190,7 +191,14 @@ EXPORTDYN
 void LoadLogEnv()
 {
     ftrace = stdout;
-    const char *p = getenv("BOX86_LOG");
+    const char *p = getenv("BOX86_NOBANNER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_nobanner = p[0]-'0';
+        }
+    }
+    p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_DEBUG)
@@ -205,15 +213,8 @@ void LoadLogEnv()
             else if(!strcasecmp(p, "DUMP"))
                 box86_log = LOG_DUMP;
         }
-        printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
-    }
-    p = getenv("BOX86_NOBANNER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
-                box86_nobanner = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box86_nobanner?"On":"Off");
+        if(!box86_nobanner)
+            printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
 #ifdef DYNAREC
     p = getenv("BOX86_DYNAREC_DUMP");
