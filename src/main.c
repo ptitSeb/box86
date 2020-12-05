@@ -87,6 +87,7 @@ uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_fs = 0;
 int jit_gdb = 0;
+int box86_tcmalloc_minimal = 0;
 
 FILE* ftrace = NULL;
 int ftrace_has_pid = 0;
@@ -849,6 +850,8 @@ int main(int argc, const char **argv, const char **env) {
     } else {
         if(getenv("LD_PRELOAD")) {
             char* p = getenv("LD_PRELOAD");
+            if(strstr(p, "libtcmalloc_minimal.so.4"))
+                box86_tcmalloc_minimal = 1;
             ParseList(p, &ld_preload, 0);
             if (ld_preload.size && box86_log) {
                 printf_log(LOG_INFO, "BOX86 try to Preload ");
@@ -973,6 +976,52 @@ int main(int argc, const char **argv, const char **env) {
     }
     // can close the file now
     fclose(f);
+    if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
+        if(!box86_tcmalloc_minimal) {
+            // need to reload with tcmalloc_minimal as a LD_PRELOAD!
+            printf_log(LOG_INFO, "BOX86: tcmalloc_minimal.so.4 used, reloading box86 with the lib preladed\n");
+            // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
+            int preload=(getenv("LD_PRELOAD"))?1:0;
+            int nenv = 0;
+            while(env[nenv]) nenv++;
+            // alloc + "LD_PRELOAD" if needd + last NULL ending
+            char** newenv = (char**)calloc(nenv+1+((preload)?0:1), sizeof(char*));
+            // copy strings
+            for (int i=0; i<nenv; ++i)
+                newenv[i] = strdup(env[i]);
+            // add ld_preload
+            if(preload) {
+                // find the line
+                int l = 0;
+                while(l<nenv) {
+                    if(strstr(newenv[l], "LD_PRELOAD=")==newenv[l]) {
+                        // found it!
+                        char *old = newenv[l];
+                        newenv[l] = (char*)calloc(strlen(old)+strlen("libtcmalloc_minimal.so.4:")+1, sizeof(char));
+                        strcpy(newenv[l], "LD_PRELOAD=libtcmalloc_minimal.so.4:");
+                        strcat(newenv[l], old + strlen("LD_PRELOAD="));
+                        free(old);
+                        // done, end loop
+                        l = nenv;
+                    } else ++l;
+                }
+            } else {
+                //move last one
+                newenv[nenv] = strdup(newenv[nenv-1]);
+                free(newenv[nenv-1]);
+                newenv[nenv-1] = strdup("LD_PRELOAD=libtcmalloc_minimal.so.4");
+            }
+            // duplicate argv too
+            char** newargv = calloc(argc+1, sizeof(char*));
+            int narg = 0;
+            while(argv[narg]) {newargv[narg] = strdup(argv[narg]); narg++;}
+            // launch with new env...
+            if(execve(newargv[0], newargv, newenv)<0)
+                printf_log(LOG_NONE, "Failed to relaunch, error is %d/%s\n", errno, strerror(errno));
+        } else {
+            printf_log(LOG_INFO, "BOX86: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
+        }
+    }
     // get and alloc stack size and align
     if(CalcStackSize(my_context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");

@@ -1061,7 +1061,7 @@ DATAV(__malloc_initialize_hook, 4)
 // malloc_set_state // Weak
 // malloc_stats // Weak
 GOW(malloc_trim, iFu)
-GOW(malloc_usable_size, uFp)
+GOW(malloc_usable_size, LFp)
 GOW(mallopt, iFii)  // Weak
 // mallwatch    // type B
 GO(mblen, iFpu)
@@ -1129,7 +1129,7 @@ GOW(mount, iFpppup)
 GOM(mprotect, iFEpLi)
 // mrand48
 // mrand48_r
-GOW(mremap, pFpuuip)	// 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
+GOW(mremap, pFpuuip)	// 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED // does this need some GOM for protection handling?
 GO(msgctl, iFiip)
 GOW(msgget, iFpi)
 GOW(msgrcv, lFipLli)

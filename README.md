@@ -94,6 +94,7 @@ Linux Steam can run now with box86. But it's still a bit unstable., and not ever
 Once open, Steam will only work on "Small mode" and in "Big Picture", not in the regular "Browser mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
 Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
 (Steam for Windows install fine but doesn't work yet)
+Some steam games (most of Source engine one, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it's use and will try to LD_PRELOAD it, for better compatibility. While it should work without, it is better to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` on debian familly)
 
 ----
 
