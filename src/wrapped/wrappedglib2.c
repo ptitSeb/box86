@@ -132,6 +132,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_list_find_custom, pFppp_t)             \
     GO(g_timeout_add_seconds, uFupp_t)          \
     GO(g_timeout_add_seconds_full, uFiuppp_t)   \
+    GO(g_log_set_handler, uFpipp_t)             \
 
 
 typedef struct glib2_my_s {
@@ -1349,6 +1350,13 @@ EXPORT uint32_t my_g_timeout_add_seconds_full(x86emu_t *emu, int priority, uint3
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_timeout_add_seconds_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
+}
+
+EXPORT uint32_t my_g_log_set_handler(x86emu_t *emu, void* domain, int level, void* f, void* data)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+
+    return my->g_log_set_handler(domain, level, findGLogFuncFct(f), data);
 }
 
 

@@ -616,7 +616,7 @@ GO(g_log_remove_handler, vFpu)
 GO(g_log_set_always_fatal, iFi)
 GOM(g_log_set_default_handler, pFEpp)
 GO(g_log_set_fatal_mask, iFpi)
-//GOM(g_log_set_handler, uFpiBp)
+GOM(g_log_set_handler, uFEpipp)
 GO(g_logv, vFpppp)      // need align?
 GO(g_lstat, iFpp)
 GO(g_main_context_acquire, iFp)
