@@ -204,8 +204,8 @@ void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
     int ret;
     // remove old value if any
     dynablock_t *old = (dynablock_t*)table[3];
-    if(old && old->father)
-        old = old->father;
+    if(old==dest)
+        return; // no change...
     if(old && old->marks) {
         khint_t kd = kh_get(mark, old->marks, (uintptr_t)table);
         if(kd!=kh_end(old->marks))
