@@ -554,6 +554,8 @@ void AddOffsetSymbol(lib_t *maplib, void* offs, const char* name)
 
 const char* GetNameOffset(lib_t *maplib, void* offs)
 {
+    if(!maplib || !maplib->mapoffsets)
+        return NULL;
     khint_t k = kh_get(mapoffsets, maplib->mapoffsets, (uintptr_t)offs);
     if (k!=kh_end(maplib->mapoffsets))
         return kh_value(maplib->mapoffsets, k);
