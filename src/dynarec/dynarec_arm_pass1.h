@@ -7,7 +7,7 @@
 #define READFLAGS(A)    dyn->insts[ninst].x86.use_flags = A
 #define SETFLAGS(A,B)   {dyn->insts[ninst].x86.set_flags = A; dyn->insts[ninst].x86.state_flags = B;}
 #define JUMP(A)         dyn->insts[ninst].x86.jmp = A
-#define BARRIER(A)      if(ninst) dyn->insts[ninst].x86.barrier |= A
+#define BARRIER(A)      dyn->insts[ninst].x86.barrier = A
 #define BARRIER_NEXT(A) if(ninst<dyn->size) dyn->insts[ninst+1].x86.barrier = A
 
 #define NEW_INST \
