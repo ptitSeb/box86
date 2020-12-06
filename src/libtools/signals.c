@@ -607,6 +607,9 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside same dynablock\n", addr, pc);            
                 }
             }
+            if(db_addr && !db_addr->nolinker) {
+                dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside a dynablock with linker\n", addr, pc);            
+            }
         }
         dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory\n", addr, pc);
         // access error
