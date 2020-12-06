@@ -61,10 +61,6 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         //dynarec_log(LOG_DEBUG, "--- Current invalidated while linking.\n");
         return arm_epilog_fast;
     }
-    if(table[3]) {
-        //dynarec_log(LOG_DEBUG, "--- Remove mark from %p (%p)\n", current, table[3]);
-        RemoveMark(table);
-    }
     if(!block) {
         // no block, don't try again, ever
         tableupdate(arm_epilog, addr, table);
@@ -80,12 +76,10 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         tableupdate(arm_epilog, addr, table);
         return arm_epilog_fast;
     }
-    dynablock_t *father = block->father?block->father:block;
-    if(!block->parent->nolinker || (current && father->marks)) {
+    //dynablock_t *father = block->father?block->father:block;
+    if(!block->parent->nolinker) {
         //dynarec_log(LOG_DEBUG, "--- Linking %p/%p to %p (table=%p[%p/%p/%p/%p])\n", block, block->block, current, table, table[0], table[1], table[2], table[3]);
-        // only update block if linker is allowed or if marks is possibe
-        if(current && father->marks && current!=father)
-            AddMark(current, father, table);
+        // only update block if linker is allowed
         tableupdate(block->block, addr, table);
     }
     return block->block;

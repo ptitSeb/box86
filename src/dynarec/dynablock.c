@@ -20,6 +20,7 @@
 #include "elfloader.h"
 #ifdef ARM
 #include "dynarec_arm.h"
+#include "arm_lock_helper.h"
 #else
 #error Unsupported architecture!
 #endif
@@ -58,8 +59,11 @@ dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, in
 void FreeDynablock(dynablock_t* db)
 {
     if(db) {
-        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p father=%p, tablesz=%d, %swith %d son(s)\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->father, db->tablesz, db->marks?"with marks, ":"", db->sons_size);
+        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p father=%p, tablesz=%d, with %d son(s) already gone=%d\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->father, db->tablesz, db->sons_size, db->gone);
+        if(db->gone)
+            return; // already in the process of deletion!
         db->done = 0;
+        db->gone = 1;
         // remove from direct if there
         uintptr_t startdb = db->parent->text;
         uintptr_t enddb = db->parent->text + db->parent->textsz;
@@ -67,31 +71,6 @@ void FreeDynablock(dynablock_t* db)
             uintptr_t addr = (uintptr_t)db->x86_addr;
             if(addr>=startdb && addr<enddb)
                 db->parent->direct[addr-startdb] = NULL;
-        }
-        if(db->marks) {
-            // Follow mark and set arm_linker instead
-            khint_t k;
-            kh_foreach_key(db->marks, k,
-                void** p = (void**)(uintptr_t)k;
-                dynarec_log(LOG_DEBUG, " -- resettable(%p)\n", p);
-                resettable(p);
-            );
-            // free mark
-            kh_destroy(mark, db->marks);
-            db->marks = NULL;
-        }
-        for(int i=0; i<db->tablesz; i+=4) {
-            dynablock_t* p = (dynablock_t*)db->table[i+3];
-            dynarec_log(LOG_DEBUG, "  -- table[%d+3] = %p ", i, p);
-            if(p && p!=db && p->marks) {
-                khint_t kd = kh_get(mark, p->marks, (uintptr_t)(&db->table[i+0]));
-                if(kd!=kh_end(p->marks)) {
-                    kh_del(mark, p->marks, kd);
-                    dynarec_log(LOG_DEBUG, "cleaned");
-                }
-                else {dynarec_log(LOG_DEBUG, "not found");}
-            }
-            dynarec_log(LOG_DEBUG, "\n");
         }
        // remove from hash if there
         if (db->parent->blocks) {
@@ -104,8 +83,7 @@ void FreeDynablock(dynablock_t* db)
         }
         // remove and free the sons
         for (int i=0; i<db->sons_size; ++i) {
-            dynablock_t *son = db->sons[i];
-            db->sons[i] = NULL;
+            dynablock_t *son = (dynablock_t*)arm_lock_xchg(&db->sons[i], 0);
             FreeDynablock(son);
         }
         // only the father free the DynarecMap
@@ -160,16 +138,6 @@ void MarkDynablock(dynablock_t* db)
     if(db) {
         if(db->father)
             db = db->father;    // mark only father
-        if(db->marks && !db->need_test) {
-            // Follow mark and set arm_linker instead
-            khint_t k;
-            kh_foreach_key(db->marks, k,
-                void** p = (void**)(uintptr_t)k;
-                resettable(p);
-            );
-            // free mark
-            kh_clear(mark, db->marks);
-        }
         if(db->nolinker)
             db->need_test = 1;  // test only blocks that can be marked (and so deleted)
     }
@@ -182,43 +150,6 @@ void ProtectDynablock(dynablock_t* db)
             return;    // protect only father, child(ren) will be automatically
         protectDB((uintptr_t)db->x86_addr, db->x86_size);
     }
-}
-
-void RemoveMark(void** table)
-{
-    // remove old value if any
-    dynablock_t *old = (dynablock_t*)table[3];
-    if(old && old->father)
-        old = old->father;
-    if(old && old->marks) {
-        khint_t kd = kh_get(mark, old->marks, (uintptr_t)table);
-        if(kd!=kh_end(old->marks))
-            kh_del(mark, old->marks, kd);
-    }
-    table[3] = NULL;
-}
-
-// source is linked to dest (i.e. source->table[x] = dest->block), so add a "mark" in dest, add a "linked" info to source
-void AddMark(dynablock_t* source, dynablock_t* dest, void** table)
-{
-    int ret;
-    // remove old value if any
-    dynablock_t *old = (dynablock_t*)table[3];
-    if(old==dest)
-        return; // no change...
-    if(old && old->marks) {
-        khint_t kd = kh_get(mark, old->marks, (uintptr_t)table);
-        if(kd!=kh_end(old->marks))
-            kh_del(mark, old->marks, kd);
-    }
-    // add mark if needed
-    if(dest->father)
-        dest = dest->father;
-    if(dest->marks) {
-        kh_put(mark, dest->marks, (uintptr_t)table, &ret);
-        table[3] = (void*)dest;
-    } else
-        table[3] = NULL;
 }
 
 void MarkDynablockList(dynablocklist_t** dynablocks)
@@ -352,8 +283,8 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
                 end = enddb;
             if(end>startdb && start<enddb)
                 for(uintptr_t i = start; i<end; ++i)
-                    if(dynablocks->direct[i-startdb]) {
-                        db = dynablocks->direct[i-startdb];
+                    db = (dynablock_t*)arm_lock_xchg(&dynablocks->direct[i-startdb], 0);
+                    if(db) {
                         if(db->father)
                             db =db->father;
                         k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
@@ -516,12 +447,18 @@ void ConvertHash2Direct(dynablocklist_t* dynablocks)
 #define MAGIC_SIZE  8
 #define MAGIC_SIZE2 16
 
-dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created)
+dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* created)
 {
     if(!dynablocks) {
-        dynarec_log(LOG_INFO, "Warning: Ask to create a dynblock with a NULL dynablocklist (addr=%p)\n", (void*)addr);
+        dynarec_log(LOG_INFO, "Warning: Ask to create a dynablock with a NULL dynablocklist (addr=%p)\n", (void*)addr);
         *created = 0;
         return NULL;
+    }
+    if(dynablocks->textsz && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
+        //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
+        //*created = 0;
+        //return NULL;
+        return AddNewDynablock(getDBFromAddress(addr), addr, created);
     }
     khint_t k;
     int ret;
@@ -558,22 +495,21 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
     
     // Lock as write now!
     int need_unlock = 0;
-    if(dynablocks->blocks) {
-        pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
-        need_unlock = 1;
-    }
     // create and add new block
     dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
     if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))) {
-        block = dynablocks->direct[addr-dynablocks->text] = (dynablock_t*)calloc(1, sizeof(dynablock_t));
+        block = (dynablock_t*)calloc(1, sizeof(dynablock_t));
+        dynablock_t* tmp = (dynablock_t*)arm_lock_storeifnull(&dynablocks->direct[addr-dynablocks->text], block);
+        if(tmp !=  block) {
+            // a block appeard!
+            free(block);
+            *created = 0;
+            return tmp;
+        }
     } else {
-        if(dynablocks->textsz && ((addr<dynablocks->text) || (addr>=(dynablocks->text+dynablocks->textsz)))) {
-            if(need_unlock)
-                pthread_rwlock_unlock(&dynablocks->rwlock_blocks);
-            //dynarec_log(LOG_INFO, "Warning: Refused to create a Direct Block that is out-of-bound: dynablocks=%p (%p:%p), addr=%p\n", dynablocks, (void*)(dynablocks->text), (void*)(dynablocks->text+dynablocks->textsz), (void*)addr);
-            //*created = 0;
-            //return NULL;
-            return AddNewDynablock(getDBFromAddress(addr), addr, with_marks, created);
+        if(dynablocks->blocks) {
+            pthread_rwlock_wrlock(&dynablocks->rwlock_blocks);
+            need_unlock = 1;
         }
         k = kh_put(dynablocks, dynablocks->blocks, addr-dynablocks->base, &ret);
         if(!ret) {
@@ -591,9 +527,6 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int wi
             ConvertHash2Direct(dynablocks);
     }
     block->parent = dynablocks;
-    // add mark if needed
-    if(with_marks)
-        block->marks = kh_init(mark);
 
     // create an empty block first, so if other thread want to execute the same block, they can, but using interpretor path
     if(need_unlock)
@@ -636,7 +569,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         return block;
 
     int created = create;
-    block = AddNewDynablock(dynablocks, addr, (dynablocks->nolinker)&&(dynablocks->direct), &created);
+    block = AddNewDynablock(dynablocks, addr, &created);
     if(!created || !create)
         return block;   // existing block...
 
@@ -648,7 +581,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
 
-    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, %swith %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+block->x86_size), block->block, block->size, block->marks?"with Marks, ":"", block->sons_size);
+    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+block->x86_size), block->block, block->size, block->sons_size);
 
     return block;
 }
@@ -660,7 +593,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
-            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X)%s with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->marks?" with Mark,":"", father->sons_size);
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size);
             // no more current if it gets invalidated too
             if(*current && father->x86_addr>=(*current)->x86_addr && (father->x86_addr+father->x86_size)<(*current)->x86_addr)
                 *current = NULL;
@@ -685,7 +618,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
-            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X)%s with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->marks?" with Mark,":"", father->sons_size);
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s)\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size);
             // Free father, it's now invalid!
             FreeDynablock(father);
             // start again... (will create a new block)

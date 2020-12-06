@@ -642,13 +642,11 @@ _trace:
                     // not aligned, dont't try to "LOCK"
                     tmp32u = ED->dword[0];
                     ED->dword[0] = GD.dword[0];
+                    GD.dword[0] = tmp32u;
                 } else {
                     // XCHG is supposed to automaticaly LOCK memory bus
-                    do {
-                        tmp32u = arm_lock_read_d(ED);
-                    } while(arm_lock_write_d(ED, GD.dword[0]));
+                    GD.dword[0] = arm_lock_xchg(ED, GD.dword[0]);
                 }
-                GD.dword[0] = tmp32u;
             }
 #else
             GET_ED;

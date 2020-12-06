@@ -312,8 +312,8 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
         sons = (dynablock_t**)calloc(helper.sons_size, sizeof(dynablock_t*));
         for (int i=0; i<helper.sons_size; ++i) {
             int created = 1;
-            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], 0, &created);
-            if(created) {    // avoid breaking a working block! also, block could be outside this parent...
+            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
+            if(created || !son->parent) {    // avoid breaking a working block! also, block could be outside this parent...
                 son->block = helper.sons_arm[i];
                 son->x86_addr = (void*)helper.sons_x86[i];
                 son->x86_size = end-helper.sons_x86[i];
@@ -321,6 +321,8 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
                 son->father = block;
                 son->done = 1;
                 sons[sons_size++] = son;
+                if(!son->parent)
+                    son->parent = block->parent;
             }
         }
         if(sons_size) {

@@ -30,12 +30,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current);   // return NULL if block is not found / cannot be created. Don't create if create==0
 dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr);
 
-// source is linked to dest (i.e. source->table[x] = dest->block), so add a "mark" in dest, add a "linked" info to source
-void AddMark(dynablock_t* source, dynablock_t* dest, void** table);
-// remove a Table mark (and also remove lined info from other dynablock, if any)
-void RemoveMark(void** table);
-
 // Create and Add an new dynablock in the list, handling direct/map
-dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int with_marks, int* created);
+dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* created);
 
 #endif //__DYNABLOCK_H_
