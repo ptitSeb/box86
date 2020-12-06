@@ -536,7 +536,7 @@ EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, emu->context, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 
 // DL functions from wrappedlibdl.c
@@ -585,9 +585,9 @@ EXPORT int32_t my_SDL_GetWMInfo(x86emu_t* emu, void* p)
     int ret = my->SDL_GetWMInfo(p);
     my_SDL_SysWMinfo *info = (my_SDL_SysWMinfo*)p;
     if(info->info.x11.lock_func)
-        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.lock_func, 0);
+        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, emu->context, vFv, info->info.x11.lock_func, 0);
     if(info->info.x11.unlock_func)
-        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0);
+        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, emu->context, vFv, info->info.x11.unlock_func, 0);
     return ret;
 }
 

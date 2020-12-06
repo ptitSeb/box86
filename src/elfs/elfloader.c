@@ -66,7 +66,7 @@ void FreeElfHeader(elfheader_t** head)
 #ifdef DYNAREC
     if(h->text) {
         dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
-        cleanDBFromAddressRange(h->text, h->textsz, 1);
+        cleanDBFromAddressRange(my_context, h->text, h->textsz, 1);
     }
 #endif
     free(h->name);
@@ -267,7 +267,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 #ifdef DYNAREC
                 if(e->p_flags & PF_X) {
                     dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
-                    addDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
+                    addDBFromAddressRange(context, (uintptr_t)dest, e->p_memsz, 0);
                 }
 #endif
             } 
@@ -575,7 +575,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
                 return -1;
         }
         if(pltResolver==~0) {
-            pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
+            pltResolver = AddBridge(my_context->system, my_context, vFE, PltResolver, 0);
         }
         if(head->pltgot) {
             *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
@@ -1000,18 +1000,14 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     if(ret) {
         return ret;
     }*/
-    if(addr>0x100)
-        if((*(uint8_t*)addr)==0xCC || (((*(uint8_t*)addr)==0xC3 || (*(uint8_t*)addr)==0xC2) /*&& (*(uint8_t*)(addr-11))==0xCC*/) )
-            return context->dynablocks;
-    if(box86_dynarec_forced)
-        return context->dynablocks;
-    // check if the adress has an alternate one
-    if(hasAlternate((void*)addr))
-        return context->dynablocks;
+    if(box86_dynarec_forced) {
+        addDBFromAddressRange(my_context, addr, 1, 1);
+        return my_context->dynmap[addr>>DYNAMAP_SHIFT]->dynablocks;
+    }
     //check if address is in an elf... if yes, grant a block (should I warn)
     Dl_info info;
     if(dladdr((void*)addr, &info)) {
-        printf_log(LOG_INFO, "Address %p is in a native Elf memory space (function \"%s\" in %s)\n", (void*)addr, info.dli_sname, info.dli_fname);
+        dynarec_log(LOG_INFO, "Address %p is in a native Elf memory space (function \"%s\" in %s)\n", (void*)addr, info.dli_sname, info.dli_fname);
         return NULL;
     }
     dynarec_log(LOG_INFO, "Address %p not found in Elf memory and is not a native call wrapper\n", (void*)addr);

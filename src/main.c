@@ -910,6 +910,9 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box86_emulated_libs, 0);
     }*/
+    /*if(!strcmp(prgname, "gdb")) {
+        exit(-1);
+    }*/
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = strdup(argv[i+nextarg]);

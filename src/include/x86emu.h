@@ -32,6 +32,9 @@ void ResetFlags(x86emu_t *emu);
 const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip);
 
 void StopEmu(x86emu_t* emu, const char* reason);
+#ifdef DYNAREC
+void DynablockEmuMarker(box86context_t* context);
+#endif
 void PushExit(x86emu_t* emu);
 void* GetExit();
 void EmuCall(x86emu_t* emu, uintptr_t addr);

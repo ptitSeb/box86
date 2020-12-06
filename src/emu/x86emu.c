@@ -35,6 +35,13 @@ static uint32_t x86emu_parity_tab[8] =
 };
 
 static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
+#ifdef DYNAREC
+void DynablockEmuMarker(box86context_t* context)
+{
+    dynarec_log(LOG_DUMP, "Create bridge memory map for PushExit\n");
+    addDBFromAddressRange(context, (uintptr_t)&EndEmuMarker[0], sizeof(EndEmuMarker), 0);
+}
+#endif
 void PushExit(x86emu_t* emu)
 {
     Push(emu, (uint32_t)&EndEmuMarker);

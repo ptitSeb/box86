@@ -2,8 +2,6 @@
 #define __DYNABLOCK_PRIVATE_H_
 
 typedef struct dynablocklist_s  dynablocklist_t;
-typedef struct kh_dynablocks_s  kh_dynablocks_t;
-typedef struct kh_mark_s        kh_mark_t;
 
 typedef union instsize_s {
     uint8_t c;
@@ -34,8 +32,6 @@ typedef struct dynablock_s {
 } dynablock_t;
 
 typedef struct dynablocklist_s {
-    kh_dynablocks_t*    blocks;
-    pthread_rwlock_t    rwlock_blocks;
     uintptr_t           base;
     uintptr_t           text;
     int                 textsz;

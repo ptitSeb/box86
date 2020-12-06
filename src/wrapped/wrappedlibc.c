@@ -2221,13 +2221,13 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+                addDBFromAddressRange(my_context, (uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
             else
-                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
     } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange((uintptr_t)addr, length, 0);
+        addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
     #endif
     return ret;
@@ -2246,13 +2246,13 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+                addDBFromAddressRange(my_context, (uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
             else
-                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
     } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange((uintptr_t)addr, length, 0);
+        addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
     #endif
     return ret;
@@ -2263,7 +2263,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     if(box86_dynarec)
-        cleanDBFromAddressRange((uintptr_t)addr, length, 1);
+        cleanDBFromAddressRange(my_context, (uintptr_t)addr, length, 1);
     #endif
     return munmap(addr, length);
 }
@@ -2275,9 +2275,9 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     #ifdef DYNAREC
     if(box86_dynarec) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len, 1);
+            addDBFromAddressRange(my_context, (uintptr_t)addr, len, 1);
         else
-            cleanDBFromAddressRange((uintptr_t)addr, len, 0);
+            cleanDBFromAddressRange(my_context, (uintptr_t)addr, len, 0);
     }
     #endif
     return ret;

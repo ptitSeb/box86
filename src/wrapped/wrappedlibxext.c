@@ -147,7 +147,7 @@ EXPORT void* my_XSetExtensionErrorHandler(x86emu_t* emu, void* handler)
         if(CheckBridged(lib->priv.w.bridge, old))
             ret = (void*)CheckBridged(lib->priv.w.bridge, old);
         else
-            ret = (void*)AddBridge(lib->priv.w.bridge, iFppp, old, 0);
+            ret = (void*)AddBridge(lib->priv.w.bridge, lib->context, iFppp, old, 0);
     }
     if(exterrorhandlercb) FreeCallback(exterrorhandlercb);
     exterrorhandlercb = cb;

@@ -76,7 +76,7 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    ret = AddBridge(emu->context->system, emu->context, kh_value(emu->context->glwrappers, k), symbol, 0);
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
     return (void*)ret;
 

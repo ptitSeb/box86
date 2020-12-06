@@ -159,26 +159,26 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size)
 
 // each dynmap is 64k of size
 
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
+void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int nolinker)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        if(!my_context->dynmap[i]) {
-            my_context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
-            my_context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
+        if(!context->dynmap[i]) {
+            context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
+            context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
         }
     }
 }
 
-void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
+void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
     uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>DYNAMAP_SHIFT):(addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        dynmap_t* dynmap = my_context->dynmap[i];
+        dynmap_t* dynmap = context->dynmap[i];
         if(dynmap) {
             uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
             uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
@@ -188,7 +188,7 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
             if(endaddr>enddb) endaddr = enddb;
             if(startaddr==startdb && endaddr==enddb) {
                 if(destroy) {
-                    my_context->dynmap[i] = NULL;
+                    context->dynmap[i] = NULL;
                     FreeDynablockList(&dynmap->dynablocks);
                     free(dynmap);
                 } else
@@ -221,7 +221,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
     // should get "end" according to last block inside the window
     mprotect((void*)start, end-start, PROT_READ|PROT_WRITE|PROT_EXEC);
-    cleanDBFromAddressRange(start, end-start, 0);
+    cleanDBFromAddressRange(my_context, start, end-start, 0);
 }
 
 #endif
@@ -235,6 +235,10 @@ void initAllHelpers(box86context_t* context)
     my_context = context;
     init_pthread_helper();
     init_signal_helper(context);
+    #ifdef DYNAREC
+    if(box86_dynarec)
+        DynablockEmuMarker(context);
+    #endif
     inited = 1;
 }
 
@@ -294,7 +298,7 @@ box86context_t *NewBox86Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
+    context->vsyscall = AddBridge(context->system, context, vFv, x86Syscall, 0);
 #ifdef BUILD_LIB
     context->box86lib = RTLD_DEFAULT;   // not ideal
 #else
@@ -323,7 +327,6 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynablocks = NewDynablockList(0, 0, 0, 0, 0);
 #endif
     InitFTSMap(context);
 
@@ -383,8 +386,6 @@ void FreeBox86Context(box86context_t** context)
 
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-    if(ctx->dynablocks)
-        FreeDynablockList(&ctx->dynablocks);
     for (int i=0; i<ctx->mmapsize; ++i)
         if(ctx->mmaplist[i].block)
             #ifdef USE_MMAP
@@ -393,7 +394,7 @@ void FreeBox86Context(box86context_t** context)
             free(ctx->mmaplist[i].block);
             #endif
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
-    cleanDBFromAddressRange(0, 0xffffffff, 1);
+    cleanDBFromAddressRange(ctx, 0, 0xffffffff, 1);
     pthread_mutex_destroy(&ctx->mutex_blocks);
     pthread_mutex_destroy(&ctx->mutex_mmap);
     free(ctx->mmaplist);

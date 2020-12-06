@@ -172,7 +172,6 @@ typedef struct box86context_s {
 #ifdef DYNAREC
     pthread_mutex_t     mutex_blocks;
     pthread_mutex_t     mutex_mmap;
-    dynablocklist_t     *dynablocks;
     mmaplist_t          *mmaplist;
     int                 mmapsize;
     dynmap_t*           dynmap[DYNAMAP_SIZE];  // 4G of memory mapped by 4K block
@@ -218,8 +217,8 @@ int AddTLSPartition(box86context_t* context, int tlssize);
 uintptr_t AllocDynarecMap(int size, int nolinker);
 void FreeDynarecMap(uintptr_t addr, uint32_t size);
 
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker);
-void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
+void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int nolinker);
+void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int destroy);
 
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size);

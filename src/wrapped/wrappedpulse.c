@@ -474,7 +474,7 @@ static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFppiip, cb, 0);
+            b = AddBridge(bridge, my_context, vFppiip, cb, 0);
     }
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
     return (void*)RunFunction(my_context, (uintptr_t)my_mainloop_ref->io_new, 5, api, fd, events, b, userdata);
@@ -509,7 +509,7 @@ static void my_io_set_destroy(void* e, void* cb)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFppp, cb, 0);
+            b = AddBridge(bridge, my_context, vFppp, cb, 0);
     }
     RunFunction(my_context, (uintptr_t)my_mainloop_ref->io_set_destroy, 2, e, b);
 }
@@ -531,7 +531,7 @@ static void* my_time_new(void* api, void* tv, void* cb, void* data)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFpppp, cb, 0);
+            b = AddBridge(bridge, my_context, vFpppp, cb, 0);
     }
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
     return (void*)RunFunction(my_context, (uintptr_t)my_mainloop_ref->time_new, 4, api, tv, b, data);
@@ -566,7 +566,7 @@ static void my_time_set_destroy(void* e, void* cb)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFppp, cb, 0);
+            b = AddBridge(bridge, my_context, vFppp, cb, 0);
     }
     RunFunction(my_context, (uintptr_t)my_mainloop_ref->time_set_destroy, 2, e, b);
 }
@@ -588,7 +588,7 @@ static void* my_defer_new(void* api, void* cb, void* data)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFppp, cb, 0);
+            b = AddBridge(bridge, my_context, vFppp, cb, 0);
     }
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
     return (void*)RunFunction(my_context, (uintptr_t)my_mainloop_ref->defer_new, 3, api, b, data);
@@ -623,7 +623,7 @@ static void my_defer_set_destroy(void* e, void* cb)
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
-            b = AddBridge(bridge, vFppp, cb, 0);
+            b = AddBridge(bridge, my_context, vFppp, cb, 0);
     }
     RunFunction(my_context, (uintptr_t)my_mainloop_ref->defer_set_destroy, 2, e, b);
 }
@@ -646,7 +646,7 @@ static void bridgeMainloopAPI(bridge_t* bridge, my_pa_mainloop_api_t* api)
     if(!api) {
         return;
     }
-    #define GO(A, W) my_mainloop_native.A = api->A; if(api->A) {my_mainloop_api.A = (void*)AddCheckBridge(bridge, W, native_##A, 0); api->A=my_##A;} else my_mainloop_api.A = NULL
+    #define GO(A, W) my_mainloop_native.A = api->A; if(api->A) {my_mainloop_api.A = (void*)AddCheckBridge(bridge, my_context, W, native_##A, 0); api->A=my_##A;} else my_mainloop_api.A = NULL
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);

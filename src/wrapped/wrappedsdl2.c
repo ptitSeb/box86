@@ -298,7 +298,7 @@ static void* reverse_eventfilter_Fct(void* fct)
     #define GO(A) if(my_eventfilter_##A == fct) return (void*)my_eventfilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, iFpp, fct, 0);
+    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, my_context, iFpp, fct, 0);
 }
 
 // LogOutput
@@ -331,7 +331,7 @@ static void* reverse_LogOutput_Fct(void* fct)
     #define GO(A) if(my_LogOutput_##A == fct) return (void*)my_LogOutput_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, vFpiip, fct, 0);
+    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, my_context, vFpiip, fct, 0);
 }
 
 #undef SUPER
@@ -824,7 +824,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, emu->context, kh_value(emu->context->glwrappers, k), symbol, 0);
 }
 
 #define nb_once	16
