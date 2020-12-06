@@ -96,7 +96,6 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     if(!*dynablocks)
         return;
     dynarec_log(LOG_DEBUG, "Free Direct Blocks %p from Dynablocklist nolinker=%d\n", (*dynablocks)->direct, (*dynablocks)->nolinker);
-    dynablock_t* db;
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
             if((*dynablocks)->direct[i] && !(*dynablocks)->direct[i]->father) 
@@ -221,7 +220,6 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
 
     if(dynablocks->direct) {
         dynablock_t* db;
-        uintptr_t s, e;
         int ret;
         khint_t k;
         kh_dynablocks_t *blocks = kh_init(dynablocks);
@@ -236,14 +234,15 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
             if(end>enddb)
                 end = enddb;
             if(end>startdb && start<enddb)
-                for(uintptr_t i = start; i<end; ++i)
+                for(uintptr_t i = start; i<end; ++i) {
                     db = (dynablock_t*)arm_lock_xchg(&dynablocks->direct[i-startdb], 0);
                     if(db) {
                         if(db->father)
-                            db =db->father;
+                            db = db->father;
                         k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
                         kh_value(blocks, k) = db;
                     }
+                }
         }
         // purge the list
         kh_foreach_value(blocks, db,
