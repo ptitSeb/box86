@@ -411,7 +411,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     POP(xESP, 1<<x2);
     STRH_REG(x2, xEmu, x1);
     MOVW(x1, 0);
-    STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_clean[_CS]));
+    STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_CS]));
     // POP EFLAGS
     POP(xESP, (1<<x1));
     CALL(arm_popf, -1, (1<<xEIP));
@@ -444,12 +444,14 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {
     MESSAGE(LOG_DUMP, "Get TLSData\n");
-    //int32_t i32;
-    //MAYUSE(i32);
-    //LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_GS]));
-    //CMPS_IMM8(x12, 1);
-    //LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
-    //B_MARKSEG(cEQ);
+    int32_t j32;
+    MAYUSE(j32);
+    LDR_IMM9(x1, xEmu, offsetof(x86emu_t, context));
+    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_serial[_GS]));  // complete check here
+    LDR_IMM9(x1, x1, offsetof(box86context_t, sel_serial));
+    CMPS_REG_LSL_IMM5(x12, x1, 0);
+    LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
+    B_MARKSEG(cEQ);
     MOVW(x1, _GS);
     call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
     MARKSEG;
@@ -461,7 +463,7 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     int32_t j32;
     MAYUSE(j32);
     MESSAGE(LOG_DUMP, "Get FS: Offset\n");
-    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_clean[_FS]));
+    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_serial[_FS]));// fast check here
     CMPS_IMM8(x12, 1);
     LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
     B_MARKSEG(cEQ);

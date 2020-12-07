@@ -682,7 +682,7 @@
             NEXT;
         _0f_0xA1:                      /* POP FS */
             emu->segs[_FS] = Pop(emu);    // no check, no use....
-            emu->segs_clean[_FS] = 0;
+            emu->segs_serial[_FS] = 0;
             NEXT;
         _0f_0xA2:                      /* CPUID */
             tmp32u = R_EAX;
@@ -716,7 +716,7 @@
             NEXT;
         _0f_0xA9:                      /* POP GS */
             emu->segs[_GS] = Pop(emu);
-            emu->segs_clean[_GS] = 0;
+            emu->segs_serial[_GS] = 0;
             NEXT;
 
 

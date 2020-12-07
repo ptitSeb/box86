@@ -273,7 +273,7 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
-        emu->segs_clean[i] = 0;
+        emu->segs_serial[i] = 0;
         
     R_ESP -= nargs*4;   // need to push in reverse order
 
@@ -546,7 +546,7 @@ if(sig==SIGSEGV) exit(-1);
             // flags
             if(sigcontext->uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->packed_eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
             // get segments
-            #define GO(S)   if(sigcontext->uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_clean[_##S] = 0;}
+            #define GO(S)   if(sigcontext->uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_serial[_##S] = 0;}
             GO(GS);
             GO(FS);
             GO(ES);

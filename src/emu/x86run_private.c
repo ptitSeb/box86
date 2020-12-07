@@ -745,9 +745,9 @@ void UnpackFlags(x86emu_t* emu)
 
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg)
 {
-    if(!emu->segs_clean[seg] || seg==_GS) {
+    if(emu->segs_serial[seg] != emu->context->sel_serial) {
         emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu->segs[seg]);
-        emu->segs_clean[seg] = 1;
+        emu->segs_serial[seg] = emu->context->sel_serial;
     }
     return emu->segs_offs[seg];
 }

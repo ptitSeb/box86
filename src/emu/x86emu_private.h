@@ -56,7 +56,7 @@ typedef struct x86emu_s {
     // segments
     uint32_t    segs[6];        // only 32bits value?
     uintptr_t   segs_offs[6];   // computed offset associate with segment
-    int         segs_clean[6];  // are seg offset clean (1) or does they need to be re-computed (0)?
+    uint32_t    segs_serial[6];  // are seg offset clean (not 0) or does they need to be re-computed (0)? For GS, serial need to be the same as context->sel_serial
     // emu control
     int         quit;
     int         error;
@@ -65,12 +65,13 @@ typedef struct x86emu_s {
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
     int         longjmp;        // if quit because of longjmp
+    // parent context
+    box86context_t *context;
     #ifdef DYNAREC
+    // virtual return stack
     int         cstacki;            // current index
     uint64_t    cstack[CSTACK+1];   // pair of x86 address / native address for call/ret, using uint64_t for alignement, +1 for allignment
     #endif
-    // parent context
-    box86context_t *context;
     // cpu helpers
     reg32_t     zero;
     reg32_t     *sbiidx[8];

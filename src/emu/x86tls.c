@@ -89,6 +89,8 @@ uint32_t my_set_thread_area(thread_area_t* td)
 
     pthread_setspecific(my_context->segtls[idx-7].key, (void*)my_context->segtls[idx-7].base);
 
+    ResetSegmentsCache(thread_get_emu());
+
     return 0;
 }
 
@@ -120,6 +122,8 @@ uint32_t my_modify_ldt(x86emu_t* emu, int op, thread_area_t* td, int size)
     my_context->segtls[idx].limit = td->limit;
     pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
     */
+    
+    ResetSegmentsCache(thread_get_emu());
 
     return 0;
 }

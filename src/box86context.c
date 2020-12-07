@@ -294,6 +294,7 @@ box86context_t *NewBox86Context(int argc)
 #else
     context->deferedInit = 1;
 #endif
+    context->sel_serial = 1;
     context->maplib = NewLibrarian(context, 1);
     context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
@@ -492,6 +493,13 @@ int AddTLSPartition(box86context_t* context, int tlssize) {
     context->tlsdata = realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
     memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
+    // clean GS segment for current emu
+    if(my_context) {
+        ResetSegmentsCache(thread_get_emu());
+        if(!(++context->sel_serial))
+            ++context->sel_serial;
+    }
+
     return -context->tlssize;   // negative offset
 }
 

@@ -1022,7 +1022,7 @@ void RunFS(x86emu_t *emu)
             nextop = F8;
             GET_ED_OFFS(tlsdata);
             emu->segs[((nextop&0x38)>>3)] = ED->word[0];
-            emu->segs_clean[((nextop&0x38)>>3)] = 0;
+            emu->segs_serial[((nextop&0x38)>>3)] = 0;
             break;
         case 0x8F:              /* POP Ed */
             nextop = F8;

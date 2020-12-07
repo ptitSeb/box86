@@ -69,6 +69,8 @@ typedef struct box86context_s {
 
     int                 x86trace;
     int                 trace_tid;
+
+    uint32_t            sel_serial;     // will be increment each time selectors changes
 #ifdef DYNAREC
     int                 trace_dynarec;
     pthread_mutex_t     mutex_dyndump;
