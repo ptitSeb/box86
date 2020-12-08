@@ -265,6 +265,26 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		pthread_routine, et);
 }
 
+void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet)
+{
+	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
+	void* stack = malloc(stacksize);
+	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+    x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
+	SetupX86Emu(emuthread);
+	SetFS(emuthread, GetFS(emu));
+	et->emu = emuthread;
+	et->fnc = (uintptr_t)f;
+	et->arg = arg;
+	#ifdef DYNAREC
+	// pre-creation of the JIT code for the entry point of the thread
+	dynablock_t *current = NULL;
+	DBGetBlock(emu, (uintptr_t)f, 1, &current);
+	#endif
+	*pet =  et;
+	return pthread_routine;
+}
+
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
 #define SUPER() \

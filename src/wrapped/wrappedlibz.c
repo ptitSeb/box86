@@ -70,6 +70,58 @@ void freeZMy(void* lib)
     //libz_my_t *my = (libz_my_t *)lib;
 }
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// alloc ...
+#define GO(A)   \
+static uintptr_t my_alloc_fct_##A = 0;                                          \
+static void* my_alloc_##A(void* opaque, uint32_t items, uint32_t size)                  \
+{                                                                                       \
+    return (void*)RunFunction(my_context, my_alloc_fct_##A, 3, opaque, items, size);    \
+}
+SUPER()
+#undef GO
+static void* find_alloc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_alloc_fct_##A == (uintptr_t)fct) return my_alloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_alloc_fct_##A == 0) {my_alloc_fct_##A = (uintptr_t)fct; return my_alloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for zlib alloc callback\n");
+    return NULL;
+}
+// free ...
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;                               \
+static void my_free_##A(void* opaque, void* address)                \
+{                                                                   \
+    RunFunction(my_context, my_free_fct_##A, 2, opaque, address);   \
+}
+SUPER()
+#undef GO
+static void* find_free_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for zlib free callback\n");
+    return NULL;
+}
+#undef SUPER
 
 typedef struct z_stream_s {
     void *next_in;   
@@ -88,37 +140,11 @@ typedef struct z_stream_s {
     uint32_t   reserved; 
 } z_stream;
 
-static void* my_zlib_alloc(void* opaque, uint32_t items, uint32_t size)
-{
-    x86emu_t *emu = (x86emu_t*)opaque;
-    SetCallbackNArg(emu, 3);
-    SetCallbackArg(emu, 1, (void*)items);
-    SetCallbackArg(emu, 2, (void*)size);
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 4));
-    return (void*)RunCallback(emu);
-}
-
-static void my_zlib_free(void* opaque, void* address)
-{
-    x86emu_t *emu = (x86emu_t*)opaque;
-    SetCallbackNArg(emu, 2);
-    SetCallbackArg(emu, 1, address);
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
-    RunCallback(emu);
-}
-
 static void wrapper_stream_z(x86emu_t* emu, void* str)
 {
     z_stream *stream = (z_stream*)str;
-    x86emu_t *cb = NULL;
-    if(stream->zalloc || stream->zfree) {
-        cb = AddCallback(emu, 0, 3, stream->opaque, NULL, NULL, NULL);   // address will be put later
-        SetCallbackArg(cb, 4, stream->zalloc);
-        SetCallbackArg(cb, 5, stream->zfree);
-        stream->opaque = cb;
-        if(stream->zalloc) stream->zalloc = my_zlib_alloc;
-        if(stream->zfree) stream->zfree = my_zlib_free;
-    }
+    stream->zalloc = find_alloc_Fct(stream->zalloc);
+    stream->zfree = find_free_Fct(stream->zfree);
 }
 
 EXPORT int32_t my_inflateInit_(x86emu_t* emu, void* str, void* version, int32_t size)
@@ -145,14 +171,7 @@ EXPORT int32_t my_inflateInit2_(x86emu_t* emu, void* str, int windowBits, void* 
 EXPORT int32_t my_inflateEnd(x86emu_t* emu, void* str)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
-    z_stream *stream = (z_stream*)str;
-    // check if function need changing...
-    x86emu_t *cb = (x86emu_t*)stream->opaque;
     int32_t r = my->inflateEnd(str);
-    if(cb) {
-        stream->opaque = GetCallbackArg(cb, 0);
-        FreeCallback(cb);   // will do nothing if cb is not a callback emu
-    }
     return r;
 }
 
@@ -173,14 +192,7 @@ EXPORT int32_t my_deflateInit2_(x86emu_t* emu, void* str, int level, int method,
 EXPORT int32_t my_deflateEnd(x86emu_t* emu, void* str)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
-    z_stream *stream = (z_stream*)str;
-    // check if function need changing...
-    x86emu_t *cb = (x86emu_t*)stream->opaque;
     int32_t r = my->deflateEnd(str);
-    if(cb) {
-        stream->opaque = GetCallbackArg(cb, 0);
-        FreeCallback(cb);   // will do nothing if cb is not a callback emu
-    }
     return r;
 }
 

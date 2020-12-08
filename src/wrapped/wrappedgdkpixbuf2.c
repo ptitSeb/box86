@@ -47,23 +47,43 @@ void freeGdkpixbuf2My(void* lib)
     //gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t *)lib;
 }
 
-static void my_destroy_pixbuf(void* pixels, void* data)
-{
-    x86emu_t *emu = (x86emu_t*)data;
-    SetCallbackArg(emu, 0, pixels);
-    RunCallback(emu);
-    FreeCallback(emu);
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)
+
+// destroy_pixbuf
+#define GO(A)   \
+static uintptr_t my_destroy_pixbuf_fct_##A = 0;                             \
+static void my_destroy_pixbuf_##A(void* pixels, void* data)                 \
+{                                                                           \
+    RunFunction(my_context, my_destroy_pixbuf_fct_##A, 2, pixels, data);    \
 }
+SUPER()
+#undef GO
+static void* finddestroy_pixbufFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_destroy_pixbuf_fct_##A == (uintptr_t)fct) return my_destroy_pixbuf_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_destroy_pixbuf_fct_##A == 0) {my_destroy_pixbuf_fct_##A = (uintptr_t)fct; return my_destroy_pixbuf_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk-pixbuf2 destroy_pixbuf callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
 EXPORT void* my_gdk_pixbuf_new_from_data(x86emu_t* emu, void* data, int32_t colorspace, int32_t has_alpha, int32_t bpp, int32_t w, int32_t h, int32_t stride, void* destroy_func, void* destroy_data)
 {
     library_t * lib = GetLibInternal(gdkpixbuf2Name);
     gdkpixbuf2_my_t *my = (gdkpixbuf2_my_t*)lib->priv.w.p2;
 
-    x86emu_t *emu_cb = NULL;
-    if(destroy_func) {
-        emu_cb = AddSmallCallback(emu, (uintptr_t)destroy_func, 2, NULL, destroy_data, NULL, NULL);
-    }
-    return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, destroy_func?my_destroy_pixbuf:NULL, emu_cb);
+    return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
 }
 
 

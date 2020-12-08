@@ -382,7 +382,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
 
     int created = create;
     block = AddNewDynablock(dynablocks, addr, &created);
-    if(!created || !create)
+    if(!created)
         return block;   // existing block...
 
     if(box86_dynarec_dump)

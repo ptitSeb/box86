@@ -24,8 +24,6 @@ const char* libsndfileName = "libsndfile.so.1";
 typedef int   (*iFp_t)(void*);
 typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
 
-KHASH_MAP_INIT_INT(virtualio, x86emu_t*);
-
 #define SUPER() \
     GO(sf_open_virtual, pFpipp_t)    \
     GO(sf_close, iFp_t)
@@ -35,7 +33,6 @@ typedef struct sndfile_my_s {
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-    kh_virtualio_t  *map;
 } sndfile_my_t;
 
 void* getSndfileMy(library_t* lib)
@@ -44,17 +41,134 @@ void* getSndfileMy(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
-    my->map = kh_init(virtualio);
+
     return my;
 }
 #undef SUPER
 
 void freeSndfileMy(void* lib)
 {
-    sndfile_my_t *my = (sndfile_my_t *)lib;
-
-    kh_destroy(virtualio, my->map); // clean the map?
+    //sndfile_my_t *my = (sndfile_my_t *)lib;
 }
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// sf_vio_get_filelen ...
+#define GO(A)   \
+static uintptr_t my_sf_vio_get_filelen_fct_##A = 0;                                 \
+static int64_t my_sf_vio_get_filelen_##A(void* a)                                   \
+{                                                                                   \
+    return (int64_t)RunFunction64(my_context, my_sf_vio_get_filelen_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_sf_vio_get_filelen_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sf_vio_get_filelen_fct_##A == (uintptr_t)fct) return my_sf_vio_get_filelen_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sf_vio_get_filelen_fct_##A == 0) {my_sf_vio_get_filelen_fct_##A = (uintptr_t)fct; return my_sf_vio_get_filelen_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sndfile sf_vio_get_filelen callback\n");
+    return NULL;
+}
+// sf_vio_seek ...
+#define GO(A)   \
+static uintptr_t my_sf_vio_seek_fct_##A = 0;                                        \
+static int64_t my_sf_vio_seek_##A(int64_t offset, int whence, void *user_data)      \
+{                                                                                   \
+    return (int64_t)RunFunction64(my_context, my_sf_vio_seek_fct_##A, 4, (uint32_t)(offset&0xffffffff), (uint32_t)(offset>>32), whence, user_data); \
+}
+SUPER()
+#undef GO
+static void* find_sf_vio_seek_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sf_vio_seek_fct_##A == (uintptr_t)fct) return my_sf_vio_seek_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sf_vio_seek_fct_##A == 0) {my_sf_vio_seek_fct_##A = (uintptr_t)fct; return my_sf_vio_seek_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sndfile sf_vio_seek callback\n");
+    return NULL;
+}
+// sf_vio_read ...
+#define GO(A)   \
+static uintptr_t my_sf_vio_read_fct_##A = 0;                                        \
+static int64_t my_sf_vio_read_##A(void* ptr, int64_t count, void *user_data)        \
+{                                                                                   \
+    return (int64_t)RunFunction64(my_context, my_sf_vio_read_fct_##A, 4, ptr, (uint32_t)(count&0xffffffff), (uint32_t)(count>>32), user_data); \
+}
+SUPER()
+#undef GO
+static void* find_sf_vio_read_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sf_vio_read_fct_##A == (uintptr_t)fct) return my_sf_vio_read_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sf_vio_read_fct_##A == 0) {my_sf_vio_read_fct_##A = (uintptr_t)fct; return my_sf_vio_read_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sndfile sf_vio_read callback\n");
+    return NULL;
+}
+// sf_vio_write ...
+#define GO(A)   \
+static uintptr_t my_sf_vio_write_fct_##A = 0;                                       \
+static int64_t my_sf_vio_write_##A(const void* ptr, int64_t count, void *user_data) \
+{                                                                                   \
+    return (int64_t)RunFunction64(my_context, my_sf_vio_write_fct_##A, 4, ptr, (uint32_t)(count&0xffffffff), (uint32_t)(count>>32), user_data); \
+}
+SUPER()
+#undef GO
+static void* find_sf_vio_write_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sf_vio_write_fct_##A == (uintptr_t)fct) return my_sf_vio_write_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sf_vio_write_fct_##A == 0) {my_sf_vio_write_fct_##A = (uintptr_t)fct; return my_sf_vio_write_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sndfile sf_vio_write callback\n");
+    return NULL;
+}
+// sf_vio_tell ...
+#define GO(A)   \
+static uintptr_t my_sf_vio_tell_fct_##A = 0;                                 \
+static int64_t my_sf_vio_tell_##A(void* a)                                   \
+{                                                                                   \
+    return (int64_t)RunFunction64(my_context, my_sf_vio_tell_fct_##A, 1, a); \
+}
+SUPER()
+#undef GO
+static void* find_sf_vio_tell_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sf_vio_tell_fct_##A == (uintptr_t)fct) return my_sf_vio_tell_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sf_vio_tell_fct_##A == 0) {my_sf_vio_tell_fct_##A = (uintptr_t)fct; return my_sf_vio_tell_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sndfile sf_vio_tell callback\n");
+    return NULL;
+}
+#undef SUPER
 
 typedef int64_t  (*sf_vio_get_filelen) (void *user_data) ;
 typedef int64_t  (*sf_vio_seek)        (int64_t offset, int whence, void *user_data) ;
@@ -69,89 +183,19 @@ typedef struct my_sfvirtual_io_s
     sf_vio_tell         tell ;
 } my_sfvirtual_io_t;
 
-static int64_t  my_sf_vio_get_filelen (void *user_data) {
-    x86emu_t* emu = (x86emu_t*)user_data;
-    SetCallbackNArg(emu, 1);
-    SetCallbackArg(emu, 0, GetCallbackArg(emu, 4));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
-    uint64_t ret = RunCallback(emu);
-    ret |= ((uint64_t)R_EDX)<<32;
-    return (int64_t)ret;
-}
-static int64_t  my_sf_vio_seek        (int64_t offset, int whence, void *user_data) {
-    x86emu_t* emu = (x86emu_t*)user_data;
-    SetCallbackNArg(emu, 4);
-    SetCallbackArg(emu, 0, (void*)(uintptr_t)(offset&0xffffffff));
-    SetCallbackArg(emu, 1, (void*)(uintptr_t)(offset>>32));
-    SetCallbackArg(emu, 2, (void*)whence);
-
-    SetCallbackArg(emu, 3, GetCallbackArg(emu, 4));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 6));
-    uint64_t ret = RunCallback(emu);
-    ret |= ((uint64_t)R_EDX)<<32;
-    return (int64_t)ret;
-}
-static int64_t  my_sf_vio_read        (void *ptr, int64_t count, void *user_data) {
-    x86emu_t* emu = (x86emu_t*)user_data;
-    SetCallbackNArg(emu, 4);
-    SetCallbackArg(emu, 0, ptr);
-    SetCallbackArg(emu, 1, (void*)(uintptr_t)(count&0xffffffff));
-    SetCallbackArg(emu, 2, (void*)(uintptr_t)(count>>32));
-
-    SetCallbackArg(emu, 3, GetCallbackArg(emu, 4));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 7));
-    uint64_t ret = RunCallback(emu);
-    ret |= ((uint64_t)R_EDX)<<32;
-    return (int64_t)ret;
-}
-static int64_t  my_sf_vio_write       (const void *ptr, int64_t count, void *user_data) {
-    x86emu_t* emu = (x86emu_t*)user_data;
-    SetCallbackNArg(emu, 4);
-    SetCallbackArg(emu, 0, (void*)ptr);
-    SetCallbackArg(emu, 1, (void*)(uintptr_t)(count&0xffffffff));
-    SetCallbackArg(emu, 2, (void*)(uintptr_t)(count>>32));
-
-    SetCallbackArg(emu, 3, GetCallbackArg(emu, 4));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
-    uint64_t ret = RunCallback(emu);
-    ret |= ((uint64_t)R_EDX)<<32;
-    return (int64_t)ret;
-}
-static int64_t  my_sf_vio_tell        (void *user_data) {
-    x86emu_t* emu = (x86emu_t*)user_data;
-    SetCallbackNArg(emu, 1);
-    SetCallbackArg(emu, 0, GetCallbackArg(emu, 4));
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 9));
-    uint64_t ret = RunCallback(emu);
-    ret |= ((uint64_t)R_EDX)<<32;
-    return (int64_t)ret;
-}
-
 EXPORT void* my_sf_open_virtual(x86emu_t* emu, my_sfvirtual_io_t* sfvirtual, int mode, void* sfinfo, void* data)
 {
-    my_sfvirtual_io_t native = {0};
-    native.get_filelen = my_sf_vio_get_filelen;
-    native.seek = my_sf_vio_seek;
-    native.read = my_sf_vio_read;
-    native.write = my_sf_vio_write;
-    native.tell = my_sf_vio_tell;
-
     library_t * lib = GetLibInternal(libsndfileName);
     sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
 
-    x86emu_t *cb = AddCallback(emu, 0, 0, NULL, NULL, NULL, NULL);
-    SetCallbackArg(cb, 4, data);
-    SetCallbackArg(cb, 5, sfvirtual->get_filelen);
-    SetCallbackArg(cb, 6, sfvirtual->seek);
-    SetCallbackArg(cb, 7, sfvirtual->read);
-    SetCallbackArg(cb, 8, sfvirtual->write);
-    SetCallbackArg(cb, 9, sfvirtual->tell);
-    void* sf = my->sf_open_virtual(&native, mode, sfinfo, cb);
-    int ret;
-    khint_t k;
-    k = kh_put(virtualio, my->map, (uintptr_t)sf, &ret);
-    kh_value(my->map, k) = cb;
-    return sf;
+    my_sfvirtual_io_t native = {0};
+    native.get_filelen = find_sf_vio_get_filelen_Fct(sfvirtual->get_filelen);
+    native.seek = find_sf_vio_seek_Fct(sfvirtual->seek);
+    native.read = find_sf_vio_read_Fct(sfvirtual->read);
+    native.write = find_sf_vio_write_Fct(sfvirtual->write);
+    native.tell = find_sf_vio_tell_Fct(sfvirtual->tell);
+
+    return my->sf_open_virtual(&native, mode, sfinfo, data);
 }
 
 EXPORT int my_sf_close(x86emu_t* emu, void* sf)
@@ -159,13 +203,7 @@ EXPORT int my_sf_close(x86emu_t* emu, void* sf)
     library_t * lib = GetLibInternal(libsndfileName);
     sndfile_my_t *my = (sndfile_my_t*)lib->priv.w.p2;
 
-    int ret = my->sf_close(sf);
-    khint_t k = kh_get(virtualio, my->map, (uintptr_t)sf);
-    if(k!=kh_end(my->map) && kh_exist(my->map, k)) {
-        FreeCallback(kh_value(my->map, k));
-        kh_del(virtualio, my->map, k);
-    }
-    return ret;
+    return my->sf_close(sf);
 }
 
 #define CUSTOM_INIT \

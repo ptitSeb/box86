@@ -26,7 +26,6 @@ typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void* (*pFipi_t)(int32_t, void*, int32_t);
 typedef void* (*pFpipi_t)(void*, int32_t, void*, int32_t);
 typedef void* (*pFppii_t)(void*, void*, int32_t, int32_t);
-static x86emu_t *dspemu = NULL;
 
 typedef struct smpeg2_my_s {
     // functions
@@ -57,28 +56,43 @@ static void freeSMPEG2My(void* lib)
     //smpeg2_my_t *my = (smpeg2_my_t *)lib;
 }
 
-static void smpeg_dispcallback(void* data, void* frame)
-{
-    x86emu_t *emu = dspemu;
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
 
-    if(!emu)
-        return;
-    SetCallbackArg(emu, 0, data);
-    SetCallbackArg(emu, 1, frame);
-    RunCallback(emu);
+// dispcallback ...
+#define GO(A)   \
+static uintptr_t my_dispcallback_fct_##A = 0;                           \
+static void my_dispcallback_##A(void* data, void* frame)                \
+{                                                                       \
+    RunFunction(my_context, my_dispcallback_fct_##A, 2, data, frame);   \
 }
+SUPER()
+#undef GO
+static void* find_dispcallback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_dispcallback_fct_##A == (uintptr_t)fct) return my_dispcallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_dispcallback_fct_##A == 0) {my_dispcallback_fct_##A = (uintptr_t)fct; return my_dispcallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libsmpeg2 dispcallback callback\n");
+    return NULL;
+}
+#undef SUPER
+
 
 EXPORT void my2_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* cb, void* data, void* lock)
 {
     library_t* lib = GetLibInternal(smpeg2Name);
     smpeg2_my_t* my = (smpeg2_my_t*)lib->priv.w.p2;
-    x86emu_t *old = dspemu;
-    dspemu = NULL;
-    if(cb)
-        dspemu = AddCallback(emu, (uintptr_t)cb, 2, NULL, NULL, NULL, NULL);
-    my->SMPEG_setdisplay(mpeg, dspemu?smpeg_dispcallback:NULL, data, lock);
-    if(old)
-        FreeCallback(old);
+    my->SMPEG_setdisplay(mpeg, find_dispcallback_Fct(cb), data, lock);
 }
 
 EXPORT void my2_SMPEG_getinfo(x86emu_t* emu, void* mpeg, void* info)

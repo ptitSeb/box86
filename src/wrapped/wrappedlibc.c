@@ -176,12 +176,6 @@ void freeLIBCMy(void* lib)
     // empty for now
 }
 
-void libc1ArgCallback(void *userdata)
-{
-    x86emu_t *emu = (x86emu_t*) userdata;
-    RunCallback(emu);
-}
-
 // utility functions
 #define SUPER() \
 GO(0)   \
@@ -1176,23 +1170,28 @@ EXPORT int my_statfs64(const char* path, void* buf)
 }
 
 
+typedef struct compare_r_s {
+    x86emu_t* emu;
+    uintptr_t f;
+    void*     data;
+    int       r;
+} compare_r_t;
 
-static int my_compare_r_cb(void* a, void* b, x86emu_t* emu)
+static int my_compare_r_cb(void* a, void* b, compare_r_t* arg)
 {
-    SetCallbackArgs(emu, 2, a, b);
-    return (int)RunCallback(emu);
+    return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, a, b, arg->data);
 }
 EXPORT void my_qsort(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
-    x86emu_t *emucb = AddSharedCallback(emu, (uintptr_t)fnc, 2, NULL, NULL, NULL, NULL);
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, emucb);
-    FreeCallback(emucb);
+    compare_r_t args;
+    args.emu = emu; args.f = (uintptr_t)fnc; args.r = 0; args.data = NULL;
+    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
 }
-EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* arg)
+EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* data)
 {
-    x86emu_t *emucb = AddSharedCallback(emu, (uintptr_t)fnc, 3, NULL, NULL, arg, NULL);
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, emucb);
-    FreeCallback(emucb);
+    compare_r_t args;
+    args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
+    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
 }
 
 EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
@@ -2287,56 +2286,44 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     return ret;
 }
 
-static ssize_t my_cookie_read(void *cookie, char *buf, size_t size)
-{
-    x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 6));
-    SetCallbackArg(emu, 1, buf);
-    SetCallbackArg(emu, 2, (void*)size);
-    SetCallbackNArg(emu, 3);
-    return RunCallback(emu);
-}
-static ssize_t my_cookie_write(void *cookie, const char *buf, size_t size)
-{
-    x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 7));
-    SetCallbackArg(emu, 1, (void*)buf);
-    SetCallbackArg(emu, 2, (void*)size);
-    SetCallbackNArg(emu, 3);
-    return RunCallback(emu);
-}
-static int my_cookie_seek(void *cookie, off64_t *offset, int whence)
-{
-    x86emu_t *emu = (x86emu_t*)cookie;
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 8));
-    SetCallbackArg(emu, 1, offset);
-    SetCallbackArg(emu, 2, (void*)whence);
-    SetCallbackNArg(emu, 3);
-    return RunCallback(emu);
+typedef struct my_cookie_s {
+    uintptr_t r, w, s, c;
+    void* cookie;
+} my_cookie_t;
 
-}
-static int my_cookie_close(void *cookie)
+static ssize_t my_cookie_read(void *p, char *buf, size_t size)
 {
-    x86emu_t *emu = (x86emu_t*)cookie;
-    void* cl = (void*)GetCallbackArg(emu, 9);
+    my_cookie_t* cookie = (my_cookie_t*)p;
+    return (ssize_t)RunFunction(my_context, cookie->r, 3, cookie->cookie, buf, size);
+}
+static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
+{
+    my_cookie_t* cookie = (my_cookie_t*)p;
+    return (ssize_t)RunFunction(my_context, cookie->w, 3, cookie->cookie, buf, size);
+}
+static int my_cookie_seek(void *p, off64_t *offset, int whence)
+{
+    my_cookie_t* cookie = (my_cookie_t*)p;
+    return RunFunction(my_context, cookie->s, 3, cookie->cookie, offset, whence);
+}
+static int my_cookie_close(void *p)
+{
+    my_cookie_t* cookie = (my_cookie_t*)p;
     int ret = 0;
-    if(cl) {
-        SetCallbackAddress(emu, (uintptr_t)cl);
-        SetCallbackNArg(emu, 1);
-        ret = (int)RunCallback(emu);
-    }
-    // free anyway, even if ret is not null?
-    FreeCallback(emu);
+    if(cookie->c)
+        ret = RunFunction(my_context, cookie->c, 1, cookie->cookie);
+    free(cookie);
     return ret;
 }
 EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read, void* write, void* seek, void* close)
 {
     cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
-    x86emu_t *cb = AddCallback(emu, 0, 3, cookie, NULL, NULL, NULL);
-    SetCallbackArg(emu, 6, read);
-    SetCallbackArg(emu, 7, write);
-    SetCallbackArg(emu, 8, seek);
-    SetCallbackArg(emu, 9, close);
+    my_cookie_t *cb = (my_cookie_t*)calloc(1, sizeof(my_cookie_t));
+    cb->r = (uintptr_t)read;
+    cb->w = (uintptr_t)write;
+    cb->s = (uintptr_t)seek;
+    cb->c = (uintptr_t)close;
+    cb->cookie = cookie;
     return fopencookie(cb, mode, io_funcs);
 }
 

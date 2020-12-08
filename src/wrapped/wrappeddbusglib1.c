@@ -75,6 +75,7 @@ SUPER()
 static void* findGDestroyNotifyFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
     SUPER()
     #undef GO
@@ -97,6 +98,7 @@ SUPER()
 static void* findGClosureNotifyFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_GClosureNotify_fct_##A == (uintptr_t)fct) return my_GClosureNotify_##A;
     SUPER()
     #undef GO
@@ -119,6 +121,7 @@ SUPER()
 static void* findDBusGProxyCallNotifyFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_DBusGProxyCallNotify_fct_##A == (uintptr_t)fct) return my_DBusGProxyCallNotify_##A;
     SUPER()
     #undef GO
@@ -141,6 +144,7 @@ SUPER()
 static void* findGCallbackFct(void* fct)
 {
     if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
     SUPER()
     #undef GO
@@ -150,36 +154,67 @@ static void* findGCallbackFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for dbus-glib1 GCallback callback\n");
     return NULL;
 }
+
+// DBusGTypeSpecializedCollectionIterator
+#define GO(A)   \
+static uintptr_t my_DBusGTypeSpecializedCollectionIterator_fct_##A = 0;                     \
+static void my_DBusGTypeSpecializedCollectionIterator_##A(void* a, void* b)                 \
+{                                                                                           \
+    RunFunction(my_context, my_DBusGTypeSpecializedCollectionIterator_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* findDBusGTypeSpecializedCollectionIteratorFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusGTypeSpecializedCollectionIterator_fct_##A == (uintptr_t)fct) return my_DBusGTypeSpecializedCollectionIterator_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusGTypeSpecializedCollectionIterator_fct_##A == 0) {my_DBusGTypeSpecializedCollectionIterator_fct_##A = (uintptr_t)fct; return my_DBusGTypeSpecializedCollectionIterator_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus-glib1 DBusGTypeSpecializedCollectionIterator callback\n");
+    return NULL;
+}
+// DBusGTypeSpecializedMapIterator
+#define GO(A)   \
+static uintptr_t my_DBusGTypeSpecializedMapIterator_fct_##A = 0;                        \
+static void my_DBusGTypeSpecializedMapIterator_##A(void* a, void* b, void* c)           \
+{                                                                                       \
+    RunFunction(my_context, my_DBusGTypeSpecializedMapIterator_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* findDBusGTypeSpecializedMapIteratorFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DBusGTypeSpecializedMapIterator_fct_##A == (uintptr_t)fct) return my_DBusGTypeSpecializedMapIterator_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DBusGTypeSpecializedMapIterator_fct_##A == 0) {my_DBusGTypeSpecializedMapIterator_fct_##A = (uintptr_t)fct; return my_DBusGTypeSpecializedMapIterator_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for dbus-glib1 DBusGTypeSpecializedCollectionIterator callback\n");
+    return NULL;
+}
 #undef SUPER
 
-static void my_DBusGTypeSpecializedCollectionIterator(void* value, x86emu_t* emu)
-{
-    SetCallbackArg(emu, 0, value);
-    RunCallback(emu);
-}
 EXPORT void my_dbus_g_type_collection_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
     library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)cb, 2, NULL, data, NULL, NULL);
-    my->dbus_g_type_collection_value_iterate(value, my_DBusGTypeSpecializedCollectionIterator, emucb);
-    FreeCallback(emucb);
+    my->dbus_g_type_collection_value_iterate(value, findDBusGTypeSpecializedCollectionIteratorFct(cb), data);
 }
 
-static void my_DBusGTypeSpecializedMapIterator(void* key_val, void* value_val, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, key_val, value_val);
-    RunCallback(emu);
-}
 EXPORT void my_dbus_g_type_map_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
     library_t * lib = GetLibInternal(dbusglib1Name);
     dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)cb, 3, NULL, NULL, data, NULL);
-    my->dbus_g_type_map_value_iterate(value, my_DBusGTypeSpecializedMapIterator, emucb);
-    FreeCallback(emucb);
+    my->dbus_g_type_map_value_iterate(value, findDBusGTypeSpecializedMapIteratorFct(cb), data);
 }
 
 EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int first, int* next)

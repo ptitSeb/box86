@@ -30,8 +30,6 @@ typedef struct openal_my_s {
     pFpp_t  alcGetProcAddress;
     vFiiipp_t alRequestFoldbackStart;
     vFv_t alRequestFoldbackStop;
-    // other
-    x86emu_t *request;
 } openal_my_t;
 
 void* getOpenALMy(library_t* lib)
@@ -48,11 +46,39 @@ void* getOpenALMy(library_t* lib)
 
 void freeOpenALMy(void* lib)
 {
-    openal_my_t *my = (openal_my_t *)lib;
-    if(my->request)
-        FreeCallback(my->request);
-    my->request = NULL;
+    //openal_my_t *my = (openal_my_t *)lib;
 }
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// Request ...
+#define GO(A)   \
+static uintptr_t my_Request_fct_##A = 0;                    \
+static void my_Request_##A(int32_t a, int32_t b)            \
+{                                                           \
+    RunFunction(my_context, my_Request_fct_##A, 2, a, b);   \
+}
+SUPER()
+#undef GO
+static void* find_Request_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_Request_fct_##A == (uintptr_t)fct) return my_Request_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_Request_fct_##A == 0) {my_Request_fct_##A = (uintptr_t)fct; return my_Request_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for zlib Request callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 void* my_alGetProcAddress(x86emu_t* emu, void* name);
 void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name);
@@ -184,31 +210,15 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
     return (void*)AddBridge(emu->context->system, emu->context, kh_value(emu->context->alwrappers, k), symbol, 0);
 }
 
-static x86emu_t *request = NULL;   // need a copy here, because the Request callback doesn't have any void* args...
-static void my_RequestCallback(int32_t a, int32_t b)
-{
-    if(!request)
-        return;
-    SetCallbackArg(request, 0, (void*)a);
-    SetCallbackArg(request, 1, (void*)b);
-    RunCallback(request);
-}
-
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
     openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
-    if(my->request)
-        FreeCallback(my->request);
-    request = my->request = AddCallback(emu, (uintptr_t)cb, 2, NULL, NULL, NULL, NULL);
-    my->alRequestFoldbackStart(mode, count, length, mem, my_RequestCallback);
+    my->alRequestFoldbackStart(mode, count, length, mem, find_Request_Fct(cb));
 }
 
 EXPORT void my_alRequestFoldbackStop(x86emu_t* emu)
 {
     openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStop();
-    if(my->request)
-        FreeCallback(my->request);
-    request = my->request = NULL;
 }
 

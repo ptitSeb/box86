@@ -1024,29 +1024,49 @@ typedef struct my_dl_phdr_info_s {
     int             dlpi_phnum;
 } my_dl_phdr_info_t;
 
-static int dl_iterate_phdr_callback(x86emu_t *emu, my_dl_phdr_info_t *info, size_t size, void* data)
+static int dl_iterate_phdr_callback(x86emu_t *emu, void* F, my_dl_phdr_info_t *info, size_t size, void* data)
 {
-    SetCallbackArgs(emu, 2, info, size);
-    int ret = RunCallback(emu);
+    int ret = RunFunctionWithEmu(emu, 0, (uintptr_t)F, 3, info, size, data);
     return ret;
 }
 
-static int dl_iterate_phdr_native(struct dl_phdr_info* info, size_t size, void* data)
-{
-    if(!info->dlpi_name)
-        return 0;
-    if(!info->dlpi_name[0]) // don't send informations about box86 itself
-        return 0;
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
 
-    x86emu_t* emu = (x86emu_t*)data;
-    SetCallbackArgs(emu, 2, info, size);
-    int ret = RunCallback(emu);
-    return ret;
+// dl_iterate_phdr ...
+#define GO(A)   \
+static uintptr_t my_dl_iterate_phdr_fct_##A = 0;                            \
+static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)\
+{                                                                           \
+    if(!a->dlpi_name)                                                       \
+        return 0;                                                           \
+    if(!a->dlpi_name[0]) /*don't send informations about box86 itself*/     \
+        return 0;                                                           \
+    return RunFunction(my_context, my_dl_iterate_phdr_fct_##A, 3, a, b, c); \
 }
+SUPER()
+#undef GO
+static void* find_dl_iterate_phdr_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_dl_iterate_phdr_fct_##A == (uintptr_t)fct) return my_dl_iterate_phdr_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_dl_iterate_phdr_fct_##A == 0) {my_dl_iterate_phdr_fct_##A = (uintptr_t)fct; return my_dl_iterate_phdr_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for elfloader dl_iterate_phdr callback\n");
+    return NULL;
+}
+#undef SUPER
 
 EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
     printf_log(LOG_INFO, "Warning: call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
-    x86emu_t* cbemu = AddSharedCallback(emu, (uintptr_t)F, 3, NULL, NULL, data, NULL);
     box86context_t *context = GetEmuContext(emu);
     const char* empty = "";
     int ret = 0;
@@ -1056,15 +1076,12 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
         info.dlpi_name = idx?context->elfs[idx]->name:empty;    //1st elf is program, and this one doesn't get a name
         info.dlpi_phdr = context->elfs[idx]->PHEntries;
         info.dlpi_phnum = context->elfs[idx]->numPHEntries;
-        if((ret = dl_iterate_phdr_callback(cbemu, &info, sizeof(info), data))) {
-            FreeCallback(cbemu);
+        if((ret = dl_iterate_phdr_callback(emu, F, &info, sizeof(info), data))) {
             return ret;
         }
     }
     // and now, go on native version
-    ret = dl_iterate_phdr(dl_iterate_phdr_native, cbemu);
-    // all done
-    FreeCallback(cbemu);
+    ret = dl_iterate_phdr(find_dl_iterate_phdr_Fct(F), data);
     return ret;
 }
 

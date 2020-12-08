@@ -12,7 +12,6 @@ typedef struct lib_s lib_t;
 typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
-typedef struct callbacklist_s callbacklist_t;
 typedef struct library_s library_t;
 typedef struct kh_fts_s kh_fts_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
@@ -115,8 +114,6 @@ typedef struct box86context_s {
     kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
     kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
     vkprocaddess_t      vkprocaddress;
-
-    callbacklist_t      *callbacks;     // all callbacks
 
     pthread_mutex_t     mutex_once;
     pthread_mutex_t     mutex_once2;

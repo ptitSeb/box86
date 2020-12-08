@@ -20,6 +20,7 @@
 
 const char* bz2Name = "libbz2.so.1";
 #define LIBNAME bz2
+static library_t* my_lib = NULL;
 
 typedef int  (*iFp_t)(void*);
 typedef int  (*iFpi_t)(void*, int);
@@ -56,6 +57,79 @@ void freeBz2My(void* lib)
     //bz2_my_t *my = (bz2_my_t *)lib;
 }
 
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// alloc ...
+#define GO(A)   \
+static uintptr_t my_alloc_fct_##A = 0;                                          \
+static void* my_alloc_##A(void* opaque, int m, int n)                           \
+{                                                                               \
+    return (void*)RunFunction(my_context, my_alloc_fct_##A, 3, opaque, m, n);   \
+}
+SUPER()
+#undef GO
+static void* find_alloc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_alloc_fct_##A == (uintptr_t)fct) return my_alloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_alloc_fct_##A == 0) {my_alloc_fct_##A = (uintptr_t)fct; return my_alloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for bz2 alloc callback\n");
+    return NULL;
+}
+static void* reverse_alloc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    #define GO(A) if(my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpii, fct, 0);
+}
+// free ...
+#define GO(A)   \
+static uintptr_t my_free_fct_##A = 0;                       \
+static void my_free_##A(void* opaque, void* p)              \
+{                                                           \
+    RunFunction(my_context, my_free_fct_##A, 2, opaque, p); \
+}
+SUPER()
+#undef GO
+static void* find_free_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for bz2 free callback\n");
+    return NULL;
+}
+static void* reverse_free_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    #define GO(A) if(my_free_##A == fct) return (void*)my_free_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFpp, fct, 0);
+}
+#undef SUPER
+
 typedef struct {
     char *next_in;
     unsigned int avail_in;
@@ -74,41 +148,14 @@ typedef struct {
     void *opaque;
 } my_bz_stream_t;
 
-static void* my_bz_malloc(void* opaque, int m, int n)
-{
-    x86emu_t* emu = (x86emu_t*)opaque;
-    SetCallbackArg(emu, 0, GetCallbackArg(emu, 3));
-    SetCallbackArg(emu, 1, (void*)m);
-    SetCallbackArg(emu, 2, (void*)n);
-    SetCallbackNArg(emu, 3);
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 4));
-    return (void*)RunCallback(emu);
-}
-static void my_bz_free(void* opaque, void* p)
-{
-    x86emu_t* emu = (x86emu_t*)opaque;
-    SetCallbackArg(emu, 0, GetCallbackArg(emu, 3));
-    SetCallbackArg(emu, 1, p);
-    SetCallbackNArg(emu, 2);
-    SetCallbackAddress(emu, (uintptr_t)GetCallbackArg(emu, 5));
-    RunCallback(emu);
-}
 
-#define WRAP_BZ(A) if(A->bzalloc || A->bzfree) { \
-    x86emu_t* cb = AddSharedCallback(emu, 0, 0, NULL, NULL, NULL, NULL); \
-    SetCallbackArg(cb, 3, A->opaque);   \
-    SetCallbackArg(cb, 4, A->bzalloc);  \
-    SetCallbackArg(cb, 5, A->bzfree);   \
-    if(A->bzalloc)  A->bzalloc = my_bz_malloc;  \
-    if(A->bzfree)  A->bzfree = my_bz_free;      \
-}
-#define UNWRAP_BZ(A) if(A->bzalloc || A->bzfree) { \
-    x86emu_t* cb = (x86emu_t*)A->opaque;\
-    A->opaque = GetCallbackArg(cb, 3);  \
-    A->bzalloc = GetCallbackArg(cb, 4); \
-    A->bzfree = GetCallbackArg(cb, 5);  \
-    FreeCallback(cb);                   \
-}
+#define WRAP_BZ(A) \
+    A->bzalloc = find_alloc_Fct(A->bzalloc);        \
+    A->bzfree = find_free_Fct(A->bzfree);
+
+#define UNWRAP_BZ(A) if(A->bzalloc || A->bzfree)    \
+    A->bzalloc = reverse_alloc_Fct(A->bzalloc);     \
+    A->bzfree = reverse_free_Fct(A->bzfree);
 
 EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
@@ -171,11 +218,13 @@ EXPORT int my_BZ2_bzDecompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getBz2My(lib);
+    lib->priv.w.p2 = getBz2My(lib); \
+    my_lib = lib;
 
 #define CUSTOM_FINI \
-    freeBz2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeBz2My(lib->priv.w.p2);  \
+    free(lib->priv.w.p2);       \
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
 

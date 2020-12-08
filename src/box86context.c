@@ -307,8 +307,6 @@ box86context_t *NewBox86Context(int argc)
 #endif
     context->dlprivate = NewDLPrivate();
 
-    context->callbacks = NewCallbackList();
-
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
@@ -421,8 +419,6 @@ void FreeBox86Context(box86context_t** context)
 
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
-
-    FreeCallbackList(&ctx->callbacks);
 
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {

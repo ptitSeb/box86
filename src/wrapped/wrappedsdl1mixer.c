@@ -39,9 +39,6 @@ typedef struct sdl1mixer_my_s {
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-
-    x86emu_t* PostCallback;
-    x86emu_t* hookMusicCB;
 } sdl1mixer_my_t;
 
 static void* getSDL1MixerMy(library_t* lib)
@@ -185,11 +182,7 @@ static void* find_MusicFinished_Fct(void* fct)
 
 static void freeSDL1MixerMy(library_t* lib)
 {
-    sdl1mixer_my_t *my = lib->priv.w.p2;
-    if(my->PostCallback)
-        FreeCallback(my->PostCallback);
-    if(my->hookMusicCB)
-        FreeCallback(my->hookMusicCB);
+    //sdl1mixer_my_t *my = lib->priv.w.p2;
 }
 
 EXPORT void* my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)

@@ -17,6 +17,7 @@
 #include "box86context.h"
 #include "sdl2rwops.h"
 #include "myalign.h"
+#include "threads.h"
 
 static int sdl_Yes() { return 1;}
 static int sdl_No() { return 0;}
@@ -215,30 +216,6 @@ static void* find_Timer_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL2 Timer callback\n");
-    return NULL;
-    
-}
-// Thread
-#define GO(A)   \
-static uintptr_t my_Thread_fct_##A = 0;                         \
-static int my_Thread_##A(void* a)                               \
-{                                                               \
-    return RunFunction(my_context, my_Thread_fct_##A, 1, a);    \
-}
-SUPER()
-#undef GO
-static void* find_Thread_Fct(void* fct)
-{
-    if(!fct) return NULL;
-    void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_Thread_fct_##A == (uintptr_t)fct) return my_Thread_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_Thread_fct_##A == 0) {my_Thread_fct_##A = (uintptr_t)fct; return my_Thread_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for SDL2 Thread callback\n");
     return NULL;
     
 }
@@ -675,7 +652,8 @@ EXPORT void* my2_SDL_CreateThread(x86emu_t* emu, void* f, void* n, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
-    return my->SDL_CreateThread(find_Thread_Fct(f), n, p);
+    void* et = NULL;
+    return my->SDL_CreateThread(my_prepare_thread(emu, f, p, 0, &et), n, et);
 }
 
 EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
@@ -829,12 +807,11 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
 
 #define nb_once	16
 typedef void(*sdl2_tls_dtor)(void*);
-static x86emu_t *dtor_emu[nb_once] = {0};
+static uintptr_t dtor_emu[nb_once] = {0};
 static void tls_dtor_callback(int n, void* a)
 {
 	if(dtor_emu[n]) {
-		SetCallbackArg(dtor_emu[n], 0, a);
-		RunCallback(dtor_emu[n]);
+        RunFunction(my_context, dtor_emu[n], 1, a);
 	}
 }
 #define GO(N) \
@@ -874,9 +851,8 @@ EXPORT int32_t my2_SDL_TLSSet(x86emu_t* emu, uint32_t id, void* value, void* dto
 		return my->SDL_TLSSet(id, value, NULL);
 	int n = 0;
 	while (n<nb_once) {
-		if(!dtor_emu[n] || GetCallbackAddress(dtor_emu[n])==((uintptr_t)dtor)) {
-			if(!dtor_emu[n]) 
-				dtor_emu[n] = AddCallback(emu, (uintptr_t)dtor, 1, NULL, NULL, NULL, NULL);
+		if(!dtor_emu[n] || (dtor_emu[n])==((uintptr_t)dtor)) {
+			dtor_emu[n] = (uintptr_t)dtor;
 			return my->SDL_TLSSet(id, value, dtor_cb[n]);
 		}
 		++n;

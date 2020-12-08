@@ -85,14 +85,38 @@ EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((a
 
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
-static x86emu_t *debug_cb = NULL;
-static void debug_callback(int32_t source, int32_t type, uint32_t id, int32_t severity, int32_t length, const char* message, const void* param)
-{
-    if(!debug_cb)
-        return;
-    SetCallbackArgs(debug_cb, 7, source, type, id, severity, length, message, param);
-    RunCallback(debug_cb);
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// debug_callback ...
+#define GO(A)   \
+static uintptr_t my_debug_callback_fct_##A = 0;                                                                         \
+static void my_debug_callback_##A(int32_t a, int32_t b, uint32_t c, int32_t d, int32_t e, const char* f, const void* g) \
+{                                                                                                                       \
+    RunFunction(my_context, my_debug_callback_fct_##A, 7, a, b, c, d, e, f, g);                                         \
 }
+SUPER()
+#undef GO
+static void* find_debug_callback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_debug_callback_fct_##A == (uintptr_t)fct) return my_debug_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_debug_callback_fct_##A == 0) {my_debug_callback_fct_##A = (uintptr_t)fct; return my_debug_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL debug_callback callback\n");
+    return NULL;
+}
+#undef SUPER
+
 EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
 {
     static vFpp_t DebugMessageCallback = NULL;
@@ -103,13 +127,7 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     }
     if(!DebugMessageCallback)
         return;
-    if(debug_cb) {
-        FreeCallback(debug_cb);
-        debug_cb = NULL;
-    }
-    if(prod)
-        debug_cb = AddCallback(emu, (uintptr_t)prod, 7, NULL, NULL, NULL, NULL);
-    DebugMessageCallback(prod?debug_callback:NULL, param);
+    DebugMessageCallback(find_debug_callback_Fct(prod), param);
 }
 EXPORT void my_glDebugMessageCallbackARB(x86emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 

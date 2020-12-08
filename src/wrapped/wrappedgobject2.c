@@ -34,6 +34,7 @@ typedef void* (*pFip_t)(int, void*);
 typedef void* (*pFpi_t)(void*, int);
 typedef void  (*vFpi_t)(void*, int);
 typedef void  (*vFpp_t)(void*, void*);
+typedef void* (*pFpp_t)(void*, void*);
 typedef void  (*vFpc_t)(void*, int8_t);
 typedef void  (*vFpC_t)(void*, uint8_t);
 typedef void (*vFiip_t)(int, int, void*);
@@ -77,6 +78,7 @@ typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, vo
     GO(g_type_add_interface_static, vFiip_t)    \
     GO(g_param_spec_set_qdata_full, vFpupp_t)   \
     GO(g_param_type_register_static, iFpp_t)    \
+    GO(g_value_array_sort, pFpp_t)              \
     GO(g_value_array_sort_with_data, pFppp_t)   \
     GO(g_object_set_data_full, vFpppp_t)        \
     GO(g_type_class_peek_parent, pFp_t)         \
@@ -544,7 +546,28 @@ static void* findGInterfaceFinalizeFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject GInterfaceFinalizeFunc callback\n");
     return NULL;
 }
-
+// compare
+#define GO(A)   \
+static uintptr_t my_compare_fct_##A = 0;                                \
+static int my_compare_##A(void* a, void* b, void* data)                 \
+{                                                                       \
+    return RunFunction(my_context, my_compare_fct_##A, 3, a, b, data);  \
+}
+SUPER()
+#undef GO
+static void* findcompareFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_compare_fct_##A == (uintptr_t)fct) return my_compare_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_compare_fct_##A == 0) {my_compare_fct_##A = (uintptr_t)fct; return my_compare_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject compare callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
@@ -723,29 +746,18 @@ EXPORT int my_g_param_type_register_static(x86emu_t* emu, void* name, void* pspe
     return my->g_param_type_register_static(name, findFreeGParamSpecTypeInfo(pspec_info));
 }
 
-static int my_compare_fnc(void* a, void* b, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, a, b);
-    return RunCallback(emu);
-}
 EXPORT void* my_g_value_array_sort(x86emu_t* emu, void* array, void* comp)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
-    void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
-    return ret;
+    return my->g_value_array_sort(array, findcompareFct(comp));
 }
 
 EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
-    void* ret = my->g_value_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
-    return ret;
+    return my->g_value_array_sort_with_data(array, findcompareFct(comp), data);
 }
 
 EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)

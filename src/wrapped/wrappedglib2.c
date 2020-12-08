@@ -18,6 +18,7 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 #include "gtkclass.h"
+#include "threads.h"
 
 const char* glib2Name = "libglib-2.0.so.0";
 #define LIBNAME glib2
@@ -101,6 +102,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_ptr_array_new_with_free_func, pFp_t)   \
     GO(g_ptr_array_new_full, pFup_t)            \
     GO(g_ptr_array_set_free_func, vFpp_t)       \
+    GO(g_ptr_array_sort, vFpp_t)                \
     GO(g_ptr_array_sort_with_data, vFppp_t)     \
     GO(g_ptr_array_foreach, vFppp_t)            \
     GO(g_qsort_with_data, vFpiLpp_t)            \
@@ -111,6 +113,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_array_sort_with_data, vFppp_t)         \
     GO(g_array_set_clear_func, vFpp_t)          \
     GO(g_source_set_callback, vFpppp_t)         \
+    GO(g_slist_insert_sorted, pFppp_t)          \
     GO(g_slist_insert_sorted_with_data, pFpppp_t)   \
     GO(g_slist_foreach, pFppp_t)                \
     GO(g_slist_find_custom, pFppp_t)            \
@@ -155,49 +158,6 @@ void* getGlib2My(library_t* lib)
 void freeGlib2My(void* lib)
 {
     //glib2_my_t *my = (glib2_my_t *)lib;
-}
-
-static void my_destroy_notify(void* data)   // data should be arg 8
-{
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
-    if(f) {
-        SetCallbackNArg(emu, 1);
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
-}
-
-x86emu_t* my_free_full_emu = NULL;
-static void my_free_full_cb(void* data)
-{
-    if(!my_free_full_emu)
-        return;
-    SetCallbackArg(my_free_full_emu, 0, data);
-    RunCallback(my_free_full_emu);
-}
-EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
-{
-    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
-    x86emu_t *old = my_free_full_emu;
-    my_free_full_emu = AddSharedCallback(emu, (uintptr_t)free_func, 1, NULL, NULL, NULL, NULL);
-    my->g_list_free_full(list, my_free_full_cb);
-    FreeCallback(my_free_full_emu);
-    my_free_full_emu = old;
-}
-
-EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
-    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_markup_vprintf_escaped(fmt, emu->scratch);
-    #else
-    // other platform don't need that
-    return my->g_markup_vprintf_escaped(fmt, b);
-    #endif
 }
 
 EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
@@ -631,6 +591,116 @@ static void* findGIOFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GIOFunc callback\n");
     return NULL;
 }
+// GDestroyNotify ...
+#define GO(A)   \
+static uintptr_t my_GDestroyNotify_fct_##A = 0;                 \
+static void my_GDestroyNotify_##A(void* a)                      \
+{                                                               \
+    RunFunction(my_context, my_GDestroyNotify_fct_##A, 1, a);   \
+}
+SUPER()
+#undef GO
+static void* findGDestroyNotifyFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GDestroyNotify callback\n");
+    return NULL;
+}
+// GFunc ...
+#define GO(A)   \
+static uintptr_t my_GFunc_fct_##A = 0;                  \
+static void my_GFunc_##A(void* a, void* b)              \
+{                                                       \
+    RunFunction(my_context, my_GFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* findGFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GFunc_fct_##A == (uintptr_t)fct) return my_GFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GFunc_fct_##A == 0) {my_GFunc_fct_##A = (uintptr_t)fct; return my_GFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GFunc callback\n");
+    return NULL;
+}
+// GHFunc ...
+#define GO(A)   \
+static uintptr_t my_GHFunc_fct_##A = 0;                     \
+static void my_GHFunc_##A(void* a, void* b, void* c)        \
+{                                                           \
+    RunFunction(my_context, my_GHFunc_fct_##A, 3, a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findGHFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GHFunc_fct_##A == (uintptr_t)fct) return my_GHFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GHFunc_fct_##A == 0) {my_GHFunc_fct_##A = (uintptr_t)fct; return my_GHFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GHFunc callback\n");
+    return NULL;
+}
+// GHRFunc ...
+#define GO(A)   \
+static uintptr_t my_GHRFunc_fct_##A = 0;                            \
+static int my_GHRFunc_##A(void* a, void* b, void* c)                \
+{                                                                   \
+    return RunFunction(my_context, my_GHRFunc_fct_##A, 3, a, b, c); \
+}
+SUPER()
+#undef GO
+static void* findGHRFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GHRFunc_fct_##A == (uintptr_t)fct) return my_GHRFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GHRFunc_fct_##A == 0) {my_GHRFunc_fct_##A = (uintptr_t)fct; return my_GHRFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GHRFunc callback\n");
+    return NULL;
+}
+// GChildWatchFunc ...
+#define GO(A)   \
+static uintptr_t my_GChildWatchFunc_fct_##A = 0;                        \
+static void my_GChildWatchFunc_##A(int a, int b, void* c)               \
+{                                                                       \
+    RunFunction(my_context, my_GChildWatchFunc_fct_##A, 3, a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* findGChildWatchFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GChildWatchFunc_fct_##A == (uintptr_t)fct) return my_GChildWatchFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GChildWatchFunc_fct_##A == 0) {my_GChildWatchFunc_fct_##A = (uintptr_t)fct; return my_GChildWatchFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GChildWatchFunc callback\n");
+    return NULL;
+}
 // GLogFunc ...
 #define GO(A)   \
 static uintptr_t my_GLogFunc_fct_##A = 0;                           \
@@ -693,6 +763,25 @@ static void* reverseGPrintFuncFct(void* fct)
 }
 
 #undef SUPER
+
+EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    my->g_list_free_full(list, findFreeFct(free_func));
+}
+
+EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    return my->g_markup_vprintf_escaped(fmt, emu->scratch);
+    #else
+    // other platform don't need that
+    return my->g_markup_vprintf_escaped(fmt, b);
+    #endif
+}
+
 
 EXPORT void my_g_datalist_id_set_data_full(x86emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
 {
@@ -919,51 +1008,30 @@ EXPORT void* my_g_hash_table_new_full(x86emu_t* emu, void* hash, void* equal, vo
     return my->g_hash_table_new_full(findHashFct(hash), findEqualFct(equal), findDestroyFct(destroy_key), findDestroyFct(destroy_val));
 }
 
-static void my_ghfunc(void* key, void* value, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, key, value);
-    RunCallback(emu);
-}
 EXPORT void my_g_hash_table_foreach(x86emu_t* emu, void* table, void* f, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    my->g_hash_table_foreach(table, my_ghfunc, cb);
-    FreeCallback(cb);
+    my->g_hash_table_foreach(table, findGHFuncFct(f), data);
 }
 
-static int my_ghrfunc(void* key, void* value, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, key, value);
-    return RunCallback(emu);
-}
 EXPORT uint32_t my_g_hash_table_foreach_remove(x86emu_t* emu, void* table, void* f, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
-    x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    uint32_t ret = my->g_hash_table_foreach_remove(table, my_ghrfunc, cb);
-    FreeCallback(cb);
-    return ret;
+    return my->g_hash_table_foreach_remove(table, findGHRFuncFct(f), data);
 }
 EXPORT uint32_t my_g_hash_table_foreach_steal(x86emu_t* emu, void* table, void* f, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
-    x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    uint32_t ret = my->g_hash_table_foreach_steal(table, my_ghrfunc, cb);
-    FreeCallback(cb);
-    return ret;
+    return my->g_hash_table_foreach_steal(table, findGHRFuncFct(f), data);
 }
 EXPORT void* my_g_hash_table_find(x86emu_t* emu, void* table, void* f, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     
-    x86emu_t* cb = AddSharedCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    void* ret = my->g_hash_table_find(table, my_ghrfunc, cb);
-    FreeCallback(cb);
-    return ret;
+    return my->g_hash_table_find(table, findGHRFuncFct(f), data);
 }
 
 EXPORT int my_g_spawn_async_with_pipes(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
@@ -987,32 +1055,18 @@ EXPORT int my_g_spawn_sync(x86emu_t* emu, void* dir, void* argv, void* envp, int
     return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
 }
 
-static void my_gchildwatchfunc(int pid, int status, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, pid, status);
-    RunCallback(emu);
-}
 EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    if(!f)
-        return my->g_child_watch_add(pid, f, data);
-
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    SetCallbackArg(cb, 9, NULL);
-    SetCallbackArg(cb, 8, data);
-    return my->g_child_watch_add_full(0, pid, my_gchildwatchfunc, cb, my_destroy_notify);
+    return my->g_child_watch_add(pid, findGChildWatchFuncFct(f), data);
 }
 
 EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, void* f, void* data, void* notify)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 3, NULL, NULL, data, NULL);
-    SetCallbackArg(cb, 9, notify);
-    SetCallbackArg(cb, 8, data);
-    return my->g_idle_add_full(priority, f?my_gchildwatchfunc:NULL, cb, my_destroy_notify);
+    return my->g_idle_add_full(priority, findGChildWatchFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void* my_g_private_new(x86emu_t* emu, void* notify)
@@ -1050,105 +1104,69 @@ EXPORT void my_g_ptr_array_set_free_func(x86emu_t* emu, void* array, void* notif
     my->g_ptr_array_set_free_func(array, findFreeFct(notify));
 }
 
-static int my_compare_fnc(void* a, void* b, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 2, a, b);
-    return RunCallback(emu);
-}
 EXPORT void my_g_ptr_array_sort(x86emu_t* emu, void* array, void* comp)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
-    my->g_ptr_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_ptr_array_sort(array, findGCompareFuncFct(comp));
 }
 
 EXPORT void my_g_ptr_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
-    my->g_ptr_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_ptr_array_sort_with_data(array, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_qsort_with_data(x86emu_t* emu, void* pbase, int total, unsigned long size, void* comp, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
-    my->g_qsort_with_data(pbase, total, size, my_compare_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_qsort_with_data(pbase, total, size, findGCompareDataFuncFct(comp), data);
 }
 
-static void my_g_foreach_fnc(void* a, x86emu_t* emu)
-{
-    SetCallbackArg(emu, 0, a);
-    RunCallback(emu);
-}
 EXPORT void my_g_ptr_array_foreach(x86emu_t* emu, void* array, void* func, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
-    my->g_ptr_array_foreach(array, my_g_foreach_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_ptr_array_foreach(array, findGFuncFct(func), data);
 }
 
-static void* my_g_thread_create_fnc(x86emu_t* emu)
-{
-    void* ret = (void*)RunCallback(emu);
-    FreeCallback(emu);  // memory leak if thread is killed...
-    return ret;
-}
 EXPORT void* my_g_thread_create(x86emu_t* emu, void* func, void* data, int joinable, void* error)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddCallback(emu, (uintptr_t)func, 1, data, NULL, NULL, NULL);
-    void* ret = my->g_thread_create(my_g_thread_create_fnc, emucb, joinable, error);
-    if(!ret)
-        FreeCallback(emucb);
-    return ret;
+    void* et = NULL;
+    return my->g_thread_create(my_prepare_thread(emu, func, data, 0, &et), et, joinable, error);
 }
 
 EXPORT void* my_g_thread_create_full(x86emu_t* emu, void* func, void* data, unsigned long stack, int joinable, int bound, int priority, void* error)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddVariableCallback(emu, stack, (uintptr_t)func, 1, data, NULL, NULL, NULL);
-    void* ret = my->g_thread_create_full(my_g_thread_create_fnc, emucb, stack, joinable, bound, priority, error);
-    if(!ret)
-        FreeCallback(emucb);
-    return ret;
+    void* et = NULL;
+    return my->g_thread_create_full(my_prepare_thread(emu, func, data, stack, &et), et, stack, joinable, bound, priority, error);
 }
 
 EXPORT void my_g_thread_foreach(x86emu_t* emu, void* func, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
-    my->g_thread_foreach(my_g_foreach_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_thread_foreach(findGFuncFct(func), data);
 }
 
 EXPORT void my_g_array_sort(x86emu_t* emu, void* array, void* comp)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
-    my->g_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_array_sort(array, findGCompareFuncFct(comp));
 }
 
 EXPORT void my_g_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
-    my->g_array_sort_with_data(array, my_compare_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_array_sort_with_data(array, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_array_set_clear_func(x86emu_t* emu, void* array, void* notify)
@@ -1169,28 +1187,20 @@ EXPORT void* my_g_slist_insert_sorted(x86emu_t* emu, void* list, void* d, void* 
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 2, NULL, NULL, NULL, NULL);
-    void* ret = my->g_slist_insert_sorted_with_data(list, d, my_compare_fnc, emucb);
-    FreeCallback(emucb);
-    return ret;
+    return my->g_slist_insert_sorted(list, d, findGCompareFuncFct(comp));
 }
 EXPORT void* my_g_slist_insert_sorted_with_data(x86emu_t* emu, void* list, void* d, void* comp, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)comp, 3, NULL, NULL, data, NULL);
-    void* ret = my->g_slist_insert_sorted_with_data(list, d, my_compare_fnc, emucb);
-    FreeCallback(emucb);
-    return ret;
+    return my->g_slist_insert_sorted_with_data(list, d, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_slist_foreach(x86emu_t* emu, void* list, void* func, void* data)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
-    x86emu_t* emucb = AddSharedCallback(emu, (uintptr_t)func, 2, NULL, data, NULL, NULL);
-    my->g_slist_foreach(list, my_g_foreach_fnc, emucb);
-    FreeCallback(emucb);
+    my->g_slist_foreach(list, findGFuncFct(func), data);
 }
 
 EXPORT void* my_g_slist_find_custom(x86emu_t* emu, void* list, void* data, void* comp)

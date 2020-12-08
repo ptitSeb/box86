@@ -529,6 +529,52 @@ static void* findGtkClipboardTextReceivedFuncFct(void* fct)
     return NULL;
 }
 
+// GtkTreeViewSearchEqualFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                     \
+static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)        \
+{                                                                                                               \
+    return RunFunction(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, 5, model, column, key, iter, data);   \
+}
+SUPER()
+#undef GO
+static void* findGtkTreeViewSearchEqualFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeViewSearchEqualFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeViewSearchEqualFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeViewSearchEqualFunc_fct_##A == 0) {my_GtkTreeViewSearchEqualFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeViewSearchEqualFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeViewSearchEqualFunc callback\n");
+    return NULL;
+}
+
+// GtkTreeIterCompareFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeIterCompareFunc_fct_##A = 0;                                         \
+static int my_GtkTreeIterCompareFunc_##A(void* model, void* a, void* b, void* data)             \
+{                                                                                               \
+    return RunFunction(my_context, my_GtkTreeIterCompareFunc_fct_##A, 4, model, a, b, data);    \
+}
+SUPER()
+#undef GO
+static void* findGtkTreeIterCompareFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeIterCompareFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeIterCompareFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeIterCompareFunc_fct_##A == 0) {my_GtkTreeIterCompareFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeIterCompareFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeIterCompareFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -684,38 +730,12 @@ EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, voi
     my->gtk_container_forall(container, findGtkCallbackFct(f), data);
 }
 
-static int my_tree_view_search_equal(void* model, int column, void* key, void* iter, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 4, model, column, key, iter);
-    return (int)RunCallback(emu);
-}
-
-static void my_destroy_notify(void* data)
-{
-    x86emu_t *emu = (x86emu_t*)data;
-    uintptr_t f = (uintptr_t)GetCallbackArg(emu, 9);
-    if(f) {
-        SetCallbackArg(emu, 0, GetCallbackArg(emu, 8));
-        SetCallbackNArg(emu, 1);
-        SetCallbackAddress(emu, f);
-        RunCallback(emu);
-    }
-    FreeCallback(emu);
-}
-
 EXPORT void my_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_view, void* f, void* data, void* notify)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    if(!f)
-        my->gtk_tree_view_set_search_equal_func(tree_view, f, data, notify);    // notify will be NULL to right? But f can be NULL?
-
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 5, NULL, NULL, NULL, NULL);
-    SetCallbackArg(cb, 4, data);
-    SetCallbackNArgs(cb, 8, 2, data, notify);
-
-    my->gtk_tree_view_set_search_equal_func(tree_view, my_tree_view_search_equal, cb, my_destroy_notify);
+    my->gtk_tree_view_set_search_equal_func(tree_view, findGtkTreeViewSearchEqualFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my_gtk_text_iter_backward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
@@ -790,29 +810,12 @@ EXPORT void* my_gtk_toolbar_insert_stock(x86emu_t* emu, void* toolbar, void* sto
     return my->gtk_toolbar_insert_stock(toolbar, stock_id, tooltip_text, tooltip_private, findToolbarFct(f), data, position);
 }
 
-static int my_tree_iter_compare(void* model, void* a, void* b, x86emu_t* emu)
-{
-    SetCallbackArgs(emu, 3, model, a, b);
-    return (int)RunCallback(emu);
-}
-
 EXPORT void my_gtk_tree_sortable_set_sort_func(x86emu_t* emu, void* sortable, int id, void* f, void* data, void* notify)
 {
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    if(!f)
-        my->gtk_tree_sortable_set_sort_func(sortable, id, f, data, notify);
-    
-    void* native_f = GetNativeFnc((uintptr_t)f);
-    void* native_notify = GetNativeFnc((uintptr_t)notify);
-    if(native_f && (native_notify || !notify))
-        return my->gtk_tree_sortable_set_sort_func(sortable, id, native_f, data, native_notify);
-
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
-    SetCallbackNArgs(cb, 8, 2, data, notify);
-
-    my->gtk_tree_sortable_set_sort_func(sortable, id, my_tree_iter_compare, cb, my_destroy_notify);
+    my->gtk_tree_sortable_set_sort_func(sortable, id, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sortable, void* f, void* data, void* notify)
@@ -820,18 +823,7 @@ EXPORT void my_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sort
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    if(!f)
-        my->gtk_tree_sortable_set_default_sort_func(sortable, f, data, notify);
-
-    void* native_f = GetNativeFnc((uintptr_t)f);
-    void* native_notify = GetNativeFnc((uintptr_t)notify);
-    if(native_f && (native_notify || !notify))
-        return my->gtk_tree_sortable_set_default_sort_func(sortable, native_f, data, native_notify);
-
-    x86emu_t* cb = AddCallback(emu, (uintptr_t)f, 4, NULL, NULL, NULL, data);
-    SetCallbackNArgs(cb, 8, 2, data, notify);
-
-    my->gtk_tree_sortable_set_default_sort_func(sortable, my_tree_iter_compare, cb, my_destroy_notify);
+    my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my_gtk_type_unique(x86emu_t* emu, int parent, my_GtkTypeInfo_t* gtkinfo)
@@ -852,13 +844,7 @@ EXPORT void my_gtk_object_set_data_full(x86emu_t* emu, void* object, void* key, 
     library_t * lib = GetLibInternal(libname);
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
-    void* native_notify = GetNativeFnc((uintptr_t)notify);
-    if(!notify || native_notify)
-        return my->gtk_object_set_data_full(object, key, data, native_notify);
-
-    x86emu_t* cb = AddCallback(emu, 0, 0, NULL, NULL, NULL, NULL);
-    SetCallbackNArgs(cb, 8, 2, data, notify);
-    my->gtk_object_set_data_full(object, key, cb, my_destroy_notify);
+    my->gtk_object_set_data_full(object, key, data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT float my_gtk_spin_button_get_value_as_float(x86emu_t* emu, void* spinner)

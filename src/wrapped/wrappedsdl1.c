@@ -18,7 +18,7 @@
 #include "sdl1rwops.h"
 
 #include "x86trace.h"
-#include "khash.h"
+#include "threads.h"
 
 const char* sdl1Name = "libSDL-1.2.so.0";
 #define LIBNAME sdl1
@@ -46,9 +46,11 @@ typedef struct {
 } SDL_AudioSpec;
 
 // TODO: put the wrapper type in a dedicate include
+typedef void* (*pFv_t)();
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
+typedef int (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
@@ -63,44 +65,45 @@ typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 
-KHASH_MAP_INIT_INT(timercb, x86emu_t*)
+#define SUPER()                                     \
+    GO(SDL_AllocRW, sdl1_allocrw)                   \
+    GO(SDL_FreeRW, sdl1_freerw)                     \
+    GO(SDL_OpenAudio, iFpp_t)                       \
+    GO(SDL_LoadBMP_RW, pFpi_t)                      \
+    GO(SDL_RWFromConstMem, pFpi_t)                  \
+    GO(SDL_RWFromFP, pFpi_t)                        \
+    GO(SDL_RWFromFile, pFpp_t)                      \
+    GO(SDL_RWFromMem, pFpi_t)                       \
+    GO(SDL_SaveBMP_RW, iFppi_t)                     \
+    GO(SDL_LoadWAV_RW, pFpippp_t)                   \
+    GO(SDL_ReadBE16, uFp_t)                         \
+    GO(SDL_ReadBE32, uFp_t)                         \
+    GO(SDL_ReadBE64, UFp_t)                         \
+    GO(SDL_ReadLE16, uFp_t)                         \
+    GO(SDL_ReadLE32, uFp_t)                         \
+    GO(SDL_ReadLE64, UFp_t)                         \
+    GO(SDL_WriteBE16, uFpW_t)                       \
+    GO(SDL_WriteBE32, uFpu_t)                       \
+    GO(SDL_WriteBE64, uFpU_t)                       \
+    GO(SDL_WriteLE16, uFpW_t)                       \
+    GO(SDL_WriteLE32, uFpu_t)                       \
+    GO(SDL_WriteLE64, uFpU_t)                       \
+    GO(SDL_AddTimer, uFupp_t)                       \
+    GO(SDL_RemoveTimer, uFu_t)                      \
+    GO(SDL_CreateThread, pFpp_t)                    \
+    GO(SDL_KillThread, vFp_t)                       \
+    GO(SDL_SetEventFilter, vFp_t)                   \
+    GO(SDL_GL_GetProcAddress, pFp_t)                \
+    GO(SDL_GetWMInfo, iFp_t)                        \
+    GO(SDL_SetTimer, iFup_t)                        \
+    GO(SDL_GetEventFilter, pFv_t)                   \
 
 typedef struct sdl1_my_s {
     // functions
-    sdl1_allocrw  SDL_AllocRW;
-    sdl1_freerw   SDL_FreeRW;
-    iFpp_t     SDL_OpenAudio;
-    pFpi_t     SDL_LoadBMP_RW;
-    pFpi_t     SDL_RWFromConstMem;
-    pFpi_t     SDL_RWFromFP;
-    pFpp_t     SDL_RWFromFile;
-    pFpi_t     SDL_RWFromMem;
-    iFppi_t    SDL_SaveBMP_RW;
-    pFpippp_t  SDL_LoadWAV_RW;
-    uFp_t      SDL_ReadBE16;
-    uFp_t      SDL_ReadBE32;
-    UFp_t      SDL_ReadBE64;
-    uFp_t      SDL_ReadLE16;
-    uFp_t      SDL_ReadLE32;
-    UFp_t      SDL_ReadLE64;
-    uFpW_t     SDL_WriteBE16;
-    uFpu_t     SDL_WriteBE32;
-    uFpU_t     SDL_WriteBE64;
-    uFpW_t     SDL_WriteLE16;
-    uFpu_t     SDL_WriteLE32;
-    uFpU_t     SDL_WriteLE64;
-    uFupp_t    SDL_AddTimer;
-    uFu_t      SDL_RemoveTimer;
-    pFpp_t     SDL_CreateThread;
-    vFp_t      SDL_KillThread;
-    vFp_t      SDL_SetEventFilter;
-    pFp_t      SDL_GL_GetProcAddress;
-    iFp_t      SDL_GetWMInfo;
-    // timer map
-    kh_timercb_t    *timercb;
-    uint32_t        settimer;
-    // threads
-    kh_timercb_t    *threads;
+    #define GO(A, B)    B   A;
+    #define GO(A, B)    B   A;
+    SUPER()
+    #undef GO
 } sdl1_my_t;
 
 // event filter. Needs to be global, but there is only one, so that's should be fine
@@ -114,98 +117,103 @@ void* getSDL1My(library_t* lib)
 {
     sdl1_my_t* my = (sdl1_my_t*)calloc(1, sizeof(sdl1_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(SDL_AllocRW, sdl1_allocrw)
-    GO(SDL_FreeRW, sdl1_freerw)
-    GO(SDL_OpenAudio, iFpp_t)
-    GO(SDL_LoadBMP_RW, pFpi_t)
-    GO(SDL_RWFromConstMem, pFpi_t)
-    GO(SDL_RWFromFP, pFpi_t)
-    GO(SDL_RWFromFile, pFpp_t)
-    GO(SDL_RWFromMem, pFpi_t)
-    GO(SDL_SaveBMP_RW, iFppi_t)
-    GO(SDL_LoadWAV_RW, pFpippp_t)
-    GO(SDL_ReadBE16, uFp_t)
-    GO(SDL_ReadBE32, uFp_t)
-    GO(SDL_ReadBE64, UFp_t)
-    GO(SDL_ReadLE16, uFp_t)
-    GO(SDL_ReadLE32, uFp_t)
-    GO(SDL_ReadLE64, UFp_t)
-    GO(SDL_WriteBE16, uFpW_t)
-    GO(SDL_WriteBE32, uFpu_t)
-    GO(SDL_WriteBE64, uFpU_t)
-    GO(SDL_WriteLE16, uFpW_t)
-    GO(SDL_WriteLE32, uFpu_t)
-    GO(SDL_WriteLE64, uFpU_t)
-    GO(SDL_AddTimer, uFupp_t)
-    GO(SDL_RemoveTimer, uFu_t)
-    GO(SDL_CreateThread, pFpp_t)
-    GO(SDL_KillThread, vFp_t)
-    GO(SDL_SetEventFilter, vFp_t)
-    GO(SDL_GL_GetProcAddress, pFp_t)
-    GO(SDL_GetWMInfo, iFp_t)
+    SUPER()
     #undef GO
-    my->timercb = kh_init(timercb);
-    my->threads = kh_init(timercb);
+
     return my;
 }
+#undef SUPER
 
 void freeSDL1My(void* lib)
 {
-    sdl1_my_t *my = (sdl1_my_t *)lib;
-    //x86emu_t *x;
-    /*kh_foreach_value(my->timercb, x, 
-        FreeCallback(x);
-    );*/
-    kh_destroy(timercb, my->timercb);
-
-    /*kh_foreach_value(my->threads, x, 
-        FreeCallback(x);
-    );*/
-    kh_destroy(timercb, my->threads);
-    if(sdl1_evtfilter) {
-        //FreeCallback(sdl1_evtfilter);
-        sdl1_evtfilter = NULL;
-        sdl1_evtfnc = NULL;
-    }
+    //sdl1_my_t *my = (sdl1_my_t *)lib;
 }
 
-void sdl1Callback(void *userdata, uint8_t *stream, int32_t len)
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// AudioCallback ...
+#define GO(A)   \
+static uintptr_t my_AudioCallback_fct_##A = 0;                                      \
+static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)      \
+{                                                                                   \
+    RunFunction(my_context, my_AudioCallback_fct_##A, 3, userdata, stream, len);    \
+}
+SUPER()
+#undef GO
+static void* find_AudioCallback_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*) userdata;
-    SetCallbackArg(emu, 1, stream);
-    SetCallbackArg(emu, 2, (void*)len);
-    RunCallback(emu);
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_AudioCallback_fct_##A == (uintptr_t)fct) return my_AudioCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_AudioCallback_fct_##A == 0) {my_AudioCallback_fct_##A = (uintptr_t)fct; return my_AudioCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1 AudioCallback callback\n");
+    return NULL;
 }
-
-uint32_t sdl1TimerCallback(uint32_t interval, void *userdata)
+// TimerCallback ...
+#define GO(A)   \
+static uintptr_t my_TimerCallback_fct_##A = 0;                                                  \
+static uint32_t my_TimerCallback_##A(uint32_t interval, void *userdata)                         \
+{                                                                                               \
+    return (uint32_t)RunFunction(my_context, my_TimerCallback_fct_##A, 2, interval, userdata);  \
+}
+SUPER()
+#undef GO
+static void* find_TimerCallback_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*) userdata;
-    SetCallbackArg(emu, 0, (void*)interval);
-    return RunCallback(emu);
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_TimerCallback_fct_##A == (uintptr_t)fct) return my_TimerCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_TimerCallback_fct_##A == 0) {my_TimerCallback_fct_##A = (uintptr_t)fct; return my_TimerCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1 TimerCallback callback\n");
+    return NULL;
 }
-
-int32_t sdl1ThreadCallback(void *userdata)
+// EvtFilter ...
+#define GO(A)   \
+static uintptr_t my_EvtFilter_fct_##A = 0;                      \
+static int my_EvtFilter_##A(void* p)                            \
+{                                                               \
+    return RunFunction(my_context, my_EvtFilter_fct_##A, 1, p); \
+}
+SUPER()
+#undef GO
+static void* find_EvtFilter_Fct(void* fct)
 {
-    x86emu_t *emu = (x86emu_t*) userdata;
-    RunCallback(emu);
-    int32_t ret = (int32_t)R_EAX;
-    FreeCallback(emu);
-    return ret;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_EvtFilter_fct_##A == (uintptr_t)fct) return my_EvtFilter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_EvtFilter_fct_##A == 0) {my_EvtFilter_fct_##A = (uintptr_t)fct; return my_EvtFilter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for SDL1 EvtFilter callback\n");
+    return NULL;
 }
-
-int32_t sdl1EvtFilterCallback(void *p)
+static void* reverse_EvtFilterFct(void* fct)
 {
-    x86emu_t* emu = sdl1_evtfilter;
-    sdl1_evtinside = 1;
-    SetCallbackArg(emu, 0, p);
-    int32_t ret = RunCallback(emu);
-    if(sdl1_evtautofree) {
-        FreeCallback(emu);
-        sdl1_evtautofree = 0;
-    }
-    sdl1_evtinside = 0;
-    return ret;
+    if(!fct) return fct;
+    library_t* my_lib = my_context->sdl1lib;
+    if(CheckBridged(my_lib->priv.w.bridge, fct))
+        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    #define GO(A) if(my_EvtFilter_##A == fct) return (void*)my_EvtFilter_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFp, fct, 0);
 }
+#undef SUPER
 
 // TODO: track the memory for those callback
 int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
@@ -214,21 +222,15 @@ int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
-    void *olduser = desired->userdata;
-    x86emu_t *cbemu = (desired->callback)?AddCallback(emu, (uintptr_t)fnc, 3, olduser, NULL, NULL, NULL):NULL;
-    desired->callback = sdl1Callback;
-    desired->userdata = cbemu;
+    desired->callback = find_AudioCallback_Fct(desired->callback);
     int ret = my->SDL_OpenAudio(desired, (SDL_AudioSpec*)o);
     if (ret!=0) {
         // error, clean the callback...
         desired->callback = fnc;
-        desired->userdata = olduser;
-        FreeCallback(cbemu);
         return ret;
     }
     // put back stuff in place?
     desired->callback = fnc;
-    desired->userdata = olduser;
 
     return ret;
 }
@@ -390,36 +392,19 @@ void EXPORT *my_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
 uint32_t EXPORT my_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 2, NULL, p, NULL, NULL);
-    uint32_t t = my->SDL_AddTimer(a, sdl1TimerCallback, cbemu);
-    int ret;
-    khint_t k = kh_put(timercb, my->timercb, t, &ret);
-    kh_value(my->timercb, k) = cbemu;
-    return t;
+    return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
 }
 
 void EXPORT my_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     my->SDL_RemoveTimer(t);
-    khint_t k = kh_get(timercb,my->timercb, t);
-    if(k!=kh_end(my->timercb))
-    {
-        FreeCallback(kh_value(my->timercb, k));
-        kh_del(timercb, my->timercb, k);
-    }
 }
 
 int32_t EXPORT my_SDL_SetTimer(x86emu_t* emu, uint32_t t, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    if(my->settimer) {
-        my_SDL_RemoveTimer(emu, my->settimer);
-        my->settimer=0;
-    }
-    if(p)
-        my->settimer = my_SDL_AddTimer(emu, t, p, NULL);
-    return 0;
+    return my->SDL_SetTimer(t, find_TimerCallback_Fct(p));
 }
 #if 0
 int32_t EXPORT my_SDL_BuildAudioCVT(x86emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
@@ -439,52 +424,25 @@ int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    if(sdl1_evtfnc == a) {
-        my->SDL_SetEventFilter(sdl1EvtFilterCallback);
-        return;
-    }
-    if(sdl1_evtfilter) {
-        if(sdl1_evtinside)
-            sdl1_evtautofree = 1;
-        else {
-            my->SDL_SetEventFilter(NULL);   // remove old one
-            FreeCallback(sdl1_evtfilter);
-            sdl1_evtfilter = NULL;
-            sdl1_evtfnc = NULL;
-        }
-    }
-    if(a) {
-        sdl1_evtfnc = a;
-        sdl1_evtfilter = AddCallback(emu, (uintptr_t)a, 1, NULL, NULL, NULL, NULL);
-        my->SDL_SetEventFilter(sdl1EvtFilterCallback);
-    }
+    my->SDL_SetEventFilter(find_EvtFilter_Fct(a));
 }
 void EXPORT *my_SDL_GetEventFilter(x86emu_t* emu)
 {
-    return sdl1_evtfnc;
+    sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
+    return reverse_EvtFilterFct(my->SDL_GetEventFilter());
 }
 
 void EXPORT *my_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
-    x86emu_t *cbemu = AddCallback(emu, (uintptr_t)cb, 1, p, NULL, NULL, NULL);
-    void* t = my->SDL_CreateThread(sdl1ThreadCallback, cbemu);
-    int ret;
-    khint_t k = kh_put(timercb, my->threads, (uintptr_t)t, &ret);
-    kh_value(my->threads, k) = cbemu;
-    return t;
+    void* et = NULL;
+    return my->SDL_CreateThread(my_prepare_thread(emu, cb, p, 0, &et), et);
 }
 
 void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
 {
     sdl1_my_t *my = (sdl1_my_t *)emu->context->sdl1lib->priv.w.p2;
     my->SDL_KillThread(p);
-    khint_t k = kh_get(timercb,my->threads, (uintptr_t)p);
-    if(k!=kh_end(my->threads))
-    {
-        FreeCallback(kh_value(my->threads, k));
-        kh_del(timercb, my->threads, k);
-    }
 }
 
 void fillGLProcWrapper(box86context_t* context);
