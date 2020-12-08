@@ -54,6 +54,9 @@ struct elfheader_s {
     uintptr_t   gotplt;
     uintptr_t   pltgot;
     uintptr_t   got;
+    uintptr_t   got_end;
+    uintptr_t   plt;
+    uintptr_t   plt_end;
     uintptr_t   text;
     int         textsz;
 

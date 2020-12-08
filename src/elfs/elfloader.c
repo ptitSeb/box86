@@ -333,6 +333,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        uintptr_t tmp = 0;
         elfheader_t* h_tls = head;
         if(bind==STB_LOCAL) {
             offs = sym->st_value + head->delta;
@@ -459,8 +460,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 }
                 break;
             case R_386_JMP_SLOT:
-                // apply immediatly for gobject closure marshal or for LOCAL binding
-                if(bind==STB_LOCAL || ((symname && strstr(symname, "g_cclosure_marshal_")==symname))) {
+                // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
+                tmp = (uintptr_t)(*p + head->delta);
+                if(bind==STB_LOCAL || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) || tmp<head->plt || tmp>=head->plt_end) {
                     if (!offs) {
                         if(bind==STB_WEAK) {
                             printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);
