@@ -130,5 +130,7 @@ GO("libvulkan.so", vulkan)
 GO("libwayland-client.so.0", waylandclient)
 GO("libxml2.so.2", xml2)
 GO("libxslt.so.1", xslt)
+GO("libldap_r-2.4.so.2", ldapr)
+GO("liblber-2.4.so.2", lber)
 
 GO("ld-linux.so.2", ldlinux)

@@ -438,6 +438,7 @@
 #() LFpLi
 #() LFpLp
 #() LFppi
+#() LFppp
 #() pFEip
 #() pFEup
 #() pFEpi
@@ -1415,6 +1416,7 @@
 #() iFpppuiii
 #() iFpppuppp
 #() iFppppiii
+#() iFppppipp
 #() iFppppdpi
 #() iFpppppip
 #() iFpppppup
@@ -1529,7 +1531,9 @@
 #() iFpppipipi
 #() iFpppipppp
 #() iFppppiipi
+#() iFppppippp
 #() iFppppppii
+#() iFpppppppi
 #() iFpppppppp
 #() uFEipipppp
 #() uFEpiupppp
@@ -1596,6 +1600,7 @@
 #() iFEpuuiippu
 #() iFEpuuuiipp
 #() iFEpppipppp
+#() iFEpppppupp
 #() iFiiiiiiiip
 #() iFiiiipiiip
 #() iFipiipippi
@@ -1710,6 +1715,7 @@
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
 #() iFpipllippppp
+#() iFppippipppip
 #() iFppppiiuuiiu
 #() uFEpiiupppiuV
 #() uFEpiippppiup
@@ -1792,12 +1798,14 @@
 #() pFppippipipipipipip
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
+#() LFpppppppppppppppppp
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() iFpppippppppppppppppp
 #() pFEppuuuuuwwuuuuUUUup
 #() pFiiiippppppppppppppp
 #() pFipppppppppppppppppppppp
+#() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) dFpi
 #defined(NOALIGN) iFppiiiip
