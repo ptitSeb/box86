@@ -67,3 +67,7 @@ GO(XRRTimes,uFpip)
 //GO(XRRDeleteOutputMode
 GO(XRRGetOutputInfo, pFppu)
 //GO(XRRConfigureProviderProperty
+GO(XRRAllocateMonitor, pFpi)
+GO(XRRGetMonitors, pFppip)
+GO(XRRSetMonitor, vFppp)
+GO(XRRFreeMonitors, vFp)
