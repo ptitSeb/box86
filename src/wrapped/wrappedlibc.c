@@ -70,6 +70,10 @@
 #ifndef __NR_recvmmsg
 #define __NR_recvmmsg                   (__NR_SYSCALL_BASE+365)
 #endif
+#elif defined(__arm__)
+#ifndef __NR_accept4
+#define __NR_accept4                    (__NR_SYSCALL_BASE+366)
+#endif
 #endif
 
 // need to undef all read / read64 stuffs!
