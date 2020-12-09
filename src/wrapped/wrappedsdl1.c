@@ -46,6 +46,7 @@ typedef struct {
 } SDL_AudioSpec;
 
 // TODO: put the wrapper type in a dedicate include
+typedef void  (*vFv_t)();
 typedef void* (*pFv_t)();
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFp_t)(void*);
@@ -66,6 +67,7 @@ typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 
 #define SUPER()                                     \
+    GO(SDL_Quit, vFv_t)                             \
     GO(SDL_AllocRW, sdl1_allocrw)                   \
     GO(SDL_FreeRW, sdl1_freerw)                     \
     GO(SDL_OpenAudio, iFpp_t)                       \
@@ -561,10 +563,11 @@ EXPORT int32_t my_SDL_GetWMInfo(x86emu_t* emu, void* p)
     lib->priv.w.neededlibs[2] = strdup("librt.so.1");
 
 #define CUSTOM_FINI \
-    freeSDL1My(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
-    ((box86context_t*)(lib->context))->sdl1lib = NULL;  \
-    ((box86context_t*)(lib->context))->sdl1allocrw = NULL; \
+    ((sdl1_my_t *)lib->priv.w.p2)->SDL_Quit();              \
+    freeSDL1My(lib->priv.w.p2);                             \
+    free(lib->priv.w.p2);                                   \
+    ((box86context_t*)(lib->context))->sdl1lib = NULL;      \
+    ((box86context_t*)(lib->context))->sdl1allocrw = NULL;  \
     ((box86context_t*)(lib->context))->sdl1freerw = NULL;
 
 #include "wrappedlib_init.h"

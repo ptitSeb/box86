@@ -39,10 +39,13 @@ void FreeLibrarian(lib_t **maplib)
     if(!maplib || !*maplib)
         return;
     
-    if((*maplib)->ownlibs)
+    if((*maplib)->ownlibs) {
+        printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
         for (int i=0; i<(*maplib)->libsz; ++i) {
+            printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i].lib->name);
             Free1Library(&(*maplib)->libraries[i].lib);
         }
+    }
     free((*maplib)->libraries);
     (*maplib)->libraries = NULL;
 

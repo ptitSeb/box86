@@ -72,6 +72,7 @@ typedef struct
 
 
 // TODO: put the wrapper type in a dedicate include
+typedef void  (*vFv_t)();
 typedef void* (*pFv_t)();
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFip_t)(int32_t, void*);
@@ -109,6 +110,7 @@ typedef SDL_JoystickGUID (*SFp_t)(void*);
 typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
 
 #define SUPER() \
+    GO(SDL_Quit, vFv_t)                             \
     GO(SDL_OpenAudio, iFpp_t)                       \
     GO(SDL_OpenAudioDevice, iFpippi_t)              \
     GO(SDL_LoadFile_RW, pFpi_t)                     \
@@ -1031,23 +1033,24 @@ const char* sdl2Name = "libSDL2-2.0.so.0";
 #define LIBNAME sdl2
 
 #define CUSTOM_INIT \
-    box86->sdl2lib = lib; \
-    lib->priv.w.p2 = getSDL2My(lib); \
+    box86->sdl2lib = lib;                                           \
+    lib->priv.w.p2 = getSDL2My(lib);                                \
     box86->sdl2allocrw = ((sdl2_my_t*)lib->priv.w.p2)->SDL_AllocRW; \
-    box86->sdl2freerw  = ((sdl2_my_t*)lib->priv.w.p2)->SDL_FreeRW; \
-    lib->altmy = strdup("my2_"); \
-    lib->priv.w.needed = 4; \
+    box86->sdl2freerw  = ((sdl2_my_t*)lib->priv.w.p2)->SDL_FreeRW;  \
+    lib->altmy = strdup("my2_");                                    \
+    lib->priv.w.needed = 4;                                         \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libdl.so.2"); \
-    lib->priv.w.neededlibs[1] = strdup("libm.so.6"); \
-    lib->priv.w.neededlibs[2] = strdup("librt.so.1"); \
+    lib->priv.w.neededlibs[0] = strdup("libdl.so.2");               \
+    lib->priv.w.neededlibs[1] = strdup("libm.so.6");                \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1");               \
     lib->priv.w.neededlibs[3] = strdup("libpthread.so.0");
 
 #define CUSTOM_FINI \
-    freeSDL2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
-    ((box86context_t*)(lib->context))->sdl2lib = NULL; \
-    ((box86context_t*)(lib->context))->sdl2allocrw = NULL; \
+    ((sdl2_my_t *)lib->priv.w.p2)->SDL_Quit();              \
+    freeSDL2My(lib->priv.w.p2);                             \
+    free(lib->priv.w.p2);                                   \
+    ((box86context_t*)(lib->context))->sdl2lib = NULL;      \
+    ((box86context_t*)(lib->context))->sdl2allocrw = NULL;  \
     ((box86context_t*)(lib->context))->sdl2freerw = NULL;
 
 

@@ -331,7 +331,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 1: // sys_exit
             emu->quit = 1;
             emu->exit = 1;
-            R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the program now
+            //R_EAX = syscall(__NR_exit, R_EBX);  // the syscall should exit only current thread
+            R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the thread now
             break;
         case 3:  // sys_read
             R_EAX = (uint32_t)read((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
