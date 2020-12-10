@@ -461,8 +461,12 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 break;
             case R_386_JMP_SLOT:
                 // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
-                tmp = (uintptr_t)(*p + head->delta);
-                if(bind==STB_LOCAL || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) || tmp<head->plt || tmp>=head->plt_end) {
+                tmp = (uintptr_t)(*p);
+                if (bind==STB_LOCAL 
+                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) 
+                  || !tmp
+                  || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
+                  ) {
                     if (!offs) {
                         if(bind==STB_WEAK) {
                             printf_log(LOG_INFO, "Warning: Weak Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p)\n", symname, p, *(void**)p);

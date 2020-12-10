@@ -254,6 +254,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         int ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got.plt");
         if(ii) {
             h->gotplt = h->SHEntries[ii].sh_addr;
+            h->gotplt_end = h->gotplt + h->SHEntries[ii].sh_size;
             printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
