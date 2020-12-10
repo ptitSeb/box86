@@ -182,7 +182,7 @@ GOS(xcb_randr_get_screen_resources_current, pFEppu)
 GO(xcb_randr_get_screen_resources_current_outputs, pFp)
 GOS(xcb_randr_get_screen_resources_current_outputs_end, pFEpp)
 GO(xcb_randr_get_screen_resources_current_outputs_length, iFp)
-GOS(xcb_randr_get_screen_resources_current_reply, pFpup)
+GO(xcb_randr_get_screen_resources_current_reply, pFpup)
 //GOS(xcb_randr_get_screen_resources_current_sizeof, 
 //GOS(xcb_randr_get_screen_resources_current_unchecked, 
 //GOS(xcb_randr_get_screen_resources_modes, 

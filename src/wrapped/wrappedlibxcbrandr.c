@@ -46,6 +46,8 @@ typedef my_xcb_iterator_t (*YFp_t)  (void*);
     GO(xcb_randr_query_version_unchecked, XFpuu_t)                  \
     GO(xcb_randr_select_input, XFpuW_t)                             \
     GO(xcb_randr_select_input_checked, XFpuW_t)                     \
+    GO(xcb_randr_get_screen_resources, XFpu_t)                      \
+    GO(xcb_randr_get_screen_resources_unchecked, XFpu_t)            \
     GO(xcb_randr_get_screen_resources_current, XFpu_t)              \
     GO(xcb_randr_get_screen_resources_current_unchecked, XFpu_t)    \
     GO(xcb_randr_get_output_info, XFppu_t)                          \
@@ -92,6 +94,8 @@ SUPER(xcb_randr_query_version, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, ui
 SUPER(xcb_randr_query_version_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t major, uint32_t minor), c, major, minor)
 SUPER(xcb_randr_select_input, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint16_t enable), c, win, enable)
 SUPER(xcb_randr_select_input_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint16_t enable), c, win, enable)
+SUPER(xcb_randr_get_screen_resources, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
+SUPER(xcb_randr_get_screen_resources_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_randr_get_screen_resources_current, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_randr_get_screen_resources_current_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win), c, win)
 SUPER(xcb_randr_get_output_info, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, void* output, uint32_t stamp), c, output, stamp)

@@ -107,8 +107,8 @@ GOS(xcb_xfixes_query_version_unchecked, pFEppuu)
 //GOS(xcb_xfixes_set_region_rectangles_iterator, 
 //GOS(xcb_xfixes_set_region_rectangles_length, 
 //GOS(xcb_xfixes_set_region_sizeof, 
-//GOS(xcb_xfixes_set_window_shape_region, 
-//GOS(xcb_xfixes_set_window_shape_region_checked, 
+GOS(xcb_xfixes_set_window_shape_region, pFEppuuwwu)
+GOS(xcb_xfixes_set_window_shape_region_checked, pFEppuuwwu)
 //GOS(xcb_xfixes_show_cursor, 
 //GOS(xcb_xfixes_show_cursor_checked, 
 //GOS(xcb_xfixes_subtract_region, 

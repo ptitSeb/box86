@@ -27,11 +27,14 @@ typedef struct my_xcb_cookie_s {
 typedef my_xcb_cookie_t (*XFpu_t)(void*, uint32_t);
 typedef my_xcb_cookie_t (*XFpuu_t)(void*, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*XFpuup_t)(void*, uint32_t, uint32_t, void*);
+typedef my_xcb_cookie_t (*XFpuuwwu_t)(void*, uint32_t, uint32_t, int16_t, int16_t, uint32_t);
 
 #define SUPER() \
-    GO(xcb_xfixes_query_version_unchecked, XFpuu_t) \
-    GO(xcb_xfixes_create_region, XFpuup_t) \
-    GO(xcb_xfixes_destroy_region, XFpu_t) \
+    GO(xcb_xfixes_query_version_unchecked, XFpuu_t)             \
+    GO(xcb_xfixes_create_region, XFpuup_t)                      \
+    GO(xcb_xfixes_destroy_region, XFpu_t)                       \
+    GO(xcb_xfixes_set_window_shape_region, XFpuuwwu_t)          \
+    GO(xcb_xfixes_set_window_shape_region_checked, XFpuuwwu_t)  \
 
 typedef struct xcbxfixes_my_s {
     #define GO(A, B)    B   A;
@@ -66,6 +69,8 @@ void freeXcbxfixesMy(void* lib)
 SUPER(xcb_xfixes_query_version_unchecked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t majver, uint32_t minver), c, majver, minver)
 SUPER(xcb_xfixes_create_region, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t region, uint32_t rectangles_len, void* rectangles), c, region, rectangles_len, rectangles)
 SUPER(xcb_xfixes_destroy_region, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t region), c, region)
+SUPER(xcb_xfixes_set_window_shape_region, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint32_t kind, int16_t x, int16_t y, uint32_t region), c, win, kind, x, y, region)
+SUPER(xcb_xfixes_set_window_shape_region_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint32_t kind, int16_t x, int16_t y, uint32_t region), c, win, kind, x, y, region)
 #undef SUPER
 
 

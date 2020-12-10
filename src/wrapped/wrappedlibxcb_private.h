@@ -194,8 +194,8 @@ GO(xcb_flush, iFp)
 //GO(xcb_force_screen_saver_checked, 
 //GO(xcb_format_end, 
 GO(xcb_format_next, vFp)
-//GO(xcb_free_colormap, 
-//GO(xcb_free_colormap_checked, 
+GOS(xcb_free_colormap, pFEppu)
+GOS(xcb_free_colormap_checked, pFEppu)
 //GO(xcb_free_colors, 
 //GO(xcb_free_colors_checked, 
 //GO(xcb_free_colors_pixels, 
@@ -292,13 +292,13 @@ GO(xcb_get_setup, pFp)
 GOS(xcb_get_window_attributes, pFEppu)
 GO(xcb_get_window_attributes_reply, pFpup)
 GOS(xcb_get_window_attributes_unchecked, pFEppu)
-//GO(xcb_grab_button, 
-//GO(xcb_grab_button_checked, 
-//GO(xcb_grab_key, 
+GOS(xcb_grab_button, pFEppCuWCCuuCW)
+GOS(xcb_grab_button_checked, pFEppCuWCCuuCW)
+GOS(xcb_grab_key, pFEppCuWCCC)
 GOS(xcb_grab_keyboard, pFEppCuuCC)
 GO(xcb_grab_keyboard_reply, pFpup)
 //GO(xcb_grab_keyboard_unchecked, 
-//GO(xcb_grab_key_checked, 
+GOS(xcb_grab_key_checked, pFEppCuWCCC)
 GOS(xcb_grab_pointer, pFEppCuWCCuuu)
 GO(xcb_grab_pointer_reply, pFpup)
 //GO(xcb_grab_pointer_unchecked, 
@@ -632,9 +632,9 @@ GO(xcb_setup_roots_length, iFp)
 GOS(xcb_translate_coordinates, pFEppuuWW)
 GO(xcb_translate_coordinates_reply, pFpup)
 GOS(xcb_translate_coordinates_unchecked, pFEppuuWW)
-//GO(xcb_ungrab_button, 
-//GO(xcb_ungrab_button_checked, 
-//GO(xcb_ungrab_key, 
+GOS(xcb_ungrab_button, pFEppCuW)
+GOS(xcb_ungrab_button_checked, pFEppCuW)
+GOS(xcb_ungrab_key, pFEppCuW)
 GOS(xcb_ungrab_keyboard, pFEppu)
 GOS(xcb_ungrab_keyboard_checked, pFEppu)
 GOS(xcb_ungrab_key_checked, pFEppCuW)

@@ -17,8 +17,8 @@ DATA(xcb_shape_id, 8)
 //GOS(xcb_shape_input_selected_unchecked, 
 //GOS(xcb_shape_kind_end, 
 //GOS(xcb_shape_kind_next, 
-//GOS(xcb_shape_mask, 
-//GOS(xcb_shape_mask_checked, 
+GOS(xcb_shape_mask, pFEppuuuwwu)
+GOS(xcb_shape_mask_checked, pFEppuuuwwu)
 //GOS(xcb_shape_offset, 
 //GOS(xcb_shape_offset_checked, 
 //GOS(xcb_shape_op_end, 

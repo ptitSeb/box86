@@ -24,8 +24,11 @@ typedef struct my_xcb_cookie_s {
     uint32_t        data;
 } my_xcb_cookie_t;
 
+typedef my_xcb_cookie_t (*XFpCCuuwwC_t) (void*, uint8_t, uint8_t, uint32_t, uint32_t, int16_t, int16_t, uint8_t);
 
 #define SUPER() \
+    GO(xcb_test_fake_input, XFpCCuuwwC_t)           \
+    GO(xcb_test_fake_input_checked, XFpCCuuwwC_t)   \
 
 
 typedef struct xcbxtest_my_s {
@@ -58,7 +61,8 @@ void freeXcbxtestMy(void* lib)
         return ret;                                                 \
     }
 
-//SUPER(xcb_change_gc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t gc, uint32_t mask, void* list), c, gc, mask, list)
+SUPER(xcb_test_fake_input, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t type, uint8_t detail, uint32_t time, uint32_t win, int16_t x, int16_t y, uint8_t id), c, type, detail, time, win, x, y, id)
+SUPER(xcb_test_fake_input_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t type, uint8_t detail, uint32_t time, uint32_t win, int16_t x, int16_t y, uint8_t id), c, type, detail, time, win, x, y, id)
 
 #undef SUPER
 
