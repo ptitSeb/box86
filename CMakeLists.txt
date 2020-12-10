@@ -232,6 +232,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedsdl2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl2mixer.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl2image.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl2ttf.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsmpeg.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsmpeg2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedvorbisfile.c"
