@@ -201,7 +201,6 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         ElfAttachLib(elf_header, lib);
 
         lib->type = 1;
-        lib->context = context;
         lib->fini = EmuLib_Fini;
         lib->get = EmuLib_Get;
         lib->getnoweak = EmuLib_GetNoWeak;
@@ -242,6 +241,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     lib->path = strdup(path);
     lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
+    lib->context = context;
     lib->type = -1;
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box86_nopulse) {
