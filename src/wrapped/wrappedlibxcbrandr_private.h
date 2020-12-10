@@ -94,7 +94,7 @@ GOS(xcb_randr_get_crtc_info_unchecked, pFEpppu)
 //GOS(xcb_randr_get_monitors_reply, 
 //GOS(xcb_randr_get_monitors_sizeof, 
 //GOS(xcb_randr_get_monitors_unchecked, 
-//GOS(xcb_randr_get_output_info, 
+GOS(xcb_randr_get_output_info, pFEpppu)
 //GOS(xcb_randr_get_output_info_clones, 
 //GOS(xcb_randr_get_output_info_clones_end, 
 //GOS(xcb_randr_get_output_info_clones_length, 
@@ -107,12 +107,12 @@ GOS(xcb_randr_get_crtc_info_unchecked, pFEpppu)
 //GOS(xcb_randr_get_output_info_name, 
 //GOS(xcb_randr_get_output_info_name_end, 
 //GOS(xcb_randr_get_output_info_name_length, 
-//GOS(xcb_randr_get_output_info_reply, 
+GO(xcb_randr_get_output_info_reply, pFpup)
 //GOS(xcb_randr_get_output_info_sizeof, 
-//GOS(xcb_randr_get_output_info_unchecked, 
-//GOS(xcb_randr_get_output_primary, 
-//GOS(xcb_randr_get_output_primary_reply, 
-//GOS(xcb_randr_get_output_primary_unchecked, 
+GOS(xcb_randr_get_output_info_unchecked, pFEpppu)
+GOS(xcb_randr_get_output_primary, pFEppu)
+GO(xcb_randr_get_output_primary_reply, pFpup)
+GOS(xcb_randr_get_output_primary_unchecked, pFEppu)
 //GOS(xcb_randr_get_output_property, 
 //GOS(xcb_randr_get_output_property_data, 
 //GOS(xcb_randr_get_output_property_data_end, 
@@ -165,7 +165,7 @@ GOS(xcb_randr_get_crtc_info_unchecked, pFEpppu)
 //GOS(xcb_randr_get_screen_info_sizes_iterator, 
 //GOS(xcb_randr_get_screen_info_sizes_length, 
 //GOS(xcb_randr_get_screen_info_unchecked, 
-//GOS(xcb_randr_get_screen_resources, 
+GOS(xcb_randr_get_screen_resources, pFEppu)
 //GOS(xcb_randr_get_screen_resources_crtcs, 
 //GOS(xcb_randr_get_screen_resources_crtcs_end, 
 //GOS(xcb_randr_get_screen_resources_crtcs_length, 
@@ -179,10 +179,10 @@ GOS(xcb_randr_get_screen_resources_current, pFEppu)
 //GOS(xcb_randr_get_screen_resources_current_names, 
 //GOS(xcb_randr_get_screen_resources_current_names_end, 
 //GOS(xcb_randr_get_screen_resources_current_names_length, 
-//GOS(xcb_randr_get_screen_resources_current_outputs, 
-//GOS(xcb_randr_get_screen_resources_current_outputs_end, 
-//GOS(xcb_randr_get_screen_resources_current_outputs_length, 
-//GOS(xcb_randr_get_screen_resources_current_reply, 
+GO(xcb_randr_get_screen_resources_current_outputs, pFp)
+GOS(xcb_randr_get_screen_resources_current_outputs_end, pFEpp)
+GO(xcb_randr_get_screen_resources_current_outputs_length, iFp)
+GOS(xcb_randr_get_screen_resources_current_reply, pFpup)
 //GOS(xcb_randr_get_screen_resources_current_sizeof, 
 //GOS(xcb_randr_get_screen_resources_current_unchecked, 
 //GOS(xcb_randr_get_screen_resources_modes, 
@@ -193,10 +193,10 @@ GOS(xcb_randr_get_screen_resources_current, pFEppu)
 //GOS(xcb_randr_get_screen_resources_names_length, 
 GOS(xcb_randr_get_screen_resources_outputs, pFEppu)
 //GOS(xcb_randr_get_screen_resources_outputs_end, 
-//GOS(xcb_randr_get_screen_resources_outputs_length, 
-//GOS(xcb_randr_get_screen_resources_reply, 
+GO(xcb_randr_get_screen_resources_outputs_length, iFp)
+GO(xcb_randr_get_screen_resources_reply, pFpup)
 //GOS(xcb_randr_get_screen_resources_sizeof, 
-//GOS(xcb_randr_get_screen_resources_unchecked, 
+GOS(xcb_randr_get_screen_resources_unchecked, pFEppu)
 //GOS(xcb_randr_get_screen_size_range, 
 //GOS(xcb_randr_get_screen_size_range_reply, 
 //GOS(xcb_randr_get_screen_size_range_unchecked, 
@@ -253,9 +253,9 @@ DATA(xcb_randr_id, 8)
 //GOS(xcb_randr_query_provider_property_valid_values, 
 //GOS(xcb_randr_query_provider_property_valid_values_end, 
 //GOS(xcb_randr_query_provider_property_valid_values_length, 
-//GOS(xcb_randr_query_version, 
-//GOS(xcb_randr_query_version_reply, 
-//GOS(xcb_randr_query_version_unchecked, 
+GOS(xcb_randr_query_version, pFEppuu)
+GO(xcb_randr_query_version_reply, pFpup)
+GOS(xcb_randr_query_version_unchecked, pFEppuu)
 //GOS(xcb_randr_refresh_rates_end, 
 //GOS(xcb_randr_refresh_rates_next, 
 //GOS(xcb_randr_refresh_rates_rates, 
@@ -266,8 +266,8 @@ DATA(xcb_randr_id, 8)
 //GOS(xcb_randr_resource_change_next, 
 //GOS(xcb_randr_screen_size_end, 
 //GOS(xcb_randr_screen_size_next, 
-//GOS(xcb_randr_select_input, 
-//GOS(xcb_randr_select_input_checked, 
+GOS(xcb_randr_select_input, pFEppuW)
+GOS(xcb_randr_select_input_checked, pFEppuW)
 //GOS(xcb_randr_set_crtc_config, 
 //GOS(xcb_randr_set_crtc_config_reply, 
 //GOS(xcb_randr_set_crtc_config_sizeof, 

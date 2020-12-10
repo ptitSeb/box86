@@ -1064,6 +1064,7 @@ void pFEpupp(x86emu_t *emu, uintptr_t fnc);
 void pFEppii(x86emu_t *emu, uintptr_t fnc);
 void pFEppip(x86emu_t *emu, uintptr_t fnc);
 void pFEppCC(x86emu_t *emu, uintptr_t fnc);
+void pFEppuW(x86emu_t *emu, uintptr_t fnc);
 void pFEppuu(x86emu_t *emu, uintptr_t fnc);
 void pFEppup(x86emu_t *emu, uintptr_t fnc);
 void pFEpppi(x86emu_t *emu, uintptr_t fnc);
