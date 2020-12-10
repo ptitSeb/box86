@@ -22,7 +22,7 @@
 //GO(drmAgpVendorId, 
 //GO(drmAgpVersionMajor, 
 //GO(drmAgpVersionMinor, 
-//GO(drmAuthMagic, 
+GO(drmAuthMagic, iFiu)
 //GO(drmAvailable, 
 //GO(drmCheckModesettingSupported, 
 //GO(drmClose, 
@@ -51,7 +51,7 @@
 //GO(drmFreeDevice, 
 //GO(drmFreeDevices, 
 //GO(drmFreeReservedContextList, 
-//GO(drmFreeVersion, 
+GO(drmFreeVersion, vFp)
 //GO(drmGetBufInfo, 
 //GO(drmGetBusid, 
 //GO(drmGetCap, 
@@ -61,7 +61,7 @@
 //GO(drmGetContextTag, 
 //GO(drmGetDevice, 
 //GO(drmGetDevice2, 
-//GO(drmGetDeviceNameFromFd, 
+GO(drmGetDeviceNameFromFd, pFi)
 //GO(drmGetDeviceNameFromFd2, 
 //GO(drmGetDevices, 
 //GO(drmGetDevices2, 
@@ -77,7 +77,7 @@ GO(drmGetMagic, iFip)
 //GO(drmGetRenderDeviceNameFromFd, 
 //GO(drmGetReservedContextList, 
 //GO(drmGetStats, 
-//GO(drmGetVersion, 
+GO(drmGetVersion, pFi)
 //GO(drmHandleEvent, 
 //GO(drmHashCreate, 
 //GO(drmHashDelete, 
