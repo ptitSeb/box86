@@ -55,7 +55,7 @@ GO(XBlackPixel, uFpi)
 GO(XChangeActivePointerGrab, vFpuuu)
 GO(XChangeGC, iFppup)
 GO(XChangeKeyboardControl, iFpup)
-//GO(XChangeKeyboardMapping
+GO(XChangeKeyboardMapping, iFpiipi)
 GO(XChangePointerControl, iFpiiiii)
 GO(XChangeProperty, iFppppiipi)
 //GO(XChangeSaveSet

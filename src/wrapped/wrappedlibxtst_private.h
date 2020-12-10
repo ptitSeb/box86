@@ -5,14 +5,14 @@
 GO(XRecordAllocRange, pFv)
 GO(XRecordCreateContext, LFpipipi)
 GO(XRecordDisableContext, iFpL)
-//GO(XRecordEnableContext, 
+GOM(XRecordEnableContext, iFEpppp)
 GOM(XRecordEnableContextAsync, iFEpppp)
 GO(XRecordFreeContext, iFpL)
 GO(XRecordFreeData, vFp)
 GO(XRecordFreeState, vFp)
 GO(XRecordGetContext, iFpLp)
 GO(XRecordIdBaseMask, uFp)
-//GO(XRecordProcessReplies, 
+GO(XRecordProcessReplies, vFp)
 GO(XRecordQueryVersion, iFpii)
 GO(XRecordRegisterClients, iFpLipipi)
 GO(XRecordUnregisterClients, iFpLpi)

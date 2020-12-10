@@ -23,7 +23,8 @@ const char* libxtstName = "libXtst.so.6";
 typedef int (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() \
-    GO(XRecordEnableContextAsync, iFpppp_t)
+    GO(XRecordEnableContextAsync, iFpppp_t) \
+    GO(XRecordEnableContext, iFpppp_t)      \
 
 typedef struct libxtst_my_s {
     #define GO(A, B)    B   A;
@@ -47,24 +48,48 @@ void freeXtstMy(void* lib)
     //libxtst_my_t *my = (libxtst_my_t *)lib;
 }
 
-uintptr_t fnc_XRecordInterceptProc = 0;
-static void my_XRecordInterceptProc(void* closure, void *recorded_data)
-{
-    RunFunction(my_context, fnc_XRecordInterceptProc, 2, closure, recorded_data);
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// XRecordInterceptProc ...
+#define GO(A)   \
+static uintptr_t my_XRecordInterceptProc_fct_##A = 0;                   \
+static void my_XRecordInterceptProc_##A(void* a, void* b)               \
+{                                                                       \
+    RunFunction(my_context, my_XRecordInterceptProc_fct_##A, 2, a, b);  \
 }
+SUPER()
+#undef GO
+static void* find_XRecordInterceptProc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XRecordInterceptProc_fct_##A == (uintptr_t)fct) return my_XRecordInterceptProc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XRecordInterceptProc_fct_##A == 0) {my_XRecordInterceptProc_fct_##A = (uintptr_t)fct; return my_XRecordInterceptProc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxtst XRecordInterceptProc callback\n");
+    return NULL;
+}
+
 EXPORT int my_XRecordEnableContextAsync(x86emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
     library_t* lib = GetLibInternal(libxtstName);
     libxtst_my_t* my = (libxtst_my_t*)lib->priv.w.p2;
+    return my->XRecordEnableContextAsync(display, context, find_XRecordInterceptProc_Fct(cb), closure);
+}
 
-    if(GetNativeFnc((uintptr_t)cb)) {
-        return my->XRecordEnableContextAsync(display, context, GetNativeFnc((uintptr_t)cb), closure);
-    }
-    if(fnc_XRecordInterceptProc && cb) {
-        printf_log(LOG_NONE, "Warning, XRecordInterceptProc called 2 times\n");
-    }
-    fnc_XRecordInterceptProc = (uintptr_t)cb;
-    return my->XRecordEnableContextAsync(display, context, my_XRecordInterceptProc, closure);
+EXPORT int my_XRecordEnableContext(x86emu_t* emu, void* display, void* context, void* cb, void* closure)
+{
+    library_t* lib = GetLibInternal(libxtstName);
+    libxtst_my_t* my = (libxtst_my_t*)lib->priv.w.p2;
+    return my->XRecordEnableContext(display, context, find_XRecordInterceptProc_Fct(cb), closure);
 }
 
 #define CUSTOM_INIT \
