@@ -2,10 +2,6 @@
 #error meh!
 #endif
 
-#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
-#endif
-
 //GOS(xcb_randr_add_output_mode, 
 //GOS(xcb_randr_add_output_mode_checked, 
 //GOS(xcb_randr_change_output_property, 
@@ -66,16 +62,16 @@
 //GOS(xcb_randr_get_crtc_gamma_size_reply, 
 //GOS(xcb_randr_get_crtc_gamma_size_unchecked, 
 //GOS(xcb_randr_get_crtc_gamma_unchecked, 
-//GOS(xcb_randr_get_crtc_info, 
+GOS(xcb_randr_get_crtc_info, pFEpppu)
 //GOS(xcb_randr_get_crtc_info_outputs, 
 //GOS(xcb_randr_get_crtc_info_outputs_end, 
 //GOS(xcb_randr_get_crtc_info_outputs_length, 
 //GOS(xcb_randr_get_crtc_info_possible, 
 //GOS(xcb_randr_get_crtc_info_possible_end, 
 //GOS(xcb_randr_get_crtc_info_possible_length, 
-//GOS(xcb_randr_get_crtc_info_reply, 
+GO(xcb_randr_get_crtc_info_reply, pFpup)
 //GOS(xcb_randr_get_crtc_info_sizeof, 
-//GOS(xcb_randr_get_crtc_info_unchecked, 
+GOS(xcb_randr_get_crtc_info_unchecked, pFEpppu)
 //GOS(xcb_randr_get_crtc_transform, 
 //GOS(xcb_randr_get_crtc_transform_current_filter_name, 
 //GOS(xcb_randr_get_crtc_transform_current_filter_name_end, 
@@ -173,7 +169,7 @@
 //GOS(xcb_randr_get_screen_resources_crtcs, 
 //GOS(xcb_randr_get_screen_resources_crtcs_end, 
 //GOS(xcb_randr_get_screen_resources_crtcs_length, 
-//GOS(xcb_randr_get_screen_resources_current, 
+GOS(xcb_randr_get_screen_resources_current, pFEppu)
 //GOS(xcb_randr_get_screen_resources_current_crtcs, 
 //GOS(xcb_randr_get_screen_resources_current_crtcs_end, 
 //GOS(xcb_randr_get_screen_resources_current_crtcs_length, 
@@ -195,7 +191,7 @@
 //GOS(xcb_randr_get_screen_resources_names, 
 //GOS(xcb_randr_get_screen_resources_names_end, 
 //GOS(xcb_randr_get_screen_resources_names_length, 
-//GOS(xcb_randr_get_screen_resources_outputs, 
+GOS(xcb_randr_get_screen_resources_outputs, pFEppu)
 //GOS(xcb_randr_get_screen_resources_outputs_end, 
 //GOS(xcb_randr_get_screen_resources_outputs_length, 
 //GOS(xcb_randr_get_screen_resources_reply, 

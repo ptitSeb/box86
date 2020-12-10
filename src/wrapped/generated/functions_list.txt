@@ -407,6 +407,7 @@
 #() uFpii
 #() uFpiu
 #() uFpip
+#() uFpCi
 #() uFpui
 #() uFpuu
 #() uFpup
@@ -1036,6 +1037,7 @@
 #() pFEppuu
 #() pFEppup
 #() pFEpppi
+#() pFEpppu
 #() pFEpppp
 #() pFiiiii
 #() pFipipu
@@ -1266,6 +1268,7 @@
 #() pFEppCuW
 #() pFEppCuu
 #() pFEppuWp
+#() pFEppuuC
 #() pFEppuuu
 #() pFEppuup
 #() pFEpppup
@@ -1686,6 +1689,7 @@
 #() pFEpippppppp
 #() pFEppCuwwWWu
 #() pFEppCuuuCup
+#() pFEppuuWWCuu
 #() pFplllllllll
 #() pFppuiipuuii
 #() vFEpiiiupupup
@@ -1748,6 +1752,7 @@
 #() iFpppppppppppp
 #() lFpLpppppppppp
 #() pFEppiiuuuipii
+#() pFEppuwwWWuCuu
 #() pFEppuuuwwwwWW
 #() pFEppuuuWWWCCi
 #() pFWWiCCCCiipup
@@ -1801,6 +1806,7 @@
 #() vFppuiiiiipuiiiiiiii
 #() vFpppipppppppppppppp
 #() LFpppppppppppppppppp
+#() pFEppuuWWWWWWwwCCCuu
 #() pFippppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() iFpppippppppppppppppp

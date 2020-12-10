@@ -2,26 +2,26 @@
 #error meh!
 #endif
 
-//GOS(xcb_shm_attach, 
-//GOS(xcb_shm_attach_checked, 
-//GOS(xcb_shm_attach_fd, 
-//GOS(xcb_shm_attach_fd_checked, 
-//GOS(xcb_shm_create_pixmap, 
-//GOS(xcb_shm_create_pixmap_checked, 
-//GOS(xcb_shm_create_segment, 
-//GOS(xcb_shm_create_segment_reply, 
-//GOS(xcb_shm_create_segment_reply_fds, 
-//GOS(xcb_shm_create_segment_unchecked, 
-//GOS(xcb_shm_detach, 
-//GOS(xcb_shm_detach_checked, 
-//GOS(xcb_shm_get_image, 
-//GOS(xcb_shm_get_image_reply, 
-//GOS(xcb_shm_get_image_unchecked, 
+GOS(xcb_shm_attach, pFEppuuC)
+GOS(xcb_shm_attach_checked, pFEppuuC)
+GOS(xcb_shm_attach_fd, pFEppuuC)
+GOS(xcb_shm_attach_fd_checked, pFEppuuC)
+GOS(xcb_shm_create_pixmap, pFEppuuWWCuu)
+GOS(xcb_shm_create_pixmap_checked, pFEppuuWWCuu)
+GOS(xcb_shm_create_segment, pFEppuuC)
+GO(xcb_shm_create_segment_reply, pFpup)
+GO(xcb_shm_create_segment_reply_fds, pFpp)
+GOS(xcb_shm_create_segment_unchecked, pFEppuuC)
+GOS(xcb_shm_detach, pFEppu)
+GOS(xcb_shm_detach_checked, pFEppu)
+GOS(xcb_shm_get_image, pFEppuwwWWuCuu)
+GO(xcb_shm_get_image_reply, pFpup)
+GOS(xcb_shm_get_image_unchecked, pFEppuwwWWuCuu)
 DATA(xcb_shm_id, 8)
-//GOS(xcb_shm_put_image, 
-//GOS(xcb_shm_put_image_checked, 
-//GOS(xcb_shm_query_version, 
-//GOS(xcb_shm_query_version_reply, 
-//GOS(xcb_shm_query_version_unchecked, 
-//GOS(xcb_shm_seg_end, 
-//GOS(xcb_shm_seg_next, 
+GOS(xcb_shm_put_image, pFEppuuWWWWWWwwCCCuu)
+GOS(xcb_shm_put_image_checked, pFEppuuWWWWWWwwCCCuu)
+GOS(xcb_shm_query_version, pFEpp)
+GO(xcb_shm_query_version_reply, pFpup)
+GOS(xcb_shm_query_version_unchecked, pFEpp)
+GOS(xcb_shm_seg_end, pFEppii)   // xcb_generic_iterator _t by value, so "pii"
+GO(xcb_shm_seg_next, vFp)
