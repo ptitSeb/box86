@@ -80,7 +80,7 @@ void FreeDynablock(dynablock_t* db)
         // only the father free the DynarecMap
         if(!db->father) {
             dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->block, db->size);
-            FreeDynarecMap((uintptr_t)db->block, db->size);
+            FreeDynarecMap(db, (uintptr_t)db->block, db->size);
         }
         free(db->sons);
         free(db->table);
@@ -261,33 +261,18 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
         MarkDirectDynablock(dynablocks, addr, size);
 }
 
-dynablock_t* FindDynablockDynablocklist(void* addr, dynablocklist_t* dynablocks)
+dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
 {
     if(!dynablocks)
         return NULL;
-    if(dynablocks->direct)
-        for(int i=0; i<dynablocks->textsz; ++i) {
-            dynablock_t* db;
-            if((db = dynablocks->direct[i])) {
-                uintptr_t s = (uintptr_t)db->block;
-                uintptr_t e = (uintptr_t)db->block+db->size;
-                if((uintptr_t)addr>=s && (uintptr_t)addr<e)
-                    return db->father?db->father:db;
-            }
-        }
+    dynablock_t* db;
+    kh_foreach_value(dynablocks, db, 
+        uintptr_t s = (uintptr_t)db->block;
+        uintptr_t e = (uintptr_t)db->block+db->size;
+        if((uintptr_t)addr>=s && (uintptr_t)addr<e)
+            return db->father?db->father:db;
+    )
     return NULL;
-}
-
-dynablock_t* FindDynablockFromNativeAddress(void* addr)
-{
-    // unoptimized search through all dynablockslist for the dynablock that contains native addr (NULL if not found)
-    dynablock_t *ret = NULL;
-    for(int idx=0; idx<DYNAMAP_SIZE && !ret; ++idx)
-        if(my_context->dynmap[idx])
-            ret = FindDynablockDynablocklist(addr, my_context->dynmap[idx]->dynablocks);
-    if(ret)
-        return ret;
-    return ret;
 }
 
 static dynablocklist_t* getDBFromAddress(uintptr_t addr)

@@ -23,11 +23,13 @@ typedef struct atfork_fnc_s {
     void*     handle;
 } atfork_fnc_t;
 #ifdef DYNAREC
-typedef struct dynablocklist_s dynablocklist_t;
-typedef struct mmaplist_s      mmaplist_t;
+typedef struct dynablock_s      dynablock_t;
+typedef struct dynablocklist_s  dynablocklist_t;
+typedef struct mmaplist_s       mmaplist_t;
 typedef struct dynmap_s {
     dynablocklist_t* dynablocks;    // the dynabockist of the block
 } dynmap_t;
+typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #define DYNAMAP_SIZE (1<<20)
 #define DYNAMAP_SHIFT 12
 #endif
@@ -174,6 +176,7 @@ typedef struct box86context_s {
     mmaplist_t          *mmaplist;
     int                 mmapsize;
     dynmap_t*           dynmap[DYNAMAP_SIZE];  // 4G of memory mapped by 4K block
+    kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 #endif
 #ifndef NOALIGN
     kh_fts_t            *ftsmap;
@@ -212,9 +215,8 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head);
 int AddTLSPartition(box86context_t* context, int tlssize);
 
 #ifdef DYNAREC
-// the nolinker specified if static map or dynamic (can be deleted) has to be used
-uintptr_t AllocDynarecMap(int size, int nolinker);
-void FreeDynarecMap(uintptr_t addr, uint32_t size);
+uintptr_t AllocDynarecMap(dynablock_t* db, int size);
+void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
 
 void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int nolinker);
 void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int destroy);

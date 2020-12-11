@@ -2,10 +2,9 @@
 #define __DYNABLOCK_H_
 
 typedef struct x86emu_s x86emu_t;
-
 typedef struct dynablock_s dynablock_t;
-
 typedef struct dynablocklist_s dynablocklist_t;
+typedef struct kh_dynablocks_s  kh_dynablocks_t;
 
 uint32_t X31_hash_code(void* addr, int len);
 dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker, int direct);
@@ -19,8 +18,8 @@ void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr
 void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size);
 
-// for debugging purpose
-dynablock_t* FindDynablockFromNativeAddress(void* addr);
+dynablock_t* FindDynablockFromNativeAddress(void* addr);    // defined in box86context.h
+dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks);
 
 uintptr_t StartDynablockList(dynablocklist_t* db);
 uintptr_t EndDynablockList(dynablocklist_t* db);

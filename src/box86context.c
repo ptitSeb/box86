@@ -22,14 +22,20 @@
 #ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
+#include "khash.h"
 
 #define MMAPSIZE (4*1024*1024)      // allocate 4Mo sized blocks
 #define MMAPBLOCK   256             // minimum size of a block
 
+// init inside dynablocks.c
+KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
+
 typedef struct mmaplist_s {
-    void*         block;
-    uint8_t       map[MMAPSIZE/(8*MMAPBLOCK)];  // map of allocated sub-block
+    void*               block;
+    uint8_t             map[MMAPSIZE/(8*MMAPBLOCK)];  // map of allocated sub-block
+    kh_dynablocks_t*    dblist;
 } mmaplist_t;
+
 
 // get first subblock free in map, stating at start. return -1 if no block, else first subblock free, filling size (in subblock unit)
 static int getFirstBlock(uint8_t *map, int start, int maxsize, int* size)
@@ -70,7 +76,7 @@ static void freeBlock(uint8_t *map, int start, int size)
     }
 }
 
-uintptr_t FindFreeDynarecMap(int bsize)
+uintptr_t FindFreeDynarecMap(dynablock_t* db, int bsize)
 {
     // look for free space
     for(int i=0; i<my_context->mmapsize; ++i) {
@@ -81,6 +87,14 @@ uintptr_t FindFreeDynarecMap(int bsize)
             if(start!=-1 && rsize>=bsize) {
                 allocBlock(my_context->mmaplist[i].map, start, bsize);
                 uintptr_t ret = (uintptr_t)my_context->mmaplist[i].block + start*MMAPBLOCK;
+                kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist;
+                if(!blocks) {
+                    blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
+                }
+                khint_t k;
+                int r;
+                k = kh_put(dynablocks, blocks, (uintptr_t)db, &r);
+                kh_value(blocks, k) = db;
                 return ret;
             }
             if(start!=-1)
@@ -90,7 +104,7 @@ uintptr_t FindFreeDynarecMap(int bsize)
     return 0;
 }
 
-uintptr_t AddNewDynarecMap(int bsize)
+uintptr_t AddNewDynarecMap(dynablock_t* db, int bsize)
 {
     int i = my_context->mmapsize++;    // yeah, useful post incrementation
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", my_context->mmapsize);
@@ -106,10 +120,15 @@ uintptr_t AddNewDynarecMap(int bsize)
     my_context->mmaplist[i].block = p;
     memset(my_context->mmaplist[i].map, 0, sizeof(my_context->mmaplist[i].map));
     allocBlock(my_context->mmaplist[i].map, 0, bsize);
+    kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
+    khint_t k;
+    int ret;
+    k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+    kh_value(blocks, k) = db;
     return (uintptr_t)p;
 }
 
-void ActuallyFreeDynarecMap(uintptr_t addr, int bsize)
+void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int bsize)
 {
     if(!addr || !bsize)
         return;
@@ -117,13 +136,31 @@ void ActuallyFreeDynarecMap(uintptr_t addr, int bsize)
         if(addr>=(uintptr_t)my_context->mmaplist[i].block && (addr<(uintptr_t)my_context->mmaplist[i].block+MMAPSIZE)) {
             int start = (addr - (uintptr_t)my_context->mmaplist[i].block) / MMAPBLOCK;
             freeBlock(my_context->mmaplist[i].map, start, bsize);
+            kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist;
+            if(blocks) {
+                khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
+                if(k!=kh_end(blocks))
+                    kh_del(dynablocks, blocks, k);
+            }
             return;
         }
     }
     dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, bsize);
 }
 
-uintptr_t AllocDynarecMap(int size, int nolinker)
+dynablock_t* FindDynablockFromNativeAddress(void* addr)
+{
+    // look in actual list
+    for(int i=0; i<my_context->mmapsize; ++i) {
+        if ((uintptr_t)addr>=(uintptr_t)my_context->mmaplist[i].block 
+        && ((uintptr_t)addr<(uintptr_t)my_context->mmaplist[i].block+MMAPSIZE))
+            return FindDynablockDynablocklist(addr, my_context->mmaplist[i].dblist);
+    }
+    // look in oversized
+    return FindDynablockDynablocklist(addr, my_context->dblist_oversized);
+}
+
+uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 {
     if(!size)
         return 0;
@@ -134,6 +171,13 @@ uintptr_t AllocDynarecMap(int size, int nolinker)
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        kh_dynablocks_t *blocks = my_context->dblist_oversized;
+        if(!blocks)
+            blocks = my_context->dblist_oversized = kh_init(dynablocks);
+        khint_t k;
+        int ret;
+        k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+        kh_value(blocks, k) = db;
         return (uintptr_t)p;
     }
     
@@ -141,24 +185,30 @@ uintptr_t AllocDynarecMap(int size, int nolinker)
     if(pthread_mutex_trylock(&my_context->mutex_mmap))
         return 0;   // cannot lock, baillout
 
-    uintptr_t ret = FindFreeDynarecMap(bsize);
+    uintptr_t ret = FindFreeDynarecMap(db, bsize);
     if(!ret)
-        ret = AddNewDynarecMap(bsize);
+        ret = AddNewDynarecMap(db, bsize);
 
     pthread_mutex_unlock(&my_context->mutex_mmap);
 
     return ret;
 }
 
-void FreeDynarecMap(uintptr_t addr, uint32_t size)
+void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
 {
     if(size>MMAPSIZE) {
         munmap((void*)addr, size);
+        kh_dynablocks_t *blocks = my_context->dblist_oversized;
+        if(blocks) {
+            khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
+            if(k!=kh_end(blocks))
+                kh_del(dynablocks, blocks, k);
+        }
         return;
     }
     pthread_mutex_lock(&my_context->mutex_mmap);
     int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
-    ActuallyFreeDynarecMap(addr, bsize);
+    ActuallyFreeDynarecMap(db, addr, bsize);
     pthread_mutex_unlock(&my_context->mutex_mmap);
 }
 
@@ -390,9 +440,18 @@ void FreeBox86Context(box86context_t** context)
 
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-    for (int i=0; i<ctx->mmapsize; ++i)
+    for (int i=0; i<ctx->mmapsize; ++i) {
         if(ctx->mmaplist[i].block)
             free(ctx->mmaplist[i].block);
+        if(ctx->mmaplist[i].dblist) {
+            kh_destroy(dynablocks, ctx->mmaplist[i].dblist);
+            ctx->mmaplist[i].dblist = NULL;
+        }
+    }
+    if(ctx->dblist_oversized) {
+        kh_destroy(dynablocks, ctx->dblist_oversized);
+        ctx->dblist_oversized = NULL;
+    }
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(ctx, 0, 0xffffffff, 1);
     pthread_mutex_destroy(&ctx->mutex_blocks);
