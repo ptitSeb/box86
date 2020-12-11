@@ -125,6 +125,8 @@ void ActuallyFreeDynarecMap(uintptr_t addr, int bsize)
 
 uintptr_t AllocDynarecMap(int size, int nolinker)
 {
+    if(!size)
+        return 0;
     if(size>MMAPSIZE) {
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
