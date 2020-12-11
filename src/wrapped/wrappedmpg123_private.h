@@ -21,7 +21,7 @@ GO(mpg123_delete, vFp)
 GO(mpg123_encodings, vFpp)
 GO(mpg123_encsize, iFi)
 //GO(mpg123_eq, 
-//GO(mpg123_errcode, 
+GO(mpg123_errcode, iFp)
 GO(mpg123_exit, vFv)
 GO(mpg123_feature, iFi)
 GO(mpg123_feed, iFppL)
@@ -119,7 +119,7 @@ GO(mpg123_set_index_64, iFppIL)
 //GO(mpg123_set_substring, 
 //GO(mpg123_spf, 
 //GO(mpg123_store_utf8, 
-//GO(mpg123_strerror, 
+GO(mpg123_strerror, pFp)
 //GO(mpg123_strlen, 
 //GO(mpg123_supported_decoders, 
 GO(mpg123_tell, IFp)
