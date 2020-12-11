@@ -111,6 +111,8 @@ uintptr_t AddNewDynarecMap(int bsize)
 
 void ActuallyFreeDynarecMap(uintptr_t addr, int bsize)
 {
+    if(!addr || !bsize)
+        return;
     for(int i=0; i<my_context->mmapsize; ++i) {
         if(addr>=(uintptr_t)my_context->mmaplist[i].block && (addr<(uintptr_t)my_context->mmaplist[i].block+MMAPSIZE)) {
             int start = (addr - (uintptr_t)my_context->mmaplist[i].block) / MMAPBLOCK;
