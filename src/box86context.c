@@ -32,9 +32,9 @@ typedef struct mmaplist_s {
 } mmaplist_t;
 
 // get first subblock free in map, stating at start. return -1 if no block, else first subblock free, filling size (in subblock unit)
-static int getFirstBlock(mmaplist_t *map, int start, int maxsize, int* size)
+static int getFirstBlock(uint8_t *map, int start, int maxsize, int* size)
 {
-    #define ISFREE(A) (((map->map[(A)>>3]>>((A)&7))&1)?0:1)
+    #define ISFREE(A) (((map[(A)>>3]>>((A)&7))&1)?0:1)
     if(start<0) start = 0;
     while(start<MMAPSIZE/(8*MMAPBLOCK)) {   // still a chance...
         if(ISFREE(start)) {
@@ -55,19 +55,70 @@ static int getFirstBlock(mmaplist_t *map, int start, int maxsize, int* size)
     return -1;
 }
 
-static void allocBlock(mmaplist_t *map, int start, int size)
+static void allocBlock(uint8_t *map, int start, int size)
 {
     for(int i=0; i<size; ++i) {
-        map->map[start/8]|=(1<<(start&7));
+        map[start/8]|=(1<<(start&7));
         ++start;
     }
 }
-static void freeBlock(mmaplist_t *map, int start, int size)
+static void freeBlock(uint8_t *map, int start, int size)
 {
     for(int i=0; i<size; ++i) {
-        map->map[start/8]&=~(1<<(start&7));
+        map[start/8]&=~(1<<(start&7));
         ++start;
     }
+}
+
+uintptr_t FindFreeDynarecMap(int bsize)
+{
+    // look for free space
+    for(int i=0; i<my_context->mmapsize; ++i) {
+        int rsize = 0;
+        int start = 0;
+        do {
+            start = getFirstBlock(my_context->mmaplist[i].map, start, bsize, &rsize);
+            if(start!=-1 && rsize>=bsize) {
+                allocBlock(my_context->mmaplist[i].map, start, bsize);
+                uintptr_t ret = (uintptr_t)my_context->mmaplist[i].block + start*MMAPBLOCK;
+                return ret;
+            }
+            if(start!=-1)
+                start += rsize;
+        } while (start!=-1);
+    }
+    return 0;
+}
+
+uintptr_t AddNewDynarecMap(int bsize)
+{
+    int i = my_context->mmapsize++;    // yeah, useful post incrementation
+    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", my_context->mmapsize);
+    my_context->mmaplist = (mmaplist_t*)realloc(my_context->mmaplist, my_context->mmapsize*sizeof(mmaplist_t));
+    void *p = NULL;
+    if(posix_memalign(&p, box86_pagesize, MMAPSIZE)) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --my_context->mmapsize;
+        return 0;
+    }
+    mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+
+    my_context->mmaplist[i].block = p;
+    memset(my_context->mmaplist[i].map, 0, sizeof(my_context->mmaplist[i].map));
+    allocBlock(my_context->mmaplist[i].map, 0, bsize);
+    return (uintptr_t)p;
+}
+
+void ActuallyFreeDynarecMap(uintptr_t addr, int bsize)
+{
+    for(int i=0; i<my_context->mmapsize; ++i) {
+        if(addr>=(uintptr_t)my_context->mmaplist[i].block && (addr<(uintptr_t)my_context->mmaplist[i].block+MMAPSIZE)) {
+            int start = (addr - (uintptr_t)my_context->mmaplist[i].block) / MMAPBLOCK;
+            freeBlock(my_context->mmaplist[i].map, start, bsize);
+            return;
+        }
+    }
+    dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, bsize);
 }
 
 uintptr_t AllocDynarecMap(int size, int nolinker)
@@ -81,42 +132,18 @@ uintptr_t AllocDynarecMap(int size, int nolinker)
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         return (uintptr_t)p;
     }
-    pthread_mutex_lock(&my_context->mutex_mmap);
+    
     int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
-    // look for free space
-    for(int i=0; i<my_context->mmapsize; ++i) {
-        int rsize = 0;
-        int start = 0;
-        do {
-            start = getFirstBlock(my_context->mmaplist+i, start, bsize, &rsize);
-            if(start!=-1 && rsize>=bsize) {
-                allocBlock(my_context->mmaplist+i, start, bsize);
-                uintptr_t ret = (uintptr_t)my_context->mmaplist[i].block + start*MMAPBLOCK;
-                pthread_mutex_unlock(&my_context->mutex_mmap);
-                return ret;
-            }
-            if(start!=-1)
-                start += rsize;
-        } while (start!=-1);
-    }
-    // no luck, add a new one !
-    int i = my_context->mmapsize++;    // yeah, useful post incrementation
-    dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", my_context->mmapsize);
-    my_context->mmaplist = (mmaplist_t*)realloc(my_context->mmaplist, my_context->mmapsize*sizeof(mmaplist_t));
-    void *p = NULL;
-    if(posix_memalign(&p, box86_pagesize, MMAPSIZE)) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
-        --my_context->mmapsize;
-        pthread_mutex_unlock(&my_context->mutex_mmap);
-        return 0;
-    }
-    mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    if(pthread_mutex_trylock(&my_context->mutex_mmap))
+        return 0;   // cannot lock, baillout
 
-    my_context->mmaplist[i].block = p;
-    memset(my_context->mmaplist[i].map, 0, sizeof(my_context->mmaplist[i].map));
-    allocBlock(my_context->mmaplist+i, 0, bsize);
+    uintptr_t ret = FindFreeDynarecMap(bsize);
+    if(!ret)
+        ret = AddNewDynarecMap(bsize);
+
     pthread_mutex_unlock(&my_context->mutex_mmap);
-    return (uintptr_t)p;
+
+    return ret;
 }
 
 void FreeDynarecMap(uintptr_t addr, uint32_t size)
@@ -127,15 +154,7 @@ void FreeDynarecMap(uintptr_t addr, uint32_t size)
     }
     pthread_mutex_lock(&my_context->mutex_mmap);
     int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
-    // look for free space
-    for(int i=0; i<my_context->mmapsize; ++i) {
-        if(addr>=(uintptr_t)my_context->mmaplist[i].block && ((uintptr_t)my_context->mmaplist[i].block+MMAPSIZE)>=addr+size) {
-            int start = (addr - (uintptr_t)my_context->mmaplist[i].block) / MMAPBLOCK;
-            freeBlock(my_context->mmaplist+i, start, bsize);
-            pthread_mutex_unlock(&my_context->mutex_mmap);
-            return;
-        }
-    }
+    ActuallyFreeDynarecMap(addr, bsize);
     pthread_mutex_unlock(&my_context->mutex_mmap);
 }
 
