@@ -39,6 +39,7 @@
         Run660F(emu); // implemented in Run660f.c
         ip = R_EIP;
         if(emu->quit) goto fini;
+        STEP
         NEXT;
         
     _66_0x26:                      /* ES: */

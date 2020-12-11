@@ -399,6 +399,7 @@ _trace:
             RunFS(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
+            STEP
             NEXT;
         _0x65:                      /* GS: */
             emu->old_ip = R_EIP;
@@ -406,6 +407,7 @@ _trace:
             RunGS(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
+            STEP
             NEXT;
 
         _0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
@@ -416,6 +418,7 @@ _trace:
             Run67(emu); // implemented in Run66.c
             ip = R_EIP;
             if(emu->quit) goto fini;
+            STEP
             NEXT;
 
         _0x68:                      /* Push Id */
@@ -1054,6 +1057,7 @@ _trace:
             --R_ECX; // don't update flags
             if(R_ECX && !ACCESS_FLAG(F_ZF))
                 ip += tmp8s;
+            STEP
             NEXT;
         _0xE1:                      /* LOOPZ */
             CHECK_FLAGS(emu);
@@ -1061,19 +1065,20 @@ _trace:
             --R_ECX; // don't update flags
             if(R_ECX && ACCESS_FLAG(F_ZF))
                 ip += tmp8s;
+            STEP
             NEXT;
         _0xE2:                      /* LOOP */
             tmp8s = F8S;
             --R_ECX; // don't update flags
             if(R_ECX)
                 ip += tmp8s;
+            STEP
             NEXT;
         _0xE3:                      /* JECXZ */
             tmp8s = F8S;
-            if(!R_ECX) {
+            if(!R_ECX)
                 ip += tmp8s;
-                STEP
-            }
+            STEP
             NEXT;
         _0xE4:                      /* IN AL, Ib */
             tmp32s = F8;   // port address
@@ -1134,6 +1139,7 @@ _trace:
                 } else {
                     #include "runf20f.h"
                 }
+                STEP
                 NEXT;
             } else if(nextop==0x66) {
                 nextop = F8;
