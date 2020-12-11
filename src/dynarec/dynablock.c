@@ -374,7 +374,10 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         pthread_mutex_lock(&my_context->mutex_dyndump);
     // fill the block
     block->x86_addr = (void*)addr;
-    FillBlock(block, filladdr);
+    if(!FillBlock(block, filladdr)) {
+        FreeDynablock(block);
+        block = NULL;
+    }
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
 

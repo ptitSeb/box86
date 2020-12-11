@@ -246,7 +246,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     if(p==NULL) {
         free(helper.insts);
         free(helper.next);
-        return (void*)block;
+        return NULL;
     }
     helper.block = p;
     helper.arm_start = (uintptr_t)p;

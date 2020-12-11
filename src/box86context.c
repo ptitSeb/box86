@@ -182,8 +182,11 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
     }
     
     int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
-    if(pthread_mutex_trylock(&my_context->mutex_mmap))
-        return 0;   // cannot lock, baillout
+    if(pthread_mutex_trylock(&my_context->mutex_mmap)) {
+        sched_yield();  // give it a chance
+        if(pthread_mutex_trylock(&my_context->mutex_mmap))
+            return 0;   // cannot lock, baillout
+    }
 
     uintptr_t ret = FindFreeDynarecMap(db, bsize);
     if(!ret)
