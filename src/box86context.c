@@ -25,7 +25,6 @@
 
 #define MMAPSIZE (4*1024*1024)      // allocate 4Mo sized blocks
 #define MMAPBLOCK   256             // minimum size of a block
-//#define USE_MMAP
 
 typedef struct mmaplist_s {
     void*         block;
@@ -74,20 +73,12 @@ static void freeBlock(mmaplist_t *map, int start, int size)
 uintptr_t AllocDynarecMap(int size, int nolinker)
 {
     if(size>MMAPSIZE) {
-        #ifdef USE_MMAP
-        void* p = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-        if(p==MAP_FAILED) {
-            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
-            return 0;
-        }
-        #else
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-        #endif
         return (uintptr_t)p;
     }
     pthread_mutex_lock(&my_context->mutex_mmap);
@@ -112,15 +103,6 @@ uintptr_t AllocDynarecMap(int size, int nolinker)
     int i = my_context->mmapsize++;    // yeah, useful post incrementation
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", my_context->mmapsize);
     my_context->mmaplist = (mmaplist_t*)realloc(my_context->mmaplist, my_context->mmapsize*sizeof(mmaplist_t));
-    #ifdef USE_MMAP
-    void* p = mmap(NULL, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if(p==MAP_FAILED) {
-        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
-        --my_context->mmapsize;
-        pthread_mutex_unlock(&my_context->mutex_mmap);
-        return 0;
-    }
-    #else
     void *p = NULL;
     if(posix_memalign(&p, box86_pagesize, MMAPSIZE)) {
         dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
@@ -129,7 +111,7 @@ uintptr_t AllocDynarecMap(int size, int nolinker)
         return 0;
     }
     mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-    #endif
+
     my_context->mmaplist[i].block = p;
     memset(my_context->mmaplist[i].map, 0, sizeof(my_context->mmaplist[i].map));
     allocBlock(my_context->mmaplist+i, 0, bsize);
@@ -387,11 +369,7 @@ void FreeBox86Context(box86context_t** context)
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
     for (int i=0; i<ctx->mmapsize; ++i)
         if(ctx->mmaplist[i].block)
-            #ifdef USE_MMAP
-            munmap(ctx->mmaplist[i].block, MMAPSIZE);
-            #else
             free(ctx->mmaplist[i].block);
-            #endif
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(ctx, 0, 0xffffffff, 1);
     pthread_mutex_destroy(&ctx->mutex_blocks);
