@@ -1029,6 +1029,10 @@ void RunFS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = Pop(emu);
             break;
+        case 0xA0:              /* MOV AL,Ob */
+            tmp32s = F32S;
+            R_AL = *(uint8_t*)((tlsdata) + tmp32s);
+            break;
         case 0xA1:              /* MOV EAX,Ov */
             tmp32s = F32S;
             R_EAX = *(uint32_t*)((tlsdata) + tmp32s);
