@@ -42,6 +42,9 @@ static int getFirstBlock(uint8_t *map, int start, int maxsize, int* size)
 {
     #define ISFREE(A) (((map[(A)>>3]>>((A)&7))&1)?0:1)
     if(start<0) start = 0;
+    if(!(start&0x7))
+        while(start<MMAPSIZE/(8*MMAPBLOCK) && map[start>>3]==0xff)
+            start+=8;
     while(start<MMAPSIZE/(8*MMAPBLOCK)) {   // still a chance...
         if(ISFREE(start)) {
             // free, now get size...
