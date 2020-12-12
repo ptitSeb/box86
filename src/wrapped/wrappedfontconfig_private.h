@@ -14,11 +14,11 @@ GO(FcAtomicLock, iFp)
 //GO(FcBlanksCreate, 
 //GO(FcBlanksDestroy, 
 //GO(FcBlanksIsMember, 
-//GO(FcCacheCopySet, 
+GO(FcCacheCopySet, pFp)
 //GO(FcCacheDir, 
 //GO(FcCacheNumFont, 
-//GO(FcCacheNumSubdir, 
-//GO(FcCacheSubdir, 
+GO(FcCacheNumSubdir, iFp)
+GO(FcCacheSubdir, pFpi)
 GO(FcCharSetAddChar, iFpu)
 GO(FcCharSetCopy, pFp)
 //GO(FcCharSetCount, 
@@ -67,9 +67,9 @@ GO(FcConfigSubstitute, iFppi)
 GO(FcDefaultSubstitute, vFp)
 //GO(FcDirCacheLoad, 
 //GO(FcDirCacheLoadFile, 
-//GO(FcDirCacheRead, 
+GO(FcDirCacheRead, pFpip)
 //GO(FcDirCacheUnlink, 
-//GO(FcDirCacheUnload, 
+GO(FcDirCacheUnload, vFp)
 //GO(FcDirCacheValid, 
 //GO(FcDirSave, 
 //GO(FcDirScan, 
@@ -164,32 +164,33 @@ GO(FcPatternGetString, iFppip)
 //GO(FcPatternReference, 
 //GO(FcPatternRemove, 
 GO(FcPatternVaBuild, pFpp)
-//GO(FcStrBasename, 
+GO(FcStrBasename, pFp)
 GO(FcStrCmp, iFpp)
-//GO(FcStrCmpIgnoreCase, 
-//GO(FcStrCopy, 
-//GO(FcStrCopyFilename, 
-//GO(FcStrDirname, 
-//GO(FcStrDowncase, 
-//GO(FcStrFree, 
-//GO(FcStrListCreate, 
-//GO(FcStrListDone, 
-//GO(FcStrListNext, 
-//GO(FcStrPlus, 
-//GO(FcStrSetAdd, 
-//GO(FcStrSetAddFilename, 
-//GO(FcStrSetCreate, 
-//GO(FcStrSetDel, 
-//GO(FcStrSetDestroy, 
-//GO(FcStrSetEqual, 
-//GO(FcStrSetMember, 
-//GO(FcStrStr, 
-//GO(FcStrStrIgnoreCase, 
-//GO(FcUcs4ToUtf8, 
-//GO(FcUtf16Len, 
-//GO(FcUtf16ToUcs4, 
-//GO(FcUtf8Len, 
-//GO(FcUtf8ToUcs4, 
+GO(FcStrCmpIgnoreCase, iFpp)
+GO(FcStrCopy, pFp)
+GO(FcStrCopyFilename, pFp)
+GO(FcStrDirname, pFp)
+GO(FcStrDowncase, pFp)
+GO(FcStrFree, vFp)
+GO(FcStrListCreate, pFp)
+GO(FcStrListDone, vFp)
+GO(FcStrListFirst, vFp) //2.11.0+
+GO(FcStrListNext, pFp)
+GO(FcStrPlus, pFpp)
+GO(FcStrSetAdd, iFpp)
+GO(FcStrSetAddFilename, iFpp)
+GO(FcStrSetCreate, pFv)
+GO(FcStrSetDel, iFpp)
+GO(FcStrSetDestroy, vFp)
+GO(FcStrSetEqual, iFpp)
+GO(FcStrSetMember, iFpp)
+GO(FcStrStr, pFpp)
+GO(FcStrStrIgnoreCase, pFpp)
+GO(FcUcs4ToUtf8, iFup)
+GO(FcUtf16Len, iFpipp)
+GO(FcUtf16ToUcs4, iFpipi)
+GO(FcUtf8Len, iFpipp)
+GO(FcUtf8ToUcs4, iFppi)
 //GO(FcValueDestroy, 
 //GO(FcValueEqual, 
 //GO(FcValuePrint, 
