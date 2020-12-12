@@ -64,6 +64,16 @@ typedef struct base_segment_s {
 } base_segment_t;
 
 typedef struct box86context_s {
+#ifdef DYNAREC
+    dynmap_t**          dynmap;     // 4G of memory mapped by 4K block
+    int                 trace_dynarec;
+    pthread_mutex_t     mutex_dyndump;
+    pthread_mutex_t     mutex_blocks;
+    pthread_mutex_t     mutex_mmap;
+    mmaplist_t          *mmaplist;
+    int                 mmapsize;
+    kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
+#endif
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 
@@ -73,10 +83,7 @@ typedef struct box86context_s {
     int                 trace_tid;
 
     uint32_t            sel_serial;     // will be increment each time selectors changes
-#ifdef DYNAREC
-    int                 trace_dynarec;
-    pthread_mutex_t     mutex_dyndump;
-#endif
+
     zydis_t             *zydis;         // dlopen the zydis dissasembler
     void*               box86lib;       // dlopen on box86 itself
 
@@ -172,14 +179,6 @@ typedef struct box86context_s {
     cleanup_t   *cleanups;          // atexit functions
     int         clean_sz;
     int         clean_cap;
-#ifdef DYNAREC
-    pthread_mutex_t     mutex_blocks;
-    pthread_mutex_t     mutex_mmap;
-    mmaplist_t          *mmaplist;
-    int                 mmapsize;
-    dynmap_t*           dynmap[DYNAMAP_SIZE];  // 4G of memory mapped by 4K block
-    kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
-#endif
 #ifndef NOALIGN
     kh_fts_t            *ftsmap;
 #endif

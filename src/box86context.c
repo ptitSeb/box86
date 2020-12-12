@@ -414,6 +414,13 @@ box86context_t *NewBox86Context(int argc)
     context->deferedInit = 1;
 #endif
     context->sel_serial = 1;
+
+#ifdef DYNAREC
+    pthread_mutex_init(&context->mutex_blocks, NULL);
+    pthread_mutex_init(&context->mutex_mmap, NULL);
+    context->dynmap = (dynmap_t**)calloc(DYNAMAP_SIZE, sizeof(dynmap_t*));
+#endif
+
     context->maplib = NewLibrarian(context, 1);
     context->local_maplib = NewLibrarian(context, 1);
     context->system = NewBridge();
@@ -442,10 +449,6 @@ box86context_t *NewBox86Context(int argc)
 #endif
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
-#ifdef DYNAREC
-    pthread_mutex_init(&context->mutex_blocks, NULL);
-    pthread_mutex_init(&context->mutex_mmap, NULL);
-#endif
     InitFTSMap(context);
 
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
@@ -501,6 +504,17 @@ void FreeBox86Context(box86context_t** context)
     for (int i=0; i<ctx->envc; ++i)
         free(ctx->envv[i]);
     free(ctx->envv);
+
+    if(ctx->atfork_sz) {
+        free(ctx->atforks);
+        ctx->atforks = NULL;
+        ctx->atfork_sz = ctx->atfork_cap = 0;
+    }
+
+    for(int i=0; i<MAX_SIGNAL; ++i)
+        if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
+            signal(i, SIG_DFL);
+        }
 
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
@@ -572,20 +586,11 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_thread);
 #ifdef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_dyndump);
+    free(ctx->dynmap);
+    ctx->dynmap = NULL;
 #endif
 
     free_neededlib(&ctx->neededlibs);
-
-    if(ctx->atfork_sz) {
-        free(ctx->atforks);
-        ctx->atforks = NULL;
-        ctx->atfork_sz = ctx->atfork_cap = 0;
-    }
-
-    for(int i=0; i<MAX_SIGNAL; ++i)
-        if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
-            signal(i, SIG_DFL);
-        }
 
     if(ctx->emu_sig)
         FreeX86Emu(&ctx->emu_sig);
