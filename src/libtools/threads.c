@@ -117,6 +117,47 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	return 0;
 }
 
+static void InitCancelThread()
+{
+	pthread_mutex_lock(&my_context->mutex_thread);
+	my_context->cancelthread = kh_init(cancelthread);
+	pthread_mutex_unlock(&my_context->mutex_thread);
+}
+
+static void FreeCancelThread(box86context_t* context)
+{
+	if(!context)
+		return;
+	__pthread_unwind_buf_t* buff;
+	pthread_mutex_lock(&context->mutex_thread);
+	kh_foreach_value(context->cancelthread, buff, free(buff))
+	kh_destroy(cancelthread, context->cancelthread);
+	pthread_mutex_unlock(&context->mutex_thread);
+	context->cancelthread = NULL;
+}
+static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
+{
+	int ret;
+	pthread_mutex_lock(&my_context->mutex_thread);
+	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
+	if(ret)
+		kh_value(my_context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	__pthread_unwind_buf_t* r = kh_value(my_context->cancelthread, k);
+	pthread_mutex_unlock(&my_context->mutex_thread);
+	return r;
+}
+
+static void DelCancelThread(uintptr_t buff)
+{
+	pthread_mutex_lock(&my_context->mutex_thread);
+	khint_t k = kh_get(cancelthread, my_context->cancelthread, buff);
+	if(k!=kh_end(my_context->cancelthread)) {
+		free(kh_value(my_context->cancelthread, k));
+		kh_del(cancelthread, my_context->cancelthread, k);
+	}
+	pthread_mutex_unlock(&my_context->mutex_thread);
+}
+
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
 	void*		arg;
@@ -287,49 +328,7 @@ void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet
 
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
-#define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)	\
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)	\
-GO(10)  \
-GO(11)  \
-GO(12)  \
-GO(13)  \
-GO(14)	\
-GO(15)  \
-GO(16)  \
-GO(17)  \
-GO(18)  \
-GO(19)
-
-#define GO(A)	\
-static __thread __pthread_unwind_buf_t my_cancel_buff_##A = {0};	\
-static __thread uintptr_t my_cancel_ref_##A = 0;
-SUPER()
-#undef GO
-static __pthread_unwind_buf_t* find_Cancel_Buffer(uintptr_t buff)
-{
-    if(!buff) return NULL;
-    #define GO(A) if(my_cancel_ref_##A == buff) return &my_cancel_buff_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_cancel_ref_##A == 0) {my_cancel_ref_##A = buff; return &my_cancel_buff_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for Thread cancel buffer\n");
-    return NULL;   
-}
-
-#undef SUPER
-
-#define CANCEL_MAX 5
+#define CANCEL_MAX 8
 static __thread x86emu_t* cancel_emu[CANCEL_MAX] = {0};
 static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
 static __thread int cancel_deep = 0;
@@ -348,7 +347,7 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 	cancel_emu[cancel_deep] = (x86emu_t*)E;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)((x86emu_t*)E)->regs[_AX].dword[0];
-	__pthread_unwind_buf_t * pbuff = find_Cancel_Buffer((uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
 		//DelCancelThread((uintptr_t)cancel_buff);	// no del here, it will be delete by unwind_next...
 		int i = cancel_deep--;
@@ -365,17 +364,19 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = find_Cancel_Buffer((uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
 	__pthread_unregister_cancel(pbuff);
 
 	--cancel_deep;
+	DelCancelThread((uintptr_t)buff);
 }
 
 EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t pbuff = *find_Cancel_Buffer((uintptr_t)buff);
+	__pthread_unwind_buf_t pbuff = *AddCancelThread((uintptr_t)buff);
+	DelCancelThread((uintptr_t)buff);
 	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
 	__pthread_unwind_next(&pbuff);
 	// just in case it does return
@@ -699,12 +700,14 @@ emu_jmpbuf_t* GetJmpBuf()
 
 void init_pthread_helper()
 {
+	InitCancelThread();
 	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 }
 
 void fini_pthread_helper(box86context_t* context)
 {
+	FreeCancelThread(context);
 	CleanStackSize(context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
