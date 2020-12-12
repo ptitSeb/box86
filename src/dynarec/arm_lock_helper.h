@@ -7,6 +7,11 @@ extern uint8_t arm_lock_read_b(void* addr);
 // STREXB of ADDR, return 0 if ok, 1 if not
 extern int arm_lock_write_b(void* addr, uint8_t val);
 
+// LDREXH of ADDR
+extern uint16_t arm_lock_read_h(void* addr);
+// STREXH of ADDR, return 0 if ok, 1 if not
+extern int arm_lock_write_h(void* addr, uint16_t val);
+
 // LDREX of ADDR
 extern uint32_t arm_lock_read_d(void* addr);
 // STREX of ADDR, return 0 if ok, 1 if not

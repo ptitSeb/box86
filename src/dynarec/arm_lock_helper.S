@@ -7,6 +7,8 @@
 
 .global arm_lock_read_b
 .global arm_lock_write_b
+.global arm_lock_read_h
+.global arm_lock_write_h
 .global arm_lock_read_d
 .global arm_lock_write_d
 .global arm_lock_read_dd
@@ -24,6 +26,17 @@ arm_lock_write_b:
     // address is r0, value is r1, return is r0
     mov     r2, r0
     strexb  r0, r1, [r2]
+    bx      lr
+
+arm_lock_read_h:
+    // address is r0, return is r0
+    ldrexh  r0, [r0]
+    bx      lr
+
+arm_lock_write_h:
+    // address is r0, value is r1, return is r0
+    mov     r2, r0
+    strexh  r0, r1, [r2]
     bx      lr
 
 arm_lock_read_d:

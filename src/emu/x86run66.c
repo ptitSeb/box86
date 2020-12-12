@@ -624,6 +624,57 @@ void RunLock(x86emu_t *emu)
     R_EIP = ip;
 }
 
+void RunLock66(x86emu_t *emu)
+{
+    uintptr_t ip = R_EIP+1;
+    uint8_t opcode = F8;
+    uint8_t nextop;
+    reg32_t *oped;
+    uint16_t tmp16u;
+    int32_t tmp32s;
+    switch(opcode) {
+        case 0x0f:
+            opcode = F8;
+            switch (opcode) { 
+                case 0xB1:                      /* CMPXCHG Ew,Gw */
+                    nextop = F8;
+                    GET_EW;
+#ifdef DYNAREC
+                    do {
+                        tmp16u = arm_lock_read_h(ED);
+                        cmp16(emu, R_AX, tmp16u);
+                        if(ACCESS_FLAG(F_ZF)) {
+                            tmp32s = arm_lock_write_h(ED, GW.word[0]);
+                        } else {
+                            R_AX = tmp16u;
+                            tmp32s = 0;
+                        }
+                    } while(tmp32s);
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    GET_EW;
+                    cmp16(emu, R_AX, EW->word[0]);
+                    if(ACCESS_FLAG(F_ZF)) {
+                        EW->word[0] = GW.word[0];
+                    } else {
+                        R_AX = EW->word[0];
+                    }
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+            default:
+                ip-=4;    // unfetch nextop, 0F, F0 & 66
+                UnimpOpcode(emu);
+            }
+            break;
+        default:
+            ip-=3;    // unfetch nextop, F0  & 66
+            UnimpOpcode(emu);
+            // should trigger invalid unlock ?
+    }
+    R_EIP = ip;
+}
+
 void RunGS(x86emu_t *emu)
 {
     uintptr_t ip = R_EIP+1;

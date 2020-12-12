@@ -202,6 +202,7 @@ void Run6766(x86emu_t *emu);
 void RunGS(x86emu_t *emu);
 void RunFS(x86emu_t *emu);
 void RunLock(x86emu_t *emu);
+void RunLock66(x86emu_t *emu);
 
 void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);

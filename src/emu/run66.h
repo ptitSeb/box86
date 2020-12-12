@@ -356,16 +356,26 @@
         Run66D9(emu);
         ip = R_EIP;
         if(emu->quit) goto fini;
+        STEP
         NEXT;
 
     _66_0xDD:
         emu->old_ip = R_EIP;
         R_EIP = ip;
         Run66DD(emu);
-        ip = R_EIP;
-        if(emu->quit) goto fini;
+        emu->old_ip = R_EIP;
+        R_EIP = ip;
+        STEP
         NEXT;
 
+    _66_0xF0:                      /* LOCK prefix */
+        emu->old_ip = R_EIP;
+        R_EIP = ip;
+        RunLock66(emu);
+        emu->old_ip = R_EIP;
+        R_EIP = ip;
+        STEP
+        NEXT;
 
     _66_0xF2:                      /* REPNZ prefix */
     _66_0xF3:                      /* REPZ prefix */
