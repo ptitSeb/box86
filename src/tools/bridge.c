@@ -60,7 +60,7 @@ uintptr_t AddBridge(bridge_t* bridge, box86context_t* context, wrapper_t w, void
     if(b->sz == NBRICK) {
         b->next = (brick_t*)calloc(1, sizeof(brick_t));
         b = b->next;
-        bridge->head = b;
+        bridge->last = b;
     }
     b->b[b->sz].CC = 0xCC;
     b->b[b->sz].S = 'S'; b->b[b->sz].C='C';
