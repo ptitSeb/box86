@@ -19,77 +19,126 @@
 #include "threads.h"
 #include "x86trace.h"
 #include "signals.h"
-#ifdef DYNAREC
+#if 1//def DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
 #include "khash.h"
 
-#define MMAPSIZE (4*1024*1024)      // allocate 4Mo sized blocks
-#define MMAPBLOCK   256             // minimum size of a block
+#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 
+typedef union mark_s {
+    struct {
+        unsigned int    fill:1;
+        unsigned int    size:31;
+    };
+    uint32_t            x32;
+} mark_t;
+typedef struct blockmark_s {
+    mark_t  prev;
+    mark_t  next;
+} blockmark_t;
+
 typedef struct mmaplist_s {
     void*               block;
-    uint8_t             map[MMAPSIZE/(8*MMAPBLOCK)];  // map of allocated sub-block
+    int                 maxfree;
     kh_dynablocks_t*    dblist;
 } mmaplist_t;
 
 
-// get first subblock free in map, stating at start. return -1 if no block, else first subblock free, filling size (in subblock unit)
-static int getFirstBlock(uint8_t *map, int start, int maxsize, int* size)
+// get first subblock free in block, stating at start (from block). return NULL if no block, else first subblock free (mark included), filling size
+static void* getFirstBlock(void* block, int maxsize, int* size)
 {
-    #define ISFREE(A) (((map[(A)>>3]>>((A)&7))&1)?0:1)
-    if(start<0) start = 0;
-    if(!(start&0x7))
-        while(start<MMAPSIZE/(8*MMAPBLOCK) && map[start>>3]==0xff)
-            start+=8;
-    while(start<MMAPSIZE/(8*MMAPBLOCK)) {   // still a chance...
-        if(ISFREE(start)) {
-            // free, now get size...
-            int end = start+1;
-            while(end<MMAPSIZE/(8*MMAPBLOCK)) {
-                if(!ISFREE(end) || (end-start==maxsize)) {
-                    if(size) *size = end-start;
-                    return start;
-                }
-                ++end;
-            }
-            if(size) *size = end-start;
-            return start;
+    // get start of block
+    blockmark_t *m = (blockmark_t*)block;
+    while(m->next.x32) {    // while there is a subblock
+        if(!m->next.fill && m->next.size>=maxsize+sizeof(blockmark_t)) {
+            *size = m->next.size;
+            return m;
         }
-        ++start;
+        m = (blockmark_t*)((uintptr_t)m + m->next.size);
     }
-    return -1;
+
+    return NULL;
 }
 
-static void allocBlock(uint8_t *map, int start, int size)
+static int getMaxFreeBlock(void* block)
 {
-    for(int i=0; i<size; ++i) {
-        map[start/8]|=(1<<(start&7));
-        ++start;
+    // get start of block
+    blockmark_t *m = (blockmark_t*)((uintptr_t)block+MMAPSIZE-sizeof(blockmark_t)); // styart with the end
+    int maxsize = 0;
+    while(m->prev.x32) {    // while there is a subblock
+        if(!m->prev.fill && m->prev.size>maxsize) {
+            maxsize = m->prev.size;
+            if((uintptr_t)block+maxsize>(uintptr_t)m)
+                return maxsize; // no block large enough left...
+        }
+        m = (blockmark_t*)((uintptr_t)m - m->prev.size);
     }
+    return maxsize;
 }
-static void freeBlock(uint8_t *map, int start, int size)
+
+static void* allocBlock(void* block, void *sub, int size)
 {
-    for(int i=0; i<size; ++i) {
-        map[start/8]&=~(1<<(start&7));
-        ++start;
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
+
+    s->next.fill = 1;
+    s->next.size = size+sizeof(blockmark_t);
+    blockmark_t *m = (blockmark_t*)((uintptr_t)s + s->next.size);   // this is new n
+    m->prev.fill = 1;
+    m->prev.size = s->next.size;
+    if(n!=m) {
+        // new mark
+        m->prev.fill = 1;
+        m->prev.size = s->next.size;
+        m->next.fill = 0;
+        m->next.size = (uintptr_t)n - (uintptr_t)m;
+        n->prev.fill = 0;
+        n->prev.size = m->next.size;
+    }
+
+    return (void*)((uintptr_t)sub + sizeof(blockmark_t));
+}
+static void freeBlock(void *block, void* sub, int size)
+{
+    blockmark_t *m = (blockmark_t*)block;
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = (blockmark_t*)((uintptr_t)s + s->next.size);
+    if(block!=sub)
+        m = (blockmark_t*)((uintptr_t)s - s->prev.size);
+    s->next.fill = 0;
+    n->prev.fill = 0;
+    // check if merge with previous
+    if (s->prev.x32 && !s->prev.fill) {
+        // remove s...
+        m->next.size += s->next.size;
+        n->prev.size = m->next.size;
+        s = m;
+    }
+    // check if merge with next
+    if(n->next.x32 && !n->next.fill) {
+        blockmark_t *n2 = (blockmark_t*)((uintptr_t)n + n->next.size);
+        //remove n
+        s->next.size += n->next.size;
+        n2->prev.size = s->next.size;
     }
 }
 
-uintptr_t FindFreeDynarecMap(dynablock_t* db, int bsize)
+uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
 {
     // look for free space
+    void* sub = NULL;
     for(int i=0; i<my_context->mmapsize; ++i) {
-        int rsize = 0;
-        int start = 0;
-        do {
-            start = getFirstBlock(my_context->mmaplist[i].map, start, bsize, &rsize);
-            if(start!=-1 && rsize>=bsize) {
-                allocBlock(my_context->mmaplist[i].map, start, bsize);
-                uintptr_t ret = (uintptr_t)my_context->mmaplist[i].block + start*MMAPBLOCK;
+        if(my_context->mmaplist[i].maxfree>=size) {
+            int rsize = 0;
+            sub = getFirstBlock(my_context->mmaplist[i].block, size, &rsize);
+            if(sub) {
+                uintptr_t ret = (uintptr_t)allocBlock(my_context->mmaplist[i].block, sub, size);
+                if(rsize==my_context->mmaplist[i].maxfree)
+                    my_context->mmaplist[i].maxfree = getMaxFreeBlock(my_context->mmaplist[i].block);
                 kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist;
                 if(!blocks) {
                     blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
@@ -100,14 +149,12 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int bsize)
                 kh_value(blocks, k) = db;
                 return ret;
             }
-            if(start!=-1)
-                start += rsize;
-        } while (start!=-1);
+        }
     }
     return 0;
 }
 
-uintptr_t AddNewDynarecMap(dynablock_t* db, int bsize)
+uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
 {
     int i = my_context->mmapsize++;    // yeah, useful post incrementation
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", my_context->mmapsize);
@@ -121,24 +168,36 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int bsize)
     mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     my_context->mmaplist[i].block = p;
-    memset(my_context->mmaplist[i].map, 0, sizeof(my_context->mmaplist[i].map));
-    allocBlock(my_context->mmaplist[i].map, 0, bsize);
+    // setup marks
+    blockmark_t* m = (blockmark_t*)p;
+    m->prev.x32 = 0;
+    m->next.fill = 0;
+    m->next.size = MMAPSIZE-sizeof(blockmark_t);
+    m = (blockmark_t*)(p+MMAPSIZE-sizeof(blockmark_t));
+    m->next.x32 = 0;
+    m->prev.fill = 0;
+    m->prev.size = MMAPSIZE-sizeof(blockmark_t);
+    // alloc 1st block
+    uintptr_t sub  = (uintptr_t)allocBlock(my_context->mmaplist[i].block, p, size);
+    my_context->mmaplist[i].maxfree = getMaxFreeBlock(my_context->mmaplist[i].block);
     kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
     khint_t k;
     int ret;
     k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
     kh_value(blocks, k) = db;
-    return (uintptr_t)p;
+    return sub;
 }
 
-void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int bsize)
+void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
 {
-    if(!addr || !bsize)
+    if(!addr || !size)
         return;
     for(int i=0; i<my_context->mmapsize; ++i) {
-        if(addr>=(uintptr_t)my_context->mmaplist[i].block && (addr<(uintptr_t)my_context->mmaplist[i].block+MMAPSIZE)) {
-            int start = (addr - (uintptr_t)my_context->mmaplist[i].block) / MMAPBLOCK;
-            freeBlock(my_context->mmaplist[i].map, start, bsize);
+        if ((addr>(uintptr_t)my_context->mmaplist[i].block) 
+         && (addr<((uintptr_t)my_context->mmaplist[i].block+MMAPSIZE))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+            freeBlock(my_context->mmaplist[i].block, sub, size);
+            my_context->mmaplist[i].maxfree = getMaxFreeBlock(my_context->mmaplist[i].block);
             kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist;
             if(blocks) {
                 khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
@@ -148,7 +207,8 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int bsize)
             return;
         }
     }
-    dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, bsize);
+    if(my_context->mmapsize)
+        dynarec_log(LOG_NONE, "Warning, block %p (size %d) not found in mmaplist for Free\n", (void*)addr, size);
 }
 
 dynablock_t* FindDynablockFromNativeAddress(void* addr)
@@ -167,7 +227,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 {
     if(!size)
         return 0;
-    if(size>MMAPSIZE) {
+    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
@@ -184,16 +244,15 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         return (uintptr_t)p;
     }
     
-    int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
     if(pthread_mutex_trylock(&my_context->mutex_mmap)) {
         sched_yield();  // give it a chance
         if(pthread_mutex_trylock(&my_context->mutex_mmap))
             return 0;   // cannot lock, baillout
     }
 
-    uintptr_t ret = FindFreeDynarecMap(db, bsize);
+    uintptr_t ret = FindFreeDynarecMap(db, size);
     if(!ret)
-        ret = AddNewDynarecMap(db, bsize);
+        ret = AddNewDynarecMap(db, size);
 
     pthread_mutex_unlock(&my_context->mutex_mmap);
 
@@ -213,8 +272,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
         return;
     }
     pthread_mutex_lock(&my_context->mutex_mmap);
-    int bsize = (size+MMAPBLOCK-1)/MMAPBLOCK;
-    ActuallyFreeDynarecMap(db, addr, bsize);
+    ActuallyFreeDynarecMap(db, addr, size);
     pthread_mutex_unlock(&my_context->mutex_mmap);
 }
 
@@ -458,6 +516,7 @@ void FreeBox86Context(box86context_t** context)
         kh_destroy(dynablocks, ctx->dblist_oversized);
         ctx->dblist_oversized = NULL;
     }
+    ctx->mmapsize = 0;
     dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
     cleanDBFromAddressRange(ctx, 0, 0xffffffff, 1);
     pthread_mutex_destroy(&ctx->mutex_blocks);
