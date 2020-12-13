@@ -14,6 +14,7 @@ extern int box86_dynarec_trace;
 extern int box86_dynarec_forced;
 extern int box86_dynarec_largest;
 extern int box86_dynarec_smc;
+extern int box86_dynarec_safemmap;
 #ifdef ARM
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 extern int arm_swap;

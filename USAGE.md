@@ -108,6 +108,10 @@ Set level of DynaRec log
  * 0 : Disable Dynarec Linker (use that on debug, with dynarec log >= 2, to have detail on wich block get executed)
  * 1 : Enable Dynarec Linker (default)
 
+#### BOX86_DYNAREC_SAFEMMAP
+ * 0 : Default. Some mmp/mmap64 are consider unsafe (depending of flags mainly)
+ * 1 : Consider all mmap/mmap64 safe to use linker (potential speedup, but potential crash for apps using JIT/Dynarec)
+
 #### BOX86_DYNAREC_TRACE
  * 0 : Disable trace for generated code (default)
  * 1 : Enable trace for generated code (like regular Trace, this will slow down a lot and generate huge logs)

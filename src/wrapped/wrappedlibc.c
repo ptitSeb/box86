@@ -2224,11 +2224,11 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange(my_context, (uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+                addDBFromAddressRange(my_context, (uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
             else
                 cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
-    } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
+    } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
         addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
@@ -2249,11 +2249,11 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange(my_context, (uintptr_t)ret, length, (flags&MAP_ANONYMOUS)?1:0);
+                addDBFromAddressRange(my_context, (uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
             else
                 cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
-    } else if(box86_dynarec && ret==(void*)-1 && !(flags&MAP_ANONYMOUS) && addr) {
+    } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
         addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
