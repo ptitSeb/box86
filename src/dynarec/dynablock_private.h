@@ -3,12 +3,9 @@
 
 typedef struct dynablocklist_s  dynablocklist_t;
 
-typedef union instsize_s {
-    uint8_t c;
-    struct {
-        unsigned int x86:4;
-        unsigned int nat:4;
-    };
+typedef struct instsize_s {
+    unsigned int x86:4;
+    unsigned int nat:4;
 } instsize_t;
 
 typedef struct dynablock_s {
@@ -28,7 +25,7 @@ typedef struct dynablock_s {
     dynablock_t**   sons;   // sons (kind-of dummy dynablock...)
     int             sons_size;
     dynablock_t*    father; // set only in the case of a son
-    instsize_t*      instsize;
+    instsize_t*     instsize;
 } dynablock_t;
 
 typedef struct dynablocklist_s {
