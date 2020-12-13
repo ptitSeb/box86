@@ -142,6 +142,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
                 kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist;
                 if(!blocks) {
                     blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
+                    kh_resize(dynablocks, blocks, 64);
                 }
                 khint_t k;
                 int r;
@@ -181,6 +182,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     uintptr_t sub  = (uintptr_t)allocBlock(my_context->mmaplist[i].block, p, size);
     my_context->mmaplist[i].maxfree = getMaxFreeBlock(my_context->mmaplist[i].block);
     kh_dynablocks_t *blocks = my_context->mmaplist[i].dblist = kh_init(dynablocks);
+    kh_resize(dynablocks, blocks, 64);
     khint_t k;
     int ret;
     k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
@@ -235,8 +237,10 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         kh_dynablocks_t *blocks = my_context->dblist_oversized;
-        if(!blocks)
+        if(!blocks) {
             blocks = my_context->dblist_oversized = kh_init(dynablocks);
+            kh_resize(dynablocks, blocks, 64);
+        }
         khint_t k;
         int ret;
         k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
