@@ -211,6 +211,9 @@ Op is 20-27
 #define CMPS_REG_LSL_IMM5(src1, src2, imm5) \
     EMIT(0xe1500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // cmp.s dst, src, #imm
+#define CMPS_IMM8_COND(cond, src, imm8) \
+    EMIT((cond) | 0x03500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
+// cmp.s dst, src, #imm
 #define CMPS_IMM8(src, imm8) \
     EMIT(0xe3500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
 // tst.s dst, src1, src2, lsl #imm
