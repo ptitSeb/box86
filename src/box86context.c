@@ -19,7 +19,7 @@
 #include "threads.h"
 #include "x86trace.h"
 #include "signals.h"
-#if 1//def DYNAREC
+#ifdef DYNAREC
 #include <sys/mman.h>
 #include "dynablock.h"
 #include "khash.h"
