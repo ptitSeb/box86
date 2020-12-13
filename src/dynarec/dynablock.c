@@ -277,7 +277,7 @@ dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
 
 static dynablocklist_t* getDBFromAddress(uintptr_t addr)
 {
-    int idx = (addr>>DYNAMAP_SHIFT);
+    const int idx = (addr>>DYNAMAP_SHIFT);
     return (my_context->dynmap[idx])?my_context->dynmap[idx]->dynablocks:NULL;
 }
 
@@ -343,24 +343,20 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         dynablocks = current->parent;
         if(!(addr>=dynablocks->text && addr<(dynablocks->text+dynablocks->textsz)))
             dynablocks = NULL;
-        else if(dynablocks->direct/* && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))*/) {
-            block = dynablocks->direct[addr-dynablocks->text];
-            if(block)
-                return block;
-        }
     }
     // nope, lets do the long way
-    if(!dynablocks)
+    if(!dynablocks) {
         dynablocks = getDBFromAddress(addr);
-    if(!dynablocks)
-        dynablocks = GetDynablocksFromAddress(emu->context, addr);
-    if(!dynablocks)
-        return NULL;
+        if(!dynablocks) {
+            dynablocks = GetDynablocksFromAddress(emu->context, addr);
+            if(!dynablocks)
+                return NULL;
+        }
+    }
     // check direct first, without lock
     if(dynablocks->direct/* && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))*/)
-        block = dynablocks->direct[addr-dynablocks->text];
-    if(block)
-        return block;
+        if((block = dynablocks->direct[addr-dynablocks->text]))
+            return block;
 
     int created = create;
     block = AddNewDynablock(dynablocks, addr, &created);

@@ -56,14 +56,15 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     dynablock_t* current = (dynablock_t*)table[2];
     if(current->father)
         current = current->father;
+    void * jblock;
     dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
     if(!current)  {  // current has been invalidated, stop running it...
         //dynarec_log(LOG_DEBUG, "--- Current invalidated while linking.\n");
         return arm_epilog_fast;
     }
     if(!block) {
-        // no block, don't try again, ever
-        tableupdate(arm_epilog, addr, table);
+        // no block, let link table as is...
+        //tableupdate(arm_epilog, addr, table);
         return arm_epilog_fast;
     }
     if(!block->done) {
@@ -71,7 +72,7 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
         //tableupdate(arm_linker, addr, table);
         return arm_epilog_fast;
     }
-    if(!block->block) {
+    if(!(jblock=block->block)) {
         // null block, but done: go to epilog, no linker here
         tableupdate(arm_epilog, addr, table);
         return arm_epilog_fast;
@@ -80,9 +81,9 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     if(!block->parent->nolinker) {
         //dynarec_log(LOG_DEBUG, "--- Linking %p/%p to %p (table=%p[%p/%p/%p/%p])\n", block, block->block, current, table, table[0], table[1], table[2], table[3]);
         // only update block if linker is allowed
-        tableupdate(block->block, addr, table);
+        tableupdate(jblock, addr, table);
     }
-    return block->block;
+    return jblock;
 }
 #endif
 
