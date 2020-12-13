@@ -464,9 +464,9 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     MAYUSE(j32);
     MESSAGE(LOG_DUMP, "Get FS: Offset\n");
     LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_serial[_FS]));// fast check here
-    CMPS_IMM8(x12, 1);
-    LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
-    B_MARKSEG(cEQ);
+    CMPS_IMM8(x12, 0);
+    LDR_IMM9_COND(cNE, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
+    B_MARKSEG(cNE);
     MOVW(x1, _FS);
     call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
     MARKSEG;
