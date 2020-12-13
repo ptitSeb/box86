@@ -289,8 +289,7 @@ void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t si
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!context->dynmap[i]) {
-            context->dynmap[i] = (dynmap_t*)calloc(1, sizeof(dynmap_t));
-            context->dynmap[i]->dynablocks = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
+            context->dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
         }
     }
 }
@@ -301,10 +300,10 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
     uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>DYNAMAP_SHIFT):(addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        dynmap_t* dynmap = context->dynmap[i];
-        if(dynmap) {
-            uintptr_t startdb = StartDynablockList(dynmap->dynablocks);
-            uintptr_t enddb = EndDynablockList(dynmap->dynablocks);
+        dynablocklist_t* dblist = context->dynmap[i];
+        if(dblist) {
+            uintptr_t startdb = StartDynablockList(dblist);
+            uintptr_t enddb = EndDynablockList(dblist);
             uintptr_t startaddr = addr;
             if(startaddr<startdb) startaddr = startdb;
             uintptr_t endaddr = addr + size - 1;
@@ -312,15 +311,14 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
             if(startaddr==startdb && endaddr==enddb) {
                 if(destroy) {
                     context->dynmap[i] = NULL;
-                    FreeDynablockList(&dynmap->dynablocks);
-                    free(dynmap);
+                    FreeDynablockList(&dblist);
                 } else
-                    MarkDynablockList(&dynmap->dynablocks);
+                    MarkDynablockList(&dblist);
             } else
                 if(destroy)
-                    FreeRangeDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
+                    FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
                 else
-                    MarkRangeDynablock(dynmap->dynablocks, startaddr, endaddr-startaddr+1);
+                    MarkRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
 
         }
     }
@@ -422,7 +420,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef DYNAREC
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
-    context->dynmap = (dynmap_t**)calloc(DYNAMAP_SIZE, sizeof(dynmap_t*));
+    context->dynmap = (dynablocklist_t**)calloc(DYNAMAP_SIZE, sizeof(dynablocklist_t*));
 #endif
 
     context->maplib = NewLibrarian(context, 1);

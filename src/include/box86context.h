@@ -27,9 +27,6 @@ typedef struct atfork_fnc_s {
 typedef struct dynablock_s      dynablock_t;
 typedef struct dynablocklist_s  dynablocklist_t;
 typedef struct mmaplist_s       mmaplist_t;
-typedef struct dynmap_s {
-    dynablocklist_t* dynablocks;    // the dynabockist of the block
-} dynmap_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #define DYNAMAP_SIZE (1<<20)
 #define DYNAMAP_SHIFT 12
@@ -65,7 +62,7 @@ typedef struct base_segment_s {
 
 typedef struct box86context_s {
 #ifdef DYNAREC
-    dynmap_t**          dynmap;     // 4G of memory mapped by 4K block
+    dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
     int                 trace_dynarec;
     pthread_mutex_t     mutex_dyndump;
     pthread_mutex_t     mutex_blocks;

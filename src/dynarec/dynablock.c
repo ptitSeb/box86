@@ -278,7 +278,7 @@ dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
 static dynablocklist_t* getDBFromAddress(uintptr_t addr)
 {
     const int idx = (addr>>DYNAMAP_SHIFT);
-    return (my_context->dynmap[idx])?my_context->dynmap[idx]->dynablocks:NULL;
+    return (my_context->dynmap[idx])?my_context->dynmap[idx]:NULL;
 }
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* created)
@@ -341,7 +341,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     dynablock_t* block = NULL;
     if(current) {
         dynablocks = current->parent;
-        if(!(addr>=dynablocks->text && addr<(dynablocks->text+dynablocks->textsz)))
+        if(dynablocks && !(addr>=dynablocks->text && addr<(dynablocks->text+dynablocks->textsz)))
             dynablocks = NULL;
     }
     // nope, lets do the long way

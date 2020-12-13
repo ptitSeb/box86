@@ -1008,7 +1008,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
     }*/
     if(box86_dynarec_forced) {
         addDBFromAddressRange(my_context, addr, 1, 1);
-        return my_context->dynmap[addr>>DYNAMAP_SHIFT]->dynablocks;
+        return my_context->dynmap[addr>>DYNAMAP_SHIFT];
     }
     //check if address is in an elf... if yes, grant a block (should I warn)
     Dl_info info;
