@@ -357,7 +357,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(!dynablocks)
         return NULL;
     // check direct first, without lock
-    if(dynablocks->direct && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz)))
+    if(dynablocks->direct/* && (addr>=dynablocks->text) && (addr<(dynablocks->text+dynablocks->textsz))*/)
         block = dynablocks->direct[addr-dynablocks->text];
     if(block)
         return block;
@@ -372,13 +372,14 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x86_addr = (void*)addr;
     if(!FillBlock(block, filladdr)) {
-        FreeDynablock(block);
+        dynablocks->direct[addr-dynablocks->text] = NULL;
+        free(block);
         block = NULL;
     }
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
 
-    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+block->x86_size), block->block, block->size, block->sons_size);
+    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr-((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
 
     return block;
 }
