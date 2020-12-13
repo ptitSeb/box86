@@ -161,17 +161,15 @@ uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
 
 instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, int arm_size)
 {
-    // x86 instruction is <16 bytes anyway
-    if(!x86_size && !arm_size)
-        return insts;
+    // x86 instruction is <16 bytes
     int toadd;
     if(x86_size>arm_size)
         toadd = 1 + x86_size/15;
     else
         toadd = 1 + arm_size/15;
-    if(*size+toadd>*cap) {
-        *cap = *size+toadd;
-        insts = (instsize_t*)realloc(insts, *cap*sizeof(instsize_t));
+    if((*size)+toadd>(*cap)) {
+        *cap = (*size)+toadd;
+        insts = (instsize_t*)realloc(insts, (*cap)*sizeof(instsize_t));
     }
     while(toadd) {
         if(x86_size>15)
@@ -244,6 +242,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     int sz = helper.arm_size;
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
+        dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %d) failed, cancelling block\n", block, sz);
         free(helper.insts);
         free(helper.next);
         return NULL;
@@ -281,12 +280,14 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     __clear_cache(p, p+sz);   // need to clear the cache before execution...
     // keep size of instructions for signal handling
     {
-        size_t cap = helper.size+1;
+        size_t cap = 1;
+        for(int i=0; i<helper.size; ++i)
+            cap += 1 + ((helper.insts[i].x86.size>helper.insts[i].size)?helper.insts[i].x86.size:helper.insts[i].size)/15;
         size_t size = 0;
         block->instsize = (instsize_t*)calloc(cap, sizeof(instsize_t));
         for(int i=0; i<helper.size; ++i)
             block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x86.size, helper.insts[i].size/4);
-        addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
+        block->instsize = addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
     }
     // ok, free the helper now
     free(helper.insts);
