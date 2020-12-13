@@ -1025,7 +1025,7 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
         emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
     if(emu->context->vkprocaddress)
-        return AddCheckBridge(my_context->sdl2lib->priv.w.bridge, my_context, pFEpp, my_vkGetInstanceProcAddr, 0);
+        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, my_context, pFEpp, my_vkGetInstanceProcAddr, 0);
     return NULL;
 }
 
