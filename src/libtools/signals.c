@@ -403,7 +403,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
-if(sig==SIGSEGV) exit(-1);
+
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
     x86emu_t *emu = thread_get_emu();
