@@ -21,65 +21,6 @@
 const char* pulseName = "libpulse.so.0";
 #define LIBNAME pulse
 
-typedef struct my_pulse_cb_s {
-    uintptr_t fnc;
-    void*     data;
-} my_pulse_cb_t;
-typedef struct my_pulse_context_cb_s {
-    my_pulse_cb_t cb[8];
-    int        size;
-    struct my_pulse_context_cb_s* next;
-} my_pulse_context_cb_t;
-
-KHASH_MAP_INIT_INT(pulsecb, my_pulse_context_cb_t*);
-
-static void freeCB(my_pulse_context_cb_t* head) {
-    if(!head)
-        return;
-    freeCB(head->next);
-    free(head);
-}
-
-static my_pulse_context_cb_t* checkContext(kh_pulsecb_t* list, void* context) {
-    khint_t k;
-    k = kh_get(pulsecb, list, (uintptr_t)context);
-    if(k != kh_end(list) && kh_exist(list, k))
-        return kh_value(list, k);
-    return NULL;
-}
-
-// get or insert a new context container
-static my_pulse_context_cb_t* getContext(kh_pulsecb_t* list, void* context) {
-    khint_t k;
-    int ret;
-    k = kh_get(pulsecb, list, (uintptr_t)context);
-    if(k != kh_end(list) && kh_exist(list, k))
-        return kh_value(list, k);
-
-    // insert
-    k = kh_put(pulsecb, list, (uintptr_t)context, &ret);
-    my_pulse_context_cb_t* p = kh_value(list, k) = (my_pulse_context_cb_t*)calloc(1, sizeof(my_pulse_context_cb_t));
-
-    return p;
-}
-static my_pulse_cb_t* insertCB(my_pulse_context_cb_t* cblist) {
-    while(cblist->size==8) {
-        if(!cblist->next)
-            cblist->next = (my_pulse_context_cb_t*)calloc(1, sizeof(my_pulse_context_cb_t));
-        cblist = cblist->next;
-    }
-    return cblist->cb+(cblist->size++);
-}
-static void freeContext(kh_pulsecb_t* list, void* context) {
-    khint_t k;
-    k = kh_get(pulsecb, list, (uintptr_t)context);
-    if(k == kh_end(list) || !kh_exist(list, k))
-        return;
-    my_pulse_context_cb_t* p = kh_value(list, k);
-    freeCB(p);
-    kh_del(pulsecb, list, k);
-}
-
 typedef struct my_pa_mainloop_api_s {
     void*   data;
     void*   io_new;
@@ -204,8 +145,6 @@ typedef struct pulse_my_s {
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
-    kh_pulsecb_t   *list;
-    // other
 } pulse_my_t;
 
 void* getPulseMy(library_t* lib)
@@ -214,20 +153,15 @@ void* getPulseMy(library_t* lib)
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
     #undef GO
-    my->list = kh_init(pulsecb);
+
     return my;
 }
 #undef SUPER
 
 void freePulseMy(void* lib)
 {
-    pulse_my_t *my = (pulse_my_t *)lib;
+    //pulse_my_t *my = (pulse_my_t *)lib;
 
-    my_pulse_context_cb_t* p;
-    kh_foreach_value(my->list, p, 
-        freeCB(p);
-    );
-    kh_destroy(pulsecb, my->list);
 }
 
 // TODO: change that static for a map ptr2ptr?
@@ -259,7 +193,8 @@ SUPER()
 #undef GO
 static void* findFreeFct(void* fct)
 {
-    if(!fct) return NULL;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
     #undef GO
@@ -280,6 +215,8 @@ SUPER()
 #undef GO
 static void* findFreeAPIFct(void* fct)
 {
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_free_api_fct_##A == (uintptr_t)fct) return my_free_api_##A;
     SUPER()
     #undef GO
@@ -301,7 +238,8 @@ SUPER()
 #undef GO
 static void* findIOEventFct(void* fct)
 {
-    if(!fct) return NULL;
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_io_event_fct_##A == (uintptr_t)fct) return my_io_event_##A;
     SUPER()
     #undef GO
@@ -323,6 +261,8 @@ SUPER()
 #undef GO
 static void* findTimeEventFct(void* fct)
 {
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     if(!fct) return NULL;
     #define GO(A) if(my_time_event_fct_##A == (uintptr_t)fct) return my_time_event_##A;
     SUPER()
@@ -345,6 +285,8 @@ SUPER()
 #undef GO
 static void* findDeferEventFct(void* fct)
 {
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     if(!fct) return NULL;
     #define GO(A) if(my_defer_event_fct_##A == (uintptr_t)fct) return my_defer_event_##A;
     SUPER()
@@ -366,6 +308,8 @@ SUPER()
 #undef GO
 static void* find_poll_Fct(void* fct)
 {
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
     SUPER()
     #undef GO
@@ -375,7 +319,427 @@ static void* find_poll_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio poll callback\n");
     return NULL;
 }
+// signal
+#define GO(A)   \
+static uintptr_t my_signal_fct_##A = 0;   \
+static void my_signal_##A(my_pa_mainloop_api_t* api, void* e, int sig, void *data)  \
+{                                                                                   \
+    if(api==my_mainloop_orig) api=my_mainloop_ref;                                  \
+    RunFunction(my_context, my_signal_fct_##A, 4, api, e, sig, data);               \
+}
+SUPER()
+#undef GO
+static void* find_signal_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal_fct_##A == (uintptr_t)fct) return my_signal_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal_fct_##A == 0) {my_signal_fct_##A = (uintptr_t)fct; return my_signal_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio signal callback\n");
+    return NULL;
+}
+// signal_destroy
+#define GO(A)   \
+static uintptr_t my_signal_destroy_fct_##A = 0;   \
+static void my_signal_destroy_##A(my_pa_mainloop_api_t* api, void* e, void *data)   \
+{                                                                                   \
+    if(api==my_mainloop_orig) api=my_mainloop_ref;                                  \
+    RunFunction(my_context, my_signal_destroy_fct_##A, 3, api, e, data);            \
+}
+SUPER()
+#undef GO
+static void* find_signal_destroy_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_signal_destroy_fct_##A == (uintptr_t)fct) return my_signal_destroy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_signal_destroy_fct_##A == 0) {my_signal_destroy_fct_##A = (uintptr_t)fct; return my_signal_destroy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio signal_destroy callback\n");
+    return NULL;
+}
 
+// prefork
+#define GO(A)   \
+static uintptr_t my_prefork_fct_##A = 0;            \
+static void my_prefork_##A()                        \
+{                                                   \
+    RunFunction(my_context, my_prefork_fct_##A, 0); \
+}
+SUPER()
+#undef GO
+static void* find_prefork_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_prefork_fct_##A == (uintptr_t)fct) return my_prefork_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_prefork_fct_##A == 0) {my_prefork_fct_##A = (uintptr_t)fct; return my_prefork_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio prefork callback\n");
+    return NULL;
+}
+// postfork
+#define GO(A)   \
+static uintptr_t my_postfork_fct_##A = 0;           \
+static void my_postfork_##A()                       \
+{                                                   \
+    RunFunction(my_context, my_postfork_fct_##A, 0);\
+}
+SUPER()
+#undef GO
+static void* find_postfork_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_postfork_fct_##A == (uintptr_t)fct) return my_postfork_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_postfork_fct_##A == 0) {my_postfork_fct_##A = (uintptr_t)fct; return my_postfork_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio postfork callback\n");
+    return NULL;
+}
+// atfork
+#define GO(A)   \
+static uintptr_t my_atfork_fct_##A = 0;             \
+static void my_atfork_##A()                         \
+{                                                   \
+    RunFunction(my_context, my_atfork_fct_##A, 0);  \
+}
+SUPER()
+#undef GO
+static void* find_atfork_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_atfork_fct_##A == (uintptr_t)fct) return my_atfork_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_atfork_fct_##A == 0) {my_atfork_fct_##A = (uintptr_t)fct; return my_atfork_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio atfork callback\n");
+    return NULL;
+}
+
+// state_context
+#define GO(A)                                                               \
+static uintptr_t my_state_context_fct_##A = 0;                              \
+static void my_state_context_##A(void* context, void* data)                 \
+{                                                                           \
+    RunFunction(my_context, my_state_context_fct_##A, 2, context, data);    \
+}
+SUPER()
+#undef GO
+static void* find_state_context_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_state_context_fct_##A == (uintptr_t)fct) return my_state_context_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_state_context_fct_##A == 0) {my_state_context_fct_##A = (uintptr_t)fct; return my_state_context_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio state_context callback\n");
+    return NULL;
+}
+// notify_context
+#define GO(A)                                                               \
+static uintptr_t my_notify_context_fct_##A = 0;                             \
+static void my_notify_context_##A(void* context, void* data)                \
+{                                                                           \
+    RunFunction(my_context, my_notify_context_fct_##A, 2, context, data);   \
+}
+SUPER()
+#undef GO
+static void* find_notify_context_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_notify_context_fct_##A == (uintptr_t)fct) return my_notify_context_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_notify_context_fct_##A == 0) {my_notify_context_fct_##A = (uintptr_t)fct; return my_notify_context_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio notify_context callback\n");
+    return NULL;
+}
+// success_context
+#define GO(A)                                                                       \
+static uintptr_t my_success_context_fct_##A = 0;                                    \
+static void my_success_context_##A(void* context, int success, void* data)          \
+{                                                                                   \
+    RunFunction(my_context, my_success_context_fct_##A, 3, context, success, data); \
+}
+SUPER()
+#undef GO
+static void* find_success_context_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_success_context_fct_##A == (uintptr_t)fct) return my_success_context_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_success_context_fct_##A == 0) {my_success_context_fct_##A = (uintptr_t)fct; return my_success_context_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio success_context callback\n");
+    return NULL;
+}
+// event_context
+#define GO(A)                                                                       \
+static uintptr_t my_event_context_fct_##A = 0;                                      \
+static void my_event_context_##A(void* context, void* name, void* p, void* data)    \
+{                                                                                   \
+    RunFunction(my_context, my_event_context_fct_##A, 4, context, name, p, data);   \
+}
+SUPER()
+#undef GO
+static void* find_event_context_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_event_context_fct_##A == (uintptr_t)fct) return my_event_context_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_event_context_fct_##A == 0) {my_event_context_fct_##A = (uintptr_t)fct; return my_event_context_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio event_context callback\n");
+    return NULL;
+}
+// module_info
+#define GO(A)                                                                   \
+static uintptr_t my_module_info_fct_##A = 0;                                    \
+static void my_module_info_##A(void* context, void* i, int eol, void* data)     \
+{                                                                               \
+    RunFunction(my_context, my_module_info_fct_##A, 4, context, i, eol, data);  \
+}
+SUPER()
+#undef GO
+static void* find_module_info_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_module_info_fct_##A == (uintptr_t)fct) return my_module_info_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_module_info_fct_##A == 0) {my_module_info_fct_##A = (uintptr_t)fct; return my_module_info_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio module_info callback\n");
+    return NULL;
+}
+// server_info
+#define GO(A)                                                               \
+static uintptr_t my_server_info_fct_##A = 0;                                \
+static void my_server_info_##A(void* context, void* i, void* data)          \
+{                                                                           \
+    RunFunction(my_context, my_server_info_fct_##A, 3, context, i, data);   \
+}
+SUPER()
+#undef GO
+static void* find_server_info_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_server_info_fct_##A == (uintptr_t)fct) return my_server_info_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_server_info_fct_##A == 0) {my_server_info_fct_##A = (uintptr_t)fct; return my_server_info_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio server_info callback\n");
+    return NULL;
+}
+// client_info
+#define GO(A)                                                                   \
+static uintptr_t my_client_info_fct_##A = 0;                                    \
+static void my_client_info_##A(void* context, void* i, int eol, void* data)     \
+{                                                                               \
+    RunFunction(my_context, my_client_info_fct_##A, 4, context, i, eol, data);  \
+}
+SUPER()
+#undef GO
+static void* find_client_info_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_client_info_fct_##A == (uintptr_t)fct) return my_client_info_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_client_info_fct_##A == 0) {my_client_info_fct_##A = (uintptr_t)fct; return my_client_info_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio client_info callback\n");
+    return NULL;
+}
+// context_index
+#define GO(A)                                                                   \
+static uintptr_t my_context_index_fct_##A = 0;                                  \
+static void my_context_index_##A(void* context, uint32_t idx, void* data)       \
+{                                                                               \
+    RunFunction(my_context, my_context_index_fct_##A, 3, context, idx, data);   \
+}
+SUPER()
+#undef GO
+static void* find_context_index_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_context_index_fct_##A == (uintptr_t)fct) return my_context_index_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_context_index_fct_##A == 0) {my_context_index_fct_##A = (uintptr_t)fct; return my_context_index_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio context_index callback\n");
+    return NULL;
+}
+// subscribe_context
+#define GO(A)                                                                       \
+static uintptr_t my_subscribe_context_fct_##A = 0;                                  \
+static void my_subscribe_context_##A(void* context, uint32_t idx, void* data)       \
+{                                                                                   \
+    RunFunction(my_context, my_subscribe_context_fct_##A, 3, context, idx, data);   \
+}
+SUPER()
+#undef GO
+static void* find_subscribe_context_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_subscribe_context_fct_##A == (uintptr_t)fct) return my_subscribe_context_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_subscribe_context_fct_##A == 0) {my_subscribe_context_fct_##A = (uintptr_t)fct; return my_subscribe_context_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio subscribe_context callback\n");
+    return NULL;
+}
+
+// stream_state
+#define GO(A)                                                       \
+static uintptr_t my_stream_state_fct_##A = 0;                       \
+static void my_stream_state_##A(void* s, void* data)                \
+{                                                                   \
+    RunFunction(my_context, my_stream_state_fct_##A, 2, s, data);   \
+}
+SUPER()
+#undef GO
+static void* find_stream_state_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_stream_state_fct_##A == (uintptr_t)fct) return my_stream_state_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_stream_state_fct_##A == 0) {my_stream_state_fct_##A = (uintptr_t)fct; return my_stream_state_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_state callback\n");
+    return NULL;
+}
+// stream_success
+#define GO(A)                                                                   \
+static uintptr_t my_stream_success_fct_##A = 0;                                 \
+static void my_stream_success_##A(void* s, int success, void* data)             \
+{                                                                               \
+    RunFunction(my_context, my_stream_success_fct_##A, 3, s, success, data);    \
+}
+SUPER()
+#undef GO
+static void* find_stream_success_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_stream_success_fct_##A == (uintptr_t)fct) return my_stream_success_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_stream_success_fct_##A == 0) {my_stream_success_fct_##A = (uintptr_t)fct; return my_stream_success_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_success callback\n");
+    return NULL;
+}
+// stream_notify
+#define GO(A)                                                       \
+static uintptr_t my_stream_notify_fct_##A = 0;                      \
+static void my_stream_notify_##A(void* s, void* data)               \
+{                                                                   \
+    RunFunction(my_context, my_stream_notify_fct_##A, 2, s, data);  \
+}
+SUPER()
+#undef GO
+static void* find_stream_notify_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_stream_notify_fct_##A == (uintptr_t)fct) return my_stream_notify_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_stream_notify_fct_##A == 0) {my_stream_notify_fct_##A = (uintptr_t)fct; return my_stream_notify_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_notify callback\n");
+    return NULL;
+}
+// stream_event
+#define GO(A)                                                               \
+static uintptr_t my_stream_event_fct_##A = 0;                               \
+static void my_stream_event_##A(void* s, void* name, void* pl, void* data)  \
+{                                                                           \
+    RunFunction(my_context, my_stream_event_fct_##A, 4, s, name, pl, data); \
+}
+SUPER()
+#undef GO
+static void* find_stream_event_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_stream_event_fct_##A == (uintptr_t)fct) return my_stream_event_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_stream_event_fct_##A == 0) {my_stream_event_fct_##A = (uintptr_t)fct; return my_stream_event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_event callback\n");
+    return NULL;
+}
+// stream_request
+#define GO(A)                                                               \
+static uintptr_t my_stream_request_fct_##A = 0;                             \
+static void my_stream_request_##A(void* s, int nbytes, void* data)          \
+{                                                                           \
+    RunFunction(my_context, my_stream_request_fct_##A, 3, s, nbytes, data); \
+}
+SUPER()
+#undef GO
+static void* find_stream_request_Fct(void* fct)
+{
+    #define GO(A) if(my_stream_request_fct_##A == (uintptr_t)fct) return my_stream_request_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_stream_request_fct_##A == 0) {my_stream_request_fct_##A = (uintptr_t)fct; return my_stream_request_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_request callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -471,11 +835,8 @@ static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
     }
 
     bridge_t* bridge = my_context->pulse->priv.w.bridge;
-    if(cb) {
-        b = CheckBridged(bridge, cb);
-        if(!b)
-            b = AddBridge(bridge, my_context, vFppiip, cb, 0);
-    }
+    if(cb)
+        b = AddCheckBridge(bridge, my_context, vFppiip, cb, 0);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
     return (void*)RunFunction(my_context, (uintptr_t)my_mainloop_ref->io_new, 5, api, fd, events, b, userdata);
 }
@@ -528,11 +889,8 @@ static void* my_time_new(void* api, void* tv, void* cb, void* data)
 
     // need to bridge the callback!
     bridge_t* bridge = my_context->pulse->priv.w.bridge;
-    if(cb) {
-        b = CheckBridged(bridge, cb);
-        if(!b)
-            b = AddBridge(bridge, my_context, vFpppp, cb, 0);
-    }
+    if(cb)
+        b = AddCheckBridge(bridge, my_context, vFpppp, cb, 0);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
     return (void*)RunFunction(my_context, (uintptr_t)my_mainloop_ref->time_new, 4, api, tv, b, data);
 }
@@ -563,11 +921,8 @@ static void my_time_set_destroy(void* e, void* cb)
 
     bridge_t* bridge = my_context->pulse->priv.w.bridge;
     uintptr_t b = 0;
-    if(cb) {
-        b = CheckBridged(bridge, cb);
-        if(!b)
-            b = AddBridge(bridge, my_context, vFppp, cb, 0);
-    }
+    if(cb)
+            b = AddCheckBridge(bridge, my_context, vFppp, cb, 0);
     RunFunction(my_context, (uintptr_t)my_mainloop_ref->time_set_destroy, 2, e, b);
 }
 
@@ -620,11 +975,8 @@ static void my_defer_set_destroy(void* e, void* cb)
 
     bridge_t* bridge = my_context->pulse->priv.w.bridge;
     uintptr_t b = 0;
-    if(cb) {
-        b = CheckBridged(bridge, cb);
-        if(!b)
-            b = AddBridge(bridge, my_context, vFppp, cb, 0);
-    }
+    if(cb)
+        b = AddCheckBridge(bridge, my_context, vFppp, cb, 0);
     RunFunction(my_context, (uintptr_t)my_mainloop_ref->defer_set_destroy, 2, e, b);
 }
 
@@ -734,56 +1086,16 @@ EXPORT int my_pa_signal_init(x86emu_t* emu, my_pa_mainloop_api_t* mainloop)
     return my->pa_signal_init(mainloop);
 }
 
-static void my_signal_cb(my_pa_mainloop_api_t* api, void* e, int sig, void *data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    RunFunction(my_context, cb->fnc, 4, api, e, sig, cb->data);
-}
-
-static uintptr_t my_signal_destroy_fct = 0;
-static void my_signal_destroy_cb(my_pa_mainloop_api_t* api, void* e, void *data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    RunFunction(my_context, my_signal_destroy_fct, 3, api, e, cb->data);
-}
-
 EXPORT void* my_pa_signal_new(x86emu_t* emu, int sig, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    if(cb) {
-        c = insertCB(getContext(my->list, (void*)sig));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_signal_new(sig, cb?my_signal_cb:NULL, c);
+    return my->pa_signal_new(sig, find_signal_Fct(cb), data);
 }
 
 EXPORT void my_pa_signal_set_destroy(x86emu_t* emu, void* e, void* cb)
 {
-    // TODO: there is only one slot here. Check if more are needed
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_signal_destroy_fct = (uintptr_t)cb;
-    return my->pa_signal_set_destroy(e, cb?my_signal_destroy_cb:NULL);
-}
-
-
-static uintptr_t my_prefork_fct = 0;
-static void my_prefork()
-{
-    RunFunction(my_context, my_prefork_fct, 0);
-}
-static uintptr_t my_postfork_fct = 0;
-static void my_postfork()
-{
-    RunFunction(my_context, my_postfork_fct, 0);
-}
-static uintptr_t my_atfork_fct = 0;
-static void my_atfork()
-{
-    RunFunction(my_context, my_atfork_fct, 0);
+    return my->pa_signal_set_destroy(e, find_signal_destroy_Fct(cb));
 }
 
 typedef struct my_pa_spawn_api_s {
@@ -799,7 +1111,7 @@ EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int
         return my->pa_context_connect(context, server, flags, api);
     }
     static my_pa_spawn_api_t a = {0};
-    #define GO(A) if(api->A) {a.A = my_##A; my_##A##_fct = (uintptr_t)api->A;} else a.A = 0
+    #define GO(A) a.A = find_##A##_Fct(api->A)
     GO(prefork);
     GO(postfork);
     GO(atfork);
@@ -807,585 +1119,215 @@ EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int
     return my->pa_context_connect(context, server, flags, &a);
 }
 
-
-
-static void my_state_context(void* context, void* data)
-{
-    if(data) {  // need to check data, as it can be NULL if no state callback are yet defined
-        my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-        RunFunction(my_context, cb->fnc, 2, context, cb->data);
-    }
-    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
-    int i = my->pa_context_get_state(context);
-    if (i==6) {   // PA_CONTEXT_TERMINATED
-        // clean the stream callbacks
-        freeContext(my->list, context);
-    }
-}
-static my_pulse_context_cb_t* my_check_context(kh_pulsecb_t* list, void* context)
-{
-    // check if that context exist, if not create it and set state callback
-    my_pulse_context_cb_t *ret = checkContext(list, context);
-    if (!ret) {
-        ret = getContext(list, context);
-        pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
-        my->pa_context_set_state_callback(context, my_state_context, NULL);
-    }
-    return ret;
-}
-
-
-static void my_notify_context(void* context, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 2, context, cb->data);
-}
-
-static void my_success_context(void* context, int success, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 3, context, success, cb->data);
-}
-
-static void my_event_context(void* context, void* name, void* p, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 4, context, name, p, cb->data);
-}
-
-static void my_module_info(void* context, void* i, int eol, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 4, context, i, eol, cb->data);
-}
-
-static void my_server_info(void* context, void* i, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 3, context, i, cb->data);
-}
-
-static void my_client_info(void* context, void* i, int eol, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 4, context, i, eol, cb->data);
-}
-
-static void my_context_index(void* context, uint32_t idx, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 3, context, idx, cb->data);
-}
-
-static void my_subscribe_context(void* context, int t, uint32_t idx, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 4, context, t, idx, cb->data);
-}
-
 EXPORT void my_pa_context_set_state_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_state_callback(context, my_state_context, c);
+    my->pa_context_set_state_callback(context, find_state_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_default_sink(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_default_sink(context, name, cb?my_success_context:NULL, c);
+    my->pa_context_set_default_sink(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_default_source(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_default_source(context, name, cb?my_success_context:NULL, c);
+    my->pa_context_set_default_source(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_move_sink_input_by_index(x86emu_t* emu, void* context, uint32_t idx, uint32_t sink_idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_move_sink_input_by_index(context, idx, sink_idx, cb?my_success_context:NULL, c);
+    return my->pa_context_move_sink_input_by_index(context, idx, sink_idx, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_module_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_module_info_list(context, cb?my_module_info:NULL, c);
+    return my->pa_context_get_module_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_server_info(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_server_info(context, cb?my_server_info:NULL, c);
+    return my->pa_context_get_server_info(context, find_server_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_client_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_client_info_list(context, cb?my_client_info:NULL, c);
+    return my->pa_context_get_client_info_list(context, find_client_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_input_info(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_sink_input_info(context, idx, cb?my_module_info:NULL, c);
+    return my->pa_context_get_sink_input_info(context, idx, find_module_info_Fct(cb), data);
 }
 EXPORT void* my_pa_context_get_sink_input_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_sink_input_info_list(context, cb?my_module_info:NULL, c);
+    return my->pa_context_get_sink_input_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_sink_info_list(context, cb?my_module_info:NULL, c);
+    return my->pa_context_get_sink_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_sink_info_by_name(context, name, cb?my_module_info:NULL, c);
+    return my->pa_context_get_sink_info_by_name(context, name, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_source_info_list(context, cb?my_module_info:NULL, c);
+    return my->pa_context_get_source_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_input_mute(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_sink_input_mute(context, idx, mute, cb?my_success_context:NULL, c);
+    my->pa_context_set_sink_input_mute(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_input_volume(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_sink_input_volume(context, idx, volume, cb?my_success_context:NULL, c);
+    my->pa_context_set_sink_input_volume(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_sink_info_by_index(context, idx, cb?my_module_info:NULL, c);
+    return my->pa_context_get_sink_info_by_index(context, idx, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_source_info_by_index(context, idx, cb?my_module_info:NULL, c);
+    return my->pa_context_get_source_info_by_index(context, idx, find_module_info_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_source_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_source_volume_by_index(context, idx, volume, cb?my_success_context:NULL, c);
+    my->pa_context_set_source_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_source_mute_by_index(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_source_mute_by_index(context, idx, mute, cb?my_success_context:NULL, c);
+    my->pa_context_set_source_mute_by_index(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_sink_volume_by_index(context, idx, volume, cb?my_success_context:NULL, c);
+    my->pa_context_set_sink_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_unload_module(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_unload_module(context, idx, cb?my_success_context:NULL, c);
+    return my->pa_context_unload_module(context, idx, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_load_module(x86emu_t* emu, void* context, void* name, void* arg, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_load_module(context, name, arg, cb?my_context_index:NULL, c);
+    return my->pa_context_load_module(context, name, arg, find_context_index_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_subscribe(x86emu_t* emu, void* context, uint32_t m, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_subscribe(context, m, cb?my_success_context:NULL, c);
+    return my->pa_context_subscribe(context, m, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_subscribe_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_set_subscribe_callback(context, cb?my_subscribe_context:NULL, c);
+    return my->pa_context_set_subscribe_callback(context, find_subscribe_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_drain(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_drain(context, cb?my_notify_context:NULL, c);
+    return my->pa_context_drain(context, find_notify_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_exit_daemon(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_exit_daemon(context, cb?my_success_context:NULL, c);
+    return my->pa_context_exit_daemon(context, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_proplist_remove(x86emu_t* emu, void* context, void* keys, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_proplist_remove(context, keys, cb?my_success_context:NULL, c);
+    return my->pa_context_proplist_remove(context, keys, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_proplist_update(x86emu_t* emu, void* context, int mode, void* p, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_proplist_update(context, mode, p, cb?my_success_context:NULL, c);
+    return my->pa_context_proplist_update(context, mode, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_event_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_context_set_event_callback(context, cb?my_event_context:NULL, c);
+    my->pa_context_set_event_callback(context, find_event_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_set_name(context, name, cb?my_success_context:NULL, c);
+    return my->pa_context_set_name(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_source_volume_by_name(x86emu_t* emu, void* context, void* name,void* volume, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_set_source_volume_by_name(context, name, volume, cb?my_success_context:NULL, c);
+    return my->pa_context_set_source_volume_by_name(context, name, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_context(my->list, context);
-    if(cb) {
-        c = insertCB(getContext(my->list, context));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_context_get_source_info_by_name(context, name, cb?my_module_info:NULL, c);
+    return my->pa_context_get_source_info_by_name(context, name, find_module_info_Fct(cb), data);
 }
 
 // Stream functions
-static void my_stream_state(void* s, void* data)
-{
-    if(data) {  // need to check data, as it can be NULL if no state callback are yet defined
-        my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-        RunFunction(my_context, cb->fnc, 2, s, cb->data);
-    }
-    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
-    int i = my->pa_stream_get_state(s);
-    if (i==4) {   // PA_TERMINATED
-        // clean the stream callbacks
-        freeContext(my->list, s);
-    }
-}
 
-
-static my_pulse_context_cb_t* my_check_stream(kh_pulsecb_t* list, void* stream)
-{
-    // check if that stream exist, if not create it and set state callback
-    my_pulse_context_cb_t *ret = checkContext(list, stream);
-    if (!ret) {
-        ret = getContext(list, stream);
-        pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
-        my->pa_stream_set_state_callback(stream, my_stream_state, NULL);
-    }
-    return ret;
-}
-
-
-static void my_stream_success(void* s, int success, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 3, s, success, cb->data);
-}
 EXPORT void* my_pa_stream_drain(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_drain(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_drain(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_flush(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_flush(stream, cb?my_stream_success:NULL, c);
-}
-
-static void my_stream_notify(void* s, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 2, s, cb->data);
-}
-
-static void my_stream_event(void* s, void* name, void* pl, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 4, s, name, pl, cb->data);
+    return my->pa_stream_flush(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_latency_update_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_latency_update_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_latency_update_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
-static void my_stream_request(void* s, int nbytes, void* data)
-{
-    my_pulse_cb_t* cb = (my_pulse_cb_t*)data;
-    RunFunction(my_context, cb->fnc, 3, s, nbytes, cb->data);
-}
 EXPORT void my_pa_stream_set_read_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_read_callback(stream, cb?my_stream_request:NULL, c);
+    my->pa_stream_set_read_callback(stream, find_stream_request_Fct(cb), data);
 }
 
 EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nbytes, void* cb, int64_t offset, int seek)
@@ -1393,246 +1335,115 @@ EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nby
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
     if(!my)
         return 0;
-    my_check_stream(my->list, stream);
-    void* nat = NULL;
-    if(cb) {
-        nat = findFreeFct(cb);
-    }
-    return my->pa_stream_write(stream, d, nbytes, nat, offset, seek);
+    return my->pa_stream_write(stream, d, nbytes, findFreeFct(cb), offset, seek);
 }
 
 EXPORT void* my_pa_stream_update_timing_info(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_update_timing_info(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_update_timing_info(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_prebuf(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_prebuf(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_prebuf(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_proplist_remove(x86emu_t* emu, void* stream, void* keys, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_proplist_remove(stream, keys, cb?my_stream_success:NULL, c);
+    return my->pa_stream_proplist_remove(stream, keys, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_proplist_update(x86emu_t* emu, void* stream, int32_t mode, void* p, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_proplist_update(stream, mode, p, cb?my_stream_success:NULL, c);
+    return my->pa_stream_proplist_update(stream, mode, p, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_set_buffer_attr(x86emu_t* emu, void* stream, void* attr, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_set_buffer_attr(stream, attr, cb?my_stream_success:NULL, c);
+    return my->pa_stream_set_buffer_attr(stream, attr, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_buffer_attr_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_buffer_attr_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_buffer_attr_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_event_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_event_callback(stream, cb?my_stream_event:NULL, c);
+    my->pa_stream_set_event_callback(stream, find_stream_event_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_moved_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_moved_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_moved_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_set_name(x86emu_t* emu, void* stream, void* name, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_set_name(stream, name, cb?my_stream_success:NULL, c);
+    return my->pa_stream_set_name(stream, name, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_overflow_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_overflow_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_overflow_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_started_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_started_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_started_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_state_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_state_callback(stream, my_stream_state, c);
+    my->pa_stream_set_state_callback(stream, find_stream_state_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_suspended_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_suspended_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_suspended_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_underflow_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_underflow_callback(stream, cb?my_stream_notify:NULL, c);
+    my->pa_stream_set_underflow_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_write_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    my->pa_stream_set_write_callback(stream, cb?my_stream_request:NULL, c);
+    my->pa_stream_set_write_callback(stream, find_stream_request_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_trigger(x86emu_t* emu, void* stream, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_trigger(stream, cb?my_stream_success:NULL, c);
+    return my->pa_stream_trigger(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_update_sample_rate(x86emu_t* emu, void* stream, uint32_t rate, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_update_sample_rate(stream, rate, cb?my_stream_success:NULL, c);
+    return my->pa_stream_update_sample_rate(stream, rate, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_cork(x86emu_t* emu, void* stream, int32_t b, void* cb, void* data)
 {
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
-    my_pulse_cb_t* c = NULL;
-    my_check_stream(my->list, stream);
-    if(cb) {
-        c = insertCB(getContext(my->list, stream));
-        c->fnc = (uintptr_t)cb;
-        c->data = data;
-    }
-    return my->pa_stream_cork(stream, b, cb?my_stream_success:NULL, c);
+    return my->pa_stream_cork(stream, b, find_stream_success_Fct(cb), data);
 }
 
 EXPORT int my_pa_proplist_setf(x86emu_t* emu, void* p, void* key, void* fmt, void* b)
@@ -1678,7 +1489,8 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getPulseMy(lib);   \
-    box86->pulse = lib;
+    box86->pulse = lib;                 \
+
 
 #define CUSTOM_FINI \
     lib->context->pulse = NULL;     \
