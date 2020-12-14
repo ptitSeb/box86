@@ -77,6 +77,7 @@ int x11color16 = 0;
 #ifdef RPI
 int box86_tokitori2 = 0;
 #endif
+int box86_zoom = 0;
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
@@ -955,6 +956,11 @@ int main(int argc, const char **argv, const char **env) {
         box86_tokitori2 = 1;
     }
     #endif
+    // special case for zoom
+    if(strstr(prgname, "zoom")==prgname) {
+        printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
+        box86_zoom = 1;
+    }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box86_emulated_libs, 0);

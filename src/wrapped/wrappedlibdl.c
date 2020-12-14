@@ -53,6 +53,7 @@ const char* libdlName = "libdl.so.2";
 
 #define CLEARERR    if(dl->last_error) free(dl->last_error); dl->last_error = NULL;
 
+extern int box86_zoom;
 // Implementation
 void* my_dlopen(x86emu_t* emu, void *filename, int flag)
 {
@@ -66,6 +67,11 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     CLEARERR
     if(filename) {
         char* rfilename = (char*)filename;
+        if(box86_zoom && strstr(rfilename, "libturbojpeg.so")) {
+            void* sys = my_dlopen(emu, "libturbojpeg.so.0", flag);
+            if(sys)
+                return sys;
+        }
         if(dlsym_error && box86_log<LOG_DEBUG) {
             printf_log(LOG_NONE, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         }
