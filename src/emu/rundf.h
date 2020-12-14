@@ -145,14 +145,26 @@
             break;
         case 7: /* FISTP i64 */
             GET_ED;
-            if(STll(0).ref==ST(0).ll) {
-                *(int64_t*)ED = STll(0).ll;
-            } else {
-                if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
-                    *(int64_t*)ED = 0x8000000000000000LL;
+            if((uintptr_t)ED & 0x7) {
+                // un-aligned!
+                if(STll(0).ref==ST(0).ll)
+                    memcpy(ED, &STll(0).ll, sizeof(int64_t));
                 else {
-                    int64_t i64 = fpu_round(emu, ST0.d);
-                    *(int64_t*)ED = i64;
+                    int64_t i64;
+                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
+                        i64 = 0x8000000000000000LL;
+                    else
+                        i64 = fpu_round(emu, ST0.d);
+                    memcpy(ED, &i64, sizeof(int64_t));
+                }
+            } else {
+                if(STll(0).ref==ST(0).ll)
+                    *(int64_t*)ED = STll(0).ll;
+                else {
+                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
+                        *(int64_t*)ED = 0x8000000000000000LL;
+                    else
+                        *(int64_t*)ED = fpu_round(emu, ST0.d);
                 }
             }
             fpu_do_pop(emu);
