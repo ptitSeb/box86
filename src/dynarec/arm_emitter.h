@@ -210,6 +210,9 @@ Op is 20-27
 // cmp.s dst, src1, src2, lsl #imm
 #define CMPS_REG_LSL_IMM5(src1, src2, imm5) \
     EMIT(0xe1500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
+// cmp.cond.s dst, src1, src2, lsl #imm
+#define CMPS_REG_LSL_IMM5_COND(cond, src1, src2, imm5) \
+    EMIT((cond) | 0x01500000 | ((0) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // cmp.s dst, src, #imm
 #define CMPS_IMM8_COND(cond, src, imm8) \
     EMIT((cond) | 0x03500000 | ((0) << 12) | ((src) << 16) | brIMM(imm8) )
@@ -436,6 +439,9 @@ Op is 20-27
 #define SSAT_gen(cond, sat_imm, Rd, imm5, sh, Rn) (cond | 0b0110101<<21 | (sat_imm)<<16 | (Rd)<<12 | (imm5)<<7 | (sh)<<6 | 0b01<<4 | (Rn))
 // Signed Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
 #define SSAT_REG_LSL_IMM5(Rd, saturate_to, Rn, shift)   EMIT(SSAT_gen(c__, (saturate_to)-1, Rd, shift, 0, Rn))
+// Signed Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
+#define SSAT_REG_LSL_IMM5_COND(cond, Rd, saturate_to, Rn, shift)   EMIT(SSAT_gen((cond), (saturate_to)-1, Rd, shift, 0, Rn))
+
 #define USAT_gen(cond, sat_imm, Rd, imm5, sh, Rn) (cond | 0b0110111<<21 | (sat_imm)<<16 | (Rd)<<12 | (imm5)<<7 | (sh)<<6 | 0b01<<4 | (Rn))
 // Unsigned Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
 #define USAT_REG_LSL_IMM5(Rd, saturate_to, Rn, shift)   EMIT(SSAT_gen(c__, (saturate_to), Rd, shift, 0, Rn))

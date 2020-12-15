@@ -111,7 +111,7 @@
                 break;
             case 2: /* FIST Ed, ST0 */
                 GET_ED;
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
+                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
@@ -120,7 +120,7 @@
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GET_ED;
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff))
+                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR

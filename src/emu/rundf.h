@@ -98,28 +98,14 @@
             break;
         case 2: /* FIST Ew, ST0 */
             GET_EW;
-            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff) || !isfinite(ST0.d))
                 EW->sword[0] = 0x8000;
-            else {
-                switch(emu->round) {
-                    case ROUND_Nearest:
-                        EW->sword[0] = floor(ST0.d+0.5);
-                        break;
-                    case ROUND_Down:
-                        EW->sword[0] = floor(ST0.d);
-                        break;
-                    case ROUND_Up:
-                        EW->sword[0] = ceil(ST0.d);
-                        break;
-                    case ROUND_Chop:
-                        EW->sword[0] = ST0.d;
-                        break;
-                }
-            }
+            else
+                EW->sword[0] = fpu_round(emu, ST0.d);
             break;
         case 3: /* FISTP Ew, ST0 */
             GET_EW;
-            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff))
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x7fff) || !isfinite(ST0.d))
                 EW->sword[0] = 0x8000;
             else
                 EW->sword[0] = fpu_round(emu, ST0.d);
@@ -151,7 +137,7 @@
                     memcpy(ED, &STll(0).ll, sizeof(int64_t));
                 else {
                     int64_t i64;
-                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
+                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
                         i64 = 0x8000000000000000LL;
                     else
                         i64 = fpu_round(emu, ST0.d);
@@ -161,7 +147,7 @@
                 if(STll(0).ref==ST(0).ll)
                     *(int64_t*)ED = STll(0).ll;
                 else {
-                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL))
+                    if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
                         *(int64_t*)ED = 0x8000000000000000LL;
                     else
                         *(int64_t*)ED = fpu_round(emu, ST0.d);

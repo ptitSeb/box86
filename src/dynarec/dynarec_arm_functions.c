@@ -136,10 +136,10 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
         memcpy(ed, &STll(0).ll, sizeof(int64_t));
     } else {
         int64_t tmp;
-        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL))
+        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
             tmp = 0x8000000000000000LL;
         else
-            tmp = (int64_t)ST0.d;
+            tmp = fpu_round(emu, ST0.d);
         memcpy(ed, &tmp, sizeof(tmp));
     }
 }

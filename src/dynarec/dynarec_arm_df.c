@@ -151,22 +151,23 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x12);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
-                    VCVT_S32_F64(s0, v1);
+                    MSR_nzcvq_0();
+                    // x1 already have FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
+                    VCVTR_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
-                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
-                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
-                    MRS_aspr(x3);   // check Q flag
-                    TSTS_IMM8_ROR(x3, 0b10, 3);
-                    B_MARK(cEQ);    // not saturated, continue
-                    MOV32(ed, 0xffff8000);
-                    MARK;
-                    STRH_IMM8(ed, wback, fixedaddress);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    SSAT_REG_LSL_IMM5_COND(cEQ, x3, 16, ed, 0);
+                    CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
+                    MOVW_COND(cNE, x3, 0x8000); // saturated
+                    STRH_IMM8(x3, wback, fixedaddress);
                     x87_do_pop(dyn, ninst);
-                    x87_restoreround(dyn, ninst, u8);
                     break;
                 case 2:
                     INST_NAME("FIST Ew, ST0");
@@ -175,16 +176,19 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
+                    MSR_nzcvq_0();
+                    // x1 already have FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
-                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
-                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
-                    MRS_aspr(x3);   // check Q flag
-                    TSTS_IMM8_ROR(x3, 0b10, 3);
-                    B_MARK(cEQ);    // not saturated, continue
-                    MOV32(ed, 0xffff8000);
-                    MARK;
-                    STRH_IMM8(ed, wback, fixedaddress);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    SSAT_REG_LSL_IMM5_COND(cEQ, x3, 16, ed, 0);
+                    CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
+                    MOVW_COND(cNE, x3, 0x8000); // saturated
+                    STRH_IMM8(x3, wback, fixedaddress);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 3:
@@ -194,16 +198,19 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
+                    MSR_nzcvq_0();
+                    // x1 already have FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    BIC_IMM8(x3, x3, 0b10011111, 0);
+                    VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
+                    VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
-                    MSR_nzcvq_0();    // reset Q flag (and all other flags too)
-                    SSAT_REG_LSL_IMM5(ed, 16, ed, 0);
-                    MRS_aspr(x3);   // check Q flag
-                    TSTS_IMM8_ROR(x3, 0b10, 3);
-                    B_MARK(cEQ);    // not saturated, continue
-                    MOV32(ed, 0xffff8000);
-                    MARK;
-                    STRH_IMM8(ed, wback, fixedaddress);
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    SSAT_REG_LSL_IMM5_COND(cEQ, x3, 16, ed, 0);
+                    CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
+                    MOVW_COND(cNE, x3, 0x8000); // saturated
+                    STRH_IMM8(x3, wback, fixedaddress);
                     x87_do_pop(dyn, ninst);
                     x87_restoreround(dyn, ninst, u8);
                     break;
