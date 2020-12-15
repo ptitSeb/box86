@@ -363,8 +363,8 @@
         emu->old_ip = R_EIP;
         R_EIP = ip;
         Run66DD(emu);
-        emu->old_ip = R_EIP;
-        R_EIP = ip;
+        ip = R_EIP;
+        if(emu->quit) goto fini;
         STEP
         NEXT;
 
@@ -372,8 +372,8 @@
         emu->old_ip = R_EIP;
         R_EIP = ip;
         RunLock66(emu);
-        emu->old_ip = R_EIP;
-        R_EIP = ip;
+        ip = R_EIP;
+        if(emu->quit) goto fini;
         STEP
         NEXT;
 
