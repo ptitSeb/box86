@@ -16,11 +16,21 @@
 #include "x86trace.h"
 #include "x86run.h"
 
+#define F8      *(uint8_t*)(ip++)
+#define F8S     *(int8_t*)(ip++)
+#define F16     *(uint16_t*)(ip+=2, ip-2)
+#define F16S    *(int16_t*)(ip+=2, ip-2)
+#define F32     *(uint32_t*)(ip+=4, ip-4)
+#define F32S    *(int32_t*)(ip+=4, ip-4)
+#define PK(a)   *(uint8_t*)(ip+a)
+
+#include "modrm.h"
+
 void Run66D9(x86emu_t *emu)
 {
-    uint8_t nextop;
-    reg32_t *op1;
-    nextop = Fetch8(emu);
+    uintptr_t ip = R_EIP;
+    uint8_t nextop = F8;
+    reg32_t *oped;
     switch (nextop) {
         case 0xC0:
         case 0xC1:
@@ -66,31 +76,34 @@ void Run66D9(x86emu_t *emu)
         case 0xFD:
         case 0xFE:
         case 0xFF:
+            ip = R_EIP-2;
             UnimpOpcode(emu);
             break;
         default:
         switch((nextop>>3)&7) {
             case 4:     /* FLDENV m */
                 // warning, incomplete
-                op1=GetEw(emu, nextop);
-                fpu_loadenv(emu, (char*)op1, 1);
+                GET_EW;
+                fpu_loadenv(emu, (char*)ED, 1);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                op1=GetEw(emu, nextop);
-                fpu_savenv(emu, (char*)op1, 1);
+                GET_EW;
+                fpu_savenv(emu, (char*)ED, 1);
                 break;
             default:
+                ip = R_EIP-2;
                 UnimpOpcode(emu);
         }
     }
+    R_EIP = ip;
 }
 
 void Run66DD(x86emu_t *emu)
 {
-    uint8_t nextop;
-    reg32_t *op1;
-    nextop = Fetch8(emu);
+    uintptr_t ip = R_EIP;
+    uint8_t nextop = F8;
+    reg32_t *oped;
     switch(nextop) {
     
         case 0xC0:
@@ -137,17 +150,18 @@ void Run66DD(x86emu_t *emu)
         case 0xFD:
         case 0xFE:
         case 0xFF:
+            ip = R_EIP-2;
             UnimpOpcode(emu);
         break;
 
     default:
         switch((nextop>>3)&7) {
             case 4: /* FRSTOR m94byte */
-                op1=GetEw(emu, nextop);
-                fpu_loadenv(emu, (char*)op1, 1);
+                GET_EW;
+                fpu_loadenv(emu, (char*)ED, 1);
                 // get the STx
                 {
-                    char* p =(char*)op1;
+                    char* p =(char*)ED;
                     p += 14;
                     for (int i=0; i<8; ++i) {
                         LD2D(p, &ST(i).d);
@@ -156,12 +170,12 @@ void Run66DD(x86emu_t *emu)
                 }
                 break;
             case 6: /* FNSAVE m94byte */
-                op1=GetEw(emu, nextop);
+                GET_EW;
                 // ENV first...
-                fpu_savenv(emu, (char*)op1, 1);
+                fpu_savenv(emu, (char*)ED, 1);
                 // save the STx
                 {
-                    char* p =(char*)op1;
+                    char* p =(char*)ED;
                     p += 14;
                     for (int i=0; i<8; ++i) {
                         D2LD(&ST(i).d, p);
@@ -171,7 +185,9 @@ void Run66DD(x86emu_t *emu)
                 reset_fpu(emu);
                 break;
             default:
+                ip = R_EIP-2; // unfetch
                 UnimpOpcode(emu);
         }
     }
+    R_EIP = ip;
 }
