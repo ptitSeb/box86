@@ -731,6 +731,8 @@ SUPER()
 #undef GO
 static void* find_stream_request_Fct(void* fct)
 {
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
     #define GO(A) if(my_stream_request_fct_##A == (uintptr_t)fct) return my_stream_request_##A;
     SUPER()
     #undef GO
