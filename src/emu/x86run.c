@@ -1507,6 +1507,7 @@ _trace:
             NEXT;
         _0xFE:                      /* GRP 5 Eb */
             nextop = F8;
+            tmp32u2 = ip;
             GET_EB;
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Eb */
@@ -1517,8 +1518,8 @@ _trace:
                     break;
                 default:
                     emu->old_ip = R_EIP;
-                    R_EIP = ip;
-                    printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
+                    R_EIP = ip = tmp32u2;
+                    printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)ip, opcode, nextop, PK(2), PK(3));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     goto fini;
@@ -1526,6 +1527,7 @@ _trace:
             NEXT;
         _0xFF:                      /* GRP 5 Ed */
             nextop = F8;
+            tmp32u2 = ip;
             GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
@@ -1543,8 +1545,8 @@ _trace:
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
                         emu->old_ip = R_EIP;
-                        R_EIP = ip;
-                        printf_log(LOG_NONE, "Illegal Opcode %02X %02X\n", opcode, nextop);
+                        R_EIP = ip = tmp32u2;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X\n", (void*)ip, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
@@ -1563,8 +1565,8 @@ _trace:
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
                         emu->old_ip = R_EIP;
-                        R_EIP = ip;
-                        printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                        R_EIP = ip = tmp32u2;
+                        printf_log(LOG_NONE, "Illegal Opcode %p: 0x%02X 0x%02X %02X %02X\n", (void*)ip, opcode, nextop, PK(2), PK(3));
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
@@ -1580,8 +1582,8 @@ _trace:
                     break;
                 default:
                     emu->old_ip = R_EIP;
-                    R_EIP = ip;
-                    printf_log(LOG_NONE, "Illegal Opcode %02X %02X %02X %02X %02X %02X\n", opcode, nextop, PK(2), PK(3), PK(4), PK(5));
+                    R_EIP = ip = tmp32u2;
+                    printf_log(LOG_NONE, "Illegal Opcode %p: %02X %02X %02X %02X %02X %02X\n",(void*)ip, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
                     emu->quit=1;
                     emu->error |= ERR_ILLEGAL;
                     goto fini;
