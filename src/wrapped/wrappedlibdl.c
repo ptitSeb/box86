@@ -67,7 +67,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     CLEARERR
     if(filename) {
         char* rfilename = (char*)filename;
-        if(box86_zoom && strstr(rfilename, "libturbojpeg.so")) {
+        if(box86_zoom && strstr(rfilename, "/libturbojpeg.so")) {
             void* sys = my_dlopen(emu, "libturbojpeg.so.0", flag);
             if(sys)
                 return sys;
