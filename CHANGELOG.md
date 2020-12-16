@@ -1,6 +1,17 @@
-Current version
+v0.1.8
 ======
-
+* Fixes on some float to int x87 convertions opcodes
+* Reworked all callback mecanisms
+* Added libturbojpeg wrapping (and a hack for zoom to force using native one)
+* Added BOX86_SAFEMMAP env. var.
+* Reworked dynarec memory manager
+* Added a few opcodes
+* Improve elfloader to not force PltResolver all the time (fixing SuperHexagon and maybe other)
+* Reworked Exet and Cancel Thread mecanism
+* Added wrapped libldap_r and liblber library (used by wine)
+* Reworked Dynarec block handling, and remove the "AddMark" mecanism that wasn't efficient enough
+* Added TokiTori 2+ detection and runtime patch on PI
+* Fixes on elfloader with TLS object
 
 v0.1.6
 ======
