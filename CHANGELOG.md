@@ -1,3 +1,6 @@
+Current version
+======
+
 v0.1.8
 ======
 * Fixes on some float to int x87 convertions opcodes
