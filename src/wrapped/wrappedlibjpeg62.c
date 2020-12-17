@@ -30,6 +30,7 @@ typedef void    (*vFp_t)    (void*);
 typedef void*   (*pFp_t)    (void*);
 typedef int     (*iFp_t)    (void*);
 typedef int     (*iFpi_t)   (void*, int);
+typedef void    (*vFpi_t)   (void*, int);
 typedef void    (*vFpip_t)  (void*, int, void*);
 typedef void    (*vFpiL_t)  (void*, int, unsigned long);
 typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
@@ -43,6 +44,13 @@ typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
     GO(jpeg_std_error, pFp_t)           \
     GO(jpeg_set_marker_processor, vFpip_t)  \
     GO(jpeg_destroy_decompress, vFp_t)  \
+    GO(jpeg_CreateCompress, vFpiL_t)    \
+    GO(jpeg_destroy_compress, vFp_t)    \
+    GO(jpeg_finish_compress, vFp_t)     \
+    GO(jpeg_resync_to_restart, iFpi_t)  \
+    GO(jpeg_set_defaults, vFp_t)        \
+    GO(jpeg_start_compress, vFpi_t)     \
+    GO(jpeg_write_scanlines, uFppu_t)   \
 
 typedef struct jpeg62_my_s {
     // functions
@@ -1104,6 +1112,66 @@ EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* 
     }
     my->jpeg_destroy_decompress(cinfo);
     is_jmpbuf = 0;
+}
+
+EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
+{
+    // Not using WRAP macro because only err field might be initialized here
+    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
+    is_jmpbuf = 1;
+    my62_jpegcb_emu = emu;
+    unwrapErrorMgr(cinfo->err);
+    if(setjmp(&jmpbuf)) {
+        wrapErrorMgr(cinfo->err);
+        is_jmpbuf = 0;
+        return;
+    }
+    my->jpeg_CreateCompress(cinfo, version, structsize);
+    is_jmpbuf = 0;
+    wrapCommonStruct(cinfo, 1);
+}
+
+EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
+{
+    // no WRAP macro because we don't want to wrap at the exit
+    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
+    is_jmpbuf = 1;
+    my62_jpegcb_emu = emu;
+    unwrapCommonStruct(cinfo, 1);
+    if(setjmp(&jmpbuf)) {
+        wrapCommonStruct(cinfo, 1); // error, so re-wrap
+        is_jmpbuf = 0;
+        return;
+    }
+    my->jpeg_destroy_compress(cinfo);
+    is_jmpbuf = 0;
+}
+
+EXPORT void my62_jpeg_finish_compress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
+{
+    WRAP(void, my->jpeg_finish_compress(cinfo), 1);
+}
+
+EXPORT int my62_jpeg_resync_to_restart(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int desired)
+{
+    WRAP(int, int ret = my->jpeg_resync_to_restart(cinfo, desired), 1);
+    return ret;
+}
+
+EXPORT void my62_jpeg_set_defaults(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
+{
+    WRAP(void, my->jpeg_set_defaults(cinfo), 1);
+}
+
+EXPORT void my62_jpeg_start_compress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int b)
+{
+    WRAP(void, my->jpeg_start_compress(cinfo, b), 1);
+}
+
+EXPORT uint32_t my62_jpeg_write_scanlines(x86emu_t* emu, jpeg62_common_struct_t* cinfo, void* scanlines, uint32_t maxlines)
+{
+    WRAP(uint32_t, uint32_t ret = my->jpeg_write_scanlines(cinfo, scanlines, maxlines), 1);
+    return ret;
 }
 
 #undef WRAP
