@@ -288,16 +288,32 @@ void RunLock(x86emu_t *emu)
                     nextop = F8;
                     GET_ED;
 #ifdef DYNAREC
-                    do {
-                        tmp32u = arm_lock_read_d(ED);
-                        cmp32(emu, R_EAX, tmp32u);
-                        if(ACCESS_FLAG(F_ZF)) {
-                            tmp32s = arm_lock_write_d(ED, GD.dword[0]);
-                        } else {
-                            R_EAX = tmp32u;
-                            tmp32s = 0;
-                        }
-                    } while(tmp32s);
+                    if(((uintptr_t)ED)&3) {
+                        do {
+                            tmp32u = ED->dword[0] & ~0xff;
+                            tmp32u |= arm_lock_read_b(ED);
+                            cmp32(emu, R_EAX, tmp32u);
+                            if(ACCESS_FLAG(F_ZF)) {
+                                tmp32s = arm_lock_write_b(ED, GD.dword[0] & 0xff);
+                                if(!tmp32s)
+                                    ED->dword[0] = GD.dword[0];
+                            } else {
+                                R_EAX = tmp32u;
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+                    } else {
+                        do {
+                            tmp32u = arm_lock_read_d(ED);
+                            cmp32(emu, R_EAX, tmp32u);
+                            if(ACCESS_FLAG(F_ZF)) {
+                                tmp32s = arm_lock_write_d(ED, GD.dword[0]);
+                            } else {
+                                R_EAX = tmp32u;
+                                tmp32s = 0;
+                            }
+                        } while(tmp32s);
+                    }
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     cmp32(emu, R_EAX, ED->dword[0]);
