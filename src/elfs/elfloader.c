@@ -64,10 +64,10 @@ void FreeElfHeader(elfheader_t** head)
         return;
     elfheader_t *h = *head;
 #ifdef DYNAREC
-    if(h->text) {
+    /*if(h->text) {
         dynarec_log(LOG_INFO, "Free Dynarec block for %s\n", h->path);
         cleanDBFromAddressRange(my_context, h->text, h->textsz, 1);
-    }
+    }*/ // will be free at the end, no need to free it now
 #endif
     free(h->name);
     free(h->path);
