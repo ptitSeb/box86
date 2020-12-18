@@ -1053,6 +1053,7 @@ void uFppuup(x86emu_t *emu, uintptr_t fnc);
 void uFppupp(x86emu_t *emu, uintptr_t fnc);
 void uFpplip(x86emu_t *emu, uintptr_t fnc);
 void uFppLpp(x86emu_t *emu, uintptr_t fnc);
+void uFppppu(x86emu_t *emu, uintptr_t fnc);
 void uFppppp(x86emu_t *emu, uintptr_t fnc);
 void lFEipiI(x86emu_t *emu, uintptr_t fnc);
 void lFipLli(x86emu_t *emu, uintptr_t fnc);

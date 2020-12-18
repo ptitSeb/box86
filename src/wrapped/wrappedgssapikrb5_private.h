@@ -153,7 +153,7 @@ GO(gss_unwrap, uFpppppp)
 GO(gss_unwrap_iov, uFpppppi)
 //GO(gss_userok, 
 //GO(gss_verify, 
-//GO(gss_verify_mic, 
+GO(gss_verify_mic, uFppppu)
 //GO(gss_verify_mic_iov, 
 //GO(gss_wrap, 
 //GO(gss_wrap_aead, 
