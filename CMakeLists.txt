@@ -335,8 +335,10 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedxslt.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldapr.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlber.c"
-    "${BOX86_ROOT}/src/wrapped/wrappedlcms2.c"
     "${BOX86_ROOT}/src/wrapped/wrappednsl.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlcms2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedkrb5.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgssapikrb5.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
 )
 
