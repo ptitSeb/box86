@@ -27,6 +27,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // 2 = struct of 2 uint
 // P = Vulkan struture pointer
 // G = a single GValue pointer
+// N = ... automatically sending 1 arg
+// M = ... automatically sending 2 args
 
 void iF(x86emu_t *emu, uintptr_t fnc);
 void vFE(x86emu_t *emu, uintptr_t fnc);
@@ -360,6 +362,7 @@ void iFiiO(x86emu_t *emu, uintptr_t fnc);
 void iFiII(x86emu_t *emu, uintptr_t fnc);
 void iFiuu(x86emu_t *emu, uintptr_t fnc);
 void iFiup(x86emu_t *emu, uintptr_t fnc);
+void iFiLN(x86emu_t *emu, uintptr_t fnc);
 void iFipi(x86emu_t *emu, uintptr_t fnc);
 void iFipu(x86emu_t *emu, uintptr_t fnc);
 void iFipp(x86emu_t *emu, uintptr_t fnc);
@@ -1409,7 +1412,6 @@ void iFEppuppp(x86emu_t *emu, uintptr_t fnc);
 void iFEpppiiu(x86emu_t *emu, uintptr_t fnc);
 void iFEpppppp(x86emu_t *emu, uintptr_t fnc);
 void iFiiiiiip(x86emu_t *emu, uintptr_t fnc);
-void iFiuppppp(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiiii(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiiip(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiLwp(x86emu_t *emu, uintptr_t fnc);

@@ -714,7 +714,7 @@ DATA(_IO_2_1_stdin_, 152)
 DATA(_IO_2_1_stdout_, 152)
 GO(_IO_adjust_column, uFupi)
 // _IO_adjust_wcolumn
-GO(ioctl, iFiuppppp)   //the vararg is just to have args of various type, but only 1 arg
+GO(ioctl, iFiLN)   //the vararg is just to have optional arg of various type, but only 1 arg
 GO(_IO_default_doallocate, iFS)
 GO(_IO_default_finish, vFSi)
 GO(_IO_default_pbackfail, iFSi)

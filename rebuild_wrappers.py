@@ -3,7 +3,7 @@
 import os
 import sys
 
-values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G']
+values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M']
 def splitchar(s):
 	try:
 		ret = [len(s), values.index(s[0])]
@@ -312,6 +312,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // 2 = struct of 2 uint
 // P = Vulkan struture pointer
 // G = a single GValue pointer
+// N = ... automatically sending 1 arg
+// M = ... automatically sending 2 args
 
 """
 	}
@@ -347,8 +349,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		
 		# First part: typedefs
 		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P        G
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*"]
+			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P        G        N      M
+			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
 			if len(values) != len(types):
 					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 			
@@ -357,8 +359,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P        G
-				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*"]
+				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P        G        N      M
+				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
 				if len(values) != len(types):
 						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
 				
@@ -393,12 +395,14 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			"(void*)(R_ESP + {p}), ",                 # V
 			"of_convert(*(int32_t*)(R_ESP + {p})), ", # O
 			"io_convert(*(void**)(R_ESP + {p})), ",   # S
-			"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	#2
+			"(_2uint_struct_t){{*(uintptr_t*)(R_ESP + {p}),*(uintptr_t*)(R_ESP + {p} + 4)}}, ",	# 2
 			"arg{p}, ",                               # P
 			"&arg{p}, ",                              # G
+			"*(void**)(R_ESP + {p}), ",				  # N
+			"*(void**)(R_ESP + {p}),*(void**)(R_ESP + {p} + 4), ",	# M
 		]
-		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P  G
-		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8, 4, 4]
+		#         E  e  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  V  O  S  2  P  G  N, M
+		deltas = [0, 0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 0, 4, 4, 8, 4, 4, 0, 0]
 		vals = [
 			"\n#error Invalid return type: emulator\n",                     # E
 			"\n#error Invalid return type: &emulator\n",                    # e
@@ -424,6 +428,8 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			"\n#error Invalid return type: _2uint_struct\n",                # 2
 			"\n#error Invalid return type: Vulkan Struct\n",                # P
 			"\n#error Invalid return type: GValue Pointer\n",               # G
+			"\n#error Invalid return type: ... with 1 arg\n",               # N
+			"\n#error Invalid return type: ... with 2 args\n",              # M
 		]
 		# Asserts
 		if len(values) != len(arg):
