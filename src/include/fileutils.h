@@ -16,7 +16,7 @@ char* ResolveFile(const char* filename, path_collection_t* paths);
 // 1: if file is an x86 elf, 0: if not (or not found)
 int FileIsX86ELF(const char* filename);
 
-#ifdef RPI
+#if defined(RPI) || defined(RK3399)
 void sanitize_mojosetup_gtk_background();
 #endif
 
