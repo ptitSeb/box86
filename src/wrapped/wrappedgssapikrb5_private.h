@@ -157,7 +157,7 @@ GO(gss_verify_mic, uFppppu)
 //GO(gss_verify_mic_iov, 
 GO(gss_wrap, uFppiuppp)
 //GO(gss_wrap_aead, 
-//GO(gss_wrap_iov, 
+GO(gss_wrap_iov, iFppiuppi)
 //GO(gss_wrap_iov_length, 
 //GO(gss_wrap_size_limit, 
 //DATAB(krb5_gss_dbg_client_expcreds, 
