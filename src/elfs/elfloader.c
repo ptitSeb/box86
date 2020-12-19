@@ -264,13 +264,16 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
                     printf_log(LOG_NONE, "Fail to read PT_LOAD part #%d (size=%d)\n", i, e->p_filesz);
                     return 1;
                 }
+            }
 #ifdef DYNAREC
-                if(e->p_flags & PF_X) {
-                    dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
-                    addDBFromAddressRange(context, (uintptr_t)dest, e->p_memsz, 0);
-                }
+            if(e->p_flags & PF_X) {
+                dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
+                addDBFromAddressRange(context, (uintptr_t)dest, e->p_memsz, 0);
+                updateProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
+            } else
+                updateProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE);
 #endif
-            } 
+
             // zero'd difference between filesz and memsz
             /*if(e->p_filesz != e->p_memsz)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);*/    //block is already 0'd at creation

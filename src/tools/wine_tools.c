@@ -93,7 +93,7 @@ void* get_wine_prereserve()
 void dynarec_wine_prereserve()
 {
     #if 0
-    // disable for now, as it brack some installer
+    // disable for now, as it break some installer
     if(!wine_preloaded)
         wine_prereserve(NULL);
     // don't reserve the initial arbritrary block as "with linker", it's not true

@@ -10,6 +10,9 @@
 #include <stdarg.h>
 #include <ucontext.h>
 #include <setjmp.h>
+#ifdef DYNAREC
+#include <sys/mman.h>
+#endif
 
 #include "box86context.h"
 #include "debug.h"
@@ -595,7 +598,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
-    if(sig==SIGSEGV && addr && info->si_code == SEGV_ACCERR && hasDBFromAddress((uintptr_t)addr)) {
+    if (sig==SIGSEGV && addr 
+     && info->si_code == SEGV_ACCERR 
+     && hasDBFromAddress((uintptr_t)addr) 
+     && (my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_WRITE)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;

@@ -63,6 +63,7 @@ typedef struct base_segment_s {
 typedef struct box86context_s {
 #ifdef DYNAREC
     dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
+    uint32_t*           dynprot;    // protection flags by 4K block
     int                 trace_dynarec;
     pthread_mutex_t     mutex_dyndump;
     pthread_mutex_t     mutex_blocks;
@@ -221,6 +222,8 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
 
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size);
+
+void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 #endif
 
 // defined in fact in threads.c

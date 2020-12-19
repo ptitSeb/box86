@@ -324,25 +324,34 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
     }
 }
 
+void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        my_context->dynprot[i] = prot;
+    }
+}
 // Remove the Write flag from an adress range, so DB can be executed
 // no log, as it can be executed inside a signal handler
 void protectDB(uintptr_t addr, uintptr_t size)
 {
-    uintptr_t start = (addr)&~(box86_pagesize-1);
-    uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
-    // should get "end" according to last block inside the window
-    mprotect((void*)start, end-start, PROT_READ|PROT_EXEC);
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]&~PROT_WRITE);
+    }
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
 void unprotectDB(uintptr_t addr, uintptr_t size)
 {
-    uintptr_t start = (addr)&~(box86_pagesize-1);
-    uintptr_t end = (addr+size+(box86_pagesize-1))&~(box86_pagesize-1);
-    // should get "end" according to last block inside the window
-    mprotect((void*)start, end-start, PROT_READ|PROT_WRITE|PROT_EXEC);
-    cleanDBFromAddressRange(my_context, start, end-start, 0);
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]);
+    }
 }
 
 #endif
@@ -421,6 +430,7 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
     context->dynmap = (dynablocklist_t**)calloc(DYNAMAP_SIZE, sizeof(dynablocklist_t*));
+    context->dynprot = (uint32_t*)calloc(DYNAMAP_SIZE, sizeof(uint32_t));
 #endif
 
     context->maplib = NewLibrarian(context, 1);
@@ -590,6 +600,8 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_dyndump);
     free(ctx->dynmap);
     ctx->dynmap = NULL;
+    free(ctx->dynprot);
+    ctx->dynprot = NULL;
 #endif
 
     free_neededlib(&ctx->neededlibs);
