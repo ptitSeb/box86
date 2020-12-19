@@ -989,6 +989,19 @@ void RunFS(x86emu_t *emu)
             --ip;   // so ignore prefix and continue
             break;
 
+        case 0x66:
+            opcode = F8;
+            switch(opcode) {
+                case 0x8B:                              /* MOV Gw,FS:Ew */
+                    nextop = F8;
+                    GET_EW_OFFS(tlsdata);
+                    GW.word[0] = EW->word[0];
+                    break;
+                default:
+                    ip-=2;
+                    UnimpOpcode(emu);
+            }
+            break;
         case 0x67:
             opcode = F8;
             switch(opcode) {

@@ -146,5 +146,6 @@
 
 // Alias
 #define GET_EW      GET_ED
+#define GET_EW_OFFS GET_ED_OFFS
 #define EW          ED
 #define GW          GD
