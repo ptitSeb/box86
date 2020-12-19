@@ -167,6 +167,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
         return 0;
     }
     mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    updateProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     my_context->mmaplist[i].block = p;
     // setup marks
@@ -236,6 +237,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        updateProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         kh_dynablocks_t *blocks = my_context->dblist_oversized;
         if(!blocks) {
             blocks = my_context->dblist_oversized = kh_init(dynablocks);
