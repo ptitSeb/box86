@@ -41,6 +41,11 @@
         if(emu->quit) goto fini;
         STEP
         NEXT;
+
+    _66_0x1F:                      /* POP DS */
+        emu->segs[_DS] = Pop16(emu);    // no check, no use....
+        emu->segs_serial[_DS] = 0;
+        NEXT;
         
     _66_0x26:                      /* ES: */
         // ignored
