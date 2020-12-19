@@ -193,7 +193,10 @@ void Run660F(x86emu_t *emu)
     _6f_0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
         GET_ED;
-        *(uint64_t*)ED = GX.q[0];
+        if((uintptr_t)ED & 7)
+            memcpy(ED, &GX.q[0], 8);
+        else
+            *(uint64_t*)ED = GX.q[0];
         NEXT;
     _6f_0x14:                      /* UNPCKLPD Gx, Ex */
         nextop = F8;
