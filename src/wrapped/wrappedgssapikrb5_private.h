@@ -155,7 +155,7 @@ GO(gss_unwrap_iov, uFpppppi)
 //GO(gss_verify, 
 GO(gss_verify_mic, uFppppu)
 //GO(gss_verify_mic_iov, 
-//GO(gss_wrap, 
+GO(gss_wrap, uFppiuppp)
 //GO(gss_wrap_aead, 
 //GO(gss_wrap_iov, 
 //GO(gss_wrap_iov_length, 
