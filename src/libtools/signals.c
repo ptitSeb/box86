@@ -520,7 +520,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
         } else {
             sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
-            //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a write it's 0x0004. For in int 2d it could 0x2D01 for example
+            //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
         }
     } else if(sig==SIGFPE)
@@ -608,7 +608,6 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #ifdef DYNAREC
     if (sig==SIGSEGV && addr 
      && info->si_code == SEGV_ACCERR 
-     && hasDBFromAddress((uintptr_t)addr) 
      && (my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
