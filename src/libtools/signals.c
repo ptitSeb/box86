@@ -512,13 +512,21 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 
-            (info->si_code == SEGV_ACCERR)?((abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)?12:13):14;    // how to differenciate between a STACKFLT and a PAGEFAULT?
+        if(info->si_code==SEGV_ACCERR && !((my_context->dynprot[((uintptr_t)info->si_addr)>>DYNAMAP_SHIFT]&PROT_WRITE))) {
+            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;
+            if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
+                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
+            else
+                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
+        } else {
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a write it's 0x0004. For in int 2d it could 0x2D01 for example
+            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
+        }
     } else if(sig==SIGFPE)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
-
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
 
@@ -617,7 +625,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside a dynablock with linker\n", addr, pc);            
             }
         }
-        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory\n", addr, pc);
+        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]);
         // access error
         unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // done
@@ -677,9 +685,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             }
         }
 #ifdef DYNAREC
-        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d), db=%p(%p:%p/%p:%p/%s)", 
+        printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
-            db, db?db->block:0, db?(db->block+db->size):0, db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
+            my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT], db, db?db->block:0, db?(db->block+db->size):0, 
+            db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
         printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
