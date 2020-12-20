@@ -651,7 +651,7 @@ void RunLock(x86emu_t *emu)
 
 void RunLock66(x86emu_t *emu)
 {
-    uintptr_t ip = R_EIP+1;
+    uintptr_t ip = R_EIP+2;
     uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
