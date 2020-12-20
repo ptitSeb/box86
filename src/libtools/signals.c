@@ -512,7 +512,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        if(info->si_code==SEGV_ACCERR && !((my_context->dynprot[((uintptr_t)info->si_addr)>>DYNAMAP_SHIFT]&PROT_WRITE))) {
+        if(info->si_code==SEGV_ACCERR && !((my_context->memprot[((uintptr_t)info->si_addr)>>DYNAMAP_SHIFT]&PROT_WRITE))) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;
             if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
@@ -608,7 +608,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #ifdef DYNAREC
     if (sig==SIGSEGV && addr 
      && info->si_code == SEGV_ACCERR 
-     && (my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_DYNAREC)) {
+     && (my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;
@@ -624,7 +624,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside a dynablock with linker\n", addr, pc);            
             }
         }
-        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]);
+        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]);
         // access error
         unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // done
@@ -687,7 +687,7 @@ exit(-1);
 #ifdef DYNAREC
         printf_log(LOG_NONE, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
-            my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT], db, db?db->block:0, db?(db->block+db->size):0, 
+            my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT], db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else

@@ -326,14 +326,6 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
     }
 }
 
-void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
-{
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        my_context->dynprot[i] = prot;
-    }
-}
 // Remove the Write flag from an adress range, so DB can be executed
 // no log, as it can be executed inside a signal handler
 void protectDB(uintptr_t addr, uintptr_t size)
@@ -341,10 +333,10 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        if(!my_context->dynprot[i])
-            my_context->dynprot[i] = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]&~PROT_WRITE);
-        my_context->dynprot[i] |= PROT_DYNAREC;
+        if(!my_context->memprot[i])
+            my_context->memprot[i] = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->memprot[i]&~PROT_WRITE);
+        my_context->memprot[i] |= PROT_DYNAREC;
     }
 }
 
@@ -355,12 +347,21 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        my_context->dynprot[i] &= ~PROT_DYNAREC;
-        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]);
+        my_context->memprot[i] &= ~PROT_DYNAREC;
+        mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->memprot[i]);
     }
 }
 
 #endif
+
+void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        my_context->memprot[i] = prot;
+    }
+}
 
 EXPORTDYN
 void initAllHelpers(box86context_t* context)
@@ -436,8 +437,8 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_blocks, NULL);
     pthread_mutex_init(&context->mutex_mmap, NULL);
     context->dynmap = (dynablocklist_t**)calloc(DYNAMAP_SIZE, sizeof(dynablocklist_t*));
-    context->dynprot = (uint32_t*)calloc(DYNAMAP_SIZE, sizeof(uint32_t));
 #endif
+    context->memprot = (uint32_t*)calloc(DYNAMAP_SIZE, sizeof(uint32_t));
 
     context->maplib = NewLibrarian(context, 1);
     context->local_maplib = NewLibrarian(context, 1);
@@ -606,9 +607,9 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_dyndump);
     free(ctx->dynmap);
     ctx->dynmap = NULL;
-    free(ctx->dynprot);
-    ctx->dynprot = NULL;
 #endif
+    free(ctx->memprot);
+    ctx->memprot = NULL;
 
     free_neededlib(&ctx->neededlibs);
 

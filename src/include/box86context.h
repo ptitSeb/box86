@@ -63,7 +63,6 @@ typedef struct base_segment_s {
 typedef struct box86context_s {
 #ifdef DYNAREC
     dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
-    uint32_t*           dynprot;    // protection flags by 4K block
     int                 trace_dynarec;
     pthread_mutex_t     mutex_dyndump;
     pthread_mutex_t     mutex_blocks;
@@ -72,6 +71,7 @@ typedef struct box86context_s {
     int                 mmapsize;
     kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 #endif
+    uint32_t*           memprot;    // protection flags by 4K block
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 
@@ -225,8 +225,8 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size);
 
-void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 #endif
+void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 
 // defined in fact in threads.c
 void thread_set_emu(x86emu_t* emu);

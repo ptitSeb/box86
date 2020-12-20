@@ -2228,12 +2228,13 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             else
                 cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
-        updateProtection((uintptr_t)ret, length, 0);
     } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
         addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
     #endif
+    if(ret!=(void*)-1)
+        updateProtection((uintptr_t)ret, length, 0);
     return ret;
 }
 
@@ -2254,12 +2255,13 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             else
                 cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
         }
-        updateProtection((uintptr_t)ret, length, prot);
     } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
         addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
     }
     #endif
+    if(ret!=(void*)-1)
+        updateProtection((uintptr_t)ret, length, prot);
     return ret;
 }
 
@@ -2269,9 +2271,9 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     #ifdef DYNAREC
     if(box86_dynarec) {
         cleanDBFromAddressRange(my_context, (uintptr_t)addr, length, 1);
-        updateProtection((uintptr_t)addr, length, 0);
     }
     #endif
+    updateProtection((uintptr_t)addr, length, 0);
     return munmap(addr, length);
 }
 
@@ -2285,9 +2287,10 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
             addDBFromAddressRange(my_context, (uintptr_t)addr, len, 1);
         else
             cleanDBFromAddressRange(my_context, (uintptr_t)addr, len, 0);
-        updateProtection((uintptr_t)addr, len, prot);
     }
     #endif
+    if(!ret)
+        updateProtection((uintptr_t)addr, len, prot);
     return ret;
 }
 
