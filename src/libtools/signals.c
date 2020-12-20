@@ -10,9 +10,7 @@
 #include <stdarg.h>
 #include <ucontext.h>
 #include <setjmp.h>
-#ifdef DYNAREC
 #include <sys/mman.h>
-#endif
 
 #include "box86context.h"
 #include "debug.h"
