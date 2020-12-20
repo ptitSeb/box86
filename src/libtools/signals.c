@@ -637,6 +637,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
         printf_log(LOG_NONE, "%04d|Double %s!\n", GetTID(), signame);
+exit(-1);
     } else {
 #ifdef DYNAREC
         dynablock_t* db = FindDynablockFromNativeAddress(pc);
@@ -698,7 +699,11 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         else if(sig==SIGBUS && db && x86pc) {
             printf_log(LOG_NONE, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x86pc)[0], ((uint8_t*)x86pc)[1], ((uint8_t*)x86pc)[2], ((uint8_t*)x86pc)[3], ((uint8_t*)x86pc)[4], ((uint8_t*)x86pc)[5], ((uint8_t*)x86pc)[6], ((uint8_t*)x86pc)[7]);
             emu_jmpbuf_t* ejb = GetJmpBuf();
-            if(ejb->jmpbuf_ok) {
+            uint8_t opcode = *(uint8_t*)(x86pc);
+            if(ejb->jmpbuf_ok && 
+                (opcode==0xFF || opcode==0xC3 || opcode==0xC2 || opcode==0xE8 
+                || opcode==0x06 || opcode==0x07 || opcode==0x0E || opcode==0x16 || opcode==0x17 || opcode==0x1E || opcode==0x1F
+                || (opcode>=0x50 && opcode<=0x62) || opcode==0x68 || opcode==0x6A)) {
                 int created = 1;
                 dynablock_t *realdb = AddNewDynablock(my_context->dynmap[x86pc>>DYNAMAP_SHIFT], x86pc, &created);
                 if(realdb) {
