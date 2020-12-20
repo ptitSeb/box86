@@ -206,6 +206,9 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
                 return 1;
             }
+            #ifdef DYNAREC
+            updateProtection((uintptr_t)p, head->multiblock_size[i], PROT_READ | PROT_WRITE | PROT_EXEC);
+            #endif
             head->multiblock[i] = p;
             if(p<(void*)head->memory)
                 head->memory = (char*)p;
@@ -221,6 +224,9 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
             return 1;
         }
+        #ifdef DYNAREC
+        updateProtection((uintptr_t)p, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
+        #endif
         head->memory = p;
         memset(p, 0, head->memsz);
         head->delta = (intptr_t)p - (intptr_t)head->vaddr;
@@ -269,9 +275,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             if(e->p_flags & PF_X) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
                 addDBFromAddressRange(context, (uintptr_t)dest, e->p_memsz, 0);
-                updateProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
-            } else
-                updateProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE);
+            }
 #endif
 
             // zero'd difference between filesz and memsz
