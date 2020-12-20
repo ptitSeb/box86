@@ -344,6 +344,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
         if(!my_context->dynprot[i])
             my_context->dynprot[i] = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
         mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]&~PROT_WRITE);
+        my_context->dynprot[i] |= PROT_DYNAREC;
     }
 }
 
@@ -355,6 +356,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->dynprot[i]);
+        my_context->dynprot[i] &= ~PROT_DYNAREC;
     }
 }
 

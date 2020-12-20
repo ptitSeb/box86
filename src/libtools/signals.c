@@ -609,7 +609,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     if (sig==SIGSEGV && addr 
      && info->si_code == SEGV_ACCERR 
      && hasDBFromAddress((uintptr_t)addr) 
-     && (my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_WRITE)) {
+     && (my_context->dynprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;

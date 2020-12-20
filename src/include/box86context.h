@@ -214,6 +214,8 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head);
 int AddTLSPartition(box86context_t* context, int tlssize);
 
 #ifdef DYNAREC
+// custom protection flag to mark Page that are Write protected for Dynarec purpose
+#define PROT_DYNAREC 0x10000
 uintptr_t AllocDynarecMap(dynablock_t* db, int size);
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
 
