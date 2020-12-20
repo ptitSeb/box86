@@ -1164,8 +1164,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {
                 POP(xESP, (1<<(xEAX+(nextop&7))));
             } else {
+                POP(xESP, (1<<x2)); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
-                POP(xESP, (1<<x2));
                 STR_IMM9(x2, ed, fixedaddress);
             }
             break;

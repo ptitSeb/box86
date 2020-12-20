@@ -702,8 +702,9 @@ _trace:
             NEXT;
         _0x8F:                      /* POP Ed */
             nextop = F8;
+            tmp32u = Pop(emu);  // this order allows handling POP [ESP] and variant
             GET_ED;
-            ED->dword[0] = Pop(emu);
+            ED->dword[0] = tmp32u;
             NEXT;
         _0x90:                      /* NOP */
             NEXT;

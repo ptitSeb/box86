@@ -703,7 +703,7 @@ exit(-1);
             if(ejb->jmpbuf_ok && 
                 (opcode==0xFF || opcode==0xC3 || opcode==0xC2 || opcode==0xE8 
                 || opcode==0x06 || opcode==0x07 || opcode==0x0E || opcode==0x16 || opcode==0x17 || opcode==0x1E || opcode==0x1F
-                || (opcode>=0x50 && opcode<=0x62) || opcode==0x68 || opcode==0x6A)) {
+                || (opcode>=0x50 && opcode<=0x62) || opcode==0x68 || opcode==0x6A || opcode==0x8F || opcode==0x9C || opcode==0x9D)) {
                 int created = 1;
                 dynablock_t *realdb = AddNewDynablock(my_context->dynmap[x86pc>>DYNAMAP_SHIFT], x86pc, &created);
                 if(realdb) {
