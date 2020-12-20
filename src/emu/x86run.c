@@ -1434,7 +1434,8 @@ _trace:
             switch((nextop>>3)&7) {
                 case 0: 
                 case 1:                 /* TEST Eb,Ib */
-                    test8(emu, EB->byte[0], F8);
+                    tmp8u = F8;
+                    test8(emu, EB->byte[0], tmp8u);
                     break;
                 case 2:                 /* NOT Eb */
                     EB->byte[0] = not8(emu, EB->byte[0]);
@@ -1462,7 +1463,8 @@ _trace:
             switch((nextop>>3)&7) {
                 case 0: 
                 case 1:                 /* TEST Ed,Id */
-                    test32(emu, ED->dword[0], F32);
+                    tmp32u = F32;
+                    test32(emu, ED->dword[0], tmp32u);
                     break;
                 case 2:                 /* NOT Ed */
                     ED->dword[0] = not32(emu, ED->dword[0]);
