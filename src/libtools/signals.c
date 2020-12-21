@@ -581,14 +581,6 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
         new_ss->ss_flags = 0;
 }
 
-#ifdef DYNAREC
-static int hasDBFromAddress(uintptr_t addr)
-{
-    int idx = (addr>>DYNAMAP_SHIFT);
-    return my_context->dynmap[idx]?1:0;
-}
-#endif
-
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
@@ -663,6 +655,38 @@ exit(-1);
         elfheader_t* elf = FindElfAddress(my_context, x86pc);
         if(elf)
             elfname = ElfName(elf);
+#ifdef DYNAREC
+        if(sig==SIGBUS && db && x86pc) {
+            emu_jmpbuf_t* ejb = GetJmpBuf();
+            uint8_t opcode = *(uint8_t*)(x86pc);
+            if(ejb->jmpbuf_ok && 
+                (opcode==0xFF || opcode==0xC3 || opcode==0xC2 || opcode==0xE8 
+                || opcode==0x06 || opcode==0x07 || opcode==0x0E || opcode==0x16 || opcode==0x17 || opcode==0x1E || opcode==0x1F
+                || (opcode>=0x50 && opcode<=0x62) || opcode==0x68 || opcode==0x6A || opcode==0x8F || opcode==0x9C || opcode==0x9D)) {
+                int created = 1;
+                dynablock_t *realdb = AddNewDynablock(my_context->dynmap[x86pc>>DYNAMAP_SHIFT], x86pc, &created);
+                if(realdb) {
+                    #define GO(R, A)   ejb->emu->regs[_##R].dword[0]=p->uc_mcontext.A
+                    GO(AX, arm_r4);
+                    GO(CX, arm_r5);
+                    GO(DX, arm_r6);
+                    GO(DI, arm_fp);
+                    GO(SI, arm_r10);
+                    GO(BP, arm_r9);
+                    GO(SP, arm_r8);
+                    GO(BX, arm_r7);
+                    #undef GO
+                    ejb->emu->ip.dword[0]=x86pc;
+                    realdb->done = 0;   // will stay unused
+                    old_pc = 0;
+                    #undef GO
+                    printf_log(LOG_INFO, "%04d|%s @%p (%s) x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X ", GetTID(), signame, pc, name, ((uint8_t*)x86pc)[0], ((uint8_t*)x86pc)[1], ((uint8_t*)x86pc)[2], ((uint8_t*)x86pc)[3], ((uint8_t*)x86pc)[4], ((uint8_t*)x86pc)[5], ((uint8_t*)x86pc)[6], ((uint8_t*)x86pc)[7]);
+                    printf_log(LOG_INFO, "Invalidate block and Resuming with interpretor\n");
+                    longjmp(ejb->jmpbuf, 1);
+                }
+            }
+        }
+#endif
         if(jit_gdb) {
             pid_t pid = getpid();
             int v = fork(); // is this ok in a signal handler???
@@ -693,38 +717,8 @@ exit(-1);
 #endif
         if(sig==SIGILL)
             printf_log(LOG_NONE, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
-#ifdef DYNAREC
-        else if(sig==SIGBUS && db && x86pc) {
+        else if(sig==SIGBUS)
             printf_log(LOG_NONE, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x86pc)[0], ((uint8_t*)x86pc)[1], ((uint8_t*)x86pc)[2], ((uint8_t*)x86pc)[3], ((uint8_t*)x86pc)[4], ((uint8_t*)x86pc)[5], ((uint8_t*)x86pc)[6], ((uint8_t*)x86pc)[7]);
-            emu_jmpbuf_t* ejb = GetJmpBuf();
-            uint8_t opcode = *(uint8_t*)(x86pc);
-            if(ejb->jmpbuf_ok && 
-                (opcode==0xFF || opcode==0xC3 || opcode==0xC2 || opcode==0xE8 
-                || opcode==0x06 || opcode==0x07 || opcode==0x0E || opcode==0x16 || opcode==0x17 || opcode==0x1E || opcode==0x1F
-                || (opcode>=0x50 && opcode<=0x62) || opcode==0x68 || opcode==0x6A || opcode==0x8F || opcode==0x9C || opcode==0x9D)) {
-                int created = 1;
-                dynablock_t *realdb = AddNewDynablock(my_context->dynmap[x86pc>>DYNAMAP_SHIFT], x86pc, &created);
-                if(realdb) {
-                    #define GO(R, A)   ejb->emu->regs[_##R].dword[0]=p->uc_mcontext.A
-                    GO(AX, arm_r4);
-                    GO(CX, arm_r5);
-                    GO(DX, arm_r6);
-                    GO(DI, arm_fp);
-                    GO(SI, arm_r10);
-                    GO(BP, arm_r9);
-                    GO(SP, arm_r8);
-                    GO(BX, arm_r7);
-                    #undef GO
-                    ejb->emu->ip.dword[0]=x86pc;
-                    realdb->done = 0;   // will stay unused
-                    old_pc = 0;
-                    #undef GO
-                    printf_log(LOG_NONE, "Invalidate block and Resuming with interpretor\n");
-                    longjmp(ejb->jmpbuf, 1);
-                }
-            }
-        }
-#endif
         else
             printf_log(LOG_NONE, "\n");
     }
