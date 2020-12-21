@@ -1334,6 +1334,8 @@ EXPORT void my_pa_stream_set_read_callback(x86emu_t* emu, void* stream, void* cb
 
 EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nbytes, void* cb, int64_t offset, int seek)
 {
+    if(!emu->context->pulse)
+        return 0;
     pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
     if(!my)
         return 0;
