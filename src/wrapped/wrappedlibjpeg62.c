@@ -178,7 +178,7 @@ typedef struct jpeg62_destination_mgr_s {
   GO(uint32_t, image_height)            \
   GO(int, input_components)             \
   GO(int, in_color_space)               \
-  GO2(double, input_gamma)              \
+  GO2(double, input_gamma, uint32_t, 2) \
                                         \
   GO(int, data_precision)               \
   GO(int, num_components)               \
@@ -239,14 +239,16 @@ typedef struct jpeg62_destination_mgr_s {
   GO(int, script_space_size)            \
 
 #define GO(A, B)        A B;
-#define GO2(A, B)       A B;
+#define GO2(A, B, C, D) A B;
 #define GOM(A, B)       A B;
 #define GOA(A, B, C)    A B[C];
 typedef struct j62_compress_ptr_s
 {
     COMPRESS_STRUCT
 } j62_compress_ptr_t;
-typedef struct __attribute__((packed)) i386_compress_ptr_s
+#undef GO2
+#define GO2(A, B, C, D) C B[D];
+typedef struct i386_compress_ptr_s
 {
     COMPRESS_STRUCT
 } i386_compress_ptr_t;
@@ -1248,7 +1250,7 @@ static void unwrapCommonStruct(jpeg62_common_struct_t* s, int type)
 static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s)
 {
     #define GO(A, B)        d->B = s->B;
-    #define GO2(A, B)       memcpy(&d->B, &s->B, sizeof(A));
+    #define GO2(A, B, c, D) memcpy(&d->B, &s->B, sizeof(A));
     #define GOM(A, B)       d->B = s->B;
     #define GOA(A, B, C)    memcpy(d->B, s->B, C*sizeof(A));
     COMPRESS_STRUCT
@@ -1418,28 +1420,28 @@ EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo
 
 EXPORT void my62_jpeg_finish_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_finish_compress(cinfo));
+    WRAPC(void, my->jpeg_finish_compress(&tmp));
 }
 
 EXPORT int my62_jpeg_resync_to_restart(x86emu_t* emu, i386_compress_ptr_t* cinfo, int desired)
 {
-    WRAPC(int, int ret = my->jpeg_resync_to_restart(cinfo, desired));
+    WRAPC(int, int ret = my->jpeg_resync_to_restart(&tmp, desired));
     return ret;
 }
 
 EXPORT void my62_jpeg_set_defaults(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_set_defaults(cinfo));
+    WRAPC(void, my->jpeg_set_defaults(&tmp));
 }
 
 EXPORT void my62_jpeg_start_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int b)
 {
-    WRAPC(void, my->jpeg_start_compress(cinfo, b));
+    WRAPC(void, my->jpeg_start_compress(&tmp, b));
 }
 
 EXPORT uint32_t my62_jpeg_write_scanlines(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* scanlines, uint32_t maxlines)
 {
-    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(cinfo, scanlines, maxlines));
+    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(&tmp, scanlines, maxlines));
     return ret;
 }
 
