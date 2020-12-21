@@ -107,8 +107,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 DEFAULT;
                 return addr;
             }
-            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-            VLDR_64(v0, ed, fixedaddress);
+            parity = getedparity(dyn, ninst, addr, nextop, 3);
+            if(parity) {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                VLDR_64(v0, ed, fixedaddress);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0);
+                LDR_IMM9(x2, ed, fixedaddress);
+                LDR_IMM9(x3, ed, fixedaddress+4);
+                VMOVtoV_D(v0, x2, x3);
+            }
             break;
         case 0x13:
             INST_NAME("MOVLPD Eq, Gx");

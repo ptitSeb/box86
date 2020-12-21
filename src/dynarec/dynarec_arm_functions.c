@@ -289,7 +289,7 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
                     return (tmp&tested)?0:1;
                 }
             } else {
-                if(sib_reg==4)
+                if(sib_reg==4 && parity<3)
                     return 0;   // simple [reg]
                 // don't try [reg1 + reg2<<N], unless reg1 is ESP
                 return ((sib&0x7)==4 && (sib>>6)>=parity)?1:0;
