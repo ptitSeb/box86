@@ -90,7 +90,7 @@ GO(jpeg_input_complete, iFp)
 //GO(jpeg_make_c_derived_tbl
 //GO(jpeg_make_d_derived_tbl
 //GO(jpeg_mem_available
-GO(jpeg_mem_dest, vFppp)
+GOM(jpeg_mem_dest, vFEppp)
 //GO(jpeg_mem_init
 GO(jpeg_mem_src, vFppu)
 //GO(jpeg_mem_term
@@ -108,7 +108,7 @@ GO(jpeg_set_colorspace, vFpi)
 GOM(jpeg_set_defaults, vFEp)
 GO(jpeg_set_linear_quality, vFpii)
 GOM(jpeg_set_marker_processor, vFEpip)
-GO(jpeg_set_quality, vFpii)
+GOM(jpeg_set_quality, vFEpii)
 GOM(jpeg_simd_cpu_support, iFv)
 GO(jpeg_simple_progression, vFp)
 GO(jpeg_skip_scanlines, uFpu)
@@ -121,7 +121,7 @@ GO(jpeg_stdio_src, vFpp)
 DATA(jpeg_std_message_table, 4)
 GO(jpeg_suppress_tables, vFpi)
 GO(jpeg_write_coefficients, vFpp)
-GO(jpeg_write_marker, vFpipu)
+GOM(jpeg_write_marker, vFEpipu)
 GO(jpeg_write_m_byte, vFpi)
 GO(jpeg_write_m_header, vFpiu)
 GO(jpeg_write_raw_data, uFppu)

@@ -31,9 +31,12 @@ typedef void*   (*pFp_t)    (void*);
 typedef int     (*iFp_t)    (void*);
 typedef int     (*iFpi_t)   (void*, int);
 typedef void    (*vFpi_t)   (void*, int);
+typedef void    (*vFpii_t)  (void*, int, int);
 typedef void    (*vFpip_t)  (void*, int, void*);
+typedef void    (*vFppp_t)  (void*, void*, void*);
 typedef void    (*vFpiL_t)  (void*, int, unsigned long);
 typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
+typedef void    (*vFpipu_t) (void*, int, void*, uint32_t);
 
 #define SUPER() \
     GO(jpeg_CreateDecompress, vFpiL_t)  \
@@ -51,6 +54,9 @@ typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
     GO(jpeg_set_defaults, vFp_t)        \
     GO(jpeg_start_compress, vFpi_t)     \
     GO(jpeg_write_scanlines, uFppu_t)   \
+    GO(jpeg_set_quality, vFpii_t)       \
+    GO(jpeg_mem_dest, vFppp_t)          \
+    GO(jpeg_write_marker, vFpipu_t)     \
 
 typedef struct jpeg62_my_s {
     // functions
@@ -1386,16 +1392,16 @@ EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, 
     jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
-    unwrapErrorMgr(cinfo->err);
+    j62_compress_ptr_t tmp = {0};
+    tmp.err = cinfo->err;
+    unwrapErrorMgr(tmp.err);
     if(setjmp(&jmpbuf)) {
-        wrapErrorMgr(cinfo->err);
         is_jmpbuf = 0;
         return;
     }
     if(structsize!=sizeof(i386_compress_ptr_t)) {
         printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(i386_compress_ptr_t));
     }
-    j62_compress_ptr_t tmp = {0};
     my->jpeg_CreateCompress(&tmp, version, sizeof(tmp));
     is_jmpbuf = 0;
     wrapCompressStruct(cinfo, &tmp);
@@ -1443,6 +1449,21 @@ EXPORT uint32_t my62_jpeg_write_scanlines(x86emu_t* emu, i386_compress_ptr_t* ci
 {
     WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(&tmp, scanlines, maxlines));
     return ret;
+}
+
+EXPORT void my62_jpeg_set_quality(x86emu_t* emu, i386_compress_ptr_t* cinfo, int quality, int force)
+{
+    WRAPC(void, my->jpeg_set_quality(&tmp, quality, force));
+}
+
+EXPORT void my62_jpeg_mem_dest(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* a, void* b)
+{
+    WRAPC(void, my->jpeg_mem_dest(&tmp, a, b));
+}
+
+EXPORT void my62_jpeg_write_marker(x86emu_t* emu, i386_compress_ptr_t* cinfo, int a, void* b, uint32_t c)
+{
+    WRAPC(void, my->jpeg_write_marker(&tmp, a, b, c));
 }
 
 #undef WRAP

@@ -499,6 +499,7 @@
 #() pFSpp
 #() vFEiip
 #() vFEipV
+#() vFEpii
 #() vFEpiL
 #() vFEpip
 #() vFEpuu
@@ -810,6 +811,7 @@
 #() pFpppV
 #() pFSppi
 #() vFEippp
+#() vFEpipu
 #() vFEpuup
 #() vFEpupp
 #() vFEpLLp
