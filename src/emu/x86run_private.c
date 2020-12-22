@@ -807,7 +807,6 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             my_context->trace_tid = tid;
         }
 #endif
-trace_end = 0;
         printf_log(LOG_NONE, "%s", DumpCPURegs(emu, ip));
         if(PK(0)==0xcc && PK(1)=='S' && PK(2)=='C') {
             uint32_t a = *(uint32_t*)(ip+3);
