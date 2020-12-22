@@ -266,11 +266,11 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
         dyn->fpuused[i]=0;
 }
 
+#define F8      *(uint8_t*)(addr++)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity)
 {
-#define F8      *(uint8_t*)(addr++)
-#define F32     *(uint32_t*)(addr+=4, addr-4)
 
     uint32_t tested = (1<<parity)-1;
     if((nextop&0xC0)==0xC0)
@@ -303,9 +303,34 @@ int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, i
     } else {
         return 0; //Form [reg1 + reg2<<N + XXXXXX]
     }
+}
+
+// Do the GETED, but don't emit anything...
+uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop) 
+{
+    if(!(nextop&0xC0)) {
+        if((nextop&7)==4) {
+            uint8_t sib = F8;
+            if((sib&0x7)==5) {
+                addr+=4;
+            }
+        } else if((nextop&7)==5) {
+            addr+=4;
+        }
+    } else {
+        if((nextop&7)==4) {
+            ++addr;
+        }
+        if(nextop&0x80) {
+            addr+=4;
+        } else {
+            ++addr;
+        }
+    }
+    return addr;
+}
 #undef F8
 #undef F32
-}
 
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
 {
