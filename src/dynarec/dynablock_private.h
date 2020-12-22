@@ -31,7 +31,6 @@ typedef struct dynablock_s {
 typedef struct dynablocklist_s {
     uintptr_t           text;
     int                 textsz;
-    uintptr_t           base;
     int                 nolinker;    // in case this dynablock can disapear (also, block memory are allocated with a temporary scheme)
     dynablock_t**       direct;    // direct mapping (waste of space, so not always there)
 } dynablocklist_t;

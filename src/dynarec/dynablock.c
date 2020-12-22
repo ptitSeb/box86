@@ -38,14 +38,13 @@ uint32_t X31_hash_code(void* addr, int len)
 	return (uint32_t)h;
 }
 
-dynablocklist_t* NewDynablockList(uintptr_t base, uintptr_t text, int textsz, int nolinker, int direct)
+dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int nolinker, int direct)
 {
     if(!textsz) {
         printf_log(LOG_NONE, "Error, creating a NULL sized Dynablock\n");
         return NULL;
     }
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
-    ret->base = base;
     ret->text = text;
     ret->textsz = textsz;
     ret->nolinker = nolinker;

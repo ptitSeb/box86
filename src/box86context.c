@@ -291,7 +291,7 @@ void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t si
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!context->dynmap[i]) {
-            context->dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
+            context->dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
         }
     }
 }
