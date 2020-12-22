@@ -323,7 +323,7 @@ EXPORT int32_t my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
-    desired->callback = find_AudioCallback_Fct(desired->callback);
+    desired->callback = find_AudioCallback_Fct(fnc);
     int ret = my->SDL_OpenAudio(desired, (SDL2_AudioSpec*)o);
     if (ret!=0) {
         // error, clean the callback...
@@ -343,7 +343,7 @@ EXPORT int32_t my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t isca
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     // create a callback
     void *fnc = (void*)desired->callback;
-    desired->callback = find_AudioCallback_Fct(desired->callback);
+    desired->callback = find_AudioCallback_Fct(fnc);
     int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL2_AudioSpec*)o, allowed);
     if (ret<=0) {
         // error, clean the callback...
