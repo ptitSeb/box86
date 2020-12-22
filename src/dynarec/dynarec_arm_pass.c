@@ -75,11 +75,14 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
         if(!ok && !need_epilog && !dyn->insts) {   // check if need to continue
             uintptr_t next = get_closest_next(dyn, addr);
-            if(next && ((next-addr)<15) && is_nops(dyn, addr, next-addr)) {
+            if(next && (
+                  (((next-addr)<15) && is_nops(dyn, addr, next-addr)) 
+                ||(((next-addr)<30) && is_instructions(dyn, addr, next-addr)) ))
+            {
                 dynarec_log(LOG_DEBUG, "Extend block %p, %p -> %p (ninst=%d)\n", dyn, (void*)addr, (void*)next, ninst);
                 ok = 1;
-            } else if(next && (next-addr)<15) {
-                dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4));
+            } else if(next && (next-addr)<30) {
+                dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
             }
         }
         if(ok<0)  {ok = 0; need_epilog=1;}

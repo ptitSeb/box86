@@ -54,5 +54,6 @@ typedef struct dynarec_arm_s {
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
+int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

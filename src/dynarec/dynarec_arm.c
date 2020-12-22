@@ -19,6 +19,7 @@
 #include "dynablock_private.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
+#include "dynarec_arm_functions.h"
 #include "elfloader.h"
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
@@ -81,9 +82,9 @@ uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
     }
     return best;
 }
+#define PK(A) (*((uint8_t*)(addr+(A))))
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
 {
-    #define PK(A) (*((uint8_t*)(addr+(A))))
     if(!n)
         return 1;
     if(PK(0)==0x90)
@@ -109,7 +110,122 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
     if(n>7 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x84 && PK(3)==0x00 && PK(4)==0x00 && PK(5)==0x00 && PK(6)==0x00 && PK(7)==0x00)
         return is_nops(dyn, addr+8, n-8);
     return 0;
-    #undef PK
+}
+
+// return size of next instuciton, -1 is unknown
+// not all instrction are setup
+int next_instruction(dynarec_arm_t *dyn, uintptr_t addr)
+{
+    uint8_t opcode = PK(0);
+    uint8_t nextop;
+    switch (opcode) {
+        case 0x66:
+            opcode = PK(1);
+            switch(opcode) {
+                case 0x90:
+                    return 2;
+            }
+            break;
+        case 0x81:
+            nextop = PK(1);
+            return fakeed(dyn, addr+2, 0, nextop)-addr + 4;
+        case 0x83:
+            nextop = PK(1);
+            return fakeed(dyn, addr+2, 0, nextop)-addr + 1;
+        case 0x84:
+        case 0x85:
+        case 0x88:
+        case 0x89:
+        case 0x8A:
+        case 0x8B:
+        case 0x8C:
+        case 0x8D:
+        case 0x8E:
+        case 0x8F:
+            nextop = PK(1);
+            return fakeed(dyn, addr+2, 0, nextop)-addr;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+        case 0x98:
+        case 0x99:
+        case 0x9B:
+        case 0x9C:
+        case 0x9D:
+        case 0x9E:
+        case 0x9F:
+            return 1;
+        case 0xA0:
+        case 0xA1:
+        case 0xA2:
+        case 0xA3:
+            return 5;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            return 2;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            return 5;
+        case 0xFF:
+            nextop = PK(1);
+            switch((nextop>>3)&7) {
+                case 0: // INC Ed
+                case 1: //DEC Ed
+                case 2: // CALL Ed
+                case 4: // JMP Ed
+                case 6: // Push Ed
+                    return fakeed(dyn, addr+2, 0, nextop)-addr;
+            }
+            break;
+        default:
+            break;
+    }
+    return -1;
+}
+#undef PK
+
+int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n)
+{
+    int i = 0;
+    while(i<n) {
+        int j=next_instruction(dyn, addr+i);
+        if(j<=0) return 0;
+        i+=j;
+    }
+    return (i==n)?1:0;
 }
 
 uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
