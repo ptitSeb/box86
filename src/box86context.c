@@ -310,18 +310,10 @@ void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t 
             if(startaddr<startdb) startaddr = startdb;
             uintptr_t endaddr = addr + size - 1;
             if(endaddr>enddb) endaddr = enddb;
-            if(startaddr==startdb && endaddr==enddb) {
-                if(destroy) {
-                    context->dynmap[i] = NULL;
-                    FreeDynablockList(&dblist);
-                } else
-                    MarkDynablockList(&dblist);
-            } else
-                if(destroy)
-                    FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
-                else
-                    MarkRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
-
+            if(destroy)
+                FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
+            else
+                MarkRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
         }
     }
 }

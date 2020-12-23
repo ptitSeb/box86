@@ -175,6 +175,14 @@ uintptr_t EndDynablockList(dynablocklist_t* db)
         return db->text+db->textsz-1;
     return 0;
 }
+
+int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2, uintptr_t end2)
+{
+    if(start1 > end2 || start2 > end1)
+        return 0;
+    return 1;
+}
+
 void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
 {
     if(!dynablocks)
@@ -182,18 +190,20 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
     if(!dynablocks->nolinker)
         return;
     uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = startdb + dynablocks->textsz;
-    uintptr_t start = addr;
-    uintptr_t end = addr+size;
+    uintptr_t enddb = startdb + dynablocks->textsz -1;
+    int maxsz = dynablocks->maxsz;
+    uintptr_t start = addr - maxsz;
+    uintptr_t end = addr+size-1;
     if(start<startdb)
         start = startdb;
     if(end>enddb)
         end = enddb;
+    dynablock_t *db;
     if(end>startdb && start<enddb)
         for(uintptr_t i = start; i<end; ++i)
-            if(dynablocks->direct[i-startdb]) {
-                MarkDynablock(dynablocks->direct[i-startdb]);
-            }
+            if((db=dynablocks->direct[i-startdb]))
+                if(IntervalIntersects((uintptr_t)db->x86_addr, (uintptr_t)db->x86_addr+db->x86_size-1, addr, addr+size+1))
+                    MarkDynablock(db);
 }
 
 void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
@@ -256,8 +266,12 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
         return;
     if(!dynablocks->nolinker)
         return;
-    if(dynablocks->direct)
+    if(dynablocks->direct) {
         MarkDirectDynablock(dynablocks, addr, size);
+        // the blocks check before
+        for(int idx=(addr-dynablocks->maxsz)>>DYNAMAP_SHIFT; idx<addr>>DYNAMAP_SHIFT; ++idx)
+            MarkDirectDynablock(my_context->dynmap[idx], addr, size);
+    }
 }
 
 dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
@@ -373,6 +387,15 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     }
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
+    // check size
+    if(block) {
+        int blocksz = block->x86_size;
+        if(dynablocks->maxsz<blocksz)
+            for(int idx=(addr>>DYNAMAP_SHIFT); idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx)
+                if(my_context->dynmap[idx])
+                    if(my_context->dynmap[idx]->maxsz<blocksz)
+                        my_context->dynmap[idx]->maxsz = blocksz;
+    }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr-((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
 
