@@ -165,7 +165,8 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_markup_vprintf_escaped(fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_markup_vprintf_escaped(fmt, VARARGS);
     #else
     // other platform don't need that
     return my->g_markup_vprintf_escaped(fmt, b);
@@ -775,7 +776,8 @@ EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_markup_vprintf_escaped(fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_markup_vprintf_escaped(fmt, VARARGS);
     #else
     // other platform don't need that
     return my->g_markup_vprintf_escaped(fmt, b);
@@ -817,7 +819,8 @@ EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlignGVariantNew((const char*)fmt, b, emu->scratch);
-    uint32_t *aligned = emu->scratch;
+    PREPARE_VALIST;
+    uint32_t *aligned = VARARGS;
     return my->g_variant_new_parsed_va(fmt, &aligned);
     #else
     return my->g_variant_new_parsed_va(fmt, b);
@@ -835,7 +838,8 @@ EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_strdup_vprintf(fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_strdup_vprintf(fmt, VARARGS);
     #else
     return my->g_strdup_vprintf(fmt, b);
     #endif
@@ -846,7 +850,8 @@ EXPORT int my_g_vprintf(x86emu_t* emu, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_vprintf(fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_vprintf(fmt, VARARGS);
     #else
     return my->g_vprintf(fmt, b);
     #endif
@@ -857,7 +862,8 @@ EXPORT int my_g_vfprintf(x86emu_t* emu, void* F, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_vfprintf(F, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_vfprintf(F, fmt, VARARGS);
     #else
     return my->g_vfprintf(F, fmt, b);
     #endif
@@ -868,7 +874,8 @@ EXPORT int my_g_vsprintf(x86emu_t* emu, void* s, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_vsprintf(s, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_vsprintf(s, fmt, VARARGS);
     #else
     return my->g_vsprintf(s, fmt, b);
     #endif
@@ -879,7 +886,8 @@ EXPORT int my_g_vsnprintf(x86emu_t* emu, void* s, unsigned long n, void* fmt, vo
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_vsnprintf(s, n, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_vsnprintf(s, n, fmt, VARARGS);
     #else
     return my->g_vsnprintf(s, n, fmt, b);
     #endif
@@ -890,7 +898,8 @@ EXPORT int my_g_vasprintf(x86emu_t* emu, void* s, void* fmt, void* b)
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_vasprintf(s, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_vasprintf(s, fmt, VARARGS);
     #else
     return my->g_vasprintf(s, fmt, b);
     #endif
@@ -901,7 +910,8 @@ EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->g_printf_string_upper_bound(fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->g_printf_string_upper_bound(fmt, VARARGS);
     #else
     return my->g_printf_string_upper_bound(fmt, b);
     #endif
@@ -914,8 +924,9 @@ EXPORT void my_g_print(x86emu_t* emu, void* fmt, void* b)
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
@@ -931,8 +942,9 @@ EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
@@ -1222,7 +1234,8 @@ EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     myStackAlignGVariantNew(fmt, *b, emu->scratch);
-    uint32_t* aligned = emu->scratch;
+    PREPARE_VALIST;
+    uint32_t* aligned = VARARGS;
     return my->g_variant_new_va(fmt, endptr, &aligned);
 }
 

@@ -1,5 +1,20 @@
 #include <stdint.h>
 
+#define CREATE_SYSV_VALIST \
+  va_list sysv_varargs; \
+  sysv_varargs->gpr=8; \
+  sysv_varargs->fpr=8; \
+  sysv_varargs->overflow_arg_area=emu->scratch;
+
+#ifdef SYSV_VARARG
+#define VARARGS sysv_varargs
+#define PREPARE_VALIST CREATE_SYSV_VALIST
+#else
+#define VARARGS emu->scratch
+#define PREPARE_VALIST do {} while(0)
+#endif
+
+
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack);
 void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack);
 void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack);

@@ -591,6 +591,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = (void*)p->uc_mcontext.arm_pc;
 #elif defined __i386
     void * pc = (void*)p->uc_mcontext.gregs[REG_EIP];
+#elif defined PPC
+    void * pc = (void*)p->uc_mcontext.uc_regs->gregs[PT_NIP];
 #else
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
