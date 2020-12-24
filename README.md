@@ -102,7 +102,7 @@ A note about Wine
 ----
 
 Wine is now partly supported. Wine integreted program all runs, annd some windows program and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
-A not if you plan to use box86 with wine on Raspberry PI 3 or earlier: those model use a default OS that have a kernle with a 2/2 Split (meaning 2G of space for user program, and 2G of space for Kernel). This is not compatible with wine, that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find tutos on how to do that.
+A not if you plan to use box86 with wine on Raspberry PI 3 or earlier: those model use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for Kernel). This is not compatible with wine, that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find tutos on how to do that.
 
 ----
 
