@@ -1457,7 +1457,8 @@ EXPORT int my_pa_proplist_setf(x86emu_t* emu, void* p, void* key, void* fmt, voi
     char* format;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    f(&format, fmt, emu->scratch);
+    PREPARE_VALIST;
+    f(&format, fmt, VARARGS);
     #else
     f(&format, fmt, b);
     #endif
@@ -1480,6 +1481,7 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)format, b, emu->scratch);
+    PREPARE_VALIST;
     return my->pa_log_level_meta(level, file, line, func, format, emu->scratch);
     #else
     return my->pa_log_level_meta(level, file, line, func, format, V);

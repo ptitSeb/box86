@@ -598,8 +598,9 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dia
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
@@ -617,8 +618,9 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* d
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);

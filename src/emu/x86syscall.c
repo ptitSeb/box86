@@ -194,11 +194,20 @@ scwrap_t syscallwrap[] = {
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 196, __NR_lstat64, 2 }, // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
+#ifndef POWERPCLE
     { 199, __NR_getuid32, 0 },
     { 200, __NR_getgid32, 0 },
     { 201, __NR_geteuid32, 0 },
     { 202, __NR_getegid32, 0 },
     { 208, __NR_setresuid32, 3 },
+#else
+    // PowerPC uses the same syscalls for 32/64 bit processes.
+    { 199, __NR_getuid, 0 },
+    { 200, __NR_getgid, 0 },
+    { 201, __NR_geteuid, 0 },
+    { 202, __NR_getegid, 0 },
+    { 208, __NR_setresuid, 3 },
+#endif
     { 220, __NR_getdents64, 3 },
     //{ 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },

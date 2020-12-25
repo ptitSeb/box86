@@ -62,8 +62,9 @@ EXPORT int my6_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* f
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
@@ -80,7 +81,8 @@ EXPORT int my6_printw(x86emu_t* emu, void* fmt, void* b)
 
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->vwprintw(my->stdscr, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->vwprintw(my->stdscr, fmt, VARARGS);
     #else
     return my->vwprintw(my->stdscr, fmt, b);
     #endif

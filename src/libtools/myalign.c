@@ -12,7 +12,6 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
 {
     if(!fmt)

@@ -884,15 +884,15 @@ GOW(isnanf, iFf)
 GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
-GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
+GOM(__isoc99_fscanf, iFppV)
 // __isoc99_fwscanf
 // __isoc99_scanf
-GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
+GOM(__isoc99_sscanf, iFppp)
 // __isoc99_swscanf
-GO(__isoc99_vfscanf, iFppp)
+GOM(__isoc99_vfscanf, iFppp)
 // __isoc99_vfwscanf
 // __isoc99_vscanf
-GO(__isoc99_vsscanf, iFppp) // TODO: check if ok
+GOM(__isoc99_vsscanf, iFppp) // TODO: check if ok
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
@@ -1460,7 +1460,7 @@ GO2(secure_getenv, pFp, getenv)     // secure_getenv either
 GO(seekdir, vFpi)
 GOW(select, iFipppp)
 GO(__select, iFipppp)
-GO(semctl, iFiiippppp)  // use vararg after the 3 i
+GOM(semctl, iFEiii)  // use vararg after the 3 i
 GOW(semget, iFuii)
 GOW(semop, iFipu)
 GO(semtimedop, iFipup)
@@ -1593,7 +1593,7 @@ GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
 GOW(srandom_r, iFup)
-GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
+GOM(sscanf, iFppV)     // sscanf va_list is only pointer, no realign to do
 // ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFE)
@@ -1902,7 +1902,7 @@ GOM(__vsnprintf, iFEpuppp)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvppp)
 GOM(vsprintf, iFEpppp) // Weak
 GOM(__vsprintf_chk, iFEpvvppp)   // ignoring flag and slen, just use vsprintf in fact
-GO(vsscanf, iFppp)
+GOM(vsscanf, iFppp)
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpuppp)    // Weak
 GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
