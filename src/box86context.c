@@ -351,7 +351,8 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        my_context->memprot[i] = prot;
+        uint32_t dyn=(my_context->memprot[i]&PROT_DYNAREC);
+        my_context->memprot[i] = prot|dyn;
     }
 }
 

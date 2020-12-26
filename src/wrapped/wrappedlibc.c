@@ -2291,7 +2291,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     }
     #endif
     if(ret!=(void*)-1)
-        updateProtection((uintptr_t)ret, length, 0);
+        updateProtection((uintptr_t)ret, length, prot);
     return ret;
 }
 
