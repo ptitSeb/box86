@@ -155,8 +155,9 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
+                    VMRS(x12);               // get fpscr
                     // x1 already have FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    ORR_IMM8(x3, x12, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     VCVTR_S32_F64(s0, v1);
@@ -168,6 +169,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOVW_COND(cNE, x3, 0x8000); // saturated
                     STRH_IMM8(x3, wback, fixedaddress);
                     x87_do_pop(dyn, ninst);
+                    VMSR(x12);
                     break;
                 case 2:
                     INST_NAME("FIST Ew, ST0");
