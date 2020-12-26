@@ -827,20 +827,28 @@ EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va
 EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
     //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
+    PREPARE_VALIST_(b);
     void* f = vfscanf;
 
-    return ((iFppp_t)f)(stream, fmt, VARARGS);
+    return ((iFppp_t)f)(stream, fmt, VARARGS_(b));
 }
 
 
 
-EXPORT int my_vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
-EXPORT int my__vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
-EXPORT int my_sscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
+EXPORT int my_vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b)
+{
+    //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST_(b);
+    void* f = vsscanf;
+
+    return ((iFppp_t)f)(stream, fmt, VARARGS_(b));
+}
+
+EXPORT int my__vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+EXPORT int my_sscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
 
 EXPORT int my__IO_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
-EXPORT int my___isoc99_vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
+EXPORT int my___isoc99_vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
 
 EXPORT int my___isoc99_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_fscanf(x86emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
@@ -2542,10 +2550,10 @@ union semun {
                               (Linux-specific) */
 };
 
-EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd)
+EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun b)
 {
   iFiiiV_t f = semctl;
-  return  ((iFiiiV_t)f)(semid, semnum, cmd, *(union semun*)(R_ESP + 16));
+  return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
 
 

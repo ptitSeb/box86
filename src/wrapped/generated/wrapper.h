@@ -636,7 +636,6 @@ void vFpppG(x86emu_t *emu, uintptr_t fnc);
 void vFpPpp(x86emu_t *emu, uintptr_t fnc);
 void vFSppi(x86emu_t *emu, uintptr_t fnc);
 void cFpiii(x86emu_t *emu, uintptr_t fnc);
-void iFEiii(x86emu_t *emu, uintptr_t fnc);
 void iFEiip(x86emu_t *emu, uintptr_t fnc);
 void iFEipp(x86emu_t *emu, uintptr_t fnc);
 void iFEupp(x86emu_t *emu, uintptr_t fnc);
@@ -1886,6 +1885,14 @@ void iFEiiip(x86emu_t *emu, uintptr_t fnc);
 void iFEipii(x86emu_t *emu, uintptr_t fnc);
 void iFEpppi(x86emu_t *emu, uintptr_t fnc);
 void iFEppiiiip(x86emu_t *emu, uintptr_t fnc);
+#endif
+
+#if defined(POWERPCLE)
+void iFEiiiN(x86emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(POWERPCLE)
+void iFiiiN(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if defined(HAVE_LD80BITS)

@@ -887,7 +887,7 @@ GO(__isnanf, iFf)
 GOM(__isoc99_fscanf, iFppV)
 // __isoc99_fwscanf
 // __isoc99_scanf
-GOM(__isoc99_sscanf, iFppp)
+GOM(__isoc99_sscanf, iFppV)
 // __isoc99_swscanf
 GOM(__isoc99_vfscanf, iFppp)
 // __isoc99_vfwscanf
@@ -1460,7 +1460,11 @@ GO2(secure_getenv, pFp, getenv)     // secure_getenv either
 GO(seekdir, vFpi)
 GOW(select, iFipppp)
 GO(__select, iFipppp)
-GOM(semctl, iFEiii)  // use vararg after the 3 i
+#ifdef POWERPCLE
+GOM(semctl, iFEiiiN)  // use vararg after the 3 i
+#else
+GO(semctl, iFiiiN)
+#endif
 GOW(semget, iFuii)
 GOW(semop, iFipu)
 GO(semtimedop, iFipup)

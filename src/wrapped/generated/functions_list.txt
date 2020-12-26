@@ -604,7 +604,6 @@
 #() vFpPpp
 #() vFSppi
 #() cFpiii
-#() iFEiii
 #() iFEiip
 #() iFEipp
 #() iFEupp
@@ -1849,6 +1848,8 @@
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEpppi
 #!defined(NOALIGN) iFEppiiiip
+#defined(POWERPCLE) iFEiiiN
+#!defined(POWERPCLE) iFiiiN
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFDD
 #defined(HAVE_LD80BITS) DFDp
