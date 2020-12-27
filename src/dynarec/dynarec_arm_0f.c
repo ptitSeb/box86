@@ -2207,7 +2207,39 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VRHADD_U8(v0, v0, v1);
             break;
-
+        case 0xE1:
+            INST_NAME("PSRAW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, d1);
+            VMOVD(v0+1, d1);
+            VQMOVN_S64(v0, v0); // 2*d1 in 32bits now
+            VMOVD(v0+1, v0);
+            VQMOVN_S32(v0, v0); // 4*d1 in 16bits now
+            VNEGN_16(v0, v0);   // because we want SHR and not SHL
+            VSHL_S16(d0, d0, v0);
+            break;
+        case 0xE2:
+            INST_NAME("PSRAD Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VMOVD(v0, d1);
+            VMOVD(v0+1, d1);
+            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
+            VNEGN_32(v0, v0);   // because we want SHR and not SHL
+            VSHL_S32(d0, d0, v0);
+            break;
+        case 0xE3:
+            INST_NAME("PAVGW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1);
+            VRHADD_U16(d0, d0, d1);
+            break;
        case 0xE4:
             INST_NAME("PMULHUW Gm,Em");
             nextop = F8;
