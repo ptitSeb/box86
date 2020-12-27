@@ -570,7 +570,7 @@ GO(g_key_file_set_uint64, vFpppU)
 GO(g_key_file_set_value, vFpppp)
 GO(g_key_file_to_data, pFppp)
 GO(g_key_file_unref, vFp)
-//GO(glib_check_version, 
+GO(glib_check_version, pFuuu)
 //GO(glib_gettext, 
 //GO(glib_pgettext, 
 //GO(glib__private__, 
