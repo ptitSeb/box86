@@ -859,7 +859,7 @@ int main(int argc, const char **argv, const char **env) {
     if(!strcmp(prog, "wine") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX86: Wine detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
-            wine_prereserve(prereserve);
+            //wine_prereserve(prereserve);
             // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
@@ -1118,7 +1118,7 @@ int main(int argc, const char **argv, const char **env) {
     setupTraceInit(my_context);
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
-    if(wine_preloaded) {
+    /*if(wine_preloaded) {
         uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info");
         if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info");
         if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info");
@@ -1130,7 +1130,7 @@ int main(int argc, const char **argv, const char **env) {
         #ifdef DYNAREC
         dynarec_wine_prereserve();
         #endif
-    }
+    }*/
     // pre-load lib if needed
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {
