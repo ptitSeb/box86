@@ -884,6 +884,7 @@ GOW(isnanf, iFf)
 GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
+#ifdef POWERPCLE
 GOM(__isoc99_fscanf, iFppV)
 // __isoc99_fwscanf
 // __isoc99_scanf
@@ -896,6 +897,20 @@ GOM(__isoc99_vsscanf, iFppp) // TODO: check if ok
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
+#else
+GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
+// __isoc99_fwscanf
+// __isoc99_scanf
+GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
+// __isoc99_swscanf
+GOM(__isoc99_vfscanf, iFppp)
+// __isoc99_vfwscanf
+// __isoc99_vscanf
+GO(__isoc99_vsscanf, iFppp)
+// __isoc99_vswscanf
+// __isoc99_vwscanf
+// __isoc99_wscanf
+#endif
 GO(isprint, iFi)
 // __isprint_l
 // isprint_l    // Weak
@@ -1597,7 +1612,11 @@ GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
 GOW(srandom_r, iFup)
-GOM(sscanf, iFppV)     // sscanf va_list is only pointer, no realign to do
+#ifdef POWERPCLE
+GOM(sscanf, iFppV)
+#else
+GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
+#endif
 // ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFE)
@@ -1906,7 +1925,11 @@ GOM(__vsnprintf, iFEpuppp)  // Weak
 GOM(__vsnprintf_chk, iFEpuvvppp)
 GOM(vsprintf, iFEpppp) // Weak
 GOM(__vsprintf_chk, iFEpvvppp)   // ignoring flag and slen, just use vsprintf in fact
+#ifdef POWERPCLE
 GOM(vsscanf, iFppp)
+#else
+GO(vsscanf, iFppp)
+#endif
 // __vsscanf    // Weak
 GOM(vswprintf, iFEpuppp)    // Weak
 GOM(__vswprintf_chk, iFEpuvvppp)    // Weak
