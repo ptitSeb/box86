@@ -341,6 +341,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         my_context->memprot[i] &= ~PROT_DYNAREC;
         mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, my_context->memprot[i]);
+        cleanDBFromAddressRange(my_context, (i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, 0);
     }
 }
 
