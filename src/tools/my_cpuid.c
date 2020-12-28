@@ -38,6 +38,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
             R_EAX = 0x00000601; // familly and all
             R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
             R_EDX =   1         // fpu 
+                    | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
                     | 1<<15     // cmov
