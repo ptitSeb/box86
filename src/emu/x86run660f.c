@@ -66,7 +66,7 @@ void Run660F(x86emu_t *emu)
     &&_default, &&_default, &&_6f_0xBA, &&_6f_0xBB, &&_6f_0xBC, &&_6f_0xBD, &&_6f_0xBE, &&_default, //0xB8-0xBF
     &&_default, &&_6f_0xC1, &&_6f_0xC2, &&_default, &&_6f_0xC4, &&_6f_0xC5, &&_6f_0xC6, &&_default, 
     &&_6f_0xC8, &&_6f_0xC9, &&_6f_0xCA, &&_6f_0xCB, &&_6f_0xCC ,&&_6f_0xCD, &&_6f_0xCE, &&_6f_0xCF, //0xC8-0xCF
-    &&_default, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_6f_0xD5, &&_6f_0xD6, &&_6f_0xD7, 
+    &&_6f_0xD0, &&_6f_0xD1, &&_6f_0xD2, &&_6f_0xD3, &&_6f_0xD4, &&_6f_0xD5, &&_6f_0xD6, &&_6f_0xD7, 
     &&_6f_0xD8, &&_6f_0xD9, &&_6f_0xDA, &&_6f_0xDB, &&_6f_0xDC, &&_6f_0xDD, &&_6f_0xDE, &&_6f_0xDF, 
     &&_6f_0xE0, &&_6f_0xE1, &&_6f_0xE2, &&_6f_0xE3, &&_6f_0xE4, &&_6f_0xE5, &&_6f_0xE6, &&_6f_0xE7, 
     &&_6f_0xE8, &&_6f_0xE9, &&_6f_0xEA, &&_6f_0xEB, &&_6f_0xEC, &&_6f_0xED, &&_6f_0xEE, &&_6f_0xEF, 
@@ -1106,7 +1106,12 @@ void Run660F(x86emu_t *emu)
         tmp8s = opcode&7;
         emu->regs[tmp8s].word[0] = __builtin_bswap16(emu->regs[tmp8s].word[0]);
         NEXT;
-
+    _6f_0xD0:  /* ADDSUBPD Gx, Ex */
+        nextop = F8;
+        GET_EX;
+        GX.d[0] -= EX->d[0];
+        GX.d[1] += EX->d[1];
+        NEXT;
     _6f_0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;
         GET_EX;

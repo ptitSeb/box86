@@ -1468,6 +1468,14 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0xD0:
+            INST_NAME("ADDSUBPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0);
+            GETEX(v1);
+            VSUB_F64(v0+0, v0+0, v1+0);
+            VADD_F64(v0+1, v0+1, v1+1);
+            break;
         case 0xD1:
             INST_NAME("PSRLW Gx,Ex");
             nextop = F8;
