@@ -2271,6 +2271,8 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
+    if(prot&PROT_WRITE) 
+        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
     void* ret = mmap(addr, length, prot, flags, fd, offset);
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
@@ -2298,6 +2300,8 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
 
 EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
+    if(prot&PROT_WRITE) 
+        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);}
     void* ret = mmap64(addr, length, prot, flags, fd, offset);
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
@@ -2338,6 +2342,8 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
 {
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
+    if(prot&PROT_WRITE) 
+        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
     if(box86_dynarec) {
