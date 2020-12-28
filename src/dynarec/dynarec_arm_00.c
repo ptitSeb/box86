@@ -1167,7 +1167,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 POP(xESP, (1<<x2)); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
-                STR_IMM9(x2, ed, fixedaddress);
+                if(ed==xESP) {
+                    STR_IMM9(x2, ed, fixedaddress);
+                } else {
+                    // complicated to just allow a segfault that can be recovered correctly
+                    SUB_IMM8(xESP, xESP, 4);
+                    STR_IMM9(x2, ed, fixedaddress);
+                    ADD_IMM8(xESP, xESP, 4);
+                }
             }
             break;
         case 0x90:

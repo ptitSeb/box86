@@ -702,9 +702,15 @@ _trace:
             NEXT;
         _0x8F:                      /* POP Ed */
             nextop = F8;
-            tmp32u = Pop(emu);  // this order allows handling POP [ESP] and variant
-            GET_ED;
-            ED->dword[0] = tmp32u;
+            if((nextop&0xC0)==0xC0) {
+                emu->regs[(nextop&7)].dword[0] = Pop(emu);
+            } else {
+                tmp32u = Pop(emu);  // this order allows handling POP [ESP] and variant
+                GET_ED;
+                R_ESP -= 4; // to prevent issue with SEGFAULT
+                ED->dword[0] = tmp32u;
+                R_ESP += 4;
+            }
             NEXT;
         _0x90:                      /* NOP */
             NEXT;
