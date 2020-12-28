@@ -9,6 +9,7 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "debug.h"
 #include "box86stack.h"
@@ -285,7 +286,10 @@ void x86Int3(x86emu_t* emu)
         }
         return;
     }
-    printf_log(LOG_INFO, "Warning, ignoring unsupported Int 3 call\n");
+    if(my_context->signals[SIGTRAP])
+        raise(SIGTRAP);
+    else
+        printf_log(LOG_INFO, "Warning, ignoring unsupported Int 3 call\n");
     //emu->quit = 1;
 }
 

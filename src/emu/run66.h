@@ -2,15 +2,28 @@
     goto *opcodes66[opcode];
 
     #define GO(B, OP)                       \
+    _66_##B##_0: \
+        nextop = F8;               \
+        GET_EB;             \
+        EB->byte[0] = OP##8(emu, EB->byte[0], GB);  \
+        NEXT;                              \
     _66_##B##_1:                               \
         nextop = F8;                \
         GET_EW;                   \
         EW->word[0] = OP##16(emu, EW->word[0], GW.word[0]); \
         NEXT;                              \
+    _66_##B##_2: \
+        nextop = F8;               \
+        GET_EB;                   \
+        GB = OP##8(emu, GB, EB->byte[0]); \
+        NEXT;                              \
     _66_##B##_3:                               \
         nextop = F8;                \
         GET_EW;                   \
         GW.word[0] = OP##16(emu, GW.word[0], EW->word[0]); \
+        NEXT;                              \
+    _66_##B##_4: \
+        R_AL = OP##8(emu, R_AL, F8); \
         NEXT;                              \
     _66_##B##_5:                               \
         R_AX = OP##16(emu, R_AX, F16); \
@@ -337,6 +350,10 @@
         GET_EW;
         EW->word[0] = F16;
         NEXT;
+
+    _66_0xCC:                              /* INT3 */
+        if(my_context->signals[SIGTRAP])
+            raise(SIGTRAP);
 
     _66_0xD1:                              /* GRP2 Ew,1  */
     _66_0xD3:                              /* GRP2 Ew,CL */

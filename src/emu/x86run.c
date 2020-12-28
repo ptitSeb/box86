@@ -134,13 +134,13 @@ int Run(x86emu_t *emu, int step)
     };
 
     static const void* opcodes66[256] = {
-    &&_default, &&_66_0x00_1, &&_default, &&_66_0x00_3, &&_default ,&&_66_0x00_5, &&_66_0x06, &&_66_0x07, //0x00-0x07
-    &&_default, &&_66_0x08_1, &&_default, &&_66_0x08_3, &&_default ,&&_66_0x08_5, &&_default, &&_66_0x0F, //0x08-0x0F
-    &&_default, &&_66_0x10_1, &&_default, &&_66_0x10_3, &&_default ,&&_66_0x10_5, &&_default, &&_default, //0x10-0x17
-    &&_default, &&_66_0x18_1, &&_default, &&_66_0x18_3, &&_default ,&&_66_0x18_5, &&_default, &&_66_0x1F, //0x18-0x1F
-    &&_default, &&_66_0x20_1, &&_default, &&_66_0x20_3, &&_default ,&&_66_0x20_5, &&_66_0x26, &&_default, //0x20-0x27
-    &&_default, &&_66_0x28_1, &&_default, &&_66_0x28_3, &&_default ,&&_66_0x28_5, &&_66_0x2E, &&_default, //0x28-0x2F
-    &&_default, &&_66_0x30_1, &&_default, &&_66_0x30_3, &&_default ,&&_66_0x30_5, &&_66_0x36, &&_default, //0x30-0x37
+    &&_66_0x00_0, &&_66_0x00_1, &&_66_0x00_2, &&_66_0x00_3, &&_66_0x00_4 ,&&_66_0x00_5, &&_66_0x06, &&_66_0x07, //0x00-0x07
+    &&_66_0x08_0, &&_66_0x08_1, &&_66_0x08_2, &&_66_0x08_3, &&_66_0x08_4 ,&&_66_0x08_5, &&_default, &&_66_0x0F, //0x08-0x0F
+    &&_66_0x10_0, &&_66_0x10_1, &&_66_0x10_2, &&_66_0x10_3, &&_66_0x10_4 ,&&_66_0x10_5, &&_default, &&_default, //0x10-0x17
+    &&_66_0x18_0, &&_66_0x18_1, &&_66_0x18_2, &&_66_0x18_3, &&_66_0x18_4 ,&&_66_0x18_5, &&_default, &&_66_0x1F, //0x18-0x1F
+    &&_66_0x20_0, &&_66_0x20_1, &&_66_0x20_2, &&_66_0x20_3, &&_66_0x20_4 ,&&_66_0x20_5, &&_66_0x26, &&_default, //0x20-0x27
+    &&_66_0x28_0, &&_66_0x28_1, &&_66_0x28_2, &&_66_0x28_3, &&_66_0x28_4 ,&&_66_0x28_5, &&_66_0x2E, &&_default, //0x28-0x2F
+    &&_66_0x30_0, &&_66_0x30_1, &&_66_0x30_2, &&_66_0x30_3, &&_66_0x30_4 ,&&_66_0x30_5, &&_66_0x36, &&_default, //0x30-0x37
     &&_default, &&_66_0x39, &&_default, &&_66_0x3B, &&_default, &&_66_0x3D, &&_default, &&_default, //0x38-0x3F
     &&_66_0x40, &&_66_0x41, &&_66_0x42, &&_66_0x43, &&_66_0x44, &&_66_0x45, &&_66_0x46, &&_66_0x47, 
     &&_66_0x48, &&_66_0x49, &&_66_0x4A, &&_66_0x4B, &&_66_0x4C, &&_66_0x4D, &&_66_0x4E, &&_66_0x4F, 
@@ -159,7 +159,7 @@ int Run(x86emu_t *emu, int step)
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xB0-0xB7
     &&_66_0xB8, &&_66_0xB9, &&_66_0xBA, &&_66_0xBB, &&_66_0xBC, &&_66_0xBD, &&_66_0xBE, &&_66_0xBF, 
     &&_default, &&_66_0xC1, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xC7, 
-    &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xC8-0xCF
+    &&_default, &&_default, &&_default, &&_default, &&_66_0xCC ,&&_default, &&_default, &&_default, //0xC8-0xCF
     &&_default, &&_66_0xD1, &&_default, &&_66_0xD3, &&_default, &&_default, &&_default, &&_default, //0xD0-0xD7
     &&_default, &&_66_0xD9, &&_default, &&_default, &&_default ,&&_66_0xDD, &&_default, &&_default, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7

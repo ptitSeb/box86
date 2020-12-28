@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <pthread.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -1640,7 +1641,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else {
                 INST_NAME("INT 3");
-                //nothing specific done...
+                // check if TRAP signal is handled
+                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, context));
+                MOV32(x2, offsetof(box86context_t, signals[SIGTRAP]));
+                LDR_REG_LSL_IMM5(x3, x1, x2, 0);
+                CMPS_IMM8(x3, 0);
+                B_NEXT(cNE);
+                MOV32(x1, SIGTRAP);
+                CALL_(raise, -1, 0);
                 break;
             }
             break;
