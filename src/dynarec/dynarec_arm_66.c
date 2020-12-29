@@ -580,7 +580,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x99:
             INST_NAME("CWD");
             SXTH(x1, xEAX, 0);
-            BFI(xEDX, x1, 16, 16);
+            MOV_REG_LSR_IMM5(x1, x1, 16);
+            BFI(xEDX, x1, 0, 16);
             break;
 
         case 0x9C:
