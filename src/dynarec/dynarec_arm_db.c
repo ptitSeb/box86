@@ -110,8 +110,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE2:
             INST_NAME("FNCLEX");
-            MOVW(x1, 0);
             LDRH_IMM8(x2, xEmu, offsetof(x86emu_t, sw));
+            MOVW(x1, 0);
             BFI(x2, x1, 0, 8);  // IE .. PE, SF, ES
             BFI(x2, x1, 15, 1); // B
             STRH_IMM8(x2, xEmu, offsetof(x86emu_t, sw));
