@@ -234,13 +234,19 @@ Op is 20-27
 // orr.s dst, src1, src2, lsl #imm
 #define ORRS_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
+// orr dst, src1, src2, lsr #imm
+#define ORR_REG_LSR_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
+// orr.s dst, src1, src2, lsr #imm
+#define ORRS_REG_LSR_IMM5(dst, src1, src2, imm5) \
+    EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 // orr dst, src1, #imm8
 #define ORR_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // orr.s dst, src1, #imm8
 #define ORRS_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3900000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
-// orr dst, src1, src2, lsl #rs
+// orr dst, src1, src2, lsl rs
 #define ORR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
 // xor dst, src1, src2, lsl #imm

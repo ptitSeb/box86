@@ -1436,21 +1436,22 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
             break;
         case 0xA4:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            GETED;
+            GETGD;
+            u8 = F8;
+            emit_shld32c(dyn, ninst, ed, gd, u8&0x1f, x3, x12);
+            WBACK;
+            break;
         case 0xA5:
             nextop = F8;
-            if(opcode==0xA4) {
-                INST_NAME("SHLD Ed, Gd, Ib");
-            } else {
-                INST_NAME("SHLD Ed, Gd, CL");
-                UXTB(x3, xECX, 0);
-            }
+            INST_NAME("SHLD Ed, Gd, CL");
+            UXTB(x3, xECX, 0);
             SETFLAGS(X_ALL, SF_SET);
             GETEDW(x12, x1);
             GETGD;
-            if(opcode==0xA4) {
-                u8 = F8;
-                MOVW(x3, u8);
-            }
             MOV_REG(x2, gd);
             CALL(shld32, ed, (wback?(1<<wback):0));
             WBACK;
