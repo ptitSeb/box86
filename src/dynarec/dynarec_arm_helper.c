@@ -308,7 +308,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     if(dyn->nolinker) {
 #endif
         MESSAGE(LOG_DUMP, "Ret epilog\n");
-        POP(xESP, 1<<xEIP);
+        POP1(xEIP);
         cstack_pop(dyn, ninst, xEIP, x1, x2);
         PASS3(void* epilog = arm_epilog);
         MOV32_(x2, (uintptr_t)epilog);
@@ -316,7 +316,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 #if 0
     } else {
         MESSAGE(LOG_DUMP, "Ret epilog with linker\n");
-        POP(xESP, 1<<xEIP);
+        POP1(xEIP);
         uintptr_t* table = 0;
         if(dyn->tablesz) {
             table = &dyn->table[dyn->tablei];
@@ -349,7 +349,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     if(dyn->nolinker) {
 #endif
         MESSAGE(LOG_DUMP, "Retn epilog\n");
-        POP(xESP, 1<<xEIP);
+        POP1(xEIP);
         if(n>0xff) {
             MOVW(x1, n);
             ADD_REG_LSL_IMM5(xESP, xESP, x1, 0);
@@ -363,7 +363,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 #if 0
     } else {
         MESSAGE(LOG_DUMP, "Retn epilog with linker\n");
-        POP(xESP, 1<<xEIP);
+        POP1(xEIP);
         ADD_IMM8(xESP, xESP, n);
         uintptr_t* table = 0;
         if(dyn->tablesz) {
@@ -393,15 +393,15 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
     MESSAGE(LOG_DUMP, "IRet epilog\n");
     // POP IP
-    POP(xESP, 1<<xEIP);
+    POP1(xEIP);
     // POP CS
     MOVW(x1, offsetof(x86emu_t, segs[_CS]));
-    POP(xESP, 1<<x2);
+    POP1(x2);
     STRH_REG(x2, xEmu, x1);
     MOVW(x1, 0);
     STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_CS]));
     // POP EFLAGS
-    POP(xESP, (1<<x1));
+    POP1(x1);
     CALL(arm_popf, -1, (1<<xEIP));
     MOVW(x1, d_none);
     STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));

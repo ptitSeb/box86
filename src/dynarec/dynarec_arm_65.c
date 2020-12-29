@@ -194,10 +194,10 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_tlsdata(dyn, addr, ninst, x12);
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
-                POP(xESP, (1<<(xEAX+(nextop&7))));
+                POP1((xEAX+(nextop&7)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                POP(xESP, (1<<x2));
+                POP1(x2);
                 STR_REG_LSL_IMM5(x2, ed, x12, 0);
             }
             break;
@@ -257,7 +257,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {                    // mem <= i32
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                         LDR_REG_LSL_IMM5(x3, ed, x12, 0);
-                        PUSH(xESP, 1<<x3);
+                        PUSH1(x3);
                     }
                     break;
                 default:

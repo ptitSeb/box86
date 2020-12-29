@@ -96,12 +96,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH ES");
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
             LDRH_REG(x2, xEmu, x1);
-            PUSH(xESP, 1<<x2);
+            PUSH1(x2);
             break;
         case 0x07:
             INST_NAME("POP ES");
             MOVW(x1, offsetof(x86emu_t, segs[_ES]));
-            POP(xESP, 1<<x2);
+            POP1(x2);
             STRH_REG(x2, xEmu, x1);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_ES]));
@@ -274,12 +274,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH DS");
             MOVW(x1, offsetof(x86emu_t, segs[_DS]));
             LDRH_REG(x2, xEmu, x1);
-            PUSH(xESP, 1<<x2);
+            PUSH1(x2);
             break;
         case 0x1F:
             INST_NAME("POP DS");
             MOVW(x1, offsetof(x86emu_t, segs[_DS]));
-            POP(xESP, 1<<x2);
+            POP1(x2);
             STRH_REG(x2, xEmu, x1);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_DS]));
@@ -570,7 +570,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x57:
             INST_NAME("PUSH reg");
             gd = xEAX+(opcode&0x07);
-            PUSH(xESP, 1<<gd);
+            PUSH1(gd);
             break;
         case 0x58:
         case 0x59:
@@ -582,34 +582,34 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x5F:
             INST_NAME("POP reg");
             gd = xEAX+(opcode&0x07);
-            POP(xESP, 1<<gd);
+            POP1(gd);
             break;
         case 0x60:
             INST_NAME("PUSHAD");
             MOV_REG(x1, xESP);
             // cannot use PUSH (STMdb!) because order of regs are reversed!
             //PUSH(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
-            PUSH(xESP, (1<<xEAX));
-            PUSH(xESP, (1<<xECX));
-            PUSH(xESP, (1<<xEDX));
-            PUSH(xESP, (1<<xEBX));
-            PUSH(xESP, (1<<x1));
-            PUSH(xESP, (1<<xEBP));
-            PUSH(xESP, (1<<xESI));
-            PUSH(xESP, (1<<xEDI));
+            PUSH1(xEAX);
+            PUSH1(xECX);
+            PUSH1(xEDX);
+            PUSH1(xEBX);
+            PUSH1(x1);
+            PUSH1(xEBP);
+            PUSH1(xESI);
+            PUSH1(xEDI);
             break;
         case 0x61:
             INST_NAME("POPAD");
             //MOV_REG(x1, xESP);
             //POP(x1, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI));
-            POP(xESP, (1<<xEDI));
-            POP(xESP, (1<<xESI));
-            POP(xESP, (1<<xEBP));
+            POP1(xEDI);
+            POP1(xESI);
+            POP1(xEBP);
             ADD_IMM8(xESP, xESP, 4);    //POP(xESP, (1<<xESP));
-            POP(xESP, (1<<xEBX));
-            POP(xESP, (1<<xEDX));
-            POP(xESP, (1<<xECX));
-            POP(xESP, (1<<xEAX));
+            POP1(xEBX);
+            POP1(xEDX);
+            POP1(xECX);
+            POP1(xEAX);
             //MOV_REG(xESP, x1);
             break;
         case 0x62:
@@ -638,10 +638,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
                 MOV32(x3, ip+1);
                 LDR_IMM9(x1, x3, 0);
-                PUSH(xESP, 1<<x1);
+                PUSH1(x1);
             } else {
                 MOV32(x3, i32);
-                PUSH(xESP, 1<<x3);
+                PUSH1(x3);
             }
             break;
         case 0x69:
@@ -665,7 +665,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH Ib");
             i32 = F8S;
             MOV32(x3, i32);
-            PUSH(xESP, 1<<x3);
+            PUSH1(x3);
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
@@ -1163,9 +1163,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("POP Ed");
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
-                POP(xESP, (1<<(xEAX+(nextop&7))));
+                POP1(xEAX+(nextop&7));
             } else {
-                POP(xESP, (1<<x2)); // so this can handle POP [ESP] and maybe some variant too
+                POP1(x2); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
                 if(ed==xESP) {
                     STR_IMM9(x2, ed, fixedaddress);
@@ -1210,12 +1210,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_ALL);
             CALL(PackFlags, -1, 0);
             LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
-            PUSH(xESP, (1<<x1));
+            PUSH1(x1);
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            POP(xESP, (1<<x1));
+            POP1(x1);
             CALL(arm_popf, -1, 0);
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
@@ -1610,7 +1610,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC9:
             INST_NAME("LEAVE");
             MOV_REG(xESP, xEBP);
-            POP(xESP, (1<<xEBP));
+            POP1(xEBP);
             break;
 
         case 0xCC:
@@ -2108,7 +2108,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     BARRIER(1);
                     BARRIER_NEXT(1);
                     MOV32(x2, addr);
-                    PUSH(xESP, 1<<x2);
+                    PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x12, 0);
@@ -2119,7 +2119,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV32(x3, dyn->insts[ninst].natcall+2+4+4);
                     CMPS_REG_LSL_IMM5(xEIP, x3, 0);
                     B_MARK(cNE);    // Not the expected address, exit dynarec block
-                    POP(xESP, (1<<xEIP));   // pop the return address
+                    POP1(xEIP);   // pop the return address
                     if(dyn->insts[ninst].retn) {
                         ADD_IMM8(xESP, xESP, dyn->insts[ninst].retn);
                     }
@@ -2150,7 +2150,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         *ok = 0;
                         MOV32(x2, addr);
                     }
-                    PUSH(xESP, 1<<x2);
+                    PUSH1(x2);
                     if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
                         MOV32(x12, addr-4);
                         LDR_IMM9(x12, x12, 0);
@@ -2693,7 +2693,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         *ok = 0;
                         MOV32(x2, addr);
                     }
-                    PUSH(xESP, 1<<x2);
+                    PUSH1(x2);
                     jump_to_linker(dyn, 0, ed, ninst);  // smart linker
                     break;
                 case 4: // JMP Ed
@@ -2707,7 +2707,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
                     GETED;
-                    PUSH(xESP, 1<<ed);
+                    PUSH1(ed);
                     break;
 
                 default:

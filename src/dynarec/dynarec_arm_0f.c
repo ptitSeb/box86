@@ -1397,12 +1397,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH FS");
             MOVW(x1, offsetof(x86emu_t, segs[_FS]));
             LDRH_REG(x2, xEmu, x1);
-            PUSH(xESP, 1<<x2);
+            PUSH1(x2);
             break;
         case 0xA1:
             INST_NAME("POP FS");
             MOVW(x1, offsetof(x86emu_t, segs[_FS]));
-            POP(xESP, 1<<x2);
+            POP1(x2);
             STRH_REG(x2, xEmu, x1);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_FS]));
@@ -1460,12 +1460,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("PUSH GS");
             MOVW(x1, offsetof(x86emu_t, segs[_GS]));
             LDRH_REG(x2, xEmu, x1);
-            PUSH(xESP, 1<<x2);
+            PUSH1(x2);
             break;
         case 0xA9:
             INST_NAME("POP GS");
             MOVW(x1, offsetof(x86emu_t, segs[_GS]));
-            POP(xESP, 1<<x2);
+            POP1(x2);
             STRH_REG(x2, xEmu, x1);
             MOVW(x1, 0);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_GS]));

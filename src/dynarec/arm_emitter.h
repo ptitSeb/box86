@@ -327,6 +327,8 @@ Op is 20-27
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str with cond reg, [addr, #+/-imm9]
 #define STR_IMM9_COND(cond, reg, addr, imm9) EMIT(cond | 0x05000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
+// str reg, [addr, #+/-imm9]!
+#define STR_IMM9_W(reg, addr, imm9) EMIT(0xe5200000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // strb reg, [addr, #+/-imm9]
 #define STRB_IMM9(reg, addr, imm9) EMIT(0xe5400000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // str reg, [addr], #+/-imm9
@@ -364,9 +366,15 @@ Op is 20-27
 //                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
 #define PUSH(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (1<<21) | (0<<20) | ((reg)<<16) | (list))
 
+// push reg to xESP
+#define PUSH1(reg)   STR_IMM9_W(reg, xESP, -4)
+
 // pop reg!, {list}
 //                           all |    const    |postindex|  add    | no PSR  |writeback|  load   |   base    |reg list
 #define POP(reg, list)  EMIT(c__ | (0b100<<25) | (0<<24) | (1<<23) | (0<<22) | (1<<21) | (1<<20) | ((reg)<<16) | (list))
+
+// pop reg from xESP
+#define POP1(reg)   LDRAI_IMM9_W(reg, xESP, 4)
 
 // STMDB reg, {list}
 //                            all |    const    |pre-index| subs    | no PSR  |  no wb  | store   |   base    |reg list

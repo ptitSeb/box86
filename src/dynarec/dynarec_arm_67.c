@@ -79,10 +79,10 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop=F8;
                     grab_fsdata(dyn, addr, ninst, x12);
                     if((nextop&0xC0)==0xC0) {
-                        POP(xESP, (1<<(xEAX+(nextop&7))));  // 67 ignored
+                        POP1(xEAX+(nextop&7));  // 67 ignored
                     } else {
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                        POP(xESP, (1<<x2));
+                        POP1(x2);
                         STR_REG_LSL_IMM5(x2, x12, ed, 0);
                     }
                     break;
@@ -120,7 +120,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             } else {                    // mem <= i32
                                 addr = geted16(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                                 LDR_REG_LSL_IMM5(x3, ed, x12, 0);
-                                PUSH(xESP, 1<<x3);
+                                PUSH1(x3);
                             }
                             break;
                         default:
