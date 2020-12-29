@@ -1499,21 +1499,22 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
         case 0xAC:
+            nextop = F8;
+            INST_NAME("SHRD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET);
+            GETED;
+            GETGD;
+            u8 = F8;
+            emit_shrd32c(dyn, ninst, ed, gd, u8, x3, x12);
+            WBACK;
+            break;
         case 0xAD:
             nextop = F8;
-            if(opcode==0xAC) {
-                INST_NAME("SHRD Ed, Gd, Ib");
-            } else {
-                INST_NAME("SHRD Ed, Gd, CL");
-                UXTB(x3, xECX, 0);
-            }
+            INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET);
+            UXTB(x3, xECX, 0);
             GETEDW(x12, x1);
             GETGD;
-            if(opcode==0xAC) {
-                u8 = F8;
-                MOVW(x3, u8);
-            }
             MOV_REG(x2, gd);
             CALL(shrd32, ed, (wback?(1<<wback):0));
             WBACK;

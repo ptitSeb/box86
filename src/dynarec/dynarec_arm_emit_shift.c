@@ -280,3 +280,71 @@ void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         }
     }
 }
+
+// emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOVW(s3, c);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        // same flags calc as shr32
+        MOVW(s4, d_shr32);
+    } else IFX(X_ALL) {
+        MOVW(s4, d_none);
+    }
+    IFX(X_PEND|X_ALL) {
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, df));
+    }
+    if(!c) {
+        IFX(X_PEND) {
+            STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        }
+        return;
+    }
+    IFX(X_CF) {
+        MOVS_REG_LSR_IMM5(s1, s1, c);
+    } else {
+        MOV_REG_LSR_IMM5(s1, s1, c);
+    }
+    IFX(X_CF) {
+        MOVW_COND(cCC, s3, 0);
+        MOVW_COND(cCS, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_CF]));
+    }
+    IFX(X_ZF) {
+        ORRS_REG_LSL_IMM5(s1, s1, s2, 32-c);
+    } else {
+        ORR_REG_LSL_IMM5(s1, s1, s2, 32-c);
+    }
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_ZF) {
+        MOVW_COND(cNE, s3, 0);
+        MOVW_COND(cEQ, s3, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+    }
+    IFX(X_SF) {
+        UBFX(s3, s1, 31, 1);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, flags[F_SF]));
+    }
+    IFX(X_OF) {
+        if(c==1) {
+            MOV_REG_LSR_IMM5(s4, s1, 30);
+            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+            AND_IMM8(s4, s4, 1);
+            STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_OF]));
+        }
+    }
+    IFX(X_PF) {
+        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
+        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
+        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
+        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
+        AND_IMM8(s3, s1, 31);
+        MVN_REG_LSR_REG(s4, s4, s3);
+        AND_IMM8(s4, s4, 1);
+        STR_IMM9(s4, xEmu, offsetof(x86emu_t, flags[F_PF]));
+    }
+}
