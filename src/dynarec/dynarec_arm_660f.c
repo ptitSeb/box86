@@ -1207,7 +1207,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 UXTB(x3, xECX, 0);
             }
             SETFLAGS(X_ALL, SF_SET);
-            GETEWW(x12, x1);
+            GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xA4) {
                 u8 = F8;
@@ -1222,7 +1222,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SETFLAGS(X_CF, SF_SET);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x12);
+            GETEW(x14);
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
@@ -1242,7 +1242,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 UXTB(x3, xECX, 0);
             }
             SETFLAGS(X_ALL, SF_SET);
-            GETEWW(x12, x1);
+            GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xAC) {
                 u8 = F8;
@@ -1275,7 +1275,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SETFLAGS(X_CF, SF_SET);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x12);
+            GETEW(x14);
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
@@ -1320,7 +1320,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SETFLAGS(X_CF, SF_SET);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x12);
+            GETEW(x14);
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             AND_IMM8(x1, x1, 1);

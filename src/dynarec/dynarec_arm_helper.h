@@ -185,9 +185,9 @@
     MOVW(r, A);                                             \
     RSB_COND_IMM8(cEQ, r, r, 0)
 
-// CALL will use x12 for the call address. Return value can be put in ret (unless ret is -1)
+// CALL will use x14 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret, M) call_c(dyn, ninst, F, x12, ret, M)
+#define CALL(F, ret, M) call_c(dyn, ninst, F, x14, ret, M)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL_(F, ret, M) call_c(dyn, ninst, F, x3, ret, M)

@@ -210,7 +210,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("FNSTSW m2byte");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x12, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0);
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, top));
                     MOVW(x2, offsetof(x86emu_t, sw));
                     ADD_REG_LSL_IMM5(x2, xEmu, x2, 0);

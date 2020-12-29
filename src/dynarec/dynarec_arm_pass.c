@@ -52,7 +52,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 MOV32(x1, ip);
-                STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11));
+                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP));
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
                 MOVW(x2, 1);
                 CALL(PrintTrace, -1, 0);

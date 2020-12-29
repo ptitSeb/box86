@@ -21,12 +21,12 @@ Op is 20-27
 #define xEBP    9
 #define xESI    10
 #define xEDI    11
-#define xEIP    12
+#define xEIP    14
 // scratch registers
 #define x1      1
 #define x2      2
 #define x3      3
-#define x12     12
+#define x14     14
 // emu is r0
 #define xEmu    0
 // ARM SP is r13

@@ -277,11 +277,11 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
             MOV32_(x2, (uintptr_t)arm_linker);
-            MOV_REG(x3, x12);
-            STREXD(x12, x2, x1); // nope, putting back linker & IP in place
-            // x12 now contain success / falure for write
-            CMPS_IMM8(x12, 1);
-            MOV_REG(x12, x3);   // put back IP in place...
+            MOV_REG(x3, x14);
+            STREXD(x14, x2, x1); // nope, putting back linker & IP in place
+            // x14 now contain success / falure for write
+            CMPS_IMM8(x14, 1);
+            MOV_REG(x14, x3);   // put back IP in place...
             B_MARK(cEQ);
             BX(x2); // go to linker
         #else
@@ -290,7 +290,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             CMPS_REG_LSL_IMM5(xEIP, x3, 0);
             BXcond(cEQ, x2);
             MOV32_(x2, (uintptr_t)arm_linker);
-            MOV_REG(x3, x12);
+            MOV_REG(x3, x14);
             STRD_IMM8(x2, x1, 0);
             BX(x2);
         #endif
@@ -332,11 +332,11 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
         MOV32_(x2, (uintptr_t)arm_linker);
-        MOV_REG(x3, x12);
-        STREXD(x12, x2, x1); // nope, putting back linker & IP in place
-        // x12 now contain success / falure for write
-        CMPS_IMM8(x12, 1);
-        MOV_REG(x12, x3);   // put back IP in place...
+        MOV_REG(x3, x14);
+        STREXD(x14, x2, x1); // nope, putting back linker & IP in place
+        // x14 now contain success / falure for write
+        CMPS_IMM8(x14, 1);
+        MOV_REG(x14, x3);   // put back IP in place...
         B_MARK(cEQ);
         BX(x2); // go to linker
     }
@@ -380,11 +380,11 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         CMPS_REG_LSL_IMM5(xEIP, x3, 0);
         BXcond(cEQ, x2);
         MOV32_(x2, (uintptr_t)arm_linker);
-        MOV_REG(x3, x12);
-        STREXD(x12, x2, x1); // nope, putting back linker & IP in place
-        // x12 now contain success / falure for write
-        CMPS_IMM8(x12, 1);
-        MOV_REG(x12, x3);   // put back IP in place...
+        MOV_REG(x3, x14);
+        STREXD(x14, x2, x1); // nope, putting back linker & IP in place
+        // x14 now contain success / falure for write
+        CMPS_IMM8(x14, 1);
+        MOV_REG(x14, x3);   // put back IP in place...
         B_MARK(cEQ);
         BX(x2); // go to linker
     }
@@ -437,13 +437,13 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     int32_t j32;
     MAYUSE(j32);
     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, context));
-    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_serial[_GS]));  // complete check here
+    LDR_IMM9(x14, xEmu, offsetof(x86emu_t, segs_serial[_GS]));  // complete check here
     LDR_IMM9(x1, x1, offsetof(box86context_t, sel_serial));
-    CMPS_REG_LSL_IMM5(x12, x1, 0);
+    CMPS_REG_LSL_IMM5(x14, x1, 0);
     LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
     B_MARKSEG(cEQ);
     MOVW(x1, _GS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
+    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----TLSData\n");
 }
@@ -453,12 +453,12 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     int32_t j32;
     MAYUSE(j32);
     MESSAGE(LOG_DUMP, "Get FS: Offset\n");
-    LDR_IMM9(x12, xEmu, offsetof(x86emu_t, segs_serial[_FS]));// fast check here
-    CMPS_IMM8(x12, 0);
+    LDR_IMM9(x14, xEmu, offsetof(x86emu_t, segs_serial[_FS]));// fast check here
+    CMPS_IMM8(x14, 0);
     LDR_IMM9_COND(cNE, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
     B_MARKSEG(cNE);
     MOVW(x1, _FS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, 12, reg, 0);
+    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----FS: Offset\n");
 }

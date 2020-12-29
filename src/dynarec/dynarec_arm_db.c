@@ -188,8 +188,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
-                    VMRS(x12);   // Get FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, x12, 0b001, 6); // enable exceptions
+                    VMRS(x14);   // Get FPCSR reg to clear exceptions flags
+                    ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     VCVT_S32_F64(s0, v1);
@@ -198,13 +198,13 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
                     MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
-                    VMSR(x12);  // put back values
+                    VMSR(x14);  // put back values
                     x87_do_pop(dyn, ninst);
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x12); // x1 have the modified RPSCR reg
+                    u8 = x87_setround(dyn, ninst, x1, x2, x14); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -229,7 +229,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("FISTP Ed, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x12); // x1 have the modified RPSCR reg
+                    u8 = x87_setround(dyn, ninst, x1, x2, x14); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;

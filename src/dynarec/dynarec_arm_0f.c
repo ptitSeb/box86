@@ -341,7 +341,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d0 = v0;
             else
                 d0 = fpu_get_scratch_double(dyn);
-            u8 = x87_setround(dyn, ninst, x1, x2, x12);
+            u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VCVTR_S32_F32(d0*2, d1*2);
             VCVTR_S32_F32(d0*2+1, d1*2+1);
             if(v0>=16) {
@@ -1410,11 +1410,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA2:
             INST_NAME("CPUID");
             MOV_REG(x1, xEAX);
-            MOV32(x12, ip+2);   // EIP is useless, but why not...
+            MOV32(x14, ip+2);   // EIP is useless, but why not...
             // not purging stuff like x87 here, there is no float math or anything
-            STM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+            STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
             CALL_(my_cpuid, -1, 0);
-            LDM(xEmu, (1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12));
+            LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
             break;
         case 0xA3:
             INST_NAME("BT Ed, Gd");
@@ -1442,7 +1442,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETED;
             GETGD;
             u8 = F8;
-            emit_shld32c(dyn, ninst, ed, gd, u8&0x1f, x3, x12);
+            emit_shld32c(dyn, ninst, ed, gd, u8&0x1f, x3, x14);
             WBACK;
             break;
         case 0xA5:
@@ -1450,7 +1450,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SHLD Ed, Gd, CL");
             UXTB(x3, xECX, 0);
             SETFLAGS(X_ALL, SF_SET);
-            GETEDW(x12, x1);
+            GETEDW(x14, x1);
             GETGD;
             MOV_REG(x2, gd);
             CALL(shld32, ed, (wback?(1<<wback):0));
@@ -1489,12 +1489,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x12, ed, x2);
-            ANDS_IMM8(x12, x12, 1);
-            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOV_REG_LSR_REG(x14, ed, x2);
+            ANDS_IMM8(x14, x14, 1);
+            STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_NEXT(cNE); // bit already set, jump to next instruction
-            MOVW(x12, 1);
-            ORR_REG_LSL_REG(ed, ed, x12, x2);
+            MOVW(x14, 1);
+            ORR_REG_LSL_REG(ed, ed, x14, x2);
             if(wback) {
                 STR_IMM9(ed, wback, fixedaddress);
             }
@@ -1506,7 +1506,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETED;
             GETGD;
             u8 = F8;
-            emit_shrd32c(dyn, ninst, ed, gd, u8, x3, x12);
+            emit_shrd32c(dyn, ninst, ed, gd, u8, x3, x14);
             WBACK;
             break;
         case 0xAD:
@@ -1514,7 +1514,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET);
             UXTB(x3, xECX, 0);
-            GETEDW(x12, x1);
+            GETEDW(x14, x1);
             GETGD;
             MOV_REG(x2, gd);
             CALL(shrd32, ed, (wback?(1<<wback):0));
@@ -1566,8 +1566,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             LDR_IMM9(ed, xEmu, offsetof(x86emu_t, mxcsr));
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0);
-                            LDR_IMM9(x12, xEmu, offsetof(x86emu_t, mxcsr));
-                            STR_IMM9(x12, ed, fixedaddress);
+                            LDR_IMM9(x14, xEmu, offsetof(x86emu_t, mxcsr));
+                            STR_IMM9(x14, ed, fixedaddress);
                         }
                         break;
                     default:
@@ -1611,7 +1611,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
             MARK3;
             // done, do the cmp now
-            emit_cmp8(dyn, ninst, x1, x2, x3, x12);
+            emit_cmp8(dyn, ninst, x1, x2, x3, x14);
             break;
         case 0xB1:
             INST_NAME("CMPXCHG Ed, Gd");
@@ -1625,11 +1625,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV_REG(x3, ed);
             MOV_REG(ed, gd);
             WBACK;
-            emit_cmp32(dyn, ninst, xEAX, x3, x1, x12);
+            emit_cmp32(dyn, ninst, xEAX, x3, x1, x14);
             B_MARK3(c__);   // not next, in case its called with a LOCK prefix
             MARK;
             // EAX != Ed
-            emit_cmp32(dyn, ninst, xEAX, ed, x3, x12);
+            emit_cmp32(dyn, ninst, xEAX, ed, x3, x14);
             MOV_REG(xEAX, ed);
             MARK3
             break;
@@ -1650,12 +1650,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = x1;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x12, ed, x2);
-            ANDS_IMM8(x12, x12, 1);
-            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOV_REG_LSR_REG(x14, ed, x2);
+            ANDS_IMM8(x14, x14, 1);
+            STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
             B_MARK3(cEQ); // bit already clear, jump to end of instruction
-            MOVW(x12, 1);
-            XOR_REG_LSL_REG(ed, ed, x12, x2);
+            MOVW(x14, 1);
+            XOR_REG_LSL_REG(ed, ed, x14, x2);
             if(wback) {
                 STR_IMM9(ed, wback, fixedaddress);
             }
@@ -1734,12 +1734,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = x3;
                     }
                     AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x12, ed, x2);
-                    ANDS_IMM8(x12, x12, 1);
-                    STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    MOV_REG_LSR_REG(x14, ed, x2);
+                    ANDS_IMM8(x14, x14, 1);
+                    STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
                     B_MARK3(cNE); // bit already set, jump to next instruction
-                    MOVW(x12, 1);
-                    XOR_REG_LSL_REG(ed, ed, x12, x2);
+                    MOVW(x14, 1);
+                    XOR_REG_LSL_REG(ed, ed, x14, x2);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
@@ -1765,12 +1765,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = x3;
                     }
                     AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x12, ed, x2);
-                    ANDS_IMM8(x12, x12, 1);
-                    STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    MOV_REG_LSR_REG(x14, ed, x2);
+                    ANDS_IMM8(x14, x14, 1);
+                    STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
                     B_MARK3(cEQ); // bit already clear, jump to next instruction
-                    //MOVW(x12, 1); // already 0x01
-                    XOR_REG_LSL_REG(ed, ed, x12, x2);
+                    //MOVW(x14, 1); // already 0x01
+                    XOR_REG_LSL_REG(ed, ed, x14, x2);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
@@ -1796,11 +1796,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = x3;
                     }
                     AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x12, ed, x2);
-                    ANDS_IMM8(x12, x12, 1);
-                    STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                    MOVW_COND(cEQ, x12, 1); // may already 0x01
-                    XOR_REG_LSL_REG(ed, ed, x12, x2);
+                    MOV_REG_LSR_REG(x14, ed, x2);
+                    ANDS_IMM8(x14, x14, 1);
+                    STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    MOVW_COND(cEQ, x14, 1); // may already 0x01
+                    XOR_REG_LSL_REG(ed, ed, x14, x2);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
@@ -1827,11 +1827,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x12, ed, x2);
-            AND_IMM8(x12, x12, 1);
-            STR_IMM9(x12, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            MOVW(x12, 1);
-            XOR_REG_LSL_REG(ed, ed, x12, x2);
+            MOV_REG_LSR_REG(x14, ed, x2);
+            AND_IMM8(x14, x14, 1);
+            STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            MOVW(x14, 1);
+            XOR_REG_LSL_REG(ed, ed, x14, x2);
             if(wback) {
                 STR_IMM9(ed, wback, fixedaddress);
             }
@@ -1903,8 +1903,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEB(x2);
             GETGB(x1);
             BFI(gb1, ed, gb2*8, 8); // gb <- eb
-            emit_add8(dyn, ninst, ed, gd, x12, x3, 1);
-            ADD_REG_LSL_IMM5(x12, ed, gd, 0);
+            emit_add8(dyn, ninst, ed, gd, x14, x3, 1);
+            ADD_REG_LSL_IMM5(x14, ed, gd, 0);
             EBBACK;
             break;
         case 0xC1:
@@ -1918,7 +1918,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 XOR_REG_LSL_IMM5(ed, gd, ed, 0);
                 XOR_REG_LSL_IMM5(gd, gd, ed, 0);
             }
-            emit_add32(dyn, ninst, ed, gd, x3, x12);
+            emit_add32(dyn, ninst, ed, gd, x3, x14);
             WBACK;
             break;
         case 0xC2:
