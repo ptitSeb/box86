@@ -248,8 +248,10 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
                     if(db) {
                         if(db->father)
                             db = db->father;
-                        k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
-                        kh_value(blocks, k) = db;
+                        if(db->parent==dynablocks) {
+                            k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+                            kh_value(blocks, k) = db;
+                        }
                     }
                 }
         }
