@@ -403,8 +403,10 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     MOVW(x1, 0);
     STR_IMM9(x1, xEmu, offsetof(x86emu_t, segs_serial[_CS]));
     // POP EFLAGS
-    POP1(x1);
-    CALL(arm_popf, -1, (1<<xEIP));
+    POP1(xFlags);
+    MOV32(x1, 0x3F7FD7);
+    AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
+    ORR_IMM8(xFlags, xFlags, 2, 0);
     MOVW(x1, d_none);
     STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
     // Ret....
@@ -414,12 +416,15 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     BX(x2);
 }
 
-void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask)
+void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask, int saveflags)
 {
     if(ret!=-2) {
         PUSH(xSP, (1<<xEmu) | mask);
     }
     fpu_pushcache(dyn, ninst, reg);
+    if(saveflags) {
+        STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
     fpu_popcache(dyn, ninst, reg);
@@ -428,6 +433,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
     }
     if(ret!=-2) {
         POP(xSP, (1<<xEmu) | mask);
+    }
+    if(saveflags) {
+        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
 }
 
@@ -443,7 +451,7 @@ void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     LDR_IMM9_COND(cEQ, reg, xEmu, offsetof(x86emu_t, segs_offs[_GS]));
     B_MARKSEG(cEQ);
     MOVW(x1, _GS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0);
+    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0, 1);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----TLSData\n");
 }
@@ -458,7 +466,7 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
     LDR_IMM9_COND(cNE, reg, xEmu, offsetof(x86emu_t, segs_offs[_FS]));
     B_MARKSEG(cNE);
     MOVW(x1, _FS);
-    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0);
+    call_c(dyn, ninst, GetSegmentBaseEmu, x14, reg, 0, 1);
     MARKSEG;
     MESSAGE(LOG_DUMP, "----FS: Offset\n");
 }

@@ -685,64 +685,6 @@ void UpdateFlags(x86emu_t *emu)
     RESET_FLAGS(emu);
 }
 
-
-void PackFlags(x86emu_t* emu)
-{
-    #define GO(A) emu->packed_eflags.f.F__##A = emu->flags[F_##A];
-    #define GOC(A, C) emu->packed_eflags.f.F__##A = C;
-    GO(CF);
-    GOC(res1, 1);
-    GO(PF);
-    GOC(res2, 0);
-    GO(AF);
-    GOC(res3, 0);
-    GO(ZF);
-    GO(SF);
-    GO(TF);
-    GO(IF);
-    GO(DF);
-    GO(OF);
-    GO(IOPL);
-    GO(NT);
-    GOC(dummy, 0);
-    GO(RF);
-    GO(VM);
-    GO(AC);
-    GO(VIF);
-    GO(VIP);
-    GO(ID);
-    #undef GO
-    #undef GOC
-}
-void UnpackFlags(x86emu_t* emu)
-{
-    #define GO(A) emu->flags[F_##A] = emu->packed_eflags.f.F__##A;
-    #define GOC(A, C) emu->flags[F_##A] = C;
-    GO(CF);
-    GOC(res1, 1);
-    GO(PF);
-    GOC(res2, 0);
-    GO(AF);
-    GOC(res3, 0);
-    GO(ZF);
-    GO(SF);
-    GO(TF);
-    GO(IF);
-    GO(DF);
-    GO(OF);
-    GO(IOPL);
-    GO(NT);
-    GOC(dummy, 0);
-    GO(RF);
-    GO(VM);
-    GO(AC);
-    GO(VIF);
-    GO(VIP);
-    GO(ID);
-    #undef GO
-    #undef GOC
-}
-
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg)
 {
     if(emu->segs_serial[seg] != emu->context->sel_serial) {

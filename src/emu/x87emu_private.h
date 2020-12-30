@@ -92,27 +92,27 @@ static inline void fpu_fcom(x86emu_t* emu, double b)
 static inline void fpu_fcomi(x86emu_t* emu, double b)
 {
     RESET_FLAGS(emu);
-    emu->flags[F_AF] = 0;
-    emu->flags[F_OF] = 0;
-    emu->flags[F_SF] = 0;
+    CLEAR_FLAG(F_AF);
+    CLEAR_FLAG(F_OF);
+    CLEAR_FLAG(F_SF);
     emu->sw.f.F87_C1 = 0;
     if(isnan(ST0.d) || isnan(b)) {
-        emu->flags[F_CF] = 1;
-        emu->flags[F_PF] = 1;
-        emu->flags[F_ZF] = 1;
+        SET_FLAG(F_CF);
+        SET_FLAG(F_PF);
+        SET_FLAG(F_ZF);
     } else if (isgreater(ST0.d, b)) {
-        emu->flags[F_CF] = 0;
-        emu->flags[F_PF] = 0;
-        emu->flags[F_ZF] = 0;
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_ZF);
     } else if (isless(ST0.d, b)) {
-        emu->flags[F_CF] = 1;
-        emu->flags[F_PF] = 0;
-        emu->flags[F_ZF] = 0;
+        SET_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_ZF);
     } 
     else {
-        emu->flags[F_CF] = 0;
-        emu->flags[F_PF] = 0;
-        emu->flags[F_ZF] = 1;
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        SET_FLAG(F_ZF);
     }
 }
 

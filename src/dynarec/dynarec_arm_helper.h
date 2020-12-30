@@ -179,18 +179,22 @@
 #define GBBACK   BFI(gb1, gd, gb2*8, 8);
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
+// F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
 #define GETDIR(r, A)    \
-    LDR_IMM9(r, xEmu, offsetof(x86emu_t, flags[F_DF]));     \
-    CMPS_IMM8(r, 1);                                        \
-    MOVW(r, A);                                             \
-    RSB_COND_IMM8(cEQ, r, r, 0)
+    TSTS_IMM8_ROR(xFlags, 1, 0x0b);         \
+    MOVW(r, A);                             \
+    RSB_COND_IMM8(cNE, r, r, 0)
 
 // CALL will use x14 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret, M) call_c(dyn, ninst, F, x14, ret, M)
+#define CALL(F, ret, M) call_c(dyn, ninst, F, x14, ret, M, 1)
 // CALL_ will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, M) call_c(dyn, ninst, F, x3, ret, M)
+#define CALL_(F, ret, M) call_c(dyn, ninst, F, x3, ret, M, 1)
+// CALL_S will use x3 for the call address. Return value can be put in ret (unless ret is -1)
+// R0 will not be pushed/popd if ret is -2. Flags are not save/restored
+#define CALL_S(F, ret, M) call_c(dyn, ninst, F, x3, ret, M, 0)
+
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
 #define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
@@ -250,33 +254,24 @@
 // Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOMI(s1, s2)    \
     VMRS_APSR();    /* 0b111 */                             \
-    XOR_REG_LSL_IMM5(s2, s2, s2, 0);                        \
-    MOVW_COND(cVS, s1, 0b111); /* unordered */              \
-    MOVW_COND(cEQ, s1, 0b100); /* zero */                   \
-    MOVW_COND(cGT, s1, 0b000); /* greater than */           \
-    MOVW_COND(cLO, s1, 0b001); /* less than */              \
-    IFX(X_CF|X_PEND) {                                      \
-        UBFX(s2, s1, 0, 1);                                 \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_CF]));\
+    MOVW_COND(cVS, s1, 0b1000101); /* unordered */          \
+    MOVW_COND(cEQ, s1, 0b1000000); /* zero */               \
+    MOVW_COND(cGT, s1, 0b0000000); /* greater than */       \
+    MOVW_COND(cLO, s1, 0b0000001); /* less than */          \
+    IFX(X_CF|X_PF|X_ZF|X_PEND) {                            \
+        BIC_IMM8(xFlags, xFlags, 0b1000101, 0);             \
+        ORR_REG_LSL_IMM5(xFlags, xFlags, s1, 0);            \
     }                                                       \
-    IFX(X_PF|X_PEND) {                                      \
-        UBFX(s2, s1, 1, 1);                                 \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_PF]));\
-    }                                                       \
-    IFX(X_ZF|X_PEND) {                                      \
-        UBFX(s2, s1, 2, 1);                                 \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_ZF]));\
-    }                                                       \
-    MOVW(s2, d_none);                                       \
-    STR_IMM9(s2, xEmu, offsetof(x86emu_t, df));             \
+    MOVW(s1, d_none);                                       \
+    STR_IMM9(s1, xEmu, offsetof(x86emu_t, df));             \
     IFX(X_OF|X_PEND) {                                      \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_OF]));\
+        BFC(xFlags, F_OF, 1);                               \
     }                                                       \
     IFX(X_AF|X_PEND) {                                      \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_AF]));\
+        BFC(xFlags, F_AF, 1);                               \
     }                                                       \
     IFX(X_SF|X_PEND) {                                      \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, flags[F_SF]));\
+        BFC(xFlags, F_SF, 1);                               \
     }                                                       \
 
 
@@ -484,7 +479,7 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
-void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask);
+void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask, int saveflags);
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);

@@ -170,7 +170,6 @@ int Run(x86emu_t *emu, int step)
 
 x86emurun:
     ip = R_EIP;
-//    UnpackFlags(emu);
 #ifdef HAVE_TRACE
 _trace:
     __builtin_prefetch((void*)ip, 0, 0); 
@@ -737,12 +736,10 @@ _trace:
             NEXT;
         _0x9C:                      /* PUSHF */
             CHECK_FLAGS(emu);
-            PackFlags(emu);
-            Push(emu, emu->packed_eflags.x32);
+            Push(emu, emu->eflags.x32);
             NEXT;
         _0x9D:                      /* POPF */
-            emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-            UnpackFlags(emu);
+            emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             NEXT;
         _0x9E:                      /* SAHF */
@@ -756,8 +753,7 @@ _trace:
             NEXT;
         _0x9F:                      /* LAHF */
             CHECK_FLAGS(emu);
-            PackFlags(emu);
-            R_AH = (uint8_t)emu->packed_eflags.x32;
+            R_AH = (uint8_t)emu->eflags.x32;
             NEXT;
 
         _0xA0:                      /* MOV AL,Ob */
@@ -983,8 +979,7 @@ _trace:
             ip = Pop(emu);
             emu->segs[_CS] = Pop(emu);
             emu->segs_serial[_CS] = 0;
-            emu->packed_eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-            UnpackFlags(emu);
+            emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             NEXT;
         _0xD0:                      /* GRP2 Eb,1 */

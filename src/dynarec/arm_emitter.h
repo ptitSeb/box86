@@ -21,6 +21,7 @@ Op is 20-27
 #define xEBP    9
 #define xESI    10
 #define xEDI    11
+#define xFlags  12
 #define xEIP    14
 // scratch registers
 #define x1      1
@@ -246,6 +247,9 @@ Op is 20-27
 // orr.s dst, src1, #imm8
 #define ORRS_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3900000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// orr.cond dst, src1, #imm8
+#define ORR_IMM8_COND(cond, dst, src, imm8, rot) \
+    EMIT((cond) | 0x03800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // orr dst, src1, src2, lsl rs
 #define ORR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
@@ -277,6 +281,9 @@ Op is 20-27
 // bic dst, src, IMM8
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// bic.cond dst, src, IMM8
+#define BIC_IMM8_COND(cond, dst, src, imm8, rot) \
+    EMIT((cond) | 0x03c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // bic.s dst, src1, #imm ror rot*2
 #define BICS_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe3d00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
@@ -446,6 +453,11 @@ Op is 20-27
 #define BFI(rd, rn, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
 // BFI_COND: Bit Field Insert with condition: copy any number of low order bit from Rn to any position of Rd
 #define BFI_COND(cond, rd, rn, lsb, width) EMIT(cond | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))
+
+// BFC: Bit Field Clear: clear any number of adjacent bit from Rd
+#define BFC(rd, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | 0b1111)
+// BFC_COND: Bit Field Clear with condition: clear any number of adjacent bit from Rd
+#define BFC_COND(cond, rd, lsb, width) EMIT(cond | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | 0b1111)
 
 // REV: Reverse byte of a 32bits word
 #define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))

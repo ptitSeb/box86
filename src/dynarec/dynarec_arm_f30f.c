@@ -507,7 +507,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VLD1Q_64(v1, ed);
             }
             u8 = F8;
-            // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+            // only high part need to be shuffled. VTBL only handle 8bits value, so the 16bits shuffles need to be changed in 8bits
             u32 = 0;
             for (int i=0; i<2; ++i) {
                 u32 |= (((u8>>(i*2))&3)*2+0)<<(i*16+0);
@@ -575,9 +575,9 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             CLZ(gd, x1);    // x2 gets leading 0 == TZCNT
             MOVW_COND(cEQ, x1, 1);
             MOVW_COND(cNE, x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            BFI(xFlags, x1, F_CF, 1);
             RSB_IMM8(x1, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+            BFI(xFlags, x1, F_ZF, 1);
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
             break;

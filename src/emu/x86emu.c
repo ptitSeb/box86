@@ -60,8 +60,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
         emu->sbiidx[i] = &emu->regs[i];
     emu->sbiidx[4] = &emu->zero;
     emu->x86emu_parity_tab = x86emu_parity_tab;
-    emu->packed_eflags.x32 = 0x202; // default flags?
-    UnpackFlags(emu);
+    emu->eflags.x32 = 0x202; // default flags?
     // own stack?
     emu->stack2free = (ownstack)?(void*)stack:NULL;
     emu->init_stack = (void*)stack;
@@ -198,8 +197,7 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
 {
 	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
     memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
-	memcpy(&newemu->packed_eflags, &emu->packed_eflags, sizeof(emu->packed_eflags));
-    memcpy(&newemu->flags, &emu->flags, sizeof(emu->flags));
+	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memset(newemu->segs_serial, 0, sizeof(newemu->segs_serial));

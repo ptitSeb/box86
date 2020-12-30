@@ -447,7 +447,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     sigcontext->uc_mcontext.gregs[REG_ESP] = R_ESP;
     sigcontext->uc_mcontext.gregs[REG_EBX] = R_EBX;
     // flags
-    sigcontext->uc_mcontext.gregs[REG_EFL] = emu->packed_eflags.x32;
+    sigcontext->uc_mcontext.gregs[REG_EFL] = emu->eflags.x32;
     // get segments
     sigcontext->uc_mcontext.gregs[REG_GS] = R_GS;
     sigcontext->uc_mcontext.gregs[REG_FS] = R_FS;
@@ -553,7 +553,7 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
             if(sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP]) ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[REG_EIP];
             sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;
             // flags
-            if(sigcontext->uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->packed_eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
+            if(sigcontext->uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
             // get segments
             #define GO(S)   if(sigcontext->uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_serial[_##S] = 0;}
             GO(GS);

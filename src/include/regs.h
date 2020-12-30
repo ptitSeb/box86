@@ -138,27 +138,27 @@ typedef struct {
 
 typedef union {
     struct __attribute__ ((__packed__)) {
-        unsigned int F__CF:1;
-		unsigned int F__res1:1;
-        unsigned int F__PF:1;
-		unsigned int F__res2:1;
-        unsigned int F__AF:1;
-		unsigned int F__res3:1;
-        unsigned int F__ZF:1;
-        unsigned int F__SF:1;
-        unsigned int F__TF:1;
-        unsigned int F__IF:1;
-        unsigned int F__DF:1;
-        unsigned int F__OF:1;
-        unsigned int F__IOPL:2;
-        unsigned int F__NT:1;
-        unsigned int F__dummy:1;
-        unsigned int F__RF:1;
-        unsigned int F__VM:1;
-        unsigned int F__AC:1;
-        unsigned int F__VIF:1; 
-        unsigned int F__VIP:1;
-        unsigned int F__ID:1;
+        unsigned int _F_CF:1;
+		unsigned int _F_res1:1;
+        unsigned int _F_PF:1;
+		unsigned int _F_res2:1;
+        unsigned int _F_AF:1;
+		unsigned int _F_res3:1;
+        unsigned int _F_ZF:1;
+        unsigned int _F_SF:1;
+        unsigned int _F_TF:1;
+        unsigned int _F_IF:1;
+        unsigned int _F_DF:1;
+        unsigned int _F_OF:1;
+        unsigned int _F_IOPL:2;
+        unsigned int _F_NT:1;
+        unsigned int _F_dummy:1;
+        unsigned int _F_RF:1;
+        unsigned int _F_VM:1;
+        unsigned int _F_AC:1;
+        unsigned int _F_VIF:1; 
+        unsigned int _F_VIP:1;
+        unsigned int _F_ID:1;
     } f;
     uint32_t    x32;
 } x86flags_t;
@@ -262,16 +262,9 @@ typedef union {
 #define R_FS emu->segs[_FS]
 #define R_GS emu->segs[_GS]
 
-#if 0
-#define ACCESS_FLAG(F)  emu->eflags.f.F
-#define SET_FLAG(F)     emu->eflags.f.F = 1
-#define CLEAR_FLAG(F)   emu->eflags.f.F = 0
-#define CONDITIONAL_SET_FLAG(COND, F)   emu->eflags.f.F = (COND)?1:0
-#else
-#define ACCESS_FLAG(F)  emu->flags[F]
-#define SET_FLAG(F)     emu->flags[F] = 1
-#define CLEAR_FLAG(F)   emu->flags[F] = 0
-#define CONDITIONAL_SET_FLAG(COND, F)   emu->flags[F] = (COND)?1:0
-#endif
+#define ACCESS_FLAG(F)  emu->eflags.f._##F
+#define SET_FLAG(F)     emu->eflags.f._##F = 1
+#define CLEAR_FLAG(F)   emu->eflags.f._##F = 0
+#define CONDITIONAL_SET_FLAG(COND, F)   emu->eflags.f._##F = (COND)?1:0
 
 #endif //__REGS_H_

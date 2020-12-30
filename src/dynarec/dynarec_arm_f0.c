@@ -628,7 +628,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     AND_IMM8(x2, gd, 0x1f);
                     MOV_REG_LSR_REG(x14, ed, x2);
                     ANDS_IMM8(x14, x14, 1);
-                    STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    BFI(xFlags, x14, F_CF, 1);
                     B_MARK3(cEQ); // bit already clear, jump to end of instruction
                     MOVW(x14, 1);
                     XOR_REG_LSL_REG(ed, ed, x14, x2);
@@ -662,8 +662,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                                 MOV_REG_LSR_IMM5(x1, ed, u8);
                                 ed = x1;
                             }
-                            AND_IMM8(x1, ed, 1);
-                            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            BFI(xFlags, ed, F_CF, 1);
                             break;
                         case 6:
                             INST_NAME("LOCK BTR Ed, Ib");
@@ -688,7 +687,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             AND_IMM8(x2, gd, 0x1f);
                             MOV_REG_LSR_REG(x14, ed, x2);
                             ANDS_IMM8(x14, x14, 1);
-                            STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                            BFI(xFlags, x14, F_CF, 1);
                             B_MARK3(cEQ); // bit already clear, jump to next instruction
                             //MOVW(x14, 1); // already 0x01
                             XOR_REG_LSL_REG(ed, ed, x14, x2);
@@ -722,8 +721,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     AND_IMM8(x2, gd, 0x1f);
                     MOV_REG_LSR_REG(x14, ed, x2);
-                    AND_IMM8(x14, x14, 1);
-                    STR_IMM9(x14, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                    BFI(xFlags, x14, F_CF, 1);
                     MOVW(x14, 1);
                     XOR_REG_LSL_REG(ed, ed, x14, x2);
                     if(wback) {
@@ -838,7 +836,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_REG(xEDX, x3);
                     MOVW(x1, 0);
                     MARK3;
-                    STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                    BFI(xFlags, x1, F_ZF, 1);
                     break;
 
                 default:

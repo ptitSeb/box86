@@ -208,9 +208,6 @@ void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);
 x86emu_t* x86emu_fork(x86emu_t* e, int forktype);
 
-void PackFlags(x86emu_t* emu);
-void UnpackFlags(x86emu_t* emu);
-
 uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg);
 #define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)
 #define GetFSBaseEmu(emu)    GetSegmentBaseEmu(emu, _FS)

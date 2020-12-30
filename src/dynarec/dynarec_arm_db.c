@@ -52,8 +52,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            TSTS_REG_LSL_IMM5(x1, x1, 0);
+            TSTS_IMM8(xFlags, 1<<F_CF);
             VMOVcond_64(cEQ, v1, v2);   // F_CF==0
             break;
         case 0xC8:
@@ -68,8 +67,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM5(x1, x1, 0);
+            TSTS_IMM8(xFlags, 1<<F_ZF);
             VMOVcond_64(cEQ, v1, v2);   // F_ZF==0
             break;
         case 0xD0:
@@ -84,10 +82,8 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF|X_ZF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            ORRS_REG_LSL_IMM5(x1, x1, x2, 0);
-            VMOVcond_64(cEQ, v1, v2);   // F_CF==0 | F_ZF==0
+            TSTS_IMM8(xFlags, (1<<F_CF)|(1<<F_ZF));
+            VMOVcond_64(cEQ, v1, v2);   // F_CF==0 & F_ZF==0
             break;
         case 0xD8:
         case 0xD9:
@@ -101,8 +97,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_PF);
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            TSTS_REG_LSL_IMM5(x1, x1, 0);
+            TSTS_IMM8(xFlags, 1<<F_PF);
             VMOVcond_64(cEQ, v1, v2);   // F_PF==0
             break;
         case 0xE1:

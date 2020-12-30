@@ -13,7 +13,7 @@ arm_prolog:
     //vpush     {d8-d15}
     //setup emu -> register
     //push     {r0}
-    ldm      r0, {r4-r11}    // all 8 register in direct access, no EIP (so r12 can be used as scratch)
+    ldm      r0, {r4-r12}    // all 8 register in direct access, plus flags, no EIP (so r14 can be used as scratch)
     //TODO
     //jump to function
     bx       r1

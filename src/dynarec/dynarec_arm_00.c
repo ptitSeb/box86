@@ -706,107 +706,94 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x70:
             INST_NAME("JO ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_OF)
+            //F_OF is 1<<11, so 2048, so 0b10 ROL 10 so 0b01 ROR 11*2
+            GO( TSTS_IMM8_ROR(xFlags, 0b10, 0x0b)
+                , cEQ, cNE, X_OF)
             break;
         case 0x71:
             INST_NAME("JNO ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
-                CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_OF)
+            GO( TSTS_IMM8_ROR(xFlags, 0b10, 0x0b)
+                , cNE, cEQ, X_OF)
             break;
         case 0x72:
             INST_NAME("JC ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_CF)
+            GO( TSTS_IMM8(xFlags, 1<<F_CF)
+                , cEQ, cNE, X_CF)
             break;
         case 0x73:
             INST_NAME("JNC ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_CF)
+            GO( TSTS_IMM8(xFlags, 1<<F_CF)
+                , cNE, cEQ, X_CF)
             break;
         case 0x74:
             INST_NAME("JZ ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-                CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_ZF)
+            GO( TSTS_IMM8(xFlags, 1<<F_ZF)
+                , cEQ, cNE, X_ZF)
             break;
         case 0x75:
             INST_NAME("JNZ ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-                CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_ZF)
+            GO( TSTS_IMM8(xFlags, 1<<F_ZF)
+                , cNE, cEQ, X_ZF)
             break;
         case 0x76:
             INST_NAME("JBE ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-                ORRS_REG_LSL_IMM5(x2, x2, x3, 0);
+            GO( TSTS_IMM8(xFlags, (1<<F_CF)|(1<<F_ZF))
                 , cEQ, cNE, X_CF|X_ZF)
             break;
         case 0x77:
             INST_NAME("JNBE ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
-                LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-                ORRS_REG_LSL_IMM5(x2, x2, x3, 0);
+            GO( TSTS_IMM8(xFlags, (1<<F_CF)|(1<<F_ZF))
                 , cNE, cEQ, X_CF|X_ZF)
             break;
         case 0x78:
             INST_NAME("JS ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_SF)
+            GO( TSTS_IMM8(xFlags, 1<<F_SF)
+                , cEQ, cNE, X_SF)
             break;
         case 0x79:
             INST_NAME("JNS ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_SF)
+            GO( TSTS_IMM8(xFlags, 1<<F_SF)
+                , cNE, cEQ, X_SF)
             break;
         case 0x7A:
             INST_NAME("JP ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
-                CMPS_IMM8(x2, 1)
-                , cNE, cEQ, X_PF)
+            GO( TSTS_IMM8(xFlags, 1<<F_PF)
+                , cEQ, cNE, X_PF)
             break;
         case 0x7B:
             INST_NAME("JNP ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_PF]));
-                CMPS_IMM8(x2, 1)
-                , cEQ, cNE, X_PF)
+            GO( TSTS_IMM8(xFlags, 1<<F_PF)
+                , cNE, cEQ, X_PF)
             break;
         case 0x7C:
             INST_NAME("JL ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            GO( UBFX(x2, xFlags, F_SF, 1);
+                UBFX(x1, xFlags, F_OF, 1);
                 CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cEQ, cNE, X_SF|X_OF)
             break;
         case 0x7D:
             INST_NAME("JGE ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            GO( UBFX(x2, xFlags, F_SF, 1);
+                UBFX(x1, xFlags, F_OF, 1);
                 CMPS_REG_LSL_IMM5(x1, x2, 0)
                 , cNE, cEQ, X_SF|X_OF)
             break;
         case 0x7E:
             INST_NAME("JLE ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            GO( UBFX(x2, xFlags, F_SF, 1);
+                UBFX(x1, xFlags, F_OF, 1);
                 XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                UBFX(x2, xFlags, F_ZF, 1);
                 ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
                 , cEQ, cNE, X_SF|X_OF|X_ZF)
             break;
         case 0x7F:
             INST_NAME("JG ib");
-            GO( LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_SF]));
-                LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+            GO( UBFX(x2, xFlags, F_SF, 1);
+                UBFX(x1, xFlags, F_OF, 1);
                 XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                LDR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_ZF]));
+                UBFX(x2, xFlags, F_ZF, 1);
                 ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
@@ -1208,49 +1195,30 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
-            CALL(PackFlags, -1, 0);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, packed_eflags.x32));
-            PUSH1(x1);
+            PUSH1(xFlags);
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            POP1(x1);
-            CALL(arm_popf, -1, 0);
+            POP1(xFlags);
+            MOV32(x1, 0x3F7FD7);
+            AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
+            ORR_IMM8(xFlags, xFlags, 2, 0);
             MOVW(x1, d_none);
             STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
             break;
         case 0x9E:
             INST_NAME("SAHF");
             SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF, SF_SET);
-            UBFX(x1, xEAX, 8+0, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            UBFX(x1, xEAX, 8+2, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            UBFX(x1, xEAX, 8+4, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
-            UBFX(x1, xEAX, 8+6, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            UBFX(x1, xEAX, 8+7, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
-            MOVW(x1, d_none);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            BIC_IMM8(xFlags, xFlags, 0b11010101, 0);
+            UXTB(x1, xEAX, 8);
+            AND_IMM8(x1, x1, 0b11010101);
+            ORR_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
             break;
         case 0x9F:
             INST_NAME("LAHF");
             READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
-            MOVW(x2, 0b00000010);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            ORR_REG_LSL_IMM5(x2, x2, x1, 0);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_PF]));
-            ORR_REG_LSL_IMM5(x2, x2, x1, 2);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_AF]));
-            ORR_REG_LSL_IMM5(x2, x2, x1, 4);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            ORR_REG_LSL_IMM5(x2, x2, x1, 6);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_SF]));
-            ORR_REG_LSL_IMM5(x2, x2, x1, 7);
-            BFI(xEAX, x2, 8, 8);
+            BFI(xEAX, xFlags, 8, 8);
             break;
         case 0xA0:
             INST_NAME("MOV AL, Ob");
@@ -1624,7 +1592,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr+=4;
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x14, ip+1+2);
-                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
+                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                     MOVW(x1, 1);
                     STR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
                     *ok = 0;
@@ -1634,9 +1602,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_forget(dyn, ninst, x3, x14, 0);
                     MOV32(xEIP, ip+1); // read the 0xCC
                     addr+=4+4;
-                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
-                    CALL_(x86Int3, -1, 0);
-                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
+                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                    CALL_S(x86Int3, -1, 0);
+                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                     MOV32(x3, ip+1+2+4+4); // expected return address
                     CMPS_REG_LSL_IMM5(xEIP, x3, 0);
                     B_MARK(cNE);
@@ -1666,9 +1634,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 u8 = F8;
                 BARRIER(2);
                 MOV32(xEIP, ip+2);
-                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
-                CALL_(x86Syscall, -1, 0);
-                LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
+                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                CALL_S(x86Syscall, -1, 0);
+                LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                 MOVW(x2, addr);
                 CMPS_REG_LSL_IMM5(x14, x2, 0);
                 B_MARK(cNE);    // jump to epilog, if IP is not what is expected
@@ -1867,11 +1835,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_MARK(cNE);
                             MOV_REG_LSR_IMM5(x1, ed, 31);
                             ADD_REG_LSL_IMM5(x1, x1, ed, 0);
-                            AND_IMM8(x1, x1, 1);
-                            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            BFI(xFlags, x1, F_OF, 1);
                         MARK;
-                        AND_IMM8(x1, ed, 0x1);
-                        STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                        BFI(xFlags, ed, F_CF, 1);
                         UFLAG_DF(x2, d_none);
                     }
                     MARK2;
@@ -1890,11 +1856,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_MARK(cNE);
                             MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
                             XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
-                            AND_IMM8(x2, x2, 1);    // x2 = (((d>>30) ^ ((d>>30)>>1)) &0x1)
-                            STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_OF]));
+                            BFI(xFlags, x2, F_OF, 1);
                         MARK;
                         MOV_REG_LSR_IMM5(x2, ed, 31);
-                        STR_IMM9(x2, xEmu, offsetof(x86emu_t, flags[F_CF]));
+                        BFI(xFlags, x2, F_CF, 1);
                         UFLAG_DF(x2, d_none);
                     }
                     MARK2;
@@ -1974,10 +1939,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD6:
             INST_NAME("SALC");
             READFLAGS(X_CF);
-            LDR_IMM9(x3, xEmu, offsetof(x86emu_t, flags[F_CF])); // load CC
-            CMPS_IMM8(x3, 1);
-            MOVW_COND(cEQ, x3, 0xff);
-            MOVW_COND(cNE, x3, 0x00);
+            TSTS_IMM8(xFlags, 1<<F_CF);
+            MOVW_COND(cEQ, x3, 0x00);
+            MOVW_COND(cNE, x3, 0xFF);
             BFI(xEAX, x3, 0, 8);
             break;
         case 0xD7:
@@ -2031,8 +1995,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i8 = F8S;
             SUBS_IMM8(xECX, xECX, 1);
             B_NEXT(cEQ);    // CX is 0, no LOOP
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM5(x1, x1, 0);
+            TSTS_IMM8(xFlags, 1<<F_ZF);
             GO(cNE, cEQ);
             break;
         case 0xE1:
@@ -2041,8 +2004,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i8 = F8S;
             SUBS_IMM8(xECX, xECX, 1);
             B_NEXT(cEQ);    // CX is 0, no LOOP
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_ZF]));
-            TSTS_REG_LSL_IMM5(x1, x1, 0);
+            TSTS_IMM8(xFlags, 1<<F_ZF);
             GO(cEQ, cNE);
             break;
         case 0xE2:
@@ -2113,9 +2075,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x14, 0);
                     MOV32(x14, dyn->insts[ninst].natcall); // read the 0xCC already
-                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
-                    CALL_(x86Int3, -1, 0);
-                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP));
+                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                    CALL_S(x86Int3, -1, 0);
+                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                     MOV32(x3, dyn->insts[ninst].natcall+2+4+4);
                     CMPS_REG_LSL_IMM5(xEIP, x3, 0);
                     B_MARK(cNE);    // Not the expected address, exit dynarec block
@@ -2466,9 +2428,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("CMC");
             READFLAGS(X_CF);
             SETFLAGS(X_CF, SF_SET);
-            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
-            XOR_IMM8(x1, x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            XOR_IMM8(xFlags, xFlags, 1<<F_CF);
             break;
         case 0xF6:
             nextop = F8;
@@ -2599,10 +2559,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(i32!=SF_SET) {
                 MOVW(x1, d_none);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
-            } else {
-                MOVW(x1, 0);
             }
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            BFC(xFlags, F_CF, 1);
             break;
         case 0xF9:
             INST_NAME("STC");
@@ -2612,28 +2570,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOVW(x1, d_none);
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
             }
-            MOVW(x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_CF]));
+            ORRS_IMM8(xFlags, xFlags, 1, 0);
             break;
         case 0xFA:
             INST_NAME("CLI");
-            MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_IF]));
+            BFC(xFlags, F_IF, 1);
             break;
         case 0xFB:
             INST_NAME("STI");
             MOVW(x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_IF]));
+            BFI(xFlags, x1, F_IF, 1);
             break;
         case 0xFC:
             INST_NAME("CLD");
-            MOVW(x1, 0);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_DF]));
+            BFC(xFlags, F_DF, 1);
             break;
         case 0xFD:
             INST_NAME("STD");
             MOVW(x1, 1);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, flags[F_DF]));
+            BFI(xFlags, x1, F_DF, 1);
             break;
 
         case 0xFE:
