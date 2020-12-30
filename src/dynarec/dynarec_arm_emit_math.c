@@ -51,26 +51,23 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_AF) {
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 1);
-        MOVW_COND(cCC, s4, 0);
-        BFI(xFlags, s4, F_CF, 1);
+        ORR_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -133,26 +130,23 @@ void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         }
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 1);
-        MOVW_COND(cCC, s4, 0);
-        BFI(xFlags, s4, F_CF, 1);
+        ORR_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -195,26 +189,24 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_AF) {
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (~op1 & op2) | ((~op1 | op2) & res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 0);
-        MOVW_COND(cCC, s4, 1);  // Carry in inverted when substracting?
-        BFI(xFlags, s4, F_CF, 1);
+        // inverted carry
+        ORR_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -279,26 +271,24 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         }
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (~op1 & op2) | ((~op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 0);
-        MOVW_COND(cCC, s4, 1);  // Carry is inverted with Sub?
-        BFI(xFlags, s4, F_CF, 1);
+        // Inverted carry
+        ORR_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -335,7 +325,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -345,7 +335,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 8, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 8);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
@@ -353,12 +343,11 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -397,7 +386,7 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -407,7 +396,7 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 8, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 8);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
@@ -415,12 +404,11 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -462,11 +450,11 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 7, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 7);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -477,12 +465,11 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -525,11 +512,11 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 7, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 7);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -540,12 +527,11 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -583,7 +569,7 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -593,7 +579,7 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 16, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 16);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
@@ -602,12 +588,11 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -661,7 +646,7 @@ void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -671,7 +656,7 @@ void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 16, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 16);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_PEND) {
@@ -680,12 +665,11 @@ void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -727,11 +711,11 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 15, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 15);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -743,12 +727,11 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -803,11 +786,11 @@ void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 15, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 15);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -819,12 +802,11 @@ void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -865,21 +847,19 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_AF) {
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -917,7 +897,7 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -929,12 +909,11 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -974,7 +953,7 @@ void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -986,12 +965,11 @@ void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1033,21 +1011,19 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_AF) {
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (~op1 & op2) | ((~op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1086,7 +1062,7 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1097,12 +1073,11 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1141,7 +1116,7 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1153,12 +1128,11 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1202,26 +1176,23 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         AND_REG_LSL_IMM5(s4, s4, s2, 0);    // s4 = op1 & op2
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 1);
-        MOVW_COND(cCC, s4, 0);
-        BFI(xFlags, s4, F_CF, 1);
+        ORR_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1283,26 +1254,23 @@ void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         }
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 1);
-        MOVW_COND(cCC, s4, 0);
-        BFI(xFlags, s4, F_CF, 1);
+        ORR_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1344,7 +1312,7 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1354,17 +1322,16 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 8, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 8);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1407,7 +1374,7 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s4 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1417,17 +1384,16 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 8, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 8);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1469,7 +1435,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1479,18 +1445,17 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 16, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 16);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1547,7 +1512,7 @@ void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BIC_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (op1 | op2) & ~ res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1557,18 +1522,17 @@ void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         }
     }
     IFX(X_CF) {
-        UBFX(s3, s1, 16, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 16);
         BFI(xFlags, s3, F_CF, 1);
     }
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1617,22 +1581,20 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 0);
-        MOVW_COND(cCC, s4, 1);  // Carry in inverted when substracting
-        BFI(xFlags, s4, F_CF, 1);
+        // Inverted carry
+        ORR_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1699,22 +1661,20 @@ void emit_sbb32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_CF) {
-        MOVW_COND(cCS, s4, 0);
-        MOVW_COND(cCC, s4, 1);  // Carry is inverted with Sub
-        BFI(xFlags, s4, F_CF, 1);
+        // Inverted carry
+        ORR_IMM8_COND(cCC, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cCS, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1758,11 +1718,11 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 7, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 7);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1773,12 +1733,11 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1822,11 +1781,11 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);    // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);    // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 7, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 7);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1837,12 +1796,11 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1886,11 +1844,11 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 15, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 15);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1902,12 +1860,11 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -1964,11 +1921,11 @@ void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         AND_REG_LSL_IMM5(s3, s3, s1, 0);   // s3 = (~op1 | op2) & res
         ORR_REG_LSL_IMM5(s3, s3, s4, 0);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
-            UBFX(s4, s3, 15, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 15);
             BFI(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
         }
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -1980,12 +1937,11 @@ void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 0);
-        MOVW_COND(cEQ, s3, 1);
-        BFI(xFlags, s3, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -2013,9 +1969,8 @@ void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_CF) {
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 1);
-        MOVW_COND(cEQ, s3, 0);
-        BFI(xFlags, s3, F_CF, 1);
+        ORR_IMM8_COND(cNE, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_AF) {
         MOV_REG_LSL_IMM5(s3, s1, 0);
@@ -2029,22 +1984,20 @@ void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
-        MOVW_COND(cEQ, s4, 1);
-        MOVW_COND(cNE, s4, 0);
-        BFI(xFlags, s4, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_OF) {
-        MOVW_COND(cVC, s4, 0);
-        MOVW_COND(cVS, s4, 1);
-        BFI(xFlags, s4, F_OF, 1);
+        ORR_IMM8_COND(cVS, xFlags, xFlags, 0b10, 0x0b);
+        BIC_IMM8_COND(cVC, xFlags, xFlags, 0b10, 0x0b);
     }
     IFX(X_AF) {
         ORR_REG_LSL_IMM5(s3, s3, s1, 0);                        // bc = op1 | res
-        UBFX(s4, s3, 3, 1);
+        MOV_REG_LSR_IMM5(s4, s3, 3);
         BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 31, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 31);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -2072,9 +2025,8 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_CF) {
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 1);
-        MOVW_COND(cEQ, s3, 0);
-        BFI(xFlags, s3, F_CF, 1);
+        ORR_IMM8_COND(cNE, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_AF|X_OF) {
         MOV_REG_LSL_IMM5(s3, s1, 0);
@@ -2086,7 +2038,7 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_AF|X_OF) {
         ORR_REG_LSL_IMM5(s3, s3, s1, 0);                        // bc = op1 | res
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -2098,12 +2050,11 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_ZF) {
         UXTH(s1, s1, 0);
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cEQ, s4, 1);
-        MOVW_COND(cNE, s4, 0);
-        BFI(xFlags, s4, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 15, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 15);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
@@ -2131,9 +2082,8 @@ void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_CF) {
         TSTS_REG_LSL_IMM5(s1, s1, 0);
-        MOVW_COND(cNE, s3, 1);
-        MOVW_COND(cEQ, s3, 0);
-        BFI(xFlags, s3, F_CF, 1);
+        ORR_IMM8_COND(cNE, xFlags, xFlags, 1<<F_CF, 0);
+        BIC_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_CF, 0);
     }
     IFX(X_AF|X_OF) {
         MOV_REG_LSL_IMM5(s3, s1, 0);
@@ -2145,7 +2095,7 @@ void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     IFX(X_AF|X_OF) {
         ORR_REG_LSL_IMM5(s3, s3, s1, 0);                        // bc = op1 | res
         IFX(X_AF) {
-            UBFX(s4, s3, 3, 1);
+            MOV_REG_LSR_IMM5(s4, s3, 3);
             BFI(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
         IFX(X_OF) {
@@ -2156,12 +2106,11 @@ void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_ZF) {
         ANDS_IMM8(s1, s1, 0xff);
-        MOVW_COND(cEQ, s4, 1);
-        MOVW_COND(cNE, s4, 0);
-        BFI(xFlags, s4, F_ZF, 1);
+        ORR_IMM8_COND(cEQ, xFlags, xFlags, 1<<F_ZF, 0);
+        BIC_IMM8_COND(cNE, xFlags, xFlags, 1<<F_ZF, 0);
     }
     IFX(X_SF) {
-        UBFX(s3, s1, 7, 1);
+        MOV_REG_LSR_IMM5(s3, s1, 7);
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
