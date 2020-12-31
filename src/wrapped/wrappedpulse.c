@@ -619,11 +619,11 @@ static void* find_context_index_Fct(void* fct)
     return NULL;
 }
 // subscribe_context
-#define GO(A)                                                                       \
-static uintptr_t my_subscribe_context_fct_##A = 0;                                  \
-static void my_subscribe_context_##A(void* context, uint32_t idx, void* data)       \
-{                                                                                   \
-    RunFunction(my_context, my_subscribe_context_fct_##A, 3, context, idx, data);   \
+#define GO(A)                                                                           \
+static uintptr_t my_subscribe_context_fct_##A = 0;                                      \
+static void my_subscribe_context_##A(void* context, int evt, uint32_t idx, void* data)  \
+{                                                                                       \
+    RunFunction(my_context, my_subscribe_context_fct_##A, 4, context, evt, idx, data);  \
 }
 SUPER()
 #undef GO
@@ -1117,7 +1117,7 @@ typedef struct my_pa_spawn_api_s {
 
 EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int flags, my_pa_spawn_api_t* api)
 {
-    pulse_my_t* my = (pulse_my_t*)GetLibInternal(pulseName)->priv.w.p2;
+    pulse_my_t* my = (pulse_my_t*)emu->context->pulse->priv.w.p2;
     if(!api) {
         return my->pa_context_connect(context, server, flags, api);
     }

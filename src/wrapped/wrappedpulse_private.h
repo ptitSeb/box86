@@ -4,7 +4,7 @@
 
 GO(pa_ascii_filter, pFp)
 GO(pa_ascii_valid, pFp)
-GO(pa_bytes_per_second, uFp)
+GO(pa_bytes_per_second, LFp)
 GO(pa_bytes_snprint, pFpuu)
 GO(pa_bytes_to_usec, UFUp)
 GO(pa_channel_map_can_balance, iFp)

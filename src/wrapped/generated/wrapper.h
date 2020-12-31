@@ -1300,6 +1300,7 @@ void uFppippp(x86emu_t *emu, uintptr_t fnc);
 void uFpppppi(x86emu_t *emu, uintptr_t fnc);
 void uFpppppp(x86emu_t *emu, uintptr_t fnc);
 void uFSpuiip(x86emu_t *emu, uintptr_t fnc);
+void UFpippup(x86emu_t *emu, uintptr_t fnc);
 void LFEupppp(x86emu_t *emu, uintptr_t fnc);
 void LFpipipi(x86emu_t *emu, uintptr_t fnc);
 void LFpLippp(x86emu_t *emu, uintptr_t fnc);
