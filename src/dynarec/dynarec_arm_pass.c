@@ -34,6 +34,7 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
     dyn->state_flags = 0;
+    dyn->dfnone = 0;
     fpu_reset(dyn, ninst);
     // ok, go now
     INIT;
@@ -67,8 +68,10 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
             fpu_purgecache(dyn, ninst, x1, x2, x3);
-            if(dyn->insts[ninst+1].x86.barrier!=2)
+            if(dyn->insts[ninst+1].x86.barrier!=2) {
                 dyn->state_flags = 0;
+                dyn->dfnone = 0;
+            }
         }
         if(!ok && !need_epilog && dyn->insts && (addr < (dyn->start+dyn->isize))) {
             ok = 1;

@@ -262,8 +262,7 @@
         BIC_IMM8(xFlags, xFlags, 0b1000101, 0);             \
         ORR_REG_LSL_IMM5(xFlags, xFlags, s1, 0);            \
     }                                                       \
-    MOVW(s1, d_none);                                       \
-    STR_IMM9(s1, xEmu, offsetof(x86emu_t, df));             \
+    SET_DFNONE(s1);                                         \
     IFX(X_OF|X_PEND) {                                      \
         BFC(xFlags, F_OF, 1);                               \
     }                                                       \
@@ -275,6 +274,10 @@
     }                                                       \
 
 
+#define SET_DFNONE(S)    if(!dyn->dfnone) {MOVW(S, d_none); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->dfnone=1;}
+#define SET_DF(S, N)     if(N) {MOVW(S, N); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
+#define SET_NODF()          dyn->dfnone = 0
+#define SET_DFOK()          dyn->dfnone = 1
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
@@ -288,6 +291,7 @@
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
         dyn->state_flags = SF_SET;                      \
+        SET_DFOK();                                     \
     }
 #endif
 #ifndef SETFLAGS
@@ -305,11 +309,11 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op1));}
-#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A1, 0, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
-#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, 0, offsetof(x86emu_t, res));}
-#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {MOVW(r, A); STR_IMM9(r, 0, offsetof(x86emu_t, df));}
+#define UFLAG_OP1(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, xEmu, offsetof(x86emu_t, op1));}
+#define UFLAG_OP2(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, xEmu, offsetof(x86emu_t, op2));}
+#define UFLAG_OP12(A1, A2) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A1, xEmu, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}
+#define UFLAG_RES(A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {STR_IMM9(A, xEmu, offsetof(x86emu_t, res));}
+#define UFLAG_DF(r, A) if(dyn->insts && dyn->insts[ninst].x86.need_flags) {SET_DF(r, A)}
 #define UFLAG_IF if(dyn->insts && dyn->insts[ninst].x86.need_flags)
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(2)

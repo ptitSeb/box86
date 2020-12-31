@@ -578,8 +578,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             BFI(xFlags, x1, F_CF, 1);
             RSB_IMM8(x1, x1, 1);
             BFI(xFlags, x1, F_ZF, 1);
-            MOVW(x1, d_none);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            SET_DFNONE(x1);
             break;
 
         case 0xC2:

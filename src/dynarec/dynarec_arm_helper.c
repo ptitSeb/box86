@@ -407,8 +407,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     MOV32(x1, 0x3F7FD7);
     AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
     ORR_IMM8(xFlags, xFlags, 2, 0);
-    MOVW(x1, d_none);
-    STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+    SET_DFNONE(x1);
     // Ret....
     cstack_pop(dyn, ninst, xEIP, x1, x2);
     PASS3(void* epilog = arm_epilog);
@@ -437,6 +436,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
+    SET_NODF();
 }
 
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)

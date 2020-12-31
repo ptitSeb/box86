@@ -1804,8 +1804,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 0);    //ZF not set
             MARK;
             BFI(xFlags, x1, F_ZF, 1);
-            MOVW(x1, d_none);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            SET_DFNONE(x1);
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
@@ -1821,8 +1820,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOVW(x1, 0);    //ZF not set
             MARK;
             BFI(xFlags, x1, F_ZF, 1);
-            MOVW(x1, d_none);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            SET_DFNONE(x1);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");

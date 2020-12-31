@@ -1204,8 +1204,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV32(x1, 0x3F7FD7);
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
             ORR_IMM8(xFlags, xFlags, 2, 0);
-            MOVW(x1, d_none);
-            STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+            SET_DFNONE(x1);
             break;
         case 0x9E:
             INST_NAME("SAHF");
@@ -2557,8 +2556,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = dyn->state_flags; //TODO: find a better way to do this
             SETFLAGS(X_CF, SF_SUBSET);
             if(i32!=SF_SET) {
-                MOVW(x1, d_none);
-                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+                SET_DFNONE(x1);
             }
             BFC(xFlags, F_CF, 1);
             break;
@@ -2567,8 +2565,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = dyn->state_flags; //TODO: find a better way to do this
             SETFLAGS(X_CF, SF_SUBSET);
             if(i32!=SF_SET) {
-                MOVW(x1, d_none);
-                STR_IMM9(x1, xEmu, offsetof(x86emu_t, df));
+                SET_DFNONE(x1);
             }
             ORRS_IMM8(xFlags, xFlags, 1, 0);
             break;

@@ -43,6 +43,7 @@ typedef struct dynarec_arm_s {
     int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
     int                 fpu_reg;    // x87/sse/mmx reg counter
     int                 nolinker;   // disable use of (smart) linker in the block
+    int                 dfnone;     // if defered flags is already set to df_none
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
