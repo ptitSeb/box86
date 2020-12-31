@@ -13,7 +13,7 @@ typedef struct dynablock_s {
     void*           block;
     int             size;
     void*           x86_addr;
-    int             x86_size;
+    uintptr_t       x86_size;
     uint32_t        hash;
     uintptr_t*      table;
     int             tablesz;
