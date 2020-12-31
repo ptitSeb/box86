@@ -537,7 +537,7 @@ GOS(xcb_send_event, pFEppCuup)
 GO(xcb_send_request, iFpippp)
 //GO(xcb_send_request64, 
 GO(xcb_send_request_with_fds, uFpippup)
-//GO(xcb_send_request_with_fds64, 
+GO(xcb_send_request_with_fds64, UFpippup)
 //GO(xcb_set_access_control, 
 //GO(xcb_set_access_control_checked, 
 //GO(xcb_set_clip_rectangles, 
