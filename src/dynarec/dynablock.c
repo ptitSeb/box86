@@ -187,7 +187,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
 {
     if(!dynablocks)
         return;
-    if(!dynablocks->nolinker)
+    if(!dynablocks->nolinker || !dynablocks->direct)
         return;
     uintptr_t startdb = dynablocks->text;
     uintptr_t enddb = startdb + dynablocks->textsz -1;
