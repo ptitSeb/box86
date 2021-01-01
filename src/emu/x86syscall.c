@@ -230,6 +230,7 @@ scwrap_t syscallwrap[] = {
     { 271, __NR_utimes, 2 },
     { 311, __NR_set_robust_list, 2 },
     { 312, __NR_get_robust_list, 4 },
+    { 318, __NR_getcpu, 3},
 #ifdef NOALIGN
     { 329, __NR_epoll_create1, 1 },
 #endif
