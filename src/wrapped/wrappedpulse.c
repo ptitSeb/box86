@@ -732,7 +732,7 @@ static void* find_stream_event_Fct(void* fct)
 // stream_request
 #define GO(A)                                                               \
 static uintptr_t my_stream_request_fct_##A = 0;                             \
-static void my_stream_request_##A(void* s, int nbytes, void* data)          \
+static void my_stream_request_##A(void* s, size_t nbytes, void* data)       \
 {                                                                           \
     RunFunction(my_context, my_stream_request_fct_##A, 3, s, nbytes, data); \
 }
