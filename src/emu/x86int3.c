@@ -156,13 +156,13 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
                 } else  if(strstr(s, "rindex")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"), %i(%c))", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+4), *(int32_t*)(R_ESP+8), *(int32_t*)(R_ESP+8));
-                } else  if(strstr(s, "__xstat64")==s) {
+                } else  if(strstr(s, "my___xstat64")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(char**)(R_ESP+8), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
                     perr = 1;
-                } else  if(strcmp(s, "__xstat")==0) {
+                } else  if(strcmp(s, "my___xstat")==0) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(char**)(R_ESP+8), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
                     perr = 1;
-                } else  if(strstr(s, "__lxstat64")==s) {
+                } else  if(strstr(s, "my___lxstat64")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p(\"%s\"), %p)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(char**)(R_ESP+8), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
                     perr = 1;
                 } else  if(strstr(s, "sem_timedwait")==s) {
@@ -177,10 +177,10 @@ void x86Int3(x86emu_t* emu)
                     int16_t* p16 = *(int16_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p[%u/%d/%d], %d)", tid, *(void**)(R_ESP), s, *(int*)(R_ESP+4), p16, p16[0], p16[1], p16[2], *(int*)(R_ESP+12));
                     perr = 1;
-                } else  if(!strcmp(s, "mmap64")) {
+                } else  if(!strcmp(s, "my_mmap64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %lld)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int64_t*)(R_ESP+24));
                     perr = 1;
-                } else  if(!strcmp(s, "mmap")) {
+                } else  if(!strcmp(s, "my_mmap")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %d)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int*)(R_ESP+24));
                     perr = 1;
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
@@ -193,40 +193,42 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%.127s\", \"%.127s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "strlen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"))", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), ((R_ESP+4))?(*(char**)(R_ESP+4)):"nil");
-                } else  if(strstr(s, "vsnprintf")==s) {
+                } else  if(strstr(s, "my_vsnprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
-                } else  if(strstr(s, "vsprintf")==s) {
+                } else  if(strstr(s, "my_vsprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\"...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
-                } else  if(strstr(s, "snprintf")==s) {
+                } else  if(strstr(s, "my_snprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
-                } else  if(strstr(s, "sprintf")==s) {
+                } else  if(strstr(s, "my_sprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
-                } else  if(strstr(s, "printf")==s) {
+                } else  if(strstr(s, "my_printf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\"...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
                 } else  if(strstr(s, "puts")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\"...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
                 } else  if(strstr(s, "fputs")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\"...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
-                } else  if(strstr(s, "fprintf")==s) {
+                } else  if(strstr(s, "my_fprintf")==s) {
                     pu32 = *(uint32_t**)(R_ESP+8);
                     if(((uintptr_t)pu32)<0x5) // probably a __fprint_chk
                         pu32 = *(uint32_t**)(R_ESP+12);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), pu32?((char*)(pu32)):"nil");
-                } else  if(strstr(s, "vfprintf")==s) {
+                } else  if(strstr(s, "my_vfprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\", ...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "vkGetInstanceProcAddr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "vkGetDeviceProcAddr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
-                } else  if(strstr(s, "sscanf")==s) {
+                } else  if(strstr(s, "my_sscanf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "vsscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else if(strstr(s, "XCreateWindow")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, %u, %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(uint32_t*)(R_ESP+20), *(uint32_t*)(R_ESP+24), *(uint32_t*)(R_ESP+28), *(int32_t*)(R_ESP+32), *(uint32_t*)(R_ESP+36), *(void**)(R_ESP+40), *(uint32_t*)(R_ESP+44), *(void**)(R_ESP+48));
@@ -246,7 +248,7 @@ void x86Int3(x86emu_t* emu)
                 } else if(strstr(s, "udev_monitor_new_from_netlink")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
-                } else  if(!strcmp(s, "syscall")) {
+                } else  if(!strcmp(s, "my_syscall")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(void**)(R_ESP+12), *(void**)(R_ESP+16));
                     perr = 1;
                 } else {
