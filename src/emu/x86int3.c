@@ -169,6 +169,9 @@ void x86Int3(x86emu_t* emu)
                     pu32 = *(uint32_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), pu32?pu32[0]:-1, pu32?pu32[1]:-1);
                     perr = 1;
+                } else  if(strstr(s, "waitpid")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12));
+                    perr = 1;
                 } else  if(strstr(s, "clock_gettime")==s || strstr(s, "__clock_gettime")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(void**)(R_ESP+8));
                     post = 1;
