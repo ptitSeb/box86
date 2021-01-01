@@ -418,7 +418,7 @@ void LoadLogEnv()
                 jit_gdb = p[0]-'0';
         }
         if(jit_gdb)
-            printf_log(LOG_INFO, "Launch gdb on segfault\n");
+            printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":"gdb");
     }
     box86_pagesize = sysconf(_SC_PAGESIZE);
     if(!box86_pagesize)

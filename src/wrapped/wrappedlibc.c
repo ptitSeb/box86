@@ -2335,8 +2335,10 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
         cleanDBFromAddressRange(my_context, (uintptr_t)addr, length, 1);
     }
     #endif
-    updateProtection((uintptr_t)addr, length, 0);
-    return munmap(addr, length);
+    int ret = munmap(addr, length);
+    if(!ret)
+        updateProtection((uintptr_t)addr, length, 0);
+    return ret;
 }
 
 EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)

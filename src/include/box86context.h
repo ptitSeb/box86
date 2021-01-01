@@ -227,6 +227,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size);
 
 #endif
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
+uint32_t getProtection(uintptr_t addr);
 
 // defined in fact in threads.c
 void thread_set_emu(x86emu_t* emu);

@@ -155,3 +155,6 @@ Disable the load of wrapped gtk libs
         When in gdb, you need to find the correct thread yourself (the one with `my_box86signalhandler` in is stack)
         then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box86signalhandler`, 
         just before the printf of the Segfault message. Then simply `set waiting=0` to exit the infinite loop.
+* 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting.
+        Use `gdb /PATH/TO/box86` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX86_JITGDB=1`.
+        This mode can be usefull when program redirect all console output to a file (like Unity3D Games)

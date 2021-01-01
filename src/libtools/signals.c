@@ -506,21 +506,21 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
     TRAP_x86_MCHK       = 18,  // Machine check exception
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
-
+    uint32_t prot = getProtection((uintptr_t)info->si_addr);
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        if(info->si_code==SEGV_ACCERR && !((my_context->memprot[((uintptr_t)info->si_addr)>>DYNAMAP_SHIFT]&PROT_WRITE))) {
-            if((intptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP])
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
-            else
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
+        if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP]) {
+            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+        } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
+            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
             if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
             else
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
         } else {
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
             //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
         }
@@ -590,6 +590,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
+    uint32_t prot = getProtection((uintptr_t)addr);
     void* esp = NULL;
 #ifdef __arm__
     void * pc = (void*)p->uc_mcontext.arm_pc;
@@ -602,9 +603,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
-    if (sig==SIGSEGV && addr 
-     && info->si_code == SEGV_ACCERR 
-     && (my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]&PROT_DYNAREC)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_WRITE)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;
@@ -620,9 +619,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside a dynablock with linker\n", addr, pc);            
             }
         }
-        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT]);
-        // access error
-        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, prot);
+        // access error, unprotect the block (and mark them dirty)
+        if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
+            unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // done
         return;
     }
@@ -667,7 +667,7 @@ exit(-1);
             if(v) {
                 // parent process, the one that have the segfault
                 volatile int waiting = 1;
-                printf_log(LOG_NONE, "Waiting for gdb...\n");
+                printf_log(LOG_NONE, "Waiting for %s (pid %d)...\n", (jit_gdb==2)?"gdbserver":"gdb", pid);
                 while(waiting) {
                     // using gdb, use "set waiting=0" to stop waiting...
                     usleep(1000);
@@ -675,15 +675,17 @@ exit(-1);
             } else {
                 char myarg[50] = {0};
                 sprintf(myarg, "%d", pid);
-                execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
-                //execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
+                if(jit_gdb==2)
+                    execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
+                else
+                    execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
                 exit(-1);
             }
         }
 #ifdef DYNAREC
         printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
-            my_context->memprot[((uintptr_t)addr)>>DYNAMAP_SHIFT], db, db?db->block:0, db?(db->block+db->size):0, 
+            prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)));
 #else
@@ -705,7 +707,7 @@ exit(-1);
     }
     // no handler (or double identical segfault)
     // set default and that's it, instruction will restart and default segfault handler will be called...
-    if(my_context->signals[sig]==1)
+    if(my_context->signals[sig]!=1)
         signal(sig, SIG_DFL);
 }
 

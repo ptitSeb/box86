@@ -421,7 +421,8 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             db = internalDBGetBlock(emu, addr, addr, create, *current);
         } else {
             father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            if(father->nolinker)
+                protectDB((uintptr_t)father->x86_addr, father->x86_size);
         }
     } 
     return db;
@@ -443,7 +444,8 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
             db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
         } else {
             father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            if(father->nolinker)
+                protectDB((uintptr_t)father->x86_addr, father->x86_size);
         }
     } 
     return db;
