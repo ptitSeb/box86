@@ -511,7 +511,10 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
         if(info->si_code==SEGV_ACCERR && !((my_context->memprot[((uintptr_t)info->si_addr)>>DYNAMAP_SHIFT]&PROT_WRITE))) {
-            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;
+            if((intptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP])
+                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
+            else
+                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
             if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
             else
