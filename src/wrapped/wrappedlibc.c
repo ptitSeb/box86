@@ -575,7 +575,13 @@ int EXPORT my_uname(struct utsname *buf)
 #define X86_O_CLOEXEC      02000000
 #define X86_O_TMPFILE      020200000
 
+#ifndef O_TMPFILE
+#define O_TMPFILE (020000000 | O_DIRECTORY)
+#endif
+
 #define SUPER()     \
+    GO(O_WRONLY)    \
+    GO(O_RDWR)      \
     GO(O_CREAT)     \
     GO(O_EXCL)      \
     GO(O_NOCTTY)    \
@@ -588,10 +594,11 @@ int EXPORT my_uname(struct utsname *buf)
     GO(FASYNC)      \
     GO(O_DIRECT)    \
     GO(O_LARGEFILE) \
+    GO(O_TMPFILE)   \
     GO(O_DIRECTORY) \
     GO(O_NOFOLLOW)  \
     GO(O_NOATIME)   \
-    GO(O_CLOEXEC)
+    GO(O_CLOEXEC)   \
 
 // x86->arm
 int of_convert(int a)
