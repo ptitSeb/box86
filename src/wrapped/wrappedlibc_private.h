@@ -303,9 +303,9 @@ GOW(fchown, iFiuu)
 GO(fchownat, iFipuii)
 GO(fclose, iFp)
 GOW(fcloseall, iFv)
-GOM(fcntl, iFEiiuuuuuu)  // this also use a vararg for 3rd argument
-GOM(__fcntl, iFEiiuuuuuu)
-GOM(fcntl64, iFEiiuuuuuu)
+GOM(fcntl, iFEiiN)  // this also use a vararg for 3rd argument
+GOM(__fcntl, iFEiiN)
+GOM(fcntl64, iFEiiN)
 GO(fcvt, pFdipp)
 GO(fcvt_r, iFdipppL)
 GO(fdatasync, iFi)
@@ -413,8 +413,8 @@ GOM(fstatfs64, iFip)    // weak
 GO(fstatvfs, iFip)
 GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
-GOW(ftell, iFp)
-GO(ftello, uFp)
+GOW(ftell, lFp)
+GO(ftello, lFp)
 GO(ftello64, IFp)
 GO(ftime, iFp)
 GO(ftok, iFpi)
@@ -430,7 +430,7 @@ GOM(ftw, iFEppi)
 GOM(ftw64, iFEppi)
 GOW(funlockfile, vFp)
 GO(futimens, iFip)
-GOW(futimes, iFipp) //int futimes(int fd, const struct timeval tv[2]) TODO: check how it ends up
+GOW(futimes, iFip) //int futimes(int fd, const struct timeval tv[2])
 GO(futimesat, iFippp)
 // fwide
 GOM(fwprintf, iFEppVV) // Weak
@@ -1085,7 +1085,7 @@ GO(__mbrlen, uFpup)
 GOW(mbrtowc, uFppup)
 GO(__mbrtowc, uFppup)
 GOW(mbsinit, iFp)
-GOW(mbsnrtowcs, uFppuup)
+GOW(mbsnrtowcs, LFppLLp)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, uFppup)
 // __mbsrtowcs_chk
@@ -1281,7 +1281,7 @@ GO(posix_spawn_file_actions_destroy, iFp)
 GO(posix_spawn_file_actions_init, iFp)
 GOM(posix_spawnp, iFEpppppp)
 GO(ppoll, iFpupp)
-GOW(prctl, iFiuuuu)
+GOW(prctl, iFiLLLL)
 GOW(pread, lFipLl)
 GOW(pread64, lFipLI)
 // __pread64    // Weak
@@ -1378,7 +1378,7 @@ GO(__realpath_chk, pFppu)
 GOW(re_compile_pattern, pFpup)
 GO(recv, lFipLi)
 GO(__recv_chk, iFipuui)
-GOW(recvfrom, iFipuipp)
+GOW(recvfrom, lFipLipp)
 // __recvfrom_chk
 GOM(recvmmsg, iFEipuup)    // actual recvmmsg is glibc 2.12+. The syscall is Linux 2.6.33+, so use syscall...
 GOW(recvmsg, lFipi)
@@ -1481,12 +1481,12 @@ GOM(semctl, iFEiiiN)  // use vararg after the 3 i
 GO(semctl, iFiiiN)
 #endif
 GOW(semget, iFuii)
-GOW(semop, iFipu)
+GOW(semop, iFipL)
 GO(semtimedop, iFipup)
 GOW(send, lFipLi)
 // __send   // Weak
-GO(sendfile, iFiipu)
-GO(sendfile64, iFiipu)
+GO(sendfile, lFiipL)
+GO(sendfile64, lFiipL)
 GOW(sendmsg, lFipi)
 GOM(__sendmmsg, iFEipuu)    // actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
 GOW(sendto, iFipuipu)
@@ -2044,10 +2044,10 @@ GO(__wctype_l, uFpp)
 GOW(wctype_l, uFpp)
 GO(wcwidth, iFu)
 GOW(wmemchr, pFpiu)
-GO(wmemcmp, iFppu)
-GOW(wmemcpy, pFppu)
-GO(__wmemcpy_chk, pFppuu)
-GOW(wmemmove, pFppu)
+GO(wmemcmp, iFppL)
+GOW(wmemcpy, pFppL)
+GO(__wmemcpy_chk, pFppLL)
+GOW(wmemmove, pFppL)
 // __wmemmove_chk
 // wmempcpy // Weak
 // __wmempcpy_chk

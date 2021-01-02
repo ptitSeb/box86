@@ -138,6 +138,9 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
 }
 void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
 {
+    if(lmid) {
+        printf_log(LOG_INFO, "Warning, dlmopen(%p, %p(\"%s\"), 0x%x) called with lmid not LMID_ID_BASE (unsupported)\n", lmid, filename, filename?filename:"self", flag);
+    }
     // lmid is ignored for now...
     return my_dlopen(emu, filename, flag);
 }

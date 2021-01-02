@@ -606,10 +606,14 @@ int of_convert(int a)
 // arm->x86
 int of_unconvert(int a)
 {
+    if(!a || a==-1) return a;
     int b=0;
-    #define GO(A) if(a&A) {a&=~A; b|=X86_##A;}
+    #define GO(A) if((a&A)==A) {a&=~A; b|=X86_##A;}
     SUPER();
     #undef GO
+    if(a) {
+        printf_log(LOG_NONE, "Warning, of_unconvert(...) left over 0x%x, converted 0x%x\n", a, b);
+    }
     return a|b;
 }
 #undef SUPER
