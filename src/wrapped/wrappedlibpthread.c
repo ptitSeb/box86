@@ -45,18 +45,28 @@ typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
 EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 {
-    library_t* lib = GetLibInternal(libpthreadName);
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "pthread_setname_np");
+    static void* f = NULL;
+    static int need_load = 1;
+    if(need_load) {
+        library_t* lib = GetLibInternal(libpthreadName);
+        if(!lib) return 0;
+        f = dlsym(lib->priv.w.lib, "pthread_setname_np");
+        need_load = 0;
+    }
     if(f)
         return ((iFpp_t)f)(t, n);
     return 0;
 }
 EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
 {
-    library_t* lib = GetLibInternal(libpthreadName);
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "pthread_getname_np");
+    static void* f = NULL;
+    static int need_load = 1;
+    if(need_load) {
+        library_t* lib = GetLibInternal(libpthreadName);
+        if(!lib) return 0;
+        f = dlsym(lib->priv.w.lib, "pthread_getname_np");
+        need_load = 0;
+    }
     if(f)
         return ((iFppu_t)f)(t, n, s);
     else 
@@ -81,16 +91,17 @@ EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 
 EXPORT int32_t my_pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
 {
-    // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
+    // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
         my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
-    my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
-    my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
-    my_context->atforks[my_context->atfork_sz].child = (uintptr_t)child;
-    my_context->atforks[my_context->atfork_sz].handle = NULL;
-    ++my_context->atfork_sz;
+    int i = my_context->atfork_sz++;
+    my_context->atforks[i].prepare = (uintptr_t)prepare;
+    my_context->atforks[i].parent = (uintptr_t)parent;
+    my_context->atforks[i].child = (uintptr_t)child;
+    my_context->atforks[i].handle = NULL;
+    
     return 0;
 }
 EXPORT int32_t my___pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child) __attribute__((alias("my_pthread_atfork")));
