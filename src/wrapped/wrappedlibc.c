@@ -592,10 +592,14 @@ int EXPORT my_uname(struct utsname *buf)
 // x86->arm
 int of_convert(int a)
 {
+    if(!a || a==-1) return a;
     int b=0;
-    #define GO(A) if(a&X86_##A) {a&=~X86_##A; b|=A;}
+    #define GO(A) if((a&X86_##A)==X86_##A) {a&=~X86_##A; b|=A;}
     SUPER();
     #undef GO
+    if(a) {
+        printf_log(LOG_NONE, "Warning, of_convert(...) left over 0x%x, converted 0x%x\n", a, b);
+    }
     return a|b;
 }
 
@@ -1789,8 +1793,8 @@ EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd,
 EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
 {
     struct epoll_event _events[maxevents];
-    AlignEpollEvent(_events, events, maxevents);
-    int32_t ret = epoll_wait(epfd, _events, maxevents, timeout);
+    //AlignEpollEvent(_events, events, maxevents);
+    int32_t ret = epoll_wait(epfd, events?_events:NULL, maxevents, timeout);
     if(ret>0)
         UnalignEpollEvent(events, _events, ret);
     return ret;
