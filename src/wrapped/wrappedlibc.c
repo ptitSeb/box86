@@ -554,6 +554,9 @@ int EXPORT my_uname(struct utsname *buf)
     return ret;
 }
 
+// X86_O_RDONLY 0x00
+#define X86_O_WRONLY       0x01     // octal     01
+#define X86_O_RDWR         0x02     // octal     02
 #define X86_O_CREAT        0x40     // octal     0100
 #define X86_O_EXCL         0x80     // octal     0200
 #define X86_O_NOCTTY       0x100    // octal     0400
@@ -570,6 +573,7 @@ int EXPORT my_uname(struct utsname *buf)
 #define X86_O_NOFOLLOW     0400000
 #define X86_O_NOATIME      01000000
 #define X86_O_CLOEXEC      02000000
+#define X86_O_TMPFILE      020200000
 
 #define SUPER()     \
     GO(O_CREAT)     \
