@@ -28,6 +28,7 @@
 #include "dynarec.h"
 #include "box86stack.h"
 #ifdef DYNAREC
+#include "custommem.h"
 #include "dynablock.h"
 #endif
 #include "../emu/x86emu_private.h"
@@ -270,7 +271,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 #ifdef DYNAREC
             if(e->p_flags & PF_X) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
-                addDBFromAddressRange(context, (uintptr_t)dest, e->p_memsz, 0);
+                addDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
             }
 #endif
 
@@ -584,7 +585,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, elfheader_t* head)
                 return -1;
         }
         if(pltResolver==~0) {
-            pltResolver = AddBridge(my_context->system, my_context, vFE, PltResolver, 0);
+            pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0);
         }
         if(head->pltgot) {
             *(uintptr_t*)(head->pltgot+head->delta+8) = pltResolver;
@@ -1010,8 +1011,8 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
         return ret;
     }*/
     if(box86_dynarec_forced) {
-        addDBFromAddressRange(my_context, addr, 1, 1);
-        return my_context->dynmap[addr>>DYNAMAP_SHIFT];
+        addDBFromAddressRange(addr, 1, 1);
+        return getDB(addr>>DYNAMAP_SHIFT);
     }
     //check if address is in an elf... if yes, grant a block (should I warn)
     Dl_info info;

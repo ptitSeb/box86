@@ -15,9 +15,6 @@
 #include "box86context.h"
 #include "sdl2rwops.h"
 #include "callback.h"
-#include "khash.h"
-
-KHASH_MAP_INIT_INT(effectcb, x86emu_t*)
 
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef int32_t(*iFip_t)(int32_t, void*);
@@ -46,8 +43,6 @@ typedef struct sdl2mixer_my_s {
 
     x86emu_t* PostCallback;
     x86emu_t* hookMusicCB;
-    // timer map
-    kh_effectcb_t    *effectcb;
 } sdl2mixer_my_t;
 
 static void* getSDL2MixerMy(library_t* lib)

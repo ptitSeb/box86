@@ -6,6 +6,7 @@
 
 #include "debug.h"
 #include "box86context.h"
+#include "custommem.h"
 #include "dynarec.h"
 #include "emu/x86emu_private.h"
 #include "tools/bridge_private.h"

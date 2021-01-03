@@ -984,7 +984,7 @@ EXPORT void* my_g_main_context_get_poll_func(x86emu_t* emu, void* context)
     void* r = reversePollFct(ret);
     if(r) return r;
     // needs to bridge....
-    return (void*)AddCheckBridge(my_lib->priv.w.bridge, my_lib->context, iFpui, ret, 0);
+    return (void*)AddCheckBridge(my_lib->priv.w.bridge, iFpui, ret, 0);
 }
     
 EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* func)

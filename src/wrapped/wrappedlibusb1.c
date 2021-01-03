@@ -117,7 +117,7 @@ static void* reverse_transfert_Fct(void* fct)
     #define GO(A) if(my_transfert_##A == fct) return (void*)my_transfert_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 #undef SUPER

@@ -15,6 +15,9 @@
 #include "x86run.h"
 #include "x86run_private.h"
 #include "callback.h"
+#ifdef DYNAREC
+#include "custommem.h"
+#endif
 
 typedef struct cleanup_s {
     void*       f;
@@ -39,7 +42,7 @@ static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
 void DynablockEmuMarker(box86context_t* context)
 {
     dynarec_log(LOG_DUMP, "Create bridge memory map for PushExit\n");
-    addDBFromAddressRange(context, (uintptr_t)&EndEmuMarker[0], sizeof(EndEmuMarker), 0);
+    addDBFromAddressRange((uintptr_t)&EndEmuMarker[0], sizeof(EndEmuMarker), 0);
 }
 #endif
 void PushExit(x86emu_t* emu)

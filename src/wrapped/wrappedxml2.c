@@ -119,7 +119,7 @@ void* getXml2My(library_t* lib)
     #define GO(A, W)                                                                    \
         p=dlsym(lib->priv.w.lib, #A);                                                   \
         printf_log(LOG_DEBUG, "Wrapping %s=>%p(%p) from lixml2\n", #A, p, p?*p:NULL);   \
-        my_##A = (p && *p)?AddBridge(lib->priv.w.bridge, lib->context, W, *p, 0):0;     \
+        my_##A = (p && *p)?AddBridge(lib->priv.w.bridge, W, *p, 0):0;                   \
         if(p) *p = my_wrap_##A
     GO(xmlFree, vFp);
     GO(xmlMalloc, pFL);
@@ -1168,7 +1168,7 @@ static void* reverse_xmlExternalEntityLoaderFct(void* fct)
     #define GO(A) if(my_xmlExternalEntityLoader_##A == fct) return (void*)my_xmlExternalEntityLoader_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFppp, fct, 0);
 }
 
 

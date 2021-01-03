@@ -60,17 +60,12 @@ typedef struct base_segment_s {
     pthread_key_t   key;
 } base_segment_t;
 
+typedef struct blocklist_s {
+    void*               block;
+    int                 maxfree;
+} blocklist_t;
+
 typedef struct box86context_s {
-#ifdef DYNAREC
-    dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
-    int                 trace_dynarec;
-    pthread_mutex_t     mutex_dyndump;
-    pthread_mutex_t     mutex_blocks;
-    pthread_mutex_t     mutex_mmap;
-    mmaplist_t          *mmaplist;
-    int                 mmapsize;
-    kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
-#endif
     uint32_t*           memprot;    // protection flags by 4K block
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
@@ -129,6 +124,8 @@ typedef struct box86context_s {
     pthread_mutex_t     mutex_trace;
     #ifndef DYNAREC
     pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
+    #else
+    pthread_mutex_t     mutex_dyndump;
     #endif
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
@@ -214,20 +211,12 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head);
 int AddTLSPartition(box86context_t* context, int tlssize);
 
 #define PROT_DYNAREC 0x10000
-#ifdef DYNAREC
-// custom protection flag to mark Page that are Write protected for Dynarec purpose
-uintptr_t AllocDynarecMap(dynablock_t* db, int size);
-void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
-
-void addDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int nolinker);
-void cleanDBFromAddressRange(box86context_t* context, uintptr_t addr, uintptr_t size, int destroy);
-
-void protectDB(uintptr_t addr, uintptr_t size);
-void unprotectDB(uintptr_t addr, uintptr_t size);
-
-#endif
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 uint32_t getProtection(uintptr_t addr);
+#ifdef DYNAREC
+void protectDB(uintptr_t addr, uintptr_t size);
+void unprotectDB(uintptr_t addr, uintptr_t size);
+#endif
 
 // defined in fact in threads.c
 void thread_set_emu(x86emu_t* emu);

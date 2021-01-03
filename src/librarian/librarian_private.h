@@ -1,6 +1,8 @@
 #ifndef __LIBRARIAN_PRIVATE_H_
 #define __LIBRARIAN_PRIVATE_H_
 #include <stdint.h>
+
+#include "custommem.h"
 #include "khash.h"
 
 typedef struct box86context_s box86context_t;

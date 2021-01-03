@@ -318,7 +318,7 @@ static void* reverse_error_exitFct(void* fct)
     #define GO(A) if(my_error_exit_##A == fct) return (void*)my_error_exit_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // emit_message
@@ -351,7 +351,7 @@ static void* reverse_emit_messageFct(void* fct)
     #define GO(A) if(my_emit_message_##A == fct) return (void*)my_emit_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // output_message
@@ -384,7 +384,7 @@ static void* reverse_output_messageFct(void* fct)
     #define GO(A) if(my_output_message_##A == fct) return (void*)my_output_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // format_message
@@ -417,7 +417,7 @@ static void* reverse_format_messageFct(void* fct)
     #define GO(A) if(my_format_message_##A == fct) return (void*)my_format_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // reset_error_mgr
@@ -450,7 +450,7 @@ static void* reverse_reset_error_mgrFct(void* fct)
     #define GO(A) if(my_reset_error_mgr_##A == fct) return (void*)my_reset_error_mgr_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // jpeg_marker_parser_method
@@ -483,7 +483,7 @@ static void* reverse_jpeg_marker_parser_methodFct(void* fct)
     #define GO(A) if(my_jpeg_marker_parser_method_##A == fct) return (void*)my_jpeg_marker_parser_method_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFppp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFppp, fct, 0);
 }
 
 // alloc_small
@@ -516,7 +516,7 @@ static void* reverse_alloc_smallFct(void* fct)
     #define GO(A) if(my_alloc_small_##A == fct) return (void*)my_alloc_small_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiL, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiL, fct, 0);
 }
 
 // alloc_large
@@ -549,7 +549,7 @@ static void* reverse_alloc_largeFct(void* fct)
     #define GO(A) if(my_alloc_large_##A == fct) return (void*)my_alloc_large_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiL, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiL, fct, 0);
 }
 
 // alloc_sarray
@@ -582,7 +582,7 @@ static void* reverse_alloc_sarrayFct(void* fct)
     #define GO(A) if(my_alloc_sarray_##A == fct) return (void*)my_alloc_sarray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiuu, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiuu, fct, 0);
 }
 
 // alloc_barray
@@ -615,7 +615,7 @@ static void* reverse_alloc_barrayFct(void* fct)
     #define GO(A) if(my_alloc_barray_##A == fct) return (void*)my_alloc_barray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiuu, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiuu, fct, 0);
 }
 
 // request_virt_sarray
@@ -648,7 +648,7 @@ static void* reverse_request_virt_sarrayFct(void* fct)
     #define GO(A) if(my_request_virt_sarray_##A == fct) return (void*)my_request_virt_sarray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiiuuu, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiiuuu, fct, 0);
 }
 
 // request_virt_barray
@@ -681,7 +681,7 @@ static void* reverse_request_virt_barrayFct(void* fct)
     #define GO(A) if(my_request_virt_barray_##A == fct) return (void*)my_request_virt_barray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpiiuuu, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpiiuuu, fct, 0);
 }
 
 // realize_virt_arrays
@@ -714,7 +714,7 @@ static void* reverse_realize_virt_arraysFct(void* fct)
     #define GO(A) if(my_realize_virt_arrays_##A == fct) return (void*)my_realize_virt_arrays_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 // access_virt_sarray
@@ -747,7 +747,7 @@ static void* reverse_access_virt_sarrayFct(void* fct)
     #define GO(A) if(my_access_virt_sarray_##A == fct) return (void*)my_access_virt_sarray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFppuui, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFppuui, fct, 0);
 }
 
 // access_virt_barray
@@ -780,7 +780,7 @@ static void* reverse_access_virt_barrayFct(void* fct)
     #define GO(A) if(my_access_virt_barray_##A == fct) return (void*)my_access_virt_barray_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFppuui, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFppuui, fct, 0);
 }
 
 // free_pool
@@ -813,7 +813,7 @@ static void* reverse_free_poolFct(void* fct)
     #define GO(A) if(my_free_pool_##A == fct) return (void*)my_free_pool_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFpi, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFpi, fct, 0);
 }
 
 // self_destruct
@@ -846,7 +846,7 @@ static void* reverse_self_destructFct(void* fct)
     #define GO(A) if(my_self_destruct_##A == fct) return (void*)my_self_destruct_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 // init_source
@@ -879,7 +879,7 @@ static void* reverse_init_sourceFct(void* fct)
     #define GO(A) if(my_init_source_##A == fct) return (void*)my_init_source_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 // fill_input_buffer
@@ -912,7 +912,7 @@ static void* reverse_fill_input_bufferFct(void* fct)
     #define GO(A) if(my_fill_input_buffer_##A == fct) return (void*)my_fill_input_buffer_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFp, fct, 0);
 }
 
 // skip_input_data
@@ -945,7 +945,7 @@ static void* reverse_skip_input_dataFct(void* fct)
     #define GO(A) if(my_skip_input_data_##A == fct) return (void*)my_skip_input_data_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFpl, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFpl, fct, 0);
 }
 
 // resync_to_restart
@@ -978,7 +978,7 @@ static void* reverse_resync_to_restartFct(void* fct)
     #define GO(A) if(my_resync_to_restart_##A == fct) return (void*)my_resync_to_restart_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, iFpi, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, iFpi, fct, 0);
 }
 
 // term_source
@@ -1011,7 +1011,7 @@ static void* reverse_term_sourceFct(void* fct)
     #define GO(A) if(my_term_source_##A == fct) return (void*)my_term_source_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 // init_destination
@@ -1044,7 +1044,7 @@ static void* reverse_init_destinationFct(void* fct)
     #define GO(A) if(my_init_destination_##A == fct) return (void*)my_init_destination_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 // empty_output_buffer
 #define GO(A)   \
@@ -1076,7 +1076,7 @@ static void* reverse_empty_output_bufferFct(void* fct)
     #define GO(A) if(my_empty_output_buffer_##A == fct) return (void*)my_empty_output_buffer_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 // term_destination
 #define GO(A)   \
@@ -1108,7 +1108,7 @@ static void* reverse_term_destinationFct(void* fct)
     #define GO(A) if(my_term_destination_##A == fct) return (void*)my_term_destination_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFp, fct, 0);
 }
 
 

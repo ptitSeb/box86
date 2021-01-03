@@ -94,7 +94,7 @@ static void* reverse_alloc_Fct(void* fct)
     #define GO(A) if(my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, pFpii, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, pFpii, fct, 0);
 }
 // free ...
 #define GO(A)   \
@@ -126,7 +126,7 @@ static void* reverse_free_Fct(void* fct)
     #define GO(A) if(my_free_##A == fct) return (void*)my_free_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, my_lib->context, vFpp, fct, 0);
+    return (void*)AddBridge(my_lib->priv.w.bridge, vFpp, fct, 0);
 }
 #undef SUPER
 

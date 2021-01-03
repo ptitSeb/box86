@@ -17,6 +17,7 @@
 #include "x86emu.h"
 #include "box86stack.h"
 #include "callback.h"
+#include "custommem.h"
 #include "khash.h"
 #include "emu/x86run_private.h"
 #include "x86trace.h"

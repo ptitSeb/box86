@@ -16,7 +16,6 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "emu/x86emu_private.h"
-#include "khash.h"
 
 const char* libsndfileName = "libsndfile.so.1";
 #define LIBNAME libsndfile

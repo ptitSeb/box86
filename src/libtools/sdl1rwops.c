@@ -13,7 +13,6 @@
 #include "librarian/library_private.h"
 #include "bridge.h"
 #include "callback.h"
-#include "khash.h"
 
 typedef struct SDL1_RWops_s SDL1_RWops_t;
 
@@ -107,7 +106,7 @@ SDL1_RWops_t* AddNativeRW(x86emu_t* emu, SDL1_RWops_t* ops)
 
     // get or create wrapper, add it to map and change to the emulated one if rw
     #define GO(A, W) \
-    fnc = AddCheckBridge(system, my_context, W, my_native_##A, 0); \
+    fnc = AddCheckBridge(system, W, my_native_##A, 0); \
     newrw->A = (sdl1_##A)fnc;
 
     GO(seek, iFpii)

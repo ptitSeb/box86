@@ -2,6 +2,7 @@
 #define __LIBRARY_PRIVATE_H_
 #include <stdint.h>
 
+#include "custommem.h"
 #include "khash.h"
 #include "wrappedlibs.h"
 #include "box86context.h"

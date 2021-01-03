@@ -172,7 +172,7 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, emu->context, kh_value(emu->context->alwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
 }
 
 EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
@@ -207,7 +207,7 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, emu->context, kh_value(emu->context->alwrappers, k), symbol, 0);
+    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0);
 }
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)

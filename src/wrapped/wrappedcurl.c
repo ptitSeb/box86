@@ -16,8 +16,6 @@
 #include "emu/x86emu_private.h"
 #include "callback.h"
 
-#include "khash.h"
-
 const char* curlName = "libcurl.so.4";
 #define ALTNAME "libcurl-gnutls.so.4"
 #define LIBNAME curl

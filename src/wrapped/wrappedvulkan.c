@@ -157,7 +157,7 @@ static void* resolveSymbol(x86emu_t* emu, void* symbol, const char* rname)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, emu->context, kh_value(emu->context->vkwrappers, k), symbol, 0);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0);
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p (%p)\n", (void*)ret, symbol);
     return (void*)ret;
 }

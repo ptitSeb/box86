@@ -1577,7 +1577,7 @@ EXPORT int32_t my___open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
 static int hasDBFromAddress(uintptr_t addr)
 {
     int idx = (addr>>DYNAMAP_SHIFT);
-    return my_context->dynmap[idx]?1:0;
+    return getDB(idx)?1:0;
 }
 #endif
 
@@ -2303,13 +2303,13 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange(my_context, (uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
+                addDBFromAddressRange((uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
             else
-                cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
         }
     } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
+        addDBFromAddressRange((uintptr_t)addr, length, 0);
     }
     #endif
     if(ret!=(void*)-1)
@@ -2332,13 +2332,13 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange(my_context, (uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
+                addDBFromAddressRange((uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
             else
-                cleanDBFromAddressRange(my_context, (uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
         }
     } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
         // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange(my_context, (uintptr_t)addr, length, 0);
+        addDBFromAddressRange((uintptr_t)addr, length, 0);
     }
     #endif
     if(ret!=(void*)-1)
@@ -2351,7 +2351,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     if(box86_dynarec) {
-        cleanDBFromAddressRange(my_context, (uintptr_t)addr, length, 1);
+        cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     }
     #endif
     int ret = munmap(addr, length);
@@ -2369,9 +2369,9 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     #ifdef DYNAREC
     if(box86_dynarec) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange(my_context, (uintptr_t)addr, len, 1);
+            addDBFromAddressRange((uintptr_t)addr, len, 1);
         else
-            cleanDBFromAddressRange(my_context, (uintptr_t)addr, len, 0);
+            cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }
     #endif
     if(!ret)

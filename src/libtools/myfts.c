@@ -23,6 +23,7 @@
 #include "callback.h"
 #include "myalign.h"
 #include "bridge.h"
+#include "custommem.h"
 #include "khash.h"
 
 // kh_ftsent_t store each ftsent conversion from native -> x86

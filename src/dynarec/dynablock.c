@@ -24,7 +24,7 @@
 #else
 #error Unsupported architecture!
 #endif
-
+#include "custommem.h"
 #include "khash.h"
 
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
@@ -272,7 +272,7 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
         MarkDirectDynablock(dynablocks, addr, size);
         // the blocks check before
         for(int idx=(addr-dynablocks->maxsz)>>DYNAMAP_SHIFT; idx<addr>>DYNAMAP_SHIFT; ++idx)
-            MarkDirectDynablock(my_context->dynmap[idx], addr, size);
+            MarkDirectDynablock(getDB(idx), addr, size);
     }
 }
 
@@ -293,7 +293,7 @@ dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
 static dynablocklist_t* getDBFromAddress(uintptr_t addr)
 {
     const int idx = (addr>>DYNAMAP_SHIFT);
-    return (my_context->dynmap[idx])?my_context->dynmap[idx]:NULL;
+    return getDB(idx);
 }
 
 dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* created)
@@ -397,10 +397,12 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(block) {
         int blocksz = block->x86_size;
         if(dynablocks->maxsz<blocksz)
-            for(int idx=(addr>>DYNAMAP_SHIFT); idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx)
-                if(my_context->dynmap[idx])
-                    if(my_context->dynmap[idx]->maxsz<blocksz)
-                        my_context->dynmap[idx]->maxsz = blocksz;
+            for(int idx=(addr>>DYNAMAP_SHIFT); idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
+                dynablocklist_t* dblist;
+                if((dblist = getDB(idx)))
+                    if(dblist->maxsz<blocksz)
+                        dblist->maxsz = blocksz;
+            }
 
         if(block->parent->nolinker)
         protectDB((uintptr_t)block->x86_addr, block->x86_size);

@@ -70,7 +70,7 @@ static void* reverse_chunkfunFct(library_t* lib, void* fct)
     #define GO(A) if(my_chunkfun_##A == fct) return (void*)my_chunkfun_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, lib->context, pFL, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, pFL, fct, 0);
 }
 // freefun
 #define GO(A)   \
@@ -103,7 +103,7 @@ static void* reverse_freefunFct(library_t* lib, void* fct)
     #define GO(A) if(my_freefun_##A == fct) return (void*)my_freefun_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->priv.w.bridge, lib->context, vFp, fct, 0);
+    return (void*)AddBridge(lib->priv.w.bridge, vFp, fct, 0);
 }
 
 #undef SUPER
@@ -217,7 +217,7 @@ void obstackSetup()
     // save the real function
     real_obstack_alloc_failed_handler = obstack_alloc_failed_handler;
     // bridge the real function for x86 world
-    my_obstack_alloc_failed_handler = (void*)AddCheckBridge(my_context->system, my_context, vFv, real_obstack_alloc_failed_handler, 0);
+    my_obstack_alloc_failed_handler = (void*)AddCheckBridge(my_context->system, vFv, real_obstack_alloc_failed_handler, 0);
     ref_obstack_alloc_failed_handler = my_obstack_alloc_failed_handler;
     // setup our version of the function
     obstack_alloc_failed_handler = actual_obstack_alloc_failed_handler;

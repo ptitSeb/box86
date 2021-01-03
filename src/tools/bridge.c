@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 
+#include "custommem.h"
 #include "bridge.h"
 #include "bridge_private.h"
 #include "wrapper.h"
@@ -54,7 +55,7 @@ void FreeBridge(bridge_t** bridge)
     *bridge = NULL;
 }
 
-uintptr_t AddBridge(bridge_t* bridge, box86context_t* context, wrapper_t w, void* fnc, int N)
+uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
     brick_t *b = bridge->last;
     if(b->sz == NBRICK) {
@@ -74,7 +75,7 @@ uintptr_t AddBridge(bridge_t* bridge, box86context_t* context, wrapper_t w, void
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[b->sz].CC;
     #ifdef DYNAREC
     if(box86_dynarec)
-        addDBFromAddressRange(context, (uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t), 0);
+        addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t), 0);
     #endif
 
     return (uintptr_t)&b->b[b->sz++].CC;
@@ -89,13 +90,13 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
     return kh_value(bridge->bridgemap, k);
 }
 
-uintptr_t AddCheckBridge(bridge_t* bridge, box86context_t* context, wrapper_t w, void* fnc, int N)
+uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
     if(!fnc)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
-        ret = AddBridge(bridge, context, w, fnc, N);
+        ret = AddBridge(bridge, w, fnc, N);
     return ret;
 }
 
@@ -105,7 +106,7 @@ uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void*
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
-        ret = AddBridge(bridge, GetEmuContext(emu), w, fnc, N);
+        ret = AddBridge(bridge, w, fnc, N);
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
