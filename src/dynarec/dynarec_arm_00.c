@@ -2107,16 +2107,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         //cstatck_push put addr in x2, don't need to put it again
                     } else {
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
-                        //*need_epilog = 0;
-                        //*ok = 0;
+                        *need_epilog = 0;
+                        *ok = 0;
                         MOV32(x2, addr);
                     }
                     PUSH1(x2);
                     if(addr+i32==0) {   // self modifying code maybe? so use indirect address fetching
                         MOV32(x14, addr-4);
                         LDR_IMM9(x14, x14, 0);
-                    }
-                    jump_to_linker(dyn, addr+i32, (addr+i32)?0:x14, ninst);
+                        jump_to_next(dyn, 0, x14, ninst);
+                    } else
+                        jump_to_linker(dyn, addr+i32, 0, ninst);
                     break;
             }
             break;
@@ -2641,8 +2642,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
-                        //*need_epilog = 0;
-                        //*ok = 0;
+                        *need_epilog = 0;
+                        *ok = 0;
                         MOV32(x2, addr);
                     }
                     PUSH1(x2);
