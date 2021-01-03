@@ -534,8 +534,8 @@ GO(xcb_screen_next, vFp)
 GOS(xcb_send_event, pFEppCuup)
 //GO(xcb_send_event_checked, 
 //GO(xcb_send_fd, 
-GO(xcb_send_request, iFpippp)
-//GO(xcb_send_request64, 
+GO(xcb_send_request, uFpipp)
+GO(xcb_send_request64, UFpipp)
 GO(xcb_send_request_with_fds, uFpippup)
 GO(xcb_send_request_with_fds64, UFpippup)
 //GO(xcb_set_access_control, 
