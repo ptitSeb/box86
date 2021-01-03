@@ -30,7 +30,6 @@
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 static dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
-static int                 trace_dynarec;
 static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
 static int                 mmapsize;

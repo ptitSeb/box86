@@ -126,6 +126,7 @@ typedef struct box86context_s {
     pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
     #else
     pthread_mutex_t     mutex_dyndump;
+    int                 trace_dynarec;
     #endif
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
