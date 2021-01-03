@@ -812,6 +812,7 @@ typedef uint32_t (*uFppup_t)(void*, void*, uint32_t, void*);
 typedef uint32_t (*uFppLp_t)(void*, void*, uintptr_t, void*);
 typedef uint32_t (*uFpppi_t)(void*, void*, void*, int32_t);
 typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
+typedef uint64_t (*UFpipp_t)(void*, int32_t, void*, void*);
 typedef uint64_t (*UFppii_t)(void*, void*, int32_t, int32_t);
 typedef uint64_t (*UFppip_t)(void*, void*, int32_t, void*);
 typedef uint64_t (*UFpppp_t)(void*, void*, void*, void*);
@@ -2704,6 +2705,7 @@ void uFppup(x86emu_t *emu, uintptr_t fcn) { uFppup_t fn = (uFppup_t)fcn; R_EAX=(
 void uFppLp(x86emu_t *emu, uintptr_t fcn) { uFppLp_t fn = (uFppLp_t)fcn; R_EAX=(uint32_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(uintptr_t*)(R_ESP + 12), *(void**)(R_ESP + 16)); }
 void uFpppi(x86emu_t *emu, uintptr_t fcn) { uFpppi_t fn = (uFpppi_t)fcn; R_EAX=(uint32_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(int32_t*)(R_ESP + 16)); }
 void uFpppp(x86emu_t *emu, uintptr_t fcn) { uFpppp_t fn = (uFpppp_t)fcn; R_EAX=(uint32_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); }
+void UFpipp(x86emu_t *emu, uintptr_t fcn) { UFpipp_t fn = (UFpipp_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void UFppii(x86emu_t *emu, uintptr_t fcn) { UFppii_t fn = (UFppii_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void UFppip(x86emu_t *emu, uintptr_t fcn) { UFppip_t fn = (UFppip_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void UFpppp(x86emu_t *emu, uintptr_t fcn) { UFpppp_t fn = (UFpppp_t)fcn; ui64_t r; r.u=(uint64_t)fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
