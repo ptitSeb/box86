@@ -383,7 +383,11 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x86_addr = (void*)addr;
     if(!FillBlock(block, filladdr)) {
-        dynablocks->direct[addr-dynablocks->text] = NULL;
+        void* old = (void*)arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
+        if(old!=block) {// put it back in place, strange things are happening here!
+            dynarec_log(LOG_NONE, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
+            arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], (uintptr_t)old);
+        }
         free(block);
         block = NULL;
     }
@@ -397,6 +401,9 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                 if(my_context->dynmap[idx])
                     if(my_context->dynmap[idx]->maxsz<blocksz)
                         my_context->dynmap[idx]->maxsz = blocksz;
+
+        if(block->parent->nolinker)
+        protectDB((uintptr_t)block->x86_addr, block->x86_size);
     }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);

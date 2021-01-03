@@ -2107,8 +2107,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         //cstatck_push put addr in x2, don't need to put it again
                     } else {
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
-                        *need_epilog = 0;
-                        *ok = 0;
+                        //*need_epilog = 0;
+                        //*ok = 0;
                         MOV32(x2, addr);
                     }
                     PUSH1(x2);
@@ -2641,18 +2641,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {
                         PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
-                        *need_epilog = 0;
-                        *ok = 0;
+                        //*need_epilog = 0;
+                        //*ok = 0;
                         MOV32(x2, addr);
                     }
                     PUSH1(x2);
-                    jump_to_linker(dyn, 0, ed, ninst);  // smart linker
+                    jump_to_next(dyn, 0, ed, ninst);
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
                     BARRIER(1);
                     GETEDH(xEIP);
-                    jump_to_linker(dyn, 0, ed, ninst);  // linker is smarter now and will adapt
+                    jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;
                     *ok = 0;
                     break;

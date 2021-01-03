@@ -448,8 +448,6 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
         } else
             free(sons);
     }
-    if(block->parent->nolinker)
-        protectDB((uintptr_t)block->x86_addr, block->x86_size);
     free(helper.sons_x86);
     free(helper.sons_arm);
     block->done = 1;

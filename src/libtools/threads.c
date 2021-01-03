@@ -201,6 +201,15 @@ x86emu_t* thread_get_emu()
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!et) {
 		int stacksize = 2*1024*1024;
+		// try to get stack size of the thread
+		pthread_attr_t attr;
+		if(!pthread_getattr_np(pthread_self(), &attr)) {
+			size_t stack_size;
+        	void *stack_addr;
+			if(!pthread_attr_getstack(&attr, &stack_addr, &stack_size))
+				stacksize = stack_size;
+			pthread_attr_destroy(&attr);
+		}
 		void* stack = calloc(1, stacksize);
 		x86emu_t *emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
 		SetupX86Emu(emu);

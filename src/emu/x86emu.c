@@ -176,7 +176,7 @@ void FreeX86Emu(x86emu_t **emu)
 {
     if(!emu)
         return;
-    printf_log(LOG_DEBUG, "Free a X86 Emu (%p)\n", *emu);
+    printf_log(LOG_DEBUG, "%04d|Free a X86 Emu (%p)\n", GetTID(), *emu);
 
     internalFreeX86(*emu);
 
@@ -188,7 +188,7 @@ void FreeX86EmuFromStack(x86emu_t **emu)
 {
     if(!emu)
         return;
-    printf_log(LOG_DEBUG, "Free a X86 Emu from stack (%p)\n", *emu);
+    printf_log(LOG_DEBUG, "%04d|Free a X86 Emu from stack (%p)\n", GetTID(), *emu);
 
     internalFreeX86(*emu);
 }

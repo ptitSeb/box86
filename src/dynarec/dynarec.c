@@ -85,6 +85,28 @@ void* UpdateLinkTable(x86emu_t* emu, void** table, uintptr_t addr)
     }
     return jblock;
 }
+void* LinkNext(x86emu_t* emu, uintptr_t addr)
+{
+    dynablock_t* current = NULL;
+    void * jblock;
+    dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
+    if(!block) {
+        // no block, let link table as is...
+        //tableupdate(arm_epilog, addr, table);
+        return arm_epilog;
+    }
+    if(!block->done) {
+        // not finished yet... leave linker
+        //tableupdate(arm_linker, addr, table);
+        return arm_epilog;
+    }
+    if(!(jblock=block->block)) {
+        // null block, but done: go to epilog, no linker here
+        return arm_epilog;
+    }
+    //dynablock_t *father = block->father?block->father:block;
+    return jblock;
+}
 #endif
 
 void DynaCall(x86emu_t* emu, uintptr_t addr)

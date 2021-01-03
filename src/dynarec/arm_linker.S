@@ -7,6 +7,7 @@
 .align 4
 
 .extern UpdateLinkTable
+.extern LinkNext
 
 .global arm_linker
 arm_linker:
@@ -18,6 +19,19 @@ arm_linker:
     mov     r2, r14
     // call the function
     bl      UpdateLinkTable
+    // return offset is jump address
+    mov     r3, r0
+    pop     {r0, r1, r12, r14}
+    bx      r3
+
+.global arm_next
+arm_next:
+    // emu is r0
+    //stm     r0, {r4-r12,r14}   // don't put put back reg value in emu, faster but more tricky to debug
+    // IP address is r1
+    push    {r0, r1, r12, r14}
+    // call the function
+    bl      LinkNext
     // return offset is jump address
     mov     r3, r0
     pop     {r0, r1, r12, r14}

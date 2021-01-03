@@ -301,6 +301,26 @@ void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     }
 }
 
+void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
+{
+    MESSAGE(LOG_DUMP, "Jump to next nolinker=%d\n", dyn->nolinker);
+
+    if(dyn->nolinker==2) {
+        jump_to_epilog(dyn, ip, reg, ninst);
+    } else {
+        if(reg) {
+            if(reg!=xEIP) {
+                MOV_REG(xEIP, reg);
+            }
+        } else {
+            MOV32_(xEIP, ip);
+        }
+        MOV32_(x2, (uintptr_t)arm_next);
+        MOV_REG(x1, xEIP);
+        BX(x2);
+    }
+}
+
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
 // using linker here doesn't seem to bring any significant speed improvment. To much change in the jump table probably
@@ -309,11 +329,11 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     MAYUSE(i32);
     if(dyn->nolinker) {
 #endif
-        MESSAGE(LOG_DUMP, "Ret epilog\n");
+        MESSAGE(LOG_DUMP, "Ret next\n");
         POP1(xEIP);
         cstack_pop(dyn, ninst, xEIP, x1, x2);
-        PASS3(void* epilog = arm_epilog);
-        MOV32_(x2, (uintptr_t)epilog);
+        MOV32_(x2, (uintptr_t)arm_next);
+        MOV_REG(x1, xEIP);
         BX(x2);
 #if 0
     } else {
@@ -359,8 +379,8 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
             ADD_IMM8(xESP, xESP, n);
         }
         cstack_pop(dyn, ninst, xEIP, x1, x2);
-        PASS3(void* epilog = arm_epilog);
-        MOV32_(x2, (uintptr_t)epilog);
+        MOV32_(x2, (uintptr_t)arm_next);
+        MOV_REG(x1, xEIP);
         BX(x2);
 #if 0
     } else {
