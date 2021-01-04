@@ -188,12 +188,11 @@ box86context_t *NewBox86Context(int argc)
     pthread_mutex_init(&context->mutex_trace, NULL);
 #ifndef DYNAREC
     pthread_mutex_init(&context->mutex_lock, NULL);
+#else
+    pthread_mutex_init(&context->mutex_dyndump, NULL);
 #endif
     pthread_mutex_init(&context->mutex_tls, NULL);
     pthread_mutex_init(&context->mutex_thread, NULL);
-#ifdef DYNAREC
-    pthread_mutex_init(&context->mutex_dyndump, NULL);
-#endif
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
     InitFTSMap(context);
@@ -306,6 +305,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_trace);
 #ifndef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_lock);
+#else
     pthread_mutex_destroy(&ctx->mutex_dyndump);
 #endif
     pthread_mutex_destroy(&ctx->mutex_tls);
