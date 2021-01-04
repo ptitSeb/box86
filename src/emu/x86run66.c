@@ -655,7 +655,8 @@ void RunLock66(x86emu_t *emu)
     uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
-    uint16_t tmp16u;
+    uint16_t tmp16u, tmp16u2;
+    int16_t tmp16s;
     int32_t tmp32s;
     switch(opcode) {
         case 0x0f:
@@ -691,6 +692,41 @@ void RunLock66(x86emu_t *emu)
                 ip-=4;    // unfetch nextop, 0F, F0 & 66
                 UnimpOpcode(emu);
             }
+            break;
+        case 0x81:              /* GRP Ed,Iw */
+        case 0x83:              /* GRP Ed,Ib */
+            nextop = F8;
+            GET_EW;
+            if(opcode==0x83) {
+                tmp16s = F8S;
+                tmp16u = (uint32_t)tmp16s;
+            } else
+                tmp16u = F16;
+#ifdef DYNAREC
+            switch((nextop>>3)&7) {
+                case 0: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, add16(emu, tmp16u2, tmp16u))); break;
+                case 1: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW,  or16(emu, tmp16u2, tmp16u))); break;
+                case 2: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, adc16(emu, tmp16u2, tmp16u))); break;
+                case 3: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, sbb16(emu, tmp16u2, tmp16u))); break;
+                case 4: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, and16(emu, tmp16u2, tmp16u))); break;
+                case 5: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, sub16(emu, tmp16u2, tmp16u))); break;
+                case 6: do { tmp16u2 = arm_lock_read_h(EW);} while(arm_lock_write_h(EW, xor16(emu, tmp16u2, tmp16u))); break;
+                case 7:                cmp16(emu, ED->dword[0], tmp16u); break;
+            }
+#else
+            pthread_mutex_lock(&emu->context->mutex_lock);
+            switch((nextop>>3)&7) {
+                case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
+                case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
+                case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
+                case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
+                case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
+                case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
+                case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
+                case 7:               cmp16(emu, EW->word[0], tmp16u); break;
+            }
+            pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
             break;
         default:
             ip-=3;    // unfetch nextop, F0  & 66
