@@ -396,16 +396,18 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     // check size
     if(block) {
         int blocksz = block->x86_size;
-        if(dynablocks->maxsz<blocksz)
-            for(int idx=(addr>>DYNAMAP_SHIFT); idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
+        if(dynablocks->maxsz<blocksz) {
+            dynablocks->maxsz = blocksz;
+            for(int idx=(addr>>DYNAMAP_SHIFT)+1; idx<=((addr+blocksz)>>DYNAMAP_SHIFT); ++idx) {
                 dynablocklist_t* dblist;
                 if((dblist = getDB(idx)))
                     if(dblist->maxsz<blocksz)
                         dblist->maxsz = blocksz;
             }
+        }
 
         if(block->parent->nolinker)
-        protectDB((uintptr_t)block->x86_addr, block->x86_size);
+            protectDB((uintptr_t)block->x86_addr, block->x86_size);
     }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
