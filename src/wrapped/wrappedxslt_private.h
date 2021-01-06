@@ -26,8 +26,8 @@ GO(xsltCalibrateAdjust, vFl)
 GO(xsltCallTemplate, vFpppp)
 GO(xsltCheckExtPrefix, iFpp)
 GO(xsltCheckExtURI, iFpp)
-//GO(xsltCheckRead, 
-//GO(xsltCheckWrite, 
+GO(xsltCheckRead, iFppp)
+GO(xsltCheckWrite, iFppp)
 GO(xsltChoose, vFpppp)
 GO(xsltCleanupGlobals, vFv)
 //GO(xsltCleanupTemplates, 
@@ -92,7 +92,7 @@ GO(xsltFreeGlobalVariables, vFp)
 //GO(xsltFreeLocale, 
 //GO(xsltFreeNamespaceAliasHashes, 
 GO(xsltFreeRVTs, vFp)
-//GO(xsltFreeSecurityPrefs, 
+GO(xsltFreeSecurityPrefs, vFp)
 GO(xsltFreeStackElemList, vFp)
 GO(xsltFreeStyleDocuments, vFp)
 //GO(xsltFreeStylePreComps, 
@@ -114,7 +114,7 @@ GO(xsltGetNsProp, pFppp)
 GO(xsltGetProfileInformation, pFp)
 GO(xsltGetQNameURI, pFpp)
 GO(xsltGetQNameURI2, pFppp)
-//GO(xsltGetSecurityPrefs, 
+GO(xsltGetSecurityPrefs, pFpi)
 //GO(xsltGetSpecialNamespace, 
 //GO(xsltGetTemplate, 
 GO(xsltGetUTF8Char, iFpp)
@@ -141,7 +141,7 @@ GO(xsltNeedElemSpaceHandling, iFp)
 GO(xsltNewDocument, pFpp)
 //GOM(xsltNewElemPreComp, pFEppB)
 //GO(xsltNewLocale, 
-//GO(xsltNewSecurityPrefs, 
+GO(xsltNewSecurityPrefs, pFv)
 GO(xsltNewStyleDocument, pFpp)
 GO(xsltNewStylesheet, pFv)
 GO(xsltNewTransformContext, pFpp)
@@ -203,18 +203,18 @@ GO(xsltSaveResultToFd, iFipp)
 GO(xsltSaveResultToFile, iFppp)
 GO(xsltSaveResultToFilename, iFpppi)
 GO(xsltSaveResultToString, iFpppp)
-//GO(xsltSecurityAllow, 
-//GO(xsltSecurityForbid, 
+GO(xsltSecurityAllow, iFppp)
+GO(xsltSecurityForbid, iFppp)
 GO(xsltSetCtxtParseOptions, iFpi)
-//GO(xsltSetCtxtSecurityPrefs, 
+GO(xsltSetCtxtSecurityPrefs, iFpp)
 //GOM(xsltSetCtxtSortFunc, vFEpB)
 //GOM(xsltSetDebuggerCallbacks, iFip)
 GO(xsltSetDebuggerStatus, vFi)
-//GO(xsltSetDefaultSecurityPrefs, 
+GO(xsltSetDefaultSecurityPrefs, vFp)
 //GOM(xsltSetGenericDebugFunc, vFEpB)
 //GOM(xsltSetGenericErrorFunc, vFEpB)
 GOM(xsltSetLoaderFunc, vFEp)
-//GO(xsltSetSecurityPrefs, 
+//GOM(xsltSetSecurityPrefs, iFEppB)
 //GOM(xsltSetSortFunc, vFEp)
 //GO(MxsltSetTransformErrorFunc, vFEppB)
 GO(xsltSetXIncludeDefault, vFi)
