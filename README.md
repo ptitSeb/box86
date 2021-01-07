@@ -39,7 +39,7 @@ Note that this project is not to be mistaken with [86box](https://github.com/86B
 Discord
 ----
 
-If you want to discuss about box86 on Discord, there is a frendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
+If you want to discuss about box86 on Discord, there is a friendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
 
 
 ----
@@ -57,7 +57,7 @@ There are a few environment variables avaiable to control the behaviour of Box86
 
 See [here](USAGE.md) for all variables and what they do.
 
-Note that now the Dynarec of Box86 uses a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug running a program that use JIT'd code (like mono/Unity3D), you will have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+Note that now the Dynarec of Box86 uses a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
 
 ----
 
@@ -101,7 +101,7 @@ Some Steam games (most of Source engine one, like "Portal" or "Half-Life 2") use
 A note about Wine
 ----
 
-Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now run fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
+Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
 Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those model use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find instructions on how to do that.
 
 ----
