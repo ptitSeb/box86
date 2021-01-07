@@ -9,7 +9,7 @@ You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit
 
 Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use, and performance can be surprisingly high in some cases.
 
-Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary.
+Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary(most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android)) .
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter.
 
@@ -39,7 +39,7 @@ Note that this project is not to be mistaken with [86box](https://github.com/86B
 Discord
 ----
 
-If you want to discuss about box86 on Discord, there is a friendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
+If you want to discuss(or have any problems) about box86, there is a Discord friendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
 
 
 ----
@@ -55,9 +55,9 @@ Usage
 
 There are a few environment variables avaiable to control the behaviour of Box86.
 
-See [here](USAGE.md) for all variables and what they do.
+See [here](USAGE.md) for all environment variables and what they do.
 
-Note that now the Dynarec of Box86 uses a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+Note that now the Dynarec of Box86 uses a mechanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use GDB to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in GDB to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
 
 ----
 
@@ -68,7 +68,7 @@ The change log is available [here](CHANGELOG.md)
 
 ----
 
-A note about 64-bit platforms
+Notes about 64-bit platforms
 ----
 
 Because Box86 works by directly translating function calls from x86 to host system, the host system (the one Box86 is running on) needs to have 32-bit libraries. Box86 doesn't include any 32-bit <-> 64-bit translation. So basically, to run Box86 on, for example, an ARM64 platform, you will need to build Box86 for ARM 32-bit, and also need to have a chroot with 32-bit libraries.
@@ -87,22 +87,22 @@ TL;DR: Not all Unity games work and can require a high OpenGL profile, but the s
 
 ----
 
-A note about Steam
+Notes about Steam
 ----
 
-Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
-Once open, Steam will only work on "Small mode" and in "Big Picture", not in the regular "Browser mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
-Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
-(Steam for Windows install fine but doesn't work yet)
-Some Steam games (most of Source engine one, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it's use and will try to LD_PRELOAD it, for better compatibility. While it should work without, it is better to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` on debian familly)
+Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works. First problem is steam crashing after the Sign in window, if you encounter this issue, you may need to add libappindicator. Installing the package on debian `sudo apt install libappindicator1`.
+Once open, Steam will only work on "Small Mode" and in "Big Picture", not in the regular "Large Mode"(This is because some steam component used in the browser view are only 64 bits now.). So go in the "View" menu and switch to Small view, else the list will stay empty.
+Final words, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables. 
+(Steam for Windows installs fine but doesn't work yet)
+Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aformentionned feature, it is safer to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` to install it on Debian and Debian's deriatives)
 
 ----
 
-A note about Wine
+Notes about Wine
 ----
 
 Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
-Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those model use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find instructions on how to do that.
+Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine for instructions on how to do that.
 
 ----
 
