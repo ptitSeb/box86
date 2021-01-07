@@ -39,7 +39,7 @@ Note that this project is not to be mistaken with [86box](https://github.com/86B
 Discord
 ----
 
-If you want to discuss about box86 on Discord, there is a frendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
+If you want to discuss about box86 on Discord, there is a friendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
 
 
 ----
@@ -57,7 +57,7 @@ There are a few environment variables avaiable to control the behaviour of Box86
 
 See [here](USAGE.md) for all variables and what they do.
 
-Note that now the Dynarec of Box86 uses a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug running a program that use JIT'd code (like mono/Unity3D), you will have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+Note that now the Dynarec of Box86 uses a mecanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use gdb to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in gdb to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
 
 ----
 
@@ -80,7 +80,7 @@ Also note that, even if, on day, there is a Box86_64, this one will only be able
 A note about Unity game emulation
 ----
 
-Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with he new "protected memory" mechanism implemented it is running with correct performance now.
+Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with the new "protected memory" mechanism implemented it should be running with correct performance now.
 You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
 
 TL;DR: Not all Unity games work and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
@@ -90,19 +90,19 @@ TL;DR: Not all Unity games work and can require a high OpenGL profile, but the s
 A note about Steam
 ----
 
-Linux Steam can run now with box86. But it's still a bit unstable., and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
+Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
 Once open, Steam will only work on "Small mode" and in "Big Picture", not in the regular "Browser mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
 Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
 (Steam for Windows install fine but doesn't work yet)
-Some steam games (most of Source engine one, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it's use and will try to LD_PRELOAD it, for better compatibility. While it should work without, it is better to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` on debian familly)
+Some Steam games (most of Source engine one, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it's use and will try to LD_PRELOAD it, for better compatibility. While it should work without, it is better to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` on debian familly)
 
 ----
 
 A note about Wine
 ----
 
-Wine is now partly supported. Wine integreted program all runs, annd some windows program and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
-A not if you plan to use box86 with wine on Raspberry PI 3 or earlier: those model use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for Kernel). This is not compatible with wine, that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find tutos on how to do that.
+Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
+Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those model use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine that need to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine to find instructions on how to do that.
 
 ----
 
