@@ -7,9 +7,9 @@ There are many environment variables to control Box86 behaviour.
 #### BOX86_LOG
 Controls the Verbosity level of the logs
  * 0
- * NONE : No message (except some fatal error)
+ * NONE : Current default. No message (except some fatal error)
  * 1
- * INFO : Current default. Show some log
+ * INFO : Show some minimum log (like librairies not found)
  * 2
  * DEBUG : Details a lot of stuff (like relocations or function called)
  * 3
