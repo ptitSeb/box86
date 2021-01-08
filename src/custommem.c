@@ -27,6 +27,12 @@
 #include "khash.h"
 
 
+typedef struct blocklist_s {
+    void*               block;
+    int                 maxfree;
+    size_t              size;
+} blocklist_t;
+
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 static dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
@@ -41,7 +47,6 @@ static kh_dynablocks_t     *dblist_oversized;      // store the list of oversize
 static pthread_mutex_t     mutex_blocks = PTHREAD_MUTEX_INITIALIZER;
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
-
 
 typedef union mark_s {
     struct {
@@ -72,10 +77,10 @@ static void* getFirstBlock(void* block, int maxsize, int* size)
     return NULL;
 }
 
-static int getMaxFreeBlock(void* block)
+static int getMaxFreeBlock(void* block, size_t block_size)
 {
     // get start of block
-    blockmark_t *m = (blockmark_t*)((uintptr_t)block+MMAPSIZE-sizeof(blockmark_t)); // styart with the end
+    blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
     int maxsize = 0;
     while(m->prev.x32) {    // while there is a subblock
         if(!m->prev.fill && m->prev.size>maxsize) {
@@ -179,7 +184,7 @@ void* customMalloc(size_t size)
             if(sub) {
                 void* ret = allocBlock(p_blocks[i].block, sub, size);
                 if(rsize==p_blocks[i].maxfree)
-                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block);
+                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
                 pthread_mutex_unlock(&mutex_blocks);
                 return ret;
             }
@@ -193,18 +198,19 @@ void* customMalloc(size_t size)
         allocsize = size+2*sizeof(blockmark_t);
     void* p = calloc(1, allocsize);
     p_blocks[i].block = p;
+    p_blocks[i].size = allocsize;
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
     m->prev.x32 = 0;
     m->next.fill = 0;
-    m->next.size = MMAPSIZE-sizeof(blockmark_t);
-    m = (blockmark_t*)(p+MMAPSIZE-sizeof(blockmark_t));
+    m->next.size = allocsize-sizeof(blockmark_t);
+    m = (blockmark_t*)(p+allocsize-sizeof(blockmark_t));
     m->next.x32 = 0;
     m->prev.fill = 0;
-    m->prev.size = MMAPSIZE-sizeof(blockmark_t);
+    m->prev.size = allocsize-sizeof(blockmark_t);
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size);
-    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block);
+    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
     pthread_mutex_unlock(&mutex_blocks);
     return ret;
 }
@@ -223,10 +229,10 @@ void* customRealloc(void* p, size_t size)
     pthread_mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
-         && (addr<((uintptr_t)p_blocks[i].block+MMAPSIZE))) {
+         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             if(expandBlock(p_blocks[i].block, sub, size)) {
-                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block);
+                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
                 pthread_mutex_unlock(&mutex_blocks);
                 return p;
             } else {
@@ -251,10 +257,10 @@ void customFree(void* p)
     pthread_mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
-         && (addr<((uintptr_t)p_blocks[i].block+MMAPSIZE))) {
+         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             freeBlock(p_blocks[i].block, sub);
-            p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block);
+            p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
             pthread_mutex_unlock(&mutex_blocks);
             return;
         }
@@ -268,6 +274,7 @@ void customFree(void* p)
 typedef struct mmaplist_s {
     void*               block;
     int                 maxfree;
+    size_t              size;
     kh_dynablocks_t*    dblist;
 } mmaplist_t;
 
@@ -282,7 +289,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
             if(sub) {
                 uintptr_t ret = (uintptr_t)allocBlock(mmaplist[i].block, sub, size);
                 if(rsize==mmaplist[i].maxfree)
-                    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block);
+                    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
                 kh_dynablocks_t *blocks = mmaplist[i].dblist;
                 if(!blocks) {
                     blocks = mmaplist[i].dblist = kh_init(dynablocks);
@@ -314,6 +321,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     updateProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     mmaplist[i].block = p;
+    mmaplist[i].size = MMAPSIZE;
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
     m->prev.x32 = 0;
@@ -325,7 +333,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     m->prev.size = MMAPSIZE-sizeof(blockmark_t);
     // alloc 1st block
     uintptr_t sub  = (uintptr_t)allocBlock(mmaplist[i].block, p, size);
-    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block);
+    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
     kh_dynablocks_t *blocks = mmaplist[i].dblist = kh_init(dynablocks);
     kh_resize(dynablocks, blocks, 64);
     khint_t k;
@@ -341,10 +349,10 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
         return;
     for(int i=0; i<mmapsize; ++i) {
         if ((addr>(uintptr_t)mmaplist[i].block) 
-         && (addr<((uintptr_t)mmaplist[i].block+MMAPSIZE))) {
+         && (addr<((uintptr_t)mmaplist[i].block+mmaplist[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             freeBlock(mmaplist[i].block, sub);
-            mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block);
+            mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
             kh_dynablocks_t *blocks = mmaplist[i].dblist;
             if(blocks) {
                 khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
@@ -363,7 +371,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     // look in actual list
     for(int i=0; i<mmapsize; ++i) {
         if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
-        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+MMAPSIZE))
+        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size))
             return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
     }
     // look in oversized

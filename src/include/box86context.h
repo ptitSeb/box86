@@ -60,11 +60,6 @@ typedef struct base_segment_s {
     pthread_key_t   key;
 } base_segment_t;
 
-typedef struct blocklist_s {
-    void*               block;
-    int                 maxfree;
-} blocklist_t;
-
 typedef struct box86context_s {
     uint32_t*           memprot;    // protection flags by 4K block
     path_collection_t   box86_path;     // PATH env. variable
