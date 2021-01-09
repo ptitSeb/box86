@@ -27,12 +27,6 @@
 #include "khash.h"
 
 
-typedef struct blocklist_s {
-    void*               block;
-    int                 maxfree;
-    size_t              size;
-} blocklist_t;
-
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 static dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
@@ -41,6 +35,12 @@ static mmaplist_t          *mmaplist;
 static int                 mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 #endif
+
+typedef struct blocklist_s {
+    void*               block;
+    int                 maxfree;
+    size_t              size;
+} blocklist_t;
 
 #define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
