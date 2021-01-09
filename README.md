@@ -73,14 +73,14 @@ A note about 64-bit platforms
 
 Because Box86 works by directly translating function calls from x86 to host system, the host system (the one Box86 is running on) needs to have 32-bit libraries. Box86 doesn't include any 32-bit <-> 64-bit translation. So basically, to run Box86 on, for example, an ARM64 platform, you will need to build Box86 for ARM 32-bit, and also need to have a chroot with 32-bit libraries.
 
-Also note that, even if, on day, there is a Box86_64, this one will only be able to run x86_64 binaries on 64-bit platforms. You will still need Box86 (and see 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
+Also note that, even if, one day, there is a Box86_64, this one will only be able to run x86_64 binaries on 64-bit platforms. You will still need Box86 (and see 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
 
 ----
 
 A note about Unity game emulation
 ----
 
-Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with he new "protected memory" mechanism implemented it is running with correct performance now.
+Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with the new "protected memory" mechanism implemented it is running with correct performance now.
 You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
 
 TL;DR: Not all Unity games work and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
@@ -91,7 +91,7 @@ A note about Steam
 ----
 
 Linux Steam can run now with box86. But it's still a bit unstable., and not everything works. First is steam crashes after the Sign in, you may need to add libappindicator. On debian it's `sudo apt install libappindicator1`.
-Once open, Steam will only work on "Small mode". So go in the "View" menu and witch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
+Once open, Steam will only work on "Small mode". So go in the "View" menu and switch to Small view (or Compact view?), else the list will stay empty (this is because some steam component used in the browser view are only 64bits now).
 Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` export. 
 (Steam for Windows install fine but doesn't work yet)
 
@@ -100,7 +100,7 @@ Final word, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` 
 A note about Wine
 ----
 
-Wine is now partly supported. Wine integreted program all runs, annd some windows program and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
+Wine is now partly supported. Wine integreted programs all run, and some windows programs and games now run fine. Don't forget most Windows games use Direct3D, that may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
 
 ----
 
