@@ -360,6 +360,10 @@ static void* find_InternalFreeNotification_Fct(void* fct)
 
 //#define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 
+#define PRE_INIT        \
+    if(box86_novulkan)  \
+        return -1;
+
 #define CUSTOM_INIT \
     my_lib = lib; \
     lib->priv.w.p2 = getVulkanMy(lib);  \

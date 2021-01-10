@@ -250,6 +250,12 @@ library_t *NewLibrary(const char* path, box86context_t* context)
             return NULL;
         }
     }
+    if(box86_novulkan) {
+        if(strstr(lib->name, "libvulkan.so")==lib->name) {
+            Free1Library(&lib);
+            return NULL;
+        }
+    }
     int notwrapped = FindInCollection(lib->name, &context->box86_emulated_libs);
     // And now, actually loading a library
     // look for native(wrapped) libs first

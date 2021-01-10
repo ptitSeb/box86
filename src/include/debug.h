@@ -26,8 +26,9 @@ extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
 extern int allow_missing_libs;
 extern int box86_steam;
-extern int box86_nopulse;   // diabling the use of wrapped pulseaudio
+extern int box86_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box86_nogtk; // disabling the use of wrapped gtk
+extern int box86_novulkan;  // disabling the use of wrapped vulkan
 extern uintptr_t   trace_start, trace_end;
 extern char* trace_func;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)

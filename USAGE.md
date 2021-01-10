@@ -148,6 +148,11 @@ Disable the load of wrapped GTK libraries
  * 0 : default, load wrapped gtk libs if present
  * 1 : disable the load of wrapped gtk libs (can be used with Steam, along with STEAM_RUNTIME=1 to use i386 versio of gtk)
 
+#### BOX86_NOVULKAN
+Disable the load of vulkan libraries
+ * 0 : default, load vulkan libraries if present
+ * 1 : disable the load of vulkan libraries both native and x86 version (can be usefull on Pi4)
+
 #### BOX86_FIX_64BIT_INODES
  * 0 : Don't fix 64bit inodes (default)
  * 1 : Fix 64bit inodes. Helps when running on filesystems with 64bit inodes, the program uses API functions which doesn't support it and the program doesn't use inodes information.
