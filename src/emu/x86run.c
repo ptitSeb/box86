@@ -159,7 +159,7 @@ int Run(x86emu_t *emu, int step)
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xB0-0xB7
     &&_66_0xB8, &&_66_0xB9, &&_66_0xBA, &&_66_0xBB, &&_66_0xBC, &&_66_0xBD, &&_66_0xBE, &&_66_0xBF, 
     &&_default, &&_66_0xC1, &&_default, &&_default, &&_default, &&_default, &&_default, &&_66_0xC7, 
-    &&_default, &&_default, &&_default, &&_default, &&_66_0xCC ,&&_default, &&_default, &&_default, //0xC8-0xCF
+    &&_default, &&_default, &&_default, &&_66_0xCB, &&_66_0xCC ,&&_default, &&_default, &&_default, //0xC8-0xCF
     &&_default, &&_66_0xD1, &&_default, &&_66_0xD3, &&_default, &&_default, &&_default, &&_default, //0xD0-0xD7
     &&_default, &&_66_0xD9, &&_default, &&_default, &&_default ,&&_66_0xDD, &&_default, &&_default, //0xD8-0xDF
     &&_default, &&_default, &&_default, &&_default, &&_default ,&&_default, &&_default, &&_default, //0xE0-0xE7

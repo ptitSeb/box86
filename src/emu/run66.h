@@ -348,10 +348,22 @@
         EW->word[0] = F16;
         NEXT;
 
+    _66_0xCB:                               /* FAR RET */
+        ip = Pop(emu);
+        emu->segs[_CS] = Pop(emu);    // no check, no use....
+        emu->segs_serial[_CS] = 0;
+        // need to check status of CS register!
+        STEP
+        NEXT;
     _66_0xCC:                              /* INT3 */
+        emu->old_ip = R_EIP;
+        R_EIP = ip-1;
         if(my_context->signals[SIGTRAP])
             raise(SIGTRAP);
-
+        ip = R_EIP;
+        if(emu->quit) goto fini;
+        STEP
+        NEXT;
     _66_0xD1:                              /* GRP2 Ew,1  */
     _66_0xD3:                              /* GRP2 Ew,CL */
         nextop = F8;
