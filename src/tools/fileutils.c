@@ -28,10 +28,9 @@ int FileExist(const char* filename, int flags)
     if(flags&IS_FILE) {
         if(!S_ISREG(sb.st_mode))
             return 0;
-    } else {
-        if(!S_ISDIR(sb.st_mode))
+    } else if(!S_ISDIR(sb.st_mode))
             return 0;
-    }
+    
     if(flags&IS_EXECUTABLE) {
         if((sb.st_mode&S_IXUSR)!=S_IXUSR)
             return 0;   // nope

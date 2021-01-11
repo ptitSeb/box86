@@ -74,9 +74,10 @@ EXPORT uintptr_t my_xmlMemStrdup = 0;
 
 void my_wrap_xmlFree(void* p)
 {
-    if(my_xmlFree)
+    if(my_xmlFree){
         RunFunction(my_context, my_xmlFree, 1, p);
-    else
+        return;
+    }
         free(p);
 }
 void* my_wrap_xmlMalloc(size_t s)

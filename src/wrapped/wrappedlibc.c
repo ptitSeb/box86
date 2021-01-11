@@ -473,9 +473,9 @@ void EXPORT my___cxa_finalize(x86emu_t* emu, void* p)
     if(!p) {
         // p is null, call (and remove) all Cleanup functions
         CallAllCleanup(emu);
-    } else {
-        CallCleanup(emu, p);
+        return;
     }
+        CallCleanup(emu, p);
 }
 int EXPORT my_atexit(x86emu_t* emu, void *p)
 {
@@ -2280,12 +2280,11 @@ EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint
 
 EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 {
-    char* ret;
+
     if(isProcSelf(path, "exe")) {
-        ret = realpath(emu->context->fullpath, resolved_path);
-    } else
-        ret = realpath(path, resolved_path);
-    return ret;
+        return realpath(emu->context->fullpath, resolved_path);
+    }
+        return realpath(path, resolved_path);
 }
 
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)

@@ -235,13 +235,13 @@ void* customRealloc(void* p, size_t size)
                 p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size);
                 pthread_mutex_unlock(&mutex_blocks);
                 return p;
-            } else {
+            }
                 pthread_mutex_unlock(&mutex_blocks);
                 void* newp = customMalloc(size);
                 memcpy(newp, p, sizeBlock(sub));
                 customFree(p);
                 return newp;
-            }
+            
         }
     }
     pthread_mutex_unlock(&mutex_blocks);
