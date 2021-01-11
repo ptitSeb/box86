@@ -6,7 +6,7 @@ Compiling
 
 #### for Pyra
 
- `mkdir build; cd build; cmake .. -DPYRA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make;`
+ `mkdir build; cd build; cmake .. -DPYRA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
 
 #### for Gameshell
 
@@ -39,7 +39,7 @@ As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environme
 
 #### for Other ARM Linux platforms
 
- `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make; sudo make install`
+ `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
 
 #### for x86 Linux
 
