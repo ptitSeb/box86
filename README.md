@@ -53,11 +53,11 @@ Compilation instructions can be found [here](COMPILE.md)
 Usage
 ----
 
-There are a few environment variables avaiable to control the behaviour of Box86.
+There are a few environment variables  to control the behaviour of Box86.
 
 See [here](USAGE.md) for all environment variables and what they do.
 
-Note that now the Dynarec of Box86 uses a mechanism with Memory Protection and a SegFault signal handler to handle JIT code. That means if you want to use GDB to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. I suggest you use something like `handle SIGSEGV nostop` in GDB to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+Note: Box86's Dynarec uses a mechanism with Memory Protection and a SegFault signal handler to handle JIT code. In simpler terms, if you want to use GDB to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. It is suggested to use something like `handle SIGSEGV nostop` in GDB to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
 
 ----
 
@@ -73,7 +73,7 @@ Notes about 64-bit platforms
 
 Because Box86 works by directly translating function calls from x86 to host system, the host system (the one Box86 is running on) needs to have 32-bit libraries. Box86 doesn't include any 32-bit <-> 64-bit translation. So basically, to run Box86 on, for example, an ARM64 platform, you will need to build Box86 for ARM 32-bit, and also need to have a chroot with 32-bit libraries.
 
-Also note that, even if, on day, there is a Box86_64, this one will only be able to run x86_64 binaries on 64-bit platforms. You will still need Box86 (and see 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
+Also note that, even if, on day, there is a Box86_64, this one will only be able to run x86_64 binaries on 64-bit platforms. You will still need Box86 (and a 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
 
 ----
 

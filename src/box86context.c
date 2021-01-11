@@ -129,11 +129,11 @@ int getrand(int maxval)
 {
     if(maxval<1024) {
         return ((random()&0x7fff)*maxval)/0x7fff;
-    } else {
+    } 
         uint64_t r = random();
         r = (r*maxval) / RAND_MAX;
         return r;
-    }
+
 }
 
 void free_tlsdatasize(void* p)
