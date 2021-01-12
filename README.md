@@ -9,18 +9,18 @@ You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit
 
 Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use, and performance can be surprisingly high in some cases.
 
-Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary(most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android)) .
+Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter.
 
-Many games already work, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine (there a long list, among them are UNDERTALE, A Risk of Rain, and Cook Server Delicious)
+Many games already work, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine. (there's a long list, among them are UNDERTALE, A Risk of Rain, and Cook Serve Delicious)
 
-If you are serious about developing Box86, you should install ccache and activate its support in the cmake project (use ccmake for example)
+If you are serious about developing Box86, you should install ccache and build Box86 with it. (Use ccmake for example.)
 To enable TRACE (i.e. dumping to stdout all individual x86 instructions executed, with dump of registers), you'll also need [Zydis library](https://github.com/zyantific/zydis) available on your system.
 
 Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](src/x86primop.c) for copyright details
 
-Here are 6 videos, the first 2 of "Airline Tycoon Deluxe" and "Heretic 2" running on a gigahertz OpenPandora (the second one use the dynarec), and the next 2 of "Bit.Trip.Runner" and "Neverwinter Night" running on an ODroid XU4 (without dynarec), and the last 2 on a Pi4: Shovel Knight (video from @ITotalJustice) and Freedom Planet (video from @djazz), also without dynarec.
+Here's  6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "Heretic 2" running on a GigaHertz OpenPandora (the second one is using  the dynarec), and the next 2 videos are videos of of "Bit.Trip.Runner" and "Neverwinter Night" running on an ODroid XU4 (without dynarec), and the last 2  videos are on on a Pi4: Shovel Knight (video from @ITotalJustice) and Freedom Planet (video from @djazz), also without dynarec.
 
 [![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/MM7kWYts7IA/3.jpg)](https://www.youtube.com/watch?v=MM7kWYts7IA) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg) [![Play on Youtube](https://img.youtube.com/vi/B4YN37z3-ws/1.jpg)](https://www.youtube.com/watch?v=B4YN37z3-ws) [![Play on Youtube](https://img.youtube.com/vi/xk8Q30mxqPg/1.jpg)](https://www.youtube.com/watch?v=xk8Q30mxqPg) [![Play on Youtube](https://img.youtube.com/vi/_QMRMVvYrqU/1.jpg)](https://www.youtube.com/watch?v=_QMRMVvYrqU)
 
@@ -53,7 +53,7 @@ Compilation instructions can be found [here](COMPILE.md)
 Usage
 ----
 
-There are a few environment variables  to control the behaviour of Box86.
+There are a few environment variables to control the behaviour of Box86.
 
 See [here](USAGE.md) for all environment variables and what they do.
 
