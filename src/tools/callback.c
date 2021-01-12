@@ -93,7 +93,6 @@ uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
     emu->quit = old_quit;
     emu->quitonlongjmp = oldlong;
 
-    uint32_t ret = R_EAX;
 
-    return ret;
+    return R_EAX;
 }

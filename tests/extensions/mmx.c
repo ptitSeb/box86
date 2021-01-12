@@ -596,9 +596,9 @@ bool test_mmx_cpuid() {
 	int has_mmx = !!(edx & (1 << 23));
 	if (has_mmx) {
 		return 0;
-	} else {
+	} 
 		return 1;
-	}
+	
 }
 
 int main() {

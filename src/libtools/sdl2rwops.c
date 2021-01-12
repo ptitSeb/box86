@@ -163,10 +163,8 @@ SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops)
 
 void RWNativeEnd2(SDL2_RWops_t* ops)
 {
-    if(!ops)
-        return;
 
-    if(ops->type != BOX86RW)
+    if(!ops || ops->type != BOX86RW)
         return; // do nothing
 
     ops->hidden.my.custom_free(ops);
