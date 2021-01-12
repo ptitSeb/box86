@@ -1,5 +1,18 @@
-Current version
+v0.2.0
 ======
+* Improvoment on x86 Flags handling
+* A few more opcode added
+* A few potential BusError fixed
+* Added BOX86_NOVULKAN en. var. disable the wrapping of vulkan libs
+* Improvments on libc O_XXXX flags handling
+* Now use a custom allocator for Dynarec and Hash tables
+* Improvment wrapping of pulse audio
+* Optimisation to a few Dynarec opcode (like SHRD/SHLD)
+* Improved the tracking of memory protection
+* A few more wrapping of libs (like libgssapi_krb5)
+* More function wrapping on libturbojpeg
+* Preliminary support for POWER9 (ppcle) build
+* Many contributed typo and rephrasing of README, COMPILE and USAGE docs
 
 v0.1.8
 ======
