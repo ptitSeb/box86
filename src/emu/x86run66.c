@@ -1041,6 +1041,12 @@ void RunFS(x86emu_t *emu)
         case 0x67:
             opcode = F8;
             switch(opcode) {
+                case 0x3B:                              /* CMP GD, FS:Ed16 */
+                    nextop = F8;
+                    GET_EW16_OFFS(tlsdata);
+                    cmp32(emu, GD.dword[0], ED->dword[0]);
+                    break;
+
                 case 0x89:                              /* MOV ED16,Gd */
                     nextop = F8;
                     GET_EW16_OFFS(tlsdata);
