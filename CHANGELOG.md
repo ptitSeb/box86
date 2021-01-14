@@ -3,7 +3,7 @@ Current version
 
 v0.2.0
 ======
-* Improvements on x86 Flags handling.
+* Improvements on x87 Flags handling.
 * A few more opcode has been added.
 * A few potential BusError are now fixed.
 * Added the BOX86_NOVULKAN en. var. . This is used to disable the wrapping of vulkan libraries.
@@ -101,15 +101,15 @@ v0.0.4
 * Added a lot of wrapped functions.
 * Added a few wrapped libraries (like libz or some other x11 related library).
 * For trace enabled build, Trace can be enabled only after a certain amount of opcodes (still, a debugger would be better).
-* Some fixes in a few opcodes, and implemented x86 rounding (SuperMeatBoy behaves better now).
+* Some fixes in a few opcodes, and implemented x87 rounding (SuperMeatBoy behaves better now).
 * FTL 1.6.9 still has corrupted music, but older 1.5.13 seems fine (different set of libraries).
 
 v0.0.2
 =======
 * A full commercial games runs fine on the Pandora platform: Airline Tycoon Deluxe.
 * Implemented all planned subparts of Box86 except JIT support.
-* CPU Emulation is at roughly 75%. This includes x86 and SSE/SSE2. MMX is barely implemented (but barely used anyway).
-* x86 emulation is simplified, no real x86 State handling (but should not be mandatory, as the native libm library is used)
+* CPU Emulation is at roughly 75%. This includes x87 and SSE/SSE2. MMX is barely implemented (but barely used anyway).
+* x87 emulation is simplified, no real x87 State handling (but should not be mandatory, as the native libm library is used)
 * No Signal handling yet
 * ELF Loader is crude and probably full of bugs. Also, the initialisation of libraries are defered after all symbols are resolved for now.
 * Wrapped libraries include libc, libm, rt, pthread, libdl, dllinux, libasound, GL, GLU, SDL1/mixer/image, SDL2/mixer/image/smpeg, OpenAL/ALUT, libz, libpng16, vorbisfile, x11/xrandr/xxf86vm.
