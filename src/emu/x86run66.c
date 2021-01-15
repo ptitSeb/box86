@@ -764,6 +764,14 @@ void RunGS(x86emu_t *emu)
             GD.dword[0] = add32(emu, GD.dword[0], ED->dword[0]);
             break;
 
+        case 0x06:              /* PUSH ES */
+            Push(emu, emu->segs[_ES]);
+            break;
+        case 0x07:             /* POP ES */
+            emu->segs[_ES] = Pop(emu);
+            emu->segs_serial[_ES] = 0;
+            break;
+
         case 0x11:              /* ADC GS:Ed, Gd */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
