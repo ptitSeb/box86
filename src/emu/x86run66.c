@@ -559,6 +559,11 @@ void RunLock(x86emu_t *emu)
             }
             break;
 
+        case 0x66:
+            RunLock66(emu);
+            ip = R_EIP;
+            break;
+
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */
             nextop = F8;
