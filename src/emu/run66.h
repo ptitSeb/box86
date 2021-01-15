@@ -401,7 +401,7 @@
 
     _66_0xF0:                      /* LOCK prefix */
         emu->old_ip = R_EIP;
-        R_EIP = ip;
+        R_EIP = ip - 2;
         RunLock66(emu);
         ip = R_EIP;
         if(emu->quit) goto fini;
