@@ -400,7 +400,7 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
 }
 #endif
 
-void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void** old_pc)
+void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code)
 {
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
@@ -525,6 +525,8 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
             //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
         }
+        if(info->si_code == SEGV_ACCERR && old_code)
+            *old_code = -1;
     } else if(sig==SIGFPE)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
     else if(sig==SIGILL)
@@ -568,8 +570,8 @@ void my_sigactionhandler_oldpc(int32_t sig, siginfo_t* info, void * ucntx, void*
             GO(SS);
             #undef GO
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing longjmp to resume emu\n");
-            if(old_pc)
-                *old_pc = NULL;    // re-init the value to allow another segfault at the same place
+            if(old_code)
+                *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
             longjmp(ejb->jmpbuf, 1);
@@ -701,7 +703,7 @@ exit(-1);
     }
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
         if(my_context->is_sigaction[sig])
-            my_sigactionhandler_oldpc(sig, info, ucntx, &old_pc);
+            my_sigactionhandler_oldcode(sig, info, ucntx, &old_code);
         else
             my_sighandler(sig);
         return;
@@ -714,7 +716,7 @@ exit(-1);
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    my_sigactionhandler_oldpc(sig, info, ucntx, NULL);
+    my_sigactionhandler_oldcode(sig, info, ucntx, NULL);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
