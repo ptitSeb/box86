@@ -635,7 +635,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     static void* old_addr = 0;
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":"SIGILL");
     if(old_code==info->si_code && old_pc==pc && old_addr==addr) {
-        printf_log(log_minimum, "%04d|Double %s!\n", GetTID(), signame);
+        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
 exit(-1);
     } else {
 #ifdef DYNAREC
