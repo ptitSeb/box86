@@ -94,7 +94,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
     &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_0xE4,    &&_0xE5,    &&_0xE6,    &&_0xE7,
     &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_0xEC,    &&_0xED,    &&_default, &&_default,
-    &&_0xF0,    &&_0xF1,    &&_0xF2,    &&_0xF3,    &&_default, &&_0xF5,    &&_0xF6,    &&_0xF7, 
+    &&_0xF0,    &&_0xF1,    &&_0xF2,    &&_0xF3,    &&_0xF4,    &&_0xF5,    &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_0xFA,    &&_0xFB,    &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
     };
 
@@ -1424,7 +1424,11 @@ _trace:
                 R_ECX = tmp32u;
             }   // else(nextop==0x0F)
             NEXT;
-
+        _0xF4:                      /* HLT */
+            // this is a privilege opcode... should an error be called instead?
+            sched_yield();
+            STEP;
+            NEXT;
         _0xF5:                      /* CMC */
             CHECK_FLAGS(emu);
             CONDITIONAL_SET_FLAG(!ACCESS_FLAG(F_CF), F_CF);
