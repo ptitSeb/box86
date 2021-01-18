@@ -664,6 +664,40 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             }
                             BFI(xFlags, ed, F_CF, 1);
                             break;
+                        case 5:
+                            INST_NAME("LOCK BTS Ed, Ib");
+                            SETFLAGS(X_CF, SF_SUBSET);
+                            gd = x2;
+                            if((nextop&0xC0)==0xC0) {
+                                ed = xEAX+(nextop&7);
+                                u8 = F8;
+                                MOVW(gd, u8);
+                                wback = 0;
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0, 0);
+                                u8 = F8;
+                                MOVW(gd, u8);
+                                UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
+                                ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
+                                MARKLOCK;
+                                LDREX(x1, x3);
+                                ed = x1;
+                                wback = x3;
+                            }
+                            AND_IMM8(x2, gd, 0x1f);
+                            MOV_REG_LSR_REG(x14, ed, x2);
+                            ANDS_IMM8(x14, x14, 1);
+                            BFI(xFlags, x14, F_CF, 1);
+                            B_MARK3(cNE); // bit already set, jump to next instruction
+                            MOVW(x14, 1);
+                            XOR_REG_LSL_REG(ed, ed, x14, x2);
+                            if(wback) {
+                                STREX(x14, ed, wback);
+                                CMPS_IMM8(x14, 0);
+                                B_MARKLOCK(cNE);
+                            }
+                            MARK3;
+                            break;
                         case 6:
                             INST_NAME("LOCK BTR Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);

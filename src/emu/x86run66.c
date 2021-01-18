@@ -383,6 +383,38 @@ void RunLock(x86emu_t *emu)
                             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
                             break;
+                        case 5:             /* BTS Ed, Ib */
+                            CHECK_FLAGS(emu);
+                            GET_ED;
+                            tmp8u = F8;
+                            if((nextop&0xC0)!=0xC0)
+                            {
+                                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                            }
+                            tmp8u&=31;
+#ifdef DYNAREC
+                            do {
+                                tmp32u = arm_lock_read_d(ED);
+                                if(tmp32u & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    tmp32s = 0;
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32u ^= (1<<tmp8u);
+                                    tmp32s = arm_lock_write_d(ED, tmp32u);
+                                }
+                            } while(tmp32s);
+#else
+                            pthread_mutex_lock(&emu->context->mutex_lock);
+                            if(ED->dword[0] & (1<<tmp8u)) {
+                                SET_FLAG(F_CF);
+                            } else {
+                                CLEAR_FLAG(F_CF);
+                                ED->dword[0] ^= (1<<tmp8u);
+                            }
+                            pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                            break;
                         case 6:             /* BTR Ed, Ib */
                             CHECK_FLAGS(emu);
                             GET_ED;
@@ -416,7 +448,7 @@ void RunLock(x86emu_t *emu)
                             break;
 
                         default:
-                            ip -= 2; //unfetchall 0F BA but not F0, continue normal without LOCK
+                            ip -= 3; //unfetchall 0F BA but not F0, continue normal without LOCK
                             break;
                     }
                     break;
@@ -554,7 +586,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     // trigger invalid lock?
-                    ip -= 1; // unfetch 0F but not F0
+                    ip -= 2; // unfetch 0F and nexop but not F0
                     break;
             }
             break;
