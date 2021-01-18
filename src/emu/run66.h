@@ -153,6 +153,13 @@
         R_AX = Pop16(emu);
         NEXT;
 
+    _66_0x64:
+        R_EIP = ip-2;
+        RunFS66(emu, GetFSBaseEmu(emu));
+        ip = R_EIP;
+        STEP;
+        NEXT;
+
     _66_0x66:
         goto _0x66; // 0x66 0x66 => can remove one 0x66
 

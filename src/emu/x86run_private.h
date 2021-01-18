@@ -201,6 +201,7 @@ void Run66D9(x86emu_t *emu);    // x87
 void Run6766(x86emu_t *emu);
 void RunGS(x86emu_t *emu);
 void RunFS(x86emu_t *emu);
+void RunFS66(x86emu_t *emu, uintptr_t tlsdata);
 void RunLock(x86emu_t *emu);
 void RunLock66(x86emu_t *emu);
 
@@ -212,6 +213,7 @@ uintptr_t GetSegmentBaseEmu(x86emu_t* emu, int seg);
 #define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)
 #define GetFSBaseEmu(emu)    GetSegmentBaseEmu(emu, _FS)
 #define GetESBaseEmu(emu)    GetSegmentBaseEmu(emu, _ES)
+#define GetDSBaseEmu(emu)    GetSegmentBaseEmu(emu, _DS)
 
 const char* GetNativeName(void* p);
 

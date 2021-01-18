@@ -121,6 +121,14 @@ void Run67(x86emu_t *emu)
             R_DI+=1;
         break;
 
+    case 0xAC:                      /* LODSB */
+        R_AL = *(int8_t*)(R_SI+GetDSBaseEmu(emu));
+        if(ACCESS_FLAG(F_DF))
+            R_SI-=1;
+        else
+            R_SI+=1;
+        break;
+
     case 0xE0:                      /* LOOPNZ */
         CHECK_FLAGS(emu);
         tmp8s = F8S;
@@ -1001,7 +1009,7 @@ void RunGS(x86emu_t *emu)
             }
             break;
         default:
-            ip--;
+            ip=R_EIP;
             UnimpOpcode(emu);
     }
     R_EIP = ip;
@@ -1073,17 +1081,8 @@ void RunFS(x86emu_t *emu)
             break;
 
         case 0x66:
-            opcode = F8;
-            switch(opcode) {
-                case 0x8B:                              /* MOV Gw,FS:Ew */
-                    nextop = F8;
-                    GET_EW_OFFS(tlsdata);
-                    GW.word[0] = EW->word[0];
-                    break;
-                default:
-                    ip-=3;
-                    UnimpOpcode(emu);
-            }
+            RunFS66(emu, tlsdata);  // two GetFSBaseEmu() call, but it's cheap now
+            ip = R_EIP;
             break;
         case 0x67:
             opcode = F8;
@@ -1308,7 +1307,35 @@ void RunFS(x86emu_t *emu)
             }
             break;
         default:
-            ip--;
+            ip = R_EIP;
+            UnimpOpcode(emu);
+    }
+    R_EIP = ip;
+}
+
+void RunFS66(x86emu_t *emu, uintptr_t tlsdata)
+{
+    uintptr_t ip = R_EIP+2;
+    uint8_t opcode = F8;
+    uint8_t nextop;
+    reg32_t *oped;
+    uint8_t tmp8u;
+    uint32_t tmp32u;
+    int32_t tmp32s;
+    switch(opcode) {
+        case 0x03:                              /* ADD Gw, FS:Ew */
+            nextop = F8;
+            GET_EW_OFFS(tlsdata);
+            GW.word[0] = add16(emu, GW.word[0], EW->word[0]);
+            break;
+
+        case 0x8B:                              /* MOV Gw,FS:Ew */
+            nextop = F8;
+            GET_EW_OFFS(tlsdata);
+            GW.word[0] = EW->word[0];
+            break;
+        default:
+            ip=R_EIP;
             UnimpOpcode(emu);
     }
     R_EIP = ip;
