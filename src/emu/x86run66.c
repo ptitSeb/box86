@@ -11,6 +11,7 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
 #endif
@@ -42,7 +43,7 @@ void Run6766(x86emu_t *emu)
     
                 
     default:
-        ip-=2;  //unfetch
+        ip-=3;  //unfetch
         UnimpOpcode(emu);
     }
     R_EIP = ip;
@@ -153,6 +154,7 @@ void Run67(x86emu_t *emu)
         break;
 
     default:
+        ip-=2;
         UnimpOpcode(emu);
     }
     R_EIP = ip;
@@ -448,7 +450,7 @@ void RunLock(x86emu_t *emu)
                             break;
 
                         default:
-                            ip -= 3; //unfetchall 0F BA but not F0, continue normal without LOCK
+                            ip -= 3; //unfetchall 0F BA nextop but not F0, continue normal without LOCK
                             break;
                     }
                     break;
@@ -586,7 +588,7 @@ void RunLock(x86emu_t *emu)
                     break;
                 default:
                     // trigger invalid lock?
-                    ip -= 2; // unfetch 0F and nexop but not F0
+                    ip -= 2; // unfetch 0F and nextop but not F0
                     break;
             }
             break;
@@ -960,7 +962,7 @@ void RunGS(x86emu_t *emu)
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
-                    R_EIP = ED->dword[0];
+                    R_EIP = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     Push(emu, ip);
                     ip = R_EIP;
                     break;
@@ -977,7 +979,7 @@ void RunGS(x86emu_t *emu)
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    ip = ED->dword[0];
+                    ip = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -1079,7 +1081,7 @@ void RunFS(x86emu_t *emu)
                     GW.word[0] = EW->word[0];
                     break;
                 default:
-                    ip-=2;
+                    ip-=3;
                     UnimpOpcode(emu);
             }
             break;
@@ -1126,12 +1128,12 @@ void RunFS(x86emu_t *emu)
                             Push(emu, ED->dword[0]);
                             break;
                         default:
-                            ip-=2;
+                            ip-=3;
                             UnimpOpcode(emu);
                     }
                     break;
                 default:
-                    ip-=2;
+                    ip-=3;
                     UnimpOpcode(emu);
             }
             break;
@@ -1265,7 +1267,7 @@ void RunFS(x86emu_t *emu)
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
-                    R_EIP = ED->dword[0];
+                    R_EIP = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     Push(emu, ip);
                     ip = R_EIP;
                     break;
@@ -1282,11 +1284,12 @@ void RunFS(x86emu_t *emu)
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    ip = ED->dword[0];
+                    ip = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
                         printf_log(LOG_NONE, "Illegal Opcode 0x%02X 0x%02X\n", opcode, nextop);
+                        ip-=3;
                         emu->quit=1;
                         emu->error |= ERR_ILLEGAL;
                     } else {
