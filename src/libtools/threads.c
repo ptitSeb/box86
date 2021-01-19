@@ -688,6 +688,72 @@ EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
 	pthread_exit(retval);
 }
 
+#ifndef NOALIGN
+// mutex alignment
+KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
+
+static kh_mutex_t* unaligned_mutex = NULL;
+
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
+{
+	if(!(((uintptr_t)m)&3))
+		return m;
+	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
+	if(k!=kh_end(unaligned_mutex))
+		return kh_value(unaligned_mutex, k);
+	int r;
+	k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
+	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+	memcpy(ret, m, sizeof(pthread_mutex_t));
+	return ret;
+}
+EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
+{
+	if(!(((uintptr_t)m)&3))
+		return pthread_mutex_destroy(m);
+	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
+	if(k!=kh_end(unaligned_mutex)) {
+		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
+		kh_del(mutex, unaligned_mutex, k);
+		int ret = pthread_mutex_destroy(n);
+		free(n);
+		return ret;
+	}
+	return pthread_mutex_destroy(m);
+}
+int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
+
+EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
+{
+	return pthread_mutex_init(getAlignedMutex(m), att);
+}
+EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
+
+EXPORT int my_pthread_mutex_lock(pthread_mutex_t *m)
+{
+	return pthread_mutex_lock(getAlignedMutex(m));
+}
+EXPORT int my___pthread_mutex_lock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_lock")));
+
+EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespec * t)
+{
+	return pthread_mutex_timedlock(getAlignedMutex(m), t);
+}
+EXPORT int my___pthread_mutex_trylock(pthread_mutex_t *m, const struct timespec * t) __attribute__((alias("my_pthread_mutex_timedlock")));
+
+EXPORT int my_pthread_mutex_trylock(pthread_mutex_t *m)
+{
+	return pthread_mutex_trylock(getAlignedMutex(m));
+}
+EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_trylock")));
+
+EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
+{
+	return pthread_mutex_unlock(getAlignedMutex(m));
+}
+
+#endif
+
 static void emujmpbuf_destroy(void* p)
 {
 	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
@@ -713,6 +779,9 @@ void init_pthread_helper()
 	InitCancelThread();
 	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
+#ifndef NOALIGN
+	unaligned_mutex = kh_init(mutex);
+#endif
 }
 
 void fini_pthread_helper(box86context_t* context)
@@ -726,4 +795,12 @@ void fini_pthread_helper(box86context_t* context)
 	);
 	kh_destroy(mapcond, mapcond);
 	mapcond = NULL;
+#ifndef NOALIGN
+	pthread_mutex_t *m;
+	kh_foreach_value(unaligned_mutex, m, 
+		pthread_mutex_destroy(m);
+		free(m);
+	);
+	kh_destroy(mutex, unaligned_mutex);
+#endif
 }

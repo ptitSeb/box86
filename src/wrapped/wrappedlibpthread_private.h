@@ -106,6 +106,7 @@ GO(pthread_mutexattr_setpshared, iFpi)
 // pthread_mutexattr_setrobust_np
 GO(__pthread_mutexattr_settype, iFpi)
 GO(pthread_mutexattr_settype, iFpi)
+#ifdef NOALIGN
 // pthread_mutex_consistent_np
 GO(__pthread_mutex_destroy, iFp)
 GO(pthread_mutex_destroy, iFp)
@@ -120,6 +121,22 @@ GO(__pthread_mutex_trylock, iFp)
 GO(pthread_mutex_trylock, iFp)
 GO(__pthread_mutex_unlock, iFp)
 GO(pthread_mutex_unlock, iFp)
+#else
+// pthread_mutex_consistent_np
+GOM(__pthread_mutex_destroy, iFp)
+GOM(pthread_mutex_destroy, iFp)
+// pthread_mutex_getprioceiling
+GOM(__pthread_mutex_init, iFpp)
+GOM(pthread_mutex_init, iFpp)
+GOM(__pthread_mutex_lock, iFp)
+GOM(pthread_mutex_lock, iFp)
+// pthread_mutex_setprioceiling
+GOM(pthread_mutex_timedlock, iFpp)
+GOM(__pthread_mutex_trylock, iFp)
+GOM(pthread_mutex_trylock, iFp)
+GOM(__pthread_mutex_unlock, iFp)
+GOM(pthread_mutex_unlock, iFp)
+#endif
 GOM(pthread_once, iFEpp)
 GOM(__pthread_once, iFEpp)
 GOM(__pthread_register_cancel, vFEp)
