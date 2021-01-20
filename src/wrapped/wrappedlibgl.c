@@ -83,6 +83,7 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
 }
 EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
 
+typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
@@ -130,6 +131,19 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     DebugMessageCallback(find_debug_callback_Fct(prod), param);
 }
 EXPORT void my_glDebugMessageCallbackARB(x86emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
+
+EXPORT int my_glXSwapIntervalMESA(int interval)
+{
+    static iFi_t SwapIntervalMESA = NULL;
+    static int init = 1;
+    if(init) {
+        SwapIntervalMESA = my_context->glxprocaddress("glXSwapIntervalMESA");
+        init = 0;
+    }
+    if(!SwapIntervalMESA)
+        return 0;
+    return SwapIntervalMESA(interval);
+}
 
 #define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 #define CUSTOM_INIT \

@@ -2998,7 +2998,7 @@ GO(glXSwapIntervalEXT,pFppi)
 //nothing
 
 //GLX_MESA_swap_control
-GO(glXSwapIntervalMESA,iFi)
+GOM(glXSwapIntervalMESA,iFi)
 GO(glXGetSwapIntervalMESA, iFv)
 
 //GLX_SGI_swap_control
