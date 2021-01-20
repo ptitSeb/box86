@@ -1319,9 +1319,6 @@ void RunFS66(x86emu_t *emu, uintptr_t tlsdata)
     uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
-    uint8_t tmp8u;
-    uint32_t tmp32u;
-    int32_t tmp32s;
     switch(opcode) {
         case 0x03:                              /* ADD Gw, FS:Ew */
             nextop = F8;
