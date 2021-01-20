@@ -2931,7 +2931,6 @@ GO(glXGetVideoSyncSGI, iFp)
 GO(glXGetVisualConfigs,pFpp)
 GO(glXGetVisualFromFBConfig, pFpp)
 GO(glXGetVisualFromFBConfigSGIX, pFpp)
-GO(glXGetSwapIntervalMESA, iFv)
 GO(glXHyperpipeAttribSGIX,iFpiiip)
 //GO(glXHyperpipeConfigSGIX,iFpii?p)
 GO(glXImportContextEXT, pFpu)
@@ -2970,9 +2969,6 @@ GO(glXSelectEvent, vFppu)
 GO(glXSelectEventSGIX, vFppu)
 GO(glXSendPbufferToVideoNV, iFppipi)
 GO(glXSwapBuffers,vFpp)
-GO(glXSwapIntervalEXT,pFppi)
-GO(glXSwapIntervalMESA,iFi)
-GO(glXSwapIntervalSGI,iFi)
 GO(glXUseXFont,vFpiii)
 //GO(glXVendorPrivate,vFv)
 //GO(glXVendorPrivateWithReply,vFv)
@@ -2996,3 +2992,14 @@ GO(glXSwapBuffersMscOML, IFppIII)
 GO(glXWaitForMscOML, iFppIIIppp)
 GO(glXWaitForSbcOML, iFppIppp)
 
+//GLX_EXT_swap_control
+GO(glXSwapIntervalEXT,pFppi)
+//GLX_EXT_swap_control_tear
+//nothing
+
+//GLX_MESA_swap_control
+GO(glXSwapIntervalMESA,iFi)
+GO(glXGetSwapIntervalMESA, iFv)
+
+//GLX_SGI_swap_control
+GO(glXSwapIntervalSGI,iFi)

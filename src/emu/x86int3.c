@@ -229,6 +229,8 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "vkGetDeviceProcAddr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "my_glXGetProcAddress")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
                 } else  if(strstr(s, "my_sscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "vsscanf")==s) {
@@ -294,7 +296,7 @@ void x86Int3(x86emu_t* emu)
     if(my_context->signals[SIGTRAP])
         raise(SIGTRAP);
     else
-        printf_log(LOG_INFO, "Warning, ignoring unsupported Int 3 call\n");
+        printf_log(LOG_INFO, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_EIP);
     //emu->quit = 1;
 }
 
