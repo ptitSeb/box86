@@ -421,8 +421,8 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
 {
-    if(size>MMAPSIZE) {
-        munmap((void*)addr, size);
+    if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        free((void*)addr);
         kh_dynablocks_t *blocks = dblist_oversized;
         if(blocks) {
             khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
