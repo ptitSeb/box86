@@ -118,6 +118,8 @@ void MarkDynablock(dynablock_t* db)
         if(db->nolinker) {
             db->need_test = 1;  // test only blocks that can be marked (and so deleted)
             setJumpTableDefault(db->x86_addr);
+            for(int i=0; i<db->sons_size; ++i)
+                setJumpTableDefault(db->sons[i]->x86_addr);
         }
     }
 }
