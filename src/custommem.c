@@ -34,6 +34,8 @@ static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
 static int                 mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
+static uintptr_t           **box86_jumptable = NULL;
+static uintptr_t           *box86_jmptbl_default = NULL;
 #endif
 
 typedef struct blocklist_s {
@@ -476,6 +478,42 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 }
 #endif
 
+#ifdef DYNAREC
+#ifdef ARM
+void arm_next(void);
+#endif
+#endif
+
+void addJumpTableIfDefault(void* addr, void* jmp)
+{
+    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    if(box86_jumptable[idx] == box86_jmptbl_default) {
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+            tbl[i] = (uintptr_t)arm_next;
+        box86_jumptable[idx] = tbl;
+    }
+    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    if(box86_jumptable[idx][off]==(uintptr_t)arm_next)
+        box86_jumptable[idx][off] = (uintptr_t)jmp;
+}
+void setJumpTableDefault(void* addr)
+{
+    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    if(box86_jumptable[idx] == box86_jmptbl_default) {
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+            tbl[i] = (uintptr_t)arm_next;
+        box86_jumptable[idx] = tbl;
+    }
+    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    box86_jumptable[idx][off] = (uintptr_t)arm_next;
+}
+uintptr_t getJumpTable()
+{
+    return (uintptr_t)box86_jumptable;
+}
+
 void init_custommem_helper(box86context_t* ctx)
 {
 #ifdef DYNAREC
@@ -483,6 +521,16 @@ void init_custommem_helper(box86context_t* ctx)
         return;
     pthread_mutex_init(&mutex_mmap, NULL);
     dynmap = (dynablocklist_t**)calloc(DYNAMAP_SIZE, sizeof(dynablocklist_t*));
+#ifdef ARM
+    box86_jmptbl_default = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
+    for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+        box86_jmptbl_default[i] = (uintptr_t)arm_next;
+    box86_jumptable = (uintptr_t**)malloc(DYNAMAP_SIZE*sizeof(uintptr_t*));
+    for(int i=0; i<DYNAMAP_SIZE; ++i)
+        box86_jumptable[i] = box86_jmptbl_default;
+#else
+#error Unsupported architecture!
+#endif
 #endif
 }
 
@@ -522,6 +570,10 @@ void fini_custommem_helper(box86context_t *ctx)
     free(mmaplist);
     free(dynmap);
     dynmap = NULL;
+    free(box86_jumptable);
+    free(box86_jmptbl_default);
+    box86_jumptable = NULL;
+    box86_jmptbl_default = NULL;
 #endif
     for(int i=0; i<n_blocks; ++i)
         free(p_blocks[i].block);

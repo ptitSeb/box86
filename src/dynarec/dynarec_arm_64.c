@@ -277,7 +277,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_fsdata(dyn, addr, ninst, x14);
             switch((nextop>>3)&7) {
                 case 2: // CALL Ed
-                    INST_NAME("CALL Ed");
+                    INST_NAME("CALL FS:Ed");
                     PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
@@ -292,13 +292,11 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     BARRIER(1);
                     BARRIER_NEXT(1);
                     if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                        PASS2(cstack_push(dyn, ninst, addr, dyn->insts[ninst+1].address, x1, x2);)
                     } else {
-                        PASS2(cstack_push(dyn, ninst, 0, 0, x1, x2);)
                         *need_epilog = 0;
                         *ok = 0;
-                        MOV32(x2, addr);
                     }
+                    MOV32(x2, addr);
                     PUSH1(x2);
                     jump_to_linker(dyn, 0, xEIP, ninst);  // smart linker
                     break;

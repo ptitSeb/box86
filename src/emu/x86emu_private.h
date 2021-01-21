@@ -67,11 +67,6 @@ typedef struct x86emu_s {
     int         longjmp;        // if quit because of longjmp
     // parent context
     box86context_t *context;
-    #ifdef DYNAREC
-    // virtual return stack
-    int         cstacki;            // current index
-    uint64_t    cstack[CSTACK+1];   // pair of x86 address / native address for call/ret, using uint64_t for alignement, +1 for allignment
-    #endif
     // cpu helpers
     reg32_t     zero;
     reg32_t     *sbiidx[8];

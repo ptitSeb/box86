@@ -431,7 +431,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
         for (int i=0; i<helper.sons_size; ++i) {
             int created = 1;
             dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
-            if(created || !son->parent) {    // avoid breaking a working block! also, block could be outside this parent...
+            if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x86_addr = (void*)helper.sons_x86[i];
                 son->x86_size = end-helper.sons_x86[i];

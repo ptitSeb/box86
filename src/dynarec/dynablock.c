@@ -71,6 +71,8 @@ void FreeDynablock(dynablock_t* db)
             if(addr>=startdb && addr<enddb)
                 db->parent->direct[addr-startdb] = NULL;
         }
+        // remove jumptable
+        setJumpTableDefault(db->x86_addr);
         // remove and free the sons
         for (int i=0; i<db->sons_size; ++i) {
             dynablock_t *son = (dynablock_t*)arm_lock_xchg(&db->sons[i], 0);
@@ -113,8 +115,10 @@ void MarkDynablock(dynablock_t* db)
     if(db) {
         if(db->father)
             db = db->father;    // mark only father
-        if(db->nolinker)
+        if(db->nolinker) {
             db->need_test = 1;  // test only blocks that can be marked (and so deleted)
+            setJumpTableDefault(db->x86_addr);
+        }
     }
 }
 
@@ -405,9 +409,12 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                         dblist->maxsz = blocksz;
             }
         }
-
         if(block->parent->nolinker)
             protectDB((uintptr_t)block->x86_addr, block->x86_size);
+        // fill-in jumptable
+        addJumpTableIfDefault(block->x86_addr, block->block);
+        for(int i=0; i<block->sons_size; ++i)
+            addJumpTableIfDefault(block->sons[i]->x86_addr, block->sons[i]->block);
     }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);

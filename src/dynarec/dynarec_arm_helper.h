@@ -463,9 +463,6 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
-#define cstack_push     STEPNAME(cstack_push)
-#define cstack_pop      STEPNAME(cstack_pop)
-
 
 // get the single reg that from the double "reg" (so Dx[idx])
 #define fpu_get_single_reg      STEPNAME(fpu_get_single_reg)
@@ -629,11 +626,6 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
-
-// PUSH a x86/native couple of address in cstack, using s1, s2, s2+1
-void cstack_push(dynarec_arm_t* dyn, int ninst, uintptr_t x86ip, uintptr_t armip, int s1, int s2);
-// POP a x86/native couple of address from cstack, and generate the jump is x86 address is s0, use s1, s2 and s2+1 as scratch
-void cstack_pop(dynarec_arm_t* dyn, int ninst, int s0, int s1, int s2);
 
 #if STEP < 2
 #define PASS2(A)

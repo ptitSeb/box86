@@ -27,6 +27,9 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 
 dynablocklist_t* getDB(uintptr_t idx);
+void addJumpTableIfDefault(void* addr, void* jmp);
+void setJumpTableDefault(void* addr);
+uintptr_t getJumpTable();
 #endif
 
 void init_custommem_helper(box86context_t* ctx);
