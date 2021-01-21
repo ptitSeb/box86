@@ -501,10 +501,7 @@ void setJumpTableDefault(void* addr)
 {
     const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
-            tbl[i] = (uintptr_t)arm_next;
-        box86_jumptable[idx] = tbl;
+        return;
     }
     const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
     box86_jumptable[idx][off] = (uintptr_t)arm_next;
