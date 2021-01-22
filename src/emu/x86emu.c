@@ -15,6 +15,7 @@
 #include "x86run.h"
 #include "x86run_private.h"
 #include "callback.h"
+#include "bridge.h"
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
@@ -37,22 +38,15 @@ static uint32_t x86emu_parity_tab[8] =
 	0x69969669,
 };
 
-static uint8_t EndEmuMarker[] = {0xcc, 'S', 'C', 0, 0, 0, 0};
-#ifdef DYNAREC
-void DynablockEmuMarker(box86context_t* context)
-{
-    dynarec_log(LOG_DUMP, "Create bridge memory map for PushExit\n");
-    addDBFromAddressRange((uintptr_t)&EndEmuMarker[0], sizeof(EndEmuMarker), 0);
-}
-#endif
 void PushExit(x86emu_t* emu)
 {
-    Push(emu, (uint32_t)&EndEmuMarker);
+    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0);
+    Push(emu, endMarker);
 }
 
 void* GetExit()
 {
-    return &EndEmuMarker;
+    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0);
 }
 
 static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)

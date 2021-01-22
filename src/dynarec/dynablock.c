@@ -38,7 +38,7 @@ uint32_t X31_hash_code(void* addr, int len)
 	return (uint32_t)h;
 }
 
-dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int nolinker, int direct)
+dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct)
 {
     if(!textsz) {
         printf_log(LOG_NONE, "Error, creating a NULL sized Dynablock\n");
@@ -47,7 +47,6 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int nolinker, int 
     dynablocklist_t* ret = (dynablocklist_t*)calloc(1, sizeof(dynablocklist_t));
     ret->text = text;
     ret->textsz = textsz;
-    ret->nolinker = nolinker;
     if(direct && textsz) {
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
@@ -58,7 +57,7 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int nolinker, int 
 void FreeDynablock(dynablock_t* db)
 {
     if(db) {
-        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p father=%p, tablesz=%d, with %d son(s) already gone=%d\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->father, db->tablesz, db->sons_size, db->gone);
+        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->father, db->sons_size, db->gone);
         if(db->gone)
             return; // already in the process of deletion!
         db->done = 0;
@@ -84,7 +83,6 @@ void FreeDynablock(dynablock_t* db)
             FreeDynarecMap(db, (uintptr_t)db->block, db->size);
         }
         free(db->sons);
-        free(db->table);
         free(db->instsize);
         free(db);
     }
@@ -96,7 +94,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_DEBUG, "Free Direct Blocks %p from Dynablocklist nolinker=%d\n", (*dynablocks)->direct, (*dynablocks)->nolinker);
+    dynarec_log(LOG_DEBUG, "Free Direct Blocks %p from Dynablocklist\n", (*dynablocks)->direct);
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
             if((*dynablocks)->direct[i] && !(*dynablocks)->direct[i]->father) 
@@ -115,12 +113,10 @@ void MarkDynablock(dynablock_t* db)
     if(db) {
         if(db->father)
             db = db->father;    // mark only father
-        if(db->nolinker) {
-            db->need_test = 1;  // test only blocks that can be marked (and so deleted)
-            setJumpTableDefault(db->x86_addr);
-            for(int i=0; i<db->sons_size; ++i)
-                setJumpTableDefault(db->sons[i]->x86_addr);
-        }
+        db->need_test = 1;  // test only blocks that can be marked (and so deleted)
+        setJumpTableDefault(db->x86_addr);
+        for(int i=0; i<db->sons_size; ++i)
+            setJumpTableDefault(db->sons[i]->x86_addr);
     }
 }
 
@@ -139,9 +135,7 @@ void MarkDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    if(!(*dynablocks)->nolinker)
-        return;
-    dynarec_log(LOG_DEBUG, "Marked Blocks from Dynablocklist nolinker=%d %p:0x%x\n", (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz);
+    dynarec_log(LOG_DEBUG, "Marked Blocks from Dynablocklist %p:0x%x\n", (void*)(*dynablocks)->text, (*dynablocks)->textsz);
     dynablock_t* db;
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
@@ -158,7 +152,7 @@ void ProtectDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_DEBUG, "Protect Blocks from Dynablocklist nolinker=%d %p:0x%x\n", (*dynablocks)->nolinker, (void*)(*dynablocks)->text, (*dynablocks)->textsz);
+    dynarec_log(LOG_DEBUG, "Protect Blocks from Dynablocklist %p:0x%x\n", (void*)(*dynablocks)->text, (*dynablocks)->textsz);
     dynablock_t* db;
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
@@ -193,7 +187,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
 {
     if(!dynablocks)
         return;
-    if(!dynablocks->nolinker || !dynablocks->direct)
+    if(!dynablocks->direct)
         return;
     uintptr_t startdb = dynablocks->text;
     uintptr_t enddb = startdb + dynablocks->textsz -1;
@@ -272,8 +266,6 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
 {
     if(!dynablocks)
         return;
-    if(!dynablocks->nolinker)
-        return;
     if(dynablocks->direct) {
         MarkDirectDynablock(dynablocks, addr, size);
         // the blocks check before
@@ -337,6 +329,7 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
 
     block = (dynablock_t*)calloc(1, sizeof(dynablock_t));
+    block->parent = dynablocks; 
     dynablock_t* tmp = (dynablock_t*)arm_lock_storeifnull(&dynablocks->direct[addr-dynablocks->text], block);
     if(tmp !=  block) {
         // a block appeard!
@@ -344,8 +337,6 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
         *created = 0;
         return tmp;
     }
-
-    block->parent = dynablocks;
 
     *created = 1;
     return block;
@@ -411,8 +402,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                         dblist->maxsz = blocksz;
             }
         }
-        if(block->parent->nolinker)
-            protectDB((uintptr_t)block->x86_addr, block->x86_size);
+        protectDB((uintptr_t)block->x86_addr, block->x86_size);
         // fill-in jumptable
         addJumpTableIfDefault(block->x86_addr, block->block);
         for(int i=0; i<block->sons_size; ++i)
@@ -429,7 +419,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
+        uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
             // no more current if it gets invalidated too
@@ -441,8 +431,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             db = internalDBGetBlock(emu, addr, addr, create, *current);
         } else {
             father->need_test = 0;
-            if(father->nolinker)
-                protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            protectDB((uintptr_t)father->x86_addr, father->x86_size);
         }
     } 
     return db;
@@ -455,7 +444,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
     if(db && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = father->nolinker?X31_hash_code(father->x86_addr, father->x86_size):0;
+        uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating alt block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
             // Free father, it's now invalid!
@@ -464,8 +453,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
             db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
         } else {
             father->need_test = 0;
-            if(father->nolinker)
-                protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            protectDB((uintptr_t)father->x86_addr, father->x86_size);
         }
     } 
     return db;

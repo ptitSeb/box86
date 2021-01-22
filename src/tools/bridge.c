@@ -18,10 +18,11 @@
 
 KHASH_MAP_INIT_INT(bridgemap, uintptr_t)
 
-#define NBRICK  64
+//onebrigde is 16 bytes
+#define NBRICK  4096/16
 typedef struct brick_s brick_t;
 typedef struct brick_s {
-    onebridge_t b[NBRICK];
+    onebridge_t *b;
     int         sz;
     brick_t     *next;
 } brick_t;
@@ -32,11 +33,17 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
+brick_t* NewBrick()
+{
+    brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
+    posix_memalign((void**)&ret->b, box86_pagesize, NBRICK*sizeof(onebridge_t));
+    return ret;
+}
 
 bridge_t *NewBridge()
 {
     bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
-    b->head = (brick_t*)calloc(1, sizeof(brick_t));
+    b->head = NewBrick();
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
 
@@ -47,6 +54,11 @@ void FreeBridge(bridge_t** bridge)
     brick_t *b = (*bridge)->head;
     while(b) {
         brick_t *n = b->next;
+        #ifdef DYNAREC
+        if(getProtection((uintptr_t)b->b)&PROT_DYNAREC)
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+        #endif
+        free(b->b);
         free(b);
         b = n;
     }
@@ -59,24 +71,33 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
     brick_t *b = bridge->last;
     if(b->sz == NBRICK) {
-        b->next = (brick_t*)calloc(1, sizeof(brick_t));
+        b->next = NewBrick();
         b = b->next;
         bridge->last = b;
     }
+    #ifdef DYNAREC
+    int prot = 0;
+    if(box86_dynarec) {
+        prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
+        if(prot)
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+        addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
+    }
+    #endif
     b->b[b->sz].CC = 0xCC;
     b->b[b->sz].S = 'S'; b->b[b->sz].C='C';
     b->b[b->sz].w = w;
     b->b[b->sz].f = (uintptr_t)fnc;
     b->b[b->sz].C3 = N?0xC2:0xC3;
     b->b[b->sz].N = N;
+    #ifdef DYNAREC
+    if(box86_dynarec && prot)
+        protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
+    #endif
     // add bridge to map, for fast recovery
     int ret;
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[b->sz].CC;
-    #ifdef DYNAREC
-    if(box86_dynarec)
-        addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t), 0);
-    #endif
 
     return (uintptr_t)&b->b[b->sz++].CC;
 }
@@ -92,7 +113,7 @@ uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 
 uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
-    if(!fnc)
+    if(!fnc && w)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)

@@ -7,7 +7,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 
 uint32_t X31_hash_code(void* addr, int len);
-dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int nolinker, int direct);
+dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct);
 void FreeDynablockList(dynablocklist_t** dynablocks);
 void FreeDynablock(dynablock_t* db);
 void MarkDynablock(dynablock_t* db);

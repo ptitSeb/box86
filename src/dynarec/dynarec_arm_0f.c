@@ -1140,7 +1140,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     /* out of the block */                  \
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
                     Bcond(NO, i32);     \
-                    jump_to_linker(dyn, addr+i32_, 0, ninst); \
+                    jump_to_next(dyn, addr+i32_, 0, ninst); \
                 } else {    \
                     /* inside the block */  \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \

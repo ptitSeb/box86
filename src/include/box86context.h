@@ -61,7 +61,6 @@ typedef struct base_segment_s {
 } base_segment_t;
 
 typedef struct box86context_s {
-    uint32_t*           memprot;    // protection flags by 4K block
     path_collection_t   box86_path;     // PATH env. variable
     path_collection_t   box86_ld_lib;   // LD_LIBRARY_PATH env. variable
 
@@ -205,14 +204,6 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head);
 
 // return the tlsbase (negative) for the new TLS partition created (no partition index is stored in the context)
 int AddTLSPartition(box86context_t* context, int tlssize);
-
-#define PROT_DYNAREC 0x10000
-void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
-uint32_t getProtection(uintptr_t addr);
-#ifdef DYNAREC
-void protectDB(uintptr_t addr, uintptr_t size);
-void unprotectDB(uintptr_t addr, uintptr_t size);
-#endif
 
 // defined in fact in threads.c
 void thread_set_emu(x86emu_t* emu);

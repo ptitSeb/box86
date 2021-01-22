@@ -271,7 +271,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 #ifdef DYNAREC
             if(e->p_flags & PF_X) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
-                addDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
+                addDBFromAddressRange((uintptr_t)dest, e->p_memsz);
             }
 #endif
 
@@ -1011,7 +1011,7 @@ dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t add
         return ret;
     }*/
     if(box86_dynarec_forced) {
-        addDBFromAddressRange(addr, 1, 1);
+        addDBFromAddressRange(addr, 1);
         return getDB(addr>>DYNAMAP_SHIFT);
     }
     //check if address is in an elf... if yes, grant a block (should I warn)

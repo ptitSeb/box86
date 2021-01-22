@@ -244,86 +244,27 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     BX(2);
 }
 
-void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
-{
-    MESSAGE(LOG_DUMP, "Jump to linker (#%d) nolinker=%d\n", dyn->tablei, dyn->nolinker);
-#if 0
-    int j32;
-    MAYUSE(j32);
-#endif
-    if(dyn->nolinker==2) {
-        jump_to_epilog(dyn, ip, reg, ninst);
-    } else {
-        if(reg) {
-            if(reg!=xEIP) {
-                MOV_REG(xEIP, reg);
-            }
-        } else {
-            MOV32_(xEIP, ip);
-        }
-        uintptr_t* table = 0;
-        if(dyn->tablesz) {
-            table = &dyn->table[dyn->tablei];
-            table[0] = (uintptr_t)arm_linker;
-            table[1] = ip;
-        }
-        dyn->tablei+=4; // smart linker or not, we keep table correctly alligned for LDREXD/STREXD access
-        MOV32_(x1, (uintptr_t)table);
-        // TODO: This is not thread safe.
-        if(!ip) {   // no IP, jump address in a reg, so need smart linker
-        #if 0
-        //version thread safe
-            MARK;
-            LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
-            CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-            BXcond(cEQ, x2);
-            MOV32_(x2, (uintptr_t)arm_linker);
-            MOV_REG(x3, x14);
-            STREXD(x14, x2, x1); // nope, putting back linker & IP in place
-            // x14 now contain success / falure for write
-            CMPS_IMM8(x14, 1);
-            MOV_REG(x14, x3);   // put back IP in place...
-            B_MARK(cEQ);
-            BX(x2); // go to linker
-        #else
-        // not thread safe, is that still ok?
-            LDRD_IMM8(x2, x1, 0);
-            CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-            BXcond(cEQ, x2);
-            MOV32_(x2, (uintptr_t)arm_linker);
-            MOV_REG(x3, x14);
-            STRD_IMM8(x2, x1, 0);
-            BX(x2);
-        #endif
-        } else {
-            LDR_IMM9(x2, x1, 0);
-            BX(x2); // jump
-        }
-    }
-}
-
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 {
-    MESSAGE(LOG_DUMP, "Jump to next nolinker=%d\n", dyn->nolinker);
+    MESSAGE(LOG_DUMP, "Jump to next\n");
 
-    if(dyn->nolinker==2) {
-        jump_to_epilog(dyn, ip, reg, ninst);
-    } else {
-        if(reg) {
-            if(reg!=xEIP) {
-                MOV_REG(xEIP, reg);
-            }
-        } else {
-            MOV32_(xEIP, ip);
+    if(reg) {
+        if(reg!=xEIP) {
+            MOV_REG(xEIP, reg);
         }
         MOV32(x2, getJumpTable());
         MOV_REG_LSR_IMM5(x3, xEIP, DYNAMAP_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         UBFX(x3, xEIP, 0, DYNAMAP_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        MOV_REG(x1, xEIP);
-        BX(x2);
+    } else {
+        uintptr_t p = getJumpTableAddress(ip); 
+        MOV32(x2, p);
+        MOV32_(xEIP, ip);
+        LDR_IMM9(x2, x2, 0);
     }
+    MOV_REG(x1, xEIP);
+    BX(x2);
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)

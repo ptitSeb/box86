@@ -331,7 +331,6 @@
 #endif
 
 void arm_epilog();
-void* arm_linker(x86emu_t* emu, void** table, uintptr_t addr);
 void* arm_next(x86emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
@@ -364,7 +363,6 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define geted           STEPNAME(geted_)
 #define geted16         STEPNAME(geted16_)
 #define jump_to_epilog  STEPNAME(jump_to_epilog_)
-#define jump_to_linker  STEPNAME(jump_to_linker_)
 #define jump_to_next    STEPNAME(jump_to_next_)
 #define ret_to_epilog   STEPNAME(ret_to_epilog_)
 #define retn_to_epilog  STEPNAME(retn_to_epilog_)
@@ -478,7 +476,6 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 
 // generic x86 helper
 void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
-void jump_to_linker(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst);
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);

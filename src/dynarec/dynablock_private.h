@@ -15,12 +15,10 @@ typedef struct dynablock_s {
     void*           x86_addr;
     uintptr_t       x86_size;
     uint32_t        hash;
-    uintptr_t*      table;
-    int             tablesz;
     uint8_t         need_test;
     uint8_t         done;
     uint8_t         gone;
-    uint8_t         nolinker;
+    uint8_t         dummy;
     int             isize;
     dynablock_t**   sons;   // sons (kind-of dummy dynablock...)
     int             sons_size;
@@ -32,7 +30,6 @@ typedef struct dynablocklist_s {
     uintptr_t           text;
     int                 textsz;
     int                 maxsz;     // maxblock size (for this block or previous block)
-    int                 nolinker;  // in case this dynablock can be deleted
     dynablock_t**       direct;    // direct mapping (waste of space, so the array is created at first write)
 } dynablocklist_t;
 

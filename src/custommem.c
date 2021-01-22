@@ -37,6 +37,7 @@ static kh_dynablocks_t     *dblist_oversized;      // store the list of oversize
 static uintptr_t           **box86_jumptable = NULL;
 static uintptr_t           *box86_jmptbl_default = NULL;
 #endif
+static uint32_t*           memprot;    // protection flags by 4K block
 
 typedef struct blocklist_s {
     void*               block;
@@ -443,14 +444,14 @@ dynablocklist_t* getDB(uintptr_t idx)
 
 // each dynmap is 64k of size
 
-void addDBFromAddressRange(uintptr_t addr, uintptr_t size, int nolinker)
+void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "addDBFromAddressRange %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!dynmap[i]) {
-            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, nolinker, 0);
+            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
         }
     }
 }
@@ -476,12 +477,9 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
         }
     }
 }
-#endif
 
-#ifdef DYNAREC
 #ifdef ARM
 void arm_next(void);
-#endif
 #endif
 
 void addJumpTableIfDefault(void* addr, void* jmp)
@@ -511,8 +509,89 @@ uintptr_t getJumpTable()
     return (uintptr_t)box86_jumptable;
 }
 
+uintptr_t getJumpTableAddress(uintptr_t addr)
+{
+    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    if(box86_jumptable[idx] == box86_jmptbl_default) {
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+            tbl[i] = (uintptr_t)arm_next;
+        box86_jumptable[idx] = tbl;
+    }
+    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    return (uintptr_t)&box86_jumptable[idx][off];
+}
+
+// Remove the Write flag from an adress range, so DB can be executed
+// no log, as it can be executed inside a signal handler
+void protectDB(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot;
+        do {
+            prot=arm_lock_read_d(&memprot[i]);
+            if(!prot)
+                prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        } while(arm_lock_write_d(&memprot[i], prot|PROT_DYNAREC));
+        if(!(prot&PROT_DYNAREC))
+            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+    }
+}
+
+// Add the Write flag from an adress range, and mark all block as dirty
+// no log, as it can be executed inside a signal handler
+void unprotectDB(uintptr_t addr, uintptr_t size)
+{
+    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot;
+        do {
+            prot=arm_lock_read_d(&memprot[i]);
+        } while(arm_lock_write_d(&memprot[i], prot&~PROT_DYNAREC));
+        if(prot&PROT_DYNAREC) {
+            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_DYNAREC);
+            cleanDBFromAddressRange((i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, 0);
+        }
+    }
+}
+
+#endif
+
+void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        #ifdef DYNAREC
+        uint32_t dyn;
+        do {
+            dyn=arm_lock_read_d(&memprot[i])&PROT_DYNAREC;
+        } while(arm_lock_write_d(&memprot[i], prot|dyn));
+        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+        #else
+        uint32_t dyn=(memprot[i]&PROT_DYNAREC);
+        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+        memprot[i] = prot|dyn;
+        #endif
+    }
+}
+
+uint32_t getProtection(uintptr_t addr)
+{
+    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    return memprot[idx];
+}
+
 void init_custommem_helper(box86context_t* ctx)
 {
+    memprot = (uint32_t*)calloc(DYNAMAP_SIZE, sizeof(uint32_t));
 #ifdef DYNAREC
     if(dynmap) // already initialized
         return;
@@ -567,11 +646,16 @@ void fini_custommem_helper(box86context_t *ctx)
     free(mmaplist);
     free(dynmap);
     dynmap = NULL;
+    for (int i=0; i<DYNAMAP_SIZE; ++i)
+        if(box86_jumptable[i]!=box86_jmptbl_default)
+            free(box86_jumptable[i]);
     free(box86_jumptable);
     free(box86_jmptbl_default);
     box86_jumptable = NULL;
     box86_jmptbl_default = NULL;
 #endif
+    free(memprot);
+    memprot = NULL;
     for(int i=0; i<n_blocks; ++i)
         free(p_blocks[i].block);
     free(p_blocks);

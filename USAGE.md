@@ -100,16 +100,6 @@ Enables/Disables Box86's Dynarec.
  * 0 : Disables Dynarec.
  * 1 : Enable Dynarec. (Default.)
 
-#### BOX86_DYNAREC_LINKER
-Enables/Disables Box86's Dynarec linker.
- * 0 : Disables the Dynarec Linker. (Very useful for debugging when combined with BOX86_DYNAREC__LOG >= 2. This is to have details on which block gets executed.)
- * 1 : Enables the Dynarec Linker. (Default.)
-
-#### BOX86_DYNAREC_SAFEMMAP
- Enables/Disables Box86's Dynarec's SAFEMMAP mecanism. 
- * 0 : Some mmp/mmap64 blocks are considered unsafe (This depends on the program ran). (Default.)
- * 1 : Consider all mmap/mmap64 blocks safe to use linker (potential speedup, but potential crash for apps using JIT/Dynarec)
-
 #### BOX86_DYNAREC_TRACE
 Enables/Disables trace for generated code.
  * 0 : Disable trace for generated code. (Default.)

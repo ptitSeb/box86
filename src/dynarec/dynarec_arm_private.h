@@ -29,9 +29,6 @@ typedef struct dynarec_arm_s {
     void*               block;      // memory pointer where next instruction is emited
     uintptr_t           arm_start;  // start of the arm code
     int                 arm_size;   // size of emitted arm code
-    uintptr_t*          table;      // jump table
-    int                 tablesz;    // size of the jump table
-    int                 tablei;     // index
     int                 state_flags;// actual state for on-demand flags
     int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
     int                 x87reg[8];  // reg used for x87cache entry
@@ -42,7 +39,6 @@ typedef struct dynarec_arm_s {
     int                 fpu_scratch;// scratch counter
     int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
     int                 fpu_reg;    // x87/sse/mmx reg counter
-    int                 nolinker;   // disable use of (smart) linker in the block
     int                 dfnone;     // if defered flags is already set to df_none
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;

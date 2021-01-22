@@ -2302,14 +2302,11 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
+                addDBFromAddressRange((uintptr_t)ret, length);
             else
                 cleanDBFromAddressRange((uintptr_t)ret, length, 0);
         }
-    } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
-        // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange((uintptr_t)addr, length, 0);
-    }
+    } 
     #endif
     if(ret!=(void*)-1)
         updateProtection((uintptr_t)ret, length, prot);
@@ -2331,13 +2328,10 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             // and responded with a different address, so ignore it
         } else {
             if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length, ((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap)?1:0);
+                addDBFromAddressRange((uintptr_t)ret, length);
             else
                 cleanDBFromAddressRange((uintptr_t)ret, length, 0);
         }
-    } else if(box86_dynarec && ret==(void*)-1 && !((flags&MAP_ANONYMOUS) && !box86_dynarec_safemmap) && addr) {
-        // hack, the programs wanted to map a file, but system didn't want. Still, mark the memory as ok with linker
-        addDBFromAddressRange((uintptr_t)addr, length, 0);
     }
     #endif
     if(ret!=(void*)-1)
@@ -2368,7 +2362,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     #ifdef DYNAREC
     if(box86_dynarec) {
         if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len, 1);
+            addDBFromAddressRange((uintptr_t)addr, len);
         else
             cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }

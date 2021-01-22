@@ -313,7 +313,6 @@ void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
     // init the helper
     dynarec_arm_t helper = {0};
-    helper.nolinker = box86_dynarec_linker?(block->parent->nolinker):1;
     helper.start = addr;
     arm_pass0(&helper, addr);
     if(!helper.size) {
@@ -366,9 +365,6 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     }
     helper.block = p;
     helper.arm_start = (uintptr_t)p;
-    helper.tablesz = helper.tablei;
-    if(helper.tablesz)
-        helper.table = (uintptr_t*)calloc(helper.tablesz, sizeof(uintptr_t));
     if(helper.sons_size) {
         helper.sons_x86 = (uintptr_t*)calloc(helper.sons_size, sizeof(uintptr_t));
         helper.sons_arm = (void**)calloc(helper.sons_size, sizeof(void*));
@@ -409,20 +405,15 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     // ok, free the helper now
     free(helper.insts);
     free(helper.next);
-    block->table = helper.table;
-    block->tablesz = helper.tablesz;
-    for (int i=0; i<helper.tablesz/4; ++i)
-        block->table[i*4+2] = (uintptr_t)block;
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
-    block->nolinker = helper.nolinker;
     block->need_test = 0;
     //block->x86_addr = (void*)start;
     block->x86_size = end-start;
     if(box86_dynarec_largest<block->x86_size)
         box86_dynarec_largest = block->x86_size;
-    block->hash = (helper.nolinker)?X31_hash_code(block->x86_addr, block->x86_size):0;
+    block->hash = X31_hash_code(block->x86_addr, block->x86_size);
     // fill sons if any
     dynablock_t** sons = NULL;
     int sons_size = 0;

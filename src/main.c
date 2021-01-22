@@ -49,11 +49,9 @@ int box86_pagesize;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
-int box86_dynarec_linker = 1;
 int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
 int box86_dynarec_smc = 0;
-int box86_dynarec_safemmap = 0;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -257,14 +255,6 @@ void LoadLogEnv()
         }
         printf_log(LOG_INFO, "Dynarec is %s\n", box86_dynarec?"On":"Off");
     }
-    p = getenv("BOX86_DYNAREC_LINKER");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
-                box86_dynarec_linker = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Dynarec Linker is %s\n", box86_dynarec_linker?"On":"Off");
-    }
     p = getenv("BOX86_DYNAREC_FORCED");
     if(p) {
         if(strlen(p)==1) {
@@ -282,14 +272,6 @@ void LoadLogEnv()
         }
         if(box86_dynarec_smc)
         printf_log(LOG_INFO, "Dynarec is trying to detect SMC in same dynablock\n");
-    }
-    p = getenv("BOX86_DYNAREC_SAFEMMAP");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
-                box86_dynarec_safemmap = p[0]-'0';
-        }
-        printf_log(LOG_INFO, "Dynarec Safe mmap is %s\n", box86_dynarec_safemmap?"On":"Off");
     }
 #endif
 #ifdef HAVE_TRACE
@@ -536,7 +518,6 @@ void PrintHelp() {
 #ifdef DYNAREC
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
     printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
-    printf(" BOX86_DYNAREC_LINKER with 0/1 to disable or enable Dynarec Linker (On by default, use 0 only for easier debug)\n");
 #endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");

@@ -696,7 +696,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     /* out of the block */                  \
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
                     Bcond(NO, i32);     \
-                    jump_to_linker(dyn, addr+i8, 0, ninst); \
+                    jump_to_next(dyn, addr+i8, 0, ninst); \
                 } else {    \
                     /* inside the block */  \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
@@ -1982,7 +1982,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     /* out of the block */                  \
                     i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
                     Bcond(NO, i32);     \
-                    jump_to_linker(dyn, addr+i8, 0, ninst); \
+                    jump_to_next(dyn, addr+i8, 0, ninst); \
                 } else {    \
                     /* inside the block */  \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
@@ -2103,9 +2103,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     // regular call
                     BARRIER(1);
                     BARRIER_NEXT(1);
-                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                        //cstatck_push put addr in x2, don't need to put it again
-                    } else {
+                    if(!dyn->insts || ninst==dyn->size-1) {
                         *need_epilog = 0;
                         *ok = 0;
                     }
@@ -2116,7 +2114,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x14, x14, 0);
                         jump_to_next(dyn, 0, x14, ninst);
                     } else
-                        jump_to_linker(dyn, addr+i32, 0, ninst);
+                        jump_to_next(dyn, addr+i32, 0, ninst);
                     break;
             }
             break;
@@ -2134,7 +2132,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(dyn->insts) {
                 PASS2IF(dyn->insts[ninst].x86.jmp_insts==-1, 1) {
                     // out of the block
-                    jump_to_linker(dyn, addr+i32, 0, ninst);
+                    jump_to_next(dyn, addr+i32, 0, ninst);
                 } else {
                     // inside the block
                     tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
@@ -2637,8 +2635,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETEDH(xEIP);
                     BARRIER(1);
                     BARRIER_NEXT(1);
-                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
-                    } else {
+                    if(!dyn->insts || ninst==dyn->size-1) {
                         *need_epilog = 0;
                         *ok = 0;
                     }

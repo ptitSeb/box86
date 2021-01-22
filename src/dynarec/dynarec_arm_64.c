@@ -291,14 +291,14 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     BARRIER(1);
                     BARRIER_NEXT(1);
-                    if(!dyn->nolinker && (!dyn->insts || ninst!=dyn->size-1)) {
+                    if(!dyn->insts || ninst!=dyn->size-1) {
                     } else {
                         *need_epilog = 0;
                         *ok = 0;
                     }
                     MOV32(x2, addr);
                     PUSH1(x2);
-                    jump_to_linker(dyn, 0, xEIP, ninst);  // smart linker
+                    jump_to_next(dyn, 0, xEIP, ninst);
                     break;
                 case 6: // Push Ed
                     INST_NAME("PUSH FS:Ed");
