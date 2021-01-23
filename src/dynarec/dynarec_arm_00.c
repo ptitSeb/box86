@@ -1120,7 +1120,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0);
                 if(gd!=ed) {    // it's sometimes used as a 3 bytes NOP
                     MOV_REG(gd, ed);
                 }
