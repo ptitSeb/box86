@@ -78,13 +78,17 @@ Op is 20-27
 // movt dst, #imm16
 #define MOVT(dst, imm16) EMIT(0xe3400000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 // pseudo insruction: mov reg, #imm with imm a 32bits value
-#define MOV32(dst, imm32)                   \
-    MOVW(dst, ((uint32_t)imm32)&0xffff);    \
-    if (((uint32_t)(imm32))>>16) {            \
-        MOVT(dst, (((uint32_t)imm32)>>16)); }
+#define MOV32(dst, imm32)                               \
+    if(~(uint32_t)(imm32)>0 && ~(uint32_t)(imm32)<256) {\
+        MVN_IMM8(dst, dst, ~(uint32_t)(imm32), 0);      \
+    } else {                                            \
+        MOVW(dst, ((uint32_t)imm32)&0xffff);            \
+        if (((uint32_t)(imm32))>>16) {                  \
+        MOVT(dst, (((uint32_t)imm32)>>16));}            \
+    }
 // pseudo insruction: mov reg, #imm with imm a 32bits value, fixed size
-#define MOV32_(dst, imm32)                   \
-    MOVW(dst, ((uint32_t)(imm32))&0xffff);    \
+#define MOV32_(dst, imm32)                  \
+    MOVW(dst, ((uint32_t)(imm32))&0xffff);  \
     MOVT(dst, (((uint32_t)(imm32))>>16))
 // movw.cond dst, #imm16
 #define MOVW_COND(cond, dst, imm16) EMIT(cond | 0x03000000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
