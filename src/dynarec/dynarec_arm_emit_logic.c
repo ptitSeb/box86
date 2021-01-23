@@ -276,11 +276,19 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             AND_IMM8(s1, s1, c);
         }
     } else {
-        IFX(X_PEND) {} else {MOV32(s3, c);}
-        IFX(X_ALL) {
-            ANDS_REG_LSL_IMM5(s1, s1, s3, 0);
+        if(((~c)>=0 && (~c)<256)) {
+            IFX(X_ALL) {
+                BICS_IMM8_ROR(s1, s1, ~c, 0);
+            } else {
+                BIC_IMM8(s1, s1, ~c, 0);
+            }
         } else {
-            AND_REG_LSL_IMM5(s1, s1, s3, 0);
+            IFX(X_PEND) {} else {MOV32(s3, c);}
+            IFX(X_ALL) {
+                ANDS_REG_LSL_IMM5(s1, s1, s3, 0);
+            } else {
+                AND_REG_LSL_IMM5(s1, s1, s3, 0);
+            }
         }
     }
     IFX(X_PEND) {
