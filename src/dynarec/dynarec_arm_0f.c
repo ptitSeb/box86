@@ -507,34 +507,28 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x4C:
             INST_NAME("CMOVL Gd, Ed");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF)
             break;
         case 0x4D:
             INST_NAME("CMOVGE Gd, Ed");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF)
             break;
         case 0x4E:
             INST_NAME("CMOVLE Gd, Ed");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF|X_ZF)
             break;
         case 0x4F:
             INST_NAME("CMOVG Gd, Ed");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
         #undef GO
@@ -1210,34 +1204,28 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x8C:
             INST_NAME("JL id");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF)
             break;
         case 0x8D:
             INST_NAME("JGE id");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF)
             break;
         case 0x8E:
             INST_NAME("JLE id");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF|X_ZF)
             break;
         case 0x8F:
             INST_NAME("JG id");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
         #undef GO
@@ -1319,34 +1307,28 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x9C:
             INST_NAME("SETL Eb");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF)
             break;
         case 0x9D:
             INST_NAME("SETGE Eb");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF)
             break;
         case 0x9E:
             INST_NAME("SETLE Eb");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF|X_ZF)
             break;
         case 0x9F:
             INST_NAME("SETG Eb");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
         #undef GO

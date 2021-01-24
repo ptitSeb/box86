@@ -767,34 +767,28 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x7C:
             INST_NAME("JL ib");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF)
             break;
         case 0x7D:
             INST_NAME("JGE ib");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                CMPS_REG_LSL_IMM5(x1, x2, 0)
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF)
             break;
         case 0x7E:
             INST_NAME("JLE ib");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cEQ, cNE, X_SF|X_OF|X_ZF)
             break;
         case 0x7F:
             INST_NAME("JG ib");
-            GO( UBFX(x2, xFlags, F_SF, 1);
-                UBFX(x1, xFlags, F_OF, 1);
-                XOR_REG_LSL_IMM5(x1, x1, x2, 0);
-                UBFX(x2, xFlags, F_ZF, 1);
-                ORRS_REG_LSL_IMM5(x2, x1, x2, 0);
+            GO( XOR_REG_LSL_IMM5(x1, xFlags, xFlags, F_OF-F_SF);
+                ORR_REG_LSL_IMM5(x1, x1, xFlags, F_OF-F_ZF);
+                TSTS_IMM8_ROR(x1, 0b10, 0x0b)
                 , cNE, cEQ, X_SF|X_OF|X_ZF)
             break;
         #undef GO
