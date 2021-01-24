@@ -76,6 +76,17 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit ADD32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
+    if(s1==xESP && (!dyn->insts || dyn->insts[ninst].x86.need_flags==X_PEND))
+    {
+        // special case when doing math on ESP and only PEND is needed: ignoring it!
+        if(c>=0 && c<256) {
+            ADD_IMM8(s1, s1, c);
+        } else {
+            MOV32(s3, c);
+            ADD_REG_LSL_IMM5(s1, s1, s3, 0);
+        }
+        return;
+    }
     IFX(X_PEND) {
         MOV32(s3, c);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
@@ -199,6 +210,17 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit SUB32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
+    if(s1==xESP && (!dyn->insts || dyn->insts[ninst].x86.need_flags==X_PEND))
+    {
+        // special case when doing math on ESP and only PEND is needed: ignoring it!
+        if(c>=0 && c<256) {
+            SUB_IMM8(s1, s1, c);
+        } else {
+            MOV32(s3, c);
+            SUB_REG_LSL_IMM5(s1, s1, s3, 0);
+        }
+        return;
+    }
     IFX(X_PEND) {
         MOV32(s3, c);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
