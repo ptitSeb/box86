@@ -112,7 +112,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            emit_or8(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_or8(dyn, ninst, x1, x2, x14, x2);
             EBBACK;
             break;
         case 0x09:
@@ -130,7 +130,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            emit_or8(dyn, ninst, x1, x2, x3, x14, 0);
+            emit_or8(dyn, ninst, x1, x2, x3, x14);
             GBBACK;
             break;
         case 0x0B:
@@ -290,7 +290,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            emit_and8(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_and8(dyn, ninst, x1, x2, x14, x2);
             EBBACK;
             break;
         case 0x21:
@@ -308,7 +308,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            emit_and8(dyn, ninst, x1, x2, x3, x14, 0);
+            emit_and8(dyn, ninst, x1, x2, x3, x14);
             GBBACK;
             break;
         case 0x23:
@@ -412,7 +412,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x1);
             GETGB(x2);
-            emit_xor8(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_xor8(dyn, ninst, x1, x2, x14, x2);
             EBBACK;
             break;
         case 0x31:
@@ -430,7 +430,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
-            emit_xor8(dyn, ninst, x1, x2, x3, x14, 0);
+            emit_xor8(dyn, ninst, x1, x2, x3, x14);
             GBBACK;
             break;
         case 0x33:
@@ -1481,7 +1481,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     u8 = (F8)&0x1f;
                     emit_shl32c(dyn, ninst, ed, u8, x3, x14);
@@ -1489,7 +1489,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     u8 = (F8)&0x1f;
                     emit_shr32c(dyn, ninst, ed, u8, x3, x14);
@@ -1499,7 +1499,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     u8 = (F8)&0x1f;
                     emit_sar32c(dyn, ninst, ed, u8, x3, x14);
@@ -1787,21 +1787,21 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     emit_shl32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
                     break;
                 case 5:
                     INST_NAME("SHR Ed, 1");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF|X_OF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     emit_shr32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
                     break;
                 case 7:
                     INST_NAME("SAR Ed, 1");
-                    SETFLAGS(X_CF|X_ZF|X_PF|X_SF, SF_SUBSET);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     GETED;
                     emit_sar32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
@@ -1858,7 +1858,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
@@ -1867,7 +1867,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcr32, ed, (1<<x14));
@@ -1876,25 +1876,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     AND_IMM8(x3, xECX, 0x1f);
                     GETED;
-                    UFLAG_OP12(ed, x3);
-                    MOV_REG_LSL_REG(ed, ed, x3);
+                    emit_shl32(dyn, ninst, ed, x3, x3, x14);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl32);
                     break;
                 case 5:
                     INST_NAME("SHR Ed, CL");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET);    // some flags are left undefined
                     AND_IMM8(x3, xECX, 0x1f);
                     GETED;
-                    UFLAG_OP12(ed, x3);
-                    MOV_REG_LSR_REG(ed, ed, x3);
+                    emit_shr32(dyn, ninst, ed, x3, x3, x14);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr32);
                     break;
                 case 7:
                     INST_NAME("SAR Ed, CL");

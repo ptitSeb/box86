@@ -430,13 +430,17 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define emit_neg32      STEPNAME(emit_neg32)
 #define emit_neg16      STEPNAME(emit_neg16)
 #define emit_neg8       STEPNAME(emit_neg8)
+#define emit_shl32      STEPNAME(emit_shl32)
 #define emit_shl32c     STEPNAME(emit_shl32c)
+#define emit_shr32      STEPNAME(emit_shr32)
 #define emit_shr32c     STEPNAME(emit_shr32c)
 #define emit_sar32c     STEPNAME(emit_sar32c)
 #define emit_rol32c     STEPNAME(emit_rol32c)
 #define emit_ror32c     STEPNAME(emit_ror32c)
 #define emit_shrd32c    STEPNAME(emit_shrd32c)
 #define emit_shld32c    STEPNAME(emit_shld32c)
+
+#define emit_pf         STEPNAME(emit_pf)
 
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
@@ -508,21 +512,21 @@ void emit_xor32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_and32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
 void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
-void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int save_s4);
+void emit_and16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_inc32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
@@ -545,13 +549,17 @@ void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_shl32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_shr32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sar32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
+
+void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call

@@ -38,6 +38,11 @@ static uint32_t x86emu_parity_tab[8] =
 	0x69969669,
 };
 
+uint32_t* GetParityTab()
+{
+    return x86emu_parity_tab;
+}
+
 void PushExit(x86emu_t* emu)
 {
     uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0);

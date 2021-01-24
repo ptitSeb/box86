@@ -92,7 +92,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            emit_or16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_or16(dyn, ninst, x1, x2, x14, x2);
             EWBACK;
             break;
         case 0x0B:
@@ -101,7 +101,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            emit_or16(dyn, ninst, x1, x2, x14, x3, 0);
+            emit_or16(dyn, ninst, x1, x2, x14, x3);
             GWBACK;
             break;
         case 0x0D:
@@ -182,7 +182,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            emit_and16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_and16(dyn, ninst, x1, x2, x14, x2);
             EWBACK;
             break;
         case 0x23:
@@ -191,7 +191,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            emit_and16(dyn, ninst, x1, x2, x3, x14, 0);
+            emit_and16(dyn, ninst, x1, x2, x3, x14);
             GWBACK;
             break;
         case 0x25:
@@ -240,7 +240,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x2);
             GETEW(x1);
-            emit_xor16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
+            emit_xor16(dyn, ninst, x1, x2, x14, x2);
             EWBACK;
             break;
         case 0x33:
@@ -249,7 +249,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGW(x1);
             GETEW(x2);
-            emit_xor16(dyn, ninst, x1, x2, x3, x14, 0);
+            emit_xor16(dyn, ninst, x1, x2, x3, x14);
             GWBACK;
             break;
         case 0x35:

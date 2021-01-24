@@ -80,19 +80,20 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            GETGB(x2);
             if((nextop&0xC0)==0xC0) {
+                GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
                 UXTB(x1, wback, wb2);   
-                emit_or8(dyn, ninst, x1, x2, x14, x3, 0);
+                emit_or8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
                 MARKLOCK;
+                GETGB(x2);
                 LDREXB(x1, wback);
-                emit_or8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
+                emit_or8(dyn, ninst, x1, x2, x14, x2);
                 STREXB(x14, x1, wback);
                 CMPS_IMM8(x14, 0);
                 B_MARKLOCK(cNE);    // write failed, try again
@@ -200,19 +201,20 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            GETGB(x2);
             if((nextop&0xC0)==0xC0) {
+                GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
                 UXTB(x1, wback, wb2);   
-                emit_and8(dyn, ninst, x1, x2, x14, x3, 0);
+                emit_and8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
                 MARKLOCK;
+                GETGB(x2);
                 LDREXB(x1, wback);
-                emit_and8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
+                emit_and8(dyn, ninst, x1, x2, x14, x2);
                 STREXB(x14, x1, wback);
                 CMPS_IMM8(x14, 0);
                 B_MARKLOCK(cNE);    // write failed, try again
@@ -280,19 +282,20 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
-            GETGB(x2);
             if((nextop&0xC0)==0xC0) {
+                GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
                 UXTB(x1, wback, wb2);   
-                emit_xor8(dyn, ninst, x1, x2, x14, x3, 0);
+                emit_xor8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
                 MARKLOCK;
+                GETGB(x2);
                 LDREXB(x1, wback);
-                emit_xor8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
+                emit_xor8(dyn, ninst, x1, x2, x14, x2);
                 STREXB(x14, x1, wback);
                 CMPS_IMM8(x14, 0);
                 B_MARKLOCK(cNE);    // write failed, try again

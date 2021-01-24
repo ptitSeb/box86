@@ -69,13 +69,7 @@ void emit_add32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -146,13 +140,7 @@ void emit_add32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -204,13 +192,7 @@ void emit_sub32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -284,13 +266,7 @@ void emit_sub32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -340,13 +316,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -398,13 +368,7 @@ void emit_add8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -456,13 +420,7 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_CF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -515,13 +473,7 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -573,13 +525,7 @@ void emit_add16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -647,13 +593,7 @@ void emit_add16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -706,13 +646,7 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_CF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -778,13 +712,7 @@ void emit_sub16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -828,13 +756,7 @@ void emit_inc32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -879,13 +801,7 @@ void emit_inc8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -932,13 +848,7 @@ void emit_inc16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -983,13 +893,7 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1034,13 +938,7 @@ void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1086,13 +984,7 @@ void emit_dec16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1143,13 +1035,7 @@ void emit_adc32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1219,13 +1105,7 @@ void emit_adc32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1277,13 +1157,7 @@ void emit_adc8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -1336,13 +1210,7 @@ void emit_adc8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1395,13 +1263,7 @@ void emit_adc16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -1469,13 +1331,7 @@ void emit_adc16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1529,13 +1385,7 @@ void emit_sbb32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1607,13 +1457,7 @@ void emit_sbb32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1667,13 +1511,7 @@ void emit_sbb8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_CF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -1727,13 +1565,7 @@ void emit_sbb8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1788,13 +1620,7 @@ void emit_sbb16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
     IFX(X_AF|X_OF|X_CF|X_PF){if(save_s4) {POP(xSP, 1<<s4);}}
 }
@@ -1862,13 +1688,7 @@ void emit_sbb16c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1916,13 +1736,7 @@ void emit_neg32(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -1971,13 +1785,7 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -2025,12 +1833,6 @@ void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-        AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-        LDR_IMM9(s4, xEmu, offsetof(x86emu_t, x86emu_parity_tab));
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_IMM8(s3, s1, 31);
-        MVN_REG_LSR_REG(s4, s4, s3);
-        BFI(xFlags, s4, F_PF, 1);
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
