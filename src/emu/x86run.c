@@ -1245,6 +1245,24 @@ _trace:
                     case 0x4D:
                     case 0x4E:
                     case 0x4F:
+                    case 0x50:
+                    case 0x51:
+                    case 0x52:
+                    case 0x53:
+                    case 0x54:
+                    case 0x55:
+                    case 0x56:
+                    case 0x57:
+                    case 0x58:
+                    case 0x59:
+                    case 0x5A:
+                    case 0x5B:
+                    case 0x5C:
+                    case 0x5D:
+                    case 0x5E:
+                    case 0x5F:
+                    case 0x60:
+                    case 0x61:
                     case 0x70:
                     case 0x71:
                     case 0x72:
