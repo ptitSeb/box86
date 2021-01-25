@@ -321,7 +321,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
         return 0;
     }
     mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-    updateProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    setProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     mmaplist[i].block = p;
     mmaplist[i].size = MMAPSIZE;
@@ -392,7 +392,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-        updateProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        setProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         kh_dynablocks_t *blocks = dblist_oversized;
         if(!blocks) {
             blocks = dblist_oversized = kh_init(dynablocks);
@@ -580,6 +580,15 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
             mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
         memprot[i] = prot|dyn;
         #endif
+    }
+}
+
+void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        memprot[i] = prot;
     }
 }
 

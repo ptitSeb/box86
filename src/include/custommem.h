@@ -35,6 +35,7 @@ uintptr_t getJumpTableAddress(uintptr_t addr);
 
 #define PROT_DYNAREC 0x10000
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
+void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 uint32_t getProtection(uintptr_t addr);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);

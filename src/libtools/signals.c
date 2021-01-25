@@ -513,7 +513,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     else if(sig==SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP]) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
             if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
@@ -521,7 +521,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             else
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
         } else {
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
             //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
         }
@@ -606,7 +606,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_WRITE)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
             dynablock_t* db_addr = NULL;
@@ -624,7 +624,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
             unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // done
-        return;
+        if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
     }
 #endif
     static int old_code = -1;
