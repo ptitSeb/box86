@@ -769,6 +769,21 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, needed_libs_t* neededlibs, int
                 if(rpath!=rpathref)
                     free(rpath);
                 rpath = tmp;
+                free(origin);
+            }
+            while(strstr(rpath, "${ORIGIN}")) {
+                char* origin = strdup(h->path);
+                char* p = strrchr(origin, '/');
+                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
+                p = strstr(rpath, "${ORIGIN}");
+                memcpy(tmp, rpath, p-rpath);
+                strcat(tmp, origin);
+                strcat(tmp, p+strlen("${ORIGIN}"));
+                if(rpath!=rpathref)
+                    free(rpath);
+                rpath = tmp;
+                free(origin);
             }
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
