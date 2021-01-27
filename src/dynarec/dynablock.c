@@ -382,7 +382,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(!FillBlock(block, filladdr)) {
         void* old = (void*)arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
         if(old!=block) {// put it back in place, strange things are happening here!
-            dynarec_log(LOG_NONE, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
+            dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
             arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], (uintptr_t)old);
         }
         free(block);
