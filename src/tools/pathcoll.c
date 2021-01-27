@@ -154,10 +154,11 @@ void PrependList(path_collection_t* collection, const char* List, int folder)
         char *p2 = strrchr(p, ':');
         if(!p2) {
             strncpy(tmp, p, MAX_PATH - 1);
+            free(p);
             p=NULL;
         } else {
-            strncpy(tmp, p2+1, PATH_MAX);
-            tmp[PATH_MAX-1]='\0';
+            strncpy(tmp, p2+1, MAX_PATH - 1);
+            tmp[MAX_PATH - 1]='\0';
             *p2 = '\0';
         }
         // check if there is terminal '/', add it if not
