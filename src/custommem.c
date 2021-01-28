@@ -651,6 +651,9 @@ void fini_custommem_helper(box86context_t *ctx)
             FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
         }
     }
+    for (uintptr_t i=idx; i<=end; ++i)
+        if(dynmap[i])
+            FreeDynablockList(&dynmap[i]);
     pthread_mutex_destroy(&mutex_mmap);
     free(mmaplist);
     free(dynmap);
