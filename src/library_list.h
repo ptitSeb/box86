@@ -140,3 +140,5 @@ GO("libkrb5.so.3", krb5)
 GO("libgssapi_krb5.so.2", gssapikrb5)
 
 GO("ld-linux.so.2", ldlinux)
+
+GO("crashhandler.so", crashhandler)

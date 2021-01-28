@@ -363,6 +363,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedkrb5.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgssapikrb5.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
 )
 
 set(WRAPPEDS_HEAD "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
