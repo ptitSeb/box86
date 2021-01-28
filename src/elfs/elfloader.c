@@ -27,8 +27,8 @@
 #include "callback.h"
 #include "dynarec.h"
 #include "box86stack.h"
-#ifdef DYNAREC
 #include "custommem.h"
+#ifdef DYNAREC
 #include "dynablock.h"
 #endif
 #include "../emu/x86emu_private.h"
@@ -196,6 +196,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     ++n;
                 }
             }
+        head->multiblock_n = n; // might be less in fact
         for (int i=0; i<head->multiblock_n; ++i) {
             
             printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);

@@ -702,9 +702,12 @@ void RunLock66(x86emu_t *emu)
     uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
-    uint16_t tmp16u, tmp16u2;
+    uint16_t tmp16u;
     int16_t tmp16s;
+    #ifdef DYNAREC
+    uint16_t tmp16u2;
     int32_t tmp32s;
+    #endif
     switch(opcode) {
         case 0x0f:
             opcode = F8;

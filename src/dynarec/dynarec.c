@@ -142,13 +142,17 @@ int DynaRun(x86emu_t* emu)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
+#ifdef DYNAREC
     int jmpbuf_reset = 1;
+#endif
     if(emu->type == EMUTYPE_MAIN) {
         ejb = GetJmpBuf();
         if(!ejb->jmpbuf_ok) {
             ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
+#ifdef DYNAREC
             jmpbuf_reset = 1;
+#endif
             if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
         }

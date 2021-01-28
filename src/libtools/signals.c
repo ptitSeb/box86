@@ -25,8 +25,8 @@
 #include "elfloader.h"
 #include "threads.h"
 #include "emu/x87emu_private.h"
-#ifdef DYNAREC
 #include "custommem.h"
+#ifdef DYNAREC
 #include "dynablock.h"
 #include "../dynarec/dynablock_private.h"
 #endif
@@ -593,7 +593,6 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
-    uint32_t prot = getProtection((uintptr_t)addr);
     void* esp = NULL;
 #ifdef __arm__
     void * pc = (void*)p->uc_mcontext.arm_pc;
@@ -606,6 +605,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
 #ifdef DYNAREC
+    uint32_t prot = getProtection((uintptr_t)addr);
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;

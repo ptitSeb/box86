@@ -166,6 +166,8 @@ void CallAllCleanup(x86emu_t *emu)
         RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
     }
     my_context->clean_sz = 0;
+    free(my_context->cleanups);
+    my_context->cleanups = NULL;
 }
 
 static void internalFreeX86(x86emu_t* emu)
