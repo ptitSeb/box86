@@ -51,6 +51,7 @@ dynablocklist_t* NewDynablockList(uintptr_t text, int textsz, int direct)
         ret->direct = (dynablock_t**)calloc(textsz, sizeof(dynablock_t*));
         if(!ret->direct) {printf_log(LOG_NONE, "Warning, fail to create direct block for dynablock @%p\n", (void*)text);}
     }
+    dynarec_log(LOG_DEBUG, "New Dynablocklist %p, from %p->%p\n", ret, (void*)text, (void*)(text+textsz));
     return ret;
 }
 
@@ -94,7 +95,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
         return;
     if(!*dynablocks)
         return;
-    dynarec_log(LOG_DEBUG, "Free Direct Blocks %p from Dynablocklist\n", (*dynablocks)->direct);
+    dynarec_log(LOG_DEBUG, "Free Dynablocklist %p, with Direct Blocks %p\n", *dynablocks, (*dynablocks)->direct);
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
             if((*dynablocks)->direct[i] && !(*dynablocks)->direct[i]->father) 
