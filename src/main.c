@@ -894,6 +894,8 @@ int main(int argc, const char **argv, const char **env) {
             char* p = getenv("LD_PRELOAD");
             if(strstr(p, "libtcmalloc_minimal.so.4"))
                 box86_tcmalloc_minimal = 1;
+            if(strstr(p, "libasan.so"))
+                box86_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
             ParseList(p, &ld_preload, 0);
             if (ld_preload.size && box86_log) {
                 printf_log(LOG_INFO, "BOX86 try to Preload ");
