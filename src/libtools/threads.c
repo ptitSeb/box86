@@ -257,7 +257,7 @@ EXPORT int my_pthread_attr_destroy(x86emu_t* emu, void* attr)
 	return pthread_attr_destroy(attr);
 }
 
-EXPORT int my_pthread_attr_getstack(x86emu_t* emu, void* attr, void* stackaddr, size_t* stacksize)
+EXPORT int my_pthread_attr_getstack(x86emu_t* emu, void* attr, void** stackaddr, size_t* stacksize)
 {
 	int ret = pthread_attr_getstack(attr, stackaddr, stacksize);
 	if (ret==0)
@@ -300,16 +300,18 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	}
 
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
-    x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
+    x86emu_t *emuthread = NewX86Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
 	SetFS(emuthread, GetFS(emu));
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
 	#ifdef DYNAREC
-	// pre-creation of the JIT code for the entry point of the thread
-	dynablock_t *current = NULL;
-	DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
+	if(box86_dynarec) {
+		// pre-creation of the JIT code for the entry point of the thread
+		dynablock_t *current = NULL;
+		DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
+	}
 	#endif
 	// create thread
 	return pthread_create((pthread_t*)t, (const pthread_attr_t *)attr, 
