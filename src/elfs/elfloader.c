@@ -693,7 +693,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int vis = h->SymTab[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
-            if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
+            if((bind==10/*STB_GNU_UNIQUE*/ || bind==STB_GLOBAL) && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
             uint32_t sz = h->SymTab[i].st_size;
@@ -718,7 +718,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         //st_shndx==65521 means ABS value
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-            if(bind==10/*STB_GNU_UNIQUE*/ && FindGlobalSymbol(maplib, symname))
+            if((bind==10/*STB_GNU_UNIQUE*/ || bind==STB_GLOBAL) && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             uint32_t sz = h->DynSym[i].st_size;
