@@ -60,7 +60,14 @@ void freeUsb1My(void* lib)
 GO(0)   \
 GO(1)   \
 GO(2)   \
-GO(3)
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)   \
+
 
 // hotplug
 #define GO(A)   \
@@ -81,7 +88,7 @@ static void* findhotplugFct(void* fct)
     #define GO(A) if(my_hotplug_fct_##A == 0) {my_hotplug_fct_##A = (uintptr_t)fct; return my_hotplug_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 hotplug callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 hotplug callback (%p)\n", fct);
     return NULL;
 }
 // transfert
@@ -106,7 +113,7 @@ static void* findtransfertFct(void* fct)
     #define GO(A) if(my_transfert_fct_##A == 0) {my_transfert_fct_##A = (uintptr_t)fct; return my_transfert_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 transfert callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 transfert callback (%p)\n", fct);
     return NULL;
 }
 static void* reverse_transfert_Fct(void* fct)
@@ -165,7 +172,7 @@ EXPORT int my_libusb_submit_transfer(x86emu_t* emu, my_libusb_transfer_t* t)
 {
     libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
     
-    t->callback = findtransfertFct(t);
+    t->callback = findtransfertFct(t->callback);
     return my->libusb_submit_transfer(t); // don't put back callback, it's unknown if it's safe
 } 
 
@@ -173,7 +180,7 @@ EXPORT int my_libusb_cancel_transfer(x86emu_t* emu, my_libusb_transfer_t* t)
 {
     libusb1_my_t *my = (libusb1_my_t*)my_lib->priv.w.p2;
     
-    t->callback = findtransfertFct(t);
+    t->callback = findtransfertFct(t->callback);
     return my->libusb_cancel_transfer(t);
 }
 
