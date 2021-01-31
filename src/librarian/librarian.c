@@ -419,6 +419,19 @@ int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* st
     return 0;
 }
 
+int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name)
+{
+    uintptr_t start, end;
+    for(int i=0; i<maplib->libsz; ++i)
+        if(GetElfIndex(maplib->libraries[i].lib)==-1)
+            if(GetLibNoWeakSymbolStartEnd(maplib->libraries[i].lib, name, &start, &end))
+                if(start || end)
+                    return 1;
+    // nope, not found
+    return 0;
+
+}
+
 int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self)
 {
     if(maplib->context->elfs[0]==self || !self) {
