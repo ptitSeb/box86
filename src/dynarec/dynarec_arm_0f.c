@@ -1638,10 +1638,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         u8 = F8;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-32, 0);
                         u8 = F8;
                         fixedaddress+=(u8>>5)*4;
-                        LDR_IMM9(x1, ed, fixedaddress);
+                        LDR_IMM9(x1, wback, fixedaddress);
                         ed = x1;
                     }
                     u8&=0x1f;
@@ -1654,29 +1654,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 5:
                     INST_NAME("BTS Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
-                    gd = x2;
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         u8 = F8;
-                        MOVW(gd, u8);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-32, 0);
                         u8 = F8;
-                        MOVW(gd, u8);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
-                        LDR_IMM9(x1, x3, fixedaddress);
+                        fixedaddress+=(u8>>5)*4;
+                        LDR_IMM9(x1, wback, fixedaddress);
                         ed = x1;
-                        wback = x3;
                     }
-                    AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x14, ed, x2);
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     B_MARK3(cNE); // bit already set, jump to next instruction
                     MOVW(x14, 1);
-                    XOR_REG_LSL_REG(ed, ed, x14, x2);
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
@@ -1685,29 +1679,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6:
                     INST_NAME("BTR Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
-                    gd = x2;
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         u8 = F8;
-                        MOVW(gd, u8);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-32, 0);
                         u8 = F8;
-                        MOVW(gd, u8);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
-                        LDR_IMM9(x1, x3, fixedaddress);
+                        fixedaddress+=(u8>>5)*4;
+                        LDR_IMM9(x1, wback, fixedaddress);
                         ed = x1;
-                        wback = x3;
                     }
-                    AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x14, ed, x2);
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     B_MARK3(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x14, 1); // already 0x01
-                    XOR_REG_LSL_REG(ed, ed, x14, x2);
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
@@ -1716,28 +1704,22 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("BTC Ed, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
-                    gd = x2;
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         u8 = F8;
-                        MOVW(gd, u8);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-32, 0);
                         u8 = F8;
-                        MOVW(gd, u8);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                        ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
-                        LDR_IMM9(x1, x3, fixedaddress);
+                        fixedaddress+=(u8>>5)*4;
+                        LDR_IMM9(x1, wback, fixedaddress);
                         ed = x1;
-                        wback = x3;
                     }
-                    AND_IMM8(x2, gd, 0x1f);
-                    MOV_REG_LSR_REG(x14, ed, x2);
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     MOVW_COND(cEQ, x14, 1); // may already 0x01
-                    XOR_REG_LSL_REG(ed, ed, x14, x2);
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
