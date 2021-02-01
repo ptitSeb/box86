@@ -1300,6 +1300,107 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             BFI(gd, x1, 0, 16);
             break;
 
+        case 0xBA:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                    INST_NAME("BT Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>4)*2;
+                        LDRH_IMM8(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    u8&=0x0f;
+                    if(u8) {
+                        MOV_REG_LSR_IMM5(x1, ed, u8);
+                        ed = x1;
+                    }
+                    BFI(xFlags, ed, F_CF, 1);
+                    break;
+                case 5:
+                    INST_NAME("BTS Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>4)*2;
+                        LDRH_IMM8(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
+                    ANDS_IMM8(x14, x14, 1);
+                    BFI(xFlags, x14, F_CF, 1);
+                    B_MARK3(cNE); // bit already set, jump to next instruction
+                    MOVW(x14, 1);
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x0f);
+                    if(wback) {
+                        STRH_IMM8(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                case 6:
+                    INST_NAME("BTR Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>4)*2;
+                        LDRH_IMM8(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
+                    ANDS_IMM8(x14, x14, 1);
+                    BFI(xFlags, x14, F_CF, 1);
+                    B_MARK3(cEQ); // bit already clear, jump to next instruction
+                    //MOVW(x14, 1); // already 0x01
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x0f);
+                    if(wback) {
+                        STRH_IMM8(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                case 7:
+                    INST_NAME("BTC Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    if((nextop&0xC0)==0xC0) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        wback = 0;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
+                        u8 = F8;
+                        fixedaddress+=(u8>>4)*2;
+                        LDRH_IMM8(x1, wback, fixedaddress);
+                        ed = x1;
+                    }
+                    MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
+                    ANDS_IMM8(x14, x14, 1);
+                    BFI(xFlags, x14, F_CF, 1);
+                    MOVW_COND(cEQ, x14, 1); // may already 0x01
+                    XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x0f);
+                    if(wback) {
+                        STRH_IMM8(ed, wback, fixedaddress);
+                    }
+                    MARK3;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             SETFLAGS(X_CF, SF_SET);
