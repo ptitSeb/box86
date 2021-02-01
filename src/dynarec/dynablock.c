@@ -392,7 +392,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
     // check size
-    if(block) {
+    if(block && block->x86_size) {
         int blocksz = block->x86_size;
         if(dynablocks->maxsz<blocksz) {
             dynablocks->maxsz = blocksz;
