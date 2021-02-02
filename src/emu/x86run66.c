@@ -1209,6 +1209,12 @@ void RunFS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = Pop(emu);
             break;
+
+        case 0x9C:              /* PUSHFD */
+            // Segment override if for memory loc, no stack segment 
+            --ip;   // so ignore prefix and continue
+            break;
+
         case 0xA0:              /* MOV AL,Ob */
             tmp32s = F32S;
             R_AL = *(uint8_t*)((tlsdata) + tmp32s);
