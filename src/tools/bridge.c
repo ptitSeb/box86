@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <pthread.h>
 
 #include "custommem.h"
 #include "bridge.h"
@@ -30,6 +31,7 @@ typedef struct brick_s {
 typedef struct bridge_s {
     brick_t         *head;
     brick_t         *last;      // to speed up
+    pthread_mutex_t mutex;
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
@@ -45,6 +47,7 @@ bridge_t *NewBridge()
     bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
     b->head = NewBrick();
     b->last = b->head;
+    pthread_mutex_init(&b->mutex, NULL);
     b->bridgemap = kh_init(bridgemap);
 
     return b;
@@ -63,12 +66,14 @@ void FreeBridge(bridge_t** bridge)
         b = n;
     }
     kh_destroy(bridgemap, (*bridge)->bridgemap);
+    pthread_mutex_destroy(&(*bridge)->mutex);
     free(*bridge);
     *bridge = NULL;
 }
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
+    pthread_mutex_lock(&bridge->mutex);
     brick_t *b = bridge->last;
     if(b->sz == NBRICK) {
         b->next = NewBrick();
@@ -98,6 +103,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     int ret;
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[b->sz].CC;
+    pthread_mutex_unlock(&bridge->mutex);
 
     return (uintptr_t)&b->b[b->sz++].CC;
 }
