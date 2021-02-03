@@ -90,11 +90,14 @@ TL;DR: Not all Unity games work and can require a high OpenGL profile, but the s
 Notes about Steam
 ----
 
-Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works. First problem is steam crashing after the Sign in window, if you encounter this issue, you may need to add libappindicator. Installing the package on debian `sudo apt install libappindicator1`.
-Once open, Steam will only work on "Small Mode" and in "Big Picture", not in the regular "Large Mode"(This is because some steam component used in the browser view are only 64 bits now.). So go in the "View" menu and switch to Small view, else the list will stay empty.
-Final words, to avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables. 
-(Steam for Windows installs fine but doesn't work yet)
-Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aformentionned feature, it is safer to add it to your system if you intend to play those game (something like `sudo apt install libtcmalloc-minimal4` to install it on Debian and Debian's deriatives)
+Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works:
+- First problem is Steam crashing after the sign-in window, if you encounter this issue, you may need to add libappindicator. To install it on Debian, run `sudo apt install libappindicator1`.
+- If you select to "Remember password", Steam is crashing on subsequent starts, unless you have libnm intalled. To install it on Debian, run `sudo apt install libnm0`.
+- Once open, Steam will only work on "Small Mode" and in "Big Picture", not in the regular "Large Mode". This is because some Steam components used in the browser view are only 64-bit now. So go in the "View" menu and switch to "Small view", else the list will stay empty. Alternatively, Steam can be started in small mode directly by using `+open steam://open/minigameslist` command line arguments.
+- To avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables. 
+- Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aformentionned feature, it is safer to add it to your system if you intend to play those game. To install it on Debian, run `sudo apt install libtcmalloc-minimal4`.
+
+Steam for Windows installs fine but doesn't work yet.
 
 ----
 
