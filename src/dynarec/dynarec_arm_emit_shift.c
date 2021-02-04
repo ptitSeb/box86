@@ -347,6 +347,7 @@ void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4)
 {
+    c&=0x1f;
     IFX(X_PEND) {
         MOVW(s3, c);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
@@ -402,6 +403,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
 
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4)
 {
+    c&=0x1f;
     IFX(X_PEND) {
         MOVW(s3, c);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
