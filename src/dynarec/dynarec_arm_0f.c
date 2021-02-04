@@ -1820,7 +1820,6 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGB(x1);
             BFI(gb1, ed, gb2*8, 8); // gb <- eb
             emit_add8(dyn, ninst, ed, gd, x14, x3, 1);
-            ADD_REG_LSL_IMM5(x14, ed, gd, 0);
             EBBACK;
             break;
         case 0xC1:
