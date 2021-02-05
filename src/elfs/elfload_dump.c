@@ -40,7 +40,7 @@ const char* DumpSection(Elf32_Shdr *s, char* SST) {
         GO(SHT_HIPROC);
         GO(SHT_LOUSER);
         GO(SHT_HIUSER);
-        #ifdef SHT_GNU_versym
+        #if defined(SHT_GNU_versym) && defined(SHT_GNU_ATTRIBUTES)
         GO(SHT_GNU_versym);
         GO(SHT_GNU_ATTRIBUTES);
         GO(SHT_GNU_HASH);
@@ -100,7 +100,7 @@ const char* DumpDynamic(Elf32_Dyn *s) {
             GO(DT_RUNPATH, 0);
             GO(DT_FLAGS, 0);
             GO(DT_ENCODING, 0);
-            #ifdef DT_NUM
+            #if defined(DT_NUM) && defined(DT_TLSDESC_PLT)
             GO(DT_NUM, 0);
             GO(DT_VALRNGLO, 0);
             GO(DT_GNU_PRELINKED, 0);
