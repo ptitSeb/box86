@@ -120,43 +120,30 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 
 static void InitCancelThread()
 {
-	pthread_mutex_lock(&my_context->mutex_thread);
-	my_context->cancelthread = kh_init(cancelthread);
-	pthread_mutex_unlock(&my_context->mutex_thread);
 }
 
 static void FreeCancelThread(box86context_t* context)
 {
 	if(!context)
 		return;
-	__pthread_unwind_buf_t* buff;
-	pthread_mutex_lock(&context->mutex_thread);
-	kh_foreach_value(context->cancelthread, buff, free(buff))
-	kh_destroy(cancelthread, context->cancelthread);
-	pthread_mutex_unlock(&context->mutex_thread);
-	context->cancelthread = NULL;
 }
-static __pthread_unwind_buf_t* AddCancelThread(uintptr_t buff)
+static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
 {
-	int ret;
-	pthread_mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_put(cancelthread, my_context->cancelthread, buff, &ret);
-	if(ret)
-		kh_value(my_context->cancelthread, k) = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
-	__pthread_unwind_buf_t* r = kh_value(my_context->cancelthread, k);
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	buff->__pad[1] = r;
 	return r;
 }
 
-static void DelCancelThread(uintptr_t buff)
+static __pthread_unwind_buf_t* GetCancelThread(x86_unwind_buff_t* buff)
 {
-	pthread_mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(cancelthread, my_context->cancelthread, buff);
-	if(k!=kh_end(my_context->cancelthread)) {
-		free(kh_value(my_context->cancelthread, k));
-		kh_del(cancelthread, my_context->cancelthread, k);
-	}
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	return (__pthread_unwind_buf_t*)buff->__pad[1];
+}
+
+static void DelCancelThread(x86_unwind_buff_t* buff)
+{
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[1];
+	free(r);
+	buff->__pad[1] = NULL;
 }
 
 typedef struct emuthread_s {
@@ -359,9 +346,9 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 	cancel_emu[cancel_deep] = (x86emu_t*)E;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)((x86emu_t*)E)->regs[_AX].dword[0];
-	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = AddCancelThread(buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
-		//DelCancelThread((uintptr_t)cancel_buff);	// no del here, it will be delete by unwind_next...
+		//DelCancelThread(cancel_buff);	// no del here, it will be delete by unwind_next...
 		int i = cancel_deep--;
 		x86emu_t* emu = cancel_emu[i];
 		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
@@ -376,19 +363,19 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = AddCancelThread((uintptr_t)buff);
+	__pthread_unwind_buf_t * pbuff = GetCancelThread(buff);
 	__pthread_unregister_cancel(pbuff);
 
 	--cancel_deep;
-	DelCancelThread((uintptr_t)buff);
+	DelCancelThread(buff);
 }
 
 EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t pbuff = *AddCancelThread((uintptr_t)buff);
-	DelCancelThread((uintptr_t)buff);
+	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
+	DelCancelThread(buff);
 	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
 	__pthread_unwind_next(&pbuff);
 	// just in case it does return
