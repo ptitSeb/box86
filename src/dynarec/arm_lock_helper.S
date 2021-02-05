@@ -81,9 +81,11 @@ arm_lock_storeifnull:
     // r0 needs to be aligned
     ldrex   r2, [r0]
     cmp     r2, #0
-    moveq   r2, r1
+    bne     arm_lock_storeifnull_exit
+    mov     r2, r1
     strex   r3, r2, [r0]
     cmp     r3, #1
     beq     arm_lock_storeifnull
+arm_lock_storeifnull_exit:
     mov     r0, r2
     bx      lr
