@@ -3605,6 +3605,12 @@ const char* arm_print(uint32_t opcode) {
 		int rm = (opcode >> 0) & 0xF;
 		
 		sprintf(ret, "SWPB%s %s, %s, [%s]", cond, regname[rt], regname[rm], regname[rn]);
+	} else if ((opcode & 0x0FF000F0) == 0x01600010) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 12) & 0xF;
+		int rm = (opcode >> 0) & 0xF;
+		
+		sprintf(ret, "CLZ%s %s, %s", cond, regname[rd], regname[rm]);
 	} else if ((opcode & 0x0F5000F0) == 0x014000B0) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rt = (opcode >> 12) & 0xF;
@@ -4288,6 +4294,12 @@ const char* arm_print(uint32_t opcode) {
 		}
 		
 		sprintf(ret, "UXTAB%s %s, %s, %s%s}", cond, regname[rd], regname[rn], regname[rm], tmprot);
+	} else if ((opcode & 0x0FF000F0) == 0x06F00030) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 12) & 0xF;
+		int rm = (opcode >> 0) & 0xF;
+		
+		sprintf(ret, "RBIT%s %s, %s", cond, regname[rd], regname[rm]);
 	} else if ((opcode & 0x0FFF00F0) == 0x06FF0070) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rd = (opcode >> 12) & 0xF;

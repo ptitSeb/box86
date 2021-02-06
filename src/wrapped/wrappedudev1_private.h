@@ -3,7 +3,7 @@
 #endif
 
 GO(udev_device_ref, pFp)
-GO(udev_device_unref, vFp)
+GO(udev_device_unref, pFp)
 GO(udev_device_get_udev, pFp)
 GO(udev_device_new_from_syspath, pFpp)
 GO(udev_device_new_from_devnum, pFpCu)
@@ -32,7 +32,7 @@ GO(dev_device_get_seqnum, UFp)
 GO(dev_device_get_usec_since_initialized, UFp)
 GO(udev_device_has_tag, iFpp)
 GO(udev_enumerate_ref, pFp)
-GO(udev_enumerate_unref, vFp)
+GO(udev_enumerate_unref, pFp)
 GO(udev_enumerate_get_udev, pFp)
 GO(udev_enumerate_new, pFp)
 GO(udev_enumerate_add_match_subsystem, iFpp)
