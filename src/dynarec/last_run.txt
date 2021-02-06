@@ -289,6 +289,7 @@ ARM_ cond 0 0 0 1 0 0 1 0 (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) 0 0 1 
 ARM_ cond/=1110 0 0 0 1 0 0 1 0 imm12 0 1 1 1 imm4 BKPT #<imm16>
 ARMS cond 0 0 0 1 0 0 1 1 Rn (0) (0) (0) (0) imm5 type 0 Rm TEQ<c> <Rn>, <Rm>{, <shift>}
 ARM_ cond 0 0 0 1 0 1 0 0 Rn Rt (0) (0) (0) (0) 1 0 0 1 Rm SWPB<c> <Rt>, <Rm>, [<Rn>]
+ARM_ cond 0 0 0 1 0 1 1 0 (1) (1) (1) (1) Rd (1) (1) (1) (1) 0 0 0 1 Rm CLZ<c> <Rd>, <Rm>
 ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 0 1 1 imm4L STRH<c> <Rt>, [<Rn>, #+/-<imm8>]{!}
 ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 1 0 1 imm4L LDRD<c> <Rt>, <Rt2>, [<Rn>, #+/-<imm8>]{!}
 ARM_ cond 0 0 0 1 U 1 W 0 Rn Rt imm4H 1 1 1 1 imm4L STRD<c> <Rt>, <Rt2>, [<Rn>, #+/-<imm8>]{!}
@@ -375,6 +376,7 @@ ARMs cond 0 1 1 0 1 1 1 sat_imm Rd imm5 sh 0 1 Rn USAT<c> <Rd>, #<imm>, <Rn>{, <
 ARM_ cond 0 1 1 0 1 1 1 0 sat_imm Rd (1) (1) (1) (1) 0 0 1 1 Rn USAT16<c> <Rd>, #<imm>, <Rn>
 ARM_ cond 0 1 1 0 1 1 1 0 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm UXTB<c> <Rd>, <Rm>{, <rotation>}
 ARM_ cond 0 1 1 0 1 1 1 0 Rn Rd rotate (0) (0) 0 1 1 1 Rm UXTAB<c> <Rd>, <Rn>, <Rm>{, <rotation>}
+ARM_ cond 0 1 1 0 1 1 1 1 (1) (1) (1) (1) Rd (1) (1) (1) (1) 0 0 1 1 Rm RBIT<c> <Rd>, <Rm>
 ARM_ cond 0 1 1 0 1 1 1 1 1 1 1 1 Rd rotate (0) (0) 0 1 1 1 Rm UXTH<c> <Rd>, <Rm>{, <rotation>}
 ARM_ cond 0 1 1 0 1 1 1 1 (1) (1) (1) (1) Rd (1) (1) (1) (1) 1 0 1 1 Rm REVSH<c> <Rd>, <Rm>
 ARM_ cond 0 1 1 0 1 1 1 1 Rn Rd rotate (0) (0) 0 1 1 1 Rm UXTAH<c> <Rd>, <Rn>, <Rm>{, <rotation>}
