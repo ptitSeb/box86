@@ -619,12 +619,26 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 }
             }
         }
+        dynablock_t* db = FindDynablockFromNativeAddress(pc);
+        if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
+            dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
+        }
         dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, prot);
         // access error, unprotect the block (and mark them dirty)
         if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
             unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // done
         if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
+    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
+        dynablock_t* db = FindDynablockFromNativeAddress(pc);
+        if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
+            dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
+        }
+        if(addr && pc && db) {
+            // probably a glitch due to intensive multitask...
+            dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
+            return; // try again
+        }
     }
 #endif
     static int old_code = -1;
@@ -683,11 +697,14 @@ exit(-1);
             }
         }
 #ifdef DYNAREC
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s)", 
+        uint32_t hash = 0;
+        if(db)
+            hash = X31_hash_code(db->x86_addr, db->x86_size);
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
             prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
-            getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean");
+            getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
 #endif

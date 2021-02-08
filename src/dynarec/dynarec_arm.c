@@ -371,7 +371,7 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     }
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
-        dynarec_log(LOG_NONE, "%sEmitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", helper.arm_size, helper.isize); 
+        dynarec_log(LOG_NONE, "%s%04d|Emitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.arm_size, helper.isize); 
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
     }

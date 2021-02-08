@@ -114,53 +114,12 @@ void MarkDynablock(dynablock_t* db)
     if(db) {
         if(db->father)
             db = db->father;    // mark only father
+        if(db->need_test)
+            return; // already done
         db->need_test = 1;  // test only blocks that can be marked (and so deleted)
         setJumpTableDefault(db->x86_addr);
         for(int i=0; i<db->sons_size; ++i)
             setJumpTableDefault(db->sons[i]->x86_addr);
-    }
-}
-
-void ProtectDynablock(dynablock_t* db)
-{
-    if(db) {
-        if(db->father)
-            return;    // protect only father, child(ren) will be automatically
-        protectDB((uintptr_t)db->x86_addr, db->x86_size);
-    }
-}
-
-void MarkDynablockList(dynablocklist_t** dynablocks)
-{
-    if(!dynablocks)
-        return;
-    if(!*dynablocks)
-        return;
-    dynarec_log(LOG_DEBUG, "Marked Blocks from Dynablocklist %p:0x%x\n", (void*)(*dynablocks)->text, (*dynablocks)->textsz);
-    dynablock_t* db;
-    if((*dynablocks)->direct) {
-        for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            db = (*dynablocks)->direct[i];
-            if(db)
-                MarkDynablock(db);
-        }
-    }
-}
-
-void ProtectDynablockList(dynablocklist_t** dynablocks)
-{
-    if(!dynablocks)
-        return;
-    if(!*dynablocks)
-        return;
-    dynarec_log(LOG_DEBUG, "Protect Blocks from Dynablocklist %p:0x%x\n", (void*)(*dynablocks)->text, (*dynablocks)->textsz);
-    dynablock_t* db;
-    if((*dynablocks)->direct) {
-        for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            db = (*dynablocks)->direct[i];
-            if(db)
-                ProtectDynablock(db);
-        }
     }
 }
 
@@ -205,22 +164,6 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
             if((db=dynablocks->direct[i-startdb]))
                 if(IntervalIntersects((uintptr_t)db->x86_addr, (uintptr_t)db->x86_addr+db->x86_size-1, addr, addr+size+1))
                     MarkDynablock(db);
-}
-
-void ProtectDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
-{
-    if(!dynablocks)
-        return;
-    uintptr_t startdb = dynablocks->text;
-    uintptr_t enddb = startdb + dynablocks->textsz;
-    uintptr_t start = addr;
-    uintptr_t end = addr+size;
-    if(start<startdb)
-        start = startdb;
-    if(end>enddb)
-        end = enddb;
-    if(end>startdb && start<enddb)
-        protectDB(start, end-start); //no +1; as end/enddb is exclusive and not inclusive
 }
 
 void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t size)
@@ -270,7 +213,7 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
     if(dynablocks->direct) {
         MarkDirectDynablock(dynablocks, addr, size);
         // the blocks check before
-        for(int idx=(addr-dynablocks->maxsz)>>DYNAMAP_SHIFT; idx<addr>>DYNAMAP_SHIFT; ++idx)
+        for(int idx=(addr-dynablocks->maxsz)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
             MarkDirectDynablock(getDB(idx), addr, size);
     }
 }
@@ -323,8 +266,11 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     if (!*created)
         return block;
     
-    if(!dynablocks->direct)
-        dynablocks->direct = (dynablock_t**)calloc(dynablocks->textsz, sizeof(dynablock_t*));
+    if(!dynablocks->direct) {
+        dynablock_t** p = (dynablock_t**)calloc(dynablocks->textsz, sizeof(dynablock_t*));
+        if(arm_lock_storeifnull(&dynablocks->direct, p)!=p)
+            free(p);    // someone already create the direct array, too late...
+    }
 
     // create and add new block
     dynarec_log(LOG_DUMP, "Ask for DynaRec Block creation @%p\n", (void*)addr);
@@ -382,7 +328,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     block->x86_addr = (void*)addr;
     if(!FillBlock(block, filladdr)) {
         void* old = (void*)arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
-        if(old!=block) {// put it back in place, strange things are happening here!
+        if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
             arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], (uintptr_t)old);
         }
@@ -403,11 +349,13 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                         dblist->maxsz = blocksz;
             }
         }
-        protectDB((uintptr_t)block->x86_addr, block->x86_size);
+        lockDB();
+        protectDBnolock((uintptr_t)block->x86_addr, block->x86_size);
         // fill-in jumptable
         addJumpTableIfDefault(block->x86_addr, block->block);
         for(int i=0; i<block->sons_size; ++i)
             addJumpTableIfDefault(block->sons[i]->x86_addr, block->sons[i]->block);
+        unlockDB();
     }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
@@ -418,7 +366,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current);
-    if(db && (db->need_test || (db->father && db->father->need_test))) {
+    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
         if(hash!=father->hash) {
@@ -432,7 +380,13 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             db = internalDBGetBlock(emu, addr, addr, create, *current);
         } else {
             father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            lockDB();
+            protectDBnolock((uintptr_t)father->x86_addr, father->x86_size);
+            // fill back jumptable
+            addJumpTableIfDefault(father->x86_addr, father->block);
+            for(int i=0; i<father->sons_size; ++i)
+                addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
+            unlockDB();
         }
     } 
     return db;
@@ -443,7 +397,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     dynarec_log(LOG_DEBUG, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
-    if(db && (db->need_test || (db->father && db->father->need_test))) {
+    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
         if(hash!=father->hash) {
@@ -454,7 +408,13 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
             db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
         } else {
             father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            lockDB();
+            protectDBnolock((uintptr_t)father->x86_addr, father->x86_size);
+            // fill back jumptable
+            addJumpTableIfDefault(father->x86_addr, father->block);
+            for(int i=0; i<father->sons_size; ++i)
+                addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
+            unlockDB();
         }
     } 
     return db;
