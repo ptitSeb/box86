@@ -39,6 +39,8 @@ typedef struct sdl1image_my_s {
     pFpi_t      IMG_Load_RW;
 } sdl1image_my_t;
 
+static library_t* my_lib = NULL;
+
 static void* getSDL1ImageMy(library_t* lib)
 {
     sdl1image_my_t* my = (sdl1image_my_t*)calloc(1, sizeof(sdl1image_my_t));
@@ -67,7 +69,7 @@ static void* getSDL1ImageMy(library_t* lib)
 #define GO(A) \
 void EXPORT *my_##A(x86emu_t* emu, void* a) \
 { \
-    sdl1image_my_t *my = (sdl1image_my_t *)emu->context->sdl1imagelib->priv.w.p2; \
+    sdl1image_my_t *my = (sdl1image_my_t *)my_lib->priv.w.p2; \
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a); \
     void* r = my->A(rw); \
     RWNativeEnd(rw); \
@@ -92,7 +94,7 @@ GO(IMG_LoadXV_RW)
 
 void EXPORT *my_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
 {
-    sdl1image_my_t *my = (sdl1image_my_t *)emu->context->sdl1imagelib->priv.w.p2;
+    sdl1image_my_t *my = (sdl1image_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->IMG_LoadTyped_RW(rw, b, c);
     if(b==0)
@@ -101,7 +103,7 @@ void EXPORT *my_IMG_LoadTyped_RW(x86emu_t* emu, void* a, int32_t b, void* c)
 }
 void EXPORT *my_IMG_Load_RW(x86emu_t* emu, void* a, int32_t b)
 {
-    sdl1image_my_t *my = (sdl1image_my_t *)emu->context->sdl1imagelib->priv.w.p2;
+    sdl1image_my_t *my = (sdl1image_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->IMG_Load_RW(rw, b);
     if(b==0)
@@ -113,7 +115,7 @@ const char* sdl1imageName = "libSDL_image-1.2.so.0";
 #define LIBNAME sdl1image
 
 #define CUSTOM_INIT \
-    box86->sdl1imagelib = lib; \
+    my_lib = lib; \
     lib->priv.w.p2 = getSDL1ImageMy(lib);   \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
@@ -122,7 +124,7 @@ const char* sdl1imageName = "libSDL_image-1.2.so.0";
 
 #define CUSTOM_FINI \
     free(lib->priv.w.p2); \
-    ((box86context_t*)(lib->context))->sdl1imagelib = NULL;
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
 

@@ -617,7 +617,7 @@ EXPORT int my2_SDL_GetEventFilter(x86emu_t* emu, void** f, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     int ret = my->SDL_GetEventFilter(f, userdata);
-    if(*f) reverse_eventfilter_Fct(*f);
+    *f = reverse_eventfilter_Fct(*f);
     return ret;
 }
 

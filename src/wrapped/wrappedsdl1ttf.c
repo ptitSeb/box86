@@ -23,6 +23,8 @@ typedef struct sdl1ttf_my_s {
     pFpiii_t    TTF_OpenFontIndexRW;
 } sdl1ttf_my_t;
 
+static library_t* my_lib = NULL;
+
 static void* getSDL1TTFMy(library_t* lib)
 {
     sdl1ttf_my_t* my = (sdl1ttf_my_t*)calloc(1, sizeof(sdl1ttf_my_t));
@@ -35,7 +37,7 @@ static void* getSDL1TTFMy(library_t* lib)
 
 void EXPORT *my_TTF_OpenFontIndexRW(x86emu_t* emu, void* a, int32_t b, int32_t c, int32_t d)
 {
-    sdl1ttf_my_t *my = (sdl1ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
+    sdl1ttf_my_t *my = (sdl1ttf_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->TTF_OpenFontIndexRW(rw, b, c, d);
     if(b==0)
@@ -45,7 +47,7 @@ void EXPORT *my_TTF_OpenFontIndexRW(x86emu_t* emu, void* a, int32_t b, int32_t c
 
 void EXPORT *my_TTF_OpenFontRW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    sdl1ttf_my_t *my = (sdl1ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
+    sdl1ttf_my_t *my = (sdl1ttf_my_t *)my_lib->priv.w.p2;
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->TTF_OpenFontRW(rw, b, c);
     if(b==0)
@@ -57,12 +59,12 @@ const char* sdl1ttfName = "libSDL_ttf-2.0.so.0";
 #define LIBNAME sdl1ttf
 
 #define CUSTOM_INIT \
-    box86->sdl1ttflib = lib; \
+    my_lib = lib; \
     lib->priv.w.p2 = getSDL1TTFMy(lib);
 
 #define CUSTOM_FINI \
     free(lib->priv.w.p2); \
-    ((box86context_t*)(lib->context))->sdl1ttflib = NULL;
+    my_lib = NULL;
 
 #include "wrappedlib_init.h"
 

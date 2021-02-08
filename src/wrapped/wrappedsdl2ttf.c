@@ -37,7 +37,7 @@ static library_t* my_lib = NULL;
 
 void EXPORT *my2_TTF_OpenFontIndexRW(x86emu_t* emu, void* a, int32_t b, int32_t c, int32_t d)
 {
-    sdl2ttf_my_t *my = (sdl2ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
+    sdl2ttf_my_t *my = (sdl2ttf_my_t *)my_lib->priv.w.p2;
     SDL2_RWops_t* rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->TTF_OpenFontIndexRW(rw, b, c, d);
     if(b==0)
@@ -47,7 +47,7 @@ void EXPORT *my2_TTF_OpenFontIndexRW(x86emu_t* emu, void* a, int32_t b, int32_t 
 
 void EXPORT *my2_TTF_OpenFontRW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    sdl2ttf_my_t *my = (sdl2ttf_my_t *)emu->context->sdl1ttflib->priv.w.p2;
+    sdl2ttf_my_t *my = (sdl2ttf_my_t *)my_lib->priv.w.p2;
     SDL2_RWops_t* rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->TTF_OpenFontRW(rw, b, c);
     if(b==0)

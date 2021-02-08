@@ -145,6 +145,7 @@ SDL2_RWops_t* RWNativeStart2(x86emu_t* emu, SDL2_RWops_t* ops)
     SDL2_RWops_t* newrw = Alloc();
     newrw->type = BOX86RW;
     newrw->hidden.my.orig = ops;
+    newrw->hidden.my.custom_free = (sdl2_freerw)emu->context->sdl2freerw;
    
     // create wrapper
     #define GO(A, W) \

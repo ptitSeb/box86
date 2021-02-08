@@ -127,14 +127,10 @@ typedef struct box86context_s {
     void*               sdl1allocrw;
     void*               sdl1freerw;
     library_t           *sdl1mixerlib;
-    library_t           *sdl1imagelib;
-    library_t           *sdl1ttflib;
     library_t           *sdl2lib;       // shortcut to SDL2 library (if loaded)
     void*               sdl2allocrw;
     void*               sdl2freerw;
     library_t           *sdl2mixerlib;
-    library_t           *sdl2imagelib;
-    library_t           *sdl2ttflib;
     library_t           *x11lib;
     library_t           *libxcb;
     library_t           *libxcbxfixes;
