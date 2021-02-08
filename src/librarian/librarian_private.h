@@ -30,6 +30,7 @@ typedef struct lib_s {
     khash_t(mapsymbols)   *weaksymbols;
     khash_t(mapsymbols)   *localsymbols;
     khash_t(mapoffsets)   *mapoffsets;
+    khash_t(mapsymbols)   *globaldata;
     onelib_t              *libraries;
     int                   libsz;
     int                   libcap;

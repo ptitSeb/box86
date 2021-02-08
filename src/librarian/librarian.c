@@ -25,6 +25,7 @@ lib_t *NewLibrarian(box86context_t* context, int ownlibs)
     maplib->weaksymbols = kh_init(mapsymbols);
     maplib->localsymbols = kh_init(mapsymbols);
     maplib->mapoffsets = kh_init(mapoffsets);
+    maplib->globaldata = kh_init(mapsymbols);
     maplib->bridge = NewBridge();
 
     maplib->context = context;
@@ -61,6 +62,9 @@ void FreeLibrarian(lib_t **maplib)
     if((*maplib)->mapoffsets) {
         kh_destroy(mapoffsets, (*maplib)->mapoffsets);
     }
+    if((*maplib)->globaldata) {
+        kh_destroy(mapsymbols, (*maplib)->globaldata);
+    }
     (*maplib)->libsz = (*maplib)->libcap = 0;
 
     if((*maplib)->bridge)
@@ -89,6 +93,11 @@ kh_mapsymbols_t* GetWeakSymbol(lib_t* maplib)
 kh_mapsymbols_t* GetLocalSymbol(lib_t* maplib)
 {
     return maplib->localsymbols;
+}
+
+kh_mapsymbols_t* GetGlobalData(lib_t* maplib)
+{
+    return maplib->globaldata;
 }
 
 library_t* getLib(lib_t* maplib, const char* path)
@@ -506,7 +515,7 @@ void AddWeakSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t addr
 {
     int ret;
     khint_t k = kh_put(mapsymbols, mapsymbols, name, &ret);
-    if(ret==1)
+    if(ret==0)
         return; // Symbol already there, don't touch it
     kh_value(mapsymbols, k).offs = addr;
     kh_value(mapsymbols, k).sz = sz;

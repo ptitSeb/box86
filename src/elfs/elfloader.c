@@ -421,15 +421,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
-                    printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
-                    memmove(globp, (void*)offs, sym->st_size);
-                    if(LOG_DUMP<=box86_log) {
-                        uint32_t*k = (uint32_t*)globp;
-                        for (int i=0; i<((sym->st_size>128)?128:sym->st_size); i+=4, ++k)
-                            printf_log(LOG_DUMP, "%s0x%08X", i?" ":"", *k);
-                        printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128)?" ...":"");
-                    }
+                    printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
                     *p = globoffs;
+                    AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
                     if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
@@ -439,11 +433,32 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
-    //                    return -1;
                     } else {
                         printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT @%p (%p -> %p) on sym=%s\n", (bind==STB_LOCAL)?"Local":"Global", p, (void*)(p?(*p):0), (void*)offs, symname);
                         *p = offs;
                     }
+                }
+                break;
+            case R_386_COPY:
+                if(offs) {
+                    offs = 0;
+                    GetSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end); // try globaldata symbols first
+                    if(offs==0) {
+                        if(local_maplib)
+                            GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
+                        if(!offs)
+                            GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
+                    }
+                    printf_log(LOG_DUMP, "Apply %s R_386_COPY @%p with sym=%s, @%p size=%d (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
+                    memmove(p, (void*)offs, sym->st_size);
+                    if(LOG_DUMP<=box86_log) {
+                        uint32_t*k = (uint32_t*)p;
+                        for (int i=0; i<((sym->st_size>128)?128:sym->st_size); i+=4, ++k)
+                            printf_log(LOG_DUMP, "%s0x%08X", i?" ":"", *k);
+                        printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128)?" ...":"");
+                    }
+                } else {
+                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
                 break;
             case R_386_RELATIVE:
@@ -526,29 +541,6 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 } else {
                     printf_log(LOG_DUMP, "Preparing (if needed) %s R_386_JMP_SLOT @%p (0x%x->0x%0x) with sym=%s to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname);
                     *p += head->delta;
-                }
-                break;
-            case R_386_COPY:
-                if(offs) {
-                    if(*p==0) {
-                        offs = 0;
-                        if(local_maplib)
-                            GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
-                        if(!offs)
-                            GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
-                        printf_log(LOG_DUMP, "Apply %s R_386_COPY @%p with sym=%s, @%p size=%d (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
-                        memmove(p, (void*)offs, sym->st_size);
-                        if(LOG_DUMP<=box86_log) {
-                            uint32_t*k = (uint32_t*)p;
-                            for (int i=0; i<((sym->st_size>128)?128:sym->st_size); i+=4, ++k)
-                                printf_log(LOG_DUMP, "%s0x%08X", i?" ":"", *k);
-                            printf_log(LOG_DUMP, "%s)\n", (sym->st_size>128)?" ...":"");
-                        }
-                    } else {
-                        printf_log(LOG_DUMP, "Already applied %s R_386_COPY @%p with sym=%s, @%p size=%d\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
-                    }
-                } else {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
                 break;
             default:
