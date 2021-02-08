@@ -1144,7 +1144,7 @@ GOW(mount, iFpppup)
 GOM(mprotect, iFEpLi)
 // mrand48
 // mrand48_r
-GOW(mremap, pFpuuip)	// 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED // does this need some GOM for protection handling?
+GOM(mremap, pFEpLLiN)	// Weak, 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
 GO(msgctl, iFiip)
 GOW(msgget, iFpi)
 GOW(msgrcv, lFipLli)

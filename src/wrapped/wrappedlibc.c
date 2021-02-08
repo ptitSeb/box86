@@ -2339,6 +2339,54 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     return ret;
 }
 
+EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
+{
+    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
+    void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
+    if(ret==(void*)-1)
+        return ret; // failed...
+    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_DYNAREC;
+    if(ret==old_addr) {
+        if(old_size && old_size<new_size) {
+            setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
+            #ifdef DYNAREC
+            if(box86_dynarec)
+                addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
+            #endif
+        } else if(old_size && new_size<old_size) {
+            setProtection((uintptr_t)ret+new_size, old_size-new_size, 0);
+            #ifdef DYNAREC
+            if(box86_dynarec)
+                cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
+            #endif
+        } else if(!old_size) {
+            setProtection((uintptr_t)ret, new_size, prot);
+            #ifdef DYNAREC
+            if(box86_dynarec)
+                addDBFromAddressRange((uintptr_t)ret, new_size);
+            #endif
+        }
+    } else {
+        if(old_size
+        #ifdef MREMAP_DONTUNMAP
+        && flags&MREMAP_DONTUNMAP==0
+        #endif
+        ) {
+            setProtection((uintptr_t)old_addr, old_size, 0);
+            #ifdef DYNAREC
+            if(box86_dynarec)
+                cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
+            #endif
+        }
+        setProtection((uintptr_t)ret, new_size, prot); // should copy the protection from old block
+        #ifdef DYNAREC
+        if(box86_dynarec)
+            addDBFromAddressRange((uintptr_t)ret, new_size);
+        #endif
+    }
+    return ret;
+}
+
 EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 {
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
