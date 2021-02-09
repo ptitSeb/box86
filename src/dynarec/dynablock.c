@@ -210,10 +210,12 @@ void MarkRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
     if(!dynablocks)
         return;
     if(dynablocks->direct) {
-        MarkDirectDynablock(dynablocks, addr, size);
+        uintptr_t new_addr = addr - dynablocks->maxsz;
+        uintptr_t new_size = size + dynablocks->maxsz;
+        MarkDirectDynablock(dynablocks, new_addr, new_size);
         // the blocks check before
-        for(int idx=(addr-dynablocks->maxsz)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
-            MarkDirectDynablock(getDB(idx), addr, size);
+        for(int idx=(new_addr)>>DYNAMAP_SHIFT; idx<(addr>>DYNAMAP_SHIFT); ++idx)
+            MarkDirectDynablock(getDB(idx), new_addr, new_size);
     }
 }
 
