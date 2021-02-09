@@ -2304,7 +2304,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
             if(prot& PROT_EXEC)
                 addDBFromAddressRange((uintptr_t)ret, length);
             else
-                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
         }
     } 
     #endif
@@ -2330,7 +2330,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             if(prot& PROT_EXEC)
                 addDBFromAddressRange((uintptr_t)ret, length);
             else
-                cleanDBFromAddressRange((uintptr_t)ret, length, 0);
+                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
         }
     }
     #endif

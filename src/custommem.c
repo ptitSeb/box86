@@ -452,7 +452,7 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!dynmap[i]) {
-            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 1);
+            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
         }
     }
 }
