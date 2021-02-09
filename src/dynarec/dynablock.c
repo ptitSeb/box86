@@ -151,8 +151,7 @@ void MarkDirectDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t 
         return;
     uintptr_t startdb = dynablocks->text;
     uintptr_t enddb = startdb + dynablocks->textsz -1;
-    int maxsz = dynablocks->maxsz;
-    uintptr_t start = addr - maxsz;
+    uintptr_t start = addr;
     uintptr_t end = addr+size-1;
     if(start<startdb)
         start = startdb;

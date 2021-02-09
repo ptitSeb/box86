@@ -460,21 +460,15 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
 {
     dynarec_log(LOG_DEBUG, "cleanDBFromAddressRange %p -> %p %s\n", (void*)addr, (void*)(addr+size-1), destroy?"destroy":"mark");
-    uintptr_t idx = (addr>box86_dynarec_largest && !destroy)?((addr-box86_dynarec_largest)>>DYNAMAP_SHIFT):(addr>>DYNAMAP_SHIFT);
+    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         dynablocklist_t* dblist = dynmap[i];
         if(dblist) {
-            uintptr_t startdb = StartDynablockList(dblist);
-            uintptr_t enddb = EndDynablockList(dblist);
-            uintptr_t startaddr = addr;
-            if(startaddr<startdb) startaddr = startdb;
-            uintptr_t endaddr = addr + size - 1;
-            if(endaddr>enddb) endaddr = enddb;
             if(destroy)
-                FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
+                FreeRangeDynablock(dblist, addr, size);
             else
-                MarkRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
+                MarkRangeDynablock(dblist, addr, size);
         }
     }
 }
