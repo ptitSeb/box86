@@ -1909,7 +1909,11 @@ GOM(vfork, iFEv) // Weak
 // __vfork
 GOM(vfprintf, iFEppp)
 GOM(__vfprintf_chk, iFEpvpp)
+#ifdef POWERPCLE
 GOM(vfscanf, iFEppp)  // Weak
+#else
+GOW(vfscanf, iFppp)  // Weak
+#endif
 // __vfscanf
 GOM(vfwprintf, iFEppp)    // Weak
 GO2(__vfwprintf_chk, iFEpvpp, my_vfwprintf)
