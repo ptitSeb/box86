@@ -54,9 +54,9 @@ GO(pthread_barrier_destroy, iFp)
 GO(pthread_barrier_init, iFppu)
 GO(pthread_barrier_wait, iFp)
 GO(pthread_cancel, iFi)
-// _pthread_cleanup_pop
+GOM(_pthread_cleanup_pop, vFEpi)
 GOM(_pthread_cleanup_pop_restore, vFEpi)
-// _pthread_cleanup_push
+GOM(_pthread_cleanup_push, vFEppp)
 GOM(_pthread_cleanup_push_defer, vFEppp)
 // __pthread_cleanup_routine
 GO(pthread_condattr_destroy, iFp)

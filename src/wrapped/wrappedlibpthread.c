@@ -35,6 +35,8 @@ int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex);
 int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind);
 int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope);
 void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg);
+void my__pthread_cleanup_push(x86emu_t* emu, void* buffer, void* routine, void* arg);
+void my__pthread_cleanup_pop(x86emu_t* emu, void* buffer, int exec);
 void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec);
 int my_pthread_kill(x86emu_t* emu, void* thread, int sig);
 int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset);

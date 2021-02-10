@@ -609,9 +609,19 @@ EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* ro
 	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
+EXPORT void my__pthread_cleanup_push(x86emu_t* emu, void* buffer, void* routine, void* arg)
+{
+	_pthread_cleanup_push(buffer, findcleanup_routineFct(routine), arg);
+}
+
 EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec)
 {
 	_pthread_cleanup_pop_restore(buffer, exec);
+}
+
+EXPORT void my__pthread_cleanup_pop(x86emu_t* emu, void* buffer, int exec)
+{
+	_pthread_cleanup_pop(buffer, exec);
 }
 
 // getaffinity_np (pthread or attr) hav an "old" version (glibc-2.3.3) that only have 2 args, cpusetsize is omited
