@@ -1,9 +1,18 @@
 Current version
 ======
+* Reworked some elfloader relocation mecanism
+* Removed old "smart linker" and replace with a simple "jump table"
+* Also removed CALL/RET optomisation from Dynarec, simple Jump Table is faster
+* Reworked all memory protection tracking
+* A few more wrapped libs and wrapped functions
+* A few more opcodes
+* A few more dynarec opcodes
+* Some optimisation in Dynarec around ZF and CF flags handlings, and LL/GE/LE/G conditionnal opcodes
+* Some changes to the "cancel threads" handling
 
 v0.2.0
 ======
-* Improvements on x87 Flags handling.
+* Improvements on x86 Flags handling.
 * A few more opcode has been added.
 * A few potential BusError are now fixed.
 * Added the BOX86_NOVULKAN en. var. . This is used to disable the wrapping of vulkan libraries.
