@@ -29,6 +29,8 @@
 
 void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop_restore(void* buffer, int exec);
+void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+void _pthread_cleanup_pop(void* buffer, int exec);
 
 typedef struct threadstack_s {
 	void* 	stack;
