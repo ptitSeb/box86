@@ -417,7 +417,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     *p += offs;
                 break;
             case R_386_GLOB_DAT:
-                if(!IsGlobalNoWeakSymbolInNative(maplib, symname) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp)) {
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
