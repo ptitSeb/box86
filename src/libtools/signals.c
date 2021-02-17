@@ -400,7 +400,7 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
 }
 #endif
 
-void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code)
+void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
@@ -413,7 +413,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
 #if defined(DYNAREC) && defined(__arm__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
-    dynablock_t* db = FindDynablockFromNativeAddress(pc);
+    dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
         frame = (uint32_t*)p->uc_mcontext.arm_r8;
     }
@@ -606,22 +606,24 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
 #ifdef DYNAREC
     uint32_t prot = getProtection((uintptr_t)addr);
+    dynablock_t* db = NULL;
+    int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         if(box86_dynarec_smc) {
             dynablock_t* db_pc = NULL;
-            dynablock_t* db_addr = NULL;
             db_pc = FindDynablockFromNativeAddress(pc);
-            if(db_pc)
-                db_addr = FindDynablockFromNativeAddress(addr);
-            if(db_pc && db_addr) {
-                if (db_pc == db_addr) {
+            if(db_pc) {
+                db = FindDynablockFromNativeAddress(addr);
+                db_searched = 1;
+            }
+            if(db_pc && db) {
+                if (db_pc == db) {
                     dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside same dynablock\n", addr, pc);            
                 }
             }
-        }
-        dynablock_t* db = FindDynablockFromNativeAddress(pc);
-        if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
-            dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
+            if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
+                dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
+            }
         }
         dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, prot);
         // access error, unprotect the block (and mark them dirty)
@@ -630,7 +632,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // done
         if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
-        dynablock_t* db = FindDynablockFromNativeAddress(pc);
+        db = FindDynablockFromNativeAddress(pc);
+        db_searched = 1;
         if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
@@ -640,6 +643,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return; // try again
         }
     }
+#else
+    void* db = NULL;
 #endif
     static int old_code = -1;
     static void* old_pc = 0;
@@ -650,7 +655,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 exit(-1);
     } else {
 #ifdef DYNAREC
-        dynablock_t* db = FindDynablockFromNativeAddress(pc);
+        if(!db_searched)
+            db = FindDynablockFromNativeAddress(pc);
 #endif
         old_code = info->si_code;
         old_pc = pc;
@@ -681,7 +687,7 @@ exit(-1);
             if(v) {
                 // parent process, the one that have the segfault
                 volatile int waiting = 1;
-                printf_log(LOG_NONE, "Waiting for %s (pid %d)...\n", (jit_gdb==2)?"gdbserver":"gdb", pid);
+                printf("Waiting for %s (pid %d)...\n", (jit_gdb==2)?"gdbserver":"gdb", pid);
                 while(waiting) {
                     // using gdb, use "set waiting=0" to stop waiting...
                     usleep(1000);
@@ -717,7 +723,7 @@ exit(-1);
     }
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
         if(my_context->is_sigaction[sig])
-            my_sigactionhandler_oldcode(sig, info, ucntx, &old_code);
+            my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);
         else
             my_sighandler(sig);
         return;
@@ -730,7 +736,15 @@ exit(-1);
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
-    my_sigactionhandler_oldcode(sig, info, ucntx, NULL);
+    #ifdef DYNAREC
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void * pc = (void*)p->uc_mcontext.arm_pc;
+    dynablock_t* db = FindDynablockFromNativeAddress(pc);
+    #else
+    void* db = NULL;
+    #endif
+
+    my_sigactionhandler_oldcode(sig, info, ucntx, NULL, db);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)

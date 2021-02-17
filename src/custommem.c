@@ -280,6 +280,7 @@ typedef struct mmaplist_s {
     int                 maxfree;
     size_t              size;
     kh_dynablocks_t*    dblist;
+    uint8_t*            helper;
 } mmaplist_t;
 
 uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
@@ -301,8 +302,10 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
                 }
                 khint_t k;
                 int r;
-                k = kh_put(dynablocks, blocks, (uintptr_t)db, &r);
+                k = kh_put(dynablocks, blocks, (uintptr_t)ret, &r);
                 kh_value(blocks, k) = db;
+                for(int j=0; j<size; ++j)
+                    mmaplist[i].helper[(uintptr_t)ret-(uintptr_t)mmaplist[i].block+j] = (j<256)?j:255;
                 return ret;
             }
         }
@@ -326,6 +329,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
 
     mmaplist[i].block = p;
     mmaplist[i].size = MMAPSIZE;
+    mmaplist[i].helper = (uint8_t*)calloc(1, MMAPSIZE);
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
     m->prev.x32 = 0;
@@ -342,8 +346,10 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     kh_resize(dynablocks, blocks, 64);
     khint_t k;
     int ret;
-    k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+    k = kh_put(dynablocks, blocks, (uintptr_t)sub, &ret);
     kh_value(blocks, k) = db;
+    for(int j=0; j<size; ++j)
+        mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block + j] = (j<256)?j:255;
     return sub;
 }
 
@@ -359,9 +365,11 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
             mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size);
             kh_dynablocks_t *blocks = mmaplist[i].dblist;
             if(blocks) {
-                khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
+                khint_t k = kh_get(dynablocks, blocks, (uintptr_t)sub);
                 if(k!=kh_end(blocks))
                     kh_del(dynablocks, blocks, k);
+                for(int j=0; j<size; ++j)
+                    mmaplist[i].helper[(uintptr_t)sub-(uintptr_t)mmaplist[i].block+j] = 0;
             }
             return;
         }
@@ -376,7 +384,16 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     for(int i=0; i<mmapsize; ++i) {
         if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
         && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size))
-            return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
+            if(!mmaplist[i].helper)
+                return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
+            else {
+                uintptr_t p = (uintptr_t)addr - (uintptr_t)mmaplist[i].block;
+                while(mmaplist[i].helper[p]) p -= mmaplist[i].helper[p];
+                khint_t k = kh_get(dynablocks, mmaplist[i].dblist, (uintptr_t)mmaplist[i].block + p);
+                if(k!=kh_end(mmaplist[i].dblist))
+                    return kh_value(mmaplist[i].dblist, k);
+                return NULL;
+            }
     }
     // look in oversized
     return FindDynablockDynablocklist(addr, dblist_oversized);
@@ -401,7 +418,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         }
         khint_t k;
         int ret;
-        k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
+        k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
         kh_value(blocks, k) = db;
         return (uintptr_t)p;
     }
@@ -427,7 +444,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
         free((void*)addr);
         kh_dynablocks_t *blocks = dblist_oversized;
         if(blocks) {
-            khint_t k = kh_get(dynablocks, blocks, (uintptr_t)db);
+            khint_t k = kh_get(dynablocks, blocks, addr);
             if(k!=kh_end(blocks))
                 kh_del(dynablocks, blocks, k);
         }
@@ -648,6 +665,10 @@ void fini_custommem_helper(box86context_t *ctx)
         if(mmaplist[i].dblist) {
             kh_destroy(dynablocks, mmaplist[i].dblist);
             mmaplist[i].dblist = NULL;
+        }
+        if(mmaplist[i].helper) {
+            free(mmaplist[i].helper);
+            mmaplist[i].helper = NULL;
         }
     }
     if(dblist_oversized) {

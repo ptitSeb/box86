@@ -225,8 +225,8 @@ dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
         return NULL;
     dynablock_t* db;
     kh_foreach_value(dynablocks, db, 
-        uintptr_t s = (uintptr_t)db->block;
-        uintptr_t e = (uintptr_t)db->block+db->size;
+        const uintptr_t s = (uintptr_t)db->block;
+        const uintptr_t e = (uintptr_t)db->block+db->size;
         if((uintptr_t)addr>=s && (uintptr_t)addr<e)
             return db->father?db->father:db;
     )
