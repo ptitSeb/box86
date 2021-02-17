@@ -441,6 +441,8 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 break;
             case R_386_COPY:
                 if(offs) {
+                    uintptr_t old_offs = offs;
+                    uintptr_t old_end = end;
                     offs = 0;
                     GetSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end); // try globaldata symbols first
                     if(offs==0) {
@@ -448,6 +450,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                             GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head);
                         if(!offs)
                             GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head);   // get original copy if any
+                    }
+                    if(!offs) {
+                        offs = old_offs;
+                        end = old_end;
                     }
                     printf_log(LOG_DUMP, "Apply %s R_386_COPY @%p with sym=%s, @%p size=%d (", (bind==STB_LOCAL)?"Local":"Global", p, symname, (void*)offs, sym->st_size);
                     memmove(p, (void*)offs, sym->st_size);
@@ -725,7 +731,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int vis = h->SymTab[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
-            if((bind==10/*STB_GNU_UNIQUE*/ || bind==STB_GLOBAL) && FindGlobalSymbol(maplib, symname))
+            if((bind==10/*STB_GNU_UNIQUE*/ || (bind==STB_GLOBAL && type==STT_FUNC)) && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
             uint32_t sz = h->SymTab[i].st_size;
@@ -750,7 +756,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         //st_shndx==65521 means ABS value
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-            if((bind==10/*STB_GNU_UNIQUE*/ || bind==STB_GLOBAL) && FindGlobalSymbol(maplib, symname))
+            if((bind==10/*STB_GNU_UNIQUE*/ || (bind==STB_GLOBAL && type==STT_FUNC)) && FindGlobalSymbol(maplib, symname))
                 continue;
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             uint32_t sz = h->DynSym[i].st_size;
