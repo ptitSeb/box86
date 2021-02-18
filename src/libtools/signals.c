@@ -747,6 +747,19 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     my_sigactionhandler_oldcode(sig, info, ucntx, NULL, db);
 }
 
+void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
+{
+    ucontext_t ctx = {0};
+    void* db = NULL;
+    siginfo_t info = {0};
+    info.si_signo = sig;
+    info.si_errno = 0;
+    info.si_code = code;
+    info.si_addr = addr;
+    printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_EIP, addr, code);
+    my_sigactionhandler_oldcode(sig, &info, &ctx, NULL, db);
+}
+
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 {
     if(signum<0 || signum>=MAX_SIGNAL)

@@ -29,7 +29,12 @@
             NEXT;
 
         _0f_0x0B:                      /* UD2 */
-            kill(getpid(), SIGILL);              // this is undefined instruction
+            emu->old_ip = R_EIP;
+            R_EIP = ip-2;
+            emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+            ip = R_EIP;
+            if(emu->quit) goto fini;
+            STEP;
             NEXT;
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
@@ -243,6 +248,15 @@
                 default:
                     goto _default;
             }
+            NEXT;
+
+        _0f_0x3F:
+            emu->old_ip = R_EIP;
+            R_EIP = ip-2;
+            emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+            ip = R_EIP;
+            if(emu->quit) goto fini;
+            STEP;
             NEXT;
             
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \

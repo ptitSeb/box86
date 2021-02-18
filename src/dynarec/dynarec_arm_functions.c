@@ -21,6 +21,7 @@
 #include "emu/x86run_private.h"
 #include "emu/x87emu_private.h"
 #include "x86trace.h"
+#include "signals.h"
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
@@ -138,7 +139,7 @@ void arm_fld(x86emu_t* emu, uint8_t* ed)
 
 void arm_ud(x86emu_t* emu)
 {
-    kill(getpid(), SIGILL);
+    emit_signal(emu, SIGILL, R_EIP, 0);
 }
 
 void arm_fsave(x86emu_t* emu, uint8_t* ed)

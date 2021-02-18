@@ -37,4 +37,6 @@ int my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_restorer
 void init_signal_helper(box86context_t* context);
 void fini_signal_helper();
 
+void emit_signal(x86emu_t* emu, int sig, void* addr, int code);
+
 #endif //__SIGNALS_H__
