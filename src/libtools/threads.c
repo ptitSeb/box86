@@ -558,6 +558,7 @@ static void del_cond(void* cond)
 	}
 	pthread_mutex_unlock(&my_context->mutex_thread);
 }
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
 {
@@ -584,12 +585,12 @@ EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
 EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
 	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_timedwait(c, (pthread_mutex_t*)mutex, (const struct timespec*)abstime);
+	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
 EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
 {
 	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_wait(c, (pthread_mutex_t*)mutex);
+	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
 EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)
