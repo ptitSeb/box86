@@ -820,12 +820,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STREX(x3, x14, wback);
                         CMPS_IMM8(x3, 0);
                         B_MARKLOCK(cNE);
-                        IFX(X_ALL|X_PEND) {
-                            MOV_REG(x2, x1);
-                            emit_add32(dyn, ninst, x2, gd, x3, x14);
-                        }
-                        MOV_REG(gd, x1);
-                        B_NEXT(c__);
+                        B_MARK2(c__);
                         MARK;
                         LDR_IMM9(x1, wback, 0);
                         LDREXB(x14, wback);
@@ -835,6 +830,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         CMPS_IMM8(x3, 0);
                         B_MARK(cNE);
                         STR_IMM9(x14, wback, 0);
+                        MARK2;
                         IFX(X_ALL|X_PEND) {
                             MOV_REG(x2, x1);
                             emit_add32(dyn, ninst, x2, gd, x3, x14);
@@ -919,13 +915,13 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     break;
                 default:
-                    // dafault to NO LOCK
+                    // default to NO LOCK
                     addr-=2;
             }
             break;
        
         default:
-            // dafault to NO LOCK
+            // default to NO LOCK
             --addr;
     }
 
