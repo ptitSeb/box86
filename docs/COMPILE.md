@@ -12,7 +12,7 @@ Compiling
 
 `mkdir build; cd build; cmake .. -DGAMESHELL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
 
-#### for RaspberryPI
+#### for Raspberry Pi
 
   _a build for model 2, 3 and 4 can be done. Model 1 and 0 cannot (at least not with Dynarec, as they lack NEON support)_
  
@@ -29,7 +29,7 @@ sudo systemctl restart systemd-binfmt
 
 #### for ODROID
 
-`mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
+`mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
 
 #### for RK3399
 
@@ -39,11 +39,11 @@ As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environme
 
 #### for Other ARM Linux platforms
 
- `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
+ `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
 
 #### for x86 Linux
 
- `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
+ `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
 
 #### use ccmake
 
