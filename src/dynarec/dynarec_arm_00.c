@@ -2009,7 +2009,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 #endif
             }
             #if STEP == 0
-            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F)))
+            if (i32==0)
                 tmp = 1;
             else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
                 tmp = 2;
@@ -2018,7 +2018,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             else 
                 tmp = 0;
             #elif STEP < 2
-            if ((i32==0) && ((PK(0)>=0x58) && (PK(0)<=0x5F)))
+            if (i32==0)
                 tmp = dyn->insts[ninst].pass2choice = 1;
             else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
                 tmp = dyn->insts[ninst].pass2choice = 2;
@@ -2032,13 +2032,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch(tmp) {
                 case 1:
                     //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    MESSAGE(LOG_DUMP, "Hack for Call 0, Pop reg\n");
-                    u8 = F8;
-                    gd = xEAX+(u8&7);
-                    MOV32(gd, addr-1);
+                    MESSAGE(LOG_DUMP, "Hack for Call 0\n");
+                    MOV32(xEIP, addr);
+                    PUSH1(xEIP);
                     break;
                 case 2:
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
                     u8 = PK(i32+1);
                     gd = xEAX+((u8&0x38)>>3);
