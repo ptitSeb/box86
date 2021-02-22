@@ -596,6 +596,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOV_64(d0, v0);
                 }
             s0 = d0*2;
+            u8 = F8;
             if((u8&7)==6){
                 VCMP_F32(s1, s0);
             } else {
@@ -603,7 +604,6 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             VMRS_APSR();
             MOVW(x2, 0);
-            u8 = F8;
             switch(u8&7) {
                 case 0: MVN_COND_REG_LSL_IMM5(cEQ, x2, x2, 0); break;   // Equal
                 case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); break;   // Less than
