@@ -253,9 +253,9 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOV_REG(xEIP, reg);
         }
         MOV32(x2, getJumpTable());
-        MOV_REG_LSR_IMM5(x3, xEIP, DYNAMAP_SHIFT);
+        MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        UBFX(x3, xEIP, 0, DYNAMAP_SHIFT);
+        UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
     } else {
         uintptr_t p = getJumpTableAddress(ip); 
@@ -278,9 +278,9 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         MESSAGE(LOG_DUMP, "Ret next\n");
         POP1(xEIP);
         MOV32(x2, getJumpTable());
-        MOV_REG_LSR_IMM5(x3, xEIP, DYNAMAP_SHIFT);
+        MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        UBFX(x3, xEIP, 0, DYNAMAP_SHIFT);
+        UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         MOV_REG(x1, xEIP);
         BX(x2);
@@ -328,9 +328,9 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
             ADD_IMM8(xESP, xESP, n);
         }
         MOV32(x2, getJumpTable());
-        MOV_REG_LSR_IMM5(x3, xEIP, DYNAMAP_SHIFT);
+        MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        UBFX(x3, xEIP, 0, DYNAMAP_SHIFT);
+        UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         MOV_REG(x1, xEIP);
         BX(x2);

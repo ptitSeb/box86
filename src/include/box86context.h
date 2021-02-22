@@ -28,8 +28,10 @@ typedef struct dynablocklist_s  dynablocklist_t;
 typedef struct mmaplist_s       mmaplist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #endif
-#define DYNAMAP_SIZE (1<<20)
-#define DYNAMAP_SHIFT 12
+#define DYNAMAP_SHIFT 16
+#define DYNAMAP_SIZE (1<<(32-DYNAMAP_SHIFT))
+#define JMPTABL_SHIFT 16
+#define JMPTABL_SIZE (1<<(32-JMPTABL_SHIFT))
 
 typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);

@@ -26,19 +26,23 @@
 #include "dynarec/arm_lock_helper.h"
 #include "khash.h"
 
+#define USE_MMAP
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
-static dynablocklist_t**   dynmap;     // 4G of memory mapped by 4K block
+static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
 static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist;
 static int                 mmapsize;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
-static uintptr_t           **box86_jumptable = NULL;
-static uintptr_t           *box86_jmptbl_default = NULL;
+static uintptr_t           *box86_jumptable[JMPTABL_SIZE];
+static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
 #endif
+#define MEMPROT_SHIFT 12
+#define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
 static pthread_mutex_t     mutex_prot;
-static uint32_t*           memprot;    // protection flags by 4K block
+static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
+static int inited = 0;
 
 typedef struct blocklist_s {
     void*               block;
@@ -200,7 +204,12 @@ void* customMalloc(size_t size)
     size_t allocsize = MMAPSIZE;
     if(size+2*sizeof(blockmark_t)>allocsize)
         allocsize = size+2*sizeof(blockmark_t);
+    #ifdef USE_MMAP
+    void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    memset(p, 0, allocsize);
+    #else
     void* p = calloc(1, allocsize);
+    #endif
     p_blocks[i].block = p;
     p_blocks[i].size = allocsize;
     // setup marks
@@ -318,6 +327,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     int i = mmapsize++;    // yeah, useful post incrementation
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%d\n", mmapsize);
     mmaplist = (mmaplist_t*)realloc(mmaplist, mmapsize*sizeof(mmaplist_t));
+    #ifndef USE_MMAP
     void *p = NULL;
     if(posix_memalign(&p, box86_pagesize, MMAPSIZE)) {
         dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
@@ -325,6 +335,14 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
         return 0;
     }
     mprotect(p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    #else
+    void* p = mmap(NULL, MMAPSIZE, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if(p==(void*)-1) {
+        dynarec_log(LOG_INFO, "Cannot create memory map of %d byte for dynarec block #%d\n", MMAPSIZE, i);
+        --mmapsize;
+        return 0;
+    }
+    #endif
     setProtection((uintptr_t)p, MMAPSIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
 
     mmaplist[i].block = p;
@@ -404,12 +422,20 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
     if(!size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        #ifndef USE_MMAP
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
         mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+        #else
+        void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+        if(p==(void*)-1) {
+            dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
+            return 0;
+        }
+        #endif
         setProtection((uintptr_t)p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
         kh_dynablocks_t *blocks = dblist_oversized;
         if(!blocks) {
@@ -441,7 +467,11 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
 {
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        #ifndef USE_MMAP
         free((void*)addr);
+        #else
+        munmap((void*)addr, size);
+        #endif
         kh_dynablocks_t *blocks = dblist_oversized;
         if(blocks) {
             khint_t k = kh_get(dynablocks, blocks, addr);
@@ -496,24 +526,24 @@ void arm_next(void);
 
 void addJumpTableIfDefault(void* addr, void* jmp)
 {
-    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm_next;
         box86_jumptable[idx] = tbl;
     }
-    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     if(box86_jumptable[idx][off]==(uintptr_t)arm_next)
         box86_jumptable[idx][off] = (uintptr_t)jmp;
 }
 void setJumpTableDefault(void* addr)
 {
-    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
         return;
     }
-    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     box86_jumptable[idx][off] = (uintptr_t)arm_next;
 }
 uintptr_t getJumpTable()
@@ -523,14 +553,14 @@ uintptr_t getJumpTable()
 
 uintptr_t getJumpTableAddress(uintptr_t addr)
 {
-    const uintptr_t idx = ((uintptr_t)addr>>DYNAMAP_SHIFT);
+    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
-        for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm_next;
         box86_jumptable[idx] = tbl;
     }
-    const uintptr_t off = (uintptr_t)addr&((1<<DYNAMAP_SHIFT)-1);
+    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     return (uintptr_t)&box86_jumptable[idx][off];
 }
 
@@ -539,8 +569,8 @@ uintptr_t getJumpTableAddress(uintptr_t addr)
 void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
@@ -548,7 +578,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
             prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
         memprot[i] = prot|PROT_DYNAREC;
         if(!(prot&PROT_DYNAREC))
-            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
     }
     pthread_mutex_unlock(&mutex_prot);
 }
@@ -556,15 +586,15 @@ void protectDB(uintptr_t addr, uintptr_t size)
 void protectDBnolock(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         if(!prot)
             prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
         memprot[i] = prot|PROT_DYNAREC;
         if(!(prot&PROT_DYNAREC))
-            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
     }
 }
 
@@ -583,15 +613,15 @@ void unlockDB()
 void unprotectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         memprot[i] = prot&~PROT_DYNAREC;
         if(prot&PROT_DYNAREC) {
-            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_DYNAREC);
-            cleanDBFromAddressRange((i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, 0);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+            cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         }
     }
     pthread_mutex_unlock(&mutex_prot);
@@ -601,13 +631,13 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    const uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t dyn=(memprot[i]&PROT_DYNAREC);
         if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
-            mprotect((void*)(i<<DYNAMAP_SHIFT), 1<<DYNAMAP_SHIFT, prot&~PROT_WRITE);
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         memprot[i] = prot|dyn;
     }
     pthread_mutex_unlock(&mutex_prot);
@@ -615,8 +645,8 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
-    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
-    const uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         memprot[i] = prot;
@@ -626,7 +656,7 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 uint32_t getProtection(uintptr_t addr)
 {
-    const uintptr_t idx = (addr>>DYNAMAP_SHIFT);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     pthread_mutex_lock(&mutex_prot);
     uint32_t ret = memprot[idx];
     pthread_mutex_unlock(&mutex_prot);
@@ -635,19 +665,16 @@ uint32_t getProtection(uintptr_t addr)
 
 void init_custommem_helper(box86context_t* ctx)
 {
-    memprot = (uint32_t*)calloc(DYNAMAP_SIZE, sizeof(uint32_t));
+    if(inited) // already initialized
+        return;
+    inited = 1;
     pthread_mutex_init(&mutex_prot, NULL);
 #ifdef DYNAREC
-    if(dynmap) // already initialized
-        return;
     pthread_mutex_init(&mutex_mmap, NULL);
-    dynmap = (dynablocklist_t**)calloc(DYNAMAP_SIZE, sizeof(dynablocklist_t*));
 #ifdef ARM
-    box86_jmptbl_default = (uintptr_t*)malloc((1<<DYNAMAP_SHIFT)*sizeof(uintptr_t));
-    for(int i=0; i<(1<<DYNAMAP_SHIFT); ++i)
+    for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
         box86_jmptbl_default[i] = (uintptr_t)arm_next;
-    box86_jumptable = (uintptr_t**)malloc(DYNAMAP_SIZE*sizeof(uintptr_t*));
-    for(int i=0; i<DYNAMAP_SIZE; ++i)
+    for(int i=0; i<JMPTABL_SIZE; ++i)
         box86_jumptable[i] = box86_jmptbl_default;
 #else
 #error Unsupported architecture!
@@ -657,11 +684,18 @@ void init_custommem_helper(box86context_t* ctx)
 
 void fini_custommem_helper(box86context_t *ctx)
 {
+    if(!inited)
+        return;
+    inited = 0;
 #ifdef DYNAREC
     dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
     for (int i=0; i<mmapsize; ++i) {
         if(mmaplist[i].block)
+            #ifdef USE_MMAP
+            munmap(mmaplist[i].block, mmaplist[i].size);
+            #else
             free(mmaplist[i].block);
+            #endif
         if(mmaplist[i].dblist) {
             kh_destroy(dynablocks, mmaplist[i].dblist);
             mmaplist[i].dblist = NULL;
@@ -696,20 +730,16 @@ void fini_custommem_helper(box86context_t *ctx)
             FreeDynablockList(&dynmap[i]);
     pthread_mutex_destroy(&mutex_mmap);
     free(mmaplist);
-    free(dynmap);
-    dynmap = NULL;
     for (int i=0; i<DYNAMAP_SIZE; ++i)
         if(box86_jumptable[i]!=box86_jmptbl_default)
             free(box86_jumptable[i]);
-    free(box86_jumptable);
-    free(box86_jmptbl_default);
-    box86_jumptable = NULL;
-    box86_jmptbl_default = NULL;
 #endif
-    free(memprot);
-    memprot = NULL;
     for(int i=0; i<n_blocks; ++i)
+        #ifdef USE_MMAP
+        munmap(p_blocks[i].block, p_blocks[i].size);
+        #else
         free(p_blocks[i].block);
+        #endif
     free(p_blocks);
     pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
