@@ -58,7 +58,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FNSTSW AX");
             LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            AND_IMM8(x2, x2, 7);
             BFI(x1, x2, 11, 3); // inject top
             BFI(xEAX, x1, 0, 16);
             break;
