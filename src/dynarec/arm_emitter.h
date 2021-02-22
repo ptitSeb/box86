@@ -259,7 +259,7 @@ Op is 20-27
 // orr.s dst, src1, #imm8
 #define ORRS_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3900000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
-// orr.cond dst, src1, #imm8
+// orr.cond dst, src1, #imm8 ror rot*2
 #define ORR_IMM8_COND(cond, dst, src, imm8, rot) \
     EMIT((cond) | 0x03800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // orr dst, src1, src2, lsl rs
@@ -293,7 +293,7 @@ Op is 20-27
 // bic dst, src1, src2, lsl #imm
 #define BIC_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1c00000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
-// bic dst, src, IMM8
+// bic dst, src, IMM8 ror rot*2
 #define BIC_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
 // bic.cond dst, src, IMM8

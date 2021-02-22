@@ -209,7 +209,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             VCMP_F64(v0, d0);
             VMRS_APSR();
-            VMOVcond_64(cPL, v0, d0);
+            VMOVcond_64(cCS, v0, d0); // move v0 <- d0 if v0 or d0 unordered or v0 >= d0
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
@@ -228,7 +228,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
             VCMP_F64(d0, v0);
             VMRS_APSR();
-            VMOVcond_64(cPL, v0, d0);
+            VMOVcond_64(cCS, v0, d0); // move v0 <- d0 if v0 or d0 is unordered or d0 >= v0
             break;
 
         case 0x70:
@@ -292,18 +292,22 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd);
             GETEX(d0);
-            VCMP_F64(v0, d0);
+            if((u8&7)==6){
+                VCMP_F64(d0, v0);
+            } else {
+                VCMP_F64(v0, d0);
+            }
             VMRS_APSR();
             MOVW(x2, 0);
             u8 = F8;
             switch(u8&7) {
                 case 0: MVN_COND_REG_LSL_IMM5(cEQ, x2, x2, 0); break;   // Equal
-                case 1: MVN_COND_REG_LSL_IMM5(cCC, x2, x2, 0); break;   // Less than
-                case 2: MVN_COND_REG_LSL_IMM5(cLS, x2, x2, 0); break;   // Less or equal
+                case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); break;   // Less than
+                case 2: MVN_COND_REG_LSL_IMM5(cLE, x2, x2, 0); break;   // Less or equal
                 case 3: MVN_COND_REG_LSL_IMM5(cVS, x2, x2, 0); break;   // NaN
-                case 4: MVN_COND_REG_LSL_IMM5(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
-                case 5: MVN_COND_REG_LSL_IMM5(cPL, x2, x2, 0); break;   // Greater or equal or unordered
-                case 6: MVN_COND_REG_LSL_IMM5(cHI, x2, x2, 0); break;   // Greater or unordered
+                case 4: MVN_COND_REG_LSL_IMM5(cGT, x2, x2, 0); break;   // Not Equal, GT: Z==0 && N==V (V=unordered, N=less than, cannot be both)
+                case 5: MVN_COND_REG_LSL_IMM5(cCS, x2, x2, 0); break;   // Greater or equal or unordered
+                case 6: MVN_COND_REG_LSL_IMM5(cLT, x2, x2, 0); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
                 case 7: MVN_COND_REG_LSL_IMM5(cVC, x2, x2, 0); break;   // not NaN
             }
             VMOVtoV_D(v0, x2, x2);
