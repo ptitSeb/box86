@@ -139,7 +139,7 @@ void arm_fld(x86emu_t* emu, uint8_t* ed)
 
 void arm_ud(x86emu_t* emu)
 {
-    emit_signal(emu, SIGILL, R_EIP, 0);
+    emit_signal(emu, SIGILL, (void*)R_EIP, 0);
 }
 
 void arm_fsave(x86emu_t* emu, uint8_t* ed)
