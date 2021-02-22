@@ -28,6 +28,7 @@
 #include "dynarec.h"
 #include "box86stack.h"
 #include "custommem.h"
+#include "wine_tools.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -202,7 +203,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
             void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
                 , PROT_READ | PROT_WRITE | PROT_EXEC
-                , MAP_PRIVATE | MAP_ANONYMOUS /*| MAP_FIXED*/
+                , MAP_PRIVATE | MAP_ANONYMOUS | ((wine_preloaded)?MAP_FIXED:0)
                 , -1, 0);
             if(p==MAP_FAILED) {
                 printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
@@ -222,7 +223,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
             , PROT_READ | PROT_WRITE | PROT_EXEC
-            , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs)?MAP_FIXED:0))*/
+            , MAP_PRIVATE | MAP_ANONYMOUS | (((offs&&wine_preloaded)?MAP_FIXED:0))
             , -1, 0);
         if(p==MAP_FAILED) {
             printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
