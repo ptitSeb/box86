@@ -673,8 +673,14 @@ void setupTrace(box86context_t* context)
                 if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
                     sscanf(p, "%x-%x", &trace_start, &trace_end);
             }
-            if(trace_start || trace_end)
+            if(trace_start || trace_end) {
                 SetTraceEmu(trace_start, trace_end);
+                if(!trace_start && trace_end==1) {
+                    printf_log(LOG_INFO, "TRACE enabled but inactive\n");
+                } else {
+                    printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+                }
+            }
         } else {
             if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
                 SetTraceEmu(trace_start, trace_end);
@@ -845,13 +851,14 @@ int main(int argc, const char **argv, const char **env) {
         if(x86) {
             prog = argv[++nextarg];
             printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly\n", prog);
+            wine_preloaded = 1;
         }
     }
     // check if this is wine
     if(!strcmp(prog, "wine") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX86: Wine detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
-            //wine_prereserve(prereserve);
+            wine_prereserve(prereserve);
             // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
@@ -893,6 +900,8 @@ int main(int argc, const char **argv, const char **env) {
         if(getenv("LD_PRELOAD")) {
             char* p = getenv("LD_PRELOAD");
             if(strstr(p, "libtcmalloc_minimal.so.4"))
+                box86_tcmalloc_minimal = 1;
+            if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
                 box86_tcmalloc_minimal = 1;
             if(strstr(p, "libasan.so"))
                 box86_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
@@ -1112,7 +1121,7 @@ int main(int argc, const char **argv, const char **env) {
     setupTraceInit(my_context);
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
-    /*if(wine_preloaded) {
+    if(wine_preloaded) {
         uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info");
         if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info");
         if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info");
@@ -1124,7 +1133,7 @@ int main(int argc, const char **argv, const char **env) {
         #ifdef DYNAREC
         dynarec_wine_prereserve();
         #endif
-    }*/
+    }
     // pre-load lib if needed
     if(ld_preload.size) {
         for (int i=0; i<ld_preload.size; ++i) {

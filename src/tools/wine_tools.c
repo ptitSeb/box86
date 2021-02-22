@@ -16,7 +16,7 @@ typedef struct wine_prereserve_s
 } wine_prereserve_t;
 
 // only the prereseve argument is reserved, not the other zone that wine-preloader reserve
-static wine_prereserve_t my_wine_reserve[] = {{(void*)0x0010000, 0x00008000}, {0, 0}, {0, 0}};
+static wine_prereserve_t my_wine_reserve[] = {{(void*)0x00010000, 0x00008000}, {(void*)0x00110000, 0x30000000}, {(void*)0x7f000000, 0x03000000}, {0, 0}, {0, 0}};
 
 int wine_preloaded = 0;
 
@@ -68,9 +68,11 @@ void wine_prereserve(const char* reserve)
     int idx = 0;
     while(my_wine_reserve[idx].addr && my_wine_reserve[idx].size) {
         void* p = mmap(my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 
-                    PROT_NONE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0);
-        if(p==(void*)-1) {
+                    PROT_NONE, /*MAP_FIXED |*/ MAP_PRIVATE | MAP_ANON | MAP_NORESERVE, -1, 0);
+        if(p==(void*)-1 || p!=my_wine_reserve[idx].addr) {
             printf_log(LOG_NONE, "Warning, prereserve of %p:0x%x failed (%s)\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size, strerror(errno));
+            if(p!=(void*)-1)
+                munmap(p, my_wine_reserve[idx].size);
             my_wine_reserve[idx].addr = NULL;
             my_wine_reserve[idx].size = 0;
         } else {
