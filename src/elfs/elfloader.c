@@ -208,6 +208,10 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
                 return 1;
             }
+            if(head->multiblock_offs[i] && p!=(void*)head->multiblock_offs[i]) {
+                printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
+                return 1;
+            }
             setProtection((uintptr_t)p, head->multiblock_size[i], PROT_READ | PROT_WRITE | PROT_EXEC);
             head->multiblock[i] = p;
             if(p<(void*)head->memory)
@@ -222,6 +226,10 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             , -1, 0);
         if(p==MAP_FAILED) {
             printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
+            return 1;
+        }
+        if(offs && p!=(void*)offs) {
+            printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)offs, head->memsz, head->align, head->name, p);
             return 1;
         }
         setProtection((uintptr_t)p, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
