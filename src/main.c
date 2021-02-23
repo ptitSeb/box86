@@ -858,8 +858,9 @@ int main(int argc, const char **argv, const char **env) {
     if(!strcmp(prog, "wine") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX86: Wine detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
+        if(wine_preloaded)
             wine_prereserve(prereserve);
-            // special case for winedbg, doesn't work anyway
+        // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
             exit(0);    // exiting, it doesn't work anyway
