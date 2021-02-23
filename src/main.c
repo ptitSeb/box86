@@ -851,7 +851,7 @@ int main(int argc, const char **argv, const char **env) {
         if(x86) {
             prog = argv[++nextarg];
             printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly\n", prog);
-            wine_preloaded = 1;
+            //wine_preloaded = 1;
         }
     }
     // check if this is wine
