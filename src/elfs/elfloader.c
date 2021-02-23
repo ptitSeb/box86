@@ -216,6 +216,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
                     return 1;
                 } else {
+                    printf_log(LOG_INFO, "Allocated memory is not at hinted %p but %p (size %p) \"%s\"\n", (void*)head->multiblock_offs[i], p, (void*)head->multiblock_size[i], head->name);
                     // need to adjust vaddr!
                     for (int i=0; i<head->numPHEntries; ++i) 
                         if(head->PHEntries[i].p_type == PT_LOAD) {
