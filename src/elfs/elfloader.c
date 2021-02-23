@@ -211,9 +211,19 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
                 return 1;
             }
-            if(head->multiblock_offs[i] &&( p!=(void*)head->multiblock_offs[i]) && (head->e_type!=ET_DYN)) {
-                printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
-                return 1;
+            if(head->multiblock_offs[i] &&( p!=(void*)head->multiblock_offs[i])) {
+                if((head->e_type!=ET_DYN)) {
+                    printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
+                    return 1;
+                } else {
+                    // need to adjust vaddr!
+                    for (int i=0; i<head->numPHEntries; ++i) 
+                        if(head->PHEntries[i].p_type == PT_LOAD) {
+                            Elf32_Phdr * e = &head->PHEntries[i];
+                            if(e->p_vaddr>=head->multiblock_offs[i] && e->p_vaddr<(head->multiblock_offs[i]+head->multiblock_size[i]))
+                                e->p_vaddr = e->p_vaddr - head->multiblock_offs[i] + (uintptr_t)p;
+                        }
+                }
             }
             setProtection((uintptr_t)p, head->multiblock_size[i], PROT_READ | PROT_WRITE | PROT_EXEC);
             head->multiblock[i] = p;
