@@ -401,7 +401,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
     // look in actual list
     for(int i=0; i<mmapsize; ++i) {
         if ((uintptr_t)addr>=(uintptr_t)mmaplist[i].block 
-        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size))
+        && ((uintptr_t)addr<(uintptr_t)mmaplist[i].block+mmaplist[i].size)) {
             if(!mmaplist[i].helper)
                 return FindDynablockDynablocklist(addr, mmaplist[i].dblist);
             else {
@@ -412,6 +412,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* addr)
                     return kh_value(mmaplist[i].dblist, k);
                 return NULL;
             }
+        }
     }
     // look in oversized
     return FindDynablockDynablocklist(addr, dblist_oversized);
