@@ -221,8 +221,10 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     for (int i=0; i<head->numPHEntries; ++i) 
                         if(head->PHEntries[i].p_type == PT_LOAD) {
                             Elf32_Phdr * e = &head->PHEntries[i];
-                            if(e->p_vaddr>=head->multiblock_offs[i] && e->p_vaddr<(head->multiblock_offs[i]+head->multiblock_size[i]))
+                            if(e->p_vaddr>=head->multiblock_offs[i] && e->p_vaddr<(head->multiblock_offs[i]+head->multiblock_size[i])) {
                                 e->p_vaddr = e->p_vaddr - head->multiblock_offs[i] + (uintptr_t)p;
+                                if(!head->delta) head->delta = (intptr_t)p - (intptr_t)head->multiblock_offs[i];
+                            }
                         }
                 }
             }
