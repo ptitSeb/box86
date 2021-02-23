@@ -203,13 +203,13 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
             void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
                 , PROT_READ | PROT_WRITE | PROT_EXEC
-                , MAP_PRIVATE | MAP_ANONYMOUS | ((wine_preloaded)?MAP_FIXED:0)
+                , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
                 , -1, 0);
             if(p==MAP_FAILED) {
                 printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
                 return 1;
             }
-            if(head->multiblock_offs[i] && p!=(void*)head->multiblock_offs[i]) {
+            if(head->multiblock_offs[i] &&( p!=(void*)head->multiblock_offs[i]) && (head->e_type!=ET_DYN)) {
                 printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
                 return 1;
             }
@@ -223,13 +223,13 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         printf_log(LOG_DEBUG, "Allocating 0x%x memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
             , PROT_READ | PROT_WRITE | PROT_EXEC
-            , MAP_PRIVATE | MAP_ANONYMOUS | (((offs&&wine_preloaded)?MAP_FIXED:0))
+            , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
             , -1, 0);
         if(p==MAP_FAILED) {
             printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%x/0x%x) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
             return 1;
         }
-        if(offs && p!=(void*)offs) {
+        if(offs && (p!=(void*)offs) && (head->e_type!=ET_DYN)) {
             printf_log(LOG_NONE, "Error, memory map (@%p 0x%x/0x%x) for elf \"%s\" allocated @%p\n", (void*)offs, head->memsz, head->align, head->name, p);
             return 1;
         }
