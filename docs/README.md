@@ -18,7 +18,7 @@ Many games already work, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL
 If you are serious about developing Box86, you should install ccache and build Box86 with it. (Use ccmake for example.)
 To enable TRACE (i.e. dumping to stdout all individual x86 instructions executed, with dump of registers), you'll also need [Zydis library](https://github.com/zyantific/zydis) available on your system.
 
-Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](../src/x86primop.c) for copyright details
+Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](../src/emu/x86primop.c) for copyright details
 
 Here's  6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "Heretic 2" running on a GigaHertz OpenPandora (the second one is using  the dynarec), and the next 2 videos are videos of of "Bit.Trip.Runner" and "Neverwinter Night" running on an ODroid XU4 (without dynarec), and the last 2  videos are on on a Pi4: Shovel Knight (video from @ITotalJustice) and Freedom Planet (video from @djazz), also without dynarec.
 
