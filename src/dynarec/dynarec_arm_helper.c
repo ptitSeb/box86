@@ -256,15 +256,18 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
-        LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
+        LDR_REG_LSL_IMM5(x3, x2, x3, 2);    // shiftsizeof(uintptr_t)
     } else {
         uintptr_t p = getJumpTableAddress(ip); 
         MOV32(x2, p);
         MOV32_(xEIP, ip);
-        LDR_IMM9(x2, x2, 0);
+        LDR_IMM9(x3, x2, 0);
     }
     MOV_REG(x1, xEIP);
-    BX(x2);
+    #ifdef HAVE_TRACE
+    MOV_REG(x2, 15);    // move current PC to x2, for tracing
+    #endif
+    BX(x3);
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)

@@ -28,8 +28,17 @@ void arm_epilog_fast() EXPORTDYN;
 #endif
 
 #ifdef DYNAREC
-void* LinkNext(x86emu_t* emu, uintptr_t addr)
+#ifdef HAVE_TRACE
+uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr);
+#endif
+void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
 {
+    #ifdef HAVE_TRACE
+    if(!addr) {
+        dynablock_t* db = FindDynablockFromNativeAddress(x2);
+        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p)\n", x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
+    }
+    #endif
     dynablock_t* current = NULL;
     void * jblock;
     dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
