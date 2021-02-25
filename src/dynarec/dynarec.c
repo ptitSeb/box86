@@ -35,6 +35,7 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
 {
     #ifdef HAVE_TRACE
     if(!addr) {
+        x2-=8;  // actual PC is 2 instructions ahead
         dynablock_t* db = FindDynablockFromNativeAddress(x2);
         printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p)\n", x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
     }
