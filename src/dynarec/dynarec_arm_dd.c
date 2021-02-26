@@ -161,7 +161,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
-                    CALL(arm_fistp64, -1, 0);
+                    CALL(arm_fistt64, -1, 0);
                     x87_do_pop(dyn, ninst);
                     break;
                 case 2:

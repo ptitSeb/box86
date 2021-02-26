@@ -130,6 +130,13 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
     }
 }
 
+void arm_fistt64(x86emu_t* emu, int64_t* ed)
+{
+    // used of memcpy to avoid aligments issues
+    int64_t tmp = ST0.d;
+    memcpy(ed, &tmp, sizeof(tmp));
+}
+
 void arm_fld(x86emu_t* emu, uint8_t* ed)
 {
     memcpy(&STld(0).ld, ed, 10);
