@@ -105,6 +105,10 @@ Enables/Disables trace for generated code.
  * 0 : Disable trace for generated code. (Default.)
  * 1 : Enable trace for generated code (like regular Trace, this will slow down the program a lot and generate huge logs).
 
+#### BOX86_NODYNAREC 
+Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpretor)
+ * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
+
 #### BOX86_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

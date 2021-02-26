@@ -52,6 +52,8 @@ int box86_dynarec_dump = 0;
 int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
 int box86_dynarec_smc = 0;
+uintptr_t box86_nodynarec_start = 0;
+uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -273,6 +275,17 @@ void LoadLogEnv()
         if(box86_dynarec_smc)
         printf_log(LOG_INFO, "Dynarec is trying to detect SMC in same dynablock\n");
     }
+    p = getenv("BOX86_NODYNAREC");
+    if(p) {
+        if (strchr(p,'-')) {
+            if(sscanf(p, "%d-%d", &box86_nodynarec_start, &box86_nodynarec_end)!=2) {
+                if(sscanf(p, "0x%X-0x%X", &box86_nodynarec_start, &box86_nodynarec_end)!=2)
+                    sscanf(p, "%x-%x", &box86_nodynarec_start, &box86_nodynarec_end);
+            }
+            printf_log(LOG_INFO, "No Dynablock creation that start in %p - %p range\n", (void*)box86_nodynarec_start, (void*)box86_nodynarec_end);
+        }
+    }
+
 #endif
 #ifdef HAVE_TRACE
     p = getenv("BOX86_TRACE_XMM");
@@ -518,6 +531,7 @@ void PrintHelp() {
 #ifdef DYNAREC
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
     printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
+    printf(" BOX86_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
 #endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");

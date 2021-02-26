@@ -311,6 +311,8 @@ void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
+    if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end)
+        return NULL;
     // init the helper
     dynarec_arm_t helper = {0};
     helper.start = addr;
