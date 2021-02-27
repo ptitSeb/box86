@@ -139,6 +139,7 @@ GO("libnsl.so.1", nsl)
 GO("liblcms2.so.2", lcms2)
 GO("libkrb5.so.3", krb5)
 GO("libgssapi_krb5.so.2", gssapikrb5)
+GO("libtiff.so.5", libtiff)
 
 GO("ld-linux.so.2", ldlinux)
 

@@ -155,6 +155,7 @@
 #() iFpi
 #() iFpI
 #() iFpC
+#() iFpW
 #() iFpu
 #() iFpU
 #() iFpf
@@ -357,6 +358,7 @@
 #() iFpuu
 #() iFpuL
 #() iFpup
+#() iFpuV
 #() iFpu2
 #() iFpuP
 #() iFpUi
@@ -699,6 +701,7 @@
 #() iFppCC
 #() iFppuw
 #() iFppui
+#() iFppuW
 #() iFppuu
 #() iFppup
 #() iFppdp
@@ -1716,6 +1719,7 @@
 #() pFEppuuWWCuu
 #() pFplllllllll
 #() pFppuiipuuii
+#() pFpppppppppp
 #() vFEpiiiupupup
 #() vFiippppppppp
 #() vFuiiiiiiiiip
