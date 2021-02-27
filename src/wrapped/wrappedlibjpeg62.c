@@ -1016,10 +1016,13 @@ static void* reverse_term_sourceFct(void* fct)
 
 // init_destination
 #define GO(A)   \
-static uintptr_t my_init_destination_fct_##A = 0;   \
-static void my_init_destination_##A(void* cinfo)    \
-{                                       \
-    RunFunction(my_context, my_init_destination_fct_##A, 1, cinfo);\
+static uintptr_t my_init_destination_fct_##A = 0;                           \
+static void my_init_destination_##A(j62_compress_ptr_t* cinfo)              \
+{                                                                           \
+    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction(my_context, my_init_destination_fct_##A, 1, tmp);           \
+    unwrapCompressStruct(cinfo, tmp);                                       \
 }
 SUPER()
 #undef GO
@@ -1049,9 +1052,12 @@ static void* reverse_init_destinationFct(void* fct)
 // empty_output_buffer
 #define GO(A)   \
 static uintptr_t my_empty_output_buffer_fct_##A = 0;   \
-static void my_empty_output_buffer_##A(void* cinfo)    \
-{                                       \
-    RunFunction(my_context, my_empty_output_buffer_fct_##A, 1, cinfo);\
+static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)           \
+{                                                                           \
+    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction(my_context, my_empty_output_buffer_fct_##A, 1, tmp);        \
+    unwrapCompressStruct(cinfo, tmp);                                       \
 }
 SUPER()
 #undef GO
@@ -1081,9 +1087,12 @@ static void* reverse_empty_output_bufferFct(void* fct)
 // term_destination
 #define GO(A)   \
 static uintptr_t my_term_destination_fct_##A = 0;   \
-static void my_term_destination_##A(void* cinfo)    \
-{                                       \
-    RunFunction(my_context, my_term_destination_fct_##A, 1, cinfo);\
+static void my_term_destination_##A(j62_compress_ptr_t* cinfo)              \
+{                                                                           \
+    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction(my_context, my_term_destination_fct_##A, 1, tmp);           \
+    unwrapCompressStruct(cinfo, tmp);                                       \
 }
 SUPER()
 #undef GO
@@ -1255,6 +1264,7 @@ static void unwrapCommonStruct(jpeg62_common_struct_t* s, int type)
 
 static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s)
 {
+    i386_compress_ptr_t* orig = (i386_compress_ptr_t*)s->client_data;
     #define GO(A, B)        d->B = s->B;
     #define GO2(A, B, c, D) memcpy(&d->B, &s->B, sizeof(A));
     #define GOM(A, B)       d->B = s->B;
@@ -1263,6 +1273,8 @@ static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s)
     wrapErrorMgr(s->err);
     wrapMemoryMgr(s->mem);
     wrapDestinationMgr(s->dest);
+    if(orig)
+        s->client_data = orig->client_data; // restore original client_data
 }
 static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s)
 {
@@ -1274,6 +1286,7 @@ static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s)
     unwrapErrorMgr(s->err);
     unwrapMemoryMgr(s->mem);
     unwrapDestinationMgr(s->dest);
+    d->client_data = (void*)s;  // save orignal pointer
 }
 #undef COMPRESS_STRUCT
 
@@ -1290,7 +1303,6 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
     jpeg62_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(ret);
-trace_end = 0;
 
     return ret;
 }
