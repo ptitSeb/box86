@@ -3,17 +3,24 @@
 ![Official logo](img/Box86Logo.png "Official Logo")
 Linux Userspace x86 Emulator with a twist
 
-Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux, like ARM (host system needs to be 32bit little-endian).
+----
 
-You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only support 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environnement).
+Compiling/Installation
+----
+> Compilation instructions can be found [here](COMPILE.md)  
+> For an easy 1-click installation, check out box86 on [pi-apps](https://github.com/Botspot/pi-apps/)
 
-Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use, and performance can be surprisingly high in some cases.
+Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM (host system needs to be 32bit little-endian).
 
-Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
+You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only supports 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environnement).
+
+Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in some cases.
+
+Most x86 Games need OpenGL, so on ARM platforms an solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter.
 
-Many games already work, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine. (there's a long list, among them are UNDERTALE, A Risk of Rain, and Cook Serve Delicious)
+Many games already work without much tweaking, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine. (there's a long list, among them are UNDERTALE, A Risk of Rain, and Cook Serve Delicious)
 
 If you are serious about developing Box86, you should install ccache and build Box86 with it. (Use ccmake for example.)
 To enable TRACE (i.e. dumping to stdout all individual x86 instructions executed, with dump of registers), you'll also need [Zydis library](https://github.com/zyantific/zydis) available on your system.
@@ -24,7 +31,7 @@ Here's  6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "
 
 [![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/MM7kWYts7IA/3.jpg)](https://www.youtube.com/watch?v=MM7kWYts7IA) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg) [![Play on Youtube](https://img.youtube.com/vi/B4YN37z3-ws/1.jpg)](https://www.youtube.com/watch?v=B4YN37z3-ws) [![Play on Youtube](https://img.youtube.com/vi/xk8Q30mxqPg/1.jpg)](https://www.youtube.com/watch?v=xk8Q30mxqPg) [![Play on Youtube](https://img.youtube.com/vi/_QMRMVvYrqU/1.jpg)](https://www.youtube.com/watch?v=_QMRMVvYrqU)
 
-You can find many more Box86 video on [PI Lab Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) [![PI Lab Channel](https://yt3.ggpht.com/a/AATXAJyMeWrgCjs78gr6To6yX4KtDPUCS7hsbX1rRA=s100-c-k-c0xffffffff-no-rj-mo)](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g).
+You can find many more Box86 video on the [Pi Labs Youtube Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) [![Pi Labs Youtube Channel](https://yt3.ggpht.com/a/AATXAJyMeWrgCjs78gr6To6yX4KtDPUCS7hsbX1rRA=s100-c-k-c0xffffffff-no-rj-mo)](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g).
 
 Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list/issues
 
@@ -39,14 +46,7 @@ Note that this project is not to be mistaken with [86box](https://github.com/86B
 Discord
 ----
 
-If you want to discuss(or have any problems) about box86, there is a Discord friendly server there: [PI Lab Discord](https://discord.gg/Fh8sjmu)
-
-
-----
-
-Compiling
-----
-Compilation instructions can be found [here](COMPILE.md)
+If you want to discuss (or have any problems) about box86, feel free to join the [Pi Labs Discord Server](https://discord.gg/Fh8sjmu)!
 
 ----
 
@@ -105,11 +105,11 @@ Notes about Wine
 ----
 
 Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
-Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Use your favorite search engine for instructions on how to do that.
+Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Wine on [pi-apps](https://github.com/Botspot/pi-apps/) lets you install a rebuilt kernel with memory split or switch to a experimental 64-bit kernel which also has a 3G/1G split.
 
 ----
 
 Final words
 ----
 
-(If you use Box86 in your project, please don't forget to mention Box86)
+(If you use Box86 in your project, please don't forget to mention Box86!)
