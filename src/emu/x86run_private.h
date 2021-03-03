@@ -200,6 +200,7 @@ void Run660F(x86emu_t *emu);
 void Run66D9(x86emu_t *emu);    // x87
 void Run6766(x86emu_t *emu);
 void RunGS(x86emu_t *emu);
+void RunGS0F(x86emu_t *emu, uintptr_t tlsdata);
 void RunFS(x86emu_t *emu);
 void RunFS66(x86emu_t *emu, uintptr_t tlsdata);
 void RunLock(x86emu_t *emu);

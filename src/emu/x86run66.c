@@ -817,6 +817,11 @@ void RunGS(x86emu_t *emu)
             emu->segs_serial[_ES] = 0;
             break;
 
+        case 0x0f:
+            RunGS0F(emu, tlsdata);
+            ip = R_EIP;
+            break;
+
         case 0x11:              /* ADC GS:Ed, Gd */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
@@ -1084,7 +1089,7 @@ void RunFS(x86emu_t *emu)
             break;
 
         case 0x66:
-            RunFS66(emu, tlsdata);  // two GetFSBaseEmu() call, but it's cheap now
+            RunFS66(emu, tlsdata);
             ip = R_EIP;
             break;
         case 0x67:
@@ -1339,6 +1344,25 @@ void RunFS66(x86emu_t *emu, uintptr_t tlsdata)
             nextop = F8;
             GET_EW_OFFS(tlsdata);
             GW.word[0] = EW->word[0];
+            break;
+        default:
+            ip=R_EIP;
+            UnimpOpcode(emu);
+    }
+    R_EIP = ip;
+}
+
+void RunGS0F(x86emu_t *emu, uintptr_t tlsdata)
+{
+    uintptr_t ip = R_EIP+2;
+    uint8_t opcode = F8;
+    uint8_t nextop;
+    reg32_t *oped;
+    switch(opcode) {
+        case 0xB6:                              /* MOVZX Gd,GS:Eb */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            GD.dword[0] = EB->byte[0];
             break;
         default:
             ip=R_EIP;
