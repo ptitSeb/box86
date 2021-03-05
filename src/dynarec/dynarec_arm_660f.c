@@ -1483,7 +1483,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); break;   // Less than
                 case 2: MVN_COND_REG_LSL_IMM5(cLE, x2, x2, 0); break;   // Less or equal
                 case 3: MVN_COND_REG_LSL_IMM5(cVS, x2, x2, 0); break;   // NaN
-                case 4: MVN_COND_REG_LSL_IMM5(cGT, x2, x2, 0); break;   // Not Equal, GT: Z==0 && N==V (V=unordered, N=less than, cannot be both)
+                case 4: MVN_COND_REG_LSL_IMM5(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: MVN_COND_REG_LSL_IMM5(cCS, x2, x2, 0); break;   // Greater or equal or unordered
                 case 6: MVN_COND_REG_LSL_IMM5(cLT, x2, x2, 0); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
                 case 7: MVN_COND_REG_LSL_IMM5(cVC, x2, x2, 0); break;   // not NaN
@@ -1491,7 +1491,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVtoV_D(v0, x2, x2);
             // 1
             if((u8&7)==6){
-                VCMP_F32(d0+1, v0+1);
+                VCMP_F64(d0+1, v0+1);
             } else {
                 VCMP_F64(v0+1, d0+1);
             }
@@ -1502,7 +1502,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); break;   // Less than
                 case 2: MVN_COND_REG_LSL_IMM5(cLE, x2, x2, 0); break;   // Less or equal
                 case 3: MVN_COND_REG_LSL_IMM5(cVS, x2, x2, 0); break;   // NaN
-                case 4: MVN_COND_REG_LSL_IMM5(cGT, x2, x2, 0); break;   // Not Equal, GT: Z==0 && N==V (V=unordered, N=less than, cannot be both)
+                case 4: MVN_COND_REG_LSL_IMM5(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: MVN_COND_REG_LSL_IMM5(cCS, x2, x2, 0); break;   // Greater or equal or unordered
                 case 6: MVN_COND_REG_LSL_IMM5(cLT, x2, x2, 0); break;   // Greater or unordered, test inverted, N!=V so unordereded or less than (inverted)
                 case 7: MVN_COND_REG_LSL_IMM5(cVC, x2, x2, 0); break;   // not NaN
