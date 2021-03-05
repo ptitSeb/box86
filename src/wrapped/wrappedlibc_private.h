@@ -72,7 +72,7 @@ GO(__assert_fail, vFppup)
 GO(__assert_perror_fail, vFipup)
 GO(atof, dFp)
 GO(atoi, iFp)
-GO(atol, iFp)
+GO(atol, lFp)
 GO(atoll, IFp)
 // authdes_create
 // authdes_getucred
