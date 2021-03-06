@@ -690,7 +690,11 @@ EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
 	pthread_exit(retval);
 }
 
-#ifndef NOALIGN
+#ifdef NOALIGN
+pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
+	return m;
+}
+#else
 // mutex alignment
 KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
 
