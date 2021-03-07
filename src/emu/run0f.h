@@ -492,10 +492,14 @@
             GM.sb[1] = (GM.sw[1] > 127) ? 127 : ((GM.sw[1] < -128) ? -128 : GM.sw[1]);
             GM.sb[2] = (GM.sw[2] > 127) ? 127 : ((GM.sw[2] < -128) ? -128 : GM.sw[2]);
             GM.sb[3] = (GM.sw[3] > 127) ? 127 : ((GM.sw[3] < -128) ? -128 : GM.sw[3]);
-            GM.sb[4] = (EM->sw[0] > 127) ? 127 : ((EM->sw[0] < -128) ? -128 : EM->sw[0]);
-            GM.sb[5] = (EM->sw[1] > 127) ? 127 : ((EM->sw[1] < -128) ? -128 : EM->sw[1]);
-            GM.sb[6] = (EM->sw[2] > 127) ? 127 : ((EM->sw[2] < -128) ? -128 : EM->sw[2]);
-            GM.sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
+            if(EM==&GM)
+                GM.ud[1] = GM.ud[0];
+            else {
+                GM.sb[4] = (EM->sw[0] > 127) ? 127 : ((EM->sw[0] < -128) ? -128 : EM->sw[0]);
+                GM.sb[5] = (EM->sw[1] > 127) ? 127 : ((EM->sw[1] < -128) ? -128 : EM->sw[1]);
+                GM.sb[6] = (EM->sw[2] > 127) ? 127 : ((EM->sw[2] < -128) ? -128 : EM->sw[2]);
+                GM.sb[7] = (EM->sw[3] > 127) ? 127 : ((EM->sw[3] < -128) ? -128 : EM->sw[3]);
+            }
             NEXT;
         _0f_0x64:                       /* PCMPGTB Gm,Em */
             nextop = F8;
@@ -523,33 +527,42 @@
             GET_EM;
             for(int i=0; i<4; ++i)
                 GM.ub[i] = (GM.sw[i]<0)?0:((GM.sw[i]>0xff)?0xff:GM.sw[i]);
-            for(int i=0; i<4; ++i)
-                GM.ub[4+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
+            if(EM==&GM)
+                GM.ud[1] = GM.ud[0];
+            else
+                for(int i=0; i<4; ++i)
+                    GM.ub[4+i] = (EM->sw[i]<0)?0:((EM->sw[i]>0xff)?0xff:EM->sw[i]);
             NEXT;
         _0f_0x68:                       /* PUNPCKHBW Gm,Em */
             nextop = F8;
             GET_EM;
-            if(EM==&GM) {eam1 = GM; EM = &eam1;}   // copy is needed
             for(int i=0; i<4; ++i)
                 GM.ub[2 * i] = GM.ub[i + 4];
-            for(int i=0; i<4; ++i)
-                GM.ub[2 * i + 1] = EM->ub[i + 4];
+            if(EM==&GM)
+                for(int i=0; i<4; ++i)
+                    GM.ub[2 * i + 1] = GM.ub[2 * i];
+            else
+                for(int i=0; i<4; ++i)
+                    GM.ub[2 * i + 1] = EM->ub[i + 4];
             NEXT;
         _0f_0x69:                       /* PUNPCKHWD Gm,Em */
             nextop = F8;
             GET_EM;
-            if(EM==&GM) {eam1 = GM; EM = &eam1;}   // copy is needed
             for(int i=0; i<2; ++i)
                 GM.uw[2 * i] = GM.uw[i + 2];
-            for(int i=0; i<2; ++i)
-                GM.uw[2 * i + 1] = EM->uw[i + 2];
+            if(EM==&GM)
+                for(int i=0; i<2; ++i)
+                    GM.uw[2 * i + 1] = GM.uw[2 * i];
+            else
+                for(int i=0; i<2; ++i)
+                    GM.uw[2 * i + 1] = EM->uw[i + 2];
             NEXT;
         _0f_0x6A:                       /* PUNPCKHDQ Gm,Em */
             nextop = F8;
             GET_EM;
-            if(EM==&GM) {eam1 = GM; EM = &eam1;}   // copy is needed
             GM.ud[0] = GM.ud[1];
-            GM.ud[1] = EM->ud[1];
+            if(EM!=&GM)
+                GM.ud[1] = EM->ud[1];
             NEXT;
         _0f_0x6B:                       /* PACKSSDW Gm,Em */
             nextop = F8;
@@ -557,8 +570,11 @@
             if(EM==&GM) {eam1 = GM; EM = &eam1;}   // copy is needed
             for(int i=0; i<2; ++i)
                 GM.sw[i] = (GM.sd[i]<-32768)?-32768:((GM.sd[i]>32767)?32767:GM.sd[i]);
-            for(int i=0; i<2; ++i)
-                GM.sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
+            if(EM==&GM)
+                GM.ud[1] = GM.ud[0];
+            else
+                for(int i=0; i<2; ++i)
+                    GM.sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
             NEXT;
 
         _0f_0x6E:                      /* MOVD Gm, Ed */
