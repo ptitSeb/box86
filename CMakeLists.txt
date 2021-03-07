@@ -294,6 +294,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibxmu.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibz.c"
     "${BOX86_ROOT}/src/wrapped/wrappedopenal.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedalure.c"
     "${BOX86_ROOT}/src/wrapped/wrappedalut.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
