@@ -132,20 +132,20 @@ static void FreeCancelThread(box86context_t* context)
 static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
 {
 	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
-	buff->__pad[1] = r;
+	buff->__pad[3] = r;
 	return r;
 }
 
 static __pthread_unwind_buf_t* GetCancelThread(x86_unwind_buff_t* buff)
 {
-	return (__pthread_unwind_buf_t*)buff->__pad[1];
+	return (__pthread_unwind_buf_t*)buff->__pad[3];
 }
 
 static void DelCancelThread(x86_unwind_buff_t* buff)
 {
-	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[1];
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[3];
 	free(r);
-	buff->__pad[1] = NULL;
+	buff->__pad[3] = NULL;
 }
 
 typedef struct emuthread_s {
