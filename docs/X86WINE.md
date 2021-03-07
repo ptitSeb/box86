@@ -3,11 +3,7 @@ _TwisterOS users, take note: Wine, winetricks, and Box86 are pre-installed in Tw
 
 Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).
 
-Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Box86 actually needs `wine-i386` to be installed manually on ARM devices instead.
-
-_Note that manual installation is required, since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work.  The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped._
-
-Wine requires a 3G/1G split memory kernel.  The Pi 4 has this 3G/1G split, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need a custom-compiled 3G/1G kernel to get Wine to work.**  Botspot's [pi-apps](https://github.com/Botspot/pi-apps/) installer can install Box86, Wine, winetricks, and a new kernel for you if you are running Raspberry Pi 3.  You may also be able to google some instructions on how to make a custom 3G/1G kernel for your Pi.
+Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Box86 actually needs `wine-i386` to be installed **manually** on ARM devices instead (installing wine-i386 on ARM systems with `multiarch` will fail due to too many required i386 dependencies).
 
 ## Overview and Notes
 The general procedure for installing Wine for Box86 is to...
@@ -22,24 +18,30 @@ Your entire Wine installation can reside within a single folder on your Linux co
 
 Some versions of Wine work better with certain software.  It is best to install a version of Wine that is known to work with the software you would like to run.  There are three main development branches of Wine you can pick from, referred to as wine-stable, wine-devel, and wine-staging.  The wine-staging branch requires extra installation steps on Raspberry Pi.
 
-Install files for Wine can be found from the [TwisterOS FAQ](https://twisteros.com/faq.html) page, the PlayOnLinux website, or the WineHQ repository.  Box86 requires the "i386" versions of Wine install files (even though we are installing it on an ARM processor).  Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries.  Below are examples of how to install Wine from each of those places.
-
 Winetricks is a script which makes it easier to install & configure any desired Windows core system software packages which may be dependencies for certain Windows programs.
+
+Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/).  Box86 requires the "i386" (x86) versions of Wine install files (even though we are installing it on an ARM processor).  Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries.  Below are examples of how to install Wine from each of those places.
+
+Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work.  The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
+
+A note for Raspberry Pi users: Wine requires a 3G/1G split memory kernel.  Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**  Pi 3 (and Pi 4) users can use the [pi-apps](https://github.com/Botspot/pi-apps/) installer to install Box86, Wine, winetricks, and a new kernel. Users running Pi 2 and earlier will have to google some instructions on how to install a custom 3G/1G kernel to work with Wine.
 
 
 ## Examples
+_These examples were all tested on Raspberry Pi 4.  Note the similarities between the different install methods._
 
 ### Installing wine-devel, wine-stable, or wine-staging for Raspberry Pi OS Buster from WineHQ deb files
-_Links from https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/_
+_Links from the [WineHQ repo](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/)_
 ```
 # Backup any old wine installations
 sudo mv ~/wine ~/wine-old
 sudo mv ~/.wine ~/.wine-old
 sudo mv /usr/local/bin/wine /usr/local/bin/wine-old
+sudo mv /usr/local/bin/wineboot /usr/local/bin/wineboot-old
 sudo mv /usr/local/bin/winecfg /usr/local/bin/winecfg-old
 sudo mv /usr/local/bin/wineserver /usr/local/bin/wineserver-old
 
-# Download and extract wine
+# Download, extract wine, and install wine
 # (Replace the links/versions below with links/versions from the WineHQ site for the version of wine you wish to install. Note that we need the i386 version for Box86 even though we're installing it on our ARM processor.)
 # (Pick an i386 version of wine-devel, wine-staging, or wine-stable)
 cd ~/Downloads
@@ -47,16 +49,17 @@ wget https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/wine
 wget https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/wine-devel_5.21~buster_i386.deb  # NOTE: Also replace this link with the version you want
 dpkg-deb -xv wine-devel-i386_5.21~buster_i386.deb wine-installer # NOTE: Make sure these dpkg command matches the filename of the deb package you just downloaded
 dpkg-deb -xv wine-devel_5.21~buster_i386.deb wine-installer
-rm wine*.deb # clean up
-
-# Install wine (move wine folder into place, make launcher, & make symlinks. Credits: grayduck, Botspot)
 mv ~/Downloads/wine-installer/opt/wine* ~/wine
+rm wine*.deb # clean up
+rm -rf wine-installer # clean up
+
+# Install shortcuts (make 32bit launcher & symlinks. Credits: grayduck, Botspot)
 echo -e '#!/bin/bash\nsetarch linux32 -L '"$HOME/wine/bin/wine "'"$@"' | sudo tee -a /usr/local/bin/wine >/dev/null # Create a script to launch wine programs as 32bit only
-sudo ln -s ~/wine/bin/wineserver /usr/local/bin/wineserver
+#sudo ln -s ~/wine/bin/wine /usr/local/bin/wine # You could aslo just make a symlink, but box86 only works for 32bit apps at the moment
 sudo ln -s ~/wine/bin/wineboot /usr/local/bin/wineboot
 sudo ln -s ~/wine/bin/winecfg /usr/local/bin/winecfg
-sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/wineserver /usr/local/bin/winecfg
-rm -rf wine-installer # clean up
+sudo ln -s ~/wine/bin/wineserver /usr/local/bin/wineserver
+sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg /usr/local/bin/wineserver
 
 # These packages are needed for running wine-staging on RPi 4 (Credits: chills340)
 sudo apt install libstb0 -y
@@ -69,34 +72,37 @@ rm libfaudio0_*~bpo10+1_i386.deb # clean up
 rm -rf libfaudio # clean up
 
 # Boot wine (make fresh wineprefix in ~/.wine )
-wine wineboot
+wineboot
 ```
 
 ### Installing Wine for Raspberry Pi OS from the Twister OS FAQ page
-_Links from https://twisteros.com/faq.html_
+_Links from the [TwisterOS FAQ](https://twisteros.com/faq.html)_
 ```
 # Backup any old wine installations
 sudo mv ~/wine ~/wine-old
 sudo mv ~/.wine ~/.wine-old
 sudo mv /usr/local/bin/wine /usr/local/bin/wine-old
+sudo mv /usr/local/bin/wineboot /usr/local/bin/wineboot-old
 sudo mv /usr/local/bin/winecfg /usr/local/bin/winecfg-old
 sudo mv /usr/local/bin/wineserver /usr/local/bin/wineserver-old
 
-# Download and extract wine (last I checked, the Twister OS FAQ page had Wine 5.13-devel)
+# Download, extract wine, and install wine (last I checked, the Twister OS FAQ page had Wine 5.13-devel)
 wget https://twisteros.com/wine.tgz -O ~/wine.tgz
 tar -xzvf ~/wine.tgz
 rm ~/wine.tgz # clean up
 
-# Install wine (move wine folder into place, make launcher, & make symlinks. Credits: grayduck, Botspot)
+# Install shortcuts (make launcher & symlinks. Credits: grayduck, Botspot)
 echo -e '#!/bin/bash\nsetarch linux32 -L '"$HOME/wine/bin/wine "'"$@"' | sudo tee -a /usr/local/bin/wine >/dev/null # Create a script to launch wine programs as 32bit only
-sudo ln -s ~/wine/bin/wineserver /usr/local/bin/wineserver
+#sudo ln -s ~/wine/bin/wine /usr/local/bin/wine # You could aslo just make a symlink, but box86 only works for 32bit apps at the moment
 sudo ln -s ~/wine/bin/wineboot /usr/local/bin/wineboot
 sudo ln -s ~/wine/bin/winecfg /usr/local/bin/winecfg
-sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/wineserver /usr/local/bin/winecfg
+sudo ln -s ~/wine/bin/wineserver /usr/local/bin/wineserver
+sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg /usr/local/bin/wineserver
 
 # Boot wine (make fresh wineprefix in ~/.wine )
-wine wineboot
+wineboot
 ```
+
 
 ## Wineprefixes (and Wine initialization)
 The first time Wine is run (`wine wineboot`), it will create a fresh wineprefix for you (by default, located in the hidden folder `~/.wine`).  Think of a wineprefix as Wine's virtual 'harddrive' where it installs software and saves settings.  Wineprefixes are portable and deletable.
@@ -127,5 +133,5 @@ sudo apt-get install cabextract -y
 ```
 Whenever we run winetricks, we must suppress Box86's banner by typing `BOX86_NOBANNER=1` to avoid errors.  Similarly, invoking Box86's logging features (with `BOX86_LOG=1` or similar) will cause winetricks to crash (unless we patch winetricks - see the *Troubleshooting* section) # future work.
 
-Here is an example of a winetricks command:
+Here is an example of how we should run a winetricks command with box86:
 `BOX86_NOBANNER=1 winetricks -q corefonts vcrun2010 dotnet35sp1`
