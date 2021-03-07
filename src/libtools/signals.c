@@ -409,13 +409,13 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
     x86emu_t *emu = thread_get_emu();
-    uint32_t *frame = (uint32_t*)R_ESP;
+    uintptr_t *frame = (uintptr_t*)R_ESP;
 #if defined(DYNAREC) && defined(__arm__)
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     if(db) {
-        frame = (uint32_t*)p->uc_mcontext.arm_r8;
+        frame = (uintptr_t*)p->uc_mcontext.arm_r8;
     }
 #endif
     // stack tracking
@@ -424,9 +424,9 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uint32_t*)sigemu->regs[_SP].dword[0];
+            frame = (uintptr_t*)sigemu->regs[_SP].dword[0];
         } else {
-            frame = (uint32_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
+            frame = (uintptr_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
@@ -435,7 +435,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
     // try to fill some sigcontext....
-    frame -= sizeof(i386_ucontext_t)/4;
+    frame -= sizeof(i386_ucontext_t)/sizeof(uintptr_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
     // get general register
     sigcontext->uc_mcontext.gregs[REG_EAX] = R_EAX;
