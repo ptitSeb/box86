@@ -467,6 +467,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         sigcontext->uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.arm_r10;
         sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.arm_fp;
         sigcontext->uc_mcontext.gregs[REG_EIP] = getX86Address(db, (uintptr_t)pc);
+        sigcontext->uc_mcontext.gregs[REG_EFL] = p->uc_mcontext.arm_ip;
     }
 #endif
     // get FloatPoint status
@@ -593,6 +594,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
+    uintptr_t x86pc = (uintptr_t)-1;
     void* esp = NULL;
 #ifdef __arm__
     void * pc = (void*)p->uc_mcontext.arm_pc;
@@ -609,26 +611,33 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
-        if(box86_dynarec_smc) {
-            dynablock_t* db_pc = NULL;
-            db_pc = FindDynablockFromNativeAddress(pc);
-            if(db_pc) {
-                db = FindDynablockFromNativeAddress(addr);
-                db_searched = 1;
-            }
-            if(db_pc && db) {
-                if (db_pc == db) {
-                    dynarec_log(LOG_NONE, "Warning: Access to protected %p from %p, inside same dynablock\n", addr, pc);            
-                }
-            }
-            if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
-                dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
-            }
-        }
-        dynarec_log(LOG_DEBUG, "Access to protected %p from %p, unprotecting memory (prot=%x)\n", addr, pc, prot);
         // access error, unprotect the block (and mark them dirty)
         if(prot&PROT_DYNAREC)   // on heavy multi-thread program, the protection can already be gone...
             unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        // check if SMC inside block
+        if(!db_searched) {
+            db = FindDynablockFromNativeAddress(pc);
+            db_searched = 1;
+        }
+        if(db && (addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size))) {
+            // dynablock got auto-dirty! need to get out of it!!!
+            emu_jmpbuf_t* ejb = GetJmpBuf();
+            if(ejb->jmpbuf_ok) {
+                ejb->emu->regs[_AX].dword[0] = p->uc_mcontext.arm_r4;
+                ejb->emu->regs[_CX].dword[0] = p->uc_mcontext.arm_r5;
+                ejb->emu->regs[_DX].dword[0] = p->uc_mcontext.arm_r6;
+                ejb->emu->regs[_BX].dword[0] = p->uc_mcontext.arm_r7;
+                ejb->emu->regs[_SP].dword[0] = p->uc_mcontext.arm_r8;
+                ejb->emu->regs[_BP].dword[0] = p->uc_mcontext.arm_r9;
+                ejb->emu->regs[_SI].dword[0] = p->uc_mcontext.arm_r10;
+                ejb->emu->regs[_DI].dword[0] = p->uc_mcontext.arm_fp;
+                ejb->emu->ip.dword[0] = getX86Address(db, (uintptr_t)pc);
+                ejb->emu->eflags.x32 = p->uc_mcontext.arm_ip;
+                dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
+                longjmp(ejb->jmpbuf, 2);
+            }
+            dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x86_addr);
+        }
         // done
         if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
@@ -662,7 +671,6 @@ exit(-1);
         old_pc = pc;
         old_addr = addr;
         const char* name = GetNativeName(pc);
-        uintptr_t x86pc = (uintptr_t)-1;
         const char* x86name = NULL;
         const char* elfname = NULL;
         x86emu_t* emu = thread_get_emu();
