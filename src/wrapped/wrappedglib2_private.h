@@ -212,13 +212,13 @@ GOM(g_completion_set_compare, vFEpp)
 //GO(g_compute_hmac_for_data, 
 //GO(g_compute_hmac_for_string, 
 //GO(g_cond_broadcast, 
-//GO(g_cond_clear, 
+GO(g_cond_clear, vFp)
 GO(g_cond_free, vFp)
-//GO(g_cond_init, 
+GO(g_cond_init, vFp)
 GO(g_cond_new, pFv)
 //GO(g_cond_signal, 
 //GO(g_cond_timed_wait, 
-//GO(g_cond_wait, 
+GO(g_cond_wait, vFpp)
 //GO(g_cond_wait_until, 
 GO(g_convert, pFplppppp)
 //GO(g_convert_error_quark, 
