@@ -66,7 +66,6 @@
         GET_EX;
         GX.d[0] *= EX->d[0];
         break;
-
     case 0x5A:  /* CVTSD2SS Gx, Ex */
         nextop = F8;
         GET_EX;

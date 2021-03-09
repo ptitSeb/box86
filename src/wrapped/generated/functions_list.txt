@@ -149,6 +149,7 @@
 #() iFui
 #() iFuu
 #() iFup
+#() iFli
 #() iFLi
 #() iFLp
 #() iFpw
@@ -436,6 +437,7 @@
 #() lFipi
 #() lFipL
 #() lFlll
+#() lFlpi
 #() lFpLp
 #() lFppi
 #() lFppL
@@ -498,6 +500,7 @@
 #() pFppL
 #() pFppp
 #() pFpVV
+#() pFpOM
 #() pFSpi
 #() pFSpp
 #() vFEiip
@@ -647,6 +650,7 @@
 #() iFipLi
 #() iFippi
 #() iFippu
+#() iFippL
 #() iFippp
 #() iFipOu
 #() iFuipu
@@ -1662,7 +1666,6 @@
 #() pFEpppppiiV
 #() pFEpppppppi
 #() pFpiiiiuuuu
-#() pFpiuuuuuuu
 #() pFpupuuuuup
 #() pFppiiiiiip
 #() pFppiiuuuuu
@@ -1874,6 +1877,7 @@
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
+#!defined(HAVE_LD80BITS) KFpp
 #!defined(HAVE_LD80BITS) KFppi
 #!defined(HAVE_LD80BITS) KFppu
 #!defined(HAVE_LD80BITS) KFppip

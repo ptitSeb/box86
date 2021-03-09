@@ -3,7 +3,7 @@
 #endif
 
 // a64l
-GO(abort, vFv)      // Should be GOM once signal are handled properly
+GO(abort, vFv)
 GO(abs, iFi)
 GOW(accept, iFipp)
 GOM(accept4, iFEippi)   // glibc 2.10+
@@ -141,7 +141,7 @@ GO(clearerr_unlocked, vFp)
 // clntudp_bufcreate
 // clntudp_create
 // clntunix_create
-GO(clock, uFv)
+GO(clock, LFv)
 // clone    // Weak
 // __clone
 GOW(close, iFi)
@@ -719,10 +719,10 @@ GO(_IO_default_doallocate, iFS)
 GO(_IO_default_finish, vFSi)
 GO(_IO_default_pbackfail, iFSi)
 GO(_IO_default_uflow, iFS)
-GO(_IO_default_xsgetn, uFSpu)
-GO(_IO_default_xsputn, uFSpu)
+GO(_IO_default_xsgetn, LFSpL)
+GO(_IO_default_xsputn, LFSpL)
 GO(_IO_doallocbuf, vFS)
-GO(_IO_do_write, iFSpu)
+GO(_IO_do_write, iFSpL)
 // _IO_fclose
 // _IO_fdopen
 // _IO_feof
@@ -741,15 +741,15 @@ GO(_IO_file_init, vFS)
 DATA(_IO_file_jumps, 4)
 GO(_IO_file_open, pFSpiiii)
 GO(_IO_file_overflow, iFSi)
-GO(_IO_file_read, iFSpi)
+GO(_IO_file_read, lFSpl)
 GO(_IO_file_seek, IFSIi)
 GO(_IO_file_seekoff, IFSIii)
-GO(_IO_file_setbuf, pFSpi)
+GO(_IO_file_setbuf, pFSpl)
 GOM(_IO_file_stat, iFESp)
 GO(_IO_file_sync, iFS)
 GO(_IO_file_underflow, iFS)
-GO(_IO_file_write, iFSpi)
-GO(_IO_file_xsputn, uFSpu)
+GO(_IO_file_write, lFSpl)
+GO(_IO_file_xsputn, LFSpL)
 GO(_IO_flockfile, vFS)
 GO(_IO_flush_all, iFv)
 GO(_IO_flush_all_linebuffered, vFv)
@@ -767,7 +767,7 @@ GO(_IO_funlockfile, vFS)
 // _IO_fwrite
 GO(_IO_getc, iFS)
 // _IO_getline
-GO(_IO_getline_info, uFSpuiip)
+GO(_IO_getline_info, LFSpLiip)
 // _IO_gets
 GO(_IO_init, vFSi)
 GO(_IO_init_marker, vFpS)
@@ -982,7 +982,7 @@ GO(jrand48, iFp)
 // key_secretkey_is_set
 // key_setnet
 // key_setsecret
-GOW(kill, iFii)
+GOW(kill, iFli)
 GO(killpg, iFii)
 // klogctl
 // l64a
@@ -1108,7 +1108,7 @@ GO(__memcpy_chk, pFppuL)
 // memfrob
 GO(memmem, pFpupu)
 GO(memmove, pFppL)
-GO(__memmove_chk, pFppuu)
+GO(__memmove_chk, pFppLL)
 GO(mempcpy, pFppL)
 GO(__mempcpy, pFppu)
 // __mempcpy_chk
@@ -1363,11 +1363,11 @@ GOM(readdir, pFEp)  // should also be weak
 GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOM(readdir_r, iFEppp)  // should also be weak
-GOM(readlink, iFEppu)
-GO(readlinkat, iFippu)
+GOM(readlink, iFEppL)
+GO(readlinkat, iFippL)
 // __readlinkat_chk
 // __readlink_chk
-GO(readv, iFipi)
+GO(readv, lFipi)
 GO(realloc, pFpL)
 DATAV(__realloc_hook, 4)
 GOM(realpath, pFEpp)
@@ -1632,11 +1632,11 @@ DATA(stdout, 4)
 // stime
 GO(stpcpy, pFpp)
 // __stpcpy
-GO(__stpcpy_chk, pFppu)
+GO(__stpcpy_chk, pFppL)
 // __stpcpy_small
-GOW(stpncpy, pFppu)
-GO(__stpncpy, pFppu)
-GO(__stpncpy_chk, pFppuu)
+GOW(stpncpy, pFppL)
+GO(__stpncpy, pFppL)
+GO(__stpncpy_chk, pFppLL)
 GOW(strcasecmp, iFpp)
 GO(__strcasecmp, iFpp)
 // __strcasecmp_l
@@ -1644,7 +1644,7 @@ GO(__strcasecmp, iFpp)
 GOW(strcasestr, pFpp)
 GO(__strcasestr, pFpp)
 GO(strcat, pFpp)
-GO(__strcat_chk, pFppu)
+GO(__strcat_chk, pFppL)
 GO(strchr, pFpi)
 GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
@@ -1652,7 +1652,7 @@ GO(strcoll, iFpp)
 GO(__strcoll_l, iFppp)
 GOW(strcoll_l, iFppp)
 GO(strcpy, pFpp)
-GO(__strcpy_chk, pFppu)
+GO(__strcpy_chk, pFppL)
 // __strcpy_small
 GO(strcspn, LFpp)
 // __strcspn_c1
@@ -1714,12 +1714,13 @@ GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
 // __strtok_r_1c
 GO(strtol, lFppi)
-GO(strtold, DFpp)
 #ifdef HAVE_LD80BITS
+GO(strtold, DFpp)
 GO(__strtold_internal, DFppi)
 GO(__strtold_l, DFppip)
 GOW(strtold_l, DFppu)
 #else
+GO(strtold, KFpp)
 GO2(__strtold_internal, KFppi, __strtod_internal)
 GO2(__strtold_l, KFppip, __strtod_l)
 GO2(strtold_l, KFppu, strtod_l)
@@ -1804,8 +1805,8 @@ DATA(sys_sigabbrev, 4)
 DATA(_sys_siglist, 4)
 DATA(sys_siglist, 4)
 GOW(system, iFp)    // Need to wrap to use box86 if needed?
-GOM(__sysv_signal, pFip)
-GOM(sysv_signal, pFip)  // Weak
+GOM(__sysv_signal, pFEip)
+GOM(sysv_signal, pFEip)  // Weak
 GOW(tcdrain, iFi)
 GO(tcflow, iFii)
 GO(tcflush, iFii)
@@ -1822,8 +1823,8 @@ GO(telldir, iFp)
 GO(tempnam, pFpp)
 GOW(textdomain, pFp)
 // tfind    // Weak
-GO(time, uFp)
-GO(timegm, uFp)
+GO(time, LFp)
+GO(timegm, LFp)
 // timelocal    // Weak
 GO(timerfd_create, iFii)
 GO(timerfd_gettime, iFip)
@@ -1951,8 +1952,8 @@ GOW(__wait, iFp)
 GOW(wait3, iFpip)
 GOW(wait4, iFipip)
 GOW(waitid, iFiipi)
-GOW(waitpid, iFipi)
-GOW(__waitpid, iFipi)
+GOW(waitpid, lFlpi)
+GOW(__waitpid, lFlpi)
 GO(warn, vFppppppppp)
 GO(warnx, vFppppppppp)
 GOW(wcpcpy, pFpp)
