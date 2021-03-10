@@ -20,15 +20,22 @@
 const char* png16Name = "libpng16.so.16";
 #define LIBNAME png16
 
-typedef void (*vFpp_t)(void*, void*);
-typedef void (*vFppp_t)(void*, void*, void*);
+typedef void  (*vFpp_t)(void*, void*);
+typedef void  (*vFppp_t)(void*, void*, void*);
 typedef void  (*vFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFpppp_t)(void*, void*, void*, void*);
+typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
+typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() \
     GO(png_set_read_fn, vFppp_t)                \
     GO(png_set_error_fn, vFpppp_t)              \
     GO(png_set_read_user_transform_fn, vFpp_t)  \
     GO(png_set_write_fn, vFpppp_t)              \
+    GO(png_create_read_struct_2, pFppppppp_t)   \
+    GO(png_create_write_struct_2, pFppppppp_t)  \
+    GO(png_set_progressive_read_fn, vFppppp_t)  \
+    GO(png_create_read_struct, pFpppp_t)        \
 
 
 typedef struct png16_my_s {
@@ -341,6 +348,37 @@ EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* io_ptr, vo
     my->png_set_write_fn(png_ptr, io_ptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
+EXPORT void* my16_png_create_read_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
+{
+    library_t * lib = GetLibInternal(png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+
+    return my->png_create_read_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
+}
+
+EXPORT void* my16_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
+{
+    library_t * lib = GetLibInternal(png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+
+    return my->png_create_write_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
+}
+
+EXPORT void my16_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void* user_ptr, void* info, void* row, void* end)
+{
+    library_t * lib = GetLibInternal(png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+
+    my->png_set_progressive_read_fn(png_ptr, user_ptr, findprogressive_infoFct(info), findprogressive_rowFct(row), findprogressive_endFct(end));
+}
+
+EXPORT void* my16_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
+{
+    library_t * lib = GetLibInternal(png16Name);
+    png16_my_t *my = (png16_my_t*)lib->priv.w.p2;
+
+    return my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
+}
 
 #define CUSTOM_INIT \
     lib->priv.w.altprefix=strdup("yes"); \
