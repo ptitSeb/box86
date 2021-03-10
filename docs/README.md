@@ -8,6 +8,7 @@ Linux Userspace x86 Emulator with a twist
 Compiling/Installation
 ----
 > Compilation instructions can be found [here](COMPILE.md)  
+> Instructions for installing Wine for Box86 can be found [here](X86WINE.md)  
 > For an easy 1-click installation on a Raspberry Pi, check out box86 on [pi-apps](https://github.com/Botspot/pi-apps/)
 
 Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM (host system needs to be 32bit little-endian).
