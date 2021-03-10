@@ -1,9 +1,13 @@
 # Installing Wine (and winetricks)
+Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).  See installation steps below (in the **Examples** section).
+
 _TwisterOS users, take note: Wine, winetricks, and Box86 are pre-installed in TwisterOS. TwisterOS users do not have to install anything._
 
-Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).
+Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Box86 actually needs `wine-i386` to be installed **manually** on ARM devices instead (installing wine-i386 on ARM systems with `multiarch` will fail due to too many required i386 dependencies).  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work.  The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
 
-Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Box86 actually needs `wine-i386` to be installed **manually** on ARM devices instead (installing wine-i386 on ARM systems with `multiarch` will fail due to too many required i386 dependencies).
+Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/).  Box86 requires the "i386" (x86) versions of Wine install files (even though we are installing it on an ARM processor).  Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries.  Below are examples of how to install Wine from each of those places.
+
+_Raspberry Pi users: Wine requires a 3G/1G split memory kernel.  Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**  Pi 3 (and Pi 4) users can use the [pi-apps](https://github.com/Botspot/pi-apps/) installer to install Box86, Wine, winetricks, and a new kernel. Users running Pi 2 and earlier will have to google some instructions on how to install a custom 3G/1G kernel to work with Wine._
 
 ## Overview and Notes
 The general procedure for installing Wine for Box86 is to...
@@ -13,19 +17,6 @@ The general procedure for installing Wine for Box86 is to...
  - Go to `/usr/local/bin` and make symlinks or scripts that will point to your main wine binaries (`wine`, `winecfg`, and `wineserver`).
  - Boot wine to create a new wineprefix
  - Download winetricks (which is simply a very complicated bash script), make it executable, then copy it to `/usr/local/bin`
-
-Your entire Wine installation can reside within a single folder on your Linux computer.  TwisterOS assumes that your Wine installation is located inside the `~/wine/` directory.  The actual directory where you put your `wine` folder doesn't matter as long as you have symlinks within the `/usr/local/bin/` directory which point to the `wine` folder so that Linux can find Wine when you type `wine` into the terminal).  When you first run or boot Wine (`wine wineboot`), Wine will create a new user environment within which to install Windows software.  This user environment is called a "wineprefix" (or "wine bottle") and is located (by default) in `~/.wine` (note that Linux folders with a `.` in front of them are "hidden" folders).  For more Wine documentation, see [WineHQ](https://www.winehq.org/documentation).
-
-Some versions of Wine work better with certain software.  It is best to install a version of Wine that is known to work with the software you would like to run.  There are three main development branches of Wine you can pick from, referred to as wine-stable, wine-devel, and wine-staging.  The wine-staging branch requires extra installation steps on Raspberry Pi.
-
-Winetricks is a script which makes it easier to install & configure any desired Windows core system software packages which may be dependencies for certain Windows programs.
-
-Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/).  Box86 requires the "i386" (x86) versions of Wine install files (even though we are installing it on an ARM processor).  Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries.  Below are examples of how to install Wine from each of those places.
-
-Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work.  The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
-
-A note for Raspberry Pi users: Wine requires a 3G/1G split memory kernel.  Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**  Pi 3 (and Pi 4) users can use the [pi-apps](https://github.com/Botspot/pi-apps/) installer to install Box86, Wine, winetricks, and a new kernel. Users running Pi 2 and earlier will have to google some instructions on how to install a custom 3G/1G kernel to work with Wine.
-
 
 ## Examples
 _These examples were all tested on Raspberry Pi 4.  Note the similarities between the different install methods._
@@ -102,20 +93,9 @@ sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg
 # Boot wine (make fresh wineprefix in ~/.wine )
 wineboot
 ```
+## Installing winetricks
+Winetricks is a script which makes it easier to install & configure any desired Windows core system software packages which may be dependencies for certain Windows programs.
 
-
-## Wineprefixes (and Wine initialization)
-The first time Wine is run (`wine wineboot`), it will create a fresh wineprefix for you (by default, located in the hidden folder `~/.wine`).  Think of a wineprefix as Wine's virtual 'harddrive' where it installs software and saves settings.  Wineprefixes are portable and deletable.
-
-If you at any point corrupt something inside your default wineprefix, you can start "fresh" by deleting your `~/.wine` directory (with the `rm -rf ~/.wine` command) and boot wine again to create a new default wineprefix.
-
-## Transplanting wineprefixes (side-loading)
-If software isn't installing in Wine with Box86, but is installing for you in Wine on a regular x86 Linux computer, you can copy a wineprefix from your x86 Linux computer to the device you're running Box86 on.  This is most easily done by tarring the `~/.wine` folder on your x86 Linux computer (`tar -cvf winebottle.tar ~/.wine`), transferring the tar file to your device, then un-tarring the tar file on your device running Box86 & Wine.  Tarring the wineprefix preserves any symlinks that are inside it.
-
-## Swapping out different versions of Wine
-You can change which version of Wine you are running simply by renaming your old `wine` and `.wine` folders to something else, then putting a new `wine` folder (containing your new version of Wine) in its place. Running `wine wineboot` again will make a fresh wineprefix with your new version of Wine.  You can check which version of Wine you're running with the `wine --version` command.
-
-## Installing and Using winetricks
 ```
 # Backup old winetricks
 sudo mv /usr/local/bin/winetricks /usr/local/bin/winetricks-old
@@ -131,7 +111,28 @@ sudo cp winetricks /usr/local/bin
 # winetricks needs this installed
 sudo apt-get install cabextract -y
 ```
-Whenever we run winetricks, we must suppress Box86's banner by typing `BOX86_NOBANNER=1` to avoid errors.  Similarly, invoking Box86's logging features (with `BOX86_LOG=1` or similar) will cause winetricks to crash (unless we patch winetricks - see the *Troubleshooting* section) # future work.
 
+## Example commands
 Here is an example of how we should run a winetricks command with box86:
 `BOX86_NOBANNER=1 winetricks -q corefonts vcrun2010 dotnet35sp1`
+
+Whenever we run winetricks, we must suppress Box86's banner by typing `BOX86_NOBANNER=1` to avoid errors.  Similarly, invoking Box86's logging features (with `BOX86_LOG=1` or similar) will cause winetricks to crash (unless we patch winetricks - see the *Troubleshooting* section) # future work.
+
+## Other notes
+
+### Wineprefixes (and Wine initialization)
+The first time Wine is run (`wine wineboot`), it will create a fresh wineprefix for you (by default, located in the hidden folder `~/.wine`).  Think of a wineprefix as Wine's virtual 'harddrive' where it installs software and saves settings.  Wineprefixes are portable and deletable.
+
+If you at any point corrupt something inside your default wineprefix, you can start "fresh" by deleting your `~/.wine` directory (with the `rm -rf ~/.wine` command) and boot wine again to create a new default wineprefix.
+
+### Transplanting wineprefixes (side-loading)
+When you first run or boot Wine (`wine wineboot`), Wine will create a new user environment within which to install Windows software.  This user environment is called a "wineprefix" (or "wine bottle") and is located (by default) in `~/.wine` (note that Linux folders with a `.` in front of them are "hidden" folders).  For more Wine documentation, see [WineHQ](https://www.winehq.org/documentation).
+
+If software isn't installing in Wine with Box86, but is installing for you in Wine on a regular x86 Linux computer, you can copy a wineprefix from your x86 Linux computer to the device you're running Box86 on.  This is most easily done by tarring the `~/.wine` folder on your x86 Linux computer (`tar -cvf winebottle.tar ~/.wine`), transferring the tar file to your device, then un-tarring the tar file on your device running Box86 & Wine.  Tarring the wineprefix preserves any symlinks that are inside it.
+
+### Swapping out different versions of Wine
+Some versions of Wine work better with certain software.  It is best to install a version of Wine that is known to work with the software you would like to run.  There are three main development branches of Wine you can pick from, referred to as wine-stable, wine-devel, and wine-staging.  _Note that the wine-staging branch requires extra installation steps on Raspberry Pi._
+
+Your entire Wine installation can reside within a single folder on your Linux computer.  TwisterOS assumes that your Wine installation is located inside the `~/wine/` directory.  The actual directory where you put your `wine` folder doesn't matter as long as you have symlinks within the `/usr/local/bin/` directory which point to the `wine` folder so that Linux can find Wine when you type `wine` into the terminal).
+
+You can change which version of Wine you are running simply by renaming your old `wine` and `.wine` folders to something else, then putting a new `wine` folder (containing your new version of Wine) in its place. Running `wine wineboot` again will make a fresh wineprefix with your new version of Wine.  You can check which version of Wine you're running with the `wine --version` command.
