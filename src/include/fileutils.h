@@ -17,7 +17,7 @@ char* ResolveFile(const char* filename, path_collection_t* paths);
 int FileIsX86ELF(const char* filename);
 int FileIsX64ELF(const char* filename);
 
-#if defined(RPI) || defined(RK3399)
+#if defined(RPI) || defined(RK3399) || defined(GOA_CLONE)
 void sanitize_mojosetup_gtk_background();
 #endif
 

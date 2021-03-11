@@ -70,7 +70,7 @@ void x86Int3(x86emu_t* emu)
     if(Peek(emu, 0)=='S' && Peek(emu, 1)=='C') // Signature for "Out of x86 door"
     {
         R_EIP += 2;
-        #ifdef RK3399
+        #if defined(RK3399) || defined(GOA_CLONE)
         volatile    // to avoid addr to be put in an VFPU register
         #endif
         uint32_t addr = Fetch32(emu);
