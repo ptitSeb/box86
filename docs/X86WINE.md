@@ -1,15 +1,16 @@
 # Installing Wine (and winetricks)
-Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).  See installation steps below (in the **Examples** section).
+Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).  
+See installation steps below (in the [Examples](#examples) section).
 
 _TwisterOS users, take note: Wine, winetricks, and Box86 are pre-installed in TwisterOS. TwisterOS users do not have to install anything._
 
-Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Box86 actually needs `wine-i386` to be installed **manually** on ARM devices instead.  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work. The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries. Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
+Box86 actually needs `wine-i386` to be installed **manually** on ARM devices.  Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work. The "twist" in Box86 is that Box86 "wraps" many Windows and Wine i386 libraries (`.so` or `.dll` files) so that they will work with your ARM device's libraries. Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
 
 Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/). Box86 requires the "i386" (x86) versions of Wine install files (even though we are installing it on an ARM processor). Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries. Below are examples of how to install Wine from each of those places.
 
 _Raspberry Pi users: Wine requires a 3G/1G split memory kernel. Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**  Pi 3 (and Pi 4) users can use the [pi-apps](https://github.com/Botspot/pi-apps/) installer to install Box86, Wine, winetricks, and a new kernel. Users running Pi 2 and earlier will have to google some instructions on how to install a custom 3G/1G kernel to work with Wine._
 
-## Overview and Notes
+## Overview
 The general procedure for installing Wine for Box86 is to...
  - Download all the install files (.deb, .zip, or even .pol files) for the version of Wine you wish to install
  - Unzip or dpkg the install files into one folder
@@ -55,7 +56,6 @@ sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg
 # These packages are needed for running wine-staging on RPi 4 (Credits: chills340)
 sudo apt install libstb0 -y
 cd ~/Downloads
-wget http://ftp.us.debian.org/debian/pool/main/f/faudio/libfaudio0_20.11-1~bpo10+1_i386.deb
 wget -r -l1 -np -nd -A "libfaudio0_*~bpo10+1_i386.deb" http://ftp.us.debian.org/debian/pool/main/f/faudio/ # Download libfaudio i386 no matter its version number
 dpkg-deb -xv libfaudio0_*~bpo10+1_i386.deb libfaudio
 sudo cp -TRv libfaudio/usr/ /usr/
@@ -106,17 +106,20 @@ wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetric
 
 # Install
 sudo chmod +x winetricks
-sudo cp winetricks /usr/local/bin
+sudo mv winetricks /usr/local/bin/
 
 # winetricks needs this installed
 sudo apt-get install cabextract -y
 ```
 
 ## Example commands
-Here is an example of how we should run a winetricks command with box86:
-`BOX86_NOBANNER=1 winetricks -q corefonts vcrun2010 dotnet35sp1`
+Here is an example of how we should run a winetricks command with box86:  
+`BOX86_NOBANNER=1 winetricks -q corefonts vcrun2010 dotnet20sp1`  
+_This command will silently install three packages in series: Windows core fonts, VC++ 2010 Runtimes, and .NET 2.0 SP1.  `-q` is the "install silent/quiet" command._
 
-Whenever we run winetricks, we must suppress Box86's banner by typing `BOX86_NOBANNER=1` to avoid errors.  Similarly, invoking Box86's logging features (with `BOX86_LOG=1` or similar) will cause winetricks to crash (unless we patch winetricks - see the *Troubleshooting* section) # future work.
+Whenever we run winetricks, we must suppress Box86's banner by typing `BOX86_NOBANNER=1` to prevent winetricks from crashing.  Invoking Box86's logging features (with `BOX86_LOG=1` or similar) will also cause winetricks to crash.  (If Box86 logging is necessary though, we can patch winetricks to avoid these crashes - see the *Troubleshooting* section) # future work.
+
+For a list of all the different Windows packages & libraries that winetricks can help you install, run `winetricks list-all`  
 
 ## Other notes
 
