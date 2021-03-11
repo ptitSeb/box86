@@ -1017,7 +1017,7 @@ GO(g_rmdir, iFp)
 //GO(g_sequence_swap, 
 GO(g_set_application_name, vFp)
 GO(g_setenv, iFppi)
-GO(g_set_error, vFppipppppppppp)    // vaarg, and no valist equivalent it seems. Should wrap with literal version probably
+GOM(g_set_error, vFEppipV)
 GO(g_set_error_literal, vFppip)
 GO(g_set_prgname, vFp)
 GOM(g_set_printerr_handler, pFEp)

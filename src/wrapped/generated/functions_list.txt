@@ -389,7 +389,7 @@
 #() iFpPP
 #() iFpGG
 #() iFSpi
-#() iFSpu
+#() iFSpL
 #() IFiIi
 #() IFpIi
 #() IFppi
@@ -420,7 +420,6 @@
 #() uFppi
 #() uFppu
 #() uFppp
-#() uFSpu
 #() UFppi
 #() UFppu
 #() fFuii
@@ -441,12 +440,14 @@
 #() lFpLp
 #() lFppi
 #() lFppL
+#() lFSpl
 #() LFiii
 #() LFpii
 #() LFpLi
 #() LFpLp
 #() LFppi
 #() LFppp
+#() LFSpL
 #() pFEip
 #() pFEup
 #() pFEpi
@@ -501,7 +502,7 @@
 #() pFppp
 #() pFpVV
 #() pFpOM
-#() pFSpi
+#() pFSpl
 #() pFSpp
 #() vFEiip
 #() vFEipV
@@ -1102,6 +1103,7 @@
 #() vFEpuipp
 #() vFEpupup
 #() vFEpLLpp
+#() vFEppipV
 #() vFEppupp
 #() vFEppppp
 #() vFiiiiii
@@ -1280,12 +1282,12 @@
 #() uFppippp
 #() uFpppppi
 #() uFpppppp
-#() uFSpuiip
 #() UFpippup
 #() lFipLipp
 #() LFEupppp
 #() LFpipipi
 #() LFpLippp
+#() LFSpLiip
 #() pFEpippp
 #() pFEpuipp
 #() pFEpuupp
@@ -1801,7 +1803,6 @@
 #() vFpuppppppppppp
 #() vFppiiiiiiiiiii
 #() vFppiipppiiiiii
-#() vFppipppppppppp
 #() vFppppppppppppp
 #() iFddddpppddpppp
 #() iFpippuuuiipppp

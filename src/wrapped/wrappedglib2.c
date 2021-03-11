@@ -40,6 +40,7 @@ typedef uint32_t  (*uFppp_t)(void*, void*, void*);
 typedef void  (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void  (*vFppip_t)(void*, void*, int, void*);
 typedef void* (*pFppip_t)(void*, void*, int, void*);
 typedef uint32_t (*uFpipp_t)(void*, int, void*, void*);
 typedef uint32_t (*uFuppp_t)(uint32_t, void*, void*, void*);
@@ -136,6 +137,7 @@ typedef int (*iFpppippppppp_t)(void*, void*, void*, int, void*, void*, void*, vo
     GO(g_timeout_add_seconds, uFupp_t)          \
     GO(g_timeout_add_seconds_full, uFiuppp_t)   \
     GO(g_log_set_handler, uFpipp_t)             \
+    GO(g_set_error_literal, vFppip_t)           \
 
 
 typedef struct glib2_my_s {
@@ -1380,6 +1382,16 @@ EXPORT uint32_t my_g_log_set_handler(x86emu_t *emu, void* domain, int level, voi
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
 
     return my->g_log_set_handler(domain, level, findGLogFuncFct(f), data);
+}
+
+EXPORT void my_g_set_error(x86emu_t *emu, void* err, void* domain, int code, void* fmt, uint32_t* stack)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    char buf[1000];
+    myStackAlign(fmt, stack, emu->scratch);
+    void* f = vsnprintf;
+    ((iFpLpp_t)f)(buf, sizeof(buf), fmt, emu->scratch);
+    my->g_set_error_literal(err, domain, code, buf);
 }
 
 
