@@ -157,8 +157,10 @@ typedef struct emuthread_s {
 static void emuthread_destroy(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
-	FreeX86Emu(&et->emu);
-	free(et);
+	if(et) {
+		FreeX86Emu(&et->emu);
+		free(et);
+	}
 }
 
 static pthread_key_t thread_key;
@@ -763,8 +765,10 @@ EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 static void emujmpbuf_destroy(void* p)
 {
 	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
-	free(ej->jmpbuf);
-	free(ej);
+	if(ej) {
+		free(ej->jmpbuf);
+		free(ej);
+	}
 }
 
 static pthread_key_t jmpbuf_key;
@@ -809,4 +813,14 @@ void fini_pthread_helper(box86context_t* context)
 	);
 	kh_destroy(mutex, unaligned_mutex);
 #endif
+	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
+	if(ejb) {
+		emujmpbuf_destroy(ejb);
+		pthread_setspecific(jmpbuf_key, NULL);
+	}
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(et) {
+		emuthread_destroy(et);
+		pthread_setspecific(thread_key, NULL);
+	}
 }

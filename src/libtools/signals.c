@@ -856,7 +856,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
         struct kernel_sigaction newact = {0};
         struct kernel_sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%x\n", act->sa_flags, *(uint32_t*)&act->sa_mask);
+            printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%llx\n", act->sa_flags, *(uint64_t*)&act->sa_mask);
             memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>8)?8:sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
@@ -899,7 +899,7 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
         struct sigaction newact = {0};
         struct sigaction old = {0};
         if(act) {
-            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%x\n", act->sa_flags, *(uint32_t*)&act->sa_mask);
+            printf_log(LOG_DEBUG, " New action flags=0x%x mask=0x%llx\n", act->sa_flags, *(uint64_t*)&act->sa_mask);
             newact.sa_mask = act->sa_mask;
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
@@ -1066,7 +1066,7 @@ void init_signal_helper(box86context_t* context)
     for(int i=0; i<MAX_SIGNAL; ++i) {
         context->signals[i] = 1;    // SIG_DFL
     }
-	struct sigaction action;
+	struct sigaction action = {0};
 	action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
 	action.sa_sigaction = my_box86signalhandler;
     sigaction(SIGSEGV, &action, NULL);
