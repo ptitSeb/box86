@@ -77,6 +77,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);
+    emu->mxcsr = 0x1f80;  
 }
 
 EXPORTDYN

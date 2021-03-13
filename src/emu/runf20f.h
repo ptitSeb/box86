@@ -35,7 +35,7 @@
     case 0x2D:  /* CVTSD2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        switch(emu->round) {
+        switch((emu->mxcsr>>13)&3) {
             case ROUND_Nearest:
                 GD.sdword[0] = floor(EX->d[0]+0.5);
                 break;
@@ -247,8 +247,24 @@
     case 0xE6:  /* CVTPD2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.sd[0] = EX->d[0];
-        GX.sd[1] = EX->d[1];
+        switch((emu->mxcsr>>13)&3) {
+            case ROUND_Nearest:
+                GX.sd[0] = floor(EX->d[0]+0.5);
+                GX.sd[1] = floor(EX->d[1]+0.5);
+                break;
+            case ROUND_Down:
+                GX.sd[0] = floor(EX->d[0]);
+                GX.sd[1] = floor(EX->d[1]);
+                break;
+            case ROUND_Up:
+                GX.sd[0] = ceil(EX->d[0]);
+                GX.sd[1] = ceil(EX->d[1]);
+                break;
+            case ROUND_Chop:
+                GX.sd[0] = EX->d[0];
+                GX.sd[1] = EX->d[1];
+                break;
+        }
         GX.q[1] = 0;
         break;
 

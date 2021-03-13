@@ -149,7 +149,7 @@
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GET_EX;
-            switch(emu->round) {
+            switch((emu->mxcsr>>13)&3) {
                 case ROUND_Nearest:
                     GM.sd[1] = floorf(EX->f[1]+0.5f);
                     GM.sd[0] = floorf(EX->f[0]+0.5f);
@@ -825,7 +825,6 @@
             GD.dword[0] = imul32(emu, GD.dword[0], ED->dword[0]);
             NEXT;
         _0f_0xB0:                      /* CMPXCHG Eb,Gb */
-            CHECK_FLAGS(emu);
             nextop = F8;
             GET_EB;
             cmp8(emu, R_AL, EB->byte[0]);

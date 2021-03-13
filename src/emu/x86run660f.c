@@ -215,7 +215,7 @@ void Run660F(x86emu_t *emu)
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        switch(emu->round) {
+        switch((emu->mxcsr>>13)&3) {
             case ROUND_Nearest:
                 GM.sd[0] = floor(EX->d[0]+0.5);
                 GM.sd[1] = floor(EX->d[1]+0.5);
@@ -488,10 +488,32 @@ void Run660F(x86emu_t *emu)
     case 0x5B:                      /* CVTPS2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.sd[0] = EX->f[0];
-        GX.sd[1] = EX->f[1];
-        GX.sd[2] = EX->f[2];
-        GX.sd[3] = EX->f[3];
+        switch((emu->mxcsr>>13)&3) {
+            case ROUND_Nearest:
+                GX.sd[0] = floorf(EX->f[0]+0.5f);
+                GX.sd[1] = floorf(EX->f[1]+0.5f);
+                GX.sd[2] = floorf(EX->f[2]+0.5f);
+                GX.sd[3] = floorf(EX->f[3]+0.5f);
+                break;
+            case ROUND_Down:
+                GX.sd[0] = floorf(EX->f[0]);
+                GX.sd[1] = floorf(EX->f[1]);
+                GX.sd[2] = floorf(EX->f[2]);
+                GX.sd[3] = floorf(EX->f[3]);
+                break;
+            case ROUND_Up:
+                GX.sd[0] = ceilf(EX->f[0]);
+                GX.sd[1] = ceilf(EX->f[1]);
+                GX.sd[2] = ceilf(EX->f[2]);
+                GX.sd[3] = ceilf(EX->f[3]);
+                break;
+            case ROUND_Chop:
+                GX.sd[0] = EX->f[0];
+                GX.sd[1] = EX->f[1];
+                GX.sd[2] = EX->f[2];
+                GX.sd[3] = EX->f[3];
+                break;
+        }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;

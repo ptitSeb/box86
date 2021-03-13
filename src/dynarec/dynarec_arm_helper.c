@@ -839,6 +839,20 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     return s3;
 }
 
+// Set rounding according to mxcsr flags, return reg to restore flags
+int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    LDRH_IMM8(s1, xEmu, offsetof(x86emu_t, mxcsr));
+    UBFX(s2, s1, 13, 2);    // extract round...
+    MOV32(s1, round_map);
+    LDR_REG_LSL_IMM5(s2, s1, s2, 2);
+    VMRS(s1);               // get fpscr
+    MOV_REG(s3, s1);
+    BFI(s1, s2, 22, 2);     // inject new round
+    VMSR(s1);               // put new fpscr
+    return s3;
+}
+
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {

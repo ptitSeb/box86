@@ -921,7 +921,6 @@ _trace:
             GET_ED;
             ED->dword[0] = F32;
             NEXT;
-
         _0xC8:                      /* ENTER Iw,Ib */
             tmp16u = F16;
             tmp8u = (F8) & 0x1f;
@@ -937,7 +936,6 @@ _trace:
             }
             R_ESP -= tmp16u;
             NEXT;
-
         _0xC9:                      /* LEAVE */
             R_ESP = R_EBP;
             R_EBP = Pop(emu);

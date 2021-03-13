@@ -341,7 +341,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 d0 = v0;
             else
                 d0 = fpu_get_scratch_double(dyn);
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            u8 = sse_setround(dyn, ninst, x1, x2, x14);
             VCVTR_S32_F32(d0*2, d1*2);
             VCVTR_S32_F32(d0*2+1, d1*2+1);
             if(v0>=16) {

@@ -227,7 +227,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0x2D:
             INST_NAME("CVTSS2SI Gd, Ex");
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            u8 = sse_setround(dyn, ninst, x1, x2, x14);
             nextop = F8;
             GETGD;
             s0 = fpu_get_scratch_single(dyn);
