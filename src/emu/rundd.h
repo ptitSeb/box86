@@ -20,7 +20,7 @@
     case 0xD5:
     case 0xD6:
     case 0xD7:
-        ST(nextop&7).ll = ST0.ll;
+        ST(nextop&7).q = ST0.q;
         break;
     case 0xD8:  /* FSTP ST0, STx */
     case 0xD9:
@@ -30,7 +30,7 @@
     case 0xDD:
     case 0xDE:
     case 0xDF:
-        ST(nextop&7).ll = ST0.ll;
+        ST(nextop&7).q = ST0.q;
         fpu_do_pop(emu);
         break;
     case 0xE0:  /* FUCOM ST0, STx */

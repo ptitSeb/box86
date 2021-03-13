@@ -111,8 +111,8 @@
     } else getecommono(A, reg32_t, O)
 #define getem(A) \
     if((nextop&0xC0)==0xC0) { \
-        A = &emu->mmx[(nextop&7)]; \
-    } else getecommon(A, mmx_regs_t)
+        A = &emu->mmx87[(nextop&7)]; \
+    } else getecommon(A, mmx87_regs_t)
 #define getex(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->xmm[(nextop&7)]; \
@@ -141,7 +141,7 @@
 #define EX          opex
 #define GB          emu->regs[(nextop>>3)&3].byte[(nextop>>5)&0x1]
 #define GD          emu->regs[((nextop&0x38)>>3)]
-#define GM          emu->mmx[((nextop&0x38)>>3)]
+#define GM          emu->mmx87[((nextop&0x38)>>3)]
 #define GX          emu->xmm[((nextop&0x38)>>3)]
 
 // Alias

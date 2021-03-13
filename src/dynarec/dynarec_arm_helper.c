@@ -593,10 +593,10 @@ static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3
     if(ret!=0) {
         // --- set values
         // prepare offset to fpu => s1
-        if(offsetof(x86emu_t, fpu)<256) {
-            ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+        if(offsetof(x86emu_t, mmx87)<256) {
+            ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
         } else {
-            MOVW(s1, offsetof(x86emu_t, fpu));
+            MOVW(s1, offsetof(x86emu_t, mmx87));
             ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
         }
         // Get top
@@ -627,10 +627,10 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, fpu)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    if(offsetof(x86emu_t, mmx87)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
-        MOVW(s1, offsetof(x86emu_t, fpu));
+        MOVW(s1, offsetof(x86emu_t, mmx87));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     }
     // Get top
@@ -663,10 +663,10 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    if(offsetof(x86emu_t, fpu)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    if(offsetof(x86emu_t, mmx87)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
-        MOVW(s1, offsetof(x86emu_t, fpu));
+        MOVW(s1, offsetof(x86emu_t, mmx87));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     }
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
@@ -711,10 +711,10 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, fpu)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    if(offsetof(x86emu_t, mmx87)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
-        MOVW(s1, offsetof(x86emu_t, fpu));
+        MOVW(s1, offsetof(x86emu_t, mmx87));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     }
     // Get top
@@ -742,10 +742,10 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, fpu)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    if(offsetof(x86emu_t, mmx87)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
-        MOVW(s1, offsetof(x86emu_t, fpu));
+        MOVW(s1, offsetof(x86emu_t, mmx87));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     }
     // Get top
@@ -773,10 +773,10 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         if(dyn->x87cache[i]==st) {
             // refresh the value
         MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
-            if(offsetof(x86emu_t, fpu)<256) {
-                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+            if(offsetof(x86emu_t, mmx87)<256) {
+                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
             } else {
-                MOVW(s1, offsetof(x86emu_t, fpu));
+                MOVW(s1, offsetof(x86emu_t, mmx87));
                 ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
             }
             LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
@@ -803,10 +803,10 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    if(offsetof(x86emu_t, fpu)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, fpu));
+    if(offsetof(x86emu_t, mmx87)<256) {
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
-        MOVW(s1, offsetof(x86emu_t, fpu));
+        MOVW(s1, offsetof(x86emu_t, mmx87));
         ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
     }
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
@@ -874,7 +874,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
-    int offs = offsetof(x86emu_t, mmx[a]);
+    int offs = offsetof(x86emu_t, mmx87[a]);
     if(!(offs&3) && (offs>>2)<256) {
         ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
     } else {
@@ -908,7 +908,7 @@ static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
-                int offs = offsetof(x86emu_t, mmx[i]);
+                int offs = offsetof(x86emu_t, mmx87[i]);
                 if(!(offs&3) && (offs>>2)<256) {
                     ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
                 } else {
@@ -939,7 +939,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
-                int offs = offsetof(x86emu_t, mmx[i]);
+                int offs = offsetof(x86emu_t, mmx87[i]);
                 if(!(offs&3) && (offs>>2)<256) {
                     ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
                 } else {

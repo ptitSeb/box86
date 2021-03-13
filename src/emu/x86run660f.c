@@ -37,7 +37,7 @@ void Run660F(x86emu_t *emu)
     uint32_t tmp32u;
     int32_t tmp32s;
     sse_regs_t *opex, eax1, *opx2;
-    mmx_regs_t *opem;
+    mmx87_regs_t *opem;
 
 
     opcode = F8;

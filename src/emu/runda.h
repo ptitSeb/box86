@@ -11,7 +11,7 @@
     case 0xC7:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xC8:      /* FCMOVE ST(0), ST(i) */
     case 0xC9:
@@ -23,7 +23,7 @@
     case 0xCF:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_ZF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xD0:      /* FCMOVBE ST(0), ST(i) */
     case 0xD1:
@@ -35,7 +35,7 @@
     case 0xD7:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     case 0xD8:      /* FCMOVU ST(0), ST(i) */
     case 0xD9:
@@ -47,7 +47,7 @@
     case 0xDF:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_PF))
-            ST0.ll = ST(nextop&7).ll;
+            ST0.q = ST(nextop&7).q;
         break;
     
     case 0xE9:      /* FUCOMPP */
