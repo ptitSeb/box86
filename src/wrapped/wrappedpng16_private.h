@@ -3,7 +3,7 @@
 #endif
 
 GO(png_convert_from_time_t, vFpu)
-GOM(png_create_read_struct, pFpppp)
+GOM(png_create_read_struct, pFEpppp)
 GO(png_create_info_struct, pFp)
 GO(png_create_write_struct, pFpppp)
 GO(png_destroy_read_struct, vFppp)
