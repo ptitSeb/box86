@@ -650,9 +650,9 @@ GO(herror, vFp)
 GO(hstrerror, pFi)
 GO(htonl, uFu)
 GO(htons, uFu)
-GO(iconv, uFupppp)
-GO(iconv_close, iFu)
-GO(iconv_open, uFpp)
+GO(iconv, LFLpppp)
+GO(iconv_close, iFL)
+GO(iconv_open, LFpp)
 GO(iconv_canonicalize, pFp)
 GO(if_freenameindex, vFp)
 GO(if_indextoname, pFup)
@@ -1113,10 +1113,10 @@ GO(mempcpy, pFppL)
 GO(__mempcpy, pFppu)
 // __mempcpy_chk
 // __mempcpy_small
-GOW(memrchr, pFpiu)
+GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
-GO(__memset_chk, pFpiuu)
-GO(mincore, iFpup)
+GO(__memset_chk, pFpiLL)
+GO(mincore, iFpLp)
 GOW(mkdir, iFpu)
 GO(mkdirat, iFipu)
 GO(mkdtemp, pFp)
@@ -1127,7 +1127,7 @@ GO(mkostemp64, iFpi)
 GO(mkstemp, iFp)
 GO(mkstemp64, iFp)
 GO(mktemp, pFp)
-GO(mktime, uFp)
+GO(mktime, LFp)
 GO(mlock, iFpL)
 GO(mlockall, iFi)
 GOM(mmap, pFEpLiiii)
@@ -1597,9 +1597,9 @@ GOW(sigvec, iFipp)
 GOW(sigwait, iFpp)
 GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
-GOM(snprintf, iFEpupVV)
-GOM(__snprintf_chk, iFEpuvvpVV)
-GOM(__snprintf, iFEpupVV)
+GOM(snprintf, iFEpLpVV)
+GOM(__snprintf_chk, iFEpLvvpVV)
+GOM(__snprintf, iFEpLpVV)
 // sockatmark
 GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
@@ -1669,8 +1669,8 @@ GO(strfmon, lFpLpppppppppp) //vaarg, probably needs align, there are just double
 // strfmon_l    // Weak
 // strfry
 GO(strftime, LFpLpp)
-GO(__strftime_l, LFpLpp)
-GOW(strftime_l, uFpupp)
+GO(__strftime_l, LFpLppL)
+GOW(strftime_l, LFpLppL)
 GO(strlen, LFp)
 GOW(strncasecmp, iFppL)
 // __strncasecmp_l
@@ -1695,7 +1695,7 @@ GOW(strsep, pFpp)
 // __strsep_3c
 // __strsep_g
 GO(strsignal, pFi)
-GO(strspn, uFpp)
+GO(strspn, LFpp)
 // __strspn_c1
 // __strspn_c2
 // __strspn_c3
@@ -1931,7 +1931,7 @@ GOM(__vsnprintf_chk, iFEpuvvppp)
 GOM(vsprintf, iFEpppp) // Weak
 GOM(__vsprintf_chk, iFEpvvppp)   // ignoring flag and slen, just use vsprintf in fact
 #ifdef POWERPCLE
-GOM(vsscanf, iFppp)
+GOM(vsscanf, iFEppp)
 #else
 GO(vsscanf, iFppp)
 #endif

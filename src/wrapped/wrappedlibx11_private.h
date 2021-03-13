@@ -927,7 +927,7 @@ GO(_XSend, vFppi)
 GO(XSendEvent, uFppiip)
 GO(XServerVendor, pFp)
 GO(XSetAccessControl, iFpi)
-//GO(XSetAfterFunction
+GOM(XSetAfterFunction, pFEpp)
 GO(XSetArcMode, iFppi)
 //GO(XSetAuthorization
 #ifdef PANDORA
@@ -1017,7 +1017,7 @@ GO(dummy_XSubImage, pFpiiuu)    // for the wrapper
 GO(XSubtractRegion, iFppp)
 GO(XSupportsLocale, iFv)
 GO(XSync, iFpu)
-GO(XSynchronize, iFpi)
+GOM(XSynchronize, iFEpi)
 GO(XTextExtents, iFppipppp)
 GO(XTextExtents16, iFppipppp)
 // _XTextHeight

@@ -1865,8 +1865,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    #if 1
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -1882,9 +1881,6 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
         free(newargv);
         return ret;
     }
-    #endif
-    if(self && !argv)
-        return execv(emu->context->box86path, argv);
     return execv(path, argv);
 }
 
@@ -1893,8 +1889,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    #if 1
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -1910,9 +1905,6 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         free(newargv);
         return ret;
     }
-    #endif
-    if(self && !argv)
-        return execve(emu->context->box86path, argv, envp);
     return execve(path, argv, envp);
 }
 
@@ -1926,7 +1918,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     int x86 = FileIsX86ELF(fullpath);
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
     free(fullpath);
-    if ((x86 || self) && argv) {
+    if (x86 || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
@@ -1940,8 +1932,6 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         free(newargv);
         return ret;
     }
-    if(self && !argv)
-        return execvp(emu->context->box86path, argv);
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return execvp(path, argv);
 }

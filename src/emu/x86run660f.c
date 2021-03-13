@@ -1154,11 +1154,11 @@ void Run660F(x86emu_t *emu)
             for (int i=0; i<16; ++i)
                 if(EX->ub[i]&0x80)
                     GD.dword[0] |= (1<<i);
-            break;
         } else {
             ip = R_EIP;
             UnimpOpcode(emu);
         }
+        break;
     case 0xD8:  /* PSUBUSB Gx,Ex */
         nextop = F8;
         GET_EX;
