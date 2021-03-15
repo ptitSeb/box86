@@ -1065,8 +1065,8 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     // only need to push 16-31...
     int n=0;
-    for (int i=8; i<24; i++)
-        if(dyn->fpuused[i])
+    for (int i=16; i<32; i++)
+        if(dyn->fpuused[i-8])
             ++n;
     if(!n)
         return;
@@ -1078,10 +1078,9 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
         SUB_IMM8(xSP, xSP, n*8);
     }
     MOV_REG(s1, xSP);
-    for (int i=0; i<n; ++i) {   // should use VSTM?
-        if(dyn->fpuused[i+8]) {
-            PASS3(int a = 16+i);
-            VST1_32_W(a, s1);
+    for (int i=16; i<32; ++i) {   // should use VSTM?
+        if(dyn->fpuused[i-8]) {
+            VST1_32_W(i, s1);
         }
     }
     MESSAGE(LOG_DUMP, "\t------- Push FPU Cache (%d)\n", n);
@@ -1093,17 +1092,16 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     // only need to push 16-31...
     int n=0;
-    for (int i=8; i<24; i++)
-        if(dyn->fpuused[i])
+    for (int i=16; i<32; i++)
+        if(dyn->fpuused[i-8])
             ++n;
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPop FPU Cache (%d)------\n", n);
     MOV_REG(s1, xSP);
-    for (int i=0; i<n; ++i) {
-        if(dyn->fpuused[i+8]) {
-            PASS3(int a = 16+i);
-            VLD1_32_W(a, s1);
+    for (int i=16; i<32; ++i) {
+        if(dyn->fpuused[i-8]) {
+            VLD1_32_W(i, s1);
         }
     }
     if(n>=8) {
