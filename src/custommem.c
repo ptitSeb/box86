@@ -669,7 +669,11 @@ void init_custommem_helper(box86context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
-    pthread_mutex_init(&mutex_prot, NULL);
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&mutex_prot, &attr);
+    pthread_mutexattr_destroy(&attr);
 #ifdef DYNAREC
     pthread_mutex_init(&mutex_mmap, NULL);
 #ifdef ARM
