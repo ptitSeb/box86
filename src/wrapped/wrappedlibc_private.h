@@ -1087,7 +1087,7 @@ GO(__mbrtowc, uFppup)
 GOW(mbsinit, iFp)
 GOW(mbsnrtowcs, LFppLLp)
 // __mbsnrtowcs_chk
-GOW(mbsrtowcs, uFppup)
+GOW(mbsrtowcs, LFppLp)
 // __mbsrtowcs_chk
 GO(mbstowcs, uFppu)
 // __mbstowcs_chk
@@ -1980,7 +1980,7 @@ GO(wcsdup, pFp)
 GO(wcsftime, uFpupp)
 GO(__wcsftime_l, LFpLppp)
 GOW(wcsftime_l, LFpLppp)
-GOW(wcslen, uFp)
+GOW(wcslen, LFp)
 GOW(wcsncasecmp, iFppu)
 // __wcsncasecmp_l
 GOW(wcsncasecmp_l, iFppup)

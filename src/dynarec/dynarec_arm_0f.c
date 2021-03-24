@@ -210,7 +210,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 parity = getedparity(dyn, ninst, addr, nextop, 2);
                 if(parity) {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                    VST1_32(v0+1, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+                    VST1_64(v0+1, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
 
                 } else {
                     VMOVfrV_D(x2, x3, v0+1);
