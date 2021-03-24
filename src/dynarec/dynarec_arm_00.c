@@ -1501,12 +1501,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         WBACK;
                     }
                     break;
-                default:
-                    INST_NAME("GRP3 Ed, Ib");
-                    DEFAULT;
             }
             break;
-
         case 0xC2:
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)

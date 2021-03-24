@@ -9,6 +9,7 @@ Current version
 * A few more dynarec opcodes
 * Some optimisation in Dynarec around ZF and CF flags handlings, and LL/GE/LE/G conditionnal opcodes
 * Some changes to the "cancel threads" handling
+* Some changes to the "thread once" handling
 
 v0.2.0
 ======

@@ -305,7 +305,6 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     IFX(X_OF) {
         if(c==1) {
             ADD_REG_LSR_IMM5(s3, s1, s1, 31);
-            AND_IMM8(s3, s3, 1);
             BFI(xFlags, s3, F_OF, 1);
         }
     }
