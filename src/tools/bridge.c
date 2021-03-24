@@ -86,8 +86,8 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
             b = b->next;
             bridge->last = b;
         }
-        #ifdef DYNAREC
         sz = b->sz;
+        #ifdef DYNAREC
         pthread_mutex_unlock(&bridge->mutex);
         if(box86_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
