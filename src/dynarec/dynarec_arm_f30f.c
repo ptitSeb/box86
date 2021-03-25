@@ -570,15 +570,17 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETED;
             GETGD;
+            SET_DFNONE(x3);
             TSTS_REG_LSL_IMM5(ed, ed, 0);
-            RBIT(x1, ed);   // reverse
-            CLZ(gd, x1);    // x2 gets leading 0 == TZCNT
-            MOVW_COND(cEQ, x1, 1);
-            MOVW_COND(cNE, x1, 0);
-            BFI(xFlags, x1, F_CF, 1);
-            RSB_IMM8(x1, x1, 1);
-            BFI(xFlags, x1, F_ZF, 1);
-            SET_DFNONE(x1);
+            MOVW_COND(cEQ, x3, 1);
+            MOVW_COND(cNE, x3, 0);
+            BFI(xFlags, x3, F_CF, 1);   // CF = is source 0?
+            RBIT(x3, ed);   // reverse
+            CLZ(gd, x3);    // x2 gets leading 0 == TZCNT
+            TSTS_REG_LSL_IMM5(gd, gd, 0);
+            MOVW_COND(cEQ, x3, 1);
+            MOVW_COND(cNE, x3, 0);
+            BFI(xFlags, x3, F_ZF, 1);   // ZF = is dest 0?
             break;
 
         case 0xC2:
