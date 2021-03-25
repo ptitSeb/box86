@@ -150,17 +150,17 @@ void FreeBox86Context(box86context_t** context)
 
     box86context_t* ctx = *context;   // local copy to do the cleanning
 
+    if(ctx->local_maplib)
+        FreeLibrarian(&ctx->local_maplib, NULL);
+    if(ctx->maplib)
+        FreeLibrarian(&ctx->maplib, NULL);
+
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
     }
     free(ctx->elfs);
 
     FreeFTSMap(ctx);
-
-    if(ctx->maplib)
-        FreeLibrarian(&ctx->maplib);
-    if(ctx->local_maplib)
-        FreeLibrarian(&ctx->local_maplib);
 
     FreeCollection(&ctx->box86_path);
     FreeCollection(&ctx->box86_ld_lib);

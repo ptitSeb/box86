@@ -16,7 +16,7 @@ typedef struct kh_mapoffsets_s kh_mapoffsets_t;
 typedef char* cstr_t;
 
 lib_t *NewLibrarian(box86context_t* context, int ownlibs);
-void FreeLibrarian(lib_t **maplib);
+void FreeLibrarian(lib_t **maplib, x86emu_t* emu);
 dlprivate_t *NewDLPrivate();
 void FreeDLPrivate(dlprivate_t **lib);
 

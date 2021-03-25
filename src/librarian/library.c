@@ -246,13 +246,13 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box86_nopulse) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
-            Free1Library(&lib);
+            Free1Library(&lib, NULL);
             return NULL;
         }
     }
     if(box86_novulkan) {
         if(strstr(lib->name, "libvulkan.so")==lib->name) {
-            Free1Library(&lib);
+            Free1Library(&lib, NULL);
             return NULL;
         }
     }
@@ -270,7 +270,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     // nothing loaded, so error...
     if(lib->type==-1)
     {
-        Free1Library(&lib);
+        Free1Library(&lib, NULL);
         return NULL;
     }
 
@@ -370,9 +370,17 @@ void InactiveLibrary(library_t* lib)
     lib->active = 0;
 }
 
-void Free1Library(library_t **lib)
+void Free1Library(library_t **lib, x86emu_t* emu)
 {
     if(!(*lib)) return;
+
+    if((*lib)->type==1 && emu) {
+        elfheader_t *elf_header = (*lib)->context->elfs[(*lib)->priv.n.elf_index];
+        RunElfFini(elf_header, emu);
+    }
+
+    if((*lib)->maplib)
+        FreeLibrarian(&(*lib)->maplib, emu);
 
     if((*lib)->type!=-1 && (*lib)->fini) {
         (*lib)->fini(*lib);
@@ -405,9 +413,6 @@ void Free1Library(library_t **lib)
     if((*lib)->symbol2map)
         kh_destroy(symbol2map, (*lib)->symbol2map);
     free_neededlib(&(*lib)->needed);
-
-    if((*lib)->maplib)
-        FreeLibrarian(&(*lib)->maplib);
 
     free(*lib);
     *lib = NULL;
