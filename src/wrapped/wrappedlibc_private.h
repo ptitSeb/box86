@@ -1489,7 +1489,7 @@ GO(sendfile, lFiipL)
 GO(sendfile64, lFiipL)
 GOW(sendmsg, lFipi)
 GOM(__sendmmsg, iFEipuu)    // actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
-GOW(sendto, iFipuipu)
+GOW(sendto, lFipLipu)
 // setaliasent
 GOW(setbuf, vFpp)
 GOW(setbuffer, vFppL)
