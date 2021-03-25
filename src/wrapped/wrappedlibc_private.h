@@ -98,10 +98,10 @@ GOW(bind_textdomain_codeset, pFpp)
 GOW(brk, iFp)
 // __bsd_getpgrp
 // bsd_signal   // Weak
-GOM(bsearch, pFEppuup)
+GOM(bsearch, pFEppLLp)
 GOW(btowc, iFi)
-GOW(bzero, vFpu)
-GO(__bzero, vFpu)
+GOW(bzero, vFpL)
+GO(__bzero, vFpL)
 GOW(calloc, pFLL)
 // callrpc
 GOW(canonicalize_file_name, pFp)
@@ -164,7 +164,7 @@ GO(ctime, pFp)
 GO(ctime_r, pFpp)
 DATAM(__ctype_b, 4)
 GO(__ctype_b_loc, pFv)
-GOW(__ctype_get_mb_cur_max, uFv)
+GOW(__ctype_get_mb_cur_max, LFv)
 DATAM(__ctype_tolower, 4)
 GO(__ctype_tolower_loc, pFv)
 DATAM(__ctype_toupper, 4)
@@ -937,7 +937,7 @@ GOW(iswcntrl, iFi)
 GOW(iswcntrl_l, iFip)
 GOW(iswctype, iFiu)
 // __iswctype
-GO(__iswctype_l, iFiup)
+GO(__iswctype_l, iFuLp)
 // iswctype_l   // Weak
 GOW(iswdigit, iFi)
 // __iswdigit_l
@@ -996,7 +996,7 @@ GOW(lchown, iFpuu)
 // ldexpf   // Weak
 // ldexpl   // Weak
 GOS(ldiv, pFEpii)     // return a struct, so address of stuct is on the stack, as a shadow 1st element
-GOM(lfind, pFEpppup)
+GOM(lfind, pFEpppLp)
 GO(lgetxattr, iFpppu)
 GOM(__libc_alloca_cutoff, iFEL)
 // __libc_allocate_rtsig
@@ -1054,7 +1054,7 @@ GOM(__longjmp_chk, vFEpi)
 GO(lrand48, iFv)
 // lrand48_r
 GO(lremovexattr, iFpp)
-GOM(lsearch, pFEpppup)
+GOM(lsearch, pFEpppLp)
 GOW(lseek, iFiii)
 // __lseek  // Weak
 GOW(lseek64, IFiIi)
@@ -1079,19 +1079,19 @@ GOW(malloc_trim, iFu)
 GOW(malloc_usable_size, LFp)
 GOW(mallopt, iFii)  // Weak
 // mallwatch    // type B
-GO(mblen, iFpu)
-GOW(mbrlen, uFpup)
-GO(__mbrlen, uFpup)
-GOW(mbrtowc, uFppup)
-GO(__mbrtowc, uFppup)
+GO(mblen, iFpL)
+GOW(mbrlen, LFpLp)
+GO(__mbrlen, LFpLp)
+GOW(mbrtowc, LFppLp)
+GO(__mbrtowc, LFppLp)
 GOW(mbsinit, iFp)
 GOW(mbsnrtowcs, LFppLLp)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, LFppLp)
 // __mbsrtowcs_chk
-GO(mbstowcs, uFppu)
+GO(mbstowcs, LFppL)
 // __mbstowcs_chk
-GO(mbtowc, iFppu)
+GO(mbtowc, iFppL)
 // mcheck
 // mcheck_check_all
 // mcheck_pedantic
@@ -1546,7 +1546,7 @@ GOW(setuid, iFu)
 // setusershell
 GOW(setutent, vFv)
 // setutxent
-GOW(setvbuf, iFppiu)
+GOW(setvbuf, iFppiL)
 GO(setxattr, iFpppui)
 // sgetspent
 // sgetspent_r  // Weak
@@ -1960,7 +1960,7 @@ GOW(wcpcpy, pFpp)
 // __wcpcpy_chk
 GOW(wcpncpy, pFpp)
 // __wcpncpy_chk
-GOW(wcrtomb, uFpip)
+GOW(wcrtomb, LFpip)
 // __wcrtomb_chk
 GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
@@ -1977,7 +1977,7 @@ GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppu)
 GO(wcscspn, uFpp)
 GO(wcsdup, pFp)
-GO(wcsftime, uFpupp)
+GO(wcsftime, LFpLpp)
 GO(__wcsftime_l, LFpLppp)
 GOW(wcsftime_l, LFpLppp)
 GOW(wcslen, LFp)
@@ -1990,7 +1990,7 @@ GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
 GO(__wcsncpy_chk, pFppuu)
 GOW(wcsnlen, LFpL)
-GOW(wcsnrtombs, uFppuup)
+GOW(wcsnrtombs, LFppLLp)
 // __wcsnrtombs_chk
 GO(wcspbrk, pFpp)
 GO(wcsrchr, pFpi)
@@ -2048,7 +2048,7 @@ GOW(wctype, uFp)
 GO(__wctype_l, uFpp)
 GOW(wctype_l, uFpp)
 GO(wcwidth, iFu)
-GOW(wmemchr, pFpiu)
+GOW(wmemchr, pFpuL)
 GO(wmemcmp, iFppL)
 GOW(wmemcpy, pFppL)
 GO(__wmemcpy_chk, pFppLL)
@@ -2056,7 +2056,7 @@ GOW(wmemmove, pFppL)
 // __wmemmove_chk
 // wmempcpy // Weak
 // __wmempcpy_chk
-GO(wmemset, pFpiu)
+GO(wmemset, pFpuL)
 // __wmemset_chk
 GO(wordexp, iFppi)
 GO(wordfree, vFp)
