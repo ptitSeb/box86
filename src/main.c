@@ -813,6 +813,8 @@ int main(int argc, const char **argv, const char **env) {
         PrintHelp();
         return 1;
     }
+    if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb"))
+        exit(0);
 
     // init random seed
     srandom(time(NULL));

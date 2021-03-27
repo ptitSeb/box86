@@ -40,7 +40,6 @@ static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
 #endif
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
-static pthread_mutex_t     mutex_prot;
 static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
 static int inited = 0;
 
@@ -467,6 +466,8 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
 
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
 {
+    if(!addr || !size)
+        return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
         free((void*)addr);
@@ -547,6 +548,15 @@ void setJumpTableDefault(void* addr)
     const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     box86_jumptable[idx][off] = (uintptr_t)arm_next;
 }
+int isJumpTableDefault(void* addr)
+{
+    const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
+    if(box86_jumptable[idx] == box86_jmptbl_default) {
+        return 1;
+    }
+    const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
+    return (box86_jumptable[idx][off]==(uintptr_t)arm_next)?1:0;
+}
 uintptr_t getJumpTable()
 {
     return (uintptr_t)box86_jumptable;
@@ -572,7 +582,6 @@ void protectDB(uintptr_t addr, uintptr_t size)
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         if(!prot)
@@ -581,32 +590,6 @@ void protectDB(uintptr_t addr, uintptr_t size)
         if(!(prot&PROT_DYNAREC))
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
     }
-    pthread_mutex_unlock(&mutex_prot);
-}
-
-void protectDBnolock(uintptr_t addr, uintptr_t size)
-{
-    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t prot = memprot[i];
-        if(!prot)
-            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-        memprot[i] = prot|PROT_DYNAREC;
-        if(!(prot&PROT_DYNAREC))
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-    }
-}
-
-void lockDB()
-{
-    pthread_mutex_lock(&mutex_prot);
-}
-
-void unlockDB()
-{
-    pthread_mutex_unlock(&mutex_prot);
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
@@ -616,7 +599,6 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         memprot[i] = prot&~PROT_DYNAREC;
@@ -625,7 +607,6 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
             cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         }
     }
-    pthread_mutex_unlock(&mutex_prot);
 }
 
 #endif
@@ -634,33 +615,27 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t dyn=(memprot[i]&PROT_DYNAREC);
         if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         memprot[i] = prot|dyn;
     }
-    pthread_mutex_unlock(&mutex_prot);
 }
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
     for (uintptr_t i=idx; i<=end; ++i) {
         memprot[i] = prot;
     }
-    pthread_mutex_unlock(&mutex_prot);
 }
 
 uint32_t getProtection(uintptr_t addr)
 {
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    pthread_mutex_lock(&mutex_prot);
     uint32_t ret = memprot[idx];
-    pthread_mutex_unlock(&mutex_prot);
     return ret;
 }
 
@@ -672,7 +647,6 @@ void init_custommem_helper(box86context_t* ctx)
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&mutex_prot, &attr);
     pthread_mutexattr_destroy(&attr);
 #ifdef DYNAREC
     pthread_mutex_init(&mutex_mmap, NULL);
@@ -746,6 +720,5 @@ void fini_custommem_helper(box86context_t *ctx)
         free(p_blocks[i].block);
         #endif
     free(p_blocks);
-    pthread_mutex_destroy(&mutex_prot);
     pthread_mutex_destroy(&mutex_blocks);
 }

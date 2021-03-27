@@ -305,18 +305,26 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, 
     return insts;
 }
 
-void arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
-void arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
+uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
-    if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end)
+dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
+    if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
+        dynarec_log(LOG_DEBUG, "Asked to fill a block in fobidden zone\n");
         return NULL;
+    }
+    if(!isJumpTableDefault((void*)addr)) {
+        dynarec_log(LOG_DEBUG, "Asked to fill a block at %p, but JumpTable is not default\n", (void*)addr);
+        return NULL;
+    }
     // init the helper
     dynarec_arm_t helper = {0};
     helper.start = addr;
-    arm_pass0(&helper, addr);
+    uintptr_t start = addr;
+    uintptr_t end = arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
@@ -325,11 +333,12 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     }
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
+    // already protect the block and compute hash signature
+    protectDB(addr, end-addr+1);
+    uint32_t hash = X31_hash_code((void*)addr, end-addr+1);
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
-    uintptr_t start = helper.insts[0].x86.addr;
-    uintptr_t end = helper.insts[helper.size].x86.addr+helper.insts[helper.size].x86.size;
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
             uintptr_t j = helper.insts[i].x86.jmp;
@@ -412,10 +421,18 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
     block->block = p;
     block->need_test = 0;
     //block->x86_addr = (void*)start;
-    block->x86_size = end-start;
+    block->x86_size = end-start+1;
     if(box86_dynarec_largest<block->x86_size)
         box86_dynarec_largest = block->x86_size;
     block->hash = X31_hash_code(block->x86_addr, block->x86_size);
+    // Check if something changed, to abbort if it as
+    if(block->hash != hash) {
+        dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%d)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
+        free(helper.sons_x86);
+        free(helper.sons_arm);
+        FreeDynarecMap(block, (uintptr_t)p, sz);
+        return NULL;
+    }
     // fill sons if any
     dynablock_t** sons = NULL;
     int sons_size = 0;

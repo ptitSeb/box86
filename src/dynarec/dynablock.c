@@ -328,6 +328,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     // fill the block
     block->x86_addr = (void*)addr;
     if(!FillBlock(block, filladdr)) {
+        dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
         void* old = (void*)arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
         if(old!=block && old) {// put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
@@ -350,13 +351,11 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                         dblist->maxsz = blocksz;
             }
         }
-        lockDB();
-        protectDBnolock((uintptr_t)block->x86_addr, block->x86_size);
+        protectDB((uintptr_t)block->x86_addr, block->x86_size);
         // fill-in jumptable
         addJumpTableIfDefault(block->x86_addr, block->block);
         for(int i=0; i<block->sons_size; ++i)
             addJumpTableIfDefault(block->sons[i]->x86_addr, block->sons[i]->block);
-        unlockDB();
     }
 
     dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
@@ -381,13 +380,11 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             db = internalDBGetBlock(emu, addr, addr, create, *current);
         } else {
             father->need_test = 0;
-            lockDB();
-            protectDBnolock((uintptr_t)father->x86_addr, father->x86_size);
+            protectDB((uintptr_t)father->x86_addr, father->x86_size);
             // fill back jumptable
             addJumpTableIfDefault(father->x86_addr, father->block);
             for(int i=0; i<father->sons_size; ++i)
                 addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
-            unlockDB();
         }
     } 
     return db;
@@ -409,13 +406,11 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
             db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
         } else {
             father->need_test = 0;
-            lockDB();
-            protectDBnolock((uintptr_t)father->x86_addr, father->x86_size);
+            protectDB((uintptr_t)father->x86_addr, father->x86_size);
             // fill back jumptable
             addJumpTableIfDefault(father->x86_addr, father->block);
             for(int i=0; i<father->sons_size; ++i)
                 addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
-            unlockDB();
         }
     } 
     return db;

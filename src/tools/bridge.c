@@ -38,7 +38,8 @@ typedef struct bridge_s {
 brick_t* NewBrick()
 {
     brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
-    posix_memalign((void**)&ret->b, box86_pagesize, NBRICK*sizeof(onebridge_t));
+    if(posix_memalign((void**)&ret->b, box86_pagesize, NBRICK*sizeof(onebridge_t)))
+        printf_log(LOG_NONE, "Warning, cannot allocate 0x%x aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     return ret;
 }
 
@@ -88,12 +89,14 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
         }
         sz = b->sz;
         #ifdef DYNAREC
+        b->b[sz].f = 0; // block reserved
         pthread_mutex_unlock(&bridge->mutex);
         if(box86_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
             if(prot)
                 unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-            addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
+            else    // only add DB if there is no protection
+                addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
     } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
     pthread_mutex_lock(&bridge->mutex);
@@ -111,7 +114,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     pthread_mutex_unlock(&bridge->mutex);
     #ifdef DYNAREC
-    if(box86_dynarec && prot)
+    if(box86_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
     #endif
 

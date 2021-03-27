@@ -29,6 +29,7 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 dynablocklist_t* getDB(uintptr_t idx);
 void addJumpTableIfDefault(void* addr, void* jmp);
 void setJumpTableDefault(void* addr);
+int isJumpTableDefault(void* addr);
 uintptr_t getJumpTable();
 uintptr_t getJumpTableAddress(uintptr_t addr);
 #endif
@@ -39,10 +40,7 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 uint32_t getProtection(uintptr_t addr);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
-void protectDBnolock(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size);
-void lockDB();
-void unlockDB();
 #endif
 
 

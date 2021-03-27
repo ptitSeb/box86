@@ -25,11 +25,12 @@
 #error No STEP defined
 #endif
 
-void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
+uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 {
     int ok = 1;
     int ninst = 0;
     uintptr_t ip = addr;
+    uintptr_t init_addr = addr;
     int need_epilog = 1;
     dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
@@ -39,7 +40,6 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // ok, go now
     INIT;
     while(ok) {
-        if(dyn->insts && (ninst>dyn->size)) {dynarec_log(LOG_NONE, "Warning, too many inst treated (%d / %d)\n",ninst, dyn->size);}
         ip = addr;
         if(dyn->insts && (dyn->insts[ninst].x86.barrier==1)) {
             NEW_BARRIER_INST;
@@ -91,6 +91,20 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             }
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
+        #if STEP == 0
+        if(ok && !isJumpTableDefault((void*)addr))
+        #else
+        if(ok && dyn->insts && (ninst==dyn->size))
+        #endif
+        {
+            #if STEP == 3
+            dynarec_log(LOG_INFO, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
+            #endif
+            BARRIER(2);
+            fpu_purgecache(dyn, ninst, x1, x2, x3);
+            jump_to_next(dyn, addr, 0, ninst);
+            ok=0; need_epilog=0;
+        }
     }
     if(need_epilog) {
         fpu_purgecache(dyn, ninst, x1, x2, x3);
@@ -98,4 +112,5 @@ void arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     }
     FINI;
     MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d, %d sons)\n", dyn->size, dyn->sons_size);
+    return addr;
 }
