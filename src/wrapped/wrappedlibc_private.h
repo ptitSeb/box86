@@ -88,8 +88,8 @@ GOW(backtrace_symbols, pFpi)
 GO(__backtrace_symbols_fd, vFpii)
 GOW(backtrace_symbols_fd, vFpii)
 GO(basename, pFp)
-GOW(bcmp, iFppu)
-GO(bcopy, vFppu)
+GOW(bcmp, iFppL)
+GO(bcopy, vFppL)
 // bdflush
 GOW(bind, iFipu)
 // bindresvport

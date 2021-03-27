@@ -433,7 +433,7 @@ EXPORT int my_dbus_message_get_args_valist(x86emu_t* emu, void* message, void* e
     void* f = vprintf;
     return my->dbus_message_get_args_valist(message, e, arg, emu->scratch);
     #else
-    return my->dbus_message_get_args_valist(message, e, arg, *(uint32_t**)b);
+    return my->dbus_message_get_args_valist(message, e, arg, b);
     #endif
 }
 
