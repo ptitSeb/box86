@@ -13,6 +13,8 @@
 
 const char* udev0Name = "libudev.so.0";
 #define LIBNAME udev0
+// fallback to 1 version... Not sure if really correct (probably not)
+#define ALTNAME "libudev.so.1"
 
 #include "wrappedlib_init.h"
 
