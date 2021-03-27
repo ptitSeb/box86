@@ -9,7 +9,6 @@ Compiling/Installation
 ----
 > Compilation instructions can be found [here](COMPILE.md)  
 > Instructions for installing Wine for Box86 can be found [here](X86WINE.md)  
-> For an easy 1-click installation on a Raspberry Pi, check out box86 on [pi-apps](https://github.com/Botspot/pi-apps/)
 
 Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM (host system needs to be 32bit little-endian).
 
@@ -106,8 +105,7 @@ Notes about Wine
 ----
 
 Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
-Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split. Wine on [pi-apps](https://github.com/Botspot/pi-apps/) lets you install a rebuilt kernel with memory split or switch to a experimental 64-bit kernel which also has a 3G/1G split, but note this will only work for Raspberry Pi 3.
-
+Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split.
 ----
 
 Final words

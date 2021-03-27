@@ -8,7 +8,7 @@ Box86 actually needs `wine-i386` to be installed **manually** on ARM devices.  E
 
 Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/). Box86 requires the "i386" (x86) versions of Wine install files (even though we are installing it on an ARM processor). Box86 "wraps" many of Wine's core Linux i386 libraries so that their calls are interpretable by Linux ARM libraries. Below are examples of how to install Wine from each of those places.
 
-_Raspberry Pi users: Wine requires a 3G/1G split memory kernel. Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**  Pi 3 (and Pi 4) users can use the [pi-apps](https://github.com/Botspot/pi-apps/) installer to install Box86, Wine, winetricks, and a new kernel. Users running Pi 2 and earlier will have to google some instructions on how to install a custom 3G/1G kernel to work with Wine._
+_Raspberry Pi users: Wine requires a 3G/1G split memory kernel. Raspberry Pi OS for the Pi 4 has a 3G/1G split kernel, but **the Pi 3 and earlier models have a 2G/2G kernel by default and will need you to install a custom-compiled 3G/1G kernel to get Wine to work.**
 
 ## Overview
 The general procedure for installing Wine for Box86 is to...
