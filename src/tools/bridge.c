@@ -76,11 +76,11 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
     brick_t *b = NULL;
     int sz = -1;
+    pthread_mutex_lock(&bridge->mutex);
     #ifdef DYNAREC
     int prot = 0;
     do {
         #endif
-        pthread_mutex_lock(&bridge->mutex);
         b = bridge->last;
         if(b->sz == NBRICK) {
             b->next = NewBrick();
@@ -89,8 +89,6 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
         }
         sz = b->sz;
         #ifdef DYNAREC
-        b->b[sz].f = 0; // block reserved
-        pthread_mutex_unlock(&bridge->mutex);
         if(box86_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
             if(prot)
@@ -99,7 +97,6 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
     } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
-    pthread_mutex_lock(&bridge->mutex);
     #endif
     b->sz++;
     b->b[sz].CC = 0xCC;
