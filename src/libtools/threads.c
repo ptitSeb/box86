@@ -686,11 +686,11 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
     return pthread_kill((pthread_t)thread, sig);
 }
 
-EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
-{
-	emu->quit = 1;	// to be safe
-	pthread_exit(retval);
-}
+//EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
+//{
+//	emu->quit = 1;	// to be safe
+//	pthread_exit(retval);
+//}
 
 #ifdef NOALIGN
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m) {
