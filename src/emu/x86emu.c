@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86stack.h"
