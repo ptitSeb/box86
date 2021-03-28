@@ -202,7 +202,7 @@ void FreeBox86Context(box86context_t** context)
 
     FreeDLPrivate(&ctx->dlprivate);
 
-    free(ctx->stack);
+//    free(ctx->stack); // don't free the stack, it's owned by main emu!
 
     free(ctx->fullpath);
     free(ctx->box86path);

@@ -476,6 +476,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             break;
         case 120:   // clone
             {
+                // should wrap that using a thread...
                 //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
                 // lets duplicate the emu
                 void* stack_base = (void*)R_ECX;
@@ -483,7 +484,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 if(!R_ECX) {
                     // allocate a new stack...
                     stack_size = 1024*1024;
-                    stack_base = malloc(stack_size); // why not 1M... (normal operation do copy on write, simpler to just copy)
+                    //stack_base = malloc(stack_size); // why not 1M... (normal operation do copy on write, simpler to just copy)
+                    stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
                     // copy value from old stack to new stack
                     int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
                     memcpy(stack_base-size_to_copy, (void*)R_ESP, size_to_copy);

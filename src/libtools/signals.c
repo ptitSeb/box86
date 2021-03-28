@@ -252,7 +252,8 @@ static x86emu_t* get_signal_emu()
     x86emu_t *emu = (x86emu_t*)pthread_getspecific(sigemu_key);
     if(!emu) {
         const int stsize = 8*1024;  // small stack for signal handler
-        void* stack = calloc(1, stsize);
+        //void* stack = calloc(1, stsize);
+        void* stack = mmap(NULL, stsize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
         emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
         emu->type = EMUTYPE_SIGNAL;
         pthread_setspecific(sigemu_key, emu);
@@ -271,7 +272,13 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 //    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = get_signal_emu();
-    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, ESP=%p\n", GetTID(), (void*)fnc, (void*)R_ESP);
+    x86emu_t *thread_emu = thread_get_emu();
+    i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    if(!new_ss) {
+        // no alternate stack, so signal ESP needs to match thread ESP!
+        R_ESP = thread_emu->regs[_SP].dword[0];
+    }
+    printf_log(LOG_DEBUG, "%04d|signal function handler %p (%s alternate stack) called, ESP=%p\n", GetTID(), (void*)fnc, new_ss?"with":"without", (void*)R_ESP);
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
@@ -714,9 +721,10 @@ exit(-1);
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x86_addr, db->x86_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
-            GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code, 
-            prot, db, db?db->block:0, db?(db->block+db->size):0, 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p, stack=%p:%p own=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+            GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, 
+            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, 
+            addr, info->si_code, prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
 #else
@@ -729,6 +737,14 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
+    #if 0
+    /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
+       (probably some timing issue) */
+    if(sig==SIGSEGV && (info->si_code==2 && prot==7)) {
+        //box86_log=2;
+        return;//why?
+    }
+    #endif
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
         if(my_context->is_sigaction[sig])
             my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);

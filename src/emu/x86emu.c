@@ -173,7 +173,8 @@ void CallAllCleanup(x86emu_t *emu)
 
 static void internalFreeX86(x86emu_t* emu)
 {
-    free(emu->stack2free);
+    if(emu->stack2free)
+        munmap(emu->stack2free, emu->size_stack);
 }
 
 EXPORTDYN

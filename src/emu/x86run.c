@@ -51,7 +51,7 @@ int Run(x86emu_t *emu, int step)
         return 0;
 
     //ref opcode: http://ref.x86asm.net/geek32.html#xA1
-    printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, emu->context->stack);
+    printf_log(LOG_DEBUG, "Run X86 (%p), EIP=%p, Stack=%p\n", emu, (void*)R_EIP, (void*)R_ESP);
 #define F8      *(uint8_t*)(ip++)
 #define F8S     *(int8_t*)(ip++)
 #define F16     *(uint16_t*)(ip+=2, ip-2)

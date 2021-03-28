@@ -74,6 +74,7 @@ void FreeBridge(bridge_t** bridge)
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
 {
+    if(!bridge) return 0;
     brick_t *b = NULL;
     int sz = -1;
     pthread_mutex_lock(&bridge->mutex);
