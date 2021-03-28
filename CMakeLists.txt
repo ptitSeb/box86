@@ -369,9 +369,12 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
 )
 
+# If BOX86_ROOT contains a ".c", the build breaks...
+string(REPLACE ".c" "_private.h" MODROOT ${BOX86_ROOT})
 set(WRAPPEDS_HEAD "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
 foreach(A ${WRAPPEDS})
-    string(REPLACE ".c" "_private.h" B ${A})
+    string(REPLACE ".c" "_private.h" C ${A})
+    string(REPLACE "${MODROOT}" "${BOX86_ROOT}" B ${C})
     set(WRAPPEDS_HEAD ${WRAPPEDS_HEAD} ${B})
     set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
 endforeach()
