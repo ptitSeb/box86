@@ -88,7 +88,7 @@ GO(FcFontSetDestroy, vFp)
 //GO(FcFontSetSort, 
 //GO(FcFontSetSortDestroy, 
 GO(FcFontSort, pFppipp)
-//GO(FcFreeTypeCharIndex, 
+GO(FcFreeTypeCharIndex, uFpu)
 //GO(FcFreeTypeCharSet, 
 //GO(FcFreeTypeCharSetAndSpacing, 
 GO(FcFreeTypeQuery, pFpipp)
