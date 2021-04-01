@@ -21,7 +21,7 @@ GO(FcCacheNumSubdir, iFp)
 GO(FcCacheSubdir, pFpi)
 GO(FcCharSetAddChar, iFpu)
 GO(FcCharSetCopy, pFp)
-//GO(FcCharSetCount, 
+GO(FcCharSetCount, iFp)
 //GO(FcCharSetCoverage, 
 GO(FcCharSetCreate, pFv)
 GO(FcCharSetDestroy, vFp)
