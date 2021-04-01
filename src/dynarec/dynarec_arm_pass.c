@@ -98,7 +98,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         #endif
         {
             #if STEP == 3
-            dynarec_log(LOG_INFO, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
+            dynarec_log(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
             #endif
             BARRIER(2);
             fpu_purgecache(dyn, ninst, x1, x2, x3);
