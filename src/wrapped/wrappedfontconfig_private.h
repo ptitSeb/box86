@@ -122,7 +122,7 @@ GO(FcNameConstant, iFpp)
 //GO(FcNameGetObjectType, 
 //GO(FcNameParse, 
 //GO(FcNameRegisterConstants, 
-//GO(FcNameRegisterObjectTypes, 
+GO(FcNameRegisterObjectTypes, iFpi)
 //GO(FcNameUnparse, 
 //GO(FcNameUnregisterConstants, 
 //GO(FcNameUnregisterObjectTypes, 
