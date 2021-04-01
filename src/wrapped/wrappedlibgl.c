@@ -147,8 +147,11 @@ EXPORT int my_glXSwapIntervalMESA(int interval)
 
 #define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 #define CUSTOM_INIT \
-    lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress"); \
-    box86->glxprocaddress = lib->priv.w.priv;
+    lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");             \
+    box86->glxprocaddress = lib->priv.w.priv;                                   \
+    lib->priv.w.needed = 1;                                                     \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libdl.so.2");
 
 
 #include "wrappedlib_init.h"
