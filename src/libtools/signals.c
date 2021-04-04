@@ -746,10 +746,10 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
-    #if 0
+    #if 1
     /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
        (probably some timing issue) */
-    if(sig==SIGSEGV && (info->si_code==2 && prot==7)) {
+    if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_DYNAREC)==7 || (prot&~PROT_DYNAREC)==5))) {
         //box86_log=2;
         return;//why?
     }
