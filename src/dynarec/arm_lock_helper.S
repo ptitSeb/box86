@@ -1,5 +1,5 @@
-//arm lock helper
-//there is 2 part: read and write
+// arm lock helper
+// there is 2 part: read and write
 // write return 0 on success, 1 on fail (value has been changed)
 
 .text
@@ -15,6 +15,7 @@
 .global arm_lock_write_dd
 .global arm_lock_xchg
 .global arm_lock_storeifnull
+.global arm_lock_storeifref
 
 
 arm_lock_read_b:
@@ -88,4 +89,20 @@ arm_lock_storeifnull:
     beq     arm_lock_storeifnull
 arm_lock_storeifnull_exit:
     mov     r0, r2
+    bx      lr
+
+arm_lock_storeifref:
+    push    {r4}
+arm_lock_storeifref_loop:
+    // address is r0, value is r1, r1 store to r0 only if [r0] is r2. return new [r0] value (so r1 or old value)
+    ldrex   r3, [r0]
+    cmp     r3, r2
+    bne     arm_lock_storeifref_exit
+    mov     r3, r1
+    strex   r4, r3, [r0]
+    cmp     r4, #1
+    beq     arm_lock_storeifref_loop
+arm_lock_storeifref_exit:
+    mov     r0, r3
+    pop     {r4}
     bx      lr

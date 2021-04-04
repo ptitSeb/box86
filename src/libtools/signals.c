@@ -227,40 +227,12 @@ static void sigstack_destroy(void* p)
     free(ss);
 }
 
-static void free_signal_emu(void* p)
-{
-    if(p)
-        FreeX86Emu((x86emu_t**)&p);
-}
-
 static pthread_key_t sigstack_key;
 static pthread_once_t sigstack_key_once = PTHREAD_ONCE_INIT;
 
 static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
-
-static pthread_key_t sigemu_key;
-static pthread_once_t sigemu_key_once = PTHREAD_ONCE_INIT;
-
-static void sigemu_key_alloc() {
-	pthread_key_create(&sigemu_key, free_signal_emu);
-}
-
-static x86emu_t* get_signal_emu()
-{
-    x86emu_t *emu = (x86emu_t*)pthread_getspecific(sigemu_key);
-    if(!emu) {
-        const int stsize = 8*1024;  // small stack for signal handler
-        //void* stack = calloc(1, stsize);
-        void* stack = mmap(NULL, stsize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
-        emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stsize, 1);
-        emu->type = EMUTYPE_SIGNAL;
-        pthread_setspecific(sigemu_key, emu);
-    }
-    return emu;
-}
-
 
 uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
 {
@@ -269,16 +241,11 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
         return 0;
     }
     uintptr_t old_start = trace_start, old_end = trace_end;
-//    trace_start = 0; trace_end = 1; // disabling trace, globably for now...
+    //trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
-    x86emu_t *emu = get_signal_emu();
-    x86emu_t *thread_emu = thread_get_emu();
-    i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    if(!new_ss) {
-        // no alternate stack, so signal ESP needs to match thread ESP!
-        R_ESP = thread_emu->regs[_SP].dword[0];
-    }
-    printf_log(LOG_DEBUG, "%04d|signal function handler %p (%s alternate stack) called, ESP=%p\n", GetTID(), (void*)fnc, new_ss?"with":"without", (void*)R_ESP);
+    x86emu_t *emu = thread_get_emu();
+
+    printf_log(LOG_DEBUG, "%04d|signal function handler %p called, ESP=%p\n", GetTID(), (void*)fnc, (void*)R_ESP);
     
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
@@ -316,13 +283,12 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
         errno = EFAULT;
         return -1;
     }
-    x86emu_t *sigemu = get_signal_emu();
 	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
     if(!ss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = sigemu->init_stack;
-            oss->ss_size = sigemu->size_stack;
+            oss->ss_sp = emu->init_stack;
+            oss->ss_size = emu->size_stack;
         } else {
             oss->ss_flags = new_ss->ss_flags;
             oss->ss_sp = new_ss->ss_sp;
@@ -341,15 +307,13 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
             free(new_ss);
         pthread_setspecific(sigstack_key, NULL);
 
-        sigemu->regs[_SP].dword[0] = ((uintptr_t)sigemu->init_stack + sigemu->size_stack) & ~7;
-        
         return 0;
     }
     if(oss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = sigemu->init_stack;
-            oss->ss_size = sigemu->size_stack;
+            oss->ss_sp = emu->init_stack;
+            oss->ss_size = emu->size_stack;
         } else {
             oss->ss_flags = new_ss->ss_flags;
             oss->ss_sp = new_ss->ss_sp;
@@ -363,8 +327,6 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
 
 	pthread_setspecific(sigstack_key, new_ss);
 
-    sigemu->regs[_SP].dword[0] = ((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7;
-
     return 0;
 }
 
@@ -373,11 +335,31 @@ void my_sighandler(int32_t sig)
 {
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
+    // save values
+    x86emu_t *emu = thread_get_emu();
     uintptr_t restorer = my_context->restorer[sig];
+    uintptr_t old_regs[8] = {0};
+    uintptr_t old_ip = emu->ip.dword[0];
+    uint32_t old_flags = emu->eflags.x32;
+    for (int i=0; i<8; ++i)
+        old_regs[i] = emu->regs[i].dword[0];
+    
+    i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
+    if(new_ss) {
+        // no alternate stack, so signal ESP needs to match thread ESP!
+        R_ESP = (uintptr_t)(new_ss->ss_sp+new_ss->ss_size-32);
+    }
+
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 1, sig);
+    // restore regs
+    emu->ip.dword[0] = old_ip;
+    emu->eflags.x32 = old_flags;
+    for (int i=0; i<8; ++i)
+        emu->regs[i].dword[0] = old_regs[i];
     if(exits)
         exit(ret);
+    // what about the restored regs?
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
 }
@@ -426,12 +408,11 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     }
 #endif
     // stack tracking
-    x86emu_t *sigemu = get_signal_emu();
 	i386_stack_t *new_ss = my_context->onstack[sig]?(i386_stack_t*)pthread_getspecific(sigstack_key):NULL;
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uintptr_t*)sigemu->regs[_SP].dword[0];
+            frame = (uintptr_t*)emu->regs[_SP].dword[0];
         } else {
             frame = (uintptr_t*)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~7);
             used_stack = 1;
@@ -484,11 +465,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
     // get signal mask
 
-    if(!new_ss) {
-        sigcontext->uc_stack.ss_sp = sigemu->init_stack;
-        sigcontext->uc_stack.ss_size = sigemu->size_stack;
-        sigcontext->uc_stack.ss_flags = SS_DISABLE;
-    } else {
+    if(new_ss) {
         sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
         sigcontext->uc_stack.ss_size = new_ss->ss_size;
         sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
@@ -542,19 +519,30 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
 
+    // save old value from emu
+    #define GO(R) uint32_t old_##R = R_##R
+    GO(EAX);
+    GO(ECX);
+    GO(EDX);
+    #undef GO
     // set stack pointer
-    sigemu->regs[_SP].dword[0] = (uintptr_t)frame;
-
-    // set segments
-    memcpy(sigemu->segs, emu->segs, sizeof(sigemu->segs));
+    R_ESP = (uintptr_t)frame;
+    // set frame pointer
+    R_EBP = sigcontext->uc_mcontext.gregs[REG_EBP];
 
     int exits = 0;
     int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
+    // restore old value from emu
+    #define GO(R) R_##R = old_##R
+    GO(EAX);
+    GO(ECX);
+    GO(EDX);
+    #undef GO
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
-            #define GO(R)   if(sigcontext->uc_mcontext.gregs[REG_E##R]!=sigcontext_copy.uc_mcontext.gregs[REG_E##R]) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
+            #define GO(R) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
             GO(AX);
             GO(CX);
             GO(DX);
@@ -564,12 +552,12 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
             GO(SP);
             GO(BX);
             #undef GO
-            if(sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP]) ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[REG_EIP];
+            ejb->emu->ip.dword[0]=sigcontext->uc_mcontext.gregs[REG_EIP];
             sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;
             // flags
-            if(sigcontext->uc_mcontext.gregs[REG_EFL]!=sigcontext_copy.uc_mcontext.gregs[REG_EFL]) ejb->emu->eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
+            ejb->emu->eflags.x32=sigcontext->uc_mcontext.gregs[REG_EFL];
             // get segments
-            #define GO(S)   if(sigcontext->uc_mcontext.gregs[REG_##S]!=sigcontext_copy.uc_mcontext.gregs[REG_##S]) {ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_serial[_##S] = 0;}
+            #define GO(S) ejb->emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]; ejb->emu->segs_serial[_##S] = 0
             GO(GS);
             GO(FS);
             GO(ES);
@@ -586,6 +574,27 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
     }
+    // restore regs...
+    #define GO(R) emu->regs[_##R].dword[0] = sigcontext->uc_mcontext.gregs[REG_E##R]
+    GO(AX);
+    GO(CX);
+    GO(DX);
+    GO(DI);
+    GO(SI);
+    GO(BP);
+    GO(SP);
+    GO(BX);
+    #undef GO
+    emu->ip.dword[0] = sigcontext->uc_mcontext.gregs[REG_EIP];
+    emu->eflags.x32 = sigcontext->uc_mcontext.gregs[REG_EFL];
+    #define GO(S) emu->segs[_##S] = sigcontext->uc_mcontext.gregs[REG_##S]; emu->segs_serial[_##S] = 0
+    GO(GS);
+    GO(FS);
+    GO(ES);
+    GO(DS);
+    GO(CS);
+    GO(SS);
+    #undef GO
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits)
         exit(ret);
@@ -721,9 +730,9 @@ exit(-1);
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x86_addr, db->x86_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p, stack=%p:%p own=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, 
-            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, 
+            emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_EBP, 
             addr, info->si_code, prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
@@ -1094,7 +1103,6 @@ void init_signal_helper(box86context_t* context)
     sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
-	pthread_once(&sigemu_key_once, sigemu_key_alloc);
 }
 
 void fini_signal_helper()

@@ -423,6 +423,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
+        pthread_mutex_lock(&mutex_mmap);
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
@@ -446,14 +447,11 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         int ret;
         k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
         kh_value(blocks, k) = db;
+        pthread_mutex_unlock(&mutex_mmap);
         return (uintptr_t)p;
     }
     
-    if(pthread_mutex_trylock(&mutex_mmap)) {
-        sched_yield();  // give it a chance
-        if(pthread_mutex_trylock(&mutex_mmap))
-            return 0;   // cannot lock, baillout
-    }
+    pthread_mutex_lock(&mutex_mmap);
 
     uintptr_t ret = FindFreeDynarecMap(db, size);
     if(!ret)
@@ -469,6 +467,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
     if(!addr || !size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
+        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         free((void*)addr);
         #else
@@ -480,6 +479,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
             if(k!=kh_end(blocks))
                 kh_del(dynablocks, blocks, k);
         }
+        pthread_mutex_unlock(&mutex_mmap);
         return;
     }
     pthread_mutex_lock(&mutex_mmap);
@@ -501,7 +501,9 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!dynmap[i]) {
-            dynmap[i] = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
+            dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
+            if(arm_lock_storeifnull(&dynmap[i], p)!=p)
+                FreeDynablockList(&p);
         }
     }
 }

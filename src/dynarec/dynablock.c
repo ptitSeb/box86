@@ -323,22 +323,29 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(!created)
         return block;   // existing block...
 
+    #if 0
     if(box86_dynarec_dump)
         pthread_mutex_lock(&my_context->mutex_dyndump);
+    #endif
     // fill the block
     block->x86_addr = (void*)addr;
-    if(!FillBlock(block, filladdr)) {
+    pthread_mutex_lock(&my_context->mutex_dyndump);
+    void* ret = FillBlock(block, filladdr);
+    pthread_mutex_unlock(&my_context->mutex_dyndump);
+    if(!ret) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
-        void* old = (void*)arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], 0);
-        if(old!=block && old) {// put it back in place, strange things are happening here!
+        void* old = (void*)arm_lock_storeifref(&dynablocks->direct[addr-dynablocks->text], 0, block);
+        if(old!=block && old) { // put it back in place, strange things are happening here!
             dynarec_log(LOG_INFO, "Warning, a wild block appeared at %p: %p\n", (void*)addr, old);
-            arm_lock_xchg(&dynablocks->direct[addr-dynablocks->text], (uintptr_t)old);
+            // Doing nothing else, the block has not been written
         }
         free(block);
         block = NULL;
     }
+    #if 0
     if(box86_dynarec_dump)
         pthread_mutex_unlock(&my_context->mutex_dyndump);
+    #endif
     // check size
     if(block && block->x86_size) {
         int blocksz = block->x86_size;

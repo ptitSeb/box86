@@ -680,6 +680,7 @@ EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cp
 
 EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 {
+printf_log(LOG_INFO, "pthread_kill(%p, %d)\n", thread, sig);
     // check for old "is everything ok?"
     if(thread==NULL && sig==0)
         return pthread_kill(pthread_self(), 0);
