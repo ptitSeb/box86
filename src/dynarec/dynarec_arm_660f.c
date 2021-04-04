@@ -1961,7 +1961,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(q0);
             GETEX(q1);
-            VABDQ_U8(q0, q0, q1);
+            VABDQ_U8(q0, q0, q1);   // needs VABDLQ in fact
             VPADDLQ_U8(q0, q0);
             VPADDLQ_U16(q0, q0);
             VPADDLQ_U32(q0, q0);

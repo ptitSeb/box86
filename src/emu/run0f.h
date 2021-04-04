@@ -1229,7 +1229,7 @@
             nextop = F8;
             GET_EM;
             for(int i=0; i<4; ++i) {
-                tmp32u = (int32_t)GM.uw[i] * EM->uw[i];
+                tmp32u = (uint32_t)GM.uw[i] * EM->uw[i];
                 GM.uw[i] = (tmp32u>>16)&0xffff;
             }
             NEXT;
