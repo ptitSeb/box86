@@ -79,7 +79,6 @@ EXPORT void* my_glXGetProcAddress(x86emu_t* emu, void* name)
     ret = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
     return (void*)ret;
-
 }
 EXPORT void* my_glXGetProcAddressARB(x86emu_t* emu, void* name) __attribute__((alias("my_glXGetProcAddress")));
 
@@ -123,12 +122,13 @@ EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
     static vFpp_t DebugMessageCallback = NULL;
     static int init = 1;
     if(init) {
-        DebugMessageCallback = emu->context->glxprocaddress("glDebugMessageCallback");
+        DebugMessageCallback = my_context->glxprocaddress("glDebugMessageCallback");
         init = 0;
     }
     if(!DebugMessageCallback)
         return;
-    DebugMessageCallback(find_debug_callback_Fct(prod), param);
+    void* cb = find_debug_callback_Fct(prod);
+    DebugMessageCallback(cb, param);
 }
 EXPORT void my_glDebugMessageCallbackARB(x86emu_t* emu, void* prod, void* param) __attribute__((alias("my_glDebugMessageCallback")));
 
