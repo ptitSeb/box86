@@ -26,7 +26,7 @@
 // emit CMP32 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
         SET_DF(s4, d_cmp32);
@@ -34,7 +34,7 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     SUBS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 - s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF|X_CF) {
@@ -86,7 +86,7 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit CMP32 instruction, from cmp s1 , 0, using s3 and s4 as scratch
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         MOVW(s4, 0);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, op2));
@@ -119,7 +119,7 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP16 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
         SET_DF(s3, d_cmp16);
@@ -127,7 +127,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s3);
     }
     SUB_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 - s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
@@ -178,7 +178,7 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit CMP16 instruction, from cmp s1 , #0, using s3 and s4 as scratch
 void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         MOVW(s3, 0);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
@@ -210,7 +210,7 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP8 instruction, from cmp s1 , s2, using s3 and s4 as scratch
 void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
         SET_DF(s4, d_cmp8);
@@ -218,7 +218,7 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     SUB_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 - s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
@@ -267,7 +267,7 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
 void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         MOVW(s4, 0);
         STR_IMM9(s4, xEmu, offsetof(x86emu_t, op2));
@@ -299,7 +299,7 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 // emit TEST32 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, d_tst32);
     } else {
         SET_DFNONE(s4);
@@ -311,7 +311,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
@@ -336,7 +336,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit TEST16 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, d_tst16);
     } else {
         SET_DFNONE(s4);
@@ -348,7 +348,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
@@ -373,7 +373,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         SET_DF(s3, d_tst8);
     } else {
         SET_DFNONE(s4);
@@ -385,7 +385,7 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BIC_IMM8(xFlags, xFlags, (1<<F_ZF)|(1<<F_CF), 0);
     }
     ANDS_REG_LSL_IMM5(s3, s1, s2, 0);   // res = s1 & s2
-    IFX(X_PEND) {
+    IFX_PENDOR0 {
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, res));
     }
     IFX(X_ZF) {
