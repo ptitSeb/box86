@@ -887,6 +887,7 @@ void vFuiiii(x86emu_t *emu, uintptr_t fnc);
 void vFuiiiu(x86emu_t *emu, uintptr_t fnc);
 void vFuiiip(x86emu_t *emu, uintptr_t fnc);
 void vFuiiup(x86emu_t *emu, uintptr_t fnc);
+void vFuiifi(x86emu_t *emu, uintptr_t fnc);
 void vFuiIII(x86emu_t *emu, uintptr_t fnc);
 void vFuiuii(x86emu_t *emu, uintptr_t fnc);
 void vFuiuiu(x86emu_t *emu, uintptr_t fnc);
