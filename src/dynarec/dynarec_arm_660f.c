@@ -1464,6 +1464,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             BFI(gd, x1, 0, 16);
             break;
 
+        case 0xC1:
+            INST_NAME("XADD Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2);
+            BFI((xEAX+((nextop&0x38)>>3)), x2, 0, 16);  // GW <- EW
+            emit_add16(dyn, ninst, x1, x2, x14, x3, 1);
+            EWBACK;
+            break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex");
             nextop = F8;
@@ -1560,6 +1570,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             break;
 
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            INST_NAME("BSWAP Reg");
+            gd = xEAX+(opcode&7);
+            REV(x1, gd);
+            BFI(gd, x1, 0, 16);
+            break;
         case 0xD0:
             INST_NAME("ADDSUBPD Gx, Ex");
             nextop = F8;

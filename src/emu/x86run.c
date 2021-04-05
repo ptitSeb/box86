@@ -390,6 +390,7 @@ _trace:
         _0x63:                      /* ARPL Ew, Gw */
             nextop = F8;
             GET_EW;
+printf_log(LOG_NONE, "ARPL 0x%x, 0x%x called\n", EW->word[0], GW.word[0]);
             // faking to always happy...
             SET_FLAG(F_ZF);
             NEXT;

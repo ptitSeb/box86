@@ -496,6 +496,35 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_test16(dyn, ninst, x1, x2, x3, x14);
             break;
 
+        case 0x87:
+            INST_NAME("XCHG Ew, Gw");
+            nextop = F8;
+            if((nextop&0xC0)==0xC0) {
+                GETGW(x14);
+                ed = xEAX + (nextop&7);
+                UXTH(x1, ed, 0);
+                // do the swap 14 -> ed, 1 -> gd
+                BFI(gd, x1, 0, 16);
+                BFI(ed, x14, 0, 16);
+            } else {
+                GETGW(x14);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                #if 0
+                MARKLOCK;
+                // do the swap with exclusive locking
+                LDREXH(x1, ed);
+                // do the swap 14 -> strb(ed), 1 -> gd
+                STREXH(x3, x14, ed);
+                CMPS_IMM8(x3, 0);
+                B_MARKLOCK(cNE);
+                #else
+                LDRH_IMM8(x1, ed, fixedaddress);
+                STRH_IMM8(x14, ed, fixedaddress);
+                #endif
+                BFI(gd, x1, 0, 16);
+            }
+            break;
+
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;

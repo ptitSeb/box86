@@ -475,7 +475,9 @@ Op is 20-27
 #define BFC_COND(cond, rd, lsb, width) EMIT(cond | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | 0b1111)
 
 // REV: Reverse byte of a 32bits word
-#define REV(rd, rm) EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
+#define REV(rd, rm)     EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b0011<<4) | (rm))
+// REV16: Reverse byte of a 16bits word
+#define REV16(rd, rm)   EMIT(c__ | (0b01101<<23) | (0<<22) | (0b11<<20) | (0b1111<<16) | ((rd)<<12) | (0b1111<<8) | (0b1011<<4) | (rm))
 
 #define SSAT_gen(cond, sat_imm, Rd, imm5, sh, Rn) (cond | 0b0110101<<21 | (sat_imm)<<16 | (Rd)<<12 | (imm5)<<7 | (sh)<<6 | 0b01<<4 | (Rn))
 // Signed Staturate Rn to 2^(staturate_to-1) into Rd. Optionnaly shift left Rn before saturate
