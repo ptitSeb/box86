@@ -1183,10 +1183,11 @@ int main(int argc, const char **argv, const char **env) {
     
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");
-    SetEAX(emu, my_context->argc);
-    SetEBX(emu, (uint32_t)my_context->argv);
+    // Stack is ready, with stacked: NULL env NULL argv argc
     SetEIP(emu, my_context->ep);
     ResetFlags(emu);
+    PushExit(emu);  // push to pop it just after
+    SetEDX(emu, Pop32(emu));    // EDX is exit function
     Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);
