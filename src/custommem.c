@@ -641,6 +641,15 @@ uint32_t getProtection(uintptr_t addr)
     return ret;
 }
 
+static void atfork_child_custommem(void)
+{
+    // unlock mutex if it was lock before the fork
+    pthread_mutex_unlock(&mutex_blocks);
+#ifdef DYNAREC
+    pthread_mutex_unlock(&mutex_mmap);
+#endif
+}
+
 void init_custommem_helper(box86context_t* ctx)
 {
     if(inited) // already initialized
@@ -661,6 +670,7 @@ void init_custommem_helper(box86context_t* ctx)
 #error Unsupported architecture!
 #endif
 #endif
+    pthread_atfork(NULL, NULL, atfork_child_custommem);
 }
 
 void fini_custommem_helper(box86context_t *ctx)
