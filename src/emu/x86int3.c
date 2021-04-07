@@ -299,7 +299,7 @@ void x86Int3(x86emu_t* emu)
         }
         return;
     }
-    if(my_context->signals[SIGTRAP])
+    if(0 && my_context->signals[SIGTRAP])
         raise(SIGTRAP);
     else
         printf_log(LOG_INFO, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_EIP);

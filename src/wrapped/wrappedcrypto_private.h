@@ -2596,10 +2596,10 @@ GO(OBJ_txt2obj, pFpi)
 //GO(OCSP_SINGLERESP_get_ext_count, 
 //GO(OCSP_SINGLERESP_new, 
 //GO(OCSP_url_svcloc_new, 
-GO(OPENSSL_add_all_algorithms_conf, vFv)
-GO(OPENSSL_add_all_algorithms_noconf, vFv)
-GO(OpenSSL_add_all_ciphers, vFv)
-//GO(OpenSSL_add_all_digests, 
+GOM(OPENSSL_add_all_algorithms_conf, vFv)
+GOM(OPENSSL_add_all_algorithms_noconf, vFv)
+GOM(OpenSSL_add_all_ciphers, vFv)
+GOM(OpenSSL_add_all_digests, vFv)
 //GO(OPENSSL_asc2uni, 
 //GO(OPENSSL_atomic_add, 
 //GO(OPENSSL_cleanse, 

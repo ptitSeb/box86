@@ -25,6 +25,7 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 
 static library_t* my_lib = NULL;
 
+typedef void        (*vFv_t)        (void);
 typedef void        (*vFp_t)        (void*);
 typedef void*       (*pFp_t)        (void*);
 typedef void        (*vFpp_t)       (void*, void*);
@@ -48,7 +49,11 @@ typedef int32_t     (*iFppppipp_t)  (void*, void*, void*, void*, int, void*, voi
     GO(PEM_write_bio_RSAPrivateKey, iFppppipp_t)    \
     GO(PEM_write_bio_ECPrivateKey, iFppppipp_t)     \
     GO(sk_new, pFp_t)                               \
-    GO(sk_pop_free, vFpp_t)
+    GO(sk_pop_free, vFpp_t)                         \
+    GO(OPENSSL_add_all_algorithms_conf, vFv_t)      \
+    GO(OPENSSL_add_all_algorithms_noconf, vFv_t)    \
+    GO(OpenSSL_add_all_ciphers, vFv_t)              \
+    GO(OpenSSL_add_all_digests, vFv_t)              \
 
 typedef struct crypto_my_s {
     // functions
@@ -330,6 +335,20 @@ EXPORT void my_sk_pop_free(x86emu_t* emu, void* st, void* f)
 
     my->sk_pop_free(st, find_free_fnc_Fct(f));
 }
+
+#define GO(A)           \
+EXPORT void my_##A(void)\
+{                       \
+    crypto_my_t *my = (crypto_my_t*)my_lib->priv.w.p2;  \
+    if(my->A)           \
+        my->A();        \
+}
+// Old deprecated function, not present (and useless) in 1.1 version
+GO(OPENSSL_add_all_algorithms_conf)
+GO(OPENSSL_add_all_algorithms_noconf)
+GO(OpenSSL_add_all_ciphers)
+GO(OpenSSL_add_all_digests)
+#undef GO
 
 #define CUSTOM_INIT \
     my_lib = lib;   \
