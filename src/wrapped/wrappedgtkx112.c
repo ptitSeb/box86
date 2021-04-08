@@ -70,6 +70,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_misc_get_type, iFv_t)                \
     GO(gtk_label_get_type, iFv_t)               \
     GO(gtk_tree_view_get_type, iFv_t)           \
+    GO(gtk_window_get_type, iFv_t)              \
     GO(gtk_type_class, pFi_t)                   \
     GO(gtk_button_get_label, pFp_t)             \
     GO(gtk_signal_connect_full, LFppppppii_t)   \
@@ -1074,11 +1075,13 @@ EXPORT void my_gtk_clipboard_request_text(x86emu_t* emu, void* clipboard, void* 
     lib->priv.w.p2 = getGtkx112My(lib); \
     SetGtkObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
     SetGtkWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
-    SetGtkContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
+    SetGtkContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());\
     SetGtkActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
     SetGtkMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
     SetGtkLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
     SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
+    SetGtkBinID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());           \
+    SetGtkWindowID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());     \
     lib->priv.w.needed = 2;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \

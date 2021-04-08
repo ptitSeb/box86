@@ -185,6 +185,35 @@ typedef struct my_GtkTreeViewClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkTreeViewClass_t;
 
+typedef struct my_GtkBinClass_s
+{
+  my_GtkContainerClass_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkBinClass_t;
+
+typedef struct my_GtkWindowClass_s {
+  my_GtkBinClass_t parent_class;
+  void (* set_focus)    (void* window, void* focus);
+  int  (* frame_event)  (void* window, void* event);
+  void (* activate_focus)          (void* window);
+  void (* activate_default)        (void* window);
+  void (* move_focus)              (void* window, int direction);
+  void (*keys_changed)             (void* window);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkWindowClass_t;
+
+typedef struct my_MetaFramesClass_s
+{
+  my_GtkWindowClass_t parent_class;
+
+} my_MetaFramesClass_t;
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
@@ -248,6 +277,9 @@ GTKCLASS(GtkAction)     \
 GTKCLASS(GtkLabel)      \
 GTKCLASS(GtkMisc)       \
 GTKCLASS(GtkTreeView)   \
+GTKCLASS(GtkBin)        \
+GTKCLASS(GtkWindow)     \
+GTKCLASS(MetaFrames)    \
 
 #define GTKCLASS(A) void Set##A##ID(int id);
 GTKCLASSES()

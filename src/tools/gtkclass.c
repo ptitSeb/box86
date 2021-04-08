@@ -572,6 +572,87 @@ static void bridgeGtkTreeViewClass(my_GtkTreeViewClass_t* class)
 
 #undef SUPERGO
 
+// ----- GtkBinClass ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkBinClass(my_GtkBinClass_t* class)
+{
+    wrapGtkContainerClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkBinClass(my_GtkBinClass_t* class)
+{   
+    unwrapGtkContainerClass(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkBinClass(my_GtkBinClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+}
+
+// ----- GtkWindowClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkWindow, set_focus, void, (void* window, void* focus), 2, window, focus);
+WRAPPER(GtkWindow, frame_event, int, (void* window, void* event), 2, window, event);
+WRAPPER(GtkWindow, activate_focus, void, (void* window), 1, window);
+WRAPPER(GtkWindow, activate_default, void, (void* window), 1, window);
+WRAPPER(GtkWindow, move_focus, void, (void* window, int direction), 2, window, direction);
+WRAPPER(GtkWindow, keys_changed, void, (void* window), 1, window);
+
+#define SUPERGO()               \
+    GO(set_focus, vFpp);        \
+    GO(frame_event, iFpp);      \
+    GO(activate_focus, vFp);    \
+    GO(activate_default, vFp);  \
+    GO(move_focus, vFpi);       \
+    GO(keys_changed, vFp);      \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkWindowClass(my_GtkWindowClass_t* class)
+{
+    wrapGtkBinClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkWindow (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkWindowClass(my_GtkWindowClass_t* class)
+{   
+    unwrapGtkBinClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkWindow (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkWindowClass(my_GtkWindowClass_t* class)
+{
+    bridgeGtkBinClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkWindow (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- MetaFramesClass ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapMetaFramesClass(my_MetaFramesClass_t* class)
+{
+    wrapGtkWindowClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapMetaFramesClass(my_MetaFramesClass_t* class)
+{   
+    unwrapGtkWindowClass(&class->parent_class);
+}
+// autobridge
+static void bridgeMetaFramesClass(my_MetaFramesClass_t* class)
+{
+    bridgeGtkWindowClass(&class->parent_class);
+}
+
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
