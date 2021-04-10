@@ -622,8 +622,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
-#ifdef DYNAREC
     uint32_t prot = getProtection((uintptr_t)addr);
+#ifdef DYNAREC
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
