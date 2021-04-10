@@ -46,8 +46,6 @@ typedef struct {
   void *userdata;
 } SDL2_AudioSpec;
 
-KHASH_MAP_INIT_INT(timercb, x86emu_t*)
-
 typedef struct {
     uint8_t data[16];
 } SDL_JoystickGUID;
