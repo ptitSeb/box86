@@ -1278,6 +1278,7 @@ _trace:
                     case 0x7D:
                     case 0x7E:
                     case 0x7F:              /* BND / NOP */
+                    case 0x80:
                     case 0x86:              /* XACQUIRE/XRELEASE XCHG */
                     case 0x87:              /* XACQUIRE/XRELEASE XCHG */
                     case 0x88:              /* XRELEASE MOV... */
