@@ -1216,14 +1216,11 @@
                     GM.sd[i] >>= tmp8u;
             }
             NEXT;
-        _0f_0xE3:                   /* PSRAQ Gm, Em */
+        _0f_0xE3:                   /* PAVGW Gm, Em */
             nextop = F8;
             GET_EM;
-            if(EM->q>63)
-                tmp8u = 64;
-            else
-                tmp8u = EM->ub[0];
-            GM.sq >>= tmp8u;
+            for(int i=0; i<4; ++i)
+                GM.uw[i] = ((uint32_t)GM.uw[i]+EM->uw[i]+1)>>1;
             NEXT;
         _0f_0xE4:                   /* PMULHUW Gm, Em */
             nextop = F8;
