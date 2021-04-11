@@ -76,6 +76,77 @@ void free_tlsdatasize(void* p)
     free(p);
 }
 
+int unlockMutex()
+{
+    int ret = unlockCustommemMutex();
+    int i;
+    #define GO(A, B)                    \
+        i = checkMutex(&A);             \
+        if(i) {                         \
+            pthread_mutex_unlock(&A);   \
+            ret|=(1<<B);                \
+        }
+
+    GO(my_context->mutex_once, 5)
+    GO(my_context->mutex_once2, 6)
+    GO(my_context->mutex_trace, 7)
+    #ifdef DYNAREC
+    GO(my_context->mutex_dyndump, 8)
+    #else
+    GO(my_context->mutex_lock, 8)
+    #endif
+    GO(my_context->mutex_tls, 9)
+    GO(my_context->mutex_thread, 10)
+    #undef GO
+
+    return ret;
+}
+
+void relockMutex(int locks)
+{
+    relockCustommemMutex(locks);
+    #define GO(A, B)                    \
+        if(locks&(1<<B))                \
+            pthread_mutex_lock(&A);     \
+
+    GO(my_context->mutex_once, 5)
+    GO(my_context->mutex_once2, 6)
+    GO(my_context->mutex_trace, 7)
+    #ifdef DYNAREC
+    GO(my_context->mutex_dyndump, 8)
+    #else
+    GO(my_context->mutex_lock, 8)
+    #endif
+    GO(my_context->mutex_tls, 9)
+    GO(my_context->mutex_thread, 10)
+    #undef GO
+}
+
+static void init_mutexes(box86context_t* context)
+{
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&context->mutex_once, &attr);
+    pthread_mutex_init(&context->mutex_once2, &attr);
+    pthread_mutex_init(&context->mutex_trace, &attr);
+#ifndef DYNAREC
+    pthread_mutex_init(&context->mutex_lock, &attr);
+#else
+    pthread_mutex_init(&context->mutex_dyndump, &attr);
+#endif
+    pthread_mutex_init(&context->mutex_tls, &attr);
+    pthread_mutex_init(&context->mutex_thread, &attr);
+
+    pthread_mutexattr_destroy(&attr);
+}
+
+static void atfork_child_box64context(void)
+{
+    // (re)init mutex if it was lock before the fork
+    init_mutexes(my_context);
+}
+
 EXPORTDYN
 box86context_t *NewBox86Context(int argc)
 {
@@ -112,16 +183,9 @@ box86context_t *NewBox86Context(int argc)
     context->argc = argc;
     context->argv = (char**)calloc(context->argc+1, sizeof(char*));
 
-    pthread_mutex_init(&context->mutex_once, NULL);
-    pthread_mutex_init(&context->mutex_once2, NULL);
-    pthread_mutex_init(&context->mutex_trace, NULL);
-#ifndef DYNAREC
-    pthread_mutex_init(&context->mutex_lock, NULL);
-#else
-    pthread_mutex_init(&context->mutex_dyndump, NULL);
-#endif
-    pthread_mutex_init(&context->mutex_tls, NULL);
-    pthread_mutex_init(&context->mutex_thread, NULL);
+    init_mutexes(context);
+    pthread_atfork(NULL, NULL, atfork_child_box64context);
+
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
     InitFTSMap(context);

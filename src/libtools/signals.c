@@ -391,6 +391,8 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
 
 void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
+    int Locks = unlockMutex();
+
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
@@ -570,6 +572,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
+            relockMutex(Locks);
             longjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
@@ -596,12 +599,15 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     GO(SS);
     #undef GO
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
-    if(exits)
+    if(exits) {
+        relockMutex(Locks);
         exit(ret);
+    }
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
+    relockMutex(Locks);
 }
 
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
@@ -622,6 +628,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
+    int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
     dynablock_t* db = NULL;
@@ -650,12 +657,17 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->ip.dword[0] = getX86Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x32 = p->uc_mcontext.arm_ip;
                 dynarec_log(LOG_DEBUG, "Auto-SMC detected, getting out of current Dynablock!\n");
+                relockMutex(Locks);
                 longjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x86_addr);
         }
         // done
-        if(prot&PROT_WRITE) return; // if there is no write permission, don't return and continue to program signal handling
+        if(prot&PROT_WRITE) {
+            // if there is no write permission, don't return and continue to program signal handling
+            relockMutex(Locks);
+            return;
+        }
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
@@ -665,6 +677,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(addr && pc && db) {
             // probably a glitch due to intensive multitask...
             dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
+            relockMutex(Locks);
             return; // try again
         }
     }
@@ -746,10 +759,11 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
+    relockMutex(Locks);
     #if 1
-    /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
-       (probably some timing issue) */
     if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_DYNAREC)==7 || (prot&~PROT_DYNAREC)==5))) {
+        /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
+        (probably some timing issue) */
         //box86_log=2;
         return;//why?
     }

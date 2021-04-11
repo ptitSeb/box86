@@ -204,4 +204,9 @@ int AddTLSPartition(box86context_t* context, int tlssize);
 void thread_set_emu(x86emu_t* emu);
 x86emu_t* thread_get_emu();
 
+// unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
+int unlockMutex();
+// relock the muxtex that were unlocked
+void relockMutex(int locks);
+
 #endif //__BOX86CONTEXT_H_
