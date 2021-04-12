@@ -1,4 +1,3 @@
-#() iF
 #() vFE
 #() vFv
 #() vFi
@@ -1895,6 +1894,7 @@
 #!defined(HAVE_LD80BITS) KFppip
 #!defined(HAVE_LD80BITS) iFKipppL
 #!defined(HAVE_LD80BITS) vFppippKKC
+#() vFEv -> vFE
 #() iFEv -> iFE
 #() pFEv -> pFE
 #() iFEvpp -> iFEpp

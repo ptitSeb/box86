@@ -1213,7 +1213,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             BFI(xEAX, x2, 0, 8);
             break;
         case 0xA1:
-            INST_NAME("MOV, EAX, Od");
+            INST_NAME("MOV EAX, Od");
             u32 = F32;
             MOV32(x2, u32);
             LDR_IMM9(xEAX, x2, 0);

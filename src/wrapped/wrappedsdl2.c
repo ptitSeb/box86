@@ -74,6 +74,7 @@ typedef struct
 typedef void  (*vFv_t)();
 typedef void* (*pFv_t)();
 typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFu_t)(uint32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFWW_t)(uint16_t, uint16_t);
 typedef int32_t (*iFS_t)(SDL_JoystickGUID);
@@ -87,6 +88,7 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void*  (*pFpp_t)(void*, void*);
 typedef void*  (*pFppp_t)(void*, void*, void*);
+typedef void*  (*pFppi_t)(void*, void*, int);
 typedef void  (*vFp_t)(void*);
 typedef void  (*vFpp_t)(void*, void*);
 typedef void  (*vFSppp_t)(SDL_JoystickGUID, void*, void*, void*);
@@ -112,7 +114,7 @@ typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
     GO(SDL_Quit, vFv_t)                             \
     GO(SDL_OpenAudio, iFpp_t)                       \
     GO(SDL_OpenAudioDevice, iFpippi_t)              \
-    GO(SDL_LoadFile_RW, pFpi_t)                     \
+    GO(SDL_LoadFile_RW, pFppi_t)                    \
     GO(SDL_LoadBMP_RW, pFpi_t)                      \
     GO(SDL_RWFromConstMem, pFpi_t)                  \
     GO(SDL_RWFromFP, pFpi_t)                        \
@@ -138,7 +140,7 @@ typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
     GO(SDL_WriteLE32, uFpu_t)                       \
     GO(SDL_WriteLE64, uFpU_t)                       \
     GO(SDL_AddTimer, uFupp_t)                       \
-    GO(SDL_RemoveTimer, uFu_t)                      \
+    GO(SDL_RemoveTimer, iFu_t)                      \
     GO(SDL_CreateThread, pFppp_t)                   \
     GO(SDL_KillThread, vFp_t)                       \
     GO(SDL_GetEventFilter, iFpp_t)                  \
@@ -355,12 +357,12 @@ EXPORT int32_t my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t isca
     return ret;
 }
 
-EXPORT void *my2_SDL_LoadFile_RW(x86emu_t* emu, void* a, int b)
+EXPORT void *my2_SDL_LoadFile_RW(x86emu_t* emu, void* a, void* b, int c)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    void* r = my->SDL_LoadFile_RW(rw, b);
-    if(b==0)
+    void* r = my->SDL_LoadFile_RW(rw, b, c);
+    if(c==0)
         RWNativeEnd2(rw);
     return r;
 }
@@ -601,10 +603,10 @@ EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* f, void* p)
     return my->SDL_AddTimer(a, find_Timer_Fct(f), p);
 }
 
-EXPORT void my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
+EXPORT int my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    my->SDL_RemoveTimer(t);
+    return my->SDL_RemoveTimer(t);
 }
 
 EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* p, void* userdata)

@@ -93,7 +93,7 @@ def main(root, defines, files, ver):
 						if any(c not in acceptables for c in ln[2:]):
 							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
 						# Ok, this is acceptable: there is 0, 1 and/or void
-						ln = (ln
+						ln = ln[:2] + (ln[2:]
 							.replace("v", "")   # void   -> nothing
 							.replace("0", "p")  # 0      -> pointer
 							.replace("1", "i")) # 1      -> integer

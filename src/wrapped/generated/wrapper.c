@@ -69,7 +69,6 @@ void VulkanTox86(void* src, void* save);
 #define ST0val ST0.d
 
 int of_convert(int);
-typedef int32_t (*iF_t)();
 typedef void (*vFE_t)(x86emu_t*);
 typedef void (*vFv_t)(void);
 typedef void (*vFi_t)(int32_t);
@@ -1985,7 +1984,6 @@ typedef int32_t (*iFKipppL_t)(double, int32_t, void*, void*, void*, uintptr_t);
 typedef void (*vFppippKKC_t)(void*, void*, int32_t, void*, void*, double, double, uint8_t);
 #endif
 
-void iF(x86emu_t *emu, uintptr_t fcn) { iF_t fn = (iF_t)fcn; R_EAX=fn(); }
 void vFE(x86emu_t *emu, uintptr_t fcn) { vFE_t fn = (vFE_t)fcn; fn(emu); }
 void vFv(x86emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); }
 void vFi(x86emu_t *emu, uintptr_t fcn) { vFi_t fn = (vFi_t)fcn; fn(*(int32_t*)(R_ESP + 4)); }
@@ -3901,6 +3899,7 @@ void iFKipppL(x86emu_t *emu, uintptr_t fcn) { iFKipppL_t fn = (iFKipppL_t)fcn; R
 void vFppippKKC(x86emu_t *emu, uintptr_t fcn) { vFppippKKC_t fn = (vFppippKKC_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), FromLD((void*)(R_ESP + 24)), FromLD((void*)(R_ESP + 36)), *(uint8_t*)(R_ESP + 48)); }
 #endif
 
+void vFEv(x86emu_t *emu, uintptr_t fcn) { vFE_t fn = (vFE_t)fcn; fn(emu); }
 void iFEv(x86emu_t *emu, uintptr_t fcn) { iFE_t fn = (iFE_t)fcn; R_EAX=fn(emu); }
 void pFEv(x86emu_t *emu, uintptr_t fcn) { pFE_t fn = (pFE_t)fcn; R_EAX=(uintptr_t)fn(emu); }
 void iFEvpp(x86emu_t *emu, uintptr_t fcn) { iFEpp_t fn = (iFEpp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 8), *(void**)(R_ESP + 12)); }

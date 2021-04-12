@@ -30,7 +30,6 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 
-void iF(x86emu_t *emu, uintptr_t fnc);
 void vFE(x86emu_t *emu, uintptr_t fnc);
 void vFv(x86emu_t *emu, uintptr_t fnc);
 void vFi(x86emu_t *emu, uintptr_t fnc);
@@ -1946,6 +1945,7 @@ void iFKipppL(x86emu_t *emu, uintptr_t fnc);
 void vFppippKKC(x86emu_t *emu, uintptr_t fnc);
 #endif
 
+void vFEv(x86emu_t *emu, uintptr_t fnc);
 void iFEv(x86emu_t *emu, uintptr_t fnc);
 void pFEv(x86emu_t *emu, uintptr_t fnc);
 void iFEvpp(x86emu_t *emu, uintptr_t fnc);

@@ -1,14 +1,14 @@
-#if defined(GO) && defined(GOM) && defined(GO2) && defined(DATA)
+#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA) && defined(GOS))
+#error Meh...
+#endif
 
 GOM(dladdr, iFEpp)
 // dladdr1
 GOM(dlclose, iFEp)
-GOM(dlerror, pFE)
+GOM(dlerror, pFEv)
 DATAB(_dlfcn_hook, 4)
 GOM(dlinfo, iFEpip)
 GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)
 GOM(dlsym, pFEpp)
 GOM(dlvsym, pFEppp)   // Weak
-
-#endif
