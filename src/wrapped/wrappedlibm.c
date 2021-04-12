@@ -14,7 +14,13 @@
 #include "x86emu.h"
 #include "debug.h"
 
-const char* libmName = "libm.so.6";
+const char* libmName =
+#ifdef ANDROID
+    "libm.so"
+#else
+    "libm.so.6"
+#endif
+    ;
 #define LIBNAME libm
 
 static library_t* my_lib = NULL;

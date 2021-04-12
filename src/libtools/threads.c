@@ -51,7 +51,7 @@ typedef struct jump_buff_i386_s {
 typedef struct __jmp_buf_tag_s {
     jump_buff_i386_t __jmpbuf;
     int              __mask_was_saved;
-    __sigset_t       __saved_mask;
+    sigset_t         __saved_mask;
 } __jmp_buf_tag_t;
 
 typedef struct x86_unwind_buff_s {
@@ -65,7 +65,9 @@ typedef struct x86_unwind_buff_s {
 typedef void(*vFv_t)();
 
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
+#ifndef ANDROID
 KHASH_MAP_INIT_INT(cancelthread, __pthread_unwind_buf_t*)
+#endif
 
 void CleanStackSize(box86context_t* context)
 {
@@ -132,6 +134,8 @@ static void FreeCancelThread(box86context_t* context)
 	if(!context)
 		return;
 }
+
+#ifndef ANDROID
 static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
 {
 	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
@@ -150,6 +154,7 @@ static void DelCancelThread(x86_unwind_buff_t* buff)
 	free(r);
 	buff->__pad[3] = NULL;
 }
+#endif
 
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
@@ -336,6 +341,7 @@ void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet
 
 void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
+#ifndef ANDROID
 #define CANCEL_MAX 8
 static __thread x86emu_t* cancel_emu[CANCEL_MAX] = {0};
 static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
@@ -390,6 +396,7 @@ EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 	// just in case it does return
 	emu->quit = 1;
 }
+#endif
 
 KHASH_MAP_INIT_INT(once, int)
 
@@ -609,6 +616,7 @@ EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
     // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
 }
 
+#ifndef ANDROID
 EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg)
 {
 	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
@@ -677,6 +685,7 @@ EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cp
 
     return ret;
 }
+#endif
 
 EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 {
@@ -778,7 +787,7 @@ emu_jmpbuf_t* GetJmpBuf()
 	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
 	if(!ejb) {
 		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
-		ejb->jmpbuf = calloc(1, sizeof(struct __jmp_buf_tag));
+		ejb->jmpbuf = calloc(1, sizeof(jmp_buf));
 		pthread_setspecific(jmpbuf_key, ejb);
 	}
 	return ejb;

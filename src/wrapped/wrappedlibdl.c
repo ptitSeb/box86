@@ -46,7 +46,13 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, void *version) EXPORT
 int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info) EXPORT;
 
 #define LIBNAME libdl
-const char* libdlName = "libdl.so.2";
+const char* libdlName =
+#ifdef ANDROID
+    "libdl.so"
+#else
+    "libdl.so.2"
+#endif
+    ;
 
 // define all standard library functions
 #include "wrappedlib_init.h"

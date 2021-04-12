@@ -18,7 +18,13 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-const char* freetypeName = "libfreetype.so.6";
+const char* freetypeName =
+#ifdef ANDROID
+	"libfreetype.so"
+#else
+	"libfreetype.so.6"
+#endif
+	;
 #define LIBNAME freetype
 
 typedef union  FT_StreamDesc_s

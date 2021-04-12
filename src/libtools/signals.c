@@ -199,7 +199,7 @@ typedef struct i386_ucontext_s
     i386_mcontext_t uc_mcontext;
     i386_sigset_t uc_sigmask;
 	/* Allow for uc_sigmask growth.  Glibc uses a 1024-bit sigset_t.  */
-	int		  __unused[32 - (sizeof (sigset_t) / sizeof (int))];
+	int		  unused[32 - (sizeof (sigset_t) / sizeof (int))];
 	//struct i386_xstate_cntxt  uc_xstate;
     struct i386_xstate  xstate;
 } i386_ucontext_t;

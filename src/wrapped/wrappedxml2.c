@@ -16,7 +16,13 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char* xml2Name = "libxml2.so.2";
+const char* xml2Name =
+#ifdef ANDROID
+    "libxml2.so"
+#else
+    "libxml2.so.2"
+#endif
+    ;
 #define LIBNAME xml2
 static library_t *my_lib = NULL;
 

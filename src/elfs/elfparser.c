@@ -189,30 +189,71 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         // also grab the DT_STRTAB string table
         {
             for (int i=0; i<h->numDynamic; ++i) {
-                if(h->Dynamic[i].d_tag == DT_REL)
-                    h->rel = h->Dynamic[i].d_un.d_ptr;
-                else if(h->Dynamic[i].d_tag == DT_RELSZ)
-                    h->relsz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELENT)
-                    h->relent = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELA)
-                    h->rela = h->Dynamic[i].d_un.d_ptr;
-                else if(h->Dynamic[i].d_tag == DT_RELASZ)
-                    h->relasz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_RELAENT)
-                    h->relaent = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTGOT)
-                    h->pltgot = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTREL)
-                    h->pltrel = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_PLTRELSZ)
-                    h->pltsz = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_JMPREL)
-                    h->jmprel = h->Dynamic[i].d_un.d_val;
-                else if(h->Dynamic[i].d_tag == DT_STRTAB)
-                    h->DynStrTab = (char*)(h->Dynamic[i].d_un.d_ptr);
-                else if(h->Dynamic[i].d_tag == DT_STRSZ)
-                    h->szDynStrTab = h->Dynamic[i].d_un.d_val;
+                Elf32_Dyn d = h->Dynamic[i];
+                Elf32_Word val = d.d_un.d_val;
+                Elf32_Addr ptr = d.d_un.d_ptr;
+                switch (d.d_tag) {
+                case DT_REL:
+                    h->rel = ptr;
+                    break;
+                case DT_RELSZ:
+                    h->relsz = val;
+                    break;
+                case DT_RELENT:
+                    h->relent = val;
+                    break;
+                case DT_RELA:
+                    h->rela = ptr;
+                    break;
+                case DT_RELASZ:
+                    h->relasz = val;
+                    break;
+                case DT_RELAENT:
+                    h->relaent = val;
+                    break;
+                case DT_PLTGOT:
+                    h->pltgot = val;
+                    break;
+                case DT_PLTREL:
+                    h->pltrel = val;
+                    break;
+                case DT_PLTRELSZ:
+                    h->pltsz = val;
+                    break;
+                case DT_JMPREL:
+                    h->jmprel = val;
+                    break;
+                case DT_STRTAB:
+                    h->DynStrTab = (char *)(ptr);
+                    break;
+                case DT_STRSZ:
+                    h->szDynStrTab = val;
+                    break;
+                case DT_INIT: // Entry point
+                    h->initentry = ptr;
+                    printf_log(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
+                    break;
+                case DT_INIT_ARRAY:
+                    h->initarray = ptr;
+                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
+                    break;
+                case DT_INIT_ARRAYSZ:
+                    h->initarray_sz = val / sizeof(Elf32_Addr);
+                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
+                    break;
+                case DT_FINI: // Exit hook
+                    h->finientry = ptr;
+                    printf_log(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
+                    break;
+                case DT_FINI_ARRAY:
+                    h->finiarray = ptr;
+                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
+                    break;
+                case DT_FINI_ARRAYSZ:
+                    h->finiarray_sz = val / sizeof(Elf32_Addr);
+                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %d\n", h->finiarray_sz);
+                    break;
+                }
             }
             if(h->rel) {
                 if(h->relent != sizeof(Elf32_Rel)) {
@@ -269,32 +310,6 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->plt = h->SHEntries[ii].sh_addr;
             h->plt_end = h->plt + h->SHEntries[ii].sh_size;
             printf_log(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
-        }
-        // look for .init entry point
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init");
-        if(ii) {
-            h->initentry = h->SHEntries[ii].sh_addr;
-            printf_log(LOG_DEBUG, "The .init is at address %p\n", (void*)h->initentry);
-        }
-        // and .init_array
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".init_array");
-        if(ii) {
-            h->initarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
-            h->initarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .init_array is at address %p, and have %d elements\n", (void*)h->initarray, h->initarray_sz);
-        }
-        // look for .fini entry point
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini");
-        if(ii) {
-            h->finientry = h->SHEntries[ii].sh_addr;
-            printf_log(LOG_DEBUG, "The .fini is at address %p\n", (void*)h->finientry);
-        }
-        // and .fini_array
-        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".fini_array");
-        if(ii) {
-            h->finiarray_sz = h->SHEntries[ii].sh_size / sizeof(Elf32_Addr);
-            h->finiarray = (uintptr_t)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .fini_array is at address %p, and have %d elements\n", (void*)h->finiarray, h->finiarray_sz);
         }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");

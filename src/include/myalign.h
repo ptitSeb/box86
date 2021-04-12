@@ -44,8 +44,11 @@ void AlignSmpegInfo(void* dest, void* source);   // x86 -> Arm
 
 // stat64 is packed on i386, not on arm (and possibly other structures)
 #undef st_atime
+#undef st_atime_nsec
 #undef st_mtime
+#undef st_mtime_nsec
 #undef st_ctime
+#undef st_ctime_nsec
 struct i386_stat64 {
 	uint64_t	st_dev;
 	uint8_t		__pad0[4];

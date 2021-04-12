@@ -347,6 +347,8 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     }
     sprintf(tmp, "EIP=%08x ", ip);
     strcat(buff, tmp);
+    sprintf(tmp, "[EBP-0x10]=%08x ", *(uint32_t *)(emu->regs[_BP].dword[0]-0x10));
+    strcat(buff, tmp);
     return buff;
 }
 

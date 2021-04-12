@@ -125,7 +125,14 @@
 #undef glob
 
 #define LIBNAME libc
-const char* libcName = "libc.so.6";
+
+const char* libcName =
+#ifdef ANDROID
+    "libc.so"
+#else
+    "libc.so.6"
+#endif
+    ;
 
 static library_t* my_lib = NULL;
 
@@ -1107,6 +1114,32 @@ static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
     return 0;
 }
 
+#ifdef ANDROID
+EXPORT int my_stat(char* path, void* buf)
+{
+    struct stat64 st;
+    int r = stat64(path, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my_fstat(int fd, void* buf)
+{
+    struct stat64 st;
+    int r = fstat64(fd, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
+EXPORT int my_lstat(char* path, void* buf)
+{
+    struct stat64 st;
+    int r = lstat64(path, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+#endif
+
 EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
 {
     if (vers == 1)
@@ -1246,6 +1279,51 @@ EXPORT int my_statfs64(const char* path, void* buf)
     return r;
 }
 
+
+#ifdef ANDROID
+typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
+
+static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar, void* arg, size_t lo, size_t hi)
+{
+    void* tmp = malloc(size);
+    void* pivot = ((char*)base) + lo * size;
+    size_t i = lo;
+    for (size_t j = lo; j <= hi; j++)
+    {
+        void* base_i = ((char*)base) + i * size;
+        void* base_j = ((char*)base) + j * size;
+        if (compar(base_j, pivot, arg) < 0)
+        {
+            memcpy(tmp, base_i, size);
+            memcpy(base_i, base_j, size);
+            memcpy(base_j, tmp, size);
+            i++;
+        }
+    }
+    void* base_i = ((char *)base) + i * size;
+    void* base_hi = ((char *)base) + hi * size;
+    memcpy(tmp, base_i, size);
+    memcpy(base_i, base_hi, size);
+    memcpy(base_hi, tmp, size);
+    free(tmp);
+    return i;
+}
+
+static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void* arg, ssize_t lo, ssize_t hi)
+{
+    if (lo < hi)
+    {
+        size_t p = qsort_r_partition(base, size, compar, arg, lo, hi);
+        qsort_r_helper(base, size, compar, arg, lo, p - 1);
+        qsort_r_helper(base, size, compar, arg, p + 1, hi);
+    }
+}
+
+static void qsort_r(void* base, size_t nmemb, size_t size, __compar_d_fn_t compar, void* arg)
+{
+    return qsort_r_helper(base, size, compar, arg, 0, nmemb - 1);
+}
+#endif
 
 typedef struct compare_r_s {
     x86emu_t* emu;
@@ -1510,6 +1588,15 @@ static void CreateCPUTopologyCoreID(int fd, int cpu)
     (void)dummy;
 }
 
+
+#ifdef ANDROID
+static int shm_open(const char *name, int oflag, mode_t mode) {
+    return -1;
+}
+static int shm_unlink(const char *name) {
+    return -1;
+}
+#endif
 
 #define TMP_CPUINFO "box86_tmpcpuinfo"
 #define TMP_CPUTOPO "box86_tmpcputopo%d"
@@ -1828,10 +1915,12 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     return f(pat, flags, findgloberrFct(errfnc), pglob);
 }
 
+#ifndef ANDROID
 EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
+#endif
 
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
@@ -1974,6 +2063,7 @@ EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj,
     return 0;
 }
 
+#ifndef ANDROID
 extern void __chk_fail();
 EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 {
@@ -1982,6 +2072,7 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 
   return d / __NFDBITS;
 }
+#endif
 
 EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
@@ -2187,6 +2278,11 @@ void InitCpuModel()
                                      | (1<<FEATURE_ADX);
 }
 
+#ifdef ANDROID
+void ctSetup()
+{
+}
+#else
 EXPORT const unsigned short int *my___ctype_b;
 EXPORT const int32_t *my___ctype_tolower;
 EXPORT const int32_t *my___ctype_toupper;
@@ -2197,6 +2293,7 @@ void ctSetup()
     my___ctype_toupper = *(__ctype_toupper_loc());
     my___ctype_tolower = *(__ctype_tolower_loc());
 }
+#endif
 
 EXPORT void* my___libc_stack_end;
 void stSetup(box86context_t* context)
@@ -2228,7 +2325,7 @@ typedef struct jump_buff_i386_s {
 typedef struct __jmp_buf_tag_s {
     jump_buff_i386_t __jmpbuf;
     int              __mask_was_saved;
-    __sigset_t       __saved_mask;
+    sigset_t         __saved_mask;
 } __jmp_buf_tag_t;
 
 void EXPORT my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
@@ -2410,6 +2507,7 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
     return ret;
 }
 
+#ifndef ANDROID
 typedef struct my_cookie_s {
     uintptr_t r, w, s, c;
     void* cookie;
@@ -2450,6 +2548,7 @@ EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read,
     cb->cookie = cookie;
     return fopencookie(cb, mode, io_funcs);
 }
+#endif
 
 EXPORT long my_prlimit64(void* pid, uint32_t res, void* new_rlim, void* old_rlim)
 {
@@ -2503,8 +2602,13 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
+#if ANDROID
+void obstackSetup() {
+}
+#else
 // all obstack function defined in obstack.c file
 void obstackSetup();
+#endif
 
 EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
 {
@@ -2601,6 +2705,7 @@ EXPORT void my_mcount(void* frompc, void* selfpc)
     return;
 }
 
+#ifndef ANDROID
 union semun {
   int              val;    /* Value for SETVAL */
   struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
@@ -2608,6 +2713,7 @@ union semun {
   struct seminfo  *__buf;  /* Buffer for IPC_INFO
                               (Linux-specific) */
 };
+#endif
 
 EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun b)
 {
@@ -2630,6 +2736,17 @@ EXPORT char* my_program_invocation_short_name = NULL;
         lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
+#ifdef ANDROID
+#define NUM_NEEDED_LIBS 0
+#define NEEDED_LIBS
+#else
+#define NUM_NEEDED_LIBS 3
+#define NEEDED_LIBS                                         \
+    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2");    \
+    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0");  \
+    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
+#endif
+
 #define CUSTOM_INIT         \
     box86->libclib = lib;   \
     my_lib = lib;           \
@@ -2642,11 +2759,9 @@ EXPORT char* my_program_invocation_short_name = NULL;
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box86->argv[0], '/');                                           \
     lib->priv.w.p2 = getLIBCMy(lib);                                            \
-    lib->priv.w.needed = 3;                                                     \
+    lib->priv.w.needed = NUM_NEEDED_LIBS;                                       \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("ld-linux.so.2");                        \
-    lib->priv.w.neededlibs[1] = strdup("libpthread.so.0");                      \
-    lib->priv.w.neededlibs[2] = strdup("librt.so.1");
+    NEEDED_LIBS
 
 #define CUSTOM_FINI \
     freeLIBCMy(lib->priv.w.p2); \
