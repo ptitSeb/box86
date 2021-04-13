@@ -192,7 +192,7 @@ def main(root, defines, files, ver):
 	for k in ["()"] + gbl_idxs:
 		for v in gbl[k]:
 			functions_list = functions_list + "#" + k + " " + v + "\n"
-	for k in ["()"] + redirects_idxs:
+	for k in (["()"] if "()" in redirects else []) + redirects_idxs:
 		for v in redirects[k]:
 			functions_list = functions_list + "#" + k + " " + v[0] + " -> " + v[1] + "\n"
 	
@@ -336,8 +336,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
 			file.write("#endif\n")
 		file.write("\n")
-		for v in redirects["()"]:
-			file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
+		if "()" in redirects:
+			for v in redirects["()"]:
+				file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
 		for k in redirects_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in redirects[k]:
@@ -487,8 +488,9 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				function_writer(file, v, v + "_t", v[0], v[2:])
 			file.write("#endif\n")
 		file.write("\n")
-		for v in redirects["()"]:
-			function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
+		if "()" in redirects:
+			for v in redirects["()"]:
+				function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
 		for k in redirects_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in redirects[k]:

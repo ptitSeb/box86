@@ -241,7 +241,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )
 if(NOT ANDROID)
-    set(ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
+    list(APPEND ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
 endif()
 
 set(WRAPPEDS
@@ -373,7 +373,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
 )
 if(NOT ANDROID)
-    set(WRAPPEDS
+    list(APPEND WRAPPEDS
         "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
         "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
         "${BOX86_ROOT}/src/wrapped/wrappedturbojpeg.c"
