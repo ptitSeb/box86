@@ -341,6 +341,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappeddbusmenuglib.c"
     "${BOX86_ROOT}/src/wrapped/wrappedappindicator.c"
     "${BOX86_ROOT}/src/wrapped/wrappedatk.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedatkbridge.c"
     "${BOX86_ROOT}/src/wrapped/wrappedpangoft2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedpangocairo.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgthread2.c"
