@@ -10,6 +10,7 @@
 #include <link.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dlfcn.h>
 
 #include "box86version.h"
 #include "elfloader.h"
@@ -945,6 +946,10 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
     if(!h || h->fini_done)
         return;
     h->fini_done = 1;
+#ifdef ANDROID
+    // TODO: Fix .fini_array on Android
+    printf_log(LOG_DEBUG, "Android does not support Fini for %s\n", ElfName(h));
+#else
     // first check fini array
     Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
     for (int i=0; i<h->finiarray_sz; ++i) {
@@ -958,7 +963,7 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
         RunFunctionWithEmu(emu, 0, p, 0);
     }
     h->init_done = 0;   // can be re-inited again...
-    return;
+#endif
 }
 
 uintptr_t GetElfInit(elfheader_t* h)

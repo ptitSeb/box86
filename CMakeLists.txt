@@ -10,6 +10,7 @@ option(RK3399 "Set to ON if targeting an Rockchip RK3399 based device" ${RK3399}
 option(GAMESHELL "Set to ON if targeting a GameShell device" ${GAMESHELL})
 option(ODROID "Set to ON if targeting an ODroid device" ${ODROID})
 option(POWER9 "Set to ON if targeting a POWER9 processor" ${POWER9})
+option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
@@ -19,6 +20,9 @@ if(PANDORA OR PYRA OR RPI2 OR RPI3 OR RPI4 OR GAMESHELL OR ODROID OR RK3399 OR R
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
+endif()
+if(ANDROID)
+    set(NOLOADADDR ON CACHE BOOL "")
 endif()
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
@@ -228,7 +232,6 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/libtools/myalign.c"
     "${BOX86_ROOT}/src/libtools/myalign64.c"
     "${BOX86_ROOT}/src/libtools/myfts.c"
-    "${BOX86_ROOT}/src/libtools/obstack.c"
     "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
     "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX86_ROOT}/src/libtools/signals.c"
@@ -237,6 +240,9 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/dynarec/dynarec.c"
     "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )
+if(NOT ANDROID)
+    set(ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
+endif()
 
 set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
@@ -296,9 +302,6 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedopenal.c"
     "${BOX86_ROOT}/src/wrapped/wrappedalure.c"
     "${BOX86_ROOT}/src/wrapped/wrappedalut.c"
-    "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
-    "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
-    "${BOX86_ROOT}/src/wrapped/wrappedturbojpeg.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedudev0.c"
     "${BOX86_ROOT}/src/wrapped/wrappedudev1.c"
@@ -369,6 +372,13 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
 )
+if(NOT ANDROID)
+    set(WRAPPEDS
+        "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
+        "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
+        "${BOX86_ROOT}/src/wrapped/wrappedturbojpeg.c"
+    )
+endif()
 
 # If BOX86_ROOT contains a ".c", the build breaks...
 string(REPLACE ".c" "_private.h" MODROOT ${BOX86_ROOT})
@@ -386,7 +396,7 @@ add_custom_command(
     OUTPUT "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt"
     COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" 
     "${BOX86_ROOT}" 
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "POWERPCLE" "--" 
+    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "POWERPCLE" "ANDROID" "--" 
     ${WRAPPEDS_HEAD}
     MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py"
     DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
@@ -495,7 +505,11 @@ else()
     add_library(${BOX86} OBJECT ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX86_ROOT}/src/git_head.h")
 endif()
 if(ARM_DYNAREC)
-    target_link_libraries(${BOX86} dynarec m dl rt pthread)
+    if(ANDROID)
+        target_link_libraries(${BOX86} dynarec m dl)
+    else()
+        target_link_libraries(${BOX86} dynarec m dl rt pthread)
+    endif()
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     set_target_properties(${BOX86} PROPERTIES LINK_FLAGS -rdynamic)
@@ -513,7 +527,11 @@ else(BOX86LIB)
 add_executable(${BOX86} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX86_ROOT}/src/git_head.h")
 add_dependencies(${BOX86} WRAPPERS)
 add_dependencies(${BOX86} PRINTER)
-target_link_libraries(${BOX86} m dl rt pthread)
+if(ANDROID)
+    target_link_libraries(${BOX86} m dl)
+else()
+    target_link_libraries(${BOX86} m dl rt pthread)
+endif()
 if(ARM_DYNAREC)
     target_link_libraries(${BOX86} dynarec)
 endif()

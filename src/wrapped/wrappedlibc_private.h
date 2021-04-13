@@ -2195,3 +2195,15 @@ GOM(__register_frame_info, vFpp)    // faked function
 GOM(__deregister_frame_info, pFp)
 
 GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
+
+#ifdef ANDROID
+GOM(__libc_init, vFEpppp)
+GOM(stat, iFpp)
+GOM(lstat, iFpp)
+GOM(fstat, iFip)
+GO(__errno, pFv)
+GO(setprogname, vFp)
+GO(getprogname, pFv)
+#include "wrappedlibpthread_private.h"
+#include "wrappedlibrt_private.h"
+#endif

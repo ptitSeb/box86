@@ -16,7 +16,13 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char* ldaprName = "libldap_r-2.4.so.2";
+const char* ldaprName =
+#ifdef ANDROID
+    "libldap_r-2.4.so"
+#else
+    "libldap_r-2.4.so.2"
+#endif
+    ;
 #define LIBNAME ldapr
 static library_t *my_lib = NULL;
 
@@ -85,11 +91,17 @@ EXPORT int my_ldap_sasl_interactive_bind_s(x86emu_t* emu, void* ld, void* dn, vo
     return my->ldap_sasl_interactive_bind_s(ld, dn, mechs, sctrls, cctrls, flags, find_LDAP_SASL_INTERACT_PROC_Fct(f), defaults);
 }
 
+#ifdef ANDROID
+#define NEEDED_LIB "liblber-2.4.so"
+#else
+#define NEEDED_LIB "liblber-2.4.so.2"
+#endif
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getLdaprMy(lib);                                           \
     lib->priv.w.needed = 1;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("liblber-2.4.so.2");                     \
+    lib->priv.w.neededlibs[0] = strdup(NEEDED_LIB);                             \
     my_lib = lib;
 
 #define CUSTOM_FINI \

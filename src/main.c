@@ -803,7 +803,10 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
+#ifndef ANDROID
 const char **environ __attribute__((weak)) = NULL;
+#endif
+
 int main(int argc, const char **argv, const char **env) {
 
     init_auxval(argc, argv, environ?environ:env);

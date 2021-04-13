@@ -16,7 +16,13 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char* lcms2Name = "liblcms2.so.2";
+const char* lcms2Name =
+#ifdef ANDROID
+    "liblcms2.so"
+#else
+    "liblcms2.so.2"
+#endif
+    ;
 #define LIBNAME lcms2
 static library_t* my_lib = NULL;
 

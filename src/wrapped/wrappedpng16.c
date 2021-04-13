@@ -17,7 +17,13 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* png16Name = "libpng16.so.16";
+const char* png16Name =
+#ifdef ANDROID
+	"libpng16.so"
+#else
+	"libpng16.so.16"
+#endif
+	;
 #define LIBNAME png16
 
 typedef void  (*vFpp_t)(void*, void*);

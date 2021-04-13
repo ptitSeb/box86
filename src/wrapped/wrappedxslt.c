@@ -16,7 +16,13 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char* xsltName = "libxslt.so.1";
+const char *xsltName =
+#ifdef ANDROID
+    "libxslt.so"
+#else
+    "libxslt.so.1"
+#endif
+    ;
 #define LIBNAME xslt
 static library_t *my_lib = NULL;
 

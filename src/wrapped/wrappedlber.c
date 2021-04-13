@@ -11,7 +11,13 @@
 #include "librarian/library_private.h"
 #include "x86emu.h"
 
-const char* lberName = "liblber-2.4.so.2";
+const char* lberName =
+#ifdef ANDROID
+    "liblber-2.4.so"
+#else
+    "liblber-2.4.so.2"
+#endif
+    ;
 #define LIBNAME lber
 
 #include "wrappedlib_init.h"

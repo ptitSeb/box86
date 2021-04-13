@@ -58,6 +58,8 @@ def main(root, defines, files, ver):
 							continue #if !(defined(GO) && defined(GOM)...)
 						elif preproc_cmd.startswith("error"):
 							continue #error meh!
+						elif preproc_cmd.startswith("include"):
+							continue #inherit other library
 						elif preproc_cmd.startswith("endif"):
 							if dependants != []:
 								dependants.pop()

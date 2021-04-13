@@ -18,7 +18,13 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-const char* libtiffName = "libtiff.so.5";
+const char* libtiffName =
+#ifdef ANDROID
+    "libtiff.so"
+#else
+    "libtiff.so.5"
+#endif
+    ;
 #define LIBNAME libtiff
 static library_t* my_lib = NULL;
 
