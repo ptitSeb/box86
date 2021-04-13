@@ -3,6 +3,57 @@
 import os
 import sys
 
+"""
+Generates all files in src/wrapped/generated
+===
+
+TL;DR: Automagically creates type definitions (/.F.+/ functions/typedefs...).
+       All '//%' in the headers are used by the script.
+
+Reads each lines of each "_private.h" headers (plus wrappedd3dadapter9_gen.h as a special case).
+For each of them:
+- If if starts with a #ifdef, #else, #ifndef, #endif, it memorizes which definition is required
+- If it starts with a "GO", it will do multiple things:
+  - It memorizes the type used by the function (second macro argument)
+  - It memorizes the type it is mapped to, if needed (eg, iFEv is mapped to iFE: the second argument is dropped)
+  - It checks if the type given (both original and )
+  - If the signature contains a 'E', it will memorize the original function's signature:
+    - If it is the special file case, or if the line contains "//%%", it stops there.
+    - Otherwise, if it starts with "GOS":
+      - It will search for the special marker "//%".
+        That special marker is used to detect the following step:
+        - If the marker is followed by a registered structure ID (see later), it transforms the assembly function signature
+          into the original signature (eg, transforms pFEp into XFv if //%X was used)
+        - If the marker is followed by a '{', it will not attempt to alter the given signature, and instead use the
+          signature between '{' and '}'
+    - Otherwise, if the line contains '//%{', like before it will use the signature given and not the original one.
+    - Finally, if it still didn't stop, it will use the assembly signature (without the emulator).
+- If the line starts with a '//%'
+
+`gbl` contains the first list, `redirects` the second, `mytypedefs` the third.
+`mystructs` and `mystructs_vals` constains data about the structures.
+
+After sorting the data, it generates:
+
+wrapper.c
+---------
+(Private) type definitions (/.F.+_t/)
+Function definitions (/.F.+/ functions, that actually execute the function given as argument)
+isSimpleWrapper definition
+
+wrapper.h
+---------
+Generic "wrapper_t" type definition
+Function declarations (/.F.+/ functions)
+
+*types.h
+--------
+Local types definition, for the original signatures (eg, XFv for the earlier example)
+The SUPER() macro definition, used to generate and initialize the `*_my_t` library structure
+(TODO: also automate this declaration/definition? It would require more metadata,
+ and may break sometime in the future due to the system changing...)
+"""
+
 # Free values:
 # AB   F H J      QR T   XYZab    gh jk mno qrst   xyz
 values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M']
@@ -48,6 +99,7 @@ def main(root, defines, files, ver):
 	mystructs_vals = {}
 	
 	# First read the files inside the headers
+	# TODO: remove the special case...
 	for filepath in files + [os.path.join(root, "src", "wrapped", "wrappedd3dadapter9_gen.h")]:
 		filename = filepath.split("/")[-1]
 		dependants = []
