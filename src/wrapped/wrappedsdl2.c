@@ -69,106 +69,19 @@ typedef struct
     } value;
 } SDL_GameControllerButtonBind;
 
+const char* sdl2Name = "libSDL2-2.0.so.0";
+#define LIBNAME sdl2
 
-// TODO: put the wrapper type in a dedicate include
-typedef void  (*vFv_t)();
-typedef void* (*pFv_t)();
-typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFu_t)(uint32_t);
-typedef int32_t (*iFip_t)(int32_t, void*);
-typedef int32_t (*iFWW_t)(uint16_t, uint16_t);
-typedef int32_t (*iFS_t)(SDL_JoystickGUID);
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFS_t)(SDL_JoystickGUID);
-typedef void* (*pFpp_t)(void*, void*);
-typedef int32_t (*iFppi_t)(void*, void*, int32_t);
-typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
-typedef int32_t (*iFppp_t)(void*, void*, void*);
-typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
-typedef void*  (*pFpp_t)(void*, void*);
-typedef void*  (*pFppp_t)(void*, void*, void*);
-typedef void*  (*pFppi_t)(void*, void*, int);
-typedef void  (*vFp_t)(void*);
-typedef void  (*vFpp_t)(void*, void*);
-typedef void  (*vFSppp_t)(SDL_JoystickGUID, void*, void*, void*);
-typedef void  (*vFiupp_t)(int32_t, uint32_t, void*, void*);
+typedef void    (*vFv_t)();
+typedef void    (*vFiupp_t)(int32_t, uint32_t, void*, void*);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
-typedef uint32_t (*uFu_t)(uint32_t);
-typedef uint32_t (*uFp_t)(void*);
-typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
-typedef int64_t (*IFp_t)(void*);
-typedef uint64_t (*UFp_t)(void*);
-typedef int32_t (*iFpi_t)(void*, int32_t);
-typedef int32_t (*iFpp_t)(void*, void*);
-typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
-typedef uint32_t (*uFpC_t)(void*, uint8_t);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
-typedef SDL_JoystickGUID (*SFi_t)(int32_t);
-typedef SDL_JoystickGUID (*SFp_t)(void*);
-typedef SDL_GameControllerButtonBind (*SFpi_t)(void*, int32_t);
 
-#define SUPER() \
-    GO(SDL_Quit, vFv_t)                             \
-    GO(SDL_OpenAudio, iFpp_t)                       \
-    GO(SDL_OpenAudioDevice, iFpippi_t)              \
-    GO(SDL_LoadFile_RW, pFppi_t)                    \
-    GO(SDL_LoadBMP_RW, pFpi_t)                      \
-    GO(SDL_RWFromConstMem, pFpi_t)                  \
-    GO(SDL_RWFromFP, pFpi_t)                        \
-    GO(SDL_RWFromFile, pFpp_t)                      \
-    GO(SDL_RWFromMem, pFpi_t)                       \
-    GO(SDL_SaveBMP_RW, iFppi_t)                     \
-    GO(SDL_LoadWAV_RW, pFpippp_t)                   \
-    GO(SDL_GameControllerAddMappingsFromRW, iFpi_t) \
-    GO(SDL_AllocRW, sdl2_allocrw)                   \
-    GO(SDL_FreeRW, sdl2_freerw)                     \
-    GO(SDL_ReadU8, uFp_t)                           \
-    GO(SDL_ReadBE16, uFp_t)                         \
-    GO(SDL_ReadBE32, uFp_t)                         \
-    GO(SDL_ReadBE64, UFp_t)                         \
-    GO(SDL_ReadLE16, uFp_t)                         \
-    GO(SDL_ReadLE32, uFp_t)                         \
-    GO(SDL_ReadLE64, UFp_t)                         \
-    GO(SDL_WriteU8, uFpC_t)                         \
-    GO(SDL_WriteBE16, uFpW_t)                       \
-    GO(SDL_WriteBE32, uFpu_t)                       \
-    GO(SDL_WriteBE64, uFpU_t)                       \
-    GO(SDL_WriteLE16, uFpW_t)                       \
-    GO(SDL_WriteLE32, uFpu_t)                       \
-    GO(SDL_WriteLE64, uFpU_t)                       \
-    GO(SDL_AddTimer, uFupp_t)                       \
-    GO(SDL_RemoveTimer, iFu_t)                      \
-    GO(SDL_CreateThread, pFppp_t)                   \
-    GO(SDL_KillThread, vFp_t)                       \
-    GO(SDL_GetEventFilter, iFpp_t)                  \
-    GO(SDL_SetEventFilter, vFpp_t)                  \
-    GO(SDL_LogGetOutputFunction, vFpp_t)            \
-    GO(SDL_LogSetOutputFunction, vFpp_t)            \
-    GO(SDL_LogMessageV, vFiupp_t)                   \
-    GO(SDL_GL_GetProcAddress, pFp_t)                \
-    GO(SDL_TLSSet, iFupp_t)                         \
-    GO(SDL_JoystickGetDeviceGUID, SFi_t)            \
-    GO(SDL_JoystickGetGUID, SFp_t)                  \
-    GO(SDL_JoystickGetGUIDFromString, SFp_t)        \
-    GO(SDL_GameControllerGetBindForAxis, SFpi_t)    \
-    GO(SDL_GameControllerGetBindForButton, SFpi_t)  \
-    GO(SDL_AddEventWatch, vFpp_t)                   \
-    GO(SDL_DelEventWatch, vFpp_t)                   \
-    GO(SDL_GameControllerMappingForGUID, pFS_t)     \
-    GO(SDL_SaveAllDollarTemplates, iFp_t)           \
-    GO(SDL_SaveDollarTemplate, iFip_t)              \
-    GO(SDL_GetJoystickGUIDInfo, vFSppp_t)           \
-    GO(SDL_IsJoystickPS4, iFWW_t)                   \
-    GO(SDL_IsJoystickNintendoSwitchPro, iFWW_t)     \
-    GO(SDL_IsJoystickSteamController, iFWW_t)       \
-    GO(SDL_IsJoystickXbox360, iFWW_t)               \
-    GO(SDL_IsJoystickXboxOne, iFWW_t)               \
-    GO(SDL_IsJoystickXInput, iFS_t)                 \
-    GO(SDL_IsJoystickHIDAPI, iFS_t)                 \
-    GO(SDL_Vulkan_GetVkGetInstanceProcAddr, pFv_t)  \
+#define ADDED_FUNCTIONS() \
+    GO(SDL_Quit, vFv_t)           \
+    GO(SDL_AllocRW, sdl2_allocrw) \
+    GO(SDL_FreeRW, sdl2_freerw)   \
+    GO(SDL_LogMessageV, vFiupp_t)
+#include "generated/wrappedsdl2types.h"
 
 typedef struct sdl2_my_s {
     #define GO(A, B)    B   A;
@@ -597,13 +510,13 @@ EXPORT int my2_SDL_SaveDollarTemplate(x86emu_t* emu, int gesture, void* a)
     return ret;
 }
 
-EXPORT uint32_t my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* f, void* p)
+EXPORT void *my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* f, void* p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     return my->SDL_AddTimer(a, find_Timer_Fct(f), p);
 }
 
-EXPORT int my2_SDL_RemoveTimer(x86emu_t* emu, uint32_t t)
+EXPORT int my2_SDL_RemoveTimer(x86emu_t* emu, void *t)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     return my->SDL_RemoveTimer(t);
@@ -1048,9 +961,6 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
     return NULL;
 }
 
-const char* sdl2Name = "libSDL2-2.0.so.0";
-#define LIBNAME sdl2
-
 #define CUSTOM_INIT \
     box86->sdl2lib = lib;                                           \
     lib->priv.w.p2 = getSDL2My(lib);                                \
@@ -1074,5 +984,3 @@ const char* sdl2Name = "libSDL2-2.0.so.0";
 
 
 #include "wrappedlib_init.h"
-
-

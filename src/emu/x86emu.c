@@ -17,6 +17,9 @@
 #include "x86run_private.h"
 #include "callback.h"
 #include "bridge.h"
+#ifdef HAVE_TRACE
+#include "x86trace.h"
+#endif
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
@@ -357,8 +360,19 @@ void StopEmu(x86emu_t* emu, const char* reason)
     emu->quit = 1;
     printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
-    printf_log(LOG_NONE, "CPU Regs=%s\n", DumpCPURegs(emu, R_EIP));
-    // TODO: stack, memory/instruction around EIP, etc..
+    printf_log(LOG_NONE, "\n==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_EIP));
+    printf_log(LOG_NONE, "\n======== Stack ========\nStack is from %lX to %lX\n", R_EBP, R_ESP);
+    if (R_EBP == R_ESP) {
+        printf_log(LOG_NONE, "EBP = ESP: leaf function detected; next 128 bytes should be either data or random.\n");
+    } else {
+        // TODO: display stack if operation should be allowed (to avoid crashes)
+        /* for (uint32_t *sp = R_EBP; sp >= R_ESP; --sp) {
+        } */
+    }
+    printf_log(LOG_NONE, "\n====== Past data ======\nOld IP: %tX\n", emu->old_ip);
+#ifdef HAVE_TRACE
+    printf_log(LOG_NONE, "%s\n", DecodeX86Trace(my_context->dec, emu->old_ip));
+#endif
 }
 
 void UnimpOpcode(x86emu_t* emu)
@@ -442,11 +456,11 @@ static inline void init_perfcounters (int32_t do_reset, int32_t enable_divider)
 uint64_t ReadTSC(x86emu_t* emu)
 {
     // Read the TimeStamp Counter as 64bits.
-    // this is supposed to be the number of instrunctions executed since last reset
+    // this is supposed to be the number of instructions executed since last reset
 #if defined(__i386__)
-  uint64_t ret;
-  __asm__ volatile("rdtsc" : "=A"(ret));
-  return ret;
+    uint64_t ret;
+    __asm__ volatile("rdtsc" : "=A"(ret));
+    return ret;
 #if 0
 #elif defined(__ARM_ARCH)
 #if (__ARM_ARCH >= 6)
@@ -462,15 +476,15 @@ uint64_t ReadTSC(x86emu_t* emu)
 #endif
 #endif
 #endif
-// fall back to gettime...
+    // fall back to gettime...
 #ifndef NOGETCLOCK
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
-  return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
+    return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
 #else
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 

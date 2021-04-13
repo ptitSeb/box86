@@ -48,8 +48,6 @@ void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit
 #else
 int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
-    //TODO: register rtld_fini
-    //TODO: register fini
     // let's cheat and set all args...
     Push(emu, (uint32_t)my_context->envv);
     Push(emu, (uint32_t)my_context->argv);
