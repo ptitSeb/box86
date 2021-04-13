@@ -228,12 +228,16 @@ scwrap_t syscallwrap[] = {
     { 266, __NR_clock_getres, 2 },
     //{ 270, __NR_tgkill, 3 },
     { 271, __NR_utimes, 2 },
+    { 291, __NR_inotify_init, 0},
+    { 292, __NR_inotify_add_watch, 3},
+    { 293, __NR_inotify_rm_watch, 2},
     { 311, __NR_set_robust_list, 2 },
     { 312, __NR_get_robust_list, 4 },
     { 318, __NR_getcpu, 3},
 #ifdef NOALIGN
     { 329, __NR_epoll_create1, 1 },
 #endif
+    { 332, __NR_inotify_init1, 1},
 #ifdef __NR_getrandom
     { 355, __NR_getrandom, 3 },
 #endif
