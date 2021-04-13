@@ -160,6 +160,12 @@ void Run67(x86emu_t *emu)
         Push(emu, ip);
         ip += tmp32s;
         break;
+            
+    case 0xF1:                      /* CALL Id */
+        tmp32s = F32S; // call is relative
+        Push(emu, ip);
+        ip += tmp32s;
+        break;
 
     default:
         ip-=2;
