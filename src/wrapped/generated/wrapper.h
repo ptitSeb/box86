@@ -1947,6 +1947,7 @@ void vFppippKKC(x86emu_t *emu, uintptr_t fnc);
 
 void vFEv(x86emu_t *emu, uintptr_t fnc);
 void iFEv(x86emu_t *emu, uintptr_t fnc);
+void uFEv(x86emu_t *emu, uintptr_t fnc);
 void pFEv(x86emu_t *emu, uintptr_t fnc);
 void iFEvpp(x86emu_t *emu, uintptr_t fnc);
 void UFVvvV(x86emu_t *emu, uintptr_t fnc);
@@ -1960,4 +1961,4 @@ void pFpVvvvvV(x86emu_t *emu, uintptr_t fnc);
 void iFEpuvvppp(x86emu_t *emu, uintptr_t fnc);
 void iFEpLvvpVV(x86emu_t *emu, uintptr_t fnc);
 
-#endif //__WRAPPER_H_
+#endif // __WRAPPER_H_

@@ -3,6 +3,8 @@
 import os
 import sys
 
+# Free values:
+# AB   F H J      QR T   XYZab    gh jk mno qrst   xyz
 values = ['E', 'e', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M']
 def splitchar(s):
 	try:
@@ -38,15 +40,25 @@ def main(root, defines, files, ver):
 	global values
 	
 	# Initialize variables: gbl for all values, redirects for redirections
-	gbl = {}
-	redirects = {}
+	# mytypedefs is a list of all functions per "*FE*" types per filename, mystructs of structures per filename
+	gbl        = {}
+	redirects  = {}
+	mytypedefs = {}
+	mystructs  = {}
+	mystructs_vals = {}
 	
 	# First read the files inside the headers
-	for filepath in files:
+	for filepath in files + [os.path.join(root, "src", "wrapped", "wrappedd3dadapter9_gen.h")]:
 		filename = filepath.split("/")[-1]
 		dependants = []
 		with open(filepath, 'r') as file:
 			for line in file:
+				def fail(s, causedby=None):
+					if causedby:
+						raise NotImplementedError(s + " ({0}:{1})".format(filename, line[:-1])) from causedby
+					else:
+						raise NotImplementedError(s + " ({0}:{1})".format(filename, line[:-1]))
+				
 				ln = line.strip()
 				# If the line is a `#' line (#ifdef LD80BITS/#ifndef LD80BITS/header)
 				if ln.startswith("#"):
@@ -74,26 +86,34 @@ def main(root, defines, files, ver):
 						elif preproc_cmd.startswith("else"):
 							dependants[-1] = invert(dependants[-1])
 						else:
-							raise NotImplementedError("Unknown preprocessor directive: {0} ({1}:{2})".format(
-								preproc_cmd.split(" ")[0], filename, line[:-1]
-							))
+							fail("Unknown preprocessor directive: {0}".format(preproc_cmd.split(" ")[0]))
 					except KeyError as k:
-						raise NotImplementedError("Unknown key: {0} ({1}:{2})".format(
-							k.args[0], filename, line[:-1]
-						), k)
+						fail("Unknown key: {0}".format(k.args[0]), k)
 				# If the line is a `GO...' line (GO/GOM/GO2/...)...
 				elif ln.startswith("GO"):
 					# ... then look at the second parameter of the line
+					gotype = ln.split("(")[0].strip()
+					funname = ln.split(",")[0].split("(")[1].strip()
 					ln = ln.split(",")[1].split(")")[0].strip()
 					
-					if ln[1] not in ["F"]:
-						raise NotImplementedError("Bad middle letter {0} ({1}:{2})".format(ln[1], filename, line[:-1]))
+					if len(ln) < 3:
+						fail("Type {0} too short".format(ln))
+					if "E" in ln:
+						if ("E" in ln[:2]) or ("E" in ln[3:]):
+							fail("emu64_t* not as the first parameter")
+						if len(ln) < 4:
+							fail("Type {0} too short".format(ln))
+					if ln[0] not in values:
+						fail("Invalid return type {0}".format(ln[0]))
+					
+					if ln[1] != "F":
+						fail("Bad middle letter {0}".format(ln[1]))
 					if any(c not in values for c in ln[2:]) or (('v' in ln[2:]) and (len(ln) > 3)):
 						old = ln
 						# This needs more work
 						acceptables = ['v', '0', '1'] + values
 						if any(c not in acceptables for c in ln[2:]):
-							raise NotImplementedError("{0} ({1}:{2})".format(ln[2:], filename, line[:-1]))
+							fail("Invalid type {0}".format(ln[2:]))
 						# Ok, this is acceptable: there is 0, 1 and/or void
 						ln = ln[:2] + (ln[2:]
 							.replace("v", "")   # void   -> nothing
@@ -105,6 +125,111 @@ def main(root, defines, files, ver):
 					gbl.setdefault(" && ".join(dependants), [])
 					if ln not in gbl[" && ".join(dependants)]:
 						gbl[" && ".join(dependants)].append(ln)
+					
+					if filename == "wrappedd3dadapter9_gen.h":
+						pass # Special case...
+					elif ln[2] == 'E':
+						if "//%%" in line:
+							# Do not dlsym functions containing "//%%" as metadata
+							pass
+						elif gotype == "GOS":
+							# Scan the rest of the line to extract the return structure ID
+							if filename[:-10] not in mystructs:
+								fail("No structure info in the file")
+							if "//%" not in line:
+								fail("Invalid GOS (missing structure ID info)")
+							if ln[0] != 'p':
+								fail("Invalid GOS return type ('{0}' and not 'p')".format(ln[0]))
+							#if (ln[2] != 'p') and ((ln[2] != 'E') or (ln[3] != 'p')): -> only allow pFEp for now
+							#	fail("Invalid GOS first parameter ('{0}' and not 'p' or 'Ep')".format(ln[2:4]))
+							if (ln[2] != 'E') or (ln[3] != 'p'):
+								fail("Invalid GOS first parameter ('{0}' and not 'Ep')".format(ln[2:4]))
+							
+							sid = line.split("//%")[1].split(" ")[0].strip()
+							if sid[0] == '{':
+								# Change type completely, not just the return type...
+								if sid[-1] != '}':
+									fail("Invalid type (EOL or space met, expected '}')")
+								if len(sid) < 5:
+									fail("Invalid type (Type {0} too short)".format(sid[1:-1]))
+								if sid[2] != "F":
+									fail("Invalid type (Bad middle letter {0})".format(sid[2]))
+								inval_char = lambda c:\
+									(c not in mystructs[filename[:-10]]) and (c not in acceptables) \
+									or (c == 'E') or (c == 'e')
+								if inval_char(sid[1]):
+									fail("Invalid type (Invalid return type {0})".format(sid[1]))
+								if any(map(inval_char, sid[3:-1])):
+									fail("Invalid type (Invalid type {0})".format(sid[3:-1]))
+								mytypedefs.setdefault(filename[:-10], {})
+								mytypedefs[filename[:-10]].setdefault(sid[1:-1], [])
+								mytypedefs[filename[:-10]][sid[1:-1]].append((0, funname))
+							else:
+								if len(sid) != 1:
+									fail("Invalid structure ID {0} (length is too big)".format(sid))
+								if sid not in mystructs[filename[:-10]]:
+									fail("Invalid structure ID {0} (unknown ID)".format(sid))
+								mytypedefs.setdefault(filename[:-10], {})
+								mytypedefs[filename[:-10]].setdefault(sid + "F" + ln[4:], [])
+								mytypedefs[filename[:-10]][sid + "F" + ln[4:]].append((1, funname))
+						elif "//%{" in line:
+							# Change type completely...
+							# ...Maybe?
+							if filename[:-10] not in mystructs:
+								fail("No structure info in the file")
+							
+							newtype = line.split("//%")[1].split(" ")[0].strip()
+							if newtype[-1] != '}':
+								fail("Invalid type (EOL or space met, expected '}')")
+							if len(newtype) < 5:
+								fail("Invalid type (Type {0} too short)".format(newtype[1:-1]))
+							if newtype[2] != "F":
+								fail("Invalid type (Bad middle letter {0})".format(newtype[2]))
+							inval_char = lambda c:\
+								(c not in mystructs[filename[:-10]]) and (c not in acceptables) \
+								or (c == 'E') or (c == 'e')
+							if inval_char(newtype[1]):
+								fail("Invalid type (Invalid return type {0})".format(newtype[1]))
+							if any(map(inval_char, newtype[3:-1])):
+								fail("Invalid type (Invalid type {0})".format(newtype[3:-1]))
+							mytypedefs.setdefault(filename[:-10], {})
+							mytypedefs[filename[:-10]].setdefault(newtype[1:-1], [])
+							mytypedefs[filename[:-10]][newtype[1:-1]].append((2, funname))
+						else:
+							# filename isn't stored with the '_private.h' part
+							if not filename.endswith('_private.h'):
+								fail("??? {0}".format(filename))
+							if len(ln) > 3:
+								ln = ln[:2] + ln[3:]
+							else:
+								ln = ln[:2] + "v"
+							mytypedefs.setdefault(filename[:-10], {})
+							mytypedefs[filename[:-10]].setdefault(ln, [])
+							mytypedefs[filename[:-10]][ln].append((3, funname))
+				elif ln.startswith("//%S"):
+					# Extract a structure ID-name pair
+					data = [s for s in map(lambda s: s.strip(), ln.split(" ")) if s != ""]
+					if len(data) != 3:
+						fail("Too much data ({0})".format(len(data)))
+					if not filename.endswith('_private.h'):
+						fail("??? {0}".format(filename))
+					if (data[0] != "//%S") or (len(data[1]) != 1):
+						fail("Invalid structure data {0} {1}".format(data[0], data[1]))
+					if data[1] in values:
+						fail("{0} cannot be used as a structure type".format(data[1]))
+					mystructs.setdefault(filename[:-10], {})
+					if data[1] in mystructs[filename[:-10]]:
+						fail("Duplicate structure ID {0} ({1}/{2})".format(data[1], mystructs[filename[:-10]], data[2]))
+					mystructs[filename[:-10]][data[1]] = data[2]
+					mystructs_vals.setdefault(filename[:-10], [])
+					mystructs_vals[filename[:-10]].append(data[1])
+	
+	if ("" not in gbl) or ("" not in redirects):
+		print("\033[1;31mThere is suspiciously not many types...\033[m")
+		print("Check the CMakeLists.txt file. If you are SURE there is nothing wrong"
+			  " (as a random example, `set()` resets the variable...), then comment out the following return.")
+		print("(Also, the program WILL crash later if you proceed.)")
+		return 2 # Check what you did, not proceeding
 	
 	gbl_vals = {}
 	for k in gbl:
@@ -184,17 +309,35 @@ def main(root, defines, files, ver):
 		gbl[k].sort(key=lambda v: splitchar(v))
 	values = values + ['0', '1']
 	for k in redirects:
-		redirects[k].sort(key=lambda v: splitchar(v[0]) + [0] + splitchar(v[1]))
+		redirects[k].sort(key=lambda v: splitchar(v[0]) + [-1] + splitchar(v[1]))
 	values = values[:-2]
+	mytypedefs_vals = {}
+	for fn in mytypedefs:
+		if fn in mystructs:
+			values = values + list(mystructs[fn].keys())
+		mytypedefs_vals[fn] = sorted(mytypedefs[fn].keys(), key=lambda v: splitchar(v))
+		if fn in mystructs:
+			values = values[:-len(mystructs[fn])]
+		for v in mytypedefs_vals[fn]:
+			mytypedefs[fn][v].sort()
 	
 	# Check if there was any new functions
 	functions_list = ""
 	for k in ["()"] + gbl_idxs:
 		for v in gbl[k]:
 			functions_list = functions_list + "#" + k + " " + v + "\n"
-	for k in (["()"] if "()" in redirects else []) + redirects_idxs:
+	for k in ["()"] + redirects_idxs:
 		for v in redirects[k]:
 			functions_list = functions_list + "#" + k + " " + v[0] + " -> " + v[1] + "\n"
+	for fn in sorted(mystructs.keys()):
+		for t in mystructs_vals[fn]:
+			# Structure Definition
+			functions_list = functions_list + fn + "/Sd" + t + mystructs[fn][t] + "\n"
+	for fn in sorted(mytypedefs.keys()):
+		for t in mytypedefs_vals[fn]:
+			# Structure Usage
+			for tnum, f in mytypedefs[fn][t]:
+				functions_list = functions_list + fn + "/Su" + t + str(tnum) + f + "\n"
 	
 	# functions_list is a unique string, compare it with the last run
 	try:
@@ -205,16 +348,16 @@ def main(root, defines, files, ver):
 			# Mark as OK for CMake
 			with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:
 				file.write(functions_list)
-			#return 0
+			return 0
 	except IOError:
 		# The file does not exist yet, first run
 		pass
 	
 	# Now the files rebuilding part
-	# File headers and guards
-	files_headers = {
+	# Files header and guard
+	files_header = {
 		"wrapper.c": """/*****************************************************************
- * File automatically generated by rebuild_wrappers.py (v%s)
+ * File automatically generated by rebuild_wrappers.py (v{version})
  *****************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -226,23 +369,23 @@ def main(root, defines, files, ver):
 #include "regs.h"
 #include "x86emu.h"
 
-typedef union ui64_s {
+typedef union ui64_s {lbr}
     int64_t     i;
     uint64_t    u;
     uint32_t    d[2];
-} ui64_t;
+{rbr} ui64_t;
 
-typedef struct _2uint_struct_s {
+typedef struct _2uint_struct_s {lbr}
 	uint32_t	a;
 	uint32_t	b;
-} _2uint_struct_t;
+{rbr} _2uint_struct_t;
 
 extern void* my__IO_2_1_stderr_;
 extern void* my__IO_2_1_stdin_ ;
 extern void* my__IO_2_1_stdout_;
 
 static void* io_convert(void* v)
-{
+{lbr}
 	if(!v)
 		return v;
 	if(v==my__IO_2_1_stderr_)
@@ -252,31 +395,31 @@ static void* io_convert(void* v)
 	if(v==my__IO_2_1_stdout_)
 		return stdout;
 	return v;
-}
+{rbr}
 
 typedef struct my_GValue_s
-{
+{lbr}
   int         g_type;
-  union {
+  union {lbr}
     int        v_int;
     int64_t    v_int64;
     uint64_t   v_uint64;
     float      v_float;
     double     v_double;
     void*      v_pointer;
-  } data[2];
-} my_GValue_t;
+  {rbr} data[2];
+{rbr} my_GValue_t;
 
 static void alignGValue(my_GValue_t* v, void* value)
-{
+{lbr}
     v->g_type = *(int*)value;
     memcpy(v->data, value+4, 2*sizeof(double));
-}
+{rbr}
 static void unalignGValue(void* value, my_GValue_t* v)
-{
+{lbr}
     *(int*)value = v->g_type;
     memcpy(value+4, v->data, 2*sizeof(double));
-}
+{rbr}
 
 void* VulkanFromx86(void* src, void** save);
 void VulkanTox86(void* src, void* save);
@@ -284,9 +427,10 @@ void VulkanTox86(void* src, void* save);
 #define ST0val ST0.d
 
 int of_convert(int);
+
 """,
 		"wrapper.h": """/*****************************************************************
- * File automatically generated by rebuild_wrappers.py (v%s)
+ * File automatically generated by rebuild_wrappers.py (v{version})
  *****************************************************************/
 #ifndef __WRAPPER_H_
 #define __WRAPPER_H_
@@ -317,58 +461,49 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 
+""",
+		"fntypes.h": """/*****************************************************************
+ * File automatically generated by rebuild_wrappers.py (v{version})
+ *****************************************************************/
+#ifndef __{filename}TYPES_H_
+#define __{filename}TYPES_H_
+
+#ifndef LIBNAME
+#error You should only #include this file inside a wrapped*.c file
+#endif
+#ifndef ADDED_FUNCTIONS
+#define ADDED_FUNCTIONS() 
+#endif
+
 """
 	}
-	files_guards = {"wrapper.c": """""",
+	files_guard = {"wrapper.c": """""",
 		"wrapper.h": """
-#endif //__WRAPPER_H_
+#endif // __WRAPPER_H_
+""",
+		"fntypes.h": """
+#endif // __{filename}TYPES_H_
 """
 	}
 	
-	# Rewrite the wrapper.h file:
-	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
-		file.write(files_headers["wrapper.h"] % ver)
-		for v in gbl["()"]:
-			file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
-		for k in gbl_idxs:
-			file.write("\n#if " + k + "\n")
-			for v in gbl[k]:
-				file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
-			file.write("#endif\n")
-		file.write("\n")
-		if "()" in redirects:
-			for v in redirects["()"]:
-				file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
-		for k in redirects_idxs:
-			file.write("\n#if " + k + "\n")
-			for v in redirects[k]:
-				file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
-			file.write("#endif\n")
-		file.write(files_guards["wrapper.h"])
+	#           E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2                  P        G        N      M
+	tdtypes = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
+	if len(values) != len(tdtypes):
+		raise NotImplementedError("len(values) = {lenval} != len(tdtypes) = {lentypes}".format(lenval=len(values), lentypes=len(tdtypes)))
+	def generate_typedefs(arr, file):
+		for v in arr:
+			file.write("typedef " + tdtypes[values.index(v[0])] + " (*" + v + "_t)"
+							+ "(" + ', '.join(tdtypes[values.index(t)] for t in v[2:]) + ");\n")
 	
 	# Rewrite the wrapper.c file:
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
-		file.write(files_headers["wrapper.c"] % ver)
+		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
 		
 		# First part: typedefs
-		for v in gbl["()"]:
-			#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2         		 P        G        N      M
-			types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
-			if len(values) != len(types):
-					raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
-			
-			file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
-				+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
+		generate_typedefs(gbl["()"], file)
 		for k in gbl_idxs:
 			file.write("\n#if " + k + "\n")
-			for v in gbl[k]:
-				#         E            e             v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2      			 P        G        N      M
-				types = ["x86emu_t*", "x86emu_t**", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "void*", "...", "..."]
-				if len(values) != len(types):
-						raise NotImplementedError("len(values) = {lenval} != len(types) = {lentypes}".format(lenval=len(values), lentypes=len(types)))
-				
-				file.write("typedef " + types[values.index(v[0])] + " (*" + v + "_t)"
-					+ "(" + ', '.join(types[values.index(t)] for t in v[2:]) + ");\n")
+			generate_typedefs(gbl[k], file)
 			file.write("#endif\n")
 		
 		file.write("\n")
@@ -488,16 +623,53 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 				function_writer(file, v, v + "_t", v[0], v[2:])
 			file.write("#endif\n")
 		file.write("\n")
-		if "()" in redirects:
-			for v in redirects["()"]:
-				function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
+		for v in redirects["()"]:
+			function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
 		for k in redirects_idxs:
 			file.write("\n#if " + k + "\n")
 			for v in redirects[k]:
 				function_writer(file, v[0], v[1] + "_t", v[0][0], v[0][2:])
 			file.write("#endif\n")
 		
-		file.write(files_guards["wrapper.c"])
+		file.write(files_guard["wrapper.c"].format(lbr="{", rbr="}", version=ver))
+	
+	# Rewrite the wrapper.h file:
+	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.h"), 'w') as file:
+		file.write(files_header["wrapper.h"].format(lbr="{", rbr="}", version=ver))
+		for v in gbl["()"]:
+			file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
+		for k in gbl_idxs:
+			file.write("\n#if " + k + "\n")
+			for v in gbl[k]:
+				file.write("void " + v + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("#endif\n")
+		file.write("\n")
+		for v in redirects["()"]:
+			file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
+		for k in redirects_idxs:
+			file.write("\n#if " + k + "\n")
+			for v in redirects[k]:
+				file.write("void " + v[0] + "(x86emu_t *emu, uintptr_t fnc);\n")
+			file.write("#endif\n")
+		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
+	
+	for fn in mytypedefs:
+		with open(os.path.join(root, "src", "wrapped", "generated", fn + "types.h"), 'w') as file:
+			file.write(files_header["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+			if fn in mystructs:
+				values = values + mystructs_vals[fn]
+				tdtypes = tdtypes + [mystructs[fn][k] for k in mystructs_vals[fn]]
+			generate_typedefs(mytypedefs_vals[fn], file)
+			if fn in mystructs:
+				values = values[:-len(mystructs_vals[fn])]
+				tdtypes = tdtypes[:-len(mystructs_vals[fn])]
+			file.write("\n#define SUPER() ADDED_FUNCTIONS()")
+			for v in mytypedefs_vals[fn]:
+				for t, f in mytypedefs[fn][v]:
+					assert(t in [0, 1, 2, 3])
+					file.write(" \\\n\tGO({0}, {1}_t)".format(f, v))
+			file.write("\n")
+			file.write(files_guard["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 	
 	# Save the string for the next iteration, writing was successful
 	with open(os.path.join(root, "src", "wrapped", "generated", "functions_list.txt"), 'w') as file:

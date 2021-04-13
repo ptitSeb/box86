@@ -2,7 +2,10 @@
 #error meh!
 #endif
 
-GOS(xcb_alloc_color, pFEppuWWW)
+//%S x my_xcb_cookie_t
+//%S X my_xcb_XXX_iterator_t
+
+GOS(xcb_alloc_color, pFEppuWWW) //%x
 //GO(xcb_alloc_color_cells, 
 //GO(xcb_alloc_color_cells_masks, 
 //GO(xcb_alloc_color_cells_masks_end, 
@@ -32,7 +35,7 @@ GO(xcb_alloc_color_reply, pFpup)
 //GO(xcb_arc_next, 
 //GO(xcb_atom_end, 
 //GO(xcb_atom_next, 
-GOS(xcb_bell, pFEppC)
+GOS(xcb_bell, pFEppC) //%x
 //GO(xcb_bell_checked, 
 //GO(xcb_big_requests_enable, 
 //GO(xcb_big_requests_enable_reply, 
@@ -44,10 +47,10 @@ DATA(xcb_big_requests_id, 4)
 //GO(xcb_button_next, 
 //GO(xcb_change_active_pointer_grab, 
 //GO(xcb_change_active_pointer_grab_checked, 
-GOS(xcb_change_gc, pFEppuup)
+GOS(xcb_change_gc, pFEppuup) //%x
 //GO(xcb_change_gc_aux, 
 //GO(xcb_change_gc_aux_checked, 
-GOS(xcb_change_gc_checked, pFEppuup)
+GOS(xcb_change_gc_checked, pFEppuup) //%x
 //GO(xcb_change_gc_sizeof, 
 //GO(xcb_change_gc_value_list, 
 //GO(xcb_change_gc_value_list_serialize, 
@@ -59,7 +62,7 @@ GOS(xcb_change_gc_checked, pFEppuup)
 //GO(xcb_change_hosts_address_length, 
 //GO(xcb_change_hosts_checked, 
 //GO(xcb_change_hosts_sizeof, 
-GOS(xcb_change_keyboard_control, pFEppup)
+GOS(xcb_change_keyboard_control, pFEppup) //%x
 //GO(xcb_change_keyboard_control_aux, 
 //GO(xcb_change_keyboard_control_aux_checked, 
 //GO(xcb_change_keyboard_control_checked, 
@@ -76,18 +79,18 @@ GOS(xcb_change_keyboard_control, pFEppup)
 //GO(xcb_change_keyboard_mapping_sizeof, 
 //GO(xcb_change_pointer_control, 
 //GO(xcb_change_pointer_control_checked, 
-GOS(xcb_change_property, pFEppCuuuCup)
-GOS(xcb_change_property_checked, pFEppCuuuCup)
+GOS(xcb_change_property, pFEppCuuuCup) //%x
+GOS(xcb_change_property_checked, pFEppCuuuCup) //%x
 //GO(xcb_change_property_data, 
 //GO(xcb_change_property_data_end, 
 //GO(xcb_change_property_data_length, 
 //GO(xcb_change_property_sizeof, 
 //GO(xcb_change_save_set, 
 //GO(xcb_change_save_set_checked, 
-GOS(xcb_change_window_attributes, pFEppuup)
+GOS(xcb_change_window_attributes, pFEppuup) //%x
 //GO(xcb_change_window_attributes_aux, 
 //GO(xcb_change_window_attributes_aux_checked, 
-GOS(xcb_change_window_attributes_checked, pFEppuup)
+GOS(xcb_change_window_attributes_checked, pFEppuup) //%x
 //GO(xcb_change_window_attributes_sizeof, 
 //GO(xcb_change_window_attributes_value_list, 
 //GO(xcb_change_window_attributes_value_list_serialize, 
@@ -99,17 +102,17 @@ GOS(xcb_change_window_attributes_checked, pFEppuup)
 //GO(xcb_charinfo_next, 
 //GO(xcb_circulate_window, 
 //GO(xcb_circulate_window_checked, 
-GOS(xcb_clear_area, pFEppCuwwWW)
+GOS(xcb_clear_area, pFEppCuwwWW) //%x
 //GO(xcb_clear_area_checked, 
 //GO(xcb_client_message_data_end, 
 //GO(xcb_client_message_data_next, 
-GOS(xcb_close_font, pFEppu)
-GOS(xcb_close_font_checked, pFEppu)
+GOS(xcb_close_font, pFEppu) //%x
+GOS(xcb_close_font_checked, pFEppu) //%x
 //GO(xcb_coloritem_end, 
 //GO(xcb_coloritem_next, 
 //GO(xcb_colormap_end, 
 //GO(xcb_colormap_next, 
-GOS(xcb_configure_window, pFEppuWp)
+GOS(xcb_configure_window, pFEppuWp) //%x
 //GO(xcb_configure_window_aux, 
 //GO(xcb_configure_window_aux_checked, 
 //GO(xcb_configure_window_checked, 
@@ -122,9 +125,9 @@ GO(xcb_connect, pFpp)
 GO(xcb_connection_has_error, iFp)
 //GO(xcb_connect_to_display_with_auth_info, 
 //GO(xcb_connect_to_fd, 
-GOS(xcb_convert_selection, pFEppuuuuu)
+GOS(xcb_convert_selection, pFEppuuuuu) //%x
 //GO(xcb_convert_selection_checked, 
-GOS(xcb_copy_area, pFEppuuuwwwwWW)
+GOS(xcb_copy_area, pFEppuuuwwwwWW) //%x
 //GO(xcb_copy_area_checked, 
 //GO(xcb_copy_colormap_and_free, 
 //GO(xcb_copy_colormap_and_free_checked, 
@@ -132,27 +135,27 @@ GOS(xcb_copy_area, pFEppuuuwwwwWW)
 //GO(xcb_copy_gc_checked, 
 //GO(xcb_copy_plane, 
 //GO(xcb_copy_plane_checked, 
-GOS(xcb_create_colormap, pFEppCppp)
+GOS(xcb_create_colormap, pFEppCppp) //%x
 //GO(xcb_create_colormap_checked, 
-GOS(xcb_create_cursor, pFEppuuuWWWWWWWW)
+GOS(xcb_create_cursor, pFEppuuuWWWWWWWW) //%x
 //GO(xcb_create_cursor_checked, 
-GOS(xcb_create_gc, pFEppuuup)
+GOS(xcb_create_gc, pFEppuuup) //%x
 //GO(xcb_create_gc_aux, 
 //GO(xcb_create_gc_aux_checked, 
-GOS(xcb_create_gc_checked, pFEppuuup)
+GOS(xcb_create_gc_checked, pFEppuuup) //%x
 //GO(xcb_create_gc_sizeof, 
 //GO(xcb_create_gc_value_list, 
 //GO(xcb_create_gc_value_list_serialize, 
 //GO(xcb_create_gc_value_list_sizeof, 
 //GO(xcb_create_gc_value_list_unpack, 
-GOS(xcb_create_glyph_cursor, pFEppuuuWWWWWWWW)
+GOS(xcb_create_glyph_cursor, pFEppuuuWWWWWWWW) //%x
 //GO(xcb_create_glyph_cursor_checked, 
-GOS(xcb_create_pixmap, pFEppCuuWW)
+GOS(xcb_create_pixmap, pFEppCuuWW) //%x
 //GO(xcb_create_pixmap_checked, 
-GOS(xcb_create_window, pFEppCuuwwWWWWuup)
+GOS(xcb_create_window, pFEppCuuwwWWWWuup) //%x
 //GO(xcb_create_window_aux, 
 //GO(xcb_create_window_aux_checked, 
-GOS(xcb_create_window_checked, pFEppCuuwwWWWWuup)
+GOS(xcb_create_window_checked, pFEppCuuwwWWWWuup) //%x
 //GO(xcb_create_window_sizeof, 
 //GO(xcb_create_window_value_list, 
 //GO(xcb_create_window_value_list_serialize, 
@@ -160,17 +163,17 @@ GOS(xcb_create_window_checked, pFEppCuuwwWWWWuup)
 //GO(xcb_create_window_value_list_unpack, 
 //GO(xcb_cursor_end, 
 //GO(xcb_cursor_next, 
-GOS(xcb_delete_property, pFEpppp)
+GOS(xcb_delete_property, pFEpppp) //%x
 //GO(xcb_delete_property_checked, 
 //GO(xcb_depth_end, 
 GO(xcb_depth_next, vFp)
 GO(xcb_depth_sizeof, iFp)
 GO(xcb_depth_visuals, pFp)
-GOS(xcb_depth_visuals_iterator, pFEpp)  //xcb_visualtype_iterator_t is a structure
+GOS(xcb_depth_visuals_iterator, pFEpp)  //%X xcb_visualtype_iterator_t is a structure
 //GO(xcb_depth_visuals_length, 
 //GO(xcb_destroy_subwindows, 
 //GO(xcb_destroy_subwindows_checked, 
-GOS(xcb_destroy_window, pFEppu)
+GOS(xcb_destroy_window, pFEppu) //%x
 //GO(xcb_destroy_window_checked, 
 //GO(xcb_discard_reply, 
 //GO(xcb_discard_reply64, 
@@ -194,24 +197,24 @@ GO(xcb_flush, iFp)
 //GO(xcb_force_screen_saver_checked, 
 //GO(xcb_format_end, 
 GO(xcb_format_next, vFp)
-GOS(xcb_free_colormap, pFEppu)
-GOS(xcb_free_colormap_checked, pFEppu)
+GOS(xcb_free_colormap, pFEppu) //%x
+GOS(xcb_free_colormap_checked, pFEppu) //%x
 //GO(xcb_free_colors, 
 //GO(xcb_free_colors_checked, 
 //GO(xcb_free_colors_pixels, 
 //GO(xcb_free_colors_pixels_end, 
 //GO(xcb_free_colors_pixels_length, 
 //GO(xcb_free_colors_sizeof, 
-GOS(xcb_free_cursor, pFEppp)
+GOS(xcb_free_cursor, pFEppp) //%x
 //GO(xcb_free_cursor_checked, 
-GOS(xcb_free_gc, pFEppu)
+GOS(xcb_free_gc, pFEppu) //%x
 //GO(xcb_free_gc_checked, 
-GOS(xcb_free_pixmap, pFEppu)
+GOS(xcb_free_pixmap, pFEppu) //%x
 //GO(xcb_free_pixmap_checked, 
 //GO(xcb_gcontext_end, 
 //GO(xcb_gcontext_next, 
 GO(xcb_generate_id, uFp)
-GOS(xcb_get_atom_name, pFEppu)
+GOS(xcb_get_atom_name, pFEppu) //%x
 GO(xcb_get_atom_name_name, pFp)
 //GO(xcb_get_atom_name_name_end, 
 GO(xcb_get_atom_name_name_length, iFp)
@@ -226,23 +229,23 @@ GO(xcb_get_file_descriptor, iFp)
 //GO(xcb_get_font_path_reply, 
 //GO(xcb_get_font_path_sizeof, 
 //GO(xcb_get_font_path_unchecked, 
-GOS(xcb_get_geometry, pFEppu)
+GOS(xcb_get_geometry, pFEppu) //%x
 GO(xcb_get_geometry_reply, pFpup)
-GOS(xcb_get_geometry_unchecked, pFEppu)
-GOS(xcb_get_image, pFEppCuwwWWu)
+GOS(xcb_get_geometry_unchecked, pFEppu) //%x
+GOS(xcb_get_image, pFEppCuwwWWu) //%x
 GO(xcb_get_image_data, pFp)
 //GO(xcb_get_image_data_end, 
 GO(xcb_get_image_data_length, iFp)
 GO(xcb_get_image_reply, pFpup)
 //GO(xcb_get_image_sizeof, 
-GOS(xcb_get_image_unchecked, pFEppCuwwWWu)
-GOS(xcb_get_input_focus, pFEpp)
+GOS(xcb_get_image_unchecked, pFEppCuwwWWu) //%x
+GOS(xcb_get_input_focus, pFEpp) //%x
 GO(xcb_get_input_focus_reply, pFpup)
 //GO(xcb_get_input_focus_unchecked, 
 //GO(xcb_get_keyboard_control, 
 //GO(xcb_get_keyboard_control_reply, 
 //GO(xcb_get_keyboard_control_unchecked, 
-GOS(xcb_get_keyboard_mapping, pFEppCC)
+GOS(xcb_get_keyboard_mapping, pFEppCC) //%x
 GO(xcb_get_keyboard_mapping_keysyms, pFp)
 //GO(xcb_get_keyboard_mapping_keysyms_end, 
 GO(xcb_get_keyboard_mapping_keysyms_length, iFp)
@@ -250,12 +253,12 @@ GO(xcb_get_keyboard_mapping_reply, pFpup)
 //GO(xcb_get_keyboard_mapping_sizeof, 
 //GO(xcb_get_keyboard_mapping_unchecked, 
 GO(xcb_get_maximum_request_length, uFp)
-GOS(xcb_get_modifier_mapping, pFEpp)
+GOS(xcb_get_modifier_mapping, pFEpp) //%x
 GO(xcb_get_modifier_mapping_keycodes, pFp)
 //GO(xcb_get_modifier_mapping_keycodes_end, 
 GO(xcb_get_modifier_mapping_keycodes_length, iFp)
 GO(xcb_get_modifier_mapping_reply, pFpup)
-//GOS(xcb_get_modifier_mapping_sizeof, pFEpp)
+//GOS(xcb_get_modifier_mapping_sizeof, pFEpp) //%x
 //GO(xcb_get_modifier_mapping_unchecked, 
 //GO(xcb_get_motion_events, 
 //GO(xcb_get_motion_events_events, 
@@ -274,10 +277,10 @@ GO(xcb_get_modifier_mapping_reply, pFpup)
 //GO(xcb_get_pointer_mapping_reply, 
 //GO(xcb_get_pointer_mapping_sizeof, 
 //GO(xcb_get_pointer_mapping_unchecked, 
-GOS(xcb_get_property, pFEppCuuuuu)
+GOS(xcb_get_property, pFEppCuuuuu) //%x
 GO(xcb_get_property_reply, pFpup)
 //GO(xcb_get_property_sizeof, 
-GOS(xcb_get_property_unchecked, pFEppCuuuuu)
+GOS(xcb_get_property_unchecked, pFEppCuuuuu) //%x
 GO(xcb_get_property_value, pFp)
 //GO(xcb_get_property_value_end, 
 GO(xcb_get_property_value_length, iFp)
@@ -285,24 +288,24 @@ GO(xcb_get_reply_fds, pFppu)
 //GO(xcb_get_screen_saver, 
 //GO(xcb_get_screen_saver_reply, 
 //GO(xcb_get_screen_saver_unchecked, 
-GOS(xcb_get_selection_owner, pFEppu)
+GOS(xcb_get_selection_owner, pFEppu) //%x
 GO(xcb_get_selection_owner_reply, pFpup)
-GOS(xcb_get_selection_owner_unchecked, pFEppu)
+GOS(xcb_get_selection_owner_unchecked, pFEppu) //%x
 GO(xcb_get_setup, pFp)
-GOS(xcb_get_window_attributes, pFEppu)
+GOS(xcb_get_window_attributes, pFEppu) //%x
 GO(xcb_get_window_attributes_reply, pFpup)
-GOS(xcb_get_window_attributes_unchecked, pFEppu)
-GOS(xcb_grab_button, pFEppCuWCCuuCW)
-GOS(xcb_grab_button_checked, pFEppCuWCCuuCW)
-GOS(xcb_grab_key, pFEppCuWCCC)
-GOS(xcb_grab_keyboard, pFEppCuuCC)
+GOS(xcb_get_window_attributes_unchecked, pFEppu) //%x
+GOS(xcb_grab_button, pFEppCuWCCuuCW) //%x
+GOS(xcb_grab_button_checked, pFEppCuWCCuuCW) //%x
+GOS(xcb_grab_key, pFEppCuWCCC) //%x
+GOS(xcb_grab_keyboard, pFEppCuuCC) //%x
 GO(xcb_grab_keyboard_reply, pFpup)
 //GO(xcb_grab_keyboard_unchecked, 
-GOS(xcb_grab_key_checked, pFEppCuWCCC)
-GOS(xcb_grab_pointer, pFEppCuWCCuuu)
+GOS(xcb_grab_key_checked, pFEppCuWCCC) //%x
+GOS(xcb_grab_pointer, pFEppCuWCCuuu) //%x
 GO(xcb_grab_pointer_reply, pFpup)
 //GO(xcb_grab_pointer_unchecked, 
-GOS(xcb_grab_server, pFEpp)
+GOS(xcb_grab_server, pFEpp) //%x
 //GO(xcb_grab_server_checked, 
 //GO(xcb_host_address, 
 //GO(xcb_host_address_end, 
@@ -316,18 +319,18 @@ GOS(xcb_grab_server, pFEpp)
 //GO(xcb_image_text_16_string, 
 //GO(xcb_image_text_16_string_iterator, 
 //GO(xcb_image_text_16_string_length, 
-GOS(xcb_image_text_8, pFEppCuuwwp)
-GOS(xcb_image_text_8_checked, pFEppCuuwwp)
+GOS(xcb_image_text_8, pFEppCuuwwp) //%x
+GOS(xcb_image_text_8_checked, pFEppCuuwwp) //%x
 //GO(xcb_image_text_8_sizeof, 
 //GO(xcb_image_text_8_string, 
 //GO(xcb_image_text_8_string_end, 
 //GO(xcb_image_text_8_string_length, 
 //GO(xcb_install_colormap, 
 //GO(xcb_install_colormap_checked, 
-GOS(xcb_intern_atom, pFEppCWp)
+GOS(xcb_intern_atom, pFEppCWp) //%x
 GO(xcb_intern_atom_reply, pFpup)
 //GO(xcb_intern_atom_sizeof, 
-GOS(xcb_intern_atom_unchecked, pFEppCWp)
+GOS(xcb_intern_atom_unchecked, pFEppCWp) //%x
 //GO(xcb_keycode32_end, 
 //GO(xcb_keycode32_next, 
 //GO(xcb_keycode_end, 
@@ -382,14 +385,14 @@ GOS(xcb_intern_atom_unchecked, pFEppCWp)
 //GO(xcb_lookup_color_reply, 
 //GO(xcb_lookup_color_sizeof, 
 //GO(xcb_lookup_color_unchecked, 
-GOS(xcb_map_subwindows, pFEppu)
+GOS(xcb_map_subwindows, pFEppu) //%x
 //GO(xcb_map_subwindows_checked, 
-GOS(xcb_map_window, pFEppu)
-GOS(xcb_map_window_checked, pFEppu)
+GOS(xcb_map_window, pFEppu) //%x
+GOS(xcb_map_window_checked, pFEppu) //%x
 //GO(xcb_no_operation, 
 //GO(xcb_no_operation_checked, 
-GOS(xcb_open_font, pFEppuWp)
-GOS(xcb_open_font_checked, pFEppuWp)
+GOS(xcb_open_font, pFEppuWp) //%x
+GOS(xcb_open_font_checked, pFEppuWp) //%x
 //GO(xcb_open_font_name, 
 //GO(xcb_open_font_name_end, 
 //GO(xcb_open_font_name_length, 
@@ -404,7 +407,7 @@ GO(xcb_poll_for_queued_event, pFp)
 //GO(xcb_poll_for_reply, 
 //GO(xcb_poll_for_reply64, 
 GO(xcb_poll_for_special_event, pFpp)
-GOS(xcb_poly_arc, pFEppuuup)
+GOS(xcb_poly_arc, pFEppuuup) //%x
 //GO(xcb_poly_arc_arcs, 
 //GO(xcb_poly_arc_arcs_iterator, 
 //GO(xcb_poly_arc_arcs_length, 
@@ -416,31 +419,31 @@ GOS(xcb_poly_arc, pFEppuuup)
 //GO(xcb_poly_fill_arc_arcs_length, 
 //GO(xcb_poly_fill_arc_checked, 
 //GO(xcb_poly_fill_arc_sizeof, 
-GOS(xcb_poly_fill_rectangle, pFEppuuup)
+GOS(xcb_poly_fill_rectangle, pFEppuuup) //%x
 //GO(xcb_poly_fill_rectangle_checked, 
 //GO(xcb_poly_fill_rectangle_rectangles, 
 //GO(xcb_poly_fill_rectangle_rectangles_iterator, 
 //GO(xcb_poly_fill_rectangle_rectangles_length, 
 //GO(xcb_poly_fill_rectangle_sizeof, 
-GOS(xcb_poly_line, pFEppCuuup)
-GOS(xcb_poly_line_checked, pFEppCuuup)
+GOS(xcb_poly_line, pFEppCuuup) //%x
+GOS(xcb_poly_line_checked, pFEppCuuup) //%x
 //GO(xcb_poly_line_points, 
 //GO(xcb_poly_line_points_iterator, 
 //GO(xcb_poly_line_points_length, 
 //GO(xcb_poly_line_sizeof, 
-GOS(xcb_poly_point, pFEppCuuup)
+GOS(xcb_poly_point, pFEppCuuup) //%x
 //GO(xcb_poly_point_checked, 
 //GO(xcb_poly_point_points, 
 //GO(xcb_poly_point_points_iterator, 
 //GO(xcb_poly_point_points_length, 
 //GO(xcb_poly_point_sizeof, 
-GOS(xcb_poly_rectangle, pFEppuuup)
+GOS(xcb_poly_rectangle, pFEppuuup) //%x
 //GO(xcb_poly_rectangle_checked, 
 //GO(xcb_poly_rectangle_rectangles, 
 //GO(xcb_poly_rectangle_rectangles_iterator, 
 //GO(xcb_poly_rectangle_rectangles_length, 
 //GO(xcb_poly_rectangle_sizeof, 
-GOS(xcb_poly_segment, pFEppuuup)
+GOS(xcb_poly_segment, pFEppuuup) //%x
 //GO(xcb_poly_segment_checked, 
 //GO(xcb_poly_segment_segments, 
 //GO(xcb_poly_segment_segments_iterator, 
@@ -461,7 +464,7 @@ GOS(xcb_poly_segment, pFEppuuup)
 GO(xcb_popcount, iFu)
 GO(xcb_prefetch_extension_data, vFpp)
 //GO(xcb_prefetch_maximum_request_length, 
-GOS(xcb_put_image, pFEppCuuWWwwCCup)
+GOS(xcb_put_image, pFEppCuuWWwwCCup) //%x
 //GO(xcb_put_image_checked, 
 //GO(xcb_put_image_data, 
 //GO(xcb_put_image_data_end, 
@@ -494,26 +497,26 @@ GOS(xcb_put_image, pFEppCuuWWwwCCup)
 //GO(xcb_query_keymap, 
 //GO(xcb_query_keymap_reply, 
 //GO(xcb_query_keymap_unchecked, 
-GOS(xcb_query_pointer, pFEppu)
+GOS(xcb_query_pointer, pFEppu) //%x
 GO(xcb_query_pointer_reply, pFpup)
 //GO(xcb_query_pointer_unchecked, 
-GOS(xcb_query_text_extents, pFEppuup)
+GOS(xcb_query_text_extents, pFEppuup) //%x
 GO(xcb_query_text_extents_reply, pFpup)
 //GO(xcb_query_text_extents_sizeof, 
 //GO(xcb_query_text_extents_unchecked, 
-GOS(xcb_query_tree, pFEppu)
+GOS(xcb_query_tree, pFEppu) //%x
 GO(xcb_query_tree_children, pFp)
 //GO(xcb_query_tree_children_end, 
 GO(xcb_query_tree_children_length, iFp)
 GO(xcb_query_tree_reply, pFpup)
 //GO(xcb_query_tree_sizeof, 
-GOS(xcb_query_tree_unchecked, pFEppu)
+GOS(xcb_query_tree_unchecked, pFEppu) //%x
 //GO(xcb_recolor_cursor, 
 //GO(xcb_recolor_cursor_checked, 
 //GO(xcb_rectangle_end, 
 //GO(xcb_rectangle_next, 
 GO(xcb_register_for_special_xge, pFppup)
-GOS(xcb_reparent_window, pFEppuuWW)
+GOS(xcb_reparent_window, pFEppuuWW) //%x
 //GO(xcb_reparent_window_checked, 
 GO(xcb_request_check, pFpu)
 //GO(xcb_rgb_end, 
@@ -524,14 +527,14 @@ GO(xcb_request_check, pFpu)
 //GO(xcb_rotate_properties_atoms_length, 
 //GO(xcb_rotate_properties_checked, 
 //GO(xcb_rotate_properties_sizeof, 
-GOS(xcb_screen_allowed_depths_iterator, pFEpp)  //xcb_depth_iterator_t is a structure
+GOS(xcb_screen_allowed_depths_iterator, pFEpp)  //%X xcb_depth_iterator_t is a structure
 //GO(xcb_screen_allowed_depths_length, 
 //GO(xcb_screen_end, 
 GO(xcb_screen_next, vFp)
 //GO(xcb_screen_sizeof, 
 //GO(xcb_segment_end, 
 //GO(xcb_segment_next, 
-GOS(xcb_send_event, pFEppCuup)
+GOS(xcb_send_event, pFEppCuup) //%x
 //GO(xcb_send_event_checked, 
 //GO(xcb_send_fd, 
 GO(xcb_send_request, uFpipp)
@@ -559,7 +562,7 @@ GO(xcb_send_request_with_fds64, UFpippup)
 //GO(xcb_set_font_path_font_iterator, 
 //GO(xcb_set_font_path_font_length, 
 //GO(xcb_set_font_path_sizeof, 
-GOS(xcb_set_input_focus, pFEppCuu) // xcb_void_cookie_t is a struct with only 1 uint inside
+GOS(xcb_set_input_focus, pFEppCuu) // xcb_void_cookie_t is a struct with only 1 uint inside //%x
 //GO(xcb_set_input_focus_checked, 
 //GO(xcb_set_modifier_mapping, 
 //GO(xcb_set_modifier_mapping_reply, 
@@ -571,7 +574,7 @@ GOS(xcb_set_input_focus, pFEppCuu) // xcb_void_cookie_t is a struct with only 1 
 //GO(xcb_set_pointer_mapping_unchecked, 
 //GO(xcb_set_screen_saver, 
 //GO(xcb_set_screen_saver_checked, 
-GOS(xcb_set_selection_owner, pFEppuuu)
+GOS(xcb_set_selection_owner, pFEppuuu) //%x
 //GO(xcb_set_selection_owner_checked, 
 //GO(xcb_setup_authenticate_end, 
 //GO(xcb_setup_authenticate_next, 
@@ -588,7 +591,7 @@ GOS(xcb_set_selection_owner, pFEppuuu)
 //GO(xcb_setup_failed_sizeof, 
 //GO(xcb_setup_next, 
 GO(xcb_setup_pixmap_formats, pFp)
-GOS(xcb_setup_pixmap_formats_iterator, pFEpp)
+GOS(xcb_setup_pixmap_formats_iterator, pFEpp) //%X
 GO(xcb_setup_pixmap_formats_length, iFp)
 //GO(xcb_setup_request_authorization_protocol_data, 
 //GO(xcb_setup_request_authorization_protocol_data_end, 
@@ -599,7 +602,7 @@ GO(xcb_setup_pixmap_formats_length, iFp)
 //GO(xcb_setup_request_end, 
 //GO(xcb_setup_request_next, 
 //GO(xcb_setup_request_sizeof, 
-GOS(xcb_setup_roots_iterator, pFEpp)
+GOS(xcb_setup_roots_iterator, pFEpp) //%X
 GO(xcb_setup_roots_length, iFp)
 //GO(xcb_setup_sizeof, 
 //GO(xcb_setup_vendor, 
@@ -629,24 +632,24 @@ GO(xcb_setup_roots_length, iFp)
 //GO(xcb_timecoord_next, 
 //GO(xcb_timestamp_end, 
 //GO(xcb_timestamp_next, 
-GOS(xcb_translate_coordinates, pFEppuuWW)
+GOS(xcb_translate_coordinates, pFEppuuWW) //%x
 GO(xcb_translate_coordinates_reply, pFpup)
-GOS(xcb_translate_coordinates_unchecked, pFEppuuWW)
-GOS(xcb_ungrab_button, pFEppCuW)
-GOS(xcb_ungrab_button_checked, pFEppCuW)
-GOS(xcb_ungrab_key, pFEppCuW)
-GOS(xcb_ungrab_keyboard, pFEppu)
-GOS(xcb_ungrab_keyboard_checked, pFEppu)
-GOS(xcb_ungrab_key_checked, pFEppCuW)
-GOS(xcb_ungrab_pointer, pFEppu)
+GOS(xcb_translate_coordinates_unchecked, pFEppuuWW) //%x
+GOS(xcb_ungrab_button, pFEppCuW) //%x
+GOS(xcb_ungrab_button_checked, pFEppCuW) //%x
+GOS(xcb_ungrab_key, pFEppCuW) //%x
+GOS(xcb_ungrab_keyboard, pFEppu) //%x
+GOS(xcb_ungrab_keyboard_checked, pFEppu) //%x
+GOS(xcb_ungrab_key_checked, pFEppCuW) //%x
+GOS(xcb_ungrab_pointer, pFEppu) //%x
 //GO(xcb_ungrab_pointer_checked, 
-GOS(xcb_ungrab_server, pFEpp)
+GOS(xcb_ungrab_server, pFEpp) //%x
 //GO(xcb_ungrab_server_checked, 
 //GO(xcb_uninstall_colormap, 
 //GO(xcb_uninstall_colormap_checked, 
 //GO(xcb_unmap_subwindows, 
 //GO(xcb_unmap_subwindows_checked, 
-GOS(xcb_unmap_window, pFEppu)
+GOS(xcb_unmap_window, pFEppu) //%x
 //GO(xcb_unmap_window_checked, 
 GO(xcb_unregister_for_special_event, vFpp)
 //GO(xcb_visualid_end, 
@@ -657,7 +660,7 @@ GO(xcb_wait_for_event, pFp)
 GO(xcb_wait_for_reply, pFpup)
 GO(xcb_wait_for_reply64, pFpUp)
 //GO(xcb_wait_for_special_event, 
-GOS(xcb_warp_pointer, pFEppuuwwWWww)
+GOS(xcb_warp_pointer, pFEppuuwwWWww) //%x
 //GO(xcb_warp_pointer_checked, 
 //GO(xcb_window_end, 
 //GO(xcb_window_next, 

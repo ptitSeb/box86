@@ -382,7 +382,7 @@ endif()
 
 # If BOX86_ROOT contains a ".c", the build breaks...
 string(REPLACE ".c" "_private.h" MODROOT ${BOX86_ROOT})
-set(WRAPPEDS_HEAD "${BOX86_ROOT}/src/wrapped/wrappedd3dadapter9_gen.h")
+set(WRAPPEDS_HEAD "")
 foreach(A ${WRAPPEDS})
     string(REPLACE ".c" "_private.h" C ${A})
     string(REPLACE "${MODROOT}" "${BOX86_ROOT}" B ${C})

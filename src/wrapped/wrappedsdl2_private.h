@@ -2,6 +2,9 @@
 #error Meh!
 #endif
 
+//%S J SDL_JoystickGUID
+//%S g SDL_GameControllerButtonBind
+
 // _fini
 // _init
 GO(SDL_abs, iFi)
@@ -129,8 +132,8 @@ GO(SDL_GameControllerFromInstanceID, pFi)
 GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
 GO(SDL_GameControllerGetAxisFromString, uFp)
-GOS(SDL_GameControllerGetBindForAxis, pFEppi)
-GOS(SDL_GameControllerGetBindForButton, pFEppi)
+GOS(SDL_GameControllerGetBindForAxis, pFEppi)   //%g
+GOS(SDL_GameControllerGetBindForButton, pFEppi) //%g
 GO(SDL_GameControllerGetButton, uFpi)
 GO(SDL_GameControllerGetButtonFromString, uFp)
 GO(SDL_GameControllerGetJoystick, pFp)
@@ -144,7 +147,7 @@ GO(SDL_GameControllerGetType, iFp)
 GO(SDL_GameControllerGetVendor, WFp)
 GO(SDL_GameControllerMapping, pFp)
 GO(SDL_GameControllerMappingForDeviceIndex, pFi)
-GOM(SDL_GameControllerMappingForGUID, pFEV)   // SDL_GameControllerMappingForGUID structure
+GOM(SDL_GameControllerMappingForGUID, pFEV)     //%{pFJ}
 GO(SDL_GameControllerMappingForIndex, pFi)
 GO(SDL_GameControllerName, pFp)
 GO(SDL_GameControllerNameForIndex, pFi)
@@ -190,7 +193,7 @@ GO(SDL_GetGlobalMouseState, uFpp)
 GO(SDL_GetGrabbedWindow, pFv)
 GO(SDL_GetHint, pFp)
 GO(SDL_GetHintBoolean, iFpi)
-GOM(SDL_GetJoystickGUIDInfo, vFEuuuuppp)   // the flat SDL_JoystickGUID stuct in 1st argument is same as 4 uint32
+GOM(SDL_GetJoystickGUIDInfo, vFEuuuuppp)   //%{vFJppp}
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, pFp)
@@ -360,15 +363,15 @@ GO(SDL_JoystickGetAxis, iFpi)
 GO(SDL_JoystickGetAxisInitialState, iFpip)
 GO(SDL_JoystickGetBall, iFpipp)
 GO(SDL_JoystickGetButton, CFpi)
-GOS(SDL_JoystickGetDeviceGUID, pFEpi)  // return a struct that is "uint8_t data[16]" => there is hidden 1st arg with address of return buffer, same for ARM
+GOS(SDL_JoystickGetDeviceGUID, pFEpi)     //%J
 GO(SDL_JoystickGetDeviceInstanceID, iFi)
 GO(SDL_JoystickGetDevicePlayerIndex, iFi)
 GO(SDL_JoystickGetDeviceProduct, WFi)
 GO(SDL_JoystickGetDeviceProductVersion, WFi)
 GO(SDL_JoystickGetDeviceType, iFi)
 GO(SDL_JoystickGetDeviceVendor, WFi)
-GOS(SDL_JoystickGetGUID, pFEpp)
-GOS(SDL_JoystickGetGUIDFromString, pFEpp)
+GOS(SDL_JoystickGetGUID, pFEpp)           //%J
+GOS(SDL_JoystickGetGUIDFromString, pFEpp) //%J
 GO(SDL_JoystickGetGUIDString, vFupi)
 GO(SDL_JoystickGetHat, CFpi)
 GO(SDL_JoystickGetPlayerIndex, iFp)
@@ -692,5 +695,5 @@ GOM(SDL_IsJoystickNintendoSwitchPro, iFEWW)
 GOM(SDL_IsJoystickSteamController, iFEWW)
 GOM(SDL_IsJoystickXbox360, iFEWW)
 GOM(SDL_IsJoystickXboxOne, iFEWW)
-GOM(SDL_IsJoystickXInput, iFEV)
-GOM(SDL_IsJoystickHIDAPI, iFEV)
+GOM(SDL_IsJoystickXInput, iFEV) //%{iFJ}
+GOM(SDL_IsJoystickHIDAPI, iFEV) //%{iFJ}

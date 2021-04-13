@@ -38,7 +38,7 @@
         case 0xDD:
         case 0xDE:
         case 0xDF:  /* FCOMP */
-            fpu_fcom(emu, ST(nextop&7).d);  // TODO: is this ok?
+            fpu_fcom(emu, ST(nextop&7).d);
             fpu_do_pop(emu);
             break;
         case 0xE0:
