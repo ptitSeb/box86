@@ -129,33 +129,34 @@ void SetupInitialStack(x86emu_t *emu)
     32: f7fbfb40
     33: f7fbf000
     */
-    Push(emu, 0); Push(emu, 0);                         //AT_NULL(0)=0
-    //Push(emu, ); Push(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
-    //Push(emu, ); Push(emu, 4);                          //AT_PHENT(4)=size of PH entry
-    //Push(emu, ); Push(emu, 5);                          //AT_PHNUM(5)=number of elf headers
-    Push(emu, box86_pagesize); Push(emu, 6);            //AT_PAGESZ(6)
-    //Push(emu, real_getauxval(7)); Push(emu, 7);         //AT_BASE(7)=ld-2.27.so start (in memory)
-    Push(emu, 0); Push(emu, 8);                         //AT_FLAGS(8)=0
-    Push(emu, R_EIP); Push(emu, 9);                     //AT_ENTRY(9)=entrypoint
-    Push(emu, real_getauxval(11)); Push(emu, 11);       //AT_UID(11)
-    Push(emu, real_getauxval(12)); Push(emu, 12);       //AT_EUID(12)
-    Push(emu, real_getauxval(13)); Push(emu, 13);       //AT_GID(13)
-    Push(emu, real_getauxval(14)); Push(emu, 14);       //AT_EGID(14)
-    Push(emu, p_i686); Push(emu, 15);                   //AT_PLATFORM(15)=&"i686"
+    Push(emu, 0); Push(emu, 0);                            //AT_NULL(0)=0
+    //Push(emu, ); Push(emu, 3);                             //AT_PHDR(3)=address of the PH of the executable
+    //Push(emu, ); Push(emu, 4);                             //AT_PHENT(4)=size of PH entry
+    //Push(emu, ); Push(emu, 5);                             //AT_PHNUM(5)=number of elf headers
+    Push(emu, box86_pagesize); Push(emu, 6);               //AT_PAGESZ(6)
+    //Push(emu, real_getauxval(7)); Push(emu, 7);            //AT_BASE(7)=ld-2.27.so start (in memory)
+    Push(emu, 0); Push(emu, 8);                            //AT_FLAGS(8)=0
+    Push(emu, R_EIP); Push(emu, 9);                        //AT_ENTRY(9)=entrypoint
+    Push(emu, real_getauxval(11)); Push(emu, 11);          //AT_UID(11)
+    Push(emu, real_getauxval(12)); Push(emu, 12);          //AT_EUID(12)
+    Push(emu, real_getauxval(13)); Push(emu, 13);          //AT_GID(13)
+    Push(emu, real_getauxval(14)); Push(emu, 14);          //AT_EGID(14)
+    Push(emu, p_i686); Push(emu, 15);                      //AT_PLATFORM(15)=&"i686"
     // Push HWCAP:
     //  FPU: 1<<0 ; VME: 1<<1 ; DE : 1<<2 ; PSE: 1<<3 ; TSC: 1<<4 ; MSR: 1<<5 ; PAE: 1<<6 ; MCE: 1<<7
     //  CX8: 1<<8 ; APIC:1<<9 ;             SEP: 1<<11; MTRR:1<<12; PGE: 1<<13; MCA: 1<<14; CMOV:1<<15
     // FCMOV:1<<16;                                                                         MMX: 1<<23
     // OSFXR:1<<24; XMM: 1<<25;XMM2: 1<<26;                                                AMD3D:1<<31
     Push(emu, (1<<0) | (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<8)  | (1<<15) | (1<<16) | (1<<23) | (1<<25) | (1<<26));
-    Push(emu, 16);                                      //AT_HWCAP(16)=...
-    //Push(emu, sysconf(_SC_CLK_TCK)); Push(emu, 17);     //AT_CLKTCK(17)=times() frequency
-    Push(emu, real_getauxval(23)); Push(emu, 23);       //AT_SECURE(23)
-    Push(emu, p_random); Push(emu, 25);                 //AT_RANDOM(25)=p_random
-    Push(emu, 0); Push(emu, 26);                        //AT_HWCAP2(26)=0
-    Push(emu, p_arg0); Push(emu, 31);                   //AT_EXECFN(31)=p_arg0
-    //Push(emu, ); Push(emu, 33);                         //AT_SYSINFO_EHDR(33)=address of vDSO
-    if(!emu->context->auxval_start)       // store auxval start if needed
+    Push(emu, 16);                                         //AT_HWCAP(16)=...
+    //Push(emu, sysconf(_SC_CLK_TCK)); Push(emu, 17);        //AT_CLKTCK(17)=times() frequency
+    Push(emu, real_getauxval(23)); Push(emu, 23);          //AT_SECURE(23)
+    Push(emu, p_random); Push(emu, 25);                    //AT_RANDOM(25)=p_random
+    Push(emu, 0); Push(emu, 26);                           //AT_HWCAP2(26)=0
+    Push(emu, p_arg0); Push(emu, 31);                      //AT_EXECFN(31)=p_arg0
+    Push(emu, 0/*emu->context->vsyscall*/); Push(emu, 32); //AT_SYSINFO(32)=vsyscall
+    //Push(emu, ); Push(emu, 33);                            //AT_SYSINFO_EHDR(33)=address of vDSO
+    if(!emu->context->auxval_start) // store auxval start if needed
         emu->context->auxval_start = (uintptr_t*)R_ESP;
 
     // push nil / envs / nil / args / argc
