@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh!
 #endif
 
 //GO(a2d_ASN1_OBJECT, 
@@ -1500,7 +1500,7 @@ GO(ENGINE_cleanup, vFv)
 //GO(engine_cleanup_add_last, 
 GO(ENGINE_cmd_is_executable, iFpi)
 GOM(ENGINE_ctrl, iFEpiipp)
-GOM(ENGINE_ctrl_cmd, iFpplppi)
+GOM(ENGINE_ctrl_cmd, iFEpplppi)
 GO(ENGINE_ctrl_cmd_string, iFpppi)
 GO(ENGINE_finish, iFp)
 GO(ENGINE_free, iFp)
@@ -2596,10 +2596,10 @@ GO(OBJ_txt2obj, pFpi)
 //GO(OCSP_SINGLERESP_get_ext_count, 
 //GO(OCSP_SINGLERESP_new, 
 //GO(OCSP_url_svcloc_new, 
-GOM(OPENSSL_add_all_algorithms_conf, vFv)
-GOM(OPENSSL_add_all_algorithms_noconf, vFv)
-GOM(OpenSSL_add_all_ciphers, vFv)
-GOM(OpenSSL_add_all_digests, vFv)
+GOM(OPENSSL_add_all_algorithms_conf, vFv) // No emu parameter
+GOM(OPENSSL_add_all_algorithms_noconf, vFv) // No emu parameter
+GOM(OpenSSL_add_all_ciphers, vFv) // No emu parameter
+GOM(OpenSSL_add_all_digests, vFv) // No emu parameter
 //GO(OPENSSL_asc2uni, 
 //GO(OPENSSL_atomic_add, 
 //GO(OPENSSL_cleanse, 

@@ -109,7 +109,7 @@ GOM(jpeg_set_defaults, vFEp)
 GO(jpeg_set_linear_quality, vFpii)
 GOM(jpeg_set_marker_processor, vFEpip)
 GOM(jpeg_set_quality, vFEpii)
-GOM(jpeg_simd_cpu_support, iFv)
+GOM(jpeg_simd_cpu_support, iFv) // No emu parameter
 GO(jpeg_simple_progression, vFp)
 GO(jpeg_skip_scanlines, uFpu)
 GOM(jpeg_start_compress, vFEpi)

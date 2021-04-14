@@ -1268,7 +1268,6 @@
 #() iFppUipp
 #() iFppUupp
 #() iFppdidd
-#() iFpplppi
 #() iFppLupp
 #() iFppLpLp
 #() iFppLppp
@@ -1411,6 +1410,7 @@
 #() iFEppiuui
 #() iFEppupIi
 #() iFEppuppp
+#() iFEpplppi
 #() iFEpppiiu
 #() iFEpppppp
 #() iFiiiiiip
@@ -1941,6 +1941,7 @@ wrappedcrypto/SupFpppp3PEM_read_bio_EC_PUBKEY
 wrappedcrypto/SupFpppp3PEM_read_bio_RSAPrivateKey
 wrappedcrypto/SupFpppp3PEM_read_bio_RSA_PUBKEY
 wrappedcrypto/SuiFpiipp3ENGINE_ctrl
+wrappedcrypto/SuiFpplppi3ENGINE_ctrl_cmd
 wrappedcrypto/SuiFppppipp3PEM_write_bio_DSAPrivateKey
 wrappedcrypto/SuiFppppipp3PEM_write_bio_ECPrivateKey
 wrappedcrypto/SuiFppppipp3PEM_write_bio_RSAPrivateKey

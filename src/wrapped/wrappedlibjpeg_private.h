@@ -2,7 +2,6 @@
 #error Meh....
 #endif
 
-
 GO(jcopy_block_row, vFppu)
 GO(jcopy_sample_rows, vFpipiiu)
 GO(jdiv_round_up, iFii)
@@ -109,7 +108,7 @@ GO(jpeg_set_defaults, vFp)
 GO(jpeg_set_linear_quality, vFpii)
 GOM(jpeg_set_marker_processor, vFEpip)
 GO(jpeg_set_quality, vFpii)
-GOM(jpeg_simd_cpu_support, iFv)
+GOM(jpeg_simd_cpu_support, iFv) // No emu parameter
 GO(jpeg_simple_progression, vFp)
 GO(jpeg_skip_scanlines, uFpu)
 GO(jpeg_start_compress, vFpi)
@@ -129,4 +128,3 @@ GO(jpeg_write_scanlines, uFppu)
 GO(jpeg_write_tables, vFp)
 GO(jround_up, iFii)
 GO(jzero_far, vFpu)
-

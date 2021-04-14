@@ -5,6 +5,13 @@ import re
 import sys
 from math import ceil
 
+"""
+Generates src/dynarec/arm_printer.c
+===
+
+See src/dynarec/arm_instructions.txt (the input file) for the syntax documentation.
+"""
+
 # Helper class to avoid displaying '\x1b[' on errors
 class string(str):
 	def __repr__(self):
@@ -172,13 +179,6 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			- specifics is an array of arrays the same length as positions that contains a tuple (mask, correctBit)
 			  that is at position positions[current_pos]
 			"""
-			if len(positions) != len(specifics):
-				fail(
-					AssertionError,
-					"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
-						len(positions), len(specifics)
-					)
-				)
 			
 			if specifics == []:
 				append("if ((opcode & " + arr2hex(mask) + ") == " + arr2hex(correctBits) + ") {\n")
@@ -194,8 +194,9 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				if any(map(lambda s: len(s) != l, specifics)):
 					fail(
 						AssertionError,
-						"generate_bin_tests requires the same length for positions ({}) and specifics ({})!".format(
-							len(positions), len(specifics)
+						"generate_bin_tests requires the same length for positions ({}) and each element "
+						"of the specifics array ({})!".format(
+							len(positions), [len(s) for s in specifics]
 						)
 					)
 				
@@ -290,7 +291,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 							# Custom ifs
 							# Also, requires only a single '='
 							if eq != "=":
-								fail(ValueError, "Too many '=' switches (!@ modifier)")
+								fail(ValueError, "Too many '=' switches (@@ modifier)")
 							
 							# Extract the statements
 							statements = []
@@ -1653,7 +1654,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					
 					# No C variable since we're invalidating!
 					
-					# Now print the invalidation, numerote if debugging
+					# Now print the invalidation, number if debugging
 					if numberInvalids:
 						append("strcpy(ret, \"??? #" + str(invalidationCount) + "\");\n} else ")
 						invalidationCount = invalidationCount + 1
@@ -1963,12 +1964,12 @@ const char* arm_print(uint32_t opcode) {
 """}
 	
 	for f in files_header:
-	# Save the string for the next iteration, writing was successful
 		with open(os.path.join(root, "src", "dynarec", f), 'w') as file:
 			file.write(header.format(version = ver))
 			file.write(files_header[f])
 			file.write(output)
 			file.write(files_guard[f])
+	# Save the string for the next iteration, writing was successful
 	with open(os.path.join(root, "src", "dynarec", "last_run.txt"), 'w') as file:
 		file.write('\n'.join(insts))
 	

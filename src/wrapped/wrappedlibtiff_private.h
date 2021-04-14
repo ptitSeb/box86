@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh!
 #endif
 
 //GO(libport_dummy_function, 
@@ -22,7 +22,7 @@
 //GO(TIFFCIELabToXYZ, 
 //GO(TIFFCleanup, 
 //GO(TIFFClientdata, 
-GOM(TIFFClientOpen, pFpppppppppp)
+GOM(TIFFClientOpen, pFpppppppppp) // No emu parameter
 GO(TIFFClose, vFp)
 //GO(TIFFComputeStrip, 
 //GO(TIFFComputeTile, 
