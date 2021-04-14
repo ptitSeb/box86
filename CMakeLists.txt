@@ -256,6 +256,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibm.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl1mixer.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsdl1net.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl1image.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl1sound.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsdl1ttf.c"
