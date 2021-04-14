@@ -952,7 +952,7 @@ void RunElfFini(elfheader_t* h, x86emu_t *emu)
 #else
     // first check fini array
     Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
-    for (int i=h->finiarray_sz-1; i>=0; ++i) {
+    for (int i=h->finiarray_sz-1; i>=0; --i) {
         printf_log(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
         RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
     }

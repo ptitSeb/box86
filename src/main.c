@@ -708,7 +708,7 @@ void endBox86()
     //atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
     CallAllCleanup(emu);
-    // than call all the Fini (some "smart" ordering of the fini may be needed, but for now, callign in this order should be good enough)
+    // then call all the fini
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
