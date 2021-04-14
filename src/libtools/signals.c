@@ -333,7 +333,7 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
 
 void my_sighandler(int32_t sig)
 {
-    pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
+    int Locks = unlockMutex();
     printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
     // save values
     x86emu_t *emu = thread_get_emu();
@@ -357,11 +357,14 @@ void my_sighandler(int32_t sig)
     emu->eflags.x32 = old_flags;
     for (int i=0; i<8; ++i)
         emu->regs[i].dword[0] = old_regs[i];
-    if(exits)
+    if(exits) {
+        relockMutex(Locks);
         exit(ret);
+    }
     // what about the restored regs?
     if(restorer)
         RunFunctionHandler(&exits, restorer, 0);
+    relockMutex(Locks);
 }
 
 #ifdef DYNAREC
