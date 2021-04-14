@@ -151,7 +151,7 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
             lib->type = 0;
             // Call librarian to load all dependant elf
             for(int i=0; i<lib->priv.w.needed; ++i) {
-                if(AddNeededLib(context->maplib, &lib->needed, 0, lib->priv.w.neededlibs[i], context, NULL)) {  // probably all native, not emulated, so that's fine
+                if(AddNeededLib(context->maplib, &lib->needed, lib, 0, lib->priv.w.neededlibs[i], context, NULL)) {  // probably all native, not emulated, so that's fine
                     printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", lib->priv.w.neededlibs[i]);
                     return;
                 }
@@ -413,6 +413,7 @@ void Free1Library(library_t **lib, x86emu_t* emu)
     if((*lib)->symbol2map)
         kh_destroy(symbol2map, (*lib)->symbol2map);
     free_neededlib(&(*lib)->needed);
+    free_neededlib(&(*lib)->dependedby);
 
     free(*lib);
     *lib = NULL;
@@ -697,4 +698,45 @@ lib_t* GetMaplib(library_t* lib)
     if(!lib)
         return NULL;
     return lib->maplib;
+}
+
+void add_neededlib(needed_libs_t* needed, library_t* lib)
+{
+    if(!needed)
+        return;
+    if(needed->size == needed->cap) {
+        needed->cap += 8;
+        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    }
+    needed->libs[needed->size++] = lib;
+}
+void free_neededlib(needed_libs_t* needed)
+{
+    if(!needed)
+        return;
+    needed->cap = 0;
+    needed->size = 0;
+    if(needed->libs)
+        free(needed->libs);
+    needed->libs = NULL;
+}
+void add_dependedbylib(needed_libs_t* dependedby, library_t* lib)
+{
+    if(!dependedby)
+        return;
+    if(dependedby->size == dependedby->cap) {
+        dependedby->cap += 8;
+        dependedby->libs = (library_t**)realloc(dependedby->libs, dependedby->cap*sizeof(library_t*));
+    }
+    dependedby->libs[dependedby->size++] = lib;
+}
+void free_dependedbylib(needed_libs_t* dependedby)
+{
+    if(!dependedby)
+        return;
+    dependedby->cap = 0;
+    dependedby->size = 0;
+    if(dependedby->libs)
+        free(dependedby->libs);
+    dependedby->libs = NULL;
 }

@@ -342,25 +342,3 @@ int AddTLSPartition(box86context_t* context, int tlssize) {
 
     return -context->tlssize;   // negative offset
 }
-
-void add_neededlib(needed_libs_t* needed, library_t* lib)
-{
-    if(!needed)
-        return;
-    if(needed->size == needed->cap) {
-        needed->cap += 8;
-        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
-    }
-    needed->libs[needed->size++] = lib;
-}
-
-void free_neededlib(needed_libs_t* needed)
-{
-    if(!needed)
-        return;
-    needed->cap = 0;
-    needed->size = 0;
-    if(needed->libs)
-        free(needed->libs);
-    needed->libs = NULL;
-}
