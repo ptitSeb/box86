@@ -1594,6 +1594,7 @@ void iFuiifpppp(x86emu_t *emu, uintptr_t fnc);
 void iFLLLLLLLL(x86emu_t *emu, uintptr_t fnc);
 void iFpiiiiipi(x86emu_t *emu, uintptr_t fnc);
 void iFpCCWWpWu(x86emu_t *emu, uintptr_t fnc);
+void iFpWCuWCuu(x86emu_t *emu, uintptr_t fnc);
 void iFpuiipppp(x86emu_t *emu, uintptr_t fnc);
 void iFpuipuppp(x86emu_t *emu, uintptr_t fnc);
 void iFpuippupp(x86emu_t *emu, uintptr_t fnc);

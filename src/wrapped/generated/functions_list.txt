@@ -1562,6 +1562,7 @@
 #() iFLLLLLLLL
 #() iFpiiiiipi
 #() iFpCCWWpWu
+#() iFpWCuWCuu
 #() iFpuiipppp
 #() iFpuipuppp
 #() iFpuippupp
@@ -2678,6 +2679,7 @@ wrappedsdl1mixer/SuiFip3Mix_UnregisterEffect
 wrappedsdl1mixer/SupFpi3Mix_LoadWAV_RW
 wrappedsdl1mixer/SupFpii3Mix_LoadMUSType_RW
 wrappedsdl1mixer/SuiFippp3Mix_RegisterEffect
+wrappedsdl1sound/SupFpppu3Sound_NewSample
 wrappedsdl1ttf/SupFpii3TTF_OpenFontRW
 wrappedsdl1ttf/SupFpiii3TTF_OpenFontIndexRW
 wrappedsdl2/SuvFp3SDL_UnloadObject
