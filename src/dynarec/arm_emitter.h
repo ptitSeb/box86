@@ -78,13 +78,13 @@ Op is 20-27
 // movt dst, #imm16
 #define MOVT(dst, imm16) EMIT(0xe3400000 | ((dst) << 12) | (((imm16) & 0xf000) << 4) | brIMM((imm16) & 0x0fff) )
 // pseudo insruction: mov reg, #imm with imm a 32bits value
-#define MOV32(dst, imm32)                                   \
-    if(~(uint32_t)(imm32)>=0 && ~(uint32_t)(imm32)<256) {   \
-        MVN_IMM8(dst, dst, ~(uint32_t)(imm32), 0);          \
-    } else {                                                \
-        MOVW(dst, ((uint32_t)imm32)&0xffff);                \
-        if (((uint32_t)(imm32))>>16) {                      \
-        MOVT(dst, (((uint32_t)imm32)>>16));}                \
+#define MOV32(dst, imm32)                       \
+    if((~(uint32_t)(imm32))<0x100) {            \
+        MVN_IMM8(dst, ~(uint32_t)(imm32), 0);   \
+    } else {                                    \
+        MOVW(dst, ((uint32_t)imm32)&0xffff);    \
+        if (((uint32_t)(imm32))>>16) {          \
+        MOVT(dst, (((uint32_t)imm32)>>16));}    \
     }
 // pseudo insruction: mov reg, #imm with imm a 32bits value, fixed size
 #define MOV32_(dst, imm32)                  \
@@ -309,8 +309,8 @@ Op is 20-27
 #define MVN_REG_LSL_IMM5(dst, rm, imm5) \
     EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm5, rm) )
 // mvn dst, src, IMM8
-#define MVN_IMM8(dst, src, imm8, rot) \
-    EMIT(0xe3e00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+#define MVN_IMM8(dst, imm8, rot) \
+    EMIT(0xe3e00000 | ((dst) << 12) | (rot)<<8 | ((imm8)&0xff) )
 // mvn dst, src1, src2, lsr #imm
 #define MVN_REG_LSR_IMM8(dst, rm, imm8) \
     EMIT(0xe1e00000 | ((dst) << 12) | (0 << 16) | brLSR(imm8, rm) )
