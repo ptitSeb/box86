@@ -201,7 +201,11 @@ void x86Int3(x86emu_t* emu)
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
                 } else  if(strstr(s, "my_vsprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%08X, \"%s\"...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(char**)(R_ESP+8));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\", %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8), *(void**)(R_ESP+12));
+                    pu32 = *(uint32_t**)(R_ESP+4);
+                    post = 3;
+                } else  if(strstr(s, "my___vsprintf_chk")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %d, %zu, \"%s\", %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(int*)(R_ESP+8), *(size_t*)(R_ESP+12), *(char**)(R_ESP+16), *(void**)(R_ESP+20));
                     pu32 = *(uint32_t**)(R_ESP+4);
                     post = 3;
                 } else  if(strstr(s, "my_snprintf")==s) {

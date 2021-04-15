@@ -1928,8 +1928,8 @@ GOM(__vprintf_chk, iFEvppp)      //%%
 GOM(vsnprintf, iFEpLppp)         //%% Weak
 GOM(__vsnprintf, iFEpuppp)       //%% Weak
 GOM(__vsnprintf_chk, iFEpuvvppp) //%%
-GOM(vsprintf, iFEpppp)           //%% Weak
-GOM(__vsprintf_chk, iFEpvvppp)   //%% ignoring flag and slen, just use vsprintf in fact
+GOM(vsprintf, iFEppp)            //%% Weak
+GOM(__vsprintf_chk, iFEpiLpp)    //%% 
 #ifdef POWERPCLE
 GOM(vsscanf, iFEppp) //%%
 #else

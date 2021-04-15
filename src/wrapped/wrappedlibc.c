@@ -834,21 +834,34 @@ EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list
 EXPORT int my___asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
 
 
-EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, void * b, va_list V) {
+EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, uint32_t * b) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsprintf;
     int r = ((iFppp_t)f)(buff, fmt, VARARGS);
     return r;
     #else
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, (uint32_t*)b);
+    int r = ((iFppp_t)f)(buff, fmt, b);
     return r;
     #endif
 }
-EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_vsprintf")));
+EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, int flags, size_t len, void * fmt, uint32_t * b)  {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    void* f = vsprintf;
+    int r = ((iFppp_t)f)(buff, fmt, VARARGS);
+    return r;
+    #else
+    void* f = vsprintf;
+    int r = ((iFppp_t)f)(buff, fmt, b);
+    return r;
+    #endif
+}
 
 #ifdef POWERPCLE
 EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
