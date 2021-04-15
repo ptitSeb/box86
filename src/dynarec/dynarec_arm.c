@@ -444,7 +444,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x86_addr = (void*)helper.sons_x86[i];
-                son->x86_size = end-helper.sons_x86[i];
+                son->x86_size = end-helper.sons_x86[i]+1;
                 if(!son->x86_size) {printf_log(LOG_NONE, "Warning, son with null x86 size! (@%p / ARM=%p)", son->x86_addr, son->block);}
                 son->father = block;
                 son->done = 1;
