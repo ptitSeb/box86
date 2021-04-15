@@ -1285,7 +1285,9 @@ _trace:
                     case 0x89:              /* XRELEASE MOV... ignoring acquire thingy */
                     case 0x9C:
                     case 0xA0:
+                    case 0xC0:
                     case 0xC3:              /* yup, repz ret is valid */
+                    case 0xD0:
                     case 0xE0:
                     case 0xE8:
                     case 0xE9:
