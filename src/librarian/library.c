@@ -373,6 +373,7 @@ void InactiveLibrary(library_t* lib)
 void Free1Library(library_t **lib, x86emu_t* emu)
 {
     if(!(*lib)) return;
+    printf_log(LOG_DEBUG, "Freeing %s\n", (*lib)->name);
 
     if((*lib)->type==1 && emu) {
         elfheader_t *elf_header = (*lib)->context->elfs[(*lib)->priv.n.elf_index];

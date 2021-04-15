@@ -46,7 +46,7 @@ static void freeLibraryRecurse(lib_t *maplib, x86emu_t *emu, int idx, char *free
             if (lib->dependedby.libs[i] == maplib->libraries[j]) break;
         }
         if (j == maplib->libsz) {
-            // We cannot access the 'name' field, since we ncan't be sure it hasn't been freed somewhere else...
+            // We cannot access the 'name' field, since we can't be sure it hasn't been freed somewhere else...
             printf_log(LOG_INFO, "Library %s (%p) needs %p, but it was not found. Ignoring.\n", lib->name, lib, lib->dependedby.libs[i]);
             continue;
         }
@@ -82,11 +82,12 @@ void FreeLibrarian(lib_t **maplib, x86emu_t *emu)
             }
         } else {
             for (int i=(*maplib)->libsz-1; i>=0; --i) {
-                Free1Library(&(*maplib)->libraries[i], emu);
+                freeLibraryRecurse(*maplib, emu, i, freed);
             }
             memset((*maplib)->libraries, 0, (*maplib)->libsz*sizeof(library_t*)); // NULL = 0 anyway
+            (*maplib)->libsz = 0;
+            free(freed);
         }
-        free(freed);
     }
     free((*maplib)->libraries);
     (*maplib)->libraries = NULL;

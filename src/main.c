@@ -711,8 +711,8 @@ void endBox86()
     // then call all the fini
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
-    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
+    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
     int pid = getpid();
