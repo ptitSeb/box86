@@ -69,14 +69,14 @@ typedef struct blockmark_s {
 } blockmark_t;
 
 
-// get first subblock free in block, stating at start (from block). return NULL if no block, else first subblock free (mark included), filling size
+// get first subblock free in block. Return NULL if no block, else first subblock free (mark included), filling size
 static void* getFirstBlock(void* block, int maxsize, int* size)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)block;
     while(m->next.x32) {    // while there is a subblock
         if(!m->next.fill && m->next.size>=maxsize+sizeof(blockmark_t)) {
-            *size = m->next.size;
+            *size = m->next.size-sizeof(blockmark_t);
             return m;
         }
         m = (blockmark_t*)((uintptr_t)m + m->next.size);
@@ -88,11 +88,11 @@ static void* getFirstBlock(void* block, int maxsize, int* size)
 static int getMaxFreeBlock(void* block, size_t block_size)
 {
     // get start of block
-    blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // styart with the end
+    blockmark_t *m = (blockmark_t*)((uintptr_t)block+block_size-sizeof(blockmark_t)); // start with the end
     int maxsize = 0;
     while(m->prev.x32) {    // while there is a subblock
         if(!m->prev.fill && m->prev.size>maxsize) {
-            maxsize = m->prev.size;
+            maxsize = m->prev.size-sizeof(blockmark_t); // remove the marker
             if((uintptr_t)block+maxsize>(uintptr_t)m)
                 return maxsize; // no block large enough left...
         }
