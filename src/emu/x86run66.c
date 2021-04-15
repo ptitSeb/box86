@@ -846,6 +846,29 @@ void RunGS(x86emu_t *emu)
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
             break;
         
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:             /* INC Reg */
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].dword[0] = inc32(emu, emu->regs[tmp8u].dword[0]);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:            /* DEC Reg */
+            tmp8u = opcode&7;
+            emu->regs[tmp8u].dword[0] = dec32(emu, emu->regs[tmp8u].dword[0]);
+            break;
+
         case 0x64:              /* FS: */
             // so just ignore that GS: prefix then
             --ip; // put FS back
