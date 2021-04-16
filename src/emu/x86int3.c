@@ -178,7 +178,7 @@ void x86Int3(x86emu_t* emu)
                     pu32 = *(uint32_t**)(R_ESP+8);
                 } else  if(strstr(s, "semop")==s) {
                     int16_t* p16 = *(int16_t**)(R_ESP+8);
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p[%u/%d/%d], %d)", tid, *(void**)(R_ESP), s, *(int*)(R_ESP+4), p16, p16[0], p16[1], p16[2], *(int*)(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p[%u/%d/0x%x], %d)", tid, *(void**)(R_ESP), s, *(int*)(R_ESP+4), p16, p16[0], p16[1], p16[2], *(int*)(R_ESP+12));
                     perr = 1;
                 } else  if(!strcmp(s, "my_mmap64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %lld)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int64_t*)(R_ESP+24));
