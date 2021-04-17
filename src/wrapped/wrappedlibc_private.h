@@ -1797,7 +1797,7 @@ GO(__sysconf, lFi)
 DATA(_sys_errlist, 4)
 DATA(sys_errlist, 4)
 GO(sysinfo, iFp)
-GO2(syslog, vFiV, vsyslog)
+GO2(syslog, vFipV, vsyslog)
 GO2(__syslog_chk, vFiipV, __vsyslog_chk)
 DATA(_sys_nerr, 4)    // type R
 DATA(sys_nerr, 4) // type R
