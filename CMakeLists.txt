@@ -279,6 +279,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibxfixes.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxcursor.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxrender.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxft.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxi.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxss.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxpm.c"
