@@ -577,7 +577,7 @@ typedef void (*wrapper_t)(x86emu_t* emu, uintptr_t fnc);
 			"*(uint64_t*)(R_ESP + {p}), ",            # U
 			"*(float*)(R_ESP + {p}), ",               # f
 			"*(double*)(R_ESP + {p}), ",              # d
-			"*(long double*)(R_ESP + {p}), ",         # D
+			"LD2localLD((void*)(R_ESP + {p})), ",     # D
 			"FromLD((void*)(R_ESP + {p})), ",         # K
 			"*(intptr_t*)(R_ESP + {p}), ",            # l
 			"*(uintptr_t*)(R_ESP + {p}), ",           # L

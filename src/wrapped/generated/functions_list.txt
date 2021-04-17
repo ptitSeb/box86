@@ -199,12 +199,14 @@
 #() fFif
 #() fFfi
 #() fFff
+#() fFfD
 #() fFfp
 #() fFpp
 #() dFid
 #() dFuu
 #() dFdi
 #() dFdd
+#() dFdD
 #() dFdp
 #() dFpp
 #() DFpp

@@ -361,7 +361,7 @@ void StopEmu(x86emu_t* emu, const char* reason)
     printf_log(LOG_NONE, "%s", reason);
     // dump stuff...
     printf_log(LOG_NONE, "\n==== CPU Registers ====\n%s\n", DumpCPURegs(emu, R_EIP));
-    printf_log(LOG_NONE, "\n======== Stack ========\nStack is from %lX to %lX\n", R_EBP, R_ESP);
+    printf_log(LOG_NONE, "\n======== Stack ========\nStack is from 0x%x to 0x%0x\n", R_EBP, R_ESP);
     if (R_EBP == R_ESP) {
         printf_log(LOG_NONE, "EBP = ESP: leaf function detected; next 128 bytes should be either data or random.\n");
     } else {
