@@ -333,11 +333,13 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             printf_log(LOG_DEBUG, "Re-loading block #%i @%p (0x%x/0x%x)\n", i, dest, e->p_filesz, e->p_memsz);
             int ret = fseeko64(f, e->p_offset, SEEK_SET);
             if(ret==-1) {printf_log(LOG_NONE, "Fail to (re)seek PT_LOAD part #%d (offset=%d, errno=%d/%s)\n", i, e->p_offset, errno, strerror(errno)); return 1;}
+            #ifdef DYNAREC
+            cleanDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
+            #endif
+            mprotect(dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
+            setProtection((uintptr_t)dest, e->p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
             if(e->p_filesz) {
                 ssize_t r = -1;
-                #ifdef DYNAREC
-                unprotectDB((uintptr_t)dest, e->p_memsz);
-                #endif
                 if((r=fread(dest, e->p_filesz, 1, f))!=1) {
                     printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%d (dest=%p, size=%d, return=%d, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
                     return 1;
