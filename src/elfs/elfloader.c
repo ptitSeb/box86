@@ -448,9 +448,14 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
-                    printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
-                    *p = globoffs;
-                    AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
+                    if(sym->st_size) {
+                        printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname);
+                        *p = globoffs;
+                        AddWeakSymbol(GetGlobalData(maplib), symname, offs, end-offs+1);
+                    } else {
+                        printf_log(LOG_DUMP, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) null sized on sym=%s \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname);
+                        *p = globoffs;
+                    }
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
                     if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend)) {
