@@ -237,6 +237,7 @@ scwrap_t syscallwrap[] = {
 #ifdef NOALIGN
     { 329, __NR_epoll_create1, 1 },
 #endif
+    { 331, __NR_pipe2, 2},
     { 332, __NR_inotify_init1, 1},
 #ifdef __NR_getrandom
     { 355, __NR_getrandom, 3 },
