@@ -1888,28 +1888,28 @@ GO(gtk_paned_get_type, iFv)
 GO(gtk_paned_pack1, vFppii)
 GO(gtk_paned_pack2, vFppii)
 GO(gtk_paned_set_position, vFpi)
-//GO(gtk_paper_size_copy, 
-//GO(gtk_paper_size_free, 
-//GO(gtk_paper_size_get_default, 
-//GO(gtk_paper_size_get_default_bottom_margin, 
-//GO(gtk_paper_size_get_default_left_margin, 
-//GO(gtk_paper_size_get_default_right_margin, 
-//GO(gtk_paper_size_get_default_top_margin, 
-//GO(gtk_paper_size_get_display_name, 
-//GO(gtk_paper_size_get_height, 
-//GO(gtk_paper_size_get_name, 
-//GO(gtk_paper_size_get_paper_sizes, 
-//GO(gtk_paper_size_get_ppd_name, 
+GO(gtk_paper_size_copy, pFp)
+GO(gtk_paper_size_free, vFp)
+GO(gtk_paper_size_get_default, pFv)
+GO(gtk_paper_size_get_default_bottom_margin, dFpi)
+GO(gtk_paper_size_get_default_left_margin, dFpi)
+GO(gtk_paper_size_get_default_right_margin, dFpi)
+GO(gtk_paper_size_get_default_top_margin, dFpi)
+GO(gtk_paper_size_get_display_name, pFp)
+GO(gtk_paper_size_get_height, dFpi)
+GO(gtk_paper_size_get_name, pFp)
+GO(gtk_paper_size_get_paper_sizes, pFi)
+GO(gtk_paper_size_get_ppd_name, pFp)
 GO(gtk_paper_size_get_type, iFv)
-//GO(gtk_paper_size_get_width, 
-//GO(gtk_paper_size_is_custom, 
-//GO(gtk_paper_size_is_equal, 
-//GO(gtk_paper_size_new, 
-//GO(gtk_paper_size_new_custom, 
-//GO(gtk_paper_size_new_from_key_file, 
-//GO(gtk_paper_size_new_from_ppd, 
-//GO(gtk_paper_size_set_size, 
-//GO(gtk_paper_size_to_key_file, 
+GO(gtk_paper_size_get_width, dFpi)
+GO(gtk_paper_size_is_custom, iFp)
+GO(gtk_paper_size_is_equal, iFpp)
+GO(gtk_paper_size_new, pFp)
+GO(gtk_paper_size_new_custom, pFppddi)
+GO(gtk_paper_size_new_from_key_file, pFppp)
+GO(gtk_paper_size_new_from_ppd, pFppdd)
+GO(gtk_paper_size_set_size, vFpddi)
+GO(gtk_paper_size_to_key_file, vFppp)
 GO(gtk_parse_args, iFpp)
 GO(gtk_path_bar_get_type, iFv)
 GO(gtk_path_priority_type_get_type, iFv)

@@ -207,6 +207,7 @@
 #() dFdd
 #() dFdD
 #() dFdp
+#() dFpi
 #() dFpp
 #() DFpp
 #() lFll
@@ -588,6 +589,7 @@
 #() vFpUpp
 #() vFpfff
 #() vFpdii
+#() vFpddi
 #() vFpddd
 #() vFpLLL
 #() vFppii
@@ -824,6 +826,7 @@
 #() pFppuu
 #() pFppuL
 #() pFppup
+#() pFppdd
 #() pFppLL
 #() pFppLp
 #() pFpppi
@@ -1101,6 +1104,7 @@
 #() pFppuui
 #() pFppuuu
 #() pFppuup
+#() pFppddi
 #() pFpppii
 #() pFpppip
 #() pFpppui
@@ -1868,7 +1872,6 @@
 #() pFipppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) IFpi
-#defined(NOALIGN) dFpi
 #defined(NOALIGN) iFppiiiip
 #!defined(NOALIGN) iFEi
 #!defined(NOALIGN) iFEO
