@@ -434,6 +434,26 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     }
                 }
                 break;
+            case R_386_TLS_TPOFF32:
+                // Non-negated offset in static TLS block???
+                {
+                    if(h_tls)
+                        offs = sym->st_value;
+                    else {
+                        if(local_maplib)
+                            h_tls = GetGlobalSymbolElf(local_maplib, symname);
+                        if(!h_tls)
+                            h_tls = GetGlobalSymbolElf(maplib, symname);
+                    }
+                    if(h_tls) {
+                        delta = *(int*)p;
+                        printf_log(LOG_DUMP, "Applying %s %s on %s @%p (%d -> %d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h_tls->tlsbase);
+                        *p = (uint32_t)(-((int32_t)offs + h_tls->tlsbase));
+                    } else {
+                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
+                    }
+                }
+                break;
             case R_386_PC32:
                     if (!offs) {
                         printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_PC32 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
@@ -583,7 +603,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 }
                 break;
             default:
-                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s (%p)\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), p);
+                printf_log(LOG_INFO, "Warning, don't know of to handle rel #%d %s (%p) for %s\n", i, DumpRelType(ELF32_R_TYPE(rel[i].r_info)), p, symname?symname:"(nil)");
         }
     }
     return 0;

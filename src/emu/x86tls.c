@@ -186,8 +186,9 @@ static void* GetSeg33Base()
     if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) == NULL) {
         ptr = (tlsdatasize_t*)fillTLSData(my_context);
     }
-    if(ptr->tlssize != my_context->tlssize)
+    if(ptr->tlssize != my_context->tlssize) {
         ptr = (tlsdatasize_t*)resizeTLSData(my_context, ptr);
+    }
     return ptr->tlsdata+ptr->tlssize;
 }
 
