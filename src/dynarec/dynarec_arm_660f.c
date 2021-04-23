@@ -1989,7 +1989,23 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VPADDLQ_U16(q0, q0);
             VPADDLQ_U32(q0, q0);
             break;
-
+        case 0xF7:
+            INST_NAME("MASKMOVDQU Gx, Ex")
+            nextop = F8;
+            GETGX(q0);
+            GETEX(q1);
+            v0 = fpu_get_scratch_quad(dyn);
+            VLD1Q_8(v0, xEDI);  // hopefully it's always aligned?
+            if((nextop&0xC0)==0xC0)
+                v1 = fpu_get_scratch_quad(dyn); // need to preserve the register
+            else
+                v1 = q1;
+            VCLTQ_0_8(v1, q1);  // get the mask
+            VBICQ(v0, v0, v1);  // mask destination
+            VANDQ(v1, q0, v1);  // mask source
+            VORRQ(v1, v1, v0);  // combine
+            VST1Q_8(v1, xEDI);  // put back
+            break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
             nextop = F8;
