@@ -569,37 +569,46 @@ static void del_cond(void* cond)
 }
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
-EXPORT int my_pthread_cond_broadcast(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_broadcast_old(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_broadcast(c);
 }
-EXPORT int my_pthread_cond_destroy(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_destroy_old(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
 	if(c!=cond) del_cond(cond);
 	return ret;
 }
-EXPORT int my_pthread_cond_init(x86emu_t* emu, void* cond, void* attr)
+EXPORT int my_pthread_cond_init_old(x86emu_t* emu, void* cond, void* attr)
 {
 	pthread_cond_t *c = add_cond(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
-EXPORT int my_pthread_cond_signal(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_signal_old(x86emu_t* emu, void* cond)
 {
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_signal(c);
 }
-EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
+EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
-EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
+EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, void* cond, void* mutex)
 {
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
+}
+
+EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
+{
+	return pthread_cond_timedwait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
+}
+EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
+{
+	return pthread_cond_wait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
 EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)

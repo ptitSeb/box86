@@ -386,6 +386,14 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
         uintptr_t offs = 0;
         uintptr_t end = 0;
         uintptr_t tmp = 0;
+        int version = head->VerSym?((Elf32_Half*)((uintptr_t)head->VerSym+head->delta))[ELF32_R_SYM(rel[i].r_info)]:0;
+        const char* ver = GetSymbolVersion(head, version);
+        char SymbolVersionned[501];
+        strncpy(SymbolVersionned, symname, 500);
+        if(ver) {
+            strncat(SymbolVersionned, "@", 500);
+            strncat(SymbolVersionned, ver, 500);
+        }
         elfheader_t* h_tls = head;
         if(bind==STB_LOCAL) {
             offs = sym->st_value + head->delta;
@@ -397,13 +405,19 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                 offs = sym->st_value + head->delta;
                 end = offs + sym->st_size;
             }
-            // so weak symbol are the one left
+            // so weak symbol are the one left, and try versionned symbol first
             if(!offs && !end) {
                 h_tls = NULL;
-                if(local_maplib)
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
-                if(!offs && !end)
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+                if(local_maplib) {
+                    GetGlobalSymbolStartEnd(local_maplib, SymbolVersionned, &offs, &end);
+                    if(!offs && !end)
+                        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+                }
+                if(!offs && !end) {
+                    GetGlobalSymbolStartEnd(maplib, SymbolVersionned, &offs, &end);
+                    if(!offs && !end)
+                        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end);
+                }
             }
         }
         uintptr_t globoffs, globend;
@@ -591,14 +605,14 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
     //                    return -1;
                     } else {
                         if(p) {
-                            printf_log(LOG_DUMP, "Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs);
+                            printf_log(LOG_DUMP, "Apply %s R_386_JMP_SLOT @%p with sym=%s(%s) (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, SymbolVersionned, *(void**)p, (void*)offs);
                             *p = offs;
                         } else {
                             printf_log(LOG_NONE, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
                         }
                     }
                 } else {
-                    printf_log(LOG_DUMP, "Preparing (if needed) %s R_386_JMP_SLOT @%p (0x%x->0x%0x) with sym=%s to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname);
+                    printf_log(LOG_DUMP, "Preparing (if needed) %s R_386_JMP_SLOT @%p (0x%x->0x%0x) with sym=%s(%s/version %d) to be apply later\n", (bind==STB_LOCAL)?"Local":"Global", p, *p, *p+head->delta, symname, SymbolVersionned, version);
                     *p += head->delta;
                 }
                 break;
@@ -1274,34 +1288,48 @@ EXPORT void PltResolver(x86emu_t* emu)
     uintptr_t addr = Pop32(emu);
     int slot = (int)Pop32(emu);
     elfheader_t *h = (elfheader_t*)addr;
-    printf_log(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s\n", (void*)addr, slot, *(void**)(R_ESP), h->name);
+    printf_log(LOG_DEBUG, "PltResolver: Addr=%p, Slot=%d Return=%p: elf is %s (VerSym=%p)\n", (void*)addr, slot, *(void**)(R_ESP), h->name, h->VerSym);
 
     Elf32_Rel * rel = (Elf32_Rel *)(h->jmprel + h->delta + slot);
 
     Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel->r_info)];
     int bind = ELF32_ST_BIND(sym->st_info);
     const char* symname = SymName(h, sym);
+    int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel->r_info)]:0;
+    const char* ver = GetSymbolVersion(h, version);
+    char symnameversionned[501];
+    strncpy(symnameversionned, symname, 500);
+    if(ver) {
+        strncat(symnameversionned, "@", 500);
+        strncat(symnameversionned, ver, 500);
+    }
     uint32_t *p = (uint32_t*)(rel->r_offset + h->delta);
     uintptr_t offs = 0;
     uintptr_t end = 0;
 
     library_t* lib = h->lib;
     lib_t* local_maplib = GetMaplib(lib);
-    if(local_maplib)
-        GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
-    if(!offs && !end)
-        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end);
+    if(local_maplib) {
+        GetGlobalSymbolStartEnd(local_maplib, symnameversionned, &offs, &end);
+        if(!offs && !end)
+            GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end);
+    }
+    if(!offs && !end) {
+        GetGlobalSymbolStartEnd(my_context->maplib, symnameversionned, &offs, &end);
+        if(!offs && !end)
+            GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end);
+    }
 
     if (!offs) {
-        printf_log(LOG_NONE, "Error: PltReolver: Symbol %s not found, cannot apply R_386_JMP_SLOT @%p (%p) in %s\n", symname, p, *(void**)p, h->name);
+        printf_log(LOG_NONE, "Error: PltReolver: Symbol %s(%s) not found, cannot apply R_386_JMP_SLOT @%p (%p) in %s\n", symname, symnameversionned, p, *(void**)p, h->name);
         emu->quit = 1;
         return;
     } else {
         if(p) {
-            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_386_JMP_SLOT @%p with sym=%s (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
+            printf_log(LOG_DEBUG, "PltReolver: Apply %s R_386_JMP_SLOT @%p with sym=%s(%s) (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, symnameversionned,*(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
             *p = offs;
         } else {
-            printf_log(LOG_NONE, "PltReolver: Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
+            printf_log(LOG_NONE, "PltReolver: Warning, Symbol %s(%s) found, but Jump Slot Offset is NULL \n", symname, symnameversionned);
         }
     }
 

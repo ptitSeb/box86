@@ -30,6 +30,9 @@ struct elfheader_s {
     int         numDynamic;
     char*       DynStrTab;
     int         szDynStrTab;
+    Elf32_Half* VerSym;
+    Elf32_Verneed*  VerNeed;
+    int         szVerNeed;
     int         e_type;
 
     intptr_t    delta;  // should be 0

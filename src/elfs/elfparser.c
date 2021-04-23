@@ -253,6 +253,14 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->finiarray_sz = val / sizeof(Elf32_Addr);
                     printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %d\n", h->finiarray_sz);
                     break;
+                case DT_VERNEEDNUM:
+                    h->szVerNeed = val / sizeof(Elf32_Verneed);
+                    printf_log(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
+                    break;
+                case DT_VERNEED:
+                    h->VerNeed = (Elf32_Verneed*)ptr;
+                    printf_log(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
+                    break;
                 }
             }
             if(h->rel) {
@@ -311,6 +319,12 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->plt_end = h->plt + h->SHEntries[ii].sh_size;
             printf_log(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
         }
+        // grab version of symbols
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".gnu.version");
+        if(ii) {
+            h->VerSym = (Elf32_Half*)(h->SHEntries[ii].sh_addr);
+            printf_log(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
+        }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
         if(ii) {
@@ -325,4 +339,21 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     }
     
     return h;
+}
+
+const char* GetSymbolVersion(elfheader_t* h, int version)
+{
+    if(!h->VerNeed || (version<2))
+        return NULL;
+    Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+    while(ver) {
+        Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+        for(int j=0; j<ver->vn_cnt; ++j) {
+            if(aux->vna_other==version)
+                return h->DynStr+aux->vna_name;
+            aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
+        }
+        ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+    }
+    return NULL;
 }
