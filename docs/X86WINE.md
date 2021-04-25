@@ -112,6 +112,8 @@ sudo mv winetricks /usr/local/bin/
 sudo apt-get install cabextract -y
 ```
 
+If you have a desktop menu itm for wintricks, you may need to edit it to add the nobanner env var. Do so by edition `/usr/share/applications/winetricks.desktop` with your favorite text editor (not that you'll need `sudo` to save the file) and change from `Exec=winetricks --gui` to `Exec=env BOX86_NOBANNER=1 winetricks --gui`
+
 ## Example commands
 Here is an example of how we should run a winetricks command with box86:  
 `BOX86_NOBANNER=1 winetricks -q corefonts vcrun2010 dotnet20sp1`  
