@@ -890,12 +890,23 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         emit_inc32(dyn, ninst, ed, x3, x14);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        TSTS_IMM8(wback, 3);
+                        B_MARK(cNE);    // unaligned
                         MARKLOCK;
                         LDREX(x1, wback);
                         emit_inc32(dyn, ninst, x1, x3, x14);
                         STREX(x3, x1, wback);
                         CMPS_IMM8(x3, 0);
                         B_MARKLOCK(cNE);
+                        B_NEXT(c__);
+                        MARK;
+                        LDR_IMM9(x1, wback, 0);
+                        LDREXB(x1, wback);
+                        emit_inc32(dyn, ninst, x1, x3, x14);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        B_MARK(cNE);
+                        STR_IMM9(x1, wback, 0);
                     }
                     break;
                 case 1: //DEC Ed
@@ -906,12 +917,23 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         emit_dec32(dyn, ninst, ed, x3, x14);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        TSTS_IMM8(wback, 3);
+                        B_MARK(cNE);    // unaligned
                         MARKLOCK;
                         LDREX(x1, wback);
                         emit_dec32(dyn, ninst, x1, x3, x14);
                         STREX(x3, x1, wback);
                         CMPS_IMM8(x3, 0);
                         B_MARKLOCK(cNE);
+                        B_NEXT(c__);
+                        MARK;
+                        LDR_IMM9(x1, wback, 0);
+                        LDREXB(x1, wback);
+                        emit_dec32(dyn, ninst, x1, x3, x14);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        B_MARK(cNE);
+                        STR_IMM9(x1, wback, 0);
                     }
                     break;
                 default:
