@@ -661,9 +661,19 @@ void RunLock(x86emu_t *emu)
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
 #ifdef DYNAREC
-                    do {
-                        tmp32u = arm_lock_read_d(ED);
-                    } while(arm_lock_write_d(ED, inc32(emu, tmp32u)));
+                    if((uintptr_t)ED&3) { 
+                        //meh.
+                        do {
+                            tmp32u = ED->dword[0];
+                            tmp32u &=~0xff;
+                            tmp32u |= arm_lock_read_b(ED);
+                            tmp32u = inc32(emu, tmp32u);
+                        } while(arm_lock_write_b(ED, tmp32u&0xff));
+                        ED->dword[0] = tmp32u;
+                    } else
+                        do {
+                            tmp32u = arm_lock_read_d(ED);
+                        } while(arm_lock_write_d(ED, inc32(emu, tmp32u)));
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = inc32(emu, ED->dword[0]);
@@ -672,9 +682,19 @@ void RunLock(x86emu_t *emu)
                     break;
                 case 1:                 /* DEC Ed */
 #ifdef DYNAREC
-                    do {
-                        tmp32u = arm_lock_read_d(ED);
-                    } while(arm_lock_write_d(ED, dec32(emu, tmp32u)));
+                    if((uintptr_t)ED&3) { 
+                        //meh.
+                        do {
+                            tmp32u = ED->dword[0];
+                            tmp32u &=~0xff;
+                            tmp32u |= arm_lock_read_b(ED);
+                            tmp32u = dec32(emu, tmp32u);
+                        } while(arm_lock_write_b(ED, tmp32u&0xff));
+                        ED->dword[0] = tmp32u;
+                    } else
+                        do {
+                            tmp32u = arm_lock_read_d(ED);
+                        } while(arm_lock_write_d(ED, dec32(emu, tmp32u)));
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
                     ED->dword[0] = dec32(emu, ED->dword[0]);
