@@ -1580,7 +1580,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xCF:                  /* BSWAP reg */
             INST_NAME("BSWAP Reg");
             gd = xEAX+(opcode&7);
-            REV(x1, gd);
+            REV16(x1, gd);
             BFI(gd, x1, 0, 16);
             break;
         case 0xD0:
