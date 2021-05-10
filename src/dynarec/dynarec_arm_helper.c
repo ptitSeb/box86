@@ -272,56 +272,22 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
-// using linker here doesn't seem to bring any significant speed improvment. To much change in the jump table probably
-#if 0
-    int i32;
-    MAYUSE(i32);
-    if(dyn->nolinker) {
-#endif
         MESSAGE(LOG_DUMP, "Ret next\n");
         POP1(xEIP);
         MOV32(x2, getJumpTable());
         MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
-        LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
+        LDR_REG_LSL_IMM5(x3, x2, x3, 2);    // shiftsizeof(uintptr_t)
         MOV_REG(x1, xEIP);
-        BX(x2);
-#if 0
-    } else {
-        MESSAGE(LOG_DUMP, "Ret epilog with linker\n");
-        POP1(xEIP);
-        uintptr_t* table = 0;
-        if(dyn->tablesz) {
-            table = &dyn->table[dyn->tablei];
-            table[0] = (uintptr_t)arm_linker;
-            table[1] = 0;
-        }
-        dyn->tablei+=4; // smart linker
-        MOV32_(x1, (uintptr_t)table);
-        MARK;
-        LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
-        CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-        BXcond(cEQ, x2);
-        MOV32_(x2, (uintptr_t)arm_linker);
-        MOV_REG(x3, x14);
-        STREXD(x14, x2, x1); // nope, putting back linker & IP in place
-        // x14 now contain success / falure for write
-        CMPS_IMM8(x14, 1);
-        MOV_REG(x14, x3);   // put back IP in place...
-        B_MARK(cEQ);
-        BX(x2); // go to linker
-    }
-#endif
+        #ifdef HAVE_TRACE
+        MOV_REG(x2, 15);    // move current PC to x2, for tracing
+        #endif
+        BX(x3);
 }
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
-#if 0
-    int i32;
-    MAYUSE(i32);
-    if(dyn->nolinker) {
-#endif
         MESSAGE(LOG_DUMP, "Retn epilog\n");
         POP1(xEIP);
         if(n>0xff) {
@@ -334,36 +300,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
         LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
         UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
-        LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
+        LDR_REG_LSL_IMM5(x3, x2, x3, 2);    // shiftsizeof(uintptr_t)
         MOV_REG(x1, xEIP);
-        BX(x2);
-#if 0
-    } else {
-        MESSAGE(LOG_DUMP, "Retn epilog with linker\n");
-        POP1(xEIP);
-        ADD_IMM8(xESP, xESP, n);
-        uintptr_t* table = 0;
-        if(dyn->tablesz) {
-            table = &dyn->table[dyn->tablei];
-            table[0] = (uintptr_t)arm_linker;
-            table[1] = 0;
-        }
-        dyn->tablei+=4; // smart linker
-        MOV32_(x1, (uintptr_t)table);
-        MARK;
-        LDREXD(x2, x1); // load dest address in x2 and planned ip in x3
-        CMPS_REG_LSL_IMM5(xEIP, x3, 0);
-        BXcond(cEQ, x2);
-        MOV32_(x2, (uintptr_t)arm_linker);
-        MOV_REG(x3, x14);
-        STREXD(x14, x2, x1); // nope, putting back linker & IP in place
-        // x14 now contain success / falure for write
-        CMPS_IMM8(x14, 1);
-        MOV_REG(x14, x3);   // put back IP in place...
-        B_MARK(cEQ);
-        BX(x2); // go to linker
-    }
-#endif
+        #ifdef HAVE_TRACE
+        MOV_REG(x2, 15);    // move current PC to x2, for tracing
+        #endif
+        BX(x3);
 }
 
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
