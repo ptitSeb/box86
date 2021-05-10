@@ -1404,7 +1404,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
             GETEW(x14);
@@ -1417,7 +1417,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0xBC:
             INST_NAME("BSF Ew,Gw");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM5(x1, x1, 0);
@@ -1433,7 +1433,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0xBD:
             INST_NAME("BSR Ew,Gw");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM5(x1, x1, 0);

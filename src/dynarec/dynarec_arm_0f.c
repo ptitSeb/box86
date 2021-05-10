@@ -1731,7 +1731,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xBB:
             INST_NAME("BTC Ed, Gd");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
             nextop = F8;
             GETGD;
             if((nextop&0xC0)==0xC0) {
@@ -1756,7 +1756,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
             GETED;
             GETGD;
@@ -1772,7 +1772,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
             GETED;
             GETGD;
