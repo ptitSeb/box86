@@ -1808,7 +1808,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     TSTS_REG_LSL_IMM5(x3, x3, 0);
                     B_MARK2(cEQ);
                     RSB_IMM8(x3, x3, 0x20);
-                    GETEDW(x14, x2);
+                    GETED;
                     MOV_REG_ROR_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
@@ -1829,7 +1829,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     AND_IMM8(x3, xECX, 0x1f);
                     TSTS_REG_LSL_IMM5(x3, x3, 0);
                     B_MARK2(cEQ);
-                    GETEDW(x14, x2);
+                    GETED;
                     MOV_REG_ROR_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
@@ -2416,9 +2416,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("NOT Eb");
-                    GETEB(x1);
-                    MVN_REG_LSL_IMM5(x1, x1, 0);
-                    EBBACK;
+                    if((nextop&0xC0)==0xC0) {
+                        wback = (nextop&7);
+                        wb2 = (wback>>2);
+                        wback = xEAX+(wback&3);
+                        XOR_IMM8_ROR(wback, wback, 0xff, wb2?12:0);
+                    } else {
+                        GETEB(x1);
+                        MVN_REG_LSL_IMM5(x1, x1, 0);
+                        EBBACK;
+                    }
                     break;
                 case 3:
                     INST_NAME("NEG Eb");
