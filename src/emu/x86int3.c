@@ -121,7 +121,7 @@ void x86Int3(x86emu_t* emu)
                 } else  if(!strcmp(s, "opendir")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
                     perr = 1;
-                } else  if(strstr(s, "__open")==s || strcmp(s, "open")==0) {
+                } else  if(strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "my_open64")) {
                     tmp = *(char**)(R_ESP+4);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
