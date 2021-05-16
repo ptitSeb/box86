@@ -324,6 +324,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedfontconfig.c"
     "${BOX86_ROOT}/src/wrapped/wrappedfreetype.c"
     "${BOX86_ROOT}/src/wrapped/wrappedbz2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedexpat.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibsm.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibice.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibusb1.c"
