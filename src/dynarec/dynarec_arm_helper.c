@@ -487,8 +487,6 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
 #if STEP > 1
-    if(!dyn->x87count)
-        return;
     dyn->x87count = 0;
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
