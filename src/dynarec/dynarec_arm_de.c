@@ -43,7 +43,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VADD_F64(v2, v2, v1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xC8:
         case 0xC9:
@@ -57,7 +57,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VMUL_F64(v2, v2, v1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xD0:
         case 0xD1:
@@ -72,7 +72,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xD9: 
@@ -81,8 +81,8 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, 1);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
@@ -96,7 +96,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VSUB_F64(v2, v1, v2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xE8:
         case 0xE9:
@@ -110,7 +110,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VSUB_F64(v2, v2, v1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF0:
         case 0xF1:
@@ -124,7 +124,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VDIV_F64(v2, v1, v2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF8:
         case 0xF9:
@@ -138,7 +138,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VDIV_F64(v2, v2, v1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xD8:

@@ -390,6 +390,7 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
 #if STEP > 1
+    dyn->x87count = 0;
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
     dyn->x87stack = 0;
@@ -401,6 +402,8 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 #if STEP > 1
     if(!dyn->x87stack)
         return;
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, scratch);
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     // Add x87stack to emu fpu_stack
@@ -426,9 +429,12 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 #endif
 }
 
-int x87_do_push(dynarec_arm_t* dyn, int ninst)
+int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, s1);
+    ++dyn->x87count;
     dyn->x87stack+=1;
     // move all regs in cache, and find a free one
     int ret = -1;
@@ -447,6 +453,9 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst)
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, s1);
+    ++dyn->x87count;
     dyn->x87stack+=1;
     // move all regs in cache
     for(int i=0; i<8; ++i)
@@ -456,9 +465,11 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
         x87_stackcount(dyn, ninst, s1);
 #endif
 }
-void x87_do_pop(dynarec_arm_t* dyn, int ninst)
+void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, s1);
     dyn->x87stack-=1;
     // move all regs in cache, poping ST0
     for(int i=0; i<8; ++i)
@@ -469,12 +480,16 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst)
                 dyn->x87reg[i] = -1;
             }
         }
+    --dyn->x87count;
 #endif
 }
 
-static void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
 #if STEP > 1
+    if(!dyn->x87count)
+        return;
+    dyn->x87count = 0;
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
         if(dyn->x87cache[i] != -1)
@@ -592,6 +607,8 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 1
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, s1);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st)
@@ -605,6 +622,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
+    ++dyn->x87count;
     if(offsetof(x86emu_t, mmx87)<256) {
         ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
@@ -704,12 +722,15 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     fpu_free_reg_double(dyn, dyn->x87reg[ret]);
     dyn->x87cache[ret] = -1;
     dyn->x87reg[ret] = -1;
+    --dyn->x87count;
 #endif
 }
 
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 1
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, s1);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -745,6 +766,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
+    ++dyn->x87count;
     if(offsetof(x86emu_t, mmx87)<256) {
         ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
     } else {
@@ -805,16 +827,20 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 static void mmx_reset(dynarec_arm_t* dyn, int ninst)
 {
 #if STEP > 1
+    dyn->mmxcount = 0;
     for (int i=0; i<8; ++i)
         dyn->mmxcache[i] = -1;
 #endif
 }
 // get neon register for a MMX reg, create the entry if needed
-int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
+int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
 #if STEP > 1
+    if(dyn->x87count)
+        x87_purgecache(dyn, ninst, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
+    ++dyn->mmxcount;
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
     int offs = offsetof(x86emu_t, mmx87[a]);
     if(!(offs&3) && (offs>>2)<256) {
@@ -830,11 +856,14 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #endif
 }
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
-int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
+int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
 #if STEP > 1
+    if(dyn->x87count)
+        x87_purgecache(dyn, ninst, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
+    ++dyn->mmxcount;
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
     return ret;
 #else
@@ -842,9 +871,12 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #endif
 }
 // purge the MMX cache only(needs 3 scratch registers)
-static void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 1
+    if(!dyn->mmxcount)
+        return;
+    dyn->mmxcount = 0;
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {

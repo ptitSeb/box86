@@ -61,7 +61,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xD8:
             INST_NAME("FSTP ST0, ST0");
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xD9:
         case 0xDA:
@@ -74,7 +74,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VMOV_64(v2, v1);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -104,7 +104,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -138,7 +138,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD double");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1);
                     #if 0
                     // can bus error...
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
@@ -162,7 +162,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistt64, -1, 0);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FST double");
@@ -191,7 +191,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(x2, ed, fixedaddress);
                         STR_IMM9(x3, ed, fixedaddress+4);
                     }
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4: 
                     INST_NAME("FRSTOR m108byte");

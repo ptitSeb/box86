@@ -51,7 +51,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FFREEP STx");
             // not handling Tag...
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -75,7 +75,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF0:
         case 0xF1:
@@ -91,7 +91,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -140,7 +140,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ew");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                     LDRSH_IMM8(x1, wback, fixedaddress);
                     s0 = fpu_get_scratch_single(dyn);
@@ -167,7 +167,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
                     MOVW_COND(cNE, x3, 0x8000); // saturated
                     STRH_IMM8(x3, wback, fixedaddress);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     VMSR(x14);
                     break;
                 case 2:
@@ -212,7 +212,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
                     MOVW_COND(cNE, x3, 0x8000); // saturated
                     STRH_IMM8(x3, wback, fixedaddress);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 4:
@@ -235,7 +235,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbst, -1, 0);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
@@ -243,7 +243,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistp64, -1, 0);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

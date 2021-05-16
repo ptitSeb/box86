@@ -108,8 +108,8 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, 1);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
+            x87_do_pop(dyn, ninst, x3);
             break;
 
         case 0xE4:
@@ -168,7 +168,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VCVT_F64_S32(d0, s0);
                     VCMP_F64(v1, d0);
                     FCOM(x1, x2);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FISUB ST0, Ed");

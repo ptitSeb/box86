@@ -58,7 +58,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FLD STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            v2 = x87_do_push(dyn, ninst);
+            v2 = x87_do_push(dyn, ninst, x3);
             VMOV_64(v2, v1);
             break;
 
@@ -108,43 +108,43 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xE8:
             INST_NAME("FLD1");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_1));
             VLDR_64(v1, x2, 0);
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2t));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_l2e));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEB:
             INST_NAME("FLDPI");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_pi));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_lg2));
             VLDR_64(v1, x2, 0);
             break;
         case 0xED:
             INST_NAME("FLDLN2");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_ln2));
             VLDR_64(v1, x2, 0);
             break;
         case 0xEE:
             INST_NAME("FLDZ");
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x1);
             MOV32(x2, (&d_0));
             VLDR_64(v1, x2, 0);
             break;
@@ -182,13 +182,13 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2x, -1, 0);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF2:
             INST_NAME("FTAN");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_ftan, -1, 0);
-            v1 = x87_do_push(dyn, ninst);
+            v1 = x87_do_push(dyn, ninst, x3);
             MOV32(x2, (&d_1));
             VLDR_64(v1, x2, 0);
             break;
@@ -197,7 +197,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fpatan, -1, 0);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
@@ -238,7 +238,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fyl2xp1, -1, 0);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
@@ -289,7 +289,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
@@ -331,7 +331,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VMOVfrV(x2, s0);
                         STR_IMM9(x2, ed, fixedaddress);
                     }
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FLDENV Ed");

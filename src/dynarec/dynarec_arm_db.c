@@ -159,7 +159,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst);
+                    v1 = x87_do_push(dyn, ninst, x1);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
@@ -194,7 +194,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
                     VMSR(x14);  // put back values
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
@@ -244,7 +244,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
                     MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 5:
@@ -279,7 +279,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MOV_REG(x1, ed);
                     }
                     CALL(arm_fstp, -1, 0);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

@@ -461,6 +461,8 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define fpu_popcache    STEPNAME(fpu_popcache)
 #define fpu_reset       STEPNAME(fpu_reset)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
+#define x87_purgecache  STEPNAME(x87_purgecache)
+#define mmx_purgecache  STEPNAME(mmx_purgecache)
 #ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #endif
@@ -564,11 +566,11 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push. Return the Dd value to be used
-int x87_do_push(dynarec_arm_t* dyn, int ninst);
+int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
-void x87_do_pop(dynarec_arm_t* dyn, int ninst);
+void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
 // get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
@@ -588,9 +590,9 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
 //MMX helpers
 // get neon register for a MMX reg, create the entry if needed
-int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // get neon register for a MMX reg, but don't try to synch it if it needed to be created
-int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a);
 
 //SSE/SSE2 helpers
 // get neon register for a SSE reg, create the entry if needed
@@ -603,6 +605,8 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 void fpu_reset(dynarec_arm_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif

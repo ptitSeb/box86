@@ -90,7 +90,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
             VCMP_F64(v1, v2);
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst);
+            x87_do_pop(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
@@ -211,7 +211,7 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     VCMP_F64(v1, d1);
                     FCOM(x1, x2);
-                    x87_do_pop(dyn, ninst);
+                    x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FSUB ST0, double[ED]");
