@@ -901,7 +901,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_NEXT(c__);
                         MARK;
                         LDR_IMM9(x1, wback, 0);
-                        LDREXB(x1, wback);
+                        LDREXB(x3, wback);
+                        BFI(x1, x3, 0, 8);
                         emit_inc32(dyn, ninst, x1, x3, x14);
                         STREXB(x3, x1, wback);
                         CMPS_IMM8(x3, 0);
@@ -928,7 +929,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_NEXT(c__);
                         MARK;
                         LDR_IMM9(x1, wback, 0);
-                        LDREXB(x1, wback);
+                        LDREXB(x3, wback);
+                        BFI(x1, x3, 0, 8);
                         emit_dec32(dyn, ninst, x1, x3, x14);
                         STREXB(x3, x1, wback);
                         CMPS_IMM8(x3, 0);
