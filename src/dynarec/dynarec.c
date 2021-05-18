@@ -78,7 +78,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
             ejb->jmpbuf_ok = 1;
             jmpbuf_reset = 1;
             int a;
-            if((a=setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))) {
+            if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaCall %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
                 addr = R_EIP;   // not sure if it should still be inside DynaCall!
                 if(a==2)
@@ -129,7 +129,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf)) {
+                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
                         printf_log(LOG_DEBUG, "Setjmp inner DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                         addr = R_EIP;
                     }
@@ -171,7 +171,7 @@ int DynaRun(x86emu_t* emu)
 #ifdef DYNAREC
             jmpbuf_reset = 1;
 #endif
-            if((a=setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))) {
+            if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
                 if(a==2)
                     Run(emu, 1);    // "single step" next instruction that is doing auto-smc
@@ -212,7 +212,7 @@ int DynaRun(x86emu_t* emu)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(setjmp((struct __jmp_buf_tag*)ejb->jmpbuf))
+                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
                         printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 }
             }
