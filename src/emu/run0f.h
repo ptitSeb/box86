@@ -1379,7 +1379,11 @@
             for(int i=0; i<2; ++i)
                 GM.sd[i] -= EM->sd[i];
             NEXT;
-
+        _0f_0xFB:                   /* PSUBQ Gm,Em */
+            nextop = F8;
+            GET_EM;
+            GM.sq -= EM->sq;
+            NEXT;
         _0f_0xFC:                   /* PADDB Gm, Em */
             nextop = F8;
             GET_EM;

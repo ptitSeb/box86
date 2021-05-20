@@ -2332,7 +2332,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEM(v1);
             VSUB_32(v0, v0, v1);
             break;
-
+        case 0xFB:
+            INST_NAME("PSUBQ Gm,Em");
+            nextop = F8;
+            GETGM(v0);
+            GETEM(q0);
+            VSUB_64(v0, v0, q0);
+            break;
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;
