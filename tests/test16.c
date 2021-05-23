@@ -2,8 +2,8 @@
  * Compile with (on x86_64 archs):
  *  gcc -m32 -DV1 -shared -o test16_v1.so test16.c -Wl,--version-script=test16_version.map
  *  gcc -m32 -DV2 -shared -o test16_v2.so test16.c
- *  gcc -m32 -shared -o test16_dv1.so test16.c -L. -Wl,-rpath=. -l:test16_v1.so
- *  gcc -m32 -DMAIN -o test16 test16.c -L. -Wl,-rpath=. -l:test16_dv1.so -l:test16_v2.so
+ *  gcc -m32 -shared -o test16_dv1.so test16.c -L. -Wl,-z,origin,-rpath='$ORIGIN' -l:test16_v1.so
+ *  gcc -m32 -DMAIN -o test16 test16.c -L. -Wl,-z,origin,-rpath='$ORIGIN' -l:test16_dv1.so -l:test16_v2.so
  */
 
 #if defined(MAIN)
