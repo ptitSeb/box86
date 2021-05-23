@@ -577,74 +577,84 @@ if(NOT TARGET uninstall)
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 
-add_test(test01 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME bootSyscall COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref01.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test02 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME bootSyscallC COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test02 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref02.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test03 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME printf COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test03 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref03.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test04 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME args COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test04 -D TEST_ARGS2=yeah -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref04.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test05 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME maths1 COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test05 -D TEST_ARGS2=7 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref05.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test06 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME threadsStart COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test06 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref06.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test07 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME trig COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test07 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref07.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test08 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME pi COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test08 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref08.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test09 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME fork COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test09 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref09.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test10 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME cppThreads COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test10 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref10.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test11 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME tlsData COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test11 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref11.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test12 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME fpu COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test12 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref12.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test13 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME contexts COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test13 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref13.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(test14 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+add_test(NAME conditionalThreads COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(NAME linkingIndirectNoversion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref15.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(NAME linkingIndirectVersion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test16 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref16.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
