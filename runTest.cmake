@@ -32,17 +32,23 @@ execute_process(
 
 # if the return value is !=0 bail out
 if( TEST_RESULT )
+  get_filename_component(TESTNAME "${TEST_ARGS}" NAME)
+  file(RENAME "${TEST_OUTPUT}" "${CMAKE_BINARY_DIR}/${TESTNAME}.out")
+  file(WRITE  "${CMAKE_BINARY_DIR}/${TESTNAME}.err" ${TEST_ERROR})
   message( FATAL_ERROR "Failed: Test program ${TEST_PROGRAM} exited != 0.\n${TEST_ERROR}" )
 endif( TEST_RESULT )
 
 # now compare the output with the reference
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E compare_files ${TEST_OUTPUT} ${TEST_REFERENCE}
+  COMMAND "${CMAKE_COMMAND}" -E compare_files "${TEST_OUTPUT}" "${TEST_REFERENCE}"
   RESULT_VARIABLE TEST_RESULT
   )
 
 # again, if return value is !=0 scream and shout
 if( TEST_RESULT )
+  get_filename_component(TESTNAME "${TEST_ARGS}" NAME)
+  file(RENAME "${TEST_OUTPUT}" "${CMAKE_BINARY_DIR}/${TESTNAME}.out")
+  file(WRITE  "${CMAKE_BINARY_DIR}/${TESTNAME}.err" ${TEST_ERROR})
   message( FATAL_ERROR "Failed: The output of ${TEST_PROGRAM} did not match ${TEST_REFERENCE}")
 endif( TEST_RESULT )
 
