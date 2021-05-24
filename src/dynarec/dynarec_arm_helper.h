@@ -69,6 +69,16 @@
                     LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
                     ed = x1;                 \
                 }
+//GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI, else O is added to wback
+#define GETEDO2(O) if((nextop&0xC0)==0xC0) {            \
+                    ed = xEAX+(nextop&7);               \
+                    wback = 0;                          \
+                } else {                                \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0); \
+                    ADD_REG_LSL_IMM5(wback, wback, O, 0);\
+                    LDR_IMM9(x1, wback, 0);             \
+                    ed = x1;                            \
+                }
 #define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
 //FAKEELike GETED, but doesn't get anything
 #define FAKEED  if((nextop&0xC0)!=0xC0) {   \
