@@ -78,6 +78,25 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_cmp32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x69:
+            INST_NAME("IMUL Gd, GS:Ed, Id");
+            SETFLAGS(X_ALL, SF_PENDING);
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGD;
+            GETEDO(x14);
+            i32 = F32S;
+            MOV32(x14, i32);
+            UFLAG_IF {
+                SMULL(x3, gd, x14, ed);
+                UFLAG_OP1(x3);
+                UFLAG_RES(gd);
+                UFLAG_DF(x3, d_imul32);
+            } else {
+                MUL(gd, ed, x14);
+            }
+            break;
+
         case 0x80:
         case 0x82:
             nextop = F8;
@@ -162,7 +181,95 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
             }
             break;
-            
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0: //ADD
+                    if(opcode==0x81) {
+                        INST_NAME("ADD Ed, Id");
+                    } else {
+                        INST_NAME("ADD Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_add32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 1: //OR
+                    if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_or32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 2: //ADC
+                    if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_adc32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 3: //SBB
+                    if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_sbb32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 4: //AND
+                    if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_and32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 5: //SUB
+                    if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_sub32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 6: //XOR
+                    if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    emit_xor32c(dyn, ninst, ed, i32, x3, x14);
+                    WBACK;
+                    break;
+                case 7: //CMP
+                    if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
+                    SETFLAGS(X_ALL, SF_SET);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    GETEDO2(x14);
+                    if(opcode==0x81) i32 = F32S; else i32 = F8S;
+                    if(i32) {
+                        MOV32(x2, i32);
+                        emit_cmp32(dyn, ninst, ed, x2, x3, x14);
+                    } else {
+                        emit_cmp32_0(dyn, ninst, ed, x3, x14);
+                    }
+                    break;
+            }
+            break;
+
         case 0x89:
             INST_NAME("MOV GS:Ed, Gd");
             grab_tlsdata(dyn, addr, ninst, x14);
