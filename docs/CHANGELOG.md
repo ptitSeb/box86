@@ -1,4 +1,4 @@
-Current version
+v0.2.2
 ======
 * Reworked some elfloader relocation mecanism
 * Removed old "smart linker" and replace with a simple "jump table"
