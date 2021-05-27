@@ -4,6 +4,7 @@
 
 typedef struct box86context_s box86context_t;
 extern int box86_log;    // log level
+extern int box86_dump;   // dump elf or not
 extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_pagesize;
@@ -36,11 +37,14 @@ extern int box86_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2
-#define LOG_DUMP 3
+#define LOG_NEVER 3
+#define LOG_VERBOSE 3
 
 extern FILE* ftrace;
 
 #define printf_log(L, ...) do {if(L<=box86_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
+
+#define printf_dump(L, ...) do {if(box86_dump || (L<=box86_log)) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 
 #define dynarec_log(L, ...) do {if(L<=box86_dynarec_log) {fprintf(ftrace, __VA_ARGS__); fflush(ftrace);}} while(0)
 

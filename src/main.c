@@ -43,6 +43,7 @@
 
 box86context_t *my_context = NULL;
 int box86_log = LOG_NONE;
+int box86_dump = 0;
 int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_pagesize;
@@ -205,8 +206,12 @@ void LoadLogEnv()
     p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_DEBUG)
+            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_NEVER)
                 box86_log = p[0]-'0';
+                if(box86_log == LOG_NEVER) {
+                    --box86_log;
+                    box86_dump = 1;
+                }
         } else {
             if(!strcasecmp(p, "NONE"))
                 box86_log = LOG_NONE;
@@ -214,12 +219,23 @@ void LoadLogEnv()
                 box86_log = LOG_INFO;
             else if(!strcasecmp(p, "DEBUG"))
                 box86_log = LOG_DEBUG;
-            else if(!strcasecmp(p, "DUMP"))
-                box86_log = LOG_DUMP;
+            else if(!strcasecmp(p, "DUMP")) {
+                box86_log = LOG_DEBUG;
+                box86_dump = 1;
+            }
         }
         if(!box86_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
+    p = getenv("BOX86_DUMP");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[1]<='1')
+                box86_dump = p[0]-'0';
+        }
+    }
+    if(!box86_nobanner && box86_dump)
+        printf_log(LOG_INFO, "Elf Dump if ON\n");
 #ifdef DYNAREC
     p = getenv("BOX86_DYNAREC_DUMP");
     if(p) {
@@ -232,7 +248,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_DUMP))
+            if((p[0]>='0'+LOG_NONE) && (p[0]<='0'+LOG_VERBOSE))
                 box86_dynarec_log = p[0]-'0';
         } else {
             if(!strcasecmp(p, "NONE"))
@@ -242,7 +258,7 @@ void LoadLogEnv()
             else if(!strcasecmp(p, "DEBUG"))
                 box86_dynarec_log = LOG_DEBUG;
             else if(!strcasecmp(p, "VERBOSE"))
-                box86_dynarec_log = LOG_DUMP;
+                box86_dynarec_log = LOG_VERBOSE;
         }
         printf_log(LOG_INFO, "Dynarec log level is %d\n", box86_dynarec_log);
     }
@@ -584,6 +600,11 @@ void LoadEnvVars(box86context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
+    // add libssl and libcrypto, prefer emulated version because of multiple version exist
+    AddPath("libssl.so.1", &context->box86_emulated_libs, 0);
+    AddPath("libssl.so.1.0.0", &context->box86_emulated_libs, 0);
+    AddPath("libcrypto.so.1", &context->box86_emulated_libs, 0);
+    AddPath("libcrypto.so.1.0.0", &context->box86_emulated_libs, 0);
 
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
@@ -643,7 +664,7 @@ void setupTraceInit(box86context_t* context)
             if(trace_start || trace_end)
                 SetTraceEmu(trace_start, trace_end);
         } else {
-            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end)) {
+            if (GetSymbolStartEnd(GetMapSymbol(my_context->maplib), p, &trace_start, &trace_end, -1, NULL, -1)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
@@ -684,10 +705,10 @@ void setupTrace(box86context_t* context)
                 }
             }
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL)) {
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
             } else {
@@ -889,9 +910,9 @@ int main(int argc, const char **argv, const char **env) {
     // allocate extra space for new environment variables such as BOX86_PATH
     my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box86path);
-    if(box86_log>=LOG_DUMP) {
+    if(box86_dump) {
         for (int i=0; i<my_context->envc; ++i)
-            printf_log(LOG_DUMP, " Env[%02d]: %s\n", i, my_context->envv[i]);
+            printf_dump(LOG_NEVER, " Env[%02d]: %s\n", i, my_context->envv[i]);
     }
 
     path_collection_t ld_preload = {0};
@@ -1130,9 +1151,9 @@ int main(int argc, const char **argv, const char **env) {
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbol(my_context->maplib), GetWeakSymbol(my_context->maplib), GetLocalSymbol(my_context->maplib), elf_header);
     if(wine_preloaded) {
-        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info");
-        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info");
-        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info");
+        uintptr_t wineinfo = FindSymbol(GetMapSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
+        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
+        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbol(my_context->maplib), "wine_main_preload_info", -1, NULL, 1);
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();
@@ -1144,11 +1165,9 @@ int main(int argc, const char **argv, const char **env) {
     }
     // pre-load lib if needed
     if(ld_preload.size) {
-        for (int i=0; i<ld_preload.size; ++i) {
-            if(AddNeededLib(NULL, NULL, NULL, 0, ld_preload.paths[i], my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load lib: \"%s\"\n", ld_preload.paths[i]);
-            }            
-        }
+        if(AddNeededLib(NULL, NULL, NULL, 0, (const char**)ld_preload.paths, ld_preload.size, my_context, emu)) {
+            printf_log(LOG_INFO, "Warning, cannot a pre-load lib\n");
+        }            
     }
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf

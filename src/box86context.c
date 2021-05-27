@@ -21,6 +21,7 @@
 #include "signals.h"
 #include <sys/mman.h>
 #include "custommem.h"
+#include "dictionnary.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/arm_lock_helper.h"
@@ -129,10 +130,10 @@ static void init_mutexes(box86context_t* context)
     pthread_mutex_init(&context->mutex_once, &attr);
     pthread_mutex_init(&context->mutex_once2, &attr);
     pthread_mutex_init(&context->mutex_trace, &attr);
-#ifndef DYNAREC
-    pthread_mutex_init(&context->mutex_lock, &attr);
-#else
+#ifdef DYNAREC
     pthread_mutex_init(&context->mutex_dyndump, &attr);
+#else
+    pthread_mutex_init(&context->mutex_lock, &attr);
 #endif
     pthread_mutex_init(&context->mutex_tls, &attr);
     pthread_mutex_init(&context->mutex_thread, &attr);
@@ -169,6 +170,7 @@ box86context_t *NewBox86Context(int argc)
 
     context->maplib = NewLibrarian(context, 1);
     context->local_maplib = NewLibrarian(context, 1);
+    context->versym = NewDictionnary();
     context->system = NewBridge();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
@@ -217,6 +219,7 @@ void FreeBox86Context(box86context_t** context)
         FreeLibrarian(&ctx->local_maplib, NULL);
     if(ctx->maplib)
         FreeLibrarian(&ctx->maplib, NULL);
+    FreeDictionnary(&ctx->versym);
 
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
@@ -295,10 +298,10 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
-#ifndef DYNAREC
-    pthread_mutex_destroy(&ctx->mutex_lock);
-#else
+#ifdef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_dyndump);
+#else
+    pthread_mutex_destroy(&ctx->mutex_lock);
 #endif
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);

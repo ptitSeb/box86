@@ -33,6 +33,8 @@ struct elfheader_s {
     Elf32_Half* VerSym;
     Elf32_Verneed*  VerNeed;
     int         szVerNeed;
+    Elf32_Verdef*   VerDef;
+    int         szVerDef;
     int         e_type;
 
     intptr_t    delta;  // should be 0

@@ -332,7 +332,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             switch(syscallwrap[i].nbpars) {
                 case 0: *(int32_t*)&R_EAX = syscall(sc); break;
                 case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); break;
-                case 2: if(s==33) {printf_log(LOG_DUMP, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); break;
+                case 2: if(s==33) {printf_log(LOG_DEBUG, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); break;
                 case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
                 case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
                 case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
@@ -377,7 +377,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 char* prog = (char*)R_EBX;
                 char** argv = (char**)R_ECX;
                 char** envv = (char**)R_EDX;
-                printf_log(LOG_DUMP, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
+                printf_log(LOG_DEBUG, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
                 R_EAX = my_execve(emu, (const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
             }
             break;
@@ -639,7 +639,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
 uint32_t EXPORT my_syscall(x86emu_t *emu)
 {
     uint32_t s = u32(0);
-    printf_log(LOG_DUMP, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)u32(4), (void*)u32(8), (void*)u32(12), (void*)u32(16), (void*)u32(20)); 
+    printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)u32(4), (void*)u32(8), (void*)u32(12), (void*)u32(16), (void*)u32(20)); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {

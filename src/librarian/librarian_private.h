@@ -6,17 +6,9 @@
 #include "khash.h"
 
 typedef struct box86context_s box86context_t;
-
-typedef struct onesymbol_s {
-    uintptr_t   offs;
-    uint32_t    sz;
-    // need to track type of symbol?
-    // need to track origin?
-} onesymbol_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 
 typedef char* cstr_t;
-
-KHASH_MAP_DECLARE_STR(mapsymbols, onesymbol_t)
 
 KHASH_MAP_DECLARE_INT(mapoffsets, cstr_t);
 
@@ -30,6 +22,7 @@ typedef struct lib_s {
     int                   libsz;
     int                   libcap;
     int                   ownlibs;
+    library_t             *owner;       // in case that maplib is owned by a lib
 
     box86context_t*       context;
     

@@ -555,9 +555,23 @@ pid_t EXPORT my_vfork(x86emu_t* emu)
 
 int EXPORT my_uname(struct utsname *buf)
 {
+    static int box64_tested = 0;
+    static int box64_available = 0;
+    /*if(!box64_tested) {
+        char* box64path = strdup(my_context->box86path);
+        char* p = strrchr(box64path, '/');
+        if(p) {
+            p[1] = '\0';
+            strcat(box64path, "box64");
+            if(FileExist(box64path, IS_EXECUTABLE|IS_FILE))
+                box64_available = 1;
+        }
+        box64_tested = 1;
+        free(box64path);
+    }*/
     // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
     int ret = uname(buf);
-    strcpy(buf->machine, /*(box86_steam)?"x86_64":*/"i686");
+    strcpy(buf->machine, (box64_available)?"x86_64":"i686");
     return ret;
 }
 
@@ -580,6 +594,7 @@ int EXPORT my_uname(struct utsname *buf)
 #define X86_O_NOFOLLOW     0400000
 #define X86_O_NOATIME      01000000
 #define X86_O_CLOEXEC      02000000
+#define X86_O_PATH         010000000
 #define X86_O_TMPFILE      020200000
 
 #ifndef O_TMPFILE
@@ -606,6 +621,7 @@ int EXPORT my_uname(struct utsname *buf)
     GO(O_NOFOLLOW)  \
     GO(O_NOATIME)   \
     GO(O_CLOEXEC)   \
+    GO(O_PATH)      \
 
 // x86->arm
 int of_convert(int a)

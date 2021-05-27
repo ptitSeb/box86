@@ -216,6 +216,8 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/elfs/elfload_dump.c"
     "${BOX86_ROOT}/src/librarian/library.c"
     "${BOX86_ROOT}/src/librarian/librarian.c"
+    "${BOX86_ROOT}/src/librarian/dictionnary.c"
+    "${BOX86_ROOT}/src/librarian/symbols.c"
     "${BOX86_ROOT}/src/emu/x86emu.c"
     "${BOX86_ROOT}/src/emu/x86run.c"
     "${BOX86_ROOT}/src/emu/x86run66.c"
@@ -647,16 +649,15 @@ add_test(NAME conditionalThreads COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAK
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-# WIP
-#add_test(NAME linkingIndirectNoversion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
-#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile.txt 
-#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref15.txt
-#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-#
-#add_test(NAME linkingIndirectVersion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
-#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test16 -D TEST_OUTPUT=tmpfile.txt 
-#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref16.txt
-#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+add_test(NAME linkingIndirectNoversion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref15.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(NAME linkingIndirectVersion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test16 -D TEST_OUTPUT=tmpfile.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref16.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})

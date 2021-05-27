@@ -177,14 +177,14 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             FreeElfHeader(&h);
             return NULL;
         }
-        if(box86_log>=LOG_DUMP) DumpMainHeader(&header, h);
+        if(box86_dump) DumpMainHeader(&header, h);
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".strtab", "SymTab Strings", SHT_STRTAB, (void**)&h->StrTab, NULL);
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".symtab", "SymTab", SHT_SYMTAB, (void**)&h->SymTab, &h->numSymTab);
-        if(box86_log>=LOG_DUMP && h->SymTab) DumpSymTab(h);
+        if(box86_dump && h->SymTab) DumpSymTab(h);
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynamic", "Dynamic", SHT_DYNAMIC, (void**)&h->Dynamic, &h->numDynamic);
-        if(box86_log>=LOG_DUMP && h->Dynamic) DumpDynamicSections(h);
+        if(box86_dump && h->Dynamic) DumpDynamicSections(h);
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {
@@ -254,12 +254,20 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %d\n", h->finiarray_sz);
                     break;
                 case DT_VERNEEDNUM:
-                    h->szVerNeed = val / sizeof(Elf32_Verneed);
+                    h->szVerNeed = val;
                     printf_log(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
                     break;
                 case DT_VERNEED:
                     h->VerNeed = (Elf32_Verneed*)ptr;
                     printf_log(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
+                    break;
+                case DT_VERDEFNUM:
+                    h->szVerDef = val;
+                    printf_log(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
+                    break;
+                case DT_VERDEF:
+                    h->VerDef = (Elf32_Verdef*)ptr;
+                    printf_log(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
                     break;
                 }
             }
@@ -335,7 +343,6 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynsym", "DynSym", SHT_DYNSYM, (void**)&h->DynSym, &h->numDynSym);
-        if(box86_log>=LOG_DUMP && h->DynSym) DumpDynSym(h);
     }
     
     return h;
@@ -345,6 +352,8 @@ const char* GetSymbolVersion(elfheader_t* h, int version)
 {
     if(!h->VerNeed || (version<2))
         return NULL;
+    /*if(version==1)
+        return "*";*/
     Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed + h->delta);
     while(ver) {
         Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
@@ -354,6 +363,25 @@ const char* GetSymbolVersion(elfheader_t* h, int version)
             aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
         }
         ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+    }
+    return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
+}
+
+const char* GetParentSymbolVersion(elfheader_t* h, int index)
+{
+    if(!h->VerDef || (index<1))
+        return NULL;
+    Elf32_Verdef *def = (Elf32_Verdef*)((uintptr_t)h->VerDef + h->delta);
+    while(def) {
+        if(def->vd_ndx==index) {
+            if(def->vd_cnt<1)
+                return NULL;
+            /*if(def->vd_flags&VER_FLG_BASE)
+                return NULL;*/
+            Elf32_Verdaux *aux = (Elf32_Verdaux*)((uintptr_t)def + def->vd_aux);
+            return h->DynStr+aux->vda_name; // return Parent, so 1st aux
+        }
+        def = def->vd_next?((Elf32_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
     }
     return NULL;
 }
