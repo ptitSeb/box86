@@ -3009,3 +3009,7 @@ GO(glXGetSwapIntervalMESA, iFv)
 
 //GLX_SGI_swap_control
 GO(glXSwapIntervalSGI,iFi)
+
+//GLX_NV_vertex_array_range
+GO(glXAllocateMemoryNV, pFlfff)
+GO(glXFreeMemoryNV, vFp)
