@@ -1,3 +1,7 @@
+Current version
+======
+* Reworked Elfloader part, with better handling of versionned symbols
+
 v0.2.2
 ======
 * Reworked some elfloader relocation mecanism

@@ -9,7 +9,12 @@ Controls the Verbosity level of the logs
  * 0: NONE : No message (except some fatal error). (Default.)
  * 1: INFO : Show some minimum log (Example: librairies not found)
  * 2: DEBUG : Details a lot of stuff (Example: relocations or functions called).
- * 3: DUMP : All DEBUG plus DUMP of all ELF Info.
+ * 3: DUMP : All DEBUG plus DUMP of all ELF Info (so same as `BOX86_LOG=2 BOX86_DUMP=1`)
+
+#### BOX86_DUMP
+Controls the Dump of elf content
+ * 0: No dump of elf information (Default)
+ * 1: Dump elf sections and relocations and other information (also active if using `BOX86_LOG=3`)
 
 #### BOX86_NOBANNER
 Disables Box86 printing its version and build
