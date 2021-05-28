@@ -199,19 +199,20 @@ void LoadLogEnv()
     const char *p = getenv("BOX86_NOBANNER");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box86_nobanner = p[0]-'0';
         }
     }
     p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0'+LOG_NONE && p[1]<='0'+LOG_NEVER)
+            if(p[0]>='0'+LOG_NONE && p[0]<='0'+LOG_NEVER) {
                 box86_log = p[0]-'0';
                 if(box86_log == LOG_NEVER) {
                     --box86_log;
                     box86_dump = 1;
                 }
+            }
         } else {
             if(!strcasecmp(p, "NONE"))
                 box86_log = LOG_NONE;
@@ -230,7 +231,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box86_dump = p[0]-'0';
         }
     }
@@ -240,7 +241,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box86_dynarec_dump = p[0]-'0';
         }
         if (box86_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box86_dynarec_dump>1)?" in color":"");
@@ -265,7 +266,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box86_dynarec = p[0]-'0';
         }
         printf_log(LOG_INFO, "Dynarec is %s\n", box86_dynarec?"On":"Off");
@@ -273,7 +274,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_FORCED");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='1')
+            if(p[0]>='0' && p[0]<='1')
                 box86_dynarec_forced = p[0]-'0';
         }
         if(box86_dynarec_forced)
@@ -295,14 +296,14 @@ void LoadLogEnv()
     p = getenv("BOX86_TRACE_XMM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 trace_xmm = p[0]-'0';
         }
     }
     p = getenv("BOX86_TRACE_EMM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 trace_emm = p[0]-'0';
         }
     }
@@ -316,7 +317,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_TRACE");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box86_dynarec_trace = p[0]-'0';
             if(box86_dynarec_trace)
                 printf_log(LOG_INFO, "Dynarec generated code will also print a trace\n");
@@ -330,7 +331,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 dlsym_error = p[0]-'0';
         }
     }
@@ -338,7 +339,7 @@ void LoadLogEnv()
     p = getenv("BOX86_X11COLOR16");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 x11color16 = p[0]-'0';
         }
         printf_log(LOG_INFO, "Try to adjust X11 Color (32->16bits) : %s\n", x11color16?"Yes":"No");
@@ -347,7 +348,7 @@ void LoadLogEnv()
     p = getenv("BOX86_X11THREADS");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 x11threads = p[0]-'0';
         }
         if(x11threads)
@@ -356,7 +357,7 @@ void LoadLogEnv()
     p = getenv("BOX86_X11GLX");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 x11glx = p[0]-'0';
         }
         if(x11glx)
@@ -378,7 +379,7 @@ void LoadLogEnv()
     p = getenv("BOX86_ALLOWMISSINGLIBS");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 allow_missing_libs = p[0]-'0';
         }
         if(allow_missing_libs)
@@ -387,7 +388,7 @@ void LoadLogEnv()
     p = getenv("BOX86_NOPULSE");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box86_nopulse = p[0]-'0';
         }
         if(box86_nopulse)
@@ -396,7 +397,7 @@ void LoadLogEnv()
     p = getenv("BOX86_NOGTK");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box86_nogtk = p[0]-'0';
         }
         if(box86_nogtk)
@@ -405,7 +406,7 @@ void LoadLogEnv()
     p = getenv("BOX86_NOVULKAN");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 box86_novulkan = p[0]-'0';
         }
         if(box86_novulkan)
@@ -414,7 +415,7 @@ void LoadLogEnv()
     p = getenv("BOX86_FIX_64BIT_INODES");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 fix_64bit_inodes = p[0]-'0';
         }
         if(fix_64bit_inodes)
@@ -423,7 +424,7 @@ void LoadLogEnv()
     p = getenv("BOX86_JITGDB");
         if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[1]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+1)
                 jit_gdb = p[0]-'0';
         }
         if(jit_gdb)
@@ -530,7 +531,8 @@ void PrintHelp() {
     printf("You can also set some environment variables:\n");
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
-    printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info\n");
+    printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX86_DUMP)\n");
+    printf(" BOX86_DUMP with 0/1 to dump elf infos\n");
     printf(" BOX86_NOBANNER with 0/1 to enable/disable the printing of box86 version and build at start\n");
 #ifdef DYNAREC
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
