@@ -100,14 +100,14 @@ GOM(pthread_kill, iFEpi)
 // pthread_kill_other_threads_np
 GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)
-// pthread_mutexattr_getprioceiling
+GO(pthread_mutexattr_getprioceiling, iFpp)
 // pthread_mutexattr_getprotocol
 // pthread_mutexattr_getpshared
 // pthread_mutexattr_getrobust_np
 GO(pthread_mutexattr_gettype, iFpp)
 GO(__pthread_mutexattr_init, iFp)
 GO(pthread_mutexattr_init, iFp)
-// pthread_mutexattr_setprioceiling
+GO(pthread_mutexattr_setprioceiling, iFpi)
 GO(pthread_mutexattr_setprotocol, iFpp)
 GO(pthread_mutexattr_setpshared, iFpi)
 // pthread_mutexattr_setrobust_np
