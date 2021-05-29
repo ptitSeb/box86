@@ -276,6 +276,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
         printf_log(LOG_DEBUG, "Failure to Add lib => fail\n");
         return 1;
     }
+    return 0;
 }
 
 int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, library_t* lib, box86context_t* box86, x86emu_t* emu)

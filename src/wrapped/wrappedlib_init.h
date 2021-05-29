@@ -202,7 +202,7 @@ int FUNC(_fini)(library_t* lib)
     return 1;
 }
 
-int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int step)
+int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
@@ -210,7 +210,7 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, 
     void* symbol = NULL;
 #endif
 //PRE
-    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, step)) {
+    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
 #ifdef CUSTOM_FAIL
     CUSTOM_FAIL
 #else
@@ -225,7 +225,7 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, 
     return 1;
 }
 
-int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int step)
+int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
@@ -233,7 +233,7 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t
     void* symbol = NULL;
 #endif
 //PRE
-    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, step)) {
+    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
 #ifdef CUSTOM_FAIL
     CUSTOM_FAIL
 #else

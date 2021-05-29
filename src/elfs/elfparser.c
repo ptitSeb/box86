@@ -212,7 +212,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->relaent = val;
                     break;
                 case DT_PLTGOT:
-                    h->pltgot = val;
+                    h->pltgot = ptr;
                     break;
                 case DT_PLTREL:
                     h->pltrel = val;
@@ -221,7 +221,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->pltsz = val;
                     break;
                 case DT_JMPREL:
-                    h->jmprel = val;
+                    h->jmprel = ptr;
                     break;
                 case DT_STRTAB:
                     h->DynStrTab = (char *)(ptr);

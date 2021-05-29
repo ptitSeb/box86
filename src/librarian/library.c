@@ -302,6 +302,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
             return 1;
         }
         RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
+#ifdef HAVE_TRACE
         if(trace_func) {
             if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
@@ -315,6 +316,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
                 trace_func = NULL;
             }
         }
+#endif
         RunElfInit(elf_header, emu);
     }
     return 0;
@@ -676,8 +678,6 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
 {
     if(!lib->active)
         return 0;
-    khint_t k;
-    void* symbol;
     // check in datamaps (but no version, it's not handled there)
     if(getSymbolInDataMaps(lib, name, noweak, addr, size))
         return 1;

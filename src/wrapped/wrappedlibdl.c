@@ -169,9 +169,8 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
     int ret;
     kh_put(libs, collection, (uintptr_t)lib, &ret);
     // look in the library itself
-    for(int step=0; step<=MAX_STEP; ++step)
-        if(lib->get(lib, rsymbol, start, end, version, vername, step))
-            return 1;
+    if(lib->get(lib, rsymbol, start, end, version, vername, 1))
+        return 1;
     // look in other libs
     int n = GetNeededLibN(lib);
     for (int i=0; i<n; ++i) {
@@ -433,25 +432,23 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
         }
     } else {
         // still usefull?
-        for(int step=0; step<=MAX_STEP; ++step) {
-            if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, step)) {
-                if(dlsym_error && box86_log<LOG_DEBUG) {
-                    printf_log(LOG_NONE, "%p\n", (void*)start);
-                }
-                return (void*)start;
+        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
             }
-            if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, step)) {
-                if(dlsym_error && box86_log<LOG_DEBUG) {
-                    printf_log(LOG_NONE, "%p\n", (void*)start);
-                }
-                return (void*)start;
+            return (void*)start;
+        }
+        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
             }
-            if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, step)) {
-                if(dlsym_error && box86_log<LOG_DEBUG) {
-                    printf_log(LOG_NONE, "%p\n", (void*)start);
-                }
-                return (void*)start;
+            return (void*)start;
+        }
+        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+            if(dlsym_error && box86_log<LOG_DEBUG) {
+                printf_log(LOG_NONE, "%p\n", (void*)start);
             }
+            return (void*)start;
         }
         // not found
         if(dlsym_error && box86_log<LOG_DEBUG) {
