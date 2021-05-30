@@ -241,7 +241,7 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box86_dynarec_dump = p[0]-'0';
         }
         if (box86_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box86_dynarec_dump>1)?" in color":"");
