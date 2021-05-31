@@ -24,6 +24,12 @@
         _0f_0x01:                      
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:                 /* SGDT Ed */
+                    GET_ED;
+                    ED->word[0] = 0x7f;    // dummy return...
+                    ED->word[1] = 0x000c;
+                    ED->word[2] = 0xd000;
+                    break;
                 case 1:                 /* SIDT Ed */
                     GET_ED;
                     ED->word[0] = 0xfff;    // dummy return, like "disabled"
