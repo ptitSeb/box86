@@ -18,6 +18,12 @@
         _0f_0x01:                      
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 1:                 /* SIDT Ed */
+                    GET_ED;
+                    ED->word[0] = 0xfff;    // dummy return, like "disabled"
+                    ED->word[1] = 0;
+                    ED->word[2] = 0;
+                    break;
                 case 4:                 /* SMSW Ew */
                     GET_ED;
                     // dummy for now... Do I need to track CR0 state?
