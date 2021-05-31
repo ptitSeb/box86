@@ -3,6 +3,12 @@
         _0f_0x00:                       /* VERx Ed */
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:                 /* SLDT Ew */
+                    GET_EW;
+                    EW->word[0] = 0;
+                    if((nextop&0xC0)==0xC0)
+                        EW->word[1] = 0;
+                    break;
                 case 4: //VERR
                 case 5: //VERW
                     GET_EW;
