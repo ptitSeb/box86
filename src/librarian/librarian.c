@@ -178,15 +178,14 @@ static void MapLibAddMapLib(lib_t* dest, library_t* lib_src, lib_t* src)
     library_t *owner = src->owner;
     for(int i=0; i<src->libsz; ++i) {
         library_t* lib = src->libraries[i];
-        if(!lib) continue;
+        if(!lib || libraryInMapLib(dest, lib)) continue;
+        MapLibAddLib(dest, lib);
         if(lib->maplib && src!=lib->maplib && dest!=lib->maplib) {
             MapLibAddMapLib(dest, lib, lib->maplib);
             MapLibRemoveLib(src, lib);
             if(lib->maplib)
                 lib->maplib = (dest==my_context->maplib)?NULL:dest;
         }
-        if(!libraryInMapLib(dest, lib))
-            MapLibAddLib(dest, lib);
     }
     if(lib_src == owner)
         FreeLibrarian(&src, NULL);
@@ -327,13 +326,18 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
     int idx = neededlibs->size;
     // Add libs and symbol
     for(int i=0; i<npath; ++i) {
-        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box86, emu))
+        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box86, emu)) {
+            printf_log(LOG_INFO, "Error loading needed lib %s\n", paths[i]);
             return 1;
+        }
     }
+    int idx_end = neededlibs->size;
     // add dependant libs and init them
-    for (int i=idx; i<neededlibs->size; ++i)
-        if(AddNeededLib_init(maplib, neededlibs, deplib, local, neededlibs->libs[i], box86, emu))
+    for (int i=idx; i<idx_end; ++i)
+        if(AddNeededLib_init(maplib, neededlibs, deplib, local, neededlibs->libs[i], box86, emu)) {
+            printf_log(LOG_INFO, "Error initializing needed lib %s\n", neededlibs->libs[i]->name);
             if(!allow_missing_libs) return 1;
+        }
     return 0;
 }
 
