@@ -19,6 +19,12 @@
 #include "myalign.h"
 #include "threads.h"
 
+static void* my_glhandle = NULL;
+// DL functions from wrappedlibdl.c
+void* my_dlopen(x86emu_t* emu, void *filename, int flag);
+int my_dlclose(x86emu_t* emu, void *handle);
+void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
+
 static int sdl_Yes() { return 1;}
 static int sdl_No() { return 0;}
 int EXPORT my2_SDL_Has3DNow() __attribute__((alias("sdl_No")));
@@ -679,6 +685,7 @@ EXPORT void my2_SDL_Log(x86emu_t* emu, void* fmt, void *b) {
 }
 
 void fillGLProcWrapper(box86context_t*);
+extern char* libGL;
 EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
@@ -688,8 +695,14 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
     // check if glxprocaddress is filled, and search for lib and fill it if needed
     if(!emu->context->glxprocaddress)
         emu->context->glxprocaddress = (procaddess_t)my->SDL_GL_GetProcAddress;
-    if(!emu->context->glwrappers)
+    if(!emu->context->glwrappers) {
         fillGLProcWrapper(emu->context);
+        // check if libGL is loaded, load it if not (helps DeadCells)
+        if(!my_glhandle && !GetLibInternal(libGL?libGL:"libGL.so.1")) {
+            // use a my_dlopen to actually open that lib, like SDL2 is doing...
+            my_glhandle = my_dlopen(emu, libGL?libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
+        }
+    }
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->glmymap, rname);
     int is_my = (k==kh_end(emu->context->glmymap))?0:1;
@@ -848,10 +861,6 @@ EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
     my->SDL_DelEventWatch(find_eventfilter_Fct(p), userdata);
 }
 
-// DL functions from wrappedlibdl.c
-void* my_dlopen(x86emu_t* emu, void *filename, int flag);
-int my_dlclose(x86emu_t* emu, void *handle);
-void* my_dlsym(x86emu_t* emu, void *handle, void *symbol);
 EXPORT void* my2_SDL_LoadObject(x86emu_t* emu, void* sofile)
 {
     return my_dlopen(emu, sofile, 0);   // TODO: check correct flag value...
@@ -975,11 +984,13 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
     lib->priv.w.neededlibs[3] = strdup("libpthread.so.0");
 
 #define CUSTOM_FINI \
-    ((sdl2_my_t *)lib->priv.w.p2)->SDL_Quit();              \
-    freeSDL2My(lib->priv.w.p2);                             \
-    free(lib->priv.w.p2);                                   \
-    ((box86context_t*)(lib->context))->sdl2lib = NULL;      \
-    ((box86context_t*)(lib->context))->sdl2allocrw = NULL;  \
+    ((sdl2_my_t *)lib->priv.w.p2)->SDL_Quit();                  \
+    if(my_glhandle) my_dlclose(thread_get_emu(), my_glhandle);  \
+    my_glhandle = NULL;                                         \
+    freeSDL2My(lib->priv.w.p2);                                 \
+    free(lib->priv.w.p2);                                       \
+    ((box86context_t*)(lib->context))->sdl2lib = NULL;          \
+    ((box86context_t*)(lib->context))->sdl2allocrw = NULL;      \
     ((box86context_t*)(lib->context))->sdl2freerw = NULL;
 
 
