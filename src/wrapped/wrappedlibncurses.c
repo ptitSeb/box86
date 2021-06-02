@@ -27,11 +27,13 @@ static library_t* my_lib = NULL;
 
 typedef int         (*iFppp_t)(void*, void*, void*);
 typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
+typedef int         (*iFiipV_t)(int, int, void*, ...);
 
 #define SUPER() \
     GO(mvwprintw, iFpiip_t) \
     GO(vwprintw, iFppp_t)   \
-    GO(stdscr, void*)
+    GO(stdscr, void*)       \
+    GO(mvprintw, iFiipV_t)
 
 typedef struct libncurses_my_s {
     // functions
@@ -84,6 +86,25 @@ EXPORT int my_printw(x86emu_t* emu, void* fmt, void* b)
     #else
     return my->vwprintw(my->stdscr, fmt, b);
     #endif
+}
+
+EXPORT int my_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
+{
+    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, emu->scratch);
+    #else
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, b);
+    #endif
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    int ret = my->mvprintw(x, y, buf);
+    free(buf);
+    return ret;
 }
 
 #define CUSTOM_INIT \

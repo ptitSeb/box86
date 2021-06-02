@@ -943,6 +943,7 @@
 #() vFppppL
 #() vFppppp
 #() iFEiipp
+#() iFEiipV
 #() iFEipuu
 #() iFEippi
 #() iFEippp
@@ -2281,6 +2282,7 @@ wrappedlibjpeg62/SuuFppu3jpeg_read_scanlines
 wrappedlibjpeg62/SuuFppu3jpeg_write_scanlines
 wrappedlibjpeg62/SuvFpipu3jpeg_write_marker
 wrappedlibncurses/SuiFpV3printw
+wrappedlibncurses/SuiFiipV3mvprintw
 wrappedlibncurses/SuiFpiipV3mvwprintw
 wrappedlibncurses6/SuiFpV3printw
 wrappedlibncurses6/SuiFpiipV3mvwprintw

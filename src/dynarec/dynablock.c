@@ -358,7 +358,10 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
                         dblist->maxsz = blocksz;
             }
         }
-        protectDB((uintptr_t)block->x86_addr, block->x86_size);
+        //protectDB((uintptr_t)block->x86_addr, block->x86_size);   // already protected in FillBlock
+        // but check if it already need test
+        if(block->need_test || (block->father && block->father->need_test))
+            return NULL;
         // fill-in jumptable
         addJumpTableIfDefault(block->x86_addr, block->block);
         for(int i=0; i<block->sons_size; ++i)

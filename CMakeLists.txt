@@ -334,6 +334,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibformw.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibncurses.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibpanel.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibncurses6.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo6.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
