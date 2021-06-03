@@ -18,7 +18,7 @@
 
 #define GLOB(A) \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL)) {     \
-        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <= %p\n", (void*)globoffs, A);         \
+        printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <= %p\n", (void*)globoffs, &A);        \
         memcpy((void*)globoffs, &A, sizeof(A));                                                     \
     }
 
