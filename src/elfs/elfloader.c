@@ -1378,9 +1378,10 @@ EXPORT void PltResolver(x86emu_t* emu)
     library_t* lib = h->lib;
     lib_t* local_maplib = GetMaplib(lib);
     GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, version, vername);
-    if(!offs && !end && local_maplib) {
+    if(!offs && !end && local_maplib)
         GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, h, version, vername);
-    }
+    if(!offs && !end && !version)
+        GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, -1, NULL);
 
     if (!offs) {
         printf_log(LOG_NONE, "Error: PltReolver: Symbol %s(ver %d: %s%s%s) not found, cannot apply R_386_JMP_SLOT %p (%p) in %s\n", symname, version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name);
