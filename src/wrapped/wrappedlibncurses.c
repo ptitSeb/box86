@@ -17,6 +17,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "globalsymbols.h"
 
 const char* libncursesName = "libncurses.so.5";
 #define LIBNAME libncurses
@@ -25,11 +26,13 @@ static library_t* my_lib = NULL;
 
 // this is a simple copy of libncursesw wrapper. TODO: check if ok
 
+typedef void*       (*pFv_t)();
 typedef int         (*iFppp_t)(void*, void*, void*);
 typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
 typedef int         (*iFiipV_t)(int, int, void*, ...);
 
 #define SUPER() \
+    GO(initscr, pFv_t)      \
     GO(mvwprintw, iFpiip_t) \
     GO(vwprintw, iFppp_t)   \
     GO(stdscr, void*)       \
@@ -104,6 +107,14 @@ EXPORT int my_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     int ret = my->mvprintw(x, y, buf);
     free(buf);
+    return ret;
+}
+
+EXPORT void* my_initscr()
+{
+    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
+    void* ret = my->initscr();
+    my_checkGlobalTInfo();
     return ret;
 }
 

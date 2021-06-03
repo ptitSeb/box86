@@ -218,6 +218,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/librarian/librarian.c"
     "${BOX86_ROOT}/src/librarian/dictionnary.c"
     "${BOX86_ROOT}/src/librarian/symbols.c"
+    "${BOX86_ROOT}/src/librarian/globalsymbols.c"
     "${BOX86_ROOT}/src/emu/x86emu.c"
     "${BOX86_ROOT}/src/emu/x86run.c"
     "${BOX86_ROOT}/src/emu/x86run66.c"

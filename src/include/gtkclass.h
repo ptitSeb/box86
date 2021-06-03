@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "globalsymbols.h"
+
 typedef struct box86context_s box86context_t;
 typedef struct bridge_s bridge_t;
 
@@ -290,12 +292,6 @@ void AutoBridgeGtk(void*(*ref)(int), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, int type);
 void* unwrapCopyGTKClass(void* klass, int type);
-
-void my_checkGlobalGdkDisplay();
-void my_setGlobalGThreadsInit();
-
-void** my_GetGTKDisplay();
-void** my_GetGthreadsGotInitialized();
 
 typedef struct my_signal_s {
     uint32_t sign;  // signature

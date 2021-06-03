@@ -1034,46 +1034,6 @@ void SetGTypeName(void* f)
     g_type_name = f;
 }
 
-// workaround for Globals symbols
-
-EXPORT void* gdk_display = NULL;   // in case it's used...
-
-    
-void my_checkGlobalGdkDisplay()
-{
-    // workaround, because gdk_display maybe declared as global in the calling program, but there is no way to send this info to the linker
-    uintptr_t globoffs, globend;
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "gdk_display", &globoffs, &globend, -1, NULL)) {
-        printf_log(LOG_DEBUG, "Global gdk_display workaround, @%p <= %p\n", (void*)globoffs, gdk_display);
-        memcpy((void*)globoffs, &gdk_display, sizeof(gdk_display));
-    }
-}
-
-void my_setGlobalGThreadsInit()
-{
-    // workaround, because gdk_display maybe declared as global in the calling program, but there is no way to send this info to the linker
-    int val = 1;
-    uintptr_t globoffs, globend;
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL)) {
-        printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %p\n", (void*)globoffs, (void*)val);
-        memcpy((void*)globoffs, &val, sizeof(gdk_display));
-    }
-}
-
-char* getGDKX11LibName();
-void** my_GetGTKDisplay()
-{
-    if(gdk_display)
-        return &gdk_display;
-    
-    char* name = getGDKX11LibName();
-    library_t * lib = GetLibInternal(name?name:"libgtk-1.2.so.0");
-    if(!lib) return &gdk_display;   // mmm, that will crash later probably
-    void* s = dlsym(GetHandle(lib), "gdk_display");
-    gdk_display = *(void**)s;
-    return s;
-}
-
 my_signal_t* new_mysignal(void* f, void* data, void* destroy)
 {
     my_signal_t* sig = (my_signal_t*)calloc(1, sizeof(my_signal_t));
