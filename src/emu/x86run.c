@@ -94,7 +94,7 @@ int Run(x86emu_t *emu, int step)
     &&_0xD0,    &&_0xD1,    &&_0xD2,    &&_0xD3,    &&_0xD4,    &&_0xD5,    &&_0xD6,    &&_0xD7, 
     &&_0xD8,    &&_0xD9,    &&_0xDA,    &&_0xDB,    &&_0xDC,    &&_0xDD,    &&_0xDE,    &&_0xDF, 
     &&_0xE0,    &&_0xE1,    &&_0xE2,    &&_0xE3,    &&_0xE4,    &&_0xE5,    &&_0xE6,    &&_0xE7,
-    &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_0xEC,    &&_0xED,    &&_default, &&_default,
+    &&_0xE8,    &&_0xE9,    &&_default, &&_0xEB,    &&_0xEC,    &&_0xED,    &&_0xEE,    &&_default,
     &&_0xF0,    &&_0xF1,    &&_0xF2,    &&_0xF3,    &&_0xF4,    &&_0xF5,    &&_0xF6,    &&_0xF7, 
     &&_0xF8,    &&_0xF9,    &&_0xFA,    &&_0xFB,    &&_0xFC,    &&_0xFD,    &&_0xFE,    &&_0xFF
     };
@@ -1119,6 +1119,9 @@ _trace:
             NEXT;
         _0xED:                      /* IN EAX, DX */
             R_EAX = 0;  // nothing... should do a warning maybe?
+            NEXT;
+        _0xEE:                      /* OUT DX, AL */
+            //nothing goes out...
             NEXT;
 
         _0xF0:                      /* LOCK */
