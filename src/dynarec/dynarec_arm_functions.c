@@ -85,7 +85,8 @@ void arm_frndint(x86emu_t* emu)
 }
 void arm_fscale(x86emu_t* emu)
 {
-    ST0.d *= exp2(trunc(ST1.d));
+    if(ST0.d!=0.0)
+        ST0.d *= exp2(trunc(ST1.d));
 }
 void arm_fsin(x86emu_t* emu)
 {
