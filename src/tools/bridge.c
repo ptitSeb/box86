@@ -55,9 +55,13 @@ bridge_t *NewBridge()
 }
 void FreeBridge(bridge_t** bridge)
 {
-    if(!bridge || !*bridge)
+    if(!bridge || !*bridge) {
         return;
-    brick_t *b = (*bridge)->head;
+    }
+    bridge_t* br = *bridge;
+    *bridge = NULL;
+
+    brick_t *b = br->head;
     while(b) {
         brick_t *n = b->next;
         #ifdef DYNAREC
@@ -68,10 +72,9 @@ void FreeBridge(bridge_t** bridge)
         free(b);
         b = n;
     }
-    kh_destroy(bridgemap, (*bridge)->bridgemap);
-    pthread_mutex_destroy(&(*bridge)->mutex);
-    free(*bridge);
-    *bridge = NULL;
+    kh_destroy(bridgemap, br->bridgemap);
+    pthread_mutex_destroy(&br->mutex);
+    free(br);
 }
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
