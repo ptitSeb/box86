@@ -466,6 +466,8 @@ Op is 20-27
 
 // UBFX: Unsigned Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
 #define UBFX(rd, rn, lsb, width)    EMIT(c__ | (0b0111111<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
+// SBFX: Signed Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
+#define SBFX(rd, rn, lsb, width)    EMIT(c__ | (0b0111101<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
 
 // BFI: Bit Field Insert: copy any number of low order bit from Rn to any position of Rd
 #define BFI(rd, rn, lsb, width) EMIT(c__ | (0b0111110<<21) | (((lsb)+(width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b001<<4) | (rn))

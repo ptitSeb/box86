@@ -1175,11 +1175,20 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xA3:
             INST_NAME("BT Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, so 32bits is the same (no need for GETGW)
-            GETEW(x1);
-            AND_IMM8(x2, gd, 15);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);   // no need for extract
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 255, 0);
+                SBFX(x1, gd, 4, 12);    // r1 = (gw>>4);
+                ADD_REG_LSL_IMM5(x1, ed, x1, 1); //(&ed)+=r1*2;
+                LDRH_IMM8(x1, x1, fixedaddress);
+                ed = x1;
+            }
+            AND_IMM8(x2, gd, 0x0f);
             MOV_REG_LSR_REG(x1, ed, x2);
             BFI(xFlags, x1, F_CF, 1);
             break;
@@ -1205,10 +1214,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xAB:
             INST_NAME("BTS Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x14);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                wback = 0;   // no need for extract
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
+                ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
+                LDRH_IMM8(x14, x3, fixedaddress);
+                wback = x3;
+                ed = x14;
+            }
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
@@ -1216,7 +1236,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             B_NEXT(cNE);
             MOVW(x1, 1);
             ORR_REG_LSL_REG(ed, ed, x1, x2);
-            EWBACK;
+            if(wback) {
+                STRH_IMM8(ed, wback, fixedaddress);
+            }
             break;
         case 0xAC:
         case 0xAD:
@@ -1258,10 +1280,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xB3:
             INST_NAME("BTR Ew, Gw");
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x14);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                wback = 0;   // no need for extract
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
+                ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
+                LDRH_IMM8(x14, x3, fixedaddress);
+                wback = x3;
+                ed = x14;
+            }
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             ANDS_IMM8(x1, x1, 1);
@@ -1269,7 +1302,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             B_NEXT(cEQ);
             MOVW(x1, 1);
             XOR_REG_LSL_REG(ed, ed, x1, x2);
-            EWBACK;
+            if(wback) {
+                STRH_IMM8(ed, wback, fixedaddress);
+            }
             break;
 
         case 0xB6:
@@ -1307,16 +1342,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 4:
                     INST_NAME("BT Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
-                        u8 = F8;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
-                        u8 = F8;
-                        fixedaddress+=(u8>>4)*2;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     u8&=0x0f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x1, ed, u8);
@@ -1327,17 +1361,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 5:
                     INST_NAME("BTS Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
-                        u8 = F8;
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
-                        u8 = F8;
-                        fixedaddress+=(u8>>4)*2;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
@@ -1352,17 +1385,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 6:
                     INST_NAME("BTR Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
-                        u8 = F8;
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
-                        u8 = F8;
-                        fixedaddress+=(u8>>4)*2;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
@@ -1377,17 +1409,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 7:
                     INST_NAME("BTC Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
-                        u8 = F8;
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-32, 0);
-                        u8 = F8;
-                        fixedaddress+=(u8>>4)*2;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
                     }
+                    u8 = F8;
                     MOV_REG_LSR_IMM5(x14, ed, u8&0x0f);
                     ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
@@ -1405,15 +1436,28 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xBB:
             INST_NAME("BTC Ew, Gw");
             SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            GETEW(x14);
+            if((nextop&0xC0)==0xC0) {
+                ed = xEAX+(nextop&7);
+                wback = 0;   // no need for extract
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
+                ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
+                LDRH_IMM8(x14, x3, fixedaddress);
+                wback = x3;
+                ed = x14;
+            }
             AND_IMM8(x2, gd, 15);
             MOV_REG_LSR_REG(x1, ed, x2);
             BFI(xFlags, x1, F_CF, 1);
             MOVW(x1, 1);
             XOR_REG_LSL_REG(ed, ed, x1, x2);
-            EWBACK;
+            if(wback) {
+                STRH_IMM8(ed, wback, fixedaddress);
+            }
             break;
         case 0xBC:
             INST_NAME("BSF Ew,Gw");

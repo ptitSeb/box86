@@ -845,8 +845,15 @@ void Run660F(x86emu_t *emu)
     case 0xA3:                      /* BT Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
+        tmp32s = GW.sword[0];
+        tmp8u=tmp32s&15;
+        tmp32s >>= 4;
         GET_EW;
-        if(EW->word[0] & (1<<(GW.word[0]&15)))
+        if((nextop&0xC0)!=0xC0)
+        {
+            EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+        }
+        if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
         else
             CLEAR_FLAG(F_CF);
@@ -865,11 +872,18 @@ void Run660F(x86emu_t *emu)
     case 0xAB:                      /* BTS Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
+        tmp32s = GW.sword[0];
+        tmp8u=tmp32s&15;
+        tmp32s >>= 4;
         GET_EW;
-        if(EW->word[0] & (1<<(GW.word[0]&15)))
+        if((nextop&0xC0)!=0xC0)
+        {
+            EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+        }
+        if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
         else {
-            EW->word[0] |= (1<<(GW.word[0]&15));
+            EW->word[0] |= (1<<tmp8u);
             CLEAR_FLAG(F_CF);
         }
         break;
@@ -904,10 +918,17 @@ void Run660F(x86emu_t *emu)
     case 0xB3:                      /* BTR Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
+        tmp32s = GW.sword[0];
+        tmp8u=tmp32s&15;
+        tmp32s >>= 4;
         GET_EW;
-        if(EW->word[0] & (1<<(GW.word[0]&15))) {
+        if((nextop&0xC0)!=0xC0)
+        {
+            EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+        }
+        if(EW->word[0] & (1<<tmp8u)) {
             SET_FLAG(F_CF);
-            EW->word[0] ^= (1<<(GW.word[0]&15));
+            EW->word[0] ^= (1<<tmp8u);
         } else
             CLEAR_FLAG(F_CF);
         break;
@@ -930,10 +951,6 @@ void Run660F(x86emu_t *emu)
                 CHECK_FLAGS(emu);
                 GET_EW;
                 tmp8u = F8;
-                if((nextop&0xC0)!=0xC0)
-                {
-                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
-                }
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u))
                     SET_FLAG(F_CF);
@@ -944,10 +961,6 @@ void Run660F(x86emu_t *emu)
                 CHECK_FLAGS(emu);
                 GET_EW;
                 tmp8u = F8;
-                if((nextop&0xC0)!=0xC0)
-                {
-                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
-                }
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u)) {
                     SET_FLAG(F_CF);
@@ -959,10 +972,6 @@ void Run660F(x86emu_t *emu)
                 CHECK_FLAGS(emu);
                 GET_EW;
                 tmp8u = F8;
-                if((nextop&0xC0)!=0xC0)
-                {
-                    EW=(reg32_t*)(((uint16_t*)(ED))+(tmp8u>>4));
-                }
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u)) {
                     SET_FLAG(F_CF);
@@ -974,10 +983,6 @@ void Run660F(x86emu_t *emu)
                 CHECK_FLAGS(emu);
                 GET_EW;
                 tmp8u = F8;
-                if((nextop&0xC0)!=0xC0)
-                {
-                    EW=(reg32_t*)(((uint16_t*)(EW))+(tmp8u>>4));
-                }
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u))
                     SET_FLAG(F_CF);
@@ -994,12 +999,19 @@ void Run660F(x86emu_t *emu)
     case 0xBB:                      /* BTC Ew,Gw */
         CHECK_FLAGS(emu);
         nextop = F8;
+        tmp32s = GW.sword[0];
+        tmp8u=tmp32s&15;
+        tmp32s >>= 4;
         GET_EW;
-        if(EW->word[0] & (1<<(GW.word[0]&15)))
+        if((nextop&0xC0)!=0xC0)
+        {
+            EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+        }
+        if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
         else
             CLEAR_FLAG(F_CF);
-        EW->word[0] ^= (1<<(GW.word[0]&15));
+        EW->word[0] ^= (1<<tmp8u);
         break;
     case 0xBC:                      /* BSF Ew,Gw */
         CHECK_FLAGS(emu);

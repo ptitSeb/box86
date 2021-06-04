@@ -740,12 +740,13 @@
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp8u = GD.byte[0];
+            tmp32s = GD.sdword[0];
+            tmp8u=tmp32s&31;
+            tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
-                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
             }
-            tmp8u&=31;
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
@@ -772,12 +773,13 @@
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp8u = GD.byte[0];
+            tmp32s = GD.sdword[0];
+            tmp8u=tmp32s&31;
+            tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
-                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
             }
-            tmp8u&=31;
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else {
@@ -862,12 +864,13 @@
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp8u = GD.byte[0];
+            tmp32s = GD.sdword[0];
+            tmp8u=tmp32s&31;
+            tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
-                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
             }
-            tmp8u&=31;
             if(ED->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
                 ED->dword[0] ^= (1<<tmp8u);
@@ -893,10 +896,6 @@
                     CHECK_FLAGS(emu);
                     GET_ED;
                     tmp8u = F8;
-                    if((nextop&0xC0)!=0xC0)
-                    {
-                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
-                    }
                     tmp8u&=31;
                     if(ED->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
@@ -907,10 +906,6 @@
                     CHECK_FLAGS(emu);
                     GET_ED;
                     tmp8u = F8;
-                    if((nextop&0xC0)!=0xC0)
-                    {
-                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
-                    }
                     tmp8u&=31;
                     if(ED->dword[0] & (1<<tmp8u)) {
                         SET_FLAG(F_CF);
@@ -923,10 +918,6 @@
                     CHECK_FLAGS(emu);
                     GET_ED;
                     tmp8u = F8;
-                    if((nextop&0xC0)!=0xC0)
-                    {
-                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
-                    }
                     tmp8u&=31;
                     if(ED->dword[0] & (1<<tmp8u)) {
                         SET_FLAG(F_CF);
@@ -938,10 +929,6 @@
                     CHECK_FLAGS(emu);
                     GET_ED;
                     tmp8u = F8;
-                    if((nextop&0xC0)!=0xC0)
-                    {
-                        ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
-                    }
                     tmp8u&=31;
                     if(ED->dword[0] & (1<<tmp8u))
                         SET_FLAG(F_CF);
@@ -958,12 +945,13 @@
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp8u = GD.byte[0];
+            tmp32s = GD.sdword[0];
+            tmp8u=tmp32s&31;
+            tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
-                ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
             }
-            tmp8u&=31;
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
             else
