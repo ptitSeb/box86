@@ -321,7 +321,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x24:
             INST_NAME("AND AL, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             u8 = F8;
             UXTB(x1, xEAX, 0);
             emit_and8c(dyn, ninst, x1, u8, x3, x14);
@@ -1194,11 +1194,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x9E:
             INST_NAME("SAHF");
             SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF, SF_SUBSET);
+            SET_DFNONE(x1);	
             BIC_IMM8(xFlags, xFlags, 0b11010101, 0);
             UXTB(x1, xEAX, 1);
             AND_IMM8(x1, x1, 0b11010101);
             ORR_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
-            SET_DFNONE(x1);	
             break;
         case 0x9F:
             INST_NAME("LAHF");
@@ -1652,7 +1652,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROL Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
                     CALL_(rol8, x1, (1<<x3));
                     EBBACK;
@@ -1665,7 +1665,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROR Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
                     CALL_(ror8, x1, (1<<x3));
                     EBBACK;
@@ -1848,7 +1848,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
@@ -1857,7 +1857,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ed, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcr32, ed, (1<<x14));
@@ -2399,7 +2399,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF5:
             INST_NAME("CMC");
             READFLAGS(X_CF);
-            SETFLAGS(X_CF, SF_SET);
+            SETFLAGS(X_CF, SF_SUBSET);
             XOR_IMM8(xFlags, xFlags, 1<<F_CF);
             break;
         case 0xF6:

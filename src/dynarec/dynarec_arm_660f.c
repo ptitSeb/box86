@@ -1462,6 +1462,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xBC:
             INST_NAME("BSF Ew,Gw");
             SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM5(x1, x1, 0);
@@ -1473,11 +1474,11 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             XOR_REG_LSL_IMM5(x1, x1, x1, 0);    //ZF not set
             MARK;
             BFI(xFlags, x1, F_ZF, 1);
-            SET_DFNONE(x1);
             break;
         case 0xBD:
             INST_NAME("BSR Ew,Gw");
             SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
             nextop = F8;
             GETEW(x1);  // Get EW
             TSTS_REG_LSL_IMM5(x1, x1, 0);
@@ -1490,7 +1491,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             XOR_REG_LSL_IMM5(x1, x1, x1, 0);    //ZF not set
             MARK;
             BFI(xFlags, x1, F_ZF, 1);
-            SET_DFNONE(x1);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");

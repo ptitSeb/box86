@@ -566,11 +566,11 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
         case 0xBC:
             INST_NAME("TZCNT Gd, Ed");
-            SETFLAGS(X_CF|X_ZF, SF_SET);
+            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            SET_DFNONE(x3);
             nextop = F8;
             GETED;
             GETGD;
-            SET_DFNONE(x3);
             TSTS_REG_LSL_IMM5(ed, ed, 0);
             MOVW_COND(cEQ, x3, 1);
             MOVW_COND(cNE, x3, 0);

@@ -61,7 +61,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x05:
             INST_NAME("ADD AX, Iw");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET);
             i32 = F16;
             UXTH(x1, xEAX, 0);
             emit_add16c(dyn, ninst, x1, i32, x3, x14);
@@ -1083,7 +1083,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("DEC Ew");
-                    SETFLAGS(X_ALL&~X_CF, SF_SET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
                     GETEW(x1);
                     emit_dec16(dyn, ninst, x1, x2, x14);
                     EWBACK;

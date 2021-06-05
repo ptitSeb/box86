@@ -119,6 +119,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x10:
             INST_NAME("LOCK ADC Eb, Gb");
+            READFLAGS(F_CF);
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGB(x2);
@@ -141,6 +142,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x11:
             INST_NAME("LOCK ADC Ed, Gd");
+            READFLAGS(F_CF);
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
@@ -159,6 +161,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x18:
             INST_NAME("LOCK SBB Eb, Gb");
+            READFLAGS(F_CF);
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGB(x2);
@@ -181,6 +184,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x19:
             INST_NAME("LOCK SBB Ed, Gd");
+            READFLAGS(F_CF);
             SETFLAGS(X_ALL, SF_SET);
             nextop = F8;
             GETGD;
@@ -613,7 +617,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 0xB3:
                     INST_NAME("LOCK BTR Ed, Gd");
-                    SETFLAGS(X_CF, SF_SET);
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     nextop = F8;
                     GETGD;
                     if((nextop&0xC0)==0xC0) {
@@ -621,7 +626,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
+                        MOV_REG_ASR_IMM5(x1, gd, 5);    // r1 = (gd>>5);
                         ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                         wback = x3;
                         MARKLOCK;
@@ -649,17 +654,16 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         case 4:
                             INST_NAME("(LOCK) BT Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
+                            SET_DFNONE(x1);
                             gd = x2;
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
-                                u8 = F8;
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0);
-                                u8 = F8;
-                                fixedaddress+=(u8>>5)*4;
                                 LDR_IMM9(x1, ed, fixedaddress);
                                 ed = x1;
                             }
+                            u8 = F8;
                             u8&=0x1f;
                             if(u8) {
                                 MOV_REG_LSR_IMM5(x1, ed, u8);
@@ -670,24 +674,21 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         case 5:
                             INST_NAME("LOCK BTS Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
+                            SET_DFNONE(x1);
                             gd = x2;
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
                                 u8 = F8;
-                                MOVW(gd, u8);
+                                MOVW(gd, u8&0x1f);
                                 wback = 0;
                             } else {
-                                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0, 0);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
                                 u8 = F8;
-                                MOVW(gd, u8);
-                                UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                                ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
-                                MARKLOCK;
-                                LDREX(x1, x3);
                                 ed = x1;
-                                wback = x3;
+                                MOVW(gd, u8&0x1f);
+                                MARKLOCK;
+                                LDREX(ed, wback);
                             }
-                            AND_IMM8(x2, gd, 0x1f);
                             MOV_REG_LSR_REG(x14, ed, x2);
                             ANDS_IMM8(x14, x14, 1);
                             BFI(xFlags, x14, F_CF, 1);
@@ -704,24 +705,21 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         case 6:
                             INST_NAME("LOCK BTR Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
+                            SET_DFNONE(x1);
                             gd = x2;
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
                                 u8 = F8;
-                                MOVW(gd, u8);
+                                MOVW(gd, u8&0x1f);
                                 wback = 0;
                             } else {
-                                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 0, 0);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
                                 u8 = F8;
-                                MOVW(gd, u8);
-                                UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
-                                ADD_REG_LSL_IMM5(x3, ed, x1, 2); //(&ed)+=r1*4;
-                                MARKLOCK;
-                                LDREX(x1, x3);
                                 ed = x1;
-                                wback = x3;
+                                MOVW(gd, u8&0x1f);
+                                MARKLOCK;
+                                LDREX(ed, wback);
                             }
-                            AND_IMM8(x2, gd, 0x1f);
                             MOV_REG_LSR_REG(x14, ed, x2);
                             ANDS_IMM8(x14, x14, 1);
                             BFI(xFlags, x14, F_CF, 1);
@@ -741,7 +739,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 0xBB:
                     INST_NAME("LOCK BTC Ed, Gd");
-                    SETFLAGS(X_CF, SF_SET);
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE(x1);
                     nextop = F8;
                     GETGD;
                     if((nextop&0xC0)==0xC0) {
@@ -749,7 +748,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
-                        UBFX(x1, gd, 5, 3); // r1 = (gd>>5);
+                        MOV_REG_ASR_IMM5(x1, gd, 5);    // r1 = (gd>>5);
                         ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                         MARKLOCK;
                         LDREX(x1, x3);
