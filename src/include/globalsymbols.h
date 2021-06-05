@@ -11,4 +11,7 @@ void** my_GetGthreadsGotInitialized();  // defined in wrappedgthread2
 // NCurse / TInfo
 void my_checkGlobalTInfo();
 
+// getopt
+void my_checkGlobalOpt();
+
 #endif //_GLOBAL_SYMBOLS_H_

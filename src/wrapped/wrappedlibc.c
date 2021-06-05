@@ -34,6 +34,7 @@
 #include <setjmp.h>
 #include <sys/vfs.h>
 #include <spawn.h>
+#include <getopt.h>
 
 #include "wrappedlibs.h"
 
@@ -53,6 +54,7 @@
 #include "auxval.h"
 #include "elfloader.h"
 #include "bridge.h"
+#include "globalsymbols.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -2280,6 +2282,27 @@ EXPORT  int32_t my_fallocate64(int fd, int mode, int64_t offs, int64_t len)
     else
         return syscall(__NR_fallocate, fd, mode, (uint32_t)(offs&0xffffffff), (uint32_t)((offs>>32)&0xffffffff), (uint32_t)(len&0xffffffff), (uint32_t)((len>>32)&0xffffffff));
         //return posix_fallocate64(fd, offs, len);
+}
+
+EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)
+{
+    int ret = getopt(argc, argv, optstring);
+    my_checkGlobalOpt();
+    return ret;
+}
+
+EXPORT int my_getopt_long(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
+{
+    int ret = getopt_long(argc, argv, optstring, longopts, longindex);
+    my_checkGlobalOpt();
+    return ret;
+}
+
+EXPORT int my_getopt_long_only(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
+{
+    int ret = getopt_long_only(argc, argv, optstring, longopts, longindex);
+    my_checkGlobalOpt();
+    return ret;
 }
 
 EXPORT struct __processor_model
