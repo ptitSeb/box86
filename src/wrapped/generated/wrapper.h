@@ -279,6 +279,7 @@ void pFpp(x86emu_t *emu, uintptr_t fnc);
 void pFpV(x86emu_t *emu, uintptr_t fnc);
 void pFpG(x86emu_t *emu, uintptr_t fnc);
 void pFSi(x86emu_t *emu, uintptr_t fnc);
+void vFEip(x86emu_t *emu, uintptr_t fnc);
 void vFEpi(x86emu_t *emu, uintptr_t fnc);
 void vFEpu(x86emu_t *emu, uintptr_t fnc);
 void vFEpp(x86emu_t *emu, uintptr_t fnc);

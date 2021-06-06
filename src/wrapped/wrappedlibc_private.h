@@ -1573,7 +1573,7 @@ GO(siginterrupt, iFii)  // no need to wrap this one?
 // sigisemptyset
 GO(sigismember, iFpi)
 // __sigismember
-GOM(siglongjmp, pFEip) //%%
+GOM(siglongjmp, vFEip) //%%
 GOM(signal, pFEip)     //%% Weak
 // signalfd
 GO(__signbit, iFd)
