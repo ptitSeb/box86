@@ -334,8 +334,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.cap = helper.size+3; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
     // already protect the block and compute hash signature
-    protectDB(addr, end-addr+1);
-    uint32_t hash = X31_hash_code((void*)addr, end-addr+1);
+    protectDB(addr, end-addr);  //end is 1byte after actual end
+    uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // pass 1, addresses, x86 jump addresses, flags
     arm_pass1(&helper, addr);
     // calculate barriers
@@ -421,7 +421,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     block->block = p;
     block->need_test = 0;
     //block->x86_addr = (void*)start;
-    block->x86_size = end-start+1;
+    block->x86_size = end-start;
     if(box86_dynarec_largest<block->x86_size)
         box86_dynarec_largest = block->x86_size;
     block->hash = X31_hash_code(block->x86_addr, block->x86_size);
@@ -444,7 +444,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             if(created) {    // avoid breaking a working block!
                 son->block = helper.sons_arm[i];
                 son->x86_addr = (void*)helper.sons_x86[i];
-                son->x86_size = end-helper.sons_x86[i]+1;
+                son->x86_size = end-helper.sons_x86[i];
                 if(!son->x86_size) {printf_log(LOG_NONE, "Warning, son with null x86 size! (@%p / ARM=%p)", son->x86_addr, son->block);}
                 son->father = block;
                 son->done = 1;
