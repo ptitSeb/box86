@@ -2546,11 +2546,21 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("IDIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEDH(x1);
-                    if(ed!=x1) {MOV_REG(x1, ed);}
-                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
-                    CALL(idiv32, -1, 0);
-                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    if(arm_div && ninst && PK(-2)==0x99 && dyn->insts[ninst-1].x86.size==1) {
+                        // previous instruction is CDQ, so its 32bits / 32bits
+                        SET_DFNONE(x2); // flags are undefined
+                        GETED;
+                        SDIV(x1, xEAX, ed); // x1 = xEAX / ed
+                        MLS(x14, x1, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MOV_REG(xEAX, x1);
+                        MOV_REG(xEDX, x14);
+                    } else {
+                        GETEDH(x1);
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        CALL(idiv32, -1, 0);
+                        LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    }
                     break;
             }
             break;
