@@ -47,6 +47,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                     | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
+                    | 1<<28     // HT / Multi-core
                     ;
             R_ECX =   1<<0      // SSE3
                     | 1<<9      // SSSE3
@@ -159,12 +160,12 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                 if(!MHz)
 					MHz = get_cpuMhz();
                 if(MHz>15000) { // swiches to GHz display...
-                    char tmp[5];
+                    char tmp[12];
                     sprintf(tmp, "%1.2f", MHz/1000.);
                     R_ECX = *(uint32_t*)tmp;
                     R_EDX = 0x007A4847; // GHz
                 } else {
-                    char tmp[5];
+                    char tmp[12];
                     sprintf(tmp, "%04d", MHz);
                     R_ECX = *(uint32_t*)tmp;
                     R_EDX = 0x007A484D; // MHz
