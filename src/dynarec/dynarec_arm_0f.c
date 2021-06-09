@@ -1510,6 +1510,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             STR_IMM9(x14, ed, fixedaddress);
                         }
                         break;
+                    case 5:
+                        INST_NAME("XRSTOR Ed (not implemented");
+                        FAKEED;
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                        CALL(arm_ud, -1, 0);
+                        break;
                     default:
                         DEFAULT;
                 }
