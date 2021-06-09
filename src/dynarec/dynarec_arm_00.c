@@ -2514,11 +2514,34 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEDH(x1);
-                    if(ed!=x1) {MOV_REG(x1, ed);}
-                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
-                    CALL(div32, -1, 0);
-                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    if(arm_div && ninst && PK(-3)==0x31 && PK(-2)==0xD2) {
+                        // previous instruction is XOR EDX, EDX, so its 32bits / 32bits
+                        SET_DFNONE(x2); // flags are undefined
+                        GETED;
+                        UDIV(x1, xEAX, ed); // x1 = xEAX / ed
+                        MLS(x14, x1, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MOV_REG(xEAX, x1);
+                        MOV_REG(xEDX, x14);
+                    } else {
+                        GETEDH(x1);
+                        if(arm_div) {
+                            CMPS_IMM8(xEDX, 0);
+                            B_MARK(cEQ);
+                        }
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        CALL(div32, -1, 0);
+                        LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        if(arm_div) {
+                            B_NEXT(c__);
+                            MARK;
+                            UDIV(x2, xEAX, ed); // x2 = xEAX / ed
+                            MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
+                            MOV_REG(xEAX, x2);
+                            MOV_REG(xEDX, x14);
+                            SET_DFNONE(x2); // flags are undefined
+                        }
+                    }
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");

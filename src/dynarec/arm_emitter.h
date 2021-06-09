@@ -451,6 +451,10 @@ Op is 20-27
 #define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | 0b000000<<22 | (A)<<21 | (S)<<20 | (Rd)<<16 | (Rn)<<12 | (Rs)<<8 | 0b1001<<4 | (Rm))
 #define MUL(Rd, Rm, Rn)     EMIT(MULMULA(c__, 0, 0, (Rd), 0, (Rm), (Rn)))
 
+#define MLS_gen(Cond, Rd, Ra, Rm, Rn)     (Cond | 0b00000110<<20 | (Rd)<<16 | (Ra)<<12 | (Rm)<<8 | 0b1001<<4 | (Rn))
+//MLS : Rd = Ra - Rm*Rn
+#define MLS(Rd, Rm, Rn, Ra)         EMIT(MLS_gen(c__, Rd, Ra, Rm, Rn))
+
 #define SMUL_16_gen(cond, Rd, Rm, M, N, Rn) (cond | 0b00010110<<20 | (Rd)<<16 | (Rm)<<8 | 1<<7 | (M)<<6 | (N)<<5 | (Rn))
 // Signed Mul between Rn[0..15] * Rm[0..15] => Rd
 #define SMULBB(Rd, Rn, Rm)  EMIT(SMUL_16_gen(c__, Rd, Rm, 0, 0, Rn))
@@ -553,11 +557,11 @@ Op is 20-27
 
 #define SDIV_gen(cond, Rd, Rm, Rn)  (cond | 0b0111<<24 | 0b0001<<20 | (Rd)<<16 | 0b1111<<12 | (Rm)<<8 | 0b0001<<4 | (Rn))
 // Signed Div Rd <- Rn/Rm
-#define SDIV(Rd, Rm, Rn)    EMIT(SDIV_gen(c__, Rd, Rm, Rn))
+#define SDIV(Rd, Rn, Rm)    EMIT(SDIV_gen(c__, Rd, Rm, Rn))
 
 #define UDIV_gen(cond, Rd, Rm, Rn)  (cond | 0b0111<<24 | 0b0011<<20 | (Rd)<<16 | 0b1111<<12 | (Rm)<<8 | 0b0001<<4 | (Rn))
 // Unsigned Div Rd <- Rn/Rm
-#define UDIV(Rd, Rm, Rn)    EMIT(UDIV_gen(c__, Rd, Rm, Rn))
+#define UDIV(Rd, Rn, Rm)    EMIT(UDIV_gen(c__, Rd, Rm, Rn))
 
 // Yield
 #define YIELD(cond) EMIT(cond | 0b00110010<<20 | 0b1111<<12 | 1)
