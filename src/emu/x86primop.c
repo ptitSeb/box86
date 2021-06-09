@@ -1276,10 +1276,10 @@ void div16(x86emu_t *emu, uint16_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_SF);
-	CONDITIONAL_SET_FLAG(div == 0, F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
+	//CLEAR_FLAG(F_CF);
+	//CLEAR_FLAG(F_SF);
+	//CONDITIONAL_SET_FLAG(div == 0, F_ZF);
+	//CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_AX = (uint16_t)div;
 	R_DX = (uint16_t)mod;
@@ -1305,11 +1305,11 @@ void div32(x86emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_SF);
-	SET_FLAG(F_ZF);
-	CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
+	//CLEAR_FLAG(F_CF);
+	//CLEAR_FLAG(F_AF);
+	//CLEAR_FLAG(F_SF);
+	//SET_FLAG(F_ZF);
+	//CONDITIONAL_SET_FLAG(PARITY(mod & 0xff), F_PF);
 
 	R_EAX = (uint32_t)div;
 	R_EDX = (uint32_t)mod;
