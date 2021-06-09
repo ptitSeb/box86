@@ -627,6 +627,16 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     }
 }
 
+void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+        memprot[i] = prot;
+    }
+}
+
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);

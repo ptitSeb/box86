@@ -696,6 +696,23 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             glitch_addr = NULL;
             glitch_prot = 0;
         }
+        if(addr && pc && (prot&(PROT_READ|PROT_WRITE)==(PROT_READ|PROT_WRITE))) {
+            static void* glitch_pc = NULL;
+            static void* glitch_addr = NULL;
+            static int glitch_prot = 0;
+            if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
+                dynarec_log(LOG_INFO, "Is that a multi process glitch too?\n");
+                relockMutex(Locks);
+                glitch_pc = pc;
+                glitch_addr = addr;
+                glitch_prot = prot;
+                forceProtection(addr, 1, prot); // force the protection
+                return; // try again
+            }
+            glitch_pc = NULL;
+            glitch_addr = NULL;
+            glitch_prot = 0;
+        }
     }
 #else
     void* db = NULL;
