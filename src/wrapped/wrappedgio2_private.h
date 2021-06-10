@@ -1777,7 +1777,7 @@ GO(g_themed_icon_prepend_name, vFpp)
 //GO(g_unix_fd_list_append, 
 //GO(g_unix_fd_list_get, 
 //GO(g_unix_fd_list_get_length, 
-//GO(g_unix_fd_list_get_type, 
+GO(g_unix_fd_list_get_type, iFv)
 //GO(g_unix_fd_list_new, 
 //GO(g_unix_fd_list_new_from_array, 
 //GO(g_unix_fd_list_peek_fds, 
