@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -1581,12 +1582,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x14, 0);
-                    MOV32(xEIP, ip+1); // read the 0xCC
-                    addr+=4+4;
-                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
-                    CALL_S(x86Int3, -1, 0);
-                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
-                    MOV32(x3, ip+1+2+4+4); // expected return address
+                    if(box86_log<2) {   // call the wrapper directly
+                        uintptr_t ncall[2]; // to avoid BUSERROR!!!
+                        memcpy(ncall,  (void*)addr, 2*sizeof(void*));   // the wrapper + function
+                        addr+=8;
+                        MOV32(xEIP, addr);
+                        MOV_REG(x3, xEIP);
+                        MOV32(x1, ncall[1]);
+                        STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        CALL_S((void*)ncall[0], -1, (1<<x3));
+                        LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                    } else {
+                        // use x86Int3 to have trace
+                        MOV32(xEIP, ip+1); // read the 0xCC
+                        addr+=4+4;
+                        STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        CALL_S(x86Int3, -1, 0);
+                        LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        MOV32(x3, ip+1+2+4+4); // expected return address
+                    }
                     CMPS_REG_LSL_IMM5(xEIP, x3, 0);
                     B_MARK(cNE);
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
@@ -2009,8 +2023,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 tmp = 1;
             else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
                 tmp = 2;
-            else if(isNativeCall(dyn, addr+i32, NULL, NULL))
-                tmp = 3;
+            /*else if(isNativeCall(dyn, addr+i32, NULL, NULL))
+                tmp = 3;*/
             else 
                 tmp = 0;
             #elif STEP < 2
@@ -2018,8 +2032,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 tmp = dyn->insts[ninst].pass2choice = 1;
             else if (((addr+i32)>0x10000) && (PK(i32+0)==0x8B) && (((PK(i32+1))&0xC7)==0x04) && (PK(i32+2)==0x24) && (PK(i32+3)==0xC3))
                 tmp = dyn->insts[ninst].pass2choice = 2;
-            else if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
-                tmp = dyn->insts[ninst].pass2choice = 3;
+            /*else if(isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;*/
             else 
                 tmp = dyn->insts[ninst].pass2choice = 0;
             #else
@@ -2039,7 +2053,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
                     break;
-                case 3:
+                // disabling this to avoid fetching data outside current block (in case this part changed, this block will not been marck as dirty)
+                /*case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     BARRIER(1);
                     BARRIER_NEXT(1);
@@ -2048,11 +2063,22 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x14, 0);
-                    MOV32(xEIP, dyn->insts[ninst].natcall); // read the 0xCC already
-                    STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
-                    CALL_S(x86Int3, -1, 0);
-                    LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
-                    MOV32(x3, dyn->insts[ninst].natcall+2+4+4);
+                    if(box86_log<2 && dyn->insts && dyn->insts[ninst].natcall) {   // call the wrapper directly
+                        uintptr_t ncall[2];
+                        memcpy(ncall,  (void*)(dyn->insts[ninst].natcall+2), 2*sizeof(void*));   // the wrapper + function
+                        MOV32(xEIP, dyn->insts[ninst].natcall+2+4+4);
+                        MOV_REG(x3, xEIP);
+                        MOV32(x1, ncall[1]);
+                        STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        CALL_S((void*)ncall[0], -1, (1<<x3));
+                        LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                    } else {
+                        MOV32(xEIP, dyn->insts[ninst].natcall); // read the 0xCC already
+                        STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        CALL_S(x86Int3, -1, 0);
+                        LDM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                        MOV32(x3, dyn->insts[ninst].natcall+2+4+4);
+                    }
                     CMPS_REG_LSL_IMM5(xEIP, x3, 0);
                     B_MARK(cNE);    // Not the expected address, exit dynarec block
                     POP1(xEIP);   // pop the return address
@@ -2067,7 +2093,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_NEXT(cNE);    // not quitting, so lets continue
                     MARK;
                     jump_to_epilog(dyn, 0, xEIP, ninst);
-                    break;
+                    break;*/
                 default:
                     if(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags) {
                         READFLAGS(X_PEND);  // that's suspicious

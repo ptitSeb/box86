@@ -332,6 +332,11 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask, int saveflags)
 {
+    if(ret!=-2 && !mask) {
+        // ARM ABI require the stack to be 8-bytes aligned!
+        // so, if no mask asked, add one to stay 8-bytes aligned
+        if(ret!=x3) mask=1<<x3; else mask=1<<x14;
+    }
     if(ret!=-2) {
         PUSH(xSP, (1<<xEmu) | mask);
     }

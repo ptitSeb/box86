@@ -9,7 +9,7 @@
 .global arm_prolog
 arm_prolog:
     //save all used register
-    push     {r4-r11, lr}
+    push     {r4-r12, lr}
     vpush     {d8-d15}
     //setup emu -> register
     //push     {r0}
