@@ -204,6 +204,12 @@
 // CALL_S will use x3 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret, M) call_c(dyn, ninst, F, x3, ret, M, 0)
+// CALL_1D will use x3 for the call address. Return value in D0, 1 ARG in D0
+#define CALL_1D(F, M) call_d(dyn, ninst, F, NULL, 1, x3, -1, M, 0)
+// CALL_2D will use x3 for the call address. Return value in D0, 2 ARGs in D0, D1
+#define CALL_2D(F, M) call_d(dyn, ninst, F, NULL, 2, x3, -1, M, 0)
+// CALL_1DD will use x3 for the call address. Return value in D0, 1 ARG in D0, cals 2 functions in a row
+#define CALL_1DD(F, F2, M) call_d(dyn, ninst, F, F2, 1, x3, -1, M, 0)
 
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
@@ -376,6 +382,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define retn_to_epilog  STEPNAME(retn_to_epilog_)
 #define iret_to_epilog  STEPNAME(iret_to_epilog_)
 #define call_c          STEPNAME(call_c_)
+#define call_d          STEPNAME(call_d_)
 #define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define emit_cmp8       STEPNAME(emit_cmp8)
@@ -496,6 +503,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask, int saveflags);
+void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg, int ret, uint32_t mask, int saveflags);
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);

@@ -601,6 +601,8 @@ Op is 20-27
 #define VMOVcond_32(cond, Sd, Sm)     EMIT(cond | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b01<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15))
 // Move between Sd and Imm
 #define VMOV_i_32(Sd, Imm8)     EMIT(c__ | (0b11101<<23) | (((Sd)&1)<<22) | (0b11<<20) | ((((Imm8)>>4)&0xf)<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (0b00<<6) | ((Imm8)&15))
+// Move between Dd and Imm
+#define VMOV_i_64(Dd, Imm8)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | ((((Imm8)>>4)&0xf)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b00<<6) | ((Imm8)&15))
 
 #define VMOVtoDx_gen(Vd, D, Rt, opc1, opc2)   (0b1110<<24 | 0<<23 | (opc1)<<21 | (Vd)<<16 | (Rt)<<12 | 0b1011<<8 | (D)<<7 | (opc2)<<5 | 1<<4)
 // Move between Rt and Dm[x]
