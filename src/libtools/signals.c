@@ -500,6 +500,12 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.arm_fp;
         sigcontext->uc_mcontext.gregs[REG_EIP] = getX86Address(db, (uintptr_t)pc);
         sigcontext->uc_mcontext.gregs[REG_EFL] = p->uc_mcontext.arm_ip;
+        int special = isSpecialCases(sigcontext->uc_mcontext.gregs[REG_EIP], getDBX86N(db, (uintptr_t)pc));
+        switch(special) {
+            case CASE_MOVS:
+                sigcontext->uc_mcontext.gregs[REG_ESI] -= p->uc_mcontext.arm_r3;
+                break;
+        }
     }
 #endif
     // get FloatPoint status
