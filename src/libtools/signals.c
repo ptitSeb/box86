@@ -390,6 +390,45 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
     } while(db->instsize[i].x86 || db->instsize[i].nat);
     return x86addr;
 }
+
+static int getDBX86N(dynablock_t* db, uintptr_t arm_addr)
+{
+    uintptr_t x86addr = (uintptr_t)db->x86_addr;
+    uintptr_t armaddr = (uintptr_t)db->block;
+    int i = 0;
+    do {
+        int x86sz = 0;
+        int armsz = 0;
+        do {
+            x86sz+=db->instsize[i].x86;
+            armsz+=db->instsize[i].nat*4;
+        }
+        while(!db->instsize[++i].x86);
+        if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
+            return (arm_addr-armaddr)>>2;
+        armaddr+=armsz;
+        x86addr+=x86sz;
+        if(arm_addr==armaddr)
+            return 0;
+    } while(db->instsize[i].x86 || db->instsize[i].nat);
+    return (arm_addr-armaddr)>>2;
+}
+
+#define CASE_MOVS   1
+int isSpecialCases(uintptr_t x86pc, int n)
+{
+    if(*(uint8_t*)x86pc==0xF2 || *(uint8_t*)(x86pc)==0xF3) {
+        if(*(uint8_t*)(x86pc+1)>=0xA4 && *(uint8_t*)(x86pc+1)<=0xA7) {
+            if(n==6)    // special case if REP MOVS(B/D) happens on STR (so after LDR): 
+                        // or the second LDR on CMPS
+                        // need to adjust ESI to undo the read
+                return CASE_MOVS;
+            return 0;
+        }
+        return 0;
+    }
+    return 0;
+}
 #endif
 
 void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
@@ -642,7 +681,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x86_addr):NULL);
+        dynarec_log(LOG_INFO/*LOG_DEBUG*/, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x86_addr):NULL);
         if(db && ((addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
@@ -657,10 +696,17 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 ejb->emu->regs[_DI].dword[0] = p->uc_mcontext.arm_fp;
                 ejb->emu->ip.dword[0] = getX86Address(db, (uintptr_t)pc);
                 ejb->emu->eflags.x32 = p->uc_mcontext.arm_ip;
+                // check special case opcodes, to adjust regs
+                int special = isSpecialCases(ejb->emu->ip.dword[0], getDBX86N(db, (uintptr_t)pc));
+                switch(special) {
+                    case CASE_MOVS:
+                        ejb->emu->regs[_SI].dword[0] -= p->uc_mcontext.arm_r3;
+                        break;
+                }
                 if(addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size)) {
-                    dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock!\n");
+                    dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock (speical=%d)!\n", special);
                 } else {
-                    dynarec_log(LOG_INFO, "Dynablock unprotected, getting out!\n");
+                    dynarec_log(LOG_INFO, "Dynablock %p(%p) unprotected, getting out (arm pc=%p, x86_pc=%p, special=%d)!\n", db, db->x86_addr, pc, (void*)ejb->emu->ip.dword[0], special);
                 }
                 relockMutex(Locks);
                 siglongjmp(ejb->jmpbuf, 2);
@@ -706,7 +752,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
-                forceProtection(addr, 1, prot); // force the protection
+                forceProtection((uintptr_t)addr, 1, prot); // force the protection
                 return; // try again
             }
             glitch_pc = NULL;
