@@ -500,14 +500,16 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("XCHG Ew, Gw");
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
-                GETGW(x14);
+                GETGD;
+                UXTH(x14, gd, 0);
                 ed = xEAX + (nextop&7);
                 UXTH(x1, ed, 0);
                 // do the swap 14 -> ed, 1 -> gd
                 BFI(gd, x1, 0, 16);
                 BFI(ed, x14, 0, 16);
             } else {
-                GETGW(x14);
+                GETGD;
+                UXTH(x14, gd, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
                 #if 0
                 MARKLOCK;
