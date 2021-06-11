@@ -365,7 +365,7 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     if(ret!=-2 && !mask) {
         // ARM ABI require the stack to be 8-bytes aligned!
         // so, if no mask asked, add one to stay 8-bytes aligned
-        if(ret!=x3) mask=1<<x3; else mask=1<<x14;
+        if(ret!=xFlags) mask=1<<xFlags; else mask=1<<x3;
     }
     if(ret!=-2) {
         PUSH(xSP, (1<<xEmu) | mask);
