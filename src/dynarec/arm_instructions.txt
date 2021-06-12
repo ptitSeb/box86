@@ -495,6 +495,8 @@ ARMs cond 0 1 1 0 U 1 0 0 Rn Rt imm5 type 0 Rm STRB<c> <Rt>, [<Rn>], +/-<Rm>{, <
 ARMs cond 0 1 1 0 U 1 0 1 Rn Rt imm5 type 0 Rm LDRB<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
 ARMs cond 0 1 1 0 U 1 1 0 Rn Rt imm5 type 0 Rm STRBT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
 ARMs cond 0 1 1 0 U 1 1 1 Rn Rt imm5 type 0 Rm LDRBT<c> <Rt>, [<Rn>], +/-<Rm>{, <shift>}
+ARM_ cond 0 1 1 1 0 0 0 1 Rd (1) (1) (1) (1) Rm 0 0 0 1 Rn SDIV<c> <Rd>, <Rn>, <Rm>
+ARM_ cond 0 1 1 1 0 0 1 1 Rd (1) (1) (1) (1) Rm 0 0 0 1 Rn UDIV<c> <Rd>, <Rn>, <Rm>
 ARMs cond 0 1 1 1 U 0 W 0 Rn Rt imm5 type 0 Rm STR<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
 ARMs cond 0 1 1 1 U 0 W 1 Rn Rt imm5 type 0 Rm LDR<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}
 ARMs cond 0 1 1 1 U 1 W 0 Rn Rt imm5 type 0 Rm STRB<c> <Rt>, [<Rn>, +/-<Rm>{, <shift>}]{!}

@@ -4401,6 +4401,20 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t shift = ((opcode >> 4) & 0xFE);
 		
 		sprintf(ret, "LDRBT%s %s, [%s], %s%s%s", cond, regname[rt], regname[rn], (u ? "" : "-"), regname[rm], print_shift(shift, 1));
+	} else if ((opcode & 0x0FF000F0) == 0x07100010) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 16) & 0xF;
+		int rn = (opcode >> 0) & 0xF;
+		int rm = (opcode >> 8) & 0xF;
+		
+		sprintf(ret, "SDIV%s %s, %s, %s", cond, regname[rd], regname[rn], regname[rm]);
+	} else if ((opcode & 0x0FF000F0) == 0x07300010) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 16) & 0xF;
+		int rn = (opcode >> 0) & 0xF;
+		int rm = (opcode >> 8) & 0xF;
+		
+		sprintf(ret, "UDIV%s %s, %s, %s", cond, regname[rd], regname[rn], regname[rm]);
 	} else if ((opcode & 0x0F500010) == 0x07000000) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rt = (opcode >> 12) & 0xF;
