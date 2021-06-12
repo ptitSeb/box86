@@ -1377,7 +1377,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, Ib");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             GETED;
             GETGD;
             u8 = F8;
@@ -1387,7 +1387,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             UXTB(x3, xECX, 0);
             GETEDW(x14, x1);
             GETGD;
@@ -1539,7 +1539,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xB0:
             INST_NAME("CMPXCHG Eb, Gb");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETEB(x2)
             UXTB(x1, xEAX, 0);
@@ -1560,7 +1560,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xB1:
             INST_NAME("CMPXCHG Ed, Gd");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETED;
             GETGD;
@@ -1819,7 +1819,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC0:
             INST_NAME("XADD Gb, Eb");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETEB(x2);
             GETGB(x1);
@@ -1829,7 +1829,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC1:
             INST_NAME("XADD Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
             GETED;
@@ -1959,7 +1959,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC7:
             INST_NAME("CMPXCHG8B Gq, Eq");
-            SETFLAGS(X_ZF, SF_SET);
+            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
             addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-4, 0);
             LDR_IMM9(x1, wback, fixedaddress+0);

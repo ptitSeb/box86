@@ -37,7 +37,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x03:
             INST_NAME("ADD Gd, FS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_fsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -47,7 +47,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x2B:
             INST_NAME("SUB Gd, FS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_fsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -57,7 +57,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x33:
             INST_NAME("XOR Gd, FS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_fsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -67,7 +67,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x3B:
             INST_NAME("CMP Gd, FS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_fsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;

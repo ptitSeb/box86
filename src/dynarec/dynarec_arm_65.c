@@ -40,7 +40,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x03:
             INST_NAME("ADD Gd, GS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -50,7 +50,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x2B:
             INST_NAME("SUB Gd, GS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -60,7 +60,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x33:
             INST_NAME("XOR Gd, GS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -70,7 +70,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x3B:
             INST_NAME("CMP Gd, GS:Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
@@ -103,7 +103,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     INST_NAME("ADD GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -112,7 +112,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1: //OR
                     INST_NAME("OR GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -122,7 +122,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2: //ADC
                     INST_NAME("ADC GS:Eb, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -132,7 +132,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3: //SBB
                     INST_NAME("SBB GS:Eb, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -141,7 +141,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: //AND
                     INST_NAME("AND GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -150,7 +150,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5: //SUB
                     INST_NAME("SUB GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -159,7 +159,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6: //XOR
                     INST_NAME("XOR GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -168,7 +168,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7: //CMP
                     INST_NAME("CMP GS:Eb, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x1);
                     GETEBO(x1);
                     u8 = F8;
@@ -191,7 +191,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         INST_NAME("ADD Ed, Ib");
                     }
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -200,7 +200,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("OR Ed, Id");} else {INST_NAME("OR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -210,7 +210,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2: //ADC
                     if(opcode==0x81) {INST_NAME("ADC Ed, Id");} else {INST_NAME("ADC Ed, Ib");}
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -220,7 +220,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3: //SBB
                     if(opcode==0x81) {INST_NAME("SBB Ed, Id");} else {INST_NAME("SBB Ed, Ib");}
                     READFLAGS(X_CF);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -229,7 +229,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("AND Ed, Id");} else {INST_NAME("AND Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -238,7 +238,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("SUB Ed, Id");} else {INST_NAME("SUB Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -247,7 +247,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("XOR Ed, Id");} else {INST_NAME("XOR Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;
@@ -256,7 +256,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7: //CMP
                     if(opcode==0x81) {INST_NAME("CMP Ed, Id");} else {INST_NAME("CMP Ed, Ib");}
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_tlsdata(dyn, addr, ninst, x14);
                     GETEDO2(x14);
                     if(opcode==0x81) i32 = F32S; else i32 = F8S;

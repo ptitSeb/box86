@@ -295,7 +295,7 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND) && dyn->state_flags!=SF_SET) {     \
+    if(((A)!=X_PEND) && dyn->state_flags!=SF_SET && dyn->state_flags!=SF_SET_PENDING) { \
         if(dyn->state_flags!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \
@@ -311,8 +311,9 @@
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)  \
     if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~((A)/*|X_PEND*/)))) \
-        READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)));    \
-    dyn->state_flags = (B==SF_SUBSET)?SF_SET:B
+        READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)|X_PEND));  \
+    dyn->state_flags = (B==SF_SUBSET)?SF_SET:                       \
+        ((B==SF_SET_PENDING && !(dyn->insts[ninst].x86.need_flags&X_PEND)?SF_SET:B))
 #endif
 #ifndef JUMP
 #define JUMP(A) 
