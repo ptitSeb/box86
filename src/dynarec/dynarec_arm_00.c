@@ -2540,13 +2540,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    if(arm_div && ninst && PK(-3)==0x31 && PK(-2)==0xD2) {
+                    if(arm_div && ninst && dyn->insts 
+                       && dyn->insts[ninst-1].x86.addr 
+                       && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x31 
+                       && *(uint8_t*)(dyn->insts[ninst-1].x86.addr+1)==0xD2) {
                         // previous instruction is XOR EDX, EDX, so its 32bits / 32bits
                         SET_DFNONE(x2); // flags are undefined
                         GETED;
-                        UDIV(x1, xEAX, ed); // x1 = xEAX / ed
-                        MLS(x14, x1, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
-                        MOV_REG(xEAX, x1);
+                        UDIV(x2, xEAX, ed); // x1 = xEAX / ed
+                        MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MOV_REG(xEAX, x2);
                         MOV_REG(xEDX, x14);
                     } else {
                         GETEDH(x1);
@@ -2572,13 +2575,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("IDIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
-                    if(arm_div && ninst && PK(-2)==0x99 && dyn->insts[ninst-1].x86.size==1) {
+                    if(arm_div && ninst && dyn->insts
+                       &&  dyn->insts[ninst-1].x86.addr 
+                       && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x99) {
                         // previous instruction is CDQ, so its 32bits / 32bits
                         SET_DFNONE(x2); // flags are undefined
                         GETED;
-                        SDIV(x1, xEAX, ed); // x1 = xEAX / ed
-                        MLS(x14, x1, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
-                        MOV_REG(xEAX, x1);
+                        SDIV(x2, xEAX, ed); // x1 = xEAX / ed
+                        MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MOV_REG(xEAX, x2);
                         MOV_REG(xEDX, x14);
                     } else {
                         GETEDH(x1);
