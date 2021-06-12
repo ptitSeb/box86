@@ -477,7 +477,7 @@ void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         }
         return;
     }
-    BFI(s1, s1, 8, 8);  // duplicate the value
+    BFI(s1, s1, 24, 8);  // duplicate the value for rotate left
     MOV_REG_ROR_IMM5(s1, s1, 32-(c&7));
     //AND_IMM8(s1, s1, 0xff);
     IFX(X_PEND) {
@@ -490,6 +490,41 @@ void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         if(c==1) {
             ADD_REG_LSR_IMM5(s3, s1, s1, 7);
             BFI(xFlags, s3, F_OF, 1);
+        }
+    }
+}
+
+// emit ROR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
+{
+    IFX(X_PEND) {
+        MOVW(s3, c);
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        SET_DF(s4, d_ror8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    if(!c) {
+        IFX(X_PEND) {
+            STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        }
+        return;
+    }
+    BFI(s1, s1, 8, 8);  // duplicate the value for Rotate right
+    MOV_REG_ROR_IMM5(s1, s1, c&7);
+    IFX(X_PEND) {
+        AND_IMM8(s1, s1, 0xff);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_CF) {
+        MOV_REG_LSR_IMM5(s3, s1, 7);
+        BFI(xFlags, s3, F_CF, 1);
+    }
+    IFX(X_OF) {
+        if(c==1) {
+            MOV_REG_LSR_IMM5(s4, s1, 6);
+            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+            BFI(xFlags, s4, F_OF, 1);
         }
     }
 }

@@ -1361,12 +1361,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETEB(x1);
                     u8 = F8;
-                    MOVW(x2, u8);
-                    CALL_(ror8, ed, (1<<x3));
+                    emit_ror8c(dyn, ninst, x1, u8&0x1f, x2, x14);
                     EBBACK;
                     break;
                 case 2:
