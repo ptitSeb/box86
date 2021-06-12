@@ -1027,7 +1027,6 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
                     UFLAG_DF(x1, d_imul16);
                     GETEW(x1);
