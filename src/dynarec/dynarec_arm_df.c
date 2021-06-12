@@ -234,8 +234,8 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(parity) {
                         LDRD_IMM8(x2, wback, 0);    // x2/x3 is 64bits
                     } else {
-                        LDR(x2, wback, 0);
-                        LDR(x3, wback, 4);
+                        LDR_IMM9(x2, wback, 0);
+                        LDR_IMM9(x3, wback, 4);
                     }
                     MOVS_REG_LSR_IMM5(x14, x3, 31);    // x14 is sign bit
                     B_MARK(cEQ);    // no NEG is no sign bit
