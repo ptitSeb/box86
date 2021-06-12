@@ -340,6 +340,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x27:
             INST_NAME("DAA");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             READFLAGS(X_AF|X_CF);
             SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
             UXTB(x1, xEAX, 0);
@@ -401,6 +402,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x2F:
             INST_NAME("DAS");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             READFLAGS(X_AF|X_CF);
             SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
             UXTB(x1, xEAX, 0);
@@ -462,6 +464,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x37:
             INST_NAME("AAA");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             READFLAGS(X_AF);
             SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
             UXTH(x1, xEAX, 0);
@@ -529,6 +532,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x3F:
             INST_NAME("AAS");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             READFLAGS(X_AF);
             SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
             UXTH(x1, xEAX, 0);
@@ -1349,6 +1353,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
                     u8 = F8;
@@ -1358,6 +1363,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
                     u8 = F8;
@@ -1367,6 +1373,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("RCL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
@@ -1377,6 +1384,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("RCR Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
@@ -1455,6 +1463,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEDW(x14, x1);
@@ -1465,6 +1474,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEDW(x14, x1);
@@ -1666,6 +1676,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("ROL Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
                     }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1);
                     CALL_(rol8, x1, (1<<x3));
@@ -1680,12 +1691,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         AND_IMM8(x2, xECX, 0x1f);
                     }
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     GETEB(x1);
                     CALL_(ror8, x1, (1<<x3));
                     EBBACK;
                     break;
                 case 2:
                     if(opcode==0xD0) {INST_NAME("RCL Eb, 1");} else {INST_NAME("RCL Eb, CL");}
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
@@ -1695,6 +1708,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     if(opcode==0xD0) {INST_NAME("RCR Eb, 1");} else {INST_NAME("RCR Eb, CL");}
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
@@ -1772,6 +1786,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("RCL Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOVW(x2, 1);
@@ -1781,6 +1796,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOVW(x2, 1);
@@ -1861,6 +1877,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("RCL Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
@@ -1870,6 +1887,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
@@ -2462,6 +2480,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("MUL AL, Ed");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));
@@ -2470,6 +2489,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));
@@ -2478,6 +2498,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));
@@ -2486,6 +2507,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));

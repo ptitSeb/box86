@@ -656,7 +656,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETDIR(x3, 2);
             LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
             LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
-            CALL(cmp16, -1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x14);
             break;
 
         case 0xA9:
@@ -684,7 +684,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETDIR(x3, 2);
             UXTH(x1, xEAX, 0);
             LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
-            CALL(cmp16, -1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x14);
             break;
 
         case 0xB8:
@@ -1018,6 +1018,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("MUL AX, Ew");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
@@ -1026,6 +1027,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
                     UFLAG_DF(x1, d_imul16);
                     GETEW(x1);
@@ -1037,6 +1039,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
@@ -1045,6 +1048,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));

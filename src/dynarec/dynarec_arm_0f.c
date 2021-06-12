@@ -388,6 +388,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x31:
             INST_NAME("RDTSC");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             CALL(ReadTSC, xEAX, 0);   // will return the u64 in x1:xEAX
             MOV_REG(xEDX, x1);
             break;
@@ -1387,6 +1388,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             UXTB(x3, xECX, 0);
             GETEDW(x14, x1);
@@ -1452,6 +1454,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
             UXTB(x3, xECX, 0);
             GETEDW(x14, x1);
@@ -1474,6 +1477,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("FXSAVE Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
                         if((nextop&0xC0)==0xC0) {
                             DEFAULT;
@@ -1485,6 +1489,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, x1, x2, x3);
                         if((nextop&0xC0)==0xC0) {
                             DEFAULT;

@@ -113,6 +113,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE3:
             INST_NAME("FNINIT");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
             CALL(reset_fpu, -1, 0);
             break;
@@ -264,6 +265,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(x3, ed, 4);
                         STRH_IMM8(x14, ed, 8);
                     } else {
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
                         if(ed!=x1) {
                             MOV_REG(x1, ed);
                         }
@@ -273,6 +275,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x3, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {

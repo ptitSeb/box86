@@ -1199,14 +1199,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHLD Ew, Gw, Ib");
             } else {
                 INST_NAME("SHLD Ew, Gw, CL");
-                UXTB(x3, xECX, 0);
             }
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
             GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xA4) {
                 u8 = F8;
                 MOVW(x3, u8);
+            } else {
+                UXTB(x3, xECX, 0);
             }
             CALL(shld16, x1, (1<<wback));
             EWBACKW(x1);
@@ -1247,14 +1249,16 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHRD Ew, Gw, Ib");
             } else {
                 INST_NAME("SHRD Ew, Gw, CL");
-                UXTB(x3, xECX, 0);
             }
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
             GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xAC) {
                 u8 = F8;
                 MOVW(x3, u8);
+            } else {
+                UXTB(x3, xECX, 0);
             }
             CALL(shrd16, x1, (1<<wback));
             EWBACKW(x1);

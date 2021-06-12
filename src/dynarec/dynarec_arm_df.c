@@ -217,6 +217,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
@@ -224,6 +225,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FILD ST0, i64");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
@@ -231,6 +233,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
@@ -239,6 +242,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}

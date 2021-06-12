@@ -103,6 +103,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE5:
             INST_NAME("FXAM");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_refresh(dyn, ninst, x1, x2, 0);
             CALL(fpu_fxam, -1, 0);  // should be possible inline, but is it worth it?
             break;
@@ -166,6 +167,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xFC:
             INST_NAME("FRNDINT");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             // use C helper for now, nothing staightforward is available
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_frndint, -1, 0);
@@ -183,6 +185,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF0:
             INST_NAME("F2XM1");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_f2xm1, -1, 0);
             break;
@@ -243,12 +246,14 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fxtract, -1, 0);
             break;
         case 0xF5:
             INST_NAME("FPREM1");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem1, -1, 0);
@@ -271,6 +276,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF8:
             INST_NAME("FPREM");
+            MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem, -1, 0);
@@ -423,6 +429,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("FLDENV Ed");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {
@@ -440,6 +447,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("FNSTENV Ed");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                     if(ed!=x1) {
