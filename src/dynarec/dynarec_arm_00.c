@@ -2587,10 +2587,24 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MOV_REG(xEDX, x14);
                     } else {
                         GETEDH(x1);
+                        if(arm_div) {
+                            CMPS_IMM8(xEDX, 0); // compare to 0
+                            CMNS_IMM8_COND(cNE, xEDX, 1); // compare to FFFFFFFF if not 0
+                            B_MARK(cEQ);
+                        }
                         if(ed!=x1) {MOV_REG(x1, ed);}
                         STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                         CALL(idiv32, -1, 0);
                         LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        if(arm_div) {
+                            B_NEXT(c__);
+                            MARK;
+                            SDIV(x2, xEAX, ed); // x2 = xEAX / ed
+                            MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
+                            MOV_REG(xEAX, x2);
+                            MOV_REG(xEDX, x14);
+                            SET_DFNONE(x2); // flags are undefined
+                        }
                     }
                     break;
             }
