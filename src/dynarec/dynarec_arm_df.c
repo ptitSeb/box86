@@ -34,6 +34,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int v1, v2;
     int s0;
     int fixedaddress;
+    int parity;
 
     MAYUSE(s0);
     MAYUSE(v2);
@@ -223,13 +224,35 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbld, -1, 0);
                     break;
-                case 5: // could be inlined for most thing, but is it usefull?
+                case 5:
                     INST_NAME("FILD ST0, i64");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
-                    if(ed!=x1) {MOV_REG(x1, ed);}
-                    CALL(arm_fild64, -1, 0);
+                    v1 = x87_do_push(dyn, ninst, x1);
+                    v2 = fpu_get_scratch_double(dyn);
+                    s0 = fpu_get_scratch_single(dyn);
+                    parity = getedparity(dyn, ninst, addr, nextop, 3);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0);
+                    if(parity) {
+                        LDRD_IMM8(x2, wback, 0);    // x2/x3 is 64bits
+                    } else {
+                        LDR(x2, wback, 0);
+                        LDR(x3, wback, 4);
+                    }
+                    MOVS_REG_LSR_IMM5(x14, x3, 31);    // x14 is sign bit
+                    B_MARK(cEQ);    // no NEG is no sign bit
+                    RSBS_IMM8(x2, x2, 0);
+                    RSC_IMM8(x3, x3, 0);
+                    MARK;
+                    VMOVtoV(s0, x3);
+                    VCVT_F64_U32(v1, s0);
+                    VEOR(v2, v2, v2);
+                    MOVW(x1, 0x41F0);
+                    VMOVtoDx_16(v2, 3, x1);
+                    VMUL_F64(v1, v1, v2); // v1 = double high part of i64
+                    VMOVtoV(s0, x2);
+                    VCVT_F64_U32(v2, s0);
+                    VADD_F64(v1, v1, v2);
+                    TSTS_IMM8(x14, 1);
+                    VNEG_F64_cond(cNE, v1, v1);
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");

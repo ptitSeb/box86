@@ -169,6 +169,9 @@ Op is 20-27
 // rsb cond dst, src, #(imm8)
 #define RSB_COND_IMM8(cond, dst, src, imm8) \
     EMIT((cond) | 0x02600000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// rsc dst, src, #(imm8)
+#define RSC_IMM8(dst, src, imm8) \
+    EMIT(0xe2E00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 
 // and dst, src1, src2, lsl #imm
 #define AND_REG_LSL_IMM5(dst, src1, src2, imm5) \
@@ -648,6 +651,8 @@ Op is 20-27
 #define VCVTR_S32_F64(Sd, Dm)   EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from int32 Sm to double Dd
 #define VCVT_F64_S32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
+// Convert from uint32 Sm to double Dd
+#define VCVT_F64_U32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b111<<19) | (0b000<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from single Sm to int32 Sd, with Round toward Zero mode
 #define VCVT_S32_F32(Sd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (0<<8) | (1<<7) | (1<<6) | (((Sm)&1)<<5) | (((Sm)>>1)&15) )
 // Convert from single Sm to int32 Sd, with Round selection from FPSCR
@@ -694,6 +699,8 @@ Op is 20-27
 
 // Neg F64 Dd = - Dm
 #define VNEG_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
+// Neg F64 Dd = - Dm
+#define VNEG_F64_cond(cond, Dd, Dm)    EMIT((cond) | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b01<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // Sqrt F64 Dd = - Dm
 #define VSQRT_F64(Dd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0001<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
