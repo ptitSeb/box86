@@ -783,11 +783,11 @@ GO(BN_zero, vFp)
 //GO(CONF_module_add, 
 //GO(CONF_module_get_usr_data, 
 //GO(CONF_module_set_usr_data, 
-//GO(CONF_modules_finish, 
-//GO(CONF_modules_free, 
-//GO(CONF_modules_load, 
-//GO(CONF_modules_load_file, 
-//GO(CONF_modules_unload, 
+GO(CONF_modules_finish, vFi)
+GO(CONF_modules_free, vFv)
+GO(CONF_modules_load, iFppL)
+GO(CONF_modules_load_file, iFppL)
+GO(CONF_modules_unload, vFv)
 //GO(_CONF_new_data, 
 //GO(_CONF_new_section, 
 //GO(CONF_parse_list, 
