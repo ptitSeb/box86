@@ -1216,10 +1216,10 @@ GO(__open_2, iFpO)
 GOM(open64, iFEpOu)  //%% Weak
 // __open64 // Weak
 GO(__open64_2, iFpO)
-GOW(openat, iFipOu)
+GOW(openat, iFipON)
 // __openat_2
-GOW(openat64, iFipOuuuuu)   // variable arg...
-GO(__openat64_2, iFipOuuuuu)
+GOW(openat64, iFipON)
+GO(__openat64_2, iFipON)
 // __open_catalog
 GOW(opendir, pFp)
 GO(openlog, vFpii)
