@@ -973,9 +973,10 @@ int main(int argc, const char **argv, const char **env) {
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {
-        printf_log(LOG_INFO, "steam detected, forcing emulated libudev\n");
+        printf_log(LOG_INFO, "steam detected, forcing emulated libudev and gtk\n");
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
+        box86_nogtk = 1;
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport
     if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {
