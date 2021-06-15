@@ -432,7 +432,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
     }
     IFX(X_OF) {
         if(c==1) {
-            UBFX(s3, s2, 0, 1);
+            UBFX(s3, s1, (31-c), 1);
             XOR_IMM8_COND(cCS, s3, s3, 1);
             BFI(xFlags, s3, F_OF, 1);
         } else {
