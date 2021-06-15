@@ -385,7 +385,7 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
         VST1_64(0, xSP);    //store args on the stack
     } else {    // n == 2, nothing else!
         SUB_IMM8(xSP, xSP, n*8);
-        ADD_IMM8(reg, xSP, 8)
+        ADD_IMM8(reg, xSP, 8);
         VST1_64(1, reg);
         VST1_64(0, xSP);    //store args on the stack
     }
