@@ -559,7 +559,7 @@ int EXPORT my_uname(struct utsname *buf)
 {
     static int box64_tested = 0;
     static int box64_available = 0;
-    if(!box64_tested) {
+    /*if(!box64_tested) {
         char* box64path = strdup(my_context->box86path);
         char* p = strrchr(box64path, '/');
         if(p) {
@@ -570,7 +570,7 @@ int EXPORT my_uname(struct utsname *buf)
         }
         box64_tested = 1;
         free(box64path);
-    }
+    }*/
     // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
     int ret = uname(buf);
     strcpy(buf->machine, (box64_available)?"x86_64":"i686");
@@ -601,6 +601,9 @@ int EXPORT my_uname(struct utsname *buf)
 
 #ifndef O_TMPFILE
 #define O_TMPFILE (020000000 | O_DIRECTORY)
+#endif
+#ifndef O_PATH
+#define O_PATH     010000000
 #endif
 
 #define SUPER()     \
