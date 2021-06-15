@@ -359,6 +359,11 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
     SET_NODF();
 }
 
+#if defined(__ARM_PCS) && !defined(__ARM_PCS_VFP)
+// if __ARM_PCS then AARCCH32 is target
+// if __ARM_PCS_VFP then -mfloat-abi=hard is used
+#define ARM_SOFTFP
+#endif
 // call a function with n double args (taking care of the SOFTFP / HARD call) that return a double too
 void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg, int ret, uint32_t mask, int saveflags)
 {
@@ -374,7 +379,7 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     if(saveflags) {
         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
-    #ifdef __SOFTFP__
+    #ifdef ARM_SOFTFP
     if(n==1) {
         SUB_IMM8(xSP, xSP, 8);
         VST1_64(0, xSP);    //store args on the stack
@@ -388,13 +393,13 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
     if(fnc2) {
-        #ifdef __SOFTFP__
+        #ifdef ARM_SOFTFP
         STM(xSP, (1<<0)|(1<<1));    // put r0:r1 result on the stack for next call
         #endif
         MOV32(reg, (uintptr_t)fnc2);
         BLX(reg);
     }
-    #ifdef __SOFTFP__
+    #ifdef ARM_SOFTFP
     ADD_IMM8(xSP, xSP, n*8);
     VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     #endif
