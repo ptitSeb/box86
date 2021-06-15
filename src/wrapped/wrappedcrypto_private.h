@@ -42,7 +42,7 @@ GO(AES_wrap_key, iFppppi)
 //GO(_armv8_sha1_probe, 
 //GO(_armv8_sha256_probe, 
 //GO(asn1_add_error, 
-//GO(ASN1_add_oid_module, 
+GO(ASN1_add_oid_module, vFv)
 //GO(ASN1_BIT_STRING_check, 
 //GO(ASN1_BIT_STRING_free, 
 //GO(ASN1_BIT_STRING_get_bit, 
@@ -1493,7 +1493,7 @@ GO(EC_POINT_set_to_infinity, iFpp)
 //GO(EDIPARTYNAME_free, 
 //GO(EDIPARTYNAME_new, 
 GO(ENGINE_add, iFp)
-//GO(ENGINE_add_conf_module, 
+GO(ENGINE_add_conf_module, vFv)
 GO(ENGINE_by_id, pFp)
 GO(ENGINE_cleanup, vFv)
 //GO(engine_cleanup_add_first, 
@@ -1721,50 +1721,50 @@ GO(ERR_remove_thread_state, vFp)
 //GO(EVP_add_alg_module, 
 //GO(EVP_add_cipher, 
 //GO(EVP_add_digest, 
-//GO(EVP_aes_128_cbc, 
-//GO(EVP_aes_128_cbc_hmac_sha1, 
-//GO(EVP_aes_128_cbc_hmac_sha256, 
-//GO(EVP_aes_128_ccm, 
-//GO(EVP_aes_128_cfb, 
-//GO(EVP_aes_128_cfb1, 
-//GO(EVP_aes_128_cfb128, 
-//GO(EVP_aes_128_cfb8, 
-//GO(EVP_aes_128_ctr, 
-//GO(EVP_aes_128_ecb, 
-//GO(EVP_aes_128_gcm, 
-//GO(EVP_aes_128_ofb, 
-//GO(EVP_aes_128_wrap, 
-//GO(EVP_aes_128_xts, 
-//GO(EVP_aes_192_cbc, 
-//GO(EVP_aes_192_ccm, 
-//GO(EVP_aes_192_cfb, 
-//GO(EVP_aes_192_cfb1, 
-//GO(EVP_aes_192_cfb128, 
-//GO(EVP_aes_192_cfb8, 
-//GO(EVP_aes_192_ctr, 
-//GO(EVP_aes_192_ecb, 
-//GO(EVP_aes_192_gcm, 
-//GO(EVP_aes_192_ofb, 
-//GO(EVP_aes_192_wrap, 
-//GO(EVP_aes_256_cbc, 
-//GO(EVP_aes_256_cbc_hmac_sha1, 
-//GO(EVP_aes_256_cbc_hmac_sha256, 
-//GO(EVP_aes_256_ccm, 
-//GO(EVP_aes_256_cfb, 
-//GO(EVP_aes_256_cfb1, 
-//GO(EVP_aes_256_cfb128, 
-//GO(EVP_aes_256_cfb8, 
-//GO(EVP_aes_256_ctr, 
-//GO(EVP_aes_256_ecb, 
-//GO(EVP_aes_256_gcm, 
-//GO(EVP_aes_256_ofb, 
-//GO(EVP_aes_256_wrap, 
-//GO(EVP_aes_256_xts, 
-//GO(EVP_bf_cbc, 
-//GO(EVP_bf_cfb, 
-//GO(EVP_bf_cfb64, 
-//GO(EVP_bf_ecb, 
-//GO(EVP_bf_ofb, 
+GO(EVP_aes_128_cbc, pFv)
+GO(EVP_aes_128_cbc_hmac_sha1, pFv)
+GO(EVP_aes_128_cbc_hmac_sha256, pFv)
+GO(EVP_aes_128_ccm, pFv)
+GO(EVP_aes_128_cfb, pFv)
+GO(EVP_aes_128_cfb1, pFv)
+GO(EVP_aes_128_cfb128, pFv)
+GO(EVP_aes_128_cfb8, pFv)
+GO(EVP_aes_128_ctr, pFv)
+GO(EVP_aes_128_ecb, pFv)
+GO(EVP_aes_128_gcm, pFv)
+GO(EVP_aes_128_ofb, pFv)
+GO(EVP_aes_128_wrap, pFv)
+GO(EVP_aes_128_xts, pFv)
+GO(EVP_aes_192_cbc, pFv)
+GO(EVP_aes_192_ccm, pFv)
+GO(EVP_aes_192_cfb, pFv)
+GO(EVP_aes_192_cfb1, pFv)
+GO(EVP_aes_192_cfb128, pFv)
+GO(EVP_aes_192_cfb8, pFv)
+GO(EVP_aes_192_ctr, pFv)
+GO(EVP_aes_192_ecb, pFv)
+GO(EVP_aes_192_gcm, pFv)
+GO(EVP_aes_192_ofb, pFv)
+GO(EVP_aes_192_wrap, pFv)
+GO(EVP_aes_256_cbc, pFv)
+GO(EVP_aes_256_cbc_hmac_sha1, pFv)
+GO(EVP_aes_256_cbc_hmac_sha256, pFv)
+GO(EVP_aes_256_ccm, pFv)
+GO(EVP_aes_256_cfb, pFv)
+GO(EVP_aes_256_cfb1, pFv)
+GO(EVP_aes_256_cfb128, pFv)
+GO(EVP_aes_256_cfb8, pFv)
+GO(EVP_aes_256_ctr, pFv)
+GO(EVP_aes_256_ecb, pFv)
+GO(EVP_aes_256_gcm, pFv)
+GO(EVP_aes_256_ofb, pFv)
+GO(EVP_aes_256_wrap, pFv)
+GO(EVP_aes_256_xts, pFv)
+GO(EVP_bf_cbc, pFv)
+GO(EVP_bf_cfb, pFv)
+GO(EVP_bf_cfb64, pFv)
+GO(EVP_bf_ecb, pFv)
+GO(EVP_bf_ofb, pFv)
 //GO(EVP_BytesToKey, 
 //GO(EVP_camellia_128_cbc, 
 //GO(EVP_camellia_128_cfb1, 
@@ -1784,11 +1784,11 @@ GO(ERR_remove_thread_state, vFp)
 //GO(EVP_camellia_256_cfb8, 
 //GO(EVP_camellia_256_ecb, 
 //GO(EVP_camellia_256_ofb, 
-//GO(EVP_cast5_cbc, 
-//GO(EVP_cast5_cfb, 
-//GO(EVP_cast5_cfb64, 
-//GO(EVP_cast5_ecb, 
-//GO(EVP_cast5_ofb, 
+GO(EVP_cast5_cbc, pFv)
+GO(EVP_cast5_cfb, pFv)
+GO(EVP_cast5_cfb64, pFv)
+GO(EVP_cast5_ecb, pFv)
+GO(EVP_cast5_ofb, pFv)
 //GO(EVP_Cipher, 
 //GO(EVP_CIPHER_asn1_to_param, 
 //GO(EVP_CIPHER_block_size, 
@@ -2042,9 +2042,9 @@ GO(EVP_PKEY_up_ref, iFp)
 //GO(EVP_rc2_cfb64, 
 //GO(EVP_rc2_ecb, 
 //GO(EVP_rc2_ofb, 
-//GO(EVP_rc4, 
-//GO(EVP_rc4_40, 
-//GO(EVP_rc4_hmac_md5, 
+GO(EVP_rc4, pFv)
+GO(EVP_rc4_40, pFv)
+GO(EVP_rc4_hmac_md5, pFv)
 //GO(EVP_read_pw_string, 
 //GO(EVP_read_pw_string_min, 
 //GO(EVP_ripemd160, 
@@ -2617,7 +2617,7 @@ GOM(OpenSSL_add_all_digests, vFv) // No emu parameter
 //GO(OPENSSL_instrument_bus2, 
 //GO(OPENSSL_isservice, 
 //GO(OPENSSL_issetugid, 
-//GO(OPENSSL_load_builtin_modules, 
+GO(OPENSSL_load_builtin_modules, vFv)
 //GO(OPENSSL_memcmp, 
 //GO(OPENSSL_no_config, 
 //GO(OPENSSL_rdtsc, 
