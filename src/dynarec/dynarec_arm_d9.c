@@ -23,13 +23,11 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
-static const double d_1   = 1.0;
 static const double d_l2t = L2T;
 static const double d_l2e = L2E;
 static const double d_pi  = PI;
 static const double d_lg2 = LG2;
 static const double d_ln2 = LN2;
-static const double d_0   = 0.0;
 
 uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -46,6 +44,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(s0);
     MAYUSE(v2);
     MAYUSE(v1);
+    MAYUSE(j32);
 
     switch(nextop) {
 

@@ -31,6 +31,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     int ninst = 0;
     uintptr_t ip = addr;
     uintptr_t init_addr = addr;
+    MAYUSE(init_addr);
     int need_epilog = 1;
     dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
