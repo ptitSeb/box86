@@ -289,7 +289,7 @@ GO(SSL_CTX_new, pFp)
 //GO(SSL_CTX_sess_get_remove_cb, 
 //GO(SSL_CTX_sessions, 
 //GO(SSL_CTX_sess_set_get_cb, 
-//GO(SSL_CTX_sess_set_new_cb, 
+GOM(SSL_CTX_sess_set_new_cb, vFEpp)
 //GO(SSL_CTX_sess_set_remove_cb, 
 //GO(SSL_CTX_set1_param, 
 //GO(SSL_CTX_set_alpn_protos, 

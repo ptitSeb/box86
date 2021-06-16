@@ -39,6 +39,7 @@ typedef int     (*iFlpppp_t)    (long, void*, void*, void*, void*);
     GO(SSL_get_ex_new_index, iFlpppp_t)             \
     GO(SSL_set_psk_client_callback, vFpp_t)         \
     GO(SSL_CTX_set_next_proto_select_cb, vFppp_t)   \
+    GO(SSL_CTX_sess_set_new_cb, vFpp_t)             \
 
 typedef struct libssl_my_s {
     // functions
@@ -262,6 +263,29 @@ static void* find_proto_select_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSSL proto_select callback\n");
     return NULL;
 }
+// new_session_cb
+#define GO(A)   \
+static uintptr_t my_new_session_cb_fct_##A = 0;                                 \
+static int my_new_session_cb_##A(void* a, void* b)                              \
+{                                                                               \
+    return (int)RunFunction(my_context, my_new_session_cb_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* find_new_session_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_new_session_cb_fct_##A == (uintptr_t)fct) return my_new_session_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_new_session_cb_fct_##A == 0) {my_new_session_cb_fct_##A = (uintptr_t)fct; return my_new_session_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL new_session_cb callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -319,6 +343,13 @@ EXPORT void my_SSL_CTX_set_next_proto_select_cb(x86emu_t* emu, void* ctx, void* 
     libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
 
     my->SSL_CTX_set_next_proto_select_cb(ctx, find_proto_select_Fct(cb), arg);
+}
+
+EXPORT void my_SSL_CTX_sess_set_new_cb(x86emu_t* emu, void* ctx, void* cb)
+{
+    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
+
+    my->SSL_CTX_sess_set_new_cb(ctx, find_new_session_cb_Fct(cb));
 }
 
 #define CUSTOM_INIT \
