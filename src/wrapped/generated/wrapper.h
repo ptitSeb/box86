@@ -1601,6 +1601,7 @@ void iFEpippppp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuiipp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuuipp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuLppp(x86emu_t *emu, uintptr_t fnc);
+void iFEpLiipVV(x86emu_t *emu, uintptr_t fnc);
 void iFEppppipp(x86emu_t *emu, uintptr_t fnc);
 void iFiiiiiiip(x86emu_t *emu, uintptr_t fnc);
 void iFiiupiupi(x86emu_t *emu, uintptr_t fnc);
@@ -1973,6 +1974,5 @@ void iFEpvpVV(x86emu_t *emu, uintptr_t fnc);
 void iFEpvvpVV(x86emu_t *emu, uintptr_t fnc);
 void pFpVvvvvV(x86emu_t *emu, uintptr_t fnc);
 void iFEpuvvppp(x86emu_t *emu, uintptr_t fnc);
-void iFEpLvvpVV(x86emu_t *emu, uintptr_t fnc);
 
 #endif // __WRAPPER_H_

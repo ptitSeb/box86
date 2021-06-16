@@ -1598,7 +1598,7 @@ GOW(sigwait, iFpp)
 GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
 GOM(snprintf, iFEpLpVV) //%%
-GOM(__snprintf_chk, iFEpLvvpVV) //%%
+GOM(__snprintf_chk, iFEpLiipVV) //%%
 GOM(__snprintf, iFEpLpVV) //%%
 // sockatmark
 GOW(socket, iFiii)

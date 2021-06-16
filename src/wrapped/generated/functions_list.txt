@@ -1569,6 +1569,7 @@
 #() iFEpuuiipp
 #() iFEpuuuipp
 #() iFEpuuLppp
+#() iFEpLiipVV
 #() iFEppppipp
 #() iFiiiiiiip
 #() iFiiupiupi
@@ -1922,7 +1923,6 @@
 #() iFEpvvpVV -> iFEppVV
 #() pFpVvvvvV -> pFpVV
 #() iFEpuvvppp -> iFEpuppp
-#() iFEpLvvpVV -> iFEpLpVV
 wrappedlibxcb/Sdxmy_xcb_cookie_t
 wrappedlibxcb/SdXmy_xcb_XXX_iterator_t
 wrappedlibxcbdri2/SdXmy_xcb_cookie_t
