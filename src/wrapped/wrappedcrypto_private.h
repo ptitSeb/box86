@@ -76,13 +76,13 @@ GO(ASN1_ENUMERATED_to_BN, pFpp)
 //GO(asn1_ex_c2i, 
 //GO(asn1_ex_i2c, 
 //GO(asn1_Finish, 
-//GO(ASN1_GENERALIZEDTIME_adj, 
-//GO(ASN1_GENERALIZEDTIME_check, 
+GO(ASN1_GENERALIZEDTIME_adj, pFpuil)
+GO(ASN1_GENERALIZEDTIME_check, iFp)
 //GO(ASN1_GENERALIZEDTIME_free, 
 //GO(ASN1_GENERALIZEDTIME_new, 
-//GO(ASN1_GENERALIZEDTIME_print, 
-//GO(ASN1_GENERALIZEDTIME_set, 
-//GO(ASN1_GENERALIZEDTIME_set_string, 
+GO(ASN1_GENERALIZEDTIME_print, iFpp)
+GO(ASN1_GENERALIZEDTIME_set, pFpu)
+GO(ASN1_GENERALIZEDTIME_set_string, iFpp)
 //GO(asn1_generalizedtime_to_tm, 
 //GO(ASN1_GENERALSTRING_free, 
 //GO(ASN1_GENERALSTRING_new, 
@@ -198,15 +198,15 @@ GO(ASN1_STRING_type, iFp)
 //GO(ASN1_template_i2d, 
 //GO(ASN1_template_new, 
 //GO(asn1_template_print_ctx, 
-//GO(ASN1_TIME_adj, 
-//GO(ASN1_TIME_check, 
-//GO(ASN1_TIME_diff, 
+GO(ASN1_TIME_adj, pFpuil)
+GO(ASN1_TIME_check, iFp)
+GO(ASN1_TIME_diff, iFpppp)
 //GO(ASN1_TIME_free, 
 //GO(ASN1_TIME_new, 
-//GO(ASN1_TIME_print, 
-//GO(ASN1_TIME_set, 
-//GO(ASN1_TIME_set_string, 
-//GO(ASN1_TIME_to_generalizedtime, 
+GO(ASN1_TIME_print, iFpp)
+GO(ASN1_TIME_set, pFpu)
+GO(ASN1_TIME_set_string, pFpp)
+GO(ASN1_TIME_to_generalizedtime, pFpp)
 //GO(ASN1_TYPE_cmp, 
 //GO(ASN1_TYPE_free, 
 //GO(ASN1_TYPE_get, 
@@ -221,14 +221,14 @@ GO(ASN1_STRING_type, iFp)
 //GO(ASN1_UNIVERSALSTRING_new, 
 //GO(ASN1_UNIVERSALSTRING_to_string, 
 //GO(ASN1_unpack_string, 
-//GO(ASN1_UTCTIME_adj, 
-//GO(ASN1_UTCTIME_check, 
-//GO(ASN1_UTCTIME_cmp_time_t, 
+GO(ASN1_UTCTIME_adj, pFpuil)
+GO(ASN1_UTCTIME_check, iFp)
+GO(ASN1_UTCTIME_cmp_time_t, iFpu)
 //GO(ASN1_UTCTIME_free, 
 //GO(ASN1_UTCTIME_new, 
-//GO(ASN1_UTCTIME_print, 
-//GO(ASN1_UTCTIME_set, 
-//GO(ASN1_UTCTIME_set_string, 
+GO(ASN1_UTCTIME_print, iFpp)
+GO(ASN1_UTCTIME_set, pFpu)
+GO(ASN1_UTCTIME_set_string, iFpp)
 //GO(asn1_utctime_to_tm, 
 //GO(ASN1_UTF8STRING_free, 
 //GO(ASN1_UTF8STRING_new, 
