@@ -219,18 +219,19 @@ static void initEmulatedLib(const char* path, library_t *lib, box86context_t* co
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
-    int found = FileExist(libname, IS_FILE);
-    if(!found && !strchr(path, '/'))
+    int found = FileIsX86ELF(libname);
+    if(found)
+        if(loadEmulatedLib(libname, lib, context))
+            return;
+    if(!strchr(path, '/'))
         for(int i=0; i<context->box86_ld_lib.size; ++i)
         {
             strcpy(libname, context->box86_ld_lib.paths[i]);
             strcat(libname, path);
-            if(FileExist(libname, IS_FILE))
+            if(FileIsX86ELF(libname))
                 if(loadEmulatedLib(libname, lib, context))
                     return;
         }
-    else
-        loadEmulatedLib(libname, lib, context);
 }
 
 extern char* libGL;
