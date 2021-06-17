@@ -43,13 +43,6 @@ Note that this project is not to be mistaken with [86box](https://github.com/86B
 
 ----
 
-Discord
-----
-
-If you want to discuss (or have any problems) about box86, feel free to join the [Pi Labs Discord Server](https://discord.gg/Fh8sjmu)!
-
-----
-
 Usage
 ----
 
