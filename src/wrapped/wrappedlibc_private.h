@@ -903,7 +903,7 @@ GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
 // __isoc99_scanf
 GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
 // __isoc99_swscanf
-GOM(__isoc99_vfscanf, iFppp) //%%
+GO(__isoc99_vfscanf, iFppp)
 // __isoc99_vfwscanf
 // __isoc99_vscanf
 GO(__isoc99_vsscanf, iFppp)
@@ -1905,7 +1905,7 @@ GOM(__vasprintf_chk, iFEpippp) //%%
 GOM(verr, vFEpV) //%%
 // verrx
 GO(versionsort, iFpp)
-// versionsort64
+GO(versionsort64, iFpp) //need to align dirent64?
 GOM(vfork, iFEv) //%% Weak
 // __vfork
 GOM(vfprintf, iFEppp) //%%
