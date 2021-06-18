@@ -383,7 +383,7 @@ set(WRAPPEDS
 )
 if(ANDROID)
     list(APPEND WRAPPEDS
-        "${BOX86_ROOT}/src/wrapped/wrappedandroidshem.c"
+        "${BOX86_ROOT}/src/wrapped/wrappedandroidshmem.c"
     )
 else()
     list(APPEND WRAPPEDS
