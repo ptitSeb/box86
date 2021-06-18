@@ -381,7 +381,11 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
 )
-if(NOT ANDROID)
+if(ANDROID)
+    list(APPEND WRAPPEDS
+        "${BOX86_ROOT}/src/wrapped/wrappedandroidshem.c"
+    )
+else()
     list(APPEND WRAPPEDS
         "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg.c"
         "${BOX86_ROOT}/src/wrapped/wrappedlibjpeg62.c"
