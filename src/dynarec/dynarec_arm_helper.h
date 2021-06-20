@@ -619,7 +619,7 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int
 
 //SSE/SSE2 helpers
 // get neon register for a SSE reg, create the entry if needed
-int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a);
+int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 

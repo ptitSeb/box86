@@ -999,16 +999,20 @@ static void sse_reset(dynarec_arm_t* dyn, int ninst)
 {
 #if STEP > 1
     for (int i=0; i<8; ++i)
-        dyn->ssecache[i] = -1;
+        dyn->ssecache[i].v = -1;
 #endif
 }
 // get neon register for a SSE reg, create the entry if needed
-int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
+int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite)
 {
 #if STEP > 1
-    if(dyn->ssecache[a]!=-1)
-        return dyn->ssecache[a];
-    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
+    if(dyn->ssecache[a].v!=-1) {
+        if(forwrite) dyn->ssecache[a].write = 1;    // update only if forwrite
+        return dyn->ssecache[a].reg;
+    }
+    dyn->ssecache[a].reg = fpu_get_reg_quad(dyn);
+    int ret =  dyn->ssecache[a].reg;
+    dyn->ssecache[a].write = forwrite;
     int offs = offsetof(x86emu_t, xmm[a]);
     if(!(offs&3) && (offs>>2)<256) {
         ADD_IMM8_ROR(s1, xEmu, (offs>>2), 0xf);
@@ -1026,10 +1030,13 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a)
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
 #if STEP > 1
-    if(dyn->ssecache[a]!=-1)
-        return dyn->ssecache[a];
-    int ret = dyn->ssecache[a] = fpu_get_reg_quad(dyn);
-    return ret;
+    if(dyn->ssecache[a].v!=-1) {
+        dyn->ssecache[a].write = 1;
+        return dyn->ssecache[a].reg;
+    }
+    dyn->ssecache[a].reg = fpu_get_reg_quad(dyn);
+    dyn->ssecache[a].write = 1; // it will be write...
+    return dyn->ssecache[a].reg;
 #else
     return 0;
 #endif
@@ -1040,26 +1047,28 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]!=-1) {
-            if (old==-1) {
-                MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
-                int offs = offsetof(x86emu_t, xmm[i]);
-                if(!(offs&3) && (offs>>2)<256) {
-                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+        if(dyn->ssecache[i].v!=-1) {
+            if(dyn->ssecache[i].write) {
+                if (old==-1) {
+                    MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
+                    int offs = offsetof(x86emu_t, xmm[i]);
+                    if(!(offs&3) && (offs>>2)<256) {
+                        ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+                    } else {
+                        MOV32(s1, offs);
+                        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                    }
+                    old = i+1;  //+1 because VST1Q with write back
                 } else {
-                    MOV32(s1, offs);
-                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                    if(old!=i) {
+                        ADD_IMM8(s1, s1, (i-old)*16);
+                    }
+                    old = i+1;
                 }
-                old = i+1;  //+1 because VST1Q with write back
-            } else {
-                if(old!=i) {
-                    ADD_IMM8(s1, s1, (i-old)*16);
-                }
-                old = i+1;
+                VST1Q_32_W(dyn->ssecache[i].reg, s1);
             }
-            VST1Q_32_W(dyn->ssecache[i], s1);
-            fpu_free_reg_quad(dyn, dyn->ssecache[i]);
-            dyn->ssecache[i] = -1;
+            fpu_free_reg_quad(dyn, dyn->ssecache[i].reg);
+            dyn->ssecache[i].v = -1;
         }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
@@ -1072,7 +1081,7 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     int old = -1;
     for (int i=0; i<8; ++i)
-        if(dyn->ssecache[i]!=-1) {
+        if(dyn->ssecache[i].v!=-1 && dyn->ssecache[i].write) {
             if (old==-1) {
                 int offs = offsetof(x86emu_t, xmm[i]);
                 if(!(offs&3) && (offs>>2)<256) {
@@ -1088,7 +1097,7 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
                 }
                 old = i+1;
             }
-            VST1Q_32_W(dyn->ssecache[i], s1);
+            VST1Q_32_W(dyn->ssecache[i].reg, s1);
         }
 #endif
 }

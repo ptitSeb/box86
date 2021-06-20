@@ -20,6 +20,14 @@ typedef struct instruction_arm_s {
     int                 retn;
 } instruction_arm_t;
 
+typedef union sse_cache_s {
+    int     v;
+    struct {
+        uint8_t reg;
+        uint8_t write;
+    };
+} sse_cache_t;
+
 typedef struct dynarec_arm_s {
     instruction_arm_t   *insts;
     int32_t             size;
@@ -33,7 +41,7 @@ typedef struct dynarec_arm_s {
     int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
     int                 x87reg[8];  // reg used for x87cache entry
     int                 mmxcache[8];// cache status for the 8 MMX registers
-    int                 ssecache[8];// cache status for the 8 SSE(2) registers
+    sse_cache_t         ssecache[8];// cache status for the 8 SSE(2) registers
     int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
     int                 x87stack;   // cache stack counter
     int                 x87count;   // number of x87 register used

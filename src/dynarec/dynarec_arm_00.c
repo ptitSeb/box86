@@ -2566,9 +2566,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         SET_DFNONE(x2); // flags are undefined
                         GETED;
                         UDIV(x2, xEAX, ed); // x1 = xEAX / ed
-                        MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
                         MOV_REG(xEAX, x2);
-                        MOV_REG(xEDX, x14);
                     } else {
                         GETEDH(x1);
                         if(arm_div) {
@@ -2583,9 +2582,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             B_NEXT(c__);
                             MARK;
                             UDIV(x2, xEAX, ed); // x2 = xEAX / ed
-                            MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
+                            MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
                             MOV_REG(xEAX, x2);
-                            MOV_REG(xEDX, x14);
                             SET_DFNONE(x2); // flags are undefined
                         }
                     }
@@ -2600,9 +2598,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         SET_DFNONE(x2); // flags are undefined
                         GETED;
                         SDIV(x2, xEAX, ed); // x1 = xEAX / ed
-                        MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
+                        MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
                         MOV_REG(xEAX, x2);
-                        MOV_REG(xEDX, x14);
                     } else {
                         GETEDH(x1);
                         if(arm_div) {
@@ -2618,9 +2615,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             B_NEXT(c__);
                             MARK;
                             SDIV(x2, xEAX, ed); // x2 = xEAX / ed
-                            MLS(x14, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
+                            MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
                             MOV_REG(xEAX, x2);
-                            MOV_REG(xEDX, x14);
                             SET_DFNONE(x2); // flags are undefined
                         }
                     }

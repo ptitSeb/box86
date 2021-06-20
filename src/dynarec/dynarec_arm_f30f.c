@@ -23,9 +23,9 @@
 #include "dynarec_arm_helper.h"
 
 // Get Ex as a single, not a quad, with b a intermediary double
-#define GETEX(a, b) \
-    if((nextop&0xC0)==0xC0) { \
-        b = sse_get_reg(dyn, ninst, x1, nextop&7);  \
+#define GETEX(a, b)                                 \
+    if((nextop&0xC0)==0xC0) {                       \
+        b = sse_get_reg(dyn, ninst, x1, nextop&7,0);\
         if(b<16)                                    \
             a = b;                                  \
         else {                                      \
@@ -46,9 +46,9 @@
         }                                           \
     }
 
-#define GETGX(a) \
-    gd = (nextop&0x38)>>3;                          \
-    a = sse_get_reg(dyn, ninst, x1, gd)
+#define GETGX(a, w)                         \
+    gd = (nextop&0x38)>>3;                  \
+    a = sse_get_reg(dyn, ninst, x1, gd, w)
 
 
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
@@ -78,8 +78,8 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                v0 = sse_get_reg(dyn, ninst, x1, gd);
-                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 if(v0<16)
                     d0 = v0;
                 else {
@@ -108,9 +108,9 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVSS Ex, Gx");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if((nextop&0xC0)==0xC0) {
-                q0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                 if(v0<16)
                     d0 = v0;
                 else {
@@ -138,7 +138,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                q1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                q1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 q1 = fpu_get_scratch_quad(dyn);
@@ -154,7 +154,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                q1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                q1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 q1 = fpu_get_scratch_quad(dyn);
@@ -181,7 +181,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("CVTSI2SS Gx, Ed");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             GETED;
             if(v0<16)
                 d0 = v0;
@@ -203,7 +203,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGD;
             s0 = fpu_get_scratch_single(dyn);
             if((nextop&0xC0)==0xC0) {
-                v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 if(v0<16)
                     d0 = v0;
                 else {
@@ -232,7 +232,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGD;
             s0 = fpu_get_scratch_single(dyn);
             if((nextop&0xC0)==0xC0) {
-                v0 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v0 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 if(v0<16)
                     d0 = v0;
                 else {
@@ -259,7 +259,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -279,7 +279,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -307,7 +307,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -330,7 +330,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -350,7 +350,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x59:
             INST_NAME("MULSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -370,7 +370,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s0, d0);
             VCVT_F64_F32(v0, s0);
             break;
@@ -378,7 +378,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 v1 = fpu_get_scratch_quad(dyn);
@@ -391,7 +391,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -411,7 +411,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -434,7 +434,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -454,7 +454,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -480,7 +480,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
@@ -498,9 +498,9 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PSHUFHW Gx, Ex, Ib");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd);
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
                 v1 = fpu_get_scratch_quad(dyn);
@@ -534,7 +534,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVD(v0, v1);
             } else {
@@ -548,12 +548,11 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
             gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if((nextop&0xC0)==0xC0) {
-                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
-                v0 = sse_get_reg(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0);
                 VMOVfrV_D(x2, x3, v0);
                 STR_IMM9(x2, ed, fixedaddress+0);
@@ -586,7 +585,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex");
             nextop = F8;
-            GETGX(v0);
+            GETGX(v0, 1);
             GETEX(s1, v1);
             if(v0==v1)
                 d0 = s1/2;
@@ -623,7 +622,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7);
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 if(v1<16)
                     v0 = v1;
                 else {
