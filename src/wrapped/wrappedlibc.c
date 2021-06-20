@@ -2517,6 +2517,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
 {
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %u, %u, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
+    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
     if(ret==(void*)-1)
         return ret; // failed...
     uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_DYNAREC;
@@ -2543,7 +2544,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
     } else {
         if(old_size
         #ifdef MREMAP_DONTUNMAP
-        && flags&MREMAP_DONTUNMAP==0
+        && !(flags&MREMAP_DONTUNMAP)
         #endif
         ) {
             setProtection((uintptr_t)old_addr, old_size, 0);
