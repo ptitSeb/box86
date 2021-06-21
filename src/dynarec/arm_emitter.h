@@ -647,6 +647,8 @@ Op is 20-27
 
 // Convert from double Dm to int32 Sd, with Round toward Zero mode
 #define VCVT_S32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
+// Convert from double Dm to uint32 Sd, with Round toward Zero mode
+#define VCVT_U32_F64(Sd, Dm)    EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b100<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (1<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from double Dm to int32 Sd, with Round selection from FPSCR
 #define VCVTR_S32_F64(Sd, Dm)   EMIT(c__ | (0b1110<<24) | (1<<23) | (((Sd)&1)<<22) | (0b111<<19) | (0b101<<16) | ((((Sd)>>1)&15)<<12) | (0b101<<9) | (1<<8) | (0<<7) | (1<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 // Convert from int32 Sm to double Dd
@@ -709,6 +711,11 @@ Op is 20-27
 
 // Abs Dd = |Dm|
 #define VABS_F64(Dd, Dm)     EMIT(c__ | (0b11101<<23) | ((((Dd)>>4)&1)<<22) | (0b11<<20) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | (0b11<<6) | ((((Dm)>>4)&1)<<5) | ((Dm)&15))
+
+// MLS Dd = Dd - Dn*Dm
+#define VMLS_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b00<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | 1<<6 | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
+// MLA Dd = Dd + Dn*Dm
+#define VMLA_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b00<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | 0<<6 | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
 // NEON
 

@@ -119,8 +119,8 @@ typedef struct {
 } fpu_ld_t;
 
 typedef struct {
-	int64_t			ll;
 	int64_t			ref;
+	int64_t			ll;
 } fpu_ll_t;
 
 typedef union {
