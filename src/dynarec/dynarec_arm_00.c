@@ -2476,12 +2476,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("MUL AL, Ed");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, d_mul8);
                     GETEB(x1);
-                    STM(xEmu, (1<<xEAX));
-                    CALL(mul8, -1, 0);
-                    LDM(xEmu, (1<<xEAX));
+                    UBFX(x2, xEAX, 0, 8);
+                    MUL(x1, x1, x2);
+                    BFI(xEAX, x1, 0, 16);
+                    UFLAG_RES(x1);
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
