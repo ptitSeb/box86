@@ -409,10 +409,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             // so weak symbol are the one left, and try versionned symbol first
             if(!offs && !end) {
                 h_tls = NULL;
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
-                if(!offs && !end && local_maplib) {
+                if(!offs && !end && local_maplib)
                     GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
-                }
+                if(!offs && !end)
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
             }
         }
         uintptr_t globoffs, globend;
@@ -487,7 +487,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(maplib, symname, &globoffs, &globend, version, vername)) {
+                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername)) {
                         offs = globoffs;
                         end = globend;
                     }
@@ -838,12 +838,12 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             if(!((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, version, vername))) {
                 printf_dump(LOG_NEVER, "Adding Versionned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
                 if(bind==STB_LOCAL) {
-                    AddSymbol(localsymbols, symname, offs, sz, version, vername);
+                    AddWeakSymbol(localsymbols, symname, offs, sz, version, vername);
                 } else { // add in local and global map 
                     if(bind==STB_WEAK) {
-                        AddSymbol(weaksymbols, symname, offs, sz, version, vername);
+                        AddWeakSymbol(weaksymbols, symname, offs, sz, version, vername);
                     } else {
-                        AddSymbol(mapsymbols, symname, offs, sz, version, vername);
+                        AddWeakSymbol(mapsymbols, symname, offs, sz, version?version:1, vername);
                     }
                 }
             }
@@ -1017,11 +1017,13 @@ void RunDeferedElfInit(x86emu_t *emu)
     context->deferedInit = 0;
     if(!context->deferedInitList)
         return;
-    for (int i=0; i<context->deferedInitSz; ++i)
-        RunElfInit(context->deferedInitList[i], emu);
-    free(context->deferedInitList);
+    int Sz = context->deferedInitSz;
+    elfheader_t** List = context->deferedInitList;
     context->deferedInitList = NULL;
     context->deferedInitCap = context->deferedInitSz = 0;
+    for (int i=0; i<Sz; ++i)
+        RunElfInit(List[i], emu);
+    free(List);
 }
 
 void RunElfFini(elfheader_t* h, x86emu_t *emu)
@@ -1318,6 +1320,21 @@ void ResetSpecialCaseMainElf(elfheader_t* h)
                 memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
                 my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
                 printf_log(LOG_DEBUG, "BOX86: Set @_IO_2_1_stdout_ to %p\n", my__IO_2_1_stdout_);
+            } else
+            if(strcmp(symname, "_IO_stderr_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stderr, sym->st_size);
+                my__IO_2_1_stderr_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_stderr_ to %p\n", my__IO_2_1_stderr_);
+            } else
+            if(strcmp(symname, "_IO_stdin_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stdin, sym->st_size);
+                my__IO_2_1_stdin_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_stdin_ to %p\n", my__IO_2_1_stdin_);
+            } else
+            if(strcmp(symname, "_IO_stdout_")==0 && ((void*)sym->st_value+h->delta)) {
+                memcpy((void*)sym->st_value+h->delta, stdout, sym->st_size);
+                my__IO_2_1_stdout_ = (void*)sym->st_value+h->delta;
+                printf_log(LOG_DEBUG, "BOX86: Set @_IO_stdout_ to %p\n", my__IO_2_1_stdout_);
             }
         }
     }

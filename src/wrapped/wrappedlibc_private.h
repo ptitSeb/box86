@@ -317,8 +317,8 @@ GO(feof_unlocked, iFp)
 GOW(ferror, iFp)
 GO(ferror_unlocked, iFp)
 GO(fexecve, iFipp)  //TODO: Check if needed to be wrapped, and target checked for x86 / native?
-GOW(fflush, iFp)
-GO(fflush_unlocked, iFp)
+GOW(fflush, iFS)
+GO(fflush_unlocked, iFS)
 GO(ffs, iFi)
 // __ffs
 GOW(ffsl, iFi)
@@ -823,8 +823,13 @@ GO(_IO_switch_to_get_mode, iFp)
 GO(_IO_un_link, vFp)
 GO(_IO_unsave_markers, vFp)
 // _IO_unsave_wmarkers
+#ifdef POWERPCLE
 GOM(_IO_vfprintf, iFEpppp) //%%
 GOM(_IO_vfscanf, iFEppp)   //%%
+#else
+GO2(_IO_vfprintf, iFpppp, vfprintf)
+GO2(_IO_vfscanf, iFppp, vfscanf)
+#endif
 // _IO_vsprintf
 // _IO_wdefault_doallocate
 // _IO_wdefault_finish

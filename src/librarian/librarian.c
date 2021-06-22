@@ -413,7 +413,6 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                 if(*start)
                     return 1;
     }
-    // if self defined, give it another chance with self...
     if(self) {
         if(maplib->context->elfs[0]==self) {
             if(GetSymbolStartEnd(maplib->mapsymbols, name, start, end, version, vername, 1))
@@ -452,15 +451,15 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
                 return 1;
     }
 
-    // library from newer to older, weak only now
-    for(int i=maplib->libsz-1; i>=0; --i) {
+    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end, version, vername, (maplib->context->elfs[0]==self || !self)?1:0))
+        if(*start)
+            return 1;
+
+    for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibSymbolStartEnd(maplib->libraries[i], name, start, end, version, vername, isLocal(self, maplib->libraries[i])))    // only weak symbol haven't been found yet
             if(*start)
                 return 1;
     }
-    if(GetSymbolStartEnd(maplib->weaksymbols, name, start, end, version, vername, (maplib->context->elfs[0]==self || !self)?1:0))
-        if(*start)
-            return 1;
     // nope, not found
     return 0;
 }
