@@ -664,11 +664,16 @@ static void wrapGTKClass(void* cl, int type)
 {
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
-        wrap##A##Class((my_##A##Class_t*)cl);     \
+        wrap##A##Class((my_##A##Class_t*)cl);       \
     else 
+
     GTKCLASSES()
     {
-        printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
+        if(my_MetaFrames==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+            my_MetaFrames = type;
+            wrapMetaFramesClass((my_MetaFramesClass_t*)cl);
+        } else
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %d (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
 }
@@ -679,6 +684,7 @@ static void unwrapGTKClass(void* cl, int type)
     if(type==my_##A)                                \
         unwrap##A##Class((my_##A##Class_t*)cl);     \
     else 
+
     GTKCLASSES()
     {}  // else no warning, one is enough...
     #undef GTKCLASS
@@ -690,6 +696,7 @@ static void bridgeGTKClass(void* cl, int type)
     if(type==my_##A)                                \
         bridge##A##Class((my_##A##Class_t*)cl);     \
     else 
+
     GTKCLASSES()
     {
         printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %d (%s)\n", type, g_type_name(type));
