@@ -236,8 +236,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1);
-            VMOV_64(0, v1);    // prepare call to atan2
-            VMOV_64(1, v2);
+            VMOV_64(0, v2);    // prepare call to atan2
+            VMOV_64(1, v1);
             CALL_2D(atan2, 0);
             VMOV_64(v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
             #endif
