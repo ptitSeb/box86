@@ -775,6 +775,15 @@ uintptr_t GetLastByte(elfheader_t* h)
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
     if(box86_dump && h->DynSym) DumpDynSym(h);
+    int libcef = (strstr(h->name, "libcef.so") || strstr(h->name, "libnode.so"))?1:0;
+    //libcef.so is linked with tcmalloc staticaly, but this cannot be easily supported in box64, so hacking some "unlink" here
+    const char* avoid_libcef[] = {"malloc", "realloc", "free", "calloc", "cfree",
+        "__libc_calloc", "__libc_cfree", "__libc_memallign", "__liv_pvalloc",
+        "__libcrealloc", "__libc_valloc", "__posix_memalign",
+        "valloc", "pvalloc", "posix_memalign", "malloc_stats", "malloc_usable_size",
+        /*"mallopt",*/ "localtime_r",
+        //c++ symbol from libstdc++ too, but those are generic...
+    };
     printf_dump(LOG_NEVER, "Will look for Symbol to add in SymTable(%d)\n", h->numSymTab);
     for (int i=0; i<h->numSymTab; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -806,7 +815,15 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                         AddSymbol(mapsymbols, symname, offs, sz, 2, vername);
                     }
             } else {
-                if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, -1, NULL))
+                int to_add = 1;
+                if(libcef) {
+                    if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
+                        to_add = 0;
+                    for(int j=0; j<sizeof(avoid_libcef)/sizeof(avoid_libcef[0]) && to_add; ++j)
+                        if(!strcmp(symname, avoid_libcef[j]))
+                            to_add = 0;
+                }
+                if(!to_add || (bind==STB_GNU_UNIQUE && FindGlobalSymbol(maplib, symname, -1, NULL)))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
                 printf_dump(LOG_NEVER, "Adding Symbol(bind=%s) \"%s\" with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, (void*)offs, sz);
@@ -835,16 +852,24 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
             if(version!=-1) version &= 0x7fff;
             const char* vername = GetSymbolVersion(h, version);
-            if(!((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, version, vername))) {
-                printf_dump(LOG_NEVER, "Adding Versionned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
-                if(bind==STB_LOCAL) {
-                    AddWeakSymbol(localsymbols, symname, offs, sz, version, vername);
-                } else { // add in local and global map 
-                    if(bind==STB_WEAK) {
-                        AddWeakSymbol(weaksymbols, symname, offs, sz, version, vername);
-                    } else {
-                        AddWeakSymbol(mapsymbols, symname, offs, sz, version?version:1, vername);
-                    }
+            int to_add = 1;
+            if(libcef) {
+                if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
+                    to_add = 0;
+                for(int j=0; j<sizeof(avoid_libcef)/sizeof(avoid_libcef[0]) && to_add; ++j)
+                    if(!strcmp(symname, avoid_libcef[j]))
+                        to_add = 0;
+            }
+            if(!to_add || (bind==STB_GNU_UNIQUE && FindGlobalSymbol(maplib, symname, -1, NULL)))
+                continue;
+            printf_dump(LOG_NEVER, "Adding Versionned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
+            if(bind==STB_LOCAL) {
+                AddWeakSymbol(localsymbols, symname, offs, sz, version, vername);
+            } else { // add in local and global map 
+                if(bind==STB_WEAK) {
+                    AddWeakSymbol(weaksymbols, symname, offs, sz, version, vername);
+                } else {
+                    AddWeakSymbol(mapsymbols, symname, offs, sz, version?version:1, vername);
                 }
             }
         }
