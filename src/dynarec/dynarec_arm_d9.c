@@ -239,7 +239,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to atan2
             VMOV_64(1, v2);
             CALL_2D(atan2, 0);
-            VMUL_F64(v2, v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
+            VMOV_64(v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
             #endif
             x87_do_pop(dyn, ninst, x3);
             break;
