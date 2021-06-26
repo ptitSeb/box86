@@ -16,7 +16,7 @@ You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit
 
 Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in some cases.
 
-Most x86 Games need OpenGL, so on ARM platforms an solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
+Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter.
 
