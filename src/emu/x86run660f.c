@@ -133,6 +133,18 @@ void Run660F(x86emu_t *emu)
     )                               /* 0x40 -> 0x4F CMOVxx Gw,Ew */ // conditional move, no sign
     #undef GOCOND
         
+    case 0x01:                      /* GROUP */
+        nextop = F8;
+        GET_EW;
+        switch((nextop>>3)&7) {
+            case 4:                 /* SMSW Ew */
+                EW->word[0] = 0;    // dummy operation. Should be CR0 -> Ew
+                break;
+            default:
+                ip = R_EIP;
+                UnimpOpcode(emu);
+        }
+        break;
     case 0x10:                      /* MOVUPD Gx, Ex */
         nextop = F8;
         GET_EX;
