@@ -655,8 +655,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x57:
             INST_NAME("XORPS Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0);
-            GETGX(v0, 1);
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC7)==(0xC0|gd)) {
+                q0 = v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            } else {
+                GETEX(q0, 0);
+                GETGX(v0, 1);
+            }
             VEORQ(v0, v0, q0);
             break;
         case 0x58:
@@ -2256,8 +2261,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEF:
             INST_NAME("PXOR Gm, Em");
             nextop = F8;
-            GETGM(v0);
-            GETEM(v1);
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC7)==(0xC0|gd)) {
+                v1 = v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
+            } else {
+                GETGM(v0);
+                GETEM(v1);
+            }
             VEOR(v0, v0, v1);
             break;
 

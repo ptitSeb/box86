@@ -594,8 +594,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x57:
             INST_NAME("XORPD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0);
-            GETGX(v0, 1);
+            gd = (nextop&0x38)>>3;
+            if((nextop&0xC7)==(0xC0|gd)) {
+                q0 = v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            } else {
+                GETEX(q0, 0);
+                GETGX(v0, 1);
+            }
             VEORQ(v0, v0, q0);
             break;
         case 0x58:
@@ -1952,15 +1957,14 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0 && (nextop&7)==gd) {
+            if((nextop&0xC7)==(0xC0|gd)) {
                 // special case for PXOR Gx, Gx
-                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                VEORQ(q0, q0, q0);
+                q1 = q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             } else {
                 q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
                 GETEX(q1, 0);
-                VEORQ(q0, q0, q1);
             }
+            VEORQ(q0, q0, q1);
             break;
 
         case 0xF1:
