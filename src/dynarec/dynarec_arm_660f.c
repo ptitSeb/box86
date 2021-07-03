@@ -874,13 +874,24 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VMOVQ(q1, v1);
                     } else
                         q1 = v1;
-                    MOV32(x2, swp[(u8>>(0*2))&3]);
-                    MOV32(x3, swp[(u8>>(1*2))&3]);
+                    uint32_t a1, a2, a3, a4;
+                    a1 = swp[(u8>>(0*2))&3];
+                    a2 = swp[(u8>>(1*2))&3];
+                    MOV32(x2, a1);
+                    if(a1==a2) {MOV_REG(x3, x2);} else {MOV32(x3, a2);}
                     VMOVtoV_D(d0, x2, x3);
-                    MOV32(x2, swp[(u8>>(2*2))&3]);
-                    MOV32(x3, swp[(u8>>(3*2))&3]);
                     VTBL2_8(v0+0, q1, d0);
-                    VMOVtoV_D(d0, x2, x3);
+                    a3 = swp[(u8>>(2*2))&3];
+                    a4 = swp[(u8>>(3*2))&3];
+                    if(a3!=a1 || a4!=a2) {
+                        if(a3!=a1) {
+                            if(a3==a2) {MOV_REG(x2, x3);} else {MOV32(x2, a3);}
+                        }
+                        if(a4!=a2) {
+                            if(a4==a3) {MOV_REG(x3, x2);} else {MOV32(x3, a4);}
+                        }
+                        VMOVtoV_D(d0, x2, x3);
+                    }
                     VTBL2_8(v0+1, q1, d0);
                 }
             } else {
