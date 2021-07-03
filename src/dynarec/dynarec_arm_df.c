@@ -241,7 +241,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(dyn->insts && ninst<dyn->size
                       && dyn->insts[ninst+1].x86.addr
                       && *(uint8_t*)dyn->insts[ninst+1].x86.addr==0xDF
-                      && ((*(uint8_t*)(dyn->insts[ninst+1].x86.addr+1))>>3&7)==7)
+                      && (((*(uint8_t*)(dyn->insts[ninst+1].x86.addr+1))>>3)&7)==7)
                     {
                         MESSAGE(LOG_DUMP, "Hack for FILD/FISTP i64");
                     } else {
@@ -298,7 +298,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(dyn->insts && ninst
                       && dyn->insts[ninst-1].x86.addr
                       && *(uint8_t*)dyn->insts[ninst-1].x86.addr==0xDF
-                      && ((*(uint8_t*)(dyn->insts[ninst-1].x86.addr+1))>>3&7)==5)
+                      && (((*(uint8_t*)(dyn->insts[ninst-1].x86.addr+1))>>3)&7)==5)
                     {
                         if(parity) {
                             STRD_IMM8(x2, ed, 0);    // x2/x3 is 64bits
