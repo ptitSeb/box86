@@ -31,7 +31,7 @@ Here's  6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "
 
 [![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/MM7kWYts7IA/3.jpg)](https://www.youtube.com/watch?v=MM7kWYts7IA) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg) [![Play on Youtube](https://img.youtube.com/vi/B4YN37z3-ws/1.jpg)](https://www.youtube.com/watch?v=B4YN37z3-ws) [![Play on Youtube](https://img.youtube.com/vi/xk8Q30mxqPg/1.jpg)](https://www.youtube.com/watch?v=xk8Q30mxqPg) [![Play on Youtube](https://img.youtube.com/vi/_QMRMVvYrqU/1.jpg)](https://www.youtube.com/watch?v=_QMRMVvYrqU)
 
-You can find many more Box86 video on Youtube in the [Pi Labs Channel](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman Channel](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA)
+You can find many more Box86 video on Youtube in the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) Channels
 
 Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list/issues
 
@@ -66,7 +66,7 @@ Notes about 64-bit platforms
 
 Because Box86 works by directly translating function calls from x86 to host system, the host system (the one Box86 is running on) needs to have 32-bit libraries. Box86 doesn't include any 32-bit <-> 64-bit translation. So basically, to run Box86 on, for example, an ARM64 platform, you will need to build Box86 for ARM 32-bit, and also need to have a chroot with 32-bit libraries.
 
-Also note that, even if, on day, there is a Box86_64, this one will only be able to run x86_64 binaries on 64-bit platforms. You will still need Box86 (and a 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
+Also note that, even if there is a Box64, this one is only be able to run x86_64 binaries on 64-bit platforms. You still need Box86 (and a 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
 
 ----
 
