@@ -766,7 +766,8 @@ void endBox86()
                     if(attempt>4000) {
                         printf_log(LOG_INFO, "Stop waiting for remaining thread %04d\n", tid);
                         // enough wait, kill all thread!
-                        syscall(__NR_tgkill, pid, tid, SIGABRT);
+                        //syscall(__NR_tgkill, pid, tid, SIGABRT);
+                        running = 0;
                     } else {
                         running = 1;
                         ++attempt;
@@ -879,7 +880,8 @@ int main(int argc, const char **argv, const char **env) {
     if(!box86_nobanner)
         PrintBox86Version();
     // precheck, for win-preload
-    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))) {
+    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader")) 
+     || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x86 = (nextarg<argc)?FileIsX86ELF(argv[nextarg]):0;
         if(x86) {
