@@ -104,8 +104,8 @@ GO(XSyncInitialize, iFppp)
 GO(XSyncIntsToValue, vFpui)
 GO(XSyncIntToValue, vFpi)
 GO(XSyncListSystemCounters, pFpp)
-//GO(XSyncMaxValue, 
-//GO(XSyncMinValue, 
+GO(XSyncMaxValue, vFp)
+GO(XSyncMinValue, vFp)
 GO(XSyncQueryAlarm, iFpup)
 GO(XSyncQueryCounter, iFpup)
 GO(XSyncQueryExtension, iFppp)
@@ -114,18 +114,18 @@ GO(XSyncQueryExtension, iFppp)
 GO(XSyncSetCounter, iFpu2)      // XSyncCounter is an XID
 GO(XSyncSetPriority, iFpui)
 //GO(XSyncTriggerFence, 
-//GO(XSyncValueAdd, 
-//GO(XSyncValueEqual, 
-//GO(XSyncValueGreaterOrEqual, 
-//GO(XSyncValueGreaterThan, 
-//GO(XSyncValueHigh32, 
-//GO(XSyncValueIsNegative, 
-//GO(XSyncValueIsPositive, 
-//GO(XSyncValueIsZero, 
-//GO(XSyncValueLessOrEqual, 
-//GO(XSyncValueLessThan, 
-//GO(XSyncValueLow32, 
-//GO(XSyncValueSubtract, 
+GO(XSyncValueAdd, vFpppp)
+GO(XSyncValueEqual, iFpp)
+GO(XSyncValueGreaterOrEqual, iFpp)
+GO(XSyncValueGreaterThan, iFpp)
+GO(XSyncValueHigh32, iFp)
+GO(XSyncValueIsNegative, iFp)
+GO(XSyncValueIsPositive, iFp)
+GO(XSyncValueIsZero, iFp)
+GO(XSyncValueLessOrEqual, iFpp)
+GO(XSyncValueLessThan, iFpp)
+GO(XSyncValueLow32, uFp)
+GO(XSyncValueSubtract, vFpppp)
 DATA(XTestFakeAckType, 4)
 //GO(XTestFakeInput, 
 //GO(XTestFlush, 
