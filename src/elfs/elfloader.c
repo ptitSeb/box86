@@ -367,14 +367,16 @@ int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t*
         int t = ELF32_R_TYPE(rel[i].r_info);
         Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel[i].r_info)];
         const char* symname = SymName(h, sym);
-        int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
-        if(version2!=-1) version2 &= 0x7fff;
-        if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
-        const char* vername2 = GetSymbolVersion(h, version2);
-        if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2) && t==R_386_COPY) {
-            *offs = sym->st_value + h->delta;
-            *p = (uint32_t*)(rel[i].r_offset + h->delta);
-            return 1;
+        if(t==R_386_COPY && symname && !strcmp(symname, name)) {
+            int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
+            if(version2!=-1) version2 &= 0x7fff;
+            if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
+            const char* vername2 = GetSymbolVersion(h, version2);
+            if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
+                *offs = sym->st_value + h->delta;
+                *p = (uint32_t*)(rel[i].r_offset + h->delta);
+                return 1;
+            }
         }
     }
     return 0;
