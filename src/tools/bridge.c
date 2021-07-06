@@ -31,7 +31,6 @@ typedef struct brick_s {
 typedef struct bridge_s {
     brick_t         *head;
     brick_t         *last;      // to speed up
-    pthread_mutex_t mutex;
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
@@ -48,7 +47,6 @@ bridge_t *NewBridge()
     bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
     b->head = NewBrick();
     b->last = b->head;
-    pthread_mutex_init(&b->mutex, NULL);
     b->bridgemap = kh_init(bridgemap);
 
     return b;
@@ -73,7 +71,6 @@ void FreeBridge(bridge_t** bridge)
         b = n;
     }
     kh_destroy(bridgemap, br->bridgemap);
-    pthread_mutex_destroy(&br->mutex);
     free(br);
 }
 
@@ -86,7 +83,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     int prot = 0;
     do {
         #endif
-        pthread_mutex_lock(&bridge->mutex);
+        pthread_mutex_lock(&my_context->mutex_bridge);
         b = bridge->last;
         if(b->sz == NBRICK) {
             b->next = NewBrick();
@@ -95,7 +92,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
         }
         sz = b->sz;
         #ifdef DYNAREC
-        pthread_mutex_unlock(&bridge->mutex);
+        pthread_mutex_unlock(&my_context->mutex_bridge);
         if(box86_dynarec) {
             prot=(getProtection((uintptr_t)b->b)&PROT_DYNAREC)?1:0;
             if(prot)
@@ -104,7 +101,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
                 addDBFromAddressRange((uintptr_t)&b->b[b->sz].CC, sizeof(onebridge_t));
         }
     } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
-    pthread_mutex_lock(&bridge->mutex);
+    pthread_mutex_lock(&my_context->mutex_bridge);
     #endif
     b->sz++;
     b->b[sz].CC = 0xCC;
@@ -117,7 +114,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N)
     int ret;
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
-    pthread_mutex_unlock(&bridge->mutex);
+    pthread_mutex_unlock(&my_context->mutex_bridge);
     #ifdef DYNAREC
     if(box86_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
