@@ -301,9 +301,9 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMRS_APSR();
             MOVW(x2, 0);
             switch(u8&7) {
-                case 0: MVN_COND_REG_LSL_IMM5(cEQ, x2, x2, 0); break;   // Equal
-                case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); break;   // Less than
-                case 2: MVN_COND_REG_LSL_IMM5(cLE, x2, x2, 0); break;   // Less or equal
+                case 0: MVN_COND_REG_LSL_IMM5(cEQ, x2, x2, 0); MOVW_COND(cVS, x2, 0); break;   // Equal
+                case 1: MVN_COND_REG_LSL_IMM5(cMI, x2, x2, 0); MOVW_COND(cVS, x2, 0); break;   // Less than
+                case 2: MVN_COND_REG_LSL_IMM5(cLE, x2, x2, 0); MOVW_COND(cVS, x2, 0); break;   // Less or equal
                 case 3: MVN_COND_REG_LSL_IMM5(cVS, x2, x2, 0); break;   // NaN
                 case 4: MVN_COND_REG_LSL_IMM5(cNE, x2, x2, 0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: MVN_COND_REG_LSL_IMM5(cCS, x2, x2, 0); break;   // Greater or equal or unordered
