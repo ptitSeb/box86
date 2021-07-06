@@ -73,7 +73,9 @@ struct elfheader_s {
     uint32_t    memsz;
     uint32_t    stacksz;
     int         stackalign;
+    uintptr_t   tlsaddr;
     uint32_t    tlssize;
+    uint32_t    tlsfilesize;
     int         tlsalign;
 
     int32_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)

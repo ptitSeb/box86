@@ -126,7 +126,9 @@ int CalcLoadAddr(elfheader_t* head)
                 head->stackalign = head->PHEntries[i].p_align;
         }
         if(head->PHEntries[i].p_type == PT_TLS) {
+            head->tlsaddr = head->PHEntries[i].p_vaddr;
             head->tlssize = head->PHEntries[i].p_memsz;
+            head->tlsfilesize = head->PHEntries[i].p_filesz;
             head->tlsalign = head->PHEntries[i].p_align;
             // force alignement...
             if(head->tlsalign>1)
@@ -428,40 +430,44 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_386_TLS_TPOFF:
                 // Negated offset in static TLS block
                 {
-                    if(h_tls)
+                    if(!symname || !symname[0]) {
+                        h_tls = head;
                         offs = sym->st_value;
-                    else {
+                    } else {
+                        h_tls = NULL;
                         if(local_maplib)
                             h_tls = GetGlobalSymbolElf(local_maplib, symname, version, vername);
                         if(!h_tls)
                             h_tls = GetGlobalSymbolElf(maplib, symname, version, vername);
                     }
                     if(h_tls) {
-                        delta = *(int*)p;
-                        printf_dump(LOG_NEVER, "Applying [%d] %s %s on %s %p (%d -> %d)\n", i, (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h_tls->tlsbase);
-                        *p = (uint32_t)((int32_t)offs + h_tls->tlsbase);
+                        delta = *(int32_t*)p;
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, h_tls->tlsbase, (int32_t)offs, end-offs);
+                        *p = (uintptr_t)((int32_t)offs + h_tls->tlsbase);
                     } else {
-                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s %p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
+                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
                     }
                 }
                 break;
             case R_386_TLS_TPOFF32:
                 // Non-negated offset in static TLS block???
                 {
-                    if(h_tls)
+                    if(!symname || !symname[0]) {
+                        h_tls = head;
                         offs = sym->st_value;
-                    else {
+                    } else {
+                        h_tls = NULL;
                         if(local_maplib)
                             h_tls = GetGlobalSymbolElf(local_maplib, symname, version, vername);
                         if(!h_tls)
                             h_tls = GetGlobalSymbolElf(maplib, symname, version, vername);
                     }
                     if(h_tls) {
-                        delta = *(int*)p;
-                        printf_dump(LOG_NEVER, "Applying %s %s on %s %p (%d -> %d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, (int32_t)offs + h_tls->tlsbase);
-                        *p = (uint32_t)(-((int32_t)offs + h_tls->tlsbase));
+                        delta = *(int32_t*)p;
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, delta, -h_tls->tlsbase, -(int32_t)offs, end-offs);
+                        *p = (uintptr_t)(-(int32_t)offs + h_tls->tlsbase);
                     } else {
-                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s %p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
+                        printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":"Global", DumpRelType(t), symname, p, (int32_t)offs);
                     }
                 }
                 break;
@@ -1017,6 +1023,20 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         }
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
+    }
+    // Refresh no-file part of TLS in case default value changed
+    if(h->tlsfilesize) {
+        char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
+        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
+        memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+        tlsdatasize_t* ptr;
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
+            if(ptr->tlssize==my_context->tlssize) {
+                // refresh in tlsdata too
+                dest = (char*)(ptr->tlsdata+ptr->tlssize+h->tlsbase);
+                printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
+                memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+            }
     }
     printf_log(LOG_DEBUG, "Calling Init for %s %p\n", ElfName(h), (void*)p);
     if(h->initentry)
