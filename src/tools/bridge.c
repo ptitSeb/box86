@@ -12,9 +12,9 @@
 #include "khash.h"
 #include "debug.h"
 #include "x86emu.h"
+#include "box86context.h"
 #ifdef DYNAREC
 #include "dynablock.h"
-#include "box86context.h"
 #endif
 
 KHASH_MAP_INIT_INT(bridgemap, uintptr_t)
