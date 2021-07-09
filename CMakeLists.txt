@@ -380,6 +380,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibtiff.c"
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibv4l2.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS
