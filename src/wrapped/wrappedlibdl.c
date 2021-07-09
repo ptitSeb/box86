@@ -101,6 +101,10 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
                 return (void*)(i+1);
             }
         }
+        if(flag&0x4) {   //RTLD_NOLOAD is just a "check" if lib is already loaded
+            printf_log(LOG_DEBUG, " => not present\n");
+            return NULL;
+        }
         dlopened = (GetLibInternal(rfilename)==NULL);
         // Then open the lib
         const char* libs[] = {rfilename};
