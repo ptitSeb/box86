@@ -179,3 +179,4 @@ GO("libxml2.so.2", xml2)
 GO("ld-linux.so.2", ldlinux)
 
 GO("crashhandler.so", crashhandler)
+GO("libv4l2.so.0", libv4l2)
