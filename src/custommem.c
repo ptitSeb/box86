@@ -588,11 +588,12 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
-        if(!prot)
-            prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
-        memprot[i] = prot|PROT_DYNAREC;
-        if(!(prot&PROT_DYNAREC))
+        if(!(prot&PROT_DYNAREC)) {
+            if(!prot)
+                prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+            memprot[i] = prot|PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        }
     }
 }
 
@@ -605,8 +606,8 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
-        memprot[i] = prot&~PROT_DYNAREC;
         if(prot&PROT_DYNAREC) {
+            memprot[i] = prot&~PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
             cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         }
