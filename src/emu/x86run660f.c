@@ -976,9 +976,10 @@ void Run660F(x86emu_t *emu)
                 tmp8u&=15;
                 if(EW->word[0] & (1<<tmp8u)) {
                     SET_FLAG(F_CF);
-                } else
+                } else {
                     EW->word[0] ^= (1<<tmp8u);
                     CLEAR_FLAG(F_CF);
+                }
                 break;
             case 6:             /* BTR Ew, Ib */
                 CHECK_FLAGS(emu);
