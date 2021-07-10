@@ -182,10 +182,10 @@ void x86Int3(x86emu_t* emu)
                     perr = 1;
                 } else  if(!strcmp(s, "my_mmap64")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %lld)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int64_t*)(R_ESP+24));
-                    perr = 1;
+                    perr = 3;
                 } else  if(!strcmp(s, "my_mmap")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %d)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(int*)(R_ESP+24));
-                    perr = 1;
+                    perr = 3;
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
                 } else  if(strstr(s, "gtk_signal_connect_full")) {
@@ -310,6 +310,8 @@ void x86Int3(x86emu_t* emu)
                 if(perr==1 && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
+                    snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
+                else if(perr==3 && ((int)R_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
